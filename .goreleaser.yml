@@ -48,8 +48,7 @@ nfpm:
     - rpm
 
 dockers:
-  - image: amir20/dozzle
-    tag_templates:
-      - "{{ .Tag }}"
-      - "v{{ .Major }}.{{ .Minor }}"
-      - latest
+  - image_templates:
+      - "amir20/dozzle:{{ .Tag }}"
+      - "amir20/dozzle:v{{ .Major }}.{{ .Minor }}"
+      - amir20/dozzle:latest
