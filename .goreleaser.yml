@@ -43,6 +43,7 @@ nfpm:
   vendor: Amir Raminfar
   homepage: https://github.com/amir20/dozzle/
   maintainer: Amir Raminfar <findamir@gmail.com>
+  license: MIT
   formats:
     - deb
     - rpm
