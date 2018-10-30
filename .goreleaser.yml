@@ -1,0 +1,55 @@
+before:
+  hooks:
+    - npm run build
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+archive:
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    arm64: ARM_64-bit
+    arm: ARM_32-bit
+    linux: Linux
+    darwin: Darwin
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+nfpm:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    arm64: ARM_64-bit
+    arm: ARM_32-bit
+    linux: Linux
+    darwin: macOS
+
+  vendor: Amir Raminfar
+  homepage: https://github.com/amir20/dozzle/
+  maintainer: Amir Raminfar <findamir@gmail.com>
+  formats:
+    - deb
+    - rpm
+
+dockers:
+  - image: amir20/dozzle
+    tag_templates:
+      - "{{ .Tag }}"
+      - "v{{ .Major }}.{{ .Minor }}"
+      - latest

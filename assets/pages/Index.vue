@@ -1,8 +1,16 @@
 <template lang="html">
   <div>
     <ul>
-      <li v-for="item in containers">        
-        <router-link :to="{name: 'container', params: {id: item.Id}}">{{ item.Names[0] }} {{ item.Status}}</router-link>
+      <li v-for="item in containers" class="columns unstyled box">
+        <div class="column is-6">
+          <router-link :to="{name: 'container', params: {id: item.Id}}">{{ item.Names[0] }}</router-link>
+        </div>
+        <div class="column is-4">
+          <code>{{ item.Image }}</code>
+        </div>
+        <div class="column is-2">
+          {{ item.Status}}
+        </div>
       </li>
     </ul>
   </div>

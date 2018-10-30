@@ -19,6 +19,9 @@ var (
 	cli      *client.Client
 	addr     = flag.String("addr", "localhost:8080", "http service address")
 	upgrader = websocket.Upgrader{}
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func init() {
