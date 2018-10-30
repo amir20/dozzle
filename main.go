@@ -15,13 +15,12 @@ import (
 )
 
 var (
-	box      = packr.NewBox("./templates")
 	cli      *client.Client
 	addr     = flag.String("addr", ":8080", "http service address")
 	upgrader = websocket.Upgrader{}
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
+	version  = "dev"
+	commit   = "none"
+	date     = "unknown"
 )
 
 func init() {
