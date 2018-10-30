@@ -1,6 +1,7 @@
 before:
   hooks:
     - npm run build
+    - packr
 builds:
   - env:
       - CGO_ENABLED=0
