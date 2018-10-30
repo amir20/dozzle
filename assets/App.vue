@@ -1,10 +1,5 @@
 <template lang="html">
-  <div class="content">
-    <p>
-      <router-link to="/">Go back</router-link>      
-    </p>
-    <router-view></router-view>
-  </div>
+   <router-view></router-view>
 </template>
 
 <script>
@@ -14,4 +9,7 @@ export default {
 </script>
 
 <style lang="css">
+.section.is-fullwidth {
+  padding: 0 !important;
+}
 </style>
