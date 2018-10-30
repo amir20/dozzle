@@ -17,7 +17,7 @@ import (
 var (
 	box      = packr.NewBox("./templates")
 	cli      *client.Client
-	addr     = flag.String("addr", "localhost:8080", "http service address")
+	addr     = flag.String("addr", ":8080", "http service address")
 	upgrader = websocket.Upgrader{}
 	version = "dev"
 	commit  = "none"
