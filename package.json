@@ -1,0 +1,29 @@
+{
+  "name": "dozzle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel watch assets/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amir20/dozzle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amir20/dozzle/issues"
+  },
+  "homepage": "https://github.com/amir20/dozzle#readme",
+  "dependencies": {
+    "vue": "^2.5.17",
+    "vue-hot-reload-api": "^2.3.1"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.3.0",
+    "babel-preset-env": "^1.7.0",
+    "parcel-bundler": "^1.10.3",
+    "vue-template-compiler": "^2.5.17"
+  }
+}
