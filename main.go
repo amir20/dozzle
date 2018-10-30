@@ -34,7 +34,7 @@ func init() {
 }
 
 func main() {
-	box := packr.NewBox("./dist")
+	box := packr.NewBox("./static")
 	http.HandleFunc("/api/containers.json", listContainers)
 	http.HandleFunc("/api/logs", logs)
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

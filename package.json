@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently 'go run main.go' 'npm run watch-assets'",
-    "watch-assets": "parcel watch assets/index.html",
-    "build": "parcel build assets/index.html",
-    "clean": "rm -rf dist"
+    "watch-assets": "parcel watch assets/index.html -d static",
+    "build": "parcel build assets/index.html -d static",
+    "clean": "rm -rf static"
   },
   "repository": {
     "type": "git",
