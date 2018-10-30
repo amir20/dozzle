@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"log"
@@ -10,13 +11,14 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/gobuffalo/packr"
+	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
-
 var (
-	box = packr.NewBox("./templates")
-	cli *client.Client
+	box      = packr.NewBox("./templates")
+	cli      *client.Client
+	addr     = flag.String("addr", "localhost:8080", "http service address")
+	upgrader = websocket.Upgrader{}
 )
 
 func init() {
@@ -25,18 +27,24 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	flag.Parse()
 }
 
 func main() {
-	flag.Parse()
-	// http.HandleFunc("/echo", echo)
 	box := packr.NewBox("./dist")
-	http.Handle("/", http.FileServer(box))
-
-	http.HandleFunc("/contains.json", listContainers)
+	http.HandleFunc("/api/containers.json", listContainers)
+	http.HandleFunc("/api/logs", logs)
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		fileServer := http.FileServer(box)
+		if box.Has(req.URL.Path) {
+			fileServer.ServeHTTP(w, req)
+		} else {
+			bytes, _ := box.Find("index.html")
+			w.Write(bytes)
+		}
+	}))
 
 	log.Fatal(http.ListenAndServe(*addr, nil))
-
 }
 
 func listContainers(w http.ResponseWriter, r *http.Request) {
@@ -45,4 +53,41 @@ func listContainers(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(containers)
+}
+
+func logs(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer c.Close()
+
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "40"}
+	reader, err := cli.ContainerLogs(context.Background(), id, options)
+	defer reader.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hdr := make([]byte, 8)
+	content := make([]byte, 1024, 1024*1024)
+	for {
+		_, err := reader.Read(hdr)
+		if err != nil {
+			panic(err)
+		}
+		count := binary.BigEndian.Uint32(hdr[4:])
+		n, err := reader.Read(content[:count])
+		if err != nil {
+			log.Println(err)
+			break
+		}
+		err = c.WriteMessage(websocket.TextMessage, content[:n])
+		if err != nil {
+			log.Println(err)
+			break
+		}
+	}
 }
