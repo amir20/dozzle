@@ -1,7 +1,7 @@
 <template lang="html">
-  <ul ref="logs">
+  <pre ref="logs">
     
-  </ul>
+  </pre>
 </template>
 
 <script>
@@ -16,19 +16,13 @@ export default {
     ws.onerror = e => console.error("Connection error: " + e.data);
     ws.onmessage = e => {
       const parent = this.$refs.logs;
-      const item = document.createElement("li");
-      item.innerHTML = e.data;
+      const item = document.createTextNode(e.data);
       parent.appendChild(item);
+      parent.scrollIntoView({block: "end"});
     };
   }
 };
 </script>
 <style>
-ul {
-  padding: 0;
-  margin: 0;
-}
-ul li {
-  list-style-type: none;
-}
+
 </style>

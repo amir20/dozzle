@@ -1,5 +1,5 @@
 <template lang="html">
-  <div>
+  <div class="content">
     <p>
       <router-link to="/">Go back</router-link>      
     </p>
