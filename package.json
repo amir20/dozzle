@@ -20,6 +20,9 @@
   },
   "homepage": "https://github.com/amir20/dozzle#readme",
   "dependencies": {
+    "husky": "^1.1.2",
+    "lint-staged": "^8.0.4",
+    "prettier": "^1.14.3",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1"
   },
@@ -35,7 +38,15 @@
     "vue-hot-reload-api": "^2.3.1",
     "vue-template-compiler": "^2.5.17"
   },
-  "browserslist": [
-    ">5%"
-  ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,vue,css}": [
+      "prettier --write",
+      "git add"
+    ]
+  }
 }
