@@ -29,8 +29,9 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-runtime": "^6.26.0",
-    "parcel-bundler": "^1.10.3",
     "concurrently": "^4.0.1",
+    "date-fns": "^2.0.0-alpha.25",
+    "parcel-bundler": "^1.10.3",
     "vue-hot-reload-api": "^2.3.1",
     "vue-template-compiler": "^2.5.17"
   },
