@@ -5,7 +5,7 @@
             <ul class="is-marginless is-paddless">
                 <li v-for="item in containers" class=" unstyled box">
                     <router-link :to="{name: 'container', params: {id: item.Id}}" class="columns">
-                        <div class="column is-7">
+                        <div class="column is-6">
                             <h2 class="is-2 hide-overflow">{{ item.Names[0] }}</h2>
                             <span class="subtitle is-6 code hide-overflow">{{ item.Command}}</span>
                         </div>
