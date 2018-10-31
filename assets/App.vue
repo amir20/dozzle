@@ -3,13 +3,13 @@
 </template>
 
 <script>
-    export default {
-        name: "App"
-    };
+export default {
+  name: "App"
+};
 </script>
 
 <style lang="css">
-    .section.is-fullwidth {
-        padding: 0 !important;
-    }
+.section.is-fullwidth {
+  padding: 0 !important;
+}
 </style>
