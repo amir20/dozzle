@@ -20,9 +20,6 @@
   },
   "homepage": "https://github.com/amir20/dozzle#readme",
   "dependencies": {
-    "husky": "^1.1.2",
-    "lint-staged": "^8.0.4",
-    "prettier": "^1.14.3",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1"
   },
@@ -34,7 +31,10 @@
     "babel-runtime": "^6.26.0",
     "concurrently": "^4.0.1",
     "date-fns": "^2.0.0-alpha.25",
+    "husky": "^1.1.2",
+    "lint-staged": "^8.0.4",
     "parcel-bundler": "^1.10.3",
+    "prettier": "^1.14.3",
     "vue-hot-reload-api": "^2.3.1",
     "vue-template-compiler": "^2.5.17"
   },
