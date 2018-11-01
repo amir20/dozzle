@@ -9,6 +9,7 @@ services:
 before_install:
   - nvm install --lts
   - npm i
+  - go get -u github.com/gobuffalo/packr/packr
 
 after_success:
   # docker login is required if you want to push docker images.
