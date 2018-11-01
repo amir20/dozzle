@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -36,6 +37,7 @@ func main() {
 	box := packr.NewBox("./static")
 	http.HandleFunc("/api/containers.json", listContainers)
 	http.HandleFunc("/api/logs", logs)
+	http.HandleFunc("/version", versionHandler)
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		fileServer := http.FileServer(box)
 		if box.Has(req.URL.Path) {
@@ -47,6 +49,12 @@ func main() {
 	}))
 
 	log.Fatal(http.ListenAndServe(*addr, nil))
+}
+
+func versionHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, version)
+	fmt.Fprintln(w, commit)
+	fmt.Fprintln(w, date)
 }
 
 func listContainers(w http.ResponseWriter, r *http.Request) {
