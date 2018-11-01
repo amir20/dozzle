@@ -48,5 +48,8 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "browserslist": [
+    ">5%"
+  ]
 }
