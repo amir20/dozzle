@@ -8,6 +8,7 @@ services:
 
 before_install:
   - nvm install --lts
+  - npm i
 
 after_success:
   # docker login is required if you want to push docker images.
