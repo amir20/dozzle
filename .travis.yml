@@ -8,7 +8,8 @@ services:
 
 before_install:
   - nvm install --lts
-  - npm i
+  - npm i -g npm
+  - npm ci
   - go get -u github.com/gobuffalo/packr/packr
 
 after_success:
