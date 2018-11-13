@@ -28,7 +28,7 @@ dozzle doesn't support authentication out of the box. You can control the device
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest -addr localhost:1224
 
-will bind to `localhost` on port `1224`. You can then use use reverse proxy to control who can see the dozzle.
+will bind to `localhost` on port `1224`. You can then use use reverse proxy to control who can see dozzle.
 
 #### Environment variable, DOCKER_API_VERSION
 
@@ -38,7 +38,7 @@ If you see
 
 Then you need to modify `DOCKER_API_VERSION` to let dozzle know which version of the API is supported. By default, `DOCKER_API_VERSION=1.38` and you can change it to by passing `-e` flag. For example, this would change the `DOCKER_API_VERSION` to `1.20`
 
-$ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -e DOCKER_API_VERSION=1.20 -p 8888:8080 amir20/dozzle:latest
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -e DOCKER_API_VERSION=1.20 -p 8888:8080 amir20/dozzle:latest
 
 If you are not sure what to set `DOCKER_API_VERSION` then run `docker version` which will show supported API version.
 
