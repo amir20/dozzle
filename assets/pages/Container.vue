@@ -39,8 +39,11 @@ export default {
     ws.onerror = e => console.error("Connection error: " + e.data);
     ws.onmessage = e => {
       const message = parseMessage(e.data);
+      this.messages.push(message);
 
-      this.$nextTick(() => this.messages.push(message));
+      this.$nextTick(() =>
+        document.querySelector("li.event:last-child").scrollIntoView()
+      );
     };
   },
   beforeDestroy() {
