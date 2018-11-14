@@ -1,26 +1,31 @@
 <template lang="html">
-<div class="container">
+  <div class="container">
     <div class="content">
-        <section class="section">
-            <ul class="is-marginless is-paddless">
-                <li v-for="item in containers" class=" unstyled box">
-                    <router-link :to="{name: 'container', params: {id: item.Id}}" class="columns">
-                        <div class="column is-6">
-                            <h2 class="is-2 hide-overflow">{{ item.Names[0] }}</h2>
-                            <span class="subtitle is-6 code hide-overflow">{{ item.Command}}</span>
-                        </div>
-                        <div class="column is-4">
-                            <span class="code hide-overflow">{{ item.Image }}</span>
-                        </div>
-                        <div class="column is-narrow">
-                            <span class="subtitle is-7">{{ item.Status}}</span>
-                        </div>
-                    </router-link>
-                </li>
-            </ul>
-        </section>
+      <section class="section">
+        <ul class="is-marginless is-paddless">
+          <li v-for="item in containers" class="unstyled box">
+            <router-link
+              :to="{ name: 'container', params: { id: item.Id } }"
+              class="columns"
+            >
+              <div class="column is-6">
+                <h2 class="is-2 hide-overflow">{{ item.Names[0] }}</h2>
+                <span class="subtitle is-6 code hide-overflow">{{
+                  item.Command
+                }}</span>
+              </div>
+              <div class="column is-4">
+                <span class="code hide-overflow">{{ item.Image }}</span>
+              </div>
+              <div class="column is-narrow">
+                <span class="subtitle is-7">{{ item.Status }}</span>
+              </div>
+            </router-link>
+          </li>
+        </ul>
+      </section>
     </div>
-</div>
+  </div>
 </template>
 
 <script>
