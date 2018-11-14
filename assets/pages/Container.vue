@@ -1,5 +1,5 @@
 <template lang="html">
-    <ul ref="events" class="events"></ul>
+  <ul ref="events" class="events"></ul>
 </template>
 
 <script>
@@ -45,6 +45,10 @@ export default {
 
       this.$nextTick(() => item.scrollIntoView());
     };
+  },
+  beforeDestroy() {
+    ws.close();
+    ws = null;
   }
 };
 </script>
