@@ -74,7 +74,7 @@ func logs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "500", Timestamps: true}
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
 	reader, err := cli.ContainerLogs(context.Background(), id, options)
 	defer reader.Close()
 	if err != nil {

@@ -1,6 +1,6 @@
 <template lang="html">
   <ul ref="events" class="events">
-    <li v-for="item in messages" class="event">
+    <li v-for="item in messages" class="event" :key="item.key">
       <span class="date">{{ item.dateRelative }}</span>
       <span class="text">{{ item.message }}</span>
     </li>
@@ -15,9 +15,9 @@ const parseMessage = data => {
   const date = new Date(data.substring(0, 30));
   const dateRelative = formatRelative(date, new Date());
   const message = data.substring(30);
-  const id = nextId++;
+  const key = nextId++;
   return {
-    id,
+    key,
     date,
     dateRelative,
     message
@@ -32,7 +32,10 @@ export default {
       messages: []
     };
   },
-  mounted() {
+  beforeCreate() {
+    document.documentElement.className = "dark";
+  },
+  created() {
     ws = new WebSocket(`ws://${window.location.host}/api/logs?id=${this.id}`);
     ws.onopen = e => console.log("Connection opened.");
     ws.onclose = e => console.log("Connection closed.");
@@ -49,6 +52,7 @@ export default {
   beforeDestroy() {
     ws.close();
     ws = null;
+    document.documentElement.className = "";
   }
 };
 </script>
@@ -70,5 +74,10 @@ export default {
 .date {
   background-color: #262626;
   color: #258ccd;
+}
+
+html.dark {
+  background-color: #111;
+  color: #ddd;
 }
 </style>
