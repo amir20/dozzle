@@ -4,15 +4,10 @@
       <section class="section">
         <ul class="is-marginless is-paddless">
           <li v-for="item in containers" class="unstyled box">
-            <router-link
-              :to="{ name: 'container', params: { id: item.Id } }"
-              class="columns"
-            >
+            <router-link :to="{ name: 'container', params: { id: item.Id } }" class="columns">
               <div class="column is-6">
                 <h2 class="is-2 hide-overflow">{{ item.Names[0] }}</h2>
-                <span class="subtitle is-6 code hide-overflow">{{
-                  item.Command
-                }}</span>
+                <span class="subtitle is-6 code hide-overflow"> {{ item.Command }} </span>
               </div>
               <div class="column is-4">
                 <span class="code hide-overflow">{{ item.Image }}</span>
@@ -48,6 +43,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
 }
+
 .code {
   background-color: #f5f5f5;
   color: #ff3860;

@@ -1,14 +1,14 @@
 <template lang="html">
   <ul ref="events" class="events">
     <li v-for="item in messages" class="event" :key="item.key">
-      <span class="date">{{ item.dateRelative }}</span>
-      <span class="text">{{ item.message }}</span>
+      <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
     </li>
   </ul>
 </template>
 
 <script>
 import { formatRelative } from "date-fns";
+
 let ws = null;
 let nextId = 0;
 const parseMessage = data => {
@@ -44,9 +44,7 @@ export default {
       const message = parseMessage(e.data);
       this.messages.push(message);
 
-      this.$nextTick(() =>
-        document.querySelector("li.event:last-child").scrollIntoView()
-      );
+      this.$nextTick(() => document.querySelector("li.event:last-child").scrollIntoView());
     };
   },
   beforeDestroy() {

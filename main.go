@@ -86,7 +86,7 @@ func logs(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, err := reader.Read(hdr)
 		if err != nil {
-			panic(err)
+            log.Panicln(err)
 		}
 		count := binary.BigEndian.Uint32(hdr[4:])
 		n, err := reader.Read(content[:count])
