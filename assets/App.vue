@@ -1,5 +1,5 @@
 <template lang="html">
-    <router-view></router-view>
+  <router-view></router-view>
 </template>
 
 <script>
@@ -8,8 +8,12 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style>
 .section.is-fullwidth {
   padding: 0 !important;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
 }
 </style>

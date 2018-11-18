@@ -1,13 +1,17 @@
 <template lang="html">
-  <ul ref="events" class="events">
-    <li v-for="item in messages" class="event" :key="item.key">
-      <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
-    </li>
-  </ul>
+  <div class="parent">
+    <ul ref="events" class="events">
+      <li v-for="item in messages" class="event" :key="item.key">
+        <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
+      </li>
+    </ul>
+    <scrollbar-notification :messages="messages"></scrollbar-notification>
+  </div>
 </template>
 
 <script>
 import { formatRelative } from "date-fns";
+import ScrollbarNotification from "../components/ScrollbarNotification";
 
 let ws = null;
 let nextId = 0;
@@ -27,6 +31,9 @@ const parseMessage = data => {
 export default {
   props: ["id"],
   name: "Container",
+  components: {
+    ScrollbarNotification
+  },
   data() {
     return {
       messages: []
@@ -43,8 +50,6 @@ export default {
     ws.onmessage = e => {
       const message = parseMessage(e.data);
       this.messages.push(message);
-
-      this.$nextTick(() => document.querySelector("li.event:last-child").scrollIntoView());
     };
   },
   beforeDestroy() {
@@ -59,11 +64,11 @@ export default {
   color: #ddd;
   background-color: #111;
   padding: 10px;
+  font-family: "Roboto Mono", monaco, monospace;
 }
 
 .event {
-  font-family: monaco, monospace;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 16px;
   padding: 0 15px 0 30px;
   word-wrap: break-word;
