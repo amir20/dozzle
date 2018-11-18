@@ -79,7 +79,7 @@ export default {
 }
 
 .event {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 16px;
   word-wrap: break-word;
 }

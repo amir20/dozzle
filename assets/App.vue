@@ -1,6 +1,7 @@
 <template lang="html">
   <div class="columns">
     <aside class="column menu is-2 section">
+      <h1 class="title has-text-warning">Dozzle</h1>
       <p class="menu-label">Containers</p>
       <ul class="menu-list">
         <li v-for="item in containers">
