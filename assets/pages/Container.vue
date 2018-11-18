@@ -81,7 +81,6 @@ export default {
 .event {
   font-size: 14px;
   line-height: 16px;
-  padding: 0 15px 0 30px;
   word-wrap: break-word;
 }
 
