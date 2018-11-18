@@ -5,7 +5,11 @@
       <p class="menu-label">Containers</p>
       <ul class="menu-list">
         <li v-for="item in containers">
-          <router-link :to="{ name: 'container', params: { id: item.Id } }" active-class="is-active">
+          <router-link
+            :to="{ name: 'container', params: { id: item.Id } }"
+            active-class="is-active"
+            class="hide-overflow"
+          >
             {{ item.Names[0] }}
           </router-link>
         </li>
@@ -36,5 +40,11 @@ export default {
 
 aside {
   position: fixed;
+}
+
+.hide-overflow {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 </style>

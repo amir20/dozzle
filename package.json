@@ -20,6 +20,7 @@
  },
  "homepage": "https://github.com/amir20/dozzle#readme",
  "dependencies": {
+  "buefy": "^0.7.0",
   "bulma": "^0.7.2",
   "date-fns": "^2.0.0-alpha.25",
   "vue": "^2.5.17",

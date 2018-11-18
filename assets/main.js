@@ -1,9 +1,11 @@
 import Vue from "vue";
+import Buefy from "buefy";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
 
 Vue.use(VueRouter);
+Vue.use(Buefy);
 
 const routes = [
   {
