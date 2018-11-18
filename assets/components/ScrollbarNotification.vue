@@ -30,11 +30,13 @@ export default {
   methods: {
     scrollToBottom() {
       this.visible = false;
-      window.scrollTo(0, document.body.scrollHeight);
+      window.scrollTo(0, document.documentElement.scrollHeight || document.body.scrollHeight);
     },
     onScroll() {
-      const scrollBottom = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const diff = Math.abs(document.documentElement.scrollTop - scrollBottom);
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollBottom =
+        (document.documentElement.scrollHeight || document.body.scrollHeight) - document.documentElement.clientHeight;
+      const diff = Math.abs(scrollTop - scrollBottom);
       this.visible = diff > 50;
       if (!this.visible) {
         this.hasNew = false;
