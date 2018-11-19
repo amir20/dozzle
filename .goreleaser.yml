@@ -1,5 +1,6 @@
 before:
   hooks:
+    - rm -rf static
     - npm run build
     - packr
 builds:
