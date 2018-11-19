@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="parent">
+  <div class="is-fullheight">
     <ul ref="events" class="events">
       <li v-for="item in messages" class="event" :key="item.key">
         <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
@@ -39,38 +39,48 @@ export default {
       messages: []
     };
   },
-  beforeCreate() {
-    document.documentElement.className = "dark";
-  },
   created() {
-    ws = new WebSocket(`ws://${window.location.host}/api/logs?id=${this.id}`);
-    ws.onopen = e => console.log("Connection opened.");
-    ws.onclose = e => console.log("Connection closed.");
-    ws.onerror = e => console.error("Connection error: " + e.data);
-    ws.onmessage = e => {
-      const message = parseMessage(e.data);
-      this.messages.push(message);
-    };
+    this.loadLogs(this.id);
   },
   beforeDestroy() {
     ws.close();
     ws = null;
-    document.documentElement.className = "";
+  },
+  watch: {
+    id(newValue, oldValue) {
+      if (oldValue !== newValue) {
+        this.loadLogs(newValue);
+      }
+    }
+  },
+  methods: {
+    loadLogs(id) {
+      if (ws) {
+        ws.close();
+        ws = null;
+        this.messages = [];
+      }
+      ws = new WebSocket(`ws://${window.location.host}/api/logs?id=${this.id}`);
+      ws.onopen = e => console.log("Connection opened.");
+      ws.onclose = e => console.log("Connection closed.");
+      ws.onerror = e => console.error("Connection error: " + e.data);
+      ws.onmessage = e => {
+        const message = parseMessage(e.data);
+        this.messages.push(message);
+      };
+    }
   }
 };
 </script>
-<style>
+<style scoped>
 .events {
-  color: #ddd;
-  background-color: #111;
   padding: 10px;
   font-family: "Roboto Mono", monaco, monospace;
 }
 
 .event {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 16px;
-  padding: 0 15px 0 30px;
   word-wrap: break-word;
 }
 
@@ -79,8 +89,7 @@ export default {
   color: #258ccd;
 }
 
-html.dark {
-  background-color: #111;
-  color: #ddd;
+.is-fullheight {
+  min-height: 100vh;
 }
 </style>

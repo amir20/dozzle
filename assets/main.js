@@ -1,13 +1,17 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
-import Index from "./pages/Index.vue";
 import Container from "./pages/Container.vue";
+import Index from "./pages/Index.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
-  { path: "/", component: Index },
+  {
+    path: "/",
+    component: Index,
+    name: "default"
+  },
   {
     path: "/container/:id",
     component: Container,

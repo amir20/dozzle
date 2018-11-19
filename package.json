@@ -1,54 +1,57 @@
 {
-  "name": "dozzle",
-  "version": "1.0.16",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "concurrently 'go run main.go' 'npm run watch-assets'",
-    "watch-assets": "parcel watch assets/index.html -d static",
-    "build": "parcel build assets/index.html -d static",
-    "clean": "rm -rf static"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amir20/dozzle.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amir20/dozzle/issues"
-  },
-  "homepage": "https://github.com/amir20/dozzle#readme",
-  "dependencies": {
-    "vue": "^2.5.17",
-    "vue-router": "^3.0.1"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.1.6",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@vue/component-compiler-utils": "^2.3.0",
-    "concurrently": "^4.0.1",
-    "date-fns": "^2.0.0-alpha.25",
-    "husky": "^1.1.4",
-    "lint-staged": "^8.0.4",
-    "parcel-bundler": "^1.10.3",
-    "prettier": "^1.15.2",
-    "vue-hot-reload-api": "^2.3.1",
-    "vue-template-compiler": "^2.5.17"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,vue,css}": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "browserslist": [
-    ">5%",
-    "not ie <= 8"
+ "name": "dozzle",
+ "version": "1.0.16",
+ "description": "",
+ "main": "index.js",
+ "scripts": {
+  "start": "concurrently 'go run main.go' 'npm run watch-assets'",
+  "watch-assets": "parcel watch assets/index.html -d static",
+  "build": "parcel build assets/index.html -d static",
+  "clean": "rm -rf static"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/amir20/dozzle.git"
+ },
+ "author": "",
+ "license": "ISC",
+ "bugs": {
+  "url": "https://github.com/amir20/dozzle/issues"
+ },
+ "homepage": "https://github.com/amir20/dozzle#readme",
+ "dependencies": {
+  "bulma": "^0.7.2",
+  "bulma-tooltip": "^2.0.2",
+  "date-fns": "^2.0.0-alpha.25",
+  "vue": "^2.5.17",
+  "vue-router": "^3.0.1"
+ },
+ "devDependencies": {
+  "@babel/core": "^7.1.6",
+  "@babel/plugin-transform-runtime": "^7.1.0",
+  "@vue/component-compiler-utils": "^2.3.0",
+  "concurrently": "^4.1.0",
+  "husky": "^1.1.4",
+  "lint-staged": "^8.0.5",
+  "parcel-bundler": "^1.10.3",
+  "prettier": "^1.15.2",
+  "sass": "^1.15.1",
+  "vue-hot-reload-api": "^2.3.1",
+  "vue-template-compiler": "^2.5.17"
+ },
+ "husky": {
+  "hooks": {
+   "pre-commit": "lint-staged"
+  }
+ },
+ "lint-staged": {
+  "*.{js,vue,css}": [
+   "prettier --write",
+   "git add"
   ]
+ },
+ "browserslist": [
+  ">5%",
+  "not ie <= 8"
+ ]
 }
