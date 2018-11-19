@@ -10,7 +10,7 @@ But if you don't want to pay for those service, then you are in luck! Dozzle wil
 
 ## Getting dozzle
 
-Dozzle is a very small Docker container (13.3MB virtual). Pull the latest release from the index:
+Dozzle is a very small Docker container (8.6MB virtual). Pull the latest release from the index:
 
     $ docker pull amir20/dozzle:latest
 
