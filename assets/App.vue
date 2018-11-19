@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="columns">
+  <div class="columns is-marginless">
     <aside class="column menu is-2 section">
       <h1 class="title has-text-warning">Dozzle</h1>
       <p class="menu-label">Containers</p>
