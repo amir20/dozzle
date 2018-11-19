@@ -72,7 +72,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .events {
   padding: 10px;
   font-family: "Roboto Mono", monaco, monospace;

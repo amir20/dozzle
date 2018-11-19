@@ -8,9 +8,10 @@
           <router-link
             :to="{ name: 'container', params: { id: item.Id } }"
             active-class="is-active"
-            class="hide-overflow"
+            class="tooltip is-tooltip-right is-tooltip-info"
+            :data-tooltip="item.Names[0]"
           >
-            {{ item.Names[0] }}
+            <div class="hide-overflow">{{ item.Names[0] }}</div>
           </router-link>
         </li>
       </ul>
@@ -33,13 +34,10 @@ export default {
 };
 </script>
 
-<style>
-.section.is-fullwidth {
-  padding: 0 !important;
-}
-
+<style scoped>
 aside {
   position: fixed;
+  padding-right: 0;
 }
 
 .hide-overflow {
