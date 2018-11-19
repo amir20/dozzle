@@ -7,7 +7,8 @@
   "start": "concurrently 'go run main.go' 'npm run watch-assets'",
   "watch-assets": "parcel watch assets/index.html -d static",
   "build": "parcel build assets/index.html -d static",
-  "clean": "rm -rf static"
+  "clean": "rm -rf static",
+  "release": "goreleaser --rm-dist"
  },
  "repository": {
   "type": "git",
