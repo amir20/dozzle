@@ -20,8 +20,10 @@ const routes = [
   }
 ];
 
+const base = window.location.pathname.split("/container")[0] + "/";
 const router = new VueRouter({
   mode: "history",
+  base: BASE_PATH + "/",
   routes
 });
 

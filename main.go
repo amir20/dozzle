@@ -4,20 +4,24 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
-	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/gobuffalo/packr"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	flag "github.com/spf13/pflag"
 )
 
 var (
 	cli      *client.Client
 	addr     = flag.String("addr", ":8080", "http service address")
+	base     = flag.String("base", "/", "base address of the application to mount")
 	upgrader = websocket.Upgrader{}
 	version  = "dev"
 	commit   = "none"
@@ -34,21 +38,23 @@ func init() {
 }
 
 func main() {
+	r := mux.NewRouter()
+	s := r.PathPrefix(*base).Subrouter()
 	box := packr.NewBox("./static")
-	http.HandleFunc("/api/containers.json", listContainers)
-	http.HandleFunc("/api/logs", logs)
-	http.HandleFunc("/version", versionHandler)
-	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+
+	s.HandleFunc("/api/containers.json", listContainers)
+	s.HandleFunc("/api/logs", logs)
+	s.HandleFunc("/version", versionHandler)
+	s.PathPrefix("/").Handler(http.StripPrefix(*base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		fileServer := http.FileServer(box)
-		if box.Has(req.URL.Path) {
+		if box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
 			fileServer.ServeHTTP(w, req)
 		} else {
-			bytes, _ := box.Find("index.html")
-			w.Write(bytes)
+			handleIndex(box, w)
 		}
-	}))
+	})))
 
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(*addr, r))
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +69,25 @@ func listContainers(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	json.NewEncoder(w).Encode(containers)
+}
+
+func handleIndex(box packr.Box, w http.ResponseWriter) {
+	text, _ := box.FindString("index.html")
+	text = strings.Replace(text, "__BASE__", "{{ .Base }}", -1)
+	tmpl, err := template.New("index.html").Parse(text)
+	if err != nil {
+		panic(err)
+	}
+
+	path := ""
+	if *base != "/" {
+		path = *base
+	}
+	data := struct{ Base string }{Base: path}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func logs(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +111,7 @@ func logs(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, err := reader.Read(hdr)
 		if err != nil {
-            log.Panicln(err)
+			log.Panicln(err)
 		}
 		count := binary.BigEndian.Uint32(hdr[4:])
 		n, err := reader.Read(content[:count])
