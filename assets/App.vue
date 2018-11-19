@@ -29,7 +29,7 @@ export default {
     };
   },
   async created() {
-    this.containers = await (await fetch(`/api/containers.json`)).json();
+    this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
   }
 };
 </script>

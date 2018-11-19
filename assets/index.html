@@ -5,12 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Dozzle</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono|Gafata" rel="stylesheet">
-        <link href="./styles.scss" rel="stylesheet">
+        <link href="styles.scss" rel="stylesheet">
+        <script>
+          window["BASE_PATH"] = "{{ .Base }}";
+        </script>
         <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     </head>
 
     <body class="is-dark">
         <div id="app"></div>
-        <script src="/main.js"></script>
+        <script src="main.js"></script>
     </body>
 </html>

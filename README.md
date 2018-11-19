@@ -24,11 +24,21 @@ dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
 
 #### Security
 
-dozzle doesn't support authentication out of the box. You can control the device dozzle binds to by passing `-addr` parameter. For example,
+dozzle doesn't support authentication out of the box. You can control the device dozzle binds to by passing `--addr` parameter. For example,
 
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest -addr localhost:1224
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --addr localhost:1224
 
 will bind to `localhost` on port `1224`. You can then use use reverse proxy to control who can see dozzle.
+
+#### Changing base URL
+
+dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
+then you can override by using `--base /foobar`.
+
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --base /foobar
+
+dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
+
 
 #### Environment variable, DOCKER_API_VERSION
 

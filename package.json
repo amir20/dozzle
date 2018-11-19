@@ -5,8 +5,8 @@
  "main": "index.js",
  "scripts": {
   "start": "concurrently 'go run main.go' 'npm run watch-assets'",
-  "watch-assets": "parcel watch assets/index.html -d static",
-  "build": "parcel build assets/index.html -d static",
+  "watch-assets": "parcel watch --public-url '__BASE__' assets/index.html -d static",
+  "build": "parcel build --public-url '__BASE__' assets/index.html -d static",
   "clean": "rm -rf static",
   "release": "goreleaser --rm-dist"
  },
