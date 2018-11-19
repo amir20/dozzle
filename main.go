@@ -39,6 +39,13 @@ func init() {
 
 func main() {
 	r := mux.NewRouter()
+
+	if *base != "/" {
+		r.HandleFunc(*base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, *base+"/", http.StatusMovedPermanently)
+		}))
+	}
+
 	s := r.PathPrefix(*base).Subrouter()
 	box := packr.NewBox("./static")
 
