@@ -20,8 +20,9 @@ import (
 
 var (
 	cli      *client.Client
-	addr     = flag.String("addr", ":8080", "http service address")
-	base     = flag.String("base", "/", "base address of the application to mount")
+	addr     = ""
+	ssl      = false
+	base     = "/"
 	upgrader = websocket.Upgrader{}
 	version  = "dev"
 	commit   = "none"
@@ -29,6 +30,10 @@ var (
 )
 
 func init() {
+	flag.StringVar(&addr, "addr", ":8080", "http service address")
+	flag.StringVar(&base, "base", "/", "base address of the application to mount")
+	flag.BoolVarP(&ssl, "ssl", "s", false, "Uses websockets over ssl if enabled")
+
 	var err error
 	cli, err = client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
@@ -40,19 +45,19 @@ func init() {
 func main() {
 	r := mux.NewRouter()
 
-	if *base != "/" {
-		r.HandleFunc(*base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			http.Redirect(w, req, *base+"/", http.StatusMovedPermanently)
+	if base != "/" {
+		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		}))
 	}
 
-	s := r.PathPrefix(*base).Subrouter()
+	s := r.PathPrefix(base).Subrouter()
 	box := packr.NewBox("./static")
 
 	s.HandleFunc("/api/containers.json", listContainers)
 	s.HandleFunc("/api/logs", logs)
 	s.HandleFunc("/version", versionHandler)
-	s.PathPrefix("/").Handler(http.StripPrefix(*base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		fileServer := http.FileServer(box)
 		if box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
 			fileServer.ServeHTTP(w, req)
@@ -61,7 +66,7 @@ func main() {
 		}
 	})))
 
-	log.Fatal(http.ListenAndServe(*addr, r))
+	log.Fatal(http.ListenAndServe(addr, r))
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,10 +92,13 @@ func handleIndex(box packr.Box, w http.ResponseWriter) {
 	}
 
 	path := ""
-	if *base != "/" {
-		path = *base
+	if base != "/" {
+		path = base
 	}
-	data := struct{ Base string }{Base: path}
+	data := struct {
+		Base string
+		SSL  bool
+	}{path, ssl}
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		panic(err)
