@@ -60,7 +60,8 @@ export default {
         ws = null;
         this.messages = [];
       }
-      ws = new WebSocket(`ws://${window.location.host}${BASE_PATH}/api/logs?id=${this.id}`);
+      const protocol = SSL_ENABLED ? "wws" : "ws";
+      ws = new WebSocket(`${protocol}://${window.location.host}${BASE_PATH}/api/logs?id=${this.id}`);
       ws.onopen = e => console.log("Connection opened.");
       ws.onclose = e => console.log("Connection closed.");
       ws.onerror = e => console.error("Connection error: " + e.data);
