@@ -8,7 +8,6 @@ import (
     "html/template"
     "log"
     "net/http"
-    "os"
     "strings"
 
     "github.com/docker/docker/api/types"
@@ -96,12 +95,11 @@ func handleIndex(box packr.Box, w http.ResponseWriter) {
     if base != "/" {
         path = base
     }
-    hostname, _ := os.Hostname()
+
     data := struct {
-        Base     string
-        SSL      bool
-        Hostname string
-    }{path, ssl, hostname}
+        Base string
+        SSL  bool
+    }{path, ssl}
     err = tmpl.Execute(w, data)
     if err != nil {
         panic(err)
