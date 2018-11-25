@@ -26,15 +26,15 @@
   "bulma-tooltip": "^2.0.2",
   "date-fns": "^2.0.0-alpha.25",
   "vue": "^2.5.17",
-  "vue-router": "^3.0.1"
+  "vue-router": "^3.0.2"
  },
  "devDependencies": {
   "@babel/core": "^7.1.6",
   "@babel/plugin-transform-runtime": "^7.1.0",
   "@vue/component-compiler-utils": "^2.3.0",
   "concurrently": "^4.1.0",
-  "husky": "^1.1.4",
-  "lint-staged": "^8.0.5",
+  "husky": "^1.2.0",
+  "lint-staged": "^8.1.0",
   "parcel-bundler": "^1.10.3",
   "prettier": "^1.15.2",
   "sass": "^1.15.1",
