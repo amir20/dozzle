@@ -43,12 +43,14 @@ export default {
   async created() {
     await this.fetchContainerList();
     this.title = `${this.containers.length} containers - Dozzle`;
-    es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${id}`);
-    es.addEventListener("containers-changed", e => this.fetchContainerList());
+    es = new EventSource(`${BASE_PATH}/api/events/stream`);
+    es.addEventListener("containers-changed", e => setTimeout(this.fetchContainerList, 1000), false);
   },
   beforeDestroy() {
-    es.close();
-    es = null;
+    if (es) {
+      es.close();
+      es = null;
+    }
   },
   methods: {
     async fetchContainerList() {

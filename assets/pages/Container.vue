@@ -45,8 +45,10 @@ export default {
     this.loadLogs(this.id);
   },
   beforeDestroy() {
-    es.close();
-    es = null;
+    if (es) {
+      es.close();
+      es = null;
+    }
   },
   watch: {
     id(newValue, oldValue) {

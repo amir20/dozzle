@@ -113,19 +113,21 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    w.Header().Set("Content-Type", "text/event-stream")
-    w.Header().Set("Cache-Control", "no-cache")
-    w.Header().Set("Connection", "keep-alive")
-    w.Header().Set("Transfer-Encoding", "chunked")
-
     options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
     reader, err := cli.ContainerLogs(ctx, id, options)
     if err != nil {
-        log.Fatal(err)
+        log.Println(err)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
     defer reader.Close()
+
+    w.Header().Set("Content-Type", "text/event-stream")
+    w.Header().Set("Cache-Control", "no-cache")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("Transfer-Encoding", "chunked")
 
     hdr := make([]byte, 8)
     content := make([]byte, 1024, 1024*1024)
@@ -167,9 +169,16 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 
     for message := range messages {
         switch message.Action {
+        case "connect":
+            fallthrough
+        case "disconnect":
+            fallthrough
         case "create":
+            fallthrough
         case "destroy":
-            _, err := fmt.Fprintf(w, "event: containers-changed\n\n")
+            _, err := fmt.Fprintf(w, "event: containers-changed\n")
+            _, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
+
             if err != nil {
                 log.Println(err)
                 break
