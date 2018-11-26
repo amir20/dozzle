@@ -35,7 +35,7 @@ will bind to `localhost` on port `1224`. You can then use a reverse proxy to con
 dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
 then you can override by using `--base /foobar`.
 
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest --base /foobar
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest --base /foobar
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
