@@ -14,12 +14,12 @@
       <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
         <li v-for="item in containers">
           <router-link
-            :to="{ name: 'container', params: { id: item.Id, name: item.Names[0] } }"
+            :to="{ name: 'container', params: { id: item.id, name: item.name } }"
             active-class="is-active"
             class="tooltip is-tooltip-right is-tooltip-info"
-            :data-tooltip="item.Names[0]"
+            :data-tooltip="item.name"
           >
-            <div class="hide-overflow">{{ item.Names[0] }}</div>
+            <div class="hide-overflow">{{ item.name }}</div>
           </router-link>
         </li>
       </ul>

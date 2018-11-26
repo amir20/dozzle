@@ -5,8 +5,7 @@ import (
     "encoding/binary"
     "encoding/json"
     "fmt"
-    "github.com/docker/docker/api/types"
-    "github.com/docker/docker/client"
+    "github.com/amir20/dozzle/docker"
     "github.com/gobuffalo/packr"
     "github.com/gorilla/mux"
     flag "github.com/spf13/pflag"
@@ -17,23 +16,19 @@ import (
 )
 
 var (
-    cli     *client.Client
-    addr    = ""
-    base    = "/"
-    version = "dev"
-    commit  = "none"
-    date    = "unknown"
+    dockerClient docker.DockerClient
+    addr         = ""
+    base         = "/"
+    version      = "dev"
+    commit       = "none"
+    date         = "unknown"
 )
 
 func init() {
     flag.StringVar(&addr, "addr", ":8080", "http service address")
     flag.StringVar(&base, "base", "/", "base address of the application to mount")
 
-    var err error
-    cli, err = client.NewClientWithOpts(client.FromEnv)
-    if err != nil {
-        log.Fatal(err)
-    }
+    dockerClient = docker.NewDockerClient()
     flag.Parse()
 }
 
@@ -73,11 +68,16 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listContainers(w http.ResponseWriter, r *http.Request) {
-    containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+    containers, err := dockerClient.ListContainers()
     if err != nil {
-        log.Fatal(err)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
-    json.NewEncoder(w).Encode(containers)
+    err = json.NewEncoder(w).Encode(containers)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 }
 
 func handleIndex(box packr.Box, w http.ResponseWriter) {
@@ -113,10 +113,9 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    reader, err := cli.ContainerLogs(ctx, id, options)
+    reader, err := dockerClient.ContainerLogs(ctx, id)
     if err != nil {
         log.Println(err)
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -165,7 +164,7 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    messages, _ := cli.Events(ctx, types.EventsOptions{})
+    messages, _ := dockerClient.Events(ctx)
 
     for message := range messages {
         switch message.Action {
