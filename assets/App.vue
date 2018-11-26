@@ -14,7 +14,7 @@
       <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
         <li v-for="item in containers">
           <router-link
-            :to="{ name: 'container', params: { id: item.Id } }"
+            :to="{ name: 'container', params: { id: item.Id, name: item.Names[0] } }"
             active-class="is-active"
             class="tooltip is-tooltip-right is-tooltip-info"
             :data-tooltip="item.Names[0]"
@@ -25,6 +25,7 @@
       </ul>
     </aside>
     <div class="column is-offset-2"><router-view></router-view></div>
+    <vue-headful :title="title" />
   </div>
 </template>
 
@@ -33,12 +34,14 @@ export default {
   name: "App",
   data() {
     return {
+      title: "Dozzle",
       containers: [],
       showNav: false
     };
   },
   async created() {
     this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+    this.title = `${this.containers.length} containers - Dozzle`;
   }
 };
 </script>

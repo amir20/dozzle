@@ -26,6 +26,7 @@
   "bulma-tooltip": "^2.0.2",
   "date-fns": "^2.0.0-alpha.25",
   "vue": "^2.5.17",
+  "vue-headful": "^2.0.1",
   "vue-router": "^3.0.2"
  },
  "devDependencies": {

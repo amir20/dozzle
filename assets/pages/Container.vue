@@ -6,6 +6,7 @@
       </li>
     </ul>
     <scrollbar-notification :messages="messages"></scrollbar-notification>
+    <vue-headful :title="title" />
   </div>
 </template>
 
@@ -29,14 +30,15 @@ const parseMessage = data => {
 };
 
 export default {
-  props: ["id"],
+  props: ["id", "name"],
   name: "Container",
   components: {
     ScrollbarNotification
   },
   data() {
     return {
-      messages: []
+      messages: [],
+      title: ""
     };
   },
   created() {
@@ -61,7 +63,7 @@ export default {
         this.messages = [];
       }
       const protocol = SSL_ENABLED ? "wss" : "ws";
-      ws = new WebSocket(`${protocol}://${window.location.host}${BASE_PATH}/api/logs?id=${this.id}`);
+      ws = new WebSocket(`${protocol}://${window.location.host}${BASE_PATH}/api/logs?id=${id}`);
       ws.onopen = e => console.log("Connection opened.");
       ws.onclose = e => console.log("Connection closed.");
       ws.onerror = e => console.error("Connection error: " + e.data);
@@ -69,6 +71,7 @@ export default {
         const message = parseMessage(e.data);
         this.messages.push(message);
       };
+      this.title = `${this.name} - Dozzle`;
     }
   }
 };

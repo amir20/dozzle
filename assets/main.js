@@ -1,10 +1,12 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import vueHeadful from "vue-headful";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
 import Index from "./pages/Index.vue";
 
 Vue.use(VueRouter);
+Vue.component("vue-headful", vueHeadful);
 
 const routes = [
   {
