@@ -14,7 +14,7 @@
 import { formatRelative } from "date-fns";
 import ScrollbarNotification from "../components/ScrollbarNotification";
 
-let ws = null;
+let es = null;
 let nextId = 0;
 const parseMessage = data => {
   const date = new Date(data.substring(0, 30));
@@ -45,8 +45,8 @@ export default {
     this.loadLogs(this.id);
   },
   beforeDestroy() {
-    ws.close();
-    ws = null;
+    es.close();
+    es = null;
   },
   watch: {
     id(newValue, oldValue) {
@@ -57,20 +57,13 @@ export default {
   },
   methods: {
     loadLogs(id) {
-      if (ws) {
-        ws.close();
-        ws = null;
+      if (es) {
+        es.close();
+        es = null;
         this.messages = [];
       }
-      const protocol = SSL_ENABLED ? "wss" : "ws";
-      ws = new WebSocket(`${protocol}://${window.location.host}${BASE_PATH}/api/logs?id=${id}`);
-      ws.onopen = e => console.log("Connection opened.");
-      ws.onclose = e => console.log("Connection closed.");
-      ws.onerror = e => console.error("Connection error: " + e.data);
-      ws.onmessage = e => {
-        const message = parseMessage(e.data);
-        this.messages.push(message);
-      };
+      es = new EventSource(`/api/logs/stream?id=${id}`);
+      es.onmessage = e => this.messages.push(parseMessage(e.data));
       this.title = `${this.name} - Dozzle`;
     }
   }
