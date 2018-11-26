@@ -62,7 +62,7 @@ export default {
         es = null;
         this.messages = [];
       }
-      es = new EventSource(`/api/logs/stream?id=${id}`);
+      es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${id}`);
       es.onmessage = e => this.messages.push(parseMessage(e.data));
       this.title = `${this.name} - Dozzle`;
     }
