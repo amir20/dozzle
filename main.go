@@ -62,6 +62,7 @@ func main() {
         }
     })))
 
+    log.Printf("Accepting connections on %s", addr)
     log.Fatal(http.ListenAndServe(addr, r))
 }
 

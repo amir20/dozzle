@@ -41,17 +41,17 @@ export default {
     };
   },
   async created() {
-    await this.fetchConatiners();
+    await this.fetchContainerList();
     this.title = `${this.containers.length} containers - Dozzle`;
     es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${id}`);
-    es.addEventListener("containers-changed", e => this.fetchConatiners());
+    es.addEventListener("containers-changed", e => this.fetchContainerList());
   },
   beforeDestroy() {
     es.close();
     es = null;
   },
   methods: {
-    async fetchConatiners() {
+    async fetchContainerList() {
       this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
     }
   }
