@@ -51,6 +51,7 @@ func main() {
 
     s.HandleFunc("/api/containers.json", listContainers)
     s.HandleFunc("/api/logs/stream", streamLogs)
+    s.HandleFunc("/api/events/stream", streamEvents)
     s.HandleFunc("/version", versionHandler)
     s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         fileServer := http.FileServer(box)
@@ -117,7 +118,9 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Transfer-Encoding", "chunked")
 
     options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
-    reader, err := cli.ContainerLogs(context.Background(), id, options)
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+    reader, err := cli.ContainerLogs(ctx, id, options)
     if err != nil {
         log.Fatal(err)
     }
@@ -142,5 +145,37 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
             break
         }
         f.Flush()
+    }
+}
+
+func streamEvents(w http.ResponseWriter, r *http.Request) {
+    f, ok := w.(http.Flusher)
+    if !ok {
+        http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "text/event-stream")
+    w.Header().Set("Cache-Control", "no-cache")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("Transfer-Encoding", "chunked")
+
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+    messages, _ := cli.Events(ctx, types.EventsOptions{})
+
+    for message := range messages {
+        switch message.Action {
+        case "create":
+        case "destroy":
+            _, err := fmt.Fprintf(w, "event: containers-changed\n\n")
+            if err != nil {
+                log.Println(err)
+                break
+            }
+            f.Flush()
+        default:
+            // Do nothing
+        }
     }
 }
