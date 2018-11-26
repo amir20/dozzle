@@ -30,6 +30,7 @@
 </template>
 
 <script>
+let es;
 export default {
   name: "App",
   data() {
@@ -40,8 +41,21 @@ export default {
     };
   },
   async created() {
-    this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+    await this.fetchContainerList();
     this.title = `${this.containers.length} containers - Dozzle`;
+    es = new EventSource(`${BASE_PATH}/api/events/stream`);
+    es.addEventListener("containers-changed", e => setTimeout(this.fetchContainerList, 1000), false);
+  },
+  beforeDestroy() {
+    if (es) {
+      es.close();
+      es = null;
+    }
+  },
+  methods: {
+    async fetchContainerList() {
+      this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+    }
   }
 };
 </script>

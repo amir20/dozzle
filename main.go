@@ -5,34 +5,29 @@ import (
     "encoding/binary"
     "encoding/json"
     "fmt"
-    "html/template"
-    "log"
-    "net/http"
-    "strings"
-
     "github.com/docker/docker/api/types"
     "github.com/docker/docker/client"
     "github.com/gobuffalo/packr"
     "github.com/gorilla/mux"
-    "github.com/gorilla/websocket"
     flag "github.com/spf13/pflag"
+    "html/template"
+    "log"
+    "net/http"
+    "strings"
 )
 
 var (
-    cli      *client.Client
-    addr     = ""
-    ssl      = false
-    base     = "/"
-    upgrader = websocket.Upgrader{}
-    version  = "dev"
-    commit   = "none"
-    date     = "unknown"
+    cli     *client.Client
+    addr    = ""
+    base    = "/"
+    version = "dev"
+    commit  = "none"
+    date    = "unknown"
 )
 
 func init() {
     flag.StringVar(&addr, "addr", ":8080", "http service address")
     flag.StringVar(&base, "base", "/", "base address of the application to mount")
-    flag.BoolVarP(&ssl, "ssl", "s", false, "Uses websockets over ssl if enabled")
 
     var err error
     cli, err = client.NewClientWithOpts(client.FromEnv)
@@ -55,7 +50,8 @@ func main() {
     box := packr.NewBox("./static")
 
     s.HandleFunc("/api/containers.json", listContainers)
-    s.HandleFunc("/api/logs", logs)
+    s.HandleFunc("/api/logs/stream", streamLogs)
+    s.HandleFunc("/api/events/stream", streamEvents)
     s.HandleFunc("/version", versionHandler)
     s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
         fileServer := http.FileServer(box)
@@ -66,6 +62,7 @@ func main() {
         }
     })))
 
+    log.Printf("Accepting connections on %s", addr)
     log.Fatal(http.ListenAndServe(addr, r))
 }
 
@@ -96,31 +93,41 @@ func handleIndex(box packr.Box, w http.ResponseWriter) {
         path = base
     }
 
-    data := struct {
-        Base string
-        SSL  bool
-    }{path, ssl}
+    data := struct{ Base string }{path}
     err = tmpl.Execute(w, data)
     if err != nil {
         panic(err)
     }
 }
 
-func logs(w http.ResponseWriter, r *http.Request) {
+func streamLogs(w http.ResponseWriter, r *http.Request) {
     id := r.URL.Query().Get("id")
-    c, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Fatal(err)
+    if id == "" {
+        http.Error(w, "id is required", http.StatusBadRequest)
         return
     }
-    defer c.Close()
+
+    f, ok := w.(http.Flusher)
+    if !ok {
+        http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+        return
+    }
 
     options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
-    reader, err := cli.ContainerLogs(context.Background(), id, options)
-    defer reader.Close()
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+    reader, err := cli.ContainerLogs(ctx, id, options)
     if err != nil {
-        log.Fatal(err)
+        log.Println(err)
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
+    defer reader.Close()
+
+    w.Header().Set("Content-Type", "text/event-stream")
+    w.Header().Set("Cache-Control", "no-cache")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("Transfer-Encoding", "chunked")
 
     hdr := make([]byte, 8)
     content := make([]byte, 1024, 1024*1024)
@@ -135,10 +142,50 @@ func logs(w http.ResponseWriter, r *http.Request) {
             log.Println(err)
             break
         }
-        err = c.WriteMessage(websocket.TextMessage, content[:n])
+        _, err = fmt.Fprintf(w, "data: %s\n\n", content[:n])
         if err != nil {
             log.Println(err)
             break
+        }
+        f.Flush()
+    }
+}
+
+func streamEvents(w http.ResponseWriter, r *http.Request) {
+    f, ok := w.(http.Flusher)
+    if !ok {
+        http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "text/event-stream")
+    w.Header().Set("Cache-Control", "no-cache")
+    w.Header().Set("Connection", "keep-alive")
+    w.Header().Set("Transfer-Encoding", "chunked")
+
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+    messages, _ := cli.Events(ctx, types.EventsOptions{})
+
+    for message := range messages {
+        switch message.Action {
+        case "connect":
+            fallthrough
+        case "disconnect":
+            fallthrough
+        case "create":
+            fallthrough
+        case "destroy":
+            _, err := fmt.Fprintf(w, "event: containers-changed\n")
+            _, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
+
+            if err != nil {
+                log.Println(err)
+                break
+            }
+            f.Flush()
+        default:
+            // Do nothing
         }
     }
 }
