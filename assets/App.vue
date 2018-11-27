@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="columns is-marginless">
-    <aside class="column menu is-2">
+    <aside class="column menu is-2-desktop is-3-tablet">
       <a
         role="button"
         class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
@@ -13,18 +13,13 @@
       <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
       <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
         <li v-for="item in containers">
-          <router-link
-            :to="{ name: 'container', params: { id: item.id, name: item.name } }"
-            active-class="is-active"
-            class="tooltip is-tooltip-right is-tooltip-info"
-            :data-tooltip="item.name"
-          >
+          <router-link :to="{ name: 'container', params: { id: item.id, name: item.name } }" active-class="is-active">
             <div class="hide-overflow">{{ item.name }}</div>
           </router-link>
         </li>
       </ul>
     </aside>
-    <div class="column is-offset-2"><router-view></router-view></div>
+    <div class="column is-offset-2-desktop is-offset-3-tablet"><router-view></router-view></div>
     <vue-headful :title="title" />
   </div>
 </template>

@@ -23,7 +23,6 @@
  "homepage": "https://github.com/amir20/dozzle#readme",
  "dependencies": {
   "bulma": "^0.7.2",
-  "bulma-tooltip": "^2.0.2",
   "date-fns": "^2.0.0-alpha.25",
   "vue": "^2.5.17",
   "vue-headful": "^2.0.1",
