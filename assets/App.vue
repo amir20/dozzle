@@ -84,11 +84,6 @@ aside {
       background: #222;
     }
 
-    .tooltip::after,
-    .tooltip::before {
-      display: none !important;
-    }
-
     .menu-label {
       margin-top: 1em;
     }
