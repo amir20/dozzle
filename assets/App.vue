@@ -69,6 +69,12 @@ aside {
   z-index: 2;
   padding: 1em;
 
+  @media screen and (min-width: 769px) {
+    & {
+      height: 100vh;
+      overflow: auto;
+    }
+  }
   @media screen and (max-width: 768px) {
     & {
       position: sticky;
