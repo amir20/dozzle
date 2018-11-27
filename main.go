@@ -173,7 +173,6 @@ Loop:
         select {
         case message, closed := <-messages:
             if closed {
-                log.Println("Breaking from messages")
                 break Loop
             }
             switch message.Action {
