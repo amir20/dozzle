@@ -122,6 +122,10 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer reader.Close()
+    go func() {
+        <-r.Context().Done()
+        reader.Close()
+    }()
 
     w.Header().Set("Content-Type", "text/event-stream")
     w.Header().Set("Cache-Control", "no-cache")
@@ -133,17 +137,15 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
     for {
         _, err := reader.Read(hdr)
         if err != nil {
-            log.Panicln(err)
+            break
         }
         count := binary.BigEndian.Uint32(hdr[4:])
         n, err := reader.Read(content[:count])
         if err != nil {
-            log.Println(err)
             break
         }
         _, err = fmt.Fprintf(w, "data: %s\n\n", content[:n])
         if err != nil {
-            log.Println(err)
             break
         }
         f.Flush()
@@ -166,25 +168,38 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
     defer cancel()
     messages, _ := dockerClient.Events(ctx)
 
-    for message := range messages {
-        switch message.Action {
-        case "connect":
-            fallthrough
-        case "disconnect":
-            fallthrough
-        case "create":
-            fallthrough
-        case "destroy":
-            _, err := fmt.Fprintf(w, "event: containers-changed\n")
-            _, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
-
-            if err != nil {
-                log.Println(err)
-                break
+    for {
+        exit := false
+        select {
+        case message, closed := <-messages:
+            if closed {
+                log.Println("Breaking from messages")
+                exit = true
             }
-            f.Flush()
-        default:
-            // Do nothing
+            switch message.Action {
+            case "connect":
+                fallthrough
+            case "disconnect":
+                fallthrough
+            case "create":
+                fallthrough
+            case "destroy":
+                _, err := fmt.Fprintf(w, "event: containers-changed\n")
+                _, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
+
+                if err != nil {
+                    log.Println(err)
+                    break
+                }
+                f.Flush()
+            }
+        case <-r.Context().Done():
+            cancel()
+            exit = true
+        }
+
+        if exit {
+            break
         }
     }
 }
