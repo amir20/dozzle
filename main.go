@@ -171,8 +171,8 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 Loop:
     for {
         select {
-        case message, closed := <-messages:
-            if closed {
+        case message, ok := <-messages:
+            if !ok {
                 break Loop
             }
             switch message.Action {
