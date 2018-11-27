@@ -4,7 +4,7 @@
  "description": "",
  "main": "index.js",
  "scripts": {
-  "start": "concurrently 'go run main.go' 'npm run watch-assets'",
+  "start": "DOCKER_API_VERSION=1.38 concurrently 'go run main.go' 'npm run watch-assets'",
   "watch-assets": "parcel watch --public-url '__BASE__' assets/index.html -d static",
   "prebuild": "npm run clean",
   "build": "parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
