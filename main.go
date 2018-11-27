@@ -166,7 +166,7 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    messages, _ := dockerClient.Events(ctx)
+    messages, error := dockerClient.Events(ctx)
 
 Loop:
     for {
@@ -193,6 +193,9 @@ Loop:
                 f.Flush()
             }
         case <-r.Context().Done():
+            cancel()
+            break Loop
+        case <-error:
             cancel()
             break Loop
         }
