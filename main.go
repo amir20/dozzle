@@ -168,13 +168,13 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
     defer cancel()
     messages, _ := dockerClient.Events(ctx)
 
+Loop:
     for {
-        exit := false
         select {
         case message, closed := <-messages:
             if closed {
                 log.Println("Breaking from messages")
-                exit = true
+                break Loop
             }
             switch message.Action {
             case "connect":
@@ -195,11 +195,7 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
             }
         case <-r.Context().Done():
             cancel()
-            exit = true
-        }
-
-        if exit {
-            break
+            break Loop
         }
     }
 }
