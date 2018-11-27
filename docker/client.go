@@ -15,13 +15,13 @@ type dockerClient struct {
     cli *client.Client
 }
 
-type DockerClient interface {
+type Client interface {
     ListContainers() ([]Container, error)
     ContainerLogs(ctx context.Context, id string) (io.ReadCloser, error)
     Events(ctx context.Context) (<-chan events.Message, <-chan error)
 }
 
-func NewDockerClient() DockerClient {
+func NewClient() Client {
     cli, err := client.NewClientWithOpts(client.FromEnv)
     if err != nil {
         log.Fatal(err)

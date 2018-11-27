@@ -16,7 +16,7 @@ import (
 )
 
 var (
-    dockerClient docker.DockerClient
+    dockerClient docker.Client
     addr         = ""
     base         = "/"
     version      = "dev"
@@ -28,7 +28,7 @@ func init() {
     flag.StringVar(&addr, "addr", ":8080", "http service address")
     flag.StringVar(&base, "base", "/", "base address of the application to mount")
 
-    dockerClient = docker.NewDockerClient()
+    dockerClient = docker.NewClient()
     flag.Parse()
 }
 
