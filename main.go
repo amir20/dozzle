@@ -18,7 +18,8 @@ import (
 var (
     dockerClient docker.Client
     addr         = ""
-    base         = "/"
+    base         = ""
+    level        = ""
     version      = "dev"
     commit       = "none"
     date         = "unknown"
@@ -27,9 +28,20 @@ var (
 func init() {
     flag.StringVar(&addr, "addr", ":8080", "http service address")
     flag.StringVar(&base, "base", "/", "base address of the application to mount")
+    flag.StringVar(&level, "level", "info", "logging level")
+    flag.Parse()
+
+    l, _ := log.ParseLevel(level)
+    log.SetLevel(l)
+
+    log.SetFormatter(&log.TextFormatter{ForceColors: true, DisableTimestamp: true, DisableLevelTruncation: true})
 
     dockerClient = docker.NewClient()
-    flag.Parse()
+    _, err := dockerClient.ListContainers()
+
+    if err != nil {
+        log.Fatalf("Could not connect to Docker Engine: %v", err)
+    }
 }
 
 func main() {
@@ -57,7 +69,7 @@ func main() {
         }
     })))
 
-    log.Printf("Accepting connections on %s", addr)
+    log.Infof("Accepting connections on %s", addr)
     log.Fatal(http.ListenAndServe(addr, r))
 }
 
@@ -65,19 +77,6 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintln(w, version)
     fmt.Fprintln(w, commit)
     fmt.Fprintln(w, date)
-}
-
-func listContainers(w http.ResponseWriter, r *http.Request) {
-    containers, err := dockerClient.ListContainers()
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    err = json.NewEncoder(w).Encode(containers)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
 }
 
 func handleIndex(box packr.Box, w http.ResponseWriter) {
@@ -97,6 +96,19 @@ func handleIndex(box packr.Box, w http.ResponseWriter) {
     err = tmpl.Execute(w, data)
     if err != nil {
         panic(err)
+    }
+}
+
+func listContainers(w http.ResponseWriter, r *http.Request) {
+    containers, err := dockerClient.ListContainers()
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    err = json.NewEncoder(w).Encode(containers)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
     }
 }
 
@@ -137,15 +149,18 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
     for {
         _, err := reader.Read(hdr)
         if err != nil {
+            log.Debugf("Error while reading from log stream: %v", err)
             break
         }
         count := binary.BigEndian.Uint32(hdr[4:])
         n, err := reader.Read(content[:count])
         if err != nil {
+            log.Debugf("Error while reading from log stream: %v", err)
             break
         }
         _, err = fmt.Fprintf(w, "data: %s\n\n", content[:n])
         if err != nil {
+            log.Debugf("Error while writing to log stream: %v", err)
             break
         }
         f.Flush()
@@ -166,7 +181,7 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    messages, error := dockerClient.Events(ctx)
+    messages, err := dockerClient.Events(ctx)
 
 Loop:
     for {
@@ -176,26 +191,22 @@ Loop:
                 break Loop
             }
             switch message.Action {
-            case "connect":
-                fallthrough
-            case "disconnect":
-                fallthrough
-            case "create":
-                fallthrough
-            case "destroy":
+            case "connect", "disconnect", "create", "destroy":
                 _, err := fmt.Fprintf(w, "event: containers-changed\n")
                 _, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
 
                 if err != nil {
-                    log.Println(err)
+                    log.Debugf("Error while writing to event stream: %v", err)
                     break
                 }
                 f.Flush()
+            default:
+                log.Debugf("Ignoring docker event: %v", message.Action)
             }
         case <-r.Context().Done():
             cancel()
             break Loop
-        case <-error:
+        case <-err:
             cancel()
             break Loop
         }
