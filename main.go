@@ -34,7 +34,10 @@ func init() {
     l, _ := log.ParseLevel(level)
     log.SetLevel(l)
 
-    log.SetFormatter(&log.TextFormatter{ForceColors: true, DisableTimestamp: true, DisableLevelTruncation: true})
+    log.SetFormatter(&log.TextFormatter{
+        DisableTimestamp:          true,
+        DisableLevelTruncation:    true,
+    })
 
     dockerClient = docker.NewClient()
     _, err := dockerClient.ListContainers()
