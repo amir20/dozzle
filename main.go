@@ -8,9 +8,9 @@ import (
     "github.com/amir20/dozzle/docker"
     "github.com/gobuffalo/packr"
     "github.com/gorilla/mux"
+    log "github.com/sirupsen/logrus"
     flag "github.com/spf13/pflag"
     "html/template"
-    "log"
     "net/http"
     "strings"
 )
