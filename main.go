@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bytes"
     "context"
     "encoding/binary"
     "encoding/json"
@@ -145,8 +146,9 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Connection", "keep-alive")
     w.Header().Set("Transfer-Encoding", "chunked")
 
+    log.Debugf("Starting to stream logs for %s", id)
     hdr := make([]byte, 8)
-    content := make([]byte, 1024, 1024*1024)
+    var buffer bytes.Buffer
     for {
         _, err := reader.Read(hdr)
         if err != nil {
@@ -154,12 +156,14 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
             break
         }
         count := binary.BigEndian.Uint32(hdr[4:])
-        n, err := reader.Read(content[:count])
+        _, err = io.CopyN(&buffer, reader, int64(count))
+
         if err != nil {
             log.Debugf("Error while reading from log stream: %v", err)
             break
         }
-        _, err = fmt.Fprintf(w, "data: %s\n\n", content[:n])
+        _, err = fmt.Fprintf(w, "data: %s\n\n", buffer.String())
+        buffer.Reset()
         if err != nil {
             log.Debugf("Error while writing to log stream: %v", err)
             break
