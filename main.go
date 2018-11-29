@@ -11,19 +11,24 @@ import (
     log "github.com/sirupsen/logrus"
     flag "github.com/spf13/pflag"
     "html/template"
+    "io"
     "net/http"
     "strings"
 )
 
 var (
-    dockerClient docker.Client
-    addr         = ""
-    base         = ""
-    level        = ""
-    version      = "dev"
-    commit       = "none"
-    date         = "unknown"
+    addr    = ""
+    base    = ""
+    level   = ""
+    version = "dev"
+    commit  = "none"
+    date    = "unknown"
 )
+
+type handler struct {
+    client docker.Client
+    box    packr.Box
+}
 
 func init() {
     flag.StringVar(&addr, "addr", ":8080", "http service address")
@@ -35,19 +40,22 @@ func init() {
     log.SetLevel(l)
 
     log.SetFormatter(&log.TextFormatter{
-        DisableTimestamp:          true,
-        DisableLevelTruncation:    true,
+        DisableTimestamp:       true,
+        DisableLevelTruncation: true,
     })
+}
 
-    dockerClient = docker.NewClient()
+func main() {
+    dockerClient := docker.NewClient()
     _, err := dockerClient.ListContainers()
 
     if err != nil {
         log.Fatalf("Could not connect to Docker Engine: %v", err)
     }
-}
 
-func main() {
+    box := packr.NewBox("./static")
+    h := &handler{dockerClient, box}
+
     r := mux.NewRouter()
 
     if base != "/" {
@@ -57,53 +65,43 @@ func main() {
     }
 
     s := r.PathPrefix(base).Subrouter()
-    box := packr.NewBox("./static")
-
-    s.HandleFunc("/api/containers.json", listContainers)
-    s.HandleFunc("/api/logs/stream", streamLogs)
-    s.HandleFunc("/api/events/stream", streamEvents)
-    s.HandleFunc("/version", versionHandler)
-    s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-        fileServer := http.FileServer(box)
-        if box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
-            fileServer.ServeHTTP(w, req)
-        } else {
-            handleIndex(box, w)
-        }
-    })))
+    s.HandleFunc("/api/containers.json", h.listContainers)
+    s.HandleFunc("/api/logs/stream", h.streamLogs)
+    s.HandleFunc("/api/events/stream", h.streamEvents)
+    s.HandleFunc("/version", h.version)
+    s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 
     log.Infof("Accepting connections on %s", addr)
     log.Fatal(http.ListenAndServe(addr, r))
 }
 
-func versionHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, version)
-    fmt.Fprintln(w, commit)
-    fmt.Fprintln(w, date)
+func (h *handler) index(w http.ResponseWriter, req *http.Request) {
+    fileServer := http.FileServer(h.box)
+    if h.box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
+        fileServer.ServeHTTP(w, req)
+    } else {
+        text, _ := h.box.FindString("index.html")
+        text = strings.Replace(text, "__BASE__", "{{ .Base }}", -1)
+        tmpl, err := template.New("index.html").Parse(text)
+        if err != nil {
+            panic(err)
+        }
+
+        path := ""
+        if base != "/" {
+            path = base
+        }
+
+        data := struct{ Base string }{path}
+        err = tmpl.Execute(w, data)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+        }
+    }
 }
 
-func handleIndex(box packr.Box, w http.ResponseWriter) {
-    text, _ := box.FindString("index.html")
-    text = strings.Replace(text, "__BASE__", "{{ .Base }}", -1)
-    tmpl, err := template.New("index.html").Parse(text)
-    if err != nil {
-        panic(err)
-    }
-
-    path := ""
-    if base != "/" {
-        path = base
-    }
-
-    data := struct{ Base string }{path}
-    err = tmpl.Execute(w, data)
-    if err != nil {
-        panic(err)
-    }
-}
-
-func listContainers(w http.ResponseWriter, r *http.Request) {
-    containers, err := dockerClient.ListContainers()
+func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
+    containers, err := h.client.ListContainers()
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -115,7 +113,7 @@ func listContainers(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func streamLogs(w http.ResponseWriter, r *http.Request) {
+func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
     id := r.URL.Query().Get("id")
     if id == "" {
         http.Error(w, "id is required", http.StatusBadRequest)
@@ -130,7 +128,7 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
 
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    reader, err := dockerClient.ContainerLogs(ctx, id)
+    reader, err := h.client.ContainerLogs(ctx, id)
     if err != nil {
         log.Println(err)
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -170,7 +168,7 @@ func streamLogs(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func streamEvents(w http.ResponseWriter, r *http.Request) {
+func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
     f, ok := w.(http.Flusher)
     if !ok {
         http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
@@ -184,7 +182,7 @@ func streamEvents(w http.ResponseWriter, r *http.Request) {
 
     ctx, cancel := context.WithCancel(context.Background())
     defer cancel()
-    messages, err := dockerClient.Events(ctx)
+    messages, err := h.client.Events(ctx)
 
 Loop:
     for {
@@ -215,4 +213,10 @@ Loop:
             break Loop
         }
     }
+}
+
+func (h *handler) version(w http.ResponseWriter, r *http.Request) {
+    io.WriteString(w, version)
+    io.WriteString(w, commit)
+    io.WriteString(w, date)
 }

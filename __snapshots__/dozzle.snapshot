@@ -1,0 +1,6 @@
+/* snapshot: /api/containers.json */
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: text/plain; charset=utf-8
+
+[{"id":"1234567890","names":null,"name":"test","image":"image","imageId":"image_id","command":"command","created":0,"state":"state","status":"status"}]
