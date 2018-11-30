@@ -4,11 +4,14 @@ import (
     "bytes"
     "context"
     "encoding/binary"
+    "errors"
+    "github.com/docker/docker/api/types/events"
     "io"
     "io/ioutil"
     "net/http"
     "net/http/httptest"
     "os"
+    "strings"
     "testing"
 
     "github.com/amir20/dozzle/docker"
@@ -40,7 +43,21 @@ func (m *MockedClient) ContainerLogs(ctx context.Context, id string) (io.ReadClo
     return reader, args.Error(1)
 }
 
-func Test_handler_listContainers(t *testing.T) {
+func (m *MockedClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
+    args := m.Called(ctx)
+    channel, ok := args.Get(0).(chan events.Message)
+    if !ok {
+        panic("channel is not of type chan events.Message")
+    }
+
+    err, ok := args.Get(1).(chan error)
+    if !ok {
+        panic("error is not of type chan error")
+    }
+    return channel, err
+}
+
+func Test_handler_listContainers_happy(t *testing.T) {
     req, err := http.NewRequest("GET", "/api/containers.json", nil)
     require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -62,15 +79,13 @@ func Test_handler_listContainers(t *testing.T) {
     mockedClient.On("ListContainers", mock.Anything).Return(containers, nil)
 
     h := handler{client: mockedClient}
-
     handler := http.HandlerFunc(h.listContainers)
-
     handler.ServeHTTP(rr, req)
-    abide.AssertHTTPResponse(t, "/api/containers.json", rr.Result())
+    abide.AssertHTTPResponse(t, t.Name(), rr.Result())
     mockedClient.AssertExpectations(t)
 }
 
-func Test_handler_streamLogs(t *testing.T) {
+func Test_handler_streamLogs_happy(t *testing.T) {
     id := "123456"
     req, err := http.NewRequest("GET", "/api/logs/stream", nil)
     q := req.URL.Query()
@@ -92,11 +107,86 @@ func Test_handler_streamLogs(t *testing.T) {
     mockedClient.On("ContainerLogs", mock.Anything, id).Return(reader, nil)
 
     h := handler{client: mockedClient}
-
     handler := http.HandlerFunc(h.streamLogs)
-
     handler.ServeHTTP(rr, req)
-    abide.AssertHTTPResponse(t, "/api/logs/stream", rr.Result())
+    abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+    mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamLogs_error_reading(t *testing.T) {
+    id := "123456"
+    req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+    q := req.URL.Query()
+    q.Add("id", "123456")
+    req.URL.RawQuery = q.Encode()
+    require.NoError(t, err, "NewRequest should not return an error.")
+
+    rr := httptest.NewRecorder()
+
+    mockedClient := new(MockedClient)
+    var reader io.ReadCloser
+    reader = ioutil.NopCloser(strings.NewReader(""))
+    mockedClient.On("ContainerLogs", mock.Anything, id).Return(reader, nil)
+
+    h := handler{client: mockedClient}
+    handler := http.HandlerFunc(h.streamLogs)
+    handler.ServeHTTP(rr, req)
+    abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+    mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamEvents_happy(t *testing.T) {
+    req, err := http.NewRequest("GET", "/api/events/stream", nil)
+    require.NoError(t, err, "NewRequest should not return an error.")
+
+    rr := httptest.NewRecorder()
+
+    mockedClient := new(MockedClient)
+
+    messages := make(chan events.Message)
+    errChannel := make(chan error)
+    mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
+
+    h := handler{client: mockedClient}
+
+    go func() {
+        messages <- events.Message{
+            Action: "start",
+        }
+        messages <- events.Message{
+            Action: "something-random",
+        }
+        close(messages)
+    }()
+
+    handler := http.HandlerFunc(h.streamEvents)
+    handler.ServeHTTP(rr, req)
+    abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+    mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamEvents_error(t *testing.T) {
+    req, err := http.NewRequest("GET", "/api/events/stream", nil)
+    require.NoError(t, err, "NewRequest should not return an error.")
+
+    rr := httptest.NewRecorder()
+
+    mockedClient := new(MockedClient)
+
+    messages := make(chan events.Message)
+    errChannel := make(chan error)
+    mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
+
+    h := handler{client: mockedClient}
+
+    go func() {
+        errChannel <- errors.New("fake error")
+        close(messages)
+    }()
+
+    handler := http.HandlerFunc(h.streamEvents)
+    handler.ServeHTTP(rr, req)
+    abide.AssertHTTPResponse(t, t.Name(), rr.Result())
     mockedClient.AssertExpectations(t)
 }
 
