@@ -198,8 +198,7 @@ Loop:
 			switch message.Action {
 			case "connect", "disconnect", "create", "destroy", "start", "stop":
 				log.Debugf("Triggering docker event: %v", message.Action)
-				_, err := fmt.Fprintf(w, "event: containers-changed\n")
-				_, err = fmt.Fprintf(w, "data: %s\n\n", message.Action)
+				_, err := fmt.Fprintf(w, "event: containers-changed\ndata: %s\n\n", message.Action)
 
 				if err != nil {
 					log.Debugf("Error while writing to event stream: %v", err)
