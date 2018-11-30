@@ -1,5 +1,6 @@
 package docker
 
+// Container represents an internal representation of docker containers
 type Container struct {
 	ID      string   `json:"id"`
 	Names   []string `json:"names"`
