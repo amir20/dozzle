@@ -158,7 +158,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
         count := binary.BigEndian.Uint32(hdr[4:])
         _, err = io.CopyN(&buffer, reader, int64(count))
 
-        if err != nil || err == io.EOF {
+        if err != nil {
             log.Debugf("Error while reading from log stream: %v", err)
             break
         }
