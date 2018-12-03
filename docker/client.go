@@ -14,7 +14,13 @@ import (
 )
 
 type dockerClient struct {
-	cli *client.Client
+	cli dockerProxy
+}
+
+type dockerProxy interface {
+	ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error)
+	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
+	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
 }
 
 // Client is a proxy around the docker client
