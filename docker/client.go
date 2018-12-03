@@ -1,7 +1,9 @@
 package docker
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/client"
@@ -18,7 +20,7 @@ type dockerClient struct {
 // Client is a proxy around the docker client
 type Client interface {
 	ListContainers() ([]Container, error)
-	ContainerLogs(ctx context.Context, id string) (io.ReadCloser, error)
+	ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error)
 	Events(ctx context.Context) (<-chan events.Message, <-chan error)
 }
 
@@ -58,12 +60,56 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 		return containers[i].Name < containers[j].Name
 	})
 
+	if containers == nil {
+		containers = []Container{}
+	}
+
 	return containers, nil
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (io.ReadCloser, error) {
+func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error) {
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
-	return d.cli.ContainerLogs(ctx, id, options)
+
+	reader, err := d.cli.ContainerLogs(ctx, id, options)
+	if err != nil {
+		tmpErrors := make(chan error, 1)
+		tmpErrors <- err
+		return nil, tmpErrors
+	}
+
+	go func() {
+		<-ctx.Done()
+		reader.Close()
+	}()
+
+	messages := make(chan string)
+	errChannel := make(chan error)
+
+	go func() {
+		hdr := make([]byte, 8)
+		var buffer bytes.Buffer
+		for {
+			_, err := reader.Read(hdr)
+			if err != nil {
+				errChannel <- err
+				break
+			}
+			count := binary.BigEndian.Uint32(hdr[4:])
+			_, err = io.CopyN(&buffer, reader, int64(count))
+			if err != nil {
+				errChannel <- err
+				break
+			}
+			messages <- buffer.String()
+			buffer.Reset()
+		}
+		close(messages)
+		close(errChannel)
+		reader.Close()
+	}()
+
+	return messages, errChannel
+
 }
 
 func (d *dockerClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
