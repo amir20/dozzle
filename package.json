@@ -7,7 +7,7 @@
   "prestart": "npm run clean",
   "start": "DOCKER_API_VERSION=1.38 concurrently 'npm run watch-server' 'npm run watch-assets'",
   "watch-assets": "parcel watch --public-url '__BASE__' assets/index.html -d static",
-  "watch-server": "reflex -g '**/*.go' -R '^node_modules/' -R '^static/' -R '^.cache/' -G '*_test.go' -s -- go run main.go --level debug",
+  "watch-server": "reflex -r '\\.go$' -R '^node_modules/' -R '^static/' -R '^.cache/' -G '*_test.go' -s -- go run main.go --level debug",
   "prebuild": "npm run clean",
   "build": "parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
   "clean": "rm -rf static/ a_main-packr.go",
