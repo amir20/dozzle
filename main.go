@@ -9,7 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 	"html/template"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -196,7 +195,7 @@ Loop:
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, version)
-	io.WriteString(w, commit)
-	io.WriteString(w, date)
+	fmt.Fprintln(w, version)
+	fmt.Fprintln(w, commit)
+	fmt.Fprintln(w, date)
 }
