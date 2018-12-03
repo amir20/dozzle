@@ -85,28 +85,28 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 	messages := make(chan string)
 	errChannel := make(chan error)
 
-	go func(m chan<- string, e chan<- error, reader io.ReadCloser) {
+	go func() {
 		hdr := make([]byte, 8)
 		var buffer bytes.Buffer
 		for {
 			_, err := reader.Read(hdr)
 			if err != nil {
-				e <- err
+				errChannel <- err
 				break
 			}
 			count := binary.BigEndian.Uint32(hdr[4:])
 			_, err = io.CopyN(&buffer, reader, int64(count))
 			if err != nil {
-				e <- err
+				errChannel <- err
 				break
 			}
-			m <- buffer.String()
+			messages <- buffer.String()
 			buffer.Reset()
 		}
-		close(m)
-		close(e)
+		close(messages)
+		close(errChannel)
 		reader.Close()
-	}(messages, errChannel, reader)
+	}()
 
 	return messages, errChannel
 
