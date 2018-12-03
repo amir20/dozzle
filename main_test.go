@@ -1,17 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/binary"
 	"errors"
 	"github.com/docker/docker/api/types/events"
-	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/amir20/dozzle/docker"
@@ -34,13 +29,18 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return containers, args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string) (io.ReadCloser, error) {
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error) {
 	args := m.Called(ctx, id)
-	reader, ok := args.Get(0).(io.ReadCloser)
+	channel, ok := args.Get(0).(chan string)
 	if !ok {
-		panic("reader is not of type io.ReadCloser")
+		panic("channel is not of type chan string")
 	}
-	return reader, args.Error(1)
+
+	err, ok := args.Get(1).(chan error)
+	if !ok {
+		panic("error is not of type chan error")
+	}
+	return channel, err
 }
 
 func (m *MockedClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
@@ -96,15 +96,14 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	mockedClient := new(MockedClient)
-	log := "INFO Testing logs..."
-	b := make([]byte, 8)
 
-	binary.BigEndian.PutUint32(b[4:], uint32(len(log)))
-	b = append(b, []byte(log)...)
-
-	var reader io.ReadCloser
-	reader = ioutil.NopCloser(bytes.NewReader(b))
-	mockedClient.On("ContainerLogs", mock.Anything, id).Return(reader, nil)
+	messages := make(chan string)
+	errChannel := make(chan error)
+	mockedClient.On("ContainerLogs", mock.Anything, id).Return(messages, errChannel)
+	go func() {
+		messages <- "INFO Testing logs..."
+		close(messages)
+	}()
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamLogs)
@@ -123,9 +122,13 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	mockedClient := new(MockedClient)
-	var reader io.ReadCloser
-	reader = ioutil.NopCloser(strings.NewReader(""))
-	mockedClient.On("ContainerLogs", mock.Anything, id).Return(reader, nil)
+	messages := make(chan string)
+	errChannel := make(chan error)
+	mockedClient.On("ContainerLogs", mock.Anything, id).Return(messages, errChannel)
+
+	go func() {
+		errChannel <- errors.New("test error")
+	}()
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamLogs)
