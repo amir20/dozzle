@@ -72,7 +72,7 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	if err != nil {
-		tmpErrors := make(chan error)
+		tmpErrors := make(chan error, 1)
 		tmpErrors <- err
 		return nil, tmpErrors
 	}
