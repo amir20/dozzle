@@ -1,9 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/amir20/dozzle/docker"
@@ -127,19 +124,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	reader, err := h.client.ContainerLogs(ctx, id)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer reader.Close()
-	go func() {
-		<-r.Context().Done()
-		reader.Close()
-	}()
+	messages, err := h.client.ContainerLogs(r.Context(), id)
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -147,28 +132,23 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Transfer-Encoding", "chunked")
 
 	log.Debugf("Starting to stream logs for %s", id)
-	hdr := make([]byte, 8)
-	var buffer bytes.Buffer
+Loop:
 	for {
-		_, err := reader.Read(hdr)
-		if err != nil {
-			log.Debugf("Error while reading from log stream: %v", err)
-			break
+		select {
+		case message, ok := <-messages:
+			if !ok {
+				break Loop
+			}
+			_, e := fmt.Fprintf(w, "data: %s\n\n", message)
+			if e != nil {
+				log.Debugf("Error while writing to log stream: %v", e)
+				break Loop
+			}
+			f.Flush()
+		case e := <-err:
+			log.Debugf("Error while reading from log stream: %v", e)
+			break Loop
 		}
-		count := binary.BigEndian.Uint32(hdr[4:])
-		_, err = io.CopyN(&buffer, reader, int64(count))
-
-		if err != nil {
-			log.Debugf("Error while reading from log stream: %v", err)
-			break
-		}
-		_, err = fmt.Fprintf(w, "data: %s\n\n", buffer.String())
-		buffer.Reset()
-		if err != nil {
-			log.Debugf("Error while writing to log stream: %v", err)
-			break
-		}
-		f.Flush()
 	}
 }
 
@@ -184,8 +164,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Transfer-Encoding", "chunked")
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := r.Context()
 	messages, err := h.client.Events(ctx)
 
 Loop:
@@ -208,11 +187,9 @@ Loop:
 			default:
 				log.Debugf("Ignoring docker event: %v", message.Action)
 			}
-		case <-r.Context().Done():
-			cancel()
+		case <-ctx.Done():
 			break Loop
 		case <-err:
-			cancel()
 			break Loop
 		}
 	}
