@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/amir20/dozzle/docker"
@@ -10,7 +11,10 @@ import (
 	flag "github.com/spf13/pflag"
 	"html/template"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"time"
 )
 
 var (
@@ -68,8 +72,30 @@ func main() {
 	s.HandleFunc("/version", h.version)
 	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 
-	log.Infof("Accepting connections on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, r))
+	srv := &http.Server{
+		Addr:         addr,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r,
+	}
+
+	go func() {
+		log.Infof("Accepting connections on %s", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Kill)
+	<-c
+	log.Infof("Shutting down...")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
+	os.Exit(0)
 }
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
