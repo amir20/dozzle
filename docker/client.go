@@ -75,12 +75,13 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error) {
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
-
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
+	errChannel := make(chan error, 1)
+
 	if err != nil {
-		tmpErrors := make(chan error, 1)
-		tmpErrors <- err
-		return nil, tmpErrors
+		errChannel <- err
+		close(errChannel)
+		return nil, errChannel
 	}
 
 	go func() {
@@ -89,9 +90,11 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 	}()
 
 	messages := make(chan string)
-	errChannel := make(chan error)
-
 	go func() {
+		defer close(messages)
+		defer close(errChannel)
+		defer reader.Close()
+
 		hdr := make([]byte, 8)
 		var buffer bytes.Buffer
 		for {
@@ -109,13 +112,9 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 			messages <- buffer.String()
 			buffer.Reset()
 		}
-		close(messages)
-		close(errChannel)
-		reader.Close()
 	}()
 
 	return messages, errChannel
-
 }
 
 func (d *dockerClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {

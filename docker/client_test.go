@@ -1,12 +1,16 @@
 package docker
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"errors"
 	"github.com/docker/docker/api/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"io"
+	"io/ioutil"
 	"testing"
 )
 
@@ -24,10 +28,20 @@ func (m *mockedProxy) ContainerList(context.Context, types.ContainerListOptions)
 	return containers, args.Error(1)
 
 }
+
+func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options types.ContainerLogsOptions) (io.ReadCloser, error) {
+	args := m.Called(ctx, id)
+	reader, ok := args.Get(0).(io.ReadCloser)
+	if !ok && args.Get(0) != nil {
+		panic("reader is not of type io.ReadCloser")
+	}
+	return reader, args.Error(1)
+}
+
 func Test_dockerClient_ListContainers_null(t *testing.T) {
-	proxy := mockedProxy{}
+	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, nil)
-	client := &dockerClient{&proxy}
+	client := &dockerClient{proxy}
 
 	list, err := client.ListContainers()
 	assert.Empty(t, list, "list should be empty")
@@ -37,9 +51,9 @@ func Test_dockerClient_ListContainers_null(t *testing.T) {
 }
 
 func Test_dockerClient_ListContainers_error(t *testing.T) {
-	proxy := mockedProxy{}
+	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, errors.New("test"))
-	client := &dockerClient{&proxy}
+	client := &dockerClient{proxy}
 
 	list, err := client.ListContainers()
 	assert.Nil(t, list, "list should be nil")
@@ -60,9 +74,9 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 		},
 	}
 
-	proxy := mockedProxy{}
+	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
-	client := &dockerClient{&proxy}
+	client := &dockerClient{proxy}
 
 	list, err := client.ListContainers()
 	require.NoError(t, err, "error should not return an error.")
@@ -80,5 +94,47 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 		},
 	})
 
+	proxy.AssertExpectations(t)
+}
+
+func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
+	id := "123456"
+
+	proxy := new(mockedProxy)
+	expected := "INFO Testing logs..."
+	b := make([]byte, 8)
+
+	binary.BigEndian.PutUint32(b[4:], uint32(len(expected)))
+	b = append(b, []byte(expected)...)
+
+	var reader io.ReadCloser
+	reader = ioutil.NopCloser(bytes.NewReader(b))
+	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(reader, nil)
+
+	client := &dockerClient{proxy}
+	messages, _ := client.ContainerLogs(context.Background(), id)
+
+	actual, _ := <-messages
+	assert.Equal(t, expected, actual, "message doesn't match expected")
+
+	_, ok := <-messages
+	assert.False(t, ok, "channel should have been closed")
+	proxy.AssertExpectations(t)
+}
+
+func Test_dockerClient_ContainerLogs_error(t *testing.T) {
+	id := "123456"
+	proxy := new(mockedProxy)
+	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(nil, errors.New("test"))
+
+	client := &dockerClient{proxy}
+	messages, err := client.ContainerLogs(context.Background(), id)
+
+	assert.Nil(t, messages, "messages should be nil")
+
+	e, _ := <-err
+	assert.Error(t, e, "error should have been returned")
+	_, ok := <-err
+	assert.False(t, ok, "error channel should have been closed")
 	proxy.AssertExpectations(t)
 }
