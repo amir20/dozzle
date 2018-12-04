@@ -73,11 +73,8 @@ func main() {
 	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 
 	srv := &http.Server{
-		Addr:         addr,
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
-		Handler:      r,
+		Addr:    addr,
+		Handler: r,
 	}
 
 	go func() {
