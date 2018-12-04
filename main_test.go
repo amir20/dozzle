@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/docker/docker/api/types/events"
+	"github.com/magiconair/properties/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -11,6 +11,8 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
+	"github.com/docker/docker/api/types/events"
+	"github.com/gobuffalo/packr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -208,6 +210,74 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
+}
+
+func Test_createRoutes_index(t *testing.T) {
+	mockedClient := new(MockedClient)
+	box := packr.NewBox("./virtual")
+	require.NoError(t, box.AddString("index.html", "index page"), "AddString should have no error.")
+
+	handler := createRoutes("/", &handler{mockedClient, box})
+	req, err := http.NewRequest("GET", "/", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func Test_createRoutes_redirect(t *testing.T) {
+	mockedClient := new(MockedClient)
+	box := packr.NewBox("./virtual")
+
+	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	req, err := http.NewRequest("GET", "/foobar", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func Test_createRoutes_foobar(t *testing.T) {
+	mockedClient := new(MockedClient)
+	box := packr.NewBox("./virtual")
+	require.NoError(t, box.AddString("index.html", "foo page"), "AddString should have no error.")
+
+	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	req, err := http.NewRequest("GET", "/foobar/", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func Test_createRoutes_foobar_file(t *testing.T) {
+	mockedClient := new(MockedClient)
+	box := packr.NewBox("./virtual")
+	require.NoError(t, box.AddString("/test", "test page"), "AddString should have no error.")
+
+	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	req, err := http.NewRequest("GET", "/foobar/test", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, rr.Body.String(), "test page", "page doesn't match")
+}
+
+func Test_createRoutes_version(t *testing.T) {
+	mockedClient := new(MockedClient)
+	box := packr.NewBox("./virtual")
+
+	handler := createRoutes("/", &handler{mockedClient, box})
+	req, err := http.NewRequest("GET", "/version", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 }
 
 func TestMain(m *testing.M) {

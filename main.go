@@ -46,6 +46,22 @@ func init() {
 	})
 }
 
+func createRoutes(base string, h *handler) *mux.Router {
+	r := mux.NewRouter()
+	if base != "/" {
+		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
+		}))
+	}
+	s := r.PathPrefix(base).Subrouter()
+	s.HandleFunc("/api/containers.json", h.listContainers)
+	s.HandleFunc("/api/logs/stream", h.streamLogs)
+	s.HandleFunc("/api/events/stream", h.streamEvents)
+	s.HandleFunc("/version", h.version)
+	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
+	return r
+}
+
 func main() {
 	dockerClient := docker.NewClient()
 	_, err := dockerClient.ListContainers()
@@ -55,27 +71,8 @@ func main() {
 	}
 
 	box := packr.NewBox("./static")
-	h := &handler{dockerClient, box}
-
-	r := mux.NewRouter()
-
-	if base != "/" {
-		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
-		}))
-	}
-
-	s := r.PathPrefix(base).Subrouter()
-	s.HandleFunc("/api/containers.json", h.listContainers)
-	s.HandleFunc("/api/logs/stream", h.streamLogs)
-	s.HandleFunc("/api/events/stream", h.streamEvents)
-	s.HandleFunc("/version", h.version)
-	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
-
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: r,
-	}
+	r := createRoutes(base, &handler{dockerClient, box})
+	srv := &http.Server{Addr: addr, Handler: r}
 
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)

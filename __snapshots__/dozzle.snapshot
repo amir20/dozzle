@@ -1,3 +1,34 @@
+/* snapshot: Test_createRoutes_foobar */
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: text/plain; charset=utf-8
+
+foo page
+
+/* snapshot: Test_createRoutes_index */
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: text/plain; charset=utf-8
+
+index page
+
+/* snapshot: Test_createRoutes_redirect */
+HTTP/1.1 301 Moved Permanently
+Connection: close
+Content-Type: text/html; charset=utf-8
+Location: /foobar/
+
+<a href="/foobar/">Moved Permanently</a>.
+
+/* snapshot: Test_createRoutes_version */
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: text/plain; charset=utf-8
+
+dev
+none
+unknown
+
 /* snapshot: Test_handler_listContainers_happy */
 HTTP/1.1 200 OK
 Connection: close
