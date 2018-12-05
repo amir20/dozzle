@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -169,6 +170,8 @@ Loop:
 			break Loop
 		}
 	}
+
+	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime stats")
 }
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
