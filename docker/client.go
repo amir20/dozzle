@@ -84,12 +84,12 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 		return nil, errChannel
 	}
 
+	messages := make(chan string)
 	go func() {
 		<-ctx.Done()
 		reader.Close()
 	}()
 
-	messages := make(chan string)
 	go func() {
 		defer close(messages)
 		defer close(errChannel)
@@ -109,7 +109,10 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan str
 				errChannel <- err
 				break
 			}
-			messages <- buffer.String()
+			select {
+			case messages <- buffer.String():
+			case <-ctx.Done():
+			}
 			buffer.Reset()
 		}
 	}()
