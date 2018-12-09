@@ -26,7 +26,7 @@
  "dependencies": {
   "bulma": "^0.7.2",
   "date-fns": "^2.0.0-alpha.25",
-  "vue": "^2.5.17",
+  "vue": "^2.5.18",
   "vue-headful": "^2.0.1",
   "vue-router": "^3.0.2"
  },
@@ -39,9 +39,9 @@
   "lint-staged": "^8.1.0",
   "parcel-bundler": "^1.10.3",
   "prettier": "^1.15.3",
-  "sass": "^1.15.1",
+  "sass": "^1.15.2",
   "vue-hot-reload-api": "^2.3.1",
-  "vue-template-compiler": "^2.5.17"
+  "vue-template-compiler": "^2.5.18"
  },
  "husky": {
   "hooks": {
