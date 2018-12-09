@@ -3,6 +3,10 @@ language: go
 go:
   - "1.11"
 
+env:
+  global:
+    - GO111MODULE=on
+
 services:
   - docker
 
