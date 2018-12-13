@@ -1,4 +1,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/amir20/dozzle)](https://goreportcard.com/report/github.com/amir20/dozzle)
+[![Docker Pulls](https://hub.docker.com/r/amir20/dozzle/)](https://img.shields.io/docker/pulls/amir20/dozzle.svg)
+[![Docker Size](https://hub.docker.com/r/amir20/dozzle/)](https://img.shields.io/microbadger/image-size/amir20%2Fdozzle/latest.svg)
+[![Docker Layers](https://hub.docker.com/r/amir20/dozzle/)](https://img.shields.io/microbadger/layers/amir20%2Fdozzle/latest.svg)
+
 
 # dozzle
 
