@@ -4,7 +4,7 @@
       <a
         role="button"
         class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
-        @click="showNav = !showNav;"
+        @click="showNav = !showNav"
         :class="{ 'is-active': showNav }"
       >
         <span></span> <span></span> <span></span>
@@ -50,6 +50,11 @@ export default {
   methods: {
     async fetchContainerList() {
       this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+    }
+  },
+  watch: {
+    $route(to, from) {
+      this.showNav = false;
     }
   }
 };
