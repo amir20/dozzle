@@ -64,6 +64,7 @@ func createRoutes(base string, h *handler) *mux.Router {
 }
 
 func main() {
+	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClient()
 	_, err := dockerClient.ListContainers()
 
@@ -74,8 +75,6 @@ func main() {
 	box := packr.NewBox("./static")
 	r := createRoutes(base, &handler{dockerClient, box})
 	srv := &http.Server{Addr: addr, Handler: r}
-
-	log.Infof("Dozzle version %s", version)
 
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
