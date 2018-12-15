@@ -1,8 +1,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/amir20/dozzle)](https://goreportcard.com/report/github.com/amir20/dozzle)
 [![Docker Pulls](https://img.shields.io/docker/pulls/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
-[![Docker Size](https://img.shields.io/microbadger/image-size/amir20%2Fdozzle/latest.svg)](https://hub.docker.com/r/amir20/dozzle/)
-[![Docker Layers](https://img.shields.io/microbadger/layers/amir20%2Fdozzle/latest.svg)](https://hub.docker.com/r/amir20/dozzle/)
-
+[![Docker Size](https://images.microbadger.com/badges/image/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
+[![Docker Version](https://images.microbadger.com/badges/version/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 
 # dozzle
 
