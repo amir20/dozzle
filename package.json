@@ -26,22 +26,22 @@
  "dependencies": {
   "bulma": "^0.7.2",
   "date-fns": "^2.0.0-alpha.25",
-  "vue": "^2.5.21",
+  "vue": "^2.5.22",
   "vue-headful": "^2.0.1",
   "vue-router": "^3.0.2"
  },
  "devDependencies": {
   "@babel/core": "^7.2.2",
   "@babel/plugin-transform-runtime": "^7.2.0",
-  "@vue/component-compiler-utils": "^2.3.1",
+  "@vue/component-compiler-utils": "^2.5.1",
   "concurrently": "^4.1.0",
   "husky": "^1.3.1",
-  "lint-staged": "^8.1.0",
+  "lint-staged": "^8.1.1",
   "parcel-bundler": "^1.11.0",
-  "prettier": "^1.15.3",
-  "sass": "^1.15.2",
+  "prettier": "^1.16.1",
+  "sass": "^1.16.1",
   "vue-hot-reload-api": "^2.3.1",
-  "vue-template-compiler": "^2.5.21"
+  "vue-template-compiler": "^2.5.22"
  },
  "husky": {
   "hooks": {
