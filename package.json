@@ -24,9 +24,9 @@
  },
  "homepage": "https://github.com/amir20/dozzle#readme",
  "dependencies": {
-  "bulma": "^0.7.2",
+  "bulma": "^0.7.4",
   "date-fns": "^2.0.0-alpha.25",
-  "vue": "^2.6.3",
+  "vue": "^2.6.4",
   "vue-headful": "^2.0.1",
   "vue-router": "^3.0.2"
  },
@@ -41,7 +41,7 @@
   "prettier": "^1.16.4",
   "sass": "^1.17.0",
   "vue-hot-reload-api": "^2.3.1",
-  "vue-template-compiler": "^2.6.3"
+  "vue-template-compiler": "^2.6.4"
  },
  "husky": {
   "hooks": {
