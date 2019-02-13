@@ -11,24 +11,25 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.3.3 // indirect
-	github.com/gobuffalo/envy v1.6.12 // indirect
-	github.com/gobuffalo/packr v1.21.9
+	github.com/gobuffalo/envy v1.6.15 // indirect
+	github.com/gobuffalo/packr v1.22.0
 	github.com/gogo/protobuf v1.2.0 // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/gorilla/mux v1.7.0
 	github.com/magiconair/properties v1.8.0
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/rogpeppe/go-internal v1.2.1 // indirect
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/pflag v1.0.3
 	github.com/stretchr/testify v1.3.0
-	golang.org/x/crypto v0.0.0-20190128193316-c7b33c32a30b // indirect
-	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
-	golang.org/x/sys v0.0.0-20190124100055-b90733256f2e // indirect
+	golang.org/x/crypto v0.0.0-20190211182817-74369b46fc67 // indirect
+	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd // indirect
+	golang.org/x/sys v0.0.0-20190213121743-983097b1a8a3 // indirect
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	google.golang.org/appengine v1.2.0 // indirect
-	google.golang.org/genproto v0.0.0-20190128161407-8ac453e89fca // indirect
+	google.golang.org/genproto v0.0.0-20190201180003-4b09977fb922 // indirect
 	google.golang.org/grpc v1.18.0 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )
