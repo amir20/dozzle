@@ -31,12 +31,12 @@
   "vue-router": "^3.0.2"
  },
  "devDependencies": {
-  "@babel/core": "^7.2.2",
+  "@babel/core": "^7.3.3",
   "@babel/plugin-transform-runtime": "^7.2.0",
   "@vue/component-compiler-utils": "^2.5.2",
   "concurrently": "^4.1.0",
   "husky": "^1.3.1",
-  "lint-staged": "^8.1.3",
+  "lint-staged": "^8.1.4",
   "parcel-bundler": "^1.11.0",
   "prettier": "^1.16.4",
   "sass": "^1.17.0",
