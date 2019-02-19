@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	"io"
 	"log"
+	"os"
 	"sort"
 	"strings"
 )
@@ -74,7 +75,11 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 }
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error) {
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
+	tail := "300"
+	if value, ok := os.LookupEnv("TAIL_SIZE"); ok {
+		tail = value
+	}
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: tail, Timestamps: true}
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	errChannel := make(chan error, 1)
 
