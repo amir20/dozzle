@@ -2,7 +2,7 @@
   <div class="is-fullheight">
     <ul ref="events" class="events">
       <li v-for="item in messages" class="event" :key="item.key">
-        <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
+        <span class="date">{{ item.dateRelative }}</span> <span class="text item-message">{{ item.message }}</span>
       </li>
     </ul>
     <scrollbar-notification :messages="messages"></scrollbar-notification>
@@ -90,5 +90,9 @@ export default {
 
 .is-fullheight {
   min-height: 100vh;
+}
+
+.item-message {
+  white-space: pre;
 }
 </style>
