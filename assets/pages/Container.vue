@@ -91,8 +91,4 @@ export default {
 .is-fullheight {
   min-height: 100vh;
 }
-
-.text {
-  white-space: pre;
-}
 </style>
