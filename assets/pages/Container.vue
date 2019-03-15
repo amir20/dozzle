@@ -93,6 +93,6 @@ export default {
 }
 
 .text {
-  white-space: pre;
+  white-space: pre-wrap;
 }
 </style>
