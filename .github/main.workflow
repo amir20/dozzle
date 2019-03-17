@@ -1,19 +1,22 @@
 workflow "Release" {
   on = "push"
-  resolves = ["goreleaser"]
+  resolves = [
+    "goreleaser/goreleaser",
+  ]
 }
 
-action "is-tag" {
+action "cedrickring/golang-action@1.2.0" {
+  uses = "cedrickring/golang-action@1.2.0"
+}
+
+action "actions/bin/filter@master" {
   uses = "actions/bin/filter@master"
+  needs = ["cedrickring/golang-action@1.2.0"]
   args = "tag"
 }
 
-action "goreleaser" {
+action "goreleaser/goreleaser" {
   uses = "docker://goreleaser/goreleaser"
-  secrets = [
-    "GITHUB_TOKEN",
-  ]
-
+  needs = ["actions/bin/filter@master"]
   args = "release"
-  needs = ["is-tag"]
 }
