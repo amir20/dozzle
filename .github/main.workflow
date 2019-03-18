@@ -1,22 +1,22 @@
 workflow "Release" {
   on = "push"
   resolves = [
-    "goreleaser/goreleaser",
+    "release",
   ]
 }
 
-action "go-build" {
+action "test" {
   uses = "./.github/golang/"
 }
 
 action "is-tag" {
   uses = "actions/bin/filter@master"
-  needs = ["go-build"]
+  needs = ["test"]
   args = "tag"
 }
 
-action "goreleaser/goreleaser" {
-  uses = "docker://goreleaser/goreleaser"
+action "release" {
+  uses = "./.github/goreleaser/"
   needs = ["is-tag"]
   args = "release"
 }
