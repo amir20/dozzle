@@ -11,6 +11,7 @@ require (
 	github.com/gobuffalo/packr v1.22.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/gorilla/mux v1.7.0
+	github.com/magiconair/properties v1.8.0
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.3.0

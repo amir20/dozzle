@@ -5,18 +5,18 @@ workflow "Release" {
   ]
 }
 
-action "cedrickring/golang-action@1.2.0" {
-  uses = "cedrickring/golang-action@1.2.0"
+action "go-build" {
+  uses = "./.github/golang/"
 }
 
-action "actions/bin/filter@master" {
+action "is-tag" {
   uses = "actions/bin/filter@master"
-  needs = ["cedrickring/golang-action@1.2.0"]
+  needs = ["go-build"]
   args = "tag"
 }
 
 action "goreleaser/goreleaser" {
   uses = "docker://goreleaser/goreleaser"
-  needs = ["actions/bin/filter@master"]
+  needs = ["is-tag"]
   args = "release"
 }
