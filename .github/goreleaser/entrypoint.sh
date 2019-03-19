@@ -14,4 +14,5 @@ if [ -n "$GORELEASER_GITHUB_TOKEN" ] ; then
   export GITHUB_TOKEN=$GORELEASER_GITHUB_TOKEN
 fi
 
+npm ci
 goreleaser $@
