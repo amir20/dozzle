@@ -19,4 +19,5 @@ action "release" {
   uses = "./.github/goreleaser/"
   needs = ["is-tag"]
   args = "release"
+  secrets = ["GITHUB_TOKEN", "DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
