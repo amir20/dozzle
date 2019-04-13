@@ -1,12 +1,15 @@
 <template lang="html">
   <div class="is-fullheight">
+    <p class="control has-icons-left search" v-show="showHelp">
+      <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
+      <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+    </p>
     <ul ref="events" class="events">
-      <li v-for="item in messages" class="event" :key="item.key">
-        <span class="date">{{ item.dateRelative }}</span> <span class="text">{{ item.message }}</span>
+      <li v-for="item in filtered" class="event" :key="item.key">
+        <span class="date">{{ item.dateRelative }}</span> <span class="text" v-html="item.message"></span>
       </li>
     </ul>
     <scrollbar-notification :messages="messages"></scrollbar-notification>
-    <vue-headful :title="title" />
   </div>
 </template>
 
@@ -38,8 +41,22 @@ export default {
   data() {
     return {
       messages: [],
-      title: ""
+      showHelp: false,
+      title: "",
+      filter: ""
     };
+  },
+  metaInfo() {
+    return {
+      title: this.title,
+      titleTemplate: "%s - Dozzle"
+    };
+  },
+  mounted() {
+    window.addEventListener("keydown", this.onKeyDown);
+  },
+  destroyed() {
+    window.removeEventListener("keydown", this.onKeyDown);
   },
   created() {
     this.loadLogs(this.id);
@@ -67,6 +84,34 @@ export default {
       es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${id}`);
       es.onmessage = e => this.messages.push(parseMessage(e.data));
       this.title = `${this.name} - Dozzle`;
+    },
+    onKeyDown(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+        this.showHelp = true;
+        this.$nextTick(() => this.$refs.filter.focus());
+        e.preventDefault();
+      } else if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        this.messages = [];
+      } else if (e.key === "Escape") {
+        this.showHelp = false;
+        this.filter = "";
+      }
+    }
+  },
+  computed: {
+    filtered() {
+      if (this.filter) {
+        return this.messages
+          .filter(d => d.message.includes(this.filter))
+          .map(d => {
+            return {
+              ...d,
+              message: d.message.replace(this.filter, text => `<mark>${text}</mark>`)
+            };
+          });
+      } else {
+        return this.messages;
+      }
     }
   }
 };
@@ -94,5 +139,17 @@ export default {
 
 .text {
   white-space: pre-wrap;
+}
+
+.search {
+  width: 300px;
+  position: fixed;
+  right: 1em;
+  top: 1em;
+}
+
+/deep/ mark {
+  border-radius: 2px;
+  background-color: #ffdd57;
 }
 </style>

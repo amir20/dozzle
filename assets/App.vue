@@ -19,8 +19,9 @@
         </li>
       </ul>
     </aside>
-    <div class="column is-offset-2-desktop is-offset-3-tablet"><router-view></router-view></div>
-    <vue-headful :title="title" />
+    <div class="column is-offset-2-desktop is-offset-3-tablet">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -33,6 +34,11 @@ export default {
       title: "Dozzle",
       containers: [],
       showNav: false
+    };
+  },
+  metaInfo() {
+    return {
+      title: this.title
     };
   },
   async created() {
@@ -80,6 +86,7 @@ aside {
       overflow: auto;
     }
   }
+
   @media screen and (max-width: 768px) {
     & {
       position: sticky;

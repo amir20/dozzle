@@ -44,7 +44,7 @@ export default {
     }
   },
   watch: {
-    messages(newValue, oldValue) {
+    messages() {
       if (this.visible) {
         this.hasNew = true;
       } else {
