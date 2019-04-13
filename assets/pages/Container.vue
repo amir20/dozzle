@@ -104,12 +104,15 @@ export default {
   computed: {
     filtered() {
       if (this.filter) {
+        const isLowerCase = this.filter === this.filter.toLowerCase();
+        const smartCase = isLowerCase ? s => s.toLowerCase() : s => s;
+        const regex = isLowerCase ? new RegExp(this.filter, "i") : new RegExp(this.filter);
         return this.messages
-          .filter(d => d.message.includes(this.filter))
+          .filter(d => smartCase(d.message).includes(this.filter))
           .map(d => {
             return {
               ...d,
-              message: d.message.replace(this.filter, text => `<mark>${text}</mark>`)
+              message: d.message.replace(regex, text => `<mark>${text}</mark>`)
             };
           });
       } else {
