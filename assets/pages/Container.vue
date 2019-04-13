@@ -8,7 +8,7 @@
         </p>
       </div>
       <div class="column is-1 has-text-centered">
-        <button class="delete is-medium" @click="showSearch = false"></button>
+        <button class="delete is-medium" @click="resetSearch()"></button>
       </div>
     </div>
 
@@ -101,9 +101,12 @@ export default {
       } else if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         this.messages = [];
       } else if (e.key === "Escape") {
-        this.showSearch = false;
-        this.filter = "";
+        this.resetSearch();
       }
+    },
+    resetSearch() {
+      this.showSearch = false;
+      this.filter = "";
     }
   },
   computed: {
