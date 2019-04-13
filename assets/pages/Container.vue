@@ -1,9 +1,12 @@
 <template lang="html">
   <div class="is-fullheight">
-    <p class="control has-icons-left search" v-show="showHelp">
-      <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
-      <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
-    </p>
+    <div class="search" v-show="showHelp">
+      <p class="control has-icons-left">
+        <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
+        <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+      </p>
+    </div>
+
     <ul ref="events" class="events">
       <li v-for="item in filtered" class="event" :key="item.key">
         <span class="date">{{ item.dateRelative }}</span> <span class="text" v-html="item.message"></span>
@@ -144,8 +147,11 @@ export default {
 .search {
   width: 300px;
   position: fixed;
-  right: 1em;
-  top: 1em;
+  padding: 10px;
+  background: rgba(50, 50, 50, 0.9);
+  top: 0;
+  right: 0;
+  border-radius: 0 0 0 5px;
 }
 
 /deep/ mark {
