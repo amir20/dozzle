@@ -1,8 +1,7 @@
 {
  "name": "dozzle",
  "version": "1.7.4",
- "description": "",
- "main": "index.js",
+ "description": "Realtime log viewer for docker containers. ",
  "scripts": {
   "prestart": "npm run clean",
   "start": "DOCKER_API_VERSION=1.38 concurrently 'npm run watch-server' 'npm run watch-assets'",

@@ -1,13 +1,18 @@
 <template lang="html">
   <div class="is-fullheight">
-    <div class="search" v-show="showHelp">
-      <p class="control has-icons-left">
-        <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
-        <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
-      </p>
+    <div class="search columns is-gapless is-vcentered" v-show="showSearch">
+      <div class="column">
+        <p class="control has-icons-left">
+          <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
+          <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+        </p>
+      </div>
+      <div class="column is-1 has-text-centered">
+        <button class="delete is-medium" @click="showSearch = false"></button>
+      </div>
     </div>
 
-    <ul ref="events" class="events">
+    <ul class="events">
       <li v-for="item in filtered" class="event" :key="item.key">
         <span class="date">{{ item.dateRelative }}</span> <span class="text" v-html="item.message"></span>
       </li>
@@ -44,7 +49,7 @@ export default {
   data() {
     return {
       messages: [],
-      showHelp: false,
+      showSearch: false,
       title: "",
       filter: ""
     };
@@ -90,34 +95,32 @@ export default {
     },
     onKeyDown(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === "f") {
-        this.showHelp = true;
+        this.showSearch = true;
         this.$nextTick(() => this.$refs.filter.focus());
         e.preventDefault();
       } else if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         this.messages = [];
       } else if (e.key === "Escape") {
-        this.showHelp = false;
+        this.showSearch = false;
         this.filter = "";
       }
     }
   },
   computed: {
     filtered() {
-      if (this.filter) {
-        const isLowerCase = this.filter === this.filter.toLowerCase();
-        const smartCase = isLowerCase ? s => s.toLowerCase() : s => s;
-        const regex = isLowerCase ? new RegExp(this.filter, "i") : new RegExp(this.filter);
+      const { filter } = this;
+      if (filter) {
+        const isSmartCase = filter === filter.toLowerCase();
+        const smartCase = isSmartCase ? s => s.toLowerCase() : s => s;
+        const regex = isSmartCase ? new RegExp(filter, "i") : new RegExp(filter);
         return this.messages
-          .filter(d => smartCase(d.message).includes(this.filter))
-          .map(d => {
-            return {
-              ...d,
-              message: d.message.replace(regex, text => `<mark>${text}</mark>`)
-            };
-          });
-      } else {
-        return this.messages;
+          .filter(d => smartCase(d.message).includes(filter))
+          .map(d => ({
+            ...d,
+            message: d.message.replace(regex, text => `<mark>${text}</mark>`)
+          }));
       }
+      return this.messages;
     }
   }
 };
@@ -148,7 +151,7 @@ export default {
 }
 
 .search {
-  width: 300px;
+  width: 350px;
   position: fixed;
   padding: 10px;
   background: rgba(50, 50, 50, 0.9);
@@ -156,7 +159,9 @@ export default {
   right: 0;
   border-radius: 0 0 0 5px;
 }
-
+.delete {
+  margin-left: 1em;
+}
 /deep/ mark {
   border-radius: 2px;
   background-color: #ffdd57;
