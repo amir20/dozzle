@@ -116,7 +116,7 @@ export default {
         const isSmartCase = filter === filter.toLowerCase();
         const regex = isSmartCase ? new RegExp(filter, "i") : new RegExp(filter);
         return this.messages
-          .filter(d => d.message.match(filter))
+          .filter(d => d.message.match(regex))
           .map(d => ({
             ...d,
             message: d.message.replace(regex, "<mark>$&</mark>")
