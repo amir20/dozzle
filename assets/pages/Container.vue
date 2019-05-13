@@ -164,6 +164,7 @@ export default {
 .delete {
   margin-left: 1em;
 }
+
 /deep/ mark {
   border-radius: 2px;
   background-color: #ffdd57;
