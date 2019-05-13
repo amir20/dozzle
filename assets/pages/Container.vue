@@ -167,5 +167,16 @@ export default {
 /deep/ mark {
   border-radius: 2px;
   background-color: #ffdd57;
+  animation: pops 0.2s ease-out;
+  display: inline-block;
+}
+
+@keyframes pops {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.05);
+  }
 }
 </style>
