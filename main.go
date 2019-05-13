@@ -8,7 +8,8 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"html/template"
 	"net/http"
 	"os"
@@ -33,10 +34,18 @@ type handler struct {
 }
 
 func init() {
-	flag.StringVar(&addr, "addr", ":8080", "http service address")
-	flag.StringVar(&base, "base", "/", "base address of the application to mount")
-	flag.StringVar(&level, "level", "info", "logging level")
-	flag.Parse()
+	pflag.String("addr", ":8080", "http service address")
+	pflag.String("base", "/", "base address of the application to mount")
+	pflag.String("level", "info", "logging level")
+	pflag.Parse()
+
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("DOZZLE")
+	viper.BindPFlags(pflag.CommandLine)
+
+	addr = viper.GetString("addr")
+	base = viper.GetString("base")
+	level = viper.GetString("level")
 
 	l, _ := log.ParseLevel(level)
 	log.SetLevel(l)
