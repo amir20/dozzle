@@ -31,8 +31,8 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return containers, args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string) (<-chan string, <-chan error) {
-	args := m.Called(ctx, id)
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int) (<-chan string, <-chan error) {
+	args := m.Called(ctx, id, tailSize)
 	channel, ok := args.Get(0).(chan string)
 	if !ok {
 		panic("channel is not of type chan string")
@@ -91,7 +91,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	id := "123456"
 	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
 	q := req.URL.Query()
-	q.Add("id", "123456")
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -101,7 +101,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	messages := make(chan string)
 	errChannel := make(chan error)
-	mockedClient.On("ContainerLogs", mock.Anything, id).Return(messages, errChannel)
+	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
 	go func() {
 		messages <- "INFO Testing logs..."
 		close(messages)
@@ -126,7 +126,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	mockedClient := new(MockedClient)
 	messages := make(chan string)
 	errChannel := make(chan error)
-	mockedClient.On("ContainerLogs", mock.Anything, id).Return(messages, errChannel)
+	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
 
 	go func() {
 		errChannel <- errors.New("test error")
