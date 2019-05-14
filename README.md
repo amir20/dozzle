@@ -39,24 +39,24 @@ will bind to `localhost` on port `1224`. You can then use a reverse proxy to con
 #### Changing base URL
 
 dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
-then you can override by using `--base /foobar`.
+then you can override by using `--base /foobar`. See env variables below for using `DOZZLE_BASE` to change this. 
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest --base /foobar
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
 
-#### Environment variable, DOCKER_API_VERSION
+#### Environment variables and configuration 
 
-If you see
+Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars. 
 
-    2018/10/31 08:53:17 Error response from daemon: client version 1.40 is too new. Maximum supported API version is 1.38
-
-Then you need to modify `DOCKER_API_VERSION` to let dozzle know which version of the API is supported. By default, `DOCKER_API_VERSION=1.38` and you can change it by passing `-e` flag. For example, this would change the `DOCKER_API_VERSION` to `1.20`
-
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -e DOCKER_API_VERSION=1.20 -p 8888:8080 amir20/dozzle:latest
-
-If you are not sure what to set `DOCKER_API_VERSION` then run `docker version` which will show supported API version.
+| Flag | Env Variable | Default | 
+| --- | --- | --- | 
+| `--addr` | `DOZZLE_ADDR` | `:8080` |
+| `--base` | `DOZZLE_BASE` | `/` |
+| `--level` | `DOZZLE_LEVEL` | `info` |
+| n/a | `DOCKER_API_VERSION` | `1.38` |
+| n/a | `TAIL_SIZE` | `300` | 
 
 ## License
 
