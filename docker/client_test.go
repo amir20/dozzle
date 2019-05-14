@@ -30,7 +30,7 @@ func (m *mockedProxy) ContainerList(context.Context, types.ContainerListOptions)
 }
 
 func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options types.ContainerLogsOptions) (io.ReadCloser, error) {
-	args := m.Called(ctx, id)
+	args := m.Called(ctx, id, options)
 	reader, ok := args.Get(0).(io.ReadCloser)
 	if !ok && args.Get(0) != nil {
 		panic("reader is not of type io.ReadCloser")
@@ -109,10 +109,11 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 
 	var reader io.ReadCloser
 	reader = ioutil.NopCloser(bytes.NewReader(b))
-	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(reader, nil)
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
+	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
 	client := &dockerClient{proxy}
-	messages, _ := client.ContainerLogs(context.Background(), id)
+	messages, _ := client.ContainerLogs(context.Background(), id, 300)
 
 	actual, _ := <-messages
 	assert.Equal(t, expected, actual, "message doesn't match expected")
@@ -125,10 +126,12 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 	id := "123456"
 	proxy := new(mockedProxy)
+
 	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(nil, errors.New("test"))
 
 	client := &dockerClient{proxy}
-	messages, err := client.ContainerLogs(context.Background(), id)
+
+	messages, err := client.ContainerLogs(context.Background(), id, 300)
 
 	assert.Nil(t, messages, "messages should be nil")
 

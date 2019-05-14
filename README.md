@@ -39,24 +39,24 @@ will bind to `localhost` on port `1224`. You can then use a reverse proxy to con
 #### Changing base URL
 
 dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
-then you can override by using `--base /foobar`. See env variables below for using `DOZZLE_BASE` to change this. 
+then you can override by using `--base /foobar`. See env variables below for using `DOZZLE_BASE` to change this.
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest --base /foobar
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
 
-#### Environment variables and configuration 
+#### Environment variables and configuration
 
-Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars. 
+Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag | Env Variable | Default | 
-| --- | --- | --- | 
+| Flag | Env Variable | Default |
+| --- | --- | --- |
 | `--addr` | `DOZZLE_ADDR` | `:8080` |
 | `--base` | `DOZZLE_BASE` | `/` |
 | `--level` | `DOZZLE_LEVEL` | `info` |
 | n/a | `DOCKER_API_VERSION` | `1.38` |
-| n/a | `TAIL_SIZE` | `300` | 
+| `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
 
 ## License
 
