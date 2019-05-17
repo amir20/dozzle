@@ -13,6 +13,7 @@
     "autoprefixer": "^9.5.1"
   },
   "scripts": {
+    "prebuild": "rm ../docs/*.{html,css,map}",
     "build": "npx parcel build -d ../docs index.html",
     "dev": "npx parcel index.html"
   },
