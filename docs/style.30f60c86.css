@@ -5198,12 +5198,12 @@ h1.title {
   font-weight: 500;
 }
 .green-highlight {
-  -webkit-box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.4);
-  box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.4);
+  -webkit-box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.6);
+  box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.6);
 }
-.red-highlight {
-  -webkit-box-shadow: inset 0 -6px 0 rgba(255, 71, 71, 0.3);
-  box-shadow: inset 0 -6px 0 rgba(255, 71, 71, 0.3);
+.yellow-highlight {
+  -webkit-box-shadow: inset 0 -6px 0 rgba(211, 196, 5, 0.8);
+  box-shadow: inset 0 -6px 0 rgba(211, 196, 5, 0.8);
 }
 #video {
   display: -webkit-box;
@@ -5213,8 +5213,8 @@ h1.title {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-shadow: 0 10px 22px 4px rgba(0, 0, 0, 0.75);
-  box-shadow: 0 10px 22px 4px rgba(0, 0, 0, 0.75);
+  -webkit-box-shadow: 0 6px 14px 5px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 14px 5px rgba(0, 0, 0, 0.45);
   border-radius: 5px 5px 0 0;
   overflow: hidden;
   border: 1px solid #777;
@@ -5222,10 +5222,10 @@ h1.title {
 #video .browser {
   position: relative;
   display: block;
-  height: 41px;
+  height: 38px;
   width: 100%;
   background: #222;
-  line-height: 45px;
+  line-height: 42px;
   padding-left: 15px;
 }
 #video .browser .circle {
@@ -5245,4 +5245,4 @@ h1.title {
   background-color: #35c454;
 }
 
-/*# sourceMappingURL=/style.dc129b46.css.map */
+/*# sourceMappingURL=/style.30f60c86.css.map */

@@ -15,17 +15,17 @@ h1.title {
 }
 
 .green-highlight {
-  box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.4);
+  box-shadow: inset 0 -6px 0 rgba(53, 196, 84, 0.6);
 }
 
-.red-highlight {
-  box-shadow: inset 0 -6px 0 rgba(255, 71, 71, 0.3);
+.yellow-highlight {
+  box-shadow: inset 0 -6px 0 rgba(211, 196, 5, 0.8);
 }
 
 #video {
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 10px 22px 4px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 6px 14px 5px rgba(0, 0, 0, 0.45);
   border-radius: 5px 5px 0px 0px;
   overflow: hidden;
   border: 1px solid #777;
@@ -33,10 +33,10 @@ h1.title {
   .browser {
     position: relative;
     display: block;
-    height: 41px;
+    height: 38px;
     width: 100%;
     background: #222;
-    line-height: 45px;
+    line-height: 42px;
     padding-left: 15px;
 
     .circle {
@@ -51,7 +51,7 @@ h1.title {
       }
 
       &.yellow {
-        background-color: #d3c437;
+        background-color: rgb(211, 196, 55);
       }
 
       &.green {
