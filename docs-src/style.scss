@@ -1,3 +1,16 @@
+@charset "utf-8";
+
+$purple: #8a4d76;
+$pink: #fa7c91;
+
+$beige-light: #d0d1cd;
+$beige-lighter: #eff0eb;
+
+$grey-light: $beige-light;
+$primary: $purple;
+$link: $pink;
+$body-background-color: $beige-lighter;
+
 @import "~bulma/sass/utilities/_all.sass";
 @import "~bulma/sass/base/_all.sass";
 @import "~bulma/sass/layout/hero.sass";
@@ -58,5 +71,25 @@ h1.title {
         background-color: rgb(53, 196, 84);
       }
     }
+  }
+}
+
+pre {
+  box-shadow: 0 0 0 2px #ffdd57;
+  border-radius: 3px;
+}
+
+.button.copy {
+  background: 0 0;
+  border: none;
+  color: #4a4a4a;
+  cursor: pointer;
+  font-size: 0.625rem;
+  outline: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+  &:hover {
+    background-color: #ffdd57;
+    color: rgba(0, 0, 0, 0.7);
   }
 }
