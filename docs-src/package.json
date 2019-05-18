@@ -10,10 +10,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
-    "autoprefixer": "^9.5.1"
+    "autoprefixer": "^9.5.1",
+    "del-cli": "^1.1.0"
   },
   "scripts": {
-    "prebuild": "rm ../docs/*.{html,css,map}",
+    "prebuild": "npx del -f '../docs/*' !'../docs/CNAME'",
     "build": "npx parcel build -d ../docs index.html",
     "dev": "npx parcel index.html"
   },
