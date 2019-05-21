@@ -12,11 +12,12 @@
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "autoprefixer": "^9.5.1",
-    "del-cli": "^1.1.0"
+    "del-cli": "^1.1.0",
+    "parcel-plugin-inline-source": "^1.0.0"
   },
   "scripts": {
     "prebuild": "npx del -f '../docs/*' !'../docs/CNAME'",
-    "build": "npx parcel build -d ../docs index.html",
+    "build": "npx parcel build -d ../docs --public-url . --no-source-maps index.html",
     "dev": "npx parcel index.html"
   },
   "author": "",
