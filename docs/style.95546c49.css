@@ -5213,9 +5213,9 @@ h1.title {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-shadow: 0 6px 14px 5px rgba(0, 0, 0, 0.45);
-  box-shadow: 0 6px 14px 5px rgba(0, 0, 0, 0.45);
-  border-radius: 5px 5px 0 0;
+  -webkit-box-shadow: 0 4px 12px 3px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 12px 3px rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid #777;
 }
