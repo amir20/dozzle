@@ -7,4 +7,3 @@ ENV DOCKER_API_VERSION 1.38
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY dozzle /
 ENTRYPOINT ["/dozzle"]
-EXPOSE 8080
