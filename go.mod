@@ -21,7 +21,6 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gobuffalo/packd v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.25.0
-	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/gorilla/mux v1.7.2
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
@@ -34,11 +33,8 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
-	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5 // indirect
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
 	golang.org/x/sys v0.0.0-20190509141414-a5b02f93d862 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
-	google.golang.org/grpc v1.20.1 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )
