@@ -26,7 +26,7 @@
   "bulma": "^0.7.5",
   "date-fns": "^2.0.0-alpha.31",
   "vue": "^2.6.10",
-  "vue-meta": "^1.6.0",
+  "vue-meta": "^2.0.2",
   "vue-router": "^3.0.6"
  },
  "devDependencies": {
@@ -35,7 +35,7 @@
   "@vue/component-compiler-utils": "^3.0.0",
   "concurrently": "^4.1.0",
   "husky": "^2.4.0",
-  "lint-staged": "^8.1.7",
+  "lint-staged": "^8.2.0",
   "parcel-bundler": "^1.12.3",
   "prettier": "^1.18.2",
   "sass": "^1.21.0",
