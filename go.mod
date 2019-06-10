@@ -23,7 +23,7 @@ require (
 	github.com/gobuffalo/packr v1.25.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/google/go-cmp v0.3.0 // indirect
-	github.com/gorilla/mux v1.7.1
+	github.com/gorilla/mux v1.7.2
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/magiconair/properties v1.8.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
