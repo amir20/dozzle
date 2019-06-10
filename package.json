@@ -37,7 +37,7 @@
   "husky": "^2.3.0",
   "lint-staged": "^8.1.7",
   "parcel-bundler": "^1.12.3",
-  "prettier": "^1.17.1",
+  "prettier": "^1.18.2",
   "sass": "^1.20.1",
   "vue-hot-reload-api": "^2.3.3",
   "vue-template-compiler": "^2.6.10"
