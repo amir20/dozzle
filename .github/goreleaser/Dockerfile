@@ -1,4 +1,4 @@
-FROM goreleaser/goreleaser:v0.106
+FROM goreleaser/goreleaser:latest
 
 RUN go get -u github.com/gobuffalo/packr/packr
 RUN apk --no-cache add nodejs-current nodejs-npm && npm i -g npm
