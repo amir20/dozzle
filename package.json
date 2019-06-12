@@ -10,7 +10,8 @@
   "prebuild": "npm run clean",
   "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
   "clean": "rm -rf static/ a_main-packr.go",
-  "release": "goreleaser --rm-dist"
+  "release": "goreleaser --rm-dist",
+  "test": "jest"
  },
  "repository": {
   "type": "git",
@@ -33,13 +34,22 @@
   "@babel/core": "^7.4.5",
   "@babel/plugin-transform-runtime": "^7.4.4",
   "@vue/component-compiler-utils": "^3.0.0",
+  "@vue/test-utils": "^1.0.0-beta.29",
+  "babel-core": "^7.0.0-bridge.0",
+  "babel-jest": "^24.8.0",
   "concurrently": "^4.1.0",
+  "eventsourcemock": "^2.0.0",
+  "fetch-mock": "^7.3.3",
+  "flush-promises": "^1.0.2",
   "husky": "^2.4.1",
+  "jest": "^24.8.0",
   "lint-staged": "^8.2.0",
+  "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.3",
   "prettier": "^1.18.2",
   "sass": "^1.21.0",
   "vue-hot-reload-api": "^2.3.3",
+  "vue-jest": "^3.0.4",
   "vue-template-compiler": "^2.6.10"
  },
  "husky": {
@@ -59,5 +69,16 @@
  ],
  "alias": {
   "vue": "./node_modules/vue/dist/vue.esm.js"
+ },
+ "jest": {
+  "moduleFileExtensions": [
+   "js",
+   "json",
+   "vue"
+  ],
+  "transform": {
+   ".*\\.vue$": "vue-jest",
+   ".+\\.js$": "babel-jest"
+  }
  }
 }
