@@ -24,7 +24,7 @@
  "homepage": "https://github.com/amir20/dozzle#readme",
  "dependencies": {
   "bulma": "^0.7.5",
-  "date-fns": "^2.0.0-alpha.31",
+  "date-fns": "^2.0.0-alpha.32",
   "vue": "^2.6.10",
   "vue-meta": "^2.0.2",
   "vue-router": "^3.0.6"
