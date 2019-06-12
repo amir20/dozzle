@@ -42,6 +42,7 @@
   "fetch-mock": "^7.3.3",
   "husky": "^2.4.1",
   "jest": "^24.8.0",
+  "jest-serializer-vue": "^2.0.2",
   "lint-staged": "^8.2.0",
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.3",
@@ -74,6 +75,9 @@
    "js",
    "json",
    "vue"
+  ],
+  "snapshotSerializers": [
+   "jest-serializer-vue"
   ],
   "transform": {
    ".*\\.vue$": "vue-jest",
