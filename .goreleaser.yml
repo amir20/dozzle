@@ -13,14 +13,14 @@ builds:
       - amd64
       - arm
       - arm64
-archive:
-  replacements:
-    amd64: 64-bit
-    386: 32-bit
-    arm64: ARM_64-bit
-    arm: ARM_32-bit
-    linux: Linux
-    darwin: Darwin
+archives:
+  - replacements:
+      amd64: 64-bit
+      386: 32-bit
+      arm64: ARM_64-bit
+      arm: ARM_32-bit
+      linux: Linux
+      darwin: Darwin
 checksum:
   name_template: "checksums.txt"
 snapshot:
@@ -36,3 +36,12 @@ dockers:
       - "amir20/dozzle:{{ .Tag }}"
       - "amir20/dozzle:v{{ .Major }}.{{ .Minor }}"
       - amir20/dozzle:latest
+    build_flag_templates:
+      - "--label=org.label-schema.schema-version=1.0"
+      - "--label=org.label-schema.build-date={{.Date}}"
+      - "--label=org.label-schema.vcs-ref={{.ShortCommit}}"
+      - "--label=org.label-schema.version={{.Version}}"
+      - "--label=org.label-schema.name=Dozzle"
+      - "--label=org.label-schema.url=https://dozzle.dev/"
+      - "--label=org.label-schema.vcs-url=https://github.com/amir20/dozzle"
+      - "--label=org.label-schema.description=Dozzle is a real-time log viewer for docker containers."
