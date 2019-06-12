@@ -1,23 +1,28 @@
-workflow "Release" {
+workflow "Build, Test and Release" {
   on = "push"
   resolves = [
-    "release",
+    "Release",
   ]
 }
 
-action "test" {
+action "go test" {
   uses = "./.github/golang/"
 }
 
-action "is-tag" {
+action "npm test" {
+  uses = "actions/npm@master"
+  args = "it"
+}
+
+action "Tag" {
   uses = "actions/bin/filter@master"
-  needs = ["test"]
+  needs = ["go test", "npm test"]
   args = "tag"
 }
 
-action "release" {
+action "Release" {
   uses = "./.github/goreleaser/"
-  needs = ["is-tag"]
+  needs = ["Tag"]
   args = "release"
   secrets = ["GITHUB_TOKEN", "DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }

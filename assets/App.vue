@@ -43,7 +43,6 @@ export default {
   },
   async created() {
     await this.fetchContainerList();
-    this.title = `${this.containers.length} containers - Dozzle`;
     es = new EventSource(`${BASE_PATH}/api/events/stream`);
     es.addEventListener("containers-changed", e => setTimeout(this.fetchContainerList, 1000), false);
   },
@@ -56,6 +55,7 @@ export default {
   methods: {
     async fetchContainerList() {
       this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+      this.title = `${this.containers.length} containers - Dozzle`;
     }
   },
   watch: {
