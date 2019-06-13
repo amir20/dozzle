@@ -91,7 +91,7 @@ export default {
       }
       es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${id}`);
       es.onmessage = e => this.messages.push(parseMessage(e.data));
-      this.title = `${this.name} - Dozzle`;
+      this.title = `${this.name}`;
     },
     onKeyDown(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === "f") {
