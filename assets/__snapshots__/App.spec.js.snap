@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App /> renders correctly 1`] = `
+<div
+  class="columns is-marginless"
+>
+  <aside
+    class="column menu is-2-desktop is-3-tablet"
+  >
+    <a
+      class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
+      role="button"
+    >
+      <span />
+       
+      <span />
+       
+      <span />
+    </a>
+     
+    <h1
+      class="title has-text-warning is-marginless"
+    >
+      Dozzle
+    </h1>
+     
+    <p
+      class="menu-label is-hidden-mobile"
+    >
+      Containers
+    </p>
+     
+    <ul
+      class="menu-list is-hidden-mobile"
+    >
+      <li>
+        <a>
+          <div
+            class="hide-overflow"
+          >
+            Test 1
+          </div>
+        </a>
+      </li>
+      <li>
+        <a>
+          <div
+            class="hide-overflow"
+          >
+            Test 2
+          </div>
+        </a>
+      </li>
+    </ul>
+  </aside>
+   
+  <div
+    class="column is-offset-2-desktop is-offset-3-tablet"
+  >
+    <router-view-stub />
+  </div>
+</div>
+`;
