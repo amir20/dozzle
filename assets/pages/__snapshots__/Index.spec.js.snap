@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Index /> renders correctly 1`] = `
+<div
+  class="hero is-fullheight is-dark"
+>
+  <div
+    class="hero-body"
+  >
+    <div
+      class="container has-text-centered"
+    >
+      <h1
+        class="title"
+      >
+        Please choose a container from the list to view the logs
+      </h1>
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Container /> renders correctly 1`] = `
+<div
+  class="is-fullheight"
+>
+  <div
+    class="search columns is-gapless is-vcentered"
+    style="display: none;"
+  >
+    <div
+      class="column"
+    >
+      <p
+        class="control has-icons-left"
+      >
+        <input
+          class="input"
+          placeholder="Filter"
+          type="text"
+        />
+         
+        <span
+          class="icon is-small is-left"
+        >
+          <i
+            class="fas fa-search"
+          />
+        </span>
+      </p>
+    </div>
+     
+    <div
+      class="column is-1 has-text-centered"
+    >
+      <button
+        class="delete is-medium"
+      />
+    </div>
+  </div>
+   
+  <ul
+    class="events"
+  />
+   
+  <scrollbar-notification-stub
+    messages=""
+  />
+</div>
+`;

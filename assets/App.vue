@@ -31,14 +31,15 @@ export default {
   name: "App",
   data() {
     return {
-      title: "Dozzle",
+      title: "",
       containers: [],
       showNav: false
     };
   },
   metaInfo() {
     return {
-      title: this.title
+      title: this.title,
+      titleTemplate: "%s - Dozzle"
     };
   },
   async created() {
@@ -55,7 +56,7 @@ export default {
   methods: {
     async fetchContainerList() {
       this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
-      this.title = `${this.containers.length} containers - Dozzle`;
+      this.title = `${this.containers.length} containers`;
     }
   },
   watch: {
