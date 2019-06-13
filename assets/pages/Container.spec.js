@@ -49,13 +49,13 @@ describe("<Container />", () => {
     const [message, _] = wrapper.vm.messages;
 
     expect(message).toMatchInlineSnapshot(`
-            Object {
-              "date": 2019-06-13T00:55:42.459Z,
-              "dateRelative": "today at 5:55 PM",
-              "key": 0,
-              "message": " \\"This is a message.\\"",
-            }
-        `);
+                  Object {
+                    "date": 2019-06-13T00:55:42.459Z,
+                    "dateRelative": "today at 5:55 PM",
+                    "key": 0,
+                    "message": " \\"This is a message.\\"",
+                  }
+            `);
   });
 
   test("should render messages", async () => {
@@ -67,8 +67,25 @@ describe("<Container />", () => {
     sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-13T00:55:42.459034602Z "This is a message."` });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
+            <ul class="events">
+              <li class="event"><span class="date">today at 5:55 PM</span> <span class="text"> "This is a message."</span></li>
+            </ul>
+        `);
+  });
+
+  test("should render messages with color", async () => {
+    MockDate.set("6/12/2019");
+    const wrapper = shallowMount(Container, {
+      propsData: { id: "abc" }
+    });
+    sources["/api/logs/stream?id=abc"].emitOpen();
+    sources["/api/logs/stream?id=abc"].emitMessage({
+      data: `2019-06-13T00:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`
+    });
+
+    expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events">
-        <li class="event"><span class="date">today at 5:55 PM</span> <span class="text"> "This is a message."</span></li>
+        <li class="event"><span class="date">today at 5:55 PM</span> <span class="text"> <span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
       </ul>
     `);
   });
