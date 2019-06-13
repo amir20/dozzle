@@ -34,28 +34,22 @@ exports[`<App /> renders correctly 1`] = `
       class="menu-list is-hidden-mobile"
     >
       <li>
-        <router-link-stub
-          active-class="is-active"
-          to="[object Object]"
-        >
+        <a>
           <div
             class="hide-overflow"
           >
             Test 1
           </div>
-        </router-link-stub>
+        </a>
       </li>
       <li>
-        <router-link-stub
-          active-class="is-active"
-          to="[object Object]"
-        >
+        <a>
           <div
             class="hide-overflow"
           >
             Test 2
           </div>
-        </router-link-stub>
+        </a>
       </li>
     </ul>
   </aside>

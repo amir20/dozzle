@@ -76,6 +76,18 @@
    "json",
    "vue"
   ],
+  "coveragePathIgnorePatterns": [
+   "node_modules"
+  ],
+  "testPathIgnorePatterns": [
+   "node_modules"
+  ],
+  "transformIgnorePatterns": [
+   "node_modules"
+  ],
+  "watchPathIgnorePatterns": [
+   "<rootDir>/node_modules/"
+  ],
   "snapshotSerializers": [
    "jest-serializer-vue"
   ],

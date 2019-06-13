@@ -1,10 +1,10 @@
 import fetchMock from "fetch-mock";
 import EventSource from "eventsourcemock";
-import { shallowMount } from "@vue/test-utils";
-import App from "../App";
+import { shallowMount, RouterLinkStub } from "@vue/test-utils";
+import App from "./App";
 
 describe("<App />", () => {
-  const stubs = ["router-link", "router-view"];
+  const stubs = { RouterLink: RouterLinkStub, "router-view": true };
   beforeEach(() => {
     global.BASE_PATH = "";
     global.EventSource = EventSource;
@@ -20,12 +20,26 @@ describe("<App />", () => {
   test("has right title", async () => {
     const wrapper = shallowMount(App, { stubs });
     await fetchMock.flush();
-    expect(wrapper.vm.title).toBe("2 containers - Dozzle");
+    expect(wrapper.vm.title).toContain("2 containers");
   });
 
   test("renders correctly", async () => {
     const wrapper = shallowMount(App, { stubs });
     await fetchMock.flush();
     expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("renders router-link correctly", async () => {
+    const wrapper = shallowMount(App, { stubs });
+    await fetchMock.flush();
+    expect(wrapper.find(RouterLinkStub).props().to).toMatchInlineSnapshot(`
+      Object {
+        "name": "container",
+        "params": Object {
+          "id": "abc",
+          "name": "Test 1",
+        },
+      }
+    `);
   });
 });
