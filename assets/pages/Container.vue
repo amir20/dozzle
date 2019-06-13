@@ -23,14 +23,18 @@
 
 <script>
 import { formatRelative } from "date-fns";
+import AnsiConvertor from "ansi-to-html";
 import ScrollbarNotification from "../components/ScrollbarNotification";
+
+const ansiConvertor = new AnsiConvertor();
 
 let es = null;
 let nextId = 0;
-const parseMessage = data => {
+
+function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
   const dateRelative = formatRelative(date, new Date());
-  const message = data.substring(30);
+  const message = ansiConvertor.toHtml(data.substring(30));
   const key = nextId++;
   return {
     key,
@@ -38,7 +42,7 @@ const parseMessage = data => {
     dateRelative,
     message
   };
-};
+}
 
 export default {
   props: ["id", "name"],
