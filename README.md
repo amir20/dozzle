@@ -4,7 +4,7 @@
 [![Docker Size](https://images.microbadger.com/badges/image/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 [![Docker Version](https://images.microbadger.com/badges/version/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 
-# dozzle
+# Dozzle - [dozzle.dev](https://dozzle.dev/)
 
 Dozzle is a log viewer for Docker. It's free. It's small. And it's right in your browser. Oh, did I mention it is also real-time?
 
