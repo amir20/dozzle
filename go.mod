@@ -20,7 +20,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gobuffalo/packd v0.1.0 // indirect
-	github.com/gobuffalo/packr v1.25.0
+	github.com/gobuffalo/packr v1.26.0
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/gorilla/mux v1.7.2
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
