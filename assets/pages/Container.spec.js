@@ -8,6 +8,7 @@ describe("<Container />", () => {
   beforeEach(() => {
     global.BASE_PATH = "";
     global.EventSource = EventSource;
+    MockDate.set("6/12/2019", 0);
   });
 
   afterEach(() => MockDate.reset());
@@ -40,7 +41,6 @@ describe("<Container />", () => {
   });
 
   test("should parse messages", async () => {
-    MockDate.set("6/12/2019");
     const wrapper = shallowMount(Container, {
       propsData: { id: "abc" }
     });
@@ -49,17 +49,16 @@ describe("<Container />", () => {
     const [message, _] = wrapper.vm.messages;
 
     expect(message).toMatchInlineSnapshot(`
-                  Object {
-                    "date": 2019-06-13T00:55:42.459Z,
-                    "dateRelative": "today at 5:55 PM",
-                    "key": 0,
-                    "message": " \\"This is a message.\\"",
-                  }
-            `);
+      Object {
+        "date": 2019-06-13T00:55:42.459Z,
+        "dateRelative": "today at 12:55 AM",
+        "key": 0,
+        "message": " \\"This is a message.\\"",
+      }
+    `);
   });
 
   test("should render messages", async () => {
-    MockDate.set("6/12/2019");
     const wrapper = shallowMount(Container, {
       propsData: { id: "abc" }
     });
@@ -67,14 +66,13 @@ describe("<Container />", () => {
     sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-13T00:55:42.459034602Z "This is a message."` });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
-            <ul class="events">
-              <li class="event"><span class="date">today at 5:55 PM</span> <span class="text"> "This is a message."</span></li>
-            </ul>
-        `);
+      <ul class="events">
+        <li class="event"><span class="date">today at 12:55 AM</span> <span class="text"> "This is a message."</span></li>
+      </ul>
+    `);
   });
 
   test("should render messages with color", async () => {
-    MockDate.set("6/12/2019");
     const wrapper = shallowMount(Container, {
       propsData: { id: "abc" }
     });
@@ -85,7 +83,7 @@ describe("<Container />", () => {
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events">
-        <li class="event"><span class="date">today at 5:55 PM</span> <span class="text"> <span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
+        <li class="event"><span class="date">today at 12:55 AM</span> <span class="text"> <span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
       </ul>
     `);
   });
