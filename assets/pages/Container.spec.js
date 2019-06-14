@@ -45,13 +45,13 @@ describe("<Container />", () => {
       propsData: { id: "abc" }
     });
     sources["/api/logs/stream?id=abc"].emitOpen();
-    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-13T00:55:42.459034602Z "This is a message."` });
+    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
     const [message, _] = wrapper.vm.messages;
 
     expect(message).toMatchInlineSnapshot(`
       Object {
-        "date": 2019-06-13T00:55:42.459Z,
-        "dateRelative": "today at 12:55 AM",
+        "date": 2019-06-12T10:55:42.459Z,
+        "dateRelative": "today at 10:55 AM",
         "key": 0,
         "message": " \\"This is a message.\\"",
       }
@@ -63,11 +63,11 @@ describe("<Container />", () => {
       propsData: { id: "abc" }
     });
     sources["/api/logs/stream?id=abc"].emitOpen();
-    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-13T00:55:42.459034602Z "This is a message."` });
+    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events">
-        <li class="event"><span class="date">today at 12:55 AM</span> <span class="text"> "This is a message."</span></li>
+        <li class="event"><span class="date">today at 10:55 AM</span> <span class="text"> "This is a message."</span></li>
       </ul>
     `);
   });
@@ -78,12 +78,12 @@ describe("<Container />", () => {
     });
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({
-      data: `2019-06-13T00:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`
+      data: `2019-06-12T10:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`
     });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events">
-        <li class="event"><span class="date">today at 12:55 AM</span> <span class="text"> <span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
+        <li class="event"><span class="date">today at 10:55 AM</span> <span class="text"> <span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
       </ul>
     `);
   });
