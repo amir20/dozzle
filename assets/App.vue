@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="columns is-marginless">
-    <aside class="column menu is-2-desktop is-3-tablet">
+    <aside class="column menu is-3-tablet is-2-widescreen">
       <a
         role="button"
         class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
@@ -19,7 +19,7 @@
         </li>
       </ul>
     </aside>
-    <div class="column is-offset-2-desktop is-offset-3-tablet">
+    <div class="column is-offset-3-tablet is-offset-2-widescreen">
       <router-view></router-view>
     </div>
   </div>
