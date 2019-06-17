@@ -5,7 +5,7 @@ exports[`<App /> renders correctly 1`] = `
   class="columns is-marginless"
 >
   <aside
-    class="column menu is-2-desktop is-3-tablet"
+    class="column menu is-3-tablet is-2-widescreen"
   >
     <a
       class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
@@ -55,7 +55,7 @@ exports[`<App /> renders correctly 1`] = `
   </aside>
    
   <div
-    class="column is-offset-2-desktop is-offset-3-tablet"
+    class="column is-offset-3-tablet is-offset-2-widescreen"
   >
     <router-view-stub />
   </div>
