@@ -38,7 +38,7 @@
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^24.8.0",
-  "concurrently": "^4.1.0",
+  "concurrently": "^4.1.1",
   "eventsourcemock": "^2.0.0",
   "fetch-mock": "^7.3.3",
   "husky": "^2.7.0",
