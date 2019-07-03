@@ -21,7 +21,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/google/go-cmp v0.3.0 // indirect
-	github.com/gorilla/mux v1.7.2
+	github.com/gorilla/mux v1.7.3
 	github.com/magiconair/properties v1.8.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
