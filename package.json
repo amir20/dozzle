@@ -29,7 +29,7 @@
   "date-fns": "^2.0.0-beta.2",
   "vue": "^2.6.10",
   "vue-meta": "^2.0.4",
-  "vue-router": "^3.0.6"
+  "vue-router": "^3.0.7"
  },
  "devDependencies": {
   "@babel/core": "^7.4.5",
