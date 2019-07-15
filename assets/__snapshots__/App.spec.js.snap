@@ -55,7 +55,7 @@ exports[`<App /> renders correctly 1`] = `
   </aside>
    
   <div
-    class="column is-offset-3-tablet is-offset-2-widescreen"
+    class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen"
   >
     <router-view-stub />
   </div>
