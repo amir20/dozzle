@@ -40,7 +40,7 @@
   "babel-jest": "^24.8.0",
   "concurrently": "^4.1.1",
   "eventsourcemock": "^2.0.0",
-  "fetch-mock": "^7.3.6",
+  "fetch-mock": "^7.3.7",
   "husky": "^3.0.0",
   "jest": "^24.8.0",
   "jest-serializer-vue": "^2.0.2",
