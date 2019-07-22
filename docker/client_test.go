@@ -41,7 +41,7 @@ func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options type
 func Test_dockerClient_ListContainers_null(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, nil)
-	client := &dockerClient{proxy}
+	client := &dockerClient{proxy, ""}
 
 	list, err := client.ListContainers()
 	assert.Empty(t, list, "list should be empty")
@@ -53,7 +53,7 @@ func Test_dockerClient_ListContainers_null(t *testing.T) {
 func Test_dockerClient_ListContainers_error(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, errors.New("test"))
-	client := &dockerClient{proxy}
+	client := &dockerClient{proxy, ""}
 
 	list, err := client.ListContainers()
 	assert.Nil(t, list, "list should be nil")
@@ -76,7 +76,7 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
-	client := &dockerClient{proxy}
+	client := &dockerClient{proxy, ""}
 
 	list, err := client.ListContainers()
 	require.NoError(t, err, "error should not return an error.")
@@ -112,7 +112,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
-	client := &dockerClient{proxy}
+	client := &dockerClient{proxy, ""}
 	messages, _ := client.ContainerLogs(context.Background(), id, 300)
 
 	actual, _ := <-messages
@@ -129,7 +129,7 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 
 	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(nil, errors.New("test"))
 
-	client := &dockerClient{proxy}
+	client := &dockerClient{proxy, ""}
 
 	messages, err := client.ContainerLogs(context.Background(), id, 300)
 

@@ -1,22 +1,24 @@
 package docker
 
 import (
-	"strconv"
 	"bytes"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"io"
 	"log"
 	"sort"
+	"strconv"
 	"strings"
-	"github.com/docker/docker/api/types/filters"
 )
 
 type dockerClient struct {
-	cli dockerProxy
+	cli    dockerProxy
+	filter string
 }
 
 type dockerProxy interface {
@@ -27,24 +29,47 @@ type dockerProxy interface {
 
 // Client is a proxy around the docker client
 type Client interface {
-	ListContainers(...filters.KeyValuePair) ([]Container, error)
+	ListContainers() ([]Container, error)
+	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
 }
 
 // NewClient creates a new instance of Client
-func NewClient() Client {
+func NewClient(filter string) Client {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &dockerClient{cli}
+	return &dockerClient{cli, filter}
 }
 
-func (d *dockerClient) ListContainers(f ...filters.KeyValuePair) ([]Container, error) {
+func (d *dockerClient) FindContainer(id string) (Container, error) {
+	var container Container
+	containers, err := d.ListContainers()
+	if err != nil {
+		return container, err
+	}
+
+	found := false
+	for _, c := range containers {
+		if c.ID == id {
+			container = c
+			found = true
+			break
+		}
+	}
+	if found == false {
+		return container, fmt.Errorf("Unable to find container with id: %s", id)
+	}
+
+	return container, nil
+}
+
+func (d *dockerClient) ListContainers() ([]Container, error) {
 	containerListOptions := types.ContainerListOptions{
-        Filters: filters.NewArgs(f...),
-    }
+		Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: d.filter}),
+	}
 	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
 	if err != nil {
 		return nil, err
