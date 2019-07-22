@@ -88,4 +88,4 @@ To Build and test locally:
 5. Install node modules with `npm install`.
 6. Do `npm start`
 
-Instructions for Github actions can be found at [here](.github/goreleaser/Dockerfile).
+Instructions for Github actions can be found [here](.github/goreleaser/Dockerfile) which build and tests Dozzle.
