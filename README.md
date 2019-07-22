@@ -78,7 +78,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 
 [MIT](LICENSE)
 
-### Building
+## Building
 To Build and test locally:
 
 1. Install NodeJs.
