@@ -13,8 +13,6 @@ import (
 	"sort"
 	"strings"
 	"github.com/docker/docker/api/types/filters"
-	"fmt"
-	"errors"
 )
 
 type dockerClient struct {
@@ -29,8 +27,7 @@ type dockerProxy interface {
 
 // Client is a proxy around the docker client
 type Client interface {
-	ListContainers() ([]Container, error)
-	GetContainerById(string) (Container, error)
+	ListContainers(...filters.KeyValuePair) ([]Container, error)
 	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
 }
@@ -44,37 +41,11 @@ func NewClient() Client {
 	return &dockerClient{cli}
 }
 
-func (d *dockerClient) GetContainerById(containerId string) (Container, error) {
-    containerListOptions := types.ContainerListOptions{
-        Filters: filters.NewArgs(
-             filters.Arg("id", containerId),
-         ),
+func (d *dockerClient) ListContainers(f ...filters.KeyValuePair) ([]Container, error) {
+	containerListOptions := types.ContainerListOptions{
+        Filters: filters.NewArgs(f...),
     }
-    list, err := d.cli.ContainerList(context.Background(), containerListOptions)
-    if err != nil {
-        return Container{}, err
-    }
-
-    if len(list) == 0 {
-        return Container{}, errors.New(fmt.Sprintf("Unable to find container with id: %s", containerId))
-    }
-
-    container := Container{
-        ID:      list[0].ID[:12],
-        Names:   list[0].Names,
-        Name:    strings.TrimPrefix(list[0].Names[0], "/"),
-        Image:   list[0].Image,
-        ImageID: list[0].ImageID,
-        Command: list[0].Command,
-        Created: list[0].Created,
-        State:   list[0].State,
-        Status:  list[0].Status,
-    }
-    return container, nil
-}
-
-func (d *dockerClient) ListContainers() ([]Container, error) {
-	list, err := d.cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
 	if err != nil {
 		return nil, err
 	}

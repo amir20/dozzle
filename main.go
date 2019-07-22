@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 	"regexp"
+	"github.com/docker/docker/api/types/filters"
 )
 
 var (
@@ -174,13 +175,12 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    container, getByIdError := h.client.GetContainerById(id)
+    containers, getByIdError := h.client.ListContainers(filters.KeyValuePair{Key: "id", Value: id})
     if getByIdError != nil {
         http.Error(w, getByIdError.Error(), http.StatusInternalServerError)
         return
     }
-    matched := containerRestrictions.MatchString(container.Name)
-    if !matched {
+    if len(containers) == 0 || !containerRestrictions.MatchString(containers[0].Name) {
         http.Error(w, fmt.Sprintf("Unable to find container with id: %s", id), http.StatusInternalServerError)
         return
     }
