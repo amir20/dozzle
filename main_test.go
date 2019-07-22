@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/magiconair/properties/assert"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
@@ -20,6 +21,15 @@ import (
 type MockedClient struct {
 	mock.Mock
 	docker.Client
+}
+
+func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
+	args := m.Called(id)
+	container, ok := args.Get(0).(docker.Container)
+	if !ok {
+		panic("containers is not of type docker.Container")
+	}
+	return container, args.Error(1)
 }
 
 func (m *MockedClient) ListContainers() ([]docker.Container, error) {
@@ -101,7 +111,8 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	messages := make(chan string)
 	errChannel := make(chan error)
-	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(messages, errChannel)
 	go func() {
 		messages <- "INFO Testing logs..."
 		close(messages)
@@ -126,6 +137,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	mockedClient := new(MockedClient)
 	messages := make(chan string)
 	errChannel := make(chan error)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
 
 	go func() {

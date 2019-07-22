@@ -45,6 +45,12 @@ dozzle doesn't support authentication out of the box. You can control the device
 
 will bind to `localhost` on port `1224`. You can then use a reverse proxy to control who can see dozzle.
 
+If you wish to restrict the containers shown you can pass the `--filterName` parameter. For example,
+
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filterName "xyz"
+
+this would then only allow you to view containers with a name starting with "xyz"
+
 #### Changing base URL
 
 dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
@@ -66,7 +72,20 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--level` | `DOZZLE_LEVEL` | `info` |
 | n/a | `DOCKER_API_VERSION` | `1.38` |
 | `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
+| `--filterName` | `DOZZLE_FILTERNAME` | `""` |
 
 ## License
 
 [MIT](LICENSE)
+
+### Building
+To Build and test locally:
+
+1. Install NodeJs.
+2. Install Go.
+3. Globally install [packr utility](https://github.com/gobuffalo/packr) with `go get -u github.com/gobuffalo/packr/packr` outside of dozzle directory.
+4. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
+5. Install node modules with `npm install`.
+6. Do `npm start`
+
+Instructions for Github actions can be found at [here](.github/goreleaser/Dockerfile).
