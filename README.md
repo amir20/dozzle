@@ -47,9 +47,9 @@ will bind to `localhost` on port `1224`. You can then use a reverse proxy to con
   
 If you wish to restrict the containers shown you can pass the `--containerRestrictions` parameter. For example, 
 
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --containerRestrictions "xyz-.*"
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --containerRestrictions "name=xyz-.*"
 
-this would then only allow you to view containers with a name starting with "xyz-"  
+this would then only allow you to view containers with a name starting with "xyz-", the filter is the same as the docker `--filter` flag seen [here](https://docs.docker.com/engine/reference/commandline/ps/).
 
 #### Changing base URL
 
@@ -72,7 +72,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--level` | `DOZZLE_LEVEL` | `info` |
 | n/a | `DOCKER_API_VERSION` | `1.38` |
 | `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
-| `--containerRestrictions` | `DOZZLE_CONTAINERRESTRICTIONS` | `.*` |
+| `--containerRestrictions` | `DOZZLE_CONTAINERRESTRICTIONS` | `` |
 
 ## License
 

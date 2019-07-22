@@ -17,8 +17,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-	"regexp"
-	"github.com/docker/docker/api/types/filters"
 )
 
 var (
@@ -26,7 +24,7 @@ var (
 	base    = ""
 	level   = ""
 	tailSize = 300
-	containerRestrictions *regexp.Regexp
+	containerRestrictions string
 	version = "dev"
 	commit  = "none"
 	date    = "unknown"
@@ -42,7 +40,7 @@ func init() {
 	pflag.String("base", "/", "base address of the application to mount")
 	pflag.String("level", "info", "logging level")
 	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
-	pflag.String("containerRestrictions", ".*", "Restrict to specific containers")
+	pflag.String("containerRestrictions", "", "Restrict to specific containers")
 	pflag.Parse()
 
 	viper.AutomaticEnv()
@@ -53,7 +51,7 @@ func init() {
 	base = viper.GetString("base")
 	level = viper.GetString("level")
 	tailSize = viper.GetInt("tailSize")
-	containerRestrictions = regexp.MustCompile(viper.GetString("containerRestrictions"))
+	containerRestrictions = viper.GetString("containerRestrictions")
 
 	l, _ := log.ParseLevel(level)
 	log.SetLevel(l)
@@ -82,7 +80,9 @@ func createRoutes(base string, h *handler) *mux.Router {
 
 func main() {
 	log.Infof("Dozzle version %s", version)
-	log.Infof("Restricting to containers with names matching '%s'", containerRestrictions)
+	if len(containerRestrictions) > 0 {
+	    log.Infof("Restricting to containers matching '%s'", containerRestrictions)
+	}
 	dockerClient := docker.NewClient()
 	_, err := dockerClient.ListContainers()
 
@@ -138,24 +138,13 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
-	containers, err := h.client.ListContainers()
+	containers, err := h.client.ListContainers(containerRestrictions)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-    filteredContainers := []docker.Container{}
-	for _, container := range containers {
-        matched := containerRestrictions.MatchString(container.Name)
-        if matched {
-            log.Debugf("matched container: %s, (restriction: %s)", container.Name, containerRestrictions)
-            filteredContainers = append(filteredContainers, container)
-        } else {
-            log.Debugf("Didn't match container: %s, (restriction: %s)", container.Name, containerRestrictions)
-        }
-    }
-
-	err = json.NewEncoder(w).Encode(filteredContainers)
+	err = json.NewEncoder(w).Encode(containers)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -175,12 +164,12 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    containers, getByIdError := h.client.ListContainers(filters.KeyValuePair{Key: "id", Value: id})
-    if getByIdError != nil {
-        http.Error(w, getByIdError.Error(), http.StatusInternalServerError)
+    containers, listError := h.client.ListContainers(containerRestrictions, fmt.Sprintf("id=%s", id))
+    if listError != nil {
+        http.Error(w, listError.Error(), http.StatusInternalServerError)
         return
     }
-    if len(containers) == 0 || !containerRestrictions.MatchString(containers[0].Name) {
+    if len(containers) == 0 {
         http.Error(w, fmt.Sprintf("Unable to find container with id: %s", id), http.StatusInternalServerError)
         return
     }
