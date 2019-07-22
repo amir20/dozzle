@@ -141,3 +141,53 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 	assert.False(t, ok, "error channel should have been closed")
 	proxy.AssertExpectations(t)
 }
+
+
+func Test_dockerClient_FindContainer_happy(t *testing.T) {
+	containers := []types.Container{
+		{
+			ID:    "abcdefghijklmnopqrst",
+			Names: []string{"/z_test_container"},
+		},
+		{
+			ID:    "1234567890_abcxyzdef",
+			Names: []string{"/a_test_container"},
+		},
+	}
+
+	proxy := new(mockedProxy)
+	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
+	client := &dockerClient{proxy, "not_valid"}
+
+	container, err := client.FindContainer("abcdefghijkl")
+	require.NoError(t, err, "error should not be thrown")
+
+	assert.Equal(t, container, Container{
+		ID:    "abcdefghijkl",
+		Name:  "z_test_container",
+		Names: []string{"/z_test_container"},
+	})
+
+	proxy.AssertExpectations(t)
+}
+func Test_dockerClient_FindContainer_error(t *testing.T) {
+	containers := []types.Container{
+		{
+			ID:    "abcdefghijklmnopqrst",
+			Names: []string{"/z_test_container"},
+		},
+		{
+			ID:    "1234567890_abcxyzdef",
+			Names: []string{"/a_test_container"},
+		},
+	}
+
+	proxy := new(mockedProxy)
+	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
+	client := &dockerClient{proxy, "not_valid"}
+
+	_, err := client.FindContainer("not_valid")
+	require.Error(t, err, "error should be thrown")
+
+	proxy.AssertExpectations(t)
+}
