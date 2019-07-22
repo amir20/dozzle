@@ -44,12 +44,12 @@ dozzle doesn't support authentication out of the box. You can control the device
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --addr localhost:1224
 
 will bind to `localhost` on port `1224`. You can then use a reverse proxy to control who can see dozzle.
-  
-If you wish to restrict the containers shown you can pass the `--containerRestrictions` parameter. For example, 
 
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --containerRestrictions "xyz-.*"
+If you wish to restrict the containers shown you can pass the `--filterName` parameter. For example,
 
-this would then only allow you to view containers with a name starting with "xyz-"  
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filterName "xyz"
+
+this would then only allow you to view containers with a name starting with "xyz"
 
 #### Changing base URL
 
@@ -72,21 +72,20 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--level` | `DOZZLE_LEVEL` | `info` |
 | n/a | `DOCKER_API_VERSION` | `1.38` |
 | `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
-| `--containerRestrictions` | `DOZZLE_CONTAINERRESTRICTIONS` | `.*` |
+| `--filterName` | `DOZZLE_FILTERNAME` | `""` |
 
 ## License
 
 [MIT](LICENSE)
 
 ### Building
-To Build and test locally:  
+To Build and test locally:
 
-1. Install nodejs v12
-2. Install go v1.12.7
-3. Install packr globally by doing go get -u github.com/gobuffalo/packr/packr outside of dozzle
-4. Install reflex globally by doing go get -u github.com/cespare/reflex outside of dozzle
-5. npm i to install node mods
-6. npm start should automatically do go mod download and start dozzle at port localhost:8080
-  
-*N.B* You can look at the [automated build file](.github/goreleaser/Dockerfile) script to understand how I build everything.  
-If you want to change the arguments are passed in, add them to the [reflex](.reflex) file
+1. Install NodeJs.
+2. Install Go.
+3. Globally install [packr utility](https://github.com/gobuffalo/packr) with `go get -u github.com/gobuffalo/packr/packr` outside of dozzle directory.
+4. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
+5. Install node modules with `npm install`.
+6. Do `npm start`
+
+Instructions for Github actions can be found at [here](.github/goreleaser/Dockerfile).
