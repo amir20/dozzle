@@ -60,6 +60,14 @@ Content-Type: text/event-stream
 event: containers-changed
 data: start
 
+/* snapshot: Test_handler_streamLogs_error_finding_container */
+HTTP/1.1 500 Internal Server Error
+Connection: close
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+error finding container
+
 /* snapshot: Test_handler_streamLogs_error_reading */
 HTTP/1.1 200 OK
 Connection: close

@@ -105,8 +105,6 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
-	rr := httptest.NewRecorder()
-
 	mockedClient := new(MockedClient)
 
 	messages := make(chan string)
@@ -120,6 +118,26 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamLogs)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamLogs_error_finding_container(t *testing.T) {
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	q := req.URL.Query()
+	q.Add("id", id)
+	req.URL.RawQuery = q.Encode()
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
+
+	h := handler{client: mockedClient}
+	handler := http.HandlerFunc(h.streamLogs)
+	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
@@ -129,10 +147,9 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	id := "123456"
 	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
 	q := req.URL.Query()
-	q.Add("id", "123456")
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
-	rr := httptest.NewRecorder()
 
 	mockedClient := new(MockedClient)
 	messages := make(chan string)
@@ -146,6 +163,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamLogs)
+	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
@@ -154,7 +172,6 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 func Test_handler_streamEvents_happy(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
-	rr := httptest.NewRecorder()
 	mockedClient := new(MockedClient)
 	messages := make(chan events.Message)
 	errChannel := make(chan error)
@@ -172,6 +189,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamEvents)
+	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
@@ -180,7 +198,6 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 func Test_handler_streamEvents_error(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
-	rr := httptest.NewRecorder()
 	mockedClient := new(MockedClient)
 	messages := make(chan events.Message)
 	errChannel := make(chan error)
@@ -193,6 +210,7 @@ func Test_handler_streamEvents_error(t *testing.T) {
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamEvents)
+	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
@@ -201,8 +219,6 @@ func Test_handler_streamEvents_error(t *testing.T) {
 func Test_handler_streamEvents_error_request(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
-
-	rr := httptest.NewRecorder()
 
 	mockedClient := new(MockedClient)
 
@@ -219,6 +235,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 
 	h := handler{client: mockedClient}
 	handler := http.HandlerFunc(h.streamEvents)
+	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
