@@ -5,20 +5,21 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"io"
+	"sort"
+	"strconv"
+	"strings"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	"io"
-	"log"
-	"sort"
-	"strconv"
-	"strings"
+	log "github.com/sirupsen/logrus"
 )
 
 type dockerClient struct {
-	cli    dockerProxy
-	filter string
+	cli     dockerProxy
+	filters filters.Args
 }
 
 type dockerProxy interface {
@@ -36,12 +37,30 @@ type Client interface {
 }
 
 // NewClient creates a new instance of Client
-func NewClient(filter string) Client {
+func NewClient() Client {
+	return NewClientWithFilters()
+}
+
+// NewClientWithFilters creates a new instance of Client with docker filters
+func NewClientWithFilters(f ...string) Client {
+	filterArgs := filters.NewArgs()
+	var parseError error
+	for _, filter := range f {
+		log.Debugf("Parsing %v", filter)
+		filterArgs, parseError = filters.ParseFlag(filter, filterArgs)
+		if parseError != nil {
+			log.Fatal(parseError)
+		}
+	}
+
+
 	cli, err := client.NewClientWithOpts(client.FromEnv)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &dockerClient{cli, filter}
+
+	return &dockerClient{cli, filterArgs}
 }
 
 func (d *dockerClient) FindContainer(id string) (Container, error) {
@@ -68,7 +87,7 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 
 func (d *dockerClient) ListContainers() ([]Container, error) {
 	containerListOptions := types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: d.filter}),
+		Filters: d.filters,
 	}
 	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
 	if err != nil {

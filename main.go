@@ -20,14 +20,14 @@ import (
 )
 
 var (
-	addr       = ""
-	base       = ""
-	level      = ""
-	tailSize   = 300
-	filterName = ""
-	version    = "dev"
-	commit     = "none"
-	date       = "unknown"
+	addr     = ""
+	base     = ""
+	level    = ""
+	tailSize = 300
+	filters  []string
+	version  = "dev"
+	commit   = "none"
+	date     = "unknown"
 )
 
 type handler struct {
@@ -40,7 +40,7 @@ func init() {
 	pflag.String("base", "/", "base address of the application to mount")
 	pflag.String("level", "info", "logging level")
 	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
-	pflag.String("filterName", "", "Filters containers by name")
+	pflag.StringArray("filter", []string{}, "Container filters to use for showing logs")
 	pflag.Parse()
 
 	viper.AutomaticEnv()
@@ -51,7 +51,7 @@ func init() {
 	base = viper.GetString("base")
 	level = viper.GetString("level")
 	tailSize = viper.GetInt("tailSize")
-	filterName = viper.GetString("filterName")
+	filters = viper.GetStringSlice("filter")
 
 	l, _ := log.ParseLevel(level)
 	log.SetLevel(l)
@@ -80,8 +80,8 @@ func createRoutes(base string, h *handler) *mux.Router {
 
 func main() {
 	log.Infof("Dozzle version %s", version)
-	log.Infof("Restricting to containers with names matching '%s'", filterName)
-	dockerClient := docker.NewClient(filterName)
+	log.Debugf("count =  '%v'", filters[0])
+	dockerClient := docker.NewClientWithFilters(filters...)
 	_, err := dockerClient.ListContainers()
 
 	if err != nil {
