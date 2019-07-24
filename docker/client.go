@@ -38,21 +38,17 @@ type Client interface {
 
 // NewClient creates a new instance of Client
 func NewClient() Client {
-	return NewClientWithFilters()
+	return NewClientWithFilters(map[string]string{})
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f ...string) Client {
+func NewClientWithFilters(f map[string]string) Client {
 	filterArgs := filters.NewArgs()
-	var parseError error
-	for _, filter := range f {
-		log.Debugf("Parsing %v", filter)
-		filterArgs, parseError = filters.ParseFlag(filter, filterArgs)
-		if parseError != nil {
-			log.Fatal(parseError)
-		}
+	for k, v := range f {
+		filterArgs.Add(k, v)
 	}
 
+	log.Debugf("filterArgs = %v", filterArgs)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 
