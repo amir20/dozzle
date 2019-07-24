@@ -36,8 +36,8 @@ dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
     --constraint=node.role==manager \
     --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
     amir20/dozzle:latest
-    
-### With Docker compose 
+
+### With Docker compose
 
     version: "3"
     services:
@@ -59,11 +59,11 @@ dozzle doesn't support authentication out of the box. You can control the device
 
 will bind to `localhost` on port `1224`. You can then use a reverse proxy to control who can see dozzle.
 
-If you wish to restrict the containers shown you can pass the `--filterName` parameter. For example,
+If you wish to restrict the containers shown you can pass the `--filter` parameter. For example,
 
-    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filterName "xyz"
+    $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filter name=foo
 
-this would then only allow you to view containers with a name starting with "xyz"
+this would then only allow you to view containers with a name starting with "foo"
 
 #### Changing base URL
 
@@ -86,7 +86,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--level` | `DOZZLE_LEVEL` | `info` |
 | n/a | `DOCKER_API_VERSION` | `1.38` |
 | `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
-| `--filterName` | `DOZZLE_FILTERNAME` | `""` |
+| `--filter` | `DOZZLE_FILTER` | `""` |
 
 ## License
 
