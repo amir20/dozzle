@@ -4,30 +4,32 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"net/http"
+	"net/url"
+	"os"
+	"os/signal"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/amir20/dozzle/docker"
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"html/template"
-	"net/http"
-	"os"
-	"os/signal"
-	"runtime"
-	"strings"
-	"time"
 )
 
 var (
-	addr       = ""
-	base       = ""
-	level      = ""
-	tailSize   = 300
-	filterName = ""
-	version    = "dev"
-	commit     = "none"
-	date       = "unknown"
+	addr     = ""
+	base     = ""
+	level    = ""
+	tailSize = 300
+	filters  map[string]string
+	version  = "dev"
+	commit   = "none"
+	date     = "unknown"
 )
 
 type handler struct {
@@ -40,7 +42,7 @@ func init() {
 	pflag.String("base", "/", "base address of the application to mount")
 	pflag.String("level", "info", "logging level")
 	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
-	pflag.String("filterName", "", "Filters containers by name")
+	pflag.StringToStringVar(&filters, "filter", map[string]string{}, "Container filters to use for showing logs")
 	pflag.Parse()
 
 	viper.AutomaticEnv()
@@ -51,7 +53,20 @@ func init() {
 	base = viper.GetString("base")
 	level = viper.GetString("level")
 	tailSize = viper.GetInt("tailSize")
-	filterName = viper.GetString("filterName")
+
+	// Until https://github.com/spf13/viper/issues/608 is fixed. We have to use this hacky way.
+	// filters = viper.GetStringSlice("filter")
+	if value, ok := os.LookupEnv("DOZZLE_FILTER"); ok {
+		log.Infof("Parsing %s", value)
+		urlValues, err := url.ParseQuery(strings.ReplaceAll(value, ",", "&"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		filters = map[string]string{}
+		for k, v := range urlValues {
+			filters[k] = v[0]
+		}
+	}
 
 	l, _ := log.ParseLevel(level)
 	log.SetLevel(l)
@@ -80,8 +95,7 @@ func createRoutes(base string, h *handler) *mux.Router {
 
 func main() {
 	log.Infof("Dozzle version %s", version)
-	log.Infof("Restricting to containers with names matching '%s'", filterName)
-	dockerClient := docker.NewClient(filterName)
+	dockerClient := docker.NewClientWithFilters(filters)
 	_, err := dockerClient.ListContainers()
 
 	if err != nil {
