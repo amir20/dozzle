@@ -22,7 +22,7 @@ Dozzle is a very small Docker container (4 MB compressed). Pull the latest relea
 
 ## Using dozzle
 
-The simplest way to use dozzle is to run the docker container. Also, mount the Docker Unix socket with `-volume` to `/var/run/docker.sock`:
+The simplest way to use dozzle is to run the docker container. Also, mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
     $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest
 
