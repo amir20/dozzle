@@ -51,7 +51,6 @@ describe("<Container />", () => {
     expect(message).toMatchInlineSnapshot(`
       Object {
         "date": 2019-06-12T10:55:42.459Z,
-        "dateRelative": "today at 10:55 AM",
         "key": 0,
         "message": " \\"This is a message.\\"",
       }
