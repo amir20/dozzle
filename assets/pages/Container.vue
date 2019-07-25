@@ -14,7 +14,8 @@
 
     <ul class="events">
       <li v-for="item in filtered" class="event" :key="item.key">
-        <span class="date">{{ item.dateRelative }}</span> <span class="text" v-html="colorize(item.message)"></span>
+        <span class="date">{{ item.date | relativeTime }}</span>
+        <span class="text" v-html="colorize(item.message)"></span>
       </li>
     </ul>
     <scrollbar-notification :messages="messages"></scrollbar-notification>
@@ -33,13 +34,11 @@ let nextId = 0;
 
 function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
-  const dateRelative = formatRelative(date, new Date());
   const message = data.substring(30);
   const key = nextId++;
   return {
     key,
     date,
-    dateRelative,
     message
   };
 }
@@ -130,6 +129,11 @@ export default {
           }));
       }
       return this.messages;
+    }
+  },
+  filters: {
+    relativeTime(date) {
+      return formatRelative(date, new Date());
     }
   }
 };
