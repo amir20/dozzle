@@ -6,11 +6,11 @@
 
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
-Dozzle is a log viewer for Docker. It's free. It's small. And it's right in your browser. Oh, did I mention it is also real-time?
+Dozzle is a real-time log viewer for Docker. It's free. It's small. And it's right in your browser. 
 
 While dozzle should work for most, it is not meant to be a full logging solution. For enterprise use, I recommend you look at [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana).
 
-But if you don't want to pay for those services, then you are in luck! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy.
+But if you don't want to pay for those services, then you are in luck! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy. Dozzle is not a database. It does not store or save any logs. You can only see live logs while using Dozzle. 
 
 ![Image](demo.gif)
 
