@@ -45,7 +45,7 @@
   "jest": "^24.8.0",
   "jest-serializer-vue": "^2.0.2",
   "lint-staged": "^9.2.0",
-  "mockdate": "^2.0.4",
+  "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.3",
   "prettier": "^1.18.2",
