@@ -1,7 +1,7 @@
 on: push
 name: Build, Test and Release
 jobs:
-  npmTest:
+  build:
     name: npm test
     runs-on: ubuntu-latest
     steps:
