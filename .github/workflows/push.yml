@@ -1,0 +1,26 @@
+on: push
+name: Build, Test and Release
+jobs:
+  npmTest:
+    name: npm test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: npm test
+      uses: actions/npm@master
+      with:
+        args: it
+    - name: go test
+      uses: ./.github/golang/
+    - name: Tag
+      uses: actions/bin/filter@master
+      with:
+        args: tag
+    - name: Release
+      uses: ./.github/goreleaser/
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: release
