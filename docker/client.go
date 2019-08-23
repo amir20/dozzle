@@ -30,7 +30,7 @@ type dockerProxy interface {
 
 // Client is a proxy around the docker client
 type Client interface {
-	ListContainers() ([]Container, error)
+	ListContainers(showAll bool) ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
@@ -61,7 +61,7 @@ func NewClientWithFilters(f map[string]string) Client {
 
 func (d *dockerClient) FindContainer(id string) (Container, error) {
 	var container Container
-	containers, err := d.ListContainers()
+	containers, err := d.ListContainers(true)
 	if err != nil {
 		return container, err
 	}
@@ -81,9 +81,10 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *dockerClient) ListContainers() ([]Container, error) {
+func (d *dockerClient) ListContainers(showAll bool) ([]Container, error) {
 	containerListOptions := types.ContainerListOptions{
 		Filters: d.filters,
+		All: showAll,
 	}
 	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
 	if err != nil {
