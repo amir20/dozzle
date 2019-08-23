@@ -32,7 +32,7 @@ func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
 	return container, args.Error(1)
 }
 
-func (m *MockedClient) ListContainers() ([]docker.Container, error) {
+func (m *MockedClient) ListContainers(showAll bool) ([]docker.Container, error) {
 	args := m.Called()
 	containers, ok := args.Get(0).([]docker.Container)
 	if !ok {
@@ -246,7 +246,7 @@ func Test_createRoutes_index(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("index.html", "index page"), "AddString should have no error.")
 
-	handler := createRoutes("/", &handler{mockedClient, box})
+	handler := createRoutes("/", &handler{mockedClient, true, box})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -259,7 +259,7 @@ func Test_createRoutes_redirect(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRoutes("/foobar", &handler{mockedClient, true,box})
 	req, err := http.NewRequest("GET", "/foobar", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -273,7 +273,7 @@ func Test_createRoutes_foobar(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("index.html", "foo page"), "AddString should have no error.")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRoutes("/foobar", &handler{mockedClient, true, box})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -287,7 +287,7 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("/test", "test page"), "AddString should have no error.")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRoutes("/foobar", &handler{mockedClient, true, box})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -300,7 +300,7 @@ func Test_createRoutes_version(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRoutes("/", &handler{mockedClient, box})
+	handler := createRoutes("/", &handler{mockedClient, true, box})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
