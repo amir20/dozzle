@@ -6,11 +6,11 @@
 
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
-Dozzle is a real-time log viewer for Docker. It's free. It's small. And it's right in your browser. 
+Dozzle is a real-time log viewer for Docker. It's free. It's small. And it's right in your browser.
 
 While dozzle should work for most, it is not meant to be a full logging solution. For enterprise use, I recommend you look at [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana).
 
-But if you don't want to pay for those services, then you are in luck! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy. Dozzle is not a database. It does not store or save any logs. You can only see live logs while using Dozzle. 
+But if you don't want to pay for those services, then you are in luck! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy. Dozzle is not a database. It does not store or save any logs. You can only see live logs while using Dozzle.
 
 ![Image](demo.gif)
 
@@ -74,26 +74,26 @@ then you can override by using `--base /foobar`. See env variables below for usi
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
-
 #### Environment variables and configuration
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag | Env Variable | Default |
-| --- | --- | --- |
-| `--addr` | `DOZZLE_ADDR` | `:8080` |
-| `--base` | `DOZZLE_BASE` | `/` |
-| `--level` | `DOZZLE_LEVEL` | `info` |
-| `--showAll` | `DOZZLE_SHOWALL` | `false` |
-| n/a | `DOCKER_API_VERSION` | `1.38` |
-| `--tailSize` | `DOZZLE_TAILSIZE` | `300` |
-| `--filter` | `DOZZLE_FILTER` | `""` |
+| Flag         | Env Variable         | Default |
+| ------------ | -------------------- | ------- |
+| `--addr`     | `DOZZLE_ADDR`        | `:8080` |
+| `--base`     | `DOZZLE_BASE`        | `/`     |
+| `--level`    | `DOZZLE_LEVEL`       | `info`  |
+| `--showAll`  | `DOZZLE_SHOWALL`     | `false` |
+| n/a          | `DOCKER_API_VERSION` | `1.38`  |
+| `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
+| `--filter`   | `DOZZLE_FILTER`      | `""`    |
 
 ## License
 
 [MIT](LICENSE)
 
 ## Building
+
 To Build and test locally:
 
 1. Install NodeJs.
