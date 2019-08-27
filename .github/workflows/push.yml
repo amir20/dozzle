@@ -12,10 +12,6 @@ jobs:
         args: it
     - name: go test
       uses: ./.github/golang/
-    - name: Tag
-      uses: actions/bin/filter@master
-      with:
-        args: tag
     - name: Release
       uses: ./.github/goreleaser/
       env:
@@ -24,3 +20,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         args: release
+     if: contains(github.ref, 'tags')
+      env:
+        REF: ${{ github. ref }}
