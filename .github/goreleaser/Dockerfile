@@ -1,7 +1,11 @@
-FROM goreleaser/goreleaser:latest
+FROM golang:1.13-alpine
 
-RUN go get -u github.com/gobuffalo/packr/packr
-RUN apk --no-cache add nodejs-current nodejs-npm && npm i -g npm
+RUN apk --no-cache add git nodejs-current nodejs-npm make g++ bash bzr curl docker rpm && \
+  npm i -g npm && \
+  wget https://github.com/goreleaser/goreleaser/releases/latest/download/goreleaser_Linux_x86_64.tar.gz && \
+  tar -xvzf goreleaser_Linux_arm64.tar.gz -C /usr/local/bin && \
+  rm *.gz && \
+  go get -u github.com/gobuffalo/packr/packr
 
 COPY entrypoint.sh /entrypoint.sh
 
