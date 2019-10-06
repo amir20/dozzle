@@ -47,7 +47,7 @@
   "lint-staged": "^9.2.5",
   "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
-  "parcel-bundler": "^1.12.3",
+  "parcel-bundler": "^1.12.4",
   "prettier": "^1.18.2",
   "sass": "^1.22.12",
   "vue-hot-reload-api": "^2.3.4",
