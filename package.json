@@ -28,7 +28,7 @@
   "bulma": "^0.7.5",
   "date-fns": "^2.4.1",
   "vue": "^2.6.10",
-  "vue-meta": "^2.3.0",
+  "vue-meta": "^2.3.1",
   "vue-router": "^3.1.3"
  },
  "devDependencies": {
