@@ -26,7 +26,7 @@
  "dependencies": {
   "ansi-to-html": "^0.6.12",
   "bulma": "^0.7.5",
-  "date-fns": "^2.4.1",
+  "date-fns": "^2.5.1",
   "vue": "^2.6.10",
   "vue-meta": "^2.3.1",
   "vue-router": "^3.1.3"
