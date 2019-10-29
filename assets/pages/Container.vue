@@ -27,7 +27,7 @@ import { formatRelative } from "date-fns";
 import AnsiConvertor from "ansi-to-html";
 import ScrollbarNotification from "../components/ScrollbarNotification";
 
-const ansiConvertor = new AnsiConvertor();
+const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 
 let es = null;
 let nextId = 0;
