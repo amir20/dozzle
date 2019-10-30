@@ -86,4 +86,20 @@ describe("<Container />", () => {
       </ul>
     `);
   });
+
+  test("should render messages with html entities", async () => {
+    const wrapper = shallowMount(Container, {
+      propsData: { id: "abc" }
+    });
+    sources["/api/logs/stream?id=abc"].emitOpen();
+    sources["/api/logs/stream?id=abc"].emitMessage({
+      data: `2019-06-12T10:55:42.459034602Z <test>foo bar</test>`
+    });
+
+    expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
+      <ul class="events">
+        <li class="event"><span class="date">today at 10:55 AM</span> <span class="text"> &lt;test&gt;foo bar&lt;/test&gt;</span></li>
+      </ul>
+    `);
+  });
 });
