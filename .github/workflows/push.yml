@@ -7,9 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: npm test
-        uses: actions/npm@master
-        with:
-          args: it
+        uses: actions/setup-node@v1
+      - run: npm it
       - name: go test
         uses: ./.github/golang/
       - name: Release
