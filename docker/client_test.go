@@ -5,14 +5,16 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"io"
+	"io/ioutil"
+	"testing"
+
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"io"
-	"io/ioutil"
-	"testing"
 )
 
 type mockedProxy struct {
@@ -37,6 +39,13 @@ func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options type
 		panic("reader is not of type io.ReadCloser")
 	}
 	return reader, args.Error(1)
+}
+func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+	return types.ContainerJSON{
+		Config: &container.Config{
+			Tty: false,
+		},
+	}, nil
 }
 
 func Test_dockerClient_ListContainers_null(t *testing.T) {
