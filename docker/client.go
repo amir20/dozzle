@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/binary"
@@ -26,6 +27,7 @@ type dockerProxy interface {
 	ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error)
 	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
 	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
+	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 }
 
 // Client is a proxy around the docker client
@@ -84,7 +86,7 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 func (d *dockerClient) ListContainers(showAll bool) ([]Container, error) {
 	containerListOptions := types.ContainerListOptions{
 		Filters: d.filters,
-		All: showAll,
+		All:     showAll,
 	}
 	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
 	if err != nil {
@@ -136,32 +138,51 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 		reader.Close()
 	}()
 
-	go func() {
-		defer close(messages)
-		defer close(errChannel)
-		defer reader.Close()
+	containerJSON, _ := d.cli.ContainerInspect(ctx, id)
 
-		hdr := make([]byte, 8)
-		var buffer bytes.Buffer
-		for {
-			_, err := reader.Read(hdr)
-			if err != nil {
-				errChannel <- err
-				break
+	if containerJSON.Config.Tty {
+		go func() {
+			defer close(messages)
+			defer close(errChannel)
+			defer reader.Close()
+			scanner := bufio.NewScanner(reader)
+			for scanner.Scan() {
+				line := scanner.Text()
+				select {
+				case messages <- line:
+				case <-ctx.Done():
+				}
 			}
-			count := binary.BigEndian.Uint32(hdr[4:])
-			_, err = io.CopyN(&buffer, reader, int64(count))
-			if err != nil {
-				errChannel <- err
-				break
+		}()
+	} else {
+		go func() {
+			defer close(messages)
+			defer close(errChannel)
+			defer reader.Close()
+
+			hdr := make([]byte, 8)
+			var buffer bytes.Buffer
+			for {
+				_, err := reader.Read(hdr)
+				if err != nil {
+					errChannel <- err
+					break
+				}
+				count := binary.BigEndian.Uint32(hdr[4:])
+				_, err = io.CopyN(&buffer, reader, int64(count))
+
+				if err != nil {
+					errChannel <- err
+					break
+				}
+				select {
+				case messages <- buffer.String():
+				case <-ctx.Done():
+				}
+				buffer.Reset()
 			}
-			select {
-			case messages <- buffer.String():
-			case <-ctx.Done():
-			}
-			buffer.Reset()
-		}
-	}()
+		}()
+	}
 
 	return messages, errChannel
 }
