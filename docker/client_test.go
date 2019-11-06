@@ -41,11 +41,13 @@ func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options type
 	return reader, args.Error(1)
 }
 func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
-	return types.ContainerJSON{
-		Config: &container.Config{
-			Tty: false,
-		},
-	}, nil
+	args := m.Called(ctx, containerID)
+	json, ok := args.Get(0).(types.ContainerJSON)
+	if !ok && args.Get(0) != nil {
+		panic("proxies return value is not of type types.ContainerJSON")
+	}
+
+	return json, args.Error(1)
 }
 
 func Test_dockerClient_ListContainers_null(t *testing.T) {
@@ -117,10 +119,36 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	binary.BigEndian.PutUint32(b[4:], uint32(len(expected)))
 	b = append(b, []byte(expected)...)
 
-	var reader io.ReadCloser
-	reader = ioutil.NopCloser(bytes.NewReader(b))
+	reader := ioutil.NopCloser(bytes.NewReader(b))
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
+
+	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
+	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
+
+	client := &dockerClient{proxy, filters.NewArgs()}
+	messages, _ := client.ContainerLogs(context.Background(), id, 300)
+
+	actual, _ := <-messages
+	assert.Equal(t, expected, actual, "message doesn't match expected")
+
+	_, ok := <-messages
+	assert.False(t, ok, "channel should have been closed")
+	proxy.AssertExpectations(t)
+}
+
+func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
+	id := "123456"
+
+	proxy := new(mockedProxy)
+	expected := "INFO Testing logs..."
+
+	reader := ioutil.NopCloser(bytes.NewReader([]byte(expected)))
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
+	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
+
+	json := types.ContainerJSON{Config: &container.Config{Tty: true}}
+	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
 	messages, _ := client.ContainerLogs(context.Background(), id, 300)
