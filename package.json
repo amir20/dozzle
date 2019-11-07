@@ -26,13 +26,13 @@
  "dependencies": {
   "ansi-to-html": "^0.6.13",
   "bulma": "^0.8.0",
-  "date-fns": "^2.6.0",
+  "date-fns": "^2.7.0",
   "vue": "^2.6.10",
   "vue-meta": "^2.3.1",
   "vue-router": "^3.1.3"
  },
  "devDependencies": {
-  "@babel/core": "^7.7.0",
+  "@babel/core": "^7.7.2",
   "@babel/plugin-transform-runtime": "^7.6.2",
   "@vue/component-compiler-utils": "^3.0.2",
   "@vue/test-utils": "^1.0.0-beta.29",
