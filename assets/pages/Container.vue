@@ -15,7 +15,7 @@
     <ul class="events">
       <li v-for="item in filtered" class="event" :key="item.key">
         <span class="date">{{ item.date | relativeTime }}</span>
-        <span class="text" v-html="colorize(item.message)"></span>
+        <span class="text" v-html="item.message"></span>
       </li>
     </ul>
     <scrollbar-notification :messages="messages"></scrollbar-notification>
@@ -118,17 +118,21 @@ export default {
   computed: {
     filtered() {
       const { filter } = this;
+      const colored = this.messages.map(d => ({
+        ...d,
+        message: this.colorize(d.message)
+      }));
       if (filter) {
         const isSmartCase = filter === filter.toLowerCase();
         const regex = isSmartCase ? new RegExp(filter, "i") : new RegExp(filter);
-        return this.messages
+        return colored
           .filter(d => d.message.match(regex))
           .map(d => ({
             ...d,
             message: d.message.replace(regex, "<mark>$&</mark>")
           }));
       }
-      return this.messages;
+      return colored;
     }
   },
   filters: {
