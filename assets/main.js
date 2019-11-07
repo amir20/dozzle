@@ -5,6 +5,7 @@ import Vuex from "vuex";
 import store from "./store";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
+import Settings from "./pages/Settings.vue";
 import Index from "./pages/Index.vue";
 
 Vue.use(VueRouter);
@@ -21,6 +22,11 @@ const routes = [
     component: Container,
     name: "container",
     props: true
+  },
+  {
+    path: "/settings",
+    component: Settings,
+    name: "settings"
   }
 ];
 

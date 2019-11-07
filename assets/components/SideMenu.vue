@@ -1,6 +1,20 @@
 <template lang="html">
   <aside>
-    <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+    <div class="columns is-marginless">
+      <div class="column">
+        <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+      </div>
+      <div class="column is-narrow has-text-right is-hidden-mobile">
+        <router-link
+          :to="{ name: 'settings' }"
+          active-class="is-active"
+          class="button is-small is-primary is-rounded is-inverted is-outlined "
+        >
+          <span class="icon"><i class="fas fa-cog"></i></span>
+          <span>Settings</span>
+        </router-link>
+      </div>
+    </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile">
       <li v-for="item in containers">
