@@ -91,4 +91,8 @@ export default {
     background: rgb(255, 221, 87);
   }
 }
+
+.button.has-no-border {
+  border-color: transparent !important;
+}
 </style>

@@ -1,6 +1,11 @@
 <template lang="html">
   <div class="is-fullheight">
     <h1>This is settings page</h1>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
   </div>
 </template>
 
@@ -25,4 +30,8 @@ export default {
   filters: {}
 };
 </script>
-<style scoped></style>
+<style scoped>
+.is-fullheight {
+  min-height: calc(100vh - 24px);
+}
+</style>
