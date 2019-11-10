@@ -19,7 +19,7 @@
         </li>
       </ul>
     </aside>
-    <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen">
+    <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen" id="content">
       <router-view></router-view>
     </div>
   </div>
@@ -68,6 +68,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+#content {
+  padding: 0;
+}
+
 .is-hidden-mobile.is-active {
   display: block !important;
 }

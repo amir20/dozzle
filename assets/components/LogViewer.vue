@@ -112,7 +112,8 @@ export default {
 }
 
 .is-fullheight {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: auto;
 }
 
 .text {
