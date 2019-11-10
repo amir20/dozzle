@@ -36,8 +36,7 @@ export default {
       const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
       const scrollBottom =
         (document.documentElement.scrollHeight || document.body.scrollHeight) - document.documentElement.clientHeight;
-      const diff = Math.abs(scrollTop - scrollBottom);
-      this.visible = diff > 50;
+      this.visible = scrollBottom - scrollTop > 50;
       if (!this.visible) {
         this.hasNew = false;
       }

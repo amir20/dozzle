@@ -1,50 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<Container /> renders correctly 1`] = `
-<div
-  class="is-fullheight"
->
+<span>
   <div
-    class="search columns is-gapless is-vcentered"
-    style="display: none;"
+    class="is-fullheight"
   >
     <div
-      class="column"
+      class="search columns is-gapless is-vcentered"
+      style="display: none;"
     >
-      <p
-        class="control has-icons-left"
+      <div
+        class="column"
       >
-        <input
-          class="input"
-          placeholder="Filter"
-          type="text"
-        />
-         
-        <span
-          class="icon is-small is-left"
+        <p
+          class="control has-icons-left"
         >
-          <i
-            class="fas fa-search"
+          <input
+            class="input"
+            placeholder="Filter"
+            type="text"
           />
-        </span>
-      </p>
+           
+          <span
+            class="icon is-small is-left"
+          >
+            <i
+              class="fas fa-search"
+            />
+          </span>
+        </p>
+      </div>
+       
+      <div
+        class="column is-1 has-text-centered"
+      >
+        <button
+          class="delete is-medium"
+        />
+      </div>
     </div>
      
-    <div
-      class="column is-1 has-text-centered"
+    <ul
+      class="events"
+    />
+     
+    <button
+      class="button scroll-notification is-primary"
+      name="fade"
+      style="display: none;"
     >
-      <button
-        class="delete is-medium"
-      />
-    </div>
+      <span
+        class="icon large"
+      >
+        <i
+          class="fas fa-chevron-down"
+        />
+      </span>
+    </button>
   </div>
-   
-  <ul
-    class="events"
-  />
-   
-  <scrollbar-notification-stub
-    messages=""
-  />
-</div>
+</span>
 `;

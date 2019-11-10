@@ -73,6 +73,7 @@
   "vue": "./node_modules/vue/dist/vue.esm.js"
  },
  "jest": {
+  "clearMocks": true,
   "moduleFileExtensions": [
    "js",
    "json",

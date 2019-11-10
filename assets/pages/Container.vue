@@ -20,9 +20,7 @@ export default {
       title: this.name,
       titleTemplate: "%s - Dozzle"
     };
-  },
-  methods: {},
-  computed: {}
+  }
 };
 </script>
 <style scoped></style>

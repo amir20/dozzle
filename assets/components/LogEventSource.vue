@@ -26,7 +26,7 @@ export default {
       messages: []
     };
   },
-  mounted() {
+  created() {
     this.loadLogs(this.id);
   },
   methods: {
