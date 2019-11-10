@@ -23,7 +23,7 @@ export default {
   },
   metaInfo() {
     return {
-      title: this.title,
+      title: this.name,
       titleTemplate: "%s - Dozzle"
     };
   },
