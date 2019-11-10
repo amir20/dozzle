@@ -27,6 +27,7 @@
   "ansi-to-html": "^0.6.13",
   "bulma": "^0.8.0",
   "date-fns": "^2.7.0",
+  "splitpanes": "^2.0.0",
   "vue": "^2.6.10",
   "vue-meta": "^2.3.1",
   "vue-router": "^3.1.3"

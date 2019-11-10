@@ -6,7 +6,6 @@
 
 <script>
 let nextId = 0;
-let es = null;
 function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
   const message = data.substring(30);
@@ -27,17 +26,22 @@ export default {
     };
   },
   created() {
+    this.es = null;
     this.loadLogs(this.id);
   },
   methods: {
     loadLogs(id) {
-      if (es) {
-        es.close();
+      if (this.es) {
+        this.es.close();
         this.messages = [];
-        es = null;
+        this.es = null;
       }
-      es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
-      es.onmessage = e => this.messages.push(parseMessage(e.data));
+      this.es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
+      console.log(`Starting ${this.id}`);
+      this.es.onmessage = e => this.messages.push(parseMessage(e.data));
+      this.es.onerror = function(e) {
+        console.log("EventSource failed." + e);
+      };
       this.$once("hook:beforeDestroy", () => es.close());
     }
   },

@@ -1,10 +1,25 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource">
-    <log-viewer :messages="eventSource.messages"></log-viewer>
-  </log-event-source>
+  <splitpanes vertical>
+    <pane>
+      <log-event-source :id="id" v-slot="eventSource">
+        <log-viewer :messages="eventSource.messages"></log-viewer>
+      </log-event-source>
+    </pane>
+    <pane>
+      <log-event-source :id="id" v-slot="eventSource">
+        <log-viewer :messages="eventSource.messages"></log-viewer>
+      </log-event-source>
+    </pane>
+    <pane>
+      <log-event-source :id="id" v-slot="eventSource">
+        <log-viewer :messages="eventSource.messages"></log-viewer>
+      </log-event-source>
+    </pane>
+  </splitpanes>
 </template>
 
 <script>
+import { Splitpanes, Pane } from "splitpanes";
 import LogEventSource from "../components/LogEventSource";
 import LogViewer from "../components/LogViewer";
 
@@ -13,7 +28,9 @@ export default {
   name: "Container",
   components: {
     LogViewer,
-    LogEventSource
+    LogEventSource,
+    Splitpanes,
+    Pane
   },
   metaInfo() {
     return {
@@ -23,4 +40,3 @@ export default {
   }
 };
 </script>
-<style scoped></style>
