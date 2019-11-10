@@ -15,12 +15,6 @@ export default {
     LogViewer,
     LogEventSource
   },
-  data() {
-    return {
-      title: "",
-      filter: ""
-    };
-  },
   metaInfo() {
     return {
       title: this.name,
