@@ -40,8 +40,14 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .splitpanes__pane {
   background-color: unset !important;
+}
+
+::v-deep .splitpanes__splitter {
+  width: 4px !important;
+  background-color: #aaa;
+  border: unset;
 }
 </style>
