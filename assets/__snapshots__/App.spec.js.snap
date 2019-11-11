@@ -56,6 +56,7 @@ exports[`<App /> renders correctly 1`] = `
    
   <div
     class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen"
+    id="content"
   >
     <router-view-stub />
   </div>

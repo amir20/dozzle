@@ -37,12 +37,11 @@ export default {
         this.es = null;
       }
       this.es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
-      console.log(`Starting ${this.id}`);
       this.es.onmessage = e => this.messages.push(parseMessage(e.data));
       this.es.onerror = function(e) {
         console.log("EventSource failed." + e);
       };
-      this.$once("hook:beforeDestroy", () => es.close());
+      this.$once("hook:beforeDestroy", () => this.es.close());
     }
   },
   watch: {

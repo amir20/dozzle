@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Container /> renders correctly 1`] = `
+exports[`<LogEventSource /> renders correctly 1`] = `
 <span>
   <div
     class="is-fullheight"
