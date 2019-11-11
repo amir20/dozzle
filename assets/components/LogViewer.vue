@@ -13,7 +13,7 @@
     </div>
 
     <ul class="events">
-      <li v-for="item in filtered" class="event" :key="item.key">
+      <li v-for="item in filtered" :key="item.key">
         <span class="date">{{ item.date | relativeTime }}</span>
         <span class="text" v-html="colorize(item.message)"></span>
       </li>
@@ -94,16 +94,16 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style scoped lang="scss">
 .events {
   padding: 10px;
   font-family: "Roboto Mono", monaco, monospace;
-}
 
-.event {
-  font-size: 13px;
-  line-height: 16px;
-  word-wrap: break-word;
+  & > li {
+    font-size: 13px;
+    line-height: 16px;
+    word-wrap: break-word;
+  }
 }
 
 .date {
@@ -133,7 +133,7 @@ export default {
   margin-left: 1em;
 }
 
-/deep/ mark {
+>>> mark {
   border-radius: 2px;
   background-color: #ffdd57;
   animation: pops 0.2s ease-out;

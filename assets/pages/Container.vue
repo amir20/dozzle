@@ -1,5 +1,5 @@
 <template lang="html">
-  <splitpanes vertical>
+  <splitpanes class="default-theme">
     <pane>
       <log-event-source :id="id" v-slot="eventSource">
         <log-viewer :messages="eventSource.messages"></log-viewer>
@@ -40,3 +40,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.splitpanes__pane {
+  background-color: unset !important;
+}
+</style>
