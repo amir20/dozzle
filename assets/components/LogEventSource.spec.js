@@ -59,11 +59,31 @@ describe("<LogEventSource />", () => {
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
     const [message, _] = wrapper.vm.messages;
+    const { key, ...messageWithoutKey } = message;
 
-    expect(message).toMatchInlineSnapshot(`
+    expect(key).toBeGreaterThanOrEqual(0);
+
+    expect(messageWithoutKey).toMatchInlineSnapshot(`
       Object {
         "date": 2019-06-12T10:55:42.459Z,
-        "key": 0,
+        "message": " \\"This is a message.\\"",
+      }
+    `);
+  });
+
+  test("should pass messages to slot", async () => {
+    const wrapper = createLogEventSource(LogEventSource);
+    sources["/api/logs/stream?id=abc"].emitOpen();
+    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
+    const [message, _] = wrapper.find(LogViewer).vm.messages;
+
+    const { key, ...messageWithoutKey } = message;
+
+    expect(key).toBeGreaterThanOrEqual(0);
+
+    expect(messageWithoutKey).toMatchInlineSnapshot(`
+      Object {
+        "date": 2019-06-12T10:55:42.459Z,
         "message": " \\"This is a message.\\"",
       }
     `);
