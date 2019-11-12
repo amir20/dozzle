@@ -19,7 +19,7 @@
         </li>
       </ul>
     </aside>
-    <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen" id="content">
+    <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
       <router-view></router-view>
     </div>
   </div>
