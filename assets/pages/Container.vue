@@ -5,13 +5,8 @@
         <log-viewer :messages="eventSource.messages"></log-viewer>
       </log-event-source>
     </pane>
-    <pane>
-      <log-event-source :id="id" v-slot="eventSource">
-        <log-viewer :messages="eventSource.messages"></log-viewer>
-      </log-event-source>
-    </pane>
-    <pane>
-      <log-event-source :id="id" v-slot="eventSource">
+    <pane v-for="other in activeContainers">
+      <log-event-source :id="other" v-slot="eventSource">
         <log-viewer :messages="eventSource.messages"></log-viewer>
       </log-event-source>
     </pane>
@@ -19,6 +14,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 import LogEventSource from "../components/LogEventSource";
 import LogViewer from "../components/LogViewer";
@@ -37,6 +33,9 @@ export default {
       title: this.name,
       titleTemplate: "%s - Dozzle"
     };
+  },
+  computed: {
+    ...mapState(["activeContainers"])
   }
 };
 </script>

@@ -16,6 +16,7 @@
           <router-link :to="{ name: 'container', params: { id: item.id, name: item.name } }" active-class="is-active">
             <div class="hide-overflow">{{ item.name }}</div>
           </router-link>
+          <a @click="appendActiveContainer(item.id)"><i class="fas fa-map-pin"></i></a>
         </li>
       </ul>
     </aside>
@@ -26,13 +27,13 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from "vuex";
 let es;
 export default {
   name: "App",
   data() {
     return {
       title: "",
-      containers: [],
       showNav: false
     };
   },
@@ -44,20 +45,13 @@ export default {
   },
   async created() {
     await this.fetchContainerList();
-    es = new EventSource(`${BASE_PATH}/api/events/stream`);
-    es.addEventListener("containers-changed", e => setTimeout(this.fetchContainerList, 1000), false);
+    this.title = `${this.containers.length} containers`;
   },
-  beforeDestroy() {
-    if (es) {
-      es.close();
-      es = null;
-    }
+  computed: {
+    ...mapState(["containers"])
   },
   methods: {
-    async fetchContainerList() {
-      this.containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
-      this.title = `${this.containers.length} containers`;
-    }
+    ...mapActions({ fetchContainerList: "FETCH_CONTAINERS", appendActiveContainer: "APPEND_ACTIVE_CONTAINER" })
   },
   watch: {
     $route(to, from) {
@@ -68,10 +62,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-#content {
-  padding: 0;
-}
-
 .is-hidden-mobile.is-active {
   display: block !important;
 }
