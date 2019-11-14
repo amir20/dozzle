@@ -21,16 +21,34 @@
       </ul>
     </aside>
     <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
-      <router-view></router-view>
+      <splitpanes class="default-theme">
+        <pane>
+          <router-view></router-view>
+        </pane>
+        <pane v-for="other in activeContainers">
+          <log-event-source :id="other" v-slot="eventSource">
+            <log-viewer :messages="eventSource.messages"></log-viewer>
+          </log-event-source>
+        </pane>
+      </splitpanes>
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-let es;
+import { Splitpanes, Pane } from "splitpanes";
+import LogEventSource from "./components/LogEventSource";
+import LogViewer from "./components/LogViewer";
+
 export default {
   name: "App",
+  components: {
+    LogViewer,
+    LogEventSource,
+    Splitpanes,
+    Pane
+  },
   data() {
     return {
       title: "",
@@ -48,7 +66,7 @@ export default {
     this.title = `${this.containers.length} containers`;
   },
   computed: {
-    ...mapState(["containers"])
+    ...mapState(["containers", "activeContainers"])
   },
   methods: {
     ...mapActions({ fetchContainerList: "FETCH_CONTAINERS", appendActiveContainer: "APPEND_ACTIVE_CONTAINER" })
@@ -105,5 +123,15 @@ aside {
 
 .burger.is-white {
   color: #fff;
+}
+
+.splitpanes__pane {
+  background-color: unset !important;
+}
+
+::v-deep .splitpanes__splitter {
+  width: 4px !important;
+  background-color: #aaa;
+  border: unset;
 }
 </style>
