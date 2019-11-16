@@ -49,7 +49,7 @@
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.4",
   "prettier": "^1.19.1",
-  "sass": "^1.23.3",
+  "sass": "^1.23.6",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
   "vue-template-compiler": "^2.6.10"
