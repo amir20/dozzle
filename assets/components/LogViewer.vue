@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="is-fullheight">
+  <div class="log-viewer">
     <div class="search columns is-gapless is-vcentered" v-show="showSearch">
       <div class="column">
         <p class="control has-icons-left">
@@ -109,11 +109,6 @@ export default {
 .date {
   background-color: #262626;
   color: #258ccd;
-}
-
-.is-fullheight {
-  height: 100vh;
-  overflow: auto;
 }
 
 .text {

@@ -15,18 +15,24 @@
         <li v-for="item in containers">
           <router-link :to="{ name: 'container', params: { id: item.id, name: item.name } }" active-class="is-active">
             <div class="hide-overflow">{{ item.name }}</div>
+            <span @click.stop.prevent="appendActiveContainer(item)"><i class="fas fa-thumbtack"></i></span>
           </router-link>
-          <a @click="appendActiveContainer(item.id)"><i class="fas fa-map-pin"></i></a>
         </li>
       </ul>
     </aside>
     <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
-      <splitpanes class="default-theme">
+      <splitpanes class="default-theme" ref="splitpanes">
         <pane>
           <router-view></router-view>
         </pane>
-        <pane v-for="other in activeContainers">
-          <log-event-source :id="other" v-slot="eventSource">
+        <pane v-for="other in activeContainers" :key="other.id">
+          <div class="name columns is-marginless">
+            <span class="column">{{ other.name }}</span>
+            <span class="column is-narrow">
+              <button class="delete is-medium" @click="removeActiveContainer(other)"></button>
+            </span>
+          </div>
+          <log-event-source :id="other.id" v-slot="eventSource">
             <log-viewer :messages="eventSource.messages"></log-viewer>
           </log-event-source>
         </pane>
@@ -69,11 +75,22 @@ export default {
     ...mapState(["containers", "activeContainers"])
   },
   methods: {
-    ...mapActions({ fetchContainerList: "FETCH_CONTAINERS", appendActiveContainer: "APPEND_ACTIVE_CONTAINER" })
+    ...mapActions({
+      fetchContainerList: "FETCH_CONTAINERS",
+      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
+      removeActiveContainer: "REMOVE_ACTIVE_CONTAINER"
+    })
   },
   watch: {
     $route(to, from) {
       this.showNav = false;
+    },
+    activeContainers(to, from) {
+      if (to.length == 0) {
+        setTimeout(() => {
+          this.$refs.splitpanes.update();
+        }, 1000);
+      }
     }
   }
 };
@@ -124,14 +141,30 @@ aside {
 .burger.is-white {
   color: #fff;
 }
+.splitpanes--vertical {
+  .splitpanes__pane {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: unset !important;
 
-.splitpanes__pane {
-  background-color: unset !important;
-}
+    .log-event-source {
+      flex: 1;
+      overflow: auto;
+    }
 
-::v-deep .splitpanes__splitter {
-  width: 4px !important;
-  background-color: #aaa;
-  border: unset;
+    .name {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+      font-family: monospace;
+    }
+  }
+
+  ::v-deep .splitpanes__splitter {
+    width: 4px !important;
+    background-color: #aaa;
+    border: unset;
+  }
 }
 </style>
