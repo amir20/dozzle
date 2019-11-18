@@ -21,11 +21,11 @@
       </ul>
     </aside>
     <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
-      <splitpanes class="default-theme" ref="splitpanes">
-        <pane>
+      <div class="columns is-gapless">
+        <div class="column log-container">
           <router-view></router-view>
-        </pane>
-        <pane v-for="other in activeContainers" :key="other.id">
+        </div>
+        <div class="column log-container" v-for="other in activeContainers" :key="other.id">
           <div class="name columns is-marginless">
             <span class="column">{{ other.name }}</span>
             <span class="column is-narrow">
@@ -35,8 +35,8 @@
           <log-event-source :id="other.id" v-slot="eventSource">
             <log-viewer :messages="eventSource.messages"></log-viewer>
           </log-event-source>
-        </pane>
-      </splitpanes>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -84,13 +84,6 @@ export default {
   watch: {
     $route(to, from) {
       this.showNav = false;
-    },
-    activeContainers(to, from) {
-      if (to.length == 0) {
-        setTimeout(() => {
-          this.$refs.splitpanes.update();
-        }, 1000);
-      }
     }
   }
 };
@@ -141,30 +134,23 @@ aside {
 .burger.is-white {
   color: #fff;
 }
-.splitpanes--vertical {
-  .splitpanes__pane {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: unset !important;
 
-    .log-event-source {
-      flex: 1;
-      overflow: auto;
-    }
+.log-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: unset !important;
 
-    .name {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(0, 0, 0, 0.1);
-      font-weight: bold;
-      font-family: monospace;
-    }
+  .log-event-source {
+    flex: 1;
+    overflow: auto;
   }
+}
 
-  ::v-deep .splitpanes__splitter {
-    width: 4px !important;
-    background-color: #aaa;
-    border: unset;
-  }
+.name {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  font-family: monospace;
 }
 </style>
