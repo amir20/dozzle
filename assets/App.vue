@@ -3,17 +3,19 @@
     <side-menu></side-menu>
     <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
       <div class="columns is-gapless">
-        <div class="column is-full-height-scrollable">
+        <div class="column is-full-height">
           <router-view></router-view>
         </div>
-        <div class="column is-full-height-scrollable" v-for="other in activeContainers" :key="other.id">
+        <div class="column is-full-height" v-for="other in activeContainers" :key="other.id">
           <div class="name columns is-marginless">
             <span class="column">{{ other.name }}</span>
             <span class="column is-narrow">
               <button class="delete is-medium" @click="removeActiveContainer(other)"></button>
             </span>
           </div>
-          <log-viewer-with-source :id="other.id"></log-viewer-with-source>
+          <div class="is-scrollable">
+            <log-viewer-with-source :id="other.id"></log-viewer-with-source>
+          </div>
         </div>
       </div>
     </div>
@@ -22,7 +24,6 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { Splitpanes, Pane } from "splitpanes";
 import LogViewerWithSource from "./components/LogViewerWithSource";
 import SideMenu from "./components/SideMenu";
 
@@ -30,8 +31,6 @@ export default {
   name: "App",
   components: {
     LogViewerWithSource,
-    Splitpanes,
-    Pane,
     SideMenu
   },
   data() {
@@ -68,14 +67,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.is-full-height-scrollable {
+.is-full-height {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-color: unset !important;
 
-  .log-event-source,
-  .log-container {
+  .is-scrollable {
     flex: 1;
     overflow: auto;
   }

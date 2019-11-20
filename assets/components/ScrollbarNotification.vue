@@ -1,41 +1,40 @@
 <template lang="html">
   <transition name="fade">
-    <button
-      class="button scroll-notification"
-      :class="hasNew ? 'is-warning' : 'is-primary'"
-      @click="scrollToBottom"
-      v-show="visible"
-    >
-      <span class="icon large"> <i class="fas fa-chevron-down"></i> </span>
-    </button>
+    <div>
+      <button class="button" :class="hasNew ? 'is-warning' : 'is-primary'" @click="scrollToBottom" v-show="visible">
+        <span class="icon large"> <i class="fas fa-chevron-down"></i> </span>
+      </button>
+    </div>
   </transition>
 </template>
 
 <script>
+let scroballeView;
 export default {
   props: ["messages"],
   data() {
     return {
       visible: false,
-      hasNew: false
+      hasNew: false,
+      scroballeView: null
     };
   },
   mounted() {
-    document.addEventListener("scroll", this.onScroll, { passive: true });
+    this.scroballeView = this.$el.closest(".is-scrollable");
+    this.scroballeView.addEventListener("scroll", this.onScroll, { passive: true });
     setTimeout(() => this.scrollToBottom(), 500);
   },
   beforeDestroy() {
-    document.removeEventListener("scroll", this.onScroll);
+    this.scroballeView.removeEventListener("scroll", this.onScroll);
   },
   methods: {
     scrollToBottom() {
       this.visible = false;
-      window.scrollTo(0, document.documentElement.scrollHeight || document.body.scrollHeight);
+      this.scroballeView.scrollTo(0, this.scroballeView.scrollHeight);
     },
     onScroll() {
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      const scrollBottom =
-        (document.documentElement.scrollHeight || document.body.scrollHeight) - document.documentElement.clientHeight;
+      const scrollTop = this.scroballeView.scrollTop;
+      const scrollBottom = this.scroballeView.scrollHeight - this.scroballeView.clientHeight;
       this.visible = scrollBottom - scrollTop > 50;
       if (!this.visible) {
         this.hasNew = false;
@@ -54,9 +53,13 @@ export default {
 };
 </script>
 <style scoped>
-.scroll-notification {
+div {
+  text-align: right;
+  margin-right: 65px;
+}
+
+button {
   position: fixed;
-  right: 40px;
   bottom: 30px;
 }
 .fade-enter-active,

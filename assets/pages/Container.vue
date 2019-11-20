@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="log-container">
+  <div class="is-scrollable">
     <search></search>
     <log-viewer-with-source :id="id"></log-viewer-with-source>
   </div>
