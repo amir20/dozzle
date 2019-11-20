@@ -1,19 +1,20 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource">
-    <log-viewer :messages="eventSource.messages"></log-viewer>
-  </log-event-source>
+  <div class="log-container">
+    <search></search>
+    <log-viewer-with-source :id="id"></log-viewer-with-source>
+  </div>
 </template>
 
 <script>
-import LogEventSource from "../components/LogEventSource";
-import LogViewer from "../components/LogViewer";
+import LogViewerWithSource from "../components/LogViewerWithSource";
+import Search from "../components/Search";
 
 export default {
   props: ["id", "name"],
   name: "Container",
   components: {
-    LogViewer,
-    LogEventSource
+    LogViewerWithSource,
+    Search
   },
   metaInfo() {
     return {

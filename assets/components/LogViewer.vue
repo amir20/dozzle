@@ -1,17 +1,5 @@
 <template lang="html">
   <div class="log-viewer">
-    <div class="search columns is-gapless is-vcentered" v-show="showSearch">
-      <div class="column">
-        <p class="control has-icons-left">
-          <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
-          <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
-        </p>
-      </div>
-      <div class="column is-1 has-text-centered">
-        <button class="delete is-medium" @click="resetSearch()"></button>
-      </div>
-    </div>
-
     <ul class="events">
       <li v-for="item in filtered" :key="item.key">
         <span class="date">{{ item.date | relativeTime }}</span>
@@ -23,6 +11,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters, mapState } from "vuex";
 import { formatRelative } from "date-fns";
 import AnsiConvertor from "ansi-to-html";
 import ScrollbarNotification from "./ScrollbarNotification";
@@ -37,32 +26,10 @@ export default {
   },
   data() {
     return {
-      showSearch: false,
-      filter: ""
+      showSearch: false
     };
   },
-  mounted() {
-    window.addEventListener("keydown", this.onKeyDown);
-  },
-  destroyed() {
-    window.removeEventListener("keydown", this.onKeyDown);
-  },
   methods: {
-    onKeyDown(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
-        this.showSearch = true;
-        this.$nextTick(() => this.$refs.filter.focus());
-        e.preventDefault();
-      } else if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        this.messages = [];
-      } else if (e.key === "Escape") {
-        this.resetSearch();
-      }
-    },
-    resetSearch() {
-      this.showSearch = false;
-      this.filter = "";
-    },
     colorize: function(value) {
       return ansiConvertor
         .toHtml(value)
@@ -71,12 +38,12 @@ export default {
     }
   },
   computed: {
+    ...mapState(["searchFilter"]),
     filtered() {
-      const { filter, messages } = this;
-
-      if (filter) {
-        const isSmartCase = filter === filter.toLowerCase();
-        const regex = isSmartCase ? new RegExp(filter, "i") : new RegExp(filter);
+      const { searchFilter, messages } = this;
+      if (searchFilter) {
+        const isSmartCase = searchFilter === searchFilter.toLowerCase();
+        const regex = isSmartCase ? new RegExp(searchFilter, "i") : new RegExp(searchFilter);
         return messages
           .filter(d => d.message.match(regex))
           .map(d => ({
@@ -113,19 +80,6 @@ export default {
 
 .text {
   white-space: pre-wrap;
-}
-
-.search {
-  width: 350px;
-  position: fixed;
-  padding: 10px;
-  background: rgba(50, 50, 50, 0.9);
-  top: 0;
-  right: 0;
-  border-radius: 0 0 0 5px;
-}
-.delete {
-  margin-left: 1em;
 }
 
 >>> mark {

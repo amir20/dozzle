@@ -6,7 +6,8 @@ Vue.use(Vuex);
 
 const state = {
   containers: [],
-  activeContainers: []
+  activeContainers: [],
+  searchFilter: null
 };
 
 const mutations = {
@@ -18,6 +19,9 @@ const mutations = {
   },
   REMOVE_ACTIVE_CONTAINER(state, container) {
     state.activeContainers.splice(state.activeContainers.indexOf(container), 1);
+  },
+  SET_SEARCH(state, filter) {
+    state.searchFilter = filter;
   }
 };
 
@@ -27,6 +31,9 @@ const actions = {
   },
   REMOVE_ACTIVE_CONTAINER({ commit }, container) {
     commit("REMOVE_ACTIVE_CONTAINER", container);
+  },
+  SET_SEARCH({ commit }, filter) {
+    commit("SET_SEARCH", filter);
   },
   async FETCH_CONTAINERS({ commit }) {
     const containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
