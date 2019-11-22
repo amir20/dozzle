@@ -7,15 +7,17 @@
           <router-view></router-view>
         </div>
         <div class="column is-full-height" v-for="other in activeContainers" :key="other.id">
-          <div class="name columns is-marginless">
-            <span class="column">{{ other.name }}</span>
-            <span class="column is-narrow">
-              <button class="delete is-medium" @click="removeActiveContainer(other)"></button>
-            </span>
-          </div>
-          <div class="is-scrollable">
+          <scrollable-view>
+            <template v-slot:header>
+              <div class="name columns is-marginless">
+                <span class="column">{{ other.name }}</span>
+                <span class="column is-narrow">
+                  <button class="delete is-medium" @click="removeActiveContainer(other)"></button>
+                </span>
+              </div>
+            </template>
             <log-viewer-with-source :id="other.id"></log-viewer-with-source>
-          </div>
+          </scrollable-view>
         </div>
       </div>
     </div>
@@ -25,13 +27,15 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import LogViewerWithSource from "./components/LogViewerWithSource";
+import ScrollableView from "./components/ScrollableView";
 import SideMenu from "./components/SideMenu";
 
 export default {
   name: "App",
   components: {
     LogViewerWithSource,
-    SideMenu
+    SideMenu,
+    ScrollableView
   },
   data() {
     return {
@@ -67,18 +71,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.is-full-height {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: unset !important;
-
-  .is-scrollable {
-    flex: 1;
-    overflow: auto;
-  }
-}
-
 .name {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(0, 0, 0, 0.1);

@@ -1,29 +1,23 @@
 <template lang="html">
-  <div class="log-viewer">
-    <ul class="events">
-      <li v-for="item in filtered" :key="item.key">
-        <span class="date">{{ item.date | relativeTime }}</span>
-        <span class="text" v-html="colorize(item.message)"></span>
-      </li>
-    </ul>
-    <scrollbar-notification :messages="messages"></scrollbar-notification>
-  </div>
+  <ul class="events">
+    <li v-for="item in filtered" :key="item.key">
+      <span class="date">{{ item.date | relativeTime }}</span>
+      <span class="text" v-html="colorize(item.message)"></span>
+    </li>
+  </ul>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { formatRelative } from "date-fns";
 import AnsiConvertor from "ansi-to-html";
-import ScrollbarNotification from "./ScrollbarNotification";
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 
 export default {
   props: ["messages"],
   name: "LogViewer",
-  components: {
-    ScrollbarNotification
-  },
+  components: {},
   data() {
     return {
       showSearch: false

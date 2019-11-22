@@ -1,7 +1,7 @@
 <template lang="html">
-  <section class="log-event-source">
+  <div>
     <slot v-bind:messages="messages"></slot>
-  </section>
+  </div>
 </template>
 
 <script>
