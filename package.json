@@ -27,7 +27,7 @@
   "ansi-to-html": "^0.6.13",
   "bulma": "^0.8.0",
   "date-fns": "^2.8.1",
-  "splitpanes": "^2.0.0",
+  "splitpanes": "^2.1.1",
   "store": "^2.0.12",
   "vue": "^2.6.10",
   "vue-meta": "^2.3.1",
@@ -35,8 +35,8 @@
   "vuex": "^3.1.2"
  },
  "devDependencies": {
-  "@babel/core": "^7.7.2",
-  "@babel/plugin-transform-runtime": "^7.6.2",
+  "@babel/core": "^7.7.4",
+  "@babel/plugin-transform-runtime": "^7.7.4",
   "@vue/component-compiler-utils": "^3.0.2",
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
