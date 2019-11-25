@@ -81,4 +81,9 @@ export default {
   font-weight: bold;
   font-family: monospace;
 }
+
+::v-deep .splitpanes__splitter {
+  min-width: 4px;
+  background: #666;
+}
 </style>
