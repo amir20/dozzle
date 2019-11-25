@@ -1,19 +1,24 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource">
-    <log-viewer :messages="eventSource.messages"></log-viewer>
-  </log-event-source>
+  <div>
+    <search></search>
+    <scrollable-view>
+      <log-viewer-with-source :id="id"></log-viewer-with-source>
+    </scrollable-view>
+  </div>
 </template>
 
 <script>
-import LogEventSource from "../components/LogEventSource";
-import LogViewer from "../components/LogViewer";
+import LogViewerWithSource from "../components/LogViewerWithSource";
+import Search from "../components/Search";
+import ScrollableView from "../components/ScrollableView";
 
 export default {
   props: ["id", "name"],
   name: "Container",
   components: {
-    LogViewer,
-    LogEventSource
+    LogViewerWithSource,
+    ScrollableView,
+    Search
   },
   metaInfo() {
     return {
@@ -23,4 +28,4 @@ export default {
   }
 };
 </script>
-<style scoped></style>
+<style lang="scss" scoped></style>

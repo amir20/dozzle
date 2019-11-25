@@ -1,6 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Meta from "vue-meta";
+import Vuex from "vuex";
+import store from "./store";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
 import Index from "./pages/Index.vue";
@@ -30,5 +32,6 @@ const router = new VueRouter({
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount("#app");

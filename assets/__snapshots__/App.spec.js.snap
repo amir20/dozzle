@@ -4,60 +4,23 @@ exports[`<App /> renders correctly 1`] = `
 <div
   class="columns is-marginless"
 >
-  <aside
-    class="column menu is-3-tablet is-2-widescreen"
-  >
-    <a
-      class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
-      role="button"
-    >
-      <span />
-       
-      <span />
-       
-      <span />
-    </a>
-     
-    <h1
-      class="title has-text-warning is-marginless"
-    >
-      Dozzle
-    </h1>
-     
-    <p
-      class="menu-label is-hidden-mobile"
-    >
-      Containers
-    </p>
-     
-    <ul
-      class="menu-list is-hidden-mobile"
-    >
-      <li>
-        <a>
-          <div
-            class="hide-overflow"
-          >
-            Test 1
-          </div>
-        </a>
-      </li>
-      <li>
-        <a>
-          <div
-            class="hide-overflow"
-          >
-            Test 2
-          </div>
-        </a>
-      </li>
-    </ul>
-  </aside>
+  <side-menu-stub />
    
   <div
-    class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen"
+    class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless"
   >
-    <router-view-stub />
+    <splitpanes-stub
+      dblclicksplitter="true"
+      pushotherpanes="true"
+    >
+      <pane-stub
+        maxsize="100"
+        minsize="0"
+      >
+        <router-view-stub />
+      </pane-stub>
+       
+    </splitpanes-stub>
   </div>
 </div>
 `;
