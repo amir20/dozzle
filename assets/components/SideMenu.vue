@@ -13,8 +13,16 @@
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in containers">
         <router-link :to="{ name: 'container', params: { id: item.id, name: item.name } }" active-class="is-active">
-          <div class="hide-overflow">{{ item.name }}</div>
-          <span @click.stop.prevent="appendActiveContainer(item)"><i class="fas fa-thumbtack"></i></span>
+          <div class="hide-overflow">
+            <span
+              @click.stop.prevent="appendActiveContainer(item)"
+              class="icon is-small will-append-container"
+              :class="{ 'is-active': activeContainersById[item.id] }"
+            >
+              <i class="fas fa-thumbtack"></i>
+            </span>
+            {{ item.name }}
+          </div>
         </router-link>
       </li>
     </ul>
@@ -33,15 +41,20 @@ export default {
     };
   },
   methods: {
-    colorize: function(value) {
-      return ansiConvertor
+    colorize: value =>
+      ansiConvertor
         .toHtml(value)
         .replace("&lt;mark&gt;", "<mark>")
-        .replace("&lt;/mark&gt;", "</mark>");
-    }
+        .replace("&lt;/mark&gt;", "</mark>")
   },
   computed: {
-    ...mapState(["containers", "activeContainers"])
+    ...mapState(["containers", "activeContainers"]),
+    activeContainersById() {
+      return this.activeContainers.reduce((map, obj) => {
+        map[obj.id] = obj;
+        return map;
+      }, {});
+    }
   },
   methods: {
     ...mapActions({
@@ -51,14 +64,6 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.is-hidden-mobile.is-active {
-  display: block !important;
-}
-
-.navbar-burger {
-  height: 2.35rem;
-}
-
 aside {
   position: fixed;
   z-index: 2;
@@ -84,15 +89,34 @@ aside {
       margin-top: 1em;
     }
   }
+  .hide-overflow {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .burger.is-white {
+    color: #fff;
+  }
+
+  .is-hidden-mobile.is-active {
+    display: block !important;
+  }
+
+  .navbar-burger {
+    height: 2.35rem;
+  }
 }
 
-.hide-overflow {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.burger.is-white {
-  color: #fff;
+.will-append-container.icon {
+  transition: transform 0.2s ease-out;
+  &.is-active {
+    transform: rotate(25deg);
+    pointer-events: none;
+    color: #00d1b2;
+  }
+  .router-link-exact-active & {
+    visibility: hidden;
+  }
 }
 </style>

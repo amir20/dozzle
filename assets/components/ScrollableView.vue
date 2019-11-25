@@ -11,7 +11,7 @@
         <button
           class="button"
           :class="hasMore ? 'is-warning' : 'is-primary'"
-          @click="scrollToBottom('instant')"
+          @click="scrollToBottom('smooth')"
           v-show="paused"
         >
           <span class="icon large"> <i class="fas fa-chevron-down"></i> </span>
@@ -34,7 +34,7 @@ export default {
     const { content } = this.$refs;
     new MutationObserver(e => {
       if (!this.paused) {
-        this.scrollToBottom("smooth");
+        this.scrollToBottom("instant");
       } else {
         this.hasMore = true;
       }

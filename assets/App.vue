@@ -2,11 +2,11 @@
   <div class="columns is-marginless">
     <side-menu></side-menu>
     <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
-      <div class="columns is-gapless">
-        <div class="column is-full-height">
+      <splitpanes>
+        <pane>
           <router-view></router-view>
-        </div>
-        <div class="column is-full-height" v-for="other in activeContainers" :key="other.id">
+        </pane>
+        <pane v-for="other in activeContainers" :key="other.id">
           <scrollable-view>
             <template v-slot:header>
               <div class="name columns is-marginless">
@@ -18,14 +18,16 @@
             </template>
             <log-viewer-with-source :id="other.id"></log-viewer-with-source>
           </scrollable-view>
-        </div>
-      </div>
+        </pane>
+      </splitpanes>
     </div>
   </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
+import { Splitpanes, Pane } from "splitpanes";
+
 import LogViewerWithSource from "./components/LogViewerWithSource";
 import ScrollableView from "./components/ScrollableView";
 import SideMenu from "./components/SideMenu";
@@ -35,7 +37,9 @@ export default {
   components: {
     LogViewerWithSource,
     SideMenu,
-    ScrollableView
+    ScrollableView,
+    Splitpanes,
+    Pane
   },
   data() {
     return {

@@ -9,16 +9,18 @@ exports[`<App /> renders correctly 1`] = `
   <div
     class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless"
   >
-    <div
-      class="columns is-gapless"
+    <splitpanes-stub
+      dblclicksplitter="true"
+      pushotherpanes="true"
     >
-      <div
-        class="column is-full-height"
+      <pane-stub
+        maxsize="100"
+        minsize="0"
       >
         <router-view-stub />
-      </div>
+      </pane-stub>
        
-    </div>
+    </splitpanes-stub>
   </div>
 </div>
 `;
