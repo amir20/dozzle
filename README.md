@@ -78,7 +78,7 @@ dozzle will be available at [http://localhost:8080/foobar/](http://localhost:808
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag         | Env Variable         | Default | 
+| Flag         | Env Variable         | Default |
 | ------------ | -------------------- | ------- |
 | `--addr`     | `DOZZLE_ADDR`        | `:8080` |
 | `--base`     | `DOZZLE_BASE`        | `/`     |
