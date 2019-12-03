@@ -12,7 +12,11 @@
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in containers">
-        <router-link :to="{ name: 'container', params: { id: item.id, name: item.name } }" active-class="is-active">
+        <router-link
+          :to="{ name: 'container', params: { id: item.id, name: item.name } }"
+          active-class="is-active"
+          :title="item.name"
+        >
           <div class="hide-overflow">
             <span
               @click.stop.prevent="appendActiveContainer(item)"
