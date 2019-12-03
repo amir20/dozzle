@@ -45,6 +45,7 @@ dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
         image: amir20/dozzle:latest
         environment:
           - DOZZLE_TAILSIZE=100
+          - DOZZLE_FILTER='status:running'
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         ports:
@@ -62,7 +63,7 @@ If you wish to restrict the containers shown you can pass the `--filter` paramet
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filter name=foo
 
-this would then only allow you to view containers with a name starting with "foo"
+this would then only allow you to view containers with a name starting with "foo". You can use other filters like `status` as well, please check the official docker [command line docs](https://docs.docker.com/engine/reference/commandline/ps/#filtering) for available filters.
 
 #### Changing base URL
 
