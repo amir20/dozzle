@@ -1,5 +1,5 @@
 <template lang="html">
-  <aside class="column menu is-3-tablet is-2-widescreen">
+  <aside>
     <a
       role="button"
       class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
@@ -69,8 +69,6 @@ export default {
 </script>
 <style scoped lang="scss">
 aside {
-  position: fixed;
-  z-index: 2;
   padding: 1em;
 
   @media screen and (min-width: 769px) {

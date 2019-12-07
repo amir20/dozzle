@@ -1,7 +1,9 @@
 <template lang="html">
-  <div class="columns is-marginless">
-    <side-menu></side-menu>
-    <div class="column is-offset-3-tablet is-offset-2-widescreen is-9-tablet is-10-widescreen is-paddingless">
+  <splitpanes>
+    <pane min-size="10" size="15">
+      <side-menu></side-menu>
+    </pane>
+    <pane size="85">
       <splitpanes>
         <pane>
           <router-view></router-view>
@@ -20,8 +22,8 @@
           </scrollable-view>
         </pane>
       </splitpanes>
-    </div>
-  </div>
+    </pane>
+  </splitpanes>
 </template>
 
 <script>
