@@ -1,8 +1,16 @@
 <template lang="html">
   <aside>
+    <a
+      role="button"
+      class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
+      @click="showNav = !showNav"
+      :class="{ 'is-active': showNav }"
+    >
+      <span></span> <span></span> <span></span>
+    </a>
     <h1 class="title has-text-warning is-marginless">Dozzle</h1>
-    <p class="menu-label is-hidden-mobile">Containers</p>
-    <ul class="menu-list is-hidden-mobile">
+    <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
+    <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in containers">
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
@@ -10,13 +18,6 @@
           :title="item.name"
         >
           <div class="hide-overflow">
-            <span
-              @click.stop.prevent="appendActiveContainer(item)"
-              class="icon is-small will-append-container"
-              :class="{ 'is-active': activeContainersById[item.id] }"
-            >
-              <i class="fas fa-thumbtack"></i>
-            </span>
             {{ item.name }}
           </div>
         </router-link>
@@ -30,12 +31,15 @@ import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
   props: [],
-  name: "SideMenu",
+  name: "MobileMenu",
   data() {
-    return {};
+    return {
+      showNav: false
+    };
   },
+
   computed: {
-    ...mapState(["containers", "activeContainers"]),
+    ...mapState(["containers"]),
     activeContainersById() {
       return this.activeContainers.reduce((map, obj) => {
         map[obj.id] = obj;
@@ -44,18 +48,22 @@ export default {
     }
   },
   methods: {
-    ...mapActions({
-      appendActiveContainer: "APPEND_ACTIVE_CONTAINER"
-    })
+    ...mapActions({})
   }
 };
 </script>
 <style scoped lang="scss">
 aside {
   padding: 1em;
-  height: 100vh;
-  overflow: auto;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #222;
 
+  .menu-label {
+    margin-top: 1em;
+  }
   .hide-overflow {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -69,17 +77,9 @@ aside {
   .is-hidden-mobile.is-active {
     display: block !important;
   }
-}
 
-.will-append-container.icon {
-  transition: transform 0.2s ease-out;
-  &.is-active {
-    transform: rotate(25deg);
-    pointer-events: none;
-    color: #00d1b2;
-  }
-  .router-link-exact-active & {
-    visibility: hidden;
+  .navbar-burger {
+    height: 2.35rem;
   }
 }
 </style>
