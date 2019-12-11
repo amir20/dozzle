@@ -37,13 +37,20 @@ export default {
       const { searchFilter, messages } = this;
       if (searchFilter) {
         const isSmartCase = searchFilter === searchFilter.toLowerCase();
-        const regex = isSmartCase ? new RegExp(searchFilter, "i") : new RegExp(searchFilter);
-        return messages
-          .filter(d => d.message.match(regex))
-          .map(d => ({
-            ...d,
-            message: d.message.replace(regex, "<mark>$&</mark>")
-          }));
+        try {
+          const regex = isSmartCase ? new RegExp(searchFilter, "i") : new RegExp(searchFilter);
+          return messages
+            .filter(d => d.message.match(regex))
+            .map(d => ({
+              ...d,
+              message: d.message.replace(regex, "<mark>$&</mark>")
+            }));
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            return messages;
+          }
+          throw e;
+        }
       }
       return messages;
     }
