@@ -1,13 +1,15 @@
 import Vue from "vue";
 import Vuex from "vuex";
-// import storage from "store/dist/store.modern";
+
+const mql = window.matchMedia("(max-width: 770px)");
 
 Vue.use(Vuex);
 
 const state = {
   containers: [],
   activeContainers: [],
-  searchFilter: null
+  searchFilter: null,
+  mobileWidth: mql.matches
 };
 
 const mutations = {
@@ -22,6 +24,9 @@ const mutations = {
   },
   SET_SEARCH(state, filter) {
     state.searchFilter = filter;
+  },
+  SET_MOBILE_WIDTH(state, value) {
+    state.mobileWidth = value;
   }
 };
 
@@ -44,6 +49,8 @@ const getters = {};
 
 const es = new EventSource(`${BASE_PATH}/api/events/stream`);
 es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
+
+mql.addListener(e => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({
   strict: true,

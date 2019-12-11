@@ -1,6 +1,6 @@
 <template lang="html">
   <splitpanes>
-    <pane min-size="10" size="15">
+    <pane min-size="10" size="15" v-if="!mobileWidth">
       <side-menu></side-menu>
     </pane>
     <pane size="85">
@@ -60,7 +60,7 @@ export default {
     this.title = `${this.containers.length} containers`;
   },
   computed: {
-    ...mapState(["containers", "activeContainers"])
+    ...mapState(["containers", "activeContainers", "mobileWidth"])
   },
   methods: {
     ...mapActions({
@@ -87,5 +87,8 @@ export default {
 ::v-deep .splitpanes__splitter {
   min-width: 4px;
   background: #666;
+  &:hover {
+    background: rgb(255, 221, 87);
+  }
 }
 </style>
