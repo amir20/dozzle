@@ -1,16 +1,8 @@
 <template lang="html">
   <aside>
-    <a
-      role="button"
-      class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
-      @click="showNav = !showNav"
-      :class="{ 'is-active': showNav }"
-    >
-      <span></span> <span></span> <span></span>
-    </a>
     <h1 class="title has-text-warning is-marginless">Dozzle</h1>
-    <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
-    <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
+    <p class="menu-label is-hidden-mobile">Containers</p>
+    <ul class="menu-list is-hidden-mobile">
       <li v-for="item in containers">
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
@@ -40,16 +32,7 @@ export default {
   props: [],
   name: "SideMenu",
   data() {
-    return {
-      showNav: false
-    };
-  },
-  methods: {
-    colorize: value =>
-      ansiConvertor
-        .toHtml(value)
-        .replace("&lt;mark&gt;", "<mark>")
-        .replace("&lt;/mark&gt;", "</mark>")
+    return {};
   },
   computed: {
     ...mapState(["containers", "activeContainers"]),
@@ -70,27 +53,9 @@ export default {
 <style scoped lang="scss">
 aside {
   padding: 1em;
+  height: 100vh;
+  overflow: auto;
 
-  @media screen and (min-width: 769px) {
-    & {
-      height: 100vh;
-      overflow: auto;
-    }
-  }
-
-  @media screen and (max-width: 768px) {
-    & {
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #222;
-    }
-
-    .menu-label {
-      margin-top: 1em;
-    }
-  }
   .hide-overflow {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -103,10 +68,6 @@ aside {
 
   .is-hidden-mobile.is-active {
     display: block !important;
-  }
-
-  .navbar-burger {
-    height: 2.35rem;
   }
 }
 
