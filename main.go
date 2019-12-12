@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -173,7 +172,7 @@ func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 
 	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
 	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
@@ -181,8 +180,9 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	messages, _ := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
 
-	b, _ := ioutil.ReadAll(messages)
-	io.WriteBy
+	for _, m := range messages {
+		fmt.Fprintln(w, m)
+	}
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {

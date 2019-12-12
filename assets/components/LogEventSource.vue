@@ -5,11 +5,10 @@
 </template>
 
 <script>
-let nextId = 0;
 function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
-  const message = data.substring(30);
-  const key = nextId++;
+  const key = data.substring(0, 30);
+  const message = data.substring(30).trim();
   return {
     key,
     date,
@@ -43,8 +42,18 @@ export default {
       };
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
-    fetchMore() {
-      //
+    async fetchMore() {
+      const to = this.messages[0].date;
+      const from = new Date(to);
+      from.setMinutes(from.getMinutes() - 10);
+      const logs = await (
+        await fetch(`/api/logs?id=${this.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
+      ).text();
+      const newMessages = logs
+        .trim()
+        .split("\n")
+        .map(line => parseMessage(line));
+      this.messages.unshift(...newMessages);
     }
   },
   watch: {

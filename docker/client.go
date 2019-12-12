@@ -37,7 +37,7 @@ type Client interface {
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
+	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) ([]string, error)
 }
 
 // NewClient creates a new instance of Client
@@ -193,7 +193,7 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan events.Message, <-cha
 	return d.cli.Events(ctx, types.EventsOptions{})
 }
 
-func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) (io.ReadCloser, error) {
+func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) ([]string, error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
@@ -201,11 +201,16 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		Since:      strconv.FormatInt(from.Unix(), 10),
 		Until:      strconv.FormatInt(to.Unix(), 10),
 	}
-	reader, err := d.cli.ContainerLogs(ctx, id, options)
+	reader, _ := d.cli.ContainerLogs(ctx, id, options)
 
-	if err != nil {
-		return nil, err
+	defer reader.Close()
+
+	var messages []string
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		line := scanner.Text()
+		messages = append(messages, line[8:])
 	}
 
-	return reader, nil
+	return messages, nil
 }
