@@ -42,6 +42,9 @@ export default {
         console.log("EventSource failed." + e);
       };
       this.$once("hook:beforeDestroy", () => this.es.close());
+    },
+    fetchMore() {
+      //
     }
   },
   watch: {

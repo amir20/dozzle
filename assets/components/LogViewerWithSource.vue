@@ -1,6 +1,6 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource">
-    <log-viewer :messages="eventSource.messages"></log-viewer>
+  <log-event-source :id="id" v-slot="eventSource" ref="source">
+    <log-viewer :messages="eventSource.messages" @fetchMore="$refs.source.fetchMore()"></log-viewer>
   </log-event-source>
 </template>
 

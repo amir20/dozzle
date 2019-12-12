@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
@@ -36,6 +37,7 @@ type Client interface {
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
+	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
 }
 
 // NewClient creates a new instance of Client
@@ -189,4 +191,21 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 
 func (d *dockerClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
 	return d.cli.Events(ctx, types.EventsOptions{})
+}
+
+func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) (io.ReadCloser, error) {
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+		Since:      strconv.FormatInt(from.Unix(), 10),
+		Until:      strconv.FormatInt(to.Unix(), 10),
+	}
+	reader, err := d.cli.ContainerLogs(ctx, id, options)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return reader, nil
 }

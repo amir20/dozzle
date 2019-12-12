@@ -1,5 +1,6 @@
 <template lang="html">
   <ul class="events">
+    <li ref="moreObserver" v-show="messages.length > 100"></li>
     <li v-for="item in filtered" :key="item.key">
       <span class="date">{{ item.date | relativeTime }}</span>
       <span class="text" v-html="colorize(item.message)"></span>
@@ -30,6 +31,17 @@ export default {
         .replace("&lt;mark&gt;", "<mark>")
         .replace("&lt;/mark&gt;", "</mark>");
     }
+  },
+  mounted() {
+    const intersectionObserver = new IntersectionObserver(
+      entries => {
+        if (entries[0].intersectionRatio <= 0) return;
+        this.$emit("fetchMore");
+      },
+      { threshholds: 1 }
+    );
+
+    intersectionObserver.observe(this.$refs.moreObserver);
   },
   computed: {
     ...mapState(["searchFilter"]),
