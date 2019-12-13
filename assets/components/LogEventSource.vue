@@ -49,11 +49,13 @@ export default {
       const logs = await (
         await fetch(`/api/logs?id=${this.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
       ).text();
-      const newMessages = logs
-        .trim()
-        .split("\n")
-        .map(line => parseMessage(line));
-      this.messages.unshift(...newMessages);
+      if (logs) {
+        const newMessages = logs
+          .trim()
+          .split("\n")
+          .map(line => parseMessage(line));
+        this.messages.unshift(...newMessages);
+      }
     }
   },
   watch: {

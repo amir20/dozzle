@@ -43,6 +43,12 @@ export default {
 
     intersectionObserver.observe(this.$refs.moreObserver);
   },
+  watch: {
+    messages() {
+      console.log(this.$el.clientHeight);
+      this.$nextTick(() => console.log(`next tick => ${this.$el.clientHeight}`));
+    }
+  },
   computed: {
     ...mapState(["searchFilter"]),
     filtered() {
@@ -59,6 +65,7 @@ export default {
             }));
         } catch (e) {
           if (e instanceof SyntaxError) {
+            console.info(`Ignoring SytaxError from search.`, e);
             return messages;
           }
           throw e;
