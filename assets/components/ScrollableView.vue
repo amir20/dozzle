@@ -44,6 +44,7 @@ export default {
     const intersectionObserver = new IntersectionObserver(
       entries => {
         if (entries[0].intersectionRatio <= 0) return;
+
         this.$emit("scrolledToTop");
       },
       { threshholds: 1 }
@@ -61,6 +62,10 @@ export default {
         content.scrollTop = content.scrollHeight;
       }
       this.hasMore = false;
+    },
+    scrollBackToTop() {
+      console.log(this.$refs.content.scrollHeight);
+      this.$nextTick(() => console.log(this.$refs.content.scrollHeight));
     },
     onScroll(e) {
       const { content } = this.$refs;

@@ -1,6 +1,10 @@
 <template lang="html">
-  <scrollable-view @scrolledToTop="$refs.viewer.loadMoreLogs()">
-    <log-viewer-with-source :id="id" ref="viewer"></log-viewer-with-source>
+  <scrollable-view @scrolledToTop="$refs.viewer.loadMoreLogs()" ref="scrollable">
+    <log-viewer-with-source
+      :id="id"
+      ref="viewer"
+      @olderLogsLoaded="$refs.scrollable.scrollBackToTop()"
+    ></log-viewer-with-source>
   </scrollable-view>
 </template>
 

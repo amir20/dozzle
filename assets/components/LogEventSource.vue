@@ -56,8 +56,8 @@ export default {
           .trim()
           .split("\n")
           .map(line => parseMessage(line));
-        this.$emit("olderLogsLoaded");
         this.messages.unshift(...newMessages);
+        this.$emit("olderLogsLoaded");
       }
     }
   },

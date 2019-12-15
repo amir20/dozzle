@@ -1,5 +1,5 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource" ref="source">
+  <log-event-source :id="id" v-slot="eventSource" ref="source" @olderLogsLoaded="$emit('olderLogsLoaded')">
     <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>
 </template>
