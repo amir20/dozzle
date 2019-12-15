@@ -1,6 +1,6 @@
 <template lang="html">
   <log-event-source :id="id" v-slot="eventSource" ref="source">
-    <log-viewer :messages="eventSource.messages" @fetchMore="$refs.source.fetchMore()"></log-viewer>
+    <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>
 </template>
 
@@ -14,6 +14,11 @@ export default {
   components: {
     LogEventSource,
     LogViewer
+  },
+  methods: {
+    loadMoreLogs() {
+      this.$refs.source.fetchMore();
+    }
   }
 };
 </script>

@@ -43,6 +43,8 @@ export default {
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async fetchMore() {
+      if (this.messages.length < 100) return;
+
       const to = this.messages[0].date;
       const from = new Date(to);
       from.setMinutes(from.getMinutes() - 10);
@@ -54,6 +56,7 @@ export default {
           .trim()
           .split("\n")
           .map(line => parseMessage(line));
+        this.$emit("olderLogsLoaded");
         this.messages.unshift(...newMessages);
       }
     }

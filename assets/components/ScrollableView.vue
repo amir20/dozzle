@@ -4,6 +4,7 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" @scroll.passive="onScroll">
+      <div ref="topScrollObserver"></div>
       <slot></slot>
     </main>
     <div class="scroll-bar-notification">
@@ -39,7 +40,18 @@ export default {
         this.hasMore = true;
       }
     }).observe(content, { childList: true, subtree: true });
+
+    const intersectionObserver = new IntersectionObserver(
+      entries => {
+        if (entries[0].intersectionRatio <= 0) return;
+        this.$emit("scrolledToTop");
+      },
+      { threshholds: 1 }
+    );
+
+    intersectionObserver.observe(this.$refs.topScrollObserver);
   },
+
   methods: {
     scrollToBottom(behavior = "instant") {
       const { content } = this.$refs;

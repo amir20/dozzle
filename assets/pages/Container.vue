@@ -1,23 +1,19 @@
 <template lang="html">
   <div>
     <search></search>
-    <scrollable-view>
-      <log-viewer-with-source :id="id"></log-viewer-with-source>
-    </scrollable-view>
+    <scrollable-logs-with-source :id="id"></scrollable-logs-with-source>
   </div>
 </template>
 
 <script>
-import LogViewerWithSource from "../components/LogViewerWithSource";
+import ScrollableLogsWithSource from "../components/ScrollableLogsWithSource";
 import Search from "../components/Search";
-import ScrollableView from "../components/ScrollableView";
 
 export default {
   props: ["id", "name"],
   name: "Container",
   components: {
-    LogViewerWithSource,
-    ScrollableView,
+    ScrollableLogsWithSource,
     Search
   },
   metaInfo() {
@@ -28,4 +24,3 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped></style>
