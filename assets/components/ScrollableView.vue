@@ -39,6 +39,7 @@ export default {
       } else {
         this.hasMore = true;
       }
+      console.log("MutationObserver");
     }).observe(content, { childList: true, subtree: true });
 
     const intersectionObserver = new IntersectionObserver(

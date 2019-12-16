@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import debounce from "lodash.debounce";
+
 function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
   const key = data.substring(0, 30);
@@ -21,7 +23,8 @@ export default {
   name: "LogEventSource",
   data() {
     return {
-      messages: []
+      messages: [],
+      buffer: []
     };
   },
   created() {
@@ -36,10 +39,19 @@ export default {
         this.es = null;
       }
       this.es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
-      this.es.onmessage = e => this.messages.push(parseMessage(e.data));
-      this.es.onerror = function(e) {
-        console.log("EventSource failed." + e);
+      const flushBuffer = debounce(
+        () => {
+          this.messages.push(...this.buffer);
+          this.buffer = [];
+        },
+        250,
+        { maxWait: 1000 }
+      );
+      this.es.onmessage = e => {
+        this.buffer.push(parseMessage(e.data));
+        flushBuffer();
       };
+      this.es.onerror = e => console.log("EventSource failed." + e);
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async fetchMore() {
