@@ -3,8 +3,7 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" @scroll.passive="onScroll">
-      <div ref="topScrollObserver"></div>
+    <main ref="content" @scroll.passive="onScroll" data-scrolling>
       <slot></slot>
     </main>
     <div class="scroll-bar-notification">
@@ -39,19 +38,7 @@ export default {
       } else {
         this.hasMore = true;
       }
-      console.log("MutationObserver");
     }).observe(content, { childList: true, subtree: true });
-
-    const intersectionObserver = new IntersectionObserver(
-      entries => {
-        if (entries[0].intersectionRatio <= 0) return;
-
-        this.$emit("scrolledToTop");
-      },
-      { threshholds: 1 }
-    );
-
-    intersectionObserver.observe(this.$refs.topScrollObserver);
   },
 
   methods: {
@@ -64,16 +51,11 @@ export default {
       }
       this.hasMore = false;
     },
-    scrollBackToTop() {
-      console.log(this.$refs.content.scrollHeight);
-      this.$nextTick(() => console.log(this.$refs.content.scrollHeight));
-    },
     onScroll(e) {
       const { content } = this.$refs;
       this.paused = content.scrollTop + content.clientHeight + 1 < content.scrollHeight;
     }
-  },
-  watch: {}
+  }
 };
 </script>
 <style scoped lang="scss">

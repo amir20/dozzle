@@ -34,8 +34,6 @@ export default {
   computed: {
     ...mapState(["searchFilter"]),
     filtered() {
-      console.log("filtered");
-
       const { searchFilter, messages } = this;
       if (searchFilter) {
         const isSmartCase = searchFilter === searchFilter.toLowerCase();

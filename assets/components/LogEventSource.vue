@@ -1,11 +1,13 @@
 <template lang="html">
   <div>
+    <infinite-loader :onLoadMore="loadOlderLogs" :enabled="messages.length > 100"></infinite-loader>
     <slot v-bind:messages="messages"></slot>
   </div>
 </template>
 
 <script>
 import debounce from "lodash.debounce";
+import InfiniteLoader from "./InfiniteLoader";
 
 function parseMessage(data) {
   const date = new Date(data.substring(0, 30));
@@ -21,6 +23,9 @@ function parseMessage(data) {
 export default {
   props: ["id"],
   name: "LogEventSource",
+  components: {
+    InfiniteLoader
+  },
   data() {
     return {
       messages: [],
@@ -54,7 +59,7 @@ export default {
       this.es.onerror = e => console.log("EventSource failed." + e);
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
-    async fetchMore() {
+    async loadOlderLogs() {
       if (this.messages.length < 100) return;
 
       const to = this.messages[0].date;
@@ -69,7 +74,6 @@ export default {
           .split("\n")
           .map(line => parseMessage(line));
         this.messages.unshift(...newMessages);
-        this.$emit("olderLogsLoaded");
       }
     }
   },

@@ -1,5 +1,5 @@
 <template lang="html">
-  <log-event-source :id="id" v-slot="eventSource" ref="source" @olderLogsLoaded="$emit('olderLogsLoaded')">
+  <log-event-source :id="id" v-slot="eventSource">
     <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>
 </template>
@@ -14,11 +14,6 @@ export default {
   components: {
     LogEventSource,
     LogViewer
-  },
-  methods: {
-    loadMoreLogs() {
-      this.$refs.source.fetchMore();
-    }
   }
 };
 </script>
