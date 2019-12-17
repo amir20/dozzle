@@ -1,5 +1,5 @@
 <template lang="html">
-  <div ref="observer"></div>
+  <div ref="observer" class="control" :class="{ 'is-loading': isLoading }"></div>
 </template>
 
 <script>
@@ -7,7 +7,8 @@ export default {
   name: "InfiniteLoader",
   data() {
     return {
-      scrollingParent: null
+      scrollingParent: null,
+      isLoading: false
     };
   },
   props: {
@@ -21,7 +22,9 @@ export default {
         if (entries[0].intersectionRatio <= 0) return;
         if (this.onLoadMore && this.enabled) {
           const previousHeight = this.scrollingParent.scrollHeight;
+          this.isLoading = true;
           await this.onLoadMore();
+          this.isLoading = false;
           this.$nextTick(() => (this.scrollingParent.scrollTop += this.scrollingParent.scrollHeight - previousHeight));
         }
       },
