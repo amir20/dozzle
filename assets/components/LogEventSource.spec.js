@@ -61,7 +61,9 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     expect(wrapper.element).toMatchInlineSnapshot(`
       <div>
-        <div />
+        <div
+          class="control"
+        />
          
         <ul
           class="events"
