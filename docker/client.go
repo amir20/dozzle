@@ -206,10 +206,30 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	defer reader.Close()
 
 	var messages []string
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		line := scanner.Text()
-		messages = append(messages, line[8:])
+	hdr := make([]byte, 8)
+	var buffer bytes.Buffer
+
+	for {
+		_, err := reader.Read(hdr)
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
+		}
+		count := binary.BigEndian.Uint32(hdr[4:])
+		_, err = io.CopyN(&buffer, reader, int64(count))
+
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, err
+			}
+		}
+		messages = append(messages, strings.TrimSpace(buffer.String()))
+		buffer.Reset()
 	}
 
 	return messages, nil

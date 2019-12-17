@@ -28,7 +28,7 @@
   "bulma": "^0.8.0",
   "date-fns": "^2.8.1",
   "lodash.debounce": "^4.0.8",
-  "splitpanes": "^2.1.1",
+  "splitpanes": "^2.1.2",
   "store": "^2.0.12",
   "vue": "^2.6.11",
   "vue-meta": "^2.3.1",
