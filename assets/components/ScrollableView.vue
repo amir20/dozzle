@@ -3,7 +3,7 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" @scroll.passive="onScroll">
+    <main ref="content" @scroll.passive="onScroll" data-scrolling>
       <slot></slot>
     </main>
     <div class="scroll-bar-notification">
@@ -40,6 +40,7 @@ export default {
       }
     }).observe(content, { childList: true, subtree: true });
   },
+
   methods: {
     scrollToBottom(behavior = "instant") {
       const { content } = this.$refs;
@@ -54,8 +55,7 @@ export default {
       const { content } = this.$refs;
       this.paused = content.scrollTop + content.clientHeight + 1 < content.scrollHeight;
     }
-  },
-  watch: {}
+  }
 };
 </script>
 <style scoped lang="scss">

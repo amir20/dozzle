@@ -47,6 +47,7 @@ export default {
             }));
         } catch (e) {
           if (e instanceof SyntaxError) {
+            console.info(`Ignoring SytaxError from search.`, e);
             return messages;
           }
           throw e;

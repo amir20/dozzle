@@ -34,9 +34,9 @@ var (
 )
 
 type handler struct {
-	client docker.Client
+	client  docker.Client
 	showAll bool
-	box    packr.Box
+	box     packr.Box
 }
 
 func init() {
@@ -91,6 +91,7 @@ func createRoutes(base string, h *handler) *mux.Router {
 	s := r.PathPrefix(base).Subrouter()
 	s.HandleFunc("/api/containers.json", h.listContainers)
 	s.HandleFunc("/api/logs/stream", h.streamLogs)
+	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
 	s.HandleFunc("/api/events/stream", h.streamEvents)
 	s.HandleFunc("/version", h.version)
 	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
@@ -108,9 +109,9 @@ func main() {
 
 	box := packr.NewBox("./static")
 	r := createRoutes(base, &handler{
-		client: dockerClient,
+		client:  dockerClient,
 		showAll: showAll,
-		box: box,
+		box:     box,
 	})
 	srv := &http.Server{Addr: addr, Handler: r}
 
@@ -167,6 +168,20 @@ func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
+	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
+	id := r.URL.Query().Get("id")
+
+	messages, _ := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
+
+	for _, m := range messages {
+		fmt.Fprintln(w, m)
 	}
 }
 
