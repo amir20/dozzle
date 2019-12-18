@@ -9,7 +9,7 @@ const state = {
   containers: [],
   activeContainers: [],
   searchFilter: null,
-  mobileWidth: mql.matches
+  isMobile: mql.matches
 };
 
 const mutations = {
@@ -26,7 +26,7 @@ const mutations = {
     state.searchFilter = filter;
   },
   SET_MOBILE_WIDTH(state, value) {
-    state.mobileWidth = value;
+    state.isMobile = value;
   }
 };
 

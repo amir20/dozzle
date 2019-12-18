@@ -1,11 +1,11 @@
 <template lang="html">
   <main>
-    <mobile-menu v-if="mobileWidth"></mobile-menu>
+    <mobile-menu v-if="isMobile"></mobile-menu>
     <splitpanes>
-      <pane min-size="10" size="15" v-if="!mobileWidth">
+      <pane min-size="10" size="15" v-if="!isMobile">
         <side-menu></side-menu>
       </pane>
-      <pane size="85">
+      <pane :size="isMobile ? 100 : 85">
         <splitpanes>
           <pane>
             <router-view></router-view>
@@ -65,18 +65,13 @@ export default {
     this.title = `${this.containers.length} containers`;
   },
   computed: {
-    ...mapState(["containers", "activeContainers", "mobileWidth"])
+    ...mapState(["containers", "activeContainers", "isMobile"])
   },
   methods: {
     ...mapActions({
       fetchContainerList: "FETCH_CONTAINERS",
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER"
     })
-  },
-  watch: {
-    $route(to, from) {
-      this.showNav = false;
-    }
   }
 };
 </script>

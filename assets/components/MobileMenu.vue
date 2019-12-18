@@ -49,6 +49,11 @@ export default {
   },
   methods: {
     ...mapActions({})
+  },
+  watch: {
+    $route(to, from) {
+      this.showNav = false;
+    }
   }
 };
 </script>
