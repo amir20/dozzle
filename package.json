@@ -36,13 +36,13 @@
   "vuex": "^3.1.2"
  },
  "devDependencies": {
-  "@babel/core": "^7.7.5",
+  "@babel/core": "^7.7.7",
   "@babel/plugin-transform-runtime": "^7.7.6",
   "@vue/component-compiler-utils": "^3.1.0",
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^24.9.0",
-  "concurrently": "^5.0.1",
+  "concurrently": "^5.0.2",
   "eventsourcemock": "^2.0.0",
   "husky": "^3.1.0",
   "jest": "^24.9.0",
