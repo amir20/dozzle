@@ -60,11 +60,12 @@ export default {
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async loadOlderLogs() {
-      if (this.messages.length < 100) return;
+      if (this.messages.length < 300) return;
 
       const to = this.messages[0].date;
-      const from = new Date(to);
-      from.setMinutes(from.getMinutes() - 10);
+      const last = this.messages[299].date;
+      const delta = to - last;
+      const from = new Date(to.getTime() + delta);
       const logs = await (
         await fetch(`/api/logs?id=${this.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
       ).text();
