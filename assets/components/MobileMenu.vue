@@ -65,6 +65,7 @@ aside {
   left: 0;
   right: 0;
   background: #222;
+  z-index: 2;
 
   .menu-label {
     margin-top: 1em;
