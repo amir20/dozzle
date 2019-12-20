@@ -150,7 +150,10 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			path = base
 		}
 
-		data := struct{ Base string }{path}
+		data := struct {
+			Base    string
+			Version string
+		}{path, version}
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
