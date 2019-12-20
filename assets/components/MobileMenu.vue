@@ -60,7 +60,7 @@ export default {
 <style scoped lang="scss">
 aside {
   padding: 1em;
-  position: sticky;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
