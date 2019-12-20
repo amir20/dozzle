@@ -1,7 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Meta from "vue-meta";
-import Vuex from "vuex";
 import store from "./store";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
