@@ -10,6 +10,8 @@ import Index from "./pages/Index.vue";
 Vue.use(VueRouter);
 Vue.use(Meta);
 
+Vue.config.ignoredElements = [/^ion-/];
+
 const routes = [
   {
     path: "/",
