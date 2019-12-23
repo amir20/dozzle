@@ -10,7 +10,7 @@
           active-class="is-active"
           class="button is-small is-primary is-rounded is-inverted is-outlined "
         >
-          <span class="icon"><i class="fas fa-cog"></i></span>
+          <span class="icon"><ion-icon name="settings"></ion-icon></span>
           <span>Settings</span>
         </router-link>
       </div>

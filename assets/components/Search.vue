@@ -3,7 +3,7 @@
     <div class="column">
       <p class="control has-icons-left">
         <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
-        <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+        <span class="icon is-small is-left"><ion-icon name="search"></ion-icon></span>
       </p>
     </div>
     <div class="column is-1 has-text-centered">
