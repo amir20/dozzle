@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Meta from "vue-meta";
+import { Dropdown, Switch } from "buefy";
 import store from "./store";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
@@ -9,6 +10,8 @@ import Index from "./pages/Index.vue";
 
 Vue.use(VueRouter);
 Vue.use(Meta);
+Vue.use(Dropdown);
+Vue.use(Switch);
 
 Vue.config.ignoredElements = [/^ion-/];
 

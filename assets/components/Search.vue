@@ -35,7 +35,7 @@ export default {
     onKeyDown(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === "f") {
         this.showSearch = true;
-        this.$nextTick(() => this.$refs.filter.focus());
+        this.$nextTick(() => this.$refs.filter.focus() || this.$refs.filter.select());
         e.preventDefault();
       } else if (e.key === "Escape") {
         this.resetSearch();

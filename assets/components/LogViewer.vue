@@ -84,7 +84,7 @@ export default {
   white-space: pre-wrap;
 }
 
->>> mark {
+::v-deep mark {
   border-radius: 2px;
   background-color: #ffdd57;
   animation: pops 0.2s ease-out;

@@ -10,8 +10,7 @@
           active-class="is-active"
           class="button is-small is-primary is-rounded is-inverted is-outlined "
         >
-          <span class="icon"><ion-icon name="settings"></ion-icon></span>
-          <span>Settings</span>
+          <span class="icon"><ion-icon name="settings" size="large"></ion-icon></span>
         </router-link>
       </div>
     </div>
@@ -29,7 +28,7 @@
               class="icon is-small will-append-container"
               :class="{ 'is-active': activeContainersById[item.id] }"
             >
-              <i class="fas fa-thumbtack"></i>
+              <ion-icon name="ios-add-circle"></ion-icon>
             </span>
             {{ item.name }}
           </div>
@@ -88,7 +87,6 @@ aside {
 .will-append-container.icon {
   transition: transform 0.2s ease-out;
   &.is-active {
-    transform: rotate(25deg);
     pointer-events: none;
     color: #00d1b2;
   }
