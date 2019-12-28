@@ -9,7 +9,10 @@ const state = {
   containers: [],
   activeContainers: [],
   searchFilter: null,
-  isMobile: mql.matches
+  isMobile: mql.matches,
+  settings: {
+    search: true
+  }
 };
 
 const mutations = {
@@ -27,6 +30,9 @@ const mutations = {
   },
   SET_MOBILE_WIDTH(state, value) {
     state.isMobile = value;
+  },
+  UPDATE_SETTINGS(state, newValues) {
+    state.settings = { ...state.settings, ...newValues };
   }
 };
 
@@ -43,6 +49,9 @@ const actions = {
   async FETCH_CONTAINERS({ commit }) {
     const containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
     commit("SET_CONTAINERS", containers);
+  },
+  UPDATE_SETTING({ commit }, setting) {
+    commit("UPDATE_SETTINGS", setting);
   }
 };
 const getters = {};

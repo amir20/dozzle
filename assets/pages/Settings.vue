@@ -21,37 +21,37 @@
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        <b-switch>Switch rounded default</b-switch>
+        <b-switch v-model="search">Enable searching with <i>command + f</i></b-switch>
       </div>
 
       <div class="item">
+        <h2 class="title is-4">Font size</h2>
         <b-dropdown v-model="isPublic" aria-role="list">
           <button class="button is-primary" type="button" slot="trigger">
-            <template v-if="isPublic">
-              <span>Public</span>
-            </template>
-            <template v-else>
-              <span>Friends</span>
-            </template>
+            <span>Medium</span>
             <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
           </button>
-
-          <b-dropdown-item :value="true" aria-role="listitem">
+          <b-dropdown-item value="small" aria-role="listitem">
             <div class="media">
               <b-icon class="media-left" icon="earth"></b-icon>
               <div class="media-content">
-                <h3>Public</h3>
-                <small>Everyone can see</small>
+                <h3>Small</h3>
               </div>
             </div>
           </b-dropdown-item>
-
-          <b-dropdown-item :value="false" aria-role="listitem">
+          <b-dropdown-item value="medium" aria-role="listitem">
             <div class="media">
-              <b-icon class="media-left" icon="account-multiple"></b-icon>
+              <b-icon class="media-left" icon="earth"></b-icon>
               <div class="media-content">
-                <h3>Friends</h3>
-                <small>Only friends can see</small>
+                <h3>Medium</h3>
+              </div>
+            </div>
+          </b-dropdown-item>
+          <b-dropdown-item value="large" aria-role="listitem">
+            <div class="media">
+              <b-icon class="media-left" icon="earth"></b-icon>
+              <div class="media-content">
+                <h3>Large</h3>
               </div>
             </div>
           </b-dropdown-item>
@@ -64,6 +64,7 @@
 <script>
 import gt from "semver/functions/gt";
 import valid from "semver/functions/valid";
+import { mapActions, mapState } from "vuex";
 
 export default {
   props: [],
@@ -89,8 +90,22 @@ export default {
   },
 
   watch: {},
-  methods: {},
-  computed: {},
+  methods: {
+    ...mapActions({
+      updateSetting: "UPDATE_SETTING"
+    })
+  },
+  computed: {
+    ...mapState(["settings"]),
+    search: {
+      get() {
+        return this.settings.search;
+      },
+      set(search) {
+        this.updateSetting({ search });
+      }
+    }
+  },
   filters: {}
 };
 </script>
