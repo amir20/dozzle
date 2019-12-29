@@ -21,37 +21,28 @@
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        <b-switch v-model="search">Enable searching with <code>command+f</code> or <code>ctrl+f</code></b-switch>
+        <b-switch v-model="search">
+          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
+        </b-switch>
       </div>
 
       <div class="item">
-        <h2 class="title is-4">Font size</h2>
+        <h2 class="title is-6 is-marginless">Font size</h2>
+
+        Modify the font size when viewing logs.
+        <br /><br />
         <b-dropdown v-model="size" aria-role="list">
           <button class="button is-primary" type="button" slot="trigger">
             <span class="is-capitalized">{{ size }}</span>
             <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
           </button>
-          <b-dropdown-item value="small" aria-role="listitem">
+          <b-dropdown-item :value="value" aria-role="listitem" v-for="value in ['small', 'medium', 'large']">
             <div class="media">
-              <span class="icon"></span>
+              <span class="icon">
+                <ion-icon name="checkmark" v-if="value == size"></ion-icon>
+              </span>
               <div class="media-content">
-                <h3>Small</h3>
-              </div>
-            </div>
-          </b-dropdown-item>
-          <b-dropdown-item value="medium" aria-role="listitem">
-            <div class="media">
-              <span class="icon"></span>
-              <div class="media-content">
-                <h3>Medium</h3>
-              </div>
-            </div>
-          </b-dropdown-item>
-          <b-dropdown-item value="large" aria-role="listitem">
-            <div class="media">
-              <span class="icon"></span>
-              <div class="media-content">
-                <h3>Large</h3>
+                <h3 class="is-capitalized">{{ value }}</h3>
               </div>
             </div>
           </b-dropdown-item>
@@ -132,7 +123,7 @@ a.next-release {
 }
 
 .section {
-  padding: 2rem 1.5rem;
+  padding: 1rem 1.5rem;
 }
 
 .has-underline {
