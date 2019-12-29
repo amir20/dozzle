@@ -1,7 +1,7 @@
 <template lang="html">
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
-    <splitpanes @resized="updateSetting({ menuWidth: $event[0].size })">
+    <splitpanes @resized="onResize($event)">
       <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile">
         <side-menu></side-menu>
       </pane>
@@ -75,7 +75,12 @@ export default {
       fetchContainerList: "FETCH_CONTAINERS",
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING"
-    })
+    }),
+    onResize(e) {
+      if (e.length == 2) {
+        this.updateSetting({ menuWidth: Math.min(90, e[0].size) });
+      }
+    }
   }
 };
 </script>

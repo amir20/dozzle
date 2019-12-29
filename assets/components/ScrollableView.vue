@@ -67,6 +67,7 @@ section {
   main {
     flex: 1;
     overflow: auto;
+    overscroll-behavior: none;
   }
   .scroll-bar-notification {
     text-align: right;
