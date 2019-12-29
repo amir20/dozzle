@@ -1,25 +1,20 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import storage from "store/dist/store.modern";
+import { DEFAULT_SETTINGS, DOZZLE_SETTINGS_KEY } from "./settings";
 
 Vue.use(Vuex);
 
 const mql = window.matchMedia("(max-width: 770px)");
-const DOZZLE_SETTINGS = "DOZZLE_SETTINGS";
 
-if (!storage.get(DOZZLE_SETTINGS)) {
-  storage.set(DOZZLE_SETTINGS, {
-    search: true,
-    size: "medium"
-  });
-}
+storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SETTINGS_KEY) });
 
 const state = {
   containers: [],
   activeContainers: [],
   searchFilter: null,
   isMobile: mql.matches,
-  settings: storage.get(DOZZLE_SETTINGS)
+  settings: storage.get(DOZZLE_SETTINGS_KEY)
 };
 
 const mutations = {
@@ -40,7 +35,7 @@ const mutations = {
   },
   UPDATE_SETTINGS(state, newValues) {
     state.settings = { ...state.settings, ...newValues };
-    storage.set(DOZZLE_SETTINGS, state.settings);
+    storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   }
 };
 

@@ -18,7 +18,8 @@ describe("<App />", () => {
       containers: [
         { id: "abc", name: "Test 1" },
         { id: "xyz", name: "Test 2" }
-      ]
+      ],
+      settings: { menuWidth: 15 }
     };
 
     const actions = {

@@ -18,7 +18,7 @@ exports[`<App /> renders correctly 1`] = `
      
     <pane-stub
       maxsize="100"
-      minsize="0"
+      minsize="10"
       size="85"
     >
       <splitpanes-stub
