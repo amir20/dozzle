@@ -3,8 +3,11 @@
 $menu-item-active-background-color: hsl(171, 100%, 41%);
 $menu-item-color: hsl(0, 6%, 87%);
 
-@import "../node_modules/bulma/bulma.sass";
+@import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
+@import "~buefy/src/scss/utils/_all";
+@import "~buefy/src/scss/components/_dropdown";
+@import "~buefy/src/scss/components/_switch";
 
 .is-dark {
   color: #ddd;

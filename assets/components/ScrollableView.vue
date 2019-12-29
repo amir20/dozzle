@@ -14,7 +14,7 @@
           @click="scrollToBottom('smooth')"
           v-show="paused"
         >
-          <span class="icon large"> <i class="fas fa-chevron-down"></i> </span>
+          <ion-icon name="download"></ion-icon>
         </button>
       </transition>
     </div>

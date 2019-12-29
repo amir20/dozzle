@@ -34,7 +34,7 @@ describe("<LogEventSource />", () => {
     localVue.component("log-event-source", LogEventSource);
     localVue.component("log-viewer", LogViewer);
 
-    const state = { searchFilter };
+    const state = { searchFilter, settings: { size: "medium" } };
 
     const store = new Vuex.Store({
       state
@@ -66,7 +66,7 @@ describe("<LogEventSource />", () => {
         />
          
         <ul
-          class="events"
+          class="events medium"
         />
       </div>
     `);
@@ -126,7 +126,7 @@ describe("<LogEventSource />", () => {
     sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
-      <ul class="events">
+      <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">"This is a message."</span></li>
       </ul>
     `);
@@ -140,7 +140,7 @@ describe("<LogEventSource />", () => {
     });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
-      <ul class="events">
+      <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text"><span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
       </ul>
     `);
@@ -154,7 +154,7 @@ describe("<LogEventSource />", () => {
     });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
-      <ul class="events">
+      <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
       </ul>
     `);
@@ -171,7 +171,7 @@ describe("<LogEventSource />", () => {
     });
 
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
-      <ul class="events">
+      <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
       </ul>
     `);

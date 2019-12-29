@@ -1,6 +1,19 @@
 <template lang="html">
   <aside>
-    <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+    <div class="columns is-marginless">
+      <div class="column">
+        <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+      </div>
+      <div class="column is-narrow has-text-right is-hidden-mobile">
+        <router-link
+          :to="{ name: 'settings' }"
+          active-class="is-active"
+          class="button is-small is-primary is-rounded is-inverted is-outlined "
+        >
+          <span class="icon"><ion-icon name="settings" size="large"></ion-icon></span>
+        </router-link>
+      </div>
+    </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile">
       <li v-for="item in containers">
@@ -15,7 +28,7 @@
               class="icon is-small will-append-container"
               :class="{ 'is-active': activeContainersById[item.id] }"
             >
-              <i class="fas fa-thumbtack"></i>
+              <ion-icon name="ios-add-circle"></ion-icon>
             </span>
             {{ item.name }}
           </div>
@@ -74,7 +87,6 @@ aside {
 .will-append-container.icon {
   transition: transform 0.2s ease-out;
   &.is-active {
-    transform: rotate(25deg);
     pointer-events: none;
     color: #00d1b2;
   }

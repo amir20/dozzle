@@ -1,15 +1,20 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import storage from "store/dist/store.modern";
+import { DEFAULT_SETTINGS, DOZZLE_SETTINGS_KEY } from "./settings";
+
+Vue.use(Vuex);
 
 const mql = window.matchMedia("(max-width: 770px)");
 
-Vue.use(Vuex);
+storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SETTINGS_KEY) });
 
 const state = {
   containers: [],
   activeContainers: [],
   searchFilter: null,
-  isMobile: mql.matches
+  isMobile: mql.matches,
+  settings: storage.get(DOZZLE_SETTINGS_KEY)
 };
 
 const mutations = {
@@ -27,6 +32,10 @@ const mutations = {
   },
   SET_MOBILE_WIDTH(state, value) {
     state.isMobile = value;
+  },
+  UPDATE_SETTINGS(state, newValues) {
+    state.settings = { ...state.settings, ...newValues };
+    storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   }
 };
 
@@ -43,13 +52,15 @@ const actions = {
   async FETCH_CONTAINERS({ commit }) {
     const containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
     commit("SET_CONTAINERS", containers);
+  },
+  UPDATE_SETTING({ commit }, setting) {
+    commit("UPDATE_SETTINGS", setting);
   }
 };
 const getters = {};
 
 const es = new EventSource(`${BASE_PATH}/api/events/stream`);
 es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
-
 mql.addListener(e => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({

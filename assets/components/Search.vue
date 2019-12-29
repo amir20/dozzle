@@ -1,9 +1,16 @@
 <template lang="html">
-  <div class="search columns is-gapless is-vcentered" v-show="showSearch">
+  <div class="search columns is-gapless is-vcentered" v-show="showSearch" v-if="settings.search">
     <div class="column">
       <p class="control has-icons-left">
-        <input class="input" type="text" placeholder="Filter" ref="filter" v-model="filter" />
-        <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+        <input
+          class="input"
+          type="text"
+          placeholder="Filter"
+          ref="filter"
+          v-model="filter"
+          @keyup.esc="resetSearch()"
+        />
+        <span class="icon is-small is-left"><ion-icon name="search"></ion-icon></span>
       </p>
     </div>
     <div class="column is-1 has-text-centered">
@@ -14,6 +21,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import hotkeys from "hotkeys-js";
+
 export default {
   props: [],
   name: "Search",
@@ -23,31 +32,26 @@ export default {
     };
   },
   mounted() {
-    window.addEventListener("keydown", this.onKeyDown);
-  },
-  destroyed() {
-    window.removeEventListener("keydown", this.onKeyDown);
+    hotkeys("command+f, ctrl+f", (event, handler) => {
+      this.showSearch = true;
+      this.$nextTick(() => this.$refs.filter.focus() || this.$refs.filter.select());
+      event.preventDefault();
+    });
+    hotkeys("esc", (event, handler) => {
+      this.resetSearch();
+    });
   },
   methods: {
     ...mapActions({
       updateSearchFilter: "SET_SEARCH"
     }),
-    onKeyDown(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
-        this.showSearch = true;
-        this.$nextTick(() => this.$refs.filter.focus());
-        e.preventDefault();
-      } else if (e.key === "Escape") {
-        this.resetSearch();
-      }
-    },
     resetSearch() {
       this.showSearch = false;
       this.filter = "";
     }
   },
   computed: {
-    ...mapState(["searchFilter"]),
+    ...mapState(["searchFilter", "settings"]),
     filter: {
       get() {
         return this.searchFilter;

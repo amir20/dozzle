@@ -1,13 +1,14 @@
 <template lang="html">
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
-    <splitpanes>
-      <pane min-size="10" size="15" v-if="!isMobile">
+    <splitpanes @resized="updateSetting({ menuWidth: $event[0].size })">
+      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile">
         <side-menu></side-menu>
       </pane>
-      <pane :size="isMobile ? 100 : 85">
+      <pane :size="isMobile ? 100 : 100 - settings.menuWidth" min-size="10">
         <splitpanes>
           <pane>
+            <search></search>
             <router-view></router-view>
           </pane>
           <pane v-for="other in activeContainers" :key="other.id">
@@ -37,6 +38,7 @@ import LogViewerWithSource from "./components/LogViewerWithSource";
 import ScrollableView from "./components/ScrollableView";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
+import Search from "./components/Search";
 
 export default {
   name: "App",
@@ -46,7 +48,8 @@ export default {
     MobileMenu,
     ScrollableView,
     Splitpanes,
-    Pane
+    Pane,
+    Search
   },
   data() {
     return {
@@ -65,12 +68,13 @@ export default {
     this.title = `${this.containers.length} containers`;
   },
   computed: {
-    ...mapState(["containers", "activeContainers", "isMobile"])
+    ...mapState(["containers", "activeContainers", "isMobile", "settings"])
   },
   methods: {
     ...mapActions({
       fetchContainerList: "FETCH_CONTAINERS",
-      removeActiveContainer: "REMOVE_ACTIVE_CONTAINER"
+      removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
+      updateSetting: "UPDATE_SETTING"
     })
   }
 };
@@ -90,5 +94,9 @@ export default {
   &:hover {
     background: rgb(255, 221, 87);
   }
+}
+
+.button.has-no-border {
+  border-color: transparent !important;
 }
 </style>
