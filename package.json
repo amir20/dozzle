@@ -11,7 +11,9 @@
   "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "goreleaser --rm-dist",
-  "test": "jest"
+  "test": "jest",
+  "commit": "git-cz",
+  "release": "standard-version"
  },
  "repository": {
   "type": "git",
@@ -45,7 +47,9 @@
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^24.9.0",
+  "commitizen": "^4.0.3",
   "concurrently": "^5.0.2",
+  "cz-conventional-changelog": "^3.0.2",
   "eventsourcemock": "^2.0.0",
   "husky": "^3.1.0",
   "jest": "^24.9.0",
@@ -56,6 +60,7 @@
   "parcel-bundler": "^1.12.4",
   "prettier": "^1.19.1",
   "sass": "^1.24.0",
+  "standard-version": "^7.0.1",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
   "vue-template-compiler": "^2.6.11"
@@ -103,6 +108,11 @@
   "transform": {
    ".*\\.vue$": "vue-jest",
    ".+\\.js$": "babel-jest"
+  }
+ },
+ "config": {
+  "commitizen": {
+   "path": "./node_modules/cz-conventional-changelog"
   }
  }
 }
