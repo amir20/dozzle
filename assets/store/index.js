@@ -1,18 +1,25 @@
 import Vue from "vue";
 import Vuex from "vuex";
-
-const mql = window.matchMedia("(max-width: 770px)");
+import storage from "store/dist/store.modern";
 
 Vue.use(Vuex);
+
+const mql = window.matchMedia("(max-width: 770px)");
+const DOZZLE_SETTINGS = "DOZZLE_SETTINGS";
+
+if (!storage.get(DOZZLE_SETTINGS)) {
+  storage.set(DOZZLE_SETTINGS, {
+    search: true,
+    size: "medium"
+  });
+}
 
 const state = {
   containers: [],
   activeContainers: [],
   searchFilter: null,
   isMobile: mql.matches,
-  settings: {
-    search: true
-  }
+  settings: storage.get(DOZZLE_SETTINGS)
 };
 
 const mutations = {
@@ -33,6 +40,7 @@ const mutations = {
   },
   UPDATE_SETTINGS(state, newValues) {
     state.settings = { ...state.settings, ...newValues };
+    storage.set(DOZZLE_SETTINGS, state.settings);
   }
 };
 
@@ -58,7 +66,6 @@ const getters = {};
 
 const es = new EventSource(`${BASE_PATH}/api/events/stream`);
 es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
-
 mql.addListener(e => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({

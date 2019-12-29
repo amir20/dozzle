@@ -8,6 +8,7 @@
       <pane :size="isMobile ? 100 : 85">
         <splitpanes>
           <pane>
+            <search></search>
             <router-view></router-view>
           </pane>
           <pane v-for="other in activeContainers" :key="other.id">
@@ -37,6 +38,7 @@ import LogViewerWithSource from "./components/LogViewerWithSource";
 import ScrollableView from "./components/ScrollableView";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
+import Search from "./components/Search";
 
 export default {
   name: "App",
@@ -46,7 +48,8 @@ export default {
     MobileMenu,
     ScrollableView,
     Splitpanes,
-    Pane
+    Pane,
+    Search
   },
   data() {
     return {

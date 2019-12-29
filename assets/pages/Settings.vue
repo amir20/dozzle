@@ -21,19 +21,19 @@
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        <b-switch v-model="search">Enable searching with <i>command + f</i></b-switch>
+        <b-switch v-model="search">Enable searching with <code>command+f</code> or <code>ctrl+f</code></b-switch>
       </div>
 
       <div class="item">
         <h2 class="title is-4">Font size</h2>
-        <b-dropdown v-model="isPublic" aria-role="list">
+        <b-dropdown v-model="size" aria-role="list">
           <button class="button is-primary" type="button" slot="trigger">
-            <span>Medium</span>
+            <span class="is-capitalized">{{ size }}</span>
             <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
           </button>
           <b-dropdown-item value="small" aria-role="listitem">
             <div class="media">
-              <b-icon class="media-left" icon="earth"></b-icon>
+              <span class="icon"></span>
               <div class="media-content">
                 <h3>Small</h3>
               </div>
@@ -41,7 +41,7 @@
           </b-dropdown-item>
           <b-dropdown-item value="medium" aria-role="listitem">
             <div class="media">
-              <b-icon class="media-left" icon="earth"></b-icon>
+              <span class="icon"></span>
               <div class="media-content">
                 <h3>Medium</h3>
               </div>
@@ -49,7 +49,7 @@
           </b-dropdown-item>
           <b-dropdown-item value="large" aria-role="listitem">
             <div class="media">
-              <b-icon class="media-left" icon="earth"></b-icon>
+              <span class="icon"></span>
               <div class="media-content">
                 <h3>Large</h3>
               </div>
@@ -65,6 +65,20 @@
 import gt from "semver/functions/gt";
 import valid from "semver/functions/valid";
 import { mapActions, mapState } from "vuex";
+
+function computedSettings(names) {
+  return names.reduce((map, name) => {
+    map[name] = {
+      get() {
+        return this.settings[name];
+      },
+      set(value) {
+        this.updateSetting({ [name]: value });
+      }
+    };
+    return map;
+  }, {});
+}
 
 export default {
   props: [],
@@ -88,8 +102,6 @@ export default {
       titleTemplate: "%s - Dozzle"
     };
   },
-
-  watch: {},
   methods: {
     ...mapActions({
       updateSetting: "UPDATE_SETTING"
@@ -97,16 +109,8 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    search: {
-      get() {
-        return this.settings.search;
-      },
-      set(search) {
-        this.updateSetting({ search });
-      }
-    }
-  },
-  filters: {}
+    ...computedSettings.bind(this)(["search", "size"])
+  }
 };
 </script>
 <style lang="scss">
@@ -139,5 +143,10 @@ a.next-release {
 
 .item {
   padding: 1em 0;
+}
+
+code {
+  border-radius: 4px;
+  background-color: #444;
 }
 </style>

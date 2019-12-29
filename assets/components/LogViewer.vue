@@ -1,5 +1,5 @@
 <template lang="html">
-  <ul class="events">
+  <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key">
       <span class="date">{{ item.date | relativeTime }}</span>
       <span class="text" v-html="colorize(item.message)"></span>
@@ -32,7 +32,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["searchFilter"]),
+    ...mapState(["searchFilter", "settings"]),
     filtered() {
       const { searchFilter, messages } = this;
       if (searchFilter) {
@@ -69,9 +69,20 @@ export default {
   font-family: "Roboto Mono", monaco, monospace;
 
   & > li {
-    font-size: 13px;
-    line-height: 16px;
     word-wrap: break-word;
+    line-height: 130%;
+  }
+
+  &.small {
+    font-size: 60%;
+  }
+
+  &.medium {
+    font-size: 80%;
+  }
+
+  &.large {
+    font-size: 120%;
   }
 }
 
