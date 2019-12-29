@@ -13,7 +13,7 @@
   "release": "goreleaser --rm-dist",
   "test": "jest",
   "commit": "git-cz",
-  "release": "standard-version"
+  "version": "standard-version"
  },
  "repository": {
   "type": "git",
