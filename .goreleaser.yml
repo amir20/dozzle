@@ -2,7 +2,7 @@ before:
   hooks:
     - npm run clean
     - npm run build
-    - packr
+    - packr -z
 builds:
   - env:
       - CGO_ENABLED=0
