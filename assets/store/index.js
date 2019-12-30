@@ -64,7 +64,6 @@ es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("
 mql.addListener(e => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({
-  strict: true,
   state,
   getters,
   actions,
