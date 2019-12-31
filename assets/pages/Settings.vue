@@ -5,7 +5,6 @@
         <h2 class="title is-4">About</h2>
       </div>
 
-      <h2 class="title is-6 is-marginless">Version</h2>
       <div>
         You are using Dozzle <i>{{ currentVersion }}</i
         >.
@@ -57,20 +56,6 @@ import gt from "semver/functions/gt";
 import valid from "semver/functions/valid";
 import { mapActions, mapState } from "vuex";
 
-function computedSettings(names) {
-  return names.reduce((map, name) => {
-    map[name] = {
-      get() {
-        return this.settings[name];
-      },
-      set(value) {
-        this.updateSetting({ [name]: value });
-      }
-    };
-    return map;
-  }, {});
-}
-
 export default {
   props: [],
   name: "Settings",
@@ -100,7 +85,17 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...computedSettings.bind(this)(["search", "size"])
+    ...["search", "size"].reduce((map, name) => {
+      map[name] = {
+        get() {
+          return this.settings[name];
+        },
+        set(value) {
+          this.updateSetting({ [name]: value });
+        }
+      };
+      return map;
+    }, {})
   }
 };
 </script>
