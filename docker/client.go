@@ -123,6 +123,34 @@ func (d *dockerClient) ListContainers(showAll bool) ([]Container, error) {
 	return containers, nil
 }
 
+func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
+	if tty {
+		scanner := bufio.NewScanner(reader)
+		return func() (string, error) {
+			if scanner.Scan() {
+				return scanner.Text(), nil
+			}
+
+			return "", io.EOF
+		}
+	}
+	hdr := make([]byte, 8)
+	var buffer bytes.Buffer
+	return func() (string, error) {
+		buffer.Reset()
+		_, err := reader.Read(hdr)
+		if err != nil {
+			return "", err
+		}
+		count := binary.BigEndian.Uint32(hdr[4:])
+		_, err = io.CopyN(&buffer, reader, int64(count))
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(buffer.String()), nil
+	}
+}
+
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int) (<-chan string, <-chan error) {
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: strconv.Itoa(tailSize), Timestamps: true}
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
@@ -142,49 +170,23 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 
 	containerJSON, _ := d.cli.ContainerInspect(ctx, id)
 
-	if containerJSON.Config.Tty {
-		go func() {
-			defer close(messages)
-			defer close(errChannel)
-			defer reader.Close()
-			scanner := bufio.NewScanner(reader)
-			for scanner.Scan() {
-				line := scanner.Text()
-				select {
-				case messages <- line:
-				case <-ctx.Done():
-				}
+	go func() {
+		defer close(messages)
+		defer close(errChannel)
+		defer reader.Close()
+		nextEntry := logReader(reader, containerJSON.Config.Tty)
+		for {
+			line, err := nextEntry()
+			if err != nil {
+				errChannel <- err
+				break
 			}
-		}()
-	} else {
-		go func() {
-			defer close(messages)
-			defer close(errChannel)
-			defer reader.Close()
-
-			hdr := make([]byte, 8)
-			var buffer bytes.Buffer
-			for {
-				_, err := reader.Read(hdr)
-				if err != nil {
-					errChannel <- err
-					break
-				}
-				count := binary.BigEndian.Uint32(hdr[4:])
-				_, err = io.CopyN(&buffer, reader, int64(count))
-
-				if err != nil {
-					errChannel <- err
-					break
-				}
-				select {
-				case messages <- buffer.String():
-				case <-ctx.Done():
-				}
-				buffer.Reset()
+			select {
+			case messages <- line:
+			case <-ctx.Done():
 			}
-		}()
-	}
+		}
+	}()
 
 	return messages, errChannel
 }
@@ -202,15 +204,15 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		Until:      strconv.FormatInt(to.Unix(), 10),
 	}
 	reader, _ := d.cli.ContainerLogs(ctx, id, options)
-
 	defer reader.Close()
 
+	containerJSON, _ := d.cli.ContainerInspect(ctx, id)
+
+	nextEntry := logReader(reader, containerJSON.Config.Tty)
+
 	var messages []string
-	hdr := make([]byte, 8)
-	var buffer bytes.Buffer
-
 	for {
-		_, err := reader.Read(hdr)
+		line, err := nextEntry()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -218,18 +220,7 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 				return nil, err
 			}
 		}
-		count := binary.BigEndian.Uint32(hdr[4:])
-		_, err = io.CopyN(&buffer, reader, int64(count))
-
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		messages = append(messages, strings.TrimSpace(buffer.String()))
-		buffer.Reset()
+		messages = append(messages, line)
 	}
 
 	return messages, nil
