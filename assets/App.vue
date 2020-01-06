@@ -11,7 +11,7 @@
             <search></search>
             <router-view></router-view>
           </pane>
-          <pane v-for="other in activeContainers" :key="other.id">
+          <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
             <scrollable-view>
               <template v-slot:header>
                 <div class="name columns is-marginless">

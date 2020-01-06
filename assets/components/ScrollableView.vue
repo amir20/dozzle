@@ -5,13 +5,14 @@
     </header>
     <main ref="content" @scroll.passive="onScroll" data-scrolling>
       <slot></slot>
+      <div ref="scrollObserver"></div>
     </main>
     <div class="scroll-bar-notification">
       <transition name="fade">
         <button
           class="button"
           :class="hasMore ? 'is-warning' : 'is-primary'"
-          @click="scrollToBottom('smooth')"
+          @click="scrollToBottom('instant')"
           v-show="paused"
         >
           <ion-icon name="download"></ion-icon>
@@ -39,6 +40,15 @@ export default {
         this.hasMore = true;
       }
     }).observe(content, { childList: true, subtree: true });
+
+    const intersectionObserver = new IntersectionObserver(
+      entries => {
+        console.log(entries[0].intersectionRatio);
+      },
+      { threshholds: [0, 1] }
+    );
+
+    intersectionObserver.observe(this.$refs.scrollObserver);
   },
 
   methods: {
@@ -69,6 +79,7 @@ section {
     overflow: auto;
     overscroll-behavior: none;
   }
+
   .scroll-bar-notification {
     text-align: right;
     margin-right: 65px;

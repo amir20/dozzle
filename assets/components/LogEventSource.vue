@@ -1,7 +1,7 @@
 <template lang="html">
   <div>
     <infinite-loader :onLoadMore="loadOlderLogs" :enabled="messages.length > 100"></infinite-loader>
-    <slot v-bind:messages="messages"></slot>
+    <slot :messages="messages"></slot>
   </div>
 </template>
 
