@@ -3,7 +3,7 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" @scroll.passive="onScroll" data-scrolling>
+    <main ref="content" data-scrolling>
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
@@ -42,9 +42,7 @@ export default {
     }).observe(content, { childList: true, subtree: true });
 
     const intersectionObserver = new IntersectionObserver(
-      entries => {
-        console.log(entries[0].intersectionRatio);
-      },
+      entries => (this.paused = entries[0].intersectionRatio == 0),
       { threshholds: [0, 1] }
     );
 
@@ -60,10 +58,6 @@ export default {
         content.scrollTop = content.scrollHeight;
       }
       this.hasMore = false;
-    },
-    onScroll(e) {
-      const { content } = this.$refs;
-      this.paused = content.scrollTop + content.clientHeight + 1 < content.scrollHeight;
     }
   }
 };
