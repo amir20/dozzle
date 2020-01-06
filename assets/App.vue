@@ -14,12 +14,7 @@
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
             <scrollable-view>
               <template v-slot:header>
-                <div class="name columns is-marginless">
-                  <span class="column">{{ other.name }}</span>
-                  <span class="column is-narrow">
-                    <button class="delete is-medium" @click="removeActiveContainer(other)"></button>
-                  </span>
-                </div>
+                <container-title :value="other.name" closable @closed="removeActiveContainer(other)"></container-title>
               </template>
               <log-viewer-with-source :id="other.id"></log-viewer-with-source>
             </scrollable-view>
@@ -39,6 +34,7 @@ import ScrollableView from "./components/ScrollableView";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
+import ContainerTitle from "./components/ContainerTitle";
 
 export default {
   name: "App",
@@ -49,7 +45,8 @@ export default {
     ScrollableView,
     Splitpanes,
     Pane,
-    Search
+    Search,
+    ContainerTitle
   },
   data() {
     return {
@@ -86,13 +83,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.name {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(0, 0, 0, 0.1);
-  font-weight: bold;
-  font-family: monospace;
-}
-
 ::v-deep .splitpanes__splitter {
   min-width: 4px;
   background: #666;

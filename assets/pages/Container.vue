@@ -1,23 +1,35 @@
 <template lang="html">
-  <div>
-    <scrollable-logs-with-source :id="id"></scrollable-logs-with-source>
-  </div>
+  <scrollable-view>
+    <template v-slot:header v-if="activeContainers.length > 0">
+      <container-title :value="name"></container-title>
+    </template>
+    <log-viewer-with-source :id="id"></log-viewer-with-source>
+  </scrollable-view>
 </template>
 
 <script>
-import ScrollableLogsWithSource from "../components/ScrollableLogsWithSource";
+import { mapActions, mapGetters, mapState } from "vuex";
+
+import LogViewerWithSource from "../components/LogViewerWithSource";
+import ScrollableView from "../components/ScrollableView";
+import ContainerTitle from "../components/ContainerTitle";
 
 export default {
   props: ["id", "name"],
   name: "Container",
   components: {
-    ScrollableLogsWithSource
+    LogViewerWithSource,
+    ScrollableView,
+    ContainerTitle
   },
   metaInfo() {
     return {
       title: this.name,
       titleTemplate: "%s - Dozzle"
     };
+  },
+  computed: {
+    ...mapState(["activeContainers", "isMobile"])
   }
 };
 </script>
