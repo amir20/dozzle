@@ -41,7 +41,7 @@
  "devDependencies": {
   "@babel/core": "^7.7.7",
   "@babel/plugin-transform-runtime": "^7.7.6",
-  "@vue/component-compiler-utils": "^3.1.0",
+  "@vue/component-compiler-utils": "^3.1.1",
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^24.9.0",
@@ -56,7 +56,7 @@
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.4",
   "prettier": "^1.19.1",
-  "sass": "^1.24.0",
+  "sass": "^1.24.2",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
   "vue-template-compiler": "^2.6.11"
