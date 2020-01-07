@@ -61,6 +61,8 @@ aside {
   right: 0;
   background: #222;
   z-index: 2;
+  max-height: 100vh;
+  overflow: auto;
 
   .menu-label {
     margin-top: 1em;
