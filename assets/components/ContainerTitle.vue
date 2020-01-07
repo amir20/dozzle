@@ -2,7 +2,7 @@
   <div class="name columns is-marginless">
     <span class="column">{{ value }}</span>
     <span class="column is-narrow" v-if="closable">
-      <button class="delete is-medium" @click="$emit('closed')"></button>
+      <button class="delete is-medium" @click="$emit('close')"></button>
     </span>
   </div>
 </template>

@@ -14,7 +14,7 @@
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
             <scrollable-view>
               <template v-slot:header>
-                <container-title :value="other.name" closable @closed="removeActiveContainer(other)"></container-title>
+                <container-title :value="other.name" closable @close="removeActiveContainer(other)"></container-title>
               </template>
               <log-viewer-with-source :id="other.id"></log-viewer-with-source>
             </scrollable-view>
