@@ -26,6 +26,7 @@ exports[`<App /> renders correctly 1`] = `
         pushotherpanes="true"
       >
         <pane-stub
+          class="has-min-height"
           maxsize="100"
           minsize="0"
         >

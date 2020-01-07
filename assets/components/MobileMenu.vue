@@ -40,12 +40,7 @@ export default {
 
   computed: {
     ...mapState(["containers"]),
-    activeContainersById() {
-      return this.activeContainers.reduce((map, obj) => {
-        map[obj.id] = obj;
-        return map;
-      }, {});
-    }
+    ...mapGetters(["activeContainersById"])
   },
   methods: {
     ...mapActions({})
@@ -60,7 +55,7 @@ export default {
 <style scoped lang="scss">
 aside {
   padding: 1em;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;

@@ -49,12 +49,7 @@ export default {
   },
   computed: {
     ...mapState(["containers", "activeContainers"]),
-    activeContainersById() {
-      return this.activeContainers.reduce((map, obj) => {
-        map[obj.id] = obj;
-        return map;
-      }, {});
-    }
+    ...mapGetters(["activeContainersById"])
   },
   methods: {
     ...mapActions({
@@ -68,6 +63,7 @@ aside {
   padding: 1em;
   height: 100vh;
   overflow: auto;
+  position: fixed;
 
   .hide-overflow {
     text-overflow: ellipsis;

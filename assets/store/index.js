@@ -57,7 +57,20 @@ const actions = {
     commit("UPDATE_SETTINGS", setting);
   }
 };
-const getters = {};
+const getters = {
+  activeContainersById(state) {
+    return state.activeContainers.reduce((map, obj) => {
+      map[obj.id] = obj;
+      return map;
+    }, {});
+  },
+  allContainersById(state) {
+    return state.containers.reduce((map, obj) => {
+      map[obj.id] = obj;
+      return map;
+    }, {});
+  }
+};
 
 const es = new EventSource(`${BASE_PATH}/api/events/stream`);
 es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);

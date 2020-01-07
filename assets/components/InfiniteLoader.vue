@@ -7,7 +7,6 @@ export default {
   name: "InfiniteLoader",
   data() {
     return {
-      scrollingParent: null,
       isLoading: false
     };
   },
@@ -16,16 +15,16 @@ export default {
     enabled: Boolean
   },
   mounted() {
-    this.scrollingParent = this.$el.closest("[data-scrolling]");
     const intersectionObserver = new IntersectionObserver(
       async entries => {
         if (entries[0].intersectionRatio <= 0) return;
         if (this.onLoadMore && this.enabled) {
-          const previousHeight = this.scrollingParent.scrollHeight;
+          const scrollingParent = this.$el.closest("[data-scrolling]") || document.documentElement;
+          const previousHeight = scrollingParent.scrollHeight;
           this.isLoading = true;
           await this.onLoadMore();
           this.isLoading = false;
-          this.$nextTick(() => (this.scrollingParent.scrollTop += this.scrollingParent.scrollHeight - previousHeight));
+          this.$nextTick(() => (scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight));
         }
       },
       { threshholds: 1 }
