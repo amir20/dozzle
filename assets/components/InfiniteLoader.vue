@@ -20,7 +20,7 @@ export default {
         if (entries[0].intersectionRatio <= 0) return;
         if (this.onLoadMore && this.enabled) {
           const scrollingParent = this.$el.closest("[data-scrolling]") || document.documentElement;
-          const previousHeight = document.documentElement.scrollHeight;
+          const previousHeight = scrollingParent.scrollHeight;
           this.isLoading = true;
           await this.onLoadMore();
           this.isLoading = false;
