@@ -64,6 +64,7 @@ aside {
   height: 100vh;
   overflow: auto;
   position: fixed;
+  width: inherit;
 
   .hide-overflow {
     text-overflow: ellipsis;
