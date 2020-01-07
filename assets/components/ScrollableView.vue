@@ -1,9 +1,9 @@
 <template lang="html">
-  <section>
+  <section :class="{ 'is-full-height-scrollable': scrollable }">
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" data-scrolling>
+    <main ref="content" :data-scrolling="scrollable">
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
@@ -24,6 +24,12 @@
 
 <script>
 export default {
+  props: {
+    scrollable: {
+      type: Boolean,
+      default: true
+    }
+  },
   name: "ScrollableView",
   data() {
     return {
@@ -51,12 +57,7 @@ export default {
 
   methods: {
     scrollToBottom(behavior = "instant") {
-      const { content } = this.$refs;
-      if (typeof content.scroll === "function") {
-        content.scroll({ top: content.scrollHeight, behavior });
-      } else {
-        content.scrollTop = content.scrollHeight;
-      }
+      this.$refs.scrollObserver.scrollIntoView({ behavior });
       this.hasMore = false;
     }
   }
@@ -66,12 +67,14 @@ export default {
 section {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+
+  &.is-full-height-scrollable {
+    height: 100vh;
+  }
 
   main {
     flex: 1;
     overflow: auto;
-    overscroll-behavior: none;
   }
 
   .scroll-bar-notification {

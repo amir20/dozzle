@@ -1,7 +1,7 @@
 <template lang="html">
-  <scrollable-view>
+  <scrollable-view :scrollable="activeContainers.length > 0">
     <template v-slot:header v-if="activeContainers.length > 0">
-      <container-title :value="name"></container-title>
+      <container-title :value="allContainersById[id].name"></container-title>
     </template>
     <log-viewer-with-source :id="id"></log-viewer-with-source>
   </scrollable-view>
@@ -22,14 +22,27 @@ export default {
     ScrollableView,
     ContainerTitle
   },
+  data() {
+    return {
+      title: "loading"
+    };
+  },
   metaInfo() {
     return {
-      title: this.name,
-      titleTemplate: "%s - Dozzle"
+      title: this.title
     };
   },
   computed: {
-    ...mapState(["activeContainers", "isMobile"])
+    ...mapState(["activeContainers"]),
+    ...mapGetters(["allContainersById"])
+  },
+  watch: {
+    id() {
+      this.title = this.allContainersById[this.id].name;
+    },
+    allContainersById() {
+      this.title = this.allContainersById[this.id].name;
+    }
   }
 };
 </script>

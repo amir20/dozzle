@@ -7,7 +7,7 @@
       </pane>
       <pane :size="isMobile ? 100 : 100 - settings.menuWidth" min-size="10">
         <splitpanes>
-          <pane>
+          <pane class="has-min-height">
             <search></search>
             <router-view></router-view>
           </pane>
@@ -93,5 +93,9 @@ export default {
 
 .button.has-no-border {
   border-color: transparent !important;
+}
+
+.has-min-height {
+  min-height: 100vh;
 }
 </style>

@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="is-fullheight">
+  <div>
     <section class="section">
       <div class="has-underline">
         <h2 class="title is-4">About</h2>
@@ -74,8 +74,7 @@ export default {
   },
   metaInfo() {
     return {
-      title: "Settings",
-      titleTemplate: "%s - Dozzle"
+      title: "Settings"
     };
   },
   methods: {
@@ -100,10 +99,6 @@ export default {
 };
 </script>
 <style lang="scss">
-.is-fullheight {
-  min-height: 100vh;
-}
-
 .title {
   color: #eee;
 }
