@@ -32,6 +32,11 @@ export default {
       title: this.title
     };
   },
+  mounted() {
+    if (this.allContainersById[this.id]) {
+      this.title = this.allContainersById[this.id].name;
+    }
+  },
   computed: {
     ...mapState(["activeContainers"]),
     ...mapGetters(["allContainersById"])
