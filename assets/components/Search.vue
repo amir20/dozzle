@@ -5,7 +5,7 @@
         <input
           class="input"
           type="text"
-          placeholder="Filter"
+          placeholder="Find / RegEx"
           ref="filter"
           v-model="filter"
           @keyup.esc="resetSearch()"
