@@ -10,7 +10,9 @@
           v-model="filter"
           @keyup.esc="resetSearch()"
         />
-        <span class="icon is-small is-left"><ion-icon name="search"></ion-icon></span>
+        <span class="icon is-small is-left">
+          <ion-icon name="search"></ion-icon>
+        </span>
       </p>
     </div>
     <div class="column is-1 has-text-centered">
