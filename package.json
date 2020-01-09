@@ -31,7 +31,7 @@
   "hotkeys-js": "^3.7.3",
   "lodash.debounce": "^4.0.8",
   "semver": "^7.1.1",
-  "splitpanes": "^2.2.0",
+  "splitpanes": "^2.2.1",
   "store": "^2.0.12",
   "vue": "^2.6.11",
   "vue-meta": "^2.3.1",
