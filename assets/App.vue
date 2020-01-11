@@ -5,7 +5,7 @@
       <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile">
         <side-menu></side-menu>
       </pane>
-      <pane :size="isMobile ? 100 : 100 - settings.menuWidth" min-size="10">
+      <pane min-size="10">
         <splitpanes>
           <pane class="has-min-height">
             <search></search>
