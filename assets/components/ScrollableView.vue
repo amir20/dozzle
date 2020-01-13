@@ -49,7 +49,7 @@ export default {
 
     const intersectionObserver = new IntersectionObserver(
       entries => (this.paused = entries[0].intersectionRatio == 0),
-      { threshholds: [0, 1] }
+      { threshholds: [0, 1], rootMargin: "80px 0px" }
     );
 
     intersectionObserver.observe(this.$refs.scrollObserver);
