@@ -35,7 +35,7 @@
   "store": "^2.0.12",
   "vue": "^2.6.11",
   "vue-meta": "^2.3.2",
-  "vue-router": "^3.1.4",
+  "vue-router": "^3.1.5",
   "vuex": "^3.1.2"
  },
  "devDependencies": {
@@ -48,7 +48,7 @@
   "concurrently": "^5.0.2",
   "cz-conventional-changelog": "^3.0.2",
   "eventsourcemock": "^2.0.0",
-  "husky": "^4.0.9",
+  "husky": "^4.0.10",
   "jest": "^24.9.0",
   "jest-serializer-vue": "^2.0.2",
   "lint-staged": "^9.5.0",
