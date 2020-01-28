@@ -46,7 +46,7 @@
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^25.1.0",
   "concurrently": "^5.0.2",
-  "cz-conventional-changelog": "^3.0.2",
+  "cz-conventional-changelog": "^3.0.3",
   "eventsourcemock": "^2.0.0",
   "husky": "^4.2.0",
   "jest": "^25.1.0",
