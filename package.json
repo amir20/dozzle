@@ -50,7 +50,7 @@
   "husky": "^4.2.1",
   "jest": "^25.1.0",
   "jest-serializer-vue": "^2.0.2",
-  "lint-staged": "^10.0.4",
+  "lint-staged": "^10.0.5",
   "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.4",
