@@ -64,8 +64,25 @@ export default {
     await this.fetchContainerList();
     this.title = `${this.containers.length} containers`;
   },
+  mounted() {
+    if (this.hasSmallerScrollbars) {
+      document.documentElement.classList.add("has-custom-scrollbars");
+    }
+  },
+  watch: {
+    hasSmallerScrollbars(newValue, oldValue) {
+      if (newValue) {
+        document.documentElement.classList.add("has-custom-scrollbars");
+      } else {
+        document.documentElement.classList.remove("has-custom-scrollbars");
+      }
+    }
+  },
   computed: {
-    ...mapState(["containers", "activeContainers", "isMobile", "settings"])
+    ...mapState(["containers", "activeContainers", "isMobile", "settings"]),
+    hasSmallerScrollbars() {
+      return this.settings.smallerScrollbars;
+    }
   },
   methods: {
     ...mapActions({

@@ -26,11 +26,16 @@
       </div>
 
       <div class="item">
-        <h2 class="title is-6 is-marginless">Font size</h2>
+        <b-switch v-model="smallerScrollbars">
+          Use smaller scrollbars
+        </b-switch>
+      </div>
 
+      <div class="item">
+        <h2 class="title is-6 is-marginless">Font size</h2>
         Modify the font size when viewing logs.
-        <br /><br />
-        <b-dropdown v-model="size" aria-role="list">
+
+        <b-dropdown v-model="size" aria-role="list" style="margin:-8px 10px 0">
           <button class="button is-primary" type="button" slot="trigger">
             <span class="is-capitalized">{{ size }}</span>
             <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
@@ -84,7 +89,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size"].reduce((map, name) => {
+    ...["search", "size", "smallerScrollbars"].reduce((map, name) => {
       map[name] = {
         get() {
           return this.settings[name];
