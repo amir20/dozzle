@@ -1,9 +1,19 @@
 <template lang="html">
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
-    <splitpanes @resized="onResize($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile">
-        <side-menu></side-menu>
+    <splitpanes @resized="onResized($event)" @resize="onResize($event)">
+      <pane :size="settings.menuWidth" v-if="!isMobile" class="menu-pane">
+        <side-menu v-show="menuWidth > 10"></side-menu>
+        <button
+          @click="updateMenuWidth(20)"
+          class="button is-small is-primary is-rounded is-inverted"
+          id="hide-nav"
+          v-show="menuWidth == 0"
+        >
+          <span class="icon">
+            <ion-icon name="arrow-dropright" size="large"></ion-icon>
+          </span>
+        </button>
       </pane>
       <pane min-size="10">
         <splitpanes>
@@ -51,7 +61,7 @@ export default {
   data() {
     return {
       title: "",
-      showNav: false
+      menuWidth: 20
     };
   },
   metaInfo() {
@@ -68,6 +78,7 @@ export default {
     if (this.hasSmallerScrollbars) {
       document.documentElement.classList.add("has-custom-scrollbars");
     }
+    this.menuWidth = this.settings.menuWidth;
   },
   watch: {
     hasSmallerScrollbars(newValue, oldValue) {
@@ -90,9 +101,18 @@ export default {
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING"
     }),
+    updateMenuWidth(menuWidth) {
+      this.$nextTick(() => (this.menuWidth = menuWidth));
+      this.$nextTick(() => this.updateSetting({ menuWidth }));
+    },
+    onResized(e) {
+      if (e.length == 2) {
+        this.updateMenuWidth(e[0].size);
+      }
+    },
     onResize(e) {
       if (e.length == 2) {
-        this.updateSetting({ menuWidth: Math.min(90, e[0].size) });
+        this.menuWidth = e[0].size;
       }
     }
   }
@@ -114,5 +134,19 @@ export default {
 
 .has-min-height {
   min-height: 100vh;
+}
+
+#hide-nav {
+  position: fixed;
+  left: -35px;
+  bottom: 50%;
+  background: black;
+  width: 60px;
+  color: white;
+  border-color: rgb(255, 221, 87);
+  padding-left: 40px;
+  &:hover {
+    left: -25px;
+  }
 }
 </style>
