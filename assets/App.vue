@@ -132,18 +132,23 @@ export default {
 
 #hide-nav {
   position: fixed;
-  background: black;
+  background: transparent;
   bottom: 10px;
-  color: white;
-  border-color: rgb(255, 221, 87);
+  color: rgb(255, 221, 87);
+  border: none;
   left: 10px;
+  box-shadow: none;
   &:hover {
-    border-color: rgb(248, 230, 158);
+    border-color: rgba(248, 230, 158, 0.9);
+    background: rgba(0, 0, 0, 0.8);
   }
   &.collapsed {
     left: -35px;
     width: 60px;
     padding-left: 40px;
+    background: rgba(0, 0, 0, 0.8);
+    border: none;
+
     &:hover {
       left: -25px;
     }
