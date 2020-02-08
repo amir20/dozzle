@@ -3,7 +3,7 @@
     <mobile-menu v-if="isMobile"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile" class="menu-pane" v-show="!collapseNav">
+      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile" v-show="!collapseNav">
         <side-menu></side-menu>
       </pane>
       <pane min-size="10">
@@ -23,7 +23,13 @@
         </splitpanes>
       </pane>
     </splitpanes>
-    <button @click="collapseNav = !collapseNav" class="button is-small is-primary is-rounded is-inverted" id="hide-nav">
+    <button
+      @click="collapseNav = !collapseNav"
+      class="button is-small is-primary is-rounded is-inverted"
+      :class="{ collapsed: collapseNav }"
+      id="hide-nav"
+      v-if="!isMobile"
+    >
       <span class="icon">
         <ion-icon :name="collapseNav ? 'arrow-dropright' : 'arrow-dropleft'" size="large"></ion-icon>
       </span>
@@ -126,15 +132,21 @@ export default {
 
 #hide-nav {
   position: fixed;
-  left: -35px;
-  bottom: 50%;
   background: black;
-  width: 60px;
+  bottom: 10px;
   color: white;
   border-color: rgb(255, 221, 87);
-  padding-left: 40px;
+  left: 10px;
   &:hover {
-    left: -25px;
+    border-color: rgb(248, 230, 158);
+  }
+  &.collapsed {
+    left: -35px;
+    width: 60px;
+    padding-left: 40px;
+    &:hover {
+      left: -25px;
+    }
   }
 }
 </style>

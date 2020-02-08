@@ -37,5 +37,19 @@ exports[`<App /> renders correctly 1`] = `
       </splitpanes-stub>
     </pane-stub>
   </splitpanes-stub>
+   
+  <button
+    class="button is-small is-primary is-rounded is-inverted"
+    id="hide-nav"
+  >
+    <span
+      class="icon"
+    >
+      <ion-icon-stub
+        name="arrow-dropleft"
+        size="large"
+      />
+    </span>
+  </button>
 </main>
 `;

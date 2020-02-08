@@ -8,7 +8,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe("<App />", () => {
-  const stubs = { RouterLink: RouterLinkStub, "router-view": true };
+  const stubs = { RouterLink: RouterLinkStub, "router-view": true, "ion-icon": true };
   let store;
 
   beforeEach(() => {
