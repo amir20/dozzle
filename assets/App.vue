@@ -1,19 +1,10 @@
 <template lang="html">
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
-    <splitpanes @resized="onResized($event)" @resize="onResize($event)">
-      <pane :size="settings.menuWidth" v-if="!isMobile" class="menu-pane">
-        <side-menu v-show="menuWidth > 10"></side-menu>
-        <button
-          @click="updateMenuWidth(20)"
-          class="button is-small is-primary is-rounded is-inverted"
-          id="hide-nav"
-          v-show="menuWidth == 0"
-        >
-          <span class="icon">
-            <ion-icon name="arrow-dropright" size="large"></ion-icon>
-          </span>
-        </button>
+
+    <splitpanes @resized="onResized($event)">
+      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile" class="menu-pane" v-show="!collapseNav">
+        <side-menu></side-menu>
       </pane>
       <pane min-size="10">
         <splitpanes>
@@ -32,6 +23,11 @@
         </splitpanes>
       </pane>
     </splitpanes>
+    <button @click="collapseNav = !collapseNav" class="button is-small is-primary is-rounded is-inverted" id="hide-nav">
+      <span class="icon">
+        <ion-icon :name="collapseNav ? 'arrow-dropright' : 'arrow-dropleft'" size="large"></ion-icon>
+      </span>
+    </button>
   </main>
 </template>
 
@@ -61,7 +57,7 @@ export default {
   data() {
     return {
       title: "",
-      menuWidth: 20
+      collapseNav: false
     };
   },
   metaInfo() {
@@ -101,18 +97,10 @@ export default {
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING"
     }),
-    updateMenuWidth(menuWidth) {
-      this.$nextTick(() => (this.menuWidth = menuWidth));
-      this.$nextTick(() => this.updateSetting({ menuWidth }));
-    },
     onResized(e) {
       if (e.length == 2) {
-        this.updateMenuWidth(e[0].size);
-      }
-    },
-    onResize(e) {
-      if (e.length == 2) {
-        this.menuWidth = e[0].size;
+        const menuWidth = e[0].size;
+        this.updateSetting({ menuWidth });
       }
     }
   }
