@@ -9,13 +9,10 @@ $menu-item-color: hsl(0, 6%, 87%);
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
 
-.is-dark {
-  color: #ddd;
-  background-color: #111;
-}
-
 body {
   font-family: "Roboto", sans-serif;
+  color: #ddd;
+  background-color: #111;
 }
 
 h1.title {
@@ -54,5 +51,24 @@ html.has-custom-scrollbars {
   section main {
     scrollbar-color: #353535 transparent;
     scrollbar-width: thin;
+  }
+}
+
+.is-settings-control {
+  
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border-color: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover {
+    border-color: rgb(255, 221, 87) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: #fff !important;
+  }
+
+  &:focus {
+    box-shadow: none !important;
+    color: unset;
+    border-color: transparent;
   }
 }

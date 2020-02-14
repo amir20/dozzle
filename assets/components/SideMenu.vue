@@ -8,7 +8,7 @@
         <router-link
           :to="{ name: 'settings' }"
           active-class="is-active"
-          class="button is-small is-primary is-rounded is-inverted is-outlined "
+          class="button is-small is-rounded is-settings-control"
         >
           <span class="icon"><ion-icon name="settings" size="large"></ion-icon></span>
         </router-link>

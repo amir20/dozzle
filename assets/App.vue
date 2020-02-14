@@ -25,7 +25,7 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-small is-primary is-rounded is-inverted"
+      class="button is-small is-rounded is-settings-control"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile"
@@ -132,22 +132,13 @@ export default {
 
 #hide-nav {
   position: fixed;
-  background: transparent;
-  bottom: 10px;
-  color: rgb(255, 221, 87);
-  border: none;
   left: 10px;
-  box-shadow: none;
-  &:hover {
-    border-color: rgba(248, 230, 158, 0.9);
-    background: rgba(0, 0, 0, 0.8);
-  }
+  bottom: 10px;
   &.collapsed {
-    left: -35px;
+    left: -40px;
     width: 60px;
     padding-left: 40px;
-    background: rgba(0, 0, 0, 0.8);
-    border: none;
+    background: rgba(0, 0, 0, 0.95);
 
     &:hover {
       left: -25px;
