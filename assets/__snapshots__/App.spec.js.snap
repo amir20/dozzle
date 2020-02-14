@@ -39,7 +39,7 @@ exports[`<App /> renders correctly 1`] = `
   </splitpanes-stub>
    
   <button
-    class="button is-small is-primary is-rounded is-inverted"
+    class="button is-small is-rounded is-settings-control"
     id="hide-nav"
   >
     <span
