@@ -1,8 +1,9 @@
 <template lang="html">
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
-    <splitpanes @resized="onResize($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile">
+
+    <splitpanes @resized="onResized($event)">
+      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile" v-show="!collapseNav">
         <side-menu></side-menu>
       </pane>
       <pane min-size="10">
@@ -22,6 +23,17 @@
         </splitpanes>
       </pane>
     </splitpanes>
+    <button
+      @click="collapseNav = !collapseNav"
+      class="button is-small is-rounded is-settings-control"
+      :class="{ collapsed: collapseNav }"
+      id="hide-nav"
+      v-if="!isMobile"
+    >
+      <span class="icon">
+        <ion-icon :name="collapseNav ? 'arrow-dropright' : 'arrow-dropleft'" size="large"></ion-icon>
+      </span>
+    </button>
   </main>
 </template>
 
@@ -51,7 +63,7 @@ export default {
   data() {
     return {
       title: "",
-      showNav: false
+      collapseNav: false
     };
   },
   metaInfo() {
@@ -68,6 +80,7 @@ export default {
     if (this.hasSmallerScrollbars) {
       document.documentElement.classList.add("has-custom-scrollbars");
     }
+    this.menuWidth = this.settings.menuWidth;
   },
   watch: {
     hasSmallerScrollbars(newValue, oldValue) {
@@ -90,9 +103,10 @@ export default {
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING"
     }),
-    onResize(e) {
+    onResized(e) {
       if (e.length == 2) {
-        this.updateSetting({ menuWidth: Math.min(90, e[0].size) });
+        const menuWidth = e[0].size;
+        this.updateSetting({ menuWidth });
       }
     }
   }
@@ -114,5 +128,21 @@ export default {
 
 .has-min-height {
   min-height: 100vh;
+}
+
+#hide-nav {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  &.collapsed {
+    left: -40px;
+    width: 60px;
+    padding-left: 40px;
+    background: rgba(0, 0, 0, 0.95);
+
+    &:hover {
+      left: -25px;
+    }
+  }
 }
 </style>
