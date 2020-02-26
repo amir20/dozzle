@@ -45,7 +45,7 @@ dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
         image: amir20/dozzle:latest
         environment:
           - DOZZLE_TAILSIZE=100
-          - DOZZLE_FILTER='status:running'
+          - DOZZLE_FILTER='status=running'
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         ports:
