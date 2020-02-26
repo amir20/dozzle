@@ -34,8 +34,8 @@
   "splitpanes": "^2.2.1",
   "store": "^2.0.12",
   "vue": "^2.6.11",
-  "vue-meta": "^2.3.2",
-  "vue-router": "^3.1.5",
+  "vue-meta": "^2.3.3",
+  "vue-router": "^3.1.6",
   "vuex": "^3.1.2"
  },
  "devDependencies": {
@@ -55,7 +55,7 @@
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.4",
   "prettier": "^1.19.1",
-  "sass": "^1.26.0",
+  "sass": "^1.26.1",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
   "vue-template-compiler": "^2.6.11"
