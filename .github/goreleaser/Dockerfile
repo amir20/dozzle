@@ -1,4 +1,4 @@
-FROM golang:1.13-alpine
+FROM golang:1.14-alpine
 
 RUN apk --no-cache add git nodejs-current nodejs-npm make g++ bash bzr curl docker rpm && \
   npm i -g npm && \
