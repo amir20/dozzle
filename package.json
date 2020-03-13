@@ -27,7 +27,7 @@
   "ansi-to-html": "^0.6.14",
   "buefy": "^0.8.13",
   "bulma": "^0.8.0",
-  "date-fns": "^2.10.0",
+  "date-fns": "^2.11.0",
   "hotkeys-js": "^3.7.3",
   "lodash.debounce": "^4.0.8",
   "semver": "^7.1.3",
