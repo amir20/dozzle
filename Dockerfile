@@ -1,15 +1,53 @@
+# Build assets
+FROM node:13-alpine as node
+
+RUN apk add --no-cache git openssh python make g++ util-linux
+
+WORKDIR /build
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy assets to build
+COPY assets ./assets
+
+# Do the build
+RUN npm run build
+
+
 FROM golang:alpine AS builder
-RUN apk --update add ca-certificates
+
+RUN apk add --no-cache git ca-certificates
 RUN mkdir /dozzle
+
 WORKDIR /dozzle
-COPY go.* .
+
+# Needed for assets
+RUN go get -u github.com/gobuffalo/packr/packr
+
+# Copy go mod files
+COPY go.* ./
 RUN go mod download
+
+# Copy assets built with node
+COPY --from=node /build/static ./static
+
+# Copy all other files
 COPY . .
-RUN go build -o dozzle main.go
+
+# Compile static files 
+RUN packr -z
+
+# Build binary
+RUN CGO_ENABLED=0 go build -o dozzle
 
 FROM scratch
+
 ENV PATH=/bin
 ENV DOCKER_API_VERSION 1.38
+
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /dozzle/dozzle /
+COPY --from=builder /dozzle/dozzle /dozzle
+
 ENTRYPOINT ["/dozzle"]
