@@ -25,28 +25,19 @@ jobs:
   buildx:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - 
-        name: Docker Login
-        uses: Azure/docker-login@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}      
-      -
-        name: Available platforms
+      - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      -
-        name: Run Buildx
+      - name: Run Buildx
         env:
           REF: ${{ github. ref }}
         run: |
+          docker -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7  -t amir20/test:latest -t amir20/test:v2 --push .
-        # if: contains(github.ref, 'tags')     
+        # if: contains(github.ref, 'tags')
