@@ -21,3 +21,29 @@ jobs:
         with:
           args: release
         if: contains(github.ref, 'tags')
+
+  buildx:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v1
+      -
+        name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      -
+        name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      -
+        name: Run Buildx
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github. ref }}
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7  -t amir20/test:latest -t amir20/test:v2 --push .
+        # if: contains(github.ref, 'tags')     
