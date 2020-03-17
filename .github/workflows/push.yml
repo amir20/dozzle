@@ -38,6 +38,6 @@ jobs:
         env:
           REF: ${{ github. ref }}
         run: |
-          docker -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7  -t amir20/test:latest -t amir20/test:v2 --push .
         # if: contains(github.ref, 'tags')
