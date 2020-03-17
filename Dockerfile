@@ -40,7 +40,7 @@ COPY . .
 RUN packr -z
 
 # Build binary
-RUN CGO_ENABLED=0 go build -o dozzle
+RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o dozzle
 
 FROM scratch
 
