@@ -1,43 +1,25 @@
 on: push
-name: Build, Test and Release
+name: Test
 jobs:
-  build:
+  npm-test:
     name: npm test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: npm test
         uses: actions/setup-node@v1
-      - run: npm it
-      - name: go test
-        uses: ./.github/golang/
-      - name: Release
-        uses: ./.github/goreleaser/
-        env:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REF: ${{ github. ref }}
-        with:
-          args: release
-        if: contains(github.ref, 'tags')
-
-  buildx:
+      - name: npm it
+        run: npm it
+  go-test:
+    name: go test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: crazy-max/ghaction-docker-buildx@v1
+      - name: Install Go
+        uses: actions/setup-go@v1
         with:
-          version: latest
-      - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: Run Buildx
-        env:
-          REF: ${{ github. ref }}
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7  -t amir20/test:latest -t amir20/test:v2 --push .
-        # if: contains(github.ref, 'tags')
+          go-version: "1.14.x"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Test
+        run: go test -cover ./...
