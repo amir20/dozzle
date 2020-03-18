@@ -1,6 +1,7 @@
 on:
-  tags:
-    - "v*"
+  push:
+    tags:
+      - "v*"
 name: Test and Release
 jobs:
   npm-test:
