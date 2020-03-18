@@ -36,11 +36,14 @@ COPY --from=node /build/static ./static
 # Copy all other files
 COPY . .
 
-# Compile static files 
+# Compile static files
 RUN packr -z
 
+# Args
+ARG TAG=dev
+
 # Build binary
-RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o dozzle
+RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
 FROM scratch
 
