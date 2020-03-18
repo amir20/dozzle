@@ -2,6 +2,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 [![Docker Size](https://images.microbadger.com/badges/image/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 [![Docker Version](https://images.microbadger.com/badges/version/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
+![Test](https://github.com/amir20/dozzle/workflows/Test/badge.svg)
 
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
