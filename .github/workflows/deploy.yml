@@ -28,6 +28,7 @@ jobs:
         run: go test -cover ./...
   buildx:
     needs: [go-test, npm-test]
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
