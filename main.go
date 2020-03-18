@@ -138,7 +138,10 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	if h.box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
 	} else {
-		text, _ := h.box.FindString("index.html")
+		text, err := h.box.FindString("index.html")
+		if err != nil {
+			panic(err)
+		}
 		text = strings.Replace(text, "__BASE__", "{{ .Base }}", -1)
 		tmpl, err := template.New("index.html").Parse(text)
 		if err != nil {

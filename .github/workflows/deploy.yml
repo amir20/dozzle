@@ -1,0 +1,45 @@
+on:
+  push:
+    tags:
+      - "v*"
+name: Test and Release
+jobs:
+  npm-test:
+    name: npm test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: npm test
+        uses: actions/setup-node@v1
+      - name: npm it
+        run: npm it
+  go-test:
+    name: go test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: "1.14.x"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Test
+        run: go test -cover ./...
+  buildx:
+    needs: [go-test, npm-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Run Buildx
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Run Buildx
+        run: make publish
