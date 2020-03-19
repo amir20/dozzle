@@ -1,112 +1,116 @@
 {
-  "name": "dozzle",
-  "version": "1.21.4",
-  "description": "Realtime log viewer for docker containers. ",
-  "scripts": {
-    "prestart": "npm run clean",
-    "start": "DOCKER_API_VERSION=1.38 concurrently 'npm run watch-server' 'npm run watch-assets'",
-    "watch-assets": "npx parcel watch --no-source-maps --public-url '__BASE__' assets/index.html -d static",
-    "watch-server": "reflex -c .reflex",
-    "prebuild": "npm run clean",
-    "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
-    "clean": "rm -rf static/ a_main-packr.go",
-    "release": "goreleaser --rm-dist",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amir20/dozzle.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amir20/dozzle/issues"
-  },
-  "homepage": "https://github.com/amir20/dozzle#readme",
-  "dependencies": {
-    "ansi-to-html": "^0.6.14",
-    "buefy": "^0.8.13",
-    "bulma": "^0.8.0",
-    "date-fns": "^2.11.0",
-    "hotkeys-js": "^3.7.3",
-    "lodash.debounce": "^4.0.8",
-    "semver": "^7.1.3",
-    "splitpanes": "^2.2.1",
-    "store": "^2.0.12",
-    "vue": "^2.6.11",
-    "vue-meta": "^2.3.3",
-    "vue-router": "^3.1.6",
-    "vuex": "^3.1.3"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@vue/component-compiler-utils": "^3.1.1",
-    "@vue/test-utils": "^1.0.0-beta.29",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^25.1.0",
-    "concurrently": "^5.1.0",
-    "eventsourcemock": "^2.0.0",
-    "husky": "^4.2.3",
-    "jest": "^25.1.0",
-    "jest-serializer-vue": "^2.0.2",
-    "lint-staged": "^10.0.8",
-    "mockdate": "^2.0.5",
-    "node-fetch": "^2.6.0",
-    "parcel-bundler": "^1.12.4",
-    "prettier": "^1.19.1",
-    "sass": "^1.26.3",
-    "vue-hot-reload-api": "^2.3.4",
-    "vue-jest": "^3.0.5",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,vue,css}": [
-      "prettier --write"
-    ]
-  },
-  "browserslist": [
-    ">5%",
-    "not ie <= 8"
-  ],
-  "alias": {
-    "vue": "./node_modules/vue/dist/vue.esm.js"
-  },
-  "jest": {
-    "clearMocks": true,
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "vue"
-    ],
-    "coveragePathIgnorePatterns": [
-      "node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "node_modules"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules"
-    ],
-    "watchPathIgnorePatterns": [
-      "<rootDir>/node_modules/"
-    ],
-    "snapshotSerializers": [
-      "jest-serializer-vue"
-    ],
-    "transform": {
-      ".*\\.vue$": "vue-jest",
-      ".+\\.js$": "babel-jest"
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+ "name": "dozzle",
+ "version": "1.21.4",
+ "description": "Realtime log viewer for docker containers. ",
+ "scripts": {
+  "prestart": "npm run clean",
+  "start": "DOCKER_API_VERSION=1.38 concurrently 'npm run watch-server' 'npm run watch-assets'",
+  "watch-assets": "npx parcel watch --no-source-maps --public-url '__BASE__' assets/index.html -d static",
+  "watch-server": "reflex -c .reflex",
+  "prebuild": "npm run clean",
+  "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
+  "clean": "rm -rf static/ a_main-packr.go",
+  "release": "release-it",
+  "test": "jest"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/amir20/dozzle.git"
+ },
+ "author": "",
+ "license": "ISC",
+ "bugs": {
+  "url": "https://github.com/amir20/dozzle/issues"
+ },
+ "homepage": "https://github.com/amir20/dozzle#readme",
+ "dependencies": {
+  "ansi-to-html": "^0.6.14",
+  "buefy": "^0.8.13",
+  "bulma": "^0.8.0",
+  "date-fns": "^2.11.0",
+  "hotkeys-js": "^3.7.3",
+  "lodash.debounce": "^4.0.8",
+  "semver": "^7.1.3",
+  "splitpanes": "^2.2.1",
+  "store": "^2.0.12",
+  "vue": "^2.6.11",
+  "vue-meta": "^2.3.3",
+  "vue-router": "^3.1.6",
+  "vuex": "^3.1.3"
+ },
+ "devDependencies": {
+  "@babel/core": "^7.8.7",
+  "@babel/plugin-transform-runtime": "^7.8.3",
+  "@vue/component-compiler-utils": "^3.1.1",
+  "@vue/test-utils": "^1.0.0-beta.29",
+  "babel-core": "^7.0.0-bridge.0",
+  "babel-jest": "^25.1.0",
+  "concurrently": "^5.1.0",
+  "eventsourcemock": "^2.0.0",
+  "husky": "^4.2.3",
+  "jest": "^25.1.0",
+  "jest-serializer-vue": "^2.0.2",
+  "lint-staged": "^10.0.8",
+  "mockdate": "^2.0.5",
+  "node-fetch": "^2.6.0",
+  "parcel-bundler": "^1.12.4",
+  "prettier": "^1.19.1",
+  "release-it": "^13.1.1",
+  "sass": "^1.26.3",
+  "vue-hot-reload-api": "^2.3.4",
+  "vue-jest": "^3.0.5",
+  "vue-template-compiler": "^2.6.11"
+ },
+ "husky": {
+  "hooks": {
+   "pre-commit": "lint-staged"
   }
+ },
+ "lint-staged": {
+  "*.{js,vue,css}": [
+   "prettier --write"
+  ]
+ },
+ "browserslist": [
+  ">5%",
+  "not ie <= 8"
+ ],
+ "alias": {
+  "vue": "./node_modules/vue/dist/vue.esm.js"
+ },
+ "jest": {
+  "clearMocks": true,
+  "moduleFileExtensions": [
+   "js",
+   "json",
+   "vue"
+  ],
+  "coveragePathIgnorePatterns": [
+   "node_modules"
+  ],
+  "testPathIgnorePatterns": [
+   "node_modules"
+  ],
+  "transformIgnorePatterns": [
+   "node_modules"
+  ],
+  "watchPathIgnorePatterns": [
+   "<rootDir>/node_modules/"
+  ],
+  "snapshotSerializers": [
+   "jest-serializer-vue"
+  ],
+  "transform": {
+   ".*\\.vue$": "vue-jest",
+   ".+\\.js$": "babel-jest"
+  }
+ },
+ "release-it": {
+  "github": {
+   "release": true
+  },
+  "npm": {
+   "publish": false
+  }
+ }
 }
