@@ -29,8 +29,6 @@ var (
 	tailSize = 300
 	filters  map[string]string
 	version  = "dev"
-	commit   = "none"
-	date     = "unknown"
 )
 
 type handler struct {
@@ -285,6 +283,4 @@ Loop:
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, version)
-	fmt.Fprintln(w, commit)
-	fmt.Fprintln(w, date)
 }

@@ -26,8 +26,6 @@ Connection: close
 Content-Type: text/plain; charset=utf-8
 
 dev
-none
-unknown
 
 /* snapshot: Test_handler_listContainers_happy */
 HTTP/1.1 200 OK
