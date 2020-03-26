@@ -44,7 +44,7 @@
   "@vue/component-compiler-utils": "^3.1.1",
   "@vue/test-utils": "^1.0.0-beta.29",
   "babel-core": "^7.0.0-bridge.0",
-  "babel-jest": "^25.2.0",
+  "babel-jest": "^25.2.1",
   "concurrently": "^5.1.0",
   "eventsourcemock": "^2.0.0",
   "husky": "^4.2.3",
