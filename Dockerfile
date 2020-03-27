@@ -16,7 +16,7 @@ COPY assets ./assets
 RUN npm run build
 
 
-FROM golang:alpine AS builder
+FROM golang:1.14-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates
 RUN mkdir /dozzle
