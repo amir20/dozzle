@@ -29,7 +29,7 @@
   "bulma": "^0.8.1",
   "caniuse-lite": "^1.0.30001038",
   "date-fns": "^2.11.1",
-  "hotkeys-js": "^3.7.5",
+  "hotkeys-js": "^3.7.6",
   "lodash.debounce": "^4.0.8",
   "semver": "^7.1.3",
   "splitpanes": "^2.2.1",
