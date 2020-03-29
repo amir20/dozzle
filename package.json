@@ -51,7 +51,7 @@
   "husky": "^4.2.3",
   "jest": "^25.2.3",
   "jest-serializer-vue": "^2.0.2",
-  "lint-staged": "^10.0.9",
+  "lint-staged": "^10.0.10",
   "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
   "parcel-bundler": "^1.12.4",
