@@ -1,13 +1,17 @@
+import debounce from "lodash.debounce";
 import EventSource from "eventsourcemock";
 import { sources } from "eventsourcemock";
 import { shallowMount, mount, createLocalVue } from "@vue/test-utils";
 import Vuex from "vuex";
 import MockDate from "mockdate";
-import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 
-jest.mock("lodash.debounce", () => jest.fn(fn => fn));
+jest.mock("lodash.debounce", () =>
+  jest.fn((fn) => {
+    return fn;
+  })
+);
 
 describe("<LogEventSource />", () => {
   beforeEach(() => {
@@ -20,7 +24,7 @@ describe("<LogEventSource />", () => {
     const unobserve = jest.fn();
     global.IntersectionObserver = jest.fn(() => ({
       observe,
-      unobserve
+      unobserve,
     }));
     debounce.mockClear();
   });
@@ -31,13 +35,12 @@ describe("<LogEventSource />", () => {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    localVue.component("log-event-source", LogEventSource);
     localVue.component("log-viewer", LogViewer);
 
     const state = { searchFilter, settings: { size: "medium" } };
 
     const store = new Vuex.Store({
-      state
+      state,
     });
 
     return mount(LogEventSource, {
@@ -46,9 +49,9 @@ describe("<LogEventSource />", () => {
       scopedSlots: {
         default: `
         <log-viewer :messages="props.messages"></log-viewer>
-        `
+        `,
       },
-      propsData: { id: "abc" }
+      propsData: { id: "abc" },
     });
   }
 
@@ -125,6 +128,7 @@ describe("<LogEventSource />", () => {
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({ data: `2019-06-12T10:55:42.459034602Z "This is a message."` });
 
+    await wrapper.vm.$nextTick();
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">"This is a message."</span></li>
@@ -136,9 +140,10 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({
-      data: `2019-06-12T10:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`
+      data: `2019-06-12T10:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`,
     });
 
+    await wrapper.vm.$nextTick();
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text"><span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
@@ -150,9 +155,10 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({
-      data: `2019-06-12T10:55:42.459034602Z <test>foo bar</test>`
+      data: `2019-06-12T10:55:42.459034602Z <test>foo bar</test>`,
     });
 
+    await wrapper.vm.$nextTick();
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
@@ -164,12 +170,13 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource("test");
     sources["/api/logs/stream?id=abc"].emitOpen();
     sources["/api/logs/stream?id=abc"].emitMessage({
-      data: `2019-06-11T10:55:42.459034602Z Foo bar`
+      data: `2019-06-11T10:55:42.459034602Z Foo bar`,
     });
     sources["/api/logs/stream?id=abc"].emitMessage({
-      data: `2019-06-12T10:55:42.459034602Z This is a test <hi></hi>`
+      data: `2019-06-12T10:55:42.459034602Z This is a test <hi></hi>`,
     });
 
+    await wrapper.vm.$nextTick();
     expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
       <ul class="events medium">
         <li><span class="date">today at 10:55 AM</span> <span class="text">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
