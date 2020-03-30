@@ -49,13 +49,13 @@ export default {
   },
   computed: {
     ...mapState(["containers", "activeContainers"]),
-    ...mapGetters(["activeContainersById"])
+    ...mapGetters(["activeContainersById"]),
   },
   methods: {
     ...mapActions({
-      appendActiveContainer: "APPEND_ACTIVE_CONTAINER"
-    })
-  }
+      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
+    }),
+  },
 };
 </script>
 <style scoped lang="scss">

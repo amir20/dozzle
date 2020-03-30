@@ -30,7 +30,7 @@ export default {
   name: "Search",
   data() {
     return {
-      showSearch: false
+      showSearch: false,
     };
   },
   mounted() {
@@ -45,12 +45,12 @@ export default {
   },
   methods: {
     ...mapActions({
-      updateSearchFilter: "SET_SEARCH"
+      updateSearchFilter: "SET_SEARCH",
     }),
     resetSearch() {
       this.showSearch = false;
       this.filter = "";
-    }
+    },
   },
   computed: {
     ...mapState(["searchFilter", "settings"]),
@@ -60,9 +60,9 @@ export default {
       },
       set(value) {
         this.updateSearchFilter(value);
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 

@@ -20,16 +20,16 @@ export default {
   components: {
     LogViewerWithSource,
     ScrollableView,
-    ContainerTitle
+    ContainerTitle,
   },
   data() {
     return {
-      title: "loading"
+      title: "loading",
     };
   },
   metaInfo() {
     return {
-      title: this.title
+      title: this.title,
     };
   },
   mounted() {
@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     ...mapState(["activeContainers"]),
-    ...mapGetters(["allContainersById"])
+    ...mapGetters(["allContainersById"]),
   },
   watch: {
     id() {
@@ -47,7 +47,7 @@ export default {
     },
     allContainersById() {
       this.title = this.allContainersById[this.id].name;
-    }
-  }
+    },
+  },
 };
 </script>

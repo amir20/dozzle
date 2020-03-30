@@ -3,5 +3,5 @@ export const DEFAULT_SETTINGS = {
   search: true,
   size: "medium",
   menuWidth: 15,
-  smallerScrollbars: false
+  smallerScrollbars: false,
 };

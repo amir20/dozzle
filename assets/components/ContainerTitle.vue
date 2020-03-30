@@ -13,10 +13,10 @@ export default {
     value: String,
     closable: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  name: "ContainerTitle"
+  name: "ContainerTitle",
 };
 </script>
 

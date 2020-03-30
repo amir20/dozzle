@@ -58,18 +58,18 @@ export default {
     Splitpanes,
     Pane,
     Search,
-    ContainerTitle
+    ContainerTitle,
   },
   data() {
     return {
       title: "",
-      collapseNav: false
+      collapseNav: false,
     };
   },
   metaInfo() {
     return {
       title: this.title,
-      titleTemplate: "%s - Dozzle"
+      titleTemplate: "%s - Dozzle",
     };
   },
   async created() {
@@ -89,27 +89,27 @@ export default {
       } else {
         document.documentElement.classList.remove("has-custom-scrollbars");
       }
-    }
+    },
   },
   computed: {
     ...mapState(["containers", "activeContainers", "isMobile", "settings"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
-    }
+    },
   },
   methods: {
     ...mapActions({
       fetchContainerList: "FETCH_CONTAINERS",
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
-      updateSetting: "UPDATE_SETTING"
+      updateSetting: "UPDATE_SETTING",
     }),
     onResized(e) {
       if (e.length == 2) {
         const menuWidth = e[0].size;
         this.updateSetting({ menuWidth });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

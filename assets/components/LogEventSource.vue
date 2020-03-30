@@ -16,7 +16,7 @@ function parseMessage(data) {
   return {
     key,
     date,
-    message
+    message,
   };
 }
 
@@ -24,12 +24,12 @@ export default {
   props: ["id"],
   name: "LogEventSource",
   components: {
-    InfiniteLoader
+    InfiniteLoader,
   },
   data() {
     return {
       messages: [],
-      buffer: []
+      buffer: [],
     };
   },
   created() {
@@ -52,11 +52,11 @@ export default {
         250,
         { maxWait: 1000 }
       );
-      this.es.onmessage = e => {
+      this.es.onmessage = (e) => {
         this.buffer.push(parseMessage(e.data));
         flushBuffer();
       };
-      this.es.onerror = e => console.log("EventSource failed." + e);
+      this.es.onerror = (e) => console.log("EventSource failed." + e);
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async loadOlderLogs() {
@@ -73,17 +73,17 @@ export default {
         const newMessages = logs
           .trim()
           .split("\n")
-          .map(line => parseMessage(line));
+          .map((line) => parseMessage(line));
         this.messages.unshift(...newMessages);
       }
-    }
+    },
   },
   watch: {
     id(newValue, oldValue) {
       if (oldValue !== newValue) {
         this.loadLogs(newValue);
       }
-    }
-  }
+    },
+  },
 };
 </script>

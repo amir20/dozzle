@@ -7,16 +7,16 @@ export default {
   name: "InfiniteLoader",
   data() {
     return {
-      isLoading: false
+      isLoading: false,
     };
   },
   props: {
     onLoadMore: Function,
-    enabled: Boolean
+    enabled: Boolean,
   },
   mounted() {
     const intersectionObserver = new IntersectionObserver(
-      async entries => {
+      async (entries) => {
         if (entries[0].intersectionRatio <= 0) return;
         if (this.onLoadMore && this.enabled) {
           const scrollingParent = this.$el.closest("[data-scrolling]") || document.documentElement;
@@ -31,7 +31,7 @@ export default {
     );
 
     intersectionObserver.observe(this.$refs.observer);
-  }
+  },
 };
 </script>
 <style scoped lang="scss"></style>

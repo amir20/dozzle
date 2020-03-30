@@ -20,16 +20,13 @@ export default {
   components: {},
   data() {
     return {
-      showSearch: false
+      showSearch: false,
     };
   },
   methods: {
-    colorize: function(value) {
-      return ansiConvertor
-        .toHtml(value)
-        .replace("&lt;mark&gt;", "<mark>")
-        .replace("&lt;/mark&gt;", "</mark>");
-    }
+    colorize: function (value) {
+      return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
+    },
   },
   computed: {
     ...mapState(["searchFilter", "settings"]),
@@ -40,10 +37,10 @@ export default {
         try {
           const regex = isSmartCase ? new RegExp(searchFilter, "i") : new RegExp(searchFilter);
           return messages
-            .filter(d => d.message.match(regex))
-            .map(d => ({
+            .filter((d) => d.message.match(regex))
+            .map((d) => ({
               ...d,
-              message: d.message.replace(regex, "<mark>$&</mark>")
+              message: d.message.replace(regex, "<mark>$&</mark>"),
             }));
         } catch (e) {
           if (e instanceof SyntaxError) {
@@ -54,13 +51,13 @@ export default {
         }
       }
       return messages;
-    }
+    },
   },
   filters: {
     relativeTime(date) {
       return formatRelative(date, new Date());
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped lang="scss">

@@ -13,7 +13,7 @@ export default {
   name: "LogViewerWithSource",
   components: {
     LogEventSource,
-    LogViewer
-  }
+    LogViewer,
+  },
 };
 </script>

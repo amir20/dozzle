@@ -14,7 +14,7 @@ const state = {
   activeContainers: [],
   searchFilter: null,
   isMobile: mql.matches,
-  settings: storage.get(DOZZLE_SETTINGS_KEY)
+  settings: storage.get(DOZZLE_SETTINGS_KEY),
 };
 
 const mutations = {
@@ -36,7 +36,7 @@ const mutations = {
   UPDATE_SETTINGS(state, newValues) {
     state.settings = { ...state.settings, ...newValues };
     storage.set(DOZZLE_SETTINGS_KEY, state.settings);
-  }
+  },
 };
 
 const actions = {
@@ -55,7 +55,7 @@ const actions = {
   },
   UPDATE_SETTING({ commit }, setting) {
     commit("UPDATE_SETTINGS", setting);
-  }
+  },
 };
 const getters = {
   activeContainersById(state) {
@@ -69,18 +69,18 @@ const getters = {
       map[obj.id] = obj;
       return map;
     }, {});
-  }
+  },
 };
 
 const es = new EventSource(`${BASE_PATH}/api/events/stream`);
-es.addEventListener("containers-changed", e => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
-mql.addListener(e => store.commit("SET_MOBILE_WIDTH", e.matches));
+es.addEventListener("containers-changed", (e) => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
+mql.addListener((e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({
   state,
   getters,
   actions,
-  mutations
+  mutations,
 });
 
 export default store;

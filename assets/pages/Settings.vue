@@ -35,7 +35,7 @@
         <h2 class="title is-6 is-marginless">Font size</h2>
         Modify the font size when viewing logs.
 
-        <b-dropdown v-model="size" aria-role="list" style="margin:-8px 10px 0">
+        <b-dropdown v-model="size" aria-role="list" style="margin: -8px 10px 0;">
           <button class="button is-primary" type="button" slot="trigger">
             <span class="is-capitalized">{{ size }}</span>
             <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
@@ -69,7 +69,7 @@ export default {
     return {
       currentVersion: VERSION,
       nextRelease: null,
-      hasUpdate: false
+      hasUpdate: false,
     };
   },
   async created() {
@@ -79,13 +79,13 @@ export default {
   },
   metaInfo() {
     return {
-      title: "Settings"
+      title: "Settings",
     };
   },
   methods: {
     ...mapActions({
-      updateSetting: "UPDATE_SETTING"
-    })
+      updateSetting: "UPDATE_SETTING",
+    }),
   },
   computed: {
     ...mapState(["settings"]),
@@ -96,11 +96,11 @@ export default {
         },
         set(value) {
           this.updateSetting({ [name]: value });
-        }
+        },
       };
       return map;
-    }, {})
-  }
+    }, {}),
+  },
 };
 </script>
 <style lang="scss">

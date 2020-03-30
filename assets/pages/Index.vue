@@ -11,7 +11,7 @@
 <script>
 export default {
   props: [],
-  name: "Default"
+  name: "Default",
 };
 </script>
 <style scoped>

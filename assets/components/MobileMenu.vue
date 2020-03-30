@@ -34,22 +34,22 @@ export default {
   name: "MobileMenu",
   data() {
     return {
-      showNav: false
+      showNav: false,
     };
   },
 
   computed: {
     ...mapState(["containers"]),
-    ...mapGetters(["activeContainersById"])
+    ...mapGetters(["activeContainersById"]),
   },
   methods: {
-    ...mapActions({})
+    ...mapActions({}),
   },
   watch: {
     $route(to, from) {
       this.showNav = false;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped lang="scss">

@@ -27,19 +27,19 @@ export default {
   props: {
     scrollable: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   name: "ScrollableView",
   data() {
     return {
       paused: false,
-      hasMore: false
+      hasMore: false,
     };
   },
   mounted() {
     const { content } = this.$refs;
-    new MutationObserver(e => {
+    new MutationObserver((e) => {
       if (!this.paused) {
         this.scrollToBottom("instant");
       } else {
@@ -48,7 +48,7 @@ export default {
     }).observe(content, { childList: true, subtree: true });
 
     const intersectionObserver = new IntersectionObserver(
-      entries => (this.paused = entries[0].intersectionRatio == 0),
+      (entries) => (this.paused = entries[0].intersectionRatio == 0),
       { threshholds: [0, 1], rootMargin: "80px 0px" }
     );
 
@@ -59,8 +59,8 @@ export default {
     scrollToBottom(behavior = "instant") {
       this.$refs.scrollObserver.scrollIntoView({ behavior });
       this.hasMore = false;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped lang="scss">
