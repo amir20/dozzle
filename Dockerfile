@@ -6,8 +6,8 @@ RUN apk add --no-cache git openssh python make g++ util-linux
 WORKDIR /build
 
 # Install dependencies
-COPY package*.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn
 
 # Copy assets to build
 COPY assets ./assets
