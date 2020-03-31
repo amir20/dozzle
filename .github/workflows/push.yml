@@ -23,3 +23,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Test
         run: go test -cover ./...
+    docker-build:
+      name: docker build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Docker Build
+          run: docker build .
