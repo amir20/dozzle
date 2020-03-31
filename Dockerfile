@@ -13,7 +13,7 @@ RUN yarn
 COPY assets ./assets
 
 # Do the build
-RUN npm run build
+RUN yarn build
 
 
 FROM golang:1.14-alpine AS builder
