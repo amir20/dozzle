@@ -7031,10 +7031,10 @@ regjsparser@^0.6.4:
   dependencies:
     jsesc "~0.5.0"
 
-release-it@^13.5.0:
-  version "13.5.0"
-  resolved "https://registry.yarnpkg.com/release-it/-/release-it-13.5.0.tgz#716ec42c4c06ae1b5f7c667466aa62b3c645faaf"
-  integrity sha512-jArSTUaGzQiWjEUCwWG5chNmE1xNTaI9HQQhPPIJfzk+cL6KvT5MwRkaUQeJbTkrqlB5UjIM9sF35OMndEUuUA==
+release-it@^13.5.1:
+  version "13.5.1"
+  resolved "https://registry.yarnpkg.com/release-it/-/release-it-13.5.1.tgz#459b9e624c4b03391cdaab78e84cd14e373700c8"
+  integrity sha512-20t+aKKZxE2Wwh6Vi9jF3DINNJSHHuDxSkrCYvIsbAbj9Aj2An1lsRKAsCMcOio4go1TxOAWd3+iVt7KC6F+wg==
   dependencies:
     "@iarna/toml" "2.2.3"
     "@octokit/rest" "17.1.4"
