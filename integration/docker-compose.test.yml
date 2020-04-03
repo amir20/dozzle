@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+  dozzle:
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment: 
+      - DOZZLE_FILTER=name=dozzle
+    build:
+      context: ../
+  integration:
+    image: amir20/docker-alpine-puppeteer:edge
+    command: npm it
+    volumes:
+      - ./:/app/
+    environment:
+      - BASE=http://dozzle:8080/
+    depends_on:
+      - dozzle
