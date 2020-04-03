@@ -11,7 +11,8 @@
   "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "release-it",
-  "test": "jest"
+  "test": "jest",
+  "integration": "docker-compose -f integration/docker-compose.test.yml run integration"
  },
  "repository": {
   "type": "git",

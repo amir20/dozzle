@@ -9,7 +9,7 @@ describe("home page", () => {
     browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
       executablePath: process.env.CHROME_EXE_PATH || "",
-      defaultViewport: { width: 1280, height: 1080 },
+      defaultViewport: { width: 1920, height: 1200 },
     });
   });
 
