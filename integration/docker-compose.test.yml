@@ -7,12 +7,11 @@ services:
     environment: 
       - DOZZLE_FILTER=name=dozzle
     build:
-      context: ../
+      context: ..
   integration:
-    image: amir20/docker-alpine-puppeteer:edge
-    command: npm it
-    volumes:
-      - ./:/app/
+    build:
+      context: .
+    command: npm test        
     environment:
       - BASE=http://dozzle:8080/
     depends_on:

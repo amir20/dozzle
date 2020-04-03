@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: npm test
+      - name: Install Node
         uses: actions/setup-node@v1
       - name: Run NPM Tests
         run: npm it
