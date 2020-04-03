@@ -90,7 +90,8 @@
    "node_modules"
   ],
   "testPathIgnorePatterns": [
-   "node_modules"
+   "node_modules",
+   "<rootDir>/integration/"
   ],
   "transformIgnorePatterns": [
    "node_modules"
