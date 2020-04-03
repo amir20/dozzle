@@ -9,13 +9,13 @@ describe("home page", () => {
     browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
       executablePath: process.env.CHROME_EXE_PATH || "",
-      defaultViewport: { width: 1920, height: 1200 },
+      defaultViewport: { width: 1920, height: 1200 }
     });
   });
 
   it("renders full page on desktop", async () => {
     const page = await browser.newPage();
-    await page.goto(BASE, {});
+    await page.goto(BASE, { waitUntil: "networkidle2" });
 
     const image = await page.screenshot({ fullPage: true });
 
@@ -24,7 +24,7 @@ describe("home page", () => {
 
   it("renders ipad viewport", async () => {
     const page = await browser.newPage();
-    await page.goto(BASE, {});
+    await page.goto(BASE, { waitUntil: "networkidle2" });
     await page.setViewport({ width: 1024, height: 768 });
     const image = await page.screenshot();
 
@@ -33,7 +33,7 @@ describe("home page", () => {
 
   it("renders iphone viewport", async () => {
     const page = await browser.newPage();
-    await page.goto(BASE, {});
+    await page.goto(BASE, { waitUntil: "networkidle2" });
     await page.setViewport({ width: 372, height: 812 });
     const image = await page.screenshot();
 

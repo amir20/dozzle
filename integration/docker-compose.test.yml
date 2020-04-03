@@ -4,14 +4,14 @@ services:
     container_name: dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    environment: 
+    environment:
       - DOZZLE_FILTER=name=dozzle
     build:
       context: ..
   integration:
     build:
       context: .
-    command: npm test        
+    command: npm test
     environment:
       - BASE=http://dozzle:8080/
     depends_on:
