@@ -77,7 +77,7 @@
   ">5%"
  ],
  "alias": {
-  "vue": "./node_modules/vue/dist/vue.esm.js"
+  "vue": "./node_modules/vue/dist/vue.runtime.esm.js"
  },
  "jest": {
   "clearMocks": true,
