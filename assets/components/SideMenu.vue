@@ -10,7 +10,7 @@
           active-class="is-active"
           class="button is-small is-rounded is-settings-control"
         >
-          <span class="icon"><ion-icon name="settings" size="large"></ion-icon></span>
+          <span class="icon"><span class="icon-settings"></span></span>
         </router-link>
       </div>
     </div>
