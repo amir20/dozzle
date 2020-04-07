@@ -6,14 +6,14 @@ RUN apk add --no-cache git openssh python make g++ util-linux
 WORKDIR /build
 
 # Install dependencies
-COPY package.json yarn.lock ./
-RUN yarn
+COPY package*.json ./
+RUN npm install
 
 # Copy assets to build
 COPY assets ./assets
 
 # Do the build
-RUN yarn build
+RUN npm run build
 
 
 FROM golang:1.14-alpine AS builder
