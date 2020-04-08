@@ -134,31 +134,7 @@ func main() {
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	fileServer := http.FileServer(h.box)
 	if h.box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
-		if strings.HasSuffix(req.URL.Path, ".css") {
-			contents, err := h.box.FindString(req.URL.Path)
-			if err != nil {
-				panic(err)
-			}
-			contents = strings.Replace(contents, "__BASE__", "{{ .Base }}", -1)
-			tmpl, err := template.New("index.html").Parse(contents)
-			if err != nil {
-				panic(err)
-			}
-			path := ""
-			if base != "/" {
-				path = base
-			}
-			data := struct{ Base string }{path}
-
-			w.Header().Add("Content-Type", "text/css")
-			err = tmpl.Execute(w, data)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-			}
-		} else {
-			fileServer.ServeHTTP(w, req)
-		}
-
+		fileServer.ServeHTTP(w, req)
 	} else {
 		text, err := h.box.FindString("index.html")
 		if err != nil {
