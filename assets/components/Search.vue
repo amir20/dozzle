@@ -10,8 +10,8 @@
           v-model="filter"
           @keyup.esc="resetSearch()"
         />
-        <span class="icon is-small is-left">
-          <ion-icon name="search"></ion-icon>
+        <span class="icon is-left">
+          <icon name="search"></icon>
         </span>
       </p>
     </div>
@@ -24,10 +24,14 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import hotkeys from "hotkeys-js";
+import Icon from "./Icon";
 
 export default {
   props: [],
   name: "Search",
+  components: {
+    Icon,
+  },
   data() {
     return {
       showSearch: false,
@@ -79,5 +83,9 @@ export default {
 }
 .delete {
   margin-left: 1em;
+}
+
+.icon {
+  padding: 10px 3px;
 }
 </style>

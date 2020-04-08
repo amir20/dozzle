@@ -11,7 +11,7 @@
           class="button is-small is-rounded is-settings-control"
         >
           <span class="icon">
-            <svg class="icon icon-cog"><use xlink:href="#icon-cog"></use></svg>
+            <icon name="cog"></icon>
           </span>
         </router-link>
       </div>
@@ -30,6 +30,7 @@
               class="icon is-small will-append-container"
               :class="{ 'is-active': activeContainersById[item.id] }"
             >
+              <icon name="pin"></icon>
             </span>
             {{ item.name }}
           </div>
@@ -42,9 +43,14 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
+import Icon from "./Icon";
+
 export default {
   props: [],
   name: "SideMenu",
+  components: {
+    Icon,
+  },
   data() {
     return {};
   },
