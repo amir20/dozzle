@@ -10,7 +10,9 @@
           active-class="is-active"
           class="button is-small is-rounded is-settings-control"
         >
-          <span class="icon"><span class="icon-settings"></span></span>
+          <span class="icon">
+            <svg class="icon icon-cog"><use xlink:href="#icon-cog"></use></svg>
+          </span>
         </router-link>
       </div>
     </div>
@@ -28,7 +30,6 @@
               class="icon is-small will-append-container"
               :class="{ 'is-active': activeContainersById[item.id] }"
             >
-              <ion-icon name="ios-add-circle"></ion-icon>
             </span>
             {{ item.name }}
           </div>

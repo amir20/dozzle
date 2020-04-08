@@ -8,7 +8,6 @@ $menu-item-color: hsl(0, 6%, 87%);
 @import "~buefy/src/scss/utils/_all";
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
-@import "./icons";
 
 body {
   font-family: "Roboto", sans-serif;
@@ -72,4 +71,13 @@ html.has-custom-scrollbars {
     color: unset;
     border-color: transparent;
   }
+}
+
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
 }

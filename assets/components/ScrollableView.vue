@@ -15,7 +15,7 @@
           @click="scrollToBottom('instant')"
           v-show="paused"
         >
-          <span class="icon-download"></span>
+          <svg class="icon icon-download"><use xlink:href="#icon-download"></use></svg>
         </button>
       </transition>
     </div>
