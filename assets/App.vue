@@ -31,7 +31,7 @@
       v-if="!isMobile"
     >
       <span class="icon">
-        <ion-icon :name="collapseNav ? 'arrow-dropright' : 'arrow-dropleft'" size="large"></ion-icon>
+        <span :class="collapseNav ? 'icon-chevron-right' : 'icon-chevron-left'"></span>
       </span>
     </button>
   </main>

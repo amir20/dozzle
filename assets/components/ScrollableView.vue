@@ -15,7 +15,7 @@
           @click="scrollToBottom('instant')"
           v-show="paused"
         >
-          <ion-icon name="download"></ion-icon>
+          <span class="icon-download"></span>
         </button>
       </transition>
     </div>

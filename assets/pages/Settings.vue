@@ -38,12 +38,12 @@
         <b-dropdown v-model="size" aria-role="list" style="margin: -8px 10px 0;">
           <button class="button is-primary" type="button" slot="trigger">
             <span class="is-capitalized">{{ size }}</span>
-            <span class="icon"><ion-icon name="ios-arrow-down"></ion-icon></span>
+            <span class="icon"><span class="icon-chevron-down"></span></span>
           </button>
           <b-dropdown-item :value="value" aria-role="listitem" v-for="value in ['small', 'medium', 'large']">
             <div class="media">
               <span class="icon">
-                <ion-icon name="checkmark" v-if="value == size"></ion-icon>
+                <span class="icon-check" v-if="value == size"></span>
               </span>
               <div class="media-content">
                 <h3 class="is-capitalized">{{ value }}</h3>
