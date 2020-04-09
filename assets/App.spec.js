@@ -8,7 +8,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe("<App />", () => {
-  const stubs = { RouterLink: RouterLinkStub, "router-view": true, "ion-icon": true };
+  const stubs = { RouterLink: RouterLinkStub, "router-view": true, icon: true };
   let store;
 
   beforeEach(() => {
@@ -17,18 +17,18 @@ describe("<App />", () => {
     const state = {
       containers: [
         { id: "abc", name: "Test 1" },
-        { id: "xyz", name: "Test 2" }
+        { id: "xyz", name: "Test 2" },
       ],
-      settings: { menuWidth: 15 }
+      settings: { menuWidth: 15 },
     };
 
     const actions = {
-      FETCH_CONTAINERS: () => Promise.resolve()
+      FETCH_CONTAINERS: () => Promise.resolve(),
     };
 
     store = new Vuex.Store({
       state,
-      actions
+      actions,
     });
   });
 

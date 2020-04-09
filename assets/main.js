@@ -13,8 +13,6 @@ Vue.use(Meta);
 Vue.use(Dropdown);
 Vue.use(Switch);
 
-Vue.config.devtools = true;
-
 const routes = [
   {
     path: "/",

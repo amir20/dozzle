@@ -45,9 +45,8 @@ exports[`<App /> renders correctly 1`] = `
     <span
       class="icon"
     >
-      <ion-icon-stub
-        name="arrow-dropleft"
-        size="large"
+      <icon-stub
+        name="chevron-left"
       />
     </span>
   </button>
