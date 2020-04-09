@@ -9,8 +9,12 @@ WORKDIR /build
 COPY package*.json yarn.lock ./
 RUN yarn install --network-timeout 1000000
 
+# Copy config files
+COPY .* ./
+
 # Copy assets to build
 COPY assets ./assets
+
 
 # Do the build
 RUN yarn build

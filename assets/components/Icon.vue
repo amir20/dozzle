@@ -1,6 +1,6 @@
 <template>
-  <svg class="icomoon" :class="[`icon-${name}`]">
-    <use :xlink:href="`#icon-${name}`"></use>
+  <svg class="icomoon" :class="['icon-' + name]">
+    <use :href="'#icon-' + name"></use>
   </svg>
 </template>
 
