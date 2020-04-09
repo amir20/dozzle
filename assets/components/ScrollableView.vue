@@ -15,7 +15,7 @@
           @click="scrollToBottom('instant')"
           v-show="paused"
         >
-          <ion-icon name="download"></ion-icon>
+          <icon name="download"></icon>
         </button>
       </transition>
     </div>
@@ -23,12 +23,17 @@
 </template>
 
 <script>
+import Icon from "./Icon";
+
 export default {
   props: {
     scrollable: {
       type: Boolean,
       default: true,
     },
+  },
+  components: {
+    Icon,
   },
   name: "ScrollableView",
   data() {

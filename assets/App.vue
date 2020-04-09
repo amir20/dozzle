@@ -31,7 +31,7 @@
       v-if="!isMobile"
     >
       <span class="icon">
-        <ion-icon :name="collapseNav ? 'arrow-dropright' : 'arrow-dropleft'" size="large"></ion-icon>
+        <icon :name="collapseNav ? 'chevron-right' : 'chevron-left'"></icon>
       </span>
     </button>
   </main>
@@ -47,10 +47,12 @@ import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
 import ContainerTitle from "./components/ContainerTitle";
+import Icon from "./components/Icon";
 
 export default {
   name: "App",
   components: {
+    Icon,
     LogViewerWithSource,
     SideMenu,
     MobileMenu,

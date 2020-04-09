@@ -10,7 +10,9 @@
           active-class="is-active"
           class="button is-small is-rounded is-settings-control"
         >
-          <span class="icon"><ion-icon name="settings" size="large"></ion-icon></span>
+          <span class="icon">
+            <icon name="cog"></icon>
+          </span>
         </router-link>
       </div>
     </div>
@@ -28,7 +30,7 @@
               class="icon is-small will-append-container"
               :class="{ 'is-active': activeContainersById[item.id] }"
             >
-              <ion-icon name="ios-add-circle"></ion-icon>
+              <icon name="pin"></icon>
             </span>
             {{ item.name }}
           </div>
@@ -41,9 +43,14 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
+import Icon from "./Icon";
+
 export default {
   props: [],
   name: "SideMenu",
+  components: {
+    Icon,
+  },
   data() {
     return {};
   },
