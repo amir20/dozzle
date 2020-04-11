@@ -2043,10 +2043,10 @@ bulma@0.7.5:
   resolved "https://registry.yarnpkg.com/bulma/-/bulma-0.7.5.tgz#35066c37f82c088b68f94450be758fc00a967208"
   integrity sha512-cX98TIn0I6sKba/DhW0FBjtaDpxTelU166pf7ICXpCCuplHWyu6C9LYZmL5PEsnePIeJaiorsTEzzNk3Tsm1hw==
 
-bulma@^0.8.1:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/bulma/-/bulma-0.8.1.tgz#a5feacb703b73a87fdeae4f0d12317d62fc1d301"
-  integrity sha512-Afi2zv4DKmNSYfmx55V+Mtnt8+WfR8Rs65kWArmzEuWP7vNr7dSAEDI+ORZlgOR1gueNZwpKaPdUi4ZiTNwgPA==
+bulma@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/bulma/-/bulma-0.8.2.tgz#5d928f16ed4a84549c2873f95c92c38c69c631a7"
+  integrity sha512-vMM/ijYSxX+Sm+nD7Lmc1UgWDy2JcL2nTKqwgEqXuOMU+IGALbXd5MLt/BcjBAPLIx36TtzhzBcSnOP974gcqA==
 
 cache-base@^1.0.1:
   version "1.0.1"
