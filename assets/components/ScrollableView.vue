@@ -46,7 +46,7 @@ export default {
     const { content } = this.$refs;
     new MutationObserver((e) => {
       if (!this.paused) {
-        this.scrollToBottom("instant");
+        // this.scrollToBottom("instant");
       } else {
         this.hasMore = true;
       }
@@ -80,6 +80,7 @@ section {
   main {
     flex: 1;
     overflow: auto;
+    scroll-snap-type: y proximity;
   }
 
   .scroll-bar-notification {
