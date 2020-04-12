@@ -1,7 +1,7 @@
 <template lang="html">
   <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key">
-      <span class="date">{{ item.date | relativeTime }}</span>
+      <span class="date" v-if="settings.showTimestamp">{{ item.date | relativeTime }}</span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
   </ul>

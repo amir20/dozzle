@@ -37,7 +37,7 @@ describe("<LogEventSource />", () => {
 
     localVue.component("log-viewer", LogViewer);
 
-    const state = { searchFilter, settings: { size: "medium" } };
+    const state = { searchFilter, settings: { size: "medium", showTimestamp: true } };
 
     const store = new Vuex.Store({
       state,

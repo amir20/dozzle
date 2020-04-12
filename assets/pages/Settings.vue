@@ -32,6 +32,12 @@
       </div>
 
       <div class="item">
+        <b-switch v-model="showTimestamp">
+          Show timestamps
+        </b-switch>
+      </div>
+
+      <div class="item">
         <h2 class="title is-6 is-marginless">Font size</h2>
         Modify the font size when viewing logs.
 
@@ -92,7 +98,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars"].reduce((map, name) => {
+    ...["search", "size", "smallerScrollbars", "showTimestamp"].reduce((map, name) => {
       map[name] = {
         get() {
           return this.settings[name];

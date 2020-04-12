@@ -4,4 +4,5 @@ export const DEFAULT_SETTINGS = {
   size: "medium",
   menuWidth: 15,
   smallerScrollbars: false,
+  showTimestamp: true,
 };
