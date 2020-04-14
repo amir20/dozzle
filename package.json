@@ -32,7 +32,7 @@
   "date-fns": "^2.12.0",
   "hotkeys-js": "^3.7.6",
   "lodash.debounce": "^4.0.8",
-  "semver": "^7.3.1",
+  "semver": "^7.3.2",
   "splitpanes": "^2.2.1",
   "store": "^2.0.12",
   "vue": "^2.6.11",
