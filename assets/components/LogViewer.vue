@@ -68,6 +68,10 @@ export default {
   & > li {
     word-wrap: break-word;
     line-height: 130%;
+    &:last-child {
+      scroll-snap-align: end;
+      scroll-margin-block-end: 5rem;
+    }
   }
 
   &.small {

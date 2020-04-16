@@ -80,6 +80,7 @@ section {
   main {
     flex: 1;
     overflow: auto;
+    scroll-snap-type: y proximity;
   }
 
   .scroll-bar-notification {
