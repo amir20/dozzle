@@ -54,7 +54,7 @@ func NewClientWithFilters(f map[string]string) Client {
 
 	log.Debugf("filterArgs = %v", filterArgs)
 
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 
 	if err != nil {
 		log.Fatal(err)
