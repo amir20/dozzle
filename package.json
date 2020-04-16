@@ -4,7 +4,7 @@
  "description": "Realtime log viewer for docker containers. ",
  "scripts": {
   "prestart": "npm run clean",
-  "start": "DOCKER_API_VERSION=1.38 concurrently 'npm run watch-server' 'npm run watch-assets'",
+  "start": "concurrently 'npm run watch-server' 'npm run watch-assets'",
   "watch-assets": "npx parcel watch --no-source-maps --public-url '__BASE__' assets/index.html -d static",
   "watch-server": "reflex -c .reflex",
   "prebuild": "npm run clean",

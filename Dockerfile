@@ -52,7 +52,6 @@ RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 FROM scratch
 
 ENV PATH=/bin
-ENV DOCKER_API_VERSION 1.38
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
