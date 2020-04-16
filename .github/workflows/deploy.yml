@@ -5,17 +5,19 @@ on:
 name: Test and Release
 jobs:
   npm-test:
-    name: npm test
+    name: JavaScript Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: npm test
+      - name: Install Node
         uses: actions/setup-node@v1
-      - name: npm it
-        run: npm it
+      - name: Install depdencies
+        run: yarn
+      - name: Run Tests
+        run: yarn test
   go-test:
-    name: go test
+    name: Go Tests
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
@@ -24,10 +26,21 @@ jobs:
           go-version: 1.14.x
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Test
+      - name: Run Go Tests with Coverage
         run: go test -cover ./...
-  buildx:
+  int-test:
     needs: [go-test, npm-test]
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build images
+        run: docker-compose -f integration/docker-compose.test.yml build  
+      - name: Run tests
+        run: docker-compose -f integration/docker-compose.test.yml run integration
+  buildx:
+    needs: [int-test]
     name: Release
     runs-on: ubuntu-latest
     steps:
