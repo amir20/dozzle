@@ -199,7 +199,7 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
-		Timestamps: true,
+		Timestamps: fale,
 		Since:      strconv.FormatInt(from.Unix(), 10),
 		Until:      strconv.FormatInt(to.Unix(), 10),
 	}

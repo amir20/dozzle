@@ -19,7 +19,7 @@
       <div class="has-underline">
         <h2 class="title is-4">Display</h2>
       </div>
-      <div class="item">
+      <div class="item">hiddenTimestamps
         <b-switch v-model="search">
           Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
         </b-switch>
@@ -28,6 +28,12 @@
       <div class="item">
         <b-switch v-model="smallerScrollbars">
           Use smaller scrollbars
+        </b-switch>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="hiddenTimestamps">
+          Hide timestamps
         </b-switch>
       </div>
 
@@ -89,7 +95,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars"].reduce((map, name) => {
+    ...["search", "size", "smallerScrollbars", "hiddenTimestamps"].reduce((map, name) => {
       map[name] = {
         get() {
           return this.settings[name];
