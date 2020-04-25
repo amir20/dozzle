@@ -2022,10 +2022,10 @@ bser@2.1.1:
   dependencies:
     node-int64 "^0.4.0"
 
-buefy@^0.8.16:
-  version "0.8.16"
-  resolved "https://registry.yarnpkg.com/buefy/-/buefy-0.8.16.tgz#b4c2edf0c57887a9052113630a21924d28c7d2da"
-  integrity sha512-Y5VaJbPlAjiEF8UhfzTTU4kmfLgkC6DwV4FklATGyxrqnezza+niTPgbdt+URaiw4KWzhO8BdTUIOrE5EPrOcQ==
+buefy@^0.8.17:
+  version "0.8.17"
+  resolved "https://registry.yarnpkg.com/buefy/-/buefy-0.8.17.tgz#3669ec0a5d2ad33c8109f9b8b9290979f1202cc9"
+  integrity sha512-lLAnLjc8dQpGnLML+4tKpP2yUi/WAQ38ukR5qAMq7Cc9J0sbwy1kXAHarEPlOZkQFzx6c3VmHgL7/qGsupszrQ==
   dependencies:
     bulma "0.7.5"
 
