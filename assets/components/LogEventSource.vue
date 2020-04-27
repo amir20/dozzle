@@ -67,19 +67,14 @@ export default {
       }
     },
     parseMessage(data) {
-      if (this.$route.query.debug) {
-        console.debug(`Parsing [${data}].`);
+      let i = data.indexOf(" ");
+      if (i == -1) {
+        i = data.length;
       }
-
-      const i = data.indexOf(" ");
       const key = data.substring(0, i);
       const date = new Date(key);
       const message = data.substring(i).trim();
-      return {
-        key,
-        date,
-        message,
-      };
+      return { key, date, message };
     },
   },
   watch: {
