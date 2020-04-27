@@ -55,6 +55,9 @@ export default {
   },
   filters: {
     relativeTime(date) {
+      if (this.$route.query.debug) {
+        console.debug(`Computing relative date to [${date}].`);
+      }
       return formatRelative(date, new Date());
     },
   },
