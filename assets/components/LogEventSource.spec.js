@@ -113,7 +113,7 @@ describe("<LogEventSource />", () => {
     const [message, _] = wrapper.vm.messages;
     const { key, ...messageWithoutKey } = message;
 
-    expect(key).toBe("2020-04-27T10:35:43.272Z");
+    expect(key).toBe("2020-04-27T12:35:43.272974324+02:00");
     expect(messageWithoutKey).toMatchInlineSnapshot(`
       Object {
         "date": 2020-04-27T10:35:43.272Z,
