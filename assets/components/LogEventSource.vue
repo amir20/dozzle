@@ -9,18 +9,6 @@
 import debounce from "lodash.debounce";
 import InfiniteLoader from "./InfiniteLoader";
 
-function parseMessage(data) {
-  const i = data.indexOf(' ');
-  const key = data.substring(0, i);
-  const date = new Date(key);
-  const message = data.substring(i).trim();
-  return {
-    key,
-    date,
-    message,
-  };
-}
-
 export default {
   props: ["id"],
   name: "LogEventSource",
@@ -54,7 +42,7 @@ export default {
         { maxWait: 1000 }
       );
       this.es.onmessage = (e) => {
-        this.buffer.push(parseMessage(e.data));
+        this.buffer.push(this.parseMessage(e.data));
         flushBuffer();
       };
       this.es.onerror = (e) => console.log("EventSource failed." + e);
@@ -74,9 +62,24 @@ export default {
         const newMessages = logs
           .trim()
           .split("\n")
-          .map((line) => parseMessage(line));
+          .map((line) => this.parseMessage(line));
         this.messages.unshift(...newMessages);
       }
+    },
+    parseMessage(data) {
+      if (this.$route.query.debug) {
+        console.debug(`Parsing [${data}].`);
+      }
+
+      const i = data.indexOf(" ");
+      const key = data.substring(0, i);
+      const date = new Date(key);
+      const message = data.substring(i).trim();
+      return {
+        key,
+        date,
+        message,
+      };
     },
   },
   watch: {
