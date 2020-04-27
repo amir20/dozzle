@@ -10,9 +10,10 @@ import debounce from "lodash.debounce";
 import InfiniteLoader from "./InfiniteLoader";
 
 function parseMessage(data) {
-  const date = new Date(data.substring(0, 30));
-  const key = data.substring(0, 30);
-  const message = data.substring(30).trim();
+  const i = data.indexOf(' ');
+  const key = data.substring(0, i);
+  const date = new Date(key);
+  const message = data.substring(i).trim();
   return {
     key,
     date,

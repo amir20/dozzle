@@ -105,6 +105,23 @@ describe("<LogEventSource />", () => {
     `);
   });
 
+  test("should parse messages with loki's timestamp format", async () => {
+    const wrapper = createLogEventSource();
+    sources["/api/logs/stream?id=abc"].emitOpen();
+    sources["/api/logs/stream?id=abc"].emitMessage({ data: `2020-04-27T12:35:43.272974324+02:00 xxxxx` });
+
+    const [message, _] = wrapper.vm.messages;
+    const { key, ...messageWithoutKey } = message;
+
+    expect(key).toBe("2020-04-27T10:35:43.272Z");
+    expect(messageWithoutKey).toMatchInlineSnapshot(`
+      Object {
+        "date": 2020-04-27T10:35:43.272Z,
+        "message": "xxxxx",
+      }
+    `);
+  });
+
   test("should pass messages to slot", async () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc"].emitOpen();
