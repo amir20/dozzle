@@ -1,7 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Meta from "vue-meta";
-import { Dropdown, Switch } from "buefy";
+import Dropdown from "buefy/dist/esm/dropdown";
+import Switch from "buefy/dist/esm/switch";
 import store from "./store";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
