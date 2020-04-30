@@ -86,6 +86,43 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
 | `--filter`   | `DOZZLE_FILTER`      | `""`    |
 
+## Troubleshooting
+
+### Sample Nginx config
+
+```
+
+    server {
+        listen                          80;
+        server_name                     <example.com>;
+        return                          301 https://<example.com>$request_uri;
+    }
+
+    server {
+        listen                          443 ssl http2;
+        server_name                     <example.com>;
+
+        ssl_certificate                 </path/to/your/certificate>;
+        ssl_certificate_key             </path/to/your/key>;
+
+        location / {
+            proxy_pass                  http://<dozzle.container.ip.address>:8080;
+        }
+
+        location /api {
+            proxy_pass                  http://<dozzle.container.ip.address>:8080;
+
+            proxy_http_version          1.1;
+            proxy_set_header            Connection "";
+            proxy_buffering             off;
+            proxy_cache                 off;
+
+            chunked_transfer_encoding   off;
+        }
+    }
+
+```
+
 ## License
 
 [MIT](LICENSE)
