@@ -12,7 +12,7 @@ While dozzle should work for most, it is not meant to be a full logging solution
 
 But if you don't want to pay for these services, then Dozzle can help! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy. Dozzle is not a database. It does not store or save any logs. You can only see live logs while using Dozzle.
 
-![Image](.github/demo.gif)
+![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
 
 ## Getting dozzle
 
