@@ -72,7 +72,23 @@ then you can override by using `--base /foobar`. See env variables below for usi
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
-### Sample Nginx config
+#### Environment variables and configuration
+
+Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
+
+| Flag         | Env Variable         | Default |
+| ------------ | -------------------- | ------- |
+| `--addr`     | `DOZZLE_ADDR`        | `:8080` |
+| `--base`     | `DOZZLE_BASE`        | `/`     |
+| `--level`    | `DOZZLE_LEVEL`       | `info`  |
+| `--showAll`  | `DOZZLE_SHOWALL`     | `false` |
+| n/a          | `DOCKER_API_VERSION` | not set |
+| `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
+| `--filter`   | `DOZZLE_FILTER`      | `""`    |
+
+### Troubleshooting
+
+## Sample Nginx config
 
 ```
 
@@ -106,21 +122,6 @@ dozzle will be available at [http://localhost:8080/foobar/](http://localhost:808
     }
 
 ```
-
-
-#### Environment variables and configuration
-
-Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
-
-| Flag         | Env Variable         | Default |
-| ------------ | -------------------- | ------- |
-| `--addr`     | `DOZZLE_ADDR`        | `:8080` |
-| `--base`     | `DOZZLE_BASE`        | `/`     |
-| `--level`    | `DOZZLE_LEVEL`       | `info`  |
-| `--showAll`  | `DOZZLE_SHOWALL`     | `false` |
-| n/a          | `DOCKER_API_VERSION` | not set |
-| `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
-| `--filter`   | `DOZZLE_FILTER`      | `""`    |
 
 ## License
 
