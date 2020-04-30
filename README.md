@@ -86,9 +86,9 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
 | `--filter`   | `DOZZLE_FILTER`      | `""`    |
 
-### Troubleshooting
+## Troubleshooting
 
-## Sample Nginx config
+### Sample Nginx config
 
 ```
 
