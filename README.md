@@ -72,6 +72,42 @@ then you can override by using `--base /foobar`. See env variables below for usi
 
 dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
+### Sample Nginx config
+
+```
+
+    server {
+        listen                          80;
+        server_name                     <example.com>;
+        return                          301 https://<example.com>$request_uri;
+    }
+
+    server {
+        listen                          443 ssl http2;
+        server_name                     <example.com>;
+
+        ssl_certificate                 </path/to/your/certificate>;
+        ssl_certificate_key             </path/to/your/key>;
+
+        location / {
+            proxy_pass                  http://<dozzle.container.ip.address>:8080;
+        }
+
+        location /api {
+            proxy_pass                  http://<dozzle.container.ip.address>:8080;
+
+            proxy_http_version          1.1;
+            proxy_set_header            Connection "";
+            proxy_buffering             off;
+            proxy_cache                 off;
+
+            chunked_transfer_encoding   off;
+        }
+    }
+
+```
+
+
 #### Environment variables and configuration
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
