@@ -88,10 +88,13 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 
 ## Troubleshooting
 
-### Sample Nginx config
+### Nginx Config
+
+If you are using nginx as a reverse proxy, then you need to configure `/api` to enable server-sent events. 
+
+Below is an example configuration using SSL and `proxy_pass` with correct settings. 
 
 ```
-
     server {
         listen                          80;
         server_name                     <example.com>;
