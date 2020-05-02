@@ -6,11 +6,11 @@
 
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
-Dozzle is a real-time log viewer for Docker. It's free. It's small. And it's in your browser.
+Dozzle is a simple, lightweight application that provides you with a web based interface to monitor your Docker container logs live. It doesn’t store log information, it is for live monitoring of your container logs only.
 
-While dozzle should work for most, it is not meant to be a full logging solution. For enterprise use, I recommend you look at [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana).
+While dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
 
-But if you don't want to pay for these services, then Dozzle can help! Dozzle will be able to capture all logs from your containers and send them in real-time to your browser. Installation is also very easy. Dozzle is not a database. It does not store or save any logs. You can only see live logs while using Dozzle.
+Dozzle doesn't cost any money. Dozzle aims to stay simple, small and free.
 
 ![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
 
@@ -90,9 +90,9 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 
 ### Nginx Config
 
-If you are using nginx as a reverse proxy, then you need to configure `/api` to enable server-sent events. 
+If you are using nginx as a reverse proxy, then you need to configure `/api` to enable server-sent events.
 
-Below is an example configuration using SSL and `proxy_pass` with correct settings. 
+Below is an example configuration using SSL and `proxy_pass` with correct settings.
 
 ```
     server {
@@ -141,4 +141,3 @@ To Build and test locally:
 5. Install node modules with `npm install`.
 6. Do `npm start`
 
-Instructions for Github actions can be found [here](.github/goreleaser/Dockerfile) which build and tests Dozzle.
