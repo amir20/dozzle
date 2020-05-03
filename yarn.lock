@@ -3846,10 +3846,10 @@ globby@11.0.0:
     merge2 "^1.3.0"
     slash "^3.0.0"
 
-got@11.0.2:
-  version "11.0.2"
-  resolved "https://registry.yarnpkg.com/got/-/got-11.0.2.tgz#55613d6a1b7040ff9c26cb075defea39eed58d7a"
-  integrity sha512-zOanxiJs1LaBAiKsV43UUw/oRlyRNtJFeuATahfi4c3MTremj09eAeJBSJ7GR2oEMhrLLRSJpz8fQaojVDijjw==
+got@11.1.0:
+  version "11.1.0"
+  resolved "https://registry.yarnpkg.com/got/-/got-11.1.0.tgz#99c0c3404ee17592e553f9ed1c895f920f554ed8"
+  integrity sha512-9lZDzFe43s6HH60tSurUk04kEtssfLiIfMiY5lSE0+vVaDCmT7+0xYzzlHY5VArSiz41mQQC38LefW2KoE9erw==
   dependencies:
     "@sindresorhus/is" "^2.1.0"
     "@szmarczak/http-timer" "^4.0.0"
@@ -7099,10 +7099,10 @@ regjsparser@^0.6.4:
   dependencies:
     jsesc "~0.5.0"
 
-release-it@^13.5.7:
-  version "13.5.7"
-  resolved "https://registry.yarnpkg.com/release-it/-/release-it-13.5.7.tgz#3ebce13e0f2545d191576ff8f3f1926c00db2e09"
-  integrity sha512-i5Om4Xh2aby+ow+F9pEiGo3Lk8uQW7QzVOyBbrnorAQU4VYxC7cRgKnn1g57RAYAGYMriMqHRrlV4V2psfTiTA==
+release-it@^13.5.8:
+  version "13.5.8"
+  resolved "https://registry.yarnpkg.com/release-it/-/release-it-13.5.8.tgz#f7a30cc7863c9a24100d7c8c9d0f762dd0ec4551"
+  integrity sha512-5CNuQgkXWcskAediHpnVaU2sOT+27tOeLz8+SXsPHFrdkaCfRKVL1Isekp4AylWmN3sbx2K+cI7Dg6RwtLSYYg==
   dependencies:
     "@iarna/toml" "2.2.5"
     "@octokit/rest" "17.6.0"
@@ -7117,7 +7117,7 @@ release-it@^13.5.7:
     form-data "3.0.0"
     git-url-parse "11.1.2"
     globby "11.0.0"
-    got "11.0.2"
+    got "11.1.0"
     import-cwd "3.0.0"
     inquirer "7.1.0"
     is-ci "2.0.0"
@@ -7131,7 +7131,7 @@ release-it@^13.5.7:
     supports-color "7.1.0"
     update-notifier "4.1.0"
     url-join "4.0.1"
-    uuid "7.0.3"
+    uuid "8.0.0"
     window-size "1.1.1"
     yaml "1.9.2"
     yargs-parser "18.1.3"
@@ -8456,15 +8456,20 @@ util@^0.11.0:
   dependencies:
     inherits "2.0.3"
 
-uuid@7.0.3, uuid@^7.0.2:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
-  integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
+uuid@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.0.0.tgz#bc6ccf91b5ff0ac07bbcdbf1c7c4e150db4dbb6c"
+  integrity sha512-jOXGuXZAWdsTH7eZLtyXMqUb9EcWMGZNbL9YcGBJl4MH4nrxHmZJhEHvyLFrkxo+28uLb/NYRcStH48fnD0Vzw==
 
 uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uuid@^7.0.2:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
+  integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
 
 v8-compile-cache@^2.0.0:
   version "2.1.0"
