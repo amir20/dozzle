@@ -2199,10 +2199,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001035, caniuse-lite@^1.0.30001048:
-  version "1.0.30001048"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001048.tgz#4bb4f1bc2eb304e5e1154da80b93dee3f1cf447e"
-  integrity sha512-g1iSHKVxornw0K8LG9LLdf+Fxnv7T1Z+mMsf0/YYLclQX4Cd522Ap0Lrw6NFqHgezit78dtyWxzlV2Xfc7vgRg==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001035, caniuse-lite@^1.0.30001049:
+  version "1.0.30001049"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001049.tgz#97d560015d2bdd7102b82ec807ec28d8aa7bd73e"
+  integrity sha512-VBcWTkexrbyurOakYo1E7tmzB39jFLB1Tav7e9JQGIz5MCfv0FBj8qZz8XRJgJzo+xn5YGeOYb8Vt6JxR2xXQg==
 
 capture-exit@^2.0.0:
   version "2.0.0"
