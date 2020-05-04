@@ -1,4 +1,4 @@
-<template>
+<template functional>
   <svg class="icomoon" :class="['icon-' + name]">
     <use :href="'#icon-' + name"></use>
   </svg>
@@ -6,7 +6,6 @@
 
 <script>
 export default {
-  functional: true,
   props: {
     name: {
       required: true,
