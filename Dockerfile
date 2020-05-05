@@ -10,7 +10,7 @@ COPY package*.json yarn.lock ./
 RUN yarn install --network-timeout 1000000
 
 # Copy config files
-COPY .* ./
+COPY .* webpack*.js ./
 
 # Copy assets to build
 COPY assets ./assets
