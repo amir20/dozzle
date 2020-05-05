@@ -15,10 +15,8 @@ COPY .* webpack*.js ./
 # Copy assets to build
 COPY assets ./assets
 
-
 # Do the build
 RUN yarn build
-
 
 FROM golang:1.14-alpine AS builder
 
