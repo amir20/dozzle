@@ -1,6 +1,6 @@
 <template functional>
-  <svg class="icomoon" :class="['icon-' + name]">
-    <use :href="'#icon-' + name"></use>
+  <svg class="icomoon" :class="['icon-' + props.name]">
+    <use :href="'#icon-' + props.name"></use>
   </svg>
 </template>
 
