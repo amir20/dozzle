@@ -5,7 +5,7 @@
  "scripts": {
   "prestart": "npm run clean",
   "start": "concurrently 'npm run watch-server' 'npm run watch-assets'",
-  "watch-assets": "webpack --mode=development --progress --watch",
+  "watch-assets": "webpack --mode=development --watch",
   "watch-server": "reflex -c .reflex",
   "prebuild": "npm run clean",
   "build": "yarn webpack --mode=production",

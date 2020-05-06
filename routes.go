@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"runtime"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -21,7 +20,6 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		text = strings.Replace(text, "__BASE__", "{{ .Base }}", -1)
 		tmpl, err := template.New("index.html").Parse(text)
 		if err != nil {
 			panic(err)
