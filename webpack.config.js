@@ -4,7 +4,11 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  stats: { children: false },
+  stats: { children: false, entrypoints: false, modules: false },
+  performance: {
+    maxAssetSize: 350000,
+    maxEntrypointSize: 570000,
+  },
   entry: ["./assets/main.js", "./assets/styles.scss"],
   output: {
     path: path.resolve(__dirname, "./static"),
