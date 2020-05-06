@@ -44,7 +44,7 @@
   "@babel/core": "^7.9.6",
   "@babel/plugin-transform-runtime": "^7.9.6",
   "@vue/component-compiler-utils": "^3.1.2",
-  "@vue/test-utils": "^1.0.0",
+  "@vue/test-utils": "^1.0.2",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^26.0.1",
   "concurrently": "^5.2.0",
