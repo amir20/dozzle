@@ -49,7 +49,12 @@ module.exports = {
   plugins: [
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin(),
-    new HtmlWebpackPlugin({ hash: true, template: "assets/index.ejs", scriptLoading: "defer" }),
+    new HtmlWebpackPlugin({
+      hash: true,
+      template: "assets/index.ejs",
+      scriptLoading: "defer",
+      favicon: "assets/favicon.svg",
+    }),
   ],
   resolve: {
     alias: {
