@@ -9,6 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "./static"),
     filename: "[name].js",
+    publicPath: "/",
   },
   module: {
     rules: [

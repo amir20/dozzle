@@ -11,7 +11,7 @@ services:
   integration:
     build:
       context: .
-    command: npm test
+    command: yarn test
     environment:
       - BASE=http://dozzle:8080/
     depends_on:
