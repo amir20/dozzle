@@ -32,11 +32,6 @@ describe("<App />", () => {
     });
   });
 
-  test("is a Vue instance", async () => {
-    const wrapper = shallowMount(App, { stubs, store, localVue });
-    expect(wrapper.isVueInstance()).toBeTruthy();
-  });
-
   test("has right title", async () => {
     const wrapper = shallowMount(App, { stubs, store, localVue });
     await wrapper.vm.$nextTick();
