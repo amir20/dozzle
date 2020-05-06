@@ -46,7 +46,12 @@
             <span class="is-capitalized">{{ size }}</span>
             <span class="icon"><icon name="chevron-down"></icon></span>
           </button>
-          <b-dropdown-item :value="value" aria-role="listitem" v-for="value in ['small', 'medium', 'large']">
+          <b-dropdown-item
+            :value="value"
+            aria-role="listitem"
+            v-for="value in ['small', 'medium', 'large']"
+            :key="value"
+          >
             <div class="media">
               <span class="icon keep-size">
                 <icon name="check" v-if="value == size"></icon>
