@@ -2,6 +2,7 @@ const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WebpackPwaManifest = require("webpack-pwa-manifest");
 
 module.exports = {
   stats: { children: false, entrypoints: false, modules: false },
@@ -58,6 +59,13 @@ module.exports = {
       template: "assets/index.ejs",
       scriptLoading: "defer",
       favicon: "assets/favicon.svg",
+    }),
+    new WebpackPwaManifest({
+      name: "Dozzle Log Viewer",
+      short_name: "Dozzle",
+      theme_color: "#222",
+      background_color: "#222",
+      display: "standalone",
     }),
   ],
   resolve: {
