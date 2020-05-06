@@ -47,6 +47,7 @@
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^26.0.1",
   "babel-loader": "^8.1.0",
+  "babel-preset-env": "^1.7.0",
   "caniuse-lite": "^1.0.30001050",
   "concurrently": "^5.2.0",
   "css-loader": "^3.5.3",
@@ -85,12 +86,6 @@
    "prettier --write"
   ]
  },
- "browserslist": [
-  ">5%"
- ],
- "alias": {
-  "vue": "./node_modules/vue/dist/vue.runtime.esm.js"
- },
  "jest": {
   "clearMocks": true,
   "moduleFileExtensions": [
@@ -116,7 +111,7 @@
   ],
   "transform": {
    ".*\\.vue$": "vue-jest",
-   ".+\\.js$": "babel-jest"
+   "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
   }
  },
  "release-it": {
