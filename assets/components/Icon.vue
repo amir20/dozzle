@@ -1,12 +1,11 @@
-<template>
-  <svg class="icomoon" :class="['icon-' + name]">
-    <use :href="'#icon-' + name"></use>
+<template functional>
+  <svg class="icomoon" :class="['icon-' + props.name]">
+    <use :href="'#icon-' + props.name"></use>
   </svg>
 </template>
 
 <script>
 export default {
-  functional: true,
   props: {
     name: {
       required: true,

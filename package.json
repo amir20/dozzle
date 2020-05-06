@@ -5,10 +5,10 @@
  "scripts": {
   "prestart": "npm run clean",
   "start": "concurrently 'npm run watch-server' 'npm run watch-assets'",
-  "watch-assets": "npx parcel watch --no-source-maps --public-url '__BASE__' assets/index.html -d static",
+  "watch-assets": "webpack --mode=development --watch",
   "watch-server": "reflex -c .reflex",
   "prebuild": "npm run clean",
-  "build": "npx parcel build --no-source-maps --public-url '__BASE__' assets/index.html -d static",
+  "build": "yarn webpack --mode=production",
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "release-it",
   "test": "jest",
@@ -28,7 +28,6 @@
   "ansi-to-html": "^0.6.14",
   "buefy": "^0.8.17",
   "bulma": "^0.8.2",
-  "caniuse-lite": "^1.0.30001052",
   "date-fns": "^2.13.0",
   "hotkeys-js": "^3.7.6",
   "lodash.debounce": "^4.0.8",
@@ -47,21 +46,35 @@
   "@vue/test-utils": "^1.0.2",
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^26.0.1",
+  "babel-loader": "^8.1.0",
+  "babel-preset-env": "^1.7.0",
+  "caniuse-lite": "^1.0.30001050",
   "concurrently": "^5.2.0",
+  "css-loader": "^3.5.3",
   "eventsourcemock": "^2.0.0",
+  "html-webpack-plugin": "^4.3.0",
   "husky": "^4.2.5",
   "jest": "^26.0.1",
   "jest-serializer-vue": "^2.0.2",
   "lint-staged": "^10.2.2",
+  "mini-css-extract-plugin": "^0.9.0",
   "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
-  "parcel-bundler": "^1.12.4",
+  "postcss-cssnext": "^3.1.0",
+  "postcss-import": "^12.0.1",
+  "postcss-loader": "^3.0.0",
   "prettier": "^2.0.5",
   "release-it": "^13.5.8",
   "sass": "^1.26.5",
+  "sass-loader": "^8.0.2",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
-  "vue-template-compiler": "^2.6.11"
+  "vue-loader": "^15.9.2",
+  "vue-style-loader": "^4.1.2",
+  "vue-template-compiler": "^2.6.11",
+  "webpack": "^4.43.0",
+  "webpack-cli": "^3.3.11",
+  "webpack-manifest-plugin": "^2.2.0"
  },
  "husky": {
   "hooks": {
@@ -73,39 +86,8 @@
    "prettier --write"
   ]
  },
- "browserslist": [
-  ">5%"
- ],
- "alias": {
-  "vue": "./node_modules/vue/dist/vue.runtime.esm.js"
- },
  "jest": {
-  "clearMocks": true,
-  "moduleFileExtensions": [
-   "js",
-   "json",
-   "vue"
-  ],
-  "coveragePathIgnorePatterns": [
-   "node_modules"
-  ],
-  "testPathIgnorePatterns": [
-   "node_modules",
-   "<rootDir>/integration/"
-  ],
-  "transformIgnorePatterns": [
-   "node_modules"
-  ],
-  "watchPathIgnorePatterns": [
-   "<rootDir>/node_modules/"
-  ],
-  "snapshotSerializers": [
-   "jest-serializer-vue"
-  ],
-  "transform": {
-   ".*\\.vue$": "vue-jest",
-   ".+\\.js$": "babel-jest"
-  }
+  
  },
  "release-it": {
   "github": {
