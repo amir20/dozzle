@@ -36,7 +36,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build images
-        run: docker-compose -f integration/docker-compose.test.yml build  
+        run: docker-compose -f integration/docker-compose.test.yml build
       - name: Run tests
         run: docker-compose -f integration/docker-compose.test.yml run integration
   buildx:
@@ -50,7 +50,8 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: latest
+          qemu-version: latest
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Docker Login
