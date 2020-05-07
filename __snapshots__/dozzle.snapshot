@@ -40,6 +40,7 @@ Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
+X-Accel-Buffering: no
 
 /* snapshot: Test_handler_streamEvents_error_request */
 HTTP/1.1 200 OK
@@ -47,6 +48,7 @@ Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
+X-Accel-Buffering: no
 
 /* snapshot: Test_handler_streamEvents_happy */
 HTTP/1.1 200 OK
@@ -54,6 +56,7 @@ Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
+X-Accel-Buffering: no
 
 event: containers-changed
 data: start
@@ -72,6 +75,7 @@ Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
+X-Accel-Buffering: no
 
 /* snapshot: Test_handler_streamLogs_happy */
 HTTP/1.1 200 OK
@@ -79,5 +83,6 @@ Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
+X-Accel-Buffering: no
 
 data: INFO Testing logs...
