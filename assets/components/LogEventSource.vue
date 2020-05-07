@@ -30,6 +30,7 @@ export default {
       if (this.es) {
         this.es.close();
         this.messages = [];
+        this.buffer = [];
         this.es = null;
       }
       this.es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
