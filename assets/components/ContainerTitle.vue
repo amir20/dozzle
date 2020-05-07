@@ -1,4 +1,4 @@
-<template lang="html" functional>
+<template lang="html">
   <div class="name columns is-marginless">
     <span class="column">{{ value }}</span>
     <span class="column is-narrow" v-if="closable">

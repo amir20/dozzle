@@ -7,7 +7,7 @@ services:
     environment:
       - DOZZLE_FILTER=name=dozzle
     build:
-      context: ..    
+      context: ..
   integration:
     build:
       context: .
