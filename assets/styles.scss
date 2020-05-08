@@ -56,11 +56,9 @@ html.has-custom-scrollbars {
 }
 
 .is-settings-control {
-
   background: rgba(0, 0, 0, 0.4);
   color: #fff;
   border-color: transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   &:hover {
     border-color: rgb(255, 221, 87) !important;
     background: rgba(0, 0, 0, 0.8) !important;
@@ -73,4 +71,3 @@ html.has-custom-scrollbars {
     border-color: transparent;
   }
 }
-
