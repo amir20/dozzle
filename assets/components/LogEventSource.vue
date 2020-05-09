@@ -8,6 +8,7 @@
 <script>
 import debounce from "lodash.debounce";
 import InfiniteLoader from "./InfiniteLoader";
+import config from "../store/config";
 
 export default {
   props: ["id"],
@@ -33,7 +34,7 @@ export default {
         this.buffer = [];
         this.es = null;
       }
-      this.es = new EventSource(`${BASE_PATH}/api/logs/stream?id=${this.id}`);
+      this.es = new EventSource(`${config.base}/api/logs/stream?id=${this.id}`);
       const flushBuffer = debounce(
         () => {
           this.messages.push(...this.buffer);

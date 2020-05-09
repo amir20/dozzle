@@ -11,7 +11,6 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/gobuffalo/packr"
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -73,23 +72,6 @@ func init() {
 		DisableTimestamp:       true,
 		DisableLevelTruncation: true,
 	})
-}
-
-func createRoutes(base string, h *handler) *mux.Router {
-	r := mux.NewRouter()
-	if base != "/" {
-		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
-		}))
-	}
-	s := r.PathPrefix(base).Subrouter()
-	s.HandleFunc("/api/containers.json", h.listContainers)
-	s.HandleFunc("/api/logs/stream", h.streamLogs)
-	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
-	s.HandleFunc("/api/events/stream", h.streamEvents)
-	s.HandleFunc("/version", h.version)
-	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
-	return r
 }
 
 func main() {

@@ -72,6 +72,7 @@ import gt from "semver/functions/gt";
 import valid from "semver/functions/valid";
 import { mapActions, mapState } from "vuex";
 import Icon from "../components/Icon";
+import config from "../store/config";
 
 export default {
   props: [],
@@ -81,7 +82,7 @@ export default {
   },
   data() {
     return {
-      currentVersion: VERSION,
+      currentVersion: config.version,
       nextRelease: null,
       hasUpdate: false,
     };
@@ -117,7 +118,7 @@ export default {
   },
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .title {
   color: #eee;
 }

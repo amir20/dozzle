@@ -13,9 +13,10 @@ jest.mock("lodash.debounce", () =>
   })
 );
 
+jest.mock("../store/config.js", () => ({ base: "" }));
+
 describe("<LogEventSource />", () => {
   beforeEach(() => {
-    global.BASE_PATH = "";
     global.EventSource = EventSource;
     MockDate.set("6/12/2019", 0);
     window.scrollTo = jest.fn();
@@ -57,17 +58,7 @@ describe("<LogEventSource />", () => {
 
   test("renders correctly", async () => {
     const wrapper = createLogEventSource();
-    expect(wrapper.element).toMatchInlineSnapshot(`
-      <div>
-        <div
-          class="control"
-        />
-         
-        <ul
-          class="events medium"
-        />
-      </div>
-    `);
+    expect(wrapper.element).toMatchSnapshot();
   });
 
   test("should connect to EventSource", async () => {

@@ -3,6 +3,8 @@ import { shallowMount, RouterLinkStub, createLocalVue } from "@vue/test-utils";
 import Vuex from "vuex";
 import App from "./App";
 
+jest.mock("./store/config.js", () => ({ base: "" }));
+
 const localVue = createLocalVue();
 
 localVue.use(Vuex);
@@ -12,7 +14,6 @@ describe("<App />", () => {
   let store;
 
   beforeEach(() => {
-    global.BASE_PATH = "";
     global.EventSource = EventSource;
     const state = {
       containers: [
