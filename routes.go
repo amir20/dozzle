@@ -32,7 +32,7 @@ func createRoutes(base string, h *handler) *mux.Router {
 
 func setCSPHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self'; require-trusted-types-for 'script'")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'")
 		next.ServeHTTP(w, r)
 	})
 }
