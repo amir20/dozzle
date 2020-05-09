@@ -86,27 +86,18 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
 | `--filter`   | `DOZZLE_FILTER`      | `""`    |
 
-## Troubleshooting
+## Troubleshooting and FAQs
 
-### Nginx Config
+<details>
+ <summary>I installed Dozzle, but logs are slow or they never load. Help!</summary>
 
-If you are using nginx as a reverse proxy, then you need to configure `/api` to enable server-sent events.
+ Dozzle uses Server Sent Events (SSE) which connects to a sever using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer.  Since version `1.23.0`, Dozzle send the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those case, you need to explicitly disable any buffering.
 
-Below is an example configuration using SSL and `proxy_pass` with correct settings.
+ Below is an example with nginx and using `proxy_pass` to disable buffering.
 
 ```
     server {
-        listen                          80;
-        server_name                     <example.com>;
-        return                          301 https://<example.com>$request_uri;
-    }
-
-    server {
-        listen                          443 ssl http2;
-        server_name                     <example.com>;
-
-        ssl_certificate                 </path/to/your/certificate>;
-        ssl_certificate_key             </path/to/your/key>;
+        ...
 
         location / {
             proxy_pass                  http://<dozzle.container.ip.address>:8080;
@@ -115,16 +106,26 @@ Below is an example configuration using SSL and `proxy_pass` with correct settin
         location /api {
             proxy_pass                  http://<dozzle.container.ip.address>:8080;
 
-            proxy_http_version          1.1;
-            proxy_set_header            Connection "";
             proxy_buffering             off;
             proxy_cache                 off;
-
-            chunked_transfer_encoding   off;
         }
     }
 
 ```
+</details>
+
+<details>
+ <summary>What data does Dozzle collect?</summary>
+
+ Dozzle does not collect any metrics or analytics. Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
+
+ - Allow connect to `api.github.com` to fetch most recent version.
+ - Allow fonts from `fonts.gstatic.com` and styles from `fonts.googleapis.com`
+ - Only allow `<script>` and `<style>` files from `self`
+
+ Dozzle opens all links with `rel="noopener"`.
+</details>
+
 
 ## License
 
