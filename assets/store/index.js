@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import storage from "store/dist/store.modern";
 import { DEFAULT_SETTINGS, DOZZLE_SETTINGS_KEY } from "./settings";
+import config from "./config";
 
 Vue.use(Vuex);
 
@@ -50,7 +51,7 @@ const actions = {
     commit("SET_SEARCH", filter);
   },
   async FETCH_CONTAINERS({ commit }) {
-    const containers = await (await fetch(`${BASE_PATH}/api/containers.json`)).json();
+    const containers = await (await fetch(`${config.base}/api/containers.json`)).json();
     commit("SET_CONTAINERS", containers);
   },
   UPDATE_SETTING({ commit }, setting) {
@@ -72,7 +73,7 @@ const getters = {
   },
 };
 
-const es = new EventSource(`${BASE_PATH}/api/events/stream`);
+const es = new EventSource(`${config.base}/api/events/stream`);
 es.addEventListener("containers-changed", (e) => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
 mql.addListener((e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 

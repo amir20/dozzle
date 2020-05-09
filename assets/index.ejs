@@ -4,17 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dozzle</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono|Gafata" rel="stylesheet" />  
-    <script>
-      window["BASE_PATH"] = "{{ .Base }}";
-      window["VERSION"] = "{{ .Version }}";
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono|Gafata" rel="stylesheet" />
+    <script type="application/json" id="config__json">
+      {
+        "base": "{{ .Base }}",
+        "version": "{{ .Version }}"
+      }
     </script>
   </head>
-
   <body>
     <svg
       aria-hidden="true"
-      style="position: absolute; width: 0; height: 0; overflow: hidden;"
+      class="is-hidden"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"

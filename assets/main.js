@@ -4,6 +4,7 @@ import Meta from "vue-meta";
 import Dropdown from "buefy/dist/esm/dropdown";
 import Switch from "buefy/dist/esm/switch";
 import store from "./store";
+import config from "./store/config";
 import App from "./App.vue";
 import Container from "./pages/Container.vue";
 import Settings from "./pages/Settings.vue";
@@ -35,7 +36,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: "history",
-  base: BASE_PATH + "/",
+  base: config.base + "/",
   routes,
 });
 

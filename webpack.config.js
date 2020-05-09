@@ -4,12 +4,13 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackPwaManifest = require("webpack-pwa-manifest");
 
-module.exports = {
+module.exports = (env, argv) => ({
   stats: { children: false, entrypoints: false, modules: false },
   performance: {
     maxAssetSize: 350000,
     maxEntrypointSize: 570000,
   },
+  devtool: argv.mode === "development" ? "inline-cheap-source-map" : false,
   entry: ["./assets/main.js", "./assets/styles.scss"],
   output: {
     path: path.resolve(__dirname, "./static"),
@@ -74,4 +75,4 @@ module.exports = {
     },
     extensions: ["*", ".js", ".vue", ".json"],
   },
-};
+});

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<LogEventSource /> renders correctly 1`] = `
+<div>
+  <div
+    class="control"
+  />
+   
+  <ul
+    class="events medium"
+  />
+</div>
+`;

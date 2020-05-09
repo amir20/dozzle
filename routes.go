@@ -8,8 +8,34 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
+
+func createRoutes(base string, h *handler) *mux.Router {
+	r := mux.NewRouter()
+	r.Use(setCSPHeaders)
+	if base != "/" {
+		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
+		}))
+	}
+	s := r.PathPrefix(base).Subrouter()
+	s.HandleFunc("/api/containers.json", h.listContainers)
+	s.HandleFunc("/api/logs/stream", h.streamLogs)
+	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
+	s.HandleFunc("/api/events/stream", h.streamEvents)
+	s.HandleFunc("/version", h.version)
+	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
+	return r
+}
+
+func setCSPHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self'")
+		next.ServeHTTP(w, r)
+	})
+}
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	fileServer := http.FileServer(h.box)
@@ -93,7 +119,6 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
-
 
 	log.Debugf("Starting to stream logs for %s", id)
 Loop:
