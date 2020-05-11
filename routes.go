@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"runtime"
 	"time"
@@ -68,7 +69,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
-	containers, err := h.client.ListContainers(h.showAll)
+	containers, err := h.client.ListContainers()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -109,7 +110,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 
 	container, e := h.client.FindContainer(id)
 	if e != nil {
-		http.Error(w, e.Error(), http.StatusInternalServerError)
+		http.Error(w, e.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -135,8 +136,14 @@ Loop:
 			}
 			f.Flush()
 		case e := <-err:
-			log.Debugf("Error while reading from log stream: %v", e)
-			break Loop
+			if e == io.EOF {
+				log.Debugf("Container stopped: %v", container.ID)
+				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+				f.Flush()
+			} else {
+				log.Debugf("Error while reading from log stream: %v", e)
+				break Loop
+			}
 		}
 	}
 

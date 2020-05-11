@@ -5,4 +5,5 @@ export const DEFAULT_SETTINGS = {
   menuWidth: 15,
   smallerScrollbars: false,
   showTimestamp: true,
+  showAllContainers: false,
 };

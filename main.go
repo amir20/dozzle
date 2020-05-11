@@ -27,15 +27,13 @@ var (
 )
 
 type handler struct {
-	client  docker.Client
-	showAll bool
-	box     packr.Box
+	client docker.Client
+	box    packr.Box
 }
 
 func init() {
 	pflag.String("addr", ":8080", "http service address")
 	pflag.String("base", "/", "base address of the application to mount")
-	pflag.Bool("showAll", false, "show all containers, even stopped")
 	pflag.String("level", "info", "logging level")
 	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
 	pflag.StringToStringVar(&filters, "filter", map[string]string{}, "Container filters to use for showing logs")
@@ -49,10 +47,9 @@ func init() {
 	base = viper.GetString("base")
 	level = viper.GetString("level")
 	tailSize = viper.GetInt("tailSize")
-	showAll = viper.GetBool("showAll")
 
-	// Until https://github.com/spf13/viper/issues/608 is fixed. We have to use this hacky way.
-	// filters = viper.GetStringSlice("filter")
+	// Until https://github.com/spf13/viper/issues/911 is fixed. We have to use this hacky way.
+	// filters = viper.GetStringMapString("filter")
 	if value, ok := os.LookupEnv("DOZZLE_FILTER"); ok {
 		log.Infof("Parsing %s", value)
 		urlValues, err := url.ParseQuery(strings.ReplaceAll(value, ",", "&"))
@@ -77,7 +74,7 @@ func init() {
 func main() {
 	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClientWithFilters(filters)
-	_, err := dockerClient.ListContainers(true)
+	_, err := dockerClient.ListContainers()
 
 	if err != nil {
 		log.Fatalf("Could not connect to Docker Engine: %v", err)
@@ -85,9 +82,8 @@ func main() {
 
 	box := packr.NewBox("./static")
 	r := createRoutes(base, &handler{
-		client:  dockerClient,
-		showAll: showAll,
-		box:     box,
+		client: dockerClient,
+		box:    box,
 	})
 	srv := &http.Server{Addr: addr, Handler: r}
 

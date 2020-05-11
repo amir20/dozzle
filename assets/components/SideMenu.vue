@@ -18,7 +18,7 @@
     </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile">
-      <li v-for="item in containers">
+      <li v-for="item in visibleContainers">
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
           active-class="is-active"
@@ -55,8 +55,8 @@ export default {
     return {};
   },
   computed: {
-    ...mapState(["containers", "activeContainers"]),
-    ...mapGetters(["activeContainersById"]),
+    ...mapState(["activeContainers"]),
+    ...mapGetters(["activeContainersById", "visibleContainers"]),
   },
   methods: {
     ...mapActions({

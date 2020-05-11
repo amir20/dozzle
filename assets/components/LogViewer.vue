@@ -1,6 +1,6 @@
 <template lang="html">
   <ul class="events" :class="settings.size">
-    <li v-for="item in filtered" :key="item.key">
+    <li v-for="item in filtered" :key="item.key" :class="{ event: !!item.event }">
       <span class="date" v-if="settings.showTimestamp">{{ item.date | relativeTime }}</span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
@@ -101,6 +101,10 @@ export default {
 
 .text {
   white-space: pre-wrap;
+}
+
+li.event {
+  color: #f14668;
 }
 
 ::v-deep mark {

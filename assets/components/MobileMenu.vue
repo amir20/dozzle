@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
   props: [],
@@ -37,13 +37,8 @@ export default {
       showNav: false,
     };
   },
-
   computed: {
-    ...mapState(["containers"]),
-    ...mapGetters(["activeContainersById"]),
-  },
-  methods: {
-    ...mapActions({}),
+    ...mapGetters(["activeContainersById", "visibleContainers"]),
   },
   watch: {
     $route(to, from) {

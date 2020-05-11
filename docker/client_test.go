@@ -55,7 +55,7 @@ func Test_dockerClient_ListContainers_null(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, nil)
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	list, err := client.ListContainers(true)
+	list, err := client.ListContainers()
 	assert.Empty(t, list, "list should be empty")
 	require.NoError(t, err, "error should not return an error.")
 
@@ -67,7 +67,7 @@ func Test_dockerClient_ListContainers_error(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, errors.New("test"))
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	list, err := client.ListContainers(true)
+	list, err := client.ListContainers()
 	assert.Nil(t, list, "list should be nil")
 	require.Error(t, err, "test.")
 
@@ -90,7 +90,7 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	list, err := client.ListContainers(true)
+	list, err := client.ListContainers()
 	require.NoError(t, err, "error should not return an error.")
 
 	assert.Equal(t, list, []Container{
