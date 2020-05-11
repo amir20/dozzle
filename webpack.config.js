@@ -8,7 +8,7 @@ module.exports = (env, argv) => ({
   stats: { children: false, entrypoints: false, modules: false },
   performance: {
     maxAssetSize: 350000,
-    maxEntrypointSize: 570000,
+    maxEntrypointSize: 585000,
   },
   devtool: argv.mode === "development" ? "inline-cheap-source-map" : false,
   entry: ["./assets/main.js", "./assets/styles.scss"],

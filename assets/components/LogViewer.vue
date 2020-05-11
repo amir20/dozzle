@@ -11,8 +11,15 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { formatRelative } from "date-fns";
 import AnsiConvertor from "ansi-to-html";
+import DOMPurify from "dompurify";
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
+
+if (window.trustedTypes && trustedTypes.createPolicy) {
+  trustedTypes.createPolicy("default", {
+    createHTML: (string, sink) => DOMPurify.sanitize(string, { RETURN_TRUSTED_TYPE: true }),
+  });
+}
 
 export default {
   props: ["messages"],
