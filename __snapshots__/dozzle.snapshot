@@ -1,7 +1,7 @@
 /* snapshot: Test_createRoutes_foobar */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
 Content-Type: text/plain; charset=utf-8
 
 foo page
@@ -9,7 +9,7 @@ foo page
 /* snapshot: Test_createRoutes_index */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
 Content-Type: text/plain; charset=utf-8
 
 index page
@@ -17,7 +17,7 @@ index page
 /* snapshot: Test_createRoutes_redirect */
 HTTP/1.1 301 Moved Permanently
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
 Content-Type: text/html; charset=utf-8
 Location: /foobar/
 
@@ -26,7 +26,7 @@ Location: /foobar/
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
 Content-Type: text/plain; charset=utf-8
 
 dev
