@@ -35,19 +35,23 @@ export default {
         this.es = null;
       }
       this.es = new EventSource(`${config.base}/api/logs/stream?id=${this.id}`);
-      const flushBuffer = debounce(
-        () => {
-          this.messages.push(...this.buffer);
-          this.buffer = [];
-        },
-        250,
-        { maxWait: 1000 }
-      );
+
+      this.es.addEventListener("container-stopped", (e) => {
+        this.es.close();
+        this.buffer.push({ event: "container-stopped", message: "Container stopped", date: new Date() });
+        flushNow();
+      });
+      this.es.addEventListener("error", (e) => console.log("EventSource failed: " + JSON.stringify(e)));
+
+      const flushBuffer = debounce(() => flushNow(), 250, { maxWait: 1000 });
+      const flushNow = () => {
+        this.messages.push(...this.buffer);
+        this.buffer = [];
+      };
       this.es.onmessage = (e) => {
         this.buffer.push(this.parseMessage(e.data));
         flushBuffer();
       };
-      this.es.onerror = (e) => console.log("EventSource failed." + e);
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async loadOlderLogs() {

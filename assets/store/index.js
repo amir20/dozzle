@@ -59,17 +59,21 @@ const actions = {
   },
 };
 const getters = {
-  activeContainersById(state) {
-    return state.activeContainers.reduce((map, obj) => {
+  activeContainersById({ activeContainers }) {
+    return activeContainers.reduce((map, obj) => {
       map[obj.id] = obj;
       return map;
     }, {});
   },
-  allContainersById(state) {
-    return state.containers.reduce((map, obj) => {
+  allContainersById({ containers }) {
+    return containers.reduce((map, obj) => {
       map[obj.id] = obj;
       return map;
     }, {});
+  },
+  visibleContainers({ containers, settings: { showAllContainers } }) {
+    const filter = showAllContainers ? () => true : (c) => c.state === "running";
+    return containers.filter(filter);
   },
 };
 
