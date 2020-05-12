@@ -76,7 +76,7 @@ export default {
   },
   async created() {
     await this.fetchContainerList();
-    this.title = `${this.containers.length} containers`;
+    this.title = `${this.visibleContainers.length} containers`;
   },
   mounted() {
     if (this.hasSmallerScrollbars) {
@@ -94,7 +94,8 @@ export default {
     },
   },
   computed: {
-    ...mapState(["containers", "activeContainers", "isMobile", "settings"]),
+    ...mapState(["activeContainers", "isMobile", "settings"]),
+    ...mapGetters(["visibleContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
     },
