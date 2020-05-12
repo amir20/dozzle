@@ -152,6 +152,8 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 }
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
+	log.WithField("id", id).WithField("since", since).Debug("Streaming logs for container")
+	
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,

@@ -121,8 +121,6 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
-
-	log.Debugf("Starting to stream logs for %s", id)
 Loop:
 	for {
 		select {
@@ -134,7 +132,9 @@ Loop:
 			index := strings.IndexAny(message, " ")
 			if index != -1 {
 				id := message[:index]
-				fmt.Fprintf(w, "id: %s\n", id)
+				if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
+					fmt.Fprintf(w, "id: %s\n", id)
+				}
 			}
 			fmt.Fprintf(w, "\n")
 			f.Flush()
