@@ -29,10 +29,17 @@ describe("home page", () => {
     expect(image).toMatchImageSnapshot();
   });
 
+  it("displays iphone menu", async () => {
+    await page.emulate(iPhoneX);
+    await page.click("a.navbar-burger");
+
+    const menuText = await page.$eval("aside ul.menu-list.is-hidden-mobile li a", (e) => e.textContent);
+    expect(menuText.trim()).toEqual("dozzle");
+  });
+
   describe("has menu visible", () => {
     beforeAll(async () => {
       await jestPuppeteer.resetBrowser();
-      // await page.setViewport({ width: 1920, height: 1200 });
     });
 
     beforeEach(async () => {
