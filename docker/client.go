@@ -35,7 +35,7 @@ type dockerProxy interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, int) (<-chan string, <-chan error)
+	ContainerLogs(context.Context, string, int, string) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) ([]string, error)
 }
@@ -151,8 +151,17 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 	}
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int) (<-chan string, <-chan error) {
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: strconv.Itoa(tailSize), Timestamps: true}
+func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
+	log.WithField("id", id).WithField("since", since).Debug("Streaming logs for container")
+	
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Tail:       strconv.Itoa(tailSize),
+		Timestamps: true,
+		Since:      since,
+	}
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	errChannel := make(chan error, 1)
 

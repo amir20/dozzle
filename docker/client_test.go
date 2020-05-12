@@ -120,14 +120,14 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	b = append(b, []byte(expected)...)
 
 	reader := ioutil.NopCloser(bytes.NewReader(b))
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
+	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true, Since: "since"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
 	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	messages, _ := client.ContainerLogs(context.Background(), id, 300)
+	messages, _ := client.ContainerLogs(context.Background(), id, 300, "since")
 
 	actual, _ := <-messages
 	assert.Equal(t, expected, actual, "message doesn't match expected")
@@ -151,7 +151,7 @@ func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	messages, _ := client.ContainerLogs(context.Background(), id, 300)
+	messages, _ := client.ContainerLogs(context.Background(), id, 300, "")
 
 	actual, _ := <-messages
 	assert.Equal(t, expected, actual, "message doesn't match expected")
@@ -169,7 +169,7 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	messages, err := client.ContainerLogs(context.Background(), id, 300)
+	messages, err := client.ContainerLogs(context.Background(), id, 300, "")
 
 	assert.Nil(t, messages, "messages should be nil")
 
