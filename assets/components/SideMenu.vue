@@ -18,7 +18,7 @@
     </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile">
-      <li v-for="item in visibleContainers">
+      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
           active-class="is-active"
@@ -86,6 +86,10 @@ aside {
   .is-hidden-mobile.is-active {
     display: block !important;
   }
+}
+
+li.exited a {
+  color: #777;
 }
 
 .will-append-container.icon {
