@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -114,7 +115,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := h.client.ContainerLogs(r.Context(), container.ID, tailSize)
+	messages, err := h.client.ContainerLogs(r.Context(), container.ID, tailSize, r.Header.Get("Last-Event-ID"))
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -129,11 +130,13 @@ Loop:
 			if !ok {
 				break Loop
 			}
-			_, e := fmt.Fprintf(w, "data: %s\n\n", message)
-			if e != nil {
-				log.Debugf("Error while writing to log stream: %v", e)
-				break Loop
+			fmt.Fprintf(w, "data: %s\n", message)
+			index := strings.IndexAny(message, " ")
+			if index != -1 {
+				id := message[:index]
+				fmt.Fprintf(w, "id: %s\n", id)
 			}
+			fmt.Fprintf(w, "\n")
 			f.Flush()
 		case e := <-err:
 			if e == io.EOF {

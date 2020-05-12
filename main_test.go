@@ -41,7 +41,7 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return containers, args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int) (<-chan string, <-chan error) {
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
 	args := m.Called(ctx, id, tailSize)
 	channel, ok := args.Get(0).(chan string)
 	if !ok {

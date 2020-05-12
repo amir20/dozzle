@@ -90,3 +90,4 @@ Content-Type: text/event-stream
 X-Accel-Buffering: no
 
 data: INFO Testing logs...
+id: INFO
