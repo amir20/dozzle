@@ -129,8 +129,7 @@ Loop:
 				break Loop
 			}
 			fmt.Fprintf(w, "data: %s\n", message)
-			index := strings.IndexAny(message, " ")
-			if index != -1 {
+			if index := strings.IndexAny(message, " "); index != -1 {
 				id := message[:index]
 				if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
 					fmt.Fprintf(w, "id: %s\n", id)
