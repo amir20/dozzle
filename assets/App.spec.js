@@ -16,11 +16,16 @@ describe("<App />", () => {
   beforeEach(() => {
     global.EventSource = EventSource;
     const state = {
-      containers: [
-        { id: "abc", name: "Test 1" },
-        { id: "xyz", name: "Test 2" },
-      ],
       settings: { menuWidth: 15 },
+    };
+
+    const getters = {
+      visibleContainers() {
+        return [
+          { id: "abc", name: "Test 1" },
+          { id: "xyz", name: "Test 2" },
+        ];
+      },
     };
 
     const actions = {
@@ -29,6 +34,7 @@ describe("<App />", () => {
 
     store = new Vuex.Store({
       state,
+      getters,
       actions,
     });
   });
