@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -124,6 +125,60 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
+func Test_handler_streamLogs_happy_with_id(t *testing.T) {
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	q := req.URL.Query()
+	q.Add("id", id)
+	req.URL.RawQuery = q.Encode()
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	mockedClient := new(MockedClient)
+
+	messages := make(chan string)
+	errChannel := make(chan error)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(messages, errChannel)
+	go func() {
+		messages <- "2020-05-13T18:55:37.772853839Z INFO Testing logs..."
+		close(messages)
+	}()
+
+	h := handler{client: mockedClient}
+	handler := http.HandlerFunc(h.streamLogs)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	q := req.URL.Query()
+	q.Add("id", id)
+	req.URL.RawQuery = q.Encode()
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	mockedClient := new(MockedClient)
+	messages := make(chan string)
+	errChannel := make(chan error)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
+
+	go func() {
+		errChannel <- io.EOF
+		close(messages)
+	}()
+
+	h := handler{client: mockedClient}
+	handler := http.HandlerFunc(h.streamLogs)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	mockedClient.AssertExpectations(t)
+}
+
 func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	id := "123456"
 	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
@@ -159,6 +214,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 	go func() {
 		errChannel <- errors.New("test error")
+		close(messages)
 	}()
 
 	h := handler{client: mockedClient}

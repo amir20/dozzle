@@ -90,3 +90,25 @@ Content-Type: text/event-stream
 X-Accel-Buffering: no
 
 data: INFO Testing logs...
+
+/* snapshot: Test_handler_streamLogs_happy_container_stopped */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: container-stopped
+data: end of stream
+
+/* snapshot: Test_handler_streamLogs_happy_with_id */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+data: 2020-05-13T18:55:37.772853839Z INFO Testing logs...
+id: 2020-05-13T18:55:37.772853839Z
