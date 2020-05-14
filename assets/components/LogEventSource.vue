@@ -48,10 +48,10 @@ export default {
         this.messages.push(...this.buffer);
         this.buffer = [];
       };
-      this.es.addEventListener("message", (e) => {
+      this.es.onmessage = (e) => {
         this.buffer.push(this.parseMessage(e.data));
         flushBuffer();
-      });
+      };
       this.$once("hook:beforeDestroy", () => this.es.close());
     },
     async loadOlderLogs() {
