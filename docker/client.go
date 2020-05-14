@@ -113,7 +113,7 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 	}
 
 	sort.Slice(containers, func(i, j int) bool {
-		return containers[i].Name < containers[j].Name
+		return strings.ToLower(containers[i].Name) < strings.ToLower(containers[j].Name)
 	})
 
 	if containers == nil {
@@ -153,7 +153,7 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
 	log.WithField("id", id).WithField("since", since).Debug("Streaming logs for container")
-	
+
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
