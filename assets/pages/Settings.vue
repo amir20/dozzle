@@ -10,7 +10,9 @@
         >.
         <span v-if="hasUpdate">
           New version is available! Update to
-          <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noopener">{{ nextRelease.name }}</a
+          <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noreferrer noopener">{{
+            nextRelease.name
+          }}</a
           >.
         </span>
       </div>
