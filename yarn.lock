@@ -4320,10 +4320,10 @@ hosted-git-info@^2.1.4:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.8.tgz#7539bd4bc1e0e0a895815a2e0262420b12858488"
   integrity sha512-f/wzC2QaWBs7t9IYqB4T3sR1xviIViXJRJTWBlx2Gf3g0Xi5vI7Yy4koXQ1c9OYDGHN9sBy1DQ2AB8fqZBWhUg==
 
-hotkeys-js@^3.7.6:
-  version "3.7.6"
-  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.7.6.tgz#b90ae3453a7be2f2b2bed6ee55cb96443944c77b"
-  integrity sha512-X5d16trjp79o+OaCn7syXu0cs+TkLYlK/teE5FhpD1Cj9ROcEIhfIQ7Mhrk761ynF3NQLbLn5xRojP2UuSqDAw==
+hotkeys-js@^3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/hotkeys-js/-/hotkeys-js-3.8.0.tgz#4fd57ef53e550ca32b3c3af638d77d75dbf7b387"
+  integrity sha512-VXq3t3jQXp3BOFaZpUY4ta1BbzfGxDJ19umVEoqksfBBDI0p54rqL53eJyL3rzswWm206bZPoE4/6OjtVOy+wA==
 
 html-encoding-sniffer@^2.0.1:
   version "2.0.1"
