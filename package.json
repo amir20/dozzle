@@ -57,7 +57,7 @@
   "husky": "^4.2.5",
   "jest": "^26.0.1",
   "jest-serializer-vue": "^2.0.2",
-  "lint-staged": "^10.2.2",
+  "lint-staged": "^10.2.4",
   "mini-css-extract-plugin": "^0.9.0",
   "mockdate": "^2.0.5",
   "node-fetch": "^2.6.0",
