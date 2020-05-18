@@ -30,7 +30,7 @@
   "bulma": "^0.8.2",
   "date-fns": "^2.13.0",
   "dompurify": "^2.0.11",
-  "hotkeys-js": "^3.8.0",
+  "hotkeys-js": "^3.8.1",
   "lodash.debounce": "^4.0.8",
   "semver": "^7.3.2",
   "splitpanes": "^2.2.1",
