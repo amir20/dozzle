@@ -9,6 +9,7 @@ import App from "./App.vue";
 import Container from "./pages/Container.vue";
 import Settings from "./pages/Settings.vue";
 import Index from "./pages/Index.vue";
+import Show from "./pages/Show.vue";
 
 Vue.use(VueRouter);
 Vue.use(Meta);
@@ -31,6 +32,11 @@ const routes = [
     path: "/settings",
     component: Settings,
     name: "settings",
+  },
+  {
+    path: "/show",
+    component: Show,
+    name: "show",
   },
 ];
 
