@@ -125,8 +125,12 @@ describe("<LogEventSource />", () => {
     const RealDate = Date;
     beforeAll(() => {
       global.Date = class extends RealDate {
-        constructor() {
-          return new RealDate("2019-06-12T10:55:42.459034602Z");
+        constructor(arg) {
+          if (arg) {
+            return new RealDate(arg);
+          } else {
+            return new RealDate(1560336936000);
+          }
         }
       };
     });

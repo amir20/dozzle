@@ -11,7 +11,7 @@
   "build": "yarn webpack --mode=production",
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "release-it",
-  "test": "jest",
+  "test": "TZ=UTC jest",
   "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate integration"
  },
  "repository": {
