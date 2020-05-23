@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <aside>
     <a
       role="button"
@@ -11,7 +11,7 @@
     <h1 class="title has-text-warning is-marginless">Dozzle</h1>
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
-      <li v-for="item in visibleContainers">
+      <li v-for="item in visibleContainers" :key="item.id">
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
           active-class="is-active"

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <scrollable-view :scrollable="activeContainers.length > 0">
     <template v-slot:header v-if="activeContainers.length > 0">
       <container-title :value="allContainersById[id].name"></container-title>

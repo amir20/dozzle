@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <infinite-loader :onLoadMore="loadOlderLogs" :enabled="messages.length > 100"></infinite-loader>
     <slot :messages="messages"></slot>

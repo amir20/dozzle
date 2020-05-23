@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div ref="observer" class="control" :class="{ 'is-loading': isLoading }"></div>
 </template>
 

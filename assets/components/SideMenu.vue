@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <aside>
     <div class="columns is-marginless">
       <div class="column">

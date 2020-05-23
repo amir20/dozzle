@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <section class="section">
       <div class="has-underline">

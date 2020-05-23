@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <log-event-source :id="id" v-slot="eventSource">
     <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>

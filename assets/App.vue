@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <main>
     <mobile-menu v-if="isMobile"></mobile-menu>
 

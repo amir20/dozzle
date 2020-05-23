@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key" :class="{ event: !!item.event }">
       <span class="date" v-if="settings.showTimestamp">{{ item.date | relativeTime }}</span>

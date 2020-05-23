@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="hero is-fullheight is-dark">
     <div class="hero-body">
       <div class="container has-text-centered">
