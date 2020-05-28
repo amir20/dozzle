@@ -57,7 +57,6 @@
   "jest-serializer-vue": "^2.0.2",
   "lint-staged": "^10.2.6",
   "mini-css-extract-plugin": "^0.9.0",
-  "node-fetch": "^2.6.0",
   "npm-run-all": "^4.1.5",
   "postcss-cssnext": "^3.1.0",
   "postcss-import": "^12.0.1",
