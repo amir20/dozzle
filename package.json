@@ -1,6 +1,6 @@
 {
  "name": "dozzle",
- "version": "1.26.0",
+ "version": "1.26.1",
  "description": "Realtime log viewer for docker containers. ",
  "scripts": {
   "prestart": "yarn clean",
