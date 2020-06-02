@@ -1,5 +1,5 @@
 TAG := $(shell git describe --tags)
-PLATFROMS := linux/amd64,linux/arm64,linux/arm/v7
+PLATFROMS := linux/amd64,linux/arm64/v8
 
 .PHONY: publish
 publish:
