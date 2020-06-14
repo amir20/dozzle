@@ -9,20 +9,20 @@ $menu-item-color: hsl(0, 6%, 87%);
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
 
-body {
-  font-family: "Roboto", sans-serif;
-  color: #ddd;
-  background-color: #111;
-}
-
-h1.title {
-  font-family: "Gafata", sans-serif;
-}
-
 html {
   overflow-x: unset;
   overflow-y: unset;
   scroll-snap-type: y proximity;
+  background-color: #111;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  color: #ddd;
+}
+
+h1.title {
+  font-family: "Gafata", sans-serif;
 }
 
 html.has-custom-scrollbars {
