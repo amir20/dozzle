@@ -31,6 +31,8 @@ export default {
     );
 
     intersectionObserver.observe(this.$refs.observer);
+
+    this.$once("hook:beforeDestroy", () => intersectionObserver.disconnect());
   },
 };
 </script>

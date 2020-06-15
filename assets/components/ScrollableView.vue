@@ -44,20 +44,22 @@ export default {
   },
   mounted() {
     const { content } = this.$refs;
-    new MutationObserver((e) => {
+    const mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
         this.scrollToBottom("instant");
       } else {
         this.hasMore = true;
       }
-    }).observe(content, { childList: true, subtree: true });
+    });
+    mutationObserver.observe(content, { childList: true, subtree: true });
+    this.$once("hook:beforeDestroy", () => mutationObserver.disconnect());
 
     const intersectionObserver = new IntersectionObserver(
       (entries) => (this.paused = entries[0].intersectionRatio == 0),
       { threshholds: [0, 1], rootMargin: "80px 0px" }
     );
-
     intersectionObserver.observe(this.$refs.scrollObserver);
+    this.$once("hook:beforeDestroy", () => intersectionObserver.disconnect());
   },
 
   methods: {

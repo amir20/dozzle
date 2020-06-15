@@ -19,10 +19,10 @@ describe("<LogEventSource />", () => {
     global.EventSource = EventSource;
     window.scrollTo = jest.fn();
     const observe = jest.fn();
-    const unobserve = jest.fn();
+    const disconnect = jest.fn();
     global.IntersectionObserver = jest.fn(() => ({
       observe,
-      unobserve,
+      disconnect,
     }));
     debounce.mockClear();
   });
