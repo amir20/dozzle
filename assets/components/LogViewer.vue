@@ -1,17 +1,16 @@
 <template>
   <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key" :class="{ event: !!item.event }">
-      <span class="date" v-if="settings.showTimestamp">{{ item.date | relativeTime }}</span>
+      <span class="date" v-if="settings.showTimestamp"><relative-time :date="item.date"></relative-time></span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
   </ul>
 </template>
-
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { formatRelative } from "date-fns";
 import AnsiConvertor from "ansi-to-html";
 import DOMPurify from "dompurify";
+import RelativeTime from "./RelativeTime";
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 
@@ -24,7 +23,7 @@ if (window.trustedTypes && trustedTypes.createPolicy) {
 export default {
   props: ["messages"],
   name: "LogViewer",
-  components: {},
+  components: { RelativeTime },
   data() {
     return {
       showSearch: false,
@@ -58,11 +57,6 @@ export default {
         }
       }
       return messages;
-    },
-  },
-  filters: {
-    relativeTime(date) {
-      return formatRelative(date, new Date());
     },
   },
 };
