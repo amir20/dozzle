@@ -144,7 +144,7 @@ describe("<LogEventSource />", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
         <ul class="events medium">
-          <li class=""><span class="date">today at 10:55 AM</span> <span class="text">"This is a message."</span></li>
+          <li class=""><span class="date"><time datetime="2019-06-12T10:55:42.459Z">today at 10:55 AM</time></span> <span class="text">"This is a message."</span></li>
         </ul>
       `);
     });
@@ -159,7 +159,7 @@ describe("<LogEventSource />", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
         <ul class="events medium">
-          <li class=""><span class="date">today at 10:55 AM</span> <span class="text"><span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
+          <li class=""><span class="date"><time datetime="2019-06-12T10:55:42.459Z">today at 10:55 AM</time></span> <span class="text"><span style="color:#000">black<span style="color:#AAA">white</span></span></span></li>
         </ul>
       `);
     });
@@ -174,7 +174,7 @@ describe("<LogEventSource />", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
         <ul class="events medium">
-          <li class=""><span class="date">today at 10:55 AM</span> <span class="text">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+          <li class=""><span class="date"><time datetime="2019-06-12T10:55:42.459Z">today at 10:55 AM</time></span> <span class="text">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
         </ul>
       `);
     });
@@ -192,7 +192,7 @@ describe("<LogEventSource />", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
         <ul class="events medium">
-          <li class=""><span class="date">today at 10:55 AM</span> <span class="text">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
+          <li class=""><span class="date"><time datetime="2019-06-12T10:55:42.459Z">today at 10:55 AM</time></span> <span class="text">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
         </ul>
       `);
     });
