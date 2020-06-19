@@ -4,6 +4,7 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
+      <scroll-progress></scroll-progress>
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
@@ -24,6 +25,7 @@
 
 <script>
 import Icon from "./Icon";
+import ScrollProgress from "./ScrollProgress";
 
 export default {
   props: {
@@ -34,6 +36,7 @@ export default {
   },
   components: {
     Icon,
+    ScrollProgress,
   },
   name: "ScrollableView",
   data() {
