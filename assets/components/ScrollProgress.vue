@@ -39,5 +39,6 @@ export default {
   transform: scaleX(var(--progress));
   transform-origin: left;
   transition: transform 0.3s ease;
+  will-change: transform;
 }
 </style>
