@@ -4,7 +4,7 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
-      <scroll-progress></scroll-progress>
+      <scroll-progress v-show="paused"></scroll-progress>
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
