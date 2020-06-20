@@ -5,7 +5,6 @@
 <script>
 import { mapState } from "vuex";
 import throttle from "lodash.throttle";
-import debounce from "lodash.debounce";
 
 export default {
   name: "ScrollProgress",
