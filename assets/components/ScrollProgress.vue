@@ -15,6 +15,9 @@ export default {
       parentElement: document,
     };
   },
+  created() {
+    this.onScrollThrottled = throttle(this.onScroll, 150);
+  },
   mounted() {
     this.attachEvents();
     this.$once("hook:beforeDestroy", this.detachEvents);
@@ -31,12 +34,12 @@ export default {
   methods: {
     attachEvents() {
       this.parentElement = this.$el.closest("[data-scrolling]") || document;
-      this.parentElement.addEventListener("scroll", this.onScroll);
+      this.parentElement.addEventListener("scroll", this.onScrollThrottled);
     },
     detachEvents() {
-      this.parentElement.removeEventListener("scroll", this.onScroll);
+      this.parentElement.removeEventListener("scroll", this.onScrollThrottled);
     },
-    onScroll: throttle(function () {
+    onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
       this.animation.cancel();
@@ -49,7 +52,7 @@ export default {
           easing: "ease-out",
         }
       );
-    }, 150),
+    },
   },
 };
 </script>
