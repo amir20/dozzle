@@ -71,3 +71,38 @@ html.has-custom-scrollbars {
     border-color: transparent;
   }
 }
+
+html.has-light-theme {
+  background-color: #fbf4f2;
+
+  body {
+    color: #333;
+  }
+
+  .title.is-4,
+  .title.is-6 {
+    color: #333;
+  }
+
+  .menu-list a {
+    color: #333;
+
+    &:hover {
+      background-color: #eee8e7;
+    }
+    &.is-active {
+      background-color: #d8f0ca;
+    }
+  }
+
+  span.date {
+    background-color: #f3ded8;
+    color: #00802b;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  h1.title.has-text-warning {
+    color: #ffcc00;
+  }
+}

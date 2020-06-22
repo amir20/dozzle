@@ -82,6 +82,9 @@ export default {
     if (this.hasSmallerScrollbars) {
       document.documentElement.classList.add("has-custom-scrollbars");
     }
+    if (this.hasLightTheme) {
+      document.documentElement.classList.add("has-light-theme");
+    }
     this.menuWidth = this.settings.menuWidth;
   },
   watch: {
@@ -92,12 +95,22 @@ export default {
         document.documentElement.classList.remove("has-custom-scrollbars");
       }
     },
+    hasLightTheme(newValue, oldValue) {
+      if (newValue) {
+        document.documentElement.classList.add("has-light-theme");
+      } else {
+        document.documentElement.classList.remove("has-light-theme");
+      }
+    }
   },
   computed: {
     ...mapState(["activeContainers", "isMobile", "settings"]),
     ...mapGetters(["visibleContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
+    },
+    hasLightTheme() {
+      return this.settings.lightTheme;
     },
   },
   methods: {
