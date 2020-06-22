@@ -1,5 +1,18 @@
 <template>
-  <div class="progress" :style="{ '--progress': scrollProgress }" ref="progress"></div>
+  <div class="scroll-progress">
+    <svg width="120" height="120">
+      <circle
+        stroke="white"
+        stroke-width="4"
+        fill="#000"
+        fill-opacity="0.6"
+        r="52"
+        cx="60"
+        cy="60"
+        :style="{ '--progress': scrollProgress }"
+      />
+    </svg>
+  </div>
 </template>
 
 <script>
@@ -42,33 +55,31 @@ export default {
     onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
-      this.animation.cancel();
-      this.animation = this.$refs.progress.animate(
-        { opacity: [1, 0] },
-        {
-          duration: 500,
-          delay: 2000,
-          fill: "both",
-          easing: "ease-out",
-        }
-      );
+      // this.animation.cancel();
+      // this.animation = this.$refs.progress.animate(
+      //   { opacity: [1, 0] },
+      //   {
+      //     duration: 500,
+      //     delay: 2000,
+      //     fill: "both",
+      //     easing: "ease-out",
+      //   }
+      // );
     },
   },
 };
 </script>
 <style scoped lang="scss">
-.progress {
-  background: #00d1b2;
-  background-repeat: no-repeat;
+.scroll-progress {
   position: fixed;
-  height: 4px;
-  z-index: 2;
-  left: 0;
-  right: 0;
-  top: 0;
-  transform: scaleX(var(--progress));
-  transform-origin: left;
-  transition: transform 0.3s ease;
-  will-change: transform;
+
+  circle {
+    transition: stroke-dashoffset 0.35s ease-out;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dashoffset: calc(326.7256 - var(--progress) * 326.7256);
+    stroke-dasharray: 326.7256 326.7256;
+    will-change: stroke-dashoffset;
+  }
 }
 </style>
