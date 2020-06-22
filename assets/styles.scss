@@ -73,19 +73,60 @@ html.has-custom-scrollbars {
 }
 
 html.has-light-theme {
-  background-color: #fbf4f2;
+  background-color: #F8F8F8;
 
   body {
     color: #333;
   }
 
+  h1.title {
+    text-shadow: 1px 0px #ffdd57;
+  }
+
+  .has-underline {
+    border-bottom: 1px solid #DCDCDC;
+  }
+
+  code {
+    background-color: #999;
+    color: #FFF;
+  }
+
+  .splitpanes--vertical > .splitpanes__splitter {
+    background: #DCDCDC;
+
+    &:hover {
+      background: #d8f0ca;
+    }
+  }
+
+  .menu-label {
+    color: #595959;
+  }
+
+  .button {
+    &:active,
+    &.is-active {
+      color: #ffdd57;
+    }
+  }
+
+  .is-settings-control:hover {
+    background: #7d7d68 !important;
+    border-color: #7d7d68 !important;
+  }
+
+  #hide-nav.collapsed {
+    background-color: #7d7d68;
+  }
+
   .title.is-4,
   .title.is-6 {
-    color: #333;
+    color: #555;
   }
 
   .menu-list a {
-    color: #333;
+    color: #444;
 
     &:hover {
       background-color: #eee8e7;
@@ -96,8 +137,8 @@ html.has-light-theme {
   }
 
   span.date {
-    background-color: #f3ded8;
-    color: #00802b;
+    background-color: #F0F0F0;
+    color: #009900;
     padding-left: 5px;
     padding-right: 5px;
   }
