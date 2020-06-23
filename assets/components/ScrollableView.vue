@@ -4,10 +4,14 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
+      <div class="scrollbar-progress">
+        <scroll-progress v-show="paused"></scroll-progress>
+      </div>
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
-    <div class="scroll-bar-notification">
+
+    <div class="scrollbar-notification">
       <transition name="fade">
         <button
           class="button"
@@ -24,6 +28,7 @@
 
 <script>
 import Icon from "./Icon";
+import ScrollProgress from "./ScrollProgress";
 
 export default {
   props: {
@@ -34,6 +39,7 @@ export default {
   },
   components: {
     Icon,
+    ScrollProgress,
   },
   name: "ScrollableView",
   data() {
@@ -85,7 +91,16 @@ section {
     scroll-snap-type: y proximity;
   }
 
-  .scroll-bar-notification {
+  .scrollbar-progress {
+    text-align: right;
+    margin-right: 125px;
+    .scroll-progress {
+      position: fixed;
+      top: 30px;
+    }
+  }
+
+  .scrollbar-notification {
     text-align: right;
     margin-right: 65px;
     button {

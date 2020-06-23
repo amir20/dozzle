@@ -32,6 +32,7 @@
   "dompurify": "^2.0.11",
   "hotkeys-js": "^3.8.1",
   "lodash.debounce": "^4.0.8",
+  "lodash.throttle": "^4.1.1",
   "semver": "^7.3.2",
   "splitpanes": "^2.2.1",
   "store": "^2.0.12",
