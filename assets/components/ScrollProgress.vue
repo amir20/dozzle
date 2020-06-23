@@ -1,17 +1,25 @@
 <template>
   <div class="scroll-progress">
-    <svg width="120" height="120">
+    <svg width="100" height="100" viewBox="0 0 100 100">
       <circle
-        stroke="white"
-        stroke-width="4"
+        stroke="#00d1b2"
+        stroke-width="3"
         fill="#000"
         fill-opacity="0.6"
-        r="52"
-        cx="60"
-        cy="60"
+        r="44"
+        cx="50"
+        cy="50"
         :style="{ '--progress': scrollProgress }"
       />
     </svg>
+    <div class="percent columns is-vcentered is-centered">
+      <span class="column is-narrow is-paddingless is-size-2">
+        {{ Math.ceil(scrollProgress * 100) }}
+      </span>
+      <span class="column is-narrow is-paddingless">
+        %
+      </span>
+    </div>
   </div>
 </template>
 
@@ -55,31 +63,39 @@ export default {
     onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
-      // this.animation.cancel();
-      // this.animation = this.$refs.progress.animate(
-      //   { opacity: [1, 0] },
-      //   {
-      //     duration: 500,
-      //     delay: 2000,
-      //     fill: "both",
-      //     easing: "ease-out",
-      //   }
-      // );
+      this.animation.cancel();
+      this.animation = this.$el.animate(
+        { opacity: [1, 0] },
+        {
+          duration: 500,
+          delay: 2000,
+          fill: "both",
+          easing: "ease-out",
+        }
+      );
     },
   },
 };
 </script>
 <style scoped lang="scss">
 .scroll-progress {
-  position: fixed;
-
+  display: inline-block;
+  position: relative;
   circle {
     transition: stroke-dashoffset 0.35s ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
-    stroke-dashoffset: calc(326.7256 - var(--progress) * 326.7256);
-    stroke-dasharray: 326.7256 326.7256;
+    stroke-dashoffset: calc(276.32 - var(--progress) * 276.32);
+    stroke-dasharray: 276.32 276.32;
     will-change: stroke-dashoffset;
+  }
+
+  .percent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
   }
 }
 </style>
