@@ -14,15 +14,19 @@ html {
   overflow-y: unset;
   scroll-snap-type: y proximity;
   background-color: #111;
+
+  &.has-light-theme {
+    background-color: #F8F8F8;
+  }
 }
 
 body {
   font-family: "Roboto", sans-serif;
   color: #ddd;
-}
 
-h1.title {
-  font-family: "Gafata", sans-serif;
+  html.has-light-theme & {
+    color: #333;
+  }
 }
 
 html.has-custom-scrollbars {
@@ -70,80 +74,11 @@ html.has-custom-scrollbars {
     color: unset;
     border-color: transparent;
   }
-}
 
-html.has-light-theme {
-  background-color: #F8F8F8;
-
-  body {
-    color: #333;
-  }
-
-  h1.title {
-    text-shadow: 1px 0px #ffdd57;
-  }
-
-  .has-underline {
-    border-bottom: 1px solid #DCDCDC;
-  }
-
-  code {
-    background-color: #999;
-    color: #FFF;
-  }
-
-  .splitpanes--vertical > .splitpanes__splitter {
-    background: #DCDCDC;
-
+  html.has-light-theme & {
     &:hover {
-      background: #d8f0ca;
+      background: #7d7d68 !important;
+      border-color: #7d7d68 !important;
     }
-  }
-
-  .menu-label {
-    color: #595959;
-  }
-
-  .button {
-    &:active,
-    &.is-active {
-      color: #ffdd57;
-    }
-  }
-
-  .is-settings-control:hover {
-    background: #7d7d68 !important;
-    border-color: #7d7d68 !important;
-  }
-
-  #hide-nav.collapsed {
-    background-color: #7d7d68;
-  }
-
-  .title.is-4,
-  .title.is-6 {
-    color: #555;
-  }
-
-  .menu-list a {
-    color: #444;
-
-    &:hover {
-      background-color: #eee8e7;
-    }
-    &.is-active {
-      background-color: #d8f0ca;
-    }
-  }
-
-  span.date {
-    background-color: #F0F0F0;
-    color: #009900;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  h1.title.has-text-warning {
-    color: #ffcc00;
   }
 }

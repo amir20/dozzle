@@ -154,6 +154,17 @@ a.next-release {
   border-bottom: 1px solid #fff;
   padding: 1em 0px;
   margin-bottom: 1em;
+
+  html.has-light-theme & {
+    border-bottom: 1px solid #DCDCDC;
+  }
+}
+
+html.has-light-theme .title {
+  &.is-4,
+  &.is-6 {
+    color: #555;
+  }
 }
 
 .item {
@@ -163,5 +174,10 @@ a.next-release {
 code {
   border-radius: 4px;
   background-color: #444;
+
+  html.has-light-theme & {
+    background-color: #999;
+    color: #FFF;
+  }
 }
 </style>

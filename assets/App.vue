@@ -159,6 +159,18 @@ export default {
     &:hover {
       left: -25px;
     }
+
+    html.has-light-theme & {
+      background-color: #7d7d68;
+    }
+  }
+}
+</style>
+<style lang="scss">
+html.has-light-theme .splitpanes--vertical > .splitpanes__splitter {
+  background: #DCDCDC;
+  &:hover {
+    background: #d8f0ca;
   }
 }
 </style>
