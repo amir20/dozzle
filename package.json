@@ -67,7 +67,7 @@
   "sass-loader": "^8.0.2",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.5",
-  "vue-loader": "^15.9.2",
+  "vue-loader": "^15.9.3",
   "vue-style-loader": "^4.1.2",
   "vue-template-compiler": "^2.6.11",
   "webpack": "^4.43.0",
