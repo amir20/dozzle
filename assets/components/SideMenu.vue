@@ -88,6 +88,43 @@ aside {
   }
 }
 
+h1.title {
+  font-family: "Gafata", sans-serif;
+
+  html.has-light-theme & {
+    text-shadow: 1px 0px #ffdd57;
+
+    &.has-text-warning {
+      color: #ffcc00;
+    }
+  }
+}
+
+html.has-light-theme {
+  .menu-label {
+    color: #595959;
+  }
+
+  .menu-list a {
+    color: #444;
+
+    &:hover {
+      background-color: #eee8e7;
+    }
+    &.is-active {
+      background-color: #d8f0ca;
+      border-color: #d8f0ca;
+    }
+  }
+
+  .button {
+    &:active,
+    &.is-active {
+      color: #ffdd57;
+    }
+  }
+}
+
 li.exited a {
   color: #777;
 }
@@ -102,4 +139,6 @@ li.exited a {
     visibility: hidden;
   }
 }
+
+
 </style>

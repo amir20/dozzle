@@ -14,15 +14,19 @@ html {
   overflow-y: unset;
   scroll-snap-type: y proximity;
   background-color: #111;
+
+  &.has-light-theme {
+    background-color: #F8F8F8;
+  }
 }
 
 body {
   font-family: "Roboto", sans-serif;
   color: #ddd;
-}
 
-h1.title {
-  font-family: "Gafata", sans-serif;
+  html.has-light-theme & {
+    color: #333;
+  }
 }
 
 html.has-custom-scrollbars {
@@ -69,5 +73,12 @@ html.has-custom-scrollbars {
     box-shadow: none !important;
     color: unset;
     border-color: transparent;
+  }
+
+  html.has-light-theme & {
+    &:hover {
+      background: #7d7d68 !important;
+      border-color: #7d7d68 !important;
+    }
   }
 }

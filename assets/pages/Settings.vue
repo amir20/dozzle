@@ -46,6 +46,12 @@
       </div>
 
       <div class="item">
+        <b-switch v-model="lightTheme">
+          Use light theme
+        </b-switch>
+      </div>
+
+      <div class="item">
         <h2 class="title is-6 is-marginless">Font size</h2>
         Modify the font size when viewing logs.
 
@@ -112,7 +118,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers"].reduce((map, name) => {
+    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme"].reduce((map, name) => {
       map[name] = {
         get() {
           return this.settings[name];
@@ -148,6 +154,17 @@ a.next-release {
   border-bottom: 1px solid #fff;
   padding: 1em 0px;
   margin-bottom: 1em;
+
+  html.has-light-theme & {
+    border-bottom: 1px solid #DCDCDC;
+  }
+}
+
+html.has-light-theme .title {
+  &.is-4,
+  &.is-6 {
+    color: #555;
+  }
 }
 
 .item {
@@ -157,5 +174,10 @@ a.next-release {
 code {
   border-radius: 4px;
   background-color: #444;
+
+  html.has-light-theme & {
+    background-color: #999;
+    color: #FFF;
+  }
 }
 </style>

@@ -18,5 +18,13 @@ export default {
 .hero.is-dark {
   color: #ddd;
   background-color: #111;
+
+  html.has-light-theme & {
+    background-color: #F8F8F8;
+
+    .title {
+      color: #555;
+    }
+  }
 }
 </style>

@@ -6,4 +6,5 @@ export const DEFAULT_SETTINGS = {
   smallerScrollbars: false,
   showTimestamp: true,
   showAllContainers: false,
+  lightTheme: false
 };

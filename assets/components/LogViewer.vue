@@ -91,6 +91,13 @@ export default {
 .date {
   background-color: #262626;
   color: #258ccd;
+
+  html.has-light-theme & {
+    background-color: #F0F0F0;
+    color: #009900;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
 }
 
 .text {
