@@ -4,13 +4,13 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
-      <scroll-progress v-show="paused"></scroll-progress>
+      <div class="scrollbar-progress">
+        <scroll-progress v-show="paused"></scroll-progress>
+      </div>
       <slot></slot>
       <div ref="scrollObserver"></div>
     </main>
-    <div class="scrollbar-progress">
-      <scroll-progress v-show="paused"></scroll-progress>
-    </div>
+
     <div class="scrollbar-notification">
       <transition name="fade">
         <button
