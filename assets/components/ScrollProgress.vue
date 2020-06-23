@@ -1,16 +1,7 @@
 <template>
   <div class="scroll-progress">
     <svg width="100" height="100" viewBox="0 0 100 100">
-      <circle
-        stroke="#00d1b2"
-        stroke-width="3"
-        fill="#000"
-        fill-opacity="0.6"
-        r="44"
-        cx="50"
-        cy="50"
-        :style="{ '--progress': scrollProgress }"
-      />
+      <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
     </svg>
     <div class="percent columns is-vcentered is-centered">
       <span class="column is-narrow is-paddingless is-size-2">
@@ -82,12 +73,19 @@ export default {
   display: inline-block;
   position: relative;
   circle {
+    fill: #000;
+    fill-opacity: 0.6;
     transition: stroke-dashoffset 0.35s ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
+    stroke: #00d1b2;
     stroke-dashoffset: calc(276.32 - var(--progress) * 276.32);
     stroke-dasharray: 276.32 276.32;
+    stroke-width: 3;
     will-change: stroke-dashoffset;
+    html.has-light-theme & {
+      fill-opacity: 0.1;
+    }
   }
 
   .percent {
@@ -96,6 +94,10 @@ export default {
     top: 0;
     right: 0;
     bottom: 0;
+
+    html.has-light-theme & {
+      color: #333;
+    }
   }
 }
 </style>
