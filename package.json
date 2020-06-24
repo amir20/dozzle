@@ -47,7 +47,7 @@
   "@vue/component-compiler-utils": "^3.1.2",
   "@vue/test-utils": "^1.0.3",
   "babel-core": "^7.0.0-bridge.0",
-  "babel-jest": "^26.0.1",
+  "babel-jest": "^26.1.0",
   "babel-preset-env": "^1.7.0",
   "caniuse-lite": "^1.0.30001087",
   "css-loader": "^3.6.0",
