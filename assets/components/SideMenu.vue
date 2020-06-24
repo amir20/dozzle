@@ -4,7 +4,7 @@
       <div class="column">
         <h1 class="title has-text-warning is-marginless">Dozzle</h1>
       </div>
-      <div class="column is-narrow has-text-right is-hidden-mobile">
+      <div class="column is-narrow has-text-right x">
         <router-link
           :to="{ name: 'settings' }"
           active-class="is-active"
@@ -139,6 +139,4 @@ li.exited a {
     visibility: hidden;
   }
 }
-
-
 </style>

@@ -4,7 +4,7 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
-      <div class="scrollbar-progress">
+      <div class="scrollbar-progress is-hidden-mobile">
         <scroll-progress v-show="paused"></scroll-progress>
       </div>
       <slot></slot>
@@ -97,6 +97,7 @@ section {
     .scroll-progress {
       position: fixed;
       top: 30px;
+      z-index: 2;
     }
   }
 
