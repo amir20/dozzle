@@ -79,8 +79,8 @@ export default {
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke: #00d1b2;
-    stroke-dashoffset: calc(276.32 - var(--progress) * 276.32);
-    stroke-dasharray: 276.32 276.32;
+    stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
+    stroke-dasharray: 276.32px 276.32px;
     stroke-width: 3;
     will-change: stroke-dashoffset;
     html.has-light-theme & {
