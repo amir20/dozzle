@@ -14,21 +14,23 @@ $menu-item-hover-background-color: var(--menu-item-hover-background-color);
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
 
-html {
-  --body-background-color: #111;
-  --body-color: #ddd;
+@import "~bulma/sass/utilities/initial-variables.sass";
 
-  --menu-item-active-background-color: hsl(171, 100%, 41%);
+html {
+  --body-background-color: #{$black-bis};
+  --body-color: #{$grey-lighter};
+
+  --menu-item-active-background-color: #{$turquoise};
   --menu-item-color: hsl(0, 6%, 87%);
-  --menu-item-hover-background-color: hsl(0, 0%, 96%);
+  --menu-item-hover-background-color: #{$white-ter};
 }
 
-html[data-theme="light"] {
-  --body-background-color: #f8f8f8;
-  --body-color: #333;
-  
+[data-theme="light"] {
+  --body-background-color: #{$white-bis};
+  --body-color: #{$grey-darker};
+
   --menu-item-active-background-color: #d8f0ca;
-  --menu-item-color: #444;
+  --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
 }
 
