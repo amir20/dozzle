@@ -1,7 +1,12 @@
 @charset "utf-8";
 
-$menu-item-active-background-color: hsl(171, 100%, 41%);
-$menu-item-color: hsl(0, 6%, 87%);
+$body-family: "Roboto", sans-serif;
+$body-background-color: var(--body-background-color);
+$body-color: var(--body-color);
+
+$menu-item-active-background-color: var(--menu-item-active-background-color);
+$menu-item-color: var(--menu-item-color);
+$menu-item-hover-background-color: var(--menu-item-hover-background-color);
 
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
@@ -10,23 +15,27 @@ $menu-item-color: hsl(0, 6%, 87%);
 @import "~buefy/src/scss/components/_switch";
 
 html {
+  --body-background-color: #111;
+  --body-color: #ddd;
+
+  --menu-item-active-background-color: hsl(171, 100%, 41%);
+  --menu-item-color: hsl(0, 6%, 87%);
+  --menu-item-hover-background-color: hsl(0, 0%, 96%);
+}
+
+html[data-theme="light"] {
+  --body-background-color: #f8f8f8;
+  --body-color: #333;
+  
+  --menu-item-active-background-color: #d8f0ca;
+  --menu-item-color: #444;
+  --menu-item-hover-background-color: #eee8e7;
+}
+
+html {
   overflow-x: unset;
   overflow-y: unset;
   scroll-snap-type: y proximity;
-  background-color: #111;
-
-  &.has-light-theme {
-    background-color: #F8F8F8;
-  }
-}
-
-body {
-  font-family: "Roboto", sans-serif;
-  color: #ddd;
-
-  html.has-light-theme & {
-    color: #333;
-  }
 }
 
 html.has-custom-scrollbars {

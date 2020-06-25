@@ -105,18 +105,6 @@ html.has-light-theme {
     color: #595959;
   }
 
-  .menu-list a {
-    color: #444;
-
-    &:hover {
-      background-color: #eee8e7;
-    }
-    &.is-active {
-      background-color: #d8f0ca;
-      border-color: #d8f0ca;
-    }
-  }
-
   .button {
     &:active,
     &.is-active {

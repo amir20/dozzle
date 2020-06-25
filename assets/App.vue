@@ -83,7 +83,7 @@ export default {
       document.documentElement.classList.add("has-custom-scrollbars");
     }
     if (this.hasLightTheme) {
-      document.documentElement.classList.add("has-light-theme");
+      document.documentElement.setAttribute("data-theme", "light");
     }
     this.menuWidth = this.settings.menuWidth;
   },
@@ -97,11 +97,11 @@ export default {
     },
     hasLightTheme(newValue, oldValue) {
       if (newValue) {
-        document.documentElement.classList.add("has-light-theme");
+        document.documentElement.setAttribute("data-theme", "light");
       } else {
-        document.documentElement.classList.remove("has-light-theme");
+        document.documentElement.removeAttribute("data-theme");
       }
-    }
+    },
   },
   computed: {
     ...mapState(["activeContainers", "isMobile", "settings"]),
@@ -168,7 +168,7 @@ export default {
 </style>
 <style lang="scss">
 html.has-light-theme .splitpanes--vertical > .splitpanes__splitter {
-  background: #DCDCDC;
+  background: #dcdcdc;
   &:hover {
     background: #d8f0ca;
   }
