@@ -93,10 +93,10 @@ section {
 
   .scrollbar-progress {
     text-align: right;
-    margin-right: 125px;
+    margin-right: 110px;
     .scroll-progress {
       position: fixed;
-      top: 30px;
+      top: 60px;
       z-index: 2;
     }
   }

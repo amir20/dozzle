@@ -1,8 +1,16 @@
 @charset "utf-8";
+@import "~bulma/sass/utilities/initial-variables.sass";
 
 $body-family: "Roboto", sans-serif;
 $body-background-color: var(--body-background-color);
 $body-color: var(--body-color);
+
+$scheme-main: var(--scheme-main);
+$scheme-main-bis: var(--scheme-main-bis);
+$scheme-main-ter: var(--scheme-main-ter);
+
+$border            : var(--border-color);
+$border-hover      : var(--border-hover-color);
 
 $menu-item-active-background-color: var(--menu-item-active-background-color);
 $menu-item-color: var(--menu-item-color);
@@ -16,13 +24,21 @@ $title-color: var(--title-color);
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
 
-@import "~bulma/sass/utilities/initial-variables.sass";
-
 html {
+  --scheme-main: #{$black};
+  --scheme-main-bis: #{$black-bis};
+  --scheme-main-ter: #{$black-ter};
+
+  --border-color: #{$grey-darker};
+  --border-hover-color: var(--secondary-color);
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #{$yellow};
+
   --body-background-color: #{$black-bis};
   --body-color: #{$grey-lighter};
 
-  --menu-item-active-background-color: #{$turquoise};
+  --menu-item-active-background-color: var(--primary-color);
   --menu-item-color: hsl(0, 6%, 87%);
   --menu-item-hover-background-color: #{$white-ter};
 
@@ -30,10 +46,19 @@ html {
 }
 
 [data-theme="light"] {
+  --scheme-main: #{$white};
+  --scheme-main-bis: #{$white-bis};
+  --scheme-main-ter: #{$white-ter};
+
+  --border-color: #{$grey-lighter};
+  --border-hover-color: var(--secondary-color);
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #d8f0ca;
+
   --body-background-color: #{$white-bis};
   --body-color: #{$grey-darker};
 
-  --menu-item-active-background-color: #d8f0ca;
   --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
 

@@ -118,23 +118,26 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme"].reduce((map, name) => {
-      map[name] = {
-        get() {
-          return this.settings[name];
-        },
-        set(value) {
-          this.updateSetting({ [name]: value });
-        },
-      };
-      return map;
-    }, {}),
+    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme"].reduce(
+      (map, name) => {
+        map[name] = {
+          get() {
+            return this.settings[name];
+          },
+          set(value) {
+            this.updateSetting({ [name]: value });
+          },
+        };
+        return map;
+      },
+      {}
+    ),
   },
 };
 </script>
 <style lang="scss" scoped>
 .title {
-  color: #eee;
+  color: var(--title-color);
 }
 
 a.next-release {
@@ -151,20 +154,9 @@ a.next-release {
 }
 
 .has-underline {
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px solid var(--title-color);
   padding: 1em 0px;
   margin-bottom: 1em;
-
-  html.has-light-theme & {
-    border-bottom: 1px solid #DCDCDC;
-  }
-}
-
-html.has-light-theme .title {
-  &.is-4,
-  &.is-6 {
-    color: #555;
-  }
 }
 
 .item {
@@ -174,10 +166,5 @@ html.has-light-theme .title {
 code {
   border-radius: 4px;
   background-color: #444;
-
-  html.has-light-theme & {
-    background-color: #999;
-    color: #FFF;
-  }
 }
 </style>

@@ -132,9 +132,9 @@ export default {
 <style scoped lang="scss">
 ::v-deep .splitpanes--vertical > .splitpanes__splitter {
   min-width: 3px;
-  background: #666;
+  background: var(--border-color);
   &:hover {
-    background: rgb(255, 221, 87);
+    background: var(--border-hover-color);
   }
 }
 
@@ -163,14 +163,6 @@ export default {
     html.has-light-theme & {
       background-color: #7d7d68;
     }
-  }
-}
-</style>
-<style lang="scss">
-html.has-light-theme .splitpanes--vertical > .splitpanes__splitter {
-  background: #dcdcdc;
-  &:hover {
-    background: #d8f0ca;
   }
 }
 </style>
