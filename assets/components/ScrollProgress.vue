@@ -75,7 +75,7 @@ export default {
   circle {
     fill: #000;
     fill-opacity: 0.6;
-    transition: stroke-dashoffset 0.35s ease-out;
+    transition: stroke-dashoffset 250ms ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke: #00d1b2;

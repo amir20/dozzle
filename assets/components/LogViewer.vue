@@ -93,7 +93,7 @@ export default {
   color: #258ccd;
 
   html.has-light-theme & {
-    background-color: #F0F0F0;
+    background-color: #f0f0f0;
     color: #009900;
     padding-left: 5px;
     padding-right: 5px;

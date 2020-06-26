@@ -8,6 +8,8 @@ $menu-item-active-background-color: var(--menu-item-active-background-color);
 $menu-item-color: var(--menu-item-color);
 $menu-item-hover-background-color: var(--menu-item-hover-background-color);
 
+$title-color: var(--title-color);
+
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
 @import "~buefy/src/scss/utils/_all";
@@ -23,6 +25,8 @@ html {
   --menu-item-active-background-color: #{$turquoise};
   --menu-item-color: hsl(0, 6%, 87%);
   --menu-item-hover-background-color: #{$white-ter};
+
+  --title-color: #{$grey-lightest};
 }
 
 [data-theme="light"] {
@@ -32,6 +36,8 @@ html {
   --menu-item-active-background-color: #d8f0ca;
   --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
+
+  --title-color: #{$grey-dark};
 }
 
 html {
