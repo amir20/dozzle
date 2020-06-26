@@ -9,8 +9,8 @@ $scheme-main: var(--scheme-main);
 $scheme-main-bis: var(--scheme-main-bis);
 $scheme-main-ter: var(--scheme-main-ter);
 
-$border            : var(--border-color);
-$border-hover      : var(--border-hover-color);
+$border: var(--border-color);
+$border-hover: var(--border-hover-color);
 
 $menu-item-active-background-color: var(--menu-item-active-background-color);
 $menu-item-color: var(--menu-item-color);
@@ -115,12 +115,5 @@ html.has-custom-scrollbars {
     box-shadow: none !important;
     color: unset;
     border-color: transparent;
-  }
-
-  html.has-light-theme & {
-    &:hover {
-      background: #7d7d68 !important;
-      border-color: #7d7d68 !important;
-    }
   }
 }

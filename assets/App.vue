@@ -159,10 +159,6 @@ export default {
     &:hover {
       left: -25px;
     }
-
-    html.has-light-theme & {
-      background-color: #7d7d68;
-    }
   }
 }
 </style>

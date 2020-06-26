@@ -92,7 +92,7 @@ export default {
   background-color: #262626;
   color: #258ccd;
 
-  html.has-light-theme & {
+  [data-theme="light"] & {
     background-color: #f0f0f0;
     color: #009900;
     padding-left: 5px;
@@ -110,8 +110,8 @@ li.event {
 
 ::v-deep mark {
   border-radius: 2px;
-  background-color: #ffdd57;
-  animation: pops 0.2s ease-out;
+  background-color: var(--secondary-color);
+  animation: pops 200ms ease-out;
   display: inline-block;
 }
 
