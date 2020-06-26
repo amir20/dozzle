@@ -2,7 +2,7 @@
   <aside>
     <a
       role="button"
-      class="navbar-burger burger is-white is-hidden-tablet is-pulled-right"
+      class="navbar-burger burger is-hidden-tablet is-pulled-right"
       @click="showNav = !showNav"
       :class="{ 'is-active': showNav }"
     >
@@ -54,7 +54,7 @@ aside {
   top: 0;
   left: 0;
   right: 0;
-  background: #222;
+  background: var(--scheme-main-ter);
   z-index: 2;
   max-height: 100vh;
   overflow: auto;
@@ -68,8 +68,12 @@ aside {
     overflow: hidden;
   }
 
-  .burger.is-white {
-    color: #fff;
+  .title {
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
+  }
+
+  .burger {
+    color: var(--body-color);
   }
 
   .is-hidden-mobile.is-active {

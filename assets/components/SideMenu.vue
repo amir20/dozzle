@@ -79,10 +79,6 @@ aside {
     overflow: hidden;
   }
 
-  .burger.is-white {
-    color: #fff;
-  }
-
   .is-hidden-mobile.is-active {
     display: block !important;
   }
