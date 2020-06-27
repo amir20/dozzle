@@ -81,12 +81,20 @@ export default {
   border-radius: 0 0 0 5px;
   z-index: 10;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-.delete {
-  margin-left: 1em;
-}
 
-.icon {
-  padding: 10px 3px;
+  .delete {
+    margin-left: 1em;
+  }
+
+  .icon {
+    padding: 10px 3px;
+  }
+
+  .input {
+    color: var(--body-color);
+    &::placeholder {
+      color: var(--border-color);
+    }
+  }
 }
 </style>
