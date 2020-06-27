@@ -79,10 +79,6 @@ aside {
     overflow: hidden;
   }
 
-  .burger.is-white {
-    color: #fff;
-  }
-
   .is-hidden-mobile.is-active {
     display: block !important;
   }
@@ -90,39 +86,7 @@ aside {
 
 h1.title {
   font-family: "Gafata", sans-serif;
-
-  html.has-light-theme & {
-    text-shadow: 1px 0px #ffdd57;
-
-    &.has-text-warning {
-      color: #ffcc00;
-    }
-  }
-}
-
-html.has-light-theme {
-  .menu-label {
-    color: #595959;
-  }
-
-  .menu-list a {
-    color: #444;
-
-    &:hover {
-      background-color: #eee8e7;
-    }
-    &.is-active {
-      background-color: #d8f0ca;
-      border-color: #d8f0ca;
-    }
-  }
-
-  .button {
-    &:active,
-    &.is-active {
-      color: #ffdd57;
-    }
-  }
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 li.exited a {
@@ -133,7 +97,7 @@ li.exited a {
   transition: transform 0.2s ease-out;
   &.is-active {
     pointer-events: none;
-    color: #00d1b2;
+    color: var(--primary-color);
   }
   .router-link-exact-active & {
     visibility: hidden;

@@ -83,7 +83,7 @@ export default {
       document.documentElement.classList.add("has-custom-scrollbars");
     }
     if (this.hasLightTheme) {
-      document.documentElement.classList.add("has-light-theme");
+      document.documentElement.setAttribute("data-theme", "light");
     }
     this.menuWidth = this.settings.menuWidth;
   },
@@ -97,11 +97,11 @@ export default {
     },
     hasLightTheme(newValue, oldValue) {
       if (newValue) {
-        document.documentElement.classList.add("has-light-theme");
+        document.documentElement.setAttribute("data-theme", "light");
       } else {
-        document.documentElement.classList.remove("has-light-theme");
+        document.documentElement.removeAttribute("data-theme");
       }
-    }
+    },
   },
   computed: {
     ...mapState(["activeContainers", "isMobile", "settings"]),
@@ -132,9 +132,9 @@ export default {
 <style scoped lang="scss">
 ::v-deep .splitpanes--vertical > .splitpanes__splitter {
   min-width: 3px;
-  background: #666;
+  background: var(--border-color);
   &:hover {
-    background: rgb(255, 221, 87);
+    background: var(--border-hover-color);
   }
 }
 
@@ -159,18 +159,6 @@ export default {
     &:hover {
       left: -25px;
     }
-
-    html.has-light-theme & {
-      background-color: #7d7d68;
-    }
-  }
-}
-</style>
-<style lang="scss">
-html.has-light-theme .splitpanes--vertical > .splitpanes__splitter {
-  background: #DCDCDC;
-  &:hover {
-    background: #d8f0ca;
   }
 }
 </style>

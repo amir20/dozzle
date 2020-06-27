@@ -13,12 +13,7 @@
 
     <div class="scrollbar-notification">
       <transition name="fade">
-        <button
-          class="button"
-          :class="hasMore ? 'is-warning' : 'is-primary'"
-          @click="scrollToBottom('instant')"
-          v-show="paused"
-        >
+        <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
           <icon name="download"></icon>
         </button>
       </transition>
@@ -93,10 +88,10 @@ section {
 
   .scrollbar-progress {
     text-align: right;
-    margin-right: 125px;
+    margin-right: 110px;
     .scroll-progress {
       position: fixed;
-      top: 30px;
+      top: 60px;
       z-index: 2;
     }
   }
@@ -107,6 +102,34 @@ section {
     button {
       position: fixed;
       bottom: 30px;
+      background-color: var(--secondary-color);
+      transition: background-color 1s ease-out;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      border: none !important;
+
+      &.has-more {
+        background-color: var(--primary-color);
+        animation-name: bounce;
+        animation-duration: 1000ms;
+        animation-fill-mode: both;
+        color: #fff;
+      }
+    }
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-30px);
+    }
+    60% {
+      transform: translateY(-15px);
     }
   }
 

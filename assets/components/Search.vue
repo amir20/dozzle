@@ -75,17 +75,26 @@ export default {
   width: 350px;
   position: fixed;
   padding: 10px;
-  background: rgba(50, 50, 50, 0.9);
+  background: var(--scheme-main-ter);
   top: 0;
   right: 0;
   border-radius: 0 0 0 5px;
   z-index: 10;
-}
-.delete {
-  margin-left: 1em;
-}
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
-.icon {
-  padding: 10px 3px;
+  .delete {
+    margin-left: 1em;
+  }
+
+  .icon {
+    padding: 10px 3px;
+  }
+
+  .input {
+    color: var(--body-color);
+    &::placeholder {
+      color: var(--border-color);
+    }
+  }
 }
 </style>

@@ -1,7 +1,22 @@
 @charset "utf-8";
+@import "~bulma/sass/utilities/initial-variables.sass";
 
-$menu-item-active-background-color: hsl(171, 100%, 41%);
-$menu-item-color: hsl(0, 6%, 87%);
+$body-family: "Roboto", sans-serif;
+$body-background-color: var(--body-background-color);
+$body-color: var(--body-color);
+
+$scheme-main: var(--scheme-main);
+$scheme-main-bis: var(--scheme-main-bis);
+$scheme-main-ter: var(--scheme-main-ter);
+
+$border: var(--border-color);
+$border-hover: var(--border-hover-color);
+
+$menu-item-active-background-color: var(--menu-item-active-background-color);
+$menu-item-color: var(--menu-item-color);
+$menu-item-hover-background-color: var(--menu-item-hover-background-color);
+
+$title-color: var(--title-color);
 
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
@@ -10,23 +25,50 @@ $menu-item-color: hsl(0, 6%, 87%);
 @import "~buefy/src/scss/components/_switch";
 
 html {
+  --scheme-main: #{$black};
+  --scheme-main-bis: #{$black-bis};
+  --scheme-main-ter: #{$black-ter};
+
+  --border-color: #{$grey-darker};
+  --border-hover-color: var(--secondary-color);
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #{$yellow};
+
+  --body-background-color: #{$black-bis};
+  --body-color: #{$grey-lighter};
+
+  --menu-item-active-background-color: var(--primary-color);
+  --menu-item-color: hsl(0, 6%, 87%);
+  --menu-item-hover-background-color: #{$white-ter};
+
+  --title-color: #{$grey-lightest};
+}
+
+[data-theme="light"] {
+  --scheme-main: #{$white};
+  --scheme-main-bis: #{$white-bis};
+  --scheme-main-ter: #{$white-ter};
+
+  --border-color: #{$grey-lighter};
+  --border-hover-color: var(--secondary-color);
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #d8f0ca;
+
+  --body-background-color: #{$white-bis};
+  --body-color: #{$grey-darker};
+
+  --menu-item-color: #{$grey-dark};
+  --menu-item-hover-background-color: #eee8e7;
+
+  --title-color: #{$grey-dark};
+}
+
+html {
   overflow-x: unset;
   overflow-y: unset;
   scroll-snap-type: y proximity;
-  background-color: #111;
-
-  &.has-light-theme {
-    background-color: #F8F8F8;
-  }
-}
-
-body {
-  font-family: "Roboto", sans-serif;
-  color: #ddd;
-
-  html.has-light-theme & {
-    color: #333;
-  }
 }
 
 html.has-custom-scrollbars {
@@ -73,12 +115,5 @@ html.has-custom-scrollbars {
     box-shadow: none !important;
     color: unset;
     border-color: transparent;
-  }
-
-  html.has-light-theme & {
-    &:hover {
-      background: #7d7d68 !important;
-      border-color: #7d7d68 !important;
-    }
   }
 }
