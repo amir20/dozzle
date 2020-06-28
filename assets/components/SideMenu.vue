@@ -1,8 +1,10 @@
 <template>
   <aside>
     <div class="columns is-marginless">
-      <div class="column">
-        <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+      <div class="column is-paddingless">
+        <svg class="logo">
+          <use href="#logo"></use>
+        </svg>
       </div>
       <div class="column is-narrow has-text-right x">
         <router-link
@@ -84,13 +86,15 @@ aside {
   }
 }
 
-h1.title {
-  font-family: "Gafata", sans-serif;
-  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
-}
-
 li.exited a {
   color: #777;
+}
+
+.logo {
+  width: 122px;
+  height: 54px;
+  fill: #ffdd57;
+  filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0.8));
 }
 
 .will-append-container.icon {

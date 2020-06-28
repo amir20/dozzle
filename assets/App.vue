@@ -8,7 +8,7 @@
       </pane>
       <pane min-size="10">
         <splitpanes>
-          <pane class="has-min-height">
+          <pane class="has-min-height router-view">
             <search></search>
             <router-view></router-view>
           </pane>
@@ -135,6 +135,12 @@ export default {
   background: var(--border-color);
   &:hover {
     background: var(--border-hover-color);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .router-view {
+    padding-top: 75px;
   }
 }
 
