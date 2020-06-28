@@ -8,7 +8,9 @@
     >
       <span></span> <span></span> <span></span>
     </a>
-    <h1 class="title has-text-warning is-marginless">Dozzle</h1>
+    <svg class="logo">
+      <use href="#logo"></use>
+    </svg>
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">
@@ -82,6 +84,13 @@ aside {
 
   .navbar-burger {
     height: 2.35rem;
+  }
+
+  .logo {
+    width: 82px;
+    height: 36px;
+    fill: #ffdd57;
+    filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0.8));
   }
 }
 </style>
