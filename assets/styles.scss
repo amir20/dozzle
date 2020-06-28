@@ -31,6 +31,7 @@ html {
 
   --border-color: #{$grey-darker};
   --border-hover-color: var(--secondary-color);
+  --logo-color: var(--secondary-color);
 
   --primary-color: #{$turquoise};
   --secondary-color: #{$yellow};
@@ -52,6 +53,7 @@ html {
 
   --border-color: #{$grey-lighter};
   --border-hover-color: var(--secondary-color);
+  --logo-color: var(--body-color);
 
   --primary-color: #{$turquoise};
   --secondary-color: #d8f0ca;
@@ -106,7 +108,7 @@ html.has-custom-scrollbars {
   color: #fff;
   border-color: transparent;
   &:hover {
-    border-color: rgb(255, 221, 87) !important;
+    border-color: var(--border-hover-color) !important;
     background: rgba(0, 0, 0, 0.8) !important;
     color: #fff !important;
   }

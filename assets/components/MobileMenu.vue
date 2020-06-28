@@ -89,8 +89,7 @@ aside {
   .logo {
     width: 82px;
     height: 36px;
-    fill: #ffdd57;
-    filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0.8));
+    fill: var(--logo-color);
   }
 }
 </style>
