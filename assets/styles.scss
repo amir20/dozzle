@@ -53,7 +53,7 @@ html {
 
   --border-color: #{$grey-lighter};
   --border-hover-color: var(--secondary-color);
-  --logo-color: var(--body-color);
+  --logo-color: #{$grey-darker};
 
   --primary-color: #{$turquoise};
   --secondary-color: #d8f0ca;
