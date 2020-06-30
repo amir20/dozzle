@@ -4,14 +4,14 @@
       <slot name="header"></slot>
     </header>
     <main ref="content" :data-scrolling="scrollable">
-      <div class="scrollbar-progress is-hidden-mobile">
+      <div class="is-scrollbar-progress is-hidden-mobile">
         <scroll-progress v-show="paused"></scroll-progress>
       </div>
       <slot></slot>
-      <div ref="scrollObserver"></div>
+      <div ref="scrollObserver" class="is-scroll-observer"></div>
     </main>
 
-    <div class="scrollbar-notification">
+    <div class="is-scrollbar-notification">
       <transition name="fade">
         <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
           <icon name="download"></icon>
@@ -47,6 +47,7 @@ export default {
     const { content } = this.$refs;
     const mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
+        console.log("not paused and scrolling");
         this.scrollToBottom("instant");
       } else {
         this.hasMore = true;
@@ -86,7 +87,7 @@ section {
     scroll-snap-type: y proximity;
   }
 
-  .scrollbar-progress {
+  .is-scrollbar-progress {
     text-align: right;
     margin-right: 110px;
     .scroll-progress {
@@ -96,7 +97,11 @@ section {
     }
   }
 
-  .scrollbar-notification {
+  .is-scroll-observer {
+    height: 1px;
+  }
+
+  .is-scrollbar-notification {
     text-align: right;
     margin-right: 65px;
     button {
