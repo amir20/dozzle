@@ -26,5 +26,18 @@ export default {
   background: rgba(0, 0, 0, 0.1);
   font-weight: bold;
   font-family: monospace;
+
+  button.delete {
+    background-color: var(--scheme-main-ter);
+    opacity: 0.6;
+    &:after,
+    &:before {
+      background-color: var(--body-color);
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 </style>
