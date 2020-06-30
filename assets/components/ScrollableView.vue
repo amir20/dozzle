@@ -79,6 +79,7 @@ section {
 
   &.is-full-height-scrollable {
     height: 100vh;
+    min-height: 0;
   }
 
   main {
