@@ -47,7 +47,6 @@ export default {
     const { content } = this.$refs;
     const mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
-        console.log("not paused and scrolling");
         this.scrollToBottom("instant");
       } else {
         this.hasMore = true;
