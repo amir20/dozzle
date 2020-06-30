@@ -43,7 +43,7 @@
  },
  "devDependencies": {
   "@babel/core": "^7.10.4",
-  "@babel/plugin-transform-runtime": "^7.10.3",
+  "@babel/plugin-transform-runtime": "^7.10.4",
   "@vue/component-compiler-utils": "^3.1.2",
   "@vue/test-utils": "^1.0.3",
   "babel-core": "^7.0.0-bridge.0",
