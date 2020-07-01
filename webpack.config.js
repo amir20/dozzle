@@ -10,12 +10,12 @@ module.exports = (env, argv) => ({
     maxAssetSize: 350000,
     maxEntrypointSize: 600000,
   },
-  devtool: argv.mode === "development" ? "inline-cheap-source-map" : false,
+  devtool: argv.mode !== "production" ? "inline-cheap-source-map" : false,
   entry: ["./assets/main.js", "./assets/styles.scss"],
   output: {
     path: path.resolve(__dirname, "./static"),
     filename: "[name].js",
-    publicPath: "{{ .Base }}",
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -26,19 +26,18 @@ module.exports = (env, argv) => ({
       {
         test: /\.(sass|scss|css)$/,
         use: [
-          MiniCssExtractPlugin.loader,
           {
-            loader: "css-loader",
-            query: {
-              importLoaders: 1,
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              hmr: argv.mode !== "production",
             },
           },
+          "css-loader",
           {
             loader: "postcss-loader",
             options: {
               ident: "postcss",
               plugins: (loader) => [
-                require("postcss-import")(),
                 require("postcss-cssnext")({
                   features: {
                     customProperties: { warnings: false },
@@ -74,5 +73,16 @@ module.exports = (env, argv) => ({
       vue$: "vue/dist/vue.runtime.esm.js",
     },
     extensions: ["*", ".js", ".vue", ".json"],
+  },
+  devServer: {
+    port: 8081,
+    inline: true,
+    hot: true,
+    historyApiFallback: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+      },
+    },
   },
 });
