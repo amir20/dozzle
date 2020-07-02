@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const iPhoneX = puppeteer.devices["iPhone X"];
 const iPadLandscape = puppeteer.devices["iPad landscape"];
 
-const { BASE } = process.env;
+const { DEFAULT_BASE: BASE } = process.env;
 
 describe("home page", () => {
   beforeEach(async () => {

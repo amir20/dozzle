@@ -1,5 +1,14 @@
 version: "3.4"
 services:
+  custom_base:
+    container_name: custom_base
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOZZLE_FILTER=name=custom_base
+      - DOZZLE_BASE=/foobarbase
+    build:
+      context: ..
   dozzle:
     container_name: dozzle
     volumes:
@@ -13,6 +22,8 @@ services:
       context: .
     command: yarn test
     environment:
-      - BASE=http://dozzle:8080/
+      - DEFAULT_BASE=http://dozzle:8080/
+      - CUSTOM_BASE=http://custom_base:8080/
     depends_on:
       - dozzle
+      - custom_base
