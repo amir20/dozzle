@@ -4,9 +4,11 @@
  "description": "Realtime log viewer for docker containers. ",
  "scripts": {
   "prestart": "yarn clean",
-  "start": "npm-run-all -p watch:*",
+  "watch": "npm-run-all -p watch:*",
   "watch:assets": "webpack --mode=development --watch",
   "watch:server": "reflex -c .reflex",
+  "dev": "npm-run-all -p dev-server watch:server",
+  "dev-server": "webpack-dev-server --open",
   "prebuild": "yarn clean",
   "build": "yarn webpack --mode=production",
   "clean": "rm -rf static/ a_main-packr.go",
@@ -73,6 +75,7 @@
   "vue-template-compiler": "^2.6.11",
   "webpack": "^4.43.0",
   "webpack-cli": "^3.3.12",
+  "webpack-dev-server": "^3.11.0",
   "webpack-pwa-manifest": "^4.2.0"
  },
  "husky": {
