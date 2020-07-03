@@ -2,11 +2,11 @@ const puppeteer = require("puppeteer");
 const iPhoneX = puppeteer.devices["iPhone X"];
 const iPadLandscape = puppeteer.devices["iPad landscape"];
 
-const { DEFAULT_BASE: BASE } = process.env;
+const { DEFAULT_URL: URL } = process.env;
 
 describe("home page", () => {
   beforeEach(async () => {
-    await page.goto(BASE, { waitUntil: "networkidle2" });
+    await page.goto(URL, { waitUntil: "networkidle2" });
   });
 
   it("renders full page on desktop", async () => {
@@ -43,7 +43,7 @@ describe("home page", () => {
     });
 
     beforeEach(async () => {
-      await page.goto(BASE, { waitUntil: "networkidle2" });
+      await page.goto(URL, { waitUntil: "networkidle2" });
     });
 
     it("and shows one container with correct title", async () => {

@@ -1,12 +1,10 @@
 const puppeteer = require("puppeteer");
-const iPhoneX = puppeteer.devices["iPhone X"];
-const iPadLandscape = puppeteer.devices["iPad landscape"];
 
-const { CUSTOM_BASE: BASE } = process.env;
+const { CUSTOM_URL: URL } = process.env;
 
 describe("Dozzle with custom base", () => {
   beforeEach(async () => {
-    await page.goto(`${BASE}foobarbase`, { waitUntil: "networkidle2" });
+    await page.goto(URL, { waitUntil: "networkidle2" });
   });
 
   it("renders full page on desktop", async () => {
