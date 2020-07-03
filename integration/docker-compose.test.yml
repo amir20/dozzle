@@ -22,8 +22,8 @@ services:
       context: .
     command: yarn test
     environment:
-      - DEFAULT_BASE=http://dozzle:8080/
-      - CUSTOM_BASE=http://custom_base:8080/
+      - DEFAULT_URL=http://dozzle:8080/
+      - CUSTOM_URL=http://custom_base:8080/foobarbase
     depends_on:
       - dozzle
       - custom_base
