@@ -4,7 +4,7 @@ const { CUSTOM_URL: URL } = process.env;
 
 describe("Dozzle with custom base", () => {
   beforeEach(async () => {
-    await page.goto(URL + "/settings", { waitUntil: "networkidle2" });
+    await page.goto(URL, { waitUntil: "networkidle2" });
   });
 
   it("renders full page on desktop", async () => {
