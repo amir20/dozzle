@@ -16,6 +16,6 @@ describe("Dozzle with custom base", () => {
   it("and shows one container with correct title", async () => {
     const menuTitle = await page.$eval("aside ul.menu-list li a", (e) => e.title);
 
-    expect(menuTitle).toEqual("custom_base");
+    expect(menuTitle).toEqual("custom_base_bad");
   });
 });
