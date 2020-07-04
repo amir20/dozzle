@@ -21,6 +21,8 @@ services:
     build:
       context: .
     command: yarn test
+    volumes:
+      - ./__image_snapshots__:/app/__image_snapshots__
     environment:
       - DEFAULT_URL=http://dozzle:8080/
       - CUSTOM_URL=http://custom_base:8080/foobarbase
