@@ -14,7 +14,7 @@
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "release-it",
   "test": "TZ=UTC jest",
-  "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate integration"
+  "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration"
  },
  "repository": {
   "type": "git",
