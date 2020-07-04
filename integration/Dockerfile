@@ -1,8 +1,8 @@
-FROM amir20/docker-alpine-puppeteer:edge
+FROM amir20/docker-alpine-puppeteer:next
 
-COPY --chown=pptruser:pptruser package*.json yarn.lock /app/
+COPY package*.json yarn.lock /app/
 RUN yarn
 
-COPY --chown=pptruser:pptruser . /app/
+COPY . /app/
 
-CMD [ "yarn", "test"]
+CMD ["yarn", "test"]
