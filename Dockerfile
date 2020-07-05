@@ -48,6 +48,7 @@ ARG TAG=dev
 RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
 FROM scratch
+EXPOSE 8080
 
 ENV PATH=/bin
 
