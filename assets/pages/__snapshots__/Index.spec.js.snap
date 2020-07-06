@@ -2,7 +2,7 @@
 
 exports[`<Index /> renders correctly 1`] = `
 <div
-  class="hero is-fullheight"
+  class="hero is-halfheight"
 >
   <div
     class="hero-body"
