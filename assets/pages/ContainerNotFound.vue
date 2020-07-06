@@ -1,0 +1,16 @@
+<template>
+  <div class="hero is-halfheight">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <h1 class="title">This container no longer exists or has been removed</h1>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: [],
+  name: "ContainerNotFound",
+};
+</script>

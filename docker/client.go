@@ -95,9 +95,8 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 		return nil, err
 	}
 
-	var containers []Container
+	var containers = make([]Container, 0, len(list))
 	for _, c := range list {
-
 		container := Container{
 			ID:      c.ID[:12],
 			Names:   c.Names,

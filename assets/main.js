@@ -6,10 +6,7 @@ import Switch from "buefy/dist/esm/switch";
 import store from "./store";
 import config from "./store/config";
 import App from "./App.vue";
-import Container from "./pages/Container.vue";
-import Settings from "./pages/Settings.vue";
-import Index from "./pages/Index.vue";
-import Show from "./pages/Show.vue";
+import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound } from "./pages";
 
 Vue.use(VueRouter);
 Vue.use(Meta);
@@ -29,6 +26,11 @@ const routes = [
     props: true,
   },
   {
+    path: "/container/*",
+    component: ContainerNotFound,
+    name: "container-not-found",
+  },
+  {
     path: "/settings",
     component: Settings,
     name: "settings",
@@ -37,6 +39,11 @@ const routes = [
     path: "/show",
     component: Show,
     name: "show",
+  },
+  {
+    path: "/*",
+    component: PageNotFound,
+    name: "page-not-found",
   },
 ];
 

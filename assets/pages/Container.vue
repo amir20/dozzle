@@ -13,6 +13,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import LogViewerWithSource from "../components/LogViewerWithSource";
 import ScrollableView from "../components/ScrollableView";
 import ContainerTitle from "../components/ContainerTitle";
+import store from "../store";
 
 export default {
   props: ["id", "name"],
@@ -48,6 +49,16 @@ export default {
     allContainersById() {
       this.title = this.allContainersById[this.id].name;
     },
+  },
+  beforeRouteEnter(to, from, next) {
+    if (store.getters.allContainersById[to.params.id]) {
+      next();
+    } else {
+      next({ name: "container-not-found" });
+    }
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.beforeRouteEnter(to, from, next);
   },
 };
 </script>
