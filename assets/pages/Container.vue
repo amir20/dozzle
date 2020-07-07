@@ -58,7 +58,11 @@ export default {
     }
   },
   beforeRouteUpdate(to, from, next) {
-    this.beforeRouteEnter(to, from, next);
+    if (store.getters.allContainersById[to.params.id]) {
+      next();
+    } else {
+      next({ name: "container-not-found" });
+    }
   },
 };
 </script>

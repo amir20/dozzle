@@ -3,7 +3,6 @@
 
 $body-family: "Roboto", sans-serif;
 $body-background-color: var(--body-background-color);
-$body-color: var(--body-color);
 
 $scheme-main: var(--scheme-main);
 $scheme-main-bis: var(--scheme-main-bis);
@@ -15,8 +14,12 @@ $border-hover: var(--border-hover-color);
 $menu-item-active-background-color: var(--menu-item-active-background-color);
 $menu-item-color: var(--menu-item-color);
 $menu-item-hover-background-color: var(--menu-item-hover-background-color);
+$menu-item-hover-color: var(--menu-item-hover-color);
 
-$title-color: var(--title-color);
+$text-strong: var(--text-strong-color);
+$text: var(--text-color);
+
+
 
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
@@ -37,13 +40,14 @@ html {
   --secondary-color: #{$yellow};
 
   --body-background-color: #{$black-bis};
-  --body-color: #{$grey-lighter};
 
   --menu-item-active-background-color: var(--primary-color);
   --menu-item-color: hsl(0, 6%, 87%);
   --menu-item-hover-background-color: #{$white-ter};
+  --menu-item-hover-color: #{$black-ter};
 
-  --title-color: #{$grey-lightest};
+  --text-strong-color: #{$grey-lightest};
+  --text-color: #{$grey-lighter};
 }
 
 [data-theme="light"] {
@@ -63,8 +67,10 @@ html {
 
   --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
+  --menu-item-hover-color: #{black-ter};
 
-  --title-color: #{$grey-dark};
+  --text-strong-color: #{$grey-dark};
+  --text-color: #{$grey-darker};
 }
 
 html {

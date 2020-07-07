@@ -32,7 +32,7 @@ export default {
     opacity: 0.6;
     &:after,
     &:before {
-      background-color: var(--body-color);
+      background-color: var(--text-color);
     }
 
     &:hover {
