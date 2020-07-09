@@ -142,8 +142,6 @@ export default {
 
 a.next-release {
   text-decoration: underline;
-  color: #00d1b2;
-
   &:hover {
     text-decoration: none;
   }
