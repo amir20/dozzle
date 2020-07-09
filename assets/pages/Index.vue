@@ -48,9 +48,9 @@
             </p>
           </div>
           <p class="panel-tabs">
-            <a :class="{ 'is-active': sort == 'all' }" @click="sort = 'all'">All</a>
-            <a :class="{ 'is-active': sort == 'running' }" @click="sort = 'running'">Running</a>
-            <a :class="{ 'is-active': sort == 'recent' }" @click="sort = 'recent'">Recent</a>
+            <a :class="{ 'is-active': sort === 'recent' }" @click="sort = 'recent'">Recent</a>
+            <a :class="{ 'is-active': sort === 'running' }" @click="sort = 'running'">Running</a>
+            <a :class="{ 'is-active': sort === 'all' }" @click="sort = 'all'">All</a>
           </p>
           <router-link
             :to="{ name: 'container', params: { id: item.id, name: item.name } }"
@@ -59,6 +59,7 @@
             class="panel-block"
           >
             <span class="name">{{ item.name }}</span>
+
             <div class="subtitle is-7 status">
               {{ item.status }}
             </div>
@@ -72,29 +73,38 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import Icon from "../components/Icon";
-import { debug } from "webpack";
+
 export default {
   name: "Index",
   components: { Icon },
   data() {
     return {
       search: null,
-      sort: "all",
+      sort: "recent",
     };
   },
   computed: {
     ...mapState(["containers"]),
     mostRecentContainers() {
-      return this.containers.sort((a, b) => b.created - a.created).slice(0, 5);
+      return [...this.containers].sort((a, b) => b.created - a.created).slice(0, 8);
     },
     runningContainers() {
-      return this.containers.filter((c) => c.state === "running").slice(0, 5);
+      return this.containers.filter((c) => c.state === "running");
     },
     allContainers() {
       return this.containers;
     },
     sortedContainers() {
-      return [];
+      switch (this.sort) {
+        case "all":
+          return this.allContainers;
+        case "running":
+          return this.runningContainers;
+        case "recent":
+          return this.mostRecentContainers;
+        default:
+          throw `Invalid sort order: ${this.sort}`;
+      }
     },
   },
 };
