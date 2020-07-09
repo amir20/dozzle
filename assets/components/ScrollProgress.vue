@@ -3,7 +3,7 @@
     <svg width="100" height="100" viewBox="0 0 100 100">
       <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
     </svg>
-    <div class="percent columns is-vcentered is-centered has-text-weight-light">
+    <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
       <span class="column is-narrow is-paddingless is-size-2">
         {{ Math.ceil(scrollProgress * 100) }}
       </span>
@@ -83,14 +83,6 @@ export default {
     stroke-dasharray: 276.32px 276.32px;
     stroke-width: 3;
     will-change: stroke-dashoffset;
-  }
-
-  .percent {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
   }
 }
 </style>

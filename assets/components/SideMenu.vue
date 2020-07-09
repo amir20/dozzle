@@ -2,9 +2,11 @@
   <aside>
     <div class="columns is-marginless">
       <div class="column is-paddingless">
-        <svg class="logo">
-          <use href="#logo"></use>
-        </svg>
+        <router-link :to="{ name: 'default' }">
+          <svg class="logo">
+            <use href="#logo"></use>
+          </svg>
+        </router-link>
       </div>
       <div class="column is-narrow has-text-right x">
         <router-link

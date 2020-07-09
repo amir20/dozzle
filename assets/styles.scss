@@ -19,7 +19,8 @@ $menu-item-hover-color: var(--menu-item-hover-color);
 $text-strong: var(--text-strong-color);
 $text: var(--text-color);
 
-
+$panel-heading-background-color: var(--panel-heading-background-color);
+$panel-heading-color: var(--panel-heading-color);
 
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
@@ -46,6 +47,9 @@ html {
   --menu-item-hover-background-color: #{$white-ter};
   --menu-item-hover-color: #{$black-ter};
 
+  --panel-heading-background-color: var(--secondary-color);
+  --panel-heading-color: var(--scheme-main-bis);
+
   --text-strong-color: #{$grey-lightest};
   --text-color: #{$grey-lighter};
 }
@@ -68,6 +72,9 @@ html {
   --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
   --menu-item-hover-color: #{black-ter};
+
+  --panel-heading-background-color: var(--secondary-color);
+  --panel-heading-color: var(--text-strong-color);
 
   --text-strong-color: #{$grey-dark};
   --text-color: #{$grey-darker};

@@ -115,10 +115,6 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 		return strings.ToLower(containers[i].Name) < strings.ToLower(containers[j].Name)
 	})
 
-	if containers == nil {
-		containers = []Container{}
-	}
-
 	return containers, nil
 }
 
