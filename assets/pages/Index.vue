@@ -4,11 +4,8 @@
       <div class="hero-body">
         <div class="container">
           <h1 class="title">
-            Hello, friend.
+            Hello, there!
           </h1>
-          <h2 class="subtitle">
-            I hope you are having a great day!
-          </h2>
         </div>
       </div>
     </section>
@@ -27,7 +24,7 @@
       </div>
       <div class="level-item has-text-centered">
         <div>
-          <p class="title">1.24.1</p>
+          <p class="title">{{ version }}</p>
           <p class="heading">Dozzle Version</p>
         </div>
       </div>
@@ -41,7 +38,13 @@
           </p>
           <div class="panel-block">
             <p class="control has-icons-left">
-              <input class="input" type="text" placeholder="Search" />
+              <input
+                class="input"
+                type="text"
+                placeholder="Search Containers"
+                v-model="search"
+                @keyup.esc="search = null"
+              />
               <span class="icon is-left">
                 <icon name="search"></icon>
               </span>
@@ -54,7 +57,7 @@
           </p>
           <router-link
             :to="{ name: 'container', params: { id: item.id, name: item.name } }"
-            v-for="item in sortedContainers"
+            v-for="item in results.slice(0, 10)"
             :key="item.id"
             class="panel-block"
           >
@@ -73,20 +76,23 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import Icon from "../components/Icon";
+import config from "../store/config";
 
 export default {
   name: "Index",
   components: { Icon },
   data() {
     return {
+      version: config.version,
       search: null,
       sort: "recent",
     };
   },
+
   computed: {
     ...mapState(["containers"]),
     mostRecentContainers() {
-      return [...this.containers].sort((a, b) => b.created - a.created).slice(0, 8);
+      return [...this.containers].sort((a, b) => b.created - a.created);
     },
     runningContainers() {
       return this.containers.filter((c) => c.state === "running");
@@ -94,7 +100,11 @@ export default {
     allContainers() {
       return this.containers;
     },
-    sortedContainers() {
+    results() {
+      if (this.search) {
+        const term = this.search.toLowerCase();
+        return this.allContainers.filter((c) => c.name.toLowerCase().includes(term));
+      }
       switch (this.sort) {
         case "all":
           return this.allContainers;
