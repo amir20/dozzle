@@ -62,9 +62,9 @@
           >
             <span class="name">{{ item.name }}</span>
 
-            <!-- <div class="subtitle is-7 status">
-              {{ item.status }}
-            </div> -->
+            <div class="subtitle is-7 status">
+              <past-time :date="new Date(item.created * 1000)"></past-time>
+            </div>
           </router-link>
         </div>
       </div>
@@ -75,11 +75,12 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import Icon from "../components/Icon";
+import PastTime from "../components/PastTime";
 import config from "../store/config";
 
 export default {
   name: "Index",
-  components: { Icon },
+  components: { Icon, PastTime },
   data() {
     return {
       version: config.version,
