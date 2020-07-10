@@ -22,6 +22,9 @@ $text: var(--text-color);
 $panel-heading-background-color: var(--panel-heading-background-color);
 $panel-heading-color: var(--panel-heading-color);
 
+$link: $turquoise;
+$link-active: $grey-dark;
+
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
 @import "~buefy/src/scss/utils/_all";
