@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const { removeTimes } = require("../utils");
 const iPhoneX = puppeteer.devices["iPhone X"];
 const iPadLandscape = puppeteer.devices["iPad landscape"];
 
@@ -16,6 +17,7 @@ describe("Dozzle with light mode", () => {
   });
 
   it("renders full page on desktop", async () => {
+    await removeTimes(page);
     const image = await page.screenshot({ fullPage: true });
 
     expect(image).toMatchImageSnapshot();
@@ -23,6 +25,7 @@ describe("Dozzle with light mode", () => {
 
   it("renders ipad viewport", async () => {
     await page.emulate(iPadLandscape);
+    await removeTimes(page);
     const image = await page.screenshot();
 
     expect(image).toMatchImageSnapshot();
@@ -30,6 +33,7 @@ describe("Dozzle with light mode", () => {
 
   it("renders iphone viewport", async () => {
     await page.emulate(iPhoneX);
+    await removeTimes(page);
     const image = await page.screenshot();
 
     expect(image).toMatchImageSnapshot();
