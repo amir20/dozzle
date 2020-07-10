@@ -51,7 +51,6 @@
             </p>
           </div>
           <p class="panel-tabs">
-            <a :class="{ 'is-active': sort === 'recent' }" @click="sort = 'recent'">Recent</a>
             <a :class="{ 'is-active': sort === 'running' }" @click="sort = 'running'">Running</a>
             <a :class="{ 'is-active': sort === 'all' }" @click="sort = 'all'">All</a>
           </p>
@@ -85,7 +84,7 @@ export default {
     return {
       version: config.version,
       search: null,
-      sort: "recent",
+      sort: "running",
     };
   },
 
@@ -95,7 +94,7 @@ export default {
       return [...this.containers].sort((a, b) => b.created - a.created);
     },
     runningContainers() {
-      return this.containers.filter((c) => c.state === "running");
+      return this.mostRecentContainers.filter((c) => c.state === "running");
     },
     allContainers() {
       return this.containers;
@@ -107,11 +106,10 @@ export default {
       }
       switch (this.sort) {
         case "all":
-          return this.allContainers;
+          return this.mostRecentContainers;
         case "running":
           return this.runningContainers;
-        case "recent":
-          return this.mostRecentContainers;
+
         default:
           throw `Invalid sort order: ${this.sort}`;
       }
