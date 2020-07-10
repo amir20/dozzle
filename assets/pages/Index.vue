@@ -63,9 +63,9 @@
           >
             <span class="name">{{ item.name }}</span>
 
-            <div class="subtitle is-7 status">
+            <!-- <div class="subtitle is-7 status">
               {{ item.status }}
-            </div>
+            </div> -->
           </router-link>
         </div>
       </div>
