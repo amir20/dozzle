@@ -44,6 +44,7 @@
                 placeholder="Search Containers"
                 v-model="search"
                 @keyup.esc="search = null"
+                @keyup.enter="onEnter()"
               />
               <span class="icon is-left">
                 <icon name="search"></icon>
@@ -88,7 +89,14 @@ export default {
       sort: "running",
     };
   },
-
+  methods: {
+    onEnter() {
+      if (this.results.length == 1) {
+        const [item] = this.results;
+        this.$router.push({ name: "container", params: { id: item.id, name: item.name } });
+      }
+    },
+  },
   computed: {
     ...mapState(["containers"]),
     mostRecentContainers() {
