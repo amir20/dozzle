@@ -152,7 +152,7 @@ a.next-release {
 }
 
 .has-underline {
-  border-bottom: 1px solid var(--title-color);
+  border-bottom: 1px solid var(--border-color);
   padding: 1em 0px;
   margin-bottom: 1em;
 }
