@@ -30,7 +30,7 @@
   "ansi-to-html": "^0.6.14",
   "buefy": "^0.8.20",
   "bulma": "^0.9.0",
-  "date-fns": "^2.14.0",
+  "date-fns": "^2.15.0",
   "dompurify": "^2.0.12",
   "hotkeys-js": "^3.8.1",
   "lodash.debounce": "^4.0.8",
