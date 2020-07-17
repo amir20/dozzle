@@ -62,7 +62,7 @@ export default {
       const delta = to - last;
       const from = new Date(to.getTime() + delta);
       const logs = await (
-        await fetch(`/api/logs?id=${this.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
+        await fetch(`${config.base}/api/logs?id=${this.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
       ).text();
       if (logs) {
         const newMessages = logs
