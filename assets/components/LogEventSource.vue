@@ -52,6 +52,7 @@ export default {
       if (this.es) {
         this.es.close();
         this.es = null;
+        this.flushBuffer.cancel();
       }
       this.messages = [];
       this.buffer = [];
