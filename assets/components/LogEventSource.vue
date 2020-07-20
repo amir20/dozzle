@@ -25,6 +25,7 @@ export default {
   created() {
     this.es = null;
     this.loadLogs(this.id);
+    this.flushBuffer = debounce(this.flushNow, 250, { maxWait: 1000 });
   },
   methods: {
     loadLogs(id) {
@@ -39,20 +40,19 @@ export default {
       this.es.addEventListener("container-stopped", (e) => {
         this.es.close();
         this.buffer.push({ event: "container-stopped", message: "Container stopped", date: new Date() });
-        flushNow();
+        this.flushBuffer();
+        this.flushBuffer.flush();
       });
       this.es.addEventListener("error", (e) => console.log("EventSource failed: " + JSON.stringify(e)));
-
-      const flushBuffer = debounce(() => flushNow(), 250, { maxWait: 1000 });
-      const flushNow = () => {
-        this.messages.push(...this.buffer);
-        this.buffer = [];
-      };
       this.es.onmessage = (e) => {
         this.buffer.push(this.parseMessage(e.data));
-        flushBuffer();
+        this.flushBuffer();
       };
       this.$once("hook:beforeDestroy", () => this.es.close());
+    },
+    flushNow() {
+      this.messages.push(...this.buffer);
+      this.buffer = [];
     },
     async loadOlderLogs() {
       if (this.messages.length < 300) return;
