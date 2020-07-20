@@ -126,6 +126,7 @@ Loop:
 		select {
 		case message, ok := <-messages:
 			if !ok {
+				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
 				break Loop
 			}
 			fmt.Fprintf(w, "data: %s\n", message)
