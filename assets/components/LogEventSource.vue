@@ -37,7 +37,7 @@ export default {
         this.flushBuffer();
         this.flushBuffer.flush();
       });
-      this.es.addEventListener("error", (e) => console.log("EventSource failed: " + JSON.stringify(e)));
+      this.es.addEventListener("error", (e) => console.error("EventSource failed: " + JSON.stringify(e)));
       this.es.onmessage = (e) => {
         this.buffer.push(this.parseMessage(e.data));
         this.flushBuffer();
