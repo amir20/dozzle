@@ -52,30 +52,34 @@
       </div>
 
       <div class="item">
-        <h2 class="title is-6 is-marginless">Font size</h2>
-        Modify the font size when viewing logs.
-
-        <b-dropdown v-model="size" aria-role="list" style="margin: -8px 10px 0;">
-          <button class="button is-primary" type="button" slot="trigger">
-            <span class="is-capitalized">{{ size }}</span>
-            <span class="icon"><icon name="chevron-down"></icon></span>
-          </button>
-          <b-dropdown-item
-            :value="value"
-            aria-role="listitem"
-            v-for="value in ['small', 'medium', 'large']"
-            :key="value"
-          >
-            <div class="media">
-              <span class="icon keep-size">
-                <icon name="check" v-if="value == size"></icon>
-              </span>
-              <div class="media-content">
-                <h3 class="is-capitalized">{{ value }}</h3>
-              </div>
-            </div>
-          </b-dropdown-item>
-        </b-dropdown>
+        <div class="columns is-vcentered is-mobile is-variable is-2">
+          <div class="column is-narrow">
+            <b-dropdown v-model="size" aria-role="list">
+              <button class="button is-primary" type="button" slot="trigger">
+                <span class="is-capitalized">{{ size }}</span>
+                <span class="icon"><icon name="chevron-down"></icon></span>
+              </button>
+              <b-dropdown-item
+                :value="value"
+                aria-role="listitem"
+                v-for="value in ['small', 'medium', 'large']"
+                :key="value"
+              >
+                <div class="media">
+                  <span class="icon keep-size">
+                    <icon name="check" v-if="value == size"></icon>
+                  </span>
+                  <div class="media-content">
+                    <h3 class="is-capitalized">{{ value }}</h3>
+                  </div>
+                </div>
+              </b-dropdown-item>
+            </b-dropdown>
+          </div>
+          <div class="column">
+            Font size to use for logs
+          </div>
+        </div>
       </div>
     </section>
   </div>
