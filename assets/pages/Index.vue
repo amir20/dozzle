@@ -30,7 +30,7 @@
       </div>
     </section>
 
-    <section class="columns is-centered">
+    <section class="columns is-centered section">
       <div class="column is-4">
         <div class="panel">
           <p class="panel-heading">
