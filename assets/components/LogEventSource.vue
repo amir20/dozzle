@@ -29,14 +29,8 @@ export default {
   },
   methods: {
     loadLogs(id) {
-      if (this.es) {
-        this.es.close();
-        this.messages = [];
-        this.buffer = [];
-        this.es = null;
-      }
+      this.reset();
       this.es = new EventSource(`${config.base}/api/logs/stream?id=${this.id}`);
-
       this.es.addEventListener("container-stopped", (e) => {
         this.es.close();
         this.buffer.push({ event: "container-stopped", message: "Container stopped", date: new Date() });
@@ -52,6 +46,14 @@ export default {
     },
     flushNow() {
       this.messages.push(...this.buffer);
+      this.buffer = [];
+    },
+    reset() {
+      if (this.es) {
+        this.es.close();
+        this.es = null;
+      }
+      this.messages = [];
       this.buffer = [];
     },
     async loadOlderLogs() {
