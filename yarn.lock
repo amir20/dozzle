@@ -1082,10 +1082,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@vue/component-compiler-utils@^3.1.0", "@vue/component-compiler-utils@^3.1.2":
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-3.1.2.tgz#8213a5ff3202f9f2137fe55370f9e8b9656081c3"
-  integrity sha512-QLq9z8m79mCinpaEeSURhnNCN6djxpHw0lpP/bodMlt5kALfONpryMthvnrQOlTcIKoF+VoPi+lPHUYeDFPXug==
+"@vue/component-compiler-utils@^3.1.0", "@vue/component-compiler-utils@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-3.2.0.tgz#8f85182ceed28e9b3c75313de669f83166d11e5d"
+  integrity sha512-lejBLa7xAMsfiZfNp7Kv51zOzifnb29FwdnMLa96z26kXErPFioSf9BMcePVIQ6/Gc6/mC0UrPpxAWIHyae0vw==
   dependencies:
     consolidate "^0.15.1"
     hash-sum "^1.0.2"
