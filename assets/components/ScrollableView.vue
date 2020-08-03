@@ -111,6 +111,7 @@ section {
       transition: background-color 1s ease-out;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
       border: none !important;
+      color: #222;
 
       &.has-more {
         background-color: var(--primary-color);
