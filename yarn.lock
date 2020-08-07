@@ -9770,10 +9770,10 @@ vue-meta@^2.4.0:
   dependencies:
     deepmerge "^4.2.2"
 
-vue-router@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.4.1.tgz#e6275bfd1bfad3c0d82766377ba5f5f74f6da549"
-  integrity sha512-vmZSBb/A1+hddeSxPBlbLRnB5l+BkyrH89ojsy+d/OkQ3rb4jqbilaAQ3dfPWWbqPwSd11AX4l/DuBhOcR93dg==
+vue-router@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.4.2.tgz#541221d7ac467786c1c9381bcf36019d883b9cf8"
+  integrity sha512-n3Ok70hW0EpcJF4lcWIwSHAQbFTnIOLl/fhO8+oTs4jHNtBNsovcVvPZeTOyKEd8C3xF1Crft2ASuOiVT5K1mw==
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
   version "4.1.2"
