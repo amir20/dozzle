@@ -49,7 +49,12 @@ export default {
       if (!this.paused) {
         this.scrollToBottom("instant");
       } else {
-        this.hasMore = true;
+        const record = e[e.length - 1];
+        if (
+          record.target.children[record.target.children.length - 1] == record.addedNodes[record.addedNodes.length - 1]
+        ) {
+          this.hasMore = true;
+        }
       }
     });
     mutationObserver.observe(content, { childList: true, subtree: true });
