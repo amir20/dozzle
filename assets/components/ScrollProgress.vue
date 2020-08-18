@@ -1,6 +1,6 @@
 <template>
   <div class="scroll-progress">
-    <svg width="100" height="100" viewBox="0 0 100 100">
+    <svg width="100" height="100" viewBox="0 0 100 100" class="indeterminate">
       <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
     </svg>
     <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
@@ -54,16 +54,16 @@ export default {
     onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
-      this.animation.cancel();
-      this.animation = this.$el.animate(
-        { opacity: [1, 0] },
-        {
-          duration: 500,
-          delay: 2000,
-          fill: "both",
-          easing: "ease-out",
-        }
-      );
+      // this.animation.cancel();
+      // this.animation = this.$el.animate(
+      //   { opacity: [1, 0] },
+      //   {
+      //     duration: 500,
+      //     delay: 2000,
+      //     fill: "both",
+      //     easing: "ease-out",
+      //   }
+      // );
     },
   },
 };
@@ -79,10 +79,46 @@ export default {
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke: var(--primary-color);
-    stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
+    stroke-dashoffset: calc(276.32 - var(--progress) * 276.32);
     stroke-dasharray: 276.32px 276.32px;
+    stroke-linecap: round;
     stroke-width: 3;
     will-change: stroke-dashoffset;
+  }
+
+  svg.indeterminate {
+    animation: 2s linear infinite svg-animation;
+
+    circle {
+      animation: 1.4s ease-in-out infinite both circle-animation;
+    }
+  }
+}
+
+@keyframes svg-animation {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes circle-animation {
+  0%,
+  25% {
+    stroke-dashoffset: 275;
+    transform: rotate(0);
+  }
+  50%,
+  75% {
+    stroke-dashoffset: 70;
+    transform: rotate(45deg);
+  }
+
+  100% {
+    stroke-dashoffset: 275;
+    transform: rotate(360deg);
   }
 }
 </style>
