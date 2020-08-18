@@ -51,7 +51,7 @@
               </span>
             </p>
           </div>
-          <p class="panel-tabs">
+          <p class="panel-tabs" v-if="!search">
             <a :class="{ 'is-active': sort === 'running' }" @click="sort = 'running'">Running</a>
             <a :class="{ 'is-active': sort === 'all' }" @click="sort = 'all'">All</a>
           </p>
