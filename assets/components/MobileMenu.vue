@@ -8,9 +8,11 @@
     >
       <span></span> <span></span> <span></span>
     </a>
-    <svg class="logo">
-      <use href="#logo"></use>
-    </svg>
+    <router-link :to="{ name: 'default' }">
+      <svg class="logo">
+        <use href="#logo"></use>
+      </svg>
+    </router-link>
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">

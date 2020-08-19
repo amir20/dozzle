@@ -60,6 +60,7 @@ export default {
     async loadOlderLogs() {
       if (this.messages.length < 300) return;
 
+      this.$emit("loading-more", true);
       const to = this.messages[0].date;
       const last = this.messages[299].date;
       const delta = to - last;
@@ -74,6 +75,7 @@ export default {
           .map((line) => this.parseMessage(line));
         this.messages.unshift(...newMessages);
       }
+      this.$emit("loading-more", false);
     },
     parseMessage(data) {
       let i = data.indexOf(" ");

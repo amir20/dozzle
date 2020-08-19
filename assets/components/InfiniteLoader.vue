@@ -1,14 +1,12 @@
 <template>
-  <div ref="observer" class="control" :class="{ 'is-loading': isLoading }"></div>
+  <div ref="observer" class="control"></div>
 </template>
 
 <script>
 export default {
   name: "InfiniteLoader",
   data() {
-    return {
-      isLoading: false,
-    };
+    return {};
   },
   props: {
     onLoadMore: Function,
@@ -21,9 +19,7 @@ export default {
         if (this.onLoadMore && this.enabled) {
           const scrollingParent = this.$el.closest("[data-scrolling]") || document.documentElement;
           const previousHeight = scrollingParent.scrollHeight;
-          this.isLoading = true;
           await this.onLoadMore();
-          this.isLoading = false;
           this.$nextTick(() => (scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight));
         }
       },
