@@ -1,15 +1,22 @@
 <template>
   <div class="scroll-progress">
-    <svg width="100" height="100" viewBox="0 0 100 100" class="indeterminate">
+    <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
       <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
     </svg>
     <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
-      <span class="column is-narrow is-paddingless is-size-2">
-        {{ Math.ceil(scrollProgress * 100) }}
-      </span>
-      <span class="column is-narrow is-paddingless">
-        %
-      </span>
+      <template v-if="indeterminate">
+        <div class="column is-narrow is-paddingless is-size-2">
+          &#8734;
+        </div>
+      </template>
+      <template v-else>
+        <span class="column is-narrow is-paddingless is-size-2">
+          {{ Math.ceil(scrollProgress * 100) }}
+        </span>
+        <span class="column is-narrow is-paddingless">
+          %
+        </span>
+      </template>
     </div>
   </div>
 </template>
@@ -20,6 +27,16 @@ import throttle from "lodash.throttle";
 
 export default {
   name: "ScrollProgress",
+  props: {
+    indeterminate: {
+      default: false,
+      type: Boolean,
+    },
+    autoHide: {
+      default: true,
+      type: Boolean,
+    },
+  },
   data() {
     return {
       scrollProgress: 0,
@@ -39,6 +56,9 @@ export default {
       this.detachEvents();
       this.attachEvents();
     },
+    indeterminate() {
+      this.$nextTick(() => this.onScroll());
+    },
   },
   computed: {
     ...mapState(["activeContainers"]),
@@ -54,16 +74,18 @@ export default {
     onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
-      // this.animation.cancel();
-      // this.animation = this.$el.animate(
-      //   { opacity: [1, 0] },
-      //   {
-      //     duration: 500,
-      //     delay: 2000,
-      //     fill: "both",
-      //     easing: "ease-out",
-      //   }
-      // );
+      if (this.autoHide) {
+        this.animation.cancel();
+        this.animation = this.$el.animate(
+          { opacity: [1, 0] },
+          {
+            duration: 500,
+            delay: 2000,
+            fill: "both",
+            easing: "ease-out",
+          }
+        );
+      }
     },
   },
 };

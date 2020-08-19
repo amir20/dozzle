@@ -1,27 +1,24 @@
 <template>
-  <scrollable-view :scrollable="activeContainers.length > 0">
-    <template v-slot:header v-if="activeContainers.length > 0">
-      <container-title :value="allContainersById[id].name"></container-title>
-    </template>
-    <log-viewer-with-source :id="id"></log-viewer-with-source>
-  </scrollable-view>
+  <log-container
+    :id="id"
+    :title="title"
+    :show-title="activeContainers.length > 0"
+    :scrollable="activeContainers.length > 0"
+  >
+  </log-container>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import LogViewerWithSource from "../components/LogViewerWithSource";
-import ScrollableView from "../components/ScrollableView";
-import ContainerTitle from "../components/ContainerTitle";
+import LogContainer from "../components/LogContainer";
 import store from "../store";
 
 export default {
-  props: ["id", "name"],
+  props: ["id"],
   name: "Container",
   components: {
-    LogViewerWithSource,
-    ScrollableView,
-    ContainerTitle,
+    LogContainer,
   },
   data() {
     return {

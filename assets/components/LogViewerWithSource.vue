@@ -1,5 +1,5 @@
 <template>
-  <log-event-source :id="id" v-slot="eventSource">
+  <log-event-source :id="id" v-slot="eventSource" @loading-more="$emit('loading-more', $event)">
     <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>
 </template>

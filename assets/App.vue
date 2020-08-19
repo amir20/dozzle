@@ -13,12 +13,14 @@
             <router-view></router-view>
           </pane>
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
-            <scrollable-view>
-              <template v-slot:header>
-                <container-title :value="other.name" closable @close="removeActiveContainer(other)"></container-title>
-              </template>
-              <log-viewer-with-source :id="other.id"></log-viewer-with-source>
-            </scrollable-view>
+            <log-container
+              :id="other.id"
+              :title="other.name"
+              show-title
+              scrollable
+              closable
+              @close="removeActiveContainer(other)"
+            ></log-container>
           </pane>
         </splitpanes>
       </pane>
@@ -41,26 +43,22 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 
-import LogViewerWithSource from "./components/LogViewerWithSource";
-import ScrollableView from "./components/ScrollableView";
+import LogContainer from "./components/LogContainer";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
-import ContainerTitle from "./components/ContainerTitle";
 import Icon from "./components/Icon";
 
 export default {
   name: "App",
   components: {
     Icon,
-    LogViewerWithSource,
     SideMenu,
+    LogContainer,
     MobileMenu,
-    ScrollableView,
     Splitpanes,
     Pane,
     Search,
-    ContainerTitle,
   },
   data() {
     return {

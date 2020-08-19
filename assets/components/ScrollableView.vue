@@ -5,9 +5,9 @@
     </header>
     <main ref="content" :data-scrolling="scrollable">
       <div class="is-scrollbar-progress is-hidden-mobile">
-        <scroll-progress v-show="paused"></scroll-progress>
+        <scroll-progress v-show="paused" :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
-      <slot></slot>
+      <slot :setLoading="setLoading"></slot>
       <div ref="scrollObserver" class="is-scroll-observer"></div>
     </main>
 
@@ -41,6 +41,7 @@ export default {
     return {
       paused: false,
       hasMore: false,
+      loading: false,
     };
   },
   mounted() {
@@ -72,6 +73,9 @@ export default {
     scrollToBottom(behavior = "instant") {
       this.$refs.scrollObserver.scrollIntoView({ behavior });
       this.hasMore = false;
+    },
+    setLoading(loading) {
+      this.loading = loading;
     },
   },
 };
