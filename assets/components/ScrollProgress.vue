@@ -74,8 +74,8 @@ export default {
     onScroll() {
       const p = this.parentElement == document ? document.documentElement : this.parentElement;
       this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
+      this.animation.cancel();
       if (this.autoHide) {
-        this.animation.cancel();
         this.animation = this.$el.animate(
           { opacity: [1, 0] },
           {
