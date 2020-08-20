@@ -94,25 +94,29 @@ export default {
 .scroll-progress {
   display: inline-block;
   position: relative;
-  circle {
-    fill: var(--scheme-main-ter);
-    fill-opacity: 0.8;
-    transition: stroke-dashoffset 250ms ease-out;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    stroke: var(--primary-color);
-    stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
-    stroke-dasharray: 276.32px 276.32px;
-    stroke-linecap: round;
-    stroke-width: 3;
-    will-change: stroke-dashoffset;
-  }
 
-  svg.indeterminate {
-    animation: 2s linear infinite svg-animation;
+  svg {
+    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
+    margin-top: 5px;
+    &.indeterminate {
+      animation: 2s linear infinite svg-animation;
 
+      circle {
+        animation: 1.4s ease-in-out infinite both circle-animation;
+      }
+    }
     circle {
-      animation: 1.4s ease-in-out infinite both circle-animation;
+      fill: var(--scheme-main-ter);
+      fill-opacity: 0.8;
+      transition: stroke-dashoffset 250ms ease-out;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      stroke: var(--primary-color);
+      stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
+      stroke-dasharray: 276.32px 276.32px;
+      stroke-linecap: round;
+      stroke-width: 3;
+      will-change: stroke-dashoffset;
     }
   }
 }
