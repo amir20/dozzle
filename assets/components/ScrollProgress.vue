@@ -101,7 +101,7 @@ export default {
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke: var(--primary-color);
-    stroke-dashoffset: calc(276.32 - var(--progress) * 276.32);
+    stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
     stroke-dasharray: 276.32px 276.32px;
     stroke-linecap: round;
     stroke-width: 3;
@@ -129,17 +129,17 @@ export default {
 @keyframes circle-animation {
   0%,
   25% {
-    stroke-dashoffset: 275;
+    stroke-dashoffset: 275px;
     transform: rotate(0);
   }
   50%,
   75% {
-    stroke-dashoffset: 70;
+    stroke-dashoffset: 70px;
     transform: rotate(45deg);
   }
 
   100% {
-    stroke-dashoffset: 275;
+    stroke-dashoffset: 275px;
     transform: rotate(360deg);
   }
 }
