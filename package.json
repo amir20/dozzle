@@ -38,7 +38,7 @@
   "semver": "^7.3.2",
   "splitpanes": "^2.2.1",
   "store": "^2.0.12",
-  "vue": "^2.6.11",
+  "vue": "^2.6.12",
   "vue-meta": "^2.4.0",
   "vue-router": "^3.4.3",
   "vuex": "^3.5.1"
@@ -72,7 +72,7 @@
   "vue-jest": "^3.0.6",
   "vue-loader": "^15.9.3",
   "vue-style-loader": "^4.1.2",
-  "vue-template-compiler": "^2.6.11",
+  "vue-template-compiler": "^2.6.12",
   "webpack": "^4.44.1",
   "webpack-cli": "^3.3.12",
   "webpack-dev-server": "^3.11.0",
