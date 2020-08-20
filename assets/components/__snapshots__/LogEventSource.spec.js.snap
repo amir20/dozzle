@@ -3,8 +3,25 @@
 exports[`<LogEventSource /> renders correctly 1`] = `
 <div>
   <div
-    class="control"
-  />
+    class="infinte-loader"
+  >
+    <div
+      class="spinner"
+      style="display: none;"
+    >
+      <div
+        class="bounce1"
+      />
+       
+      <div
+        class="bounce2"
+      />
+       
+      <div
+        class="bounce3"
+      />
+    </div>
+  </div>
    
   <ul
     class="events medium"
