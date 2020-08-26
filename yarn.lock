@@ -6034,10 +6034,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-klona@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/klona/-/klona-1.1.2.tgz#a79e292518a5a5412ec8d097964bff1571a64db0"
-  integrity sha512-xf88rTeHiXk+XE2Vhi6yj8Wm3gMZrygGdKjJqN8HkV+PwF/t50/LdAKHoHpPcxFAlmQszTZ1CugrK25S7qDRLA==
+klona@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.3.tgz#98274552c513583ad7a01456a789a2a0b4a2a538"
+  integrity sha512-CgPOT3ZadDpXxKcfV56lEQ9OQSZ42Mk26gnozI+uN/k39vzD8toUhRQoqsX0m9Q3eMPEfsLWmtyUpK/yqST4yg==
 
 latest-version@^5.0.0:
   version "5.1.0"
@@ -8551,12 +8551,12 @@ sane@^4.0.3:
     minimist "^1.1.1"
     walker "~1.0.5"
 
-sass-loader@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-10.0.0.tgz#5761534acc9ffb6477ad31067e6f41a1dc35ffe6"
-  integrity sha512-DEIrVJIXf2P6jtY3fpJu+uWetALCds2PwRA2iwbpzmHvtFmX5j0aX5Uz+YZSeJpjKrpgqWNKngcVxmwVfqxMow==
+sass-loader@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-10.0.1.tgz#10c0364d8034f22fee25ddcc9eded20f99bbe3b4"
+  integrity sha512-b2PSldKVTS3JcFPHSrEXh3BeAfR7XknGiGCAO5aHruR3Pf3kqLP3Gb2ypXLglRrAzgZkloNxLZ7GXEGDX0hBUQ==
   dependencies:
-    klona "^1.1.2"
+    klona "^2.0.3"
     loader-utils "^2.0.0"
     neo-async "^2.6.2"
     schema-utils "^2.7.0"
