@@ -67,7 +67,7 @@
   "prettier": "^2.1.0",
   "release-it": "^13.6.9",
   "sass": "^1.26.10",
-  "sass-loader": "^10.0.0",
+  "sass-loader": "^10.0.1",
   "vue-hot-reload-api": "^2.3.4",
   "vue-jest": "^3.0.6",
   "vue-loader": "^15.9.3",
