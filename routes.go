@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/docker"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -168,9 +169,23 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	messages, err := h.client.Events(ctx)
 
+	stats := make(chan docker.ContainerStat)
+
+	if containers, err := h.client.ListContainers(); err != nil {
+		log.Errorf("Error while list containers: %v", err)
+	} else {
+		for _, c := range containers {
+			if c.State == "running" {
+				h.client.ContainerStats(r.Context(), c.ID, stats)
+			}
+		}
+	}
+
 Loop:
 	for {
 		select {
+		case stat := <-stats:
+			log.Info(stat)
 		case message, ok := <-messages:
 			if !ok {
 				break Loop

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"sort"
@@ -29,6 +30,7 @@ type dockerProxy interface {
 	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
 	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
 }
 
 // Client is a proxy around the docker client
@@ -38,6 +40,7 @@ type Client interface {
 	ContainerLogs(context.Context, string, int, string) (<-chan string, <-chan error)
 	Events(context.Context) (<-chan events.Message, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) ([]string, error)
+	ContainerStats(context.Context, string, chan<- ContainerStat) error
 }
 
 // NewClient creates a new instance of Client
@@ -144,6 +147,44 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 		}
 		return strings.TrimSpace(buffer.String()), nil
 	}
+}
+
+func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
+	response, err := d.cli.ContainerStats(ctx, id, true)
+
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		defer response.Body.Close()
+		decoder := json.NewDecoder(response.Body)
+		var v *types.StatsJSON
+		for {
+			if err := decoder.Decode(&v); err != nil {
+				if err == context.Canceled || err == io.EOF {
+					log.Debugf("stopping stats streaming for container %s", id)
+					break
+				}
+				log.Errorf("decoder for stats api returned an unknown error %w", err)
+			}
+
+			var (
+				cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
+				systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
+				cpuPercent  = int64((cpuDelta / systemDelta) * float64(len(v.CPUStats.CPUUsage.PercpuUsage)) * 100)
+			)
+
+			if cpuPercent > 0 {
+				stats <- ContainerStat{
+					ID:  id,
+					CPU: cpuPercent,
+				}
+			}
+		}
+	}()
+
+	return nil
 }
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
