@@ -185,7 +185,13 @@ Loop:
 	for {
 		select {
 		case stat := <-stats:
-			log.Info(stat)
+			bytes, _ := json.Marshal(stat)
+			_, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes))
+			if err != nil {
+				log.Debugf("Error while writing to event stream: %v", err)
+				break
+			}
+			f.Flush()
 		case message, ok := <-messages:
 			if !ok {
 				break Loop

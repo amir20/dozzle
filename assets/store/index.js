@@ -79,6 +79,8 @@ const getters = {
 
 const es = new EventSource(`${config.base}/api/events/stream`);
 es.addEventListener("containers-changed", (e) => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
+es.addEventListener("container-stat", (e) => console.log(e.data), false);
+
 mql.addListener((e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 const store = new Vuex.Store({
