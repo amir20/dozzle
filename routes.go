@@ -167,16 +167,18 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 
 	ctx := r.Context()
-	messages, err := h.client.Events(ctx)
 
+	messages, err := h.client.Events(ctx)
 	stats := make(chan docker.ContainerStat)
 
+	runningContainers := map[string]docker.Container{}
 	if containers, err := h.client.ListContainers(); err != nil {
 		log.Errorf("Error while list containers: %v", err)
 	} else {
 		for _, c := range containers {
 			if c.State == "running" {
-				h.client.ContainerStats(r.Context(), c.ID, stats)
+				h.client.ContainerStats(ctx, c.ID, stats)
+				runningContainers[c.ID] = c
 			}
 		}
 	}
@@ -197,7 +199,7 @@ Loop:
 				break Loop
 			}
 			switch message.Action {
-			case "connect", "disconnect", "create", "destroy", "start", "stop":
+			case "start", "stop":
 				log.Debugf("Triggering docker event: %v", message.Action)
 				_, err := fmt.Fprintf(w, "event: containers-changed\ndata: %s\n\n", message.Action)
 
@@ -206,6 +208,22 @@ Loop:
 					break
 				}
 				f.Flush()
+
+				if message.Action == "start" {
+					log.Debugf("Scanning for new containers")
+					if containers, err := h.client.ListContainers(); err != nil {
+						log.Errorf("Error while list containers: %v", err)
+					} else {
+						for _, c := range containers {
+							if _, ok = runningContainers[c.ID]; c.State == "running" && !ok {
+								log.Debugf("Found a new container %v", c.ID)
+								h.client.ContainerStats(ctx, c.ID, stats)
+								runningContainers[c.ID] = c
+							}
+						}
+					}
+
+				}
 			default:
 				log.Debugf("Ignoring docker event: %v", message.Action)
 			}

@@ -40,6 +40,7 @@ func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options type
 	}
 	return reader, args.Error(1)
 }
+
 func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
 	args := m.Called(ctx, containerID)
 	json, ok := args.Get(0).(types.ContainerJSON)
@@ -48,6 +49,10 @@ func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) 
 	}
 
 	return json, args.Error(1)
+}
+
+func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error) {	
+	return types.ContainerStats{}, nil
 }
 
 func Test_dockerClient_ListContainers_null(t *testing.T) {

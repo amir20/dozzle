@@ -166,7 +166,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 					log.Debugf("stopping stats streaming for container %s", id)
 					break
 				}
-				log.Errorf("decoder for stats api returned an unknown error %w", err)
+				log.Errorf("decoder for stats api returned an unknown error %v", err)
 			}
 
 			var (
