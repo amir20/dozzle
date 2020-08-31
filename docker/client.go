@@ -173,12 +173,14 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 				cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
 				systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
 				cpuPercent  = int64((cpuDelta / systemDelta) * float64(len(v.CPUStats.CPUUsage.PercpuUsage)) * 100)
+				memPercent = int64(float64(v.MemoryStats.Usage) / float64(v.MemoryStats.Limit) * 100)
 			)
 
 			if cpuPercent > 0 {
 				stats <- ContainerStat{
 					ID:  id,
 					CPU: cpuPercent,
+					Memory: memPercent,
 				}
 			}
 		}
