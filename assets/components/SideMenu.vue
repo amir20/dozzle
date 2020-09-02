@@ -59,8 +59,7 @@ export default {
     return {};
   },
   computed: {
-    ...mapState(["activeContainers"]),
-    ...mapGetters(["activeContainersById", "visibleContainers"]),
+    ...mapGetters(["activeContainersById", "visibleContainers", "activeContainers"]),
   },
   methods: {
     ...mapActions({

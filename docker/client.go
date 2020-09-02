@@ -177,7 +177,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 				memPercent  = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
 			)
 
-			if cpuPercent > 0 {
+			if cpuPercent > 0 || memUsage > 0 {
 				stats <- ContainerStat{
 					ID:            id,
 					CPUPercent:    cpuPercent,

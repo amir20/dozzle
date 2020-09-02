@@ -12,7 +12,7 @@ storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SE
 
 const state = {
   containers: [],
-  activeContainers: [],
+  activeContainerIds: [],
   searchFilter: null,
   isMobile: mql.matches,
   settings: storage.get(DOZZLE_SETTINGS_KEY),
@@ -22,11 +22,11 @@ const mutations = {
   SET_CONTAINERS(state, containers) {
     state.containers = containers;
   },
-  ADD_ACTIVE_CONTAINERS(state, container) {
-    state.activeContainers.push(container);
+  ADD_ACTIVE_CONTAINERS(state, { id }) {
+    state.activeContainerIds.push(id);
   },
-  REMOVE_ACTIVE_CONTAINER(state, container) {
-    state.activeContainers.splice(state.activeContainers.indexOf(container), 1);
+  REMOVE_ACTIVE_CONTAINER(state, { id }) {
+    state.activeContainerIds.splice(state.activeContainerIds.indexOf(id), 1);
   },
   SET_SEARCH(state, filter) {
     state.searchFilter = filter;
@@ -38,7 +38,7 @@ const mutations = {
     state.settings = { ...state.settings, ...newValues };
     storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   },
-  UPDATE_STAT(state, container, stat) {
+  UPDATE_STAT(state, { container, stat }) {
     container.stat = stat;
   },
 };
@@ -61,16 +61,15 @@ const actions = {
     commit("UPDATE_SETTINGS", setting);
   },
   UPDATE_STATS({ commit, getters }, stat) {
-    debugger;
     const { allContainersById } = getters;
     const container = allContainersById[stat.id];
     if (container) {
-      commit("UPDATE_STAT", container, stat);
+      commit("UPDATE_STAT", { container, stat });
     }
   },
 };
 const getters = {
-  activeContainersById({ activeContainers }) {
+  activeContainersById(state, { activeContainers }) {
     return activeContainers.reduce((map, obj) => {
       map[obj.id] = obj;
       return map;
@@ -85,6 +84,9 @@ const getters = {
   visibleContainers({ containers, settings: { showAllContainers } }) {
     const filter = showAllContainers ? () => true : (c) => c.state === "running";
     return containers.filter(filter);
+  },
+  activeContainers({ activeContainerIds }, { allContainersById }) {
+    return activeContainerIds.map((id) => allContainersById[id]);
   },
 };
 

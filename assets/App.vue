@@ -102,8 +102,8 @@ export default {
     },
   },
   computed: {
-    ...mapState(["activeContainers", "isMobile", "settings"]),
-    ...mapGetters(["visibleContainers"]),
+    ...mapState(["isMobile", "settings"]),
+    ...mapGetters(["visibleContainers", "activeContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
     },

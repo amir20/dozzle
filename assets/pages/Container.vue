@@ -36,8 +36,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(["activeContainers"]),
-    ...mapGetters(["allContainersById"]),
+    ...mapState([]),
+    ...mapGetters(["allContainersById", "activeContainers"]),
   },
   watch: {
     id() {
