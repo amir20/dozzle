@@ -199,7 +199,7 @@ Loop:
 				break Loop
 			}
 			switch message.Action {
-			case "start", "stop":
+			case "start", "connect", "disconnect":
 				log.Debugf("Triggering docker event: %v", message.Action)
 				_, err := fmt.Fprintf(w, "event: containers-changed\ndata: %s\n\n", message.Action)
 
