@@ -38,6 +38,9 @@ const mutations = {
     state.settings = { ...state.settings, ...newValues };
     storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   },
+  UPDATE_STAT(state, container, stat) {
+    container.stat = stat;
+  },
 };
 
 const actions = {
@@ -56,6 +59,14 @@ const actions = {
   },
   UPDATE_SETTING({ commit }, setting) {
     commit("UPDATE_SETTINGS", setting);
+  },
+  UPDATE_STATS({ commit, getters }, stat) {
+    debugger;
+    const { allContainersById } = getters;
+    const container = allContainersById[stat.id];
+    if (container) {
+      commit("UPDATE_STAT", container, stat);
+    }
   },
 };
 const getters = {
@@ -79,7 +90,7 @@ const getters = {
 
 const es = new EventSource(`${config.base}/api/events/stream`);
 es.addEventListener("containers-changed", (e) => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
-es.addEventListener("container-stat", (e) => console.log(e.data), false);
+es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
 
 mql.addListener((e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 
