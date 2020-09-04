@@ -22,8 +22,6 @@ export default {
 
 <style lang="scss" scoped>
 .name {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(0, 0, 0, 0.1);
   font-weight: bold;
   font-family: monospace;
 

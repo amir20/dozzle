@@ -15,7 +15,6 @@
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
             <log-container
               :id="other.id"
-              :title="other.name"
               show-title
               scrollable
               closable

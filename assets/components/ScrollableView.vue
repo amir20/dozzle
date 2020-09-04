@@ -85,6 +85,13 @@ section {
   display: flex;
   flex-direction: column;
 
+  header {
+    position: sticky;
+    top: 0;
+    background: var(--body-background-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
   &.is-full-height-scrollable {
     height: 100vh;
     min-height: 0;

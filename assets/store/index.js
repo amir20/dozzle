@@ -20,6 +20,15 @@ const state = {
 
 const mutations = {
   SET_CONTAINERS(state, containers) {
+    const containersById = state.containers.reduce((map, obj) => {
+      map[obj.id] = obj;
+      return map;
+    }, {});
+
+    containers.forEach(
+      (container) => (containers.stat = containersById[container.id] ? containersById[container.id].stat : {})
+    );
+
     state.containers = containers;
   },
   ADD_ACTIVE_CONTAINERS(state, { id }) {
@@ -69,12 +78,6 @@ const actions = {
   },
 };
 const getters = {
-  activeContainersById(state, { activeContainers }) {
-    return activeContainers.reduce((map, obj) => {
-      map[obj.id] = obj;
-      return map;
-    }, {});
-  },
   allContainersById({ containers }) {
     return containers.reduce((map, obj) => {
       map[obj.id] = obj;

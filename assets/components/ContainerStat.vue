@@ -1,6 +1,10 @@
 <template>
-  <div>
-    {{ formatBytes(memoryUsage) }}
+  <div class="has-text-weight-light is-size-7 is-uppercase columns">
+    <div class="column is-narrow">
+      {{ state }}
+    </div>
+    <div class="column is-narrow">mem {{ formatBytes(stat.memoryUsage) }}</div>
+    <div class="column is-narrow">load {{ stat.cpu }}%</div>
   </div>
 </template>
 
@@ -9,22 +13,12 @@ import { mapGetters } from "vuex";
 
 export default {
   props: {
-    id: String,
+    stat: Object,
+    state: String,
   },
   name: "ContainerStat",
   computed: {
     ...mapGetters(["allContainersById"]),
-    container() {
-      return this.allContainersById[this.id];
-    },
-    stat() {
-      return this.allContainersById[this.id] && this.allContainersById[this.id].stat
-        ? this.allContainersById[this.id].stat
-        : {};
-    },
-    memoryUsage() {
-      return this.stat.memoryUsage;
-    },
   },
   methods: {
     formatBytes(bytes, decimals = 2) {

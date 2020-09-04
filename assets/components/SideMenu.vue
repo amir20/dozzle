@@ -59,7 +59,13 @@ export default {
     return {};
   },
   computed: {
-    ...mapGetters(["activeContainersById", "visibleContainers", "activeContainers"]),
+    ...mapGetters(["visibleContainers", "activeContainers"]),
+    activeContainersById() {
+      return this.activeContainers.reduce((map, obj) => {
+        map[obj.id] = obj;
+        return map;
+      }, {});
+    },
   },
   methods: {
     ...mapActions({
