@@ -26,12 +26,14 @@ describe("<App />", () => {
           { id: "xyz", name: "Test 2" },
         ];
       },
+      activeContainers() {
+        return [];
+      },
     };
 
     store = new Vuex.Store({
       state,
       getters,
-      actions,
     });
   });
 
