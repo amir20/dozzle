@@ -1,5 +1,5 @@
 <template>
-  <scrollable-view :scrollable="scrollable">
+  <scrollable-view :scrollable="scrollable" v-if="container">
     <template v-slot:header v-if="showTitle">
       <container-title :value="container.name" :closable="closable" @close="$emit('close')"></container-title>
       <container-stat :stat="container.stat" :state="container.state"></container-stat>
@@ -46,7 +46,7 @@ export default {
   computed: {
     ...mapGetters(["allContainersById"]),
     container() {
-      return this.allContainersById[this.id] ? this.allContainersById[this.id] : { name: "" };
+      return this.allContainersById[this.id];
     },
   },
 };

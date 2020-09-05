@@ -26,7 +26,11 @@ const mutations = {
     }, {});
 
     containers.forEach(
-      (container) => (containers.stat = containersById[container.id] ? containersById[container.id].stat : {})
+      (container) =>
+        (container.stat =
+          containersById[container.id] && containersById[container.id].stat
+            ? containersById[container.id].stat
+            : { memoryUsage: 0, cpu: 0 })
     );
 
     state.containers = containers;
@@ -48,7 +52,7 @@ const mutations = {
     storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   },
   UPDATE_STAT(state, { container, stat }) {
-    container.stat = stat;
+    Vue.set(container, "stat", stat);
   },
 };
 
