@@ -8233,10 +8233,10 @@ relateurl@^0.2.7:
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
   integrity sha1-VNvzd+UUQKypCkzSdGANP/LYiKk=
 
-release-it@^14.0.1:
-  version "14.0.1"
-  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.0.1.tgz#9795e53d50308b4d15de769bed5dcd31a46acce1"
-  integrity sha512-QwC3xqsoWJqTylyfFwjDUwlR4JG03OV02xr7y7YX+SY78LU2+2PmYndnZRKBsmswXPKBFe8EtP7Og34wlWmjzg==
+release-it@^14.0.2:
+  version "14.0.2"
+  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.0.2.tgz#92cef6592ee9f9f6b60785ad5a659e1537996288"
+  integrity sha512-YJEI8z/cl0gXuVN3a4n/oZ9LYjR9tzEiuUbUROMKG172tzrIDPILT48CR3PQ0fpTGqGimraNFCZrTFiZWqP4pA==
   dependencies:
     "@iarna/toml" "2.2.5"
     "@octokit/rest" "18.0.4"
