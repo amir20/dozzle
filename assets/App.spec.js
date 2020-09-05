@@ -28,10 +28,6 @@ describe("<App />", () => {
       },
     };
 
-    const actions = {
-      FETCH_CONTAINERS: () => Promise.resolve(),
-    };
-
     store = new Vuex.Store({
       state,
       getters,

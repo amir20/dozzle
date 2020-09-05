@@ -71,8 +71,7 @@ export default {
       titleTemplate: "%s - Dozzle",
     };
   },
-  async created() {
-    await this.fetchContainerList();
+  created() {
     this.title = `${this.visibleContainers.length} containers`;
   },
   mounted() {
@@ -112,7 +111,6 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchContainerList: "FETCH_CONTAINERS",
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING",
     }),

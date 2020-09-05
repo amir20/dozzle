@@ -66,10 +66,6 @@ const actions = {
   SET_SEARCH({ commit }, filter) {
     commit("SET_SEARCH", filter);
   },
-  async FETCH_CONTAINERS({ commit }) {
-    const containers = await (await fetch(`${config.base}/api/containers.json`)).json();
-    commit("SET_CONTAINERS", containers);
-  },
   UPDATE_SETTING({ commit }, setting) {
     commit("UPDATE_SETTINGS", setting);
   },
@@ -98,7 +94,7 @@ const getters = {
 };
 
 const es = new EventSource(`${config.base}/api/events/stream`);
-es.addEventListener("containers-changed", (e) => setTimeout(() => store.dispatch("FETCH_CONTAINERS"), 1000), false);
+es.addEventListener("containers-changed", (e) => store.commit("SET_CONTAINERS", JSON.parse(e.data)), false);
 es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
 
 mql.addListener((e) => store.commit("SET_MOBILE_WIDTH", e.matches));
