@@ -1,5 +1,5 @@
 <template>
-  <div class="has-text-weight-light is-size-7 is-uppercase columns is-marginless">
+  <div class="has-text-weight-light is-size-7 is-uppercase columns is-marginless is-mobile">
     <div class="column is-narrow">
       {{ state }}
     </div>
