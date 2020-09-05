@@ -71,9 +71,6 @@ export default {
       titleTemplate: "%s - Dozzle",
     };
   },
-  created() {
-    this.title = `${this.visibleContainers.length} containers`;
-  },
   mounted() {
     if (this.hasSmallerScrollbars) {
       document.documentElement.classList.add("has-custom-scrollbars");
@@ -97,6 +94,9 @@ export default {
       } else {
         document.documentElement.removeAttribute("data-theme");
       }
+    },
+    visibleContainers() {
+      this.title = `${this.visibleContainers.length} containers`;
     },
   },
   computed: {
