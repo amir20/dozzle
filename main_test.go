@@ -74,34 +74,6 @@ func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.Con
 	return nil
 }
 
-func Test_handler_listContainers_happy(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/containers.json", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-
-	rr := httptest.NewRecorder()
-
-	mockedClient := new(MockedClient)
-	containers := []docker.Container{
-		{
-			ID:      "1234567890",
-			Status:  "status",
-			State:   "state",
-			Name:    "test",
-			Created: 0,
-			Command: "command",
-			ImageID: "image_id",
-			Image:   "image",
-		},
-	}
-	mockedClient.On("ListContainers", mock.Anything).Return(containers, nil)
-
-	h := handler{client: mockedClient}
-	handler := http.HandlerFunc(h.listContainers)
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
-}
-
 func Test_handler_streamLogs_happy(t *testing.T) {
 	id := "123456"
 	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
