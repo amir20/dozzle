@@ -40,6 +40,8 @@ describe("<App />", () => {
   test("has right title", async () => {
     const wrapper = shallowMount(App, { stubs, store, localVue });
     await wrapper.vm.$nextTick();
+    wrapper.vm.$options.watch.visibleContainers.call(wrapper.vm);
+
     expect(wrapper.vm.title).toContain("2 containers");
   });
 
