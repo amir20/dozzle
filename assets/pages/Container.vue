@@ -1,11 +1,5 @@
 <template>
-  <log-container
-    :id="id"
-    :title="title"
-    :show-title="activeContainers.length > 0"
-    :scrollable="activeContainers.length > 0"
-  >
-  </log-container>
+  <log-container :id="id" show-title :scrollable="activeContainers.length > 0"> </log-container>
 </template>
 
 <script>
@@ -36,8 +30,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["activeContainers"]),
-    ...mapGetters(["allContainersById"]),
+    ...mapGetters(["allContainersById", "activeContainers"]),
   },
   watch: {
     id() {

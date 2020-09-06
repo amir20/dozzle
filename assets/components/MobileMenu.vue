@@ -42,7 +42,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["activeContainersById", "visibleContainers"]),
+    ...mapGetters(["visibleContainers"]),
   },
   watch: {
     $route(to, from) {

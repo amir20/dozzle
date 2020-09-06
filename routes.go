@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/amir20/dozzle/docker"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,7 +25,6 @@ func createRoutes(base string, h *handler) *mux.Router {
 		}))
 	}
 	s := r.PathPrefix(base).Subrouter()
-	s.HandleFunc("/api/containers.json", h.listContainers)
 	s.HandleFunc("/api/logs/stream", h.streamLogs)
 	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
 	s.HandleFunc("/api/events/stream", h.streamEvents)
@@ -66,19 +67,6 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-	}
-}
-
-func (h *handler) listContainers(w http.ResponseWriter, r *http.Request) {
-	containers, err := h.client.ListContainers()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = json.NewEncoder(w).Encode(containers)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -166,24 +154,65 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 
 	ctx := r.Context()
+
 	messages, err := h.client.Events(ctx)
+	stats := make(chan docker.ContainerStat)
+
+	runningContainers := map[string]docker.Container{}
+	if containers, err := h.client.ListContainers(); err == nil {
+		for _, c := range containers {
+			if c.State == "running" {
+				h.client.ContainerStats(ctx, c.ID, stats)
+				runningContainers[c.ID] = c
+			}
+		}
+	}
+
+	if err := sendContainersJSON(h.client, w); err != nil {
+		log.Errorf("Error while encoding containers to stream: %v", err)
+	}
+
+	f.Flush()
+
+	delayer := delayedFunc(time.Second)
 
 Loop:
 	for {
 		select {
+		case stat := <-stats:
+			bytes, _ := json.Marshal(stat)
+			_, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes))
+			if err != nil {
+				log.Debugf("Error while writing to event stream: %v", err)
+				break
+			}
+			f.Flush()
 		case message, ok := <-messages:
 			if !ok {
 				break Loop
 			}
 			switch message.Action {
-			case "connect", "disconnect", "create", "destroy", "start", "stop":
+			case "start", "connect", "disconnect", "die":
 				log.Debugf("Triggering docker event: %v", message.Action)
-				_, err := fmt.Fprintf(w, "event: containers-changed\ndata: %s\n\n", message.Action)
-
-				if err != nil {
-					log.Debugf("Error while writing to event stream: %v", err)
-					break
+				if message.Action == "start" {
+					log.Debugf("Scanning for new containers")
+					if containers, err := h.client.ListContainers(); err == nil {
+						for _, c := range containers {
+							if _, ok = runningContainers[c.ID]; c.State == "running" && !ok {
+								log.Debugf("Found a new container %v", c.ID)
+								h.client.ContainerStats(ctx, c.ID, stats)
+								runningContainers[c.ID] = c
+							}
+						}
+					}
 				}
+
+				delayer(func() {
+					if err := sendContainersJSON(h.client, w); err != nil {
+						log.Errorf("Error while encoding containers to stream: %v", err)
+					}
+				})
+
 				f.Flush()
 			default:
 				log.Debugf("Ignoring docker event: %v", message.Action)
@@ -198,4 +227,48 @@ Loop:
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, version)
+}
+
+func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
+	if containers, err := client.ListContainers(); err != nil {
+		return err
+	} else {
+		if _, err := fmt.Fprint(w, "event: containers-changed\ndata: "); err != nil {
+			return err
+		}
+
+		if err := json.NewEncoder(w).Encode(containers); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprint(w, "\n\n"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type delayedFun struct {
+	mu    sync.Mutex
+	after time.Duration
+	timer *time.Timer
+}
+
+func delayedFunc(after time.Duration) func(f func()) {
+	d := &delayedFun{after: after}
+
+	return func(f func()) {
+		d.add(f)
+	}
+}
+
+func (d *delayedFun) add(f func()) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	if d.timer != nil {
+		d.timer.Stop()
+	}
+	d.timer = time.AfterFunc(d.after, f)
 }

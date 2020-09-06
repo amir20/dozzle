@@ -5,24 +5,20 @@
     </svg>
     <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
       <template v-if="indeterminate">
-        <div class="column is-narrow is-paddingless is-size-2">
-          &#8734;
-        </div>
+        <div class="column is-narrow is-paddingless is-size-2">&#8734;</div>
       </template>
       <template v-else>
         <span class="column is-narrow is-paddingless is-size-2">
           {{ Math.ceil(scrollProgress * 100) }}
         </span>
-        <span class="column is-narrow is-paddingless">
-          %
-        </span>
+        <span class="column is-narrow is-paddingless"> % </span>
       </template>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters } from "vuex";
 import throttle from "lodash.throttle";
 
 export default {
@@ -61,7 +57,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["activeContainers"]),
+    ...mapGetters(["activeContainers"]),
   },
   methods: {
     attachEvents() {

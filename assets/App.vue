@@ -15,7 +15,6 @@
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
             <log-container
               :id="other.id"
-              :title="other.name"
               show-title
               scrollable
               closable
@@ -72,10 +71,6 @@ export default {
       titleTemplate: "%s - Dozzle",
     };
   },
-  async created() {
-    await this.fetchContainerList();
-    this.title = `${this.visibleContainers.length} containers`;
-  },
   mounted() {
     if (this.hasSmallerScrollbars) {
       document.documentElement.classList.add("has-custom-scrollbars");
@@ -100,10 +95,13 @@ export default {
         document.documentElement.removeAttribute("data-theme");
       }
     },
+    visibleContainers() {
+      this.title = `${this.visibleContainers.length} containers`;
+    },
   },
   computed: {
-    ...mapState(["activeContainers", "isMobile", "settings"]),
-    ...mapGetters(["visibleContainers"]),
+    ...mapState(["isMobile", "settings"]),
+    ...mapGetters(["visibleContainers", "activeContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
     },
@@ -113,7 +111,6 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchContainerList: "FETCH_CONTAINERS",
       removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
       updateSetting: "UPDATE_SETTING",
     }),

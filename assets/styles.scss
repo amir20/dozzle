@@ -135,3 +135,7 @@ html.has-custom-scrollbars {
     border-color: transparent;
   }
 }
+
+.splitpanes__pane {
+  overflow: unset;
+}

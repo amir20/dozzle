@@ -70,32 +70,8 @@ func (m *MockedClient) Events(ctx context.Context) (<-chan events.Message, <-cha
 	return channel, err
 }
 
-func Test_handler_listContainers_happy(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/containers.json", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-
-	rr := httptest.NewRecorder()
-
-	mockedClient := new(MockedClient)
-	containers := []docker.Container{
-		{
-			ID:      "1234567890",
-			Status:  "status",
-			State:   "state",
-			Name:    "test",
-			Created: 0,
-			Command: "command",
-			ImageID: "image_id",
-			Image:   "image",
-		},
-	}
-	mockedClient.On("ListContainers", mock.Anything).Return(containers, nil)
-
-	h := handler{client: mockedClient}
-	handler := http.HandlerFunc(h.listContainers)
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
+func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.ContainerStat) error {
+	return nil
 }
 
 func Test_handler_streamLogs_happy(t *testing.T) {
@@ -232,6 +208,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	messages := make(chan events.Message)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
+	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
 
 	go func() {
 		messages <- events.Message{
@@ -258,6 +235,7 @@ func Test_handler_streamEvents_error(t *testing.T) {
 	messages := make(chan events.Message)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
+	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
 
 	go func() {
 		errChannel <- errors.New("fake error")
@@ -281,6 +259,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 	messages := make(chan events.Message)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
+	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	req = req.WithContext(ctx)

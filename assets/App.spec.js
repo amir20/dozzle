@@ -26,22 +26,22 @@ describe("<App />", () => {
           { id: "xyz", name: "Test 2" },
         ];
       },
-    };
-
-    const actions = {
-      FETCH_CONTAINERS: () => Promise.resolve(),
+      activeContainers() {
+        return [];
+      },
     };
 
     store = new Vuex.Store({
       state,
       getters,
-      actions,
     });
   });
 
   test("has right title", async () => {
     const wrapper = shallowMount(App, { stubs, store, localVue });
     await wrapper.vm.$nextTick();
+    wrapper.vm.$options.watch.visibleContainers.call(wrapper.vm);
+
     expect(wrapper.vm.title).toContain("2 containers");
   });
 
