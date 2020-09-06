@@ -1,8 +1,17 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template v-slot:header v-if="showTitle">
-      <container-title :value="container.name" :closable="closable" @close="$emit('close')"></container-title>
-      <container-stat :stat="container.stat" :state="container.state"></container-stat>
+      <div class="columns is-vcentered">
+        <div class="column is-narrow">
+          <container-title :value="container.name" @close="$emit('close')"></container-title>
+        </div>
+        <div class="column">
+          <container-stat :stat="container.stat" :state="container.state"></container-stat>
+        </div>
+        <div class="column is-narrow mr-4" v-if="closable">
+          <button class="delete is-medium" @click="$emit('close')"></button>
+        </div>
+      </div>
     </template>
     <template v-slot="{ setLoading }">
       <log-viewer-with-source :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
@@ -51,3 +60,17 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+button.delete {
+  background-color: var(--scheme-main-ter);
+  opacity: 0.6;
+  &:after,
+  &:before {
+    background-color: var(--text-color);
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+</style>

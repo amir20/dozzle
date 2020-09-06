@@ -3,13 +3,11 @@
     <section class="hero is-small mt-4">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title">
-            Hello, there!
-          </h1>
+          <h1 class="title">Hello, there!</h1>
         </div>
       </div>
     </section>
-    <section class="level section">
+    <section class="level section is-mobile">
       <div class="level-item has-text-centered">
         <div>
           <p class="title">{{ containers.length }}</p>
@@ -33,9 +31,7 @@
     <section class="columns is-centered section">
       <div class="column is-4">
         <div class="panel">
-          <p class="panel-heading">
-            Containers
-          </p>
+          <p class="panel-heading">Containers</p>
           <div class="panel-block">
             <p class="control has-icons-left">
               <input

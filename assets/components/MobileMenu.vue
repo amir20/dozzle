@@ -8,11 +8,19 @@
     >
       <span></span> <span></span> <span></span>
     </a>
-    <router-link :to="{ name: 'default' }">
-      <svg class="logo">
-        <use href="#logo"></use>
-      </svg>
-    </router-link>
+    <div class="columns is-marginless is-gapless is-mobile is-vcentered">
+      <div class="column is-narrow">
+        <router-link :to="{ name: 'default' }">
+          <svg class="logo">
+            <use href="#logo"></use>
+          </svg>
+        </router-link>
+      </div>
+      <div class="column ml-4 is-family-monospace" v-if="$route.name == 'container'">
+        {{ allContainersById[$route.params.id].name }}
+      </div>
+    </div>
+
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">
@@ -42,7 +50,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["visibleContainers"]),
+    ...mapGetters(["visibleContainers", "allContainersById"]),
   },
   watch: {
     $route(to, from) {

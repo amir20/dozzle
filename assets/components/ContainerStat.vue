@@ -1,10 +1,19 @@
 <template>
-  <div class="has-text-weight-light is-size-7 is-uppercase columns is-marginless is-mobile">
-    <div class="column is-narrow">
+  <div class="is-size-7 is-uppercase columns is-marginless is-mobile">
+    <div class="column is-narrow has-text-weight-bold">
       {{ state }}
     </div>
-    <div class="column is-narrow" v-if="stat.memoryUsage !== null">mem {{ formatBytes(stat.memoryUsage) }}</div>
-    <div class="column is-narrow" v-if="stat.cpu !== null">load {{ stat.cpu }}%</div>
+    <div class="column is-narrow" v-if="stat.memoryUsage !== null">
+      <span class="has-text-weight-light">mem</span>
+      <span class="has-text-weight-bold">
+        {{ formatBytes(stat.memoryUsage) }}
+      </span>
+    </div>
+
+    <div class="column is-narrow" v-if="stat.cpu !== null">
+      <span class="has-text-weight-light">load</span>
+      <span class="has-text-weight-bold"> {{ stat.cpu }}% </span>
+    </div>
   </div>
 </template>
 
@@ -28,8 +37,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.column {
-  padding-top: 0;
-}
-</style>
+<style lang="scss" scoped></style>
