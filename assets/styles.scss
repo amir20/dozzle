@@ -139,3 +139,9 @@ html.has-custom-scrollbars {
 .splitpanes__pane {
   overflow: unset;
 }
+
+.is-ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

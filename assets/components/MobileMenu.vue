@@ -1,13 +1,5 @@
 <template>
   <aside>
-    <a
-      role="button"
-      class="navbar-burger burger is-hidden-tablet is-pulled-right"
-      @click="showNav = !showNav"
-      :class="{ 'is-active': showNav }"
-    >
-      <span></span> <span></span> <span></span>
-    </a>
     <div class="columns is-marginless is-gapless is-mobile is-vcentered">
       <div class="column is-narrow">
         <router-link :to="{ name: 'default' }">
@@ -16,8 +8,19 @@
           </svg>
         </router-link>
       </div>
-      <div class="column ml-4 is-family-monospace" v-if="$route.name == 'container'">
+      <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container'">
         {{ allContainersById[$route.params.id].name }}
+      </div>
+
+      <div class="column is-narrow">
+        <a
+          role="button"
+          class="navbar-burger burger is-hidden-tablet is-pulled-right"
+          @click="showNav = !showNav"
+          :class="{ 'is-active': showNav }"
+        >
+          <span></span> <span></span> <span></span>
+        </a>
       </div>
     </div>
 
@@ -29,7 +32,7 @@
           active-class="is-active"
           :title="item.name"
         >
-          <div class="hide-overflow">
+          <div class="is-ellipsis">
             {{ item.name }}
           </div>
         </router-link>
@@ -73,11 +76,6 @@ aside {
 
   .menu-label {
     margin-top: 1em;
-  }
-  .hide-overflow {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
   }
 
   .title {

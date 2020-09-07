@@ -28,7 +28,7 @@
           active-class="is-active"
           :title="item.name"
         >
-          <div class="hide-overflow">
+          <div class="is-ellipsis">
             <span
               @click.stop.prevent="appendActiveContainer(item)"
               class="icon is-small will-append-container"
@@ -81,12 +81,6 @@ aside {
   overflow: auto;
   position: fixed;
   width: inherit;
-
-  .hide-overflow {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
 
   .is-hidden-mobile.is-active {
     display: block !important;

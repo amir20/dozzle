@@ -1,14 +1,14 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template v-slot:header v-if="showTitle">
-      <div class="columns is-vcentered">
+      <div class="columns is-vcentered pr-4">
         <div class="column is-narrow">
           <container-title :value="container.name" @close="$emit('close')"></container-title>
         </div>
-        <div class="column">
+        <div class="column is-clipped">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-narrow mr-4" v-if="closable">
+        <div class="column is-narrow" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
       </div>
