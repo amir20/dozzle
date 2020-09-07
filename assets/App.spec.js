@@ -17,14 +17,12 @@ describe("<App />", () => {
     global.EventSource = EventSource;
     const state = {
       settings: { menuWidth: 15 },
+      containers: [{ id: "abc", name: "Test 1" }],
     };
 
     const getters = {
-      visibleContainers() {
-        return [
-          { id: "abc", name: "Test 1" },
-          { id: "xyz", name: "Test 2" },
-        ];
+      visibleContainers(store) {
+        return store.containers;
       },
       activeContainers() {
         return [];
@@ -39,8 +37,11 @@ describe("<App />", () => {
 
   test("has right title", async () => {
     const wrapper = shallowMount(App, { stubs, store, localVue });
+    wrapper.vm.$store.state.containers = [
+      { id: "abc", name: "Test 1" },
+      { id: "xyz", name: "Test 2" },
+    ];
     await wrapper.vm.$nextTick();
-    wrapper.vm.$options.watch.visibleContainers.call(wrapper.vm);
 
     expect(wrapper.vm.title).toContain("2 containers");
   });
