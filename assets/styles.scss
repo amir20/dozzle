@@ -140,6 +140,10 @@ html.has-custom-scrollbars {
   overflow: unset;
 }
 
+.splitpanes__splitter {
+  z-index: 99;
+}
+
 .is-ellipsis {
   text-overflow: ellipsis;
   white-space: nowrap;
