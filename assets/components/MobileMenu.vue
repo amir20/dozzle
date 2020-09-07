@@ -12,7 +12,7 @@
         {{ allContainersById[$route.params.id].name }}
       </div>
 
-      <div class="column is-narrow">
+      <div class="column is-narrow push-right">
         <a
           role="button"
           class="navbar-burger burger is-hidden-tablet is-pulled-right"
@@ -98,6 +98,10 @@ aside {
     width: 82px;
     height: 36px;
     fill: var(--logo-color);
+  }
+
+  .column.push-right {
+    margin-left: auto;
   }
 }
 </style>
