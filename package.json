@@ -51,7 +51,7 @@
   "babel-core": "^7.0.0-bridge.0",
   "babel-jest": "^26.3.0",
   "babel-preset-env": "^1.7.0",
-  "caniuse-lite": "^1.0.30001125",
+  "caniuse-lite": "^1.0.30001126",
   "css-loader": "^4.3.0",
   "eventsourcemock": "^2.0.0",
   "html-webpack-plugin": "^4.4.1",
