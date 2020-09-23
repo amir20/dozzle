@@ -26,7 +26,7 @@ require (
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gorilla/mux v1.8.0
-	github.com/magiconair/properties v1.8.3
+	github.com/magiconair/properties v1.8.4
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
