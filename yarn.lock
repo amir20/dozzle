@@ -8908,10 +8908,10 @@ split-string@^3.0.1, split-string@^3.0.2:
   dependencies:
     extend-shallow "^3.0.0"
 
-splitpanes@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/splitpanes/-/splitpanes-2.3.1.tgz#c1c01aeab618348ad7a0bed4bcf012ffdd4e1014"
-  integrity sha512-z2VExGthMUYp8C1X4aIlpjhkx6UCE6DPY0BlXxgWpEplHMQJQ9+GzD5qrw9Ur+ewFs4qsi4wSw4cGbJVhgMWKA==
+splitpanes@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/splitpanes/-/splitpanes-2.3.2.tgz#512b5c14c6cbdc6679628d6eb731f64f253b4aff"
+  integrity sha512-QuBs1Ab2ESXgXgrCOzXBljyII93RBa9VpRaZraNMlurmhMJ4kybyyBqRUjcetvb8hlCJDSRbOab76AQv3JVTgg==
 
 sprintf-js@~1.0.2:
   version "1.0.3"
