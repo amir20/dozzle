@@ -15,7 +15,7 @@ module.exports = (env, argv) => ({
   output: {
     path: path.resolve(__dirname, "./static"),
     filename: "[name].js",
-    publicPath: process.env.WEBPACK_DEV_SERVER ? "/" : "{{ .Base }}",
+    publicPath: argv.mode === "production" ? "{{ .Base }}" : "/",
   },
   module: {
     rules: [
