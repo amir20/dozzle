@@ -78,6 +78,7 @@ module.exports = (env, argv) => ({
     port: 8081,
     inline: true,
     hot: true,
+    open: true,
     historyApiFallback: true,
     proxy: {
       "/api": {
