@@ -8,7 +8,7 @@
 
 Dozzle is a simple, lightweight application that provides you with a web based interface to monitor your Docker container logs live. It doesn’t store log information, it is for live monitoring of your container logs only.
 
-While dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
+While dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Logit.io](https://www.logit.io), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
 
 Dozzle doesn't cost any money. Dozzle aims to stay simple, small and free.
 
