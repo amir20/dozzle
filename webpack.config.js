@@ -24,6 +24,16 @@ module.exports = (env, argv) => ({
         loader: "vue-loader",
       },
       {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+          },
+        },
+      },
+      {
         test: /\.(sass|scss|css)$/,
         use: [
           {

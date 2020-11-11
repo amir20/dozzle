@@ -1,5 +1,15 @@
 {
-  "presets": [["env", { "modules": false }]],
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "chrome": "55"
+        },
+        "useBuiltIns": "usage"
+      }
+    ]
+  ],
   "env": {
     "test": {
       "presets": [["env", { "targets": { "node": "current" } }]]
