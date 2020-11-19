@@ -1,19 +1,11 @@
 <template>
-  <time :datetime="date.toISOString()">{{ date | relativeTime }}</time>
+  <time :datetime="date.toISOString()">{{ date | relativeTime(locale) }}</time>
 </template>
 
 <script>
 import { formatRelative } from "date-fns";
 import { enGB, enUS } from "date-fns/locale";
-
-const use24Hr =
-  new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-  })
-    .formatToParts(new Date(2020, 0, 1, 13))
-    .find((part) => part.type === "hour").value.length === 2;
-
-const locale = use24Hr ? enGB : enUS;
+import { mapState } from "vuex";
 
 export default {
   props: {
@@ -24,9 +16,14 @@ export default {
   },
   name: "RelativeTime",
   components: {},
-
+  computed: {
+    ...mapState(["settings"]),
+    locale () {
+      return this.settings.hour24 ? enGB : enUS;
+    }
+  },
   filters: {
-    relativeTime(date) {
+    relativeTime(date, locale) {
       return formatRelative(date, new Date(), { locale });
     },
   },
