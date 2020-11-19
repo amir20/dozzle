@@ -30,6 +30,7 @@ $link-active: $grey-dark;
 @import "~buefy/src/scss/utils/_all";
 @import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
+@import "~buefy/src/scss/components/_radio";
 
 html {
   --scheme-main: #{$black};

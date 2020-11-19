@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 import Meta from "vue-meta";
 import Dropdown from "buefy/dist/esm/dropdown";
 import Switch from "buefy/dist/esm/switch";
+import Radio from "buefy/dist/esm/radio";
+import Field from "buefy/dist/esm/field";
 import store from "./store";
 import config from "./store/config";
 import App from "./App.vue";
@@ -12,6 +14,8 @@ Vue.use(VueRouter);
 Vue.use(Meta);
 Vue.use(Dropdown);
 Vue.use(Switch);
+Vue.use(Radio);
+Vue.use(Field);
 
 const routes = [
   {

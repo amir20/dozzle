@@ -28,27 +28,35 @@
       </div>
 
       <div class="item">
-        <b-switch v-model="smallerScrollbars">
-          Use smaller scrollbars
-        </b-switch>
+        <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
       </div>
 
       <div class="item">
-        <b-switch v-model="showTimestamp">
-          Show timestamps
-        </b-switch>
+        <b-switch v-model="showTimestamp"> Show timestamps </b-switch>
       </div>
 
       <div class="item">
-        <b-switch v-model="showAllContainers">
-          Show stopped containers
-        </b-switch>
+        <b-switch v-model="showAllContainers"> Show stopped containers </b-switch>
       </div>
 
       <div class="item">
-        <b-switch v-model="lightTheme">
-          Use light theme
-        </b-switch>
+        <b-switch v-model="lightTheme"> Use light theme </b-switch>
+      </div>
+
+      <div class="item">
+        <b-field>
+          <b-radio-button v-model="hourStyle" native-value="auto">
+            <span>Auto</span>
+          </b-radio-button>
+
+          <b-radio-button v-model="hourStyle" native-value="12">
+            <span>12 hour</span>
+          </b-radio-button>
+
+          <b-radio-button v-model="hourStyle" native-value="24">
+            <span>24 hour</span>
+          </b-radio-button>
+        </b-field>
       </div>
 
       <div class="item">
@@ -76,9 +84,7 @@
               </b-dropdown-item>
             </b-dropdown>
           </div>
-          <div class="column">
-            Font size to use for logs
-          </div>
+          <div class="column">Font size to use for logs</div>
         </div>
       </div>
     </section>
@@ -126,7 +132,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme"].reduce(
+    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme", "hourStyle"].reduce(
       (map, name) => {
         map[name] = {
           get() {
