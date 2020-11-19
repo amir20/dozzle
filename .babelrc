@@ -14,5 +14,12 @@
     "test": {
       "presets": [["env", { "targets": { "node": "current" } }]]
     }
-  }
+  },
+  "plugins": [
+    ["@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ]
+  ]
 }

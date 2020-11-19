@@ -34,6 +34,12 @@
       </div>
 
       <div class="item">
+        <b-switch v-model="hour24">
+          Use 24 hour time
+        </b-switch>
+      </div>
+
+      <div class="item">
         <b-switch v-model="showTimestamp">
           Show timestamps
         </b-switch>
@@ -126,7 +132,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme"].reduce(
+    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme", "hour24"].reduce(
       (map, name) => {
         map[name] = {
           get() {
