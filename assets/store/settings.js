@@ -7,5 +7,5 @@ export const DEFAULT_SETTINGS = {
   showTimestamp: true,
   showAllContainers: false,
   lightTheme: false,
-  hour24: true,
+  hourStyle: "auto",
 };

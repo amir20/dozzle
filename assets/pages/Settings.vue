@@ -7,54 +7,44 @@
 
       <div>
         You are using Dozzle <i>{{ currentVersion }}</i
-        >.
+      >.
         <span v-if="hasUpdate">
           New version is available! Update to
           <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noreferrer noopener">{{
-            nextRelease.name
-          }}</a
+              nextRelease.name
+            }}</a
           >.
         </span>
       </div>
     </section>
+
     <section class="section">
       <div class="has-underline">
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        <b-switch v-model="search">
-          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
-        </b-switch>
-      </div>
+        By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
+        <br />
+        <br />
+        <b-field>
+          <b-radio-button v-model="hourStyle" native-value="auto">
+            <span>Auto</span>
+          </b-radio-button>
 
-      <div class="item">
-        <b-switch v-model="smallerScrollbars">
-          Use smaller scrollbars
-        </b-switch>
-      </div>
+          <b-radio-button v-model="hourStyle" native-value="12">
+            <span>12 hour</span>
+          </b-radio-button>
 
-      <div class="item">
-        <b-switch v-model="hour24">
-          Use 24 hour time
-        </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="showTimestamp">
-          Show timestamps
-        </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="showAllContainers">
-          Show stopped containers
-        </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="lightTheme">
-          Use light theme
-        </b-switch>
+          <b-radio-button v-model="hourStyle" native-value="24">
+            <span>24 hour</span>
+          </b-radio-button>
+        </b-field>
+        <div class="item">
+          <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
+        </div>
+        <div class="item">
+          <b-switch v-model="showTimestamp"> Show timestamps </b-switch>
+        </div>
       </div>
 
       <div class="item">
@@ -82,10 +72,27 @@
               </b-dropdown-item>
             </b-dropdown>
           </div>
-          <div class="column">
-            Font size to use for logs
-          </div>
+          <div class="column">Font size to use for logs</div>
         </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="has-underline">
+        <h2 class="title is-4">Options</h2>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="search">
+          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
+        </b-switch>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="showAllContainers"> Show stopped containers </b-switch>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="lightTheme"> Use light theme </b-switch>
       </div>
     </section>
   </div>
@@ -132,7 +139,7 @@ export default {
   },
   computed: {
     ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme", "hour24"].reduce(
+    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme", "hourStyle"].reduce(
       (map, name) => {
         map[name] = {
           get() {

@@ -3,9 +3,20 @@
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
 import { formatRelative } from "date-fns";
 import { enGB, enUS } from "date-fns/locale";
-import { mapState } from "vuex";
+
+const use24Hr =
+  new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+  })
+    .format(new Date(2020, 0, 1, 13))
+    .replace(/[^0-9]/g, '')
+    .length === 2;
+
+const auto = use24Hr ? enGB : enUS;
+const styles = { auto, 12: enUS, 24: enGB };
 
 export default {
   props: {
@@ -19,7 +30,7 @@ export default {
   computed: {
     ...mapState(["settings"]),
     locale () {
-      return this.settings.hour24 ? enGB : enUS;
+      return styles[this.settings.hourStyle];
     }
   },
   filters: {
