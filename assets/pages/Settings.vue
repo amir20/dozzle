@@ -23,22 +23,27 @@
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
-        <br />
-        <br />
-        <b-field>
-          <b-radio-button v-model="hourStyle" native-value="auto">
-            <span>Auto</span>
-          </b-radio-button>
+        <div class="columns is-vcentered">
+          <div class="column is-narrow">
+            <b-field>
+              <b-radio-button v-model="hourStyle" native-value="auto">
+                <span>Auto</span>
+              </b-radio-button>
 
-          <b-radio-button v-model="hourStyle" native-value="12">
-            <span>12 hour</span>
-          </b-radio-button>
+              <b-radio-button v-model="hourStyle" native-value="12">
+                <span>12 hour</span>
+              </b-radio-button>
 
-          <b-radio-button v-model="hourStyle" native-value="24">
-            <span>24 hour</span>
-          </b-radio-button>
-        </b-field>
+              <b-radio-button v-model="hourStyle" native-value="24">
+                <span>24 hour</span>
+              </b-radio-button>
+            </b-field>
+          </div>
+          <div class="column">
+            By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
+          </div>
+        </div>
+
         <div class="item">
           <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
         </div>
