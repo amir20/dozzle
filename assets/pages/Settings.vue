@@ -17,33 +17,15 @@
         </span>
       </div>
     </section>
+
     <section class="section">
       <div class="has-underline">
         <h2 class="title is-4">Display</h2>
       </div>
       <div class="item">
-        <b-switch v-model="search">
-          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
-        </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="showTimestamp"> Show timestamps </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="showAllContainers"> Show stopped containers </b-switch>
-      </div>
-
-      <div class="item">
-        <b-switch v-model="lightTheme"> Use light theme </b-switch>
-      </div>
-
-      <div class="item">
+        By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
+        <br />
+        <br />
         <b-field>
           <b-radio-button v-model="hourStyle" native-value="auto">
             <span>Auto</span>
@@ -57,6 +39,12 @@
             <span>24 hour</span>
           </b-radio-button>
         </b-field>
+        <div class="item">
+          <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
+        </div>
+        <div class="item">
+          <b-switch v-model="showTimestamp"> Show timestamps </b-switch>
+        </div>
       </div>
 
       <div class="item">
@@ -86,6 +74,25 @@
           </div>
           <div class="column">Font size to use for logs</div>
         </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="has-underline">
+        <h2 class="title is-4">Options</h2>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="search">
+          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
+        </b-switch>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="showAllContainers"> Show stopped containers </b-switch>
+      </div>
+
+      <div class="item">
+        <b-switch v-model="lightTheme"> Use light theme </b-switch>
       </div>
     </section>
   </div>
