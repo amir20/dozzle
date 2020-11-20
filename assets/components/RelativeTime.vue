@@ -11,8 +11,9 @@ const use24Hr =
   new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
   })
-    .formatToParts(new Date(2020, 0, 1, 13))
-    .find((part) => part.type === "hour").value.length === 2;
+    .format(new Date(2020, 0, 1, 13))
+    .replace(/[^0-9]/g, '')
+    .length === 2;
 
 const auto = use24Hr ? enGB : enUS;
 const styles = { auto, 12: enUS, 24: enGB };
