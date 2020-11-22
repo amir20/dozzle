@@ -26,16 +26,13 @@
         <div class="columns is-vcentered">
           <div class="column is-narrow">
             <b-field>
-              <b-radio-button v-model="hourStyle" native-value="auto">
-                <span>Auto</span>
-              </b-radio-button>
-
-              <b-radio-button v-model="hourStyle" native-value="12">
-                <span>12 hour</span>
-              </b-radio-button>
-
-              <b-radio-button v-model="hourStyle" native-value="24">
-                <span>24 hour</span>
+              <b-radio-button
+                v-model="hourStyle"
+                :native-value="value"
+                v-for="value in ['auto', '12', '24']"
+                :key="value"
+              >
+                <span class="is-capitalized">{{ value }}</span>
               </b-radio-button>
             </b-field>
           </div>
@@ -53,29 +50,18 @@
       </div>
 
       <div class="item">
-        <div class="columns is-vcentered is-mobile is-variable is-2">
+        <div class="columns is-vcentered">
           <div class="column is-narrow">
-            <b-dropdown v-model="size" aria-role="list">
-              <button class="button is-primary" type="button" slot="trigger">
-                <span class="is-capitalized">{{ size }}</span>
-                <span class="icon"><icon name="chevron-down"></icon></span>
-              </button>
-              <b-dropdown-item
-                :value="value"
-                aria-role="listitem"
+            <b-field>
+              <b-radio-button
+                v-model="size"
+                :native-value="value"
                 v-for="value in ['small', 'medium', 'large']"
                 :key="value"
               >
-                <div class="media">
-                  <span class="icon keep-size">
-                    <icon name="check" v-if="value == size"></icon>
-                  </span>
-                  <div class="media-content">
-                    <h3 class="is-capitalized">{{ value }}</h3>
-                  </div>
-                </div>
-              </b-dropdown-item>
-            </b-dropdown>
+                <span class="is-capitalized">{{ value }}</span>
+              </b-radio-button>
+            </b-field>
           </div>
           <div class="column">Font size to use for logs</div>
         </div>

@@ -8,7 +8,7 @@
   "watch:assets": "webpack --mode=development --watch",
   "watch:server": "reflex -c .reflex",
   "dev": "npm-run-all -p dev-server watch:server",
-  "dev-server": "webpack serve",
+  "dev-server": "webpack serve --mode=development",
   "prebuild": "yarn clean",
   "build": "yarn webpack --mode=production",
   "clean": "rm -rf static/ a_main-packr.go",
