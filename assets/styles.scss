@@ -135,10 +135,12 @@ html.has-custom-scrollbars {
     border-color: transparent;
   }
 }
-
-.splitpanes__pane {
-  overflow: unset;
+@media screen and (min-width: 770px) {
+  .splitpanes__pane {
+    overflow: unset;
+  }
 }
+
 
 .splitpanes__splitter {
   z-index: 99;
