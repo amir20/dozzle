@@ -33,14 +33,9 @@ module.exports = (env, argv) => ({
           {
             loader: "postcss-loader",
             options: {
-              ident: "postcss",
-              plugins: (loader) => [
-                require("postcss-cssnext")({
-                  features: {
-                    customProperties: { warnings: false },
-                  },
-                }),
-              ],
+              postcssOptions: {
+                plugins: [require("autoprefixer")],
+              },
             },
           },
           "sass-loader",
