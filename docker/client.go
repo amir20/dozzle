@@ -145,7 +145,7 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return strings.TrimSpace(buffer.String()), nil
+		return buffer.String(), nil
 	}
 }
 
