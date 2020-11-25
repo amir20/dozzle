@@ -28,7 +28,6 @@ $link-active: $grey-dark;
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
 @import "~buefy/src/scss/utils/_all";
-@import "~buefy/src/scss/components/_dropdown";
 @import "~buefy/src/scss/components/_switch";
 @import "~buefy/src/scss/components/_radio";
 
@@ -137,8 +136,10 @@ html.has-custom-scrollbars {
   }
 }
 
-.splitpanes__pane {
-  overflow: unset;
+@media screen and (min-width: 770px) {
+  .splitpanes__pane {
+    overflow: unset;
+  }
 }
 
 .splitpanes__splitter {

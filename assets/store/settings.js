@@ -8,4 +8,5 @@ export const DEFAULT_SETTINGS = {
   showAllContainers: false,
   lightTheme: false,
   hourStyle: "auto",
+  checkingUpdates: true,
 };
