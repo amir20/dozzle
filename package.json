@@ -65,7 +65,7 @@
   "postcss": "^8.1.10",
   "postcss-loader": "^4.1.0",
   "prettier": "^2.2.0",
-  "release-it": "^14.2.1",
+  "release-it": "^14.2.2",
   "sass": "^1.29.0",
   "sass-loader": "^10.1.0",
   "vue-hot-reload-api": "^2.3.4",
