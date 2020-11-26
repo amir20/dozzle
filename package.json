@@ -41,7 +41,7 @@
   "vue": "^2.6.12",
   "vue-meta": "^2.4.0",
   "vue-router": "^3.4.9",
-  "vuex": "^3.5.1"
+  "vuex": "^3.6.0"
  },
  "devDependencies": {
   "@babel/core": "^7.12.9",
