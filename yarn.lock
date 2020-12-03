@@ -6770,10 +6770,10 @@ postcss@^7.0.14:
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
-postcss@^8.1.12, postcss@^8.1.4:
-  version "8.1.12"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.12.tgz#4d234d588ed6444e7b4e76236ab4169638ab89af"
-  integrity sha512-FHjbAbrVLVxizeQhr3yiGnmtj1O2dhUIZSJWhJN2/ZJrcKlAbc5ysDjB/nVIhcfaj0eUlx0knDCrN/gkOe4xTA==
+postcss@^8.1.13, postcss@^8.1.4:
+  version "8.1.13"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.13.tgz#5d2aa2f96b3eaab5edc2ef488b4bd636c680f712"
+  integrity sha512-D++wck3XhQkICYfysZRx90JCDgaTTdq8YxLswB9cjBzfxwcVcQjn3LsjXon0PQ6TIOof2IGWLRHhSgXZuJct4w==
   dependencies:
     colorette "^1.2.1"
     nanoid "^3.1.20"
