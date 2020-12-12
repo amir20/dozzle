@@ -7,7 +7,7 @@ WORKDIR /build
 
 # Install dependencies
 COPY package*.json yarn.lock ./
-RUN HUSKY_SKIP_INSTALL=1 yarn install --network-timeout 1000000
+RUN yarn install --ignore-scripts --network-timeout 1000000
 
 # Copy config files
 COPY .* webpack*.js ./

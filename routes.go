@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/docker"
