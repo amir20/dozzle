@@ -14,7 +14,8 @@
   "clean": "rm -rf static/ a_main-packr.go",
   "release": "release-it",
   "test": "TZ=UTC jest",
-  "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration"
+  "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration",
+  "postinstall": "husky install"
  },
  "repository": {
   "type": "git",
@@ -77,11 +78,6 @@
   "webpack-cli": "^4.2.0",
   "webpack-dev-server": "^3.11.0",
   "webpack-pwa-manifest": "^4.3.0"
- },
- "husky": {
-  "hooks": {
-   "pre-commit": "lint-staged"
-  }
  },
  "lint-staged": {
   "*.{js,vue,css}": [
