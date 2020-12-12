@@ -174,8 +174,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	f.Flush()
 
-	delayer := delayedFunc(time.Second)
-
 Loop:
 	for {
 		select {
@@ -207,11 +205,11 @@ Loop:
 					}
 				}
 
-				delayer(func() {
-					if err := sendContainersJSON(h.client, w); err != nil {
-						log.Errorf("Error while encoding containers to stream: %v", err)
-					}
-				})
+				time.Sleep(time.Second)
+				if err := sendContainersJSON(h.client, w); err != nil {
+					log.Errorf("Error while encoding containers to stream: %v", err)
+					break Loop
+				}
 
 				f.Flush()
 			default:
@@ -247,28 +245,4 @@ func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
 	}
 
 	return nil
-}
-
-type delayedFun struct {
-	mu    sync.Mutex
-	after time.Duration
-	timer *time.Timer
-}
-
-func delayedFunc(after time.Duration) func(f func()) {
-	d := &delayedFun{after: after}
-
-	return func(f func()) {
-		d.add(f)
-	}
-}
-
-func (d *delayedFun) add(f func()) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
-	if d.timer != nil {
-		d.timer.Stop()
-	}
-	d.timer = time.AfterFunc(d.after, f)
 }
