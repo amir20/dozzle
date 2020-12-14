@@ -60,6 +60,7 @@ func createRouter(h *handler) *mux.Router {
 	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
 	s.HandleFunc("/api/events/stream", h.streamEvents)
 	s.HandleFunc("/version", h.version)
+	s.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 	return r
 }
