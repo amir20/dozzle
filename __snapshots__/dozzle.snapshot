@@ -68,6 +68,10 @@ data: []
 event: containers-changed
 data: []
 
+
+event: container-event
+data: {"Type":"","Action":"start","Actor":{"ID":"","Attributes":null}}
+
 /* snapshot: Test_handler_streamLogs_error_finding_container */
 HTTP/1.1 404 Not Found
 Connection: close
