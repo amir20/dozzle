@@ -157,12 +157,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	messages, err := h.client.Events(ctx)
 	stats := make(chan docker.ContainerStat)
 
-	runningContainers := map[string]docker.Container{}
 	if containers, err := h.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
-				h.client.ContainerStats(ctx, c.ID, stats)
-				runningContainers[c.ID] = c
+				if err := h.client.ContainerStats(ctx, c.ID, stats); err != nil {
+					log.Errorf("Error while streaming container stats: %v", err)
+				}
 			}
 		}
 	}
@@ -173,7 +173,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	f.Flush()
 
-Loop:
 	for {
 		select {
 		case stat := <-stats:
@@ -186,28 +185,22 @@ Loop:
 			f.Flush()
 		case message, ok := <-messages:
 			if !ok {
-				break Loop
+				return
 			}
 			switch message.Action {
-			case "start", "connect", "disconnect", "die":
+			case "start", "die":
 				log.Debugf("Triggering docker event: %v", message.Action)
 				if message.Action == "start" {
-					log.Debugf("Scanning for new containers")
-					if containers, err := h.client.ListContainers(); err == nil {
-						for _, c := range containers {
-							if _, ok = runningContainers[c.ID]; c.State == "running" && !ok {
-								log.Debugf("Found a new container %v", c.ID)
-								h.client.ContainerStats(ctx, c.ID, stats)
-								runningContainers[c.ID] = c
-							}
-						}
+					log.Debugf("Found new container with id: %v", message.Actor.ID)
+					if err := h.client.ContainerStats(ctx, message.Actor.ID, stats); err != nil {
+						log.Errorf("Error when streaming new container stats: %v", err)
 					}
 				}
 
 				time.Sleep(time.Second)
 				if err := sendContainersJSON(h.client, w); err != nil {
 					log.Errorf("Error while encoding containers to stream: %v", err)
-					break Loop
+					return
 				}
 
 				f.Flush()
@@ -215,9 +208,9 @@ Loop:
 				log.Debugf("Ignoring docker event: %v", message.Action)
 			}
 		case <-ctx.Done():
-			break Loop
+			return
 		case <-err:
-			break Loop
+			return
 		}
 	}
 }

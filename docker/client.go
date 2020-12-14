@@ -150,6 +150,7 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 }
 
 func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
+	id = id[:12]
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -157,6 +158,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	}
 
 	go func() {
+		log.Debugf("starting to stream stats for: %s", id)
 		defer response.Body.Close()
 		decoder := json.NewDecoder(response.Body)
 		var v *types.StatsJSON
@@ -164,7 +166,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			if err := decoder.Decode(&v); err != nil {
 				if err == context.Canceled || err == io.EOF {
 					log.Debugf("stopping stats streaming for container %s", id)
-					break
+					return
 				}
 				log.Errorf("decoder for stats api returned an unknown error %v", err)
 			}
