@@ -51,7 +51,7 @@ func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) 
 	return json, args.Error(1)
 }
 
-func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error) {	
+func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error) {
 	return types.ContainerStats{}, nil
 }
 
