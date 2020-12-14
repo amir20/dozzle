@@ -177,10 +177,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		select {
 		case stat := <-stats:
 			bytes, _ := json.Marshal(stat)
-			_, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes))
-			if err != nil {
-				log.Debugf("Error while writing to event stream: %v", err)
-				break
+			if _, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes)); err != nil {
+				log.Debugf("Error writing stat to event stream: %v", err)
+				return
 			}
 			f.Flush()
 		case message, ok := <-messages:
@@ -195,11 +194,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					if err := h.client.ContainerStats(ctx, message.Actor.ID, stats); err != nil {
 						log.Errorf("Error when streaming new container stats: %v", err)
 					}
+					if err := sendContainersJSON(h.client, w); err != nil {
+						log.Errorf("Error encoding containers to stream: %v", err)
+						return
+					}
 				}
 
-				time.Sleep(time.Second)
-				if err := sendContainersJSON(h.client, w); err != nil {
-					log.Errorf("Error while encoding containers to stream: %v", err)
+				bytes, _ := json.Marshal(message)
+				if _, err := fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", string(bytes)); err != nil {
+					log.Debugf("Error writing event to event stream: %v", err)
 					return
 				}
 
