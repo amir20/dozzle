@@ -251,7 +251,6 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 		for {
 			select {
 			case <-ctx.Done():
-				log.Debugf("STOPPPING")
 				return
 			case message, ok := <-dockerMessages:
 				if !ok {
