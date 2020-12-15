@@ -38,7 +38,7 @@ type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, int, string) (<-chan string, <-chan error)
-	Events(context.Context) (<-chan events.Message, <-chan error)
+	Events(context.Context) (<-chan ContainerEvent, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) ([]string, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 }
@@ -150,7 +150,6 @@ func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
 }
 
 func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
-	id = id[:12]
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -242,8 +241,30 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 	return messages, errChannel
 }
 
-func (d *dockerClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
-	return d.cli.Events(ctx, types.EventsOptions{})
+func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-chan error) {
+	dockerMessages, errors := d.cli.Events(ctx, types.EventsOptions{})
+	messages := make(chan ContainerEvent)
+
+	go func() {
+		defer close(messages)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case message, ok := <-dockerMessages:
+				if !ok {
+					return
+				}
+				messages <- ContainerEvent{
+					ActorID: message.Actor.ID[:12],
+					Name:    message.Action,
+				}
+			}
+		}
+	}()
+
+	return messages, errors
 }
 
 func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) ([]string, error) {

@@ -154,7 +154,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	messages, err := h.client.Events(ctx)
+	events, err := h.client.Events(ctx)
 	stats := make(chan docker.ContainerStat)
 
 	if containers, err := h.client.ListContainers(); err == nil {
@@ -182,16 +182,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			f.Flush()
-		case message, ok := <-messages:
+		case event, ok := <-events:
 			if !ok {
 				return
 			}
-			switch message.Action {
+			switch event.Name {
 			case "start", "die":
-				log.Debugf("Triggering docker event: %v", message.Action)
-				if message.Action == "start" {
-					log.Debugf("Found new container with id: %v", message.Actor.ID)
-					if err := h.client.ContainerStats(ctx, message.Actor.ID, stats); err != nil {
+				log.Debugf("Triggering docker event: %v", event.Name)
+				if event.Name == "start" {
+					log.Debugf("Found new container with id: %v", event.ActorID)
+					if err := h.client.ContainerStats(ctx, event.ActorID, stats); err != nil {
 						log.Errorf("Error when streaming new container stats: %v", err)
 					}
 					if err := sendContainersJSON(h.client, w); err != nil {
@@ -200,15 +200,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
-				bytes, _ := json.Marshal(message)
-				if _, err := fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", string(bytes)); err != nil {
+				bytes, _ := json.Marshal(event)
+				if _, err := fmt.Fprintf(w, "event: container-%s\ndata: %s\n\n", event.Name, string(bytes)); err != nil {
 					log.Debugf("Error writing event to event stream: %v", err)
 					return
 				}
 
 				f.Flush()
 			default:
-				log.Debugf("Ignoring docker event: %v", message.Action)
+				log.Debugf("Ignoring docker event: %v", event.Name)
 			}
 		case <-ctx.Done():
 			return
