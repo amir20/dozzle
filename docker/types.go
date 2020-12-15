@@ -20,3 +20,9 @@ type ContainerStat struct {
 	MemoryPercent int64  `json:"memory"`
 	MemoryUsage   int64  `json:"memoryUsage"`
 }
+
+// ContainerEvent represents events that are triggered
+type ContainerEvent struct {
+	ActorID string `json:"actorId"`
+	Name    string `json:"name"`
+}

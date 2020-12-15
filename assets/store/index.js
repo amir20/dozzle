@@ -20,10 +20,7 @@ const state = {
 
 const mutations = {
   SET_CONTAINERS(state, containers) {
-    const containersById = state.containers.reduce((map, obj) => {
-      map[obj.id] = obj;
-      return map;
-    }, {});
+    const containersById = getters.allContainersById({ containers });
 
     containers.forEach(
       (container) =>
@@ -51,11 +48,10 @@ const mutations = {
     state.settings = { ...state.settings, ...newValues };
     storage.set(DOZZLE_SETTINGS_KEY, state.settings);
   },
-  UPDATE_STAT(_, { container, stat }) {
-    Vue.set(container, "stat", stat);
-  },
-  UPDATE_STATE(_, { container, state }) {
-    Vue.set(container, "state", state);
+  UPDATE_CONTAINER(_, { container, data }) {
+    for (const [key, value] of Object.entries(data)) {
+      Vue.set(container, key, value);
+    }
   },
 };
 
@@ -75,14 +71,14 @@ const actions = {
   UPDATE_STATS({ commit, getters: { allContainersById } }, stat) {
     const container = allContainersById[stat.id];
     if (container) {
-      commit("UPDATE_STAT", { container, stat });
+      commit("UPDATE_CONTAINER", { container, data: { stat } });
     }
   },
-  CONTAINER_EVENT({ commit, getters: { allContainersById } }, event) {
-    switch (event.status) {
+  UPDATE_CONTAINER({ commit, getters: { allContainersById } }, event) {
+    switch (event.name) {
       case "die":
-        const container = allContainersById[event.Actor.ID.substr(0, 12)];
-        commit("UPDATE_STATE", { container, state: "exited" });
+        const container = allContainersById[event.actorId];
+        commit("UPDATE_CONTAINER", { container, data: { state: "exited" } });
         break;
       default:
     }
@@ -108,7 +104,7 @@ const getters = {
 const es = new EventSource(`${config.base}/api/events/stream`);
 es.addEventListener("containers-changed", (e) => store.commit("SET_CONTAINERS", JSON.parse(e.data)), false);
 es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
-es.addEventListener("container-event", (e) => store.dispatch("CONTAINER_EVENT", JSON.parse(e.data)), false);
+es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
 mql.addEventListener("change", (e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 

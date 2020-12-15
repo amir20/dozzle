@@ -13,7 +13,6 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
-	"github.com/docker/docker/api/types/events"
 	"github.com/gobuffalo/packr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -56,9 +55,9 @@ func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize in
 	return channel, err
 }
 
-func (m *MockedClient) Events(ctx context.Context) (<-chan events.Message, <-chan error) {
+func (m *MockedClient) Events(ctx context.Context) (<-chan docker.ContainerEvent, <-chan error) {
 	args := m.Called(ctx)
-	channel, ok := args.Get(0).(chan events.Message)
+	channel, ok := args.Get(0).(chan docker.ContainerEvent)
 	if !ok {
 		panic("channel is not of type chan events.Message")
 	}
@@ -205,17 +204,19 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	mockedClient := new(MockedClient)
-	messages := make(chan events.Message)
+	messages := make(chan docker.ContainerEvent)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
 	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
 
 	go func() {
-		messages <- events.Message{
-			Action: "start",
+		messages <- docker.ContainerEvent{
+			Name:    "start",
+			ActorID: "1234",
 		}
-		messages <- events.Message{
-			Action: "something-random",
+		messages <- docker.ContainerEvent{
+			Name:    "something-random",
+			ActorID: "1234",
 		}
 		close(messages)
 	}()
@@ -232,7 +233,7 @@ func Test_handler_streamEvents_error(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	mockedClient := new(MockedClient)
-	messages := make(chan events.Message)
+	messages := make(chan docker.ContainerEvent)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
 	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
@@ -256,7 +257,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	messages := make(chan events.Message)
+	messages := make(chan docker.ContainerEvent)
 	errChannel := make(chan error)
 	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
 	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
