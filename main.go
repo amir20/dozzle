@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
-	"github.com/amir20/dozzle/httpservice"
+	"github.com/amir20/dozzle/web"
+
 	"github.com/gobuffalo/packr"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -81,7 +82,13 @@ func main() {
 
 	box := packr.NewBox("./static")
 
-	srv := httpservice.CreateServerService(dockerClient, box, base, addr, version, tailSize)
+	config := web.Config{
+		Addr:     addr,
+		Base:     base,
+		Version:  version,
+		TailSize: tailSize,
+	}
+	srv := web.CreateServer(dockerClient, box, config)
 
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
