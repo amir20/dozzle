@@ -241,7 +241,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 				f.Flush()
 			default:
-				log.Debugf("Ignoring docker event: %v", event.Name)
+				// do nothing
 			}
 		case <-ctx.Done():
 			return
