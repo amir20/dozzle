@@ -164,6 +164,13 @@ Loop:
 	}
 
 	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime stats")
+
+	if log.IsLevelEnabled(log.DebugLevel) {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+		log.WithField("Alloc KBs", m.Alloc/1024).WithField("TotalAlloc KBs", m.TotalAlloc/1024).WithField("Sys KBs", m.Sys/1024).Debug("runtime mem stats")
+	}
 }
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
