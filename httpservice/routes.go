@@ -1,4 +1,4 @@
-package main
+package httpservice
 
 import (
 	"encoding/json"
@@ -11,11 +11,32 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
-func createRoutes(base string, h *handler) *mux.Router {
+type handler struct {
+	client docker.Client
+	box    packr.Box
+	base   string
+	version string
+	tailSize int
+}
+
+// CreateServerService creates a service for http handler
+func CreateServerService(c docker.Client, b packr.Box, base string, addr string, version string, tailSize int) *http.Server{
+	r := createRouter(base, &handler{
+		client: c,
+		box:    b,
+		base: base,
+		version: version,
+		tailSize: tailSize,
+	})
+	return &http.Server{Addr: addr, Handler: r}
+}
+
+func createRouter(base string, h *handler) *mux.Router {
 	r := mux.NewRouter()
 	r.Use(setCSPHeaders)
 	if base != "/" {
@@ -27,7 +48,7 @@ func createRoutes(base string, h *handler) *mux.Router {
 	s.HandleFunc("/api/logs/stream", h.streamLogs)
 	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
 	s.HandleFunc("/api/events/stream", h.streamEvents)
-	s.HandleFunc("/version", h.version)
+	s.HandleFunc("/version", h.versionHander)
 	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 	return r
 }
@@ -54,14 +75,14 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		}
 
 		path := ""
-		if base != "/" {
-			path = base
+		if h.base != "/" {
+			path = h.base
 		}
 
 		data := struct {
 			Base    string
 			Version string
-		}{path, version}
+		}{path, h.version}
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,7 +123,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := h.client.ContainerLogs(r.Context(), container.ID, tailSize, r.Header.Get("Last-Event-ID"))
+	messages, err := h.client.ContainerLogs(r.Context(), container.ID, h.tailSize, r.Header.Get("Last-Event-ID"))
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -218,8 +239,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, version)
+func (h *handler) versionHander(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, h.version)
 }
 
 func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
