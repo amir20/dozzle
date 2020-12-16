@@ -336,7 +336,7 @@ func Test_createRoutes_version(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/"}})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/", Version: "dev"}})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
