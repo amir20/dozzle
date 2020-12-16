@@ -2317,9 +2317,9 @@ jest-haste-map@^26.6.2:
     fsevents "^2.1.2"
 
 jest-image-snapshot@^4.0.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/jest-image-snapshot/-/jest-image-snapshot-4.2.0.tgz#559d7ade69e9918517269cef184261c80029a69e"
-  integrity sha512-6aAqv2wtfOgxiJeBayBCqHo1zX+A12SUNNzo7rIxiXh6W6xYVu8QyHWkada8HeRi+QUTHddp0O0Xa6kmQr+xbQ==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/jest-image-snapshot/-/jest-image-snapshot-4.3.0.tgz#27ecd571aec2922a6812981039002030f90f9140"
+  integrity sha512-GFwhOQiWyECcndHvOTLYXpghHP+S9R58B7Ru1Y/74IJYpY0IIc2D0GOwEzKMWqhXHS1KedpymZGZfMqZDlyYiQ==
   dependencies:
     chalk "^1.1.3"
     get-stdin "^5.0.1"
