@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/dustin/go-humanize"
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -163,13 +164,17 @@ Loop:
 		}
 	}
 
-	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime stats")
+	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime goroutine stats")
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-		log.WithField("Alloc KBs", m.Alloc/1024).WithField("TotalAlloc KBs", m.TotalAlloc/1024).WithField("Sys KBs", m.Sys/1024).Debug("runtime mem stats")
+		log.WithFields(log.Fields{
+			"Alloc":      humanize.Bytes(m.Alloc),
+			"TotalAlloc": humanize.Bytes(m.TotalAlloc),
+			"Sys":        humanize.Bytes(m.Sys),
+		}).Debug("runtime mem stats")
 	}
 }
 
