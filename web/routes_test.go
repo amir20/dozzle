@@ -295,7 +295,7 @@ func Test_createRoutes_redirect(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foorbar"}})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
 	req, err := http.NewRequest("GET", "/foobar", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
