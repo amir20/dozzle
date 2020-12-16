@@ -1,0 +1,127 @@
+/* snapshot: Test_createRoutes_foobar */
+HTTP/1.1 200 OK
+Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/plain; charset=utf-8
+
+foo page
+
+/* snapshot: Test_createRoutes_index */
+HTTP/1.1 200 OK
+Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/plain; charset=utf-8
+
+index page
+
+/* snapshot: Test_createRoutes_redirect */
+HTTP/1.1 404 Not Found
+Connection: close
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+404 page not found
+
+/* snapshot: Test_createRoutes_version */
+HTTP/1.1 200 OK
+Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self'; manifest-src 'self'; font-src fonts.gstatic.com; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/plain; charset=utf-8
+
+/* snapshot: Test_handler_streamEvents_error */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: containers-changed
+data: []
+
+/* snapshot: Test_handler_streamEvents_error_request */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: containers-changed
+data: []
+
+/* snapshot: Test_handler_streamEvents_happy */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: containers-changed
+data: []
+
+
+event: containers-changed
+data: []
+
+
+event: container-start
+data: {"actorId":"1234","name":"start"}
+
+/* snapshot: Test_handler_streamLogs_error_finding_container */
+HTTP/1.1 404 Not Found
+Connection: close
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+error finding container
+
+/* snapshot: Test_handler_streamLogs_error_reading */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+/* snapshot: Test_handler_streamLogs_happy */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+data: INFO Testing logs...
+
+event: container-stopped
+data: end of stream
+
+/* snapshot: Test_handler_streamLogs_happy_container_stopped */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: container-stopped
+data: end of stream
+
+event: container-stopped
+data: end of stream
+
+/* snapshot: Test_handler_streamLogs_happy_with_id */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+data: 2020-05-13T18:55:37.772853839Z INFO Testing logs...
+id: 2020-05-13T18:55:37.772853839Z
+
+event: container-stopped
+data: end of stream
