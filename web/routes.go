@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"encoding/json"
@@ -11,11 +11,37 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
-func createRoutes(base string, h *handler) *mux.Router {
+// Config is a struct for configuring the web service
+type Config struct {
+	Base     string
+	Addr     string
+	Version  string
+	TailSize int
+}
+
+type handler struct {
+	client docker.Client
+	box    packr.Box
+	config *Config
+}
+
+// CreateServer creates a service for http handler
+func CreateServer(c docker.Client, b packr.Box, config Config) *http.Server {
+	handler := &handler{
+		client: c,
+		box:    b,
+		config: &config,
+	}
+	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
+}
+
+func createRouter(h *handler) *mux.Router {
+	base := h.config.Base
 	r := mux.NewRouter()
 	r.Use(setCSPHeaders)
 	if base != "/" {
@@ -54,14 +80,14 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		}
 
 		path := ""
-		if base != "/" {
-			path = base
+		if h.config.Base != "/" {
+			path = h.config.Base
 		}
 
 		data := struct {
 			Base    string
 			Version string
-		}{path, version}
+		}{path, h.config.Version}
 		err = tmpl.Execute(w, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -102,7 +128,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := h.client.ContainerLogs(r.Context(), container.ID, tailSize, r.Header.Get("Last-Event-ID"))
+	messages, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -138,6 +164,13 @@ Loop:
 	}
 
 	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime stats")
+
+	if log.IsLevelEnabled(log.DebugLevel) {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+		log.WithField("Alloc KBs", m.Alloc/1024).WithField("TotalAlloc KBs", m.TotalAlloc/1024).WithField("Sys KBs", m.Sys/1024).Debug("runtime mem stats")
+	}
 }
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -219,7 +252,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, version)
+	fmt.Fprintln(w, h.config.Version)
 }
 
 func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {

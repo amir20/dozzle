@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -10,6 +9,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/web"
+
 	"github.com/gobuffalo/packr"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -20,7 +21,6 @@ var (
 	addr     = ""
 	base     = ""
 	level    = ""
-	showAll  = false
 	tailSize = 300
 	filters  map[string]string
 	version  = "dev"
@@ -81,11 +81,14 @@ func main() {
 	}
 
 	box := packr.NewBox("./static")
-	r := createRoutes(base, &handler{
-		client: dockerClient,
-		box:    box,
-	})
-	srv := &http.Server{Addr: addr, Handler: r}
+
+	config := web.Config{
+		Addr:     addr,
+		Base:     base,
+		Version:  version,
+		TailSize: tailSize,
+	}
+	srv := web.CreateServer(dockerClient, box, config)
 
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)

@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"context"
@@ -92,7 +92,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -119,7 +119,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -146,7 +146,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -165,7 +165,7 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -192,7 +192,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -221,7 +221,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -243,7 +243,7 @@ func Test_handler_streamEvents_error(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -269,7 +269,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 		cancel()
 	}()
 
-	h := handler{client: mockedClient}
+	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -282,7 +282,7 @@ func Test_createRoutes_index(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("index.html", "index page"), "AddString should have no error.")
 
-	handler := createRoutes("/", &handler{mockedClient, box})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/"}})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -295,7 +295,7 @@ func Test_createRoutes_redirect(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
 	req, err := http.NewRequest("GET", "/foobar", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -309,7 +309,7 @@ func Test_createRoutes_foobar(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("index.html", "foo page"), "AddString should have no error.")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -323,7 +323,7 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 	box := packr.NewBox("./virtual")
 	require.NoError(t, box.AddString("/test", "test page"), "AddString should have no error.")
 
-	handler := createRoutes("/foobar", &handler{mockedClient, box})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -336,7 +336,7 @@ func Test_createRoutes_version(t *testing.T) {
 	mockedClient := new(MockedClient)
 	box := packr.NewBox("./virtual")
 
-	handler := createRoutes("/", &handler{mockedClient, box})
+	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/", Version: "dev"}})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
