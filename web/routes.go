@@ -154,26 +154,26 @@ Loop:
 			f.Flush()
 		case e := <-err:
 			if e == io.EOF {
-				log.Debugf("Container stopped: %v", container.ID)
+				log.Debugf("container stopped: %v", container.ID)
 				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
 				f.Flush()
 			} else {
-				log.Debugf("Error while reading from log stream: %v", e)
+				log.Debugf("error while reading from log stream: %v", e)
 				break Loop
 			}
 		}
 	}
 
-	log.WithField("NumGoroutine", runtime.NumGoroutine()).Debug("runtime goroutine stats")
+	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
 		log.WithFields(log.Fields{
-			"Alloc":      humanize.Bytes(m.Alloc),
-			"TotalAlloc": humanize.Bytes(m.TotalAlloc),
-			"Sys":        humanize.Bytes(m.Sys),
+			"allocated":      humanize.Bytes(m.Alloc),
+			"totalAllocated": humanize.Bytes(m.TotalAlloc),
+			"system":         humanize.Bytes(m.Sys),
 		}).Debug("runtime mem stats")
 	}
 }
@@ -216,7 +216,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		case stat := <-stats:
 			bytes, _ := json.Marshal(stat)
 			if _, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes)); err != nil {
-				log.Debugf("Error writing stat to event stream: %v", err)
+				log.Errorf("error writing stat to event stream: %v", err)
 				return
 			}
 			f.Flush()
@@ -226,21 +226,21 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			}
 			switch event.Name {
 			case "start", "die":
-				log.Debugf("Triggering docker event: %v", event.Name)
+				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
-					log.Debugf("Found new container with id: %v", event.ActorID)
+					log.Debugf("found new container with id: %v", event.ActorID)
 					if err := h.client.ContainerStats(ctx, event.ActorID, stats); err != nil {
-						log.Errorf("Error when streaming new container stats: %v", err)
+						log.Errorf("error when streaming new container stats: %v", err)
 					}
 					if err := sendContainersJSON(h.client, w); err != nil {
-						log.Errorf("Error encoding containers to stream: %v", err)
+						log.Errorf("error encoding containers to stream: %v", err)
 						return
 					}
 				}
 
 				bytes, _ := json.Marshal(event)
 				if _, err := fmt.Fprintf(w, "event: container-%s\ndata: %s\n\n", event.Name, string(bytes)); err != nil {
-					log.Debugf("Error writing event to event stream: %v", err)
+					log.Errorf("error writing event to event stream: %v", err)
 					return
 				}
 

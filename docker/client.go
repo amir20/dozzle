@@ -193,7 +193,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 }
 
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
-	log.WithField("id", id).WithField("since", since).Debug("Streaming logs for container")
+	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
 
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
