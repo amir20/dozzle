@@ -13,7 +13,7 @@ exports[`<App /> renders correctly 1`] = `
       minsize="10"
       size="15"
     >
-      <side-menu-stub />
+      <menu-side-stub />
     </pane-stub>
      
     <pane-stub
