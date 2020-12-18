@@ -3,14 +3,18 @@
     <div class="column is-narrow has-text-weight-bold">
       {{ state }}
     </div>
-    <div class="column is-narrow" v-if="stat.memoryUsage !== null">
+    <div
+      class="column is-narrow"
+      v-if="stat.memoryUsage !== null"
+      :class="{ 'high-mem': stat.memory > settings.memoryThreshold }"
+    >
       <span class="has-text-weight-light">mem</span>
       <span class="has-text-weight-bold">
         {{ formatBytes(stat.memoryUsage) }}
       </span>
     </div>
 
-    <div class="column is-narrow" v-if="stat.cpu !== null">
+    <div class="column is-narrow" v-if="stat.cpu !== null" :class="{ 'high-cpu': stat.cpu > settings.cpuThreshold }">
       <span class="has-text-weight-light">load</span>
       <span class="has-text-weight-bold"> {{ stat.cpu }}% </span>
     </div>
@@ -18,6 +22,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   props: {
     stat: Object,
@@ -34,7 +40,14 @@ export default {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
     },
   },
+  computed: {
+    ...mapState(["settings"]),
+  },
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.high-cpu {
+  color: var(--danger-color);
+}
+</style>

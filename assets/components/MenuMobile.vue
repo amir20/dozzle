@@ -46,7 +46,7 @@ import { mapGetters } from "vuex";
 
 export default {
   props: [],
-  name: "MobileMenu",
+  name: "MenuMobile",
   data() {
     return {
       showNav: false,

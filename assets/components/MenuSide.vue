@@ -22,7 +22,15 @@
     </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile">
-      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
+      <li
+        v-for="item in visibleContainers"
+        :key="item.id"
+        :class="{
+          [item.state]: true,
+          'high-cpu': item.stat.cpu > settings.cpuThreshold,
+          'high-mem': item.stat.memory > settings.memoryThreshold,
+        }"
+      >
         <router-link
           :to="{ name: 'container', params: { id: item.id, name: item.name } }"
           active-class="is-active"
@@ -51,7 +59,7 @@ import Icon from "./Icon";
 
 export default {
   props: [],
-  name: "SideMenu",
+  name: "MenuSide",
   components: {
     Icon,
   },
@@ -59,6 +67,7 @@ export default {
     return {};
   },
   computed: {
+    ...mapState(["settings"]),
     ...mapGetters(["visibleContainers", "activeContainers"]),
     activeContainersById() {
       return this.activeContainers.reduce((map, obj) => {
@@ -86,9 +95,15 @@ aside {
     display: block !important;
   }
 }
+li {
+  &.exited a {
+    color: #777;
+  }
 
-li.exited a {
-  color: #777;
+  &.high-cpu a,
+  &.high-mem a {
+    color: var(--danger-color);
+  }
 }
 
 .logo {

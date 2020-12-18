@@ -8,4 +8,6 @@ export const DEFAULT_SETTINGS = {
   showAllContainers: false,
   lightTheme: false,
   hourStyle: "auto",
+  cpuThreshold: 90,
+  memoryThreshold: 90,
 };

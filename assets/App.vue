@@ -1,10 +1,10 @@
 <template>
   <main>
-    <mobile-menu v-if="isMobile"></mobile-menu>
+    <menu-mobile v-if="isMobile"></menu-mobile>
 
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile && !collapseNav">
-        <side-menu></side-menu>
+        <menu-side></menu-side>
       </pane>
       <pane min-size="10">
         <splitpanes>
@@ -43,8 +43,8 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 
 import LogContainer from "./components/LogContainer";
-import SideMenu from "./components/SideMenu";
-import MobileMenu from "./components/MobileMenu";
+import MenuSide from "./components/MenuSide";
+import MenuMobile from "./components/MenuMobile";
 import Search from "./components/Search";
 import Icon from "./components/Icon";
 
@@ -52,9 +52,9 @@ export default {
   name: "App",
   components: {
     Icon,
-    SideMenu,
+    MenuSide,
     LogContainer,
-    MobileMenu,
+    MenuMobile,
     Splitpanes,
     Pane,
     Search,

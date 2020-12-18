@@ -25,13 +25,14 @@ $panel-heading-color: var(--panel-heading-color);
 $link: $turquoise;
 $link-active: $grey-dark;
 
+
 @import "~bulma";
 @import "../node_modules/splitpanes/dist/splitpanes.css";
 @import "~buefy/src/scss/utils/_all";
 @import "~buefy/src/scss/components/_switch";
 @import "~buefy/src/scss/components/_radio";
 
-html {
+html, [data-theme="dark"]  {
   --scheme-main: #{$black};
   --scheme-main-bis: #{$black-bis};
   --scheme-main-ter: #{$black-ter};
@@ -55,6 +56,8 @@ html {
 
   --text-strong-color: #{$grey-lightest};
   --text-color: #{$grey-lighter};
+
+  --danger-color: #{$red};
 }
 
 [data-theme="light"] {
