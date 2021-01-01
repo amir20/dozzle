@@ -1,7 +1,7 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template v-slot:header v-if="showTitle">
-      <div class="columns is-vcentered mr-0">
+      <div class="columns is-vcentered mr-0 is-hidden-mobile">
         <div class="column is-narrow">
           <container-title :value="container.name" @close="$emit('close')"></container-title>
         </div>
