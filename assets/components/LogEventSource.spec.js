@@ -124,9 +124,7 @@ describe("<LogEventSource />", () => {
   describe("render html correctly", () => {
     const RealDate = Date;
     beforeAll(() => {
-      global.Date = class extends (
-        RealDate
-      ) {
+      global.Date = class extends RealDate {
         constructor(arg) {
           if (arg) {
             return new RealDate(arg);

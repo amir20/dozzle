@@ -1,4 +1,4 @@
-<template> </template>
+<template></template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
