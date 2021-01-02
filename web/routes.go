@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+
 	"time"
 
 	"github.com/amir20/dozzle/docker"
@@ -103,11 +105,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
 	id := r.URL.Query().Get("id")
 
-	messages, _ := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
+	reader, err := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
+	defer reader.Close()
 
-	for _, m := range messages {
-		fmt.Fprintln(w, m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	io.Copy(w, reader)
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
@@ -123,45 +129,36 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	container, e := h.client.FindContainer(id)
-	if e != nil {
-		http.Error(w, e.Error(), http.StatusNotFound)
+	container, err := h.client.FindContainer(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	messages, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
+	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer reader.Close()
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
-Loop:
-	for {
-		select {
-		case message, ok := <-messages:
-			if !ok {
-				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-				break Loop
-			}
-			fmt.Fprintf(w, "data: %s\n", message)
-			if index := strings.IndexAny(message, " "); index != -1 {
-				id := message[:index]
-				if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
-					fmt.Fprintf(w, "id: %s\n", id)
-				}
-			}
-			fmt.Fprintf(w, "\n")
-			f.Flush()
-		case e := <-err:
-			if e == io.EOF {
-				log.Debugf("container stopped: %v", container.ID)
-				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-				f.Flush()
-			} else {
-				log.Debugf("error while reading from log stream: %v", e)
-				break Loop
+
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		message := scanner.Text()
+		fmt.Fprintf(w, "data: %s\n", message)
+		if index := strings.IndexAny(message, " "); index != -1 {
+			id := message[:index]
+			if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
+				fmt.Fprintf(w, "id: %s\n", id)
 			}
 		}
+		fmt.Fprintf(w, "\n")
+		f.Flush()
 	}
 
 	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")

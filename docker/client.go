@@ -1,10 +1,7 @@
 package docker
 
 import (
-	"bufio"
-	"bytes"
 	"context"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,9 +34,9 @@ type dockerProxy interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, int, string) (<-chan string, <-chan error)
+	ContainerLogs(context.Context, string, int, string) (io.ReadCloser, error)
 	Events(context.Context) (<-chan ContainerEvent, <-chan error)
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) ([]string, error)
+	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 }
 
@@ -121,34 +118,6 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 	return containers, nil
 }
 
-func logReader(reader io.ReadCloser, tty bool) func() (string, error) {
-	if tty {
-		scanner := bufio.NewScanner(reader)
-		return func() (string, error) {
-			if scanner.Scan() {
-				return scanner.Text(), nil
-			}
-
-			return "", io.EOF
-		}
-	}
-	hdr := make([]byte, 8)
-	var buffer bytes.Buffer
-	return func() (string, error) {
-		buffer.Reset()
-		_, err := reader.Read(hdr)
-		if err != nil {
-			return "", err
-		}
-		count := binary.BigEndian.Uint32(hdr[4:])
-		_, err = io.CopyN(&buffer, reader, int64(count))
-		if err != nil {
-			return "", err
-		}
-		return buffer.String(), nil
-	}
-}
-
 func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
@@ -192,7 +161,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	return nil
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
+func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
 
 	options := types.ContainerLogsOptions{
@@ -203,42 +172,18 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 		Timestamps: true,
 		Since:      since,
 	}
-	reader, err := d.cli.ContainerLogs(ctx, id, options)
-	errChannel := make(chan error, 1)
 
+	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	if err != nil {
-		errChannel <- err
-		close(errChannel)
-		return nil, errChannel
+		return nil, err
 	}
 
-	messages := make(chan string)
-	go func() {
-		<-ctx.Done()
-		reader.Close()
-	}()
+	containerJSON, err := d.cli.ContainerInspect(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 
-	containerJSON, _ := d.cli.ContainerInspect(ctx, id)
-
-	go func() {
-		defer close(messages)
-		defer close(errChannel)
-		defer reader.Close()
-		nextEntry := logReader(reader, containerJSON.Config.Tty)
-		for {
-			line, err := nextEntry()
-			if err != nil {
-				errChannel <- err
-				break
-			}
-			select {
-			case messages <- line:
-			case <-ctx.Done():
-			}
-		}
-	}()
-
-	return messages, errChannel
+	return newLogReader(reader, containerJSON.Config.Tty), nil
 }
 
 func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-chan error) {
@@ -267,7 +212,7 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 	return messages, errors
 }
 
-func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) ([]string, error) {
+func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) (io.ReadCloser, error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
@@ -275,25 +220,17 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		Since:      strconv.FormatInt(from.Unix(), 10),
 		Until:      strconv.FormatInt(to.Unix(), 10),
 	}
-	reader, _ := d.cli.ContainerLogs(ctx, id, options)
-	defer reader.Close()
 
-	containerJSON, _ := d.cli.ContainerInspect(ctx, id)
+	reader, err := d.cli.ContainerLogs(ctx, id, options)
 
-	nextEntry := logReader(reader, containerJSON.Config.Tty)
-
-	var messages []string
-	for {
-		line, err := nextEntry()
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				return nil, err
-			}
-		}
-		messages = append(messages, line)
+	if err != nil {
+		return nil, err
 	}
 
-	return messages, nil
+	containerJSON, err := d.cli.ContainerInspect(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return newLogReader(reader, containerJSON.Config.Tty), nil
 }
