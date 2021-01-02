@@ -27,7 +27,7 @@ func (r *logReader) Read(p []byte) (n int, err error) {
 		return r.readerCloser.Read(p)
 	} else {
 		if r.buffer.Len() > 0 {
-			panic("this shouldn't happen")
+			return r.buffer.Read(p)
 		} else {
 			r.buffer.Reset()
 			_, err := r.readerCloser.Read(r.lastHeader)
