@@ -135,17 +135,22 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer reader.Close()
-
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
+
+	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
+	if err != nil {
+		if err == io.EOF {
+			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+			f.Flush()
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	defer reader.Close()
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -160,6 +165,10 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "\n")
 		f.Flush()
 	}
+
+	log.Debugf("container stopped: %v", container.ID)
+	fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+	f.Flush()
 
 	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")
 

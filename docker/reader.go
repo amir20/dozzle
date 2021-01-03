@@ -32,12 +32,12 @@ func (r *logReader) Read(p []byte) (n int, err error) {
 			r.buffer.Reset()
 			_, err := r.readerCloser.Read(r.lastHeader)
 			if err != nil {
-				return -1, err
+				return 0, err
 			}
 			count := binary.BigEndian.Uint32(r.lastHeader[4:])
 			_, err = io.CopyN(&r.buffer, r.readerCloser, int64(count))
 			if err != nil {
-				return -1, err
+				return 0, err
 			}
 			return r.buffer.Read(p)
 		}
