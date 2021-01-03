@@ -81,12 +81,15 @@ X-Content-Type-Options: nosniff
 error finding container
 
 /* snapshot: Test_handler_streamLogs_error_reading */
-HTTP/1.1 200 OK
+HTTP/1.1 500 Internal Server Error
 Connection: close
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Type: text/event-stream
+Content-Type: text/plain; charset=utf-8
 X-Accel-Buffering: no
+X-Content-Type-Options: nosniff
+
+test error
 
 /* snapshot: Test_handler_streamLogs_happy */
 HTTP/1.1 200 OK
@@ -108,9 +111,6 @@ Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
-
-event: container-stopped
-data: end of stream
 
 event: container-stopped
 data: end of stream

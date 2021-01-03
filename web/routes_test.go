@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/magiconair/properties/assert"
@@ -25,34 +27,17 @@ type MockedClient struct {
 
 func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
 	args := m.Called(id)
-	container, ok := args.Get(0).(docker.Container)
-	if !ok {
-		panic("containers is not of type docker.Container")
-	}
-	return container, args.Error(1)
+	return args.Get(0).(docker.Container), args.Error(1)
 }
 
 func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	args := m.Called()
-	containers, ok := args.Get(0).([]docker.Container)
-	if !ok {
-		panic("containers is not of type []docker.Container")
-	}
-	return containers, args.Error(1)
+	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (<-chan string, <-chan error) {
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, tailSize)
-	channel, ok := args.Get(0).(chan string)
-	if !ok {
-		panic("channel is not of type chan string")
-	}
-
-	err, ok := args.Get(1).(chan error)
-	if !ok {
-		panic("error is not of type chan error")
-	}
-	return channel, err
+	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
 func (m *MockedClient) Events(ctx context.Context) (<-chan docker.ContainerEvent, <-chan error) {
@@ -82,15 +67,9 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-
-	messages := make(chan string)
-	errChannel := make(chan error)
+	reader := ioutil.NopCloser(strings.NewReader("INFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(messages, errChannel)
-	go func() {
-		messages <- "INFO Testing logs..."
-		close(messages)
-	}()
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(reader, nil)
 
 	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
@@ -109,15 +88,9 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-
-	messages := make(chan string)
-	errChannel := make(chan error)
+	reader := ioutil.NopCloser(strings.NewReader("2020-05-13T18:55:37.772853839Z INFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(messages, errChannel)
-	go func() {
-		messages <- "2020-05-13T18:55:37.772853839Z INFO Testing logs..."
-		close(messages)
-	}()
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(reader, nil)
 
 	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
@@ -136,15 +109,8 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	messages := make(chan string)
-	errChannel := make(chan error)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
-
-	go func() {
-		errChannel <- io.EOF
-		close(messages)
-	}()
+	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(ioutil.NopCloser(strings.NewReader("")), io.EOF)
 
 	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)
@@ -182,15 +148,8 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	messages := make(chan string)
-	errChannel := make(chan error)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(messages, errChannel)
-
-	go func() {
-		errChannel <- errors.New("test error")
-		close(messages)
-	}()
+	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(ioutil.NopCloser(strings.NewReader("")), errors.New("test error"))
 
 	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
 	handler := http.HandlerFunc(h.streamLogs)

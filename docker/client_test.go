@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
@@ -132,13 +133,10 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	messages, _ := client.ContainerLogs(context.Background(), id, 300, "since")
+	logReader, _ := client.ContainerLogs(context.Background(), id, 300, "since")
 
-	actual, _ := <-messages
-	assert.Equal(t, expected, actual, "message doesn't match expected")
-
-	_, ok := <-messages
-	assert.False(t, ok, "channel should have been closed")
+	actual, _ := ioutil.ReadAll(logReader)
+	assert.Equal(t, expected, string(actual), "message doesn't match expected")
 	proxy.AssertExpectations(t)
 }
 
@@ -148,7 +146,7 @@ func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
 	proxy := new(mockedProxy)
 	expected := "INFO Testing logs..."
 
-	reader := ioutil.NopCloser(bytes.NewReader([]byte(expected)))
+	reader := ioutil.NopCloser(strings.NewReader(expected))
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
@@ -156,13 +154,11 @@ func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	messages, _ := client.ContainerLogs(context.Background(), id, 300, "")
+	logReader, _ := client.ContainerLogs(context.Background(), id, 300, "")
 
-	actual, _ := <-messages
-	assert.Equal(t, expected, actual, "message doesn't match expected")
+	actual, _ := ioutil.ReadAll(logReader)
+	assert.Equal(t, expected, string(actual), "message doesn't match expected")
 
-	_, ok := <-messages
-	assert.False(t, ok, "channel should have been closed")
 	proxy.AssertExpectations(t)
 }
 
@@ -174,14 +170,10 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	messages, err := client.ContainerLogs(context.Background(), id, 300, "")
+	reader, err := client.ContainerLogs(context.Background(), id, 300, "")
 
-	assert.Nil(t, messages, "messages should be nil")
-
-	e, _ := <-err
-	assert.Error(t, e, "error should have been returned")
-	_, ok := <-err
-	assert.False(t, ok, "error channel should have been closed")
+	assert.Nil(t, reader, "reader should be nil")
+	assert.Error(t, err, "error should have been returned")
 	proxy.AssertExpectations(t)
 }
 
