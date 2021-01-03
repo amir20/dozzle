@@ -2,6 +2,7 @@ package web
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -166,9 +167,15 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		f.Flush()
 	}
 
-	log.Debugf("container stopped: %v", container.ID)
-	fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-	f.Flush()
+	log.Debugf("streaming stopped: %v", container.ID)
+
+	if scanner.Err() == nil {
+		log.Debugf("container stopped: %v", container.ID)
+		fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+		f.Flush()
+	} else if scanner.Err() != context.Canceled {
+		log.Errorf("unknown error while streaming %v", scanner.Err())
+	}
 
 	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")
 
@@ -205,14 +212,14 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		for _, c := range containers {
 			if c.State == "running" {
 				if err := h.client.ContainerStats(ctx, c.ID, stats); err != nil {
-					log.Errorf("Error while streaming container stats: %v", err)
+					log.Errorf("error while streaming container stats: %v", err)
 				}
 			}
 		}
 	}
 
 	if err := sendContainersJSON(h.client, w); err != nil {
-		log.Errorf("Error while encoding containers to stream: %v", err)
+		log.Errorf("error while encoding containers to stream: %v", err)
 	}
 
 	f.Flush()
