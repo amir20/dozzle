@@ -299,7 +299,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, h.config.Version)
+	fmt.Fprintf(w, "%v compiled with %v",  h.config.Version, runtime.Version())
 }
 
 func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
