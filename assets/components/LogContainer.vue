@@ -8,6 +8,14 @@
         <div class="column is-clipped">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
+        <div class="column is-narrow">
+          <a class="button is-small is-outlined" id="download" :href="`${base}/api/logs/download?id=${container.id}`">
+            <span class="icon">
+              <icon name="save"></icon>
+            </span>
+            Download
+          </a>
+        </div>
         <div class="column is-narrow" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
@@ -26,6 +34,8 @@ import LogViewerWithSource from "./LogViewerWithSource";
 import ScrollableView from "./ScrollableView";
 import ContainerTitle from "./ContainerTitle";
 import ContainerStat from "./ContainerStat";
+import Icon from "./Icon";
+import config from "../store/config";
 
 export default {
   props: {
@@ -51,11 +61,15 @@ export default {
     ScrollableView,
     ContainerTitle,
     ContainerStat,
+    Icon,
   },
   computed: {
     ...mapGetters(["allContainersById"]),
     container() {
       return this.allContainersById[this.id];
+    },
+    base() {
+      return config.base;
     },
   },
 };
@@ -71,6 +85,18 @@ button.delete {
 
   &:hover {
     opacity: 1;
+  }
+}
+
+#download.button {
+  .icon {
+    margin-right: 5px;
+    height: 80%;
+  }
+
+  &:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
   }
 }
 </style>
