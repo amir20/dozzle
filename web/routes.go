@@ -2,8 +2,8 @@ package web
 
 import (
 	"bufio"
-	"context"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -128,7 +128,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	now := time.Now()
-	from := time.Unix(container.Created, 0)
+	from := time.Unix(container.Created, 0).Add(-2 * time.Minute)
 
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%v.log.gz", container.ID))
 	w.Header().Set("Content-Type", "application/octet-stream")
@@ -299,7 +299,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%v compiled with %v",  h.config.Version, runtime.Version())
+	fmt.Fprintf(w, "%v compiled with %v", h.config.Version, runtime.Version())
 }
 
 func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
