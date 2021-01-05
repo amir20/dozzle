@@ -303,20 +303,21 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendContainersJSON(client docker.Client, w http.ResponseWriter) error {
-	if containers, err := client.ListContainers(); err != nil {
+	containers, err := client.ListContainers()
+	if err != nil {
 		return err
-	} else {
-		if _, err := fmt.Fprint(w, "event: containers-changed\ndata: "); err != nil {
-			return err
-		}
+	}
 
-		if err := json.NewEncoder(w).Encode(containers); err != nil {
-			return err
-		}
+	if _, err := fmt.Fprint(w, "event: containers-changed\ndata: "); err != nil {
+		return err
+	}
 
-		if _, err := fmt.Fprint(w, "\n\n"); err != nil {
-			return err
-		}
+	if err := json.NewEncoder(w).Encode(containers); err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprint(w, "\n\n"); err != nil {
+		return err
 	}
 
 	return nil
