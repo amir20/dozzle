@@ -131,7 +131,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	from := time.Unix(container.Created, 0)
 
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%v.log.gz", container.ID))
-	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Type", "application/gzip")
 	zw := gzip.NewWriter(w)
 	defer zw.Close()
 	zw.Name = fmt.Sprintf("%v.log", container.ID)

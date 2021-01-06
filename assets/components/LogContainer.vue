@@ -9,7 +9,12 @@
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
         <div class="column is-narrow">
-          <a class="button is-small is-outlined" id="download" :href="`${base}/api/logs/download?id=${container.id}`">
+          <a
+            class="button is-small is-outlined"
+            id="download"
+            :href="`${base}/api/logs/download?id=${container.id}`"
+            download
+          >
             <span class="icon">
               <icon name="save"></icon>
             </span>
