@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	_ "net/http/pprof"
 	"runtime"
 	"strings"
 
