@@ -148,11 +148,15 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			)
 
 			if cpuPercent > 0 || memUsage > 0 {
-				stats <- ContainerStat{
+				select {
+				case <-ctx.Done():
+					return
+				case stats <- ContainerStat{
 					ID:            id,
 					CPUPercent:    cpuPercent,
 					MemoryPercent: memPercent,
 					MemoryUsage:   memUsage,
+				}:
 				}
 			}
 		}
