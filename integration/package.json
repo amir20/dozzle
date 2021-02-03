@@ -10,7 +10,7 @@
  "dependencies": {
   "jest": "^26.0.1",
   "jest-image-snapshot": "^4.0.0",
-  "puppeteer": "^5.0.0"
+  "puppeteer": "^7.0.0"
  },
  "jest": {
   "preset": "jest-puppeteer",
