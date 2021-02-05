@@ -32,6 +32,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build images
-        run: docker-compose -f integration/docker-compose.test.yml build  
+        run: docker-compose -f integration/docker-compose.test.yml build
       - name: Run tests
         run: docker-compose -f integration/docker-compose.test.yml run integration
