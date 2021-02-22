@@ -45,7 +45,7 @@
   "vuex": "^3.6.2"
  },
  "devDependencies": {
-  "@babel/core": "^7.12.17",
+  "@babel/core": "^7.13.0",
   "@babel/plugin-transform-runtime": "^7.13.0",
   "@vue/component-compiler-utils": "^3.2.0",
   "@vue/test-utils": "^1.1.3",
