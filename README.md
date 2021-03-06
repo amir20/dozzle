@@ -90,7 +90,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 <details>
  <summary>I installed Dozzle, but logs are slow or they never load. Help!</summary>
 
- Dozzle uses Server Sent Events (SSE) which connects to a sever using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer.  Since version `1.23.0`, Dozzle send the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those case, you need to explicitly disable any buffering.
+ Dozzle uses Server Sent Events (SSE) which connects to a server using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer.  Since version `1.23.0`, Dozzle sends the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those cases, you need to explicitly disable any buffering.
 
  Below is an example with nginx and using `proxy_pass` to disable buffering.
 
