@@ -33,7 +33,7 @@
   "bulma": "^0.9.2",
   "date-fns": "^2.19.0",
   "dompurify": "^2.2.6",
-  "hotkeys-js": "^3.8.2",
+  "hotkeys-js": "^3.8.3",
   "lodash.debounce": "^4.0.8",
   "lodash.throttle": "^4.1.1",
   "semver": "^7.3.4",
