@@ -4,10 +4,13 @@ import (
 	"bufio"
 	"compress/gzip"
 	"context"
+
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
+	"io/ioutil"
 	"net/http"
 	_ "net/http/pprof"
 	"runtime"
@@ -17,7 +20,7 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/dustin/go-humanize"
-	"github.com/gobuffalo/packr"
+
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -31,17 +34,19 @@ type Config struct {
 }
 
 type handler struct {
-	client docker.Client
-	box    packr.Box
-	config *Config
+	client     docker.Client
+	content    fs.FS
+	config     *Config
+	fileServer http.Handler
 }
 
 // CreateServer creates a service for http handler
-func CreateServer(c docker.Client, b packr.Box, config Config) *http.Server {
+func CreateServer(c docker.Client, content fs.FS, config Config) *http.Server {
 	handler := &handler{
-		client: c,
-		box:    b,
-		config: &config,
+		client:     c,
+		content:    content,
+		config:     &config,
+		fileServer: http.FileServer(http.FS(content)),
 	}
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
@@ -79,15 +84,20 @@ func setCSPHeaders(next http.Handler) http.Handler {
 }
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
-	fileServer := http.FileServer(h.box)
-	if h.box.Has(req.URL.Path) && req.URL.Path != "" && req.URL.Path != "/" {
-		fileServer.ServeHTTP(w, req)
+
+	_, err := h.content.Open(req.URL.Path)
+	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
+		h.fileServer.ServeHTTP(w, req)
 	} else {
-		text, err := h.box.FindString("index.html")
+		file, err := h.content.Open("index.html")
 		if err != nil {
 			panic(err)
 		}
-		tmpl, err := template.New("index.html").Parse(text)
+		bytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			panic(err)
+		}
+		tmpl, err := template.New("index.html").Parse(string(bytes))
 		if err != nil {
 			panic(err)
 		}

@@ -16,7 +16,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/gorilla/mux v1.8.0
-	github.com/magefile/mage v1.11.0 // indirect
 	github.com/magiconair/properties v1.8.4
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
@@ -44,4 +43,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-go 1.14
+go 1.16
