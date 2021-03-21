@@ -3,7 +3,6 @@
  "version": "3.2.3",
  "description": "Realtime log viewer for docker containers. ",
  "scripts": {
-  "prestart": "yarn clean",
   "watch": "npm-run-all -p watch:*",
   "watch:assets": "webpack --mode=development --watch",
   "watch:server": "reflex -c .reflex",
@@ -11,7 +10,7 @@
   "dev-server": "webpack serve --mode=development",
   "prebuild": "yarn clean",
   "build": "yarn webpack --mode=production",
-  "clean": "rm -rf static/ a_main-packr.go",
+  "clean": "rm -rf static",
   "release": "release-it",
   "test": "TZ=UTC jest",
   "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration",
