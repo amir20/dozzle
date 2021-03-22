@@ -13,7 +13,6 @@
   "clean": "rm -rf static",
   "release": "release-it",
   "test": "TZ=UTC jest",
-  "integration": "docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration",
   "postinstall": "husky install"
  },
  "repository": {
