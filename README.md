@@ -136,8 +136,7 @@ To Build and test locally:
 
 1. Install NodeJs.
 2. Install Go.
-3. Globally install [packr utility](https://github.com/gobuffalo/packr) with `go get -u github.com/gobuffalo/packr/packr` outside of dozzle directory.
-4. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
-5. Install node modules with `yarn`.
-6. Do `yarn dev`
+3. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
+4. Install node modules with `yarn`.
+5. Do `yarn dev`
 

@@ -25,9 +25,6 @@ RUN mkdir /dozzle
 
 WORKDIR /dozzle
 
-# Needed for assets
-RUN go get -u github.com/gobuffalo/packr/packr
-
 # Copy go mod files
 COPY go.* ./
 RUN go mod download
@@ -37,9 +34,6 @@ COPY --from=node /build/static ./static
 
 # Copy all other files
 COPY . .
-
-# Compile static files
-RUN packr -z
 
 # Args
 ARG TAG=dev
