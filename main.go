@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"embed"
+	"io/fs"
 	"net/url"
 	"os"
 	"os/signal"
@@ -11,7 +13,6 @@ import (
 	"github.com/amir20/dozzle/docker"
 	"github.com/amir20/dozzle/web"
 
-	"github.com/gobuffalo/packr"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -26,9 +27,11 @@ var (
 	version  = "dev"
 )
 
+//go:embed static
+var content embed.FS
+
 type handler struct {
 	client docker.Client
-	box    packr.Box
 }
 
 func init() {
@@ -80,15 +83,19 @@ func main() {
 		log.Fatalf("Could not connect to Docker Engine: %v", err)
 	}
 
-	box := packr.NewBox("./static")
-
 	config := web.Config{
 		Addr:     addr,
 		Base:     base,
 		Version:  version,
 		TailSize: tailSize,
 	}
-	srv := web.CreateServer(dockerClient, box, config)
+
+	static, err := fs.Sub(content, "static")
+	if err != nil {
+		log.Fatalf("Could not open embedded static folder: %v", err)
+	}
+
+	srv := web.CreateServer(dockerClient, static, config)
 
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
