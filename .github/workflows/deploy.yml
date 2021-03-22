@@ -27,7 +27,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Go Tests with Coverage
-        run: go test -cover ./...
+        run: make test SKIP_ASSET=1
   int-test:
     needs: [go-test, npm-test]
     name: Integration Tests
