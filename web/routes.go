@@ -43,10 +43,9 @@ type handler struct {
 // CreateServer creates a service for http handler
 func CreateServer(c docker.Client, content fs.FS, config Config) *http.Server {
 	handler := &handler{
-		client:     c,
-		content:    content,
-		config:     &config,
-		fileServer: http.FileServer(http.FS(content)),
+		client:  c,
+		content: content,
+		config:  &config,
 	}
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
@@ -71,7 +70,13 @@ func createRouter(h *handler) *mux.Router {
 		s.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 	}
 
-	s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
+	if base != "/" {
+		s.PathPrefix("/").Handler(http.StripPrefix(base+"/", http.HandlerFunc(h.index)))
+	} else {
+		s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
+	}
+
+	h.fileServer = http.FileServer(http.FS(h.content))
 
 	return r
 }
@@ -84,7 +89,6 @@ func setCSPHeaders(next http.Handler) http.Handler {
 }
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
-
 	_, err := h.content.Open(req.URL.Path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		h.fileServer.ServeHTTP(w, req)

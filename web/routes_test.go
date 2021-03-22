@@ -15,9 +15,10 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
-	"github.com/gobuffalo/packr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/spf13/afero"
 )
 
 type MockedClient struct {
@@ -238,10 +239,13 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 
 func Test_createRoutes_index(t *testing.T) {
 	mockedClient := new(MockedClient)
-	box := packr.NewBox("./virtual")
-	require.NoError(t, box.AddString("index.html", "index page"), "AddString should have no error.")
-
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/"}})
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	handler := createRouter(&handler{
+		client:  mockedClient,
+		content: afero.NewIOFS(fs),
+		config:  &Config{Base: "/"},
+	})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -252,9 +256,14 @@ func Test_createRoutes_index(t *testing.T) {
 
 func Test_createRoutes_redirect(t *testing.T) {
 	mockedClient := new(MockedClient)
-	box := packr.NewBox("./virtual")
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
+	handler := createRouter(&handler{
+		client:  mockedClient,
+		content: afero.NewIOFS(fs),
+		config:  &Config{Base: "/foobar"},
+	})
 	req, err := http.NewRequest("GET", "/foobar", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -265,10 +274,14 @@ func Test_createRoutes_redirect(t *testing.T) {
 
 func Test_createRoutes_foobar(t *testing.T) {
 	mockedClient := new(MockedClient)
-	box := packr.NewBox("./virtual")
-	require.NoError(t, box.AddString("index.html", "foo page"), "AddString should have no error.")
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("foo page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
+	handler := createRouter(&handler{
+		client:  mockedClient,
+		content: afero.NewIOFS(fs),
+		config:  &Config{Base: "/foobar"},
+	})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -279,10 +292,16 @@ func Test_createRoutes_foobar(t *testing.T) {
 
 func Test_createRoutes_foobar_file(t *testing.T) {
 	mockedClient := new(MockedClient)
-	box := packr.NewBox("./virtual")
-	require.NoError(t, box.AddString("/test", "test page"), "AddString should have no error.")
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+	require.NoError(t, afero.WriteFile(fs, "test", []byte("test page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/foobar"}})
+	handler := createRouter(&handler{
+		client:     mockedClient,
+		content:    afero.NewIOFS(fs),
+		config:     &Config{Base: "/foobar"},
+		fileServer: nil,
+	})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -293,9 +312,14 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 
 func Test_createRoutes_version(t *testing.T) {
 	mockedClient := new(MockedClient)
-	box := packr.NewBox("./virtual")
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{mockedClient, box, &Config{Base: "/", Version: "dev"}})
+	handler := createRouter(&handler{
+		client:  mockedClient,
+		content: afero.NewIOFS(fs),
+		config:  &Config{Base: "/", Version: "dev"},
+	})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
