@@ -8,19 +8,21 @@ publish:
 
 .PHONY: clean
 clean:
-	@rm -rf static dozzle
+	@rm -rf static
+	@go clean
 
-static: $(shell find assets -type f)
-ifdef SKIP_ASSET
+.PHONY: static
+static:
+	@yarn build
+
+.PHONY: fake_static
+fake_static:
 	@echo 'Skipping yarn build'
 	@mkdir -p static
-	@touch static/index.html
-else
-	yarn build
-endif
+	@echo "yarn build was skipped" > static/index.html
 
 .PHONY: test
-test: static
+test: fake_static
 	go test -cover ./...
 
 build: static
