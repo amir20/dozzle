@@ -2971,10 +2971,10 @@ css-color-names@1.0.1:
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-1.0.1.tgz#6ff7ee81a823ad46e020fa2fd6ab40a887e2ba67"
   integrity sha512-/loXYOch1qU1biStIFsHH8SxTmOseh1IJqFvy8IujXOm1h+QjUdDhkzOrR5HG8K8mlxREj0yfi8ewCHx0eMxzA==
 
-css-loader@^5.1.3:
-  version "5.1.3"
-  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-5.1.3.tgz#87f6fc96816b20debe3cf682f85c7e56a963d0d1"
-  integrity sha512-CoPZvyh8sLiGARK3gqczpfdedbM74klGWurF2CsNZ2lhNaXdLIUks+3Mfax3WBeRuHoglU+m7KG/+7gY6G4aag==
+css-loader@^5.1.4:
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-5.1.4.tgz#1f6d278f041d512ad410df7168f0bdae97f55950"
+  integrity sha512-3Fz3B+7nIw6N/rw/sEBxiZsOnYedKvT3w7gicEjAVc73k7gfYN0v2iyBxq4brQvv/Dt6haze4m0BbPd71/OAFw==
   dependencies:
     camelcase "^6.2.0"
     cssesc "^3.0.0"
