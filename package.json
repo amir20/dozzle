@@ -11,7 +11,7 @@
   "dev-server": "webpack serve --mode=development",
   "prebuild": "yarn clean",
   "build": "yarn webpack --mode=production",
-  "clean": "make clean",
+  "clean": "rm -rf static",
   "release": "release-it",
   "test": "TZ=UTC jest",
   "postinstall": "husky install"
