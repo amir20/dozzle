@@ -107,8 +107,7 @@ export default {
     },
     results() {
       if (this.search) {
-        const term = this.search.toLowerCase();
-        return fuzzysort.go(term, this.allContainers, { key: "name" }).map((i) => i.obj);
+        return fuzzysort.go(this.search, this.allContainers, { key: "name" }).map((i) => i.obj);
       }
       switch (this.sort) {
         case "all":
