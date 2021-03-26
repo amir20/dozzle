@@ -74,6 +74,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import Icon from "../components/Icon";
 import PastTime from "../components/PastTime";
 import config from "../store/config";
+import fuzzysort from "fuzzysort";
 
 export default {
   name: "Index",
@@ -107,7 +108,7 @@ export default {
     results() {
       if (this.search) {
         const term = this.search.toLowerCase();
-        return this.allContainers.filter((c) => c.name.toLowerCase().includes(term));
+        return fuzzysort.go(term, this.allContainers, { key: "name" }).map((i) => i.obj);
       }
       switch (this.sort) {
         case "all":
