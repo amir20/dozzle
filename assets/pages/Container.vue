@@ -6,7 +6,6 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 
 import LogContainer from "../components/LogContainer";
-import store from "../store";
 
 export default {
   props: ["id"],

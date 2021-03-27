@@ -4,7 +4,7 @@
 
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile && !collapseNav">
-        <side-menu></side-menu>
+        <side-menu @search="showFuzzySearch"></side-menu>
       </pane>
       <pane min-size="10">
         <splitpanes>
@@ -42,11 +42,15 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 
+import hotkeys from "hotkeys-js";
+
 import LogContainer from "./components/LogContainer";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
+import PastTime from "./components/PastTime";
 import Icon from "./components/Icon";
+import FuzzySearchModal from "./components/FuzzySearchModal";
 
 export default {
   name: "App",
@@ -56,6 +60,7 @@ export default {
     LogContainer,
     MobileMenu,
     Splitpanes,
+    PastTime,
     Pane,
     Search,
   },
@@ -79,6 +84,9 @@ export default {
       document.documentElement.setAttribute("data-theme", "light");
     }
     this.menuWidth = this.settings.menuWidth;
+    hotkeys("command+k, ctrl+k", (event, handler) => {
+      this.showFuzzySearch();
+    });
   },
   watch: {
     hasSmallerScrollbars(newValue, oldValue) {
@@ -100,7 +108,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["isMobile", "settings"]),
+    ...mapState(["isMobile", "settings", "containers"]),
     ...mapGetters(["visibleContainers", "activeContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
@@ -119,6 +127,14 @@ export default {
         const menuWidth = e[0].size;
         this.updateSetting({ menuWidth });
       }
+    },
+    showFuzzySearch() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: FuzzySearchModal,
+        animation: "false",
+        width: 600,
+      });
     },
   },
 };

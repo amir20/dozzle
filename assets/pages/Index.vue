@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 import Icon from "../components/Icon";
 import PastTime from "../components/PastTime";
 import config from "../store/config";
