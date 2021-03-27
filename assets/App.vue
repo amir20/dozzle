@@ -1,5 +1,30 @@
 <template>
   <main>
+    <b-modal v-model="showFuzzySearch" animation="false">
+      <div>
+        <div class="panel">
+          <div class="panel-block">
+            <p class="control has-icons-left">
+              <input class="input" type="text" placeholder="Search Containers" ref="search" />
+              <span class="icon is-left">
+                <icon name="search"></icon>
+              </span>
+            </p>
+          </div>
+          <router-link
+            :to="{ name: 'container', params: { id: item.id, name: item.name } }"
+            v-for="item in containers.slice(0, 10)"
+            :key="item.id"
+            class="panel-block"
+          >
+            <span class="name">{{ item.name }}</span>
+            <div class="subtitle is-7 status">
+              <past-time :date="new Date(item.created * 1000)"></past-time>
+            </div>
+          </router-link>
+        </div>
+      </div>
+    </b-modal>
     <mobile-menu v-if="isMobile"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
@@ -42,10 +67,13 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 
+import hotkeys from "hotkeys-js";
+
 import LogContainer from "./components/LogContainer";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
+import PastTime from "./components/PastTime";
 import Icon from "./components/Icon";
 
 export default {
@@ -56,6 +84,7 @@ export default {
     LogContainer,
     MobileMenu,
     Splitpanes,
+    PastTime,
     Pane,
     Search,
   },
@@ -63,6 +92,7 @@ export default {
     return {
       title: "",
       collapseNav: false,
+      showFuzzySearch: false,
     };
   },
   metaInfo() {
@@ -79,6 +109,10 @@ export default {
       document.documentElement.setAttribute("data-theme", "light");
     }
     this.menuWidth = this.settings.menuWidth;
+    hotkeys("command+k, ctrl+k", (event, handler) => {
+      this.showFuzzySearch = true;
+      setTimeout(() => this.$refs.search.focus(), 0);
+    });
   },
   watch: {
     hasSmallerScrollbars(newValue, oldValue) {
@@ -100,7 +134,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["isMobile", "settings"]),
+    ...mapState(["isMobile", "settings", "containers"]),
     ...mapGetters(["visibleContainers", "activeContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;
@@ -161,5 +195,9 @@ export default {
       left: -25px;
     }
   }
+}
+
+.icon {
+  padding: 10px 3px;
 }
 </style>

@@ -4,6 +4,7 @@ import Meta from "vue-meta";
 import Switch from "buefy/dist/esm/switch";
 import Radio from "buefy/dist/esm/radio";
 import Field from "buefy/dist/esm/field";
+import Modal from "buefy/dist/esm/modal";
 import store from "./store";
 import config from "./store/config";
 import App from "./App.vue";
@@ -14,6 +15,7 @@ Vue.use(Meta);
 Vue.use(Switch);
 Vue.use(Radio);
 Vue.use(Field);
+Vue.use(Modal);
 
 const routes = [
   {
