@@ -1,30 +1,5 @@
 <template>
   <main>
-    <b-modal v-model="showFuzzySearch" animation="false">
-      <div>
-        <div class="panel">
-          <div class="panel-block">
-            <p class="control has-icons-left">
-              <input class="input" type="text" placeholder="Search Containers" ref="search" />
-              <span class="icon is-left">
-                <icon name="search"></icon>
-              </span>
-            </p>
-          </div>
-          <router-link
-            :to="{ name: 'container', params: { id: item.id, name: item.name } }"
-            v-for="item in containers.slice(0, 10)"
-            :key="item.id"
-            class="panel-block"
-          >
-            <span class="name">{{ item.name }}</span>
-            <div class="subtitle is-7 status">
-              <past-time :date="new Date(item.created * 1000)"></past-time>
-            </div>
-          </router-link>
-        </div>
-      </div>
-    </b-modal>
     <mobile-menu v-if="isMobile"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
@@ -75,6 +50,7 @@ import MobileMenu from "./components/MobileMenu";
 import Search from "./components/Search";
 import PastTime from "./components/PastTime";
 import Icon from "./components/Icon";
+import FuzzySearchModal from "./components/FuzzySearchModal";
 
 export default {
   name: "App",
@@ -92,7 +68,6 @@ export default {
     return {
       title: "",
       collapseNav: false,
-      showFuzzySearch: false,
     };
   },
   metaInfo() {
@@ -110,8 +85,7 @@ export default {
     }
     this.menuWidth = this.settings.menuWidth;
     hotkeys("command+k, ctrl+k", (event, handler) => {
-      this.showFuzzySearch = true;
-      setTimeout(() => this.$refs.search.focus(), 0);
+      this.showFuzzySearch();
     });
   },
   watch: {
@@ -131,11 +105,6 @@ export default {
     },
     visibleContainers() {
       this.title = `${this.visibleContainers.length} containers`;
-    },
-    $route(to, from) {
-      if (this.showFuzzySearch) {
-        this.showFuzzySearch = false;
-      }
     },
   },
   computed: {
@@ -158,6 +127,14 @@ export default {
         const menuWidth = e[0].size;
         this.updateSetting({ menuWidth });
       }
+    },
+    showFuzzySearch() {
+      this.$buefy.modal.open({
+        parent: this,
+        component: FuzzySearchModal,
+        animation: "false",
+        width: 600,
+      });
     },
   },
 };
@@ -200,9 +177,5 @@ export default {
       left: -25px;
     }
   }
-}
-
-.icon {
-  padding: 10px 3px;
 }
 </style>

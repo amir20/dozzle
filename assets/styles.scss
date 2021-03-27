@@ -31,6 +31,7 @@ $link-active: $grey-dark;
 @import "~buefy/src/scss/components/_switch";
 @import "~buefy/src/scss/components/_radio";
 @import "~buefy/src/scss/components/_modal";
+@import "~buefy/src/scss/components/_autocomplete";
 
 html {
   --scheme-main: #{$black};
