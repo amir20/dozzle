@@ -132,6 +132,11 @@ export default {
     visibleContainers() {
       this.title = `${this.visibleContainers.length} containers`;
     },
+    $route(to, from) {
+      if (this.showFuzzySearch) {
+        this.showFuzzySearch = false;
+      }
+    },
   },
   computed: {
     ...mapState(["isMobile", "settings", "containers"]),
