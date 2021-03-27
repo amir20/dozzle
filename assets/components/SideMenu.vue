@@ -8,7 +8,7 @@
           </svg>
         </router-link>
       </div>
-      <div class="column is-narrow has-text-right px-0">
+      <div class="column is-narrow has-text-right px-1">
         <button
           class="button is-small is-rounded is-settings-control"
           @click="$emit('search')"
