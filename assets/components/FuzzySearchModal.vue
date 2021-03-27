@@ -3,7 +3,7 @@
     <b-autocomplete
       ref="autocomplete"
       v-model="query"
-      placeholder="Search containers"
+      placeholder="Search containers using ⌘ + k, ⌃k"
       field="name"
       open-on-focus
       keep-first

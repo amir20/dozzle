@@ -8,7 +8,18 @@
           </svg>
         </router-link>
       </div>
-      <div class="column is-narrow has-text-right x">
+      <div class="column is-narrow has-text-right px-0">
+        <button
+          class="button is-small is-rounded is-settings-control"
+          @click="$emit('search')"
+          title="Search containers (⌘ + k, ⌃k)"
+        >
+          <span class="icon">
+            <icon name="search"></icon>
+          </span>
+        </button>
+      </div>
+      <div class="column is-narrow has-text-right px-0">
         <router-link
           :to="{ name: 'settings' }"
           active-class="is-active"

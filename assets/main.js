@@ -6,6 +6,7 @@ import Radio from "buefy/dist/esm/radio";
 import Field from "buefy/dist/esm/field";
 import Modal from "buefy/dist/esm/modal";
 import Autocomplete from "buefy/dist/esm/autocomplete";
+
 import store from "./store";
 import config from "./store/config";
 import App from "./App.vue";
