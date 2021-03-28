@@ -11,6 +11,16 @@
       :data="results"
       @select="selected"
     >
+      <template slot-scope="props">
+        <div class="media">
+          <div class="media-left">
+            <span :class="props.option.state"><icon name="crate"></icon></span>
+          </div>
+          <div class="media-content">
+            {{ props.option.name }}
+          </div>
+        </div>
+      </template>
     </b-autocomplete>
   </div>
 </template>
@@ -56,6 +66,7 @@ export default {
         name: c.name,
         id: c.id,
         created: c.created,
+        state: c.state,
         preparedName: fuzzysort.prepare(c.name),
       }));
     },
@@ -76,5 +87,13 @@ export default {
 <style lang="scss" scoped>
 .panel {
   height: 400px;
+}
+
+.running {
+  color: var(--primary-color);
+}
+
+.exited {
+  color: var(--scheme-main-ter);
 }
 </style>
