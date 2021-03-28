@@ -75,8 +75,15 @@ export default {
         limit: this.maxResults,
         key: "preparedName",
       };
-      if (this.query) return fuzzysort.go(this.query, this.preparedContainers, options).map((i) => i.obj);
-      else {
+      if (this.query) {
+        const results = fuzzysort.go(this.query, this.preparedContainers, options);
+        results.forEach((result) => {
+          if (result.obj.state === "running") {
+            result.score += 1;
+          }
+        });
+        return results.sort((a, b) => b.score - a.score).map((i) => i.obj);
+      } else {
         return [...this.containers].sort((a, b) => b.created - a.created);
       }
     },
