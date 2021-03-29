@@ -19,6 +19,9 @@
           <div class="media-content">
             {{ props.option.name }}
           </div>
+          <div class="media-right">
+            <span class="column-icon" @click.stop.prevent="addColumn(props.option)"><icon name="column"></icon></span>
+          </div>
         </div>
       </template>
     </b-autocomplete>
@@ -26,7 +29,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
 
 import PastTime from "./PastTime";
@@ -54,8 +57,15 @@ export default {
   },
   watch: {},
   methods: {
+    ...mapActions({
+      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
+    }),
     selected(item) {
       this.$router.push({ name: "container", params: { id: item.id, name: item.name } });
+      this.$emit("close");
+    },
+    addColumn(container) {
+      this.appendActiveContainer(container);
       this.$emit("close");
     },
   },
@@ -93,7 +103,7 @@ export default {
 
 <style lang="scss" scoped>
 .panel {
-  height: 400px;
+  min-height: 400px;
 }
 
 .running {
@@ -102,5 +112,15 @@ export default {
 
 .exited {
   color: var(--scheme-main-ter);
+}
+
+.column-icon {
+  &:hover {
+    color: var(--secondary-color);
+  }
+}
+
+::v-deep a.dropdown-item {
+  padding-right: 1em;
 }
 </style>

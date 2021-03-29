@@ -152,3 +152,7 @@ html.has-custom-scrollbars {
   white-space: nowrap;
   overflow: hidden;
 }
+
+.modal {
+  z-index: 1000;
+}
