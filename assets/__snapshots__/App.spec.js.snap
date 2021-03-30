@@ -29,8 +29,6 @@ exports[`<App /> renders correctly 1`] = `
           maxsize="100"
           minsize="0"
         >
-          <search-stub />
-           
           <router-view-stub />
         </pane-stub>
          
