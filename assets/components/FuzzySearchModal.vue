@@ -124,11 +124,10 @@ export default {
 
 ::v-deep a.dropdown-item {
   padding-right: 1em;
-
   .media-right {
     visibility: hidden;
   }
-  i &:hover .media-right {
+  &:hover .media-right {
     visibility: visible;
   }
 }
