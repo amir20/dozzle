@@ -9,7 +9,6 @@
       <pane min-size="10">
         <splitpanes>
           <pane class="has-min-height router-view">
-            <search></search>
             <router-view></router-view>
           </pane>
           <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
@@ -47,7 +46,7 @@ import hotkeys from "hotkeys-js";
 import LogContainer from "./components/LogContainer";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
-import Search from "./components/Search";
+
 import PastTime from "./components/PastTime";
 import Icon from "./components/Icon";
 import FuzzySearchModal from "./components/FuzzySearchModal";
@@ -62,7 +61,6 @@ export default {
     Splitpanes,
     PastTime,
     Pane,
-    Search,
   },
   data() {
     return {

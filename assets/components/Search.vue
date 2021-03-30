@@ -47,6 +47,10 @@ export default {
       this.resetSearch();
     });
   },
+  beforeDestroy() {
+    this.updateSearchFilter("");
+    hotkeys.unbind("command+f, ctrl+f, esc");
+  },
   methods: {
     ...mapActions({
       updateSearchFilter: "SET_SEARCH",

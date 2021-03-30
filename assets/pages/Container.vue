@@ -1,10 +1,13 @@
 <template>
-  <log-container :id="id" show-title :scrollable="activeContainers.length > 0"> </log-container>
+  <div>
+    <search></search>
+    <log-container :id="id" show-title :scrollable="activeContainers.length > 0"> </log-container>
+  </div>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-
+import Search from "../components/Search";
 import LogContainer from "../components/LogContainer";
 
 export default {
@@ -12,6 +15,7 @@ export default {
   name: "Container",
   components: {
     LogContainer,
+    Search,
   },
   data() {
     return {
