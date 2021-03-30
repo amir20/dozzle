@@ -14,13 +14,15 @@
       <template slot-scope="props">
         <div class="media">
           <div class="media-left">
-            <span :class="props.option.state"><icon name="crate"></icon></span>
+            <span class="icon is-small" :class="props.option.state"><icon name="crate"></icon></span>
           </div>
           <div class="media-content">
             {{ props.option.name }}
           </div>
           <div class="media-right">
-            <span class="column-icon" @click.stop.prevent="addColumn(props.option)"><icon name="column"></icon></span>
+            <span class="icon is-small column-icon" @click.stop.prevent="addColumn(props.option)" title="Pin as column">
+              <icon name="column"></icon>
+            </span>
           </div>
         </div>
       </template>
@@ -122,5 +124,12 @@ export default {
 
 ::v-deep a.dropdown-item {
   padding-right: 1em;
+
+  .media-right {
+    visibility: hidden;
+  }
+  i &:hover .media-right {
+    visibility: visible;
+  }
 }
 </style>

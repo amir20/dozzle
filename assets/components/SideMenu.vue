@@ -39,15 +39,20 @@
           active-class="is-active"
           :title="item.name"
         >
-          <div class="is-ellipsis">
-            <span
-              @click.stop.prevent="appendActiveContainer(item)"
-              class="icon is-small will-append-container"
-              :class="{ 'is-active': activeContainersById[item.id] }"
-            >
-              <icon name="pin"></icon>
-            </span>
-            {{ item.name }}
+          <div class="container is-flex is-align-items-center">
+            <div class="is-flex-grow-1 is-ellipsis">
+              {{ item.name }}
+            </div>
+            <div class="is-flex-shrink-1 column-icon">
+              <span
+                class="icon is-small"
+                @click.stop.prevent="appendActiveContainer(item)"
+                v-show="!activeContainersById[item.id]"
+                title="Pin as column"
+              >
+                <icon name="column"></icon>
+              </span>
+            </div>
           </div>
         </router-link>
       </li>
@@ -108,14 +113,16 @@ li.exited a {
   fill: var(--logo-color);
 }
 
-.will-append-container.icon {
-  transition: transform 0.2s ease-out;
-  &.is-active {
-    pointer-events: none;
-    color: var(--primary-color);
-  }
-  .router-link-exact-active & {
+.menu-list li {
+  .column-icon {
     visibility: hidden;
+  }
+
+  &:hover .column-icon {
+    visibility: visible;
+    &:hover {
+      color: var(--secondary-color);
+    }
   }
 }
 </style>
