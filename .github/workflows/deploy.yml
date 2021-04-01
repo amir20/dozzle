@@ -67,5 +67,7 @@ jobs:
         uses: actions/setup-node@v1
       - name: Install dependencies
         run: yarn
-      - name: Release to github
+      - name: Release to Github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn release --github.release --no-increment --no-git
