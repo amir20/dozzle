@@ -86,7 +86,8 @@
  },
  "release-it": {
   "github": {
-   "release": false
+   "release": false,
+   "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
   },
   "npm": {
    "publish": false
