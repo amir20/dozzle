@@ -70,4 +70,4 @@ jobs:
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn release --github.release --no-increment --no-git
+        run: yarn release --github.release --no-increment --no-git --ci
