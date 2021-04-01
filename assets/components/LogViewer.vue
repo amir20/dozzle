@@ -64,7 +64,7 @@ export default {
 <style scoped lang="scss">
 .events {
   padding: 10px;
-  font-family: monaco, monospace;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monaco, monospace;
 
   & > li {
     word-wrap: break-word;
