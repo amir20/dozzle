@@ -119,7 +119,6 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
  Dozzle does not collect any metrics or analytics. Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
 
  - Allow connect to `api.github.com` to fetch most recent version.
- - Allow fonts from `fonts.gstatic.com` and styles from `fonts.googleapis.com`
  - Only allow `<script>` and `<style>` files from `self`
 
  Dozzle opens all links with `rel="noopener"`.
@@ -139,4 +138,3 @@ To Build and test locally:
 3. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
 4. Install node modules with `yarn`.
 5. Do `yarn dev`
-
