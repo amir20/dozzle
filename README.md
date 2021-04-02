@@ -1,18 +1,28 @@
+# Dozzle - [dozzle.dev](https://dozzle.dev/)
+
+Dozzle is a simple, lightweight application that provides you with a web based interface to monitor your Docker container logs live. It doesn’t store log information, it is for live monitoring of your container logs only.
+
+![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/amir20/dozzle)](https://goreportcard.com/report/github.com/amir20/dozzle)
 [![Docker Pulls](https://img.shields.io/docker/pulls/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 [![Docker Size](https://images.microbadger.com/badges/image/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 [![Docker Version](https://images.microbadger.com/badges/version/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 ![Test](https://github.com/amir20/dozzle/workflows/Test/badge.svg)
 
-# Dozzle - [dozzle.dev](https://dozzle.dev/)
 
-Dozzle is a simple, lightweight application that provides you with a web based interface to monitor your Docker container logs live. It doesn’t store log information, it is for live monitoring of your container logs only.
+## Features
+
+* Intelligent fuzzy search for container names 🤖
+* Search logs using regex 🔦
+* Small memory footprint 🏎
+* Split screen for viewing multiple logs
+* Download logs easy
+* Live stats with memory and CPU usage
 
 While dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
 
-Dozzle doesn't cost any money. Dozzle aims to stay simple, small and free.
-
-![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
+Dozzle won't cost any money and aims to focus only on real-time logs.
 
 ## Getting dozzle
 
