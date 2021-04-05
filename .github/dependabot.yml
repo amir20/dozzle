@@ -5,6 +5,7 @@ updates:
   labels:
     - "gomod"
     - "dependencies"
+    - "automerge"
   schedule:
     interval: daily
     time: "13:00"
@@ -14,6 +15,7 @@ updates:
   labels:
     - "npm"
     - "dependencies"
+    - "automerge"
   schedule:
     interval: daily
     time: "13:00"
@@ -23,6 +25,7 @@ updates:
   labels:
     - "npm"
     - "dependencies"
+    - "automerge"
   schedule:
     interval: daily
     time: "13:00"
