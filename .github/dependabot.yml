@@ -2,18 +2,27 @@ version: 2
 updates:
 - package-ecosystem: gomod
   directory: "/"
+  labels:
+    - "gomod"
+    - "dependencies"
   schedule:
     interval: daily
     time: "13:00"
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directory: "/"
+  labels:
+    - "npm"
+    - "dependencies"
   schedule:
     interval: daily
     time: "13:00"
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directory: "/integration"
+  labels:
+    - "npm"
+    - "dependencies"
   schedule:
     interval: daily
     time: "13:00"
