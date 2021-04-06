@@ -1,32 +1,40 @@
 version: 2
 updates:
-- package-ecosystem: gomod
-  directory: "/"
-  labels:
-    - "gomod"
-    - "dependencies"
-    - "automerge"
-  schedule:
-    interval: daily
-    time: "13:00"
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/"
-  labels:
-    - "npm"
-    - "dependencies"
-    - "automerge"
-  schedule:
-    interval: daily
-    time: "13:00"
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/integration"
-  labels:
-    - "npm"
-    - "dependencies"
-    - "automerge"
-  schedule:
-    interval: daily
-    time: "13:00"
-  open-pull-requests-limit: 10
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    labels:
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/"
+    labels:
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: gomod
+    directory: "/"
+    labels:
+      - "gomod"
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: daily
+  - package-ecosystem: npm
+    directory: "/"
+    labels:
+      - "npm"
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: daily
+  - package-ecosystem: npm
+    directory: "/integration"
+    labels:
+      - "npm"
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: daily
