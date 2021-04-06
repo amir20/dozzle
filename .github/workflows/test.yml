@@ -8,7 +8,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2.1.5
       - name: Install dependencies
         run: yarn
       - name: Run Tests
