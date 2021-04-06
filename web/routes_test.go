@@ -300,7 +300,6 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 		client:     mockedClient,
 		content:    afero.NewIOFS(fs),
 		config:     &Config{Base: "/foobar"},
-		fileServer: nil,
 	})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")

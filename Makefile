@@ -28,5 +28,8 @@ test: fake_static
 build: static
 	CGO_ENABLED=0 go build -ldflags "-s -w"
 
+dev:
+	yarn dev
+
 int:
 	docker-compose -f integration/docker-compose.test.yml up --build --force-recreate --exit-code-from integration

@@ -22,6 +22,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,10 +35,9 @@ type Config struct {
 }
 
 type handler struct {
-	client     docker.Client
-	content    fs.FS
-	config     *Config
-	fileServer http.Handler
+	client  docker.Client
+	content fs.FS
+	config  *Config
 }
 
 // CreateServer creates a service for http handler
@@ -50,10 +50,13 @@ func CreateServer(c docker.Client, content fs.FS, config Config) *http.Server {
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
 
+var fileServer http.Handler
+var store *sessions.CookieStore
+
 func createRouter(h *handler) *mux.Router {
 	base := h.config.Base
 	r := mux.NewRouter()
-	r.Use(setCSPHeaders)
+	r.Use(cspHeaders, auth)
 	if base != "/" {
 		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
@@ -76,22 +79,41 @@ func createRouter(h *handler) *mux.Router {
 		s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
 	}
 
-	h.fileServer = http.FileServer(http.FS(h.content))
+	fileServer = http.FileServer(http.FS(h.content))
+	store = sessions.NewCookieStore([]byte("this is a test"))
+	store.Options.HttpOnly = true
+	store.Options.SameSite = http.SameSiteLaxMode
 
 	return r
 }
 
-func setCSPHeaders(next http.Handler) http.Handler {
+func cspHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'")
 		next.ServeHTTP(w, r)
 	})
 }
 
+func auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, _ := store.Get(r, "session")
+		session.Values["test"] = "foobar"
+
+		fmt.Println("session = ", session.Values)
+
+		if err := session.Save(r, w); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
+
 	_, err := h.content.Open(req.URL.Path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
-		h.fileServer.ServeHTTP(w, req)
+		fileServer.ServeHTTP(w, req)
 	} else {
 		file, err := h.content.Open("index.html")
 		if err != nil {
