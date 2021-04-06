@@ -32,6 +32,9 @@ type Config struct {
 	Addr     string
 	Version  string
 	TailSize int
+	Key      string
+	Username string
+	Password string
 }
 
 type handler struct {
@@ -52,6 +55,7 @@ func CreateServer(c docker.Client, content fs.FS, config Config) *http.Server {
 
 var fileServer http.Handler
 var store *sessions.CookieStore
+var secured = false
 
 func createRouter(h *handler) *mux.Router {
 	base := h.config.Base
@@ -80,9 +84,13 @@ func createRouter(h *handler) *mux.Router {
 	}
 
 	fileServer = http.FileServer(http.FS(h.content))
-	store = sessions.NewCookieStore([]byte("this is a test"))
-	store.Options.HttpOnly = true
-	store.Options.SameSite = http.SameSiteLaxMode
+
+	if h.config.Username != "" && h.config.Password != "" {
+		store = sessions.NewCookieStore([]byte(h.config.Key))
+		store.Options.HttpOnly = true
+		store.Options.SameSite = http.SameSiteLaxMode
+		secured = true
+	}
 
 	return r
 }
@@ -96,21 +104,20 @@ func cspHeaders(next http.Handler) http.Handler {
 
 func auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := store.Get(r, "session")
-		session.Values["test"] = "foobar"
-
-		fmt.Println("session = ", session.Values)
-
-		if err := session.Save(r, w); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		if !secured {
+			next.ServeHTTP(w, r)
+		} else {
+			// session, _ := store.Get(r, "session")
+			// if session.IsNew {
+			// 	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			// }
+			next.ServeHTTP(w, r)
 		}
-		next.ServeHTTP(w, r)
+
 	})
 }
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
-
 	_, err := h.content.Open(req.URL.Path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
