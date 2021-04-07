@@ -2,6 +2,7 @@ const config = JSON.parse(document.querySelector("script#config__json").textCont
 if (config.version == "{{ .Version }}") {
   config.version = "dev";
   config.base = "";
+  config.authorizationNeeded = false;
 } else {
   config.version = config.version.replace(/^v/, "");
 }

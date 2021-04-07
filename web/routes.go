@@ -82,21 +82,21 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
 	} else {
-		if !h.isAuthorized(req) {
+		if !h.isAuthorized(req) && req.URL.Path != "login" {
 			http.Redirect(w, req, "/login", http.StatusTemporaryRedirect)
 			return
 		}
 		file, err := h.content.Open("index.html")
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 		tmpl, err := template.New("index.html").Parse(string(bytes))
 		if err != nil {
-			panic(err)
+			log.Panic(err)
 		}
 
 		path := ""
@@ -105,11 +105,17 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		}
 
 		data := struct {
-			Base    string
-			Version string
-		}{path, h.config.Version}
+			Base                  string
+			Version               string
+			AuthorizationNeeded bool
+		}{
+			path,
+			h.config.Version,
+			h.isAuthorizationNeeded(req),
+		}
 		err = tmpl.Execute(w, data)
 		if err != nil {
+			log.Panic(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}

@@ -16,6 +16,7 @@ const state = {
   searchFilter: null,
   isMobile: mql.matches,
   settings: storage.get(DOZZLE_SETTINGS_KEY),
+  authorizationNeeded: config.authorizationNeeded,
 };
 
 const mutations = {

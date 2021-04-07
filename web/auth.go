@@ -58,6 +58,10 @@ func (h *handler) isAuthorized(r *http.Request) bool {
 	return false
 }
 
+func (h *handler) isAuthorizationNeeded(r *http.Request) bool {
+	return secured && !h.isAuthorized(r)
+}
+
 func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 	if !secured {
 		log.Panic("Validating credentials with secured=false should not happen")
