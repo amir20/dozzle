@@ -11,15 +11,17 @@
           <pane class="has-min-height router-view">
             <router-view></router-view>
           </pane>
-          <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
-            <log-container
-              :id="other.id"
-              show-title
-              scrollable
-              closable
-              @close="removeActiveContainer(other)"
-            ></log-container>
-          </pane>
+          <template v-if="!isMobile">
+            <pane v-for="other in activeContainers" :key="other.id">
+              <log-container
+                :id="other.id"
+                show-title
+                scrollable
+                closable
+                @close="removeActiveContainer(other)"
+              ></log-container>
+            </pane>
+          </template>
         </splitpanes>
       </pane>
     </splitpanes>

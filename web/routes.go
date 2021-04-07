@@ -59,8 +59,8 @@ func createRouter(h *handler) *mux.Router {
 	s.Handle("/api/logs/download", authorizationRequired(h.downloadLogs))
 	s.Handle("/api/logs", authorizationRequired(h.fetchLogsBetweenDates))
 	s.Handle("/api/events/stream", authorizationRequired(h.streamEvents))
+	s.HandleFunc("/api/validateCredentials", h.validateCredentials)
 	s.Handle("/version", authorizationRequired(h.version))
-	s.HandleFunc("/validateCredentials", h.validateCredentials)
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		s.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
@@ -105,8 +105,8 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		}
 
 		data := struct {
-			Base                  string
-			Version               string
+			Base                string
+			Version             string
 			AuthorizationNeeded bool
 		}{
 			path,

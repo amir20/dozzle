@@ -5,6 +5,7 @@ if (config.version == "{{ .Version }}") {
   config.authorizationNeeded = false;
 } else {
   config.version = config.version.replace(/^v/, "");
+  config.authorizationNeeded = config.authorizationNeeded === "true";
 }
 
 export default config;

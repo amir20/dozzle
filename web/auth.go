@@ -73,15 +73,25 @@ func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseForm()
+	if err := r.ParseMultipartForm(4 * 1024); err != nil {
+		log.Fatalf("Error while parsing form data: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	user := r.Form["username"][0]
-	pass := r.Form["password"][0]
+	user := r.PostFormValue("username")
+	pass := r.PostFormValue("password")
 	session, _ := store.Get(r, sessionName)
 
 	if user == h.config.Username && pass == h.config.Password {
-		session.Values[authorityKey] = time.Now()
-		session.Save(r, w)
+		session.Values[authorityKey] = time.Now().Unix()
+
+		if err := session.Save(r, w); err != nil {
+			log.Fatalf("Error while parsing saving session: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(http.StatusText(http.StatusOK)))
 		return
