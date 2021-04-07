@@ -3,7 +3,7 @@
     <mobile-menu v-if="isMobile"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile && !collapseNav">
+      <pane min-size="10" :size="settings.menuWidth" v-if="false">
         <side-menu @search="showFuzzySearch"></side-menu>
       </pane>
       <pane min-size="10">

@@ -58,19 +58,25 @@ var store *sessions.CookieStore
 var secured = false
 
 func createRouter(h *handler) *mux.Router {
+	if h.config.Username != "" && h.config.Password != "" {
+		store = sessions.NewCookieStore([]byte(h.config.Key))
+		store.Options.HttpOnly = true
+		store.Options.SameSite = http.SameSiteLaxMode
+		secured = true
+	}
 	base := h.config.Base
 	r := mux.NewRouter()
-	r.Use(cspHeaders, auth)
+	r.Use(cspHeaders)
 	if base != "/" {
 		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		}))
 	}
 	s := r.PathPrefix(base).Subrouter()
-	s.HandleFunc("/api/logs/stream", h.streamLogs)
-	s.HandleFunc("/api/logs/download", h.downloadLogs)
-	s.HandleFunc("/api/logs", h.fetchLogsBetweenDates)
-	s.HandleFunc("/api/events/stream", h.streamEvents)
+	s.Handle("/api/logs/stream", secure(h.streamLogs))
+	s.Handle("/api/logs/download", secure(h.downloadLogs))
+	s.Handle("/api/logs", secure(h.fetchLogsBetweenDates))
+	s.Handle("/api/events/stream", secure(h.streamEvents))
 	s.HandleFunc("/version", h.version)
 
 	if log.IsLevelEnabled(log.DebugLevel) {
@@ -85,13 +91,6 @@ func createRouter(h *handler) *mux.Router {
 
 	fileServer = http.FileServer(http.FS(h.content))
 
-	if h.config.Username != "" && h.config.Password != "" {
-		store = sessions.NewCookieStore([]byte(h.config.Key))
-		store.Options.HttpOnly = true
-		store.Options.SameSite = http.SameSiteLaxMode
-		secured = true
-	}
-
 	return r
 }
 
@@ -102,19 +101,22 @@ func cspHeaders(next http.Handler) http.Handler {
 	})
 }
 
-func auth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !secured {
-			next.ServeHTTP(w, r)
-		} else {
-			// session, _ := store.Get(r, "session")
-			// if session.IsNew {
-			// 	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
-			// }
-			next.ServeHTTP(w, r)
-		}
+func secure(f http.HandlerFunc) http.Handler {
+	if secured {
 
-	})
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			session, _ := store.Get(r, "session")
+			if session.IsNew {
+				http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			} else {
+				f(w, r)
+			}
+
+		})
+	} else {
+		return http.HandlerFunc(f)
+	}
+
 }
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
@@ -122,6 +124,12 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
 	} else {
+		session, _ := store.Get(req, "session")
+		
+		if session.IsNew && req.URL.Path != "login" {
+			http.Redirect(w, req, "/login", http.StatusTemporaryRedirect)
+			return
+		}
 		file, err := h.content.Open("index.html")
 		if err != nil {
 			panic(err)
