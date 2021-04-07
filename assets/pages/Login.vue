@@ -13,15 +13,22 @@
                   <div class="field">
                     <label class="label">Username</label>
                     <div class="control">
-                      <input class="input" type="text" autocomplete="username" v-model="username" />
+                      <input class="input" type="text" name="username" autocomplete="username" v-model="username" />
                     </div>
                   </div>
 
                   <div class="field">
                     <label class="label">Password</label>
                     <div class="control">
-                      <input class="input" type="password" autocomplete="current-password" v-model="password" />
+                      <input
+                        class="input"
+                        type="password"
+                        name="password"
+                        autocomplete="current-password"
+                        v-model="password"
+                      />
                     </div>
+                    <p class="help is-danger" v-if="error">Username and password are not valid.</p>
                   </div>
                   <div class="field is-grouped is-grouped-centered mt-5">
                     <p class="control">
@@ -49,6 +56,7 @@ export default {
     return {
       username: null,
       password: null,
+      error: false,
     };
   },
   methods: {
@@ -59,9 +67,10 @@ export default {
       });
 
       if (response.status == 200) {
+        this.error = false;
         window.location.href = `${config.base}/`;
       } else {
-        alert("fail");
+        this.error = true;
       }
     },
   },

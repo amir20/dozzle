@@ -102,10 +102,12 @@ const getters = {
   },
 };
 
-const es = new EventSource(`${config.base}/api/events/stream`);
-es.addEventListener("containers-changed", (e) => store.commit("SET_CONTAINERS", JSON.parse(e.data)), false);
-es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
-es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
+if (!config.authorizationNeeded) {
+  const es = new EventSource(`${config.base}/api/events/stream`);
+  es.addEventListener("containers-changed", (e) => store.commit("SET_CONTAINERS", JSON.parse(e.data)), false);
+  es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
+  es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
+}
 
 mql.addEventListener("change", (e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 

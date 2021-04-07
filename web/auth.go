@@ -19,6 +19,7 @@ func initializeAuth(h *handler) {
 		store = sessions.NewCookieStore([]byte(h.config.Key))
 		store.Options.HttpOnly = true
 		store.Options.SameSite = http.SameSiteLaxMode
+		store.Options.MaxAge = 0
 		secured = true
 	}
 }
@@ -68,7 +69,7 @@ func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != "POST" {
-		log.Fatal("Expecting meethod to be POST")
+		log.Fatal("Expecting method to be POST")
 		http.Error(w, http.StatusText(http.StatusNotAcceptable), http.StatusNotAcceptable)
 		return
 	}
