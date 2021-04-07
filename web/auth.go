@@ -50,8 +50,7 @@ func (h *handler) isAuthorized(r *http.Request) bool {
 		return false
 	}
 
-	if val, ok := session.Values[authorityKey]; ok {
-		println(val)
+	if _, ok := session.Values[authorityKey]; ok {
 		// TODO check for timestamp
 		return true
 	}

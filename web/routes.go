@@ -86,38 +86,44 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, "/login", http.StatusTemporaryRedirect)
 			return
 		}
-		file, err := h.content.Open("index.html")
-		if err != nil {
-			log.Panic(err)
-		}
-		bytes, err := ioutil.ReadAll(file)
-		if err != nil {
-			log.Panic(err)
-		}
-		tmpl, err := template.New("index.html").Parse(string(bytes))
-		if err != nil {
-			log.Panic(err)
-		}
+		h.executeTemplate(w, req)
+	}
+}
 
-		path := ""
-		if h.config.Base != "/" {
-			path = h.config.Base
-		}
+func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
+	file, err := h.content.Open("index.html")
+	if err != nil {
+		log.Panic(err)
+	}
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Panic(err)
+	}
+	tmpl, err := template.New("index.html").Parse(string(bytes))
+	if err != nil {
+		log.Panic(err)
+	}
 
-		data := struct {
-			Base                string
-			Version             string
-			AuthorizationNeeded bool
-		}{
-			path,
-			h.config.Version,
-			h.isAuthorizationNeeded(req),
-		}
-		err = tmpl.Execute(w, data)
-		if err != nil {
-			log.Panic(err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+	path := ""
+	if h.config.Base != "/" {
+		path = h.config.Base
+	}
+
+	data := struct {
+		Base                string
+		Version             string
+		AuthorizationNeeded bool
+		Secured             bool
+	}{
+		path,
+		h.config.Version,
+		h.isAuthorizationNeeded(req),
+		secured,
+	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Panic(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
