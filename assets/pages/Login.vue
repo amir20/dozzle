@@ -10,7 +10,14 @@
                   <div class="field">
                     <label class="label">Username</label>
                     <div class="control">
-                      <input class="input" type="text" name="username" autocomplete="username" v-model="username" />
+                      <input
+                        class="input"
+                        type="text"
+                        name="username"
+                        autocomplete="username"
+                        v-model="username"
+                        autofocus
+                      />
                     </div>
                   </div>
 
