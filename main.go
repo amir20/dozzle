@@ -118,6 +118,11 @@ func main() {
 		log.Fatalf("Could not open embedded static folder: %v", err)
 	}
 
+	if _, ok := os.LookupEnv("LIVE_FS"); ok {
+		log.Info("Using live filesystem at ./static")
+		static = os.DirFS("./static")
+	}
+
 	srv := web.CreateServer(dockerClient, static, config)
 
 	go func() {
@@ -131,7 +136,7 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	signal.Notify(c, os.Kill)
 	<-c
-	log.Infof("Shutting down...")
+	log.Info("Shutting down...")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	srv.Shutdown(ctx)

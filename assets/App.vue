@@ -1,6 +1,6 @@
 <template>
   <main>
-    <mobile-menu v-if="isMobile"></mobile-menu>
+    <mobile-menu v-if="isMobile && !authorizationNeeded"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="settings.menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">

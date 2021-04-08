@@ -8,7 +8,7 @@
               <h1 class="title">Hello, there!</h1>
             </div>
             <div class="column is-narrow" v-if="secured">
-              <a class="button is-warning is-light is-small" :href="`${base}/logout`">Logout</a>
+              <a class="button is-primary is-small" :href="`${base}/logout`">Logout</a>
             </div>
           </div>
         </div>
