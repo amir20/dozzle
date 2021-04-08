@@ -59,6 +59,11 @@ export default {
       error: false,
     };
   },
+  metaInfo() {
+    return {
+      title: "Authentication Required",
+    };
+  },
   methods: {
     async onLogin() {
       const response = await fetch(`${config.base}/api/validateCredentials`, {
