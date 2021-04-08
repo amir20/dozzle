@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/magiconair/properties/assert"
 
 	"github.com/amir20/dozzle/docker"
@@ -238,14 +240,9 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 }
 
 func Test_createRoutes_index(t *testing.T) {
-	mockedClient := new(MockedClient)
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
-	handler := createRouter(&handler{
-		client:  mockedClient,
-		content: afero.NewIOFS(fs),
-		config:  &Config{Base: "/"},
-	})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/"})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -255,15 +252,10 @@ func Test_createRoutes_index(t *testing.T) {
 }
 
 func Test_createRoutes_redirect(t *testing.T) {
-	mockedClient := new(MockedClient)
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{
-		client:  mockedClient,
-		content: afero.NewIOFS(fs),
-		config:  &Config{Base: "/foobar"},
-	})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar"})
 	req, err := http.NewRequest("GET", "/foobar", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -273,15 +265,9 @@ func Test_createRoutes_redirect(t *testing.T) {
 }
 
 func Test_createRoutes_foobar(t *testing.T) {
-	mockedClient := new(MockedClient)
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("foo page"), 0644), "WriteFile should have no error.")
-
-	handler := createRouter(&handler{
-		client:  mockedClient,
-		content: afero.NewIOFS(fs),
-		config:  &Config{Base: "/foobar"},
-	})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar"})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -291,16 +277,11 @@ func Test_createRoutes_foobar(t *testing.T) {
 }
 
 func Test_createRoutes_foobar_file(t *testing.T) {
-	mockedClient := new(MockedClient)
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 	require.NoError(t, afero.WriteFile(fs, "test", []byte("test page"), 0644), "WriteFile should have no error.")
 
-	handler := createRouter(&handler{
-		client:  mockedClient,
-		content: afero.NewIOFS(fs),
-		config:  &Config{Base: "/foobar"},
-	})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar"})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -310,21 +291,33 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 }
 
 func Test_createRoutes_version(t *testing.T) {
-	mockedClient := new(MockedClient)
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
-
-	handler := createRouter(&handler{
-		client:  mockedClient,
-		content: afero.NewIOFS(fs),
-		config:  &Config{Base: "/", Version: "dev"},
-	})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Version: "dev"})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func createHandler(client docker.Client, content fs.FS, config Config) *mux.Router {
+	if client == nil {
+		client = new(MockedClient)
+	}
+
+	if content == nil {
+		fs := afero.NewMemMapFs()
+		afero.WriteFile(fs, "index.html", []byte("index page"), 0644)
+		content = afero.NewIOFS(fs)
+	}
+
+	return createRouter(&handler{
+		client:  client,
+		content: content,
+		config:  &config,
+	})
 }
 
 func TestMain(m *testing.M) {
