@@ -10,33 +10,33 @@ Dozzle is a simple, lightweight application that provides you with a web based i
 [![Docker Version](https://images.microbadger.com/badges/version/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
 ![Test](https://github.com/amir20/dozzle/workflows/Test/badge.svg)
 
-
 ## Features
 
-* Intelligent fuzzy search for container names 🤖
-* Search logs using regex 🔦
-* Small memory footprint 🏎
-* Split screen for viewing multiple logs
-* Download logs easy
-* Live stats with memory and CPU usage
+- Intelligent fuzzy search for container names 🤖
+- Search logs using regex 🔦
+- Small memory footprint 🏎
+- Split screen for viewing multiple logs
+- Download logs easy
+- Live stats with memory and CPU usage
+- Authentication with username and password 🚨
 
-While dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
+While Dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
 
 Dozzle won't cost any money and aims to focus only on real-time logs.
 
-## Getting dozzle
+## Getting Dozzle
 
 Dozzle is a very small Docker container (4 MB compressed). Pull the latest release from the index:
 
     $ docker pull amir20/dozzle:latest
 
-## Using dozzle
+## Using Dozzle
 
 The simplest way to use dozzle is to run the docker container. Also, mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
     $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest
 
-dozzle will be available at [http://localhost:8888/](http://localhost:8888/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
+Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
 
 ### With Docker swarm
 
@@ -61,7 +61,7 @@ dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
 
 #### Security
 
-dozzle doesn't support authentication out of the box. You can control the device dozzle binds to by passing `--addr` parameter. For example,
+You can control the device Dozzle binds to by passing `--addr` parameter. For example,
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --addr localhost:1224
 
@@ -73,14 +73,16 @@ If you wish to restrict the containers shown you can pass the `--filter` paramet
 
 this would then only allow you to view containers with a name starting with "foo". You can use other filters like `status` as well, please check the official docker [command line docs](https://docs.docker.com/engine/reference/commandline/ps/#filtering) for available filters.
 
+Dozzle supports very simple authentication out of the box with username and password. You should deploy using SSL to keep the credentials safe.
+
 #### Changing base URL
 
-dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
+Dozzle by default mounts to "/". If you want to control the base path you can use the `--base` option. For example, if you want to mount at "/foobar",
 then you can override by using `--base /foobar`. See env variables below for using `DOZZLE_BASE` to change this.
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest --base /foobar
 
-dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
+Dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
 #### Environment variables and configuration
 
@@ -94,15 +96,20 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | n/a          | `DOCKER_API_VERSION` | not set |
 | `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
 | `--filter`   | `DOZZLE_FILTER`      | `""`    |
+| `--username` | `DOZZLE_USERNAME`    | `""`    |
+| `--password` | `DOZZLE_PASSWORD`    | `""`    |
+| `--key`      | `DOZZLE_KEY`         | `""`    |
+
+Note: When using username and password `DOZZLE_KEY` is required for session management.
 
 ## Troubleshooting and FAQs
 
 <details>
  <summary>I installed Dozzle, but logs are slow or they never load. Help!</summary>
 
- Dozzle uses Server Sent Events (SSE) which connects to a server using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer.  Since version `1.23.0`, Dozzle sends the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those cases, you need to explicitly disable any buffering.
+Dozzle uses Server Sent Events (SSE) which connects to a server using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer. Since version `1.23.0`, Dozzle sends the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those cases, you need to explicitly disable any buffering.
 
- Below is an example with nginx and using `proxy_pass` to disable buffering.
+Below is an example with nginx and using `proxy_pass` to disable buffering.
 
 ```
     server {
@@ -121,19 +128,20 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
     }
 
 ```
+
 </details>
 
 <details>
  <summary>What data does Dozzle collect?</summary>
 
- Dozzle does not collect any metrics or analytics. Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
+Dozzle does not collect any metrics or analytics. Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
 
- - Allow connect to `api.github.com` to fetch most recent version.
- - Only allow `<script>` and `<style>` files from `self`
+- Allow connect to `api.github.com` to fetch most recent version.
+- Only allow `<script>` and `<style>` files from `self`
 
- Dozzle opens all links with `rel="noopener"`.
+Dozzle opens all links with `rel="noopener"`.
+
 </details>
-
 
 ## License
 
