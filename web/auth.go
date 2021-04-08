@@ -99,3 +99,20 @@ func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 }
+
+func (h *handler) clearSession(w http.ResponseWriter, r *http.Request) {
+	if !secured {
+		log.Panic("Validating credentials with secured=false should not happen")
+	}
+
+	session, _ := store.Get(r, sessionName)
+	delete(session.Values, authorityKey)
+
+	if err := session.Save(r, w); err != nil {
+		log.Fatalf("Error while parsing saving session: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, h.config.Base, http.StatusTemporaryRedirect)
+}

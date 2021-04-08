@@ -60,6 +60,7 @@ func createRouter(h *handler) *mux.Router {
 	s.Handle("/api/logs", authorizationRequired(h.fetchLogsBetweenDates))
 	s.Handle("/api/events/stream", authorizationRequired(h.streamEvents))
 	s.HandleFunc("/api/validateCredentials", h.validateCredentials)
+	s.Handle("/logout", authorizationRequired(h.clearSession))
 	s.Handle("/version", authorizationRequired(h.version))
 
 	if log.IsLevelEnabled(log.DebugLevel) {
@@ -83,7 +84,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		fileServer.ServeHTTP(w, req)
 	} else {
 		if !h.isAuthorized(req) && req.URL.Path != "login" {
-			http.Redirect(w, req, "/login", http.StatusTemporaryRedirect)
+			http.Redirect(w, req, h.config.Base+"login", http.StatusTemporaryRedirect)
 			return
 		}
 		h.executeTemplate(w, req)
