@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"io/fs"
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"

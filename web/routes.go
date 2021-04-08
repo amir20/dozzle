@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
-	_ "net/http/pprof"
 
 	"github.com/amir20/dozzle/docker"
 
