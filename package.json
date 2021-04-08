@@ -1,6 +1,6 @@
 {
  "name": "dozzle",
- "version": "3.4.8",
+ "version": "3.5.0",
  "description": "Realtime log viewer for docker containers. ",
  "scripts": {
   "watch": "npm-run-all -p watch:*",
