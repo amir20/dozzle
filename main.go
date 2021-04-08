@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"io/fs"
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
@@ -25,6 +26,9 @@ var (
 	tailSize = 300
 	filters  map[string]string
 	version  = "dev"
+	key      string
+	username string
+	password string
 )
 
 //go:embed static
@@ -40,6 +44,9 @@ func init() {
 	pflag.String("level", "info", "logging level")
 	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
 	pflag.StringToStringVar(&filters, "filter", map[string]string{}, "Container filters to use for showing logs")
+	pflag.String("key", "", "Dozzle secure key used for session encryption. Should be a random generated string. Use openssl rand -base64 32 to create one.")
+	pflag.String("username", "", "Dozzle username to use for authentication. Requires key and password.")
+	pflag.String("password", "", "Dozzle password for authentication. Requires username and key.")
 	pflag.Parse()
 
 	viper.AutomaticEnv()
@@ -50,6 +57,9 @@ func init() {
 	base = viper.GetString("base")
 	level = viper.GetString("level")
 	tailSize = viper.GetInt("tailSize")
+	key = viper.GetString("key")
+	username = viper.GetString("username")
+	password = viper.GetString("password")
 
 	// Until https://github.com/spf13/viper/issues/911 is fixed. We have to use this hacky way.
 	// filters = viper.GetStringMapString("filter")
@@ -83,11 +93,24 @@ func main() {
 		log.Fatalf("Could not connect to Docker Engine: %v", err)
 	}
 
+	if username != "" || password != "" {
+		if username == "" || password == "" {
+			log.Fatalf("Username AND password are required for authentication")
+		}
+
+		if key == "" {
+			log.Fatalf("Key is required for authentication")
+		}
+	}
+
 	config := web.Config{
 		Addr:     addr,
 		Base:     base,
 		Version:  version,
 		TailSize: tailSize,
+		Key:      key,
+		Username: username,
+		Password: password,
 	}
 
 	static, err := fs.Sub(content, "static")

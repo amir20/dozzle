@@ -297,10 +297,9 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 	require.NoError(t, afero.WriteFile(fs, "test", []byte("test page"), 0644), "WriteFile should have no error.")
 
 	handler := createRouter(&handler{
-		client:     mockedClient,
-		content:    afero.NewIOFS(fs),
-		config:     &Config{Base: "/foobar"},
-		fileServer: nil,
+		client:  mockedClient,
+		content: afero.NewIOFS(fs),
+		config:  &Config{Base: "/foobar"},
 	})
 	req, err := http.NewRequest("GET", "/foobar/test", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")

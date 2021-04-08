@@ -3,7 +3,7 @@
     <mobile-menu v-if="isMobile"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!isMobile && !collapseNav">
+      <pane min-size="10" :size="settings.menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">
         <side-menu @search="showFuzzySearch"></side-menu>
       </pane>
       <pane min-size="10">
@@ -11,15 +11,17 @@
           <pane class="has-min-height router-view">
             <router-view></router-view>
           </pane>
-          <pane v-for="other in activeContainers" :key="other.id" v-if="!isMobile">
-            <log-container
-              :id="other.id"
-              show-title
-              scrollable
-              closable
-              @close="removeActiveContainer(other)"
-            ></log-container>
-          </pane>
+          <template v-if="!isMobile">
+            <pane v-for="other in activeContainers" :key="other.id">
+              <log-container
+                :id="other.id"
+                show-title
+                scrollable
+                closable
+                @close="removeActiveContainer(other)"
+              ></log-container>
+            </pane>
+          </template>
         </splitpanes>
       </pane>
     </splitpanes>
@@ -28,7 +30,7 @@
       class="button is-small is-rounded is-settings-control"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
-      v-if="!isMobile"
+      v-if="!isMobile && !authorizationNeeded"
     >
       <span class="icon">
         <icon :name="collapseNav ? 'chevron-right' : 'chevron-left'"></icon>
@@ -106,7 +108,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["isMobile", "settings", "containers"]),
+    ...mapState(["isMobile", "settings", "containers", "authorizationNeeded"]),
     ...mapGetters(["visibleContainers", "activeContainers"]),
     hasSmallerScrollbars() {
       return this.settings.smallerScrollbars;

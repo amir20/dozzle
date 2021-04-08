@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 import Search from "../components/Search";
 import LogContainer from "../components/LogContainer";
 

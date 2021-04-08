@@ -1,1 +1,1 @@
--r '\.go$' -R 'node_modules' -R '^static/' -R '^.cache/' -G '*_test.go' -s -- go run main.go --level debug
+-r '\.(go|vue|html|js|css)$' -R 'node_modules' -G '*_test.go' -s -- go run main.go --level debug --username amir --password pass --key test

@@ -3,7 +3,14 @@
     <section class="hero is-small mt-4">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title">Hello, there!</h1>
+          <div class="columns">
+            <div class="column">
+              <h1 class="title">Hello, there!</h1>
+            </div>
+            <div class="column is-narrow" v-if="secured">
+              <a class="button is-warning is-light is-small" :href="`${base}/logout`">Logout</a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -84,6 +91,8 @@ export default {
       version: config.version,
       search: null,
       sort: "running",
+      secured: config.secured,
+      base: config.base,
     };
   },
   methods: {

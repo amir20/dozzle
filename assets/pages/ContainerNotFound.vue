@@ -14,5 +14,10 @@
 <script>
 export default {
   name: "ContainerNotFound",
+  metaInfo() {
+    return {
+      title: "Not Found",
+    };
+  },
 };
 </script>

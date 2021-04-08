@@ -10,7 +10,7 @@ import Autocomplete from "buefy/dist/esm/autocomplete";
 import store from "./store";
 import config from "./store/config";
 import App from "./App.vue";
-import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound } from "./pages";
+import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
 
 Vue.use(VueRouter);
 Vue.use(Meta);
@@ -46,6 +46,11 @@ const routes = [
     path: "/show",
     component: Show,
     name: "show",
+  },
+  {
+    path: "/login",
+    component: Login,
+    name: "login",
   },
   {
     path: "/*",

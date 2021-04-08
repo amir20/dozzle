@@ -14,5 +14,10 @@
 <script>
 export default {
   name: "PageNotFound",
+  metaInfo() {
+    return {
+      title: "404 Error",
+    };
+  },
 };
 </script>
