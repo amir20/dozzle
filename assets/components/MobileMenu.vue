@@ -70,7 +70,7 @@ aside {
   left: 0;
   right: 0;
   background: var(--scheme-main-ter);
-  z-index: 2;
+  z-index: 10;
   max-height: 100vh;
   overflow: auto;
 
