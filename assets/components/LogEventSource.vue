@@ -30,7 +30,7 @@ export default {
   methods: {
     loadLogs(id) {
       this.reset();
-      this.es = new EventSource(`${config.base}/api/logs/stream?id=${this.id}`);
+      this.es = new EventSource(`${config.base}/api/logs/stream?id=${id}`);
       this.es.addEventListener("container-stopped", (e) => {
         this.es.close();
         this.buffer.push({ event: "container-stopped", message: "Container stopped", date: new Date() });

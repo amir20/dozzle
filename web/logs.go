@@ -100,6 +100,9 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	defer reader.Close()
 
 	scanner := bufio.NewScanner(reader)
+	const maxCapacity = 1024 * 1024
+	buf := make([]byte, maxCapacity)
+	scanner.Buffer(buf, maxCapacity)
 	for scanner.Scan() {
 		message := scanner.Text()
 		fmt.Fprintf(w, "data: %s\n", message)
