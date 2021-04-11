@@ -91,7 +91,6 @@
 
 <script>
 import gt from "semver/functions/gt";
-import valid from "semver/functions/valid";
 import { mapActions, mapState } from "vuex";
 import Icon from "../components/Icon";
 import config from "../store/config";

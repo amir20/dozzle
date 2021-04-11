@@ -7,7 +7,7 @@
   </ul>
 </template>
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapState } from "vuex";
 import AnsiConvertor from "ansi-to-html";
 import DOMPurify from "dompurify";
 import RelativeTime from "./RelativeTime";
