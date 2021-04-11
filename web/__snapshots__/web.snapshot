@@ -32,6 +32,15 @@ Location: /login
 
 <a href="/login">Temporary Redirect</a>.
 
+/* snapshot: Test_createRoutes_username_password_invalid */
+HTTP/1.1 401 Unauthorized
+Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+Unauthorized
+
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
