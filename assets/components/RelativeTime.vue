@@ -31,7 +31,14 @@ export default {
   computed: {
     ...mapState(["settings"]),
     locale() {
-      return styles[this.settings.hourStyle];
+      const locale = styles[this.settings.hourStyle];
+      const oldFormatter = locale.formatRelative;
+      return {
+        ...locale,
+        formatRelative(token) {
+          return oldFormatter(token) + "p";
+        },
+      };
     },
   },
   filters: {
