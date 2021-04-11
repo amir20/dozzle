@@ -35,7 +35,7 @@
       </div>
     </section>
 
-    <section class="columns is-centered section">
+    <section class="columns is-centered section is-marginless">
       <div class="column is-4">
         <div class="panel">
           <p class="panel-heading">Containers</p>
