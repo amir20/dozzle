@@ -82,7 +82,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
 	} else {
-		if !h.isAuthorized(req) && req.URL.Path != "login" {
+		if !isAuthorized(req) && req.URL.Path != "login" {
 			http.Redirect(w, req, h.config.Base+"login", http.StatusTemporaryRedirect)
 			return
 		}

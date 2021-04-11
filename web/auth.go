@@ -27,8 +27,7 @@ func initializeAuth(h *handler) {
 func authorizationRequired(f http.HandlerFunc) http.Handler {
 	if secured {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session, _ := store.Get(r, sessionName)
-			if session.IsNew {
+			if isAuthorized(r) {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			} else {
@@ -40,7 +39,7 @@ func authorizationRequired(f http.HandlerFunc) http.Handler {
 	}
 }
 
-func (h *handler) isAuthorized(r *http.Request) bool {
+func isAuthorized(r *http.Request) bool {
 	if !secured {
 		return true
 	}
@@ -59,7 +58,7 @@ func (h *handler) isAuthorized(r *http.Request) bool {
 }
 
 func (h *handler) isAuthorizationNeeded(r *http.Request) bool {
-	return secured && !h.isAuthorized(r)
+	return secured && !isAuthorized(r)
 }
 
 func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
