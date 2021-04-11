@@ -1,3 +1,4 @@
+
 package web
 
 import (
@@ -99,12 +100,12 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
-	scanner := bufio.NewScanner(reader)
-	const maxCapacity = 1024 * 1024
-	buf := make([]byte, maxCapacity)
-	scanner.Buffer(buf, maxCapacity)
-	for scanner.Scan() {
-		message := scanner.Text()
+
+	buffered := bufio.NewReader(reader)
+	var readerError error
+	var message string
+	for  {
+		message, readerError = buffered.ReadString('\n')
 		fmt.Fprintf(w, "data: %s\n", message)
 		if index := strings.IndexAny(message, " "); index != -1 {
 			id := message[:index]
@@ -114,16 +115,19 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "\n")
 		f.Flush()
+		if readerError != nil {
+			break
+		}
 	}
 
 	log.Debugf("streaming stopped: %v", container.ID)
 
-	if scanner.Err() == nil {
+	if readerError == io.EOF {
 		log.Debugf("container stopped: %v", container.ID)
 		fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
 		f.Flush()
-	} else if scanner.Err() != context.Canceled {
-		log.Errorf("unknown error while streaming %v", scanner.Err())
+	} else if readerError != context.Canceled {
+		log.Errorf("unknown error while streaming %v", readerError.Error())
 	}
 
 	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")

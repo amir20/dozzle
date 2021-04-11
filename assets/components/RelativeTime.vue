@@ -3,9 +3,10 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapState } from "vuex";
 import { formatRelative } from "date-fns";
-import { enGB, enUS } from "date-fns/locale";
+import enGB from "date-fns/locale/en-GB";
+import enUS from "date-fns/locale/en-US";
 
 const use24Hr =
   new Intl.DateTimeFormat(undefined, {
