@@ -312,6 +312,15 @@ func Test_createRoutes_username_password(t *testing.T) {
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 }
 
+func Test_createRoutes_username_password_invalid(t *testing.T) {
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
 func createHandler(client docker.Client, content fs.FS, config Config) *mux.Router {
 	if client == nil {
 		client = new(MockedClient)

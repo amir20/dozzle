@@ -28,10 +28,9 @@ func authorizationRequired(f http.HandlerFunc) http.Handler {
 	if secured {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if isAuthorized(r) {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			} else {
 				f(w, r)
+			} else {
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			}
 		})
 	} else {
