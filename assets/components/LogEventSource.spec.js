@@ -27,13 +27,13 @@ describe("<LogEventSource />", () => {
     debounce.mockClear();
   });
 
-  function createLogEventSource(searchFilter = null) {
+  function createLogEventSource({ hourStyle = "auto", searchFilter = null } = {}) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
     localVue.component("log-viewer", LogViewer);
 
-    const state = { searchFilter, settings: { size: "medium", showTimestamp: true, hourStyle: "auto" } };
+    const state = { searchFilter, settings: { size: "medium", showTimestamp: true, hourStyle } };
 
     const store = new Vuex.Store({
       state,
@@ -179,8 +179,38 @@ describe("<LogEventSource />", () => {
       `);
     });
 
+    test("should render dates with 12 hour style", async () => {
+      const wrapper = createLogEventSource({ hourStyle: "12" });
+      sources["/api/logs/stream?id=abc"].emitOpen();
+      sources["/api/logs/stream?id=abc"].emitMessage({
+        data: `2019-06-12T23:55:42.459034602Z <test>foo bar</test>`,
+      });
+
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
+        <ul class="events medium">
+          <li class=""><span class="date"><time datetime="2019-06-12T23:55:42.459Z">today at 11:55:42 PM</time></span> <span class="text"> &lt;test&gt;foo bar&lt;/test&gt;</span></li>
+        </ul>
+      `);
+    });
+
+    test("should render dates with 24 hour style", async () => {
+      const wrapper = createLogEventSource({ hourStyle: "24" });
+      sources["/api/logs/stream?id=abc"].emitOpen();
+      sources["/api/logs/stream?id=abc"].emitMessage({
+        data: `2019-06-12T23:55:42.459034602Z <test>foo bar</test>`,
+      });
+
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find("ul.events")).toMatchInlineSnapshot(`
+        <ul class="events medium">
+          <li class=""><span class="date"><time datetime="2019-06-12T23:55:42.459Z">today at 23:55:42</time></span> <span class="text"> &lt;test&gt;foo bar&lt;/test&gt;</span></li>
+        </ul>
+      `);
+    });
+
     test("should render messages with filter", async () => {
-      const wrapper = createLogEventSource("test");
+      const wrapper = createLogEventSource({ searchFilter: "test" });
       sources["/api/logs/stream?id=abc"].emitOpen();
       sources["/api/logs/stream?id=abc"].emitMessage({
         data: `2019-06-11T10:55:42.459034602Z Foo bar`,
