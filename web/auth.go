@@ -62,11 +62,11 @@ func (h *handler) isAuthorizationNeeded(r *http.Request) bool {
 
 func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 	if !secured {
-		log.Panic("Validating credentials with secured=false should not happen")
+		log.Panic("Validating credentials without username and password should not happen")
 	}
 
 	if r.Method != "POST" {
-		log.Fatal("Expecting method to be POST")
+		log.Fatal("Expecting credential validation method to be POST")
 		http.Error(w, http.StatusText(http.StatusNotAcceptable), http.StatusNotAcceptable)
 		return
 	}

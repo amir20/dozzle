@@ -1,11 +1,13 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -319,6 +321,63 @@ func Test_createRoutes_username_password_invalid(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func Test_createRoutes_username_password_login_happy(t *testing.T) {
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	fw, err := writer.CreateFormField("username")
+	require.NoError(t, err, "Creating field should not be error.")
+	_, err = io.Copy(fw, strings.NewReader("amir"))
+	require.NoError(t, err, "Copying field should not result in error.")
+
+	fw, err = writer.CreateFormField("password")
+	require.NoError(t, err, "Creating field should not be error.")
+	_, err = io.Copy(fw, strings.NewReader("password"))
+	require.NoError(t, err, "Copying field should not result in error.")
+
+	writer.Close()
+
+	req, err := http.NewRequest("POST", "/api/validateCredentials", bytes.NewReader(body.Bytes()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	assert.Equal(t, rr.Code, 200)
+	cookie := rr.Header().Get("Set-Cookie")
+	assert.Matches(t, cookie, "session=.+")
+}
+
+func Test_createRoutes_username_password_login_failed(t *testing.T) {
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	fw, err := writer.CreateFormField("username")
+	require.NoError(t, err, "Creating field should not be error.")
+	_, err = io.Copy(fw, strings.NewReader("amir"))
+	require.NoError(t, err, "Copying field should not result in error.")
+
+	fw, err = writer.CreateFormField("password")
+	require.NoError(t, err, "Creating field should not be error.")
+	_, err = io.Copy(fw, strings.NewReader("bad"))
+	require.NoError(t, err, "Copying field should not result in error.")
+
+	writer.Close()
+
+	req, err := http.NewRequest("POST", "/api/validateCredentials", bytes.NewReader(body.Bytes()))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, rr.Code, 401)
 }
 
 func createHandler(client docker.Client, content fs.FS, config Config) *mux.Router {
