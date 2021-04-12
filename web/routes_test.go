@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/magiconair/properties/assert"
@@ -375,6 +376,43 @@ func Test_createRoutes_username_password_login_failed(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, rr.Code, 401)
+}
+
+func Test_createRoutes_username_password_valid_session(t *testing.T) {
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+
+	// Get cookie first
+	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	session, _ := store.Get(req, sessionName)
+	session.Values[authorityKey] = time.Now().Unix()
+	recorder := httptest.NewRecorder()
+	session.Save(req, recorder)
+	cookies := recorder.Result().Cookies()
+
+	// Test with cookie
+	req, err = http.NewRequest("GET", "/api/logs/stream?id=123", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	req.AddCookie(cookies[0])
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
+func Test_createRoutes_username_password_invalid_session(t *testing.T) {
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	req.AddCookie(&http.Cookie{Name: "session", Value: "baddata"})
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, rr.Code, 401)

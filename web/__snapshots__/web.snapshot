@@ -41,6 +41,18 @@ X-Content-Type-Options: nosniff
 
 Unauthorized
 
+/* snapshot: Test_createRoutes_username_password_valid_session */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: container-stopped
+data: end of stream
+
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
