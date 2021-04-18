@@ -27,8 +27,8 @@ type args struct {
 	Addr     string `arg:"env:DOZZLE_ADDR" default:":8080"`
 	Base     string `arg:"env:DOZZLE_BASE" default:"/"`
 	Level    string `arg:"env:DOZZLE_LEVEL" default:"info"`
-	TailSize int    `arg:"env:DOZZLE_TAILSIZE" default:300`
-	// filters map[string]string
+	TailSize int    `arg:"env:DOZZLE_TAILSIZE" default:"300"`
+	Filter   string `arg:"env:DOZZLE_FILTER"`
 	Key      string `arg:"env:DOZZLE_KEY"`
 	Username string `arg:"env:DOZZLE_USERNAME"`
 	Password string `arg:"env:DOZZLE_PASSWORD"`
@@ -41,22 +41,6 @@ func (args) Version() string {
 //go:embed static
 var content embed.FS
 
-func init() {
-	// Until https://github.com/spf13/viper/issues/911 is fixed. We have to use this hacky way.
-	// filters = viper.GetStringMapString("filter")
-	if value, ok := os.LookupEnv("DOZZLE_FILTER"); ok {
-		log.Infof("Parsing %s", value)
-		urlValues, err := url.ParseQuery(strings.ReplaceAll(value, ",", "&"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		filters = map[string]string{}
-		for k, v := range urlValues {
-			filters[k] = v[0]
-		}
-	}
-}
-
 func main() {
 	var args args
 	arg.MustParse(&args)
@@ -67,6 +51,18 @@ func main() {
 		DisableTimestamp:       true,
 		DisableLevelTruncation: true,
 	})
+
+	if args.Filter != "" {
+		log.Infof("Parsing %s", args.Filter)
+		urlValues, err := url.ParseQuery(strings.ReplaceAll(args.Filter, ",", "&"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		filters = map[string]string{}
+		for k, v := range urlValues {
+			filters[k] = v[0]
+		}
+	}
 
 	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClientWithFilters(filters)
