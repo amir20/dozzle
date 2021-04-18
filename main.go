@@ -11,56 +11,37 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexflint/go-arg"
 	"github.com/amir20/dozzle/docker"
 	"github.com/amir20/dozzle/web"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
 
 var (
-	addr     = ""
-	base     = ""
-	level    = ""
-	tailSize = 300
-	filters  map[string]string
-	version  = "dev"
-	key      string
-	username string
-	password string
+	filters map[string]string
+	version = "dev"
 )
+
+type args struct {
+	Addr     string `arg:"env:DOZZLE_ADDR" default:":8080"`
+	Base     string `arg:"env:DOZZLE_BASE" default:"/"`
+	Level    string `arg:"env:DOZZLE_LEVEL" default:"info"`
+	TailSize int    `arg:"env:DOZZLE_TAILSIZE" default:300`
+	// filters map[string]string
+	Key      string `arg:"env:DOZZLE_KEY"`
+	Username string `arg:"env:DOZZLE_USERNAME"`
+	Password string `arg:"env:DOZZLE_PASSWORD"`
+}
+
+func (args) Version() string {
+	return version
+}
 
 //go:embed static
 var content embed.FS
 
-type handler struct {
-	client docker.Client
-}
-
 func init() {
-	pflag.String("addr", ":8080", "http service address")
-	pflag.String("base", "/", "base address of the application to mount")
-	pflag.String("level", "info", "logging level")
-	pflag.Int("tailSize", 300, "Tail size to use for initial container logs")
-	pflag.StringToStringVar(&filters, "filter", map[string]string{}, "Container filters to use for showing logs")
-	pflag.String("key", "", "Dozzle secure key used for session encryption. Should be a random generated string. Use openssl rand -base64 32 to create one.")
-	pflag.String("username", "", "Dozzle username to use for authentication. Requires key and password.")
-	pflag.String("password", "", "Dozzle password for authentication. Requires username and key.")
-	pflag.Parse()
-
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix("DOZZLE")
-	viper.BindPFlags(pflag.CommandLine)
-
-	addr = viper.GetString("addr")
-	base = viper.GetString("base")
-	level = viper.GetString("level")
-	tailSize = viper.GetInt("tailSize")
-	key = viper.GetString("key")
-	username = viper.GetString("username")
-	password = viper.GetString("password")
-
 	// Until https://github.com/spf13/viper/issues/911 is fixed. We have to use this hacky way.
 	// filters = viper.GetStringMapString("filter")
 	if value, ok := os.LookupEnv("DOZZLE_FILTER"); ok {
@@ -74,17 +55,19 @@ func init() {
 			filters[k] = v[0]
 		}
 	}
+}
 
-	l, _ := log.ParseLevel(level)
-	log.SetLevel(l)
+func main() {
+	var args args
+	arg.MustParse(&args)
+	level, _ := log.ParseLevel(args.Level)
+	log.SetLevel(level)
 
 	log.SetFormatter(&log.TextFormatter{
 		DisableTimestamp:       true,
 		DisableLevelTruncation: true,
 	})
-}
 
-func main() {
 	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClientWithFilters(filters)
 	_, err := dockerClient.ListContainers()
@@ -93,24 +76,24 @@ func main() {
 		log.Fatalf("Could not connect to Docker Engine: %v", err)
 	}
 
-	if username != "" || password != "" {
-		if username == "" || password == "" {
+	if args.Username != "" || args.Password != "" {
+		if args.Username == "" || args.Password == "" {
 			log.Fatalf("Username AND password are required for authentication")
 		}
 
-		if key == "" {
+		if args.Key == "" {
 			log.Fatalf("Key is required for authentication")
 		}
 	}
 
 	config := web.Config{
-		Addr:     addr,
-		Base:     base,
+		Addr:     args.Addr,
+		Base:     args.Base,
 		Version:  version,
-		TailSize: tailSize,
-		Key:      key,
-		Username: username,
-		Password: password,
+		TailSize: args.TailSize,
+		Key:      args.Key,
+		Username: args.Username,
+		Password: args.Password,
 	}
 
 	static, err := fs.Sub(content, "static")
