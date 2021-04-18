@@ -8,6 +8,16 @@ import (
 	"net/http/httputil"
 )
 
+type StartEvent struct {
+	Version       string
+	FilterLength  int
+	CustomAddress bool
+	CustomBase    bool
+	TailSize      int
+	Protected     bool
+
+}
+
 func main() {
 	postBody := map[string]interface{}{
 		"client_id": "XXXXXXXXXX.YYYYYYYYYY",
@@ -16,8 +26,8 @@ func main() {
 				"name": "test_go",
 				"params": map[string]interface{}{
 					"version": "1.1.1",
-					"docker": "2",
-					"color": "red",
+					"docker":  "2",
+					"color":   "red",
 				},
 			},
 		},
