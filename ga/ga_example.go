@@ -13,8 +13,8 @@ func main() {
 		"client_id": "XXXXXXXXXX.YYYYYYYYYY",
 		"events": []map[string]interface{}{
 			{
-				"name":    "test_go",
-				"parames": map[string]interface{}{},
+				"name":   "test_go",
+				"params": map[string]interface{}{},
 			},
 		},
 	}
@@ -34,6 +34,7 @@ func main() {
 	q.Add("measurement_id", "G-S6NT05VXK9")
 	q.Add("api_secret", "7FFhe65HQK-bXvujpQMquQ")
 	req.URL.RawQuery = q.Encode()
+
 	dump, err := httputil.DumpRequestOut(req, true)
 	if err != nil {
 		log.Fatal(err)
@@ -51,16 +52,3 @@ func main() {
 		log.Printf("%v", string(dump))
 	}
 }
-
-/*
-fetch(`https://www.google-analytics.com/mp/collect?measurement_id=G-S6NT05VXK9&api_secret=7FFhe65HQK-bXvujpQMquQ`, {
-  method: "POST",
-  body: JSON.stringify({
-    client_id: 'XXXXXXXXXX.YYYYYYYYYY',
-    events: [{
-      name: 'test_fetch',
-      params: {},
-    }]
-  })
-});
-*/
