@@ -13,8 +13,12 @@ func main() {
 		"client_id": "XXXXXXXXXX.YYYYYYYYYY",
 		"events": []map[string]interface{}{
 			{
-				"name":   "test_go",
-				"params": map[string]interface{}{},
+				"name": "test_go",
+				"params": map[string]interface{}{
+					"version": "1.1.1",
+					"docker": "2",
+					"color": "red",
+				},
 			},
 		},
 	}
