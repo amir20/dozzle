@@ -25,14 +25,15 @@ var (
 )
 
 type args struct {
-	Addr     string `arg:"env:DOZZLE_ADDR" default:":8080"`
-	Base     string `arg:"env:DOZZLE_BASE" default:"/"`
-	Level    string `arg:"env:DOZZLE_LEVEL" default:"info"`
-	TailSize int    `arg:"env:DOZZLE_TAILSIZE" default:"300"`
-	Filter   string `arg:"env:DOZZLE_FILTER"`
-	Key      string `arg:"env:DOZZLE_KEY"`
-	Username string `arg:"env:DOZZLE_USERNAME"`
-	Password string `arg:"env:DOZZLE_PASSWORD"`
+	Addr        string `arg:"env:DOZZLE_ADDR" default:":8080"`
+	Base        string `arg:"env:DOZZLE_BASE" default:"/"`
+	Level       string `arg:"env:DOZZLE_LEVEL" default:"info"`
+	TailSize    int    `arg:"env:DOZZLE_TAILSIZE" default:"300"`
+	Filter      string `arg:"env:DOZZLE_FILTER"`
+	Key         string `arg:"env:DOZZLE_KEY"`
+	Username    string `arg:"env:DOZZLE_USERNAME"`
+	Password    string `arg:"env:DOZZLE_PASSWORD"`
+	NoAnalytics bool   `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS"`
 }
 
 func (args) Version() string {
@@ -124,6 +125,10 @@ func main() {
 }
 
 func doStartEvent(arg args) {
+	if arg.NoAnalytics {
+		log.Debug("Analytics disabled.")
+		return
+	}
 	host, err := os.Hostname()
 	if err != nil {
 		log.Debug(err)
