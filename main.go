@@ -4,11 +4,13 @@ import (
 	"context"
 	"embed"
 	"io/fs"
+	"net/http"
 	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/alexflint/go-arg"
@@ -108,14 +110,14 @@ func main() {
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
-		if err := srv.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatal(err)
 		}
 	}()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, os.Kill)
+	signal.Notify(c, syscall.SIGTERM)
 	<-c
 	log.Info("Shutting down...")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
