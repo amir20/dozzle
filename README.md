@@ -84,21 +84,28 @@ then you can override by using `--base /foobar`. See env variables below for usi
 
 Dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/).
 
+#### Analytics collected
+
+Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzle is an open source project with no funding. As a result, there is not time do user studies of Dozzle. Analytics is collected to prioritize features and fixes based on how people use Dozzle.
+
+If you do not want to be tracked at all, see the `--no-analytics` flag below.
+
 #### Environment variables and configuration
 
-Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or enviroment variables. The table below outlines all supported options and their respective env vars.
+Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or environment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag         | Env Variable         | Default |
-| ------------ | -------------------- | ------- |
-| `--addr`     | `DOZZLE_ADDR`        | `:8080` |
-| `--base`     | `DOZZLE_BASE`        | `/`     |
-| `--level`    | `DOZZLE_LEVEL`       | `info`  |
-| n/a          | `DOCKER_API_VERSION` | not set |
-| `--tailSize` | `DOZZLE_TAILSIZE`    | `300`   |
-| `--filter`   | `DOZZLE_FILTER`      | `""`    |
-| `--username` | `DOZZLE_USERNAME`    | `""`    |
-| `--password` | `DOZZLE_PASSWORD`    | `""`    |
-| `--key`      | `DOZZLE_KEY`         | `""`    |
+| Flag             | Env Variable          | Default |
+| ---------------- | --------------------- | ------- |
+| `--addr`         | `DOZZLE_ADDR`         | `:8080` |
+| `--base`         | `DOZZLE_BASE`         | `/`     |
+| `--level`        | `DOZZLE_LEVEL`        | `info`  |
+| n/a              | `DOCKER_API_VERSION`  | not set |
+| `--tailSize`     | `DOZZLE_TAILSIZE`     | `300`   |
+| `--filter`       | `DOZZLE_FILTER`       | `""`    |
+| `--username`     | `DOZZLE_USERNAME`     | `""`    |
+| `--password`     | `DOZZLE_PASSWORD`     | `""`    |
+| `--key`          | `DOZZLE_KEY`          | `""`    |
+| `--no-analytics` | `DOZZLE_NO_ANALYTICS` | false   |
 
 Note: When using username and password `DOZZLE_KEY` is required for session management.
 

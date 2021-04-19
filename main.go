@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
+	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
 	"github.com/amir20/dozzle/web"
 
@@ -24,14 +25,15 @@ var (
 )
 
 type args struct {
-	Addr     string `arg:"env:DOZZLE_ADDR" default:":8080"`
-	Base     string `arg:"env:DOZZLE_BASE" default:"/"`
-	Level    string `arg:"env:DOZZLE_LEVEL" default:"info"`
-	TailSize int    `arg:"env:DOZZLE_TAILSIZE" default:"300"`
-	Filter   string `arg:"env:DOZZLE_FILTER"`
-	Key      string `arg:"env:DOZZLE_KEY"`
-	Username string `arg:"env:DOZZLE_USERNAME"`
-	Password string `arg:"env:DOZZLE_PASSWORD"`
+	Addr        string `arg:"env:DOZZLE_ADDR" default:":8080"`
+	Base        string `arg:"env:DOZZLE_BASE" default:"/"`
+	Level       string `arg:"env:DOZZLE_LEVEL" default:"info"`
+	TailSize    int    `arg:"env:DOZZLE_TAILSIZE" default:"300"`
+	Filter      string `arg:"env:DOZZLE_FILTER"`
+	Key         string `arg:"env:DOZZLE_KEY"`
+	Username    string `arg:"env:DOZZLE_USERNAME"`
+	Password    string `arg:"env:DOZZLE_PASSWORD"`
+	NoAnalytics bool   `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS"`
 }
 
 func (args) Version() string {
@@ -103,7 +105,7 @@ func main() {
 	}
 
 	srv := web.CreateServer(dockerClient, static, config)
-
+	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil {
@@ -120,4 +122,30 @@ func main() {
 	defer cancel()
 	srv.Shutdown(ctx)
 	os.Exit(0)
+}
+
+func doStartEvent(arg args) {
+	if arg.NoAnalytics {
+		log.Debug("Analytics disabled.")
+		return
+	}
+	host, err := os.Hostname()
+	if err != nil {
+		log.Debug(err)
+		return
+	}
+
+	event := analytics.StartEvent{
+		ClientId:      host,
+		Version:       version,
+		FilterLength:  len(filters),
+		CustomAddress: arg.Addr != ":8080",
+		CustomBase:    arg.Base != "/",
+		TailSize:      arg.TailSize,
+		Protected:     arg.Username != "",
+	}
+
+	if err := analytics.SendStartEvent(event); err != nil {
+		log.Debug(err)
+	}
 }
