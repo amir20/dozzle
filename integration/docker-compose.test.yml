@@ -7,6 +7,7 @@ services:
     environment:
       - DOZZLE_FILTER=name=custom_base
       - DOZZLE_BASE=/foobarbase
+      - DOZZLE_NO_ANALYTICS=1
     build:
       context: ..
   dozzle:
@@ -15,6 +16,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_NO_ANALYTICS=1
     build:
       context: ..
   integration:
@@ -26,6 +28,7 @@ services:
     environment:
       - DEFAULT_URL=http://dozzle:8080/
       - CUSTOM_URL=http://custom_base:8080/foobarbase
+      - DOZZLE_NO_ANALYTICS=1
     depends_on:
       - dozzle
       - custom_base
