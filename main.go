@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
+	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
 	"github.com/amir20/dozzle/web"
 
@@ -103,7 +104,7 @@ func main() {
 	}
 
 	srv := web.CreateServer(dockerClient, static, config)
-
+	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil {
@@ -120,4 +121,26 @@ func main() {
 	defer cancel()
 	srv.Shutdown(ctx)
 	os.Exit(0)
+}
+
+func doStartEvent(arg args) {
+	host, err := os.Hostname()
+	if err != nil {
+		log.Debug(err)
+		return
+	}
+
+	event := analytics.StartEvent{
+		ClientId:      host,
+		Version:       version,
+		FilterLength:  len(filters),
+		CustomAddress: arg.Addr != ":8080",
+		CustomBase:    arg.Base != "/",
+		TailSize:      arg.TailSize,
+		Protected:     arg.Username != "",
+	}
+
+	if err := analytics.SendStartEvent(event); err != nil {
+		log.Debug(err)
+	}
 }
