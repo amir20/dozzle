@@ -205,13 +205,12 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 				if !ok {
 					return
 				}
-				if len(message.Actor.ID) >= 12 {
+
+				if message.Type == "container" {
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
 						Name:    message.Action,
 					}
-				} else {
-					log.Debugf("Ignoring docker event with action: %v and actorId: %v", message.Action, message.Actor.ID)
 				}
 			}
 		}
