@@ -68,7 +68,7 @@ describe("home page", () => {
       await page.click("aside ul.menu-list li a");
 
       await page.waitForSelector("ul.events li span.text");
-      const text = await page.$eval("ul.events li:nth-child(2) span.text", (e) => e.textContent);
+      const text = await page.$eval("ul.events li:nth-child(1) span.text", (e) => e.textContent);
 
       expect(text).toContain("Dozzle version dev");
     });
