@@ -38,7 +38,7 @@ func SendStartEvent(se StartEvent) error {
 
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Debug(err)
+		return err
 	}
 	defer response.Body.Close()
 
