@@ -141,7 +141,7 @@ Below is an example with nginx and using `proxy_pass` to disable buffering.
 <details>
  <summary>What data does Dozzle collect?</summary>
 
-Dozzle does not collect any metrics or analytics. Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
+Dozzle does collect some analytics. Analytics is anonymous usage tracking features are used the most. In the browser, Dozzle has a [strict](https://github.com/amir20/dozzle/blob/master/routes.go#L33-L38) Content Security Policy which only allows the following policies:
 
 - Allow connect to `api.github.com` to fetch most recent version.
 - Only allow `<script>` and `<style>` files from `self`
