@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/Microsoft/go-winio v0.4.18 // indirect
-	github.com/alexflint/go-arg v1.4.0
+	github.com/alexflint/go-arg v1.4.1
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/containerd/containerd v1.4.4 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
