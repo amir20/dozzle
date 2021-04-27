@@ -1,7 +1,7 @@
 # Build assets
-FROM node:current-alpine as node
+FROM node:16-alpine as node
 
-RUN apk add --no-cache git openssh python make g++ util-linux
+RUN apk add --no-cache git openssh make g++ util-linux
 
 WORKDIR /build
 
