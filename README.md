@@ -86,9 +86,9 @@ Dozzle will be available at [http://localhost:8080/foobar/](http://localhost:808
 
 #### Analytics collected
 
-Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzle is an open source project with no funding. As a result, there is not time do user studies of Dozzle. Analytics is collected to prioritize features and fixes based on how people use Dozzle.
+Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzle is an open source project with no funding. As a result, there is not time do user studies of Dozzle. Analytics is collected to prioritize features and fixes based on how people use Dozzle. This data is completely public and can be viewed live using [Google Data Studio](https://datastudio.google.com/s/naeIu0MiWsY). 
 
-If you do not want to be tracked at all, see the `--no-analytics` flag below.
+If you do not want to be tracked at all, see the `--no-analytics` flag below. 
 
 #### Environment variables and configuration
 
