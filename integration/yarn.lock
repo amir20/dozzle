@@ -1043,10 +1043,10 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chalk@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.0.tgz#4e14870a618d9e2edd97dd8345fd9d9dc315646a"
-  integrity sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A==
+chalk@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
+  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
@@ -1463,10 +1463,10 @@ expand-tilde@^1.2.2:
   dependencies:
     os-homedir "^1.0.1"
 
-expect-puppeteer@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/expect-puppeteer/-/expect-puppeteer-5.0.0.tgz#e4a61bb91e3bba58030d8d66a87e5b67bb2898a9"
-  integrity sha512-yMzVgFfPN0GOD7YMvs9hHsf9YxRg7SrcHqENxkgznoqtRBUZDdSmUte3osJ0LpLIb+9TXP5YUbCbOj7HmCl6EQ==
+expect-puppeteer@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/expect-puppeteer/-/expect-puppeteer-5.0.3.tgz#5e2f7afc55ebabb38edcff45480955473e67a2a7"
+  integrity sha512-l5APxyanw4n+zmVCCRKY6BoialeLvNSunTeA4e5QdhGq1QGQCq9WBcw3NVcCO4bAk2yQLL2ZoUmYMD3Q9ZvroQ==
 
 expect@^26.6.2:
   version "26.6.2"
@@ -2220,12 +2220,12 @@ jest-config@^26.6.3:
     micromatch "^4.0.2"
     pretty-format "^26.6.2"
 
-jest-dev-server@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/jest-dev-server/-/jest-dev-server-5.0.0.tgz#904ff0525715b8268d817a07d6ce942ce70d06b2"
-  integrity sha512-PUgOwr/XT+KUJG+bMjifSWwswQXhh92wMPGnkFZiHtWkc2IcdCCykRLkoFSKCKWPveuGDOa7ZKVoUgn0+S4wew==
+jest-dev-server@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/jest-dev-server/-/jest-dev-server-5.0.3.tgz#324bf6426477450ec3dae349ee9223d43f8be368"
+  integrity sha512-aJR3a5KdY18Lsz+VbREKwx2HM3iukiui+J9rlv9o6iYTwZCSsJazSTStcD9K1q0AIF3oA+FqLOKDyo/sc7+fJw==
   dependencies:
-    chalk "^4.1.0"
+    chalk "^4.1.1"
     cwd "^0.10.0"
     find-process "^1.4.4"
     prompts "^2.4.1"
@@ -2286,14 +2286,14 @@ jest-environment-node@^26.6.2:
     jest-mock "^26.6.2"
     jest-util "^26.6.2"
 
-jest-environment-puppeteer@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-5.0.1.tgz#dc520fca625de054876181304b57c0f5879372e8"
-  integrity sha512-OtSNz3YOkhEGdQ02AQk1t9EbN9TcU7rbPRkcJeRj9RgwXlm5O9ijZIwi8ASd7tLKxddykdF+s8JPhynyDnLHOg==
+jest-environment-puppeteer@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/jest-environment-puppeteer/-/jest-environment-puppeteer-5.0.3.tgz#5cff9d1aa75c16ad525e3acbddc322e90a87673b"
+  integrity sha512-KHUJKeFKFNgQPitZZCHSlw22FanCSV3EnM8GaqV8v3nPp1CqoPgFFYKrrX/Z5mCZhSgJfo2qMtinG2YAUSLpCg==
   dependencies:
-    chalk "^4.1.0"
+    chalk "^4.1.1"
     cwd "^0.10.0"
-    jest-dev-server "^5.0.0"
+    jest-dev-server "^5.0.3"
     jest-environment-node "^26.6.2"
     merge-deep "^3.0.3"
 
@@ -2409,12 +2409,12 @@ jest-pnp-resolver@^1.2.2:
   integrity sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==
 
 jest-puppeteer@^5.0.1:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/jest-puppeteer/-/jest-puppeteer-5.0.2.tgz#33607a4785fde3bd8e18ee1c8365d77a718008bc"
-  integrity sha512-qrUVlFQivA9G3zRZho/fZ33RZl7pOOz2ITYgf7ly0sV2mdJA2Sy4966c9n9RuOzKADdg65mwV9zlFTsNVRVt4w==
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/jest-puppeteer/-/jest-puppeteer-5.0.3.tgz#f34f91637b42dcf2407f80d18ad4598acc4c6be4"
+  integrity sha512-H432LFp1YlyLr4XIPSWp2xCupNMkgZwp9L5gIbIliwM5cyboronWYjwKb9mfE8ipfzz755MitEWqtw807fXEow==
   dependencies:
-    expect-puppeteer "^5.0.0"
-    jest-environment-puppeteer "^5.0.1"
+    expect-puppeteer "^5.0.3"
+    jest-environment-puppeteer "^5.0.3"
 
 jest-regex-util@^26.0.0:
   version "26.0.0"
