@@ -1,6 +1,6 @@
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
-Dozzle is a simple, lightweight application that provides you with a web based interface to monitor your Docker container logs live. It doesn’t store log information, it is for live monitoring of your container logs only.
+Dozzle is a small lightweight application with a web based interface to monitor Docker logs. It doesn’t store any log files. It is for live monitoring of your container logs only.
 
 ![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
 
@@ -20,9 +20,9 @@ Dozzle is a simple, lightweight application that provides you with a web based i
 - Live stats with memory and CPU usage
 - Authentication with username and password 🚨
 
-While Dozzle should work for most, it is not meant to be a full logging solution. For enterprise applications, products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited.
+Dozzle should work for most. It has been tested with hundreds of containers. However, it doesn't support offline searching. Products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited for full search capabilities.
 
-Dozzle won't cost any money and aims to focus only on real-time logs.
+Dozzle doesn't cost any money and aims to focus on real-time debugging.
 
 ## Getting Dozzle
 
@@ -71,9 +71,11 @@ If you wish to restrict the containers shown you can pass the `--filter` paramet
 
     $ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:1224 amir20/dozzle:latest --filter name=foo
 
-this would then only allow you to view containers with a name starting with "foo". You can use other filters like `status` as well, please check the official docker [command line docs](https://docs.docker.com/engine/reference/commandline/ps/#filtering) for available filters.
+this would then only allow you to view containers with a name starting with "foo". You can use other filters like `status` as well, please check the official docker [command line docs](https://docs.docker.com/engine/reference/commandline/ps/#filtering) for available filters. Multiple `--filter` arguments can be provided.
 
-Dozzle supports very simple authentication out of the box with username and password. You should deploy using SSL to keep the credentials safe.
+#### Authentication
+
+Dozzle supports a very simple authentication out of the box with just username and password. You should deploy using SSL to keep the credentials safe. See configuration to use `--username` and `--password`.
 
 #### Changing base URL
 
@@ -86,9 +88,9 @@ Dozzle will be available at [http://localhost:8080/foobar/](http://localhost:808
 
 #### Analytics collected
 
-Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzle is an open source project with no funding. As a result, there is not time do user studies of Dozzle. Analytics is collected to prioritize features and fixes based on how people use Dozzle. This data is completely public and can be viewed live using [Google Data Studio](https://datastudio.google.com/s/naeIu0MiWsY). 
+Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzle is an open source project with no funding. As a result, there is no time to do user studies of Dozzle. Analytics is collected to prioritize features and fixes based on how people use Dozzle. This data is completely public and can be viewed live using [ Data Studio dashboard](https://datastudio.google.com/s/naeIu0MiWsY).
 
-If you do not want to be tracked at all, see the `--no-analytics` flag below. 
+If you do not want to be tracked at all, see the `--no-analytics` flag below.
 
 #### Environment variables and configuration
 
@@ -149,6 +151,13 @@ In the browser, Dozzle has a [strict](https://github.com/amir20/dozzle/blob/mast
 - Only allow `<script>` and `<style>` files from `self`
 
 Dozzle opens all links with `rel="noopener"`.
+
+</details>
+
+<details>
+ <summary>We have tools that uses Dozzle when a new container is created. How can I get a direct link to a container by name?</summary>
+
+Dozzle has a [special route](https://github.com/amir20/dozzle/blob/master/assets/pages/Show.vue) that can be used to search containers by name and then forward to that container. For example, if you have a container with name `"foo.bar"` and id `abc123`, you can send your users to `/show?name=foo.bar` which will be forwarded to `/container/abc123`.
 
 </details>
 
