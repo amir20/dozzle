@@ -8,6 +8,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,15 +25,16 @@ var (
 )
 
 type args struct {
-	Addr        string            `arg:"env:DOZZLE_ADDR" default:":8080"`
-	Base        string            `arg:"env:DOZZLE_BASE" default:"/"`
-	Level       string            `arg:"env:DOZZLE_LEVEL" default:"info"`
-	TailSize    int               `arg:"env:DOZZLE_TAILSIZE" default:"300"`
-	Filter      map[string]string `arg:"env:DOZZLE_FILTER"`
-	Key         string            `arg:"env:DOZZLE_KEY"`
-	Username    string            `arg:"env:DOZZLE_USERNAME"`
-	Password    string            `arg:"env:DOZZLE_PASSWORD"`
-	NoAnalytics bool              `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS"`
+	Addr          string              `arg:"env:DOZZLE_ADDR" default:":8080"`
+	Base          string              `arg:"env:DOZZLE_BASE" default:"/"`
+	Level         string              `arg:"env:DOZZLE_LEVEL" default:"info"`
+	TailSize      int                 `arg:"env:DOZZLE_TAILSIZE" default:"300"`
+	Key           string              `arg:"env:DOZZLE_KEY"`
+	Username      string              `arg:"env:DOZZLE_USERNAME"`
+	Password      string              `arg:"env:DOZZLE_PASSWORD"`
+	NoAnalytics   bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS"`
+	FilterStrings []string            `arg:"env:DOZZLE_FILTER,--filter,separate"`
+	Filter        map[string][]string `arg:"-"`
 }
 
 func (args) Version() string {
@@ -44,7 +46,19 @@ var content embed.FS
 
 func main() {
 	var args args
-	arg.MustParse(&args)
+	parser := arg.MustParse(&args)
+	args.Filter = make(map[string][]string)
+
+	for _, filter := range args.FilterStrings {
+		pos := strings.Index(filter, "=")
+		if pos == -1 {
+			parser.Fail("each filter should be of the form key=value")
+		}
+		key := filter[:pos]
+		val := filter[pos+1:]
+		args.Filter[key] = append(args.Filter[key], val)
+	}
+
 	level, _ := log.ParseLevel(args.Level)
 	log.SetLevel(level)
 

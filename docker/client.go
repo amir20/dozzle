@@ -40,16 +40,13 @@ type Client interface {
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 }
 
-// NewClient creates a new instance of Client
-func NewClient() Client {
-	return NewClientWithFilters(map[string]string{})
-}
-
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f map[string]string) Client {
+func NewClientWithFilters(f map[string][]string) Client {
 	filterArgs := filters.NewArgs()
-	for k, v := range f {
-		filterArgs.Add(k, v)
+	for key, values := range f {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
 	}
 
 	log.Debugf("filterArgs = %v", filterArgs)
