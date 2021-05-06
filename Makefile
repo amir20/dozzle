@@ -1,7 +1,7 @@
 .PHONY: clean
 clean:
 	@rm -rf static
-	@go clean
+	@go clean -i
 
 .PHONY: static
 static:

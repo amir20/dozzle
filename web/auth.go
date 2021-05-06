@@ -15,6 +15,7 @@ const authorityKey = "AUTH_TIMESTAMP"
 const sessionName = "session"
 
 func initializeAuth(h *handler) {
+	secured = false
 	if h.config.Username != "" && h.config.Password != "" {
 		store = sessions.NewCookieStore([]byte(h.config.Key))
 		store.Options.HttpOnly = true

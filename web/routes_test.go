@@ -267,6 +267,19 @@ func Test_createRoutes_redirect(t *testing.T) {
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 }
 
+func Test_createRoutes_redirect_with_auth(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar", Username: "amir", Password: "password", Key: "key"})
+	req, err := http.NewRequest("GET", "/foobar/", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+}
+
 func Test_createRoutes_foobar(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("foo page"), 0644), "WriteFile should have no error.")
