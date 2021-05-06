@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
+	"path"
 
 	"github.com/amir20/dozzle/docker"
 
@@ -83,7 +84,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 		fileServer.ServeHTTP(w, req)
 	} else {
 		if !isAuthorized(req) && req.URL.Path != "login" {
-			http.Redirect(w, req, h.config.Base+"login", http.StatusTemporaryRedirect)
+			http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
 			return
 		}
 		h.executeTemplate(w, req)

@@ -23,6 +23,15 @@ Location: /foobar/
 
 <a href="/foobar/">Moved Permanently</a>.
 
+/* snapshot: Test_createRoutes_redirect_with_auth */
+HTTP/1.1 307 Temporary Redirect
+Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Type: text/html; charset=utf-8
+Location: /foobar/login
+
+<a href="/foobar/login">Temporary Redirect</a>.
+
 /* snapshot: Test_createRoutes_username_password */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
