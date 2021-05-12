@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
       - name: Install Node
         uses: actions/setup-node@v2.1.5
       - name: Install dependencies
@@ -22,7 +22,7 @@ jobs:
         with:
           go-version: 1.16.x
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
       - name: Run Go Tests with Coverage
         run: make test SKIP_ASSET=1
   int-test:
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
       - name: Build images
         run: docker-compose -f integration/docker-compose.test.yml build
       - name: Run tests
