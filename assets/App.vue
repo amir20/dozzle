@@ -85,6 +85,7 @@ export default {
     }
     this.menuWidth = this.settings.menuWidth;
     hotkeys("command+k, ctrl+k", (event, handler) => {
+      event.preventDefault();
       this.showFuzzySearch();
     });
   },
