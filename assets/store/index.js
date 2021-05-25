@@ -23,13 +23,12 @@ const mutations = {
   SET_CONTAINERS(state, containers) {
     const containersById = getters.allContainersById({ containers });
 
-    containers.forEach(
-      (container) =>
-        (container.stat =
-          containersById[container.id] && containersById[container.id].stat
-            ? containersById[container.id].stat
-            : { memoryUsage: 0, cpu: 0 })
-    );
+    containers.forEach((container) => {
+      container.stat =
+        containersById[container.id] && containersById[container.id].stat
+          ? containersById[container.id].stat
+          : { memoryUsage: 0, cpu: 0 };
+    });
 
     state.containers = containers;
   },
