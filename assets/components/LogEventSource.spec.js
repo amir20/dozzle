@@ -34,9 +34,17 @@ describe("<LogEventSource />", () => {
     localVue.component("log-viewer", LogViewer);
 
     const state = { searchFilter, settings: { size: "medium", showTimestamp: true, hourStyle } };
+    const getters = {
+      allContainersById() {
+        return {
+          abc: { state: "running" },
+        };
+      },
+    };
 
     const store = new Vuex.Store({
       state,
+      getters,
     });
 
     return mount(LogEventSource, {
@@ -57,9 +65,10 @@ describe("<LogEventSource />", () => {
   });
 
   test("should connect to EventSource", async () => {
-    shallowMount(LogEventSource);
+    const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc"].emitOpen();
     expect(sources["/api/logs/stream?id=abc"].readyState).toBe(1);
+    wrapper.destroy();
   });
 
   test("should close EventSource", async () => {
