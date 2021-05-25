@@ -9,9 +9,11 @@
 import debounce from "lodash.debounce";
 import InfiniteLoader from "./InfiniteLoader";
 import config from "../store/config";
+import containerMixin from "./mixins/container";
 
 export default {
   props: ["id"],
+  mixins: [containerMixin],
   name: "LogEventSource",
   components: {
     InfiniteLoader,
@@ -24,13 +26,24 @@ export default {
   },
   created() {
     this.es = null;
-    this.loadLogs(this.id);
+    this.loadLogs();
     this.flushBuffer = debounce(this.flushNow, 250, { maxWait: 1000 });
   },
+  beforeDestroy() {
+    this.es.close();
+  },
   methods: {
-    loadLogs(id) {
+    onContainerStateChange(newValue, oldValue) {
+      if (newValue == "running" && newValue != oldValue) {
+        this.connect();
+      }
+    },
+    loadLogs() {
       this.reset();
-      this.es = new EventSource(`${config.base}/api/logs/stream?id=${id}`);
+      this.connect();
+    },
+    connect() {
+      this.es = new EventSource(`${config.base}/api/logs/stream?id=${this.id}`);
       this.es.addEventListener("container-stopped", (e) => {
         this.es.close();
         this.buffer.push({ event: "container-stopped", message: "Container stopped", date: new Date() });
@@ -42,7 +55,6 @@ export default {
         this.buffer.push(this.parseMessage(e.data));
         this.flushBuffer();
       };
-      this.$once("hook:beforeDestroy", () => this.es.close());
     },
     flushNow() {
       this.messages.push(...this.buffer);
@@ -91,7 +103,7 @@ export default {
   watch: {
     id(newValue, oldValue) {
       if (oldValue !== newValue) {
-        this.loadLogs(newValue);
+        this.loadLogs();
       }
     },
   },
