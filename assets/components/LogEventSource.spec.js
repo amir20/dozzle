@@ -8,6 +8,7 @@ import LogViewer from "./LogViewer.vue";
 
 jest.mock("lodash.debounce", () =>
   jest.fn((fn) => {
+    fn.cancel = () => {};
     return fn;
   })
 );
