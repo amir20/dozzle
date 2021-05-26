@@ -1,5 +1,6 @@
 module.exports = {
   clearMocks: true,
+  testEnvironment: "jsdom",
   moduleFileExtensions: ["js", "json", "vue"],
   coveragePathIgnorePatterns: ["node_modules"],
   testPathIgnorePatterns: ["node_modules", "<rootDir>/integration/"],
