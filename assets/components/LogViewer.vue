@@ -1,6 +1,6 @@
 <template>
   <ul class="events" :class="settings.size">
-    <li v-for="item in filtered" :key="item.key" :class="{ [item.event]: !!item.event }">
+    <li v-for="item in filtered" :key="item.key" :data-event="item.event">
       <span class="date" v-if="settings.showTimestamp"><relative-time :date="item.date"></relative-time></span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
@@ -73,11 +73,11 @@ export default {
       scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
     }
-    &.container-stopped {
+    &[data-event="container-stopped"] {
       color: #f14668;
     }
-    &.container-started {
-      color: #238a23;
+    &[data-event="container-started"] {
+      color: hsl(141, 53%, 53%);
     }
   }
 
