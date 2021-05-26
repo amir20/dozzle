@@ -73,11 +73,12 @@ export default {
     reset() {
       if (this.es) {
         this.es.close();
-        this.es = null;
-        this.flushBuffer.cancel();
       }
+      this.flushBuffer.cancel();
+      this.es = null;
       this.messages = [];
       this.buffer = [];
+      this.lastEventId = null;
     },
     async loadOlderLogs() {
       if (this.messages.length < 300) return;
