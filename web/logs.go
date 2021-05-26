@@ -1,4 +1,3 @@
-
 package web
 
 import (
@@ -88,7 +87,12 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, r.Header.Get("Last-Event-ID"))
+	lastEventId := r.Header.Get("Last-Event-ID")
+	if len(r.URL.Query().Get("lastEventId")) > 0 {
+		lastEventId = r.URL.Query().Get("lastEventId")
+	}
+
+	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, lastEventId)
 	if err != nil {
 		if err == io.EOF {
 			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
@@ -100,11 +104,10 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
-
 	buffered := bufio.NewReader(reader)
 	var readerError error
 	var message string
-	for  {
+	for {
 		message, readerError = buffered.ReadString('\n')
 		fmt.Fprintf(w, "data: %s\n", message)
 		if index := strings.IndexAny(message, " "); index != -1 {

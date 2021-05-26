@@ -27,7 +27,7 @@
       </div>
     </template>
     <template v-slot="{ setLoading }">
-      <log-viewer-with-source :id="id" @loading-more="setLoading($event)" ref="source"></log-viewer-with-source>
+      <log-viewer-with-source :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
     </template>
   </scrollable-view>
 </template>
