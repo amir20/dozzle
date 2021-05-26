@@ -1,6 +1,6 @@
 <template>
   <ul class="events" :class="settings.size">
-    <li v-for="item in filtered" :key="item.key" :class="{ event: !!item.event }">
+    <li v-for="item in filtered" :key="item.key" :class="{ [item.event]: !!item.event }">
       <span class="date" v-if="settings.showTimestamp"><relative-time :date="item.date"></relative-time></span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
@@ -73,6 +73,12 @@ export default {
       scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
     }
+    &.container-stopped {
+      color: #f14668;
+    }
+    &.container-started {
+      color: #238a23;
+    }
   }
 
   &.small {
@@ -102,10 +108,6 @@ export default {
 
 .text {
   white-space: pre-wrap;
-}
-
-li.event {
-  color: #f14668;
 }
 
 ::v-deep mark {
