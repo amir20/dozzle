@@ -27,8 +27,8 @@ export default {
     };
   },
   created() {
-    this.loadLogs();
     this.flushBuffer = debounce(this.flushNow, 250, { maxWait: 1000 });
+    this.loadLogs();
   },
   beforeDestroy() {
     this.es.close();
