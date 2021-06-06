@@ -57,7 +57,7 @@ Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         ports:
-          - 9999:8080
+          - 8080:8080
 
 #### Security
 
