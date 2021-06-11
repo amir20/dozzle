@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - master
 name: Push master container
 jobs:
   buildx:
