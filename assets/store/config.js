@@ -1,6 +1,6 @@
 const config = JSON.parse(document.querySelector("script#config__json").textContent);
 if (config.version == "{{ .Version }}") {
-  config.version = "dev";
+  config.version = "master";
   config.base = "";
   config.authorizationNeeded = false;
   config.secured = false;

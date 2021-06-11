@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	version = "dev"
+	version = "head"
 )
 
 type args struct {

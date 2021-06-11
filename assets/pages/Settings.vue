@@ -110,7 +110,7 @@ export default {
   },
   async created() {
     const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
-    if (this.currentVersion !== "dev") {
+    if (this.currentVersion !== "master") {
       this.hasUpdate = gt(releases[0].tag_name, this.currentVersion);
     } else {
       this.hasUpdate = true;
