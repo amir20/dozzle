@@ -33,7 +33,7 @@
   "date-fns": "^2.22.1",
   "dompurify": "^2.2.9",
   "fuzzysort": "^1.1.4",
-  "hotkeys-js": "^3.8.5",
+  "hotkeys-js": "^3.8.6",
   "lodash.debounce": "^4.0.8",
   "lodash.throttle": "^4.1.1",
   "semver": "^7.3.5",
