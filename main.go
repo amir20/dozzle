@@ -25,15 +25,15 @@ var (
 )
 
 type args struct {
-	Addr          string              `arg:"env:DOZZLE_ADDR" default:":8080"`
-	Base          string              `arg:"env:DOZZLE_BASE" default:"/"`
-	Level         string              `arg:"env:DOZZLE_LEVEL" default:"info"`
-	TailSize      int                 `arg:"env:DOZZLE_TAILSIZE" default:"300"`
-	Key           string              `arg:"env:DOZZLE_KEY"`
-	Username      string              `arg:"env:DOZZLE_USERNAME"`
-	Password      string              `arg:"env:DOZZLE_PASSWORD"`
-	NoAnalytics   bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS"`
-	FilterStrings []string            `arg:"env:DOZZLE_FILTER,--filter,separate"`
+	Addr          string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
+	Base          string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
+	Level         string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
+	TailSize      int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
+	Key           string              `arg:"env:DOZZLE_KEY" help:"set a random key for username and password. This is required for auth."`
+	Username      string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
+	Password      string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
+	NoAnalytics   bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+	FilterStrings []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter        map[string][]string `arg:"-"`
 }
 
