@@ -5,7 +5,7 @@ on:
 name: Push master container
 jobs:
   buildx:
-    name: Release
+    name: Push master
     runs-on: ubuntu-latest
     steps:
       - name: Docker meta
@@ -48,6 +48,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
   readme:
     runs-on: ubuntu-latest
+    name: Update README
     steps:
       - name: Checkout
         uses: actions/checkout@v2
