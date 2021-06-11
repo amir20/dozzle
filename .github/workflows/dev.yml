@@ -49,6 +49,6 @@ jobs:
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           repository: amir20/dozzle
