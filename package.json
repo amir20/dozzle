@@ -41,7 +41,7 @@
   "store": "^2.0.12",
   "vue": "^2.6.14",
   "vue-meta": "^2.4.0",
-  "vue-router": "^3.5.1",
+  "vue-router": "^3.5.2",
   "vuex": "^3.6.2"
  },
  "devDependencies": {
