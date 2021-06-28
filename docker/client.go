@@ -203,7 +203,7 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 					return
 				}
 
-				if message.Type == "container" {
+				if message.Type == "container" && len(message.Actor.ID) > 0 {
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
 						Name:    message.Action,
