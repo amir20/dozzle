@@ -27,7 +27,7 @@
  },
  "homepage": "https://github.com/amir20/dozzle#readme",
  "dependencies": {
-  "ansi-to-html": "^0.6.15",
+  "ansi-to-html": "^0.7.0",
   "buefy": "^0.9.8",
   "bulma": "^0.9.3",
   "date-fns": "^2.22.1",
