@@ -30,7 +30,7 @@
   "ansi-to-html": "^0.7.1",
   "buefy": "^0.9.8",
   "bulma": "^0.9.3",
-  "date-fns": "^2.22.1",
+  "date-fns": "^2.23.0",
   "dompurify": "^2.3.0",
   "fuzzysort": "^1.1.4",
   "hotkeys-js": "^3.8.7",
