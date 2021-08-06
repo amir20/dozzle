@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
       - name: Install Node
-        uses: actions/setup-node@v2.3.2
+        uses: actions/setup-node@v2.4.0
       - name: Install dependencies
         run: yarn
       - name: Run Tests
@@ -91,7 +91,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Node
-        uses: actions/setup-node@v2.3.2
+        uses: actions/setup-node@v2.4.0
       - name: Install dependencies
         run: yarn
       - name: Release to Github
