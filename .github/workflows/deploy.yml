@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Docker meta
         id: meta
-        uses: crazy-max/ghaction-docker-meta@v3.4.1
+        uses: crazy-max/ghaction-docker-meta@v3.5.0
         with:
           images: amir20/dozzle
       - name: Set up QEMU
