@@ -30,7 +30,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Build and push
-        uses: docker/build-push-action@v2.6.1
+        uses: docker/build-push-action@v2.7.0
         with:
           push: true
           platforms: linux/amd64
