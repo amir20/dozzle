@@ -31,7 +31,7 @@
   "buefy": "^0.9.10",
   "bulma": "^0.9.3",
   "date-fns": "^2.24.0",
-  "dompurify": "^2.3.2",
+  "dompurify": "^2.3.3",
   "fuzzysort": "^1.1.4",
   "hotkeys-js": "^3.8.7",
   "lodash.debounce": "^4.0.8",
