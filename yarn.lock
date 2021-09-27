@@ -1631,15 +1631,15 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autoprefixer@^10.3.5:
-  version "10.3.5"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.3.5.tgz#762e6c13e30c5a0e650bf81d9ffd5713f1c8f344"
-  integrity sha512-2H5kQSsyoOMdIehTzIt/sC9ZDIgWqlkG/dbevm9B9xQZ1TDPBHpNUDW5ENqqQQzuaBWEo75JkV0LJe+o5Lnr5g==
+autoprefixer@^10.3.6:
+  version "10.3.6"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.3.6.tgz#537c8a046e32ec46bfe528bcc9e2a5f2d87cd4c4"
+  integrity sha512-3bDjTfF0MfZntwVCSd18XAT2Zndufh3Mep+mafbzdIQEeWbncVRUVDjH8/EPANV9Hq40seJ24QcYAyhUsFz7gQ==
   dependencies:
     browserslist "^4.17.1"
-    caniuse-lite "^1.0.30001259"
+    caniuse-lite "^1.0.30001260"
     fraction.js "^4.1.1"
-    nanocolors "^0.1.5"
+    nanocolors "^0.2.8"
     normalize-range "^0.1.2"
     postcss-value-parser "^4.1.0"
 
@@ -5568,7 +5568,7 @@ nanocolors@^0.1.0, nanocolors@^0.1.5:
   resolved "https://registry.yarnpkg.com/nanocolors/-/nanocolors-0.1.12.tgz#8577482c58cbd7b5bb1681db4cf48f11a87fd5f6"
   integrity sha512-2nMHqg1x5PU+unxX7PGY7AuYxl2qDx7PSrTRjizr8sxdd3l/3hBuWWaki62qmtYm2U5i4Z5E7GbjlyDFhs9/EQ==
 
-nanocolors@^0.2.2:
+nanocolors@^0.2.2, nanocolors@^0.2.8:
   version "0.2.10"
   resolved "https://registry.yarnpkg.com/nanocolors/-/nanocolors-0.2.10.tgz#a712df4d3c1bf12d9b4fb8b5aa61b5ba31337503"
   integrity sha512-i+EDWGsJClQwR/bhLIG/CObZZwaYaS5qt+yjxZbfV+77QiNHNzE9nj4d9Ut1TGZ0R0eSwPcQWzReASzXuw/7oA==
