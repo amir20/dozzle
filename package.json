@@ -76,7 +76,7 @@
   "vue-template-compiler": "^2.6.14",
   "webpack": "^5.56.1",
   "webpack-cli": "^4.8.0",
-  "webpack-dev-server": "^4.3.0",
+  "webpack-dev-server": "^4.3.1",
   "webpack-pwa-manifest": "^4.3.0"
  },
  "lint-staged": {
