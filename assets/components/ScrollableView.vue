@@ -14,7 +14,7 @@
     <div class="is-scrollbar-notification">
       <transition name="fade">
         <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
-          <icon name="download"></icon>
+          <icon name="chevrons-down"></icon>
         </button>
       </transition>
     </div>
