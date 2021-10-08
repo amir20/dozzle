@@ -18,7 +18,7 @@ COPY assets ./assets
 # Do the build
 RUN yarn build
 
-FROM golang:1.17.1-alpine AS builder
+FROM golang:1.17.2-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates
 RUN mkdir /dozzle
