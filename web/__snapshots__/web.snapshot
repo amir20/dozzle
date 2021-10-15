@@ -53,6 +53,7 @@ Unauthorized
 /* snapshot: Test_createRoutes_username_password_valid_session */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
@@ -73,6 +74,7 @@ dev
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
@@ -84,6 +86,7 @@ data: []
 /* snapshot: Test_handler_streamEvents_error_request */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
@@ -95,6 +98,7 @@ data: []
 /* snapshot: Test_handler_streamEvents_happy */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
@@ -122,6 +126,7 @@ error finding container
 /* snapshot: Test_handler_streamLogs_error_reading */
 HTTP/1.1 500 Internal Server Error
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/plain; charset=utf-8
@@ -133,6 +138,7 @@ test error
 /* snapshot: Test_handler_streamLogs_happy */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
@@ -146,6 +152,7 @@ data: end of stream
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
@@ -157,6 +164,7 @@ data: end of stream
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 HTTP/1.1 200 OK
 Connection: close
+Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Type: text/event-stream
