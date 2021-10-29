@@ -3,7 +3,7 @@
     <template v-slot:header v-if="showTitle">
       <div class="mr-0 columns is-vcentered is-hidden-mobile">
         <div class="column is-clipped">
-          <container-title :value="container.name" @close="$emit('close')"></container-title>
+          <container-title :container="container" @close="$emit('close')"></container-title>
         </div>
         <div class="column is-clipped">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
