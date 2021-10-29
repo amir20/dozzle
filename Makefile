@@ -5,13 +5,13 @@ clean:
 
 .PHONY: static
 static:
-	@yarn build
+	@pnpm build
 
 .PHONY: fake_static
 fake_static:
-	@echo 'Skipping yarn build'
+	@echo 'Skipping asset build'
 	@mkdir -p static
-	@echo "yarn build was skipped" > static/index.html
+	@echo "assets build was skipped" > static/index.html
 
 .PHONY: test
 test: fake_static
@@ -27,7 +27,7 @@ docker:
 
 .PHONY: dev
 dev:
-	yarn dev
+	pnpm dev
 
 .PHONY: int
 int:
