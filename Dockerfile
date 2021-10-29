@@ -1,27 +1,29 @@
 # Build assets
-FROM node:16-alpine as node
+FROM node:17-alpine as node
 
-RUN apk add --no-cache git openssh make g++ util-linux
+RUN apk add --no-cache git openssh make g++ util-linux curl python3 && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
 WORKDIR /build
 
-# Install dependencies
-COPY package*.json yarn.lock ./
-RUN yarn install --ignore-scripts --network-timeout 1000000
+# Install dependencies from lock file
+COPY pnpm-lock.yaml ./
+RUN pnpm fetch
 
-# Copy config files
-COPY .* webpack*.js ./
+# Copy files
+COPY package.json .* webpack*.js ./
 
 # Copy assets to build
 COPY assets ./assets
 
+# Install dependencies
+RUN pnpm install -r --offline
+
 # Do the build
-RUN yarn build
+RUN pnpm build
 
 FROM golang:1.17.2-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates
-RUN mkdir /dozzle
+RUN apk add --no-cache git ca-certificates && mkdir /dozzle
 
 WORKDIR /dozzle
 

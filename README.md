@@ -172,5 +172,5 @@ To Build and test locally:
 1. Install NodeJs.
 2. Install Go.
 3. Install [reflex](https://github.com/cespare/reflex) with `get -u github.com/cespare/reflex` outside of dozzle.
-4. Install node modules with `yarn`.
-5. Do `yarn dev`
+4. Install node modules with `pnpm`.
+5. Do `pnpm dev`
