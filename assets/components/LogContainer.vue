@@ -5,7 +5,7 @@
         <div class="column is-clipped">
           <container-title :container="container" @close="$emit('close')"></container-title>
         </div>
-        <div class="column is-clipped">
+        <div class="column is-narrow">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
         <div class="column is-narrow">
