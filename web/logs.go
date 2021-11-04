@@ -47,7 +47,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	from := time.Unix(container.Created, 0)
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%v.log.gz", container.ID))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s-%s.log.gz", container.Name, now.Format("2006-01-02T15-04-05")))
 	w.Header().Set("Content-Type", "application/gzip")
 	zw := gzip.NewWriter(w)
 	defer zw.Close()
