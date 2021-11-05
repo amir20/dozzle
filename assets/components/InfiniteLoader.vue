@@ -14,6 +14,7 @@ export default {
   data() {
     return {
       isLoading: false,
+      observer: null,
     };
   },
   props: {
@@ -21,7 +22,7 @@ export default {
     enabled: Boolean,
   },
   mounted() {
-    const intersectionObserver = new IntersectionObserver(
+    this.observer = new IntersectionObserver(
       async (entries) => {
         if (entries[0].intersectionRatio <= 0) return;
         if (this.onLoadMore && this.enabled) {
@@ -36,9 +37,10 @@ export default {
       { threshholds: 1 }
     );
 
-    intersectionObserver.observe(this.$refs.observer);
-
-    this.$once("hook:beforeDestroy", () => intersectionObserver.disconnect());
+    this.observer.observe(this.$refs.observer);
+  },
+  beforeUnmount() {
+    this.observer.disconnect();
   },
 };
 </script>

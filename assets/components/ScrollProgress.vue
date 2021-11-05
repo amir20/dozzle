@@ -45,7 +45,9 @@ export default {
   },
   mounted() {
     this.attachEvents();
-    this.$once("hook:beforeDestroy", this.detachEvents);
+  },
+  beforeUnmount() {
+    this.detachEvents();
   },
   watch: {
     activeContainers() {

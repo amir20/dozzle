@@ -734,7 +734,7 @@ export default {
           },
         ],
       },
-      this.$slots.default
+      this.$slots.default()
     );
   },
 };
