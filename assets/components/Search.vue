@@ -80,7 +80,7 @@ export default {
   position: fixed;
   padding: 10px;
   background: var(--scheme-main-ter);
-  top: 13%;
+  top: 0;
   right: 0;
   border-radius: 0 0 0 5px;
   z-index: 10;

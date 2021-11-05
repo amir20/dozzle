@@ -5,6 +5,7 @@ import Switch from "buefy/dist/esm/switch";
 import Radio from "buefy/dist/esm/radio";
 import Field from "buefy/dist/esm/field";
 import Modal from "buefy/dist/esm/modal";
+import Tooltip from "buefy/dist/esm/tooltip";
 import Autocomplete from "buefy/dist/esm/autocomplete";
 
 import store from "./store";
@@ -18,6 +19,7 @@ Vue.use(Switch);
 Vue.use(Radio);
 Vue.use(Field);
 Vue.use(Modal);
+Vue.use(Tooltip);
 Vue.use(Autocomplete);
 
 const routes = [

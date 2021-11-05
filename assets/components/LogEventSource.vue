@@ -7,7 +7,6 @@
 
 <script>
 import debounce from "lodash.debounce";
-import hotkeys from "hotkeys-js";
 import InfiniteLoader from "./InfiniteLoader";
 import config from "../store/config";
 import containerMixin from "./mixins/container";
@@ -30,12 +29,6 @@ export default {
   created() {
     this.flushBuffer = debounce(this.flushNow, 250, { maxWait: 1000 });
     this.loadLogs();
-  },
-  mounted() {
-    hotkeys("command+l, ctrl+l", (event, handler) => {
-      this.clear();
-      event.preventDefault();
-    });
   },
   beforeDestroy() {
     this.es.close();

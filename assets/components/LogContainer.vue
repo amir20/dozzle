@@ -13,26 +13,7 @@
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
       </div>
-      <div class="mr-0 is-vcentered is-hidden-mobile">
-        <div class="is-flex">
-          <a @click="onClearClicked" class="button is-small is-outlined" id="clear">
-            <span class="icon">
-              <icon name="bin"></icon>
-            </span>
-          </a>
-          <div class="is-flex-grow-1"></div>
-          <a
-            class="button is-small is-outlined"
-            id="download"
-            :href="`${base}/api/logs/download?id=${container.id}`"
-            download
-          >
-            <span class="icon">
-              <icon name="save"></icon>
-            </span>
-          </a>
-        </div>
-      </div>
+      <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
     <template v-slot="{ setLoading }">
       <log-viewer-with-source ref="logViewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
@@ -42,10 +23,10 @@
 
 <script>
 import LogViewerWithSource from "./LogViewerWithSource";
+import LogActionsToolbar from "./LogActionsToolbar";
 import ScrollableView from "./ScrollableView";
 import ContainerTitle from "./ContainerTitle";
 import ContainerStat from "./ContainerStat";
-import Icon from "./Icon";
 import config from "../store/config";
 import containerMixin from "./mixins/container";
 
@@ -71,15 +52,10 @@ export default {
   name: "LogContainer",
   components: {
     LogViewerWithSource,
+    LogActionsToolbar,
     ScrollableView,
     ContainerTitle,
     ContainerStat,
-    Icon,
-  },
-  computed: {
-    base() {
-      return config.base;
-    },
   },
   methods: {
     onClearClicked() {
@@ -99,18 +75,6 @@ button.delete {
 
   &:hover {
     opacity: 1;
-  }
-}
-
-#download.button,
-#clear.button {
-  .icon {
-    height: 80%;
-  }
-
-  &:hover {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
   }
 }
 </style>
