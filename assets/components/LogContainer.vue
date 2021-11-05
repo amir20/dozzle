@@ -26,7 +26,6 @@ import LogActionsToolbar from "./LogActionsToolbar";
 import ScrollableView from "./ScrollableView";
 import ContainerTitle from "./ContainerTitle";
 import ContainerStat from "./ContainerStat";
-import config from "../store/config";
 import containerMixin from "./mixins/container";
 
 export default {
