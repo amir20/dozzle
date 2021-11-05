@@ -44,7 +44,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { Splitpanes, Pane } from "splitpanes";
+import { Splitpanes, Pane } from "./components/splitpanes";
 
 import hotkeys from "hotkeys-js";
 

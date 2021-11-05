@@ -1,5 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 import Meta from "vue-meta";
 import Switch from "buefy/dist/esm/switch";
 import Radio from "buefy/dist/esm/radio";
@@ -13,14 +13,14 @@ import config from "./store/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
 
-Vue.use(VueRouter);
-Vue.use(Meta);
-Vue.use(Switch);
-Vue.use(Radio);
-Vue.use(Field);
-Vue.use(Modal);
-Vue.use(Tooltip);
-Vue.use(Autocomplete);
+// Vue.use(VueRouter);
+// Vue.use(Meta);
+// Vue.use(Switch);
+// Vue.use(Radio);
+// Vue.use(Field);
+// Vue.use(Modal);
+// Vue.use(Tooltip);
+// Vue.use(Autocomplete);
 
 const routes = [
   {
@@ -61,14 +61,12 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
-  mode: "history",
-  base: config.base + "/",
+const router = createRouter({
+  history: createWebHistory(),
   routes,
 });
 
-new Vue({
-  router,
-  store,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.use(store);
+app.mount("#app");
