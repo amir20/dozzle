@@ -8,7 +8,6 @@
         <div class="column is-narrow is-paddingless">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-clipped is-paddingless"></div>
         <div class="column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
