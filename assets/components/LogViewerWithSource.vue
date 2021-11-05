@@ -1,5 +1,5 @@
 <template>
-  <log-event-source :id="id" v-slot="eventSource" @loading-more="$emit('loading-more', $event)">
+  <log-event-source ref="logEventSource" :id="id" v-slot="eventSource" @loading-more="$emit('loading-more', $event)">
     <log-viewer :messages="eventSource.messages"></log-viewer>
   </log-event-source>
 </template>
@@ -14,6 +14,11 @@ export default {
   components: {
     LogEventSource,
     LogViewer,
+  },
+  methods: {
+    clear() {
+      this.$refs.logEventSource.clear();
+    },
   },
 };
 </script>

@@ -90,6 +90,7 @@ export default {
 .scroll-progress {
   display: inline-block;
   position: relative;
+  pointer-events: none;
 
   svg {
     filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));

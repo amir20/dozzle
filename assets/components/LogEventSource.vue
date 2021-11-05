@@ -70,6 +70,9 @@ export default {
       this.messages.push(...this.buffer);
       this.buffer = [];
     },
+    clear() {
+      this.messages = [];
+    },
     reset() {
       if (this.es) {
         this.es.close();

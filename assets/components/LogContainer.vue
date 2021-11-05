@@ -1,43 +1,32 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template v-slot:header v-if="showTitle">
-      <div class="mr-0 columns is-vcentered is-hidden-mobile">
-        <div class="column is-clipped">
+      <div class="mr-0 columns is-vcentered is-marginless is-hidden-mobile">
+        <div class="column is-clipped is-paddingless">
           <container-title :container="container" @close="$emit('close')"></container-title>
         </div>
-        <div class="column is-narrow">
+        <div class="column is-narrow is-paddingless">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-narrow">
-          <a
-            class="button is-small is-outlined"
-            id="download"
-            :href="`${base}/api/logs/download?id=${container.id}`"
-            download
-          >
-            <span class="icon">
-              <icon name="save"></icon>
-            </span>
-            Download
-          </a>
-        </div>
-        <div class="column is-narrow" v-if="closable">
+        <div class="column is-clipped is-paddingless"></div>
+        <div class="column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
       </div>
+      <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
     <template v-slot="{ setLoading }">
-      <log-viewer-with-source :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
+      <log-viewer-with-source ref="logViewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
     </template>
   </scrollable-view>
 </template>
 
 <script>
 import LogViewerWithSource from "./LogViewerWithSource";
+import LogActionsToolbar from "./LogActionsToolbar";
 import ScrollableView from "./ScrollableView";
 import ContainerTitle from "./ContainerTitle";
 import ContainerStat from "./ContainerStat";
-import Icon from "./Icon";
 import config from "../store/config";
 import containerMixin from "./mixins/container";
 
@@ -63,14 +52,14 @@ export default {
   name: "LogContainer",
   components: {
     LogViewerWithSource,
+    LogActionsToolbar,
     ScrollableView,
     ContainerTitle,
     ContainerStat,
-    Icon,
   },
-  computed: {
-    base() {
-      return config.base;
+  methods: {
+    onClearClicked() {
+      this.$refs.logViewer.clear();
     },
   },
 };
@@ -86,18 +75,6 @@ button.delete {
 
   &:hover {
     opacity: 1;
-  }
-}
-
-#download.button {
-  .icon {
-    margin-right: 5px;
-    height: 80%;
-  }
-
-  &:hover {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
   }
 }
 </style>
