@@ -7,7 +7,7 @@ WORKDIR /build
 
 # Install dependencies from lock file
 COPY pnpm-lock.yaml ./
-RUN pnpm fetch
+RUN pnpm fetch --prod
 
 # Copy files
 COPY package.json .* webpack*.js ./
@@ -16,7 +16,7 @@ COPY package.json .* webpack*.js ./
 COPY assets ./assets
 
 # Install dependencies
-RUN pnpm install -r --offline
+RUN pnpm install -r --offline --prod
 
 # Do the build
 RUN pnpm build
