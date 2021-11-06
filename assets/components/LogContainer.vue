@@ -21,11 +21,11 @@
 </template>
 
 <script>
-import LogViewerWithSource from "./LogViewerWithSource";
-import LogActionsToolbar from "./LogActionsToolbar";
-import ScrollableView from "./ScrollableView";
-import ContainerTitle from "./ContainerTitle";
-import ContainerStat from "./ContainerStat";
+import LogViewerWithSource from "./LogViewerWithSource.vue";
+import LogActionsToolbar from "./LogActionsToolbar.vue";
+import ScrollableView from "./ScrollableView.vue";
+import ContainerTitle from "./ContainerTitle.vue";
+import ContainerStat from "./ContainerStat.vue";
 import containerMixin from "./mixins/container";
 
 export default {

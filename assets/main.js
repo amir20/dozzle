@@ -1,3 +1,5 @@
+import "./styles.scss";
+
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import Meta from "vue-meta";
@@ -13,7 +15,6 @@ import config from "./store/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
 
-// Vue.use(VueRouter);
 // Vue.use(Meta);
 // Vue.use(Switch);
 // Vue.use(Radio);

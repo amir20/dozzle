@@ -1,8 +1,9 @@
 <template>
   <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key" :data-event="item.event">
-      <span class="date" v-if="settings.showTimestamp"> <relative-time :date="item.date"></relative-time></span
-      >&nbsp;<span class="text" v-html="colorize(item.message)"></span>
+      <span class="date" v-if="settings.showTimestamp"> <relative-time :date="item.date"></relative-time></span>
+      <span>&nbsp;</span>
+      <span class="text" v-html="colorize(item.message)"></span>
     </li>
   </ul>
 </template>
@@ -10,7 +11,7 @@
 import { mapState } from "vuex";
 import AnsiConvertor from "ansi-to-html";
 import DOMPurify from "dompurify";
-import RelativeTime from "./RelativeTime";
+import RelativeTime from "./RelativeTime.vue";
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 

@@ -1,24 +1,24 @@
 .PHONY: clean
 clean:
-	@rm -rf static
+	@rm -rf dist
 	@go clean -i
 
-.PHONY: static
-static:
+.PHONY: dist
+dist:
 	@pnpm build
 
-.PHONY: fake_static
-fake_static:
+.PHONY: fake_assets
+fake_assets:
 	@echo 'Skipping asset build'
-	@mkdir -p static
-	@echo "assets build was skipped" > static/index.html
+	@mkdir -p dist
+	@echo "assets build was skipped" > dist/index.html
 
 .PHONY: test
-test: fake_static
+test: fake_assets
 	go test -cover ./...
 
 .PHONY: build
-build: static
+build: dist
 	CGO_ENABLED=0 go build -ldflags "-s -w"
 
 .PHONY: docker

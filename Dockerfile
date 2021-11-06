@@ -10,7 +10,7 @@ COPY pnpm-lock.yaml ./
 RUN pnpm fetch --prod
 
 # Copy files
-COPY package.json .* webpack*.js ./
+COPY package.json .* vite.config.js index.html ./
 
 # Copy assets to build
 COPY assets ./assets
@@ -32,7 +32,7 @@ COPY go.* ./
 RUN go mod download
 
 # Copy assets built with node
-COPY --from=node /build/static ./static
+COPY --from=node /build/dist ./dist
 
 # Copy all other files
 COPY . .

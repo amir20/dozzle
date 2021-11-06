@@ -78,10 +78,11 @@
 
 <script>
 import { mapState } from "vuex";
-import SearchIcon from "~icons/mdi-light/magnify";
-import PastTime from "../components/PastTime";
-import config from "../store/config";
 import fuzzysort from "fuzzysort";
+import SearchIcon from "~icons/mdi-light/magnify";
+import PastTime from "../components/PastTime.vue";
+import config from "../store/config";
+
 
 export default {
   name: "Index",

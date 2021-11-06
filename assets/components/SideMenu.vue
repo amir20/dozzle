@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 import SearchIcon from "~icons/mdi-light/magnify";
 import SettingsIcon from "~icons/mdi-light/cog";

@@ -41,7 +41,7 @@ func (args) Version() string {
 	return version
 }
 
-//go:embed static
+//go:embed dist
 var content embed.FS
 
 func main() {
@@ -95,17 +95,17 @@ func main() {
 		Password: args.Password,
 	}
 
-	static, err := fs.Sub(content, "static")
+	assets, err := fs.Sub(content, "dist")
 	if err != nil {
-		log.Fatalf("Could not open embedded static folder: %v", err)
+		log.Fatalf("Could not open embedded dist folder: %v", err)
 	}
 
 	if _, ok := os.LookupEnv("LIVE_FS"); ok {
-		log.Info("Using live filesystem at ./static")
-		static = os.DirFS("./static")
+		log.Info("Using live filesystem at ./dist")
+		assets = os.DirFS("./dist")
 	}
 
-	srv := web.CreateServer(dockerClient, static, config)
+	srv := web.CreateServer(dockerClient, assets, config)
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)

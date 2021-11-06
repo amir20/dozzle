@@ -7,7 +7,7 @@
 
 <script>
 import debounce from "lodash.debounce";
-import InfiniteLoader from "./InfiniteLoader";
+import InfiniteLoader from "./InfiniteLoader.vue";
 import config from "../store/config";
 import containerMixin from "./mixins/container";
 

@@ -36,9 +36,10 @@
 import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
 
-import PastTime from "./PastTime";
 import ContainerIcon from "~icons/octicon/container-24";
 import ColumnsIcon from "~icons/cil/columns";
+import PastTime from "./PastTime.vue";
+
 
 export default {
   props: {

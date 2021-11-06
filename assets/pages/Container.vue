@@ -7,8 +7,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import Search from "../components/Search";
-import LogContainer from "../components/LogContainer";
+import Search from "../components/Search.vue";
+import LogContainer from "../components/LogContainer.vue";
 
 export default {
   props: ["id"],

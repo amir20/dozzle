@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import ScrollProgress from "./ScrollProgress";
 import ChevronDoubleDownIcon from "~icons/mdi-light/chevron-double-down";
+import ScrollProgress from "./ScrollProgress.vue";
 
 export default {
   props: {
