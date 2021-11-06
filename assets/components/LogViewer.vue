@@ -1,8 +1,8 @@
 <template>
   <ul class="events" :class="settings.size">
     <li v-for="item in filtered" :key="item.key" :data-event="item.event">
-      <span class="date" v-if="settings.showTimestamp"><relative-time :date="item.date"></relative-time></span>
-      <span class="text" v-html="colorize(item.message)"></span>
+      <span class="date" v-if="settings.showTimestamp"> <relative-time :date="item.date"></relative-time></span
+      >&nbsp;<span class="text" v-html="colorize(item.message)"></span>
     </li>
   </ul>
 </template>

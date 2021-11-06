@@ -47,11 +47,13 @@ export default {
       paused: false,
       hasMore: false,
       loading: false,
+      mutationObserver: null,
+      intersectionObserver: null,
     };
   },
   mounted() {
     const { content } = this.$refs;
-    const mutationObserver = new MutationObserver((e) => {
+    this.mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
         this.scrollToBottom("instant");
       } else {
@@ -63,17 +65,18 @@ export default {
         }
       }
     });
-    mutationObserver.observe(content, { childList: true, subtree: true });
-    this.$once("hook:beforeDestroy", () => mutationObserver.disconnect());
+    this.mutationObserver.observe(content, { childList: true, subtree: true });
 
-    const intersectionObserver = new IntersectionObserver(
+    this.intersectionObserver = new IntersectionObserver(
       (entries) => (this.paused = entries[0].intersectionRatio == 0),
       { threshholds: [0, 1], rootMargin: "80px 0px" }
     );
-    intersectionObserver.observe(this.$refs.scrollObserver);
-    this.$once("hook:beforeDestroy", () => intersectionObserver.disconnect());
+    this.intersectionObserver.observe(this.$refs.scrollObserver);
   },
-
+  beforeUnmount() {
+    this.mutationObserver.disconnect();
+    this.intersectionObserver.disconnect();
+  },
   methods: {
     scrollToBottom(behavior = "instant") {
       this.$refs.scrollObserver.scrollIntoView({ behavior });

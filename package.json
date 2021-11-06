@@ -52,6 +52,7 @@
     "sass": "^1.43.4",
     "sass-loader": "^12.3.0",
     "semver": "^7.3.5",
+    "splitpanes": "^3.0.6",
     "store": "^2.0.12",
     "unplugin-icons": "^0.12.18",
     "vue": "^3.2.21",

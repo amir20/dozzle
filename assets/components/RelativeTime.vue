@@ -1,5 +1,5 @@
 <template>
-  <time :datetime="date.toISOString()">{{ date | relativeTime(locale) }}</time>
+  <time :datetime="date.toISOString()">{{ relativeTime(date, locale) }}</time>
 </template>
 
 <script>
@@ -27,7 +27,6 @@ export default {
   },
   name: "RelativeTime",
   components: {},
-
   computed: {
     ...mapState(["settings"]),
     locale() {
@@ -41,7 +40,7 @@ export default {
       };
     },
   },
-  filters: {
+  methods: {
     relativeTime(date, locale) {
       return formatRelative(date, new Date(), { locale });
     },

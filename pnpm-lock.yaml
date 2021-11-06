@@ -38,6 +38,7 @@ specifiers:
   sass: ^1.43.4
   sass-loader: ^12.3.0
   semver: ^7.3.5
+  splitpanes: ^3.0.6
   store: ^2.0.12
   unplugin-icons: ^0.12.18
   vue: ^3.2.21
@@ -82,6 +83,7 @@ dependencies:
   sass: 1.43.4
   sass-loader: 12.3.0_sass@1.43.4+webpack@5.62.1
   semver: 7.3.5
+  splitpanes: 3.0.6
   store: 2.0.12
   unplugin-icons: 0.12.18_e88972dd02d5522b9563548eabe0e6eb
   vue: 3.2.21
@@ -7084,6 +7086,10 @@ packages:
     resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
     engines: {node: '>=6'}
     dev: true
+
+  /splitpanes/3.0.6:
+    resolution: {integrity: sha512-Ogxc+e2te4Tp5IpMwjOPO1ZvXUf2PsuEoyZhF9H5Hp6XOB0mLg/OnEZFaK2MxT7Q3O+WSEKE7CeOoTC+4zsQ6A==}
+    dev: false
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=}
