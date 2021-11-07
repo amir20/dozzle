@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^1.9.4",
-    "@vue/test-utils": "^1.2.2",
     "ansi-to-html": "^0.7.2",
     "autoprefixer": "^10.4.0",
     "buefy": "^0.9.10",
@@ -51,14 +50,17 @@
     "@iconify-json/mdi-light": "^1.0.1",
     "@iconify-json/octicon": "^1.0.5",
     "@vue/compiler-sfc": "^3.2.21",
+    "@babel/plugin-transform-runtime": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "@vue/test-utils": "^2.0.0-rc.16",
+    "@vue/vue3-jest": "^27.0.0-alpha.3",
     "husky": "^7.0.4",
     "jest": "^27.3.1",
     "jest-serializer-vue": "^2.0.2",
     "lint-staged": "^11.2.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
-    "release-it": "^14.11.6",
-    "vue-jest": "^3.0.7"
+    "release-it": "^14.11.6"
   },
   "lint-staged": {
     "*.{js,vue,css}": [

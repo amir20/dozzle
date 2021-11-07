@@ -3,7 +3,7 @@
 exports[`<App /> renders correctly 1`] = `
 <main>
   <!---->
-   
+
   <splitpanes-stub
     dblclicksplitter="true"
     pushotherpanes="true"
@@ -15,7 +15,7 @@ exports[`<App /> renders correctly 1`] = `
     >
       <side-menu-stub />
     </pane-stub>
-     
+
     <pane-stub
       maxsize="100"
       minsize="10"
@@ -31,11 +31,11 @@ exports[`<App /> renders correctly 1`] = `
         >
           <router-view-stub />
         </pane-stub>
-         
+
       </splitpanes-stub>
     </pane-stub>
   </splitpanes-stub>
-   
+
   <button
     class="button is-small is-rounded is-settings-control"
     id="hide-nav"

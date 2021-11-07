@@ -30,7 +30,7 @@ export default {
     this.flushBuffer = debounce(this.flushNow, 250, { maxWait: 1000 });
     this.loadLogs();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.es.close();
   },
   methods: {

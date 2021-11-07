@@ -1,6 +1,6 @@
 import EventSource from "eventsourcemock";
-import { shallowMount, RouterLinkStub, createLocalVue } from "@vue/test-utils";
-import Vuex from "vuex";
+import { shallowMount, RouterLinkStub } from "@vue/test-utils";
+import { createStore } from "vuex";
 import App from "./App";
 
 jest.mock("./store/config.js", () => ({ base: "" }));
@@ -15,9 +15,6 @@ jest.mock("~icons/cil/columns", () => {}, { virtual: true });
 jest.mock("~icons/octicon/container-24", () => {}, { virtual: true });
 jest.mock("~icons/mdi-light/cog", () => {}, { virtual: true });
 
-const localVue = createLocalVue();
-
-localVue.use(Vuex);
 
 describe("<App />", () => {
   const stubs = { RouterLink: RouterLinkStub, "router-view": true, "chevron-left-icon": true };
@@ -39,14 +36,16 @@ describe("<App />", () => {
       },
     };
 
-    store = new Vuex.Store({
-      state,
-      getters,
-    });
+    store = createStore({ state, getters });
   });
 
   test("has right title", async () => {
-    const wrapper = shallowMount(App, { stubs, store, localVue });
+    const wrapper = shallowMount(App, {
+      global: {
+        plugins: [store],
+        stubs,
+      },
+    });
     wrapper.vm.$store.state.containers = [
       { id: "abc", name: "Test 1" },
       { id: "xyz", name: "Test 2" },
@@ -57,8 +56,13 @@ describe("<App />", () => {
   });
 
   test("renders correctly", async () => {
-    const wrapper = shallowMount(App, { stubs, store, localVue });
+    const wrapper = shallowMount(App, {
+      global: {
+        plugins: [store],
+        stubs,
+      },
+    });
     await wrapper.vm.$nextTick();
-    expect(wrapper.element).toMatchSnapshot();
+    expect(wrapper.html()).toMatchSnapshot();
   });
 });

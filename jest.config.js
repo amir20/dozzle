@@ -8,7 +8,7 @@ module.exports = {
   watchPathIgnorePatterns: ["<rootDir>/node_modules/"],
   snapshotSerializers: ["jest-serializer-vue"],
   transform: {
-    ".*\\.vue$": "vue-jest",
+    "^.+\\.vue$": "@vue/vue3-jest",
     "^.+\\.js$": "babel-jest",
   },
 };
