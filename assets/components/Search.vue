@@ -47,7 +47,7 @@ export default {
       this.resetSearch();
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.updateSearchFilter("");
     hotkeys.unbind("command+f, ctrl+f, esc");
   },
