@@ -67,8 +67,8 @@
     "webpack-pwa-manifest": "^4.3.0"
   },
   "devDependencies": {
-    "@iconify-json/cil": "^1.0.1",
     "@iconify-json/mdi-light": "^1.0.1",
+    "@iconify-json/octicon": "^1.0.5",
     "husky": "^7.0.4",
     "jest": "^27.3.1",
     "jest-serializer-vue": "^2.0.2",

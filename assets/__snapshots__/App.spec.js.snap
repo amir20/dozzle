@@ -43,9 +43,7 @@ exports[`<App /> renders correctly 1`] = `
     <span
       class="icon"
     >
-      <icon-stub
-        name="chevron-left"
-      />
+      <chevron-left-icon-stub />
     </span>
   </button>
 </main>

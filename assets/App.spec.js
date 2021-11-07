@@ -5,12 +5,22 @@ import App from "./App";
 
 jest.mock("./store/config.js", () => ({ base: "" }));
 
+jest.mock("~icons/octicon/download-24", () => {}, { virtual: true });
+jest.mock("~icons/octicon/trash-24", () => {}, { virtual: true });
+jest.mock("~icons/mdi-light/chevron-double-down", () => {}, { virtual: true });
+jest.mock("~icons/mdi-light/chevron-left", () => {}, { virtual: true });
+jest.mock("~icons/mdi-light/chevron-right", () => {}, { virtual: true });
+jest.mock("~icons/mdi-light/magnify", () => {}, { virtual: true });
+jest.mock("~icons/cil/columns", () => {}, { virtual: true });
+jest.mock("~icons/octicon/container-24", () => {}, { virtual: true });
+jest.mock("~icons/mdi-light/cog", () => {}, { virtual: true });
+
 const localVue = createLocalVue();
 
 localVue.use(Vuex);
 
 describe("<App />", () => {
-  const stubs = { RouterLink: RouterLinkStub, "router-view": true, icon: true };
+  const stubs = { RouterLink: RouterLinkStub, "router-view": true, "chevron-left-icon": true };
   let store;
 
   beforeEach(() => {

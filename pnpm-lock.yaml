@@ -3,8 +3,8 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/core': ^7.15.8
   '@babel/plugin-transform-runtime': ^7.15.8
-  '@iconify-json/cil': ^1.0.1
   '@iconify-json/mdi-light': ^1.0.1
+  '@iconify-json/octicon': ^1.0.5
   '@vue/component-compiler-utils': ^3.3.0
   '@vue/test-utils': ^1.2.2
   ansi-to-html: ^0.7.2
@@ -97,8 +97,8 @@ dependencies:
   webpack-pwa-manifest: 4.3.0
 
 devDependencies:
-  '@iconify-json/cil': 1.0.1
   '@iconify-json/mdi-light': 1.0.1
+  '@iconify-json/octicon': 1.0.5
   husky: 7.0.4
   jest: 27.3.1
   jest-serializer-vue: 2.0.2
@@ -481,14 +481,14 @@ packages:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
     dev: true
 
-  /@iconify-json/cil/1.0.1:
-    resolution: {integrity: sha512-gLk0c25zSBtKKJWrGXVfQITeIdmvlSOiO/cKTVTQPG3W4qKh8V/wL3Fltb4j4iMPJgRVXylPPwKSwXbIDBDgZA==}
+  /@iconify-json/mdi-light/1.0.1:
+    resolution: {integrity: sha512-lbucb1t36lRRxEHNnJcROt0SRRRQgI6gmzj1Pv2qadrw/5mjLN6+OzOOCAIwCLDu//hU7xMkXDCw47aWtbRHaA==}
     dependencies:
       '@iconify/types': 1.0.10
     dev: true
 
-  /@iconify-json/mdi-light/1.0.1:
-    resolution: {integrity: sha512-lbucb1t36lRRxEHNnJcROt0SRRRQgI6gmzj1Pv2qadrw/5mjLN6+OzOOCAIwCLDu//hU7xMkXDCw47aWtbRHaA==}
+  /@iconify-json/octicon/1.0.5:
+    resolution: {integrity: sha512-+D4xVN2Xw4hHaRclgJytkUCp7IXZZLN0jt6WNTPcTpUkVoOrBLDego+vWDVfuYASBhWuGYNUQA+HLwdmtJCFGQ==}
     dependencies:
       '@iconify/types': 1.0.10
     dev: true
