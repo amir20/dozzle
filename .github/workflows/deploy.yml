@@ -82,9 +82,13 @@ jobs:
           fetch-depth: 0
       - name: Install Node
         uses: actions/setup-node@v2.4.1
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.20.1
       - name: Install dependencies
-        run: yarn
+        run: pnpm install
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn release --github.release --no-increment --no-git --ci
+        run: pnpm release --github.release --no-increment --no-git --ci
