@@ -27,15 +27,15 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-small is-rounded is-settings-control pl-1 pr-1"
+      class="button is-small is-rounded is-settings-control"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile && !authorizationNeeded"
     >
-      <span class="pl-6 pr-2" v-if="collapseNav">
+      <span class="icon ml-2" v-if="collapseNav">
         <chevron-right-icon />
       </span>
-      <span v-else>
+      <span class="icon" v-else>
         <chevron-left-icon />
       </span>
     </button>
@@ -174,9 +174,6 @@ export default {
   position: fixed;
   left: 10px;
   bottom: 10px;
-  & svg {
-    vertical-align: middle;
-  }
   &.collapsed {
     left: -40px;
     width: 60px;
