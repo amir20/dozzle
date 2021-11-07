@@ -1,4 +1,10 @@
-on: push
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
 name: Test
 jobs:
   npm-test:
@@ -9,10 +15,12 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Install Node
         uses: actions/setup-node@v2.4.1
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.0.1
       - name: Install dependencies
-        run: yarn
+        run: pnpm install
       - name: Run Tests
-        run: yarn test
+        run: pnpm run test
   go-test:
     name: Go Tests
     runs-on: ubuntu-latest
