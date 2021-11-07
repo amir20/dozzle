@@ -62,6 +62,7 @@ module.exports = (env, argv) => ({
     }),
     Icons({
       compiler: "vue2",
+      autoInstall: true,
       scale: 2,
     }),
   ],
