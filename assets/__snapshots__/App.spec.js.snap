@@ -2,49 +2,7 @@
 
 exports[`<App /> renders correctly 1`] = `
 <main>
-  <!---->
-
-  <splitpanes-stub
-    dblclicksplitter="true"
-    pushotherpanes="true"
-  >
-    <pane-stub
-      maxsize="100"
-      minsize="10"
-      size="15"
-    >
-      <side-menu-stub />
-    </pane-stub>
-
-    <pane-stub
-      maxsize="100"
-      minsize="10"
-    >
-      <splitpanes-stub
-        dblclicksplitter="true"
-        pushotherpanes="true"
-      >
-        <pane-stub
-          class="has-min-height router-view"
-          maxsize="100"
-          minsize="0"
-        >
-          <router-view-stub />
-        </pane-stub>
-
-      </splitpanes-stub>
-    </pane-stub>
-  </splitpanes-stub>
-
-  <button
-    class="button is-small is-rounded is-settings-control"
-    id="hide-nav"
-  >
-    <span
-      class="icon"
-    >
-      <chevron-left-icon-stub />
-    </span>
-  </button>
+  <!--v-if-->
+  <splitpanes-stub horizontal="false" pushotherpanes="true" dblclicksplitter="true" rtl="false" firstsplitter="false"></splitpanes-stub><button class="button is-small is-rounded is-settings-control" id="hide-nav"><span class="icon"><chevron-left-icon-stub></chevron-left-icon-stub></span></button>
 </main>
 `;

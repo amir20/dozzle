@@ -15,9 +15,13 @@ jest.mock("~icons/cil/columns", () => {}, { virtual: true });
 jest.mock("~icons/octicon/container-24", () => {}, { virtual: true });
 jest.mock("~icons/mdi-light/cog", () => {}, { virtual: true });
 
-
 describe("<App />", () => {
-  const stubs = { RouterLink: RouterLinkStub, "router-view": true, "chevron-left-icon": true };
+  const stubs = {
+    RouterLink: RouterLinkStub,
+    "router-view": true,
+    "chevron-left-icon": true,
+    "chevron-right-icon": true,
+  };
   let store;
 
   beforeEach(() => {
