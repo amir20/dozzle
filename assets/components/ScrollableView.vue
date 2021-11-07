@@ -13,8 +13,13 @@
 
     <div class="is-scrollbar-notification">
       <transition name="fade">
-        <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
-          <icon name="chevrons-down"></icon>
+        <button
+          class="button pl-1 pr-1"
+          :class="hasMore ? 'has-more' : ''"
+          @click="scrollToBottom('instant')"
+          v-show="paused"
+        >
+          <chevron-double-down-icon />
         </button>
       </transition>
     </div>
@@ -22,8 +27,8 @@
 </template>
 
 <script>
-import Icon from "./Icon";
 import ScrollProgress from "./ScrollProgress";
+import ChevronDoubleDownIcon from "~icons/mdi-light/chevron-double-down";
 
 export default {
   props: {
@@ -33,8 +38,8 @@ export default {
     },
   },
   components: {
-    Icon,
     ScrollProgress,
+    ChevronDoubleDownIcon,
   },
   name: "ScrollableView",
   data() {

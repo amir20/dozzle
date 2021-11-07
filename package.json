@@ -2,6 +2,16 @@
   "name": "dozzle",
   "version": "3.8.5",
   "description": "Realtime log viewer for docker containers. ",
+  "homepage": "https://github.com/amir20/dozzle#readme",
+  "bugs": {
+    "url": "https://github.com/amir20/dozzle/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amir20/dozzle.git"
+  },
+  "license": "ISC",
+  "author": "",
   "scripts": {
     "watch": "npm-run-all -p watch:*",
     "watch:assets": "webpack --mode=development --watch",
@@ -14,19 +24,12 @@
     "test": "TZ=UTC jest",
     "postinstall": "husky install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amir20/dozzle.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amir20/dozzle/issues"
-  },
-  "homepage": "https://github.com/amir20/dozzle#readme",
   "dependencies": {
     "@babel/core": "^7.15.8",
     "@babel/plugin-transform-runtime": "^7.15.8",
+    "@iconify-json/cil": "^1.0.1",
+    "@iconify-json/mdi-light": "^1.0.1",
+    "@iconify-json/octicon": "^1.0.5",
     "@vue/component-compiler-utils": "^3.3.0",
     "@vue/test-utils": "^1.2.2",
     "ansi-to-html": "^0.7.2",
@@ -54,6 +57,7 @@
     "semver": "^7.3.5",
     "splitpanes": "^2.3.8",
     "store": "^2.0.12",
+    "unplugin-icons": "^0.12.18",
     "vue": "^2.6.14",
     "vue-loader": "^15.9.8",
     "vue-meta": "^2.4.0",

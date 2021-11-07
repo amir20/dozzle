@@ -10,24 +10,20 @@
       </div>
       <div class="column is-narrow has-text-right px-1">
         <button
-          class="button is-small is-rounded is-settings-control"
+          class="button is-small is-rounded is-settings-control pl-1 pr-1"
           @click="$emit('search')"
           title="Search containers (⌘ + k, ⌃k)"
         >
-          <span class="icon">
-            <icon name="search"></icon>
-          </span>
+          <search-icon />
         </button>
       </div>
       <div class="column is-narrow has-text-right px-0">
         <router-link
           :to="{ name: 'settings' }"
           active-class="is-active"
-          class="button is-small is-rounded is-settings-control"
+          class="button is-small is-rounded is-settings-control pl-1 pr-1"
         >
-          <span class="icon">
-            <icon name="cog"></icon>
-          </span>
+          <settings-icon />
         </router-link>
       </div>
     </div>
@@ -50,7 +46,7 @@
                 v-show="!activeContainersById[item.id]"
                 title="Pin as column"
               >
-                <icon name="column"></icon>
+                <columns-icon />
               </span>
             </div>
           </div>
@@ -63,13 +59,17 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import Icon from "./Icon";
+import SearchIcon from "~icons/mdi-light/magnify";
+import SettingsIcon from "~icons/mdi-light/cog";
+import ColumnsIcon from "~icons/cil/columns";
 
 export default {
   props: [],
   name: "SideMenu",
   components: {
-    Icon,
+    SearchIcon,
+    SettingsIcon,
+    ColumnsIcon,
   },
   data() {
     return {};
@@ -116,6 +116,10 @@ li.exited a {
 .menu-list li {
   .column-icon {
     visibility: hidden;
+
+    & > span {
+      vertical-align: middle;
+    }
   }
 
   &:hover .column-icon {

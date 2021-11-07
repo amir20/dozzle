@@ -14,14 +14,16 @@
       <template slot-scope="props">
         <div class="media">
           <div class="media-left">
-            <span class="icon is-small" :class="props.option.state"><icon name="crate"></icon></span>
+            <span class="icon is-small" :class="props.option.state">
+              <container-icon />
+            </span>
           </div>
           <div class="media-content">
             {{ props.option.name }}
           </div>
           <div class="media-right">
             <span class="icon is-small column-icon" @click.stop.prevent="addColumn(props.option)" title="Pin as column">
-              <icon name="column"></icon>
+              <columns-icon />
             </span>
           </div>
         </div>
@@ -35,7 +37,8 @@ import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
 
 import PastTime from "./PastTime";
-import Icon from "./Icon";
+import ContainerIcon from "~icons/octicon/container-24";
+import ColumnsIcon from "~icons/cil/columns";
 
 export default {
   props: {
@@ -51,8 +54,9 @@ export default {
   },
   name: "FuzzySearchModal",
   components: {
-    Icon,
     PastTime,
+    ContainerIcon,
+    ColumnsIcon,
   },
   mounted() {
     this.$nextTick(() => this.$refs.autocomplete.focus());
@@ -130,5 +134,9 @@ export default {
   &:hover .media-right {
     visibility: visible;
   }
+}
+
+.icon {
+  vertical-align: middle;
 }
 </style>

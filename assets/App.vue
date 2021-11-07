@@ -27,13 +27,16 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-small is-rounded is-settings-control"
+      class="button is-small is-rounded is-settings-control pl-1 pr-1"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile && !authorizationNeeded"
     >
-      <span class="icon">
-        <icon :name="collapseNav ? 'chevron-right' : 'chevron-left'"></icon>
+      <span class="pl-6 pr-2" v-if="collapseNav">
+        <chevron-right-icon />
+      </span>
+      <span v-else>
+        <chevron-left-icon />
       </span>
     </button>
   </main>
@@ -50,19 +53,22 @@ import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 
 import PastTime from "./components/PastTime";
-import Icon from "./components/Icon";
 import FuzzySearchModal from "./components/FuzzySearchModal";
+
+import ChevronLeftIcon from "~icons/mdi-light/chevron-left";
+import ChevronRightIcon from "~icons/mdi-light/chevron-right";
 
 export default {
   name: "App",
   components: {
-    Icon,
     SideMenu,
     LogContainer,
     MobileMenu,
     Splitpanes,
     PastTime,
     Pane,
+    ChevronLeftIcon,
+    ChevronRightIcon,
   },
   data() {
     return {
@@ -168,6 +174,9 @@ export default {
   position: fixed;
   left: 10px;
   bottom: 10px;
+  & svg {
+    vertical-align: middle;
+  }
   &.collapsed {
     left: -40px;
     width: 60px;

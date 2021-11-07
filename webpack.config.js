@@ -3,6 +3,7 @@ const { VueLoaderPlugin } = require("vue-loader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackPwaManifest = require("webpack-pwa-manifest");
+const Icons = require("unplugin-icons/webpack");
 
 module.exports = (env, argv) => ({
   stats: { children: false, entrypoints: false, modules: false },
@@ -58,6 +59,10 @@ module.exports = (env, argv) => ({
       theme_color: "#222",
       background_color: "#222",
       display: "standalone",
+    }),
+    Icons({
+      compiler: "vue2",
+      scale: 2,
     }),
   ],
   resolve: {

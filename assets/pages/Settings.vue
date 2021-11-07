@@ -92,15 +92,11 @@
 <script>
 import gt from "semver/functions/gt";
 import { mapActions, mapState } from "vuex";
-import Icon from "../components/Icon";
 import config from "../store/config";
 
 export default {
   props: [],
   name: "Settings",
-  components: {
-    Icon,
-  },
   data() {
     return {
       currentVersion: config.version,

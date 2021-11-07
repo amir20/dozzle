@@ -2,23 +2,19 @@
   <div class="toolbar mr-0 is-vcentered is-hidden-mobile">
     <div class="is-flex">
       <b-tooltip type="is-dark" label="Clear">
-        <a @click="onClearClicked" class="button is-small is-light is-inverted" id="clear">
-          <span class="icon">
-            <icon name="bin"></icon>
-          </span>
+        <a @click="onClearClicked" class="button is-small is-light is-inverted pl-1 pr-1" id="clear">
+          <clear-icon />
         </a>
       </b-tooltip>
       <div class="is-flex-grow-1"></div>
       <b-tooltip type="is-dark" label="Download">
         <a
-          class="button is-small is-light is-inverted"
+          class="button is-small is-light is-inverted pl-1 pr-1"
           id="download"
           :href="`${base}/api/logs/download?id=${container.id}`"
           download
         >
-          <span class="icon">
-            <icon name="save"></icon>
-          </span>
+          <download-icon />
         </a>
       </b-tooltip>
     </div>
@@ -28,7 +24,8 @@
 <script>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
-import Icon from "./Icon";
+import DownloadIcon from "~icons/octicon/download-24";
+import ClearIcon from "~icons/octicon/trash-24";
 
 export default {
   props: {
@@ -42,7 +39,8 @@ export default {
   },
   name: "LogActionsToolbar",
   components: {
-    Icon,
+    DownloadIcon,
+    ClearIcon,
   },
   computed: {
     base() {
@@ -87,6 +85,10 @@ export default {
 
   .button {
     background-color: rgba(0, 0, 0, 0) !important;
+
+    &.is-small {
+      font-size: 0.65rem;
+    }
   }
 }
 </style>

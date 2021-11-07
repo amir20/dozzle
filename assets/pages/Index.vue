@@ -50,7 +50,7 @@
                 @keyup.enter="onEnter()"
               />
               <span class="icon is-left">
-                <icon name="search"></icon>
+                <search-icon />
               </span>
             </p>
           </div>
@@ -78,14 +78,14 @@
 
 <script>
 import { mapState } from "vuex";
-import Icon from "../components/Icon";
+import SearchIcon from "~icons/mdi-light/magnify";
 import PastTime from "../components/PastTime";
 import config from "../store/config";
 import fuzzysort from "fuzzysort";
 
 export default {
   name: "Index",
-  components: { Icon, PastTime },
+  components: { SearchIcon, PastTime },
   data() {
     return {
       version: config.version,
