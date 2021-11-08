@@ -138,6 +138,7 @@ export default {
         component: FuzzySearchModal,
         animation: "false",
         width: 600,
+        active: true,
       });
     },
   },

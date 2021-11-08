@@ -3,7 +3,7 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" :data-scrolling="scrollable">
+    <main ref="content" :data-scrolling="scrollable ? true : undefined">
       <div class="is-scrollbar-progress is-hidden-mobile">
         <scroll-progress v-show="paused" :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
@@ -13,12 +13,7 @@
 
     <div class="is-scrollbar-notification">
       <transition name="fade">
-        <button
-          class="button pl-1 pr-1"
-          :class="hasMore ? 'has-more' : ''"
-          @click="scrollToBottom('instant')"
-          v-show="paused"
-        >
+        <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
           <chevron-double-down-icon />
         </button>
       </transition>

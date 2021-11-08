@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/plugin-transform-runtime': ^7.16.0
   '@babel/preset-env': ^7.16.0
+  '@iconify-json/cil': ^1.0.1
   '@iconify-json/mdi-light': ^1.0.1
   '@iconify-json/octicon': ^1.0.5
   '@oruga-ui/oruga-next': ^0.4.7
@@ -69,6 +70,7 @@ dependencies:
 devDependencies:
   '@babel/plugin-transform-runtime': 7.16.0
   '@babel/preset-env': 7.16.0
+  '@iconify-json/cil': 1.0.1
   '@iconify-json/mdi-light': 1.0.1
   '@iconify-json/octicon': 1.0.5
   '@vue/compiler-sfc': 3.2.21
@@ -1301,6 +1303,12 @@ packages:
 
   /@iarna/toml/2.2.5:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: true
+
+  /@iconify-json/cil/1.0.1:
+    resolution: {integrity: sha512-gLk0c25zSBtKKJWrGXVfQITeIdmvlSOiO/cKTVTQPG3W4qKh8V/wL3Fltb4j4iMPJgRVXylPPwKSwXbIDBDgZA==}
+    dependencies:
+      '@iconify/types': 1.0.10
     dev: true
 
   /@iconify-json/mdi-light/1.0.1:

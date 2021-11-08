@@ -3,7 +3,7 @@
     <o-autocomplete
       ref="autocomplete"
       v-model="query"
-      placeholder="Search containers using ⌘ + k, ⌃k"
+      placeholder="Search containers using ⌘ + k or ctrl + k"
       field="name"
       open-on-focus
       keep-first
@@ -87,7 +87,6 @@ export default {
       }));
     },
     results() {
-      console.log("test");
       const options = {
         limit: this.maxResults,
         key: "preparedName",
@@ -111,6 +110,7 @@ export default {
 <style lang="scss" scoped>
 .panel {
   min-height: 400px;
+  width: 580px;
 }
 
 .running {
