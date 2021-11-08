@@ -2,6 +2,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 name: Push master container
 jobs:
   buildx:
