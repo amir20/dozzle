@@ -7,13 +7,11 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    container: Object,
-  },
-  name: "ContainerTitle",
-};
+<script setup>
+import { defineProps } from "vue";
+defineProps({
+  container: Object,
+});
 </script>
 
 <style lang="scss" scoped></style>

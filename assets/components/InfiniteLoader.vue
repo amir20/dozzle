@@ -1,5 +1,5 @@
 <template>
-  <div ref="observer" class="infinte-loader">
+  <div ref="root" class="infinte-loader">
     <div class="spinner" v-show="isLoading">
       <div class="bounce1"></div>
       <div class="bounce2"></div>
@@ -8,42 +8,37 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "InfiniteLoader",
-  data() {
-    return {
-      isLoading: false,
-      observer: null,
-    };
-  },
-  props: {
-    onLoadMore: Function,
-    enabled: Boolean,
-  },
-  mounted() {
-    this.observer = new IntersectionObserver(
-      async (entries) => {
-        if (entries[0].intersectionRatio <= 0) return;
-        if (this.onLoadMore && this.enabled) {
-          const scrollingParent = this.$el.closest("[data-scrolling]") || document.documentElement;
-          const previousHeight = scrollingParent.scrollHeight;
-          this.isLoading = true;
-          await this.onLoadMore();
-          this.isLoading = false;
-          this.$nextTick(() => (scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight));
-        }
-      },
-      { threshholds: 1 }
-    );
+<script setup>
+import { defineProps, onMounted, onUnmounted, ref, nextTick } from "vue";
 
-    this.observer.observe(this.$refs.observer);
+const props = defineProps({
+  onLoadMore: Function,
+  enabled: Boolean,
+});
+
+const isLoading = ref(false);
+const root = ref(null);
+
+const observer = new IntersectionObserver(
+  async (entries) => {
+    if (entries[0].intersectionRatio <= 0) return;
+    if (props.onLoadMore && props.enabled) {
+      const scrollingParent = root.value.closest("[data-scrolling]") || document.documentElement;
+      const previousHeight = scrollingParent.scrollHeight;
+      isLoading.value = true;
+      await props.onLoadMore();
+      isLoading.value = false;
+      await nextTick();
+      scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;
+    }
   },
-  beforeUnmount() {
-    this.observer.disconnect();
-  },
-};
+  { threshholds: 1 }
+);
+
+onMounted(() => observer.observe(root.value));
+onUnmounted(() => observer.disconnect());
 </script>
+
 <style scoped lang="scss">
 .infinte-loader {
   min-height: 1px;
