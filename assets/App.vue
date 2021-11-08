@@ -146,7 +146,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   min-width: 3px;
   background: var(--border-color);
   &:hover {

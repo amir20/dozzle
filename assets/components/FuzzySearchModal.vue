@@ -127,7 +127,7 @@ export default {
   }
 }
 
-::v-deep a.dropdown-item {
+:deep(a.dropdown-item) {
   padding-right: 1em;
   .media-right {
     visibility: hidden;

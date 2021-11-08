@@ -113,7 +113,7 @@ export default {
   }
 }
 
-::v-deep mark {
+:deep(mark) {
   border-radius: 2px;
   background-color: var(--secondary-color);
   animation: pops 200ms ease-out;
