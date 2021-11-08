@@ -133,7 +133,7 @@ export default {
       }
     },
     showFuzzySearch() {
-      this.$buefy.modal.open({
+      this.$oruga.modal.open({
         parent: this,
         component: FuzzySearchModal,
         animation: "false",

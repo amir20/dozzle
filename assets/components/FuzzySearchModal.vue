@@ -1,6 +1,6 @@
 <template>
   <div class="panel">
-    <b-autocomplete
+    <o-autocomplete
       ref="autocomplete"
       v-model="query"
       placeholder="Search containers using ⌘ + k, ⌃k"
@@ -11,7 +11,7 @@
       :data="results"
       @select="selected"
     >
-      <template slot-scope="props">
+      <template v-slot="props">
         <div class="media">
           <div class="media-left">
             <span class="icon is-small" :class="props.option.state">
@@ -28,7 +28,7 @@
           </div>
         </div>
       </template>
-    </b-autocomplete>
+    </o-autocomplete>
   </div>
 </template>
 
@@ -39,7 +39,6 @@ import fuzzysort from "fuzzysort";
 import ContainerIcon from "~icons/octicon/container-24";
 import ColumnsIcon from "~icons/cil/columns";
 import PastTime from "./PastTime.vue";
-
 
 export default {
   props: {
@@ -88,6 +87,7 @@ export default {
       }));
     },
     results() {
+      console.log("test");
       const options = {
         limit: this.maxResults,
         key: "preparedName",

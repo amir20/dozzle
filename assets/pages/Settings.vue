@@ -25,16 +25,16 @@
       <div class="item">
         <div class="columns is-vcentered">
           <div class="column is-narrow">
-            <b-field>
-              <b-radio-button
+            <o-field>
+              <o-radio-button
                 v-model="hourStyle"
                 :native-value="value"
                 v-for="value in ['auto', '12', '24']"
                 :key="value"
               >
                 <span class="is-capitalized">{{ value }}</span>
-              </b-radio-button>
-            </b-field>
+              </o-radio-button>
+            </o-field>
           </div>
           <div class="column">
             By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
@@ -42,26 +42,26 @@
         </div>
 
         <div class="item">
-          <b-switch v-model="smallerScrollbars"> Use smaller scrollbars </b-switch>
+          <o-switch v-model="smallerScrollbars"> Use smaller scrollbars </o-switch>
         </div>
         <div class="item">
-          <b-switch v-model="showTimestamp"> Show timestamps </b-switch>
+          <o-switch v-model="showTimestamp"> Show timestamps </o-switch>
         </div>
       </div>
 
       <div class="item">
         <div class="columns is-vcentered">
           <div class="column is-narrow">
-            <b-field>
-              <b-radio-button
+            <o-field>
+              <o-radio-button
                 v-model="size"
                 :native-value="value"
                 v-for="value in ['small', 'medium', 'large']"
                 :key="value"
               >
                 <span class="is-capitalized">{{ value }}</span>
-              </b-radio-button>
-            </b-field>
+              </o-radio-button>
+            </o-field>
           </div>
           <div class="column">Font size to use for logs</div>
         </div>
@@ -73,17 +73,17 @@
       </div>
 
       <div class="item">
-        <b-switch v-model="search">
+        <o-switch v-model="search">
           Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
-        </b-switch>
+        </o-switch>
       </div>
 
       <div class="item">
-        <b-switch v-model="showAllContainers"> Show stopped containers </b-switch>
+        <o-switch v-model="showAllContainers"> Show stopped containers </o-switch>
       </div>
 
       <div class="item">
-        <b-switch v-model="lightTheme"> Use light theme </b-switch>
+        <o-switch v-model="lightTheme"> Use light theme </o-switch>
       </div>
     </section>
   </div>

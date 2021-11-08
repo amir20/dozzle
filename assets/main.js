@@ -2,26 +2,12 @@ import "./styles.scss";
 
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
+import { Autocomplete, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
+import { bulmaConfig } from "@oruga-ui/theme-bulma";
 import Meta from "vue-meta";
-import Switch from "buefy/dist/esm/switch";
-import Radio from "buefy/dist/esm/radio";
-import Field from "buefy/dist/esm/field";
-import Modal from "buefy/dist/esm/modal";
-import Tooltip from "buefy/dist/esm/tooltip";
-import Autocomplete from "buefy/dist/esm/autocomplete";
-
 import store from "./store";
-import config from "./store/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
-
-// Vue.use(Meta);
-// Vue.use(Switch);
-// Vue.use(Radio);
-// Vue.use(Field);
-// Vue.use(Modal);
-// Vue.use(Tooltip);
-// Vue.use(Autocomplete);
 
 const routes = [
   {
@@ -67,7 +53,14 @@ const router = createRouter({
   routes,
 });
 
-const app = createApp(App);
-app.use(router);
-app.use(store);
-app.mount("#app");
+createApp(App)
+  .use(router)
+  .use(store)
+  .use(Autocomplete)
+  .use(Switch)
+  .use(Tooltip)
+  .use(Modal)
+  .use(Radio)
+  .use(Field)
+  .use(Config, bulmaConfig)
+  .mount("#app");

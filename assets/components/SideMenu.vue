@@ -10,20 +10,20 @@
       </div>
       <div class="column is-narrow has-text-right px-1">
         <button
-          class="button is-small is-rounded is-settings-control pl-1 pr-1"
+          class="button is-rounded is-settings-control"
           @click="$emit('search')"
           title="Search containers (⌘ + k, ⌃k)"
         >
-          <search-icon />
+          <span class="icon">
+            <search-icon />
+          </span>
         </button>
       </div>
       <div class="column is-narrow has-text-right px-0">
-        <router-link
-          :to="{ name: 'settings' }"
-          active-class="is-active"
-          class="button is-small is-rounded is-settings-control pl-1 pr-1"
-        >
-          <settings-icon />
+        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-settings-control">
+          <span class="icon">
+            <settings-icon />
+          </span>
         </router-link>
       </div>
     </div>

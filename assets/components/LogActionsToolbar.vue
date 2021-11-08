@@ -1,13 +1,13 @@
 <template>
   <div class="toolbar mr-0 is-vcentered is-hidden-mobile">
     <div class="is-flex">
-      <b-tooltip type="is-dark" label="Clear">
+      <o-tooltip type="is-dark" label="Clear">
         <a @click="onClearClicked" class="button is-small is-light is-inverted pl-1 pr-1" id="clear">
           <clear-icon />
         </a>
-      </b-tooltip>
+      </o-tooltip>
       <div class="is-flex-grow-1"></div>
-      <b-tooltip type="is-dark" label="Download">
+      <o-tooltip type="is-dark" label="Download">
         <a
           class="button is-small is-light is-inverted pl-1 pr-1"
           id="download"
@@ -16,7 +16,7 @@
         >
           <download-icon />
         </a>
-      </b-tooltip>
+      </o-tooltip>
     </div>
   </div>
 </template>
