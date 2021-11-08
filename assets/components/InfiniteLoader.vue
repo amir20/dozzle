@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, onUnmounted, ref, nextTick } from "vue";
+import { onMounted, onUnmounted, ref, nextTick } from "vue";
 
 const props = defineProps({
   onLoadMore: Function,

@@ -24,7 +24,7 @@
 <script setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
-import { defineProps, onMounted } from "vue";
+import { onMounted } from "vue";
 import DownloadIcon from "~icons/octicon/download-24";
 import ClearIcon from "~icons/octicon/trash-24";
 
