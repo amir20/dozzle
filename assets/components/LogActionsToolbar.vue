@@ -21,42 +21,34 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
+import { defineProps, onMounted } from "vue";
 import DownloadIcon from "~icons/octicon/download-24";
 import ClearIcon from "~icons/octicon/trash-24";
 
-export default {
-  props: {
-    onClearClicked: {
-      type: Function,
-      default: () => {},
-    },
-    container: {
-      type: Object,
-    },
+const props = defineProps({
+  onClearClicked: {
+    type: Function,
+    default: () => {},
   },
-  name: "LogActionsToolbar",
-  components: {
-    DownloadIcon,
-    ClearIcon,
+  container: {
+    type: Object,
   },
-  computed: {
-    base() {
-      return config.base;
-    },
-  },
-  mounted() {
-    hotkeys("shift+command+l, shift+ctrl+l", (event, handler) => {
-      this.onClearClicked();
-      event.preventDefault();
-    });
-  },
-};
+});
+
+const { base } = config;
+
+onMounted(() => {
+  hotkeys("shift+command+l, shift+ctrl+l", (event, handler) => {
+    props.onClearClicked();
+    event.preventDefault();
+  });
+});
 </script>
 
-<style>
+<style lang="scss" scoped>
 #download.button,
 #clear.button {
   .icon {
