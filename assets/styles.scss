@@ -1,7 +1,5 @@
 @charset "utf-8";
 @import "bulma/sass/utilities/initial-variables.sass";
-@import "splitpanes/dist/splitpanes.css";
-@import "@oruga-ui/theme-bulma/dist/bulma.css";
 
 $body-background-color: var(--body-background-color);
 
@@ -30,6 +28,12 @@ $dark-toolbar-color: rgba($black-bis, 0.7);
 $light-toolbar-color: rgba($grey-darker, 0.7);
 
 @import "bulma/bulma.sass";
+@import "@oruga-ui/theme-bulma/dist/scss/components/utils/all.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/autocomplete.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/modal.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/switch.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/tooltip.scss";
+@import "splitpanes/dist/splitpanes.css";
 
 html {
   --scheme-main: #{$black};
