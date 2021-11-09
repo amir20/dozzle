@@ -3,6 +3,6 @@
 exports[`<App /> renders correctly 1`] = `
 <main>
   <!--v-if-->
-  <splitpanes-stub horizontal="false" pushotherpanes="true" dblclicksplitter="true" rtl="false" firstsplitter="false"></splitpanes-stub><button class="button is-small is-rounded is-settings-control" id="hide-nav"><span class="icon"><chevron-left-icon-stub></chevron-left-icon-stub></span></button>
+  <splitpanes-stub horizontal="false" pushotherpanes="true" dblclicksplitter="true" rtl="false" firstsplitter="false"></splitpanes-stub><button class="button is-rounded is-settings-control" id="hide-nav"><span class="icon"><chevron-left-icon-stub></chevron-left-icon-stub></span></button>
 </main>
 `;

@@ -6,8 +6,9 @@
     </li>
   </ul>
 </template>
-<script>
-import { mapState } from "vuex";
+<script setup>
+import { useStore } from "vuex";
+import { computed } from "vue";
 import AnsiConvertor from "ansi-to-html";
 import DOMPurify from "dompurify";
 import RelativeTime from "./RelativeTime.vue";
@@ -16,50 +17,44 @@ const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 
 if (window.trustedTypes && trustedTypes.createPolicy) {
   trustedTypes.createPolicy("default", {
-    createHTML: (string, sink) => DOMPurify.sanitize(string, { RETURN_TRUSTED_TYPE: true }),
+    createHTML: (string) => DOMPurify.sanitize(string, { RETURN_TRUSTED_TYPE: true }),
   });
 }
 
-export default {
-  props: ["messages"],
-  name: "LogViewer",
-  components: { RelativeTime },
-  data() {
-    return {
-      showSearch: false,
-    };
-  },
-  methods: {
-    colorize: function (value) {
-      return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
-    },
-  },
-  computed: {
-    ...mapState(["searchFilter", "settings"]),
-    filtered() {
-      const { searchFilter, messages } = this;
-      if (searchFilter) {
-        const isSmartCase = searchFilter === searchFilter.toLowerCase();
-        try {
-          const regex = isSmartCase ? new RegExp(searchFilter, "i") : new RegExp(searchFilter);
-          return messages
-            .filter((d) => d.message.match(regex))
-            .map((d) => ({
-              ...d,
-              message: d.message.replace(regex, "<mark>$&</mark>"),
-            }));
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            console.info(`Ignoring SytaxError from search.`, e);
-            return messages;
-          }
-          throw e;
-        }
+const props = defineProps({
+  messages: Array,
+});
+
+const store = useStore();
+
+function colorize(value) {
+  return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
+}
+
+const settings = computed(() => store.state.settings);
+const searchFilter = computed(() => store.state.searchFilter);
+const filtered = computed(() => {
+  if (searchFilter && searchFilter.value) {
+    const isSmartCase = searchFilter.value === searchFilter.value.toLowerCase();
+    try {
+      const regex = isSmartCase ? new RegExp(searchFilter.value, "i") : new RegExp(searchFilter.value);
+      return props.messages
+        .filter((d) => d.message.match(regex))
+        .map((d) => ({
+          ...d,
+          message: d.message.replace(regex, "<mark>$&</mark>"),
+        }));
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        console.info(`Ignoring SytaxError from search.`, e);
+        return props.messages;
       }
-      return messages;
-    },
-  },
-};
+      throw e;
+    }
+  }
+
+  return props.messages;
+});
 </script>
 <style scoped lang="scss">
 .events {

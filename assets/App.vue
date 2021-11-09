@@ -27,7 +27,7 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-small is-rounded is-settings-control"
+      class="button is-rounded is-settings-control"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile && !authorizationNeeded"
