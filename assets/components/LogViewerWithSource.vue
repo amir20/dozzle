@@ -4,21 +4,20 @@
   </log-event-source>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 
-export default {
-  props: ["id"],
-  name: "LogViewerWithSource",
-  components: {
-    LogEventSource,
-    LogViewer,
-  },
-  methods: {
-    clear() {
-      this.$refs.logEventSource.clear();
-    },
-  },
-};
+const props = defineProps({
+  id: String,
+});
+
+const logEventSource = ref(null);
+function clear() {
+  this.$refs.logEventSource.clear();
+}
+defineExpose({
+  clear,
+});
 </script>
