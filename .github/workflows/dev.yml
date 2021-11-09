@@ -5,7 +5,7 @@ on:
   pull_request:
     branches:
       - master
-name: Push master container
+name: Push container
 jobs:
   buildx:
     name: Push master
