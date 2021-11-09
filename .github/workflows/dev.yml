@@ -8,7 +8,7 @@ on:
 name: Push container
 jobs:
   buildx:
-    name: Push master
+    name: Push branches and PRs
     runs-on: ubuntu-latest
     steps:
       - name: Docker meta
