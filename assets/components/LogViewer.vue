@@ -6,27 +6,27 @@
     </li>
   </ul>
 </template>
-<script setup>
-import { useStore } from "vuex";
-import { computed } from "vue";
-import AnsiConvertor from "ansi-to-html";
+<script>
 import DOMPurify from "dompurify";
-import RelativeTime from "./RelativeTime.vue";
-
-const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-
 if (window.trustedTypes && trustedTypes.createPolicy) {
   trustedTypes.createPolicy("default", {
     createHTML: (string) => DOMPurify.sanitize(string, { RETURN_TRUSTED_TYPE: true }),
   });
 }
+</script>
+<script setup>
+import { useStore } from "vuex";
+import { computed } from "vue";
+import AnsiConvertor from "ansi-to-html";
+
+import RelativeTime from "./RelativeTime.vue";
 
 const props = defineProps({
   messages: Array,
 });
 
 const store = useStore();
-
+const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 function colorize(value) {
   return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
 }
