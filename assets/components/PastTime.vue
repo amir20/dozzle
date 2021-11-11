@@ -2,7 +2,7 @@
   <time :datetime="date.toISOString()">{{ text }}</time>
 </template>
 
-<script>
+<script lang="ts">
 import formatDistance from "date-fns/formatDistance";
 
 export default {
@@ -14,7 +14,7 @@ export default {
   },
   data() {
     return {
-      text: "",
+      text: "" as string,
       interval: null,
     };
   },

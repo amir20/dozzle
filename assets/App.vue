@@ -42,27 +42,19 @@
   </main>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapGetters, mapState } from "vuex";
 import { Splitpanes, Pane } from "splitpanes";
 
 import hotkeys from "hotkeys-js";
-import LogContainer from "./components/LogContainer.vue";
-import SideMenu from "./components/SideMenu.vue";
-import MobileMenu from "./components/MobileMenu.vue";
-import PastTime from "./components/PastTime.vue";
-import FuzzySearchModal from "./components/FuzzySearchModal.vue";
+
 import ChevronLeftIcon from "~icons/mdi-light/chevron-left";
 import ChevronRightIcon from "~icons/mdi-light/chevron-right";
 
 export default {
   name: "App",
   components: {
-    SideMenu,
-    LogContainer,
-    MobileMenu,
     Splitpanes,
-    PastTime,
     Pane,
     ChevronLeftIcon,
     ChevronRightIcon,

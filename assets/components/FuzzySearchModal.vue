@@ -32,13 +32,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
 
 import ContainerIcon from "~icons/octicon/container-24";
 import ColumnsIcon from "~icons/cil/columns";
-import PastTime from "./PastTime.vue";
 
 export default {
   props: {
@@ -54,7 +53,6 @@ export default {
   },
   name: "FuzzySearchModal",
   components: {
-    PastTime,
     ContainerIcon,
     ColumnsIcon,
   },
