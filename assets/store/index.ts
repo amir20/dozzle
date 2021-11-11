@@ -7,16 +7,31 @@ const mql = window.matchMedia("(max-width: 770px)");
 
 storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SETTINGS_KEY) });
 
-function allContainersById(containers) {
+interface Container {
+  id: string;
+  name: string;
+  state: string;
+  stat: ContainerStat;
+}
+
+interface ContainerStat {
+  cpu: number;
+  memory: number;
+  memoryUsage: number;
+}
+
+type IdToContainer = { [id: string]: Container };
+
+function allContainersById(containers: Container[]): IdToContainer {
   return containers.reduce((map, obj) => {
     map[obj.id] = obj;
     return map;
-  }, {});
+  }, {} as IdToContainer);
 }
 const store = createStore({
   state: {
-    containers: [],
-    activeContainerIds: [],
+    containers: [] as Container[],
+    activeContainerIds: [] as string[],
     searchFilter: null,
     isMobile: mql.matches,
     settings: storage.get(DOZZLE_SETTINGS_KEY),
@@ -26,16 +41,16 @@ const store = createStore({
     SET_CONTAINERS(state, containers) {
       const containersById = allContainersById(containers);
 
-      containers.forEach((container) => {
+      containers.forEach((container: Container) => {
         container.stat =
           containersById[container.id] && containersById[container.id].stat
             ? containersById[container.id].stat
-            : { memoryUsage: 0, cpu: 0 };
+            : { memoryUsage: 0, cpu: 0, memory: 0 };
       });
 
       state.containers = containers;
     },
-    ADD_ACTIVE_CONTAINERS(state, { id  }) {
+    ADD_ACTIVE_CONTAINERS(state, { id }) {
       state.activeContainerIds.push(id);
     },
     REMOVE_ACTIVE_CONTAINER(state, { id }) {
@@ -91,7 +106,7 @@ const store = createStore({
       return allContainersById(containers);
     },
     visibleContainers({ containers, settings: { showAllContainers } }) {
-      const filter = showAllContainers ? () => true : (c) => c.state === "running";
+      const filter = showAllContainers ? () => true : (c: Container) => c.state === "running";
       return containers.filter(filter);
     },
     activeContainers({ activeContainerIds }, { allContainersById }) {
