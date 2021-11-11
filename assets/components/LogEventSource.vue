@@ -6,7 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, toRefs, watch } from "vue";
 import debounce from "lodash.debounce";
 import config from "../store/config";
 import useContainer from "../composables/container";

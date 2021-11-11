@@ -13,10 +13,12 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["cypress", "vite/client"],
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["assets/*"]
     }
   },
+  "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
+
   "exclude": ["dist", "node_modules"]
 }
