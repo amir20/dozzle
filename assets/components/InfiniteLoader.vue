@@ -8,7 +8,7 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { onMounted, onUnmounted, ref, nextTick } from "vue";
 
 const props = defineProps({

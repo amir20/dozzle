@@ -34,7 +34,7 @@
   </scrollable-view>
 </template>
 
-<script>
+<script lang="ts">
 import LogViewerWithSource from "./LogViewerWithSource.vue";
 import LogActionsToolbar from "./LogActionsToolbar.vue";
 import ScrollableView from "./ScrollableView.vue";

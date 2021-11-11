@@ -2,7 +2,7 @@
   <time :datetime="date.toISOString()">{{ relativeTime(date, locale) }}</time>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 import { formatRelative } from "date-fns";
 import enGB from "date-fns/locale/en-GB";

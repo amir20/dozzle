@@ -21,7 +21,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapState } from "vuex";
 import hotkeys from "hotkeys-js";
 import SearchIcon from "~icons/mdi-light/magnify";

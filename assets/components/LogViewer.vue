@@ -6,7 +6,7 @@
     </li>
   </ul>
 </template>
-<script>
+<script lang="ts">
 import DOMPurify from "dompurify";
 if (window.trustedTypes && trustedTypes.createPolicy) {
   trustedTypes.createPolicy("default", {
@@ -14,7 +14,7 @@ if (window.trustedTypes && trustedTypes.createPolicy) {
   });
 }
 </script>
-<script setup>
+<script lang="ts" setup>
 import { useStore } from "vuex";
 import { computed } from "vue";
 import AnsiConvertor from "ansi-to-html";

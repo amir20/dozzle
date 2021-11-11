@@ -15,7 +15,7 @@
         <div class="media">
           <div class="media-left">
             <span class="icon is-small" :class="props.option.state">
-              <container-icon />
+              <octicon-container-24 />
             </span>
           </div>
           <div class="media-content">
@@ -23,7 +23,7 @@
           </div>
           <div class="media-right">
             <span class="icon is-small column-icon" @click.stop.prevent="addColumn(props.option)" title="Pin as column">
-              <columns-icon />
+              <cil-columns />
             </span>
           </div>
         </div>
@@ -35,9 +35,6 @@
 <script lang="ts">
 import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
-
-import ContainerIcon from "~icons/octicon/container-24";
-import ColumnsIcon from "~icons/cil/columns";
 
 export default {
   props: {
@@ -52,10 +49,7 @@ export default {
     };
   },
   name: "FuzzySearchModal",
-  components: {
-    ContainerIcon,
-    ColumnsIcon,
-  },
+
   mounted() {
     this.$nextTick(() => this.$refs.autocomplete.focus());
   },

@@ -33,10 +33,10 @@
       v-if="!isMobile && !authorizationNeeded"
     >
       <span class="icon ml-2" v-if="collapseNav">
-        <chevron-right-icon />
+        <mdi-light-chevron-right />
       </span>
       <span class="icon" v-else>
-        <chevron-left-icon />
+        <mdi-light-chevron-left />
       </span>
     </button>
   </main>
@@ -48,16 +48,13 @@ import { Splitpanes, Pane } from "splitpanes";
 
 import hotkeys from "hotkeys-js";
 
-import ChevronLeftIcon from "~icons/mdi-light/chevron-left";
-import ChevronRightIcon from "~icons/mdi-light/chevron-right";
+import FuzzySearchModal from "./components/FuzzySearchModal.vue";
 
 export default {
   name: "App",
   components: {
     Splitpanes,
     Pane,
-    ChevronLeftIcon,
-    ChevronRightIcon,
   },
   data() {
     return {

@@ -15,14 +15,14 @@
           title="Search containers (⌘ + k, ⌃k)"
         >
           <span class="icon">
-            <search-icon />
+            <mdi-light-magnify />
           </span>
         </button>
       </div>
       <div class="column is-narrow has-text-right px-0">
         <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-settings-control">
           <span class="icon">
-            <settings-icon />
+            <mdi-light-cog />
           </span>
         </router-link>
       </div>
@@ -46,7 +46,7 @@
                 v-show="!activeContainersById[item.id]"
                 title="Pin as column"
               >
-                <columns-icon />
+                <cil-columns />
               </span>
             </div>
           </div>
@@ -56,21 +56,13 @@
   </aside>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from "vuex";
-
-import SearchIcon from "~icons/mdi-light/magnify";
-import SettingsIcon from "~icons/mdi-light/cog";
-import ColumnsIcon from "~icons/cil/columns";
 
 export default {
   props: [],
   name: "SideMenu",
-  components: {
-    SearchIcon,
-    SettingsIcon,
-    ColumnsIcon,
-  },
+
   data() {
     return {};
   },

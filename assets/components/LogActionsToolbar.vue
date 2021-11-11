@@ -3,7 +3,7 @@
     <div class="is-flex">
       <o-tooltip type="is-dark" label="Clear">
         <a @click="onClearClicked" class="button is-small is-light is-inverted pl-1 pr-1" id="clear">
-          <clear-icon />
+          <octicon-trash-24 />
         </a>
       </o-tooltip>
       <div class="is-flex-grow-1"></div>
@@ -14,19 +14,17 @@
           :href="`${base}/api/logs/download?id=${container.id}`"
           download
         >
-          <download-icon />
+          <octicon-download-24 />
         </a>
       </o-tooltip>
     </div>
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
 import { onMounted } from "vue";
-import DownloadIcon from "~icons/octicon/download-24";
-import ClearIcon from "~icons/octicon/trash-24";
 
 const props = defineProps({
   onClearClicked: {

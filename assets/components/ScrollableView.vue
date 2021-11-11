@@ -14,17 +14,14 @@
     <div class="is-scrollbar-notification">
       <transition name="fade">
         <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
-          <chevron-double-down-icon />
+          <mdi-light-chevron-double-down />
         </button>
       </transition>
     </div>
   </section>
 </template>
 
-<script>
-import ChevronDoubleDownIcon from "~icons/mdi-light/chevron-double-down";
-import ScrollProgress from "./ScrollProgress.vue";
-
+<script lang="ts">
 export default {
   props: {
     scrollable: {
@@ -32,10 +29,7 @@ export default {
       default: true,
     },
   },
-  components: {
-    ScrollProgress,
-    ChevronDoubleDownIcon,
-  },
+
   name: "ScrollableView",
   data() {
     return {

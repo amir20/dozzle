@@ -5,12 +5,10 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { onUnmounted, ref, toRefs, watch } from "vue";
 import debounce from "lodash.debounce";
-import InfiniteLoader from "@/components/InfiniteLoader.vue";
 import config from "../store/config";
-import containerMixin from "./mixins/container";
 import useContainer from "../composables/container";
 
 const props = defineProps({
