@@ -35,7 +35,7 @@ const store = createStore({
 
       state.containers = containers;
     },
-    ADD_ACTIVE_CONTAINERS(state, { id }) {
+    ADD_ACTIVE_CONTAINERS(state, { id  }) {
       state.activeContainerIds.push(id);
     },
     REMOVE_ACTIVE_CONTAINER(state, { id }) {

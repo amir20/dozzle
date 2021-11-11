@@ -1,4 +1,6 @@
-const config = JSON.parse(document.querySelector("script#config__json").textContent);
+const text = document.querySelector("script#config__json")?.textContent || "{}";
+
+const config = JSON.parse(text);
 if (config.version == "{{ .Version }}") {
   config.version = "master";
   config.base = "";
@@ -9,5 +11,4 @@ if (config.version == "{{ .Version }}") {
   config.authorizationNeeded = config.authorizationNeeded === "true";
   config.secured = config.secured === "true";
 }
-
 export default config;
