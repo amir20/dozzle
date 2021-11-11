@@ -22,6 +22,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
+    "@iconify-json/carbon": "^1.0.9",
     "@iconify-json/cil": "^1.0.1",
     "@iconify-json/mdi-light": "^1.0.1",
     "@iconify-json/octicon": "^1.0.5",
@@ -61,7 +62,8 @@
     "lint-staged": "^11.2.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
-    "release-it": "^14.11.6"
+    "release-it": "^14.11.6",
+    "typescript": "^4.4.4"
   },
   "lint-staged": {
     "*.{js,vue,css}": [

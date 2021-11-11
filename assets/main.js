@@ -2,7 +2,7 @@ import "./styles.scss";
 
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { Autocomplete, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
+import { Autocomplete, Dropdown, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
 import { bulmaConfig } from "@oruga-ui/theme-bulma";
 import Meta from "vue-meta";
 import store from "./store";
@@ -57,6 +57,7 @@ createApp(App)
   .use(router)
   .use(store)
   .use(Autocomplete)
+  .use(Dropdown)
   .use(Switch)
   .use(Tooltip)
   .use(Modal)

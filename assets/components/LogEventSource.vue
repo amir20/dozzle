@@ -8,9 +8,10 @@
 <script setup>
 import { onUnmounted, ref, toRefs, watch } from "vue";
 import debounce from "lodash.debounce";
-import InfiniteLoader from "./InfiniteLoader.vue";
+import InfiniteLoader from "@/components/InfiniteLoader.vue";
 import config from "../store/config";
 import containerMixin from "./mixins/container";
+import useContainer from "../composables/container";
 
 const props = defineProps({
   id: String,
@@ -54,8 +55,10 @@ function connect() {
   es.addEventListener("error", (e) => console.error("EventSource failed: " + JSON.stringify(e)));
   es.onmessage = (e) => {
     lastEventId = e.lastEventId;
-    buffer.value.push(parseMessage(e.data));
-    flushBuffer();
+    if (e.data) {
+      buffer.value.push(parseMessage(e.data));
+      flushBuffer();
+    }
   };
 }
 
@@ -91,18 +94,23 @@ function parseMessage(data) {
   return { key, date, message };
 }
 
-// TODO
-function onContainerStateChange(newValue, oldValue) {
-  if (newValue == "running" && newValue != oldValue) {
-    buffer.push({
-      event: "container-started",
-      message: "Container started",
-      date: new Date(),
-      key: new Date(),
-    });
-    connect();
+const { container } = useContainer(id);
+
+watch(
+  () => container,
+  (newValue, oldValue) => {
+    console.log("LogEventSource: container changed", newValue, oldValue);
+    if (newValue == "running" && newValue != oldValue) {
+      buffer.push({
+        event: "container-started",
+        message: "Container started",
+        date: new Date(),
+        key: new Date(),
+      });
+      connect();
+    }
   }
-}
+);
 
 onUnmounted(() => {
   if (es) {

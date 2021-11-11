@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/plugin-transform-runtime': ^7.16.0
   '@babel/preset-env': ^7.16.0
+  '@iconify-json/carbon': ^1.0.9
   '@iconify-json/cil': ^1.0.1
   '@iconify-json/mdi-light': ^1.0.1
   '@iconify-json/octicon': ^1.0.5
@@ -33,6 +34,7 @@ specifiers:
   semver: ^7.3.5
   splitpanes: ^3.0.6
   store: ^2.0.12
+  typescript: ^4.4.4
   unplugin-icons: ^0.12.18
   vite: ^2.6.13
   vue: ^3.2.21
@@ -41,6 +43,7 @@ specifiers:
   vuex: ^4.0.2
 
 dependencies:
+  '@iconify-json/carbon': 1.0.9
   '@iconify-json/cil': 1.0.1
   '@iconify-json/mdi-light': 1.0.1
   '@iconify-json/octicon': 1.0.5
@@ -73,7 +76,7 @@ devDependencies:
   '@babel/preset-env': 7.16.0
   '@vue/compiler-sfc': 3.2.21
   '@vue/test-utils': 2.0.0-rc.16_vue@3.2.21
-  '@vue/vue3-jest': 27.0.0-alpha.3_jest@27.3.1+vue@3.2.21
+  '@vue/vue3-jest': 27.0.0-alpha.3_55e170d4c3c324e7ae0c92e399207821
   husky: 7.0.4
   jest: 27.3.1
   jest-serializer-vue: 2.0.2
@@ -81,6 +84,7 @@ devDependencies:
   npm-run-all: 4.1.5
   prettier: 2.4.1
   release-it: 14.11.6
+  typescript: 4.4.4
 
 packages:
 
@@ -1303,6 +1307,12 @@ packages:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
     dev: true
 
+  /@iconify-json/carbon/1.0.9:
+    resolution: {integrity: sha512-ZId8OBOIM8/nA+6NrpxgAWhNfVPY+hT+VlmVhZEXqwZoAkVS4ygB0bCBoanVV6OHA5wONc9hr6UnUQ990paQLA==}
+    dependencies:
+      '@iconify/types': 1.0.10
+    dev: false
+
   /@iconify-json/cil/1.0.1:
     resolution: {integrity: sha512-gLk0c25zSBtKKJWrGXVfQITeIdmvlSOiO/cKTVTQPG3W4qKh8V/wL3Fltb4j4iMPJgRVXylPPwKSwXbIDBDgZA==}
     dependencies:
@@ -1925,7 +1935,7 @@ packages:
       vue: 3.2.21
     dev: true
 
-  /@vue/vue3-jest/27.0.0-alpha.3_jest@27.3.1+vue@3.2.21:
+  /@vue/vue3-jest/27.0.0-alpha.3_55e170d4c3c324e7ae0c92e399207821:
     resolution: {integrity: sha512-q6Ij39J/qPMkMHhttq0r4Yx/leaN1rMnUrwicLwad9YuVO6sPAbiaiUa+A5jbcHcHGMhXcJ69oGIf4dj7oGidg==}
     peerDependencies:
       '@babel/core': 7.x
@@ -1947,6 +1957,7 @@ packages:
       jest: 27.3.1
       source-map: 0.5.6
       tsconfig: 7.0.0
+      typescript: 4.4.4
       vue: 3.2.21
     transitivePeerDependencies:
       - supports-color
@@ -5992,6 +6003,12 @@ packages:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
     dependencies:
       is-typedarray: 1.0.0
+    dev: true
+
+  /typescript/4.4.4:
+    resolution: {integrity: sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
     dev: true
 
   /unbox-primitive/1.0.1:

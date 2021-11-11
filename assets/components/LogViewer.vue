@@ -18,7 +18,6 @@ if (window.trustedTypes && trustedTypes.createPolicy) {
 import { useStore } from "vuex";
 import { computed } from "vue";
 import AnsiConvertor from "ansi-to-html";
-
 import RelativeTime from "./RelativeTime.vue";
 
 const props = defineProps({

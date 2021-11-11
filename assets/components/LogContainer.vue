@@ -8,9 +8,23 @@
         <div class="column is-narrow is-paddingless">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-narrow is-paddingless" v-if="closable">
+        <div class="column is-narrow is-paddingless mr-2" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
+        <!-- <div class="column is-narrow is-paddingless mr-2">
+          <o-dropdown aria-role="list" position="bottom-left">
+            <template v-slot:trigger>
+              <span class="btn">
+                <span class="icon">
+                  <menu-icon />
+                </span>
+              </span>
+            </template>
+
+            <o-dropdown-item aria-role="listitem"> Clear </o-dropdown-item>
+            <o-dropdown-item aria-role="listitem">Download</o-dropdown-item>
+          </o-dropdown>
+        </div> -->
       </div>
       <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
@@ -26,6 +40,7 @@ import LogActionsToolbar from "./LogActionsToolbar.vue";
 import ScrollableView from "./ScrollableView.vue";
 import ContainerTitle from "./ContainerTitle.vue";
 import ContainerStat from "./ContainerStat.vue";
+import MenuIcon from "~icons/carbon/overflow-menu-vertical";
 import containerMixin from "./mixins/container";
 
 export default {
@@ -53,6 +68,7 @@ export default {
     LogActionsToolbar,
     ScrollableView,
     ContainerTitle,
+    MenuIcon,
     ContainerStat,
   },
   methods: {
