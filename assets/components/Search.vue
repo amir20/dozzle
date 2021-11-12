@@ -11,7 +11,7 @@
           @keyup.esc="resetSearch()"
         />
         <span class="icon is-left">
-          <search-icon />
+          <mdi-light-magnify />
         </span>
       </p>
     </div>
@@ -24,14 +24,10 @@
 <script lang="ts">
 import { mapActions, mapState } from "vuex";
 import hotkeys from "hotkeys-js";
-import SearchIcon from "~icons/mdi-light/magnify";
 
 export default {
   props: [],
   name: "Search",
-  components: {
-    SearchIcon,
-  },
   data() {
     return {
       showSearch: false,

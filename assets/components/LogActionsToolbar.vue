@@ -1,15 +1,15 @@
 <template>
-  <div class="toolbar mr-0 is-vcentered is-hidden-mobile">
+  <div class="mr-0 toolbar is-vcentered is-hidden-mobile">
     <div class="is-flex">
       <o-tooltip type="is-dark" label="Clear">
-        <a @click="onClearClicked" class="button is-small is-light is-inverted pl-1 pr-1" id="clear">
+        <a @click="onClearClicked" class="pl-1 pr-1 button is-small is-light is-inverted" id="clear">
           <octicon-trash-24 />
         </a>
       </o-tooltip>
       <div class="is-flex-grow-1"></div>
       <o-tooltip type="is-dark" label="Download">
         <a
-          class="button is-small is-light is-inverted pl-1 pr-1"
+          class="pl-1 pr-1 button is-small is-light is-inverted"
           id="download"
           :href="`${base}/api/logs/download?id=${container.id}`"
           download
@@ -24,7 +24,6 @@
 <script lang="ts" setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
-import { onMounted } from "vue";
 
 const props = defineProps({
   onClearClicked: {
@@ -38,6 +37,7 @@ const props = defineProps({
 
 const { base } = config;
 
+//todo - add hotkey for unmounting
 onMounted(() => {
   hotkeys("shift+command+l, shift+ctrl+l", (event, handler) => {
     props.onClearClicked();

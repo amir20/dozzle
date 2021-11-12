@@ -8,15 +8,15 @@
         <div class="column is-narrow is-paddingless">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-narrow is-paddingless mr-2" v-if="closable">
+        <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
-        <!-- <div class="column is-narrow is-paddingless mr-2">
+        <!-- <div class="mr-2 column is-narrow is-paddingless">
           <o-dropdown aria-role="list" position="bottom-left">
             <template v-slot:trigger>
               <span class="btn">
                 <span class="icon">
-                  <menu-icon />
+                  <carbon-verflow-menu-vertical />
                 </span>
               </span>
             </template>
@@ -29,18 +29,12 @@
       <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
     <template v-slot="{ setLoading }">
-      <log-viewer-with-source ref="logViewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
+      <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
     </template>
   </scrollable-view>
 </template>
 
 <script lang="ts">
-import LogViewerWithSource from "./LogViewerWithSource.vue";
-import LogActionsToolbar from "./LogActionsToolbar.vue";
-import ScrollableView from "./ScrollableView.vue";
-import ContainerTitle from "./ContainerTitle.vue";
-import ContainerStat from "./ContainerStat.vue";
-import MenuIcon from "~icons/carbon/overflow-menu-vertical";
 import containerMixin from "./mixins/container";
 
 export default {
@@ -63,17 +57,10 @@ export default {
     },
   },
   name: "LogContainer",
-  components: {
-    LogViewerWithSource,
-    LogActionsToolbar,
-    ScrollableView,
-    ContainerTitle,
-    MenuIcon,
-    ContainerStat,
-  },
+
   methods: {
     onClearClicked() {
-      this.$refs.logViewer.clear();
+      this.$refs.viewer.clear();
     },
   },
 };

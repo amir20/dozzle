@@ -9,15 +9,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, nextTick } from "vue";
-
 const props = defineProps({
   onLoadMore: Function,
   enabled: Boolean,
 });
 
 const isLoading = ref(false);
-const root = ref(null);
+const root = ref<HTMLElement>();
 
 const observer = new IntersectionObserver(
   async (entries) => {
@@ -32,7 +30,7 @@ const observer = new IntersectionObserver(
       scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;
     }
   },
-  { threshholds: 1 }
+  { threshold: 1 }
 );
 
 onMounted(() => observer.observe(root.value));
