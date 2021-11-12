@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   onClearClicked: {
@@ -38,13 +38,13 @@ const props = defineProps({
 
 const { base } = config;
 
-//todo - add hotkey for unmounting
-onMounted(() => {
-  hotkeys("shift+command+l, shift+ctrl+l", (event, handler) => {
-    props.onClearClicked();
-    event.preventDefault();
-  });
-});
+const onHotkey = (event: Event) => {
+  props.onClearClicked();
+  event.preventDefault();
+};
+
+onMounted(() => hotkeys("shift+command+l, shift+ctrl+l", onHotkey));
+onUnmounted(() => hotkeys.unbind("shift+command+l, shift+ctrl+l", onHotkey));
 </script>
 
 <style lang="scss" scoped>
