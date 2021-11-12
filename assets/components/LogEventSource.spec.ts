@@ -4,6 +4,7 @@ import EventSource, { sources } from "eventsourcemock";
 import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
+import { mocked } from "ts-jest/utils";
 
 jest.mock("lodash.debounce", () =>
   jest.fn((fn) => {
@@ -12,22 +13,24 @@ jest.mock("lodash.debounce", () =>
   })
 );
 
-jest.mock("../store/config.js", () => ({ base: "" }));
+jest.mock("../store/config.ts", () => ({ base: "" }));
 
 describe("<LogEventSource />", () => {
   beforeEach(() => {
     global.EventSource = EventSource;
     window.scrollTo = jest.fn();
-    const observe = jest.fn();
-    const disconnect = jest.fn();
-    global.IntersectionObserver = jest.fn(() => ({
-      observe,
-      disconnect,
+    global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
     }));
-    debounce.mockClear();
+
+    mocked(debounce).mockClear();
   });
 
-  function createLogEventSource({ hourStyle = "auto", searchFilter = null } = {}) {
+  function createLogEventSource({
+    hourStyle = "auto",
+    searchFilter = null,
+  }: { hourStyle?: string; searchFilter?: string | null } = {}) {
     const store = createStore({
       state: { searchFilter, settings: { size: "medium", showTimestamp: true, hourStyle } },
       getters: {
@@ -134,7 +137,8 @@ describe("<LogEventSource />", () => {
     const RealDate = Date;
     beforeAll(() => {
       global.Date = class extends RealDate {
-        constructor(arg) {
+        constructor(arg: any | number) {
+          super(arg);
           if (arg) {
             return new RealDate(arg);
           } else {

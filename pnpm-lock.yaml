@@ -9,6 +9,9 @@ specifiers:
   '@iconify-json/octicon': ^1.0.5
   '@oruga-ui/oruga-next': ^0.4.7
   '@oruga-ui/theme-bulma': ^0.1.3
+  '@types/eventsource': ^1.1.7
+  '@types/jest': ^27.0.2
+  '@types/lodash.debounce': ^4.0.6
   '@vitejs/plugin-vue': ^1.9.4
   '@vue/compiler-sfc': ^3.2.21
   '@vue/test-utils': ^2.0.0-rc.16
@@ -34,6 +37,7 @@ specifiers:
   semver: ^7.3.5
   splitpanes: ^3.0.6
   store: ^2.0.12
+  ts-jest: ^27.0.7
   typescript: ^4.4.4
   unplugin-auto-import: ^0.4.14
   unplugin-icons: ^0.12.18
@@ -78,9 +82,12 @@ devDependencies:
   '@babel/plugin-transform-runtime': 7.16.0
   '@babel/preset-env': 7.16.0
   '@iconify-json/carbon': 1.0.9
+  '@types/eventsource': 1.1.7
+  '@types/jest': 27.0.2
+  '@types/lodash.debounce': 4.0.6
   '@vue/compiler-sfc': 3.2.21
   '@vue/test-utils': 2.0.0-rc.16_vue@3.2.21
-  '@vue/vue3-jest': 27.0.0-alpha.3_55e170d4c3c324e7ae0c92e399207821
+  '@vue/vue3-jest': 27.0.0-alpha.3_69a6d863d74d77399adee4a1f3a8f929
   husky: 7.0.4
   jest: 27.3.1
   jest-serializer-vue: 2.0.2
@@ -88,6 +95,7 @@ devDependencies:
   npm-run-all: 4.1.5
   prettier: 2.4.1
   release-it: 14.11.6
+  ts-jest: 27.0.7_2c4ca6574207836d1023f54689cc81ac
   typescript: 4.4.4
 
 packages:
@@ -1769,6 +1777,10 @@ packages:
       '@types/responselike': 1.0.0
     dev: true
 
+  /@types/eventsource/1.1.7:
+    resolution: {integrity: sha512-ac36T7U0sz2+vrYT3oTU4x0dnNOZcI2rmUFfSA8pIpXKYPNGHMZs8KzJ+WuF6aPRQu8RAvGgnoLUWMXhC7Widw==}
+    dev: true
+
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
     dependencies:
@@ -1795,10 +1807,27 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
+  /@types/jest/27.0.2:
+    resolution: {integrity: sha512-4dRxkS/AFX0c5XW6IPMNOydLn2tEhNhJV7DnYK+0bjoJZ+QTmfucBlihX7aoEsh/ocYtkLC73UbnBXBXIxsULA==}
+    dependencies:
+      jest-diff: 27.3.1
+      pretty-format: 27.3.1
+    dev: true
+
   /@types/keyv/3.1.3:
     resolution: {integrity: sha512-FXCJgyyN3ivVgRoml4h94G/p3kY+u/B86La+QptcqJaWtBWtmc6TtkNfS40n9bIvyLteHh7zXOtgbobORKPbDg==}
     dependencies:
       '@types/node': 16.11.6
+    dev: true
+
+  /@types/lodash.debounce/4.0.6:
+    resolution: {integrity: sha512-4WTmnnhCfDvvuLMaF3KV4Qfki93KebocUF45msxhYyjMttZDQYzHkO639ohhk8+oco2cluAFL3t5+Jn4mleylQ==}
+    dependencies:
+      '@types/lodash': 4.14.176
+    dev: true
+
+  /@types/lodash/4.14.176:
+    resolution: {integrity: sha512-xZmuPTa3rlZoIbtDUyJKZQimJV3bxCmzMIO2c9Pz9afyDro6kr7R79GwcB6mRhuoPmV2p1Vb66WOJH7F886WKQ==}
     dev: true
 
   /@types/node/16.11.6:
@@ -1943,7 +1972,7 @@ packages:
       vue: 3.2.21
     dev: true
 
-  /@vue/vue3-jest/27.0.0-alpha.3_55e170d4c3c324e7ae0c92e399207821:
+  /@vue/vue3-jest/27.0.0-alpha.3_69a6d863d74d77399adee4a1f3a8f929:
     resolution: {integrity: sha512-q6Ij39J/qPMkMHhttq0r4Yx/leaN1rMnUrwicLwad9YuVO6sPAbiaiUa+A5jbcHcHGMhXcJ69oGIf4dj7oGidg==}
     peerDependencies:
       '@babel/core': 7.x
@@ -1964,6 +1993,7 @@ packages:
       extract-from-css: 0.4.4
       jest: 27.3.1
       source-map: 0.5.6
+      ts-jest: 27.0.7_2c4ca6574207836d1023f54689cc81ac
       tsconfig: 7.0.0
       typescript: 4.4.4
       vue: 3.2.21
@@ -2312,6 +2342,13 @@ packages:
       escalade: 3.1.1
       node-releases: 2.0.1
       picocolors: 1.0.0
+    dev: true
+
+  /bs-logger/0.2.6:
+    resolution: {integrity: sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==}
+    engines: {node: '>= 6'}
+    dependencies:
+      fast-json-stable-stringify: 2.1.0
     dev: true
 
   /bser/2.1.1:
@@ -4656,6 +4693,10 @@ packages:
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha1-gteb/zCmfEAF/9XiUVMArZyk168=}
 
+  /lodash.memoize/4.1.2:
+    resolution: {integrity: sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=}
+    dev: true
+
   /lodash.throttle/4.1.1:
     resolution: {integrity: sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=}
     dev: false
@@ -4720,6 +4761,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       semver: 6.3.0
+    dev: true
+
+  /make-error/1.3.6:
+    resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: true
 
   /makeerror/1.0.12:
@@ -5956,6 +6001,37 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       punycode: 2.1.1
+    dev: true
+
+  /ts-jest/27.0.7_2c4ca6574207836d1023f54689cc81ac:
+    resolution: {integrity: sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==}
+    engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: '>=27.0.0 <28'
+      jest: ^27.0.0
+      typescript: '>=3.8 <5.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+    dependencies:
+      '@types/jest': 27.0.2
+      bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 27.3.1
+      jest-util: 27.3.1
+      json5: 2.2.0
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.3.5
+      typescript: 4.4.4
+      yargs-parser: 20.2.9
     dev: true
 
   /tsconfig/7.0.0:

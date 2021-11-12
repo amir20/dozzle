@@ -1,9 +1,9 @@
 import EventSource from "eventsourcemock";
 import { shallowMount, RouterLinkStub } from "@vue/test-utils";
-import { createStore } from "vuex";
-import App from "./App";
+import { createStore, Store } from "vuex";
+import App from "./App.vue";
 
-jest.mock("./store/config.js", () => ({ base: "" }));
+jest.mock("./store/config.ts", () => ({ base: "" }));
 
 jest.mock("~icons/octicon/download-24", () => {}, { virtual: true });
 jest.mock("~icons/octicon/trash-24", () => {}, { virtual: true });
@@ -22,7 +22,13 @@ describe("<App />", () => {
     "chevron-left-icon": true,
     "chevron-right-icon": true,
   };
-  let store;
+
+  let store: Store<State>;
+
+  interface State {
+    settings: { menuWidth: number };
+    containers: { id: string; name: string }[];
+  }
 
   beforeEach(() => {
     global.EventSource = EventSource;
@@ -32,7 +38,7 @@ describe("<App />", () => {
     };
 
     const getters = {
-      visibleContainers(store) {
+      visibleContainers(store: State): { id: string; name: string }[] {
         return store.containers;
       },
       activeContainers() {
