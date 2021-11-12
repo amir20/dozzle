@@ -57,15 +57,17 @@ import MobileMenu from "./components/MobileMenu.vue";
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const store = useStore();
-const { lightTheme, smallerScrollbars, menuWidth } = toRefs(store.state.settings);
+const { menuWidth } = toRefs(store.state.settings);
 const { isMobile, containers, authorizationNeeded } = toRefs(store.state);
 const activeContainers = computed(() => store.getters.activeContainers);
+const lightTheme = computed(() => store.state.settings.lightTheme);
+const smallerScrollbars = computed(() => store.state.settings.smallerScrollbars);
 
 onMounted(() => {
   if (smallerScrollbars.value) {
     document.documentElement.classList.add("has-custom-scrollbars");
   }
-  if (lightTheme.light) {
+  if (lightTheme.value) {
     document.documentElement.setAttribute("data-theme", "light");
   }
 
@@ -91,7 +93,7 @@ watchEffect(() => {
 
 function showFuzzySearch() {
   oruga.modal.open({
-    parent: this,
+    // parent: this,
     component: FuzzySearchModal,
     animation: "false",
     width: 600,
