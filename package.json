@@ -55,7 +55,6 @@
     "@babel/plugin-transform-runtime": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
     "@iconify-json/carbon": "^1.0.9",
-    "@types/eventsource": "^1.1.7",
     "@types/jest": "^27.0.2",
     "@types/lodash.debounce": "^4.0.6",
     "@vue/compiler-sfc": "^3.2.21",

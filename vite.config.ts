@@ -4,7 +4,6 @@ import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import IconsResolver from "unplugin-icons/resolver";
-import AutoImport from "unplugin-auto-import/vite";
 
 export default defineConfig({
   resolve: {
@@ -16,16 +15,6 @@ export default defineConfig({
     vue(),
     Icons({
       autoInstall: true,
-    }),
-    AutoImport({
-      imports: [
-        "vue",
-        "vue-router",
-        // 'vue-i18n',
-        // '@vueuse/head',
-        // '@vueuse/core',
-      ],
-      dts: "assets/auto-imports.d.ts",
     }),
     Components({
       dirs: ["assets/components"],

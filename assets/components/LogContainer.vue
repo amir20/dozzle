@@ -34,36 +34,35 @@
   </scrollable-view>
 </template>
 
-<script lang="ts">
-import containerMixin from "./mixins/container";
+<script lang="ts" setup>
+import { ref, toRefs } from "vue";
+import useContainer from "../composables/container";
 
-export default {
-  mixins: [containerMixin],
-  props: {
-    id: {
-      type: String,
-    },
-    showTitle: {
-      type: Boolean,
-      default: false,
-    },
-    scrollable: {
-      type: Boolean,
-      default: false,
-    },
-    closable: {
-      type: Boolean,
-      default: false,
-    },
+const props = defineProps({
+  id: {
+    type: String,
   },
-  name: "LogContainer",
+  showTitle: {
+    type: Boolean,
+    default: false,
+  },
+  scrollable: {
+    type: Boolean,
+    default: false,
+  },
+  closable: {
+    type: Boolean,
+    default: false,
+  },
+});
+const { id } = toRefs(props);
+const { container } = useContainer(id);
 
-  methods: {
-    onClearClicked() {
-      this.$refs.viewer.clear();
-    },
-  },
-};
+const viewer = ref<HTMLElement>();
+
+function onClearClicked() {
+  viewer.value?.clear();
+}
 </script>
 <style lang="scss" scoped>
 button.delete {

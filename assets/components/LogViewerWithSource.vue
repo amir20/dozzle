@@ -5,13 +5,14 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 defineProps({
   id: String,
 });
 
 const source = ref(null);
 function clear() {
-  source.value.clear();
+  source.value?.clear();
 }
 defineExpose({
   clear,

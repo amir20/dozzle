@@ -3,7 +3,7 @@
     <mobile-menu v-if="isMobile && !authorizationNeeded"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">
+      <pane min-size="10" :size="menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">
         <side-menu @search="showFuzzySearch"></side-menu>
       </pane>
       <pane min-size="10">
@@ -18,7 +18,7 @@
                 show-title
                 scrollable
                 closable
-                @close="removeActiveContainer(other)"
+                @close="store.dispatch('REMOVE_ACTIVE_CONTAINER', other)"
               ></log-container>
             </pane>
           </template>
@@ -42,96 +42,68 @@
   </main>
 </template>
 
-<script lang="ts">
-import { mapActions, mapGetters, mapState } from "vuex";
+<script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-
+import { ref, onMounted, watchEffect, toRefs, computed } from "vue";
+import { useStore } from "vuex";
+import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
 
 import FuzzySearchModal from "./components/FuzzySearchModal.vue";
+import LogContainer from "./components/LogContainer.vue";
+import SideMenu from "./components/SideMenu.vue";
+import MobileMenu from "./components/MobileMenu.vue";
 
-export default {
-  name: "App",
-  components: {
-    Splitpanes,
-    Pane,
-  },
-  data() {
-    return {
-      title: "",
-      collapseNav: false,
-    };
-  },
-  metaInfo() {
-    return {
-      title: this.title,
-      titleTemplate: "%s - Dozzle",
-    };
-  },
-  mounted() {
-    if (this.hasSmallerScrollbars) {
-      document.documentElement.classList.add("has-custom-scrollbars");
-    }
-    if (this.hasLightTheme) {
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-    this.menuWidth = this.settings.menuWidth;
-    hotkeys("command+k, ctrl+k", (event, handler) => {
-      event.preventDefault();
-      this.showFuzzySearch();
-    });
-  },
-  watch: {
-    hasSmallerScrollbars(newValue, oldValue) {
-      if (newValue) {
-        document.documentElement.classList.add("has-custom-scrollbars");
-      } else {
-        document.documentElement.classList.remove("has-custom-scrollbars");
-      }
-    },
-    hasLightTheme(newValue, oldValue) {
-      if (newValue) {
-        document.documentElement.setAttribute("data-theme", "light");
-      } else {
-        document.documentElement.removeAttribute("data-theme");
-      }
-    },
-    visibleContainers() {
-      this.title = `${this.visibleContainers.length} containers`;
-    },
-  },
-  computed: {
-    ...mapState(["isMobile", "settings", "containers", "authorizationNeeded"]),
-    ...mapGetters(["visibleContainers", "activeContainers"]),
-    hasSmallerScrollbars() {
-      return this.settings.smallerScrollbars;
-    },
-    hasLightTheme() {
-      return this.settings.lightTheme;
-    },
-  },
-  methods: {
-    ...mapActions({
-      removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
-      updateSetting: "UPDATE_SETTING",
-    }),
-    onResized(e) {
-      if (e.length == 2) {
-        const menuWidth = e[0].size;
-        this.updateSetting({ menuWidth });
-      }
-    },
-    showFuzzySearch() {
-      this.$oruga.modal.open({
-        parent: this,
-        component: FuzzySearchModal,
-        animation: "false",
-        width: 600,
-        active: true,
-      });
-    },
-  },
-};
+const collapseNav = ref(false);
+const { oruga } = useProgrammatic();
+const store = useStore();
+const { lightTheme, smallerScrollbars, menuWidth } = toRefs(store.state.settings);
+const { isMobile, containers, authorizationNeeded } = toRefs(store.state);
+const activeContainers = computed(() => store.getters.activeContainers);
+
+onMounted(() => {
+  if (smallerScrollbars.value) {
+    document.documentElement.classList.add("has-custom-scrollbars");
+  }
+  if (lightTheme.light) {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+
+  hotkeys("command+k, ctrl+k", (event, handler) => {
+    event.preventDefault();
+    showFuzzySearch();
+  });
+});
+
+watchEffect(() => {
+  if (smallerScrollbars.value) {
+    document.documentElement.classList.add("has-custom-scrollbars");
+  } else {
+    document.documentElement.classList.remove("has-custom-scrollbars");
+  }
+
+  if (lightTheme.value) {
+    document.documentElement.setAttribute("data-theme", "light");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+});
+
+function showFuzzySearch() {
+  oruga.modal.open({
+    parent: this,
+    component: FuzzySearchModal,
+    animation: "false",
+    width: 600,
+    active: true,
+  });
+}
+function onResized(e) {
+  if (e.length == 2) {
+    const menuWidth = e[0].size;
+    store.dispatch("UPDATE_SETTING", { menuWidth });
+  }
+}
 </script>
 
 <style scoped lang="scss">

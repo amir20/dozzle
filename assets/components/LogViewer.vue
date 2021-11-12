@@ -15,7 +15,11 @@ if (window.trustedTypes && trustedTypes.createPolicy) {
 }
 </script>
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useStore } from "vuex";
+
+import RelativeTime from "./RelativeTime.vue";
+
 import AnsiConvertor from "ansi-to-html";
 
 const props = defineProps({

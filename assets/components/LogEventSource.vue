@@ -6,7 +6,11 @@
 </template>
 
 <script lang="ts" setup>
+import { toRefs, ref, watch, onUnmounted } from "vue";
 import debounce from "lodash.debounce";
+
+import InfiniteLoader from "./InfiniteLoader.vue";
+
 import config from "../store/config";
 import useContainer from "../composables/container";
 
@@ -18,8 +22,15 @@ const { id } = toRefs(props);
 
 const emit = defineEmits(["loading-more"]);
 
-const messages = ref([]);
-const buffer = ref([]);
+interface LogEntry {
+  date: Date;
+  message: String;
+  key: String;
+  event?: String;
+}
+
+const messages = ref<LogEntry[]>([]);
+const buffer = ref<LogEntry[]>([]);
 
 function flushNow() {
   messages.value.push(...buffer.value);
@@ -28,7 +39,7 @@ function flushNow() {
 
 const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
 
-let es = null;
+let es: EventSource | null = null;
 let lastEventId = null;
 
 function connect() {
@@ -80,7 +91,7 @@ async function loadOlderLogs() {
   emit("loading-more", false);
 }
 
-function parseMessage(data) {
+function parseMessage(data: String): LogEntry {
   let i = data.indexOf(" ");
   if (i == -1) {
     i = data.length;
@@ -94,15 +105,15 @@ function parseMessage(data) {
 const { container } = useContainer(id);
 
 watch(
-  () => container,
+  () => container.value.state,
   (newValue, oldValue) => {
     console.log("LogEventSource: container changed", newValue, oldValue);
     if (newValue == "running" && newValue != oldValue) {
-      buffer.push({
+      buffer.value.push({
         event: "container-started",
         message: "Container started",
         date: new Date(),
-        key: new Date(),
+        key: new Date().toString(),
       });
       connect();
     }

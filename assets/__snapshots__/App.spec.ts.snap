@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App /> renders correctly 1`] = `
+"<main>
+  <!--v-if-->
+  <splitpanes-stub horizontal=\\"false\\" pushotherpanes=\\"true\\" dblclicksplitter=\\"true\\" rtl=\\"false\\" firstsplitter=\\"false\\"></splitpanes-stub><button class=\\"button is-rounded is-settings-control\\" id=\\"hide-nav\\"><span class=\\"icon\\"><mdi-light-chevron-left></mdi-light-chevron-left></span></button>
+</main>"
+`;

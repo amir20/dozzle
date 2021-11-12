@@ -24,6 +24,7 @@
 <script lang="ts" setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
+import { onMounted } from "vue";
 
 const props = defineProps({
   onClearClicked: {
