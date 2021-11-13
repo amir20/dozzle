@@ -10,7 +10,7 @@ COPY pnpm-lock.yaml ./
 RUN pnpm fetch --prod
 
 # Copy files
-COPY package.json .* vite.config.js index.html ./
+COPY package.json .* vite.config.ts index.html ./
 
 # Copy assets to build
 COPY assets ./assets

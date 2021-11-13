@@ -54,7 +54,7 @@ function connect() {
 
   es = new EventSource(`${config.base}/api/logs/stream?id=${props.id}&lastEventId=${lastEventId ?? ""}`);
   es.addEventListener("container-stopped", () => {
-    es.close();
+    es?.close();
     es = null;
     buffer.value.push({ event: "container-stopped", message: "Container stopped", date: new Date(), key: new Date() });
     flushBuffer();
@@ -79,7 +79,7 @@ async function loadOlderLogs() {
   const delta = to - last;
   const from = new Date(to.getTime() + delta);
   const logs = await (
-    await fetch(`${config.base}/api/logs?id=${props.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
+    await fetch(`${config.base}api/logs?id=${props.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
   ).text();
   if (logs) {
     const newMessages = logs

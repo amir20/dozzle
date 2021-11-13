@@ -76,13 +76,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 import fuzzysort from "fuzzysort";
 import SearchIcon from "~icons/mdi-light/magnify";
 import PastTime from "../components/PastTime.vue";
 import config from "../store/config";
-
 
 export default {
   name: "Index",

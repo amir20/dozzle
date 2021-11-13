@@ -5,12 +5,13 @@ import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import IconsResolver from "unplugin-icons/resolver";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@/": `${path.resolve(__dirname, "assets")}/`,
     },
   },
+  base: mode === "production" ? "/<__BASE__>" : "/",
   plugins: [
     vue(),
     Icons({
@@ -26,6 +27,7 @@ export default defineConfig({
 
       dts: "assets/components.d.ts",
     }),
+    htmlPlugin(mode),
   ],
   server: {
     proxy: {
@@ -34,4 +36,13 @@ export default defineConfig({
       },
     },
   },
-});
+}));
+
+const htmlPlugin = (mode) => {
+  return {
+    name: "html-transform",
+    transformIndexHtml(html) {
+      return mode === "production" ? html.replaceAll("/<__BASE__>", "{{ .Base }}") : html;
+    },
+  };
+};

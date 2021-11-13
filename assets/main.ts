@@ -1,11 +1,10 @@
 import "./styles.scss";
-
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { Autocomplete, Dropdown, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
 import { bulmaConfig } from "@oruga-ui/theme-bulma";
-import Meta from "vue-meta";
 import store from "./store";
+import config from "./store/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
 
@@ -49,7 +48,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(`${config.base}/`),
   routes,
 });
 

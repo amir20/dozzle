@@ -6,14 +6,7 @@
     </li>
   </ul>
 </template>
-<script lang="ts">
-import DOMPurify from "dompurify";
-if (window.trustedTypes && trustedTypes.createPolicy) {
-  trustedTypes.createPolicy("default", {
-    createHTML: (string) => DOMPurify.sanitize(string, { RETURN_TRUSTED_TYPE: true }),
-  });
-}
-</script>
+
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useStore } from "vuex";

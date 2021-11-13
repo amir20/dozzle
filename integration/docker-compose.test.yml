@@ -8,6 +8,8 @@ services:
       - DOZZLE_FILTER=name=custom_base
       - DOZZLE_BASE=/foobarbase
       - DOZZLE_NO_ANALYTICS=1
+    ports:
+      - "8080:8080"
     build:
       context: ..
   dozzle:
@@ -17,6 +19,8 @@ services:
     environment:
       - DOZZLE_FILTER=name=dozzle
       - DOZZLE_NO_ANALYTICS=1
+    ports:
+      - "9090:8080"
     build:
       context: ..
   integration:
