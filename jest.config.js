@@ -2,7 +2,7 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
-  testPathIgnorePatterns: ["node_modules", "<rootDir>/integration/"],
+  testPathIgnorePatterns: ["node_modules", "<rootDir>/integration/", "<rootDir>/cypress/"],
   transform: {
     "^.+\\.vue$": "@vue/vue3-jest",
   },
