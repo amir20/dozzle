@@ -1,7 +1,7 @@
 /* snapshot: Test_createRoutes_foobar */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 
 foo page
@@ -9,7 +9,7 @@ foo page
 /* snapshot: Test_createRoutes_index */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 
 index page
@@ -17,7 +17,7 @@ index page
 /* snapshot: Test_createRoutes_redirect */
 HTTP/1.1 301 Moved Permanently
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/html; charset=utf-8
 Location: /foobar/
 
@@ -26,7 +26,7 @@ Location: /foobar/
 /* snapshot: Test_createRoutes_redirect_with_auth */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/html; charset=utf-8
 Location: /foobar/login
 
@@ -35,7 +35,7 @@ Location: /foobar/login
 /* snapshot: Test_createRoutes_username_password */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/html; charset=utf-8
 Location: /login
 
@@ -44,7 +44,7 @@ Location: /login
 /* snapshot: Test_createRoutes_username_password_invalid */
 HTTP/1.1 401 Unauthorized
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -56,7 +56,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -66,7 +66,7 @@ data: end of stream
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com; require-trusted-types-for 'script'
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 
 dev
