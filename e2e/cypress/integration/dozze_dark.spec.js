@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
-context("Dozzle dark mode", () => {
+context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () => {
   beforeEach(() => {
-    cy.visit("http://localhost:9090/");
+    cy.visit("/");
   });
 
   it("home screen", () => {

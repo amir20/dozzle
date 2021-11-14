@@ -23,16 +23,15 @@ services:
       - "9090:8080"
     build:
       context: ..
-  integration:
+  cypress:
     build:
       context: .
-    command: yarn test
+    working_dir: /e2e
     volumes:
-      - ./__tests__:/app/__tests__
+      - ./:/e2e
     environment:
-      - DEFAULT_URL=http://dozzle:8080/
-      - CUSTOM_URL=http://custom_base:8080/foobarbase
-      - DOZZLE_NO_ANALYTICS=1
+      - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
+      # - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
     depends_on:
       - dozzle
       - custom_base

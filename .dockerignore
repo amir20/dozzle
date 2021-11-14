@@ -3,6 +3,5 @@ node_modules
 .idea
 dist
 .git
-static
-integration
-demo.gif
+e2e
+
