@@ -1,86 +1,86 @@
 {
- "name": "dozzle",
- "version": "3.9.0",
- "description": "Realtime log viewer for docker containers. ",
- "homepage": "https://github.com/amir20/dozzle#readme",
- "bugs": {
-  "url": "https://github.com/amir20/dozzle/issues"
- },
- "repository": {
-  "type": "git",
-  "url": "git+https://github.com/amir20/dozzle.git"
- },
- "license": "ISC",
- "author": "",
- "scripts": {
-  "watch:assets": "vite --open",
-  "watch:server": "LIVE_FS=true reflex -c .reflex",
-  "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
-  "build": "vite build",
-  "release": "release-it",
-  "test": "TZ=UTC jest",
-  "postinstall": "husky install"
- },
- "dependencies": {
-  "@iconify-json/cil": "^1.0.1",
-  "@iconify-json/carbon": "^1.0.9",
-  "@iconify-json/mdi-light": "^1.0.1",
-  "@iconify-json/octicon": "^1.0.5",
-  "@oruga-ui/oruga-next": "^0.4.7",
-  "@oruga-ui/theme-bulma": "^0.1.3",
-  "@vitejs/plugin-vue": "^1.9.4",
-  "ansi-to-html": "^0.7.2",
-  "autoprefixer": "^10.4.0",
-  "bulma": "^0.9.3",
-  "date-fns": "^2.25.0",
-  "fuzzysort": "^1.1.4",
-  "hotkeys-js": "^3.8.7",
-  "lodash.debounce": "^4.0.8",
-  "lodash.throttle": "^4.1.1",
-  "sass": "^1.43.4",
-  "semver": "^7.3.5",
-  "splitpanes": "^3.0.6",
-  "store": "^2.0.12",
-  "typescript": "^4.4.4",
-  "unplugin-auto-import": "^0.4.14",
-  "unplugin-icons": "^0.12.18",
-  "unplugin-vue-components": "^0.17.2",
-  "vite": "^2.6.13",
-  "vue": "^3.2.21",
-  "vue-meta": "^2.4.0",
-  "vue-router": "^4.0.12",
-  "vuex": "^4.0.2"
- },
- "devDependencies": {
-  "@babel/plugin-transform-runtime": "^7.16.0",
-  "@babel/preset-env": "^7.16.0",
-  "@types/jest": "^27.0.2",
-  "@types/lodash.debounce": "^4.0.6",
-  "@vue/compiler-sfc": "^3.2.21",
-  "@vue/test-utils": "^2.0.0-rc.16",
-  "@vue/vue3-jest": "^27.0.0-alpha.3",
-  "eventsourcemock": "^2.0.0",
-  "husky": "^7.0.4",
-  "jest": "^27.3.1",
-  "jest-serializer-vue": "^2.0.2",
-  "lint-staged": "^11.2.6",
-  "npm-run-all": "^4.1.5",
-  "prettier": "^2.4.1",
-  "release-it": "^14.11.6",
-  "ts-jest": "^27.0.7"
- },
- "lint-staged": {
-  "*.{js,vue,css}": [
-   "prettier --write"
-  ]
- },
- "release-it": {
-  "github": {
-   "release": false,
-   "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
+  "name": "dozzle",
+  "version": "3.9.0",
+  "description": "Realtime log viewer for docker containers. ",
+  "homepage": "https://github.com/amir20/dozzle#readme",
+  "bugs": {
+    "url": "https://github.com/amir20/dozzle/issues"
   },
-  "npm": {
-   "publish": false
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amir20/dozzle.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "watch:assets": "vite --open",
+    "watch:server": "LIVE_FS=true reflex -c .reflex",
+    "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
+    "build": "vite build",
+    "release": "release-it",
+    "test": "TZ=UTC jest",
+    "postinstall": "husky install"
+  },
+  "dependencies": {
+    "@iconify-json/carbon": "^1.0.9",
+    "@iconify-json/cil": "^1.0.1",
+    "@iconify-json/mdi-light": "^1.0.1",
+    "@iconify-json/octicon": "^1.0.5",
+    "@oruga-ui/oruga-next": "^0.4.7",
+    "@oruga-ui/theme-bulma": "^0.1.3",
+    "@vitejs/plugin-vue": "^1.9.4",
+    "@vueuse/core": "^6.9.0",
+    "ansi-to-html": "^0.7.2",
+    "autoprefixer": "^10.4.0",
+    "bulma": "^0.9.3",
+    "date-fns": "^2.25.0",
+    "fuzzysort": "^1.1.4",
+    "hotkeys-js": "^3.8.7",
+    "lodash.debounce": "^4.0.8",
+    "lodash.throttle": "^4.1.1",
+    "sass": "^1.43.4",
+    "semver": "^7.3.5",
+    "splitpanes": "^3.0.6",
+    "store": "^2.0.12",
+    "typescript": "^4.4.4",
+    "unplugin-auto-import": "^0.4.14",
+    "unplugin-icons": "^0.12.18",
+    "unplugin-vue-components": "^0.17.2",
+    "vite": "^2.6.13",
+    "vue": "^3.2.21",
+    "vue-router": "^4.0.12",
+    "vuex": "^4.0.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "@types/jest": "^27.0.2",
+    "@types/lodash.debounce": "^4.0.6",
+    "@vue/compiler-sfc": "^3.2.21",
+    "@vue/test-utils": "^2.0.0-rc.16",
+    "@vue/vue3-jest": "^27.0.0-alpha.3",
+    "eventsourcemock": "^2.0.0",
+    "husky": "^7.0.4",
+    "jest": "^27.3.1",
+    "jest-serializer-vue": "^2.0.2",
+    "lint-staged": "^11.2.6",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.4.1",
+    "release-it": "^14.11.6",
+    "ts-jest": "^27.0.7"
+  },
+  "lint-staged": {
+    "*.{js,vue,css}": [
+      "prettier --write"
+    ]
+  },
+  "release-it": {
+    "github": {
+      "release": false,
+      "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
+    },
+    "npm": {
+      "publish": false
+    }
   }
- }
 }

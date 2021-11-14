@@ -44,10 +44,11 @@
 
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-import { ref, onMounted, watchEffect, toRefs, computed } from "vue";
+import { ref, onMounted, watchEffect, toRefs, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
+import { setTitle } from "./composables/title";
 
 import FuzzySearchModal from "./components/FuzzySearchModal.vue";
 import LogContainer from "./components/LogContainer.vue";
@@ -60,6 +61,7 @@ const store = useStore();
 const { menuWidth } = toRefs(store.state.settings);
 const { isMobile, containers, authorizationNeeded } = toRefs(store.state);
 const activeContainers = computed(() => store.getters.activeContainers);
+const visibleContainers = computed(() => store.getters.visibleContainers);
 const lightTheme = computed(() => store.state.settings.lightTheme);
 const smallerScrollbars = computed(() => store.state.settings.smallerScrollbars);
 
@@ -75,6 +77,10 @@ onMounted(() => {
     event.preventDefault();
     showFuzzySearch();
   });
+});
+
+watchEffect(() => {
+  setTitle(`${visibleContainers.value.length} containers`);
 });
 
 watchEffect(() => {

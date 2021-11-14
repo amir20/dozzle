@@ -49,8 +49,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import config from "../store/config";
+import { setTitle } from "@/composables/title";
 export default {
   name: "Login",
   data() {
@@ -60,10 +61,8 @@ export default {
       error: false,
     };
   },
-  metaInfo() {
-    return {
-      title: "Authentication Required",
-    };
+  setup() {
+    setTitle("Authentication Required");
   },
   methods: {
     async onLogin() {

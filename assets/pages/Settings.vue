@@ -89,10 +89,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import gt from "semver/functions/gt";
 import { mapActions, mapState } from "vuex";
 import config from "../store/config";
+import { setTitle } from "@/composables/title";
 
 export default {
   props: [],
@@ -105,6 +106,7 @@ export default {
     };
   },
   async created() {
+    setTitle("Settings");
     const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
     if (this.currentVersion !== "master") {
       this.hasUpdate = gt(releases[0].tag_name, this.currentVersion);
@@ -112,11 +114,6 @@ export default {
       this.hasUpdate = true;
     }
     this.nextRelease = releases[0];
-  },
-  metaInfo() {
-    return {
-      title: "Settings",
-    };
   },
   methods: {
     ...mapActions({
