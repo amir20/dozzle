@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
       "@/": `${path.resolve(__dirname, "assets")}/`,
     },
   },
-  base: mode === "production" ? "/<__BASE__>" : "/",
+  base: mode === "production" ? "/<__BASE__>/" : "/",
   plugins: [
     vue(),
     Icons({

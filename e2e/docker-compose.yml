@@ -28,7 +28,8 @@ services:
       context: .
     working_dir: /e2e
     volumes:
-      - ./:/e2e
+      - ./cypress:/e2e/cypress
+      - ./cypress.json:/e2e/cypress.json
     environment:
       - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
       # - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
