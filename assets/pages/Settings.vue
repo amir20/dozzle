@@ -26,14 +26,20 @@
         <div class="columns is-vcentered">
           <div class="column is-narrow">
             <o-field>
-              <o-radio-button
-                v-model="hourStyle"
-                :native-value="value"
-                v-for="value in ['auto', '12', '24']"
-                :key="value"
-              >
-                <span class="is-capitalized">{{ value }}</span>
-              </o-radio-button>
+              <o-dropdown v-model="hourStyle" aria-role="list">
+                <template v-slot:trigger>
+                  <o-button variant="primary" type="button">
+                    <span class="is-capitalized">{{ hourStyle }}</span>
+                    <span class="icon">
+                      <carbon-caret-down />
+                    </span>
+                  </o-button>
+                </template>
+
+                <o-dropdown-item :value="value" aria-role="listitem" v-for="value in ['auto', '12', '24']" :key="value">
+                  <span class="is-capitalized">{{ value }}</span>
+                </o-dropdown-item>
+              </o-dropdown>
             </o-field>
           </div>
           <div class="column">
@@ -53,14 +59,25 @@
         <div class="columns is-vcentered">
           <div class="column is-narrow">
             <o-field>
-              <o-radio-button
-                v-model="size"
-                :native-value="value"
-                v-for="value in ['small', 'medium', 'large']"
-                :key="value"
-              >
-                <span class="is-capitalized">{{ value }}</span>
-              </o-radio-button>
+              <o-dropdown v-model="size" aria-role="list">
+                <template v-slot:trigger>
+                  <o-button variant="primary" type="button">
+                    <span class="is-capitalized">{{ size }}</span>
+                    <span class="icon">
+                      <carbon-caret-down />
+                    </span>
+                  </o-button>
+                </template>
+
+                <o-dropdown-item
+                  :value="value"
+                  aria-role="listitem"
+                  v-for="value in ['small', 'medium', 'large']"
+                  :key="value"
+                >
+                  <span class="is-capitalized">{{ value }}</span>
+                </o-dropdown-item>
+              </o-dropdown>
             </o-field>
           </div>
           <div class="column">Font size to use for logs</div>
