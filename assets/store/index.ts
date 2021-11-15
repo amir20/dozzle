@@ -3,8 +3,6 @@ import storage from "store/dist/store.modern";
 import { DEFAULT_SETTINGS, DOZZLE_SETTINGS_KEY } from "./settings";
 import config from "./config";
 
-const mql = window.matchMedia("(max-width: 770px)");
-
 storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SETTINGS_KEY) });
 
 interface Container {
@@ -33,7 +31,6 @@ const store = createStore({
     containers: [] as Container[],
     activeContainerIds: [] as string[],
     searchFilter: null,
-    isMobile: mql.matches,
     settings: storage.get(DOZZLE_SETTINGS_KEY),
     authorizationNeeded: config.authorizationNeeded,
   },
@@ -58,9 +55,6 @@ const store = createStore({
     },
     SET_SEARCH(state, filter) {
       state.searchFilter = filter;
-    },
-    SET_MOBILE_WIDTH(state, value) {
-      state.isMobile = value;
     },
     UPDATE_SETTINGS(state, newValues) {
       state.settings = { ...state.settings, ...newValues };
@@ -121,7 +115,5 @@ if (!config.authorizationNeeded) {
   es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
   es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 }
-
-mql.addEventListener("change", (e) => store.commit("SET_MOBILE_WIDTH", e.matches));
 
 export default store;

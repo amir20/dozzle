@@ -49,6 +49,7 @@ import { useStore } from "vuex";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
 import { setTitle } from "./composables/title";
+import { isMobile } from "./composables/mediaQuery";
 
 import FuzzySearchModal from "./components/FuzzySearchModal.vue";
 import LogContainer from "./components/LogContainer.vue";
@@ -59,7 +60,7 @@ const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const store = useStore();
 const { menuWidth } = toRefs(store.state.settings);
-const { isMobile, containers, authorizationNeeded } = toRefs(store.state);
+const { containers, authorizationNeeded } = toRefs(store.state);
 const activeContainers = computed(() => store.getters.activeContainers);
 const visibleContainers = computed(() => store.getters.visibleContainers);
 const lightTheme = computed(() => store.state.settings.lightTheme);
