@@ -40,23 +40,28 @@ function flushNow() {
 const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
 
 let es: EventSource | null = null;
-let lastEventId = null;
+let lastEventId = "";
 
-function connect() {
-  if (es) {
-    es.close();
-    es = null;
+function connect({ clear } = { clear: true }) {
+  es?.close();
+
+  if (clear) {
+    flushBuffer.cancel();
+    messages.value = [];
+    buffer.value = [];
+    lastEventId = "";
   }
-  flushBuffer.cancel();
-  messages.value = [];
-  buffer.value = [];
-  lastEventId = null;
 
-  es = new EventSource(`${config.base}/api/logs/stream?id=${props.id}&lastEventId=${lastEventId ?? ""}`);
+  es = new EventSource(`${config.base}/api/logs/stream?id=${props.id}&lastEventId=${lastEventId}`);
   es.addEventListener("container-stopped", () => {
     es?.close();
     es = null;
-    buffer.value.push({ event: "container-stopped", message: "Container stopped", date: new Date(), key: new Date() });
+    buffer.value.push({
+      event: "container-stopped",
+      message: "Container stopped",
+      date: new Date(),
+      key: new Date().toString(),
+    });
     flushBuffer();
     flushBuffer.flush();
   });
@@ -115,7 +120,7 @@ watch(
         date: new Date(),
         key: new Date().toString(),
       });
-      connect();
+      connect({ clear: false });
     }
   }
 );
