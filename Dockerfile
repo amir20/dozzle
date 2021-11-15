@@ -35,7 +35,10 @@ RUN go mod download
 COPY --from=node /build/dist ./dist
 
 # Copy all other files
-COPY . .
+COPY analytics ./analytics
+COPY docker ./docker
+COPY web ./web
+COPY main.go ./
 
 # Args
 ARG TAG=dev
