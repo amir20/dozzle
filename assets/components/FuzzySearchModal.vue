@@ -1,9 +1,9 @@
 <template>
   <div class="panel">
-    <b-autocomplete
+    <o-autocomplete
       ref="autocomplete"
       v-model="query"
-      placeholder="Search containers using ⌘ + k, ⌃k"
+      placeholder="Search containers using ⌘ + k or ctrl + k"
       field="name"
       open-on-focus
       keep-first
@@ -11,11 +11,11 @@
       :data="results"
       @select="selected"
     >
-      <template slot-scope="props">
+      <template v-slot="props">
         <div class="media">
           <div class="media-left">
             <span class="icon is-small" :class="props.option.state">
-              <container-icon />
+              <octicon-container-24 />
             </span>
           </div>
           <div class="media-content">
@@ -23,22 +23,18 @@
           </div>
           <div class="media-right">
             <span class="icon is-small column-icon" @click.stop.prevent="addColumn(props.option)" title="Pin as column">
-              <columns-icon />
+              <cil-columns />
             </span>
           </div>
         </div>
       </template>
-    </b-autocomplete>
+    </o-autocomplete>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapActions } from "vuex";
 import fuzzysort from "fuzzysort";
-
-import PastTime from "./PastTime";
-import ContainerIcon from "~icons/octicon/container-24";
-import ColumnsIcon from "~icons/cil/columns";
 
 export default {
   props: {
@@ -53,11 +49,7 @@ export default {
     };
   },
   name: "FuzzySearchModal",
-  components: {
-    PastTime,
-    ContainerIcon,
-    ColumnsIcon,
-  },
+
   mounted() {
     this.$nextTick(() => this.$refs.autocomplete.focus());
   },
@@ -110,6 +102,7 @@ export default {
 <style lang="scss" scoped>
 .panel {
   min-height: 400px;
+  width: 580px;
 }
 
 .running {
@@ -126,7 +119,7 @@ export default {
   }
 }
 
-::v-deep a.dropdown-item {
+:deep(a.dropdown-item) {
   padding-right: 1em;
   .media-right {
     visibility: hidden;

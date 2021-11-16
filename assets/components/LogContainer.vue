@@ -8,59 +8,62 @@
         <div class="column is-narrow is-paddingless">
           <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
-        <div class="column is-narrow is-paddingless" v-if="closable">
+        <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
+        <!-- <div class="mr-2 column is-narrow is-paddingless">
+          <o-dropdown aria-role="list" position="bottom-left">
+            <template v-slot:trigger>
+              <span class="btn">
+                <span class="icon">
+                  <carbon-verflow-menu-vertical />
+                </span>
+              </span>
+            </template>
+
+            <o-dropdown-item aria-role="listitem"> Clear </o-dropdown-item>
+            <o-dropdown-item aria-role="listitem">Download</o-dropdown-item>
+          </o-dropdown>
+        </div> -->
       </div>
       <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
     <template v-slot="{ setLoading }">
-      <log-viewer-with-source ref="logViewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
+      <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
     </template>
   </scrollable-view>
 </template>
 
-<script>
-import LogViewerWithSource from "./LogViewerWithSource";
-import LogActionsToolbar from "./LogActionsToolbar";
-import ScrollableView from "./ScrollableView";
-import ContainerTitle from "./ContainerTitle";
-import ContainerStat from "./ContainerStat";
-import containerMixin from "./mixins/container";
+<script lang="ts" setup>
+import { ref, toRefs } from "vue";
+import useContainer from "../composables/container";
 
-export default {
-  mixins: [containerMixin],
-  props: {
-    id: {
-      type: String,
-    },
-    showTitle: {
-      type: Boolean,
-      default: false,
-    },
-    scrollable: {
-      type: Boolean,
-      default: false,
-    },
-    closable: {
-      type: Boolean,
-      default: false,
-    },
+const props = defineProps({
+  id: {
+    type: String,
+    required: true,
   },
-  name: "LogContainer",
-  components: {
-    LogViewerWithSource,
-    LogActionsToolbar,
-    ScrollableView,
-    ContainerTitle,
-    ContainerStat,
+  showTitle: {
+    type: Boolean,
+    default: false,
   },
-  methods: {
-    onClearClicked() {
-      this.$refs.logViewer.clear();
-    },
+  scrollable: {
+    type: Boolean,
+    default: false,
   },
-};
+  closable: {
+    type: Boolean,
+    default: false,
+  },
+});
+const { id } = toRefs(props);
+const { container } = useContainer(id);
+
+const viewer = ref<HTMLElement>();
+
+function onClearClicked() {
+  viewer.value?.clear();
+}
 </script>
 <style lang="scss" scoped>
 button.delete {

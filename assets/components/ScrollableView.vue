@@ -3,7 +3,7 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" :data-scrolling="scrollable">
+    <main ref="content" :data-scrolling="scrollable ? true : undefined">
       <div class="is-scrollbar-progress is-hidden-mobile">
         <scroll-progress v-show="paused" :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
@@ -13,23 +13,15 @@
 
     <div class="is-scrollbar-notification">
       <transition name="fade">
-        <button
-          class="button pl-1 pr-1"
-          :class="hasMore ? 'has-more' : ''"
-          @click="scrollToBottom('instant')"
-          v-show="paused"
-        >
-          <chevron-double-down-icon />
+        <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom('instant')" v-show="paused">
+          <mdi-light-chevron-double-down />
         </button>
       </transition>
     </div>
   </section>
 </template>
 
-<script>
-import ScrollProgress from "./ScrollProgress";
-import ChevronDoubleDownIcon from "~icons/mdi-light/chevron-double-down";
-
+<script lang="ts">
 export default {
   props: {
     scrollable: {
@@ -37,21 +29,20 @@ export default {
       default: true,
     },
   },
-  components: {
-    ScrollProgress,
-    ChevronDoubleDownIcon,
-  },
+
   name: "ScrollableView",
   data() {
     return {
       paused: false,
       hasMore: false,
       loading: false,
+      mutationObserver: null,
+      intersectionObserver: null,
     };
   },
   mounted() {
     const { content } = this.$refs;
-    const mutationObserver = new MutationObserver((e) => {
+    this.mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
         this.scrollToBottom("instant");
       } else {
@@ -63,17 +54,18 @@ export default {
         }
       }
     });
-    mutationObserver.observe(content, { childList: true, subtree: true });
-    this.$once("hook:beforeDestroy", () => mutationObserver.disconnect());
+    this.mutationObserver.observe(content, { childList: true, subtree: true });
 
-    const intersectionObserver = new IntersectionObserver(
+    this.intersectionObserver = new IntersectionObserver(
       (entries) => (this.paused = entries[0].intersectionRatio == 0),
       { threshholds: [0, 1], rootMargin: "80px 0px" }
     );
-    intersectionObserver.observe(this.$refs.scrollObserver);
-    this.$once("hook:beforeDestroy", () => intersectionObserver.disconnect());
+    this.intersectionObserver.observe(this.$refs.scrollObserver);
   },
-
+  beforeUnmount() {
+    this.mutationObserver.disconnect();
+    this.intersectionObserver.disconnect();
+  },
   methods: {
     scrollToBottom(behavior = "instant") {
       this.$refs.scrollObserver.scrollIntoView({ behavior });

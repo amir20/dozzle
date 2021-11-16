@@ -17,7 +17,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
 import throttle from "lodash.throttle";
 
@@ -45,7 +45,9 @@ export default {
   },
   mounted() {
     this.attachEvents();
-    this.$once("hook:beforeDestroy", this.detachEvents);
+  },
+  beforeUnmount() {
+    this.detachEvents();
   },
   watch: {
     activeContainers() {

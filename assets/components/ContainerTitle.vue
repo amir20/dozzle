@@ -7,13 +7,10 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    container: Object,
-  },
-  name: "ContainerTitle",
-};
+<script lang="ts" setup>
+defineProps({
+  container: Object,
+});
 </script>
 
 <style lang="scss" scoped></style>

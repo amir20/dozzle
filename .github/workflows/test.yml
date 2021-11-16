@@ -42,6 +42,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
       - name: Build images
-        run: docker-compose -f integration/docker-compose.test.yml build
+        run: docker-compose -f e2e/docker-compose.yml build
       - name: Run tests
-        run: docker-compose -f integration/docker-compose.test.yml run integration
+        run: docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress

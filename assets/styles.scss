@@ -1,5 +1,5 @@
 @charset "utf-8";
-@import "~bulma/sass/utilities/initial-variables.sass";
+@import "bulma/sass/utilities/initial-variables.sass";
 
 $body-background-color: var(--body-background-color);
 
@@ -27,14 +27,15 @@ $link-active: $grey-dark;
 $dark-toolbar-color: rgba($black-bis, 0.7);
 $light-toolbar-color: rgba($grey-darker, 0.7);
 
-@import "~bulma";
-@import "../node_modules/splitpanes/dist/splitpanes.css";
-@import "~buefy/src/scss/utils/_all";
-@import "~buefy/src/scss/components/_switch";
-@import "~buefy/src/scss/components/_radio";
-@import "~buefy/src/scss/components/_modal";
-@import "~buefy/src/scss/components/_tooltip";
-@import "~buefy/src/scss/components/_autocomplete";
+@import "bulma/bulma.sass";
+@import "@oruga-ui/theme-bulma/dist/scss/components/utils/all.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/autocomplete.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/button.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/modal.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/switch.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/tooltip.scss";
+@import "@oruga-ui/theme-bulma/dist/scss/components/dropdown.scss";
+@import "splitpanes/dist/splitpanes.css";
 
 html {
   --scheme-main: #{$black};
@@ -160,4 +161,8 @@ html.has-custom-scrollbars {
 
 .modal {
   z-index: 1000;
+}
+
+.button .button-wrapper > span {
+  display: contents;
 }

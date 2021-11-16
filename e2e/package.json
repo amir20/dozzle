@@ -1,0 +1,10 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "scripts": {},
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^9.0.0",
+    "cypress-image-snapshot": "^4.0.1"
+  }
+}

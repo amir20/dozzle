@@ -11,13 +11,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { setTitle } from "@/composables/title";
 export default {
   name: "PageNotFound",
-  metaInfo() {
-    return {
-      title: "404 Error",
-    };
+  setup() {
+    setTitle("Page not found");
   },
 };
 </script>

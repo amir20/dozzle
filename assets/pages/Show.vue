@@ -1,7 +1,7 @@
 <template></template>
 
-<script>
-import { mapActions, mapGetters, mapState } from "vuex";
+<script lang="ts">
+import { mapGetters } from "vuex";
 export default {
   props: [],
   name: "Show",

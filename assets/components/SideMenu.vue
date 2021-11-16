@@ -10,20 +10,20 @@
       </div>
       <div class="column is-narrow has-text-right px-1">
         <button
-          class="button is-small is-rounded is-settings-control pl-1 pr-1"
+          class="button is-rounded is-settings-control"
           @click="$emit('search')"
           title="Search containers (⌘ + k, ⌃k)"
         >
-          <search-icon />
+          <span class="icon">
+            <mdi-light-magnify />
+          </span>
         </button>
       </div>
       <div class="column is-narrow has-text-right px-0">
-        <router-link
-          :to="{ name: 'settings' }"
-          active-class="is-active"
-          class="button is-small is-rounded is-settings-control pl-1 pr-1"
-        >
-          <settings-icon />
+        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-settings-control">
+          <span class="icon">
+            <mdi-light-cog />
+          </span>
         </router-link>
       </div>
     </div>
@@ -46,7 +46,7 @@
                 v-show="!activeContainersById[item.id]"
                 title="Pin as column"
               >
-                <columns-icon />
+                <cil-columns />
               </span>
             </div>
           </div>
@@ -56,21 +56,13 @@
   </aside>
 </template>
 
-<script>
-import { mapActions, mapGetters, mapState } from "vuex";
-
-import SearchIcon from "~icons/mdi-light/magnify";
-import SettingsIcon from "~icons/mdi-light/cog";
-import ColumnsIcon from "~icons/cil/columns";
+<script lang="ts">
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   props: [],
   name: "SideMenu",
-  components: {
-    SearchIcon,
-    SettingsIcon,
-    ColumnsIcon,
-  },
+
   data() {
     return {};
   },

@@ -1,8 +1,8 @@
 node_modules
 .cache
 .idea
+.github
 dist
 .git
-static
-integration
-demo.gif
+e2e
+

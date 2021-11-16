@@ -1,0 +1,38 @@
+version: "3.4"
+services:
+  custom_base:
+    container_name: custom_base
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOZZLE_FILTER=name=custom_base
+      - DOZZLE_BASE=/foobarbase
+      - DOZZLE_NO_ANALYTICS=1
+    ports:
+      - "8080:8080"
+    build:
+      context: ..
+  dozzle:
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_NO_ANALYTICS=1
+    ports:
+      - "9090:8080"
+    build:
+      context: ..
+  cypress:
+    build:
+      context: .
+    working_dir: /e2e
+    volumes:
+      - ./cypress:/e2e/cypress
+      - ./cypress.json:/e2e/cypress.json
+    environment:
+      - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
+      - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
+    depends_on:
+      - dozzle
+      - custom_base

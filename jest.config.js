@@ -1,14 +1,9 @@
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  clearMocks: true,
+  preset: "ts-jest",
   testEnvironment: "jsdom",
-  moduleFileExtensions: ["js", "json", "vue"],
-  coveragePathIgnorePatterns: ["node_modules"],
-  testPathIgnorePatterns: ["node_modules", "<rootDir>/integration/"],
-  transformIgnorePatterns: ["node_modules"],
-  watchPathIgnorePatterns: ["<rootDir>/node_modules/"],
-  snapshotSerializers: ["jest-serializer-vue"],
+  testPathIgnorePatterns: ["node_modules", "<rootDir>/integration/", "<rootDir>/e2e/"],
   transform: {
-    ".*\\.vue$": "vue-jest",
-    "^.+\\.js$": "babel-jest",
+    "^.+\\.vue$": "@vue/vue3-jest",
   },
 };

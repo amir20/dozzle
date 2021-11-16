@@ -3,7 +3,7 @@
     <mobile-menu v-if="isMobile && !authorizationNeeded"></mobile-menu>
 
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="settings.menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">
+      <pane min-size="10" :size="menuWidth" v-if="!authorizationNeeded && !isMobile && !collapseNav">
         <side-menu @search="showFuzzySearch"></side-menu>
       </pane>
       <pane min-size="10">
@@ -18,7 +18,7 @@
                 show-title
                 scrollable
                 closable
-                @close="removeActiveContainer(other)"
+                @close="store.dispatch('REMOVE_ACTIVE_CONTAINER', other)"
               ></log-container>
             </pane>
           </template>
@@ -27,128 +27,96 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-small is-rounded is-settings-control"
+      class="button is-rounded is-settings-control"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile && !authorizationNeeded"
     >
       <span class="icon ml-2" v-if="collapseNav">
-        <chevron-right-icon />
+        <mdi-light-chevron-right />
       </span>
       <span class="icon" v-else>
-        <chevron-left-icon />
+        <mdi-light-chevron-left />
       </span>
     </button>
   </main>
 </template>
 
-<script>
-import { mapActions, mapGetters, mapState } from "vuex";
+<script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-
+import { ref, onMounted, watchEffect, toRefs, computed, watch } from "vue";
+import { useStore } from "vuex";
+import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
+import { setTitle } from "./composables/title";
+import { isMobile } from "./composables/mediaQuery";
 
-import LogContainer from "./components/LogContainer";
-import SideMenu from "./components/SideMenu";
-import MobileMenu from "./components/MobileMenu";
+import FuzzySearchModal from "./components/FuzzySearchModal.vue";
+import LogContainer from "./components/LogContainer.vue";
+import SideMenu from "./components/SideMenu.vue";
+import MobileMenu from "./components/MobileMenu.vue";
 
-import PastTime from "./components/PastTime";
-import FuzzySearchModal from "./components/FuzzySearchModal";
+const collapseNav = ref(false);
+const { oruga } = useProgrammatic();
+const store = useStore();
+const { menuWidth } = toRefs(store.state.settings);
+const { containers, authorizationNeeded } = toRefs(store.state);
+const activeContainers = computed(() => store.getters.activeContainers);
+const visibleContainers = computed(() => store.getters.visibleContainers);
+const lightTheme = computed(() => store.state.settings.lightTheme);
+const smallerScrollbars = computed(() => store.state.settings.smallerScrollbars);
 
-import ChevronLeftIcon from "~icons/mdi-light/chevron-left";
-import ChevronRightIcon from "~icons/mdi-light/chevron-right";
+onMounted(() => {
+  if (smallerScrollbars.value) {
+    document.documentElement.classList.add("has-custom-scrollbars");
+  }
+  if (lightTheme.value) {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
 
-export default {
-  name: "App",
-  components: {
-    SideMenu,
-    LogContainer,
-    MobileMenu,
-    Splitpanes,
-    PastTime,
-    Pane,
-    ChevronLeftIcon,
-    ChevronRightIcon,
-  },
-  data() {
-    return {
-      title: "",
-      collapseNav: false,
-    };
-  },
-  metaInfo() {
-    return {
-      title: this.title,
-      titleTemplate: "%s - Dozzle",
-    };
-  },
-  mounted() {
-    if (this.hasSmallerScrollbars) {
-      document.documentElement.classList.add("has-custom-scrollbars");
-    }
-    if (this.hasLightTheme) {
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-    this.menuWidth = this.settings.menuWidth;
-    hotkeys("command+k, ctrl+k", (event, handler) => {
-      event.preventDefault();
-      this.showFuzzySearch();
-    });
-  },
-  watch: {
-    hasSmallerScrollbars(newValue, oldValue) {
-      if (newValue) {
-        document.documentElement.classList.add("has-custom-scrollbars");
-      } else {
-        document.documentElement.classList.remove("has-custom-scrollbars");
-      }
-    },
-    hasLightTheme(newValue, oldValue) {
-      if (newValue) {
-        document.documentElement.setAttribute("data-theme", "light");
-      } else {
-        document.documentElement.removeAttribute("data-theme");
-      }
-    },
-    visibleContainers() {
-      this.title = `${this.visibleContainers.length} containers`;
-    },
-  },
-  computed: {
-    ...mapState(["isMobile", "settings", "containers", "authorizationNeeded"]),
-    ...mapGetters(["visibleContainers", "activeContainers"]),
-    hasSmallerScrollbars() {
-      return this.settings.smallerScrollbars;
-    },
-    hasLightTheme() {
-      return this.settings.lightTheme;
-    },
-  },
-  methods: {
-    ...mapActions({
-      removeActiveContainer: "REMOVE_ACTIVE_CONTAINER",
-      updateSetting: "UPDATE_SETTING",
-    }),
-    onResized(e) {
-      if (e.length == 2) {
-        const menuWidth = e[0].size;
-        this.updateSetting({ menuWidth });
-      }
-    },
-    showFuzzySearch() {
-      this.$buefy.modal.open({
-        parent: this,
-        component: FuzzySearchModal,
-        animation: "false",
-        width: 600,
-      });
-    },
-  },
-};
+  hotkeys("command+k, ctrl+k", (event, handler) => {
+    event.preventDefault();
+    showFuzzySearch();
+  });
+});
+
+watchEffect(() => {
+  setTitle(`${visibleContainers.value.length} containers`);
+});
+
+watchEffect(() => {
+  if (smallerScrollbars.value) {
+    document.documentElement.classList.add("has-custom-scrollbars");
+  } else {
+    document.documentElement.classList.remove("has-custom-scrollbars");
+  }
+
+  if (lightTheme.value) {
+    document.documentElement.setAttribute("data-theme", "light");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+});
+
+function showFuzzySearch() {
+  oruga.modal.open({
+    // parent: this,
+    component: FuzzySearchModal,
+    animation: "false",
+    width: 600,
+    active: true,
+  });
+}
+function onResized(e) {
+  if (e.length == 2) {
+    const menuWidth = e[0].size;
+    store.dispatch("UPDATE_SETTING", { menuWidth });
+  }
+}
 </script>
 
 <style scoped lang="scss">
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   min-width: 3px;
   background: var(--border-color);
   &:hover {

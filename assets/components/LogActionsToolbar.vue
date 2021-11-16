@@ -1,62 +1,53 @@
 <template>
-  <div class="toolbar mr-0 is-vcentered is-hidden-mobile">
+  <div class="mr-0 toolbar is-vcentered is-hidden-mobile">
     <div class="is-flex">
-      <b-tooltip type="is-dark" label="Clear">
-        <a @click="onClearClicked" class="button is-small is-light is-inverted pl-1 pr-1" id="clear">
-          <clear-icon />
+      <o-tooltip type="is-dark" label="Clear">
+        <a @click="onClearClicked" class="pl-1 pr-1 button is-small is-light is-inverted" id="clear">
+          <octicon-trash-24 />
         </a>
-      </b-tooltip>
+      </o-tooltip>
       <div class="is-flex-grow-1"></div>
-      <b-tooltip type="is-dark" label="Download">
+      <o-tooltip type="is-dark" label="Download">
         <a
-          class="button is-small is-light is-inverted pl-1 pr-1"
+          class="pl-1 pr-1 button is-small is-light is-inverted"
           id="download"
           :href="`${base}/api/logs/download?id=${container.id}`"
           download
         >
-          <download-icon />
+          <octicon-download-24 />
         </a>
-      </b-tooltip>
+      </o-tooltip>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
 import config from "../store/config";
 import hotkeys from "hotkeys-js";
-import DownloadIcon from "~icons/octicon/download-24";
-import ClearIcon from "~icons/octicon/trash-24";
+import { onMounted, onUnmounted } from "vue";
 
-export default {
-  props: {
-    onClearClicked: {
-      type: Function,
-      default: () => {},
-    },
-    container: {
-      type: Object,
-    },
+const props = defineProps({
+  onClearClicked: {
+    type: Function,
+    default: () => {},
   },
-  name: "LogActionsToolbar",
-  components: {
-    DownloadIcon,
-    ClearIcon,
+  container: {
+    type: Object,
   },
-  computed: {
-    base() {
-      return config.base;
-    },
-  },
-  mounted() {
-    hotkeys("shift+command+l, shift+ctrl+l", (event, handler) => {
-      this.onClearClicked();
-      event.preventDefault();
-    });
-  },
+});
+
+const { base } = config;
+
+const onHotkey = (event: Event) => {
+  props.onClearClicked();
+  event.preventDefault();
 };
+
+onMounted(() => hotkeys("shift+command+l, shift+ctrl+l", onHotkey));
+onUnmounted(() => hotkeys.unbind("shift+command+l, shift+ctrl+l", onHotkey));
 </script>
 
-<style>
+<style lang="scss" scoped>
 #download.button,
 #clear.button {
   .icon {

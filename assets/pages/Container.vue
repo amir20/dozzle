@@ -5,10 +5,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
-import Search from "../components/Search";
-import LogContainer from "../components/LogContainer";
+import Search from "../components/Search.vue";
+import LogContainer from "../components/LogContainer.vue";
+import { setTitle } from "@/composables/title";
 
 export default {
   props: ["id"],
@@ -17,19 +18,13 @@ export default {
     LogContainer,
     Search,
   },
-  data() {
-    return {
-      title: "loading",
-    };
+  created() {
+    setTitle("loading");
   },
-  metaInfo() {
-    return {
-      title: this.title,
-    };
-  },
+
   mounted() {
     if (this.allContainersById[this.id]) {
-      this.title = this.allContainersById[this.id].name;
+      setTitle(this.allContainersById[this.id].name);
     }
   },
   computed: {
@@ -37,10 +32,10 @@ export default {
   },
   watch: {
     id() {
-      this.title = this.allContainersById[this.id].name;
+      setTitle(this.allContainersById[this.id].name);
     },
     allContainersById() {
-      this.title = this.allContainersById[this.id].name;
+      setTitle(this.allContainersById[this.id].name);
     },
   },
 };

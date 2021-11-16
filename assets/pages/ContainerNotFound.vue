@@ -11,13 +11,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { setTitle } from "@/composables/title";
+
 export default {
   name: "ContainerNotFound",
-  metaInfo() {
-    return {
-      title: "Not Found",
-    };
+  setup() {
+    setTitle("Container not found");
   },
 };
 </script>
