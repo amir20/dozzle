@@ -41,6 +41,7 @@ import useContainer from "../composables/container";
 const props = defineProps({
   id: {
     type: String,
+    required: true,
   },
   showTitle: {
     type: Boolean,

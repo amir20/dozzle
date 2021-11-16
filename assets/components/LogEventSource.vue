@@ -15,7 +15,10 @@ import config from "../store/config";
 import useContainer from "../composables/container";
 
 const props = defineProps({
-  id: String,
+  id: {
+    type: String,
+    required: true,
+  },
 });
 
 const { id } = toRefs(props);
@@ -81,10 +84,10 @@ async function loadOlderLogs() {
   emit("loading-more", true);
   const to = messages.value[0].date;
   const last = messages.value[299].date;
-  const delta = to - last;
+  const delta = to.getTime() - last.getTime();
   const from = new Date(to.getTime() + delta);
   const logs = await (
-    await fetch(`${config.base}api/logs?id=${props.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
+    await fetch(`${config.base}/api/logs?id=${props.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
   ).text();
   if (logs) {
     const newMessages = logs
@@ -132,7 +135,7 @@ onUnmounted(() => {
 });
 
 connect();
-watch(id, connect);
+watch(id, () => connect());
 
 defineExpose({
   clear: () => (messages.value = []),
