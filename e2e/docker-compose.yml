@@ -32,7 +32,7 @@ services:
       - ./cypress.json:/e2e/cypress.json
     environment:
       - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
-      # - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
+      - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
     depends_on:
       - dozzle
       - custom_base
