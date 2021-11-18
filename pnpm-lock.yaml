@@ -12,6 +12,7 @@ specifiers:
   '@types/jest': ^27.0.2
   '@types/lodash.debounce': ^4.0.6
   '@types/lodash.throttle': ^4.1.6
+  '@types/semver': ^7.3.9
   '@vitejs/plugin-vue': ^1.9.4
   '@vue/compiler-sfc': ^3.2.22
   '@vue/test-utils': ^2.0.0-rc.16
@@ -83,6 +84,7 @@ devDependencies:
   '@types/jest': 27.0.2
   '@types/lodash.debounce': 4.0.6
   '@types/lodash.throttle': 4.1.6
+  '@types/semver': 7.3.9
   '@vue/compiler-sfc': 3.2.22
   '@vue/test-utils': 2.0.0-rc.16_vue@3.2.22
   '@vue/vue3-jest': 27.0.0-alpha.3_ebe0a67a4fae2cf0b4be307c93b4d0a3
@@ -1853,6 +1855,10 @@ packages:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
       '@types/node': 16.11.6
+    dev: true
+
+  /@types/semver/7.3.9:
+    resolution: {integrity: sha512-L/TMpyURfBkf+o/526Zb6kd/tchUP3iBDEPjqjb+U2MAJhVRxxrmr2fwpe08E7QsV7YLcpq0tUaQ9O9x97ZIxQ==}
     dev: true
 
   /@types/stack-utils/2.0.1:

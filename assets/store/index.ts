@@ -1,9 +1,6 @@
 import { createStore } from "vuex";
-import storage from "store/dist/store.modern";
-import { DEFAULT_SETTINGS, DOZZLE_SETTINGS_KEY } from "./settings";
 import config from "./config";
-
-storage.set(DOZZLE_SETTINGS_KEY, { ...DEFAULT_SETTINGS, ...storage.get(DOZZLE_SETTINGS_KEY) });
+import showAllContainers from "@/composables/settings";
 
 interface Container {
   id: string;
@@ -31,7 +28,6 @@ const store = createStore({
     containers: [] as Container[],
     activeContainerIds: [] as string[],
     searchFilter: null,
-    settings: storage.get(DOZZLE_SETTINGS_KEY),
     authorizationNeeded: config.authorizationNeeded,
   },
   mutations: {
@@ -55,10 +51,6 @@ const store = createStore({
     },
     SET_SEARCH(state, filter) {
       state.searchFilter = filter;
-    },
-    UPDATE_SETTINGS(state, newValues) {
-      state.settings = { ...state.settings, ...newValues };
-      storage.set(DOZZLE_SETTINGS_KEY, state.settings);
     },
     UPDATE_CONTAINER(_, { container, data }) {
       for (const [key, value] of Object.entries(data)) {
@@ -99,7 +91,7 @@ const store = createStore({
     allContainersById({ containers }) {
       return allContainersById(containers);
     },
-    visibleContainers({ containers, settings: { showAllContainers } }) {
+    visibleContainers({ containers }) {
       const filter = showAllContainers ? () => true : (c: Container) => c.state === "running";
       return containers.filter(filter);
     },

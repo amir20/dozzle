@@ -57,6 +57,7 @@
     "@types/jest": "^27.0.2",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.throttle": "^4.1.6",
+    "@types/semver": "^7.3.9",
     "@vue/compiler-sfc": "^3.2.22",
     "@vue/test-utils": "^2.0.0-rc.16",
     "@vue/vue3-jest": "^27.0.0-alpha.3",

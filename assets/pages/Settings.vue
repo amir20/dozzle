@@ -10,9 +10,8 @@
         >.
         <span v-if="hasUpdate">
           New version is available! Update to
-          <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noreferrer noopener">{{
-            nextRelease.name
-          }}</a
+          <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noreferrer noopener">
+            {{ nextRelease.name }}</a
           >.
         </span>
       </div>
@@ -106,55 +105,30 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { ref } from "vue";
 import gt from "semver/functions/gt";
-import { mapActions, mapState } from "vuex";
 import config from "../store/config";
 import { setTitle } from "@/composables/title";
+import { search, lightTheme, smallerScrollbars, hourStyle, showAllContainers, size } from "@/composables/settings";
 
-export default {
-  props: [],
-  name: "Settings",
-  data() {
-    return {
-      currentVersion: config.version,
-      nextRelease: null,
-      hasUpdate: false,
-    };
-  },
-  async created() {
-    setTitle("Settings");
-    const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
-    if (this.currentVersion !== "master") {
-      this.hasUpdate = gt(releases[0].tag_name, this.currentVersion);
-    } else {
-      this.hasUpdate = true;
-    }
-    this.nextRelease = releases[0];
-  },
-  methods: {
-    ...mapActions({
-      updateSetting: "UPDATE_SETTING",
-    }),
-  },
-  computed: {
-    ...mapState(["settings"]),
-    ...["search", "size", "smallerScrollbars", "showTimestamp", "showAllContainers", "lightTheme", "hourStyle"].reduce(
-      (map, name) => {
-        map[name] = {
-          get() {
-            return this.settings[name];
-          },
-          set(value) {
-            this.updateSetting({ [name]: value });
-          },
-        };
-        return map;
-      },
-      {}
-    ),
-  },
-};
+setTitle("Settings");
+
+const currentVersion = config.version;
+const nextRelease = ref(null);
+const hasUpdate = ref(false);
+
+async function fetchNextRelease() {
+  const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
+  if (currentVersion.value !== "master") {
+    hasUpdate.value = gt(releases[0].tag_name, currentVersion);
+  } else {
+    hasUpdate.value = true;
+  }
+  nextRelease.value = releases[0];
+}
+
+fetchNextRelease();
 </script>
 <style lang="scss" scoped>
 .title {
