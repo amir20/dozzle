@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import config from "./config";
-import showAllContainers from "@/composables/settings";
+import { showAllContainers } from "@/composables/settings";
 
 interface Container {
   id: string;

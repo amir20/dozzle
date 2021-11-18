@@ -1,5 +1,5 @@
 <template>
-  <div class="search columns is-gapless is-vcentered" v-show="showSearch" v-if="settings.search">
+  <div class="search columns is-gapless is-vcentered" v-show="showSearch" v-if="search">
     <div class="column">
       <p class="control has-icons-left">
         <input
@@ -20,6 +20,10 @@
     </div>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { search } from "@/composables/settings";
+</script>
 
 <script lang="ts">
 import { mapActions, mapState } from "vuex";
@@ -57,7 +61,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["searchFilter", "settings"]),
+    ...mapState(["searchFilter"]),
     filter: {
       get() {
         return this.searchFilter;

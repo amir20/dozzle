@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS = {
   hourStyle: "auto",
 };
 
-export const  settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
+export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
 
 export const search = computed({
   get: () => settings.value.search,
@@ -54,5 +54,3 @@ export const hourStyle = computed({
   get: () => settings.value.hourStyle,
   set: (value) => (settings.value.hourStyle = value),
 });
-
-export default settings;
