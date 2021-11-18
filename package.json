@@ -31,7 +31,6 @@
     "@vitejs/plugin-vue": "^1.9.4",
     "@vueuse/core": "^6.9.1",
     "ansi-to-html": "^0.7.2",
-    "autoprefixer": "^10.4.0",
     "bulma": "^0.9.3",
     "date-fns": "^2.25.0",
     "fuzzysort": "^1.1.4",
