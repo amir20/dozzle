@@ -110,7 +110,15 @@ import { ref } from "vue";
 import gt from "semver/functions/gt";
 import config from "../store/config";
 import { setTitle } from "@/composables/title";
-import { search, lightTheme, smallerScrollbars, hourStyle, showAllContainers, size } from "@/composables/settings";
+import {
+  search,
+  lightTheme,
+  smallerScrollbars,
+  showTimestamp,
+  hourStyle,
+  showAllContainers,
+  size,
+} from "@/composables/settings";
 
 setTitle("Settings");
 
@@ -120,7 +128,7 @@ const hasUpdate = ref(false);
 
 async function fetchNextRelease() {
   const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
-  if (currentVersion.value !== "master") {
+  if (!["dev", "master"].includes(currentVersion)) {
     hasUpdate.value = gt(releases[0].tag_name, currentVersion);
   } else {
     hasUpdate.value = true;
