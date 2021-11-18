@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts">
-import { mapState } from "vuex";
 import { formatRelative } from "date-fns";
+import { hourStyle } from "@/composables/settings";
 import enGB from "date-fns/locale/en-GB";
 import enUS from "date-fns/locale/en-US";
 
@@ -28,9 +28,8 @@ export default {
   name: "RelativeTime",
   components: {},
   computed: {
-    ...mapState(["settings"]),
     locale() {
-      const locale = styles[this.settings.hourStyle];
+      const locale = styles[hourStyle.value];
       const oldFormatter = locale.formatRelative;
       return {
         ...locale,

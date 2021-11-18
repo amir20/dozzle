@@ -5,6 +5,7 @@ import EventSource, { sources } from "eventsourcemock";
 import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
+import { settings } from "../composables/settings";
 import { mocked } from "ts-jest/utils";
 
 jest.mock("lodash.debounce", () =>
@@ -27,14 +28,17 @@ describe("<LogEventSource />", () => {
     }));
 
     mocked(debounce).mockClear();
+    jest.resetModules();
   });
 
-  function createLogEventSource({
-    hourStyle = "auto",
-    searchFilter = null,
-  }: { hourStyle?: string; searchFilter?: string | null } = {}) {
+  function createLogEventSource(
+    { searchFilter = null, hourStyle = "auto" }: { searchFilter?: string | null; hourStyle?: "auto" | "24" | "12" } = {
+      hourStyle: "auto",
+    }
+  ) {
+    settings.value.hourStyle = hourStyle;
     const store = createStore({
-      state: { searchFilter, settings: { size: "medium", showTimestamp: true, hourStyle } },
+      state: { searchFilter },
       getters: {
         allContainersById() {
           return {

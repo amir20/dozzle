@@ -44,12 +44,13 @@
 
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-import { ref, onMounted, watchEffect, toRefs, computed, watch } from "vue";
+import { ref, onMounted, watchEffect, toRefs, computed } from "vue";
 import { useStore } from "vuex";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
 import { setTitle } from "./composables/title";
 import { isMobile } from "./composables/mediaQuery";
+import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
 
 import FuzzySearchModal from "./components/FuzzySearchModal.vue";
 import LogContainer from "./components/LogContainer.vue";
@@ -59,12 +60,9 @@ import MobileMenu from "./components/MobileMenu.vue";
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const store = useStore();
-const { menuWidth } = toRefs(store.state.settings);
-const { containers, authorizationNeeded } = toRefs(store.state);
+const { authorizationNeeded } = toRefs(store.state);
 const activeContainers = computed(() => store.getters.activeContainers);
 const visibleContainers = computed(() => store.getters.visibleContainers);
-const lightTheme = computed(() => store.state.settings.lightTheme);
-const smallerScrollbars = computed(() => store.state.settings.smallerScrollbars);
 
 onMounted(() => {
   if (smallerScrollbars.value) {
@@ -109,8 +107,7 @@ function showFuzzySearch() {
 }
 function onResized(e) {
   if (e.length == 2) {
-    const menuWidth = e[0].size;
-    store.dispatch("UPDATE_SETTING", { menuWidth });
+    menuWidth.value = e[0].size;
   }
 }
 </script>

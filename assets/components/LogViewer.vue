@@ -1,7 +1,7 @@
 <template>
-  <ul class="events" :class="settings.size">
+  <ul class="events" :class="size">
     <li v-for="item in filtered" :key="item.key" :data-event="item.event">
-      <span class="date" v-if="settings.showTimestamp"> <relative-time :date="item.date"></relative-time></span>
+      <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
       <span class="text" v-html="colorize(item.message)"></span>
     </li>
   </ul>
@@ -11,21 +11,23 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 
+import { size, showTimestamp } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
-
 import AnsiConvertor from "ansi-to-html";
 
 const props = defineProps({
-  messages: Array,
+  messages: {
+    type: Array,
+    required: true,
+  },
 });
 
 const store = useStore();
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-function colorize(value) {
+function colorize(value: string) {
   return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
 }
 
-const settings = computed(() => store.state.settings);
 const searchFilter = computed(() => store.state.searchFilter);
 const filtered = computed(() => {
   if (searchFilter && searchFilter.value) {
