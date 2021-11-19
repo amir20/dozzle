@@ -14,7 +14,7 @@
   "author": "Amir Raminfar <findamir@gmail.com>",
   "scripts": {
     "watch:assets": "vite --open",
-    "watch:server": "LIVE_FS=true reflex -c .reflex",
+    "watch:server": "LIVE_FS=true DOZZLE_ADDR=:3100 reflex -c .reflex",
     "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
     "build": "vite build",
     "release": "release-it",
