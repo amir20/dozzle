@@ -50,7 +50,7 @@ import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
 
 import { setTitle } from "@/composables/title";
-import { isMobile } from "@/composables/mediaQuery";
+import { isMobile } from "@/composables/media";
 import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
 import { useContainerStore } from "@/stores/container";
 
