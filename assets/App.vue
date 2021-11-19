@@ -44,25 +44,29 @@
 
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-import { ref, onMounted, watchEffect, toRefs, computed } from "vue";
-import { useStore } from "vuex";
+import { ref, onMounted, watchEffect } from "vue";
+import { storeToRefs } from "pinia";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
-import { setTitle } from "./composables/title";
-import { isMobile } from "./composables/mediaQuery";
-import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
 
-import FuzzySearchModal from "./components/FuzzySearchModal.vue";
-import LogContainer from "./components/LogContainer.vue";
-import SideMenu from "./components/SideMenu.vue";
-import MobileMenu from "./components/MobileMenu.vue";
+import { setTitle } from "@/composables/title";
+import { isMobile } from "@/composables/mediaQuery";
+import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
+import { useContainersStore } from "@/stores/containers";
+
+import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
+import LogContainer from "@/components/LogContainer.vue";
+import SideMenu from "@/components/SideMenu.vue";
+import MobileMenu from "@/components/MobileMenu.vue";
 
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
-const store = useStore();
-const { authorizationNeeded } = toRefs(store.state);
-const activeContainers = computed(() => store.getters.activeContainers);
-const visibleContainers = computed(() => store.getters.visibleContainers);
+
+const authorizationNeeded = false;
+
+const containersStore = useContainersStore();
+
+const { activeContainers, visibleContainers } = storeToRefs(containersStore);
 
 onMounted(() => {
   if (smallerScrollbars.value) {

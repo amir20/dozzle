@@ -37,6 +37,7 @@
     "hotkeys-js": "^3.8.7",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
+    "pinia": "^2.0.3",
     "sass": "^1.43.4",
     "semver": "^7.3.5",
     "splitpanes": "^3.0.6",

@@ -3,8 +3,8 @@ import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { Autocomplete, Button, Dropdown, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
 import { bulmaConfig } from "@oruga-ui/theme-bulma";
-import store from "./store";
-import config from "./store/config";
+import { createPinia } from 'pinia'
+import config from "./stores/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
 
@@ -54,7 +54,7 @@ const router = createRouter({
 
 createApp(App)
   .use(router)
-  .use(store)
+  .use(createPinia())
   .use(Autocomplete)
   .use(Button)
   .use(Dropdown)

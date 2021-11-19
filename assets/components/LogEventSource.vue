@@ -25,7 +25,7 @@ const { id } = toRefs(props);
 
 const emit = defineEmits(["loading-more"]);
 
-interface LogEntry {
+export interface LogEntry {
   date: Date;
   message: String;
   key: String;

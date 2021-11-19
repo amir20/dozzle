@@ -8,16 +8,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, PropType } from "vue";
 import { useStore } from "vuex";
 
 import { size, showTimestamp } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
+import { LogEntry } from "./LogEventSource.vue";
 
 const props = defineProps({
   messages: {
-    type: Array,
+    type: [] as PropType<LogEntry[]>,
     required: true,
   },
 });
