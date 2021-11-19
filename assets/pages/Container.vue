@@ -5,38 +5,33 @@
   </div>
 </template>
 
-<script lang="ts">
-import { mapGetters } from "vuex";
-import Search from "../components/Search.vue";
-import LogContainer from "../components/LogContainer.vue";
+<script lang="ts" setup>
+import { onMounted, toRefs, watchEffect } from "vue";
+import Search from "@/components/Search.vue";
+import LogContainer from "@/components/LogContainer.vue";
 import { setTitle } from "@/composables/title";
+import { useContainerStore } from "@/stores/container";
+import { storeToRefs } from "pinia";
 
-export default {
-  props: ["id"],
-  name: "Container",
-  components: {
-    LogContainer,
-    Search,
-  },
-  created() {
-    setTitle("loading");
-  },
+const store = useContainerStore();
 
-  mounted() {
-    if (this.allContainersById[this.id]) {
-      setTitle(this.allContainersById[this.id].name);
-    }
+const props = defineProps({
+  id: {
+    type: String,
+    required: true,
   },
-  computed: {
-    ...mapGetters(["allContainersById", "activeContainers"]),
-  },
-  watch: {
-    id() {
-      setTitle(this.allContainersById[this.id].name);
-    },
-    allContainersById() {
-      setTitle(this.allContainersById[this.id].name);
-    },
-  },
-};
+});
+
+const { id } = toRefs(props);
+
+const currentContainer = store.currentContainer(id);
+const { activeContainers } = storeToRefs(store);
+
+setTitle("loading");
+
+onMounted(() => {
+  setTitle(currentContainer.value?.name);
+});
+
+watchEffect(() => setTitle(currentContainer.value?.name));
 </script>

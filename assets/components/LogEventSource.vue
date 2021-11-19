@@ -27,9 +27,9 @@ const emit = defineEmits(["loading-more"]);
 
 export interface LogEntry {
   date: Date;
-  message: String;
-  key: String;
-  event?: String;
+  message: string;
+  key: string;
+  event?: string;
 }
 
 const messages = ref<LogEntry[]>([]);

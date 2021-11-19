@@ -22,56 +22,34 @@
 </template>
 
 <script lang="ts" setup>
-import { search } from "@/composables/settings";
-</script>
-
-<script lang="ts">
-import { mapActions, mapState } from "vuex";
 import hotkeys from "hotkeys-js";
 
-export default {
-  props: [],
-  name: "Search",
-  data() {
-    return {
-      showSearch: false,
-    };
-  },
-  mounted() {
-    hotkeys("command+f, ctrl+f", (event, handler) => {
-      this.showSearch = true;
-      this.$nextTick(() => this.$refs.filter.focus() || this.$refs.filter.select());
-      event.preventDefault();
-    });
-    hotkeys("esc", (event, handler) => {
-      this.resetSearch();
-    });
-  },
-  beforeUnmount() {
-    this.updateSearchFilter("");
-    hotkeys.unbind("command+f, ctrl+f, esc");
-  },
-  methods: {
-    ...mapActions({
-      updateSearchFilter: "SET_SEARCH",
-    }),
-    resetSearch() {
-      this.showSearch = false;
-      this.filter = "";
-    },
-  },
-  computed: {
-    ...mapState(["searchFilter"]),
-    filter: {
-      get() {
-        return this.searchFilter;
-      },
-      set(value) {
-        this.updateSearchFilter(value);
-      },
-    },
-  },
-};
+import { search } from "@/composables/settings";
+import { ref, nextTick, onMounted, onUnmounted } from "vue";
+
+const showSearch = ref(false);
+const filter = ref<HTMLInputElement>();
+
+onMounted(() => {
+  hotkeys("command+f, ctrl+f", (event, handler) => {
+    showSearch.value = true;
+    nextTick(() => filter.value?.focus() || filter.value?.select());
+    event.preventDefault();
+  });
+  hotkeys("esc", (event, handler) => {
+    resetSearch();
+  });
+});
+
+onUnmounted(() => {
+  // todo reset filter
+  hotkeys.unbind("command+f, ctrl+f");
+  hotkeys.unbind("esc");
+});
+
+function resetSearch() {
+  showSearch.value = false;
+}
 </script>
 
 <style lang="scss" scoped>

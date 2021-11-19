@@ -6,7 +6,7 @@
           <container-title :container="container" @close="$emit('close')"></container-title>
         </div>
         <div class="column is-narrow is-paddingless">
-          <container-stat :stat="container.stat" :state="container.state"></container-stat>
+          <!-- <container-stat :stat="container.stat" :state="container.state"></container-stat> -->
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
@@ -36,7 +36,8 @@
 
 <script lang="ts" setup>
 import { ref, toRefs } from "vue";
-import useContainer from "../composables/container";
+import LogViewerWithSource from "./LogViewerWithSource.vue";
+import { useContainerStore } from "@/stores/container";
 
 const props = defineProps({
   id: {
@@ -57,9 +58,11 @@ const props = defineProps({
   },
 });
 const { id } = toRefs(props);
-const { container } = useContainer(id);
+const store = useContainerStore();
 
-const viewer = ref<HTMLElement>();
+const container = store.currentContainer(id);
+
+const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
 
 function onClearClicked() {
   viewer.value?.clear();

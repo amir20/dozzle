@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, Ref, computed } from "vue";
 
 import { showAllContainers } from "@/composables/settings";
 import config from "@/stores/config";
@@ -47,12 +47,15 @@ export const useContainerStore = defineStore("container", () => {
   // es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
   // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
+  const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
+
   return {
     containers,
     activeContainerIds,
     allContainersById,
     visibleContainers,
     activeContainers,
+    currentContainer,
   };
 });
 

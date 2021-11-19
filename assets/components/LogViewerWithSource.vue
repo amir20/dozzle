@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import LogViewer from "./LogViewer.vue";
 import { ref } from "vue";
 defineProps({
   id: {
@@ -15,7 +16,7 @@ defineProps({
 
 const emit = defineEmits(["loading-more"]);
 
-const source = ref<HTMLElement>();
+const source = ref<InstanceType<typeof LogViewer>>();
 function clear() {
   source.value?.clear();
 }
