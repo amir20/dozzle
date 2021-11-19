@@ -39,7 +39,11 @@ export const useContainerStore = defineStore("container", () => {
   const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
   const es = new EventSource(`${config.base}/api/events/stream`);
-  es.addEventListener("containers-changed", (e) => (containers.value = JSON.parse(e.data)), false);
+  es.addEventListener(
+    "containers-changed",
+    (e: Event) => (containers.value = JSON.parse((e as MessageEvent).data)),
+    false
+  );
   // es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
   // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
