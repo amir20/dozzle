@@ -6,8 +6,8 @@
           class="input"
           type="text"
           placeholder="Find / RegEx"
-          ref="filter"
-          v-model="filter"
+          ref="input"
+          v-model="searchFilter"
           @keyup.esc="resetSearch()"
         />
         <span class="icon is-left">
@@ -25,24 +25,24 @@
 import hotkeys from "hotkeys-js";
 
 import { search } from "@/composables/settings";
+import { useSearchFilter } from "@/composables/search";
 import { ref, nextTick, onMounted, onUnmounted } from "vue";
 
 const showSearch = ref(false);
-const filter = ref<HTMLInputElement>();
+const input = ref<HTMLInputElement>();
+const { searchFilter } = useSearchFilter();
 
 onMounted(() => {
   hotkeys("command+f, ctrl+f", (event, handler) => {
     showSearch.value = true;
-    nextTick(() => filter.value?.focus() || filter.value?.select());
+    nextTick(() => input.value?.focus() || input.value?.select());
     event.preventDefault();
   });
-  hotkeys("esc", (event, handler) => {
-    resetSearch();
-  });
+  hotkeys("esc", () => resetSearch());
 });
 
 onUnmounted(() => {
-  // todo reset filter
+  searchFilter.value = "";
   hotkeys.unbind("command+f, ctrl+f");
   hotkeys.unbind("esc");
 });

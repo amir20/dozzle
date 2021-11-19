@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-progress">
+  <div class="scroll-progress" ref="root">
     <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
       <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
     </svg>
@@ -17,76 +17,72 @@
   </div>
 </template>
 
-<script lang="ts">
-import { mapGetters } from "vuex";
+<script lang="ts" setup>
+import { useContainerStore } from "@/stores/container";
 import throttle from "lodash.throttle";
+import { storeToRefs } from "pinia";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 
-export default {
-  name: "ScrollProgress",
-  props: {
-    indeterminate: {
-      default: false,
-      type: Boolean,
-    },
-    autoHide: {
-      default: true,
-      type: Boolean,
-    },
+const props = defineProps({
+  indeterminate: {
+    default: false,
+    type: Boolean,
   },
-  data() {
-    return {
-      scrollProgress: 0,
-      animation: { cancel: () => {} },
-      parentElement: document,
-    };
+  autoHide: {
+    default: true,
+    type: Boolean,
   },
-  created() {
-    this.onScrollThrottled = throttle(this.onScroll, 150);
-  },
-  mounted() {
-    this.attachEvents();
-  },
-  beforeUnmount() {
-    this.detachEvents();
-  },
-  watch: {
-    activeContainers() {
-      this.detachEvents();
-      this.attachEvents();
-    },
-    indeterminate() {
-      this.$nextTick(() => this.onScroll());
-    },
-  },
-  computed: {
-    ...mapGetters(["activeContainers"]),
-  },
-  methods: {
-    attachEvents() {
-      this.parentElement = this.$el.closest("[data-scrolling]") || document;
-      this.parentElement.addEventListener("scroll", this.onScrollThrottled);
-    },
-    detachEvents() {
-      this.parentElement.removeEventListener("scroll", this.onScrollThrottled);
-    },
-    onScroll() {
-      const p = this.parentElement == document ? document.documentElement : this.parentElement;
-      this.scrollProgress = p.scrollTop / (p.scrollHeight - p.clientHeight);
-      this.animation.cancel();
-      if (this.autoHide) {
-        this.animation = this.$el.animate(
-          { opacity: [1, 0] },
-          {
-            duration: 500,
-            delay: 2000,
-            fill: "both",
-            easing: "ease-out",
-          }
-        );
+});
+
+const scrollProgress = ref(0);
+const animation = ref({ cancel: () => {} });
+const parentElement = ref(document.documentElement);
+const root = ref<HTMLElement>();
+const store = useContainerStore();
+const { activeContainers } = storeToRefs(store);
+const onScrollThrottled = throttle(onScroll, 150);
+
+function onScroll() {
+  const parent = parentElement.value;
+  scrollProgress.value = parent.scrollTop / (parent.scrollHeight - parent.clientHeight);
+  animation.value.cancel();
+  if (props.autoHide && root.value) {
+    animation.value = root.value.animate(
+      { opacity: [1, 0] },
+      {
+        duration: 500,
+        delay: 2000,
+        fill: "both",
+        easing: "ease-out",
       }
-    },
-  },
-};
+    );
+  }
+}
+
+function attachEvents() {
+  parentElement.value = root.value?.closest("[data-scrolling]") || document.documentElement;
+  parentElement.value.addEventListener("scroll", onScrollThrottled);
+}
+
+function detachEvents() {
+  parentElement.value.removeEventListener("scroll", onScrollThrottled);
+}
+
+onMounted(() => {
+  attachEvents();
+});
+
+onUnmounted(() => {
+  detachEvents();
+});
+
+watch(
+  () => activeContainers,
+  () => {
+    attachEvents();
+    detachEvents();
+  }
+);
 </script>
 <style scoped lang="scss">
 .scroll-progress {

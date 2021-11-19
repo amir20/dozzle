@@ -3,22 +3,7 @@ import { ref, Ref, computed } from "vue";
 
 import { showAllContainers } from "@/composables/settings";
 import config from "@/stores/config";
-
-export interface Container {
-  id: string;
-  created: number;
-  image: string;
-  name: string;
-  state: string;
-  status: string;
-  stat: ContainerStat;
-}
-
-export interface ContainerStat {
-  cpu: number;
-  memory: number;
-  memoryUsage: number;
-}
+import { Container } from "@/types/Container";
 
 export const useContainerStore = defineStore("container", () => {
   const containers = ref<Container[]>([]);
