@@ -15,7 +15,7 @@ jest.mock("lodash.debounce", () =>
   })
 );
 
-jest.mock("../store/config.ts", () => ({ base: "" }));
+jest.mock("@/stores/config", () => ({ base: "" }));
 
 describe("<LogEventSource />", () => {
   beforeEach(() => {

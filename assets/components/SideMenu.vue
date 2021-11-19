@@ -56,31 +56,22 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { mapActions, mapGetters } from "vuex";
+<script lang="ts" setup>
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useContainerStore } from "@/stores/container";
+import type { Container } from "@/stores/container";
 
-export default {
-  props: [],
-  name: "SideMenu",
+const containerStore = useContainerStore();
 
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapGetters(["visibleContainers", "activeContainers"]),
-    activeContainersById() {
-      return this.activeContainers.reduce((map, obj) => {
-        map[obj.id] = obj;
-        return map;
-      }, {});
-    },
-  },
-  methods: {
-    ...mapActions({
-      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
-    }),
-  },
-};
+const { activeContainers, visibleContainers } = storeToRefs(containerStore);
+
+const activeContainersById = computed(() =>
+  activeContainers.value.reduce((acc, item) => {
+    acc[item.id] = item;
+    return acc;
+  }, {} as Record<string, Container>)
+);
 </script>
 <style scoped lang="scss">
 aside {

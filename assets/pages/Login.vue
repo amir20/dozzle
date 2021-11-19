@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import config from "../store/config";
+import config from "@/stores/config";
 import { setTitle } from "@/composables/title";
 export default {
   name: "Login",

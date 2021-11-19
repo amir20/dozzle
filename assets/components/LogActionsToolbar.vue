@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import config from "../store/config";
+import config from "@/stores/config";
 import hotkeys from "hotkeys-js";
 import { onMounted, onUnmounted } from "vue";
 

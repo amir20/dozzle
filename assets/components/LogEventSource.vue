@@ -11,7 +11,7 @@ import debounce from "lodash.debounce";
 
 import InfiniteLoader from "./InfiniteLoader.vue";
 
-import config from "../store/config";
+import config from "@/stores/config";
 import useContainer from "../composables/container";
 
 const props = defineProps({

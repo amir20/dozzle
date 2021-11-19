@@ -52,7 +52,7 @@ import hotkeys from "hotkeys-js";
 import { setTitle } from "@/composables/title";
 import { isMobile } from "@/composables/mediaQuery";
 import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
-import { useContainersStore } from "@/stores/containers";
+import { useContainerStore } from "@/stores/container";
 
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 import LogContainer from "@/components/LogContainer.vue";
@@ -64,9 +64,9 @@ const { oruga } = useProgrammatic();
 
 const authorizationNeeded = false;
 
-const containersStore = useContainersStore();
+const containerStore = useContainerStore();
 
-const { activeContainers, visibleContainers } = storeToRefs(containersStore);
+const { activeContainers, visibleContainers } = storeToRefs(containerStore);
 
 onMounted(() => {
   if (smallerScrollbars.value) {

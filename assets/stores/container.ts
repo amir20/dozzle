@@ -2,21 +2,25 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref, computed } from "vue";
 
 import { showAllContainers } from "@/composables/settings";
+import config from "@/stores/config";
 
-interface Container {
+export interface Container {
   id: string;
+  created: number;
+  image: string;
   name: string;
   state: string;
+  status: string;
   stat: ContainerStat;
 }
 
-interface ContainerStat {
+export interface ContainerStat {
   cpu: number;
   memory: number;
   memoryUsage: number;
 }
 
-export const useContainersStore = defineStore("containers", () => {
+export const useContainerStore = defineStore("container", () => {
   const containers = ref<Container[]>([]);
   const activeContainerIds = ref<string[]>([]);
 
@@ -24,7 +28,7 @@ export const useContainersStore = defineStore("containers", () => {
     containers.value.reduce((acc, container) => {
       acc[container.id] = container;
       return acc;
-    }, {} as { [id: string]: Container })
+    }, {} as Record<string, Container>)
   );
 
   const visibleContainers = computed(() => {
@@ -34,7 +38,10 @@ export const useContainersStore = defineStore("containers", () => {
 
   const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
-  console.log("containers store created");
+  const es = new EventSource(`${config.base}/api/events/stream`);
+  es.addEventListener("containers-changed", (e) => (containers.value = JSON.parse(e.data)), false);
+  // es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
+  // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
   return {
     containers,
@@ -45,4 +52,6 @@ export const useContainersStore = defineStore("containers", () => {
   };
 });
 
-if (import.meta.hot) import.meta.hot.accept(acceptHMRUpdate(useContainersStore, import.meta.hot));
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useContainerStore, import.meta.hot));
+}
