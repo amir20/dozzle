@@ -46,7 +46,6 @@ specifiers:
   vite: ^2.6.14
   vue: ^3.2.22
   vue-router: ^4.0.12
-  vuex: ^4.0.2
 
 dependencies:
   '@iconify-json/carbon': 1.0.10
@@ -75,7 +74,6 @@ dependencies:
   vite: 2.6.14_sass@1.43.4
   vue: 3.2.22
   vue-router: 4.0.12_vue@3.2.22
-  vuex: 4.0.2_vue@3.2.22
 
 devDependencies:
   '@babel/plugin-transform-runtime': 7.16.0
@@ -6449,15 +6447,6 @@ packages:
       '@vue/runtime-dom': 3.2.22
       '@vue/server-renderer': 3.2.22_vue@3.2.22
       '@vue/shared': 3.2.22
-    dev: false
-
-  /vuex/4.0.2_vue@3.2.22:
-    resolution: {integrity: sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q==}
-    peerDependencies:
-      vue: ^3.0.2
-    dependencies:
-      '@vue/devtools-api': 6.0.0-beta.20
-      vue: 3.2.22
     dev: false
 
   /w3c-hr-time/1.0.2:
