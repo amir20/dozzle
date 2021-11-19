@@ -1,23 +1,25 @@
 <template>
-  <div class="mr-0 toolbar is-vcentered is-hidden-mobile">
-    <div class="is-flex">
-      <o-tooltip type="is-dark" label="Clear">
-        <a @click="onClearClicked" class="pl-1 pr-1 button is-small is-light is-inverted" id="clear">
-          <octicon-trash-24 />
-        </a>
-      </o-tooltip>
-      <div class="is-flex-grow-1"></div>
-      <o-tooltip type="is-dark" label="Download">
-        <a
-          class="pl-1 pr-1 button is-small is-light is-inverted"
-          id="download"
-          :href="`${base}/api/logs/download?id=${container.id}`"
-          download
-        >
-          <octicon-download-24 />
-        </a>
-      </o-tooltip>
-    </div>
+  <div class="mr-2 column is-narrow is-paddingless is-clickable">
+    <o-dropdown aria-role="list" position="bottom-left">
+      <template v-slot:trigger>
+        <span class="btn">
+          <span class="icon">
+            <mdi-dots-vertical />
+          </span>
+        </span>
+      </template>
+
+      <o-dropdown-item aria-role="listitem" @click="onClearClicked">
+        <octicon-trash-24 style="margin-right: 1em" />
+        <span> Clear </span>
+      </o-dropdown-item>
+      <a id="download" :href="`${base}/api/logs/download?id=${container.id}`">
+        <o-dropdown-item aria-role="listitem">
+          <octicon-download-24 style="margin-right: 1em" />
+          <span> Download </span>
+        </o-dropdown-item>
+      </a>
+    </o-dropdown>
   </div>
 </template>
 

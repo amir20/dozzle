@@ -11,22 +11,8 @@
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="$emit('close')"></button>
         </div>
-        <!-- <div class="mr-2 column is-narrow is-paddingless">
-          <o-dropdown aria-role="list" position="bottom-left">
-            <template v-slot:trigger>
-              <span class="btn">
-                <span class="icon">
-                  <carbon-verflow-menu-vertical />
-                </span>
-              </span>
-            </template>
-
-            <o-dropdown-item aria-role="listitem"> Clear </o-dropdown-item>
-            <o-dropdown-item aria-role="listitem">Download</o-dropdown-item>
-          </o-dropdown>
-        </div> -->
+        <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
       </div>
-      <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
     </template>
     <template v-slot="{ setLoading }">
       <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
