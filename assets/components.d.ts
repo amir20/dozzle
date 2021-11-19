@@ -15,6 +15,7 @@ declare module 'vue' {
     LogEventSource: typeof import('./components/LogEventSource.vue')['default']
     LogViewer: typeof import('./components/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewerWithSource.vue')['default']
+    MdiDotsVertical: typeof import('~icons/mdi/dots-vertical')['default']
     MdiLightChevronDoubleDown: typeof import('~icons/mdi-light/chevron-double-down')['default']
     MdiLightChevronLeft: typeof import('~icons/mdi-light/chevron-left')['default']
     MdiLightChevronRight: typeof import('~icons/mdi-light/chevron-right')['default']

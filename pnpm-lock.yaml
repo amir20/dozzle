@@ -3,8 +3,8 @@ lockfileVersion: 5.3
 specifiers:
   '@babel/plugin-transform-runtime': ^7.16.0
   '@babel/preset-env': ^7.16.0
-  '@iconify-json/carbon': ^1.0.10
   '@iconify-json/cil': ^1.0.1
+  '@iconify-json/mdi': ^1.0.10
   '@iconify-json/mdi-light': ^1.0.1
   '@iconify-json/octicon': ^1.0.5
   '@oruga-ui/oruga-next': ^0.4.7
@@ -49,8 +49,8 @@ specifiers:
   vue-router: ^4.0.12
 
 dependencies:
-  '@iconify-json/carbon': 1.0.10
   '@iconify-json/cil': 1.0.1
+  '@iconify-json/mdi': 1.0.10
   '@iconify-json/mdi-light': 1.0.1
   '@iconify-json/octicon': 1.0.5
   '@oruga-ui/oruga-next': 0.4.7_vue@3.2.22
@@ -1337,12 +1337,6 @@ packages:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
     dev: true
 
-  /@iconify-json/carbon/1.0.10:
-    resolution: {integrity: sha512-Tw/bjIWIJ8cx3lTqqvETkui3Z7dNW1j/kYTckAmjiGNJhlMi7b4pL7iFyxnkb3Y7dpia1ZNQOwzHUXMxxxk6WA==}
-    dependencies:
-      '@iconify/types': 1.0.10
-    dev: false
-
   /@iconify-json/cil/1.0.1:
     resolution: {integrity: sha512-gLk0c25zSBtKKJWrGXVfQITeIdmvlSOiO/cKTVTQPG3W4qKh8V/wL3Fltb4j4iMPJgRVXylPPwKSwXbIDBDgZA==}
     dependencies:
@@ -1351,6 +1345,12 @@ packages:
 
   /@iconify-json/mdi-light/1.0.1:
     resolution: {integrity: sha512-lbucb1t36lRRxEHNnJcROt0SRRRQgI6gmzj1Pv2qadrw/5mjLN6+OzOOCAIwCLDu//hU7xMkXDCw47aWtbRHaA==}
+    dependencies:
+      '@iconify/types': 1.0.10
+    dev: false
+
+  /@iconify-json/mdi/1.0.10:
+    resolution: {integrity: sha512-qX2IZAh4nrDlJ/3J5m/OWUf0Y6QQq7fJriFHG0JWf1ZyfQCArCOT9s+HBmdZKxhXYPYn58Jf+Pg/KbKK6M7tiQ==}
     dependencies:
       '@iconify/types': 1.0.10
     dev: false
