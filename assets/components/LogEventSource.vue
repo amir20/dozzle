@@ -1,18 +1,16 @@
 <template>
-  <div>
-    <infinite-loader :onLoadMore="loadOlderLogs" :enabled="messages.length > 100"></infinite-loader>
-    <slot :messages="messages"></slot>
-  </div>
+  <infinite-loader :onLoadMore="loadOlderLogs" :enabled="messages.length > 100"></infinite-loader>
+  <slot :messages="messages"></slot>
 </template>
 
 <script lang="ts" setup>
 import { toRefs, ref, watch, onUnmounted } from "vue";
 import debounce from "lodash.debounce";
 
+import { LogEntry } from "@/types/LogEntry";
 import InfiniteLoader from "./InfiniteLoader.vue";
-
-import config from "../store/config";
-import useContainer from "../composables/container";
+import config from "@/stores/config";
+import { useContainerStore } from "@/stores/container";
 
 const props = defineProps({
   id: {
@@ -22,15 +20,9 @@ const props = defineProps({
 });
 
 const { id } = toRefs(props);
-
 const emit = defineEmits(["loading-more"]);
-
-interface LogEntry {
-  date: Date;
-  message: String;
-  key: String;
-  event?: String;
-}
+const store = useContainerStore();
+const container = store.currentContainer(id);
 
 const messages = ref<LogEntry[]>([]);
 const buffer = ref<LogEntry[]>([]);
@@ -109,8 +101,6 @@ function parseMessage(data: String): LogEntry {
   const message = data.substring(i + 1);
   return { key, date, message };
 }
-
-const { container } = useContainer(id);
 
 watch(
   () => container.value.state,

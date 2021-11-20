@@ -8,49 +8,26 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useStore } from "vuex";
+import { PropType, toRefs } from "vue";
 
 import { size, showTimestamp } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
+import { LogEntry } from "@/types/LogEntry";
+import { useSearchFilter } from "@/composables/search";
 
 const props = defineProps({
   messages: {
-    type: Array,
+    type: Array as PropType<LogEntry[]>,
     required: true,
   },
 });
 
-const store = useStore();
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-function colorize(value: string) {
-  return ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
-}
-
-const searchFilter = computed(() => store.state.searchFilter);
-const filtered = computed(() => {
-  if (searchFilter && searchFilter.value) {
-    const isSmartCase = searchFilter.value === searchFilter.value.toLowerCase();
-    try {
-      const regex = isSmartCase ? new RegExp(searchFilter.value, "i") : new RegExp(searchFilter.value);
-      return props.messages
-        .filter((d) => d.message.match(regex))
-        .map((d) => ({
-          ...d,
-          message: d.message.replace(regex, "<mark>$&</mark>"),
-        }));
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        console.info(`Ignoring SytaxError from search.`, e);
-        return props.messages;
-      }
-      throw e;
-    }
-  }
-
-  return props.messages;
-});
+const colorize = (value: string) =>
+  ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
+const { messages } = toRefs(props);
+const filtered = useSearchFilter().filteredMessages(messages);
 </script>
 <style scoped lang="scss">
 .events {

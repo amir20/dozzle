@@ -42,7 +42,7 @@
             <div class="is-flex-shrink-1 column-icon">
               <span
                 class="icon is-small"
-                @click.stop.prevent="appendActiveContainer(item)"
+                @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
                 title="Pin as column"
               >
@@ -56,31 +56,22 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { mapActions, mapGetters } from "vuex";
+<script lang="ts" setup>
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useContainerStore } from "@/stores/container";
+import type { Container } from "@/types/Container";
 
-export default {
-  props: [],
-  name: "SideMenu",
+const store = useContainerStore();
 
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapGetters(["visibleContainers", "activeContainers"]),
-    activeContainersById() {
-      return this.activeContainers.reduce((map, obj) => {
-        map[obj.id] = obj;
-        return map;
-      }, {});
-    },
-  },
-  methods: {
-    ...mapActions({
-      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
-    }),
-  },
-};
+const { activeContainers, visibleContainers } = storeToRefs(store);
+
+const activeContainersById = computed(() =>
+  activeContainers.value.reduce((acc, item) => {
+    acc[item.id] = item;
+    return acc;
+  }, {} as Record<string, Container>)
+);
 </script>
 <style scoped lang="scss">
 aside {

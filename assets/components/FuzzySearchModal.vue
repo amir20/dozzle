@@ -32,71 +32,67 @@
   </div>
 </template>
 
-<script lang="ts">
-import { mapState, mapActions } from "vuex";
+<script lang="ts" setup>
 import fuzzysort from "fuzzysort";
+import { computed, nextTick, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useContainerStore } from "@/stores/container";
+import { storeToRefs } from "pinia";
+import { Container } from "@/types/Container";
 
-export default {
-  props: {
-    maxResults: {
-      default: 20,
-      type: Number,
-    },
+const props = defineProps({
+  maxResults: {
+    default: 20,
+    type: Number,
   },
-  data() {
-    return {
-      query: "",
-    };
-  },
-  name: "FuzzySearchModal",
+});
 
-  mounted() {
-    this.$nextTick(() => this.$refs.autocomplete.focus());
-  },
-  watch: {},
-  methods: {
-    ...mapActions({
-      appendActiveContainer: "APPEND_ACTIVE_CONTAINER",
-    }),
-    selected(item) {
-      this.$router.push({ name: "container", params: { id: item.id, name: item.name } });
-      this.$emit("close");
-    },
-    addColumn(container) {
-      this.appendActiveContainer(container);
-      this.$emit("close");
-    },
-  },
-  computed: {
-    ...mapState(["containers"]),
-    preparedContainers() {
-      return this.containers.map((c) => ({
-        name: c.name,
-        id: c.id,
-        created: c.created,
-        state: c.state,
-        preparedName: fuzzysort.prepare(c.name),
-      }));
-    },
-    results() {
-      const options = {
-        limit: this.maxResults,
-        key: "preparedName",
-      };
-      if (this.query) {
-        const results = fuzzysort.go(this.query, this.preparedContainers, options);
-        results.forEach((result) => {
-          if (result.obj.state === "running") {
-            result.score += 1;
-          }
-        });
-        return results.sort((a, b) => b.score - a.score).map((i) => i.obj);
-      } else {
-        return [...this.containers].sort((a, b) => b.created - a.created);
+const emit = defineEmits(["close"]);
+
+const query = ref("");
+const autocomplete = ref<HTMLElement>();
+const router = useRouter();
+const store = useContainerStore();
+const { containers } = storeToRefs(store);
+const preparedContainers = computed(() =>
+  containers.value.map(({ name, id, created, state }) => ({
+    name,
+    id,
+    created,
+    state,
+    preparedName: fuzzysort.prepare(name),
+  }))
+);
+
+const results = computed(() => {
+  const options = {
+    limit: props.maxResults,
+    key: "preparedName",
+  };
+  if (query.value) {
+    const results = fuzzysort.go(query.value, preparedContainers.value, options);
+    results.forEach((result) => {
+      if (result.obj.state === "running") {
+        // @ts-ignore
+        result.score += 1;
       }
-    },
-  },
-};
+    });
+    return [...results].sort((a, b) => b.score - a.score).map((i) => i.obj);
+  } else {
+    return [...containers.value].sort((a, b) => b.created - a.created);
+  }
+});
+
+onMounted(() => nextTick(() => autocomplete.value?.focus()));
+
+function selected(item: { id: string; name: string }) {
+  router.push({ name: "container", params: { id: item.id, name: item.name } });
+  emit("close");
+}
+function addColumn(container: Container) {
+  store.appendActiveContainer(container);
+  emit("close");
+}
 </script>
 
 <style lang="scss" scoped>

@@ -108,7 +108,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import gt from "semver/functions/gt";
-import config from "../store/config";
+import config from "@/stores/config";
 import { setTitle } from "@/composables/title";
 import {
   search,

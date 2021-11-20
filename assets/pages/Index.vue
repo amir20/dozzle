@@ -76,60 +76,47 @@
   </div>
 </template>
 
-<script lang="ts">
-import { mapState } from "vuex";
+<script lang="ts" setup>
+import { ref, computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+import { useContainerStore } from "@/stores/container";
 import fuzzysort from "fuzzysort";
 import SearchIcon from "~icons/mdi-light/magnify";
 import PastTime from "../components/PastTime.vue";
-import config from "../store/config";
+import config from "@/stores/config";
 
-export default {
-  name: "Index",
-  components: { SearchIcon, PastTime },
-  data() {
-    return {
-      version: config.version,
-      search: null,
-      sort: "running",
-      secured: config.secured,
-      base: config.base,
-    };
-  },
-  methods: {
-    onEnter() {
-      if (this.results.length == 1) {
-        const [item] = this.results;
-        this.$router.push({ name: "container", params: { id: item.id, name: item.name } });
-      }
-    },
-  },
-  computed: {
-    ...mapState(["containers"]),
-    mostRecentContainers() {
-      return [...this.containers].sort((a, b) => b.created - a.created);
-    },
-    runningContainers() {
-      return this.mostRecentContainers.filter((c) => c.state === "running");
-    },
-    allContainers() {
-      return this.containers;
-    },
-    results() {
-      if (this.search) {
-        return fuzzysort.go(this.search, this.allContainers, { key: "name" }).map((i) => i.obj);
-      }
-      switch (this.sort) {
-        case "all":
-          return this.mostRecentContainers;
-        case "running":
-          return this.runningContainers;
+const { base, version, secured } = config;
+const containerStore = useContainerStore();
+const { containers } = storeToRefs(containerStore);
+const router = useRouter();
 
-        default:
-          throw `Invalid sort order: ${this.sort}`;
-      }
-    },
-  },
-};
+const sort = ref("running");
+const search = ref();
+
+const results = computed(() => {
+  if (search.value) {
+    return fuzzysort.go(search.value, containers.value, { key: "name" }).map((i) => i.obj);
+  }
+  switch (sort.value) {
+    case "all":
+      return mostRecentContainers.value;
+    case "running":
+      return runningContainers.value;
+    default:
+      throw `Invalid sort order: ${sort.value}`;
+  }
+});
+
+const mostRecentContainers = computed(() => [...containers.value].sort((a, b) => b.created - a.created));
+const runningContainers = computed(() => mostRecentContainers.value.filter((c) => c.state === "running"));
+
+function onEnter() {
+  if (results.value.length == 1) {
+    const [item] = results.value;
+    router.push({ name: "container", params: { id: item.id, name: item.name } });
+  }
+}
 </script>
 <style lang="scss" scoped>
 .panel {

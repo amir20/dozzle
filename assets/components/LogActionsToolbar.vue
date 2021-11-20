@@ -22,7 +22,8 @@
 </template>
 
 <script lang="ts" setup>
-import config from "../store/config";
+import config from "@/stores/config";
+import { Container } from "@/types/Container";
 import hotkeys from "hotkeys-js";
 import { onMounted, onUnmounted } from "vue";
 
@@ -32,7 +33,8 @@ const props = defineProps({
     default: () => {},
   },
   container: {
-    type: Object,
+    type: Object as () => Container,
+    required: true,
   },
 });
 

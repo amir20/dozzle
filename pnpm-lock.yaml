@@ -9,6 +9,7 @@ specifiers:
   '@iconify-json/octicon': ^1.0.5
   '@oruga-ui/oruga-next': ^0.4.7
   '@oruga-ui/theme-bulma': ^0.1.3
+  '@pinia/testing': ^0.0.6
   '@types/jest': ^27.0.2
   '@types/lodash.debounce': ^4.0.6
   '@types/lodash.throttle': ^4.1.6
@@ -31,6 +32,7 @@ specifiers:
   lodash.debounce: ^4.0.8
   lodash.throttle: ^4.1.1
   npm-run-all: ^4.1.5
+  pinia: ^2.0.3
   prettier: ^2.4.1
   release-it: ^14.11.7
   sass: ^1.43.4
@@ -45,7 +47,6 @@ specifiers:
   vite: ^2.6.14
   vue: ^3.2.22
   vue-router: ^4.0.12
-  vuex: ^4.0.2
 
 dependencies:
   '@iconify-json/carbon': 1.0.10
@@ -63,6 +64,7 @@ dependencies:
   hotkeys-js: 3.8.7
   lodash.debounce: 4.0.8
   lodash.throttle: 4.1.1
+  pinia: 2.0.3_typescript@4.4.4+vue@3.2.22
   sass: 1.43.4
   semver: 7.3.5
   splitpanes: 3.0.6
@@ -73,11 +75,11 @@ dependencies:
   vite: 2.6.14_sass@1.43.4
   vue: 3.2.22
   vue-router: 4.0.12_vue@3.2.22
-  vuex: 4.0.2_vue@3.2.22
 
 devDependencies:
   '@babel/plugin-transform-runtime': 7.16.0
   '@babel/preset-env': 7.16.0
+  '@pinia/testing': 0.0.6_pinia@2.0.3+vue@3.2.22
   '@types/jest': 27.0.2
   '@types/lodash.debounce': 4.0.6
   '@types/lodash.throttle': 4.1.6
@@ -1706,6 +1708,18 @@ packages:
     dependencies:
       bulma: 0.9.3
     dev: false
+
+  /@pinia/testing/0.0.6_pinia@2.0.3+vue@3.2.22:
+    resolution: {integrity: sha512-Jb+M5Cu0HCBULvpl7sSYn6hZ0v30pAMWGfPNO6DmoCJ1RnDbz0VtEF4A5C7Cuuo485cJaCm074V+2VO8Fs+Usg==}
+    peerDependencies:
+      pinia: ~2.0.4
+    dependencies:
+      pinia: 2.0.3_typescript@4.4.4+vue@3.2.22
+      vue-demi: 0.12.1_vue@3.2.22
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: true
 
   /@rollup/pluginutils/4.1.1:
     resolution: {integrity: sha512-clDjivHqWGXi7u+0d2r2sBi4Ie6VLEAzWMIkvJLnDmxoOhBYOTfzGbOQBA32THHm11/LiJbd01tJUpJsbshSWQ==}
@@ -5239,6 +5253,24 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
+  /pinia/2.0.3_typescript@4.4.4+vue@3.2.22:
+    resolution: {integrity: sha512-jNq+eVCAbFQS/uOiqskSRsKsFzLcQpgegcpjI8eAzU3QOwmsdLLHZBE1dvy802jecRC3FPPJSlj1MISF/sRV2w==}
+    peerDependencies:
+      '@vue/composition-api': ^1.3.3
+      typescript: ^4.4.4
+      vue: ^2.6.14 || ^3.2.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@vue/devtools-api': 6.0.0-beta.20
+      typescript: 4.4.4
+      vue: 3.2.22
+      vue-demi: 0.12.1_vue@3.2.22
+    dev: false
+
   /pirates/4.0.1:
     resolution: {integrity: sha512-WuNqLTbMI3tmfef2TKxlQmAiLHKtFhlsCZnPIpuv2Ow0RDVO8lfy1Opf4NUzlMXLjPl+Men7AuVdX6TA+s+uGA==}
     engines: {node: '>= 6'}
@@ -6410,7 +6442,6 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.22
-    dev: false
 
   /vue-router/4.0.12_vue@3.2.22:
     resolution: {integrity: sha512-CPXvfqe+mZLB1kBWssssTiWg4EQERyqJZes7USiqfW9B5N2x+nHlnsM1D3b5CaJ6qgCvMmYJnz+G0iWjNCvXrg==}
@@ -6429,15 +6460,6 @@ packages:
       '@vue/runtime-dom': 3.2.22
       '@vue/server-renderer': 3.2.22_vue@3.2.22
       '@vue/shared': 3.2.22
-    dev: false
-
-  /vuex/4.0.2_vue@3.2.22:
-    resolution: {integrity: sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q==}
-    peerDependencies:
-      vue: ^3.0.2
-    dependencies:
-      '@vue/devtools-api': 6.0.0-beta.20
-      vue: 3.2.22
     dev: false
 
   /w3c-hr-time/1.0.2:
