@@ -34,6 +34,7 @@ export const useContainerStore = defineStore("container", () => {
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
 
+  const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
   return {
     containers,
     activeContainerIds,
@@ -41,6 +42,7 @@ export const useContainerStore = defineStore("container", () => {
     visibleContainers,
     activeContainers,
     currentContainer,
+    appendActiveContainer
   };
 });
 

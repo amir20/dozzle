@@ -9,7 +9,7 @@
         </router-link>
       </div>
       <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container'">
-        {{ allContainersById[$route.params.id].name }}
+        {{ allContainersById[route.params.id].name }}
       </div>
 
       <div class="column is-narrow push-right">
@@ -41,32 +41,26 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { mapGetters } from "vuex";
+<script lang="ts" setup>
+import { ref, watch } from "vue";
+import { useContainerStore } from "@/stores/container";
+import { storeToRefs } from "pinia";
+import { useRoute } from "vue-router";
 
-export default {
-  props: [],
-  name: "MobileMenu",
-  data() {
-    return {
-      showNav: false,
-    };
-  },
-  computed: {
-    ...mapGetters(["visibleContainers", "allContainersById"]),
-  },
-  watch: {
-    $route(to, from) {
-      this.showNav = false;
-    },
-  },
-};
+const store = useContainerStore();
+const route = useRoute();
+const { visibleContainers, allContainersById } = storeToRefs(store);
+
+const showNav = ref(false);
+
+watch(route, () => {
+  showNav.value = false;
+});
 </script>
 <style scoped lang="scss">
 aside {
   padding: 1em;
   position: fixed;
-  top: 0;
   left: 0;
   right: 0;
   background: var(--scheme-main-ter);

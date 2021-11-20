@@ -42,7 +42,7 @@
             <div class="is-flex-shrink-1 column-icon">
               <span
                 class="icon is-small"
-                @click.stop.prevent="appendActiveContainer(item)"
+                @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
                 title="Pin as column"
               >
@@ -60,11 +60,11 @@
 import { computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useContainerStore } from "@/stores/container";
-import type { Container } from "@/stores/container";
+import type { Container } from "@/types/Container";
 
-const containerStore = useContainerStore();
+const store = useContainerStore();
 
-const { activeContainers, visibleContainers } = storeToRefs(containerStore);
+const { activeContainers, visibleContainers } = storeToRefs(store);
 
 const activeContainersById = computed(() =>
   activeContainers.value.reduce((acc, item) => {
