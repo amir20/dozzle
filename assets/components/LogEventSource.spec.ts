@@ -1,12 +1,14 @@
 import { mount } from "@vue/test-utils";
-import { createStore } from "vuex";
+import { createTestingPinia } from "@pinia/testing";
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
 import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../composables/settings";
+import { useSearchFilter } from "@/composables/search";
 import { mocked } from "ts-jest/utils";
+import { computed, Ref } from "vue";
 
 jest.mock("lodash.debounce", () =>
   jest.fn((fn) => {
@@ -15,9 +17,22 @@ jest.mock("lodash.debounce", () =>
   })
 );
 
+jest.mock("@/stores/container", () => ({
+  __esModule: true,
+  useContainerStore() {
+    return {
+      currentContainer(id: Ref<string>) {
+        return computed(() => ({ id: id.value }));
+      },
+    };
+  },
+}));
+
 jest.mock("@/stores/config", () => ({ base: "" }));
 
 describe("<LogEventSource />", () => {
+  const search = useSearchFilter();
+
   beforeEach(() => {
     // @ts-ignore
     global.EventSource = EventSource;
@@ -32,25 +47,18 @@ describe("<LogEventSource />", () => {
   });
 
   function createLogEventSource(
-    { searchFilter = null, hourStyle = "auto" }: { searchFilter?: string | null; hourStyle?: "auto" | "24" | "12" } = {
+    {
+      searchFilter = undefined,
+      hourStyle = "auto",
+    }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12" } = {
       hourStyle: "auto",
     }
   ) {
     settings.value.hourStyle = hourStyle;
-    const store = createStore({
-      state: { searchFilter },
-      getters: {
-        allContainersById() {
-          return {
-            abc: { state: "running" },
-          };
-        },
-      },
-    });
-
+    search.searchFilter.value = searchFilter;
     return mount(LogEventSource, {
       global: {
-        plugins: [store],
+        plugins: [createTestingPinia()],
         components: {
           LogViewer,
         },

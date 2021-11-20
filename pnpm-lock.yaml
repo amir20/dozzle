@@ -9,6 +9,7 @@ specifiers:
   '@iconify-json/octicon': ^1.0.5
   '@oruga-ui/oruga-next': ^0.4.7
   '@oruga-ui/theme-bulma': ^0.1.3
+  '@pinia/testing': ^0.0.6
   '@types/jest': ^27.0.2
   '@types/lodash.debounce': ^4.0.6
   '@types/lodash.throttle': ^4.1.6
@@ -78,6 +79,7 @@ dependencies:
 devDependencies:
   '@babel/plugin-transform-runtime': 7.16.0
   '@babel/preset-env': 7.16.0
+  '@pinia/testing': 0.0.6_pinia@2.0.3+vue@3.2.22
   '@types/jest': 27.0.2
   '@types/lodash.debounce': 4.0.6
   '@types/lodash.throttle': 4.1.6
@@ -1706,6 +1708,18 @@ packages:
     dependencies:
       bulma: 0.9.3
     dev: false
+
+  /@pinia/testing/0.0.6_pinia@2.0.3+vue@3.2.22:
+    resolution: {integrity: sha512-Jb+M5Cu0HCBULvpl7sSYn6hZ0v30pAMWGfPNO6DmoCJ1RnDbz0VtEF4A5C7Cuuo485cJaCm074V+2VO8Fs+Usg==}
+    peerDependencies:
+      pinia: ~2.0.4
+    dependencies:
+      pinia: 2.0.3_typescript@4.4.4+vue@3.2.22
+      vue-demi: 0.12.1_vue@3.2.22
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: true
 
   /@rollup/pluginutils/4.1.1:
     resolution: {integrity: sha512-clDjivHqWGXi7u+0d2r2sBi4Ie6VLEAzWMIkvJLnDmxoOhBYOTfzGbOQBA32THHm11/LiJbd01tJUpJsbshSWQ==}
@@ -6428,7 +6442,6 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.22
-    dev: false
 
   /vue-router/4.0.12_vue@3.2.22:
     resolution: {integrity: sha512-CPXvfqe+mZLB1kBWssssTiWg4EQERyqJZes7USiqfW9B5N2x+nHlnsM1D3b5CaJ6qgCvMmYJnz+G0iWjNCvXrg==}

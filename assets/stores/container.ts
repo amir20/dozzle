@@ -46,6 +46,8 @@ export const useContainerStore = defineStore("container", () => {
   };
 });
 
+// @ts-ignore
 if (import.meta.hot) {
+  // @ts-ignore
   import.meta.hot.accept(acceptHMRUpdate(useContainerStore, import.meta.hot));
 }
