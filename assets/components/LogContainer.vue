@@ -9,7 +9,7 @@
           <!-- <container-stat :stat="container.stat" :state="container.state"></container-stat> -->
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
-          <button class="delete is-medium" @click="$emit('close')"></button>
+          <button class="delete is-medium" @click="emit('close')"></button>
         </div>
         <!-- <div class="mr-2 column is-narrow is-paddingless">
           <o-dropdown aria-role="list" position="bottom-left">
@@ -57,6 +57,9 @@ const props = defineProps({
     default: false,
   },
 });
+
+const emit = defineEmits(["close"]);
+
 const { id } = toRefs(props);
 const store = useContainerStore();
 

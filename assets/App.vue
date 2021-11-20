@@ -18,7 +18,7 @@
                 show-title
                 scrollable
                 closable
-                @close="store.dispatch('REMOVE_ACTIVE_CONTAINER', other)"
+                @close="containerStore.removeActiveContainer(other)"
               ></log-container>
             </pane>
           </template>

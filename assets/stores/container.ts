@@ -33,8 +33,8 @@ export const useContainerStore = defineStore("container", () => {
   // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
-
   const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
+  const removeActiveContainer = ({ id }: Container) => activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
   return {
     containers,
     activeContainerIds,
@@ -42,7 +42,8 @@ export const useContainerStore = defineStore("container", () => {
     visibleContainers,
     activeContainers,
     currentContainer,
-    appendActiveContainer
+    appendActiveContainer,
+    removeActiveContainer,
   };
 });
 

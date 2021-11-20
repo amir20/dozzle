@@ -21,7 +21,7 @@
 import { useContainerStore } from "@/stores/container";
 import throttle from "lodash.throttle";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watchPostEffect } from "vue";
 
 const props = defineProps({
   indeterminate: {
@@ -76,13 +76,11 @@ onUnmounted(() => {
   detachEvents();
 });
 
-watch(
-  () => activeContainers,
-  () => {
-    attachEvents();
-    detachEvents();
-  }
-);
+watchPostEffect(() => {
+  activeContainers.value.length;
+  detachEvents();
+  attachEvents();
+});
 </script>
 <style scoped lang="scss">
 .scroll-progress {
