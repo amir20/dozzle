@@ -3,14 +3,14 @@
     <template v-slot:header v-if="showTitle">
       <div class="mr-0 columns is-vcentered is-marginless is-hidden-mobile">
         <div class="column is-clipped is-paddingless">
-          <container-title :container="container" @close="$emit('close')"></container-title>
+          <container-title :container="container" @close="$emit('close')" />
         </div>
         <div class="column is-narrow is-paddingless">
-          <container-stat :stat="container.stat" :state="container.state"></container-stat>
+          <container-stat :stat="container.stat" :state="container.state" v-if="container.stat" />
         </div>
 
         <div class="mr-2 column is-narrow is-paddingless">
-          <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
+          <log-actions-toolbar :container="container" :onClearClicked="onClearClicked" />
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="emit('close')"></button>
@@ -18,7 +18,7 @@
       </div>
     </template>
     <template v-slot="{ setLoading }">
-      <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)"></log-viewer-with-source>
+      <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)" />
     </template>
   </scrollable-view>
 </template>

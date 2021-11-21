@@ -18,8 +18,14 @@
 </template>
 
 <script lang="ts" setup>
+import { ContainerStat } from "@/types/Container";
+import { PropType } from "vue";
+
 defineProps({
-  stat: Object,
+  stat: {
+    type: Object as PropType<ContainerStat>,
+    required: true,
+  },
   state: String,
 });
 function formatBytes(bytes: number, decimals = 2) {
