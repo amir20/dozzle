@@ -8,10 +8,13 @@
         <div class="column is-narrow is-paddingless">
           <!-- <container-stat :stat="container.stat" :state="container.state"></container-stat> -->
         </div>
+
+        <div class="mr-2 column is-narrow is-paddingless">
+          <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
+        </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="emit('close')"></button>
         </div>
-        <log-actions-toolbar :container="container" :onClearClicked="onClearClicked"></log-actions-toolbar>
       </div>
     </template>
     <template v-slot="{ setLoading }">

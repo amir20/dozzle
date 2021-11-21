@@ -1,25 +1,40 @@
 <template>
-  <div class="mr-2 column is-narrow is-paddingless is-clickable">
-    <o-dropdown aria-role="list" position="bottom-left">
-      <template v-slot:trigger>
-        <span class="btn">
-          <span class="icon">
-            <mdi-dots-vertical />
-          </span>
+  <div class="dropdown is-right is-hoverable">
+    <div class="dropdown-trigger">
+      <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+        <span class="icon">
+          <mdi-dots-vertical />
         </span>
-      </template>
-
-      <o-dropdown-item aria-role="listitem" @click="onClearClicked">
-        <octicon-trash-24 style="margin-right: 1em" />
-        <span> Clear </span>
-      </o-dropdown-item>
-      <a id="download" :href="`${base}/api/logs/download?id=${container.id}`">
-        <o-dropdown-item aria-role="listitem">
-          <octicon-download-24 style="margin-right: 1em" />
-          <span> Download </span>
-        </o-dropdown-item>
-      </a>
-    </o-dropdown>
+      </button>
+    </div>
+    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+      <div class="dropdown-content">
+        <a class="dropdown-item" @click="onClearClicked">
+          <div class="level is-justify-content-start">
+            <div class="level-left">
+              <div class="level-item">
+                <octicon-trash-24 style="margin-right: 1em" />
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">Clear</div>
+            </div>
+          </div>
+        </a>
+        <a class="dropdown-item" :href="`${base}/api/logs/download?id=${container.id}`">
+          <div class="level is-justify-content-start">
+            <div class="level-left">
+              <div class="level-item">
+                <octicon-download-24 style="margin-right: 1em" />
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">Download</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -27,12 +42,12 @@
 import config from "@/stores/config";
 import { Container } from "@/types/Container";
 import hotkeys from "hotkeys-js";
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, PropType, ref } from "vue";
 
 const props = defineProps({
   onClearClicked: {
-    type: Function,
-    default: () => {},
+    type: Function as PropType<(e: Event) => void>,
+    default: (e: Event) => {},
   },
   container: {
     type: Object as () => Container,
@@ -43,7 +58,7 @@ const props = defineProps({
 const { base } = config;
 
 const onHotkey = (event: Event) => {
-  props.onClearClicked();
+  props.onClearClicked(event);
   event.preventDefault();
 };
 
