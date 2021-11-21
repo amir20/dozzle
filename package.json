@@ -30,7 +30,7 @@
     "@oruga-ui/oruga-next": "^0.4.8",
     "@oruga-ui/theme-bulma": "^0.1.4",
     "@vitejs/plugin-vue": "^1.9.4",
-    "@vueuse/core": "^6.9.2",
+    "@vueuse/core": "^7.0.0",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.3",
     "date-fns": "^2.26.0",
