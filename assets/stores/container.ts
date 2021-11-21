@@ -3,7 +3,7 @@ import { ref, Ref, computed } from "vue";
 
 import { showAllContainers } from "@/composables/settings";
 import config from "@/stores/config";
-import { Container } from "@/types/Container";
+import type { Container, ContainerStat } from "@/types/Container";
 
 export const useContainerStore = defineStore("container", () => {
   const containers = ref<Container[]>([]);
@@ -29,12 +29,24 @@ export const useContainerStore = defineStore("container", () => {
     (e: Event) => (containers.value = JSON.parse((e as MessageEvent).data)),
     false
   );
-  // es.addEventListener("container-stat", (e) => store.dispatch("UPDATE_STATS", JSON.parse(e.data)), false);
+  es.addEventListener(
+    "container-stat",
+    (e) => {
+      const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
+      const container = allContainersById.value[stat.id];
+      if (container) {
+        container.stat = stat;
+      }
+    },
+    false
+  );
   // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
   const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
-  const removeActiveContainer = ({ id }: Container) => activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
+  const removeActiveContainer = ({ id }: Container) =>
+    activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
+    
   return {
     containers,
     activeContainerIds,

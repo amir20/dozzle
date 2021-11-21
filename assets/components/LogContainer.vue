@@ -6,7 +6,7 @@
           <container-title :container="container" @close="$emit('close')"></container-title>
         </div>
         <div class="column is-narrow is-paddingless">
-          <!-- <container-stat :stat="container.stat" :state="container.state"></container-stat> -->
+          <container-stat :stat="container.stat" :state="container.state"></container-stat>
         </div>
 
         <div class="mr-2 column is-narrow is-paddingless">
