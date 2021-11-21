@@ -31,7 +31,7 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: npm
-    directory: "/integration"
+    directory: "/e2e"
     labels:
       - "npm"
       - "dependencies"
