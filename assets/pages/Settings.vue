@@ -123,17 +123,20 @@ import {
 setTitle("Settings");
 
 const currentVersion = config.version;
-const nextRelease = ref(null);
+const nextRelease = ref({ html_url: "", name: "" });
 const hasUpdate = ref(false);
 
 async function fetchNextRelease() {
-  const releases = await (await fetch("https://api.github.com/repos/amir20/dozzle/releases")).json();
   if (!["dev", "master"].includes(currentVersion)) {
-    hasUpdate.value = gt(releases[0].tag_name, currentVersion);
+    const response = await fetch("https://api.github.com/repos/dozzle/dozzle/releases/latest");
+    if (response.ok) {
+      const releases = await response.json();
+      hasUpdate.value = gt(releases[0].tag_name, currentVersion);
+      nextRelease.value = releases[0];
+    }
   } else {
     hasUpdate.value = true;
   }
-  nextRelease.value = releases[0];
 }
 
 fetchNextRelease();

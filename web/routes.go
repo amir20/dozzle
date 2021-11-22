@@ -129,5 +129,6 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%v", h.config.Version)
+	w.Header().Add("Content-Type", "text/html")
+	fmt.Fprintf(w, "<pre>%v</pre>", h.config.Version)
 }

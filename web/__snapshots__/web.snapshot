@@ -67,9 +67,9 @@ data: end of stream
 HTTP/1.1 200 OK
 Connection: close
 Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; connect-src 'self' api.github.com;
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/html
 
-dev
+<pre>dev</pre>
 
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
