@@ -3,7 +3,7 @@ import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { Autocomplete, Button, Dropdown, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
 import { bulmaConfig } from "@oruga-ui/theme-bulma";
-import { createPinia } from 'pinia'
+import { createPinia } from "pinia";
 import config from "./stores/config";
 import App from "./App.vue";
 import { Container, Settings, Index, Show, ContainerNotFound, PageNotFound, Login } from "./pages";
@@ -21,7 +21,7 @@ const routes = [
     props: true,
   },
   {
-    path: "/container/*",
+    path: "/container/:pathMatch(.*)",
     component: ContainerNotFound,
     name: "container-not-found",
   },
@@ -41,7 +41,7 @@ const routes = [
     name: "login",
   },
   {
-    path: "/*",
+    path: "/:pathMatch(.*)*",
     component: PageNotFound,
     name: "page-not-found",
   },

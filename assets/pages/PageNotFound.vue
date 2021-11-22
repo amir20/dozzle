@@ -3,8 +3,8 @@
     <div class="hero-body">
       <div class="container has-text-centered">
         <h1 class="title">
-          Oops,
-          <small class="subtitle">this page doesn't exist</small>
+          404.
+          <small class="subtitle">This page does not exist.</small>
         </h1>
       </div>
     </div>
