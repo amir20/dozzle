@@ -1,6 +1,7 @@
 import { ref, computed, Ref } from "vue";
 
 const searchFilter = ref<string>();
+const showSearch = ref(false);
 
 import type { LogEntry } from "@/types/LogEntry";
 
@@ -33,5 +34,6 @@ export function useSearchFilter() {
   return {
     filteredMessages,
     searchFilter,
+    showSearch
   };
 }

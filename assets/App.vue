@@ -27,7 +27,7 @@
     </splitpanes>
     <button
       @click="collapseNav = !collapseNav"
-      class="button is-rounded is-settings-control"
+      class="button is-rounded"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
       v-if="!isMobile && !authorizationNeeded"
@@ -53,6 +53,7 @@ import { setTitle } from "@/composables/title";
 import { isMobile } from "@/composables/media";
 import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
 import { useContainerStore } from "@/stores/container";
+import config from "@/stores/config";
 
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 import LogContainer from "@/components/LogContainer.vue";
@@ -61,8 +62,7 @@ import MobileMenu from "@/components/MobileMenu.vue";
 
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
-
-const authorizationNeeded = false;
+const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
 

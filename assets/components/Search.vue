@@ -28,9 +28,8 @@ import { search } from "@/composables/settings";
 import { useSearchFilter } from "@/composables/search";
 import { ref, nextTick, onMounted, onUnmounted } from "vue";
 
-const showSearch = ref(false);
 const input = ref<HTMLInputElement>();
-const { searchFilter } = useSearchFilter();
+const { searchFilter, showSearch } = useSearchFilter();
 
 onMounted(() => {
   hotkeys("command+f, ctrl+f", (event, handler) => {
@@ -43,11 +42,13 @@ onMounted(() => {
 
 onUnmounted(() => {
   searchFilter.value = "";
+  showSearch.value = false;
   hotkeys.unbind("command+f, ctrl+f");
   hotkeys.unbind("esc");
 });
 
 function resetSearch() {
+  searchFilter.value = "";
   showSearch.value = false;
 }
 </script>

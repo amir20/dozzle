@@ -127,22 +127,6 @@ html.has-custom-scrollbars {
   }
 }
 
-.is-settings-control {
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  border-color: transparent;
-  &:hover {
-    border-color: var(--border-hover-color) !important;
-    background: rgba(0, 0, 0, 0.8) !important;
-    color: #fff !important;
-  }
-
-  &:focus {
-    box-shadow: none !important;
-    color: unset;
-    border-color: transparent;
-  }
-}
 @media screen and (min-width: 770px) {
   .splitpanes__pane {
     overflow: unset;

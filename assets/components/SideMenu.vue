@@ -9,18 +9,14 @@
         </router-link>
       </div>
       <div class="column is-narrow has-text-right px-1">
-        <button
-          class="button is-rounded is-settings-control"
-          @click="$emit('search')"
-          title="Search containers (⌘ + k, ⌃k)"
-        >
+        <button class="button is-rounded" @click="$emit('search')" title="Search containers (⌘ + k, ⌃k)">
           <span class="icon">
             <mdi-light-magnify />
           </span>
         </button>
       </div>
       <div class="column is-narrow has-text-right px-0">
-        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-settings-control">
+        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded">
           <span class="icon">
             <mdi-light-cog />
           </span>

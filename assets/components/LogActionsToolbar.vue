@@ -13,7 +13,7 @@
           <div class="level is-justify-content-start">
             <div class="level-left">
               <div class="level-item">
-                <octicon-trash-24 style="margin-right: 1em" />
+                <octicon-trash-24 class="mr-4" />
               </div>
             </div>
             <div class="level-right">
@@ -25,11 +25,24 @@
           <div class="level is-justify-content-start">
             <div class="level-left">
               <div class="level-item">
-                <octicon-download-24 style="margin-right: 1em" />
+                <octicon-download-24 class="mr-4" />
               </div>
             </div>
             <div class="level-right">
               <div class="level-item">Download</div>
+            </div>
+          </div>
+        </a>
+        <hr class="dropdown-divider" />
+        <a class="dropdown-item" @click="showSearch = true">
+          <div class="level is-justify-content-start">
+            <div class="level-left">
+              <div class="level-item">
+                <mdi-light-magnify class="mr-4" />
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">Search</div>
             </div>
           </div>
         </a>
@@ -39,10 +52,15 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, onUnmounted, PropType } from "vue";
+import hotkeys from "hotkeys-js";
 import config from "@/stores/config";
 import { Container } from "@/types/Container";
-import hotkeys from "hotkeys-js";
-import { onMounted, onUnmounted, PropType, ref } from "vue";
+import { useSearchFilter } from "@/composables/search";
+
+const { showSearch } = useSearchFilter();
+
+const { base } = config;
 
 const props = defineProps({
   onClearClicked: {
@@ -54,8 +72,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const { base } = config;
 
 const onHotkey = (event: Event) => {
   props.onClearClicked(event);
