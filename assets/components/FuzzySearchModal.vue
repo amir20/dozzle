@@ -11,7 +11,7 @@
       :data="results"
       @select="selected"
     >
-      <template v-slot="props">
+      <template #default="props">
         <div class="media">
           <div class="media-left">
             <span class="icon is-small" :class="props.option.state">

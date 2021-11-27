@@ -1,6 +1,6 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
-    <template v-slot:header v-if="showTitle">
+    <template #header v-if="showTitle">
       <div class="mr-0 columns is-vcentered is-marginless is-hidden-mobile">
         <div class="column is-clipped is-paddingless">
           <container-title :container="container" @close="$emit('close')" />
@@ -17,7 +17,7 @@
         </div>
       </div>
     </template>
-    <template v-slot="{ setLoading }">
+    <template #default="{ setLoading }">
       <log-viewer-with-source ref="viewer" :id="id" @loading-more="setLoading($event)" />
     </template>
   </scrollable-view>

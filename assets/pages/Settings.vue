@@ -26,7 +26,7 @@
           <div class="column is-narrow">
             <o-field>
               <o-dropdown v-model="hourStyle" aria-role="list">
-                <template v-slot:trigger>
+                <template #trigger>
                   <o-button variant="primary" type="button">
                     <span class="is-capitalized">{{ hourStyle }}</span>
                     <span class="icon">
@@ -59,7 +59,7 @@
           <div class="column is-narrow">
             <o-field>
               <o-dropdown v-model="size" aria-role="list">
-                <template v-slot:trigger>
+                <template #trigger>
                   <o-button variant="primary" type="button">
                     <span class="is-capitalized">{{ size }}</span>
                     <span class="icon">
