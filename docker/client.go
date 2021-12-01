@@ -75,8 +75,8 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 			break
 		}
 	}
-	if found == false {
-		return container, fmt.Errorf("Unable to find container with id: %s", id)
+	if !found {
+		return container, fmt.Errorf("unable to find container with id: %s", id)
 	}
 
 	return container, nil
@@ -174,6 +174,7 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 		Since:      since,
 	}
 
+	log.Debugf("streaming logs from Docker with option: %+v", options)
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	if err != nil {
 		return nil, err
@@ -221,9 +222,11 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: true,
-		Since:      strconv.FormatInt(from.Unix(), 10),
-		Until:      strconv.FormatInt(to.Unix(), 10),
+		Since:      from.Format(time.RFC3339),
+		Until:      to.Format(time.RFC3339),
 	}
+
+	log.Debugf("fetch logs from Docker with option: %+v", options)
 
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 
