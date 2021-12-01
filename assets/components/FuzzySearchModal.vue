@@ -55,13 +55,15 @@ const router = useRouter();
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
 const preparedContainers = computed(() =>
-  containers.value.map(({ name, id, created, state }) => ({
-    name,
-    id,
-    created,
-    state,
-    preparedName: fuzzysort.prepare(name),
-  }))
+  containers.value.map(({ name, id, created, state }) =>
+    reactive({
+      name,
+      id,
+      created,
+      state,
+      preparedName: fuzzysort.prepare(name),
+    })
+  )
 );
 
 const results = computed(() => {
@@ -77,9 +79,9 @@ const results = computed(() => {
         result.score += 1;
       }
     });
-    return [...results].sort((a, b) => b.score - a.score).map((i) => reactive(i.obj));
+    return [...results].sort((a, b) => b.score - a.score).map((i) => i.obj);
   } else {
-    return [...preparedContainers.value].sort((a, b) => b.created - a.created).map((i) => reactive(i));
+    return [...preparedContainers.value].sort((a, b) => b.created - a.created);
   }
 });
 

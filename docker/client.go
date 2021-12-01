@@ -226,7 +226,7 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		Until:      to.Format(time.RFC3339),
 	}
 
-	log.Debugf("fetch logs from Docker with option: %+v", options)
+	log.Debugf("fetching logs from Docker with option: %+v", options)
 
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 
