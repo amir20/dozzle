@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import fuzzysort from "fuzzysort";
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useContainerStore } from "@/stores/container";
 import { storeToRefs } from "pinia";
@@ -77,9 +77,9 @@ const results = computed(() => {
         result.score += 1;
       }
     });
-    return [...results].sort((a, b) => b.score - a.score).map((i) => i.obj);
+    return [...results].sort((a, b) => b.score - a.score).map((i) => reactive(i.obj));
   } else {
-    return [...containers.value].sort((a, b) => b.created - a.created);
+    return [...preparedContainers.value].sort((a, b) => b.created - a.created).map((i) => reactive(i));
   }
 });
 
