@@ -22,7 +22,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@iconify-json/carbon": "^1.0.11",
+    "@iconify-json/carbon": "^1.0.12",
     "@iconify-json/cil": "^1.0.1",
     "@iconify-json/mdi": "^1.0.11",
     "@iconify-json/mdi-light": "^1.0.1",
@@ -30,7 +30,7 @@
     "@oruga-ui/oruga-next": "^0.4.8",
     "@oruga-ui/theme-bulma": "^0.1.5",
     "@vitejs/plugin-vue": "^1.10.1",
-    "@vue/compiler-sfc": "^3.2.23",
+    "@vue/compiler-sfc": "^3.2.24",
     "@vueuse/core": "^7.1.2",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.3",
@@ -39,14 +39,14 @@
     "hotkeys-js": "^3.8.7",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
-    "pinia": "^2.0.5",
+    "pinia": "^2.0.6",
     "sass": "^1.44.0",
     "semver": "^7.3.5",
     "splitpanes": "^3.0.6",
     "typescript": "^4.5.2",
     "unplugin-auto-import": "^0.5.1",
     "unplugin-icons": "^0.12.22",
-    "unplugin-vue-components": "^0.17.2",
+    "unplugin-vue-components": "^0.17.6",
     "vite": "^2.6.14",
     "vue": "^3.2.22",
     "vue-router": "^4.0.12"
@@ -54,7 +54,7 @@
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/preset-env": "^7.16.4",
-    "@pinia/testing": "^0.0.7",
+    "@pinia/testing": "^0.0.8",
     "@types/jest": "^27.0.3",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.throttle": "^4.1.6",
@@ -67,9 +67,9 @@
     "jest-serializer-vue": "^2.0.2",
     "lint-staged": "^12.1.2",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.5.0",
+    "prettier": "^2.5.1",
     "release-it": "^14.11.8",
-    "ts-jest": "^27.0.7",
+    "ts-jest": "^27.1.0",
     "ts-node": "^10.4.0"
   },
   "lint-staged": {
