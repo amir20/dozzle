@@ -54,7 +54,7 @@
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/preset-env": "^7.16.4",
-    "@pinia/testing": "^0.0.7",
+    "@pinia/testing": "^0.0.8",
     "@types/jest": "^27.0.3",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.throttle": "^4.1.6",
