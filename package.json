@@ -29,7 +29,7 @@
     "@iconify-json/octicon": "^1.0.5",
     "@oruga-ui/oruga-next": "^0.4.8",
     "@oruga-ui/theme-bulma": "^0.1.5",
-    "@vitejs/plugin-vue": "^1.10.1",
+    "@vitejs/plugin-vue": "^1.10.2",
     "@vue/compiler-sfc": "^3.2.24",
     "@vueuse/core": "^7.1.2",
     "ansi-to-html": "^0.7.2",
@@ -47,7 +47,7 @@
     "unplugin-auto-import": "^0.5.1",
     "unplugin-icons": "^0.12.22",
     "unplugin-vue-components": "^0.17.6",
-    "vite": "^2.6.14",
+    "vite": "^2.7.1",
     "vue": "^3.2.22",
     "vue-router": "^4.0.12"
   },
