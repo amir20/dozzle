@@ -7,7 +7,7 @@ import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../composables/settings";
 import { useSearchFilter } from "@/composables/search";
-import { mocked } from "ts-jest/utils";
+import { mocked } from "jest-mock";
 import { computed, Ref } from "vue";
 
 jest.mock("lodash.debounce", () =>
