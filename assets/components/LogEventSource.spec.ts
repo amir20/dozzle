@@ -172,9 +172,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">\\"This is a message.\\"</span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">\\"This is a message.\\"</span></li>
+        </ul>"
+      `);
     });
 
     test("should render messages with color", async () => {
@@ -185,9 +187,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></li>
+        </ul>"
+      `);
     });
 
     test("should render messages with html entities", async () => {
@@ -198,9 +202,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+        </ul>"
+      `);
     });
 
     test("should render dates with 12 hour style", async () => {
@@ -211,9 +217,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 11:55:42 PM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 11:55:42 PM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+        </ul>"
+      `);
     });
 
     test("should render dates with 24 hour style", async () => {
@@ -224,9 +232,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 23:55:42</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 23:55:42</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+        </ul>"
+      `);
     });
 
     test("should render messages with filter", async () => {
@@ -240,9 +250,11 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(
-        `"<ul class=\\"events medium\\"><li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li></ul>"`
-      );
+      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
+        "<ul class=\\"events medium\\">
+          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
+        </ul>"
+      `);
     });
   });
 });
