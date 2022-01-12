@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { createTestingPinia } from "@pinia/testing";
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
-// import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../composables/settings";
