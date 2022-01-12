@@ -2,22 +2,23 @@ import { mount } from "@vue/test-utils";
 import { createTestingPinia } from "@pinia/testing";
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
-import debounce from "lodash.debounce";
+// import debounce from "lodash.debounce";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../composables/settings";
 import { useSearchFilter } from "@/composables/search";
-import { mocked } from "jest-mock";
+import { vi, describe, expect, beforeEach, test, beforeAll, afterAll } from "vitest";
 import { computed, Ref } from "vue";
 
-jest.mock("lodash.debounce", () =>
-  jest.fn((fn) => {
+vi.mock("lodash.debounce", () => ({
+  __esModule: true,
+  default: vi.fn((fn) => {
     fn.cancel = () => {};
     return fn;
-  })
-);
+  }),
+}));
 
-jest.mock("@/stores/container", () => ({
+vi.mock("@/stores/container", () => ({
   __esModule: true,
   useContainerStore() {
     return {
@@ -28,22 +29,24 @@ jest.mock("@/stores/container", () => ({
   },
 }));
 
-jest.mock("@/stores/config", () => ({ base: "" }));
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { base: "" },
+}));
 
+/**
+ * @vitest-environment jsdom
+ */
 describe("<LogEventSource />", () => {
   const search = useSearchFilter();
 
   beforeEach(() => {
-    // @ts-ignore
     global.EventSource = EventSource;
-    window.scrollTo = jest.fn();
-    global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      disconnect: jest.fn(),
+    window.scrollTo = vi.fn();
+    global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+      observe: vi.fn(),
+      disconnect: vi.fn(),
     }));
-
-    mocked(debounce).mockClear();
-    jest.resetModules();
   });
 
   function createLogEventSource(
@@ -58,7 +61,7 @@ describe("<LogEventSource />", () => {
     search.searchFilter.value = searchFilter;
     return mount(LogEventSource, {
       global: {
-        plugins: [createTestingPinia()],
+        plugins: [createTestingPinia({ createSpy: vi.fn })],
         components: {
           LogViewer,
         },
@@ -102,12 +105,7 @@ describe("<LogEventSource />", () => {
     const { key, ...messageWithoutKey } = message;
 
     expect(key).toBe("2019-06-12T10:55:42.459034602Z");
-    expect(messageWithoutKey).toMatchInlineSnapshot(`
-      Object {
-        "date": 2019-06-12T10:55:42.459Z,
-        "message": "\\"This is a message.\\"",
-      }
-    `);
+    expect(messageWithoutKey).toMatchSnapshot();
   });
 
   test("should parse messages with loki's timestamp format", async () => {
@@ -119,12 +117,7 @@ describe("<LogEventSource />", () => {
     const { key, ...messageWithoutKey } = message;
 
     expect(key).toBe("2020-04-27T12:35:43.272974324+02:00");
-    expect(messageWithoutKey).toMatchInlineSnapshot(`
-      Object {
-        "date": 2020-04-27T10:35:43.272Z,
-        "message": "xxxxx",
-      }
-    `);
+    expect(messageWithoutKey).toMatchSnapshot();
   });
 
   test("should pass messages to slot", async () => {
@@ -139,12 +132,7 @@ describe("<LogEventSource />", () => {
 
     expect(key).toBe("2019-06-12T10:55:42.459034602Z");
 
-    expect(messageWithoutKey).toMatchInlineSnapshot(`
-      Object {
-        "date": 2019-06-12T10:55:42.459Z,
-        "message": "\\"This is a message.\\"",
-      }
-    `);
+    expect(messageWithoutKey).toMatchSnapshot();
   });
 
   describe("render html correctly", () => {
@@ -172,11 +160,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">\\"This is a message.\\"</span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
     test("should render messages with color", async () => {
@@ -187,11 +171,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
     test("should render messages with html entities", async () => {
@@ -202,11 +182,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
     test("should render dates with 12 hour style", async () => {
@@ -217,11 +193,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 11:55:42 PM</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
     test("should render dates with 24 hour style", async () => {
@@ -232,11 +204,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\">today at 23:55:42</time></span><span class=\\"text\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
     test("should render messages with filter", async () => {
@@ -250,11 +218,7 @@ describe("<LogEventSource />", () => {
       });
 
       await wrapper.vm.$nextTick();
-      expect(wrapper.find("ul.events").html()).toMatchInlineSnapshot(`
-        "<ul class=\\"events medium\\">
-          <li><span class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\">today at 10:55:42 AM</time></span><span class=\\"text\\">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
-        </ul>"
-      `);
+      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
   });
 });
