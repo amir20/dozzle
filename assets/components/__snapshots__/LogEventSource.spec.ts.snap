@@ -1,12 +1,69 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1
 
-exports[`<LogEventSource /> renders correctly 1`] = `
-"<div class=\\"infinte-loader\\">
-  <div class=\\"spinner\\" style=\\"display: none;\\">
-    <div class=\\"bounce1\\"></div>
-    <div class=\\"bounce2\\"></div>
-    <div class=\\"bounce3\\"></div>
+exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 11:55:42 PM</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 23:55:42</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > render html correctly > should render messages 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\">\\"This is a message.\\"</span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > render html correctly > should render messages with html entities 1`] = `
+"<ul class=\\"events medium\\" data-v-28f125ea=\\"\\">
+  <li data-v-28f125ea=\\"\\"><span class=\\"date\\" data-v-28f125ea=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-28f125ea=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-28f125ea=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></li>
+</ul>"
+`;
+
+exports[`<LogEventSource /> > renders correctly 1`] = `
+"<div class=\\"infinte-loader\\" data-v-48dce4fc=\\"\\">
+  <div class=\\"spinner\\" data-v-48dce4fc=\\"\\" style=\\"display: none;\\">
+    <div class=\\"bounce1\\" data-v-48dce4fc=\\"\\"></div>
+    <div class=\\"bounce2\\" data-v-48dce4fc=\\"\\"></div>
+    <div class=\\"bounce3\\" data-v-48dce4fc=\\"\\"></div>
   </div>
 </div>
-<ul class=\\"events medium\\"></ul>"
+<ul class=\\"events medium\\" data-v-28f125ea=\\"\\"></ul>"
+`;
+
+exports[`<LogEventSource /> > should parse messages 1`] = `
+{
+  "date": 2019-06-12T10:55:42.459Z,
+  "message": "\\"This is a message.\\"",
+}
+`;
+
+exports[`<LogEventSource /> > should parse messages with loki's timestamp format 1`] = `
+{
+  "date": 2020-04-27T10:35:43.272Z,
+  "message": "xxxxx",
+}
+`;
+
+exports[`<LogEventSource /> > should pass messages to slot 1`] = `
+{
+  "date": 2019-06-12T10:55:42.459Z,
+  "message": "\\"This is a message.\\"",
+}
 `;
