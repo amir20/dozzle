@@ -22,7 +22,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@iconify-json/carbon": "^1.0.12",
+    "@iconify-json/carbon": "^1.0.13",
     "@iconify-json/cil": "^1.0.1",
     "@iconify-json/mdi": "^1.0.12",
     "@iconify-json/mdi-light": "^1.0.1",
@@ -47,7 +47,7 @@
     "unplugin-auto-import": "^0.5.10",
     "unplugin-icons": "^0.13.0",
     "unplugin-vue-components": "^0.17.11",
-    "vite": "^2.7.11",
+    "vite": "^2.7.12",
     "vue": "^3.2.26",
     "vue-router": "^4.0.12"
   },
@@ -67,7 +67,7 @@
     "prettier": "^2.5.1",
     "release-it": "^14.12.1",
     "ts-node": "^10.4.0",
-    "vitest": "^0.1.12"
+    "vitest": "^0.1.13"
   },
   "lint-staged": {
     "*.{js,vue,css}": [
