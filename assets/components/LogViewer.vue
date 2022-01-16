@@ -1,8 +1,23 @@
 <template>
   <ul class="events" :class="size">
-    <li v-for="item in filtered" :key="item.key" :data-event="item.event">
-      <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-      <span class="text" v-html="colorize(item.message)"></span>
+    <li
+      v-for="item in filtered"
+      :key="item.key"
+      :data-event="item.event"
+      :data-key="item.key"
+      :class="item.selected ? 'selected' : ''"
+    >
+      <div>
+        <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
+        <span class="text" v-html="colorize(item.message)"></span>
+      </div>
+      <div class="line-options" v-if="isSearching()">
+        <o-button variant="primary" inverted size="small" type="button" class="jump" @click="jumpToLine">
+          <span class="icon">
+            <cil-find-in-page />
+          </span>
+        </o-button>
+      </div>
     </li>
   </ul>
 </template>
@@ -27,7 +42,27 @@ const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 const colorize = (value: string) =>
   ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
 const { messages } = toRefs(props);
-const filtered = useSearchFilter().filteredMessages(messages);
+const { filteredMessages, searchFilter, resetSearch, isSearching } = useSearchFilter();
+const filtered = filteredMessages(messages);
+const jumpToLine = async (e) => {
+  const line = e.target.closest("li");
+  if (line.tagName !== "LI") {
+    return;
+  }
+  resetSearch();
+  for (const item of messages.value) {
+    item.selected = false;
+    if (item.key === line.dataset.key) {
+      item.selected = true;
+    }
+  }
+  // TODO prevent ScrollableView from automatically sticking to the bottom when closing search and jumping to context (ScrollableView.vue:47)
+  // if that could be achieved, then these timing hacks can be removed
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  window.scrollTo(0, 0);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  window.scrollTo(0, line.offsetTop - 200);
+};
 </script>
 <style scoped lang="scss">
 .events {
@@ -35,6 +70,7 @@ const filtered = useSearchFilter().filteredMessages(messages);
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
   & > li {
+    display: flex;
     word-wrap: break-word;
     line-height: 130%;
     &:last-child {
@@ -46,6 +82,21 @@ const filtered = useSearchFilter().filteredMessages(messages);
     }
     &[data-event="container-started"] {
       color: hsl(141, 53%, 53%);
+    }
+    &.selected {
+      background-color: white;
+      color: black;
+    }
+    &.selected > .date {
+      background-color: white;
+    }
+    & > .line-options {
+      flex: 1;
+      display: flex;
+      flex-direction: row-reverse;
+      & > .jump {
+        cursor: pointer;
+      }
     }
   }
 

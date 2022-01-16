@@ -31,9 +31,20 @@ export function useSearchFilter() {
     });
   }
 
+  function resetSearch() {
+    searchFilter.value = "";
+    showSearch.value = false;
+  }
+
+  function isSearching() {
+    return showSearch.value && searchFilter.value;
+  }
+
   return {
     filteredMessages,
     searchFilter,
-    showSearch
+    showSearch,
+    resetSearch,
+    isSearching,
   };
 }

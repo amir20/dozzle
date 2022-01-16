@@ -6,6 +6,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CarbonCaretDown: typeof import('~icons/carbon/caret-down')['default']
     CilColumns: typeof import('~icons/cil/columns')['default']
+    CilFindInPage: typeof import('~icons/cil/find-in-page')['default']
     ContainerStat: typeof import('./components/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/ContainerTitle.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
