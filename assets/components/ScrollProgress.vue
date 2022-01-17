@@ -1,7 +1,7 @@
 <template>
   <div class="scroll-progress" ref="root">
     <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-      <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
+      <circle r="44" cx="50" cy="50" />
     </svg>
     <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
       <template v-if="indeterminate">
@@ -105,7 +105,7 @@ watchPostEffect(() => {
       transform: rotate(-90deg);
       transform-origin: 50% 50%;
       stroke: var(--primary-color);
-      stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
+      stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
       stroke-dasharray: 276.32px 276.32px;
       stroke-linecap: round;
       stroke-width: 3;
