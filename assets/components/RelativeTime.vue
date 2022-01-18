@@ -3,46 +3,42 @@
 </template>
 
 <script lang="ts">
-import { formatRelative } from "date-fns";
-import { hourStyle } from "@/composables/settings";
-import enGB from "date-fns/locale/en-GB";
-import enUS from "date-fns/locale/en-US";
-
 const use24Hr =
   new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
   })
     .formatToParts(new Date(2020, 0, 1, 13))
-    .find((part) => part.type === "hour").value.length === 2;
+    .find((part) => part.type === "hour")?.value.length === 2;
 
 const auto = use24Hr ? enGB : enUS;
 const styles = { auto, 12: enUS, 24: enGB };
+</script>
 
-export default {
-  props: {
-    date: {
-      required: true,
-      type: Date,
-    },
+<script lang="ts" setup>
+import { formatRelative } from "date-fns";
+import { hourStyle } from "@/composables/settings";
+import enGB from "date-fns/locale/en-GB";
+import enUS from "date-fns/locale/en-US";
+import { computed, PropType } from "vue";
+defineProps({
+  date: {
+    required: true,
+    type: Object as PropType<Date>,
   },
-  name: "RelativeTime",
-  components: {},
-  computed: {
-    locale() {
-      const locale = styles[hourStyle.value];
-      const oldFormatter = locale.formatRelative;
-      return {
-        ...locale,
-        formatRelative(token) {
-          return oldFormatter(token) + "p";
-        },
-      };
+});
+
+const locale = computed(() => {
+  const locale = styles[hourStyle.value];
+  const oldFormatter = locale.formatRelative as (d: Date | number) => string;
+  return {
+    ...locale,
+    formatRelative(date: Date | number) {
+      return oldFormatter(date) + "p";
     },
-  },
-  methods: {
-    relativeTime(date, locale) {
-      return formatRelative(date, new Date(), { locale });
-    },
-  },
-};
+  };
+});
+
+function relativeTime(date: Date, locale: Locale) {
+  return formatRelative(date, new Date(), { locale });
+}
 </script>
