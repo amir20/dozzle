@@ -19,9 +19,9 @@
 
 <script lang="ts" setup>
 import { useContainerStore } from "@/stores/container";
-import throttle from "lodash.throttle";
+import { useScroll } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted, ref, watchPostEffect } from "vue";
+import { computed, ref, watchPostEffect } from "vue";
 
 const props = defineProps({
   indeterminate: {
@@ -36,15 +36,22 @@ const props = defineProps({
 
 const scrollProgress = ref(0);
 const animation = ref({ cancel: () => {} });
-const parentElement = ref<Node>(document);
 const root = ref<HTMLElement>();
-const store = useContainerStore();
-const { activeContainers } = storeToRefs(store);
-const onScrollThrottled = throttle(onScroll, 150);
+// const store = useContainerStore();
+// const { activeContainers } = storeToRefs(store);
 
-function onScroll() {
-  const parent = parentElement.value == document ? document.documentElement : (parentElement.value as HTMLElement);
-  scrollProgress.value = parent.scrollTop / (parent.scrollHeight - parent.clientHeight);
+const scrollElement = computed<HTMLElement | Document>(
+  () => (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document
+);
+
+const { y } = useScroll(scrollElement, { throttle: 150, idle: 100 });
+
+watchPostEffect(() => {
+  const parent =
+    scrollElement.value === document
+      ? (scrollElement.value as Document).documentElement
+      : (scrollElement.value as HTMLElement);
+  scrollProgress.value = y.value / (parent.scrollHeight - parent.clientHeight);
   animation.value.cancel();
   if (props.autoHide && root.value) {
     animation.value = root.value.animate(
@@ -57,29 +64,6 @@ function onScroll() {
       }
     );
   }
-}
-
-function attachEvents() {
-  parentElement.value = root.value?.closest("[data-scrolling]") || document;
-  parentElement.value.addEventListener("scroll", onScrollThrottled);
-}
-
-function detachEvents() {
-  parentElement.value.removeEventListener("scroll", onScrollThrottled);
-}
-
-onMounted(() => {
-  attachEvents();
-});
-
-onUnmounted(() => {
-  detachEvents();
-});
-
-watchPostEffect(() => {
-  activeContainers.value.length;
-  detachEvents();
-  attachEvents();
 });
 </script>
 <style scoped lang="scss">
