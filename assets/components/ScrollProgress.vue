@@ -44,7 +44,7 @@ const scrollElement = computed<HTMLElement | Document>(
   () => (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document
 );
 
-const { y } = useScroll(scrollElement, { throttle: 150, idle: 100 });
+const { y } = useScroll(scrollElement, { throttle: 250 });
 
 watchPostEffect(() => {
   const parent =
