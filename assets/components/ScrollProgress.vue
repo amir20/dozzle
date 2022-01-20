@@ -21,7 +21,7 @@
 import { useContainerStore } from "@/stores/container";
 import { useScroll } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { computed, ref, watchPostEffect } from "vue";
+import { onMounted, ref, watch, watchPostEffect } from "vue";
 
 const props = defineProps({
   indeterminate: {
@@ -37,21 +37,27 @@ const props = defineProps({
 const scrollProgress = ref(0);
 const animation = ref({ cancel: () => {} });
 const root = ref<HTMLElement>();
-// const store = useContainerStore();
-// const { activeContainers } = storeToRefs(store);
+const store = useContainerStore();
+const { activeContainers } = storeToRefs(store);
+const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
+const { y: scrollY } = useScroll(scrollElement, { throttle: 100 });
 
-const scrollElement = computed<HTMLElement | Document>(
-  () => (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document
-);
-
-const { y } = useScroll(scrollElement, { throttle: 250 });
+onMounted(() => {
+  watch(
+    activeContainers,
+    () => {
+      scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
+    },
+    { immediate: true, flush: "post" }
+  );
+});
 
 watchPostEffect(() => {
   const parent =
     scrollElement.value === document
       ? (scrollElement.value as Document).documentElement
       : (scrollElement.value as HTMLElement);
-  scrollProgress.value = y.value / (parent.scrollHeight - parent.clientHeight);
+  scrollProgress.value = scrollY.value / (parent.scrollHeight - parent.clientHeight);
   animation.value.cancel();
   if (props.autoHide && root.value) {
     animation.value = root.value.animate(
