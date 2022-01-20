@@ -11,7 +11,7 @@ specifiers:
   '@pinia/testing': ^0.0.9
   '@types/jest': ^27.4.0
   '@types/lodash.debounce': ^4.0.6
-  '@types/lodash.throttle': ^4.1.6
+  '@types/node': ^17.0.10
   '@types/semver': ^7.3.9
   '@vitejs/plugin-vue': ^2.0.1
   '@vue/compiler-sfc': ^3.2.27
@@ -28,7 +28,6 @@ specifiers:
   jsdom: ^19.0.0
   lint-staged: ^12.1.7
   lodash.debounce: ^4.0.8
-  lodash.throttle: ^4.1.1
   npm-run-all: ^4.1.5
   pinia: ^2.0.9
   prettier: ^2.5.1
@@ -63,7 +62,6 @@ dependencies:
   fuzzysort: 1.1.4
   hotkeys-js: 3.8.7
   lodash.debounce: 4.0.8
-  lodash.throttle: 4.1.1
   pinia: 2.0.9_typescript@4.5.4+vue@3.2.26
   sass: 1.48.0
   semver: 7.3.5
@@ -80,7 +78,7 @@ devDependencies:
   '@pinia/testing': 0.0.9_pinia@2.0.9+vue@3.2.26
   '@types/jest': 27.4.0
   '@types/lodash.debounce': 4.0.6
-  '@types/lodash.throttle': 4.1.6
+  '@types/node': 17.0.10
   '@types/semver': 7.3.9
   '@vue/test-utils': 2.0.0-rc.18_vue@3.2.26
   eventsourcemock: 2.0.0
@@ -91,7 +89,7 @@ devDependencies:
   npm-run-all: 4.1.5
   prettier: 2.5.1
   release-it: 14.12.3
-  ts-node: 10.4.0_typescript@4.5.4
+  ts-node: 10.4.0_82b55006877de54992e74492b614ace9
   vitest: 0.1.19_jsdom@19.0.0+sass@1.48.0
 
 packages:
@@ -414,7 +412,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.3
-      '@types/node': 17.0.9
+      '@types/node': 17.0.10
       '@types/responselike': 1.0.0
     dev: true
 
@@ -442,7 +440,7 @@ packages:
   /@types/keyv/3.1.3:
     resolution: {integrity: sha512-FXCJgyyN3ivVgRoml4h94G/p3kY+u/B86La+QptcqJaWtBWtmc6TtkNfS40n9bIvyLteHh7zXOtgbobORKPbDg==}
     dependencies:
-      '@types/node': 17.0.9
+      '@types/node': 17.0.10
     dev: true
 
   /@types/lodash.debounce/4.0.6:
@@ -451,18 +449,12 @@ packages:
       '@types/lodash': 4.14.178
     dev: true
 
-  /@types/lodash.throttle/4.1.6:
-    resolution: {integrity: sha512-/UIH96i/sIRYGC60NoY72jGkCJtFN5KVPhEMMMTjol65effe1gPn0tycJqV5tlSwMTzX8FqzB5yAj0rfGHTPNg==}
-    dependencies:
-      '@types/lodash': 4.14.178
-    dev: true
-
   /@types/lodash/4.14.178:
     resolution: {integrity: sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==}
     dev: true
 
-  /@types/node/17.0.9:
-    resolution: {integrity: sha512-5dNBXu/FOER+EXnyah7rn8xlNrfMOQb/qXnw4NQgLkCygKBKhdmF/CA5oXVOKZLBEahw8s2WP9LxIcN/oDDRgQ==}
+  /@types/node/17.0.10:
+    resolution: {integrity: sha512-S/3xB4KzyFxYGCppyDt68yzBU9ysL88lSdIah4D6cptdcltc4NCPCAMc0+PCpg/lLIyC7IPvj2Z52OJWeIUkog==}
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -472,7 +464,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 17.0.9
+      '@types/node': 17.0.10
     dev: true
 
   /@types/semver/7.3.9:
@@ -2473,10 +2465,6 @@ packages:
     resolution: {integrity: sha1-gteb/zCmfEAF/9XiUVMArZyk168=}
     dev: false
 
-  /lodash.throttle/4.1.1:
-    resolution: {integrity: sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=}
-    dev: false
-
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: true
@@ -3548,7 +3536,7 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /ts-node/10.4.0_typescript@4.5.4:
+  /ts-node/10.4.0_82b55006877de54992e74492b614ace9:
     resolution: {integrity: sha512-g0FlPvvCXSIO1JDF6S232P5jPYqBkRL9qly81ZgAOSU7rwI0stphCgd2kLiCrU9DjQCrJMWEqcNSjQL02s6d8A==}
     hasBin: true
     peerDependencies:
@@ -3567,6 +3555,7 @@ packages:
       '@tsconfig/node12': 1.0.9
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
+      '@types/node': 17.0.10
       acorn: 8.7.0
       acorn-walk: 8.2.0
       arg: 4.1.3
