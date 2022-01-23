@@ -3,6 +3,5 @@ dist
 node_modules
 .cache
 static
-a_main-packr.go
 dozzle
-gin-bin
+coverage
