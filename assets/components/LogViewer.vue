@@ -7,16 +7,18 @@
       :data-key="item.key"
       :class="item.selected ? 'selected' : ''"
     >
-      <div>
+      <div class="line-options" v-if="isSearching()">
+        <o-tooltip label="Jump to context" position="right" delay="500">
+          <button class="jump" @click="jumpToLine">
+            <span class="icon">
+              <mdi-dots-vertical />
+            </span>
+          </button>
+        </o-tooltip>
+      </div>
+      <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
         <span class="text" v-html="colorize(item.message)"></span>
-      </div>
-      <div class="line-options" v-if="isSearching()">
-        <o-button variant="primary" inverted size="small" type="button" class="jump" @click="jumpToLine">
-          <span class="icon">
-            <cil-find-in-page />
-          </span>
-        </o-button>
       </div>
     </li>
   </ul>
@@ -84,18 +86,34 @@ const jumpToLine = async (e) => {
       color: hsl(141, 53%, 53%);
     }
     &.selected {
-      background-color: white;
+      background-color: var(--menu-item-active-background-color);
       color: black;
+
+      & .jump {
+        color: var(--menu-item-hover-color) !important;
+      }
     }
     &.selected > .date {
       background-color: white;
     }
+    & > .line {
+      margin: auto 0;
+    }
     & > .line-options {
-      flex: 1;
       display: flex;
       flex-direction: row-reverse;
-      & > .jump {
+      margin-right: 1em;
+      & .jump {
+        padding: 0;
+        background-color: rgba(0, 0, 0, 0);
+        color: var(--menu-item-hover-background-color);
+        border: none;
         cursor: pointer;
+        opacity: 0;
+
+        &:hover {
+          opacity: 1;
+        }
       }
     }
   }
