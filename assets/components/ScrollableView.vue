@@ -3,11 +3,14 @@
     <header v-if="$slots.header">
       <slot name="header"></slot>
     </header>
-    <main ref="content" :data-scrolling="scrollable ? true : undefined">
+    <main :data-scrolling="scrollable ? true : undefined">
       <div class="is-scrollbar-progress is-hidden-mobile">
         <scroll-progress v-show="paused" :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
-      <slot :setLoading="setLoading"></slot>
+      <div ref="scrollableContent">
+        <slot :setLoading="setLoading"></slot>
+      </div>
+
       <div ref="scrollObserver" class="is-scroll-observer"></div>
     </main>
 
@@ -41,7 +44,7 @@ export default {
     };
   },
   mounted() {
-    const { content } = this.$refs;
+    const { scrollableContent } = this.$refs;
     this.mutationObserver = new MutationObserver((e) => {
       if (!this.paused) {
         this.scrollToBottom("instant");
@@ -54,7 +57,7 @@ export default {
         }
       }
     });
-    this.mutationObserver.observe(content, { childList: true, subtree: true });
+    this.mutationObserver.observe(scrollableContent, { childList: true, subtree: true });
 
     this.intersectionObserver = new IntersectionObserver(
       (entries) => (this.paused = entries[0].intersectionRatio == 0),

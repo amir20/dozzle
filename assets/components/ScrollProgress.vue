@@ -1,7 +1,7 @@
 <template>
   <div class="scroll-progress" ref="root">
     <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-      <circle r="44" cx="50" cy="50" :style="{ '--progress': scrollProgress }" />
+      <circle r="44" cx="50" cy="50" />
     </svg>
     <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
       <template v-if="indeterminate">
@@ -19,9 +19,9 @@
 
 <script lang="ts" setup>
 import { useContainerStore } from "@/stores/container";
-import throttle from "lodash.throttle";
+import { useScroll } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { onMounted, onUnmounted, ref, watchPostEffect } from "vue";
+import { onMounted, ref, watch, watchPostEffect } from "vue";
 
 const props = defineProps({
   indeterminate: {
@@ -36,15 +36,28 @@ const props = defineProps({
 
 const scrollProgress = ref(0);
 const animation = ref({ cancel: () => {} });
-const parentElement = ref<Node>(document);
 const root = ref<HTMLElement>();
 const store = useContainerStore();
 const { activeContainers } = storeToRefs(store);
-const onScrollThrottled = throttle(onScroll, 150);
+const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
+const { y: scrollY } = useScroll(scrollElement, { throttle: 100 });
 
-function onScroll() {
-  const parent = parentElement.value == document ? document.documentElement : (parentElement.value as HTMLElement);
-  scrollProgress.value = parent.scrollTop / (parent.scrollHeight - parent.clientHeight);
+onMounted(() => {
+  watch(
+    activeContainers,
+    () => {
+      scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
+    },
+    { immediate: true, flush: "post" }
+  );
+});
+
+watchPostEffect(() => {
+  const parent =
+    scrollElement.value === document
+      ? (scrollElement.value as Document).documentElement
+      : (scrollElement.value as HTMLElement);
+  scrollProgress.value = scrollY.value / (parent.scrollHeight - parent.clientHeight);
   animation.value.cancel();
   if (props.autoHide && root.value) {
     animation.value = root.value.animate(
@@ -57,29 +70,6 @@ function onScroll() {
       }
     );
   }
-}
-
-function attachEvents() {
-  parentElement.value = root.value?.closest("[data-scrolling]") || document;
-  parentElement.value.addEventListener("scroll", onScrollThrottled);
-}
-
-function detachEvents() {
-  parentElement.value.removeEventListener("scroll", onScrollThrottled);
-}
-
-onMounted(() => {
-  attachEvents();
-});
-
-onUnmounted(() => {
-  detachEvents();
-});
-
-watchPostEffect(() => {
-  activeContainers.value.length;
-  detachEvents();
-  attachEvents();
 });
 </script>
 <style scoped lang="scss">
@@ -105,7 +95,7 @@ watchPostEffect(() => {
       transform: rotate(-90deg);
       transform-origin: 50% 50%;
       stroke: var(--primary-color);
-      stroke-dashoffset: calc(276.32px - var(--progress) * 276.32px);
+      stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
       stroke-dasharray: 276.32px 276.32px;
       stroke-linecap: round;
       stroke-width: 3;

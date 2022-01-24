@@ -8,8 +8,13 @@
 </template>
 
 <script lang="ts" setup>
+import { Container } from "@/types/Container";
+import { PropType } from "vue";
 defineProps({
-  container: Object,
+  container: {
+    type: Object as PropType<Container>,
+    required: true,
+  },
 });
 </script>
 

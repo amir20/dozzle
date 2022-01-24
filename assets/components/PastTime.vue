@@ -2,38 +2,23 @@
   <time :datetime="date.toISOString()">{{ text }}</time>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { useIntervalFn } from "@vueuse/core";
 import formatDistance from "date-fns/formatDistance";
+import { PropType, ref } from "vue";
 
-export default {
-  props: {
-    date: {
-      required: true,
-      type: Date,
-    },
+const props = defineProps({
+  date: {
+    required: true,
+    type: Object as PropType<Date>,
   },
-  data() {
-    return {
-      text: "" as string,
-      interval: null,
-    };
-  },
-  name: "PastTime",
-  mounted() {
-    this.updateFromNow();
-    this.interval = setInterval(() => this.updateFromNow(), 30000);
-  },
-  destroyed() {
-    clearInterval(this.interval);
-  },
-  methods: {
-    updateFromNow() {
-      this.text = formatDistance(this.date, new Date(), {
-        addSuffix: true,
-      });
-    },
-  },
-};
+});
+
+const text = ref<string>();
+function updateFromNow() {
+  text.value = formatDistance(props.date, new Date(), {
+    addSuffix: true,
+  });
+}
+useIntervalFn(updateFromNow, 30_000, { immediateCallback: true });
 </script>
-
-<style scoped lang="scss"></style>
