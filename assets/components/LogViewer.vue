@@ -8,13 +8,20 @@
       :class="item.selected ? 'selected' : ''"
     >
       <div class="line-options" v-if="isSearching()">
-        <o-tooltip label="Jump to context" position="right" delay="500">
-          <button class="jump" @click="jumpToLine">
-            <span class="icon">
-              <mdi-dots-vertical />
-            </span>
-          </button>
-        </o-tooltip>
+        <dropdown-menu class="is-top is-small">
+          <a class="dropdown-item" @click="jumpToLine">
+            <div class="level is-justify-content-start">
+              <div class="level-left">
+                <div class="level-item">
+                  <cil-find-in-page class="mr-4" />
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">Jump to Context</div>
+              </div>
+            </div>
+          </a>
+        </dropdown-menu>
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>

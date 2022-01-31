@@ -1,54 +1,43 @@
 <template>
-  <div class="dropdown is-right is-hoverable">
-    <div class="dropdown-trigger">
-      <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-        <span class="icon">
-          <mdi-dots-vertical />
-        </span>
-      </button>
-    </div>
-    <div class="dropdown-menu" id="dropdown-menu" role="menu">
-      <div class="dropdown-content">
-        <a class="dropdown-item" @click="onClearClicked">
-          <div class="level is-justify-content-start">
-            <div class="level-left">
-              <div class="level-item">
-                <octicon-trash-24 class="mr-4" />
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">Clear</div>
-            </div>
+  <dropdown-menu class="is-right">
+    <a class="dropdown-item" @click="onClearClicked">
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <octicon-trash-24 class="mr-4" />
           </div>
-        </a>
-        <a class="dropdown-item" :href="`${base}/api/logs/download?id=${container.id}`">
-          <div class="level is-justify-content-start">
-            <div class="level-left">
-              <div class="level-item">
-                <octicon-download-24 class="mr-4" />
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">Download</div>
-            </div>
-          </div>
-        </a>
-        <hr class="dropdown-divider" />
-        <a class="dropdown-item" @click="showSearch = true">
-          <div class="level is-justify-content-start">
-            <div class="level-left">
-              <div class="level-item">
-                <mdi-light-magnify class="mr-4" />
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">Search</div>
-            </div>
-          </div>
-        </a>
+        </div>
+        <div class="level-right">
+          <div class="level-item">Clear</div>
+        </div>
       </div>
-    </div>
-  </div>
+    </a>
+    <a class="dropdown-item" :href="`${base}/api/logs/download?id=${container.id}`">
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <octicon-download-24 class="mr-4" />
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">Download</div>
+        </div>
+      </div>
+    </a>
+    <hr class="dropdown-divider" />
+    <a class="dropdown-item" @click="showSearch = true">
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <mdi-light-magnify class="mr-4" />
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">Search</div>
+        </div>
+      </div>
+    </a>
+  </dropdown-menu>
 </template>
 
 <script lang="ts" setup>
@@ -92,29 +81,6 @@ onUnmounted(() => hotkeys.unbind("shift+command+l, shift+ctrl+l", onHotkey));
   &:hover {
     color: var(--primary-color);
     border-color: var(--primary-color);
-  }
-}
-
-.toolbar {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  background-color: var(--action-toolbar-background-color);
-  border-radius: 8em;
-  margin-top: 0.5em;
-
-  & > div {
-    margin: 0 2em;
-    padding: 0.5em 0;
-  }
-
-  .button {
-    background-color: rgba(0, 0, 0, 0) !important;
-
-    &.is-small {
-      font-size: 0.65rem;
-    }
   }
 }
 </style>
