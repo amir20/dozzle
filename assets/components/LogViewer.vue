@@ -8,7 +8,7 @@
       :class="item.selected ? 'selected' : ''"
     >
       <div class="line-options" v-if="isSearching()">
-        <dropdown-menu class="is-top is-small">
+        <dropdown-menu class="is-top">
           <a class="dropdown-item" @click="jumpToLine">
             <div class="level is-justify-content-start">
               <div class="level-left">

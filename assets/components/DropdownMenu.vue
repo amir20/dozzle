@@ -18,10 +18,11 @@
 <script lang="ts" setup></script>
 
 <style lang="scss" scoped>
+.button {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+}
 .is-top .dropdown-menu {
   top: 0;
-}
-.is-small {
-  transform: scale(75%);
 }
 </style>

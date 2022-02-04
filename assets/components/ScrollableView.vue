@@ -90,6 +90,7 @@ section {
     top: 0;
     background: var(--body-background-color);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 1;
   }
 
   &.is-full-height-scrollable {
