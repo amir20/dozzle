@@ -1,5 +1,5 @@
 <template>
-  <ul class="events" :class="size">
+  <ul class="events" :class="size" ref="events">
     <li
       v-for="item in filtered"
       :key="item.key"
@@ -32,13 +32,15 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, toRefs } from "vue";
+import { PropType, ref, toRefs } from "vue";
 
 import { size, showTimestamp } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
+import { useContainerStore } from "@/stores/container";
+import { storeToRefs } from "pinia";
 
 const props = defineProps({
   messages: {
@@ -52,7 +54,10 @@ const colorize = (value: string) =>
   ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
 const { messages } = toRefs(props);
 const { filteredMessages, searchFilter, resetSearch, isSearching } = useSearchFilter();
+const store = useContainerStore();
+const { activeContainers } = storeToRefs(store);
 const filtered = filteredMessages(messages);
+const events = ref(null);
 const jumpToLine = async (e) => {
   const line = e.target.closest("li");
   if (line.tagName !== "LI") {
@@ -65,12 +70,13 @@ const jumpToLine = async (e) => {
       item.selected = true;
     }
   }
-  // TODO prevent ScrollableView from automatically sticking to the bottom when closing search and jumping to context (ScrollableView.vue:47)
-  // if that could be achieved, then these timing hacks can be removed
+  // when in split pane mode - scroll the pane element, when not in split pane mode - scroll the window element
+  const elemToScroll = activeContainers.value.length > 0 ? events.value.closest("main") : window;
+  // TODO have pane scroll to the line without timing hacks, this will require telling the scrollable view when we're jumping to context, so it can stop scrolling to bottom temporarily
   await new Promise((resolve) => setTimeout(resolve, 10));
-  window.scrollTo(0, 0);
+  elemToScroll.scrollTo(0, 0);
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  window.scrollTo(0, line.offsetTop - 200);
+  elemToScroll.scrollTo(0, line.offsetTop - 200);
 };
 </script>
 <style scoped lang="scss">
