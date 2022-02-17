@@ -43,7 +43,7 @@
     "semver": "^7.3.5",
     "splitpanes": "^3.0.6",
     "typescript": "^4.5.5",
-    "unplugin-auto-import": "^0.5.11",
+    "unplugin-auto-import": "^0.6.0",
     "unplugin-icons": "^0.13.0",
     "unplugin-vue-components": "^0.17.15",
     "vite": "^2.7.13",
