@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
-	github.com/alexflint/go-arg v1.4.2
+	github.com/alexflint/go-arg v1.4.3
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/containerd/containerd v1.5.7 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
@@ -13,14 +13,14 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/magiconair/properties v1.8.5
+	github.com/magiconair/properties v1.8.6
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/afero v1.8.0
+	github.com/spf13/afero v1.8.1
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
