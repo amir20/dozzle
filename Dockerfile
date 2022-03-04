@@ -21,7 +21,7 @@ RUN pnpm install -r --offline --prod
 # Do the build
 RUN pnpm build
 
-FROM golang:1.17.7-alpine AS builder
+FROM golang:1.18rc1-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates && mkdir /dozzle
 
