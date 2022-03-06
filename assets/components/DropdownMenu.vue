@@ -23,8 +23,21 @@
   border: none;
   padding: 0.1em;
   height: 100%;
+
+  & > .icon {
+    height: 100%;
+    & > svg {
+      height: 0.85em;
+    }
+  }
 }
-.is-top .dropdown-menu {
-  top: 0;
+.is-top {
+  & .dropdown-menu {
+    top: 0;
+  }
+
+  &.is-last .dropdown-menu {
+    top: -30px;
+  }
 }
 </style>

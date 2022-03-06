@@ -1,14 +1,14 @@
 <template>
   <ul class="events" :class="size" ref="events">
     <li
-      v-for="item in filtered"
+      v-for="(item, index) in filtered"
       :key="item.key"
       :data-event="item.event"
       :data-key="item.key"
       :class="item.selected ? 'selected' : ''"
     >
       <div class="line-options" v-if="isSearching()">
-        <dropdown-menu class="is-top minimal">
+        <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
           <a class="dropdown-item" @click="jumpToLine">
             <div class="level is-justify-content-start">
               <div class="level-left">
@@ -83,6 +83,7 @@ const jumpToLine = async (e) => {
 .events {
   padding: 1em;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
+  overflow: hidden;
 
   & > li {
     display: flex;
