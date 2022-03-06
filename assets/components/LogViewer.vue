@@ -8,7 +8,7 @@
       :class="item.selected ? 'selected' : ''"
     >
       <div class="line-options" v-if="isSearching()">
-        <dropdown-menu class="is-top">
+        <dropdown-menu class="is-top minimal">
           <a class="dropdown-item" @click="jumpToLine">
             <div class="level is-justify-content-start">
               <div class="level-left">
@@ -101,33 +101,18 @@ const jumpToLine = async (e) => {
     &.selected {
       background-color: var(--menu-item-active-background-color);
       color: black;
-
-      & .jump {
-        color: var(--menu-item-hover-color) !important;
-      }
     }
     &.selected > .date {
       background-color: white;
     }
     & > .line {
       margin: auto 0;
+      width: 100%;
     }
     & > .line-options {
       display: flex;
       flex-direction: row-reverse;
       margin-right: 1em;
-      & .jump {
-        padding: 0;
-        background-color: rgba(0, 0, 0, 0);
-        color: var(--menu-item-hover-background-color);
-        border: none;
-        cursor: pointer;
-        opacity: 0;
-
-        &:hover {
-          opacity: 1;
-        }
-      }
     }
   }
 

@@ -18,9 +18,11 @@
 <script lang="ts" setup></script>
 
 <style lang="scss" scoped>
-.button {
+.minimal .button {
   background-color: rgba(0, 0, 0, 0);
   border: none;
+  padding: 0.1em;
+  height: 100%;
 }
 .is-top .dropdown-menu {
   top: 0;
