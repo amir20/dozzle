@@ -27,6 +27,7 @@
   & > .icon {
     height: 100%;
     & > svg {
+      align-self: flex-start;
       height: 0.85em;
     }
   }
