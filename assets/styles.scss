@@ -37,7 +37,8 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
 @import "@oruga-ui/theme-bulma/dist/scss/components/dropdown.scss";
 @import "splitpanes/dist/splitpanes.css";
 
-html {
+html,
+[data-theme="dark"] {
   --scheme-main: #{$black};
   --scheme-main-bis: #{$black-bis};
   --scheme-main-ter: #{$black-ter};
@@ -62,6 +63,64 @@ html {
 
   --text-strong-color: #{$grey-lightest};
   --text-color: #{$grey-lighter};
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+  --scheme-main: #{$black};
+  --scheme-main-bis: #{$black-bis};
+  --scheme-main-ter: #{$black-ter};
+
+  --border-color: #{$grey-darker};
+  --border-hover-color: var(--secondary-color);
+  --logo-color: var(--secondary-color);
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #{$yellow};
+
+  --body-background-color: #{$black-bis};
+  --action-toolbar-background-color: #{$dark-toolbar-color};
+
+  --menu-item-active-background-color: var(--primary-color);
+  --menu-item-color: hsl(0, 6%, 87%);
+  --menu-item-hover-background-color: #{$white-ter};
+  --menu-item-hover-color: #{$black-ter};
+
+  --panel-heading-background-color: var(--secondary-color);
+  --panel-heading-color: var(--scheme-main-bis);
+
+  --text-strong-color: #{$grey-lightest};
+  --text-color: #{$grey-lighter};
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  html {
+  --scheme-main: #{$white};
+  --scheme-main-bis: #{$white-bis};
+  --scheme-main-ter: #{$white-ter};
+
+  --border-color: #{$grey-lighter};
+  --border-hover-color: var(--secondary-color);
+  --logo-color: #{$grey-darker};
+
+  --primary-color: #{$turquoise};
+  --secondary-color: #d8f0ca;
+
+  --body-background-color: #{$white-bis};
+  --action-toolbar-background-color: #{$light-toolbar-color};
+  --body-color: #{$grey-darker};
+
+  --menu-item-color: #{$grey-dark};
+  --menu-item-hover-background-color: #eee8e7;
+  --menu-item-hover-color: #{black-ter};
+
+  --panel-heading-background-color: var(--secondary-color);
+  --panel-heading-color: var(--text-strong-color);
+
+  --text-strong-color: #{$grey-dark};
+  --text-color: #{$grey-darker};
+  }
 }
 
 [data-theme="light"] {

@@ -10,7 +10,7 @@ export const DEFAULT_SETTINGS: {
   smallerScrollbars: boolean;
   showTimestamp: boolean;
   showAllContainers: boolean;
-  lightTheme: boolean;
+  lightTheme: "auto" | "dark" | "light";
   hourStyle: "auto" | "24" | "12";
 } = {
   search: true,
@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: {
   smallerScrollbars: false,
   showTimestamp: true,
   showAllContainers: false,
-  lightTheme: false,
+  lightTheme: "auto",
   hourStyle: "auto",
 };
 

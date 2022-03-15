@@ -82,6 +82,34 @@
           <div class="column">Font size to use for logs</div>
         </div>
       </div>
+      <div class="item">
+        <div class="columns is-vcentered">
+          <div class="column is-narrow">
+            <o-field>
+              <o-dropdown v-model="lightTheme" aria-role="list">
+                <template #trigger>
+                  <o-button variant="primary" type="button">
+                    <span class="is-capitalized">{{ lightTheme }}</span>
+                    <span class="icon">
+                      <carbon-caret-down />
+                    </span>
+                  </o-button>
+                </template>
+
+                <o-dropdown-item
+                  :value="value"
+                  aria-role="listitem"
+                  v-for="value in ['auto', 'dark', 'light']"
+                  :key="value"
+                >
+                  <span class="is-capitalized">{{ value }}</span>
+                </o-dropdown-item>
+              </o-dropdown>
+            </o-field>
+          </div>
+          <div class="column">Color scheme</div>
+        </div>
+      </div>
     </section>
     <section class="section">
       <div class="has-underline">
@@ -96,10 +124,6 @@
 
       <div class="item">
         <o-switch v-model="showAllContainers"> Show stopped containers </o-switch>
-      </div>
-
-      <div class="item">
-        <o-switch v-model="lightTheme"> Use light theme </o-switch>
       </div>
     </section>
   </div>
