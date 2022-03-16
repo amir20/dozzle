@@ -22,7 +22,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/objx v0.3.0 // indirect
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	google.golang.org/genproto v0.0.0-20211104193956-4c6863e31247 // indirect
