@@ -45,7 +45,7 @@
     "typescript": "^4.6.2",
     "unplugin-auto-import": "^0.6.1",
     "unplugin-icons": "^0.13.2",
-    "unplugin-vue-components": "^0.17.21",
+    "unplugin-vue-components": "^0.18.3",
     "vite": "^2.8.6",
     "vue": "^3.2.31",
     "vue-router": "^4.0.13"
