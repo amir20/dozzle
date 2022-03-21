@@ -72,8 +72,15 @@ onMounted(() => {
   if (smallerScrollbars.value) {
     document.documentElement.classList.add("has-custom-scrollbars");
   }
-  if (lightTheme.value) {
-    document.documentElement.setAttribute("data-theme", "light");
+  switch (lightTheme.value) {
+    case "dark":
+      document.documentElement.setAttribute("data-theme", "dark");
+      break;
+    case "light":
+      document.documentElement.setAttribute("data-theme", "light");
+      break;
+    default:
+      document.documentElement.removeAttribute("data-theme");
   }
 
   hotkeys("command+k, ctrl+k", (event, handler) => {
@@ -93,10 +100,15 @@ watchEffect(() => {
     document.documentElement.classList.remove("has-custom-scrollbars");
   }
 
-  if (lightTheme.value) {
-    document.documentElement.setAttribute("data-theme", "light");
-  } else {
-    document.documentElement.removeAttribute("data-theme");
+  switch (lightTheme.value) {
+    case "dark":
+      document.documentElement.setAttribute("data-theme", "dark");
+      break;
+    case "light":
+      document.documentElement.setAttribute("data-theme", "light");
+      break;
+    default:
+      document.documentElement.removeAttribute("data-theme");
   }
 });
 

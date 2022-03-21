@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-context("Dozzle light mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () => {
+context.skip("Dozzle light mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () => {
   before(() => {
     cy.visit("/settings");
     cy.contains("Use light theme").click();
