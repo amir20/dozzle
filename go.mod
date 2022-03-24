@@ -6,7 +6,7 @@ require (
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/containerd/containerd v1.5.7 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v20.10.12+incompatible
+	github.com/docker/docker v20.10.14+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.0
@@ -20,9 +20,9 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/afero v1.8.1
+	github.com/spf13/afero v1.8.2
 	github.com/stretchr/objx v0.3.0 // indirect
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	google.golang.org/genproto v0.0.0-20211104193956-4c6863e31247 // indirect
@@ -41,4 +41,4 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 )
 
-go 1.17
+go 1.18

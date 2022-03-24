@@ -130,16 +130,37 @@ const jumpToLine = async (e) => {
   }
 }
 
-.date {
-  background-color: #262626;
-  color: #258ccd;
+@media (prefers-color-scheme: dark) {
+  .date {
+    background-color: #262626;
+    color: #258ccd;
+  }
+}
 
-  [data-theme="light"] & {
+[data-theme="dark"] {
+  .date {
+    background-color: #262626;
+    color: #258ccd;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .date {
     background-color: #f0f0f0;
     color: #009900;
-    padding-left: 5px;
-    padding-right: 5px;
   }
+}
+
+[data-theme="light"] {
+  .date {
+    background-color: #f0f0f0;
+    color: #009900;
+  }
+}
+
+.date {
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .text {
