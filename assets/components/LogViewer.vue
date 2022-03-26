@@ -9,7 +9,7 @@
     >
       <div class="line-options" v-if="isSearching()">
         <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
-          <a class="dropdown-item" @click="jumpToLine">
+          <a class="dropdown-item" @click="handleJumpLineSelected">
             <div class="level is-justify-content-start">
               <div class="level-left">
                 <div class="level-item">
@@ -59,7 +59,7 @@ const { activeContainers } = storeToRefs(store);
 const filtered = filteredMessages(messages);
 const events = ref(null);
 let selectedLine;
-const jumpToLine = async (e) => {
+const handleJumpLineSelected = async (e) => {
   const line = e.target.closest("li");
   if (line.tagName !== "LI") {
     return;
@@ -79,9 +79,11 @@ watch(filtered, async (newVal, oldVal) => {
     }
   }
   // when in split pane mode - scroll the pane element, when not in split pane mode - scroll the window element
-  const elemToScroll = activeContainers.value.length > 0 ? events.value.closest("main") : window;
+  const inSplitPane = activeContainers.value.length > 0;
+  const elemToScroll = inSplitPane ? events.value.closest("main") : window;
   elemToScroll.scrollTo(0, 0);
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  // wait 1s before jumping when in split pane mode to ensure the correct line is scrolled to, single pane mode does not have this issue thus only 10ms is needed
+  await new Promise((resolve) => setTimeout(resolve, inSplitPane ? 1000 : 10));
   elemToScroll.scrollTo(0, selectedLine.offsetTop - 200);
   selectedLine = null;
 });
