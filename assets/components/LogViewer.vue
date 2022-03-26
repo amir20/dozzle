@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, toRefs } from "vue";
+import { PropType, ref, toRefs, watch, nextTick } from "vue";
 
 import { size, showTimestamp } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
@@ -58,26 +58,33 @@ const store = useContainerStore();
 const { activeContainers } = storeToRefs(store);
 const filtered = filteredMessages(messages);
 const events = ref(null);
+let selectedLine;
 const jumpToLine = async (e) => {
   const line = e.target.closest("li");
   if (line.tagName !== "LI") {
     return;
   }
+  selectedLine = line;
   resetSearch();
+};
+watch(filtered, async (newVal, oldVal) => {
+  if (selectedLine == null) {
+    return;
+  }
+  await nextTick();
   for (const item of messages.value) {
     item.selected = false;
-    if (item.key === line.dataset.key) {
+    if (item.key === selectedLine.dataset.key) {
       item.selected = true;
     }
   }
   // when in split pane mode - scroll the pane element, when not in split pane mode - scroll the window element
   const elemToScroll = activeContainers.value.length > 0 ? events.value.closest("main") : window;
-  // TODO have pane scroll to the line without timing hacks, this will require telling the scrollable view when we're jumping to context, so it can stop scrolling to bottom temporarily
-  await new Promise((resolve) => setTimeout(resolve, 10));
   elemToScroll.scrollTo(0, 0);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  elemToScroll.scrollTo(0, line.offsetTop - 200);
-};
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  elemToScroll.scrollTo(0, selectedLine.offsetTop - 200);
+  selectedLine = null;
+});
 </script>
 <style scoped lang="scss">
 .events {
