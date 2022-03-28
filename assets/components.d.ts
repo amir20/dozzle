@@ -4,6 +4,7 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
+    CilFindInPage: typeof import('~icons/cil/find-in-page')['default']
     ContainerStat: typeof import('./components/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/ContainerTitle.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
@@ -14,6 +15,7 @@ declare module 'vue' {
     LogEventSource: typeof import('./components/LogEventSource.vue')['default']
     LogViewer: typeof import('./components/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewerWithSource.vue')['default']
+    MdiDotsVertical: typeof import('~icons/mdi/dots-vertical')['default']
     MobileMenu: typeof import('./components/MobileMenu.vue')['default']
     PastTime: typeof import('./components/PastTime.vue')['default']
     RelativeTime: typeof import('./components/RelativeTime.vue')['default']
