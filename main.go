@@ -33,6 +33,7 @@ type args struct {
 	Username      string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password      string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
 	NoAnalytics   bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+	WaitForDocker bool                `arg:"--wait-for-docker,env:DOZZLE_WAIT_FOR_DOCKER" help:"wait for docker to be available before starting the server."`
 	FilterStrings []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter        map[string][]string `arg:"-"`
 }
@@ -46,6 +47,7 @@ var content embed.FS
 
 func main() {
 	var args args
+	var err error
 	parser := arg.MustParse(&args)
 	args.Filter = make(map[string][]string)
 
@@ -69,10 +71,16 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClientWithFilters(args.Filter)
-	_, err := dockerClient.ListContainers()
-
-	if err != nil {
-		log.Fatalf("Could not connect to Docker Engine: %v", err)
+	for i := 1; ; i++ {
+		_, err := dockerClient.ListContainers()
+		if err == nil {
+			break
+		} else if !args.WaitForDocker {
+			log.Fatalf("Could not connect to Docker Engine: %v", err)
+		} else {
+			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
+			time.Sleep(5 * time.Second)
+		}
 	}
 
 	if args.Username != "" || args.Password != "" {
