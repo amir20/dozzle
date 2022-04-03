@@ -25,17 +25,17 @@ var (
 )
 
 type args struct {
-	Addr          string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
-	Base          string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
-	Level         string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
-	TailSize      int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
-	Key           string              `arg:"env:DOZZLE_KEY" help:"set a random key for username and password. This is required for auth."`
-	Username      string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
-	Password      string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
-	NoAnalytics   bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
-	WaitForDocker bool                `arg:"--wait-for-docker,env:DOZZLE_WAIT_FOR_DOCKER" help:"wait for docker to be available before starting the server."`
-	FilterStrings []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
-	Filter        map[string][]string `arg:"-"`
+	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
+	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
+	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
+	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
+	Key                  string              `arg:"env:DOZZLE_KEY" help:"set a random key for username and password. This is required for auth."`
+	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
+	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
+	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
+	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
+	Filter               map[string][]string `arg:"-"`
 }
 
 func (args) Version() string {
@@ -75,11 +75,12 @@ func main() {
 		_, err := dockerClient.ListContainers()
 		if err == nil {
 			break
-		} else if !args.WaitForDocker {
+		} else if args.WaitForDockerSeconds <= 0 {
 			log.Fatalf("Could not connect to Docker Engine: %v", err)
 		} else {
 			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
 			time.Sleep(5 * time.Second)
+			args.WaitForDockerSeconds -= 5
 		}
 	}
 
