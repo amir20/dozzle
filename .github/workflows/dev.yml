@@ -10,6 +10,7 @@ jobs:
   buildx:
     name: Push branches and PRs
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'amir20/dozzle' }}
     steps:
       - name: Docker meta
         id: meta
