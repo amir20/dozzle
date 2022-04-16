@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
       "@/": `${path.resolve(__dirname, "assets")}/`,
     },
   },
-  base: mode === "production" ? "/<__BASE__>/" : "/",
+  base: mode === "production" ? "/{{ .Base }}/" : "/",
   plugins: [
     vue(),
     Icons({
@@ -41,8 +41,9 @@ export default defineConfig(({ mode }) => ({
 const htmlPlugin = (mode) => {
   return {
     name: "html-transform",
+    enforce: "post",
     transformIndexHtml(html) {
-      return mode === "production" ? html.replaceAll("/<__BASE__>", "{{ .Base }}") : html;
+      return mode === "production" ? html.replaceAll("/{{ .Base }}/", "{{ .Base }}/") : html;
     },
   };
 };
