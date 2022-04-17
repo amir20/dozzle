@@ -1,5 +1,5 @@
 <template>
-  <ul class="events" :class="size" ref="events">
+  <ul class="events" ref="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
       :key="item.key"
@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { PropType, ref, toRefs, watch, nextTick } from "vue";
 
-import { size, showTimestamp } from "@/composables/settings";
+import { size, showTimestamp, softWrap } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
@@ -53,14 +53,14 @@ const ansiConvertor = new AnsiConvertor({ escapeXML: true });
 const colorize = (value: string) =>
   ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
 const { messages } = toRefs(props);
-const { filteredMessages, searchFilter, resetSearch, isSearching } = useSearchFilter();
+const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 const store = useContainerStore();
 const { activeContainers } = storeToRefs(store);
 const filtered = filteredMessages(messages);
 const events = ref(null);
-let selectedLine;
-const handleJumpLineSelected = async (e) => {
-  const line = e.target.closest("li");
+let selectedLine: Element | null = null;
+const handleJumpLineSelected = async (e: Event) => {
+  const line = e.target?.closest("li");
   if (line.tagName !== "LI") {
     return;
   }
@@ -68,7 +68,7 @@ const handleJumpLineSelected = async (e) => {
   resetSearch();
 };
 watch(filtered, async (newVal, oldVal) => {
-  if (selectedLine == null) {
+  if (selectedLine === null) {
     return;
   }
   await nextTick();
@@ -93,6 +93,13 @@ watch(filtered, async (newVal, oldVal) => {
   padding: 1em;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
   overflow: hidden;
+
+  &.disable-wrap {
+    .line,
+    .text {
+      white-space: nowrap;
+    }
+  }
 
   & > li {
     display: flex;
