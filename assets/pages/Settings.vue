@@ -21,6 +21,18 @@
       <div class="has-underline">
         <h2 class="title is-4">Display</h2>
       </div>
+
+      <div class="item">
+        <o-switch v-model="smallerScrollbars"> Use smaller scrollbars </o-switch>
+      </div>
+      <div class="item">
+        <o-switch v-model="showTimestamp"> Show timestamps </o-switch>
+      </div>
+
+      <div class="item">
+        <o-switch v-model="softWrap"> Soft wrap lines</o-switch>
+      </div>
+
       <div class="item">
         <div class="columns is-vcentered">
           <div class="column is-narrow">
@@ -45,15 +57,7 @@
             By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
           </div>
         </div>
-
-        <div class="item">
-          <o-switch v-model="smallerScrollbars"> Use smaller scrollbars </o-switch>
-        </div>
-        <div class="item">
-          <o-switch v-model="showTimestamp"> Show timestamps </o-switch>
-        </div>
       </div>
-
       <div class="item">
         <div class="columns is-vcentered">
           <div class="column is-narrow">
@@ -142,6 +146,7 @@ import {
   hourStyle,
   showAllContainers,
   size,
+  softWrap,
 } from "@/composables/settings";
 
 setTitle("Settings");

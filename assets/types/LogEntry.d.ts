@@ -3,4 +3,5 @@ export interface LogEntry {
   message: string;
   key: string;
   event?: string;
+  selected?: boolean;
 }

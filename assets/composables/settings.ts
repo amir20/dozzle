@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS: {
   showAllContainers: boolean;
   lightTheme: "auto" | "dark" | "light";
   hourStyle: "auto" | "24" | "12";
+  softWrap: boolean;
 } = {
   search: true,
   size: "medium",
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: {
   showAllContainers: false,
   lightTheme: "auto",
   hourStyle: "auto",
+  softWrap: true,
 };
 
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
@@ -62,4 +64,9 @@ export const lightTheme = computed({
 export const hourStyle = computed({
   get: () => settings.value.hourStyle,
   set: (value) => (settings.value.hourStyle = value),
+});
+
+export const softWrap = computed({
+  get: () => settings.value.softWrap,
+  set: (value) => (settings.value.softWrap = value),
 });
