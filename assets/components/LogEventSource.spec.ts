@@ -8,6 +8,7 @@ import { settings } from "../composables/settings";
 import { useSearchFilter } from "@/composables/search";
 import { vi, describe, expect, beforeEach, test, beforeAll, afterAll } from "vitest";
 import { computed, Ref } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 
 vi.mock("lodash.debounce", () => ({
   __esModule: true,
@@ -50,7 +51,7 @@ describe("<LogEventSource />", () => {
 
   function createLogEventSource(
     {
-      searchFilter = undefined,
+      searchFilter = "",
       hourStyle = "auto",
     }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12" } = {
       hourStyle: "auto",
@@ -58,9 +59,22 @@ describe("<LogEventSource />", () => {
   ) {
     settings.value.hourStyle = hourStyle;
     search.searchFilter.value = searchFilter;
+
+    const router = createRouter({
+      history: createWebHistory("/"),
+      routes: [
+        {
+          path: "/",
+          component: {
+            template: "Test from createLogEventSource",
+          },
+        },
+      ],
+    });
+
     return mount(LogEventSource, {
       global: {
-        plugins: [createTestingPinia({ createSpy: vi.fn })],
+        plugins: [router, createTestingPinia({ createSpy: vi.fn })],
         components: {
           LogViewer,
         },
