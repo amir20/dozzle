@@ -17,6 +17,7 @@ specifiers:
   '@vue/compiler-sfc': ^3.2.33
   '@vue/test-utils': ^2.0.0-rc.20
   '@vueuse/core': ^8.2.6
+  '@vueuse/router': ^8.2.6
   ansi-to-html: ^0.7.2
   bulma: ^0.9.3
   c8: ^7.11.0
@@ -57,6 +58,7 @@ dependencies:
   '@vitejs/plugin-vue': 2.3.1_vite@2.9.5+vue@3.2.33
   '@vue/compiler-sfc': 3.2.33
   '@vueuse/core': 8.2.6_vue@3.2.33
+  '@vueuse/router': 8.2.6_vue-router@4.0.14+vue@3.2.33
   ansi-to-html: 0.7.2
   bulma: 0.9.3
   date-fns: 2.28.0
@@ -578,6 +580,19 @@ packages:
 
   /@vueuse/metadata/8.2.6:
     resolution: {integrity: sha512-OBKtafCt+4RcEJlYDCjp1vl65pBCL2g4TmipEtdZ8/qphKlW6nakJbkY7XRN5grPmjqU99/ahJGtyGk5NHS2hw==}
+    dev: false
+
+  /@vueuse/router/8.2.6_vue-router@4.0.14+vue@3.2.33:
+    resolution: {integrity: sha512-7HKFR7VNfqXVB/N6sIP6hq7zn+XgWWOPdpWlgcTbbzyiDwzHu2dHjUx1LMn7o1GbQAyMFlJdiXqvuvqjS8Xb8A==}
+    peerDependencies:
+      vue-router: '>=4.0.0-rc.1'
+    dependencies:
+      '@vueuse/shared': 8.2.6_vue@3.2.33
+      vue-demi: 0.12.5_vue@3.2.33
+      vue-router: 4.0.14_vue@3.2.33
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
     dev: false
 
   /@vueuse/shared/8.2.6_vue@3.2.33:

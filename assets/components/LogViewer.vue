@@ -3,13 +3,13 @@
     <li
       v-for="(item, index) in filtered"
       :key="item.key"
-      :data-event="item.event"
       :data-key="item.key"
-      :class="item.selected ? 'selected' : ''"
+      :data-event="item.event"
+      :class="{ selected: item.selected }"
     >
-      <div class="line-options" v-if="isSearching()">
+      <div class="line-options" v-show="isSearching()">
         <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
-          <a class="dropdown-item" @click="handleJumpLineSelected">
+          <a class="dropdown-item" @click="handleJumpLineSelected($event, item)" :href="`#${item.key}`">
             <div class="level is-justify-content-start">
               <div class="level-left">
                 <div class="level-item">
@@ -32,15 +32,13 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, toRefs, watch, nextTick } from "vue";
-
+import { PropType, ref, toRefs, watch } from "vue";
+import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
 
 const props = defineProps({
   messages: {
@@ -50,43 +48,29 @@ const props = defineProps({
 });
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-const colorize = (value: string) =>
-  ansiConvertor.toHtml(value).replace("&lt;mark&gt;", "<mark>").replace("&lt;/mark&gt;", "</mark>");
+const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter();
+const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 const { messages } = toRefs(props);
-const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
-const store = useContainerStore();
-const { activeContainers } = storeToRefs(store);
 const filtered = filteredMessages(messages);
-const events = ref(null);
-let selectedLine: Element | null = null;
-const handleJumpLineSelected = async (e: Event) => {
-  const line = e.target?.closest("li");
-  if (line.tagName !== "LI") {
-    return;
+const events = ref<HTMLElement>();
+let lastSelectedItem: LogEntry | undefined = undefined;
+function handleJumpLineSelected(e: Event, item: LogEntry) {
+  if (lastSelectedItem) {
+    lastSelectedItem.selected = false;
   }
-  selectedLine = line;
+  lastSelectedItem = item;
+  item.selected = true;
   resetSearch();
-};
-watch(filtered, async (newVal, oldVal) => {
-  if (selectedLine === null) {
-    return;
-  }
-  await nextTick();
-  for (const item of messages.value) {
-    item.selected = false;
-    if (item.key === selectedLine.dataset.key) {
-      item.selected = true;
-    }
-  }
-  // when in split pane mode - scroll the pane element, when not in split pane mode - scroll the window element
-  const inSplitPane = activeContainers.value.length > 0;
-  const elemToScroll = inSplitPane ? events.value.closest("main") : window;
-  elemToScroll.scrollTo(0, 0);
-  // wait 1s before jumping when in split pane mode to ensure the correct line is scrolled to, single pane mode does not have this issue thus only 10ms is needed
-  await new Promise((resolve) => setTimeout(resolve, inSplitPane ? 1000 : 10));
-  elemToScroll.scrollTo(0, selectedLine.offsetTop - 200);
-  selectedLine = null;
-});
+}
+
+const routeHash = useRouteHash();
+watch(
+  routeHash,
+  (hash) => {
+    document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
+  },
+  { immediate: true, flush: "post" }
+);
 </script>
 <style scoped lang="scss">
 .events {
@@ -115,9 +99,10 @@ watch(filtered, async (newVal, oldVal) => {
     &[data-event="container-started"] {
       color: hsl(141, 53%, 53%);
     }
-    &.selected {
+    &.selected .date {
       background-color: var(--menu-item-active-background-color);
-      color: black;
+
+      color: var(--text-color);
     }
     &.selected > .date {
       background-color: white;
