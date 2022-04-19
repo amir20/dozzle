@@ -27,11 +27,7 @@
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">
-        <router-link
-          :to="{ name: 'container', params: { id: item.id, name: item.name } }"
-          active-class="is-active"
-          :title="item.name"
-        >
+        <router-link :to="{ name: 'container', params: { id: item.id } }" active-class="is-active" :title="item.name">
           <div class="is-ellipsis">
             {{ item.name }}
           </div>

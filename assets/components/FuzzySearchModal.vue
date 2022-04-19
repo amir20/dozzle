@@ -88,7 +88,7 @@ const results = computed(() => {
 onMounted(() => nextTick(() => autocomplete.value?.focus()));
 
 function selected(item: { id: string; name: string }) {
-  router.push({ name: "container", params: { id: item.id, name: item.name } });
+  router.push({ name: "container", params: { id: item.id } });
   emit("close");
 }
 function addColumn(container: Container) {
