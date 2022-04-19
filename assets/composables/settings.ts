@@ -26,6 +26,7 @@ export const DEFAULT_SETTINGS: {
 };
 
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
+settings.value = {...DEFAULT_SETTINGS, ...settings.value};
 
 export const search = computed({
   get: () => settings.value.search,
