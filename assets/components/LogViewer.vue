@@ -162,6 +162,7 @@ watch(
 .date {
   padding-left: 5px;
   padding-right: 5px;
+  border-radius: 3px;
 }
 
 .text {
