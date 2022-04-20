@@ -14,7 +14,7 @@
         </div>
       </div>
     </section>
-    <section class="level section is-mobile">
+    <section class="level section">
       <div class="level-item has-text-centered">
         <div>
           <p class="title">{{ containers.length }}</p>
@@ -25,6 +25,18 @@
         <div>
           <p class="title">{{ runningContainers.length }}</p>
           <p class="heading">Running</p>
+        </div>
+      </div>
+      <div class="level-item has-text-centered">
+        <div>
+          <p class="title">{{ totalCpu }}%</p>
+          <p class="heading">Total CPU Usage</p>
+        </div>
+      </div>
+      <div class="level-item has-text-centered">
+        <div>
+          <p class="title">{{ formatBytes(totalMem) }}</p>
+          <p class="heading">Total Mem Usage</p>
         </div>
       </div>
       <div class="level-item has-text-centered">
@@ -81,6 +93,7 @@ import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { useContainerStore } from "@/stores/container";
+import { formatBytes } from "@/utils";
 import fuzzysort from "fuzzysort";
 import SearchIcon from "~icons/mdi-light/magnify";
 import PastTime from "../components/PastTime.vue";
@@ -110,6 +123,8 @@ const results = computed(() => {
 
 const mostRecentContainers = computed(() => [...containers.value].sort((a, b) => b.created - a.created));
 const runningContainers = computed(() => mostRecentContainers.value.filter((c) => c.state === "running"));
+const totalCpu = computed(() => runningContainers.value.reduce((acc, c) => acc + (c.stat?.cpu ?? 0), 0));
+const totalMem = computed(() => runningContainers.value.reduce((acc, c) => acc + (c.stat?.memoryUsage ?? 0), 0));
 
 function onEnter() {
   if (results.value.length == 1) {
