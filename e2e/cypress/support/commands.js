@@ -34,6 +34,6 @@ Cypress.Commands.add("removeDates", () => {
 
 Cypress.Commands.add("replaceSkippedElements", () => {
   cy.window().then((win) =>
-    win.document.querySelectorAll("[data-ci-skip]").forEach((el) => (el.textContent = "**SKIPPED**"))
+    win.document.querySelectorAll("[data-ci-skip]").forEach((el) => (el.style.visibility = "hidden"))
   );
 });
