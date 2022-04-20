@@ -76,7 +76,6 @@ watch(
 .events {
   padding: 1em;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
-  overflow: hidden;
 
   &.disable-wrap {
     .line,
