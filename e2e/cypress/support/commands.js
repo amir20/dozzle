@@ -31,3 +31,9 @@ addMatchImageSnapshotCommand();
 Cypress.Commands.add("removeDates", () => {
   cy.window().then((win) => win.document.querySelectorAll("time").forEach((el) => el.remove()));
 });
+
+Cypress.Commands.add("replaceSkippedElements", () => {
+  cy.window().then((win) =>
+    win.document.querySelectorAll("[data-ci-skip]").forEach((el) => (el.textContent = "**SKIPPED**"))
+  );
+});

@@ -29,13 +29,13 @@
       </div>
       <div class="level-item has-text-centered">
         <div>
-          <p class="title">{{ totalCpu }}%</p>
+          <p class="title" data-ci-skip>{{ totalCpu }}%</p>
           <p class="heading">Total CPU Usage</p>
         </div>
       </div>
       <div class="level-item has-text-centered">
         <div>
-          <p class="title">{{ formatBytes(totalMem) }}</p>
+          <p class="title" data-ci-skip>{{ formatBytes(totalMem) }}</p>
           <p class="heading">Total Mem Usage</p>
         </div>
       </div>

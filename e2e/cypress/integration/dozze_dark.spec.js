@@ -6,7 +6,7 @@ context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () =>
   });
 
   it("home screen", () => {
-    cy.get("li.running", { timeout: 10000 }).removeDates().matchImageSnapshot();
+    cy.get("li.running", { timeout: 10000 }).removeDates().replaceSkippedElements().matchImageSnapshot();
   });
 
   it("correct title", () => {
