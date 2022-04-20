@@ -37,7 +37,7 @@ services:
       - COMMIT_INFO_BRANCH=${GITHUB_REF_NAME}
       - COMMIT_INFO_AUTHOR=${GITHUB_ACTOR}
       - COMMIT_INFO_SHA=${GITHUB_SHA}
-      - COMMIT_INFO_MESSAGE=${github.event.head_commit.message}
+      - COMMIT_INFO_MESSAGE=${COMMIT_MESSAGE}
       - COMMIT_INFO_REMOTE=https://github.com/amir20/dozzle
     command: cypress run --record
     depends_on:
