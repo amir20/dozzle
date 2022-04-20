@@ -34,6 +34,10 @@ services:
       - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
       - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
       - CYPRESS_RECORD_KEY=155c3cf8-b2dd-4f5e-9fb3-7635f5b79d4d
+      - COMMIT_INFO_BRANCH=${GITHUB_REF_NAME}
+      - COMMIT_INFO_AUTHOR=${GITHUB_ACTOR}
+      - COMMIT_INFO_SHA=${GITHUB_SHA}
+      - COMMIT_INFO_REMOTE=https://github.com/amir20/dozzle
     command: cypress run --record
     depends_on:
       - dozzle
