@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <search></search>
-    <log-container :id="id" show-title :scrollable="activeContainers.length > 0"> </log-container>
-  </div>
+  <search></search>
+  <log-container :id="id" show-title :scrollable="activeContainers.length > 0"> </log-container>
 </template>
 
 <script lang="ts" setup>
