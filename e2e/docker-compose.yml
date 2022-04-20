@@ -33,6 +33,8 @@ services:
     environment:
       - CYPRESS_DOZZLE_DEFAULT=http://dozzle:8080/
       - CYPRESS_CUSTOM_DEFAULT=http://custom_base:8080/foobarbase
+      - CYPRESS_RECORD_KEY=155c3cf8-b2dd-4f5e-9fb3-7635f5b79d4d
+    command: cypress run --record
     depends_on:
       - dozzle
       - custom_base
