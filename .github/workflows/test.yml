@@ -43,8 +43,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Get Commit Message
         run: |
-          MSG="${{github.event.head_commit.message}}"
-          echo "::set-env name=COMMIT_MESSAGE::${MSG}"
+          echo "::set-env name=COMMIT_MESSAGE::${{github.event.head_commit.message}}"
       - name: Build images
         run: docker-compose -f e2e/docker-compose.yml build
       - name: Run tests
