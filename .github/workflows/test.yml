@@ -44,6 +44,6 @@ jobs:
       - name: Build images
         run: docker-compose -f e2e/docker-compose.yml build
       - name: Set env
-        run: echo "GIT_LOG_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        run: echo "GIT_LOG_MESSAGE=$(git log -1 --pretty=%B $GITHUB_SHA)" >> $GITHUB_ENV
       - name: Run tests
         run: docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
