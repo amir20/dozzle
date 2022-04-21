@@ -47,7 +47,11 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Set env
-        run: echo "GIT_LOG_MESSAGE=$({{github.event.pull_request.head.message}})" >> $GITHUB_ENV
+      - name: Set commit message for push
+        if: github.event_name == 'push'
+        run: echo "GIT_LOG_MESSAGE=$(git log -1 --pretty=%B ${{env.GITHUB_SHA}})" >> $GITHUB_ENV
+      - name: Set commit message for pull request
+        if: github.event_name == 'pull_request'
+        run: echo "GIT_LOG_MESSAGE=$(git log -1 --pretty=%B ${{github.event.pull_request.head.sha}})" >> $GITHUB_ENV
       - name: Run tests
         run: docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
