@@ -40,13 +40,23 @@ export const useContainerStore = defineStore("container", () => {
     },
     false
   );
-  // es.addEventListener("container-die", (e) => store.dispatch("UPDATE_CONTAINER", JSON.parse(e.data)), false);
+  es.addEventListener(
+    "container-die",
+    (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
+      const container = allContainersById.value[event.actorId];
+      if (container) {
+        container.state = "dead";
+      }
+    },
+    false
+  );
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
   const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
   const removeActiveContainer = ({ id }: Container) =>
     activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
-    
+
   return {
     containers,
     activeContainerIds,

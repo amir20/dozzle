@@ -3,8 +3,8 @@ export interface Container {
   readonly created: number;
   readonly image: string;
   readonly name: string;
-  readonly state: "created" | "running" | "exited" | "dead" | "paused" | "restarting";
   readonly status: string;
+  state: "created" | "running" | "exited" | "dead" | "paused" | "restarting";
   stat?: ContainerStat;
 }
 
