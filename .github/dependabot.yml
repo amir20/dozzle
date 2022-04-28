@@ -38,3 +38,10 @@ updates:
       - "automerge"
     schedule:
       interval: daily
+  - package-ecosystem: "docker"
+    directory: "/e2e"
+    labels:
+      - "dependencies"
+      - "automerge"
+    schedule:
+      interval: "daily"
