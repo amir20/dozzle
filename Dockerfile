@@ -1,5 +1,5 @@
 # Build assets
-FROM node:17-alpine as node
+FROM node:18-alpine as node
 
 RUN apk add --no-cache git openssh make g++ util-linux curl python3 && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
