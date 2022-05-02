@@ -1,7 +1,8 @@
 # Build assets
 FROM node:18-alpine as node
 
-RUN apk add --no-cache git openssh make g++ util-linux curl python3 && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+RUN apk add --no-cache git openssh make g++ util-linux python3 && npm install -g pnpm
+
 
 WORKDIR /build
 
@@ -16,10 +17,7 @@ COPY package.json .* vite.config.ts index.html ./
 COPY assets ./assets
 
 # Install dependencies
-RUN pnpm install -r --offline --prod
-
-# Do the build
-RUN pnpm build
+RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
 
 FROM golang:1.18.1-alpine AS builder
 
@@ -48,7 +46,7 @@ RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
 FROM scratch
 
-ENV PATH=/bin
+ENV PATH /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
