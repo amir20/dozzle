@@ -157,7 +157,7 @@ const hasUpdate = ref(false);
 
 async function fetchNextRelease() {
   if (!["dev", "master"].includes(currentVersion)) {
-    const response = await fetch("https://api.github.com/repos/dozzle/dozzle/releases/latest");
+    const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
       const releases = await response.json();
       hasUpdate.value = gt(releases[0].tag_name, currentVersion);
