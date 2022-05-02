@@ -159,9 +159,9 @@ async function fetchNextRelease() {
   if (!["dev", "master"].includes(currentVersion)) {
     const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
-      const releases = await response.json();
-      hasUpdate.value = gt(releases[0].tag_name, currentVersion);
-      nextRelease.value = releases[0];
+      const release = await response.json();
+      hasUpdate.value = gt(release.tag_name, currentVersion);
+      nextRelease.value = release;
     }
   } else {
     hasUpdate.value = true;
