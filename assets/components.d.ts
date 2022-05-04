@@ -16,6 +16,7 @@ declare module '@vue/runtime-core' {
     LogActionsToolbar: typeof import('./components/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogContainer.vue')['default']
     LogEventSource: typeof import('./components/LogEventSource.vue')['default']
+    LogItem: typeof import('./components/LogItem.vue')['default']
     LogViewer: typeof import('./components/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewerWithSource.vue')['default']
     MdiDotsVertical: typeof import('~icons/mdi/dots-vertical')['default']
@@ -35,6 +36,7 @@ declare module '@vue/runtime-core' {
     ScrollableView: typeof import('./components/ScrollableView.vue')['default']
     ScrollProgress: typeof import('./components/ScrollProgress.vue')['default']
     Search: typeof import('./components/Search.vue')['default']
+    ShowOnlyVisible: typeof import('./components/ShowOnlyVisible.vue')['default']
     SideMenu: typeof import('./components/SideMenu.vue')['default']
   }
 }

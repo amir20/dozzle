@@ -23,10 +23,10 @@
           </a>
         </dropdown-menu>
       </div>
-      <div class="line">
+      <ShowOnlyVisible class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
         <span class="text" v-html="colorize(item.message)"></span>
-      </div>
+      </ShowOnlyVisible>
     </li>
   </ul>
 </template>
@@ -34,9 +34,10 @@
 <script lang="ts" setup>
 import { PropType, ref, toRefs, watch } from "vue";
 import { useRouteHash } from "@vueuse/router";
+import AnsiConvertor from "ansi-to-html";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
-import AnsiConvertor from "ansi-to-html";
+import ShowOnlyVisible from "./ShowOnlyVisible.vue";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
 
@@ -109,6 +110,7 @@ watch(
     & > .line {
       margin: auto 0;
       width: 100%;
+      min-height: 1em;
     }
     & > .line-options {
       display: flex;
