@@ -25,7 +25,11 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <span class="text" v-html="colorize(item.message)"></span>
+        <span class="text" v-if="!isJSON(item.message)" v-html="colorize(item.message)"></span>
+        <span class="text" v-else
+          >JSON message...
+          <vue-json-pretty :data="parseJSON(item.message)" :highlight-selected-node="false"> </vue-json-pretty>
+        </span>
       </div>
     </li>
   </ul>
@@ -39,6 +43,8 @@ import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 
 const props = defineProps({
   messages: {
@@ -61,6 +67,23 @@ function handleJumpLineSelected(e: Event, item: LogEntry) {
   lastSelectedItem = item;
   item.selected = true;
   resetSearch();
+}
+
+// Check, if message is in JSON format
+function isJSON(msg: string) {
+  return msg.trim().startsWith("{");
+}
+
+function parseJSON(jsonStr: string) {
+  // try to repair corrupted JSON strings that would cause parsing to fail
+  if (!jsonStr.endsWith("}")) {
+    jsonStr = jsonStr.substring(0, jsonStr.lastIndexOf("}") + 1);
+  }
+  try {
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    return jsonStr;
+  }
 }
 
 const routeHash = useRouteHash();

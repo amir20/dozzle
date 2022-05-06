@@ -45,6 +45,7 @@ specifiers:
   vite: ^2.9.9
   vitest: ^0.13.1
   vue: ^3.2.36
+  vue-json-pretty: ^2.1.0
   vue-router: ^4.0.15
 
 dependencies:
@@ -75,6 +76,7 @@ dependencies:
   unplugin-vue-components: 0.19.6_vite@2.9.9+vue@3.2.36
   vite: 2.9.9_sass@1.52.1
   vue: 3.2.36
+  vue-json-pretty: 2.1.0_vue@3.2.36
   vue-router: 4.0.15_vue@3.2.36
 
 devDependencies:
@@ -4656,6 +4658,15 @@ packages:
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
+    dependencies:
+      vue: 3.2.36
+    dev: false
+
+  /vue-json-pretty/2.1.0_vue@3.2.36:
+    resolution: {integrity: sha512-SPSNacJCTKx52nEXB3Nl8cEFgW4j7DHbdb1w0BEQkGMjoM51Y/8Zj4QfjaoiHseDbBuG7CYjDTvIuKe9Ln5qRw==}
+    engines: {node: '>= 10.0.0', npm: '>= 5.0.0'}
+    peerDependencies:
+      vue: '>=3.0.0'
     dependencies:
       vue: 3.2.36
     dev: false
