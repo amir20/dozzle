@@ -49,6 +49,7 @@
     "unplugin-vue-components": "^0.19.3",
     "vite": "^2.9.8",
     "vue": "^3.2.33",
+    "vue-json-pretty": "^2.0.6",
     "vue-router": "^4.0.15"
   },
   "devDependencies": {
