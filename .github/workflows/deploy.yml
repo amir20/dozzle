@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: amir20/dozzle
       - name: Set up QEMU
