@@ -7,7 +7,7 @@
 import { toRefs, ref, watch, onUnmounted } from "vue";
 import debounce from "lodash.debounce";
 
-import { LogEntry } from "@/types/LogEntry";
+import { LogEntry, LogEvent } from "@/types/LogEntry";
 import InfiniteLoader from "./InfiniteLoader.vue";
 import config from "@/stores/config";
 import { useContainerStore } from "@/stores/container";
@@ -91,14 +91,12 @@ async function loadOlderLogs() {
   emit("loading-more", false);
 }
 
-function parseMessage(data: String): LogEntry {
-  let i = data.indexOf(" ");
-  if (i == -1) {
-    i = data.length;
-  }
-  const key = data.substring(0, i);
-  const date = new Date(key);
-  const message = data.substring(i + 1);
+function parseMessage(data: string): LogEntry {
+  const e = JSON.parse(data) as LogEvent;
+
+  const key = e.ts.toString();
+  const date = new Date(e.ts);
+  const message = e.m;
   return { key, date, message };
 }
 

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"context"
+	"encoding/json"
 
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 
 	"time"
 
+	"github.com/amir20/dozzle/docker"
 	"github.com/dustin/go-humanize"
 
 	log "github.com/sirupsen/logrus"
@@ -125,14 +127,23 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	var message string
 	for {
 		message, readerError = buffered.ReadString('\n')
-		fmt.Fprintf(w, "data: %s\n", strings.TrimRight(message, "\n"))
+		fmt.Fprintf(w, "data: ")
+		logEvent := docker.LogEvent{Message: message}
+		var logId string
 		if index := strings.IndexAny(message, " "); index != -1 {
-			id := message[:index]
-			if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
-				fmt.Fprintf(w, "id: %s\n", id)
+			logId = message[:index]
+			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+				logEvent.Timestamp = timestamp.Unix()
 			}
 		}
-		fmt.Fprintf(w, "\n")
+
+		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
+		}
+		if logId != "" {
+			fmt.Fprintf(w, "id: %s\n", logId)
+		}
+		fmt.Fprintf(w, "\n\n")
 		f.Flush()
 		if readerError != nil {
 			break

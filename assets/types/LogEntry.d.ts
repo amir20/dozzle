@@ -5,3 +5,9 @@ export interface LogEntry {
   event?: string;
   selected?: boolean;
 }
+
+export interface LogEvent {
+  m?: string;
+  ts: number;
+  d?: Object;
+}

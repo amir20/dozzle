@@ -26,3 +26,9 @@ type ContainerEvent struct {
 	ActorID string `json:"actorId"`
 	Name    string `json:"name"`
 }
+
+type LogEvent struct {
+	Message   string                 `json:"m,omitempty"`
+	Timestamp int64                  `json:"ts"`
+	Data      map[string]interface{} `json:"d,omitempty"`
+}
