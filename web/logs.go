@@ -128,13 +128,27 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	for {
 		message, readerError = buffered.ReadString('\n')
 		fmt.Fprintf(w, "data: ")
-		logEvent := docker.LogEvent{Message: message}
+		logEvent := docker.LogEvent{}
 		var logId string
 		if index := strings.IndexAny(message, " "); index != -1 {
 			logId = message[:index]
 			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
 				logEvent.Timestamp = timestamp.Unix()
+				message = strings.TrimSuffix(message[index+1:], "\n")
+				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+					var data map[string]interface{}
+					if err := json.Unmarshal([]byte(message), &data); err != nil {
+						log.Errorf("json unmarshal error while streaming %v", err.Error())
+					}
+					logEvent.Data = data
+				} else {
+					logEvent.Message = message
+				}
+			} else {
+				logEvent.Message = message
 			}
+		} else {
+			logEvent.Message = message
 		}
 
 		if err := json.NewEncoder(w).Encode(logEvent); err != nil {

@@ -25,7 +25,10 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <span class="text" v-html="colorize(item.message)"></span>
+        <span class="text" v-html="colorize(item.message)" v-if="typeof item.message === 'string'"></span>
+        <span class="text" v-else>
+          <div v-for="(value, name, index) in item.message">{{ index }}. {{ name }}: {{ value }}</div>
+        </span>
       </div>
     </li>
   </ul>

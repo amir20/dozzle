@@ -95,8 +95,8 @@ function parseMessage(data: string): LogEntry {
   const e = JSON.parse(data) as LogEvent;
 
   const key = e.ts.toString();
-  const date = new Date(e.ts);
-  const message = e.m;
+  const date = new Date(e.ts * 1000);
+  const message = e.m ? e.m : e.d;
   return { key, date, message };
 }
 
