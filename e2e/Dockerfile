@@ -1,4 +1,4 @@
-FROM cypress/included:9.6.0
+FROM cypress/included:9.6.1
 
 RUN apt install curl && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
