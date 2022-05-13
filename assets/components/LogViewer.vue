@@ -74,7 +74,7 @@ watch(
 </script>
 <style scoped lang="scss">
 .events {
-  padding: 1em;
+  padding: 1em 0;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
   &.disable-wrap {
@@ -87,12 +87,15 @@ watch(
   & > li {
     display: flex;
     word-wrap: break-word;
-    line-height: 130%;
+    padding: 0.5em 0 0.5em 0.5em;
     &:last-child {
       scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
     }
-    &[data-event="container-stopped"] {
+    &:nth-child(odd) {
+      background-color: rgba(125, 125, 125, 0.08);
+    }
+    ​ &[data-event="container-stopped"] {
       color: #f14668;
     }
     &[data-event="container-started"] {
