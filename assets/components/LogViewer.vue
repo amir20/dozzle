@@ -87,7 +87,7 @@ watch(
   & > li {
     display: flex;
     word-wrap: break-word;
-    padding: 0.5em 0 0.5em 0.5em;
+    padding: 0.2em 1em;
     &:last-child {
       scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
