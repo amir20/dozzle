@@ -46,7 +46,7 @@
       </li>
     </ul>
     <ul class="menu-list is-hidden-mobile loading" v-else>
-      <li v-for="index in 7" class="my-4"><o-skeleton :animated="animated" size="large"></o-skeleton></li>
+      <li v-for="index in 7" class="my-4"><o-skeleton animated size="large"></o-skeleton></li>
     </ul>
   </aside>
 </template>
