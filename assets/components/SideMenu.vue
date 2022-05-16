@@ -45,8 +45,8 @@
         </router-link>
       </li>
     </ul>
-    <ul class="menu-list is-hidden-mobile" v-else>
-      <li>Loading</li>
+    <ul class="menu-list is-hidden-mobile loading" v-else>
+      <li v-for="index in 7" class="my-4"><o-skeleton :animated="animated" size="large"></o-skeleton></li>
     </ul>
   </aside>
 </template>
@@ -79,6 +79,10 @@ aside {
   .is-hidden-mobile.is-active {
     display: block !important;
   }
+}
+
+.loading {
+  opacity: 0.5;
 }
 
 li.exited a {
