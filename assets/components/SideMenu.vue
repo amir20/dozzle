@@ -24,7 +24,7 @@
       </div>
     </div>
     <p class="menu-label is-hidden-mobile">Containers</p>
-    <ul class="menu-list is-hidden-mobile">
+    <ul class="menu-list is-hidden-mobile" v-if="ready">
       <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
         <router-link :to="{ name: 'container', params: { id: item.id } }" active-class="is-active" :title="item.name">
           <div class="container is-flex is-align-items-center">
@@ -45,6 +45,9 @@
         </router-link>
       </li>
     </ul>
+    <ul class="menu-list is-hidden-mobile loading" v-else>
+      <li v-for="index in 7" class="my-4"><o-skeleton animated size="large"></o-skeleton></li>
+    </ul>
   </aside>
 </template>
 
@@ -56,7 +59,7 @@ import type { Container } from "@/types/Container";
 
 const store = useContainerStore();
 
-const { activeContainers, visibleContainers } = storeToRefs(store);
+const { activeContainers, visibleContainers, ready } = storeToRefs(store);
 
 const activeContainersById = computed(() =>
   activeContainers.value.reduce((acc, item) => {
@@ -76,6 +79,10 @@ aside {
   .is-hidden-mobile.is-active {
     display: block !important;
   }
+}
+
+.loading {
+  opacity: 0.5;
 }
 
 li.exited a {

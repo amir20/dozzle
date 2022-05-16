@@ -98,6 +98,7 @@ import fuzzysort from "fuzzysort";
 import SearchIcon from "~icons/mdi-light/magnify";
 import PastTime from "../components/PastTime.vue";
 import config from "@/stores/config";
+import { useIntervalFn } from "@vueuse/core";
 
 const { base, version, secured } = config;
 const containerStore = useContainerStore();
@@ -123,8 +124,23 @@ const results = computed(() => {
 
 const mostRecentContainers = computed(() => [...containers.value].sort((a, b) => b.created - a.created));
 const runningContainers = computed(() => mostRecentContainers.value.filter((c) => c.state === "running"));
-const totalCpu = computed(() => runningContainers.value.reduce((acc, c) => acc + (c.stat?.cpu ?? 0), 0));
-const totalMem = computed(() => runningContainers.value.reduce((acc, c) => acc + (c.stat?.memoryUsage ?? 0), 0));
+const totalCpu = ref(0);
+useIntervalFn(
+  () => {
+    totalCpu.value = runningContainers.value.reduce((acc, c) => acc + (c.stat?.cpu ?? 0), 0);
+  },
+  1000,
+  { immediate: true }
+);
+const totalMem = ref(0);
+
+useIntervalFn(
+  () => {
+    totalMem.value = runningContainers.value.reduce((acc, c) => acc + (c.stat?.memoryUsage ?? 0), 0);
+  },
+  1000,
+  { immediate: true }
+);
 
 function onEnter() {
   if (results.value.length == 1) {

@@ -4,6 +4,7 @@ import { ref, Ref, computed } from "vue";
 import { showAllContainers } from "@/composables/settings";
 import config from "@/stores/config";
 import type { Container, ContainerStat } from "@/types/Container";
+import { watchOnce } from "@vueuse/core";
 
 export const useContainerStore = defineStore("container", () => {
   const containers = ref<Container[]>([]);
@@ -57,6 +58,9 @@ export const useContainerStore = defineStore("container", () => {
   const removeActiveContainer = ({ id }: Container) =>
     activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
 
+  const ready = ref(false);
+  watchOnce(containers, () => (ready.value = true));
+
   return {
     containers,
     activeContainerIds,
@@ -66,6 +70,7 @@ export const useContainerStore = defineStore("container", () => {
     currentContainer,
     appendActiveContainer,
     removeActiveContainer,
+    ready,
   };
 });
 

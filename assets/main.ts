@@ -1,7 +1,7 @@
 import "./styles.scss";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { Autocomplete, Button, Dropdown, Switch, Radio, Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
+import { Autocomplete, Button, Dropdown, Switch, Radio, Skeleton,  Field, Tooltip, Modal, Config } from "@oruga-ui/oruga-next";
 import { bulmaConfig } from "@oruga-ui/theme-bulma";
 import { createPinia } from "pinia";
 import config from "./stores/config";
@@ -63,5 +63,6 @@ createApp(App)
   .use(Modal)
   .use(Radio)
   .use(Field)
+  .use(Skeleton)
   .use(Config, bulmaConfig)
   .mount("#app");
