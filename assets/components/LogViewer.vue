@@ -95,7 +95,7 @@ watch(
     &:nth-child(odd) {
       background-color: rgba(125, 125, 125, 0.08);
     }
-    ​ &[data-event="container-stopped"] {
+    &[data-event="container-stopped"] {
       color: #f14668;
     }
     &[data-event="container-started"] {
