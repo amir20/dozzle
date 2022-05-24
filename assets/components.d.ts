@@ -15,6 +15,7 @@ declare module '@vue/runtime-core' {
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
+    JSONPayload: typeof import('./components/JSONPayload.vue')['default']
     LogActionsToolbar: typeof import('./components/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogContainer.vue')['default']
     LogEventSource: typeof import('./components/LogEventSource.vue')['default']

@@ -1,6 +1,7 @@
 export interface LogEntry {
   date: Date;
-  message: string | object;
+  message?: string;
+  payload?: object;
   key: string;
   event?: string;
   selected?: boolean;

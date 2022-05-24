@@ -25,10 +25,8 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <span class="text" v-html="colorize(item.message)" v-if="typeof item.message === 'string'"></span>
-        <span class="text" v-else>
-          <div v-for="(value, name, index) in item.message">{{ index }}. {{ name }}: {{ value }}</div>
-        </span>
+        <span class="text" v-html="colorize(item.message)" v-if="item.message"></span>
+        <JSONPayload :payload="item.payload" v-else></JSONPayload>
       </div>
     </li>
   </ul>
@@ -42,6 +40,7 @@ import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
+import JSONPayload from "./JSONPayload.vue";
 
 const props = defineProps({
   messages: {
