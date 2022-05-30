@@ -86,6 +86,13 @@ watch(
     }
   }
 
+  .text {
+    white-space: pre-wrap;
+    &::before {
+      content: " ";
+    }
+  }
+
   & > li {
     display: flex;
     word-wrap: break-word;
@@ -167,13 +174,6 @@ watch(
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 3px;
-}
-
-.text {
-  white-space: pre-wrap;
-  &::before {
-    content: " ";
-  }
 }
 
 :deep(mark) {
