@@ -96,7 +96,6 @@ function parseMessage(data: string): LogEntry {
 
   const key = e.ts.toString();
   const date = new Date(e.ts * 1000);
-  const message = e.m ? e.m : e.d;
   return { key, date, message: e.m, payload: e.d };
 }
 

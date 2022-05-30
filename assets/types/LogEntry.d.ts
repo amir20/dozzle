@@ -1,7 +1,7 @@
 export interface LogEntry {
   date: Date;
   message?: string;
-  payload?: object;
+  payload?: Record<string, any>;
   key: string;
   event?: string;
   selected?: boolean;
@@ -10,5 +10,5 @@ export interface LogEntry {
 export interface LogEvent {
   m?: string;
   ts: number;
-  d?: object;
+  d?: Record<string, any>;
 }

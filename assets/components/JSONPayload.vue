@@ -10,14 +10,20 @@ import { computed, PropType, ref } from "vue";
 
 const props = defineProps({
   payload: {
-    type: Object as PropType<object>,
+    type: Object as PropType<Record<string, any>>,
     required: true,
   },
 });
 
-const attributes = ref(["msg"]);
+const attributes = ref([["msg"], ["request", "uri"]]);
 
-const data = computed(() => attributes.value.reduce((acc, attr) => ({ ...acc, [attr]: props.payload[attr] }), {}));
+function getDeep(obj: Record<string, any>, path: string[]) {
+  console.log(obj, path);
+  return path.reduce((acc, key) => acc?.[key], obj);
+}
+const data = computed(() =>
+  attributes.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {})
+);
 </script>
 
 <style lang="scss" scoped>
