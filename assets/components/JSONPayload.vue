@@ -4,6 +4,7 @@
       <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
     </li>
   </ul>
+  <field-list :fields="payload"></field-list>
 </template>
 <script lang="ts" setup>
 import { computed, PropType, ref } from "vue";
@@ -18,7 +19,6 @@ const props = defineProps({
 const attributes = ref([["msg"], ["request", "uri"]]);
 
 function getDeep(obj: Record<string, any>, path: string[]) {
-  console.log(obj, path);
   return path.reduce((acc, key) => acc?.[key], obj);
 }
 const data = computed(() =>

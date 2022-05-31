@@ -25,8 +25,8 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <span class="text" v-html="colorize(item.message)" v-if="item.message"></span>
-        <JSONPayload :payload="item.payload" v-else></JSONPayload>
+        <JSONPayload :payload="item.payload" v-if="item.payload"></JSONPayload>
+        <span class="text" v-html="colorize(item.message)" v-else-if="item.message"></span>
       </div>
     </li>
   </ul>

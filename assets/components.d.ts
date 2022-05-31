@@ -13,6 +13,7 @@ declare module '@vue/runtime-core' {
     ContainerStat: typeof import('./components/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/ContainerTitle.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
+    FieldList: typeof import('./components/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     JSONPayload: typeof import('./components/JSONPayload.vue')['default']
