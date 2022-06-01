@@ -25,7 +25,7 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <JSONPayload :payload="item.payload" v-if="item.payload"></JSONPayload>
+        <JSONPayload :payload="item.payload" :visible-keys="visibleKeys" v-if="item.payload"></JSONPayload>
         <span class="text" v-html="colorize(item.message)" v-else-if="item.message"></span>
       </div>
     </li>
@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, ref, toRefs, watch } from "vue";
+import { ComputedRef, inject, PropType, ref, toRefs, watch } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
 import RelativeTime from "./RelativeTime.vue";
@@ -41,6 +41,8 @@ import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
 import JSONPayload from "./JSONPayload.vue";
+import { Container } from "@/types/Container";
+import { useStorage } from "@vueuse/core";
 
 const props = defineProps({
   messages: {
@@ -73,6 +75,17 @@ watch(
   },
   { immediate: true, flush: "post" }
 );
+
+const container = inject("container") as ComputedRef<Container>;
+
+let visibleKeys = ref<string[][]>([]);
+watch(
+  () => container.value.image + ":" + container.value.command,
+  () => (visibleKeys = useStorage(container.value.image + ":" + container.value.command, [])),
+  { immediate: true }
+);
+
+visibleKeys.value = [["msg"], ["request", "uri"], ["level"]];
 </script>
 <style scoped lang="scss">
 .events {

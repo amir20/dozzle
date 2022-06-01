@@ -6,7 +6,7 @@
       </template>
     </li>
   </ul>
-  <field-list :fields="payload" :expanded="expanded"></field-list>
+  <field-list :fields="payload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
 import { computed, PropType, ref } from "vue";
@@ -16,18 +16,20 @@ const props = defineProps({
     type: Object as PropType<Record<string, any>>,
     required: true,
   },
+  visibleKeys: {
+    type: Array as PropType<string[][]>,
+    default: [],
+  },
 });
 
-const attributes = ref([["msg"], ["request", "uri"]]);
+const expanded = ref(false);
 
 function getDeep(obj: Record<string, any>, path: string[]) {
   return path.reduce((acc, key) => acc?.[key], obj);
 }
 const data = computed(() =>
-  attributes.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {})
+  props.visibleKeys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {})
 );
-
-const expanded = ref(false);
 </script>
 
 <style lang="scss" scoped>

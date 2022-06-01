@@ -3,7 +3,12 @@
     <li v-for="(value, name) in fields">
       <template v-if="isObject(value)">
         <span class="has-text-grey">{{ name }}=</span>
-        <FieldList :fields="value" :parent-key="parentKey.concat(name)" expanded></FieldList>
+        <field-list
+          :fields="value"
+          :parent-key="parentKey.concat(name)"
+          :visible-keys="visibleKeys"
+          expanded
+        ></field-list>
       </template>
       <template v-else-if="Array.isArray(value)">
         <span class="has-text-grey">{{ name }}=</span>[
@@ -14,7 +19,8 @@
         ]
       </template>
       <template v-else>
-        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
+        <a @click="visibleKeys.push(parentKey.concat(name))">add</a> <span class="has-text-grey">{{ name }}=</span
+        ><span class="has-text-weight-bold">{{ value }}</span>
       </template>
     </li>
   </ul>
@@ -22,7 +28,7 @@
 <script lang="ts" setup>
 import { PropType } from "vue";
 
-const props = defineProps({
+defineProps({
   fields: {
     type: Object as PropType<Record<string, any>>,
     required: true,
@@ -33,6 +39,10 @@ const props = defineProps({
   },
   parentKey: {
     type: Array as PropType<string[]>,
+    default: [],
+  },
+  visibleKeys: {
+    type: Array as PropType<string[][]>,
     default: [],
   },
 });

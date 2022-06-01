@@ -4,6 +4,7 @@ export interface Container {
   readonly image: string;
   readonly name: string;
   readonly status: string;
+  readonly command: string;
   state: "created" | "running" | "exited" | "dead" | "paused" | "restarting";
   stat?: ContainerStat;
 }
