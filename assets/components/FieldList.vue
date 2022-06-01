@@ -1,9 +1,9 @@
 <template>
-  <ul>
+  <ul v-if="expanded">
     <li v-for="(value, name) in fields">
       <template v-if="isObject(value)">
         <span class="has-text-grey">{{ name }}=</span>
-        <FieldList :fields="value"></FieldList>
+        <FieldList :fields="value" :parent-key="parentKey.concat(name)" expanded></FieldList>
       </template>
       <template v-else-if="Array.isArray(value)">
         <span class="has-text-grey">{{ name }}=</span>[
@@ -20,12 +20,20 @@
   </ul>
 </template>
 <script lang="ts" setup>
-import { computed, PropType, ref } from "vue";
+import { PropType } from "vue";
 
 const props = defineProps({
   fields: {
     type: Object as PropType<Record<string, any>>,
     required: true,
+  },
+  expanded: {
+    type: Boolean,
+    default: false,
+  },
+  parentKey: {
+    type: Array as PropType<string[]>,
+    default: [],
   },
 });
 
