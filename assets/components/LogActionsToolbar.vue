@@ -41,11 +41,11 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, PropType } from "vue";
+import { inject, onMounted, onUnmounted, PropType, ComputedRef } from "vue";
 import hotkeys from "hotkeys-js";
 import config from "@/stores/config";
-import { Container } from "@/types/Container";
 import { useSearchFilter } from "@/composables/search";
+import { Container } from "@/types/Container";
 
 const { showSearch } = useSearchFilter();
 
@@ -56,16 +56,14 @@ const props = defineProps({
     type: Function as PropType<(e: Event) => void>,
     default: (e: Event) => {},
   },
-  container: {
-    type: Object as () => Container,
-    required: true,
-  },
 });
 
 const onHotkey = (event: Event) => {
   props.onClearClicked(event);
   event.preventDefault();
 };
+
+const container = inject("container") as ComputedRef<Container>;
 
 onMounted(() => hotkeys("shift+command+l, shift+ctrl+l", onHotkey));
 onUnmounted(() => hotkeys.unbind("shift+command+l, shift+ctrl+l", onHotkey));

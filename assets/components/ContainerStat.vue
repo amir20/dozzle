@@ -1,34 +1,28 @@
 <template>
-  <div class="is-size-7 is-uppercase columns is-marginless is-mobile">
+  <div class="is-size-7 is-uppercase columns is-marginless is-mobile" v-if="container.stat">
     <div class="column is-narrow has-text-weight-bold">
-      {{ state }}
+      {{ container.state }}
     </div>
-    <div class="column is-narrow" v-if="stat.memoryUsage !== null">
+    <div class="column is-narrow" v-if="container.stat.memoryUsage !== null">
       <span class="has-text-weight-light has-spacer">mem</span>
       <span class="has-text-weight-bold">
-        {{ formatBytes(stat.memoryUsage) }}
+        {{ formatBytes(container.stat.memoryUsage) }}
       </span>
     </div>
 
-    <div class="column is-narrow" v-if="stat.cpu !== null">
+    <div class="column is-narrow" v-if="container.stat.cpu !== null">
       <span class="has-text-weight-light has-spacer">load</span>
-      <span class="has-text-weight-bold"> {{ stat.cpu }}% </span>
+      <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ContainerStat } from "@/types/Container";
-import { PropType } from "vue";
+import { Container } from "@/types/Container";
+import { ComputedRef, inject } from "vue";
 import { formatBytes } from "@/utils";
 
-defineProps({
-  stat: {
-    type: Object as PropType<ContainerStat>,
-    required: true,
-  },
-  state: String,
-});
+const container = inject("container") as ComputedRef<Container>;
 </script>
 
 <style lang="scss" scoped>

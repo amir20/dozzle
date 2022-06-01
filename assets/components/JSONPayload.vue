@@ -1,7 +1,9 @@
 <template>
   <ul class="fields" @click="expanded = !expanded">
     <li v-for="(value, name) in data">
-      <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
+      <template v-if="value">
+        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
+      </template>
     </li>
   </ul>
   <field-list :fields="payload" :expanded="expanded"></field-list>
@@ -35,6 +37,13 @@ const expanded = ref(false);
 
   &:hover {
     cursor: pointer;
+    &::after {
+      content: "expand json";
+      color: var(--secondary-color);
+      display: inline-block;
+      margin-left: 0.5em;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
   }
 
   li {
