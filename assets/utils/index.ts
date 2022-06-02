@@ -6,3 +6,30 @@ export function formatBytes(bytes: number, decimals = 2) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
+
+
+export function getDeep(obj: Record<string, any>, path: string[]) {
+  return path.reduce((acc, key) => acc?.[key], obj);
+}
+
+export function isObject(value: any): value is Record<string, any> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function flattenJSON(obj: Record<string, any>, path: string[] = []) {
+  const result: Record<string, any> = {};
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key];
+    const newPath = path.concat(key);
+    if (isObject(value)) {
+      Object.assign(result, flattenJSON(value, newPath));
+    } else {
+      result[newPath.join(".")] = value;
+    }
+  });
+  return result;
+}
+
+export function arrayEquals(a: string[], b: string[]): boolean {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
+}

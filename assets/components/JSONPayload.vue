@@ -9,6 +9,7 @@
   <field-list :fields="payload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
+import { flattenJSON, getDeep } from "@/utils";
 import { computed, PropType, ref } from "vue";
 
 const props = defineProps({
@@ -24,12 +25,13 @@ const props = defineProps({
 
 const expanded = ref(false);
 
-function getDeep(obj: Record<string, any>, path: string[]) {
-  return path.reduce((acc, key) => acc?.[key], obj);
-}
-const data = computed(() =>
-  props.visibleKeys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {})
-);
+const data = computed(() => {
+  if (!props.visibleKeys.length) {
+    return flattenJSON(props.payload);
+  } else {
+    return props.visibleKeys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {});
+  }
+});
 </script>
 
 <style lang="scss" scoped>

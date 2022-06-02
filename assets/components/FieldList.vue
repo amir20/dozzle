@@ -11,6 +11,7 @@
         ></field-list>
       </template>
       <template v-else-if="Array.isArray(value)">
+        <a @click="toggleField(name)">add / remove </a>
         <span class="has-text-grey">{{ name }}=</span>[
         <span class="has-text-weight-bold" v-for="(item, index) in value">
           {{ item }}
@@ -19,16 +20,17 @@
         ]
       </template>
       <template v-else>
-        <a @click="visibleKeys.push(parentKey.concat(name))">add</a> <span class="has-text-grey">{{ name }}=</span
-        ><span class="has-text-weight-bold">{{ value }}</span>
+        <a @click="toggleField(name)">add / remove </a>
+        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
       </template>
     </li>
   </ul>
 </template>
 <script lang="ts" setup>
-import { PropType } from "vue";
+import { arrayEquals, isObject } from "@/utils";
+import { PropType, toRaw } from "vue";
 
-defineProps({
+const props = defineProps({
   fields: {
     type: Object as PropType<Record<string, any>>,
     required: true,
@@ -47,8 +49,14 @@ defineProps({
   },
 });
 
-function isObject(value: any): value is Record<string, any> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+function toggleField(field: string) {
+  const path = props.parentKey.concat(field);
+  const index = props.visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
+  if (index > -1) {
+    props.visibleKeys.splice(index, 1);
+  } else {
+    props.visibleKeys.push(path);
+  }
 }
 </script>
 
