@@ -105,10 +105,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--filter`       | `DOZZLE_FILTER`       | `""`    |
 | `--username`     | `DOZZLE_USERNAME`     | `""`    |
 | `--password`     | `DOZZLE_PASSWORD`     | `""`    |
-| `--key`          | `DOZZLE_KEY`          | `""`    |
 | `--no-analytics` | `DOZZLE_NO_ANALYTICS` | false   |
-
-Note: When using username and password `DOZZLE_KEY` is required for session management.
 
 ## Troubleshooting and FAQs
 

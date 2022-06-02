@@ -271,7 +271,7 @@ func Test_createRoutes_redirect_with_auth(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -320,7 +320,7 @@ func Test_createRoutes_version(t *testing.T) {
 
 func Test_createRoutes_username_password(t *testing.T) {
 
-	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -329,7 +329,7 @@ func Test_createRoutes_username_password(t *testing.T) {
 }
 
 func Test_createRoutes_username_password_invalid(t *testing.T) {
-	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -338,7 +338,7 @@ func Test_createRoutes_username_password_invalid(t *testing.T) {
 }
 
 func Test_createRoutes_username_password_login_happy(t *testing.T) {
-	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -368,7 +368,7 @@ func Test_createRoutes_username_password_login_happy(t *testing.T) {
 }
 
 func Test_createRoutes_username_password_login_failed(t *testing.T) {
-	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -398,7 +398,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
-	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	// Get cookie first
 	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
@@ -422,7 +422,7 @@ func Test_createRoutes_username_password_invalid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
-	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password", Key: "key"})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	req.AddCookie(&http.Cookie{Name: "session", Value: "baddata"})

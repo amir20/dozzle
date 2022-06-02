@@ -1,6 +1,8 @@
 package web
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,7 +19,7 @@ const sessionName = "session"
 func initializeAuth(h *handler) {
 	secured = false
 	if h.config.Username != "" && h.config.Password != "" {
-		store = sessions.NewCookieStore([]byte(h.config.Key))
+		store = sessions.NewCookieStore(generateSessionStorageKey(h.config.Username, h.config.Password))
 		store.Options.HttpOnly = true
 		store.Options.SameSite = http.SameSiteLaxMode
 		store.Options.MaxAge = 0
@@ -114,4 +116,9 @@ func (h *handler) clearSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, h.config.Base, http.StatusTemporaryRedirect)
+}
+
+func generateSessionStorageKey(username string, password string) []byte {
+	key := sha256.Sum256([]byte(fmt.Sprintf("%s:%s", username, password)))
+	return key[:]
 }
