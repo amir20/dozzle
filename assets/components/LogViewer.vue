@@ -84,8 +84,6 @@ watch(
   () => (visibleKeys = useStorage(container.value.image + ":" + container.value.command, [])),
   { immediate: true }
 );
-
-visibleKeys.value = [["msg"], ["request", "uri"], ["level"]];
 </script>
 <style scoped lang="scss">
 .events {
