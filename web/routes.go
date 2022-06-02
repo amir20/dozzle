@@ -50,9 +50,9 @@ func createRouter(h *handler) *mux.Router {
 	r := mux.NewRouter()
 	r.Use(cspHeaders)
 	if base != "/" {
-		r.HandleFunc(base, http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		r.HandleFunc(base, func(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
-		}))
+		})
 	}
 	s := r.PathPrefix(base).Subrouter()
 	s.Handle("/api/logs/stream", authorizationRequired(h.streamLogs))

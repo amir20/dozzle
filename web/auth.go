@@ -35,7 +35,7 @@ func authorizationRequired(f http.HandlerFunc) http.Handler {
 			}
 		})
 	} else {
-		return http.HandlerFunc(f)
+		return f
 	}
 }
 
