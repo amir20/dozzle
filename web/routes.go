@@ -20,7 +20,6 @@ type Config struct {
 	Addr     string
 	Version  string
 	TailSize int
-	Key      string
 	Username string
 	Password string
 }
