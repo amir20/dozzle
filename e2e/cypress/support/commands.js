@@ -24,9 +24,9 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-import { addMatchImageSnapshotCommand } from "cypress-image-snapshot/command";
+// import { addMatchImageSnapshotCommand } from "cypress-image-snapshot/command";
 
-addMatchImageSnapshotCommand();
+// addMatchImageSnapshotCommand();
 
 Cypress.Commands.add("removeDates", () => {
   cy.window().then((win) => win.document.querySelectorAll("time").forEach((el) => el.remove()));

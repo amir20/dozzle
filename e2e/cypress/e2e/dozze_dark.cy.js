@@ -5,7 +5,7 @@ context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () =>
     cy.visit("/");
   });
 
-  it("home screen", () => {
+  it.skip("home screen", () => {
     cy.get("li.running", { timeout: 10000 }).removeDates().replaceSkippedElements().matchImageSnapshot();
   });
 
