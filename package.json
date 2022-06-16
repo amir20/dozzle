@@ -55,7 +55,7 @@
     "@pinia/testing": "^0.0.12",
     "@types/jest": "^28.1.1",
     "@types/lodash.debounce": "^4.0.7",
-    "@types/node": "^17.0.40",
+    "@types/node": "^18.0.0",
     "@types/semver": "^7.3.9",
     "@vue/test-utils": "^2.0.0",
     "c8": "^7.11.3",
