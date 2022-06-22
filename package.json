@@ -68,7 +68,7 @@
     "prettier": "^2.6.2",
     "release-it": "^15.0.0",
     "ts-node": "^10.8.1",
-    "vitest": "^0.14.1"
+    "vitest": "^0.15.2"
   },
   "lint-staged": {
     "*.{js,vue,css}": [
