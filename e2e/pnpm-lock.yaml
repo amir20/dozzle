@@ -1,14 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
-  cypress: ^10.0.1
+  cypress: ^10.2.0
   cypress-image-snapshot: ^4.0.1
-  typescript: ^4.7.2
+  typescript: ^4.7.4
 
 dependencies:
-  cypress: 10.0.1
-  cypress-image-snapshot: 4.0.1_cypress@10.0.1
-  typescript: 4.7.2
+  cypress: 10.2.0
+  cypress-image-snapshot: 4.0.1_cypress@10.2.0
+  typescript: 4.7.4
 
 packages:
 
@@ -52,8 +52,8 @@ packages:
       - supports-color
     dev: false
 
-  /@types/node/14.18.20:
-    resolution: {integrity: sha512-Q8KKwm9YqEmUBRsqJ2GWJDtXltBDxTdC4m5vTdXBolu2PeQh8LX+f6BTwU+OuXPu37fLxoN6gidqBmnky36FXA==}
+  /@types/node/14.18.21:
+    resolution: {integrity: sha512-x5W9s+8P4XteaxT/jKF0PSb7XEvo5VmqEWgsMlyeY4ZlLK8I6aH6g5TPPyDlLAep+GYf4kefb7HFyc7PAO3m+Q==}
     dev: false
 
   /@types/sinonjs__fake-timers/8.1.1:
@@ -68,7 +68,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.20
+      '@types/node': 14.18.21
     dev: false
     optional: true
 
@@ -148,8 +148,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /async/3.2.3:
-    resolution: {integrity: sha512-spZRyzKL5l5BZQrr/6m/SqFdBN0q3OCI0f9rjfBzCMBIP4p75P620rR3gTmaksNOhmzgdxcaxdNfMy6anrbM0g==}
+  /async/3.2.4:
+    resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
     dev: false
 
   /asynckit/0.4.0:
@@ -251,8 +251,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: false
 
-  /ci-info/3.3.1:
-    resolution: {integrity: sha512-SXgeMX9VwDe7iFFaEWkA5AstuER9YKqy4EhHqr4DVqkwmD9rpVimkMKWHdjn30Ja45txyjhSn63lVX69eVCckg==}
+  /ci-info/3.3.2:
+    resolution: {integrity: sha512-xmDt/QIAdeZ9+nfdPsaBCpMvHNLFiLdjj59qjqn+6iPe6YmHGQ35sBnQ8uslRBXFmXkiZQOJRjvQeoGppoTjjg==}
     dev: false
 
   /clean-stack/2.2.0:
@@ -305,8 +305,8 @@ packages:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
     dev: false
 
-  /colorette/2.0.16:
-    resolution: {integrity: sha512-hUewv7oMjCp+wkBv5Rm0v87eJhq4woh5rSR+42YSQJKecCqgIqNkZ6lAlQms/BwHPJA5NKMRlpxPRv0n8HQW6g==}
+  /colorette/2.0.19:
+    resolution: {integrity: sha512-3tlv/dIP7FWvj3BsbHrGLJ6l/oKh1O3TcgBqMn+yyCagOxc23fyzDS6HypQbgxWbkpDnf52p1LuR4eWDQ/K9WQ==}
     dev: false
 
   /combined-stream/1.0.8:
@@ -331,7 +331,7 @@ packages:
     dev: false
 
   /core-util-is/1.0.2:
-    resolution: {integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=}
+    resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
     dev: false
 
   /cross-spawn/6.0.5:
@@ -354,14 +354,14 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress-image-snapshot/4.0.1_cypress@10.0.1:
+  /cypress-image-snapshot/4.0.1_cypress@10.2.0:
     resolution: {integrity: sha512-PBpnhX/XItlx3/DAk5ozsXQHUi72exybBNH5Mpqj1DVmjq+S5Jd9WE5CRa4q5q0zuMZb2V2VpXHth6MjFpgj9Q==}
     engines: {node: '>=8'}
     peerDependencies:
       cypress: ^4.5.0
     dependencies:
       chalk: 2.4.2
-      cypress: 10.0.1
+      cypress: 10.2.0
       fs-extra: 7.0.1
       glob: 7.2.0
       jest-image-snapshot: 4.2.0
@@ -371,15 +371,15 @@ packages:
       - jest
     dev: false
 
-  /cypress/10.0.1:
-    resolution: {integrity: sha512-04vefCc6LrrgBS7Qhqn+9lqXTneLYZZwOokBaCJToI9DHu7/ywhywYNUg/Qy4xWOxlKvbvnELGCa7HZbSgeLfQ==}
+  /cypress/10.2.0:
+    resolution: {integrity: sha512-+i9lY5ENlfi2mJwsggzR+XASOIgMd7S/Gd3/13NCpv596n3YSplMAueBTIxNLcxDpTcIksp+9pM3UaDrJDpFqA==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.10
       '@cypress/xvfb': 1.2.4_supports-color@8.1.1
-      '@types/node': 14.18.20
+      '@types/node': 14.18.21
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
@@ -393,7 +393,7 @@ packages:
       cli-table3: 0.6.2
       commander: 5.1.0
       common-tags: 1.8.2
-      dayjs: 1.11.2
+      dayjs: 1.11.3
       debug: 4.3.4_supports-color@8.1.1
       enquirer: 2.3.6
       eventemitter2: 6.4.5
@@ -428,8 +428,8 @@ packages:
       assert-plus: 1.0.0
     dev: false
 
-  /dayjs/1.11.2:
-    resolution: {integrity: sha512-F4LXf1OeU9hrSYRPTTj/6FbO4HTjPKXvEIC1P2kcnFurViINCVk3ZV0xAS3XVx9MkMsXbbqlK6hjseaYbgKEHw==}
+  /dayjs/1.11.3:
+    resolution: {integrity: sha512-xxwlswWOlGhzgQ4TKzASQkUhqERI3egRNqgV4ScR8wlANA/A9tZ7miXa44vTTKEq5l7vWoL5G57bG3zA+Kow0A==}
     dev: false
 
   /debug/3.2.7_supports-color@8.1.1:
@@ -549,7 +549,7 @@ packages:
     dev: false
 
   /extsprintf/1.3.0:
-    resolution: {integrity: sha1-lpGEQOMEGnpBT4xS48V06zw+HgU=}
+    resolution: {integrity: sha512-11Ndz7Nv+mvAC1j0ktTa7fAb0vLyGGX+rMHNBYQviQDGU0Hw7lhctJANqbPhu9nV9/izT/IntTgZ7Im/9LJs9g==}
     engines: {'0': node >=0.6.0}
     dev: false
 
@@ -631,7 +631,7 @@ packages:
   /getos/3.2.1:
     resolution: {integrity: sha512-U56CfOK17OKgTVqozZjUKNdkfEv6jk5WISBJ8SHoagjE6L69zOwl3Z+O8myjY9MEW3i2HPWQBt/LTbCgcC973Q==}
     dependencies:
-      async: 3.2.3
+      async: 3.2.4
     dev: false
 
   /getpass/0.1.7:
@@ -741,7 +741,7 @@ packages:
     resolution: {integrity: sha512-ZYvCgrefwqoQ6yTyYUbQu64HsITZ3NfKX1lzaEYdkTDcfKzzCI/wthRRYKkdjHKFVgNiXKAKm65Zo1pk2as/QQ==}
     hasBin: true
     dependencies:
-      ci-info: 3.3.1
+      ci-info: 3.3.2
     dev: false
 
   /is-fullwidth-code-point/3.0.0:
@@ -829,7 +829,7 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.8
     dev: false
 
   /jsonfile/6.1.0:
@@ -865,7 +865,7 @@ packages:
         optional: true
     dependencies:
       cli-truncate: 2.1.0
-      colorette: 2.0.16
+      colorette: 2.0.19
       enquirer: 2.3.6
       log-update: 4.0.0
       p-map: 4.0.0
@@ -1105,7 +1105,7 @@ packages:
     dev: false
 
   /proxy-from-env/1.0.0:
-    resolution: {integrity: sha1-M8UDmPcOp+uW0h97gXYwpVeRx+4=}
+    resolution: {integrity: sha512-F2JHgJQ1iqwnHDcQjVBsq3n/uoaFL+iPW/eAeL7kVxy/2RrWaN4WroKjjvbsoRtv0ftelNyC01bjRhn/bhcf4A==}
     dev: false
 
   /psl/1.8.0:
@@ -1130,7 +1130,7 @@ packages:
     dev: false
 
   /request-progress/3.0.0:
-    resolution: {integrity: sha1-TKdUCBx/7GP1BeT6qCWqBs1mnb4=}
+    resolution: {integrity: sha512-MnWzEHHaxHO2iWiQuHrUPBi/1WeBf5PkxQqNyNvLl9VAYSdXkP8tQ3pBSeCPD+yw0v0Aq1zosWLz0BdeXpWwZg==}
     dependencies:
       throttleit: 1.0.0
     dev: false
@@ -1322,11 +1322,11 @@ packages:
     dev: false
 
   /throttleit/1.0.0:
-    resolution: {integrity: sha1-nnhYNtr0Z0MUWlmEtiaNgoUorGw=}
+    resolution: {integrity: sha512-rkTVqu6IjfQ/6+uNuuc3sZek4CEYxTJom3IktzgdSxcZqdARuebbA/f4QmAxMQIxqq9ZLEUkSYqvuk1I6VKq4g==}
     dev: false
 
   /through/2.3.8:
-    resolution: {integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=}
+    resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
     dev: false
 
   /tmp/0.2.1:
@@ -1349,13 +1349,13 @@ packages:
     dev: false
 
   /tunnel-agent/0.6.0:
-    resolution: {integrity: sha1-J6XeoGs2sEoKmWZ3SykIaPD8QP0=}
+    resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
     dependencies:
       safe-buffer: 5.2.1
     dev: false
 
   /tweetnacl/0.14.5:
-    resolution: {integrity: sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=}
+    resolution: {integrity: sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==}
     dev: false
 
   /type-fest/0.21.3:
@@ -1363,8 +1363,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /typescript/4.7.2:
-    resolution: {integrity: sha512-Mamb1iX2FDUpcTRzltPxgWMKy3fhg0TN378ylbktPGPK/99KbDtMQ4W1hwgsbPAsG3a0xKa1vmw4VKZQbkvz5A==}
+  /typescript/4.7.4:
+    resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: false
@@ -1445,7 +1445,7 @@ packages:
     dev: false
 
   /yauzl/2.10.0:
-    resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
+    resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0

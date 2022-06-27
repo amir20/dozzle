@@ -4,8 +4,8 @@
   "scripts": {},
   "license": "ISC",
   "dependencies": {
-    "cypress": "^10.0.1",
+    "cypress": "^10.2.0",
     "cypress-image-snapshot": "^4.0.1",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.4"
   }
 }
