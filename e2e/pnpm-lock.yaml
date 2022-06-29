@@ -1,13 +1,13 @@
 lockfileVersion: 5.4
 
 specifiers:
-  cypress: ^10.2.0
+  cypress: ^10.3.0
   cypress-image-snapshot: ^4.0.1
   typescript: ^4.7.4
 
 dependencies:
-  cypress: 10.2.0
-  cypress-image-snapshot: 4.0.1_cypress@10.2.0
+  cypress: 10.3.0
+  cypress-image-snapshot: 4.0.1_cypress@10.3.0
   typescript: 4.7.4
 
 packages:
@@ -354,14 +354,14 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress-image-snapshot/4.0.1_cypress@10.2.0:
+  /cypress-image-snapshot/4.0.1_cypress@10.3.0:
     resolution: {integrity: sha512-PBpnhX/XItlx3/DAk5ozsXQHUi72exybBNH5Mpqj1DVmjq+S5Jd9WE5CRa4q5q0zuMZb2V2VpXHth6MjFpgj9Q==}
     engines: {node: '>=8'}
     peerDependencies:
       cypress: ^4.5.0
     dependencies:
       chalk: 2.4.2
-      cypress: 10.2.0
+      cypress: 10.3.0
       fs-extra: 7.0.1
       glob: 7.2.0
       jest-image-snapshot: 4.2.0
@@ -371,8 +371,8 @@ packages:
       - jest
     dev: false
 
-  /cypress/10.2.0:
-    resolution: {integrity: sha512-+i9lY5ENlfi2mJwsggzR+XASOIgMd7S/Gd3/13NCpv596n3YSplMAueBTIxNLcxDpTcIksp+9pM3UaDrJDpFqA==}
+  /cypress/10.3.0:
+    resolution: {integrity: sha512-txkQWKzvBVnWdCuKs5Xc08gjpO89W2Dom2wpZgT9zWZT5jXxqPIxqP/NC1YArtkpmp3fN5HW8aDjYBizHLUFvg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     requiresBuild: true
@@ -1288,7 +1288,7 @@ packages:
     dev: false
 
   /supports-color/2.0.0:
-    resolution: {integrity: sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=}
+    resolution: {integrity: sha512-KKNVtd6pCYgPIKU4cp2733HWYCpplQhddZLBUryaAHou723x+FRzQ5Df824Fj+IyyuiQTRoub4SnIFfIcrp70g==}
     engines: {node: '>=0.8.0'}
     dev: false
 
