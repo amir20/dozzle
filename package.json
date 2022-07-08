@@ -29,7 +29,7 @@
     "@iconify-json/octicon": "^1.1.12",
     "@oruga-ui/oruga-next": "^0.5.4",
     "@oruga-ui/theme-bulma": "^0.2.6",
-    "@vitejs/plugin-vue": "3.0.0-beta.0",
+    "@vitejs/plugin-vue": "3.0.0-beta.1",
     "@vue/compiler-sfc": "^3.2.37",
     "@vueuse/core": "^8.9.1",
     "@vueuse/router": "^8.9.1",
