@@ -20,24 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-
-	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
-	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
-	id := r.URL.Query().Get("id")
-
-	reader, err := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
-	defer reader.Close()
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	io.Copy(w, reader)
-}
-
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	container, err := h.client.FindContainer(id)
@@ -63,6 +45,68 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	io.Copy(zw, reader)
+}
+
+func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
+	return func() (docker.LogEvent, error) {
+		message, readerError := reader.ReadString('\n')
+		logEvent := docker.LogEvent{}
+		var logId string
+		if index := strings.IndexAny(message, " "); index != -1 {
+			logId = message[:index]
+			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+				logEvent.Timestamp = timestamp.Unix()
+				message = strings.TrimSuffix(message[index+1:], "\n")
+				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+					var data map[string]interface{}
+					if err := json.Unmarshal([]byte(message), &data); err != nil {
+						log.Errorf("json unmarshal error while streaming %v", err.Error())
+					}
+					logEvent.Data = data
+				} else {
+					logEvent.Message = message
+				}
+			} else {
+				logEvent.Message = message
+			}
+		} else {
+			logEvent.Message = message
+		}
+		return logEvent, readerError
+
+	}
+}
+
+func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+
+	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
+	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
+	id := r.URL.Query().Get("id")
+
+	reader, err := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
+	defer reader.Close()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	buffered := bufio.NewReader(reader)
+
+	var readerError error
+	eventIterator := logEventIterator(buffered)
+
+	for {
+		var logEvent docker.LogEvent
+		logEvent, readerError = eventIterator()
+		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
+		}
+		if readerError != nil {
+			break
+		}
+	}
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
@@ -124,38 +168,17 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 
 	buffered := bufio.NewReader(reader)
 	var readerError error
-	var message string
-	for {
-		message, readerError = buffered.ReadString('\n')
-		fmt.Fprintf(w, "data: ")
-		logEvent := docker.LogEvent{}
-		var logId string
-		if index := strings.IndexAny(message, " "); index != -1 {
-			logId = message[:index]
-			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
-				logEvent.Timestamp = timestamp.Unix()
-				message = strings.TrimSuffix(message[index+1:], "\n")
-				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
-					var data map[string]interface{}
-					if err := json.Unmarshal([]byte(message), &data); err != nil {
-						log.Errorf("json unmarshal error while streaming %v", err.Error())
-					}
-					logEvent.Data = data
-				} else {
-					logEvent.Message = message
-				}
-			} else {
-				logEvent.Message = message
-			}
-		} else {
-			logEvent.Message = message
-		}
+	eventIterator := logEventIterator(buffered)
 
+	for {
+		fmt.Fprintf(w, "data: ")
+		var logEvent docker.LogEvent
+		logEvent, readerError = eventIterator()
 		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
 		}
-		if logId != "" {
-			fmt.Fprintf(w, "id: %s\n", logId)
+		if logEvent.Timestamp > 0 {
+			fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
 		}
 		fmt.Fprintf(w, "\n\n")
 		f.Flush()
