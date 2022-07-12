@@ -1,5 +1,5 @@
 <template>
-  <ul v-if="expanded">
+  <ul v-if="expanded" ref="root">
     <li v-for="(value, name) in fields">
       <template v-if="isObject(value)">
         <span class="has-text-grey">{{ name }}=</span>
@@ -11,7 +11,7 @@
         ></field-list>
       </template>
       <template v-else-if="Array.isArray(value)">
-        <a @click="toggleField(name)">add / remove </a>
+        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }} </a>
         <span class="has-text-grey">{{ name }}=</span>[
         <span class="has-text-weight-bold" v-for="(item, index) in value">
           {{ item }}
@@ -20,7 +20,7 @@
         ]
       </template>
       <template v-else>
-        <a @click="toggleField(name)">add / remove </a>
+        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }} </a>
         <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
       </template>
     </li>
@@ -28,7 +28,7 @@
 </template>
 <script lang="ts" setup>
 import { arrayEquals, isObject } from "@/utils";
-import { PropType, toRaw } from "vue";
+import { nextTick, PropType, ref, toRaw } from "vue";
 
 const props = defineProps({
   fields: {
@@ -49,14 +49,31 @@ const props = defineProps({
   },
 });
 
-function toggleField(field: string) {
-  const path = props.parentKey.concat(field);
-  const index = props.visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
+const root = ref<HTMLElement>();
+
+async function toggleField(field: string) {
+  const index = fieldIndex(field);
+
   if (index > -1) {
     props.visibleKeys.splice(index, 1);
   } else {
-    props.visibleKeys.push(path);
+    props.visibleKeys.push(props.parentKey.concat(field));
   }
+
+  await nextTick();
+
+  root.value?.scrollIntoView({
+    block: "center",
+  });
+}
+
+function hasField(field: string) {
+  return fieldIndex(field) > -1;
+}
+
+function fieldIndex(field: string) {
+  const path = props.parentKey.concat(field);
+  return props.visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
 }
 </script>
 
