@@ -41,6 +41,12 @@ COPY main.go ./
 # Args
 ARG TAG=dev
 
+# Use UPX to make the binary smaller
+FROM gruebel/upx:latest as upx
+COPY --from=builder /dozzle/dozzle /dozzle
+RUN upx --best --lzma /dozzle
+
+
 # Build binary
 RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
@@ -49,7 +55,7 @@ FROM scratch
 ENV PATH /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /dozzle/dozzle /dozzle
+COPY --from=upx /dozzle /dozzle
 
 EXPOSE 8080
 
