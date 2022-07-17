@@ -45,7 +45,7 @@ ARG TAG=dev
 RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
 # Use UPX to make the binary smaller
-FROM gruebel/upx:latest as upx
+FROM harshavardhanj/upx:3.95 as upx
 COPY --from=builder /dozzle/dozzle /dozzle
 RUN upx --best --lzma /dozzle
 
