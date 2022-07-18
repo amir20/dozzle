@@ -80,10 +80,15 @@ const container = inject("container") as ComputedRef<Container>;
 
 let visibleKeys = ref<string[][]>([]);
 watch(
-  () => container.value.image + ":" + container.value.command,
-  () => (visibleKeys = useStorage(container.value.image + ":" + container.value.command, [])),
+  () => stripVersion(container.value.image) + ":" + container.value.command,
+  () => (visibleKeys = useStorage(stripVersion(container.value.image) + ":" + container.value.command, [])),
   { immediate: true }
 );
+
+function stripVersion(label: string) {
+  const [name, _] = label.split(":");
+  return name;
+}
 </script>
 <style scoped lang="scss">
 .events {

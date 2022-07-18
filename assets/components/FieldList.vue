@@ -11,7 +11,7 @@
         ></field-list>
       </template>
       <template v-else-if="Array.isArray(value)">
-        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }} </a>
+        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
         <span class="has-text-grey">{{ name }}=</span>[
         <span class="has-text-weight-bold" v-for="(item, index) in value">
           {{ item }}
@@ -20,7 +20,7 @@
         ]
       </template>
       <template v-else>
-        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }} </a>
+        <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
         <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
       </template>
     </li>
