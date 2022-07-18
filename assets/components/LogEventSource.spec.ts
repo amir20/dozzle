@@ -18,17 +18,6 @@ vi.mock("lodash.debounce", () => ({
   }),
 }));
 
-vi.mock("@/stores/container", () => ({
-  __esModule: true,
-  useContainerStore() {
-    return {
-      currentContainer(id: Ref<string>) {
-        return computed(() => ({ id: id.value }));
-      },
-    };
-  },
-}));
-
 vi.mock("@/stores/config", () => ({
   __esModule: true,
   default: { base: "" },
@@ -78,6 +67,9 @@ describe("<LogEventSource />", () => {
         components: {
           LogViewer,
         },
+        provide: {
+          container: computed(() => ({ id: "abc", image: "test:v123" })),
+        },
       },
       slots: {
         default: `
@@ -111,41 +103,11 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
     sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-      data: `2019-06-12T10:55:42.459034602Z "This is a message."`,
+      data: `{"ts":1560336942.459, "m":"This is a message."}`,
     });
 
     const [message, _] = wrapper.vm.messages;
-    const { key, ...messageWithoutKey } = message;
-
-    expect(key).toBe("2019-06-12T10:55:42.459034602Z");
-    expect(messageWithoutKey).toMatchSnapshot();
-  });
-
-  test("should parse messages with loki's timestamp format", async () => {
-    const wrapper = createLogEventSource();
-    sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
-    sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({ data: `2020-04-27T12:35:43.272974324+02:00 xxxxx` });
-
-    const [message, _] = wrapper.vm.messages;
-    const { key, ...messageWithoutKey } = message;
-
-    expect(key).toBe("2020-04-27T12:35:43.272974324+02:00");
-    expect(messageWithoutKey).toMatchSnapshot();
-  });
-
-  test("should pass messages to slot", async () => {
-    const wrapper = createLogEventSource();
-    sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
-    sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-      data: `2019-06-12T10:55:42.459034602Z "This is a message."`,
-    });
-    const [message, _] = wrapper.getComponent(LogViewer).vm.messages;
-
-    const { key, ...messageWithoutKey } = message;
-
-    expect(key).toBe("2019-06-12T10:55:42.459034602Z");
-
-    expect(messageWithoutKey).toMatchSnapshot();
+    expect(message).toMatchSnapshot();
   });
 
   describe("render html correctly", () => {
@@ -169,7 +131,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T10:55:42.459034602Z "This is a message."`,
+        data: `{"ts":1560336942.459, "m":"This is a message."}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -180,7 +142,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T10:55:42.459034602Z \x1b[30mblack\x1b[37mwhite`,
+        data: '{"ts":1560336942.459,"m":"\\u001b[30mblack\\u001b[37mwhite"}',
       });
 
       await wrapper.vm.$nextTick();
@@ -191,7 +153,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T10:55:42.459034602Z <test>foo bar</test>`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -202,7 +164,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T23:55:42.459034602Z <test>foo bar</test>`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -213,7 +175,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "24" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T23:55:42.459034602Z <test>foo bar</test>`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -224,10 +186,10 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ searchFilter: "test" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-11T10:55:42.459034602Z Foo bar`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
       });
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `2019-06-12T10:55:42.459034602Z This is a test <hi></hi>`,
+        data: `{"ts":1560336942.459, "m":"<test>test bar</test>"}`,
       });
 
       await wrapper.vm.$nextTick();

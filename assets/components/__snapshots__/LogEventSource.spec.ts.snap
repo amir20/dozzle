@@ -2,12 +2,12 @@
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T23:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T23:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -23,19 +23,19 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 11:55:42 PM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T23:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T23:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -51,19 +51,19 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T23:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 23:55:42</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T10:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T10:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -79,19 +79,19 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">\\"This is a message.\\"</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">This is a message.</span></div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T10:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T10:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -114,12 +114,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
 
 exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T10:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
+      <div class=\\"dropdown is-hoverable is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T10:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -135,19 +135,42 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">This is a <mark>test</mark> &lt;hi&gt;&lt;/hi&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;foo bar&lt;/test&gt;</span></div>
+  </li>
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
+    <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
+      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
+              <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
+                <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
+                  <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
+                      <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
+                      <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
+                    </svg></div>
+                </div>
+                <div class=\\"level-right\\" data-v-cce5b553=\\"\\">
+                  <div class=\\"level-item\\" data-v-cce5b553=\\"\\">Jump to Context</div>
+                </div>
+              </div>
+            </a></div>
+        </div>
+      </div>
+    </div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;test bar&lt;/test&gt;</span></div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with html entities 1`] = `
 "<ul class=\\"events medium\\" data-v-cce5b553=\\"\\">
-  <li data-key=\\"2019-06-12T10:55:42.459034602Z\\" class=\\"\\" data-v-cce5b553=\\"\\">
+  <li data-key=\\"1560336942.459\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-cce5b553=\\"\\">
         <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2019-06-12T10:55:42.459034602Z\\" data-v-cce5b553=\\"\\">
+          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1560336942.459\\" data-v-cce5b553=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-cce5b553=\\"\\">
                 <div class=\\"level-left\\" data-v-cce5b553=\\"\\">
                   <div class=\\"level-item\\" data-v-cce5b553=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-cce5b553=\\"\\">
@@ -182,20 +205,8 @@ exports[`<LogEventSource /> > renders correctly 1`] = `
 exports[`<LogEventSource /> > should parse messages 1`] = `
 {
   "date": 2019-06-12T10:55:42.459Z,
-  "message": "\\"This is a message.\\"",
-}
-`;
-
-exports[`<LogEventSource /> > should parse messages with loki's timestamp format 1`] = `
-{
-  "date": 2020-04-27T10:35:43.272Z,
-  "message": "xxxxx",
-}
-`;
-
-exports[`<LogEventSource /> > should pass messages to slot 1`] = `
-{
-  "date": 2019-06-12T10:55:42.459Z,
-  "message": "\\"This is a message.\\"",
+  "key": "1560336942.459",
+  "message": "This is a message.",
+  "payload": undefined,
 }
 `;
