@@ -15,6 +15,7 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/healthcheck"
 	"github.com/amir20/dozzle/web"
 
 	log "github.com/sirupsen/logrus"
@@ -35,6 +36,10 @@ type args struct {
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
+	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck"`
+}
+
+type HealthcheckCmd struct {
 }
 
 func (args) Version() string {
@@ -67,6 +72,19 @@ func main() {
 		DisableTimestamp:       true,
 		DisableLevelTruncation: true,
 	})
+
+	if args.Healthcheck != nil {
+		if status, err := healthcheck.HttpRequest(); err != nil {
+			log.Fatal(err)
+		} else {
+			log.Infof("Healthcheck returned status code %d", status)
+			if status == 200 {
+				os.Exit(0)
+			} else {
+				os.Exit(1)
+			}
+		}
+	}
 
 	log.Infof("Dozzle version %s", version)
 	dockerClient := docker.NewClientWithFilters(args.Filter)

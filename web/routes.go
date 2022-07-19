@@ -61,6 +61,7 @@ func createRouter(h *handler) *mux.Router {
 	s.HandleFunc("/api/validateCredentials", h.validateCredentials)
 	s.Handle("/logout", authorizationRequired(h.clearSession))
 	s.Handle("/version", authorizationRequired(h.version))
+	s.HandleFunc("/healthcheck", h.healthcheck)
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		s.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
@@ -130,4 +131,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
 	fmt.Fprintf(w, "<pre>%v</pre>", h.config.Version)
+}
+
+func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
+	log.Debug("Executing healthcheck request")
+	
+	if ping, err := h.client.Ping(r.Context()); err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		fmt.Fprintf(w, "OK API Version %v", ping.APIVersion)
+	}
 }
