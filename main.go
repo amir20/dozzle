@@ -36,7 +36,7 @@ type args struct {
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
-	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck"`
+	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
 }
 
 type HealthcheckCmd struct {
@@ -74,15 +74,8 @@ func main() {
 	})
 
 	if args.Healthcheck != nil {
-		if status, err := healthcheck.HttpRequest(); err != nil {
+		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 			log.Fatal(err)
-		} else {
-			log.Infof("Healthcheck returned status code %d", status)
-			if status == 200 {
-				os.Exit(0)
-			} else {
-				os.Exit(1)
-			}
 		}
 	}
 

@@ -57,7 +57,7 @@ ENV PATH /bin
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=upx /dozzle /dozzle
 
-HEALTHCHECK --start-period=10s --interval=5s CMD [ "/dozzle", "healthcheck" ]
+HEALTHCHECK --start-period=4s --interval=2s CMD [ "/dozzle", "healthcheck" ]
 
 EXPOSE 8080
 

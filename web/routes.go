@@ -134,8 +134,8 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
-	log.Debug("Executing healthcheck request")
-	
+	log.Trace("Executing healthcheck request")
+
 	if ping, err := h.client.Ping(r.Context()); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
