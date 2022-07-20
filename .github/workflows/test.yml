@@ -48,7 +48,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
       - name: Build images
-        run: docker-compose -f e2e/docker-compose.yml build
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1  docker-compose -f e2e/docker-compose.yml build
       - name: Set commit message for push
         if: github.event_name == 'push'
         run: |
@@ -62,4 +62,4 @@ jobs:
           git log -1 --pretty=%B ${{github.event.pull_request.head.sha}} >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Run tests
-        run: docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
