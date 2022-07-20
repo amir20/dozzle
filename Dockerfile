@@ -1,5 +1,5 @@
 # Build assets
-FROM node:18-alpine as node
+FROM --platform=$BUILDPLATFORM node:18-alpine as node
 
 RUN apk add --no-cache git openssh make g++ util-linux python3 && npm install -g pnpm
 
@@ -19,7 +19,7 @@ COPY assets ./assets
 # Install dependencies
 RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
 
-FROM golang:1.18.4-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.18.4-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates && mkdir /dozzle
 
@@ -41,9 +41,10 @@ COPY main.go ./
 
 # Args
 ARG TAG=dev
+ARG TARGETOS TARGETARCH
 
 # Build binary
-RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
 
 FROM scratch
