@@ -34,6 +34,7 @@ COPY --from=node /build/dist ./dist
 
 # Copy all other files
 COPY analytics ./analytics
+COPY healthcheck ./healthcheck
 COPY docker ./docker
 COPY web ./web
 COPY main.go ./
@@ -55,6 +56,8 @@ ENV PATH /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=upx /dozzle /dozzle
+
+HEALTHCHECK --start-period=4s --interval=2s CMD [ "/dozzle", "healthcheck" ]
 
 EXPOSE 8080
 

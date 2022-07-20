@@ -28,6 +28,7 @@ type dockerProxy interface {
 	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
+	Ping(ctx context.Context) (types.Ping, error)
 }
 
 // Client is a proxy around the docker client
@@ -38,6 +39,7 @@ type Client interface {
 	Events(context.Context) (<-chan ContainerEvent, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
+	Ping(context.Context) (types.Ping, error)
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
@@ -240,4 +242,8 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	}
 
 	return newLogReader(reader, containerJSON.Config.Tty), nil
+}
+
+func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
+	return d.cli.Ping(ctx)
 }
