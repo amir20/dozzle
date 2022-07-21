@@ -46,17 +46,13 @@ ARG TARGETOS TARGETARCH
 # Build binary
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
 
-# Use UPX to make the binary smaller
-FROM --platform=$BUILDPLATFORM harshavardhanj/upx:3.95 as upx
-COPY --from=builder /dozzle/dozzle /dozzle
-RUN upx --best --lzma /dozzle
 
 FROM scratch
 
 ENV PATH /bin
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=upx /dozzle /dozzle
+COPY --from=builder /dozzle/dozzle /dozzle
 
 HEALTHCHECK --start-period=4s --interval=2s CMD [ "/dozzle", "healthcheck" ]
 
