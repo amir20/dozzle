@@ -1,7 +1,7 @@
 # Build assets
 FROM --platform=$BUILDPLATFORM node:18-alpine as node
 
-RUN apk add --no-cache util-linux python3 && npm install -g pnpm
+RUN apk add --no-cache python3 && npm install -g pnpm
 
 
 WORKDIR /build
