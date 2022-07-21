@@ -1,7 +1,7 @@
 # Build assets
 FROM --platform=$BUILDPLATFORM node:18-alpine as node
 
-RUN apk add --no-cache git openssh make g++ util-linux python3 && npm install -g pnpm
+RUN apk add --no-cache openssh make g++ util-linux python3 && npm install -g pnpm
 
 
 WORKDIR /build
@@ -21,7 +21,7 @@ RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
 
 FROM --platform=$BUILDPLATFORM golang:1.18.4-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates && mkdir /dozzle
+RUN apk add --no-cache ca-certificates && mkdir /dozzle
 
 WORKDIR /dozzle
 
