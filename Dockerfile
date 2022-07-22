@@ -54,8 +54,6 @@ ENV PATH /bin
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
 
-HEALTHCHECK --start-period=4s --interval=2s CMD [ "/dozzle", "healthcheck" ]
-
 EXPOSE 8080
 
 ENTRYPOINT ["/dozzle"]
