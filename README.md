@@ -58,6 +58,30 @@ Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
         ports:
           - 9999:8080
 
+
+### Enabling health check
+
+Dozzle doesn't enable healthcheck by default as it adds extra CPU usage. `healthcheck` can be enabled manually.
+
+    version: "3"
+    services:
+      dozzle:
+        container_name: dozzle
+        image: amir20/dozzle:latest
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+          - 8080:8080
+        environment:
+          DOZZLE_LEVEL: trace
+        healthcheck:
+          test: [ "CMD", "/dozzle", "healthcheck" ]
+          interval: 3s
+          timeout: 30s
+          retries: 5
+          start_period: 30s
+
+
 #### Security
 
 You can control the device Dozzle binds to by passing `--addr` parameter. For example,
