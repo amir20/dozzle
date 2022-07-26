@@ -32,7 +32,7 @@
     "@vitejs/plugin-vue": "3.0.1",
     "@vue/compiler-sfc": "^3.2.37",
     "@vueuse/core": "^8.9.4",
-    "@vueuse/router": "^8.9.4",
+    "@vueuse/router": "^9.0.0",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.4",
     "date-fns": "^2.29.1",
