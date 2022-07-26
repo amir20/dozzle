@@ -31,7 +31,7 @@
     "@oruga-ui/theme-bulma": "^0.2.6",
     "@vitejs/plugin-vue": "3.0.1",
     "@vue/compiler-sfc": "^3.2.37",
-    "@vueuse/core": "^8.9.4",
+    "@vueuse/core": "^9.0.0",
     "@vueuse/router": "^8.9.4",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.4",
