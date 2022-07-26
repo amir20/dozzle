@@ -31,8 +31,8 @@
     "@oruga-ui/theme-bulma": "^0.2.6",
     "@vitejs/plugin-vue": "3.0.1",
     "@vue/compiler-sfc": "^3.2.37",
-    "@vueuse/core": "^8.9.4",
-    "@vueuse/router": "^8.9.4",
+    "@vueuse/core": "^9.0.0",
+    "@vueuse/router": "^9.0.0",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.4",
     "date-fns": "^2.29.1",
@@ -46,7 +46,7 @@
     "typescript": "^4.7.4",
     "unplugin-auto-import": "^0.10.1",
     "unplugin-icons": "^0.14.7",
-    "unplugin-vue-components": "^0.21.1",
+    "unplugin-vue-components": "^0.21.2",
     "vite": "3.0.3",
     "vue": "^3.2.37",
     "vue-router": "^4.1.2"
@@ -66,7 +66,7 @@
     "lint-staged": "^13.0.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
-    "release-it": "^15.1.4",
+    "release-it": "^15.2.0",
     "ts-node": "^10.9.1",
     "vitest": "^0.19.1"
   },
