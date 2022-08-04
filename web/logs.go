@@ -105,6 +105,21 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	go func() {
+		for {
+			select {
+			case <-r.Context().Done():
+				return
+			case <-ticker.C:
+				fmt.Fprintf(w, "event: container-heartbeat\ndata: \n\n")
+				f.Flush()
+			}
+		}
+	}()
+
 	buffered := bufio.NewReader(reader)
 	var readerError error
 	var message string
