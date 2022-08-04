@@ -173,6 +173,12 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
 
+	if since != "" {
+		if sinceTime, err := time.Parse(time.RFC3339Nano, since); err == nil {
+			since = sinceTime.Add(time.Microsecond).Format(time.RFC3339Nano)
+		}
+	}
+
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
