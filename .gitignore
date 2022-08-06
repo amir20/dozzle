@@ -6,3 +6,4 @@ static
 dozzle
 coverage
 .pnpm-debug.log
+.vscode
