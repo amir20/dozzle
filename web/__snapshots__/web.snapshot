@@ -146,7 +146,6 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":0}
 
-
 event: container-stopped
 data: end of stream
 
@@ -173,7 +172,6 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":1589396137}
 id: 1589396137
-
 
 event: container-stopped
 data: end of stream
