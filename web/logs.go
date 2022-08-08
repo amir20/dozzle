@@ -182,7 +182,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		if logEvent.Timestamp > 0 {
 			fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
 		}
-		fmt.Fprintf(w, "\n\n")
+		fmt.Fprintf(w, "\n")
 		f.Flush()
 		if readerError != nil {
 			break
