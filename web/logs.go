@@ -114,7 +114,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 			case <-r.Context().Done():
 				return
 			case <-ticker.C:
-				fmt.Fprintf(w, "event: container-heartbeat\ndata: \n\n")
+				fmt.Fprintf(w, ":ping \n\n")
 				f.Flush()
 			}
 		}
@@ -125,7 +125,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	var message string
 	for {
 		message, readerError = buffered.ReadString('\n')
-		fmt.Fprintf(w, "data: %s\n", message)
+		fmt.Fprintf(w, "data: %s", message)
 		if index := strings.IndexAny(message, " "); index != -1 {
 			id := message[:index]
 			if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
