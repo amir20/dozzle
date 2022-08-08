@@ -76,7 +76,7 @@ describe("<LogEventSource />", () => {
         <template #scoped="params"><log-viewer :messages="params.messages"></log-viewer></template>
         `,
       },
-      props: { id: "abc" },
+      props: {},
     });
   }
 

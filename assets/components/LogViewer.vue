@@ -36,13 +36,14 @@
 import { ComputedRef, inject, PropType, ref, toRefs, watch } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
-import RelativeTime from "./RelativeTime.vue";
-import AnsiConvertor from "ansi-to-html";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
-import JSONPayload from "./JSONPayload.vue";
 import { Container } from "@/types/Container";
 import { useStorage } from "@vueuse/core";
+
+import RelativeTime from "./RelativeTime.vue";
+import AnsiConvertor from "ansi-to-html";
+import JSONPayload from "./JSONPayload.vue";
 
 const props = defineProps({
   messages: {
@@ -51,8 +52,10 @@ const props = defineProps({
   },
 });
 
+let visibleKeys = ref<string[][]>([]);
+
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter();
+const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter(visibleKeys);
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 const { messages } = toRefs(props);
 const filtered = filteredMessages(messages);
@@ -78,7 +81,6 @@ watch(
 
 const container = inject("container") as ComputedRef<Container>;
 
-let visibleKeys = ref<string[][]>([]);
 watch(
   () => stripVersion(container.value.image) + ":" + container.value.command,
   () => (visibleKeys = useStorage(stripVersion(container.value.image) + ":" + container.value.command, [])),
