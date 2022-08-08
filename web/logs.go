@@ -171,11 +171,13 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	eventIterator := logEventIterator(buffered)
 
 	for {
-		fmt.Fprintf(w, "data: ")
+
 		var logEvent docker.LogEvent
 		logEvent, readerError = eventIterator()
-		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+		if buf, err := json.Marshal(logEvent); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
+		} else {
+			fmt.Fprintf(w, "data: %s\n", buf)
 		}
 		if logEvent.Timestamp > 0 {
 			fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
