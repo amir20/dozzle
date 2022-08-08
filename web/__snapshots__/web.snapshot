@@ -145,6 +145,7 @@ Content-Type: text/event-stream
 X-Accel-Buffering: no
 
 data: INFO Testing logs...
+
 event: container-stopped
 data: end of stream
 
@@ -169,7 +170,8 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: 2020-05-13T18:55:37.772853839Z INFO Testing logs...id: 2020-05-13T18:55:37.772853839Z
+data: 2020-05-13T18:55:37.772853839Z INFO Testing logs...
+id: 2020-05-13T18:55:37.772853839Z
 
 event: container-stopped
 data: end of stream
