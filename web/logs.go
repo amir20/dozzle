@@ -125,7 +125,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	var message string
 	for {
 		message, readerError = buffered.ReadString('\n')
-		fmt.Fprintf(w, "data: %s", message)
+		fmt.Fprintf(w, "data: %s\n", strings.TrimRight(message, "\n"))
 		if index := strings.IndexAny(message, " "); index != -1 {
 			id := message[:index]
 			if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
