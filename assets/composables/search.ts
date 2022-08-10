@@ -3,7 +3,7 @@ import { ref, computed, Ref } from "vue";
 const searchFilter = ref<string>("");
 const showSearch = ref(false);
 
-import type { LogEntry } from "@/types/LogEntry";
+import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
 function matchPayload(payload: Record<string, any>, regex: RegExp) {
   for (const key in payload) {
@@ -15,21 +15,21 @@ function matchPayload(payload: Record<string, any>, regex: RegExp) {
   return false;
 }
 
-export function useSearchFilter(visibleKeys: Ref<string[][]>) {
+export function useSearchFilter() {
   const regex = computed(() => {
     const isSmartCase = searchFilter.value === searchFilter.value.toLowerCase();
     return isSmartCase ? new RegExp(searchFilter.value, "i") : new RegExp(searchFilter.value);
   });
 
-  function filteredMessages(messages: Ref<LogEntry[]>) {
+  function filteredMessages(messages: Ref<VisibleLogEntry[]>) {
     return computed(() => {
       if (searchFilter && searchFilter.value) {
         try {
           return messages.value.filter((d) => {
-            if (d.payload) {
-              return matchPayload(d.payload, regex.value);
-            } else if (d.message) {
-              return regex.value.test(d.message);
+            if (d.entry.payload) {
+              return matchPayload(d.entry.payload, regex.value);
+            } else if (d.entry.message) {
+              return regex.value.test(d.entry.message);
             }
             throw new Error("No message or payload");
           });

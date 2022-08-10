@@ -2,14 +2,14 @@
   <ul class="events" ref="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
-      :key="item.key"
-      :data-key="item.key"
-      :data-event="item.event"
-      :class="{ selected: item.selected }"
+      :key="item.entry.key"
+      :data-key="item.entry.key"
+      :data-event="item.entry.event"
+      :class="{ selected: item.entry.selected }"
     >
       <div class="line-options" v-show="isSearching()">
         <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
-          <a class="dropdown-item" @click="handleJumpLineSelected($event, item)" :href="`#${item.key}`">
+          <a class="dropdown-item" @click="handleJumpLineSelected($event, item.entry)" :href="`#${item.entry.key}`">
             <div class="level is-justify-content-start">
               <div class="level-left">
                 <div class="level-item">
@@ -24,9 +24,9 @@
         </dropdown-menu>
       </div>
       <div class="line">
-        <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <JSONPayload :payload="item.payload" :visible-keys="visibleKeys" v-if="item.payload"></JSONPayload>
-        <span class="text" v-html="colorize(item.message)" v-else-if="item.message"></span>
+        <span class="date" v-if="showTimestamp"> <relative-time :date="item.entry.date"></relative-time></span>
+        <JSONPayload :log-entry="item" :visible-keys="visibleKeys" v-if="item.isJSON"></JSONPayload>
+        <span class="text" v-html="colorize(item.entry.message)" v-else-if="item.entry.message"></span>
       </div>
     </li>
   </ul>
@@ -38,8 +38,9 @@ import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
+import { useVisibleFilter } from "@/composables/visible";
 import { Container } from "@/types/Container";
-import { useStorage } from "@vueuse/core";
+import { persistentVisibleKeys } from "@/utils";
 
 import RelativeTime from "./RelativeTime.vue";
 import AnsiConvertor from "ansi-to-html";
@@ -52,15 +53,21 @@ const props = defineProps({
   },
 });
 
-let visibleKeys = ref<string[][]>([]);
-
 const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter(visibleKeys);
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
+
 const { messages } = toRefs(props);
-const filtered = filteredMessages(messages);
+let visibleKeys = persistentVisibleKeys(inject("container") as ComputedRef<Container>);
+
+const { filteredPayload } = useVisibleFilter(visibleKeys);
+const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter();
+
+const visible = filteredPayload(messages);
+const filtered = filteredMessages(visible);
+
 const events = ref<HTMLElement>();
 let lastSelectedItem: LogEntry | undefined = undefined;
+
 function handleJumpLineSelected(e: Event, item: LogEntry) {
   if (lastSelectedItem) {
     lastSelectedItem.selected = false;
@@ -78,19 +85,6 @@ watch(
   },
   { immediate: true, flush: "post" }
 );
-
-const container = inject("container") as ComputedRef<Container>;
-
-watch(
-  () => stripVersion(container.value.image) + ":" + container.value.command,
-  () => (visibleKeys = useStorage(stripVersion(container.value.image) + ":" + container.value.command, [])),
-  { immediate: true }
-);
-
-function stripVersion(label: string) {
-  const [name, _] = label.split(":");
-  return name;
-}
 </script>
 <style scoped lang="scss">
 .events {

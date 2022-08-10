@@ -1,20 +1,21 @@
 <template>
   <ul class="fields" @click="expanded = !expanded">
-    <li v-for="(value, name) in data">
+    <li v-for="(value, name) in logEntry.filteredPayload?.value">
       <template v-if="value">
         <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
       </template>
     </li>
   </ul>
-  <field-list :fields="payload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  <field-list :fields="logEntry.entry.payload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
-import { flattenJSON, getDeep } from "@/utils";
-import { computed, PropType, ref } from "vue";
+import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
-const props = defineProps({
-  payload: {
-    type: Object as PropType<Record<string, any>>,
+import { PropType, ref } from "vue";
+
+defineProps({
+  logEntry: {
+    type: Object as PropType<VisibleLogEntry>,
     required: true,
   },
   visibleKeys: {
@@ -24,14 +25,6 @@ const props = defineProps({
 });
 
 const expanded = ref(false);
-
-const data = computed(() => {
-  if (!props.visibleKeys.length) {
-    return flattenJSON(props.payload);
-  } else {
-    return props.visibleKeys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(props.payload, attr) }), {});
-  }
-});
 </script>
 
 <style lang="scss" scoped>
