@@ -1,11 +1,11 @@
-import { ref, computed, Ref } from "vue";
+import { ref, computed, Ref, ComputedRef } from "vue";
 import { LogEntry } from "@/types/LogEntry";
 import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
-export function useVisibleFilter(visibleKeys: Ref<string[][]>) {
+export function useVisibleFilter(visibleKeys: ComputedRef<Ref<string[][]>>) {
   function filteredPayload(messages: Ref<LogEntry[]>) {
     return computed(() => {
-      return messages.value.map((d) => new VisibleLogEntry(d, visibleKeys));
+      return messages.value.map((d) => new VisibleLogEntry(d, visibleKeys.value));
     });
   }
 

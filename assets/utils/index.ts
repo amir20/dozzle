@@ -1,5 +1,5 @@
 import { Container } from "@/types/Container";
-import { ComputedRef, ref, watch } from "vue";
+import { computed, ComputedRef, ref, watch } from "vue";
 import { useStorage } from "@vueuse/core";
 
 export function formatBytes(bytes: number, decimals = 2) {
@@ -38,13 +38,7 @@ export function arrayEquals(a: string[], b: string[]): boolean {
 }
 
 export function persistentVisibleKeys(container: ComputedRef<Container>) {
-  let visibleKeys = ref<string[][]>([]);
-  watch(
-    () => stripVersion(container.value.image) + ":" + container.value.command,
-    () => (visibleKeys = useStorage(stripVersion(container.value.image) + ":" + container.value.command, [])),
-    { immediate: true }
-  );
-  return visibleKeys;
+  return computed(() => useStorage(stripVersion(container.value.image) + ":" + container.value.command, []));
 }
 
 export function stripVersion(label: string) {
