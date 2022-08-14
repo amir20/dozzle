@@ -1,6 +1,6 @@
 <template>
   <ul class="fields" @click="expanded = !expanded">
-    <li v-for="(value, name) in logEntry.filteredPayload?.value">
+    <li v-for="(value, name) in logEntry.payload">
       <template v-if="value">
         <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
       </template>

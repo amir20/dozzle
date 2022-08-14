@@ -1,14 +1,14 @@
 export interface LogEntry {
-  date: Date;
-  message?: string;
-  payload?: Record<string, any>;
-  key: string;
+  readonly date: Date;
+  readonly message?: string;
+  readonly payload?: Record<string, any>;
+  readonly key: string;
   event?: string;
   selected?: boolean;
 }
 
 export interface LogEvent {
-  m?: string;
-  ts: number;
-  d?: Record<string, any>;
+  readonly m?: string;
+  readonly ts: number;
+  readonly d?: Record<string, any>;
 }
