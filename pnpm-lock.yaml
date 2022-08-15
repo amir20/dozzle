@@ -93,16 +93,10 @@ devDependencies:
   lint-staged: 13.0.3
   npm-run-all: 4.1.5
   prettier: 2.7.1
-<<<<<<< HEAD
   release-it: 15.3.0
   ts-node: 10.9.1_7se4izhtmlozvpvgaax5rnuwve
   vitest: 0.22.0_jsdom@20.0.0+sass@1.54.4
-=======
-  release-it: 15.2.0
-  ts-node: 10.9.1_e2tlcjkk7tlngjdlhzx5hjlnv4
-  vitest: 0.20.3_w2pekw7tvdba6sgnkh6ml6owju
   vue-tsc: 0.40.1_typescript@4.7.4
->>>>>>> 99d1f21 (Fixes scroll view)
 
 packages:
 
