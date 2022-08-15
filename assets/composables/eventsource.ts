@@ -89,7 +89,7 @@ export function useEventSource(container: ComputedRef<Container>) {
           event: "container-started",
           message: "Container started",
           date: new Date(),
-          key: new Date().toString(),
+          id: new Date().getTime(),
         });
         connect({ clear: false });
       }

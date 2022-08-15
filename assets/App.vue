@@ -107,7 +107,7 @@ function showFuzzySearch() {
     active: true,
   });
 }
-function onResized(e) {
+function onResized(e: any) {
   if (e.length == 2) {
     menuWidth.value = e[0].size;
   }

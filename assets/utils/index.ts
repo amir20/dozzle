@@ -1,6 +1,6 @@
 import { Container } from "@/types/Container";
-import { computed, ComputedRef, ref, watch } from "vue";
 import { useStorage } from "@vueuse/core";
+import { computed, ComputedRef } from "vue";
 
 export function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
