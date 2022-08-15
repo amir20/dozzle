@@ -69,6 +69,7 @@
     "release-it": "^15.3.0",
     "ts-node": "^10.9.1",
     "vitest": "^0.22.0"
+    "vue-tsc": "^0.40.1"
   },
   "lint-staged": {
     "*.{js,vue,css}": [
