@@ -23,15 +23,14 @@ export function useSearchFilter() {
 
   function filteredMessages(messages: Ref<VisibleLogEntry[]>) {
     return computed(() => {
-      if (searchFilter && searchFilter.value) {
+      if (searchFilter.value) {
         try {
           return messages.value.filter((d) => {
-            if (d.entry.payload) {
-              return matchPayload(d.entry.payload, regex.value);
-            } else if (d.entry.message) {
-              return regex.value.test(d.entry.message);
+            if (d.hasPayload()) {
+              return matchPayload(d.payload, regex.value);
+            } else {
+              return regex.value.test(d.message ?? "");
             }
-            throw new Error("No message or payload");
           });
         } catch (e) {
           if (e instanceof SyntaxError) {
@@ -47,7 +46,7 @@ export function useSearchFilter() {
   }
 
   function markSearch(log: string) {
-    if (searchFilter && searchFilter.value) {
+    if (searchFilter.value) {
       return log.replace(regex.value, `<mark>$&</mark>`);
     }
     return log;

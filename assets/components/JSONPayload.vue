@@ -6,7 +6,7 @@
       </template>
     </li>
   </ul>
-  <field-list :fields="logEntry.entry.payload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  <field-list :fields="logEntry.unfilteredPayload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
 import { VisibleLogEntry } from "@/types/VisibleLogEntry";

@@ -2,14 +2,14 @@
   <ul class="events" ref="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
-      :key="item.entry.key"
-      :data-key="item.entry.key"
-      :data-event="item.entry.event"
-      :class="{ selected: item.entry.selected }"
+      :key="item.id"
+      :data-key="item.id"
+      :data-event="item.event"
+      :class="{ selected: toRaw(item) === toRaw(lastSelectedItem) }"
     >
       <div class="line-options" v-show="isSearching()">
         <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
-          <a class="dropdown-item" @click="handleJumpLineSelected($event, item.entry)" :href="`#${item.entry.key}`">
+          <a class="dropdown-item" @click="handleJumpLineSelected($event, item)" :href="`#${item.id}`">
             <div class="level is-justify-content-start">
               <div class="level-left">
                 <div class="level-item">
@@ -24,18 +24,19 @@
         </dropdown-menu>
       </div>
       <div class="line">
-        <span class="date" v-if="showTimestamp"> <relative-time :date="item.entry.date"></relative-time></span>
+        <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
         <JSONPayload :log-entry="item" :visible-keys="visibleKeys.value" v-if="item.hasPayload()"></JSONPayload>
-        <span class="text" v-html="colorize(item.entry.message)" v-else-if="item.entry.message"></span>
+        <span class="text" v-html="colorize(item.message)" v-else-if="item.message"></span>
       </div>
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, inject, PropType, ref, toRefs, watch } from "vue";
+import { ComputedRef, inject, PropType, ref, toRefs, watch, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
+import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 import { LogEntry } from "@/types/LogEntry";
 import { useSearchFilter } from "@/composables/search";
 import { useVisibleFilter } from "@/composables/visible";
@@ -66,14 +67,10 @@ const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem: LogEntry | undefined = undefined;
+let lastSelectedItem = ref<VisibleLogEntry>();
 
-function handleJumpLineSelected(e: Event, item: LogEntry) {
-  if (lastSelectedItem) {
-    lastSelectedItem.selected = false;
-  }
-  lastSelectedItem = item;
-  item.selected = true;
+function handleJumpLineSelected(e: Event, item: VisibleLogEntry) {
+  lastSelectedItem.value = item;
   resetSearch();
 }
 

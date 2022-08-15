@@ -9,9 +9,9 @@ import { Container } from "@/types/Container";
 function parseMessage(data: string): LogEntry {
   const e = JSON.parse(data) as LogEvent;
 
-  const key = e.ts.toString();
+  const id = e.id;
   const date = new Date(e.ts * 1000);
-  return { key, date, message: e.m, payload: e.d };
+  return { id, date, message: e.m, payload: e.d };
 }
 
 export function useEventSource(container: ComputedRef<Container>) {
@@ -44,7 +44,7 @@ export function useEventSource(container: ComputedRef<Container>) {
         event: "container-stopped",
         message: "Container stopped",
         date: new Date(),
-        key: new Date().toString(),
+        id: new Date().getTime(),
       });
       flushBuffer();
       flushBuffer.flush();

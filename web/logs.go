@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"hash/fnv"
 
 	"fmt"
 	"io"
@@ -50,7 +51,10 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 	return func() (docker.LogEvent, error) {
 		message, readerError := reader.ReadString('\n')
-		logEvent := docker.LogEvent{}
+		h := fnv.New32a()
+		h.Write([]byte(message))
+		logEvent := docker.LogEvent{Id: h.Sum32()}
+
 		var logId string
 		if index := strings.IndexAny(message, " "); index != -1 {
 			logId = message[:index]
@@ -72,6 +76,7 @@ func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 		} else {
 			logEvent.Message = message
 		}
+
 		return logEvent, readerError
 
 	}
