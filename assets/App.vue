@@ -69,20 +69,6 @@ const containerStore = useContainerStore();
 const { activeContainers, visibleContainers } = storeToRefs(containerStore);
 
 onMounted(() => {
-  if (smallerScrollbars.value) {
-    document.documentElement.classList.add("has-custom-scrollbars");
-  }
-  switch (lightTheme.value) {
-    case "dark":
-      document.documentElement.setAttribute("data-theme", "dark");
-      break;
-    case "light":
-      document.documentElement.setAttribute("data-theme", "light");
-      break;
-    default:
-      document.documentElement.removeAttribute("data-theme");
-  }
-
   hotkeys("command+k, ctrl+k", (event, handler) => {
     event.preventDefault();
     showFuzzySearch();
