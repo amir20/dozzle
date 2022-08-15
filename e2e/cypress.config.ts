@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import { initPlugin } from '@frsource/cypress-plugin-visual-regression-diff/dist/plugins';
 
 export default defineConfig({
   fixturesFolder: false,
@@ -6,7 +7,7 @@ export default defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      initPlugin(on, config);
     },
   },
 });
