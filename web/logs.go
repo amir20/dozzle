@@ -55,9 +55,8 @@ func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 		h.Write([]byte(message))
 		logEvent := docker.LogEvent{Id: h.Sum32()}
 
-		var logId string
 		if index := strings.IndexAny(message, " "); index != -1 {
-			logId = message[:index]
+			logId := message[:index]
 			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
 				logEvent.Timestamp = timestamp.Unix()
 				message = strings.TrimSuffix(message[index+1:], "\n")
@@ -98,18 +97,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	buffered := bufio.NewReader(reader)
-
-	var readerError error
 	eventIterator := logEventIterator(buffered)
 
 	for {
-		var logEvent docker.LogEvent
-		logEvent, readerError = eventIterator()
-		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
-			log.Errorf("json encoding error while streaming %v", err.Error())
-		}
+		logEvent, readerError := eventIterator()
 		if readerError != nil {
 			break
+		}
+		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
 		}
 	}
 }
