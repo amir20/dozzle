@@ -103,7 +103,7 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
     sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-      data: `{"ts":1560336942.459, "m":"This is a message."}`,
+      data: `{"ts":1560336942.459, "m":"This is a message.", "id":1}`,
     });
 
     const [message, _] = wrapper.vm.messages;
@@ -131,7 +131,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"This is a message."}`,
+        data: `{"ts":1560336942.459, "m":"This is a message.", "id":1}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -142,7 +142,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: '{"ts":1560336942.459,"m":"\\u001b[30mblack\\u001b[37mwhite"}',
+        data: '{"ts":1560336942.459,"m":"\\u001b[30mblack\\u001b[37mwhite", "id":1}',
       });
 
       await wrapper.vm.$nextTick();
@@ -153,7 +153,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -164,7 +164,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -175,7 +175,7 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "24" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
       await wrapper.vm.$nextTick();
@@ -186,10 +186,10 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ searchFilter: "test" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>"}`,
+        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
       });
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>test bar</test>"}`,
+        data: `{"ts":1560336942.459, "m":"<test>test bar</test>", "id":1}`,
       });
 
       await wrapper.vm.$nextTick();

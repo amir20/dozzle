@@ -41,7 +41,7 @@ export class VisibleLogEntry implements LogEntry {
     return this.entry.message;
   }
 
-  public get id(): string {
+  public get id(): number {
     return this.entry.id;
   }
 
