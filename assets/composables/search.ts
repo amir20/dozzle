@@ -5,10 +5,13 @@ const showSearch = ref(false);
 
 import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
-function matchPayload(payload: Record<string, any>, regex: RegExp) {
-  for (const key in payload) {
-    const value = payload[key];
+function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
+  for (const key in record) {
+    const value = record[key];
     if (typeof value === "string" && regex.test(value)) {
+      return true;
+    }
+    if (Array.isArray(value) && matchRecord(value, regex)) {
       return true;
     }
   }
@@ -27,7 +30,7 @@ export function useSearchFilter() {
         try {
           return messages.value.filter((d) => {
             if (d.hasPayload()) {
-              return matchPayload(d.payload, regex.value);
+              return matchRecord(d.payload, regex.value);
             } else {
               return regex.value.test(d.message ?? "");
             }
