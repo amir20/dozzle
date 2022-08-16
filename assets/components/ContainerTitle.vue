@@ -9,13 +9,8 @@
 
 <script lang="ts" setup>
 import { Container } from "@/types/Container";
-import { PropType } from "vue";
-defineProps({
-  container: {
-    type: Object as PropType<Container>,
-    required: true,
-  },
-});
+import { inject, ComputedRef } from "vue";
+const container = inject("container") as ComputedRef<Container>;
 </script>
 
 <style lang="scss" scoped></style>

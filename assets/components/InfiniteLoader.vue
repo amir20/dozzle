@@ -22,7 +22,7 @@ const root = ref<HTMLElement>();
 const observer = new IntersectionObserver(async (entries) => {
   if (entries[0].intersectionRatio <= 0) return;
   if (props.onLoadMore && props.enabled) {
-    const scrollingParent = root.value.closest("[data-scrolling]") || document.documentElement;
+    const scrollingParent = root.value?.closest("[data-scrolling]") || document.documentElement;
     const previousHeight = scrollingParent.scrollHeight;
     isLoading.value = true;
     await props.onLoadMore();
@@ -32,7 +32,7 @@ const observer = new IntersectionObserver(async (entries) => {
   }
 });
 
-onMounted(() => observer.observe(root.value));
+onMounted(() => observer.observe(root.value!));
 onUnmounted(() => observer.disconnect());
 </script>
 

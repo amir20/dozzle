@@ -3,7 +3,20 @@ import { ref, computed, Ref } from "vue";
 const searchFilter = ref<string>("");
 const showSearch = ref(false);
 
-import type { LogEntry } from "@/types/LogEntry";
+import { VisibleLogEntry } from "@/types/VisibleLogEntry";
+
+function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
+  for (const key in record) {
+    const value = record[key];
+    if (typeof value === "string" && regex.test(value)) {
+      return true;
+    }
+    if (Array.isArray(value) && matchRecord(value, regex)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function useSearchFilter() {
   const regex = computed(() => {
@@ -11,11 +24,17 @@ export function useSearchFilter() {
     return isSmartCase ? new RegExp(searchFilter.value, "i") : new RegExp(searchFilter.value);
   });
 
-  function filteredMessages(messages: Ref<LogEntry[]>) {
+  function filteredMessages(messages: Ref<VisibleLogEntry[]>) {
     return computed(() => {
-      if (searchFilter && searchFilter.value) {
+      if (searchFilter.value) {
         try {
-          return messages.value.filter((d) => d.message.match(regex.value));
+          return messages.value.filter((d) => {
+            if (d.hasPayload()) {
+              return matchRecord(d.payload, regex.value);
+            } else {
+              return regex.value.test(d.message ?? "");
+            }
+          });
         } catch (e) {
           if (e instanceof SyntaxError) {
             console.info(`Ignoring SyntaxError from search.`, e);
@@ -29,11 +48,17 @@ export function useSearchFilter() {
     });
   }
 
-  function markSearch(log: string) {
-    if (searchFilter && searchFilter.value) {
-      return log.replace(regex.value, `<mark>$&</mark>`);
+  function markSearch(log: string): string;
+  function markSearch(log: string[]): string[];
+  function markSearch(log: string | string[]) {
+    if (!searchFilter.value) {
+      return log;
     }
-    return log;
+    if (Array.isArray(log)) {
+      return log.map((d) => markSearch(d));
+    }
+
+    return log.toString().replace(regex.value, (match) => `<mark>${match}</mark>`);
   }
 
   function resetSearch() {

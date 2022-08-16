@@ -15,7 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["assets/*"]
-    }
+    },
+    "jsx": "preserve",
   },
   "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
 

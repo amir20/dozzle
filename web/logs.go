@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"compress/gzip"
 	"context"
+	"encoding/json"
+	"hash/fnv"
 
 	"fmt"
 	"io"
@@ -13,28 +15,11 @@ import (
 
 	"time"
 
+	"github.com/amir20/dozzle/docker"
 	"github.com/dustin/go-humanize"
 
 	log "github.com/sirupsen/logrus"
 )
-
-func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-
-	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
-	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
-	id := r.URL.Query().Get("id")
-
-	reader, err := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
-	defer reader.Close()
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	io.Copy(w, reader)
-}
 
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
@@ -61,6 +46,68 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	io.Copy(zw, reader)
+}
+
+func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
+	return func() (docker.LogEvent, error) {
+		message, readerError := reader.ReadString('\n')
+		h := fnv.New32a()
+		h.Write([]byte(message))
+		logEvent := docker.LogEvent{Id: h.Sum32()}
+
+		if index := strings.IndexAny(message, " "); index != -1 {
+			logId := message[:index]
+			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+				logEvent.Timestamp = timestamp.Unix()
+				message = strings.TrimSuffix(message[index+1:], "\n")
+				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+					var data map[string]interface{}
+					if err := json.Unmarshal([]byte(message), &data); err != nil {
+						log.Errorf("json unmarshal error while streaming %v", err.Error())
+					}
+					logEvent.Data = data
+				} else {
+					logEvent.Message = message
+				}
+			} else {
+				logEvent.Message = message
+			}
+		} else {
+			logEvent.Message = message
+		}
+
+		return logEvent, readerError
+
+	}
+}
+
+func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/ld+json; charset=UTF-8")
+
+	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
+	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
+	id := r.URL.Query().Get("id")
+
+	reader, err := h.client.ContainerLogsBetweenDates(r.Context(), id, from, to)
+	defer reader.Close()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	buffered := bufio.NewReader(reader)
+	eventIterator := logEventIterator(buffered)
+
+	for {
+		logEvent, readerError := eventIterator()
+		if readerError != nil {
+			break
+		}
+		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
+		}
+	}
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
@@ -122,15 +169,19 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 
 	buffered := bufio.NewReader(reader)
 	var readerError error
-	var message string
+	eventIterator := logEventIterator(buffered)
+
 	for {
-		message, readerError = buffered.ReadString('\n')
-		fmt.Fprintf(w, "data: %s\n", strings.TrimRight(message, "\n"))
-		if index := strings.IndexAny(message, " "); index != -1 {
-			id := message[:index]
-			if _, err := time.Parse(time.RFC3339Nano, id); err == nil {
-				fmt.Fprintf(w, "id: %s\n", id)
-			}
+
+		var logEvent docker.LogEvent
+		logEvent, readerError = eventIterator()
+		if buf, err := json.Marshal(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
+		} else {
+			fmt.Fprintf(w, "data: %s\n", buf)
+		}
+		if logEvent.Timestamp > 0 {
+			fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
 		}
 		fmt.Fprintf(w, "\n")
 		f.Flush()
