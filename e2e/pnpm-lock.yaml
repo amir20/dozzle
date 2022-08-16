@@ -2,12 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
   '@frsource/cypress-plugin-visual-regression-diff': ^1.9.2
-  cypress: ^10.4.0
+  cypress: ^10.6.0
   typescript: ^4.7.4
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 1.9.2_cypress@10.4.0
-  cypress: 10.4.0
+  '@frsource/cypress-plugin-visual-regression-diff': 1.9.2_cypress@10.6.0
+  cypress: 10.6.0
   typescript: 4.7.4
 
 packages:
@@ -52,21 +52,21 @@ packages:
       - supports-color
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/1.9.2_cypress@10.4.0:
+  /@frsource/cypress-plugin-visual-regression-diff/1.9.2_cypress@10.6.0:
     resolution: {integrity: sha512-jtriX93BwHC1AIetlOU3xKKTmm/q1a+zysBOZqmAQ3e9uv/vD34F09uF/7JXKLoeza3OZf7eWQIERjA3yPa+bA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
-      cypress: 10.4.0
+      cypress: 10.6.0
       move-file: 2.1.0
       pixelmatch: 5.3.0
       pngjs: 6.0.0
       sharp: 0.30.7
     dev: false
 
-  /@types/node/14.18.23:
-    resolution: {integrity: sha512-MhbCWN18R4GhO8ewQWAFK4TGQdBpXWByukz7cWyJmXhvRuCIaM/oWytGPqVmDzgEnnaIc9ss6HbU5mUi+vyZPA==}
+  /@types/node/14.18.24:
+    resolution: {integrity: sha512-aJdn8XErcSrfr7k8ZDDfU6/2OgjZcB2Fu9d+ESK8D7Oa5mtsv8Fa8GpcwTA0v60kuZBaalKPzuzun4Ov1YWO/w==}
     dev: false
 
   /@types/sinonjs__fake-timers/8.1.1:
@@ -81,7 +81,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.23
+      '@types/node': 14.18.24
     dev: false
     optional: true
 
@@ -329,15 +329,15 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress/10.4.0:
-    resolution: {integrity: sha512-OM7F8MRE01SHQRVVzunid1ZK1m90XTxYnl+7uZfIrB4CYqUDCrZEeSyCXzIbsS6qcaijVCAhqDL60SxG8N6hew==}
+  /cypress/10.6.0:
+    resolution: {integrity: sha512-6sOpHjostp8gcLO34p6r/Ci342lBs8S5z9/eb3ZCQ22w2cIhMWGUoGKkosabPBfKcvRS9BE4UxybBtlIs8gTQA==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.10
       '@cypress/xvfb': 1.2.4_supports-color@8.1.1
-      '@types/node': 14.18.23
+      '@types/node': 14.18.24
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
