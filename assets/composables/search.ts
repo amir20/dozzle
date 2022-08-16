@@ -48,11 +48,17 @@ export function useSearchFilter() {
     });
   }
 
-  function markSearch(log: string) {
-    if (searchFilter.value) {
-      return log.replace(regex.value, `<mark>$&</mark>`);
+  function markSearch(log: string): string;
+  function markSearch(log: string[]): string[];
+  function markSearch(log: string | string[]) {
+    if (!searchFilter.value) {
+      return log;
     }
-    return log;
+    if (Array.isArray(log)) {
+      return log.map((d) => markSearch(d));
+    }
+
+    return log.toString().replace(regex.value, (match) => `<mark>${match}</mark>`);
   }
 
   function resetSearch() {
