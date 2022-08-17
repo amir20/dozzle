@@ -51,33 +51,29 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 	return func() (docker.LogEvent, error) {
 		message, readerError := reader.ReadString('\n')
+
 		h := fnv.New32a()
 		h.Write([]byte(message))
-		logEvent := docker.LogEvent{Id: h.Sum32()}
+
+		logEvent := docker.LogEvent{Id: h.Sum32(), Message: message}
 
 		if index := strings.IndexAny(message, " "); index != -1 {
 			logId := message[:index]
 			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
 				logEvent.Timestamp = timestamp.Unix()
 				message = strings.TrimSuffix(message[index+1:], "\n")
+				logEvent.Message = message
 				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
 					var data map[string]interface{}
 					if err := json.Unmarshal([]byte(message), &data); err != nil {
 						log.Errorf("json unmarshal error while streaming %v", err.Error())
 					}
-					logEvent.Data = data
-				} else {
-					logEvent.Message = message
+					logEvent.Message = data
 				}
-			} else {
-				logEvent.Message = message
 			}
-		} else {
-			logEvent.Message = message
 		}
 
 		return logEvent, readerError
-
 	}
 }
 

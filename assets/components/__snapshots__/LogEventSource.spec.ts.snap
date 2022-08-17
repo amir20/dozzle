@@ -23,7 +23,9 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span>
+    </div>
   </li>
 </ul>"
 `;
@@ -51,7 +53,9 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span>
+    </div>
   </li>
 </ul>"
 `;
@@ -79,7 +83,9 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">This is a message.</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">This is a message.</span>
+    </div>
   </li>
 </ul>"
 `;
@@ -107,7 +113,9 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span>
+    </div>
   </li>
 </ul>"
 `;
@@ -135,7 +143,9 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;foo bar&lt;/test&gt;</span>
+    </div>
   </li>
   <li data-key=\\"1\\" class=\\"\\" data-v-cce5b553=\\"\\">
     <div class=\\"line-options\\" data-v-cce5b553=\\"\\" style=\\"display: none;\\">
@@ -158,7 +168,9 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;test bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;<mark>test</mark>&gt;test bar&lt;/test&gt;</span>
+    </div>
   </li>
 </ul>"
 `;
@@ -186,7 +198,9 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"line\\" data-v-cce5b553=\\"\\"><span class=\\"date\\" data-v-cce5b553=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-cce5b553=\\"\\">today at 10:55:42 AM</time></span>
+      <!--v-if--><span class=\\"text\\" data-v-cce5b553=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span>
+    </div>
   </li>
 </ul>"
 `;
@@ -207,6 +221,5 @@ exports[`<LogEventSource /> > should parse messages 1`] = `
   "date": 2019-06-12T10:55:42.459Z,
   "id": 1,
   "message": "This is a message.",
-  "payload": undefined,
 }
 `;

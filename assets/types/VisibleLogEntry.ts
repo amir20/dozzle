@@ -1,44 +1,47 @@
 import { computed, ComputedRef, Ref } from "vue";
-import { LogEntry } from "./LogEntry";
 import { flattenJSON, getDeep } from "@/utils";
+import type { JSONObject, LogEntry } from "./LogEntry";
 
 export class VisibleLogEntry implements LogEntry {
   private readonly entry: LogEntry;
-  filteredPayload: undefined | ComputedRef<Record<string, any>>;
+  filteredMessage: undefined | ComputedRef<Record<string, any>>;
 
   constructor(entry: LogEntry, visibleKeys: Ref<string[][]>) {
     this.entry = entry;
-    this.filteredPayload = undefined;
-    if (this.entry.payload) {
-      const payload = this.entry.payload;
-      this.filteredPayload = computed(() => {
+    this.filteredMessage = undefined;
+    if (this.isComplex()) {
+      const message = this.message;
+      this.filteredMessage = computed(() => {
         if (!visibleKeys.value.length) {
-          return flattenJSON(payload);
+          return flattenJSON(message);
         } else {
-          return visibleKeys.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(payload, attr) }), {});
+          return visibleKeys.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
         }
       });
     }
   }
 
-  public hasPayload(): this is { payload: Record<string, any> } {
-    return this.entry.payload !== undefined;
+  public isComplex(): this is { message: JSONObject } {
+    return typeof this.entry.message === "object";
   }
 
-  public get unfilteredPayload(): Record<string, any> | undefined {
-    return this.entry.payload;
+  public isSimple(): this is { message: string } {
+    return !this.isComplex();
   }
 
-  public get payload(): Record<string, any> | undefined {
-    return this.filteredPayload?.value;
+  public get unfilteredPayload(): JSONObject {
+    if (typeof this.entry.message === "string") {
+      throw new Error("Cannot get unfiltered payload of a simple message");
+    }
+    return this.entry.message;
   }
 
   public get date(): Date {
     return this.entry.date;
   }
 
-  public get message(): string | undefined {
-    return this.entry.message;
+  public get message(): string | JSONObject {
+    return this.filteredMessage?.value ?? this.entry.message;
   }
 
   public get id(): number {

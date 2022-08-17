@@ -25,8 +25,8 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <JSONPayload :log-entry="item" :visible-keys="visibleKeys.value" v-if="item.hasPayload()"></JSONPayload>
-        <span class="text" v-html="colorize(item.message)" v-else-if="item.message"></span>
+        <JSONPayload :log-entry="item" :visible-keys="visibleKeys.value" v-if="item.isComplex()"></JSONPayload>
+        <span class="text" v-html="colorize(item.message)" v-if="item.isSimple()"></span>
       </div>
     </li>
   </ul>

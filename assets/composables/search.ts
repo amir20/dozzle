@@ -29,11 +29,12 @@ export function useSearchFilter() {
       if (searchFilter.value) {
         try {
           return messages.value.filter((d) => {
-            if (d.hasPayload()) {
-              return matchRecord(d.payload, regex.value);
-            } else {
-              return regex.value.test(d.message ?? "");
+            if (d.isSimple()) {
+              return regex.value.test(d.message);
+            } else if (d.isComplex()) {
+              return matchRecord(d.message, regex.value);
             }
+            throw new Error("Unknown message type");
           });
         } catch (e) {
           if (e instanceof SyntaxError) {

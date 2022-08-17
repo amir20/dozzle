@@ -28,8 +28,7 @@ type ContainerEvent struct {
 }
 
 type LogEvent struct {
-	Message   string                 `json:"m,omitempty"`
-	Timestamp int64                  `json:"ts"`
-	Data      map[string]interface{} `json:"d,omitempty"`
-	Id        uint32                  `json:"id,omitempty"`
+	Message   any    `json:"m,omitempty"`
+	Timestamp int64  `json:"ts"`
+	Id        uint32 `json:"id,omitempty"`
 }

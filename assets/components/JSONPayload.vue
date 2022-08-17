@@ -1,6 +1,6 @@
 <template>
   <ul class="fields" @click="expanded = !expanded">
-    <li v-for="(value, name) in logEntry.payload">
+    <li v-for="(value, name) in logEntry.message">
       <template v-if="value">
         <span class="has-text-grey">{{ name }}=</span>
         <span class="has-text-weight-bold" v-html="markSearch(value)"></span>

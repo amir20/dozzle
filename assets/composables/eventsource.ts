@@ -1,7 +1,7 @@
 import { ref, watch, onUnmounted, ComputedRef } from "vue";
 import debounce from "lodash.debounce";
 
-import { LogEntry, LogEvent } from "@/types/LogEntry";
+import type { LogEntry, LogEvent } from "@/types/LogEntry";
 
 import config from "@/stores/config";
 import { Container } from "@/types/Container";
@@ -11,7 +11,7 @@ function parseMessage(data: string): LogEntry {
 
   const id = e.id;
   const date = new Date(e.ts * 1000);
-  return { id, date, message: e.m, payload: e.d };
+  return { id, date, message: e.m };
 }
 
 export function useEventSource(container: ComputedRef<Container>) {
