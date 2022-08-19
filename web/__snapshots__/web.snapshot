@@ -170,8 +170,8 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137,"id":1469707724}
-id: 1589396137
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724}
+id: 1589396137772
 
 event: container-stopped
 data: end of stream

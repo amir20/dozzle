@@ -10,7 +10,7 @@ function parseMessage(data: string): LogEntry {
   const e = JSON.parse(data) as LogEvent;
 
   const id = e.id;
-  const date = new Date(e.ts * 1000);
+  const date = new Date(e.ts);
   return { id, date, message: e.m };
 }
 

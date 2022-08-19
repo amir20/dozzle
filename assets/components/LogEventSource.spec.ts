@@ -6,17 +6,9 @@ import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../composables/settings";
 import { useSearchFilter } from "@/composables/search";
-import { vi, describe, expect, beforeEach, test, beforeAll, afterAll } from "vitest";
-import { computed, Ref } from "vue";
+import { vi, describe, expect, beforeEach, test, beforeAll, afterAll, afterEach } from "vitest";
+import { computed, nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-
-vi.mock("lodash.debounce", () => ({
-  __esModule: true,
-  default: vi.fn((fn) => {
-    fn.cancel = () => {};
-    return fn;
-  }),
-}));
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -36,6 +28,13 @@ describe("<LogEventSource />", () => {
       observe: vi.fn(),
       disconnect: vi.fn(),
     }));
+    vi.useFakeTimers();
+    vi.setSystemTime(1560336942459);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   function createLogEventSource(
@@ -103,38 +102,27 @@ describe("<LogEventSource />", () => {
     const wrapper = createLogEventSource();
     sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
     sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-      data: `{"ts":1560336942.459, "m":"This is a message.", "id":1}`,
+      data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
     });
+
+    vi.runAllTimers();
+    await nextTick();
 
     const [message, _] = wrapper.vm.messages;
     expect(message).toMatchSnapshot();
   });
 
   describe("render html correctly", () => {
-    const RealDate = Date;
-    beforeAll(() => {
-      // @ts-ignore
-      global.Date = class extends RealDate {
-        constructor(arg: any | number) {
-          super(arg);
-          if (arg) {
-            return new RealDate(arg);
-          } else {
-            return new RealDate(1560336936000);
-          }
-        }
-      };
-    });
-    afterAll(() => (global.Date = RealDate));
-
     test("should render messages", async () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"This is a message.", "id":1}`,
+        data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
@@ -142,10 +130,12 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: '{"ts":1560336942.459,"m":"\\u001b[30mblack\\u001b[37mwhite", "id":1}',
+        data: '{"ts":1560336942459,"m":"\\u001b[30mblack\\u001b[37mwhite", "id":1}',
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
@@ -153,10 +143,12 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource();
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
@@ -164,10 +156,12 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
@@ -175,10 +169,12 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "24" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
@@ -186,13 +182,15 @@ describe("<LogEventSource />", () => {
       const wrapper = createLogEventSource({ searchFilter: "test" });
       sources["/api/logs/stream?id=abc&lastEventId="].emitOpen();
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>foo bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"foo bar", "id":1}`,
       });
       sources["/api/logs/stream?id=abc&lastEventId="].emitMessage({
-        data: `{"ts":1560336942.459, "m":"<test>test bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"test bar", "id":2}`,
       });
 
-      await wrapper.vm.$nextTick();
+      vi.runAllTimers();
+      await nextTick();
+
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
   });
