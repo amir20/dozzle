@@ -1,9 +1,10 @@
 import { ref, computed, Ref } from "vue";
+import { useDebounce } from "@vueuse/core";
+import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
 const searchFilter = ref<string>("");
+const debouncedSearchFilter = useDebounce(searchFilter);
 const showSearch = ref(false);
-
-import { VisibleLogEntry } from "@/types/VisibleLogEntry";
 
 function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
   for (const key in record) {
@@ -20,13 +21,13 @@ function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
 
 export function useSearchFilter() {
   const regex = computed(() => {
-    const isSmartCase = searchFilter.value === searchFilter.value.toLowerCase();
-    return isSmartCase ? new RegExp(searchFilter.value, "i") : new RegExp(searchFilter.value);
+    const isSmartCase = debouncedSearchFilter.value === debouncedSearchFilter.value.toLowerCase();
+    return isSmartCase ? new RegExp(debouncedSearchFilter.value, "i") : new RegExp(debouncedSearchFilter.value);
   });
 
   function filteredMessages(messages: Ref<VisibleLogEntry[]>) {
     return computed(() => {
-      if (searchFilter.value) {
+      if (debouncedSearchFilter.value) {
         try {
           return messages.value.filter((d) => {
             if (d.isSimple()) {
@@ -52,7 +53,7 @@ export function useSearchFilter() {
   function markSearch(log: string): string;
   function markSearch(log: string[]): string[];
   function markSearch(log: string | string[]) {
-    if (!searchFilter.value) {
+    if (!debouncedSearchFilter.value) {
       return log;
     }
     if (Array.isArray(log)) {
