@@ -60,7 +60,7 @@ func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 		if index := strings.IndexAny(message, " "); index != -1 {
 			logId := message[:index]
 			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
-				logEvent.Timestamp = timestamp.Unix()
+				logEvent.Timestamp = timestamp.UnixMilli()
 				message = strings.TrimSuffix(message[index+1:], "\n")
 				logEvent.Message = message
 				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {

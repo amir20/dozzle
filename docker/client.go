@@ -151,7 +151,6 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 				memPercent  = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
 			)
 
-
 			if cpuPercent > 0 || memUsage > 0 {
 				select {
 				case <-ctx.Done():
@@ -174,8 +173,10 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
 
 	if since != "" {
-		if sinceTime, err := time.Parse(time.RFC3339Nano, since); err == nil {
-			since = sinceTime.Add(time.Microsecond).Format(time.RFC3339Nano)
+		if millis, err := strconv.ParseInt(since, 10, 64); err == nil {
+			since = time.UnixMicro(millis).Add(time.Millisecond).Format(time.RFC3339Nano)
+		} else {
+			log.WithError(err).Debug("unable to parse since")
 		}
 	}
 
