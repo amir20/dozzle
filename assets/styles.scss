@@ -53,6 +53,7 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
 
   --body-background-color: #{$black-bis};
   --action-toolbar-background-color: #{$dark-toolbar-color};
+  --body-color: #{$grey-lighter};
 
   --menu-item-active-background-color: var(--primary-color);
   --menu-item-color: hsl(0, 6%, 87%);
@@ -83,9 +84,10 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --action-toolbar-background-color: #{$light-toolbar-color};
   --body-color: #{$grey-darker};
 
+  --menu-item-active-background-color: var(--primary-color);
   --menu-item-color: #{$grey-dark};
   --menu-item-hover-background-color: #eee8e7;
-  --menu-item-hover-color: #{black-ter};
+  --menu-item-hover-color: #{$black-ter};
 
   --panel-heading-background-color: var(--secondary-color);
   --panel-heading-color: var(--text-strong-color);
