@@ -1,4 +1,4 @@
-import { onUnmounted, ComputedRef } from "vue";
+import {type ComputedRef } from "vue";
 import debounce from "lodash.debounce";
 import type { LogEntry, LogEvent } from "@/types/LogEntry";
 import { type Container } from "@/types/Container";
@@ -14,10 +14,22 @@ function parseMessage(data: string): LogEntry {
 export function useLogStream(container: ComputedRef<Container>) {
   const messages = ref<LogEntry[]>([]);
   const buffer = ref<LogEntry[]>([]);
+  const scrollingPaused = inject("scrollingPaused") as Ref<boolean>;
 
   function flushNow() {
-    messages.value.push(...buffer.value);
-    buffer.value = [];
+    if (messages.value.length > config.maxLogs) {
+      if (scrollingPaused.value) {
+        console.log("Skipping ", buffer.value.length, " log items");
+        buffer.value = [];
+      } else {
+        messages.value.push(...buffer.value);
+        buffer.value = [];
+        messages.value.splice(0, messages.value.length - config.maxLogs);
+      }
+    } else {
+      messages.value.push(...buffer.value);
+      buffer.value = [];
+    }
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;

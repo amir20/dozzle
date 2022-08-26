@@ -40,6 +40,8 @@ const loading = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
+provide("scrollingPaused", paused);
+
 const mutationObserver = new MutationObserver((e) => {
   if (!paused.value) {
     scrollToBottom();
