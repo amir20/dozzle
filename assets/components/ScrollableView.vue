@@ -52,7 +52,7 @@ const mutationObserver = new MutationObserver((e) => {
 });
 
 const intersectionObserver = new IntersectionObserver((entries) => (paused.value = entries[0].intersectionRatio == 0), {
-  threshholds: [0, 1],
+  threshold: [0, 1],
   rootMargin: "80px 0px",
 });
 
