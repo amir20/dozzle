@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@pinia/testing": "^0.0.14",
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^29.0.0",
     "@types/lodash.debounce": "^4.0.7",
     "@types/node": "^18.7.7",
     "@types/semver": "^7.3.12",
