@@ -1,14 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@frsource/cypress-plugin-visual-regression-diff': ^1.9.2
-  cypress: ^10.6.0
-  typescript: ^4.7.4
+  '@frsource/cypress-plugin-visual-regression-diff': ^1.9.13
+  cypress: ^10.7.0
+  typescript: ^4.8.2
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 1.9.2_cypress@10.6.0
-  cypress: 10.6.0
-  typescript: 4.7.4
+  '@frsource/cypress-plugin-visual-regression-diff': 1.9.13_cypress@10.7.0
+  cypress: 10.7.0
+  typescript: 4.8.2
 
 packages:
 
@@ -52,21 +52,21 @@ packages:
       - supports-color
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/1.9.2_cypress@10.6.0:
-    resolution: {integrity: sha512-jtriX93BwHC1AIetlOU3xKKTmm/q1a+zysBOZqmAQ3e9uv/vD34F09uF/7JXKLoeza3OZf7eWQIERjA3yPa+bA==}
+  /@frsource/cypress-plugin-visual-regression-diff/1.9.13_cypress@10.7.0:
+    resolution: {integrity: sha512-abv0p8nm0zvZcCoQAg5GcVFbBJZQi2FKuhT+N0F98IwVTxVnEA5qemK7jqCheDrHM0rHLT17CWmcgaQMRDoBWg==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
-      cypress: 10.6.0
+      cypress: 10.7.0
       move-file: 2.1.0
       pixelmatch: 5.3.0
       pngjs: 6.0.0
       sharp: 0.30.7
     dev: false
 
-  /@types/node/14.18.24:
-    resolution: {integrity: sha512-aJdn8XErcSrfr7k8ZDDfU6/2OgjZcB2Fu9d+ESK8D7Oa5mtsv8Fa8GpcwTA0v60kuZBaalKPzuzun4Ov1YWO/w==}
+  /@types/node/14.18.26:
+    resolution: {integrity: sha512-0b+utRBSYj8L7XAp0d+DX7lI4cSmowNaaTkk6/1SKzbKkG+doLuPusB9EOvzLJ8ahJSk03bTLIL6cWaEd4dBKA==}
     dev: false
 
   /@types/sinonjs__fake-timers/8.1.1:
@@ -81,7 +81,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.24
+      '@types/node': 14.18.26
     dev: false
     optional: true
 
@@ -329,15 +329,15 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress/10.6.0:
-    resolution: {integrity: sha512-6sOpHjostp8gcLO34p6r/Ci342lBs8S5z9/eb3ZCQ22w2cIhMWGUoGKkosabPBfKcvRS9BE4UxybBtlIs8gTQA==}
+  /cypress/10.7.0:
+    resolution: {integrity: sha512-gTFvjrUoBnqPPOu9Vl5SBHuFlzx/Wxg/ZXIz2H4lzoOLFelKeF7mbwYUOzgzgF0oieU2WhJAestQdkgwJMMTvQ==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.10
       '@cypress/xvfb': 1.2.4_supports-color@8.1.1
-      '@types/node': 14.18.24
+      '@types/node': 14.18.26
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
@@ -1243,8 +1243,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /typescript/4.7.4:
-    resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
+  /typescript/4.8.2:
+    resolution: {integrity: sha512-C0I1UsrrDHo2fYI5oaCGbSejwX4ch+9Y5jTQELvovfmFkK3HHSZJB8MSJcWLmCUBzQBchCrZ9rMRV6GuNrvGtw==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: false
