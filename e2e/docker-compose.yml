@@ -10,8 +10,11 @@ services:
       - DOZZLE_NO_ANALYTICS=1
     ports:
       - "8080:8080"
+    image: amir20/dozzle_custom_cache
     build:
       context: ..
+      cache_from:
+        - amir20/dozzle_custom_cache:latest
   dozzle:
     container_name: dozzle
     volumes:
@@ -21,11 +24,17 @@ services:
       - DOZZLE_NO_ANALYTICS=1
     ports:
       - "9090:8080"
+    image: amir20/dozzle_cache:latest
     build:
       context: ..
+      cache_from:
+        - amir20/dozzle_cache:latest
   cypress:
     build:
       context: .
+      cache_from:
+        - amir20/dozzle_cypress_cache:latest
+    image: amir20/dozzle_cypress_cache:latest
     working_dir: /e2e
     volumes:
       - ./cypress:/e2e/cypress
