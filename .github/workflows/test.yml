@@ -53,7 +53,7 @@ jobs:
       - name: Build images
         run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml build --build-arg BUILDKIT_INLINE_CACHE=1
       - name: Push images
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml build push
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml push
       - name: Set commit message for push
         if: github.event_name == 'push'
         run: |
