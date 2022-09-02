@@ -17,8 +17,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: amir20/dozzle
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.0.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
       - name: Login to DockerHub
