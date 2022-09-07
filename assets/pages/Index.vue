@@ -71,7 +71,7 @@
             <a :class="{ 'is-active': sort === 'all' }" @click="sort = 'all'">All</a>
           </p>
           <router-link
-            :to="{ name: 'container', params: { id: item.id, name: item.name } }"
+            :to="{ name: 'container', params: { id: item.id } }"
             v-for="item in results.slice(0, 10)"
             :key="item.id"
             class="panel-block"
@@ -145,7 +145,7 @@ useIntervalFn(
 function onEnter() {
   if (results.value.length == 1) {
     const [item] = results.value;
-    router.push({ name: "container", params: { id: item.id, name: item.name } });
+    router.push({ name: "container", params: { id: item.id } });
   }
 }
 </script>
