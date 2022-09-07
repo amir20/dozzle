@@ -2,7 +2,7 @@
   <aside>
     <div class="columns is-marginless">
       <div class="column is-paddingless">
-        <router-link :to="{ name: 'default' }">
+        <router-link :to="{ name: 'index' }">
           <svg class="logo">
             <use href="#logo"></use>
           </svg>
@@ -26,7 +26,11 @@
     <p class="menu-label is-hidden-mobile">Containers</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
       <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
-        <router-link :to="{ name: 'container', params: { id: item.id } }" active-class="is-active" :title="item.name">
+        <router-link
+          :to="{ name: 'container-id', params: { id: item.id } }"
+          active-class="is-active"
+          :title="item.name"
+        >
           <div class="container is-flex is-align-items-center">
             <div class="is-flex-grow-1 is-ellipsis">
               {{ item.name }}
@@ -46,7 +50,7 @@
       </li>
     </ul>
     <ul class="menu-list is-hidden-mobile loading" v-else>
-      <li v-for="index in 7" class="my-4"><o-skeleton animated size="large"></o-skeleton></li>
+      <li v-for="index in 7" class="my-4"><o-skeleton animated size="large" :key="index"></o-skeleton></li>
     </ul>
   </aside>
 </template>

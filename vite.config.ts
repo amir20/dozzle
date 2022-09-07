@@ -4,6 +4,7 @@ import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import IconsResolver from "unplugin-icons/resolver";
+import Pages from "vite-plugin-pages";
 
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -13,9 +14,16 @@ export default defineConfig(({ mode }) => ({
   },
   base: mode === "production" ? "/{{ .Base }}/" : "/",
   plugins: [
-    vue(),
+    vue(
+      {
+        reactivityTransform: true,
+      }
+    ),
     Icons({
       autoInstall: true,
+    }),
+    Pages({
+      dirs: "assets/pages",
     }),
     Components({
       dirs: ["assets/components"],
@@ -41,7 +49,7 @@ export default defineConfig(({ mode }) => ({
 const htmlPlugin = (mode) => {
   return {
     name: "html-transform",
-    enforce: "post",
+    enforce: "post" as const,
     transformIndexHtml(html) {
       return mode === "production" ? html.replaceAll("/{{ .Base }}/", "{{ .Base }}/") : html;
     },
