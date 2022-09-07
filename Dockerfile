@@ -19,7 +19,7 @@ COPY assets ./assets
 # Install dependencies
 RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
 
-FROM --platform=$BUILDPLATFORM golang:1.19.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.19.1-alpine AS builder
 
 RUN apk add --no-cache ca-certificates && mkdir /dozzle
 
