@@ -1,0 +1,49 @@
+toolbar:
+  clear: Clear
+  download: Download
+  search: Search
+label:
+  containers: Containers
+  total-containers: Total Containers
+  running: Running
+  total-cpu-usage: Total CPU Usage
+  total-mem-usage: Total Mem Usage
+  dozzle-version: Dozzle Version
+  all: All
+  password: Password
+  username: Username
+tooltip:
+  search: Search containers (⌘ + k, ⌃k)
+  pin-column: Pin as column
+error:
+  page-not-found: This page does not exist.
+  invalid-auth: Username and password are not valid.
+title:
+  page-not-found: Page not found
+  login: Authentication Required
+  settings: Settings
+button:
+  logout: Logout
+  login: Login
+placeholder:
+  search-containers: Search Containers
+settings:
+  display: Display
+  small-scrollbars: Use smaller scrollbars
+  show-timesamps: Show timestamps
+  soft-wrap: Soft wrap lines
+  12-24-format: >-
+    By default, Dozzle will use your browser's locale to format time. You can
+    force to 12 or 24 hour style.
+  font-size: Font size to use for logs
+  color-scheme: Color scheme
+  options: Options
+  show-stopped-containers: Show stopped containers
+  about: About
+  search: >-
+    Enable searching with Dozzle using <code>command+f</code> or
+    <code>ctrl+f</code>
+  using-version: You are using Dozzle {version}.
+  update-available: >-
+    New version is available! Update to
+    <a :href="{href}" class="next-release" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.

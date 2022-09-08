@@ -25,14 +25,14 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
-
-defineProps({
-  scrollable: {
-    type: Boolean,
-    default: true,
-  },
-});
+withDefaults(
+  defineProps<{
+    scrollable: boolean;
+  }>(),
+  {
+    scrollable: false,
+  }
+);
 
 const paused = ref(false);
 const hasMore = ref(false);

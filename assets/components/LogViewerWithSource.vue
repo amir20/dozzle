@@ -5,14 +5,13 @@
 </template>
 
 <script lang="ts" setup>
-import LogViewer from "./LogViewer.vue";
-import { ref } from "vue";
+import LogEventSource from "./LogEventSource.vue";
 
 const emit = defineEmits(["loading-more"]);
 
-const source = ref<InstanceType<typeof LogViewer>>();
+const source = $ref<InstanceType<typeof LogEventSource>>();
 function clear() {
-  source.value?.clear();
+  source?.clear();
 }
 defineExpose({
   clear,

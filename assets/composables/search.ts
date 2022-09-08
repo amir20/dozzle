@@ -1,6 +1,5 @@
-import { ref, computed, Ref } from "vue";
-import { useDebounce } from "@vueuse/core";
-import { VisibleLogEntry } from "@/types/VisibleLogEntry";
+import { type Ref } from "vue";
+import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
 
 const searchFilter = ref<string>("");
 const debouncedSearchFilter = useDebounce(searchFilter);

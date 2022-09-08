@@ -24,28 +24,21 @@
 </template>
 
 <script lang="ts" setup>
-import { provide, ref, toRefs } from "vue";
 import LogViewerWithSource from "./LogViewerWithSource.vue";
-import { useContainerStore } from "@/stores/container";
 
-const props = defineProps({
-  id: {
-    type: String,
-    required: true,
-  },
-  showTitle: {
-    type: Boolean,
-    default: false,
-  },
-  scrollable: {
-    type: Boolean,
-    default: false,
-  },
-  closable: {
-    type: Boolean,
-    default: false,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    showTitle?: boolean;
+    scrollable?: boolean;
+    closable?: boolean;
+  }>(),
+  {
+    showTitle: false,
+    scrollable: false,
+    closable: false,
+  }
+);
 
 const emit = defineEmits(["close"]);
 

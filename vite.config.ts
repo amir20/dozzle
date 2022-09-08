@@ -3,8 +3,10 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
+import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import Pages from "vite-plugin-pages";
+import VueI18n from "@intlify/vite-plugin-vue-i18n";
 
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -14,11 +16,9 @@ export default defineConfig(({ mode }) => ({
   },
   base: mode === "production" ? "/{{ .Base }}/" : "/",
   plugins: [
-    vue(
-      {
-        reactivityTransform: true,
-      }
-    ),
+    vue({
+      reactivityTransform: true,
+    }),
     Icons({
       autoInstall: true,
     }),
@@ -35,6 +35,17 @@ export default defineConfig(({ mode }) => ({
       ],
 
       dts: "assets/components.d.ts",
+    }),
+    AutoImport({
+      imports: ["vue", "vue-router", "vue-i18n", "vue/macros", "pinia", "@vueuse/head", "@vueuse/core"],
+      dts: "assets/auto-imports.d.ts",
+      dirs: ["assets/composables", "assets/stores", "assets/utils"],
+      vueTemplate: true,
+    }),
+    VueI18n({
+      runtimeOnly: true,
+      compositionOnly: true,
+      include: [path.resolve(__dirname, "locales/**")],
     }),
     htmlPlugin(mode),
   ],

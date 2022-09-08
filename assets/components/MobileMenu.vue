@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
+    <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">
         <router-link
@@ -42,11 +42,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
-import { useRoute } from "vue-router";
-
 const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers, allContainersById } = storeToRefs(store);

@@ -1,10 +1,7 @@
-import { ref, watch, onUnmounted, ComputedRef } from "vue";
+import { onUnmounted, ComputedRef } from "vue";
 import debounce from "lodash.debounce";
-
 import type { LogEntry, LogEvent } from "@/types/LogEntry";
-
-import config from "@/stores/config";
-import { Container } from "@/types/Container";
+import { type Container } from "@/types/Container";
 
 function parseMessage(data: string): LogEntry {
   const e = JSON.parse(data) as LogEvent;
@@ -14,7 +11,7 @@ function parseMessage(data: string): LogEntry {
   return { id, date, message: e.m };
 }
 
-export function useEventSource(container: ComputedRef<Container>) {
+export function useLogStream(container: ComputedRef<Container>) {
   const messages = ref<LogEntry[]>([]);
   const buffer = ref<LogEntry[]>([]);
 

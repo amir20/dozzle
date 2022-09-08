@@ -9,8 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
-
 const props = defineProps({
   onLoadMore: Function,
   enabled: Boolean,

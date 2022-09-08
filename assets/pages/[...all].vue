@@ -4,19 +4,14 @@
       <div class="container has-text-centered">
         <h1 class="title">
           404.
-          <small class="subtitle">This page does not exist.</small>
+          <small class="subtitle">{{ $t("error.page-not-found") }}</small>
         </h1>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { setTitle } from "@/composables/title";
-export default {
-  name: "PageNotFound",
-  setup() {
-    setTitle("Page not found");
-  },
-};
+<script lang="ts" setup>
+const { t } = useI18n();
+setTitle(t("title.page-not-found"));
 </script>

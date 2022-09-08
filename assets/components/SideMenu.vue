@@ -9,7 +9,7 @@
         </router-link>
       </div>
       <div class="column is-narrow has-text-right px-1">
-        <button class="button is-rounded" @click="$emit('search')" title="Search containers (⌘ + k, ⌃k)">
+        <button class="button is-rounded" @click="$emit('search')" title="$t('tooltip.search')">
           <span class="icon">
             <mdi-light-magnify />
           </span>
@@ -23,7 +23,7 @@
         </router-link>
       </div>
     </div>
-    <p class="menu-label is-hidden-mobile">Containers</p>
+    <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
       <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
         <router-link
@@ -40,7 +40,7 @@
                 class="icon is-small"
                 @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
-                title="Pin as column"
+                title="$t('tooltip.pin-column')"
               >
                 <cil-columns />
               </span>
@@ -56,9 +56,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { storeToRefs } from "pinia";
-import { useContainerStore } from "@/stores/container";
 import type { Container } from "@/types/Container";
 
 const store = useContainerStore();

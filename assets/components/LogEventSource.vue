@@ -4,13 +4,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useEventSource } from "@/composables/eventsource";
-import { Container } from "@/types/Container";
-import { inject, ComputedRef } from "vue";
+import { type Container } from "@/types/Container";
+import { type ComputedRef } from "vue";
 
 const emit = defineEmits(["loading-more"]);
 const container = inject("container") as ComputedRef<Container>;
-const { connect, messages, loadOlderLogs } = useEventSource(container);
+const { connect, messages, loadOlderLogs } = useLogStream(container);
 
 const beforeLoading = () => emit("loading-more", true);
 const afterLoading = () => emit("loading-more", false);

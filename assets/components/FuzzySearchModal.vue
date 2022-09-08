@@ -34,11 +34,7 @@
 
 <script lang="ts" setup>
 import fuzzysort from "fuzzysort";
-import { computed, nextTick, onMounted, ref, reactive } from "vue";
-import { useRouter } from "vue-router";
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
-import { Container } from "@/types/Container";
+import { type Container } from "@/types/Container";
 
 const props = defineProps({
   maxResults: {

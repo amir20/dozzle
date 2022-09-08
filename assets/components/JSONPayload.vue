@@ -10,8 +10,7 @@
   <field-list :fields="logEntry.unfilteredPayload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
-import { useSearchFilter } from "@/composables/search";
-import { VisibleLogEntry } from "@/types/VisibleLogEntry";
+import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
 
 import { PropType, ref } from "vue";
 

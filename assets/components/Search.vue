@@ -24,10 +24,6 @@
 <script lang="ts" setup>
 import hotkeys from "hotkeys-js";
 
-import { search } from "@/composables/settings";
-import { useSearchFilter } from "@/composables/search";
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
-
 const input = ref<HTMLInputElement>();
 const { searchFilter, showSearch, resetSearch } = useSearchFilter();
 

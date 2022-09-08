@@ -8,8 +8,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/types/Container";
-import { inject, ComputedRef } from "vue";
+import { type Container } from "@/types/Container";
+import { type ComputedRef } from "vue";
+
 const container = inject("container") as ComputedRef<Container>;
 </script>
 

@@ -18,21 +18,16 @@
 </template>
 
 <script lang="ts" setup>
-import { useContainerStore } from "@/stores/container";
-import { useScroll } from "@vueuse/core";
-import { storeToRefs } from "pinia";
-import { onMounted, ref, watch, watchPostEffect } from "vue";
-
-const props = defineProps({
-  indeterminate: {
-    default: false,
-    type: Boolean,
-  },
-  autoHide: {
-    default: true,
-    type: Boolean,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    indeterminate: boolean;
+    autoHide: boolean;
+  }>(),
+  {
+    indeterminate: false,
+    autoHide: true,
+  }
+);
 
 const scrollProgress = ref(0);
 const animation = ref({ cancel: () => {} });

@@ -33,19 +33,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, inject, PropType, ref, toRefs, watch, toRaw } from "vue";
+import { type ComputedRef, type PropType, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { size, showTimestamp, softWrap } from "@/composables/settings";
-import { VisibleLogEntry } from "@/types/VisibleLogEntry";
-import { LogEntry } from "@/types/LogEntry";
-import { useSearchFilter } from "@/composables/search";
-import { useVisibleFilter } from "@/composables/visible";
-import { Container } from "@/types/Container";
-import { persistentVisibleKeys } from "@/utils";
-
-import RelativeTime from "./RelativeTime.vue";
+import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
+import { type LogEntry } from "@/types/LogEntry";
+import { type Container } from "@/types/Container";
 import AnsiConvertor from "ansi-to-html";
-import JSONPayload from "./JSONPayload.vue";
 
 const props = defineProps({
   messages: {
