@@ -5,6 +5,7 @@ import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import Pages from "vite-plugin-pages";
+import VueI18n from "@intlify/vite-plugin-vue-i18n";
 
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -35,6 +36,11 @@ export default defineConfig(({ mode }) => ({
       ],
 
       dts: "assets/components.d.ts",
+    }),
+    VueI18n({
+      runtimeOnly: true,
+      compositionOnly: true,
+      include: [path.resolve(__dirname, "locales/**")],
     }),
     htmlPlugin(mode),
   ],
