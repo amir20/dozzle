@@ -44,21 +44,10 @@
 
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
-import { ref, onMounted, watchEffect } from "vue";
-import { storeToRefs } from "pinia";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import hotkeys from "hotkeys-js";
 
-import { setTitle } from "@/composables/title";
-import { isMobile } from "@/composables/media";
-import { smallerScrollbars, lightTheme, menuWidth } from "@/composables/settings";
-import { useContainerStore } from "@/stores/container";
-import config from "@/stores/config";
-
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
-import LogContainer from "@/components/LogContainer.vue";
-import SideMenu from "@/components/SideMenu.vue";
-import MobileMenu from "@/components/MobileMenu.vue";
 
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
