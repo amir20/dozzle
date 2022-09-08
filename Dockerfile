@@ -13,8 +13,9 @@ RUN pnpm fetch --prod
 # Copy files
 COPY package.json .* vite.config.ts index.html ./
 
-# Copy assets to build
+# Copy assets and translations to build
 COPY assets ./assets
+COPY locales ./locales
 
 # Install dependencies
 RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
