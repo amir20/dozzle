@@ -2,35 +2,32 @@
   <div>
     <section class="section">
       <div class="has-underline">
-        <h2 class="title is-4">About</h2>
+        <h2 class="title is-4">{{ $t("settings.about") }}</h2>
       </div>
 
       <div>
-        You are using Dozzle <i>{{ currentVersion }}</i
-        >.
-        <span v-if="hasUpdate">
-          New version is available! Update to
-          <a :href="nextRelease.html_url" class="next-release" target="_blank" rel="noreferrer noopener">
-            {{ nextRelease.name }}</a
-          >.
-        </span>
+        <span v-html="$t('settings.using-version', { version: currentVersion })"></span>
+        <div
+          v-if="hasUpdate"
+          v-html="$t('settings.update-available', { nextVersion: nextRelease.name, href: nextRelease.html_url })"
+        ></div>
       </div>
     </section>
 
     <section class="section">
       <div class="has-underline">
-        <h2 class="title is-4">Display</h2>
+        <h2 class="title is-4">{{ $t("settings.display") }}</h2>
       </div>
 
       <div class="item">
-        <o-switch v-model="smallerScrollbars"> Use smaller scrollbars </o-switch>
+        <o-switch v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </o-switch>
       </div>
       <div class="item">
-        <o-switch v-model="showTimestamp"> Show timestamps </o-switch>
+        <o-switch v-model="showTimestamp"> {{ $t("settings.show-timesamps") }} </o-switch>
       </div>
 
       <div class="item">
-        <o-switch v-model="softWrap"> Soft wrap lines</o-switch>
+        <o-switch v-model="softWrap"> {{ $t("settings.soft-wrap") }}</o-switch>
       </div>
 
       <div class="item">
@@ -54,7 +51,7 @@
             </o-field>
           </div>
           <div class="column">
-            By default, Dozzle will use your browser's locale to format time. You can force to 12 or 24 hour style.
+            {{ $t("settings.12-24-format") }}
           </div>
         </div>
       </div>
@@ -83,7 +80,7 @@
               </o-dropdown>
             </o-field>
           </div>
-          <div class="column">Font size to use for logs</div>
+          <div class="column">{{ $t("settings.font-size") }}</div>
         </div>
       </div>
       <div class="item">
@@ -111,23 +108,23 @@
               </o-dropdown>
             </o-field>
           </div>
-          <div class="column">Color scheme</div>
+          <div class="column">{{ $t("settings.color-scheme") }}</div>
         </div>
       </div>
     </section>
     <section class="section">
       <div class="has-underline">
-        <h2 class="title is-4">Options</h2>
+        <h2 class="title is-4">{{ $t("settings.options") }}</h2>
       </div>
 
       <div class="item">
         <o-switch v-model="search">
-          Enable searching with Dozzle using <code>command+f</code> or <code>ctrl+f</code>
+          <span v-html="$t('settings.search')"></span>
         </o-switch>
       </div>
 
       <div class="item">
-        <o-switch v-model="showAllContainers"> Show stopped containers </o-switch>
+        <o-switch v-model="showAllContainers"> {{ $t("settings.show-stopped-containers") }} </o-switch>
       </div>
     </section>
   </div>
@@ -146,22 +143,28 @@ import {
   softWrap,
 } from "@/composables/settings";
 
-setTitle("Settings");
+const { t } = useI18n();
 
-const currentVersion = config.version;
-const nextRelease = ref({ html_url: "", name: "" });
-const hasUpdate = ref(false);
+setTitle(t("title.settings"));
+
+const currentVersion = $ref(config.version);
+let nextRelease = $ref({ html_url: "", name: "" });
+let hasUpdate = $ref(false);
 
 async function fetchNextRelease() {
   if (!["dev", "master"].includes(currentVersion)) {
     const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
       const release = await response.json();
-      hasUpdate.value = gt(release.tag_name, currentVersion);
-      nextRelease.value = release;
+      hasUpdate = gt(release.tag_name, currentVersion);
+      nextRelease = release;
     }
   } else {
-    hasUpdate.value = true;
+    hasUpdate = true;
+    nextRelease = {
+      html_url: "",
+      name: "master",
+    };
   }
 }
 

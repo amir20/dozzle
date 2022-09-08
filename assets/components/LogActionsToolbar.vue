@@ -8,7 +8,7 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item">Clear</div>
+          <div class="level-item">{{ $t("toolbar.clear") }}</div>
         </div>
       </div>
     </a>
@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item">Download</div>
+          <div class="level-item">{{ $t("toolbar.download") }}</div>
         </div>
       </div>
     </a>
@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item">Search</div>
+          <div class="level-item">{{ $t("toolbar.search") }}</div>
         </div>
       </div>
     </a>

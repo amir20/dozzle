@@ -19,8 +19,7 @@
 
 <script lang="ts" setup>
 import { type Container } from "@/types/Container";
-import { ComputedRef } from "vue";
-import { formatBytes } from "@/utils";
+import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
 </script>

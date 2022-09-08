@@ -1,7 +1,7 @@
 <template>
   <div class="columns is-marginless has-text-weight-bold is-family-monospace">
     <span class="column is-ellipsis">
-      {{ container.name }} {{ t("test") }}
+      {{ container.name }}
       <span class="tag is-dark">{{ container.image.replace(/@sha.*/, "") }}</span>
     </span>
   </div>
@@ -12,7 +12,6 @@ import { type Container } from "@/types/Container";
 import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
-const { t } = useI18n();
 </script>
 
 <style lang="scss" scoped></style>
