@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
     }),
     Pages({
       dirs: "assets/pages",
+      importMode: "sync",
     }),
     Components({
       dirs: ["assets/components"],
