@@ -1,12 +1,10 @@
 import { useTitle } from "@vueuse/core";
-import { ref, computed } from "vue";
 
-const subtitle = ref("");
+let subtitle = $ref("");
+const title = $computed(() => `${subtitle} - Dozzle`);
 
-const title = computed(() => `${subtitle.value} - Dozzle`);
-
-useTitle(title);
+useTitle($$(title));
 
 export function setTitle(t: string) {
-  subtitle.value = t;
+  subtitle = t;
 }

@@ -17,6 +17,7 @@
       "@/*": ["assets/*"]
     },
     "jsx": "preserve",
+    "types": ["vitest", "vite/client", "vue/ref-macros", "vite-plugin-pages/client"]
   },
   "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
 

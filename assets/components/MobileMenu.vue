@@ -2,7 +2,7 @@
   <aside>
     <div class="columns is-marginless is-gapless is-mobile is-vcentered">
       <div class="column is-narrow">
-        <router-link :to="{ name: 'default' }">
+        <router-link :to="{ name: 'index' }">
           <svg class="logo">
             <use href="#logo"></use>
           </svg>
@@ -27,7 +27,11 @@
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">Containers</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
       <li v-for="item in visibleContainers" :key="item.id">
-        <router-link :to="{ name: 'container', params: { id: item.id } }" active-class="is-active" :title="item.name">
+        <router-link
+          :to="{ name: 'container-id', params: { id: item.id } }"
+          active-class="is-active"
+          :title="item.name"
+        >
           <div class="is-ellipsis">
             {{ item.name }}
           </div>

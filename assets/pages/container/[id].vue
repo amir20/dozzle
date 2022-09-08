@@ -12,13 +12,7 @@ import { useContainerStore } from "@/stores/container";
 import { storeToRefs } from "pinia";
 
 const store = useContainerStore();
-
-const props = defineProps({
-  id: {
-    type: String,
-    required: true,
-  },
-});
+const props = defineProps<{ id: string }>();
 
 const { id } = toRefs(props);
 
