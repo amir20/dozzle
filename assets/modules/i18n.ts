@@ -12,7 +12,8 @@ export const install = (app: App) => {
   );
   const i18n = createI18n({
     legacy: false,
-    locale: "en",
+    locale: navigator.language,
+    fallbackLocale: "en",
     messages,
   });
   app.use(i18n);
