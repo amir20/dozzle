@@ -42,11 +42,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
-import { useRoute } from "vue-router";
-
 const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers, allContainersById } = storeToRefs(store);

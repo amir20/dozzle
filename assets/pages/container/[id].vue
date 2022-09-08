@@ -4,13 +4,6 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, toRefs, watchEffect } from "vue";
-import Search from "@/components/Search.vue";
-import LogContainer from "@/components/LogContainer.vue";
-import { setTitle } from "@/composables/title";
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
-
 const store = useContainerStore();
 const props = defineProps<{ id: string }>();
 

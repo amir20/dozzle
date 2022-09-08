@@ -56,9 +56,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { storeToRefs } from "pinia";
-import { useContainerStore } from "@/stores/container";
 import type { Container } from "@/types/Container";
 
 const store = useContainerStore();

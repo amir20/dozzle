@@ -41,14 +41,11 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, onUnmounted, PropType, ComputedRef } from "vue";
+import { type PropType, type ComputedRef } from "vue";
+import { type Container } from "@/types/Container";
 import hotkeys from "hotkeys-js";
-import config from "@/stores/config";
-import { useSearchFilter } from "@/composables/search";
-import { Container } from "@/types/Container";
 
 const { showSearch } = useSearchFilter();
-
 const { base } = config;
 
 const props = defineProps({

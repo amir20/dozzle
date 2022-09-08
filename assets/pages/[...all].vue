@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-import { setTitle } from "@/composables/title";
 export default {
   name: "PageNotFound",
   setup() {

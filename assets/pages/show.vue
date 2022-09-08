@@ -1,9 +1,4 @@
 <script lang="ts" setup>
-import { useContainerStore } from "@/stores/container";
-import { storeToRefs } from "pinia";
-import { watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-
 const router = useRouter();
 const route = useRoute();
 

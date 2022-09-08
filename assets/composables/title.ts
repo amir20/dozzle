@@ -1,5 +1,3 @@
-import { useTitle } from "@vueuse/core";
-
 let subtitle = $ref("");
 const title = $computed(() => `${subtitle} - Dozzle`);
 

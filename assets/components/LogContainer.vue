@@ -24,10 +24,6 @@
 </template>
 
 <script lang="ts" setup>
-import { provide, ref, toRefs } from "vue";
-import LogViewerWithSource from "./LogViewerWithSource.vue";
-import { useContainerStore } from "@/stores/container";
-
 const props = defineProps({
   id: {
     type: String,

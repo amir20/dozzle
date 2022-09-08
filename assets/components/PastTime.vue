@@ -3,16 +3,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useIntervalFn } from "@vueuse/core";
 import formatDistance from "date-fns/formatDistance";
-import { PropType, ref } from "vue";
 
-const props = defineProps({
-  date: {
-    required: true,
-    type: Object as PropType<Date>,
-  },
-});
+const props = defineProps<{
+  date: Date;
+}>();
 
 const text = ref<string>();
 function updateFromNow() {

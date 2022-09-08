@@ -89,16 +89,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
-import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
-import { useContainerStore } from "@/stores/container";
-import { formatBytes } from "@/utils";
 import fuzzysort from "fuzzysort";
 import SearchIcon from "~icons/mdi-light/magnify";
-import PastTime from "../components/PastTime.vue";
-import config from "@/stores/config";
-import { useIntervalFn } from "@vueuse/core";
 
 const { base, version, secured } = config;
 const containerStore = useContainerStore();

@@ -16,16 +16,12 @@ const styles = { auto, 12: enUS, 24: enGB };
 
 <script lang="ts" setup>
 import { formatRelative } from "date-fns";
-import { hourStyle } from "@/composables/settings";
 import enGB from "date-fns/locale/en-GB";
 import enUS from "date-fns/locale/en-US";
-import { computed, PropType } from "vue";
-defineProps({
-  date: {
-    required: true,
-    type: Object as PropType<Date>,
-  },
-});
+
+defineProps<{
+  date: Date;
+}>();
 
 const locale = computed(() => {
   const locale = styles[hourStyle.value];

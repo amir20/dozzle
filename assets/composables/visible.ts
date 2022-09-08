@@ -1,6 +1,6 @@
-import { LogEntry } from "@/types/LogEntry";
-import { VisibleLogEntry } from "@/types/VisibleLogEntry";
-import { computed, ComputedRef, Ref } from "vue";
+import { type LogEntry } from "@/types/LogEntry";
+import {  VisibleLogEntry } from "@/types/VisibleLogEntry";
+import type { ComputedRef, Ref } from "vue";
 
 export function useVisibleFilter(visibleKeys: ComputedRef<Ref<string[][]>>) {
   function filteredPayload(messages: Ref<LogEntry[]>) {
