@@ -79,4 +79,5 @@ export {
   menuWidth,
   size,
   search,
+  settings
 };
