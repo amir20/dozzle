@@ -31,7 +31,7 @@ settings:
   display: Vista
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
   show-timesamps: Mostrar marcas de tiempo
-  soft-wrap: Líneas de texto de ajuste suave
+  soft-wrap: Líneas de texto con ajuste suave
   12-24-format: >-
     Por defecto, Dozzle utilizará la configuración regional de tu navegador para formatear la hora. Usted puede
     forzar el estilo de 12 o 24 horas.
