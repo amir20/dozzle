@@ -1,49 +1,49 @@
 toolbar:
-  clear: Clear
-  download: Download
-  search: Search
+  clear: Limpar
+  download: Descarregar
+  search: Pesquisa
 label:
-  containers: Contenedores
-  total-containers: Total Containers
-  running: Running
-  total-cpu-usage: Total CPU Usage
-  total-mem-usage: Total Mem Usage
-  dozzle-version: Dozzle Version
-  all: All
-  password: Password
-  username: Username
+  containers: Contentores
+  total-containers: Contentores Totais
+  running: Em execução
+  total-cpu-usage: Utilização total da CPU
+  total-mem-usage: Total de utilização da memória
+  dozzle-version: Versão Dozzle
+  all: Tudo
+  password: Senha
+  username: Nome de usuário
 tooltip:
-  search: Search containers (⌘ + k, ⌃k)
-  pin-column: Pin as column
+  search: Pesquisar contentores (⌘ + K, CTRL + K)
+  pin-column: Alfinete como coluna
 error:
-  page-not-found: This page does not exist.
-  invalid-auth: Username and password are not valid.
+  page-not-found: Esta página não existe.
+  invalid-auth: O nome de usuário e a senha não são válidos.
 title:
-  page-not-found: Page not found
-  login: Authentication Required
-  settings: Settings
+  page-not-found: Página não encontrada
+  login: Autenticação Requerida
+  settings: Configurações
 button:
-  logout: Logout
-  login: Login
+  logout: Terminar sessão
+  login: Iniciar sessão
 placeholder:
-  search-containers: Search Containers
+  search-containers: Pesquisar Contentores
 settings:
-  display: Display
-  small-scrollbars: Use smaller scrollbars
-  show-timesamps: Show timestamps
-  soft-wrap: Soft wrap lines
+  display: Visão
+  small-scrollbars: Usar barras de rolagem mais pequenas
+  show-timesamps: Mostrar carimbos de tempo
+  soft-wrap: Linhas de texto de embrulho suave
   12-24-format: >-
-    By default, Dozzle will use your browser's locale to format time. You can
-    force to 12 or 24 hour style.
-  font-size: Font size to use for logs
-  color-scheme: Color scheme
-  options: Options
-  show-stopped-containers: Show stopped containers
-  about: About
+    Por defeito, Dozzle utilizará o locale do seu navegador para formatar a hora. Pode
+    forçar ao estilo de 12 ou 24 horas.
+  font-size: Tamanho de letra a utilizar para os registos
+  color-scheme: Esquema de cores
+  options: Opções
+  show-stopped-containers: Mostrar contentores parados
+  about: Acerca de
   search: >-
-    Enable searching with Dozzle using <code>command+f</code> or
+    Habilitar a pesquisa com Dozzle usando <code>comando+f</code> ou
     <code>ctrl+f</code>
-  using-version: You are using Dozzle {version}.
+  using-version: Está a usar o Dozzle {version}.
   update-available: >-
-    New version is available! Update to
+    Está disponível uma nova versão! Actualização para
     <a :href="{href}" class="next-release" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
