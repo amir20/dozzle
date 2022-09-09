@@ -73,3 +73,7 @@ async function onLogin() {
   }
 }
 </script>
+<route lang="yaml">
+meta:
+  layout: splash
+</route>
