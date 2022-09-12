@@ -63,10 +63,6 @@ func createRouter(h *handler) *mux.Router {
 	s.Handle("/version", authorizationRequired(h.version))
 	s.HandleFunc("/healthcheck", h.healthcheck)
 
-	if log.IsLevelEnabled(log.DebugLevel) {
-		s.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
-	}
-
 	if base != "/" {
 		s.PathPrefix("/").Handler(http.StripPrefix(base+"/", http.HandlerFunc(h.index)))
 	} else {
