@@ -1,0 +1,49 @@
+toolbar:
+  clear: Limpar
+  download: Descarregar
+  search: Pesquisa
+label:
+  containers: Contentores
+  total-containers: Contentores Totais
+  running: Em execução
+  total-cpu-usage: Utilização total da CPU
+  total-mem-usage: Total de utilização da memória
+  dozzle-version: Versão Dozzle
+  all: Tudo
+  password: Senha
+  username: Nome de usuário
+tooltip:
+  search: Pesquisar contentores (⌘ + K, CTRL + K)
+  pin-column: Alfinete como coluna
+error:
+  page-not-found: Esta página não existe.
+  invalid-auth: O nome de usuário e a senha não são válidos.
+title:
+  page-not-found: Página não encontrada
+  login: Autenticação Requerida
+  settings: Configurações
+button:
+  logout: Terminar sessão
+  login: Iniciar sessão
+placeholder:
+  search-containers: Pesquisar Contentores
+settings:
+  display: Visão
+  small-scrollbars: Usar barras de rolagem mais pequenas
+  show-timesamps: Mostrar carimbos de tempo
+  soft-wrap: Linhas de texto de embrulho suave
+  12-24-format: >-
+    Por defeito, Dozzle utilizará o locale do seu navegador para formatar a hora. Pode
+    forçar ao estilo de 12 ou 24 horas.
+  font-size: Tamanho de letra a utilizar para os registos
+  color-scheme: Esquema de cores
+  options: Opções
+  show-stopped-containers: Mostrar contentores parados
+  about: Acerca de
+  search: >-
+    Habilitar a pesquisa com Dozzle usando <code>comando+f</code> ou
+    <code>ctrl+f</code>
+  using-version: Está a usar o Dozzle {version}.
+  update-available: >-
+    Está disponível uma nova versão! Actualização para
+    <a :href="{href}" class="next-release" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
