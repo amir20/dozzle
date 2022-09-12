@@ -5,7 +5,6 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"strings"
