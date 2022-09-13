@@ -1,6 +1,13 @@
 import { type ComputedRef, type Ref } from "vue";
 import debounce from "lodash.debounce";
-import { type LogEvent, type LogEntry, type JSONObject, asLogEntry, DockerEventLogEntry, SkippedLogsEntry } from "@/models/LogEntry";
+import {
+  type LogEvent,
+  type JSONObject,
+  LogEntry,
+  asLogEntry,
+  DockerEventLogEntry,
+  SkippedLogsEntry,
+} from "@/models/LogEntry";
 import { type Container } from "@/types/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
@@ -17,14 +24,13 @@ export function useLogStream(container: ComputedRef<Container>) {
     if (messages.length > config.maxLogs) {
       if (scrollingPaused) {
         console.log("Skipping ", buffer.length, " log items");
-        if(messages.at(-1) instanceof SkippedLogsEntry) {
+        if (messages.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.at(-1) as SkippedLogsEntry;
-          const lastItem = buffer.at(-1);
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
           lastEvent.addSkippedEntries(buffer.length, lastItem);
-        }
-        else {
-          const firstItem = buffer.at(0);
-          const lastItem = buffer.at(-1);
+        } else {
+          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
           messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
         }
         buffer = [];
