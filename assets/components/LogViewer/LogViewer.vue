@@ -100,6 +100,7 @@ watch(
     & > .line {
       margin: auto 0;
       width: 100%;
+      display: flex;
     }
     & > .line-options {
       display: flex;
