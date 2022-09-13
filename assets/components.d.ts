@@ -14,6 +14,8 @@ declare module '@vue/runtime-core' {
     ComplexPayload: typeof import('./components/LogViewer/ComplexPayload.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
+    copy: typeof import('./components/LogViewer/DockerEventLogItem copy.vue')['default']
+    DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
@@ -43,6 +45,7 @@ declare module '@vue/runtime-core' {
     Search: typeof import('./components/Search.vue')['default']
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
+    SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
     StringPayload: typeof import('./components/LogViewer/StringPayload.vue')['default']
   }
 }

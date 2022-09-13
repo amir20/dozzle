@@ -4,7 +4,6 @@
       v-for="(item, index) in filtered"
       :key="item.id"
       :data-key="item.id"
-      :data-event="item.event"
       :class="{ selected: toRaw(item) === toRaw(lastSelectedItem) }"
     >
       <div class="line-options" v-show="isSearching()">
@@ -34,11 +33,11 @@
 <script lang="ts" setup>
 import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
-import { type LogEntry } from "@/types/VisibleLogEntry";
 import { type Container } from "@/types/Container";
+import { type JSONObject, type LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
-  messages: LogEntry[];
+  messages: LogEntry<string | JSONObject>[];
 }>();
 
 const { messages } = toRefs(props);
@@ -51,9 +50,9 @@ const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem = ref<LogEntry>();
+let lastSelectedItem = ref<LogEntry<string | JSONObject>>();
 
-function handleJumpLineSelected(e: Event, item: LogEntry) {
+function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
   lastSelectedItem.value = item;
   resetSearch();
 }
@@ -89,12 +88,7 @@ watch(
     &:nth-child(odd) {
       background-color: rgba(125, 125, 125, 0.08);
     }
-    &[data-event="container-stopped"] {
-      color: #f14668;
-    }
-    &[data-event="container-started"] {
-      color: hsl(141, 53%, 53%);
-    }
+
     &.selected .date {
       background-color: var(--menu-item-active-background-color);
 

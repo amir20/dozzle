@@ -2,6 +2,8 @@ import { Component, ComputedRef, Ref } from "vue";
 import { flattenJSON, getDeep } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
+import DockerEventLogItem from "@/components/LogViewer/DockerEventLogItem.vue";
+import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 
 export interface HasComponent {
   getComponent(): Component;
@@ -66,6 +68,43 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
 
   static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<string[][]>): ComplexLogEntry {
     return new ComplexLogEntry(event._message, event.id, event.date, visibleKeys);
+  }
+}
+
+export class DockerEventLogEntry extends LogEntry<string> {
+  constructor(message: string, date: Date, public readonly event: string) {
+    super(message, date.getTime(), date);
+  }
+  getComponent(): Component {
+    return DockerEventLogItem;
+  }
+}
+
+export class SkippedLogsEntry extends LogEntry<string> {
+  private totalSkipped = 0;
+  private lastSkipped: LogEntry<string | JSONObject>;
+
+  constructor(
+    date: Date,
+    totalSkipped: number,
+    public readonly firstSkipped: LogEntry<string | JSONObject>,
+    lastSkipped: LogEntry<string | JSONObject>
+  ) {
+    super("", date.getTime(), date);
+    this.totalSkipped = totalSkipped;
+    this.lastSkipped = lastSkipped;
+  }
+  getComponent(): Component {
+    return SkippedEntriesLogItem;
+  }
+
+  public get message(): string {
+    return `Skipped ${this.totalSkipped} entries`;
+  }
+
+  public addSkippedEntries(totalSkipped: number, lastItem: LogEntry<string | JSONObject>) {
+    this.totalSkipped += totalSkipped;
+    this.lastSkipped = lastItem;
   }
 }
 
