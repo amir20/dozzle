@@ -7,7 +7,10 @@
 import { type Container } from "@/types/Container";
 import { type ComputedRef } from "vue";
 
-const emit = defineEmits(["loading-more"]);
+const emit = defineEmits<{
+  (e: "loading-more", value: boolean): void;
+}>();
+
 const container = inject("container") as ComputedRef<Container>;
 const { connect, messages, loadOlderLogs } = useLogStream(container);
 

@@ -1,23 +1,48 @@
-import { onUnmounted, ComputedRef } from "vue";
+import { type ComputedRef, type Ref } from "vue";
 import debounce from "lodash.debounce";
-import type { LogEntry, LogEvent } from "@/types/LogEntry";
+import {
+  type LogEvent,
+  type JSONObject,
+  LogEntry,
+  asLogEntry,
+  DockerEventLogEntry,
+  SkippedLogsEntry,
+} from "@/models/LogEntry";
 import { type Container } from "@/types/Container";
 
-function parseMessage(data: string): LogEntry {
+function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
-
-  const id = e.id;
-  const date = new Date(e.ts);
-  return { id, date, message: e.m };
+  return asLogEntry(e);
 }
 
 export function useLogStream(container: ComputedRef<Container>) {
-  const messages = ref<LogEntry[]>([]);
-  const buffer = ref<LogEntry[]>([]);
+  let messages = $ref<LogEntry<string | JSONObject>[]>([]);
+  let buffer = $ref<LogEntry<string | JSONObject>[]>([]);
+  const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
-    messages.value.push(...buffer.value);
-    buffer.value = [];
+    if (messages.length > config.maxLogs) {
+      if (scrollingPaused) {
+        console.log("Skipping ", buffer.length, " log items");
+        if (messages.at(-1) instanceof SkippedLogsEntry) {
+          const lastEvent = messages.at(-1) as SkippedLogsEntry;
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
+          lastEvent.addSkippedEntries(buffer.length, lastItem);
+        } else {
+          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
+          messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
+        }
+        buffer = [];
+      } else {
+        messages.push(...buffer);
+        buffer = [];
+        messages.splice(0, messages.length - config.maxLogs);
+      }
+    } else {
+      messages.push(...buffer);
+      buffer = [];
+    }
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;
@@ -28,8 +53,8 @@ export function useLogStream(container: ComputedRef<Container>) {
 
     if (clear) {
       flushBuffer.cancel();
-      messages.value = [];
-      buffer.value = [];
+      messages = [];
+      buffer = [];
       lastEventId = "";
     }
 
@@ -37,12 +62,8 @@ export function useLogStream(container: ComputedRef<Container>) {
     es.addEventListener("container-stopped", () => {
       es?.close();
       es = null;
-      buffer.value.push({
-        event: "container-stopped",
-        message: "Container stopped",
-        date: new Date(),
-        id: new Date().getTime(),
-      });
+      buffer.push(new DockerEventLogEntry("Container stopped", new Date(), "container-stopped"));
+
       flushBuffer();
       flushBuffer.flush();
     });
@@ -50,18 +71,18 @@ export function useLogStream(container: ComputedRef<Container>) {
     es.onmessage = (e) => {
       lastEventId = e.lastEventId;
       if (e.data) {
-        buffer.value.push(parseMessage(e.data));
+        buffer.push(parseMessage(e.data));
         flushBuffer();
       }
     };
   }
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
-    if (messages.value.length < 300) return;
+    if (messages.length < 300) return;
 
     beforeLoading();
-    const to = messages.value[0].date;
-    const last = messages.value[299].date;
+    const to = messages[0].date;
+    const last = messages[299].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
     const logs = await (
@@ -72,7 +93,7 @@ export function useLogStream(container: ComputedRef<Container>) {
         .trim()
         .split("\n")
         .map((line) => parseMessage(line));
-      messages.value.unshift(...newMessages);
+      messages.unshift(...newMessages);
     }
     afterLoading();
   }
@@ -82,12 +103,7 @@ export function useLogStream(container: ComputedRef<Container>) {
     (newValue, oldValue) => {
       console.log("LogEventSource: container changed", newValue, oldValue);
       if (newValue == "running" && newValue != oldValue) {
-        buffer.value.push({
-          event: "container-started",
-          message: "Container started",
-          date: new Date(),
-          id: new Date().getTime(),
-        });
+        buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
         connect({ clear: false });
       }
     }
@@ -104,5 +120,5 @@ export function useLogStream(container: ComputedRef<Container>) {
     () => connect()
   );
 
-  return { connect, messages, loadOlderLogs };
+  return $$({ connect, messages, loadOlderLogs });
 }

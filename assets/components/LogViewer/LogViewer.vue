@@ -4,7 +4,6 @@
       v-for="(item, index) in filtered"
       :key="item.id"
       :data-key="item.id"
-      :data-event="item.event"
       :class="{ selected: toRaw(item) === toRaw(lastSelectedItem) }"
     >
       <div class="line-options" v-show="isSearching()">
@@ -25,45 +24,35 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <JSONPayload :log-entry="item" :visible-keys="visibleKeys.value" v-if="item.isComplex()"></JSONPayload>
-        <span class="text" v-html="colorize(item.message)" v-if="item.isSimple()"></span>
+        <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
       </div>
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
-import { type ComputedRef, type PropType, toRaw } from "vue";
+import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
-import { size, showTimestamp, softWrap } from "@/composables/settings";
-import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
-import { type LogEntry } from "@/types/LogEntry";
 import { type Container } from "@/types/Container";
-import AnsiConvertor from "ansi-to-html";
+import { type JSONObject, type LogEntry } from "@/models/LogEntry";
 
-const props = defineProps({
-  messages: {
-    type: Array as PropType<LogEntry[]>,
-    required: true,
-  },
-});
-
-const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
+const props = defineProps<{
+  messages: LogEntry<string | JSONObject>[];
+}>();
 
 const { messages } = toRefs(props);
 let visibleKeys = persistentVisibleKeys(inject("container") as ComputedRef<Container>);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
-const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter();
+const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem = ref<VisibleLogEntry>();
+let lastSelectedItem = ref<LogEntry<string | JSONObject>>();
 
-function handleJumpLineSelected(e: Event, item: VisibleLogEntry) {
+function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
   lastSelectedItem.value = item;
   resetSearch();
 }
@@ -83,16 +72,8 @@ watch(
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
   &.disable-wrap {
-    .line,
-    .text {
+    .line {
       white-space: nowrap;
-    }
-  }
-
-  .text {
-    white-space: pre-wrap;
-    &::before {
-      content: " ";
     }
   }
 
@@ -107,12 +88,7 @@ watch(
     &:nth-child(odd) {
       background-color: rgba(125, 125, 125, 0.08);
     }
-    &[data-event="container-stopped"] {
-      color: #f14668;
-    }
-    &[data-event="container-started"] {
-      color: hsl(141, 53%, 53%);
-    }
+
     &.selected .date {
       background-color: var(--menu-item-active-background-color);
 
@@ -124,6 +100,7 @@ watch(
     & > .line {
       margin: auto 0;
       width: 100%;
+      display: flex;
     }
     & > .line-options {
       display: flex;

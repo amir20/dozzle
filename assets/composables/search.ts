@@ -1,5 +1,5 @@
 import { type Ref } from "vue";
-import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
+import { type LogEntry, type JSONObject, SimpleLogEntry, ComplexLogEntry } from "@/models/LogEntry";
 
 const searchFilter = ref<string>("");
 const debouncedSearchFilter = useDebounce(searchFilter);
@@ -24,14 +24,14 @@ export function useSearchFilter() {
     return isSmartCase ? new RegExp(debouncedSearchFilter.value, "i") : new RegExp(debouncedSearchFilter.value);
   });
 
-  function filteredMessages(messages: Ref<VisibleLogEntry[]>) {
+  function filteredMessages(messages: Ref<LogEntry<string | JSONObject>[]>) {
     return computed(() => {
       if (debouncedSearchFilter.value) {
         try {
           return messages.value.filter((d) => {
-            if (d.isSimple()) {
+            if (d instanceof SimpleLogEntry) {
               return regex.value.test(d.message);
-            } else if (d.isComplex()) {
+            } else if (d instanceof ComplexLogEntry) {
               return matchRecord(d.message, regex.value);
             }
             throw new Error("Unknown message type");
