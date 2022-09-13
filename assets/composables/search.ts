@@ -1,5 +1,5 @@
 import { type Ref } from "vue";
-import { type LogEntry, type JSONObject } from "@/models/LogEntry";
+import { type LogEntry, type JSONObject, SimpleLogEntry, ComplexLogEntry } from "@/models/LogEntry";
 
 const searchFilter = ref<string>("");
 const debouncedSearchFilter = useDebounce(searchFilter);
