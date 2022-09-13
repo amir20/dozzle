@@ -1,11 +1,11 @@
 <template>
-  <span class="text">{{ logEntry.message }}</span>
+  <span class="text">{{ $t("error.logs-skipped", { total: logEntry.totalSkipped }) }}</span>
 </template>
 <script lang="ts" setup>
-import { DockerEventLogEntry } from "@/models/LogEntry";
+import { SkippedLogsEntry } from "@/models/LogEntry";
 
 defineProps<{
-  logEntry: DockerEventLogEntry;
+  logEntry: SkippedLogsEntry;
 }>();
 </script>
 

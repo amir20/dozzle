@@ -81,7 +81,7 @@ export class DockerEventLogEntry extends LogEntry<string> {
 }
 
 export class SkippedLogsEntry extends LogEntry<string> {
-  private totalSkipped = 0;
+  private _totalSkipped = 0;
   private lastSkipped: LogEntry<string | JSONObject>;
 
   constructor(
@@ -91,7 +91,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     lastSkipped: LogEntry<string | JSONObject>
   ) {
     super("", date.getTime(), date);
-    this.totalSkipped = totalSkipped;
+    this._totalSkipped = totalSkipped;
     this.lastSkipped = lastSkipped;
   }
   getComponent(): Component {
@@ -103,8 +103,12 @@ export class SkippedLogsEntry extends LogEntry<string> {
   }
 
   public addSkippedEntries(totalSkipped: number, lastItem: LogEntry<string | JSONObject>) {
-    this.totalSkipped += totalSkipped;
+    this._totalSkipped += totalSkipped;
     this.lastSkipped = lastItem;
+  }
+
+  public get totalSkipped(): number {
+    return this._totalSkipped;
   }
 }
 
