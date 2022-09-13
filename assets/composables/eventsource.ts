@@ -1,24 +1,21 @@
-import {type ComputedRef } from "vue";
+import { type ComputedRef, type Ref } from "vue";
 import debounce from "lodash.debounce";
-import type { LogEntry, LogEvent } from "@/types/LogEntry";
+import { type LogEvent, type LogEntry, type JSONObject, asLogEntry } from "@/models/LogEntry";
 import { type Container } from "@/types/Container";
 
-function parseMessage(data: string): LogEntry {
+function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
-
-  const id = e.id;
-  const date = new Date(e.ts);
-  return { id, date, message: e.m };
+  return asLogEntry(e);
 }
 
 export function useLogStream(container: ComputedRef<Container>) {
-  const messages = ref<LogEntry[]>([]);
-  const buffer = ref<LogEntry[]>([]);
-  const scrollingPaused = inject("scrollingPaused") as Ref<boolean>;
+  const messages = ref<LogEntry<string | JSONObject>[]>([]);
+  const buffer = ref<LogEntry<string | JSONObject>[]>([]);
+  const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
     if (messages.value.length > config.maxLogs) {
-      if (scrollingPaused.value) {
+      if (scrollingPaused) {
         console.log("Skipping ", buffer.value.length, " log items");
         buffer.value = [];
       } else {

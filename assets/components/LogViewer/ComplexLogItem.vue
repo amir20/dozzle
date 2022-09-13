@@ -7,27 +7,19 @@
       </template>
     </li>
   </ul>
-  <field-list :fields="logEntry.unfilteredPayload" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
 </template>
 <script lang="ts" setup>
-import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
-
-import { PropType, ref } from "vue";
+import { type ComplexLogEntry } from "@/models/LogEntry";
 
 const { markSearch } = useSearchFilter();
 
-defineProps({
-  logEntry: {
-    type: Object as PropType<VisibleLogEntry>,
-    required: true,
-  },
-  visibleKeys: {
-    type: Array as PropType<string[][]>,
-    default: [],
-  },
-});
+defineProps<{
+  logEntry: ComplexLogEntry;
+  visibleKeys: string[][];
+}>();
 
-const expanded = ref(false);
+let expanded = $ref(false);
 </script>
 
 <style lang="scss" scoped>

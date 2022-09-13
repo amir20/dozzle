@@ -7,7 +7,9 @@
 <script lang="ts" setup>
 import LogEventSource from "./LogEventSource.vue";
 
-const emit = defineEmits(["loading-more"]);
+const emit = defineEmits<{
+  (e: "loading-more", value: boolean): void;
+}>();
 
 const source = $ref<InstanceType<typeof LogEventSource>>();
 function clear() {

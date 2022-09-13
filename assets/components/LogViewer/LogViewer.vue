@@ -25,45 +25,35 @@
       </div>
       <div class="line">
         <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <JSONPayload :log-entry="item" :visible-keys="visibleKeys.value" v-if="item.isComplex()"></JSONPayload>
-        <span class="text" v-html="colorize(item.message)" v-if="item.isSimple()"></span>
+        <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
       </div>
     </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
-import { type ComputedRef, type PropType, toRaw } from "vue";
+import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
-import { size, showTimestamp, softWrap } from "@/composables/settings";
-import { type VisibleLogEntry } from "@/types/VisibleLogEntry";
-import { type LogEntry } from "@/types/LogEntry";
+import { type LogEntry } from "@/types/VisibleLogEntry";
 import { type Container } from "@/types/Container";
-import AnsiConvertor from "ansi-to-html";
 
-const props = defineProps({
-  messages: {
-    type: Array as PropType<LogEntry[]>,
-    required: true,
-  },
-});
-
-const ansiConvertor = new AnsiConvertor({ escapeXML: true });
-const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
+const props = defineProps<{
+  messages: LogEntry[];
+}>();
 
 const { messages } = toRefs(props);
 let visibleKeys = persistentVisibleKeys(inject("container") as ComputedRef<Container>);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
-const { filteredMessages, resetSearch, markSearch, isSearching } = useSearchFilter();
+const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem = ref<VisibleLogEntry>();
+let lastSelectedItem = ref<LogEntry>();
 
-function handleJumpLineSelected(e: Event, item: VisibleLogEntry) {
+function handleJumpLineSelected(e: Event, item: LogEntry) {
   lastSelectedItem.value = item;
   resetSearch();
 }
@@ -83,16 +73,8 @@ watch(
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
   &.disable-wrap {
-    .line,
-    .text {
+    .line {
       white-space: nowrap;
-    }
-  }
-
-  .text {
-    white-space: pre-wrap;
-    &::before {
-      content: " ";
     }
   }
 
