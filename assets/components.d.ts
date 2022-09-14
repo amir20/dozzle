@@ -17,7 +17,7 @@ declare module '@vue/runtime-core' {
     copy: typeof import('./components/LogViewer/DockerEventLogItem copy.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
-    FieldList: typeof import('./components/FieldList.vue')['default']
+    FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     JSONPayload: typeof import('./components/LogViewer/JSONPayload.vue')['default']

@@ -28,26 +28,18 @@
 </template>
 <script lang="ts" setup>
 import { arrayEquals, isObject } from "@/utils";
-import { nextTick, PropType, ref, toRaw } from "vue";
 
-const props = defineProps({
-  fields: {
-    type: Object as PropType<Record<string, any>>,
-    required: true,
-  },
-  expanded: {
-    type: Boolean,
-    default: false,
-  },
-  parentKey: {
-    type: Array as PropType<string[]>,
-    default: [],
-  },
-  visibleKeys: {
-    type: Array as PropType<string[][]>,
-    default: [],
-  },
-});
+const {
+  fields,
+  expanded = false,
+  parentKey = [],
+  visibleKeys = [],
+} = defineProps<{
+  fields: Record<string, any>;
+  expanded?: boolean;
+  parentKey?: string[];
+  visibleKeys?: string[][];
+}>();
 
 const root = ref<HTMLElement>();
 
@@ -55,9 +47,9 @@ async function toggleField(field: string) {
   const index = fieldIndex(field);
 
   if (index > -1) {
-    props.visibleKeys.splice(index, 1);
+    visibleKeys.splice(index, 1);
   } else {
-    props.visibleKeys.push(props.parentKey.concat(field));
+    visibleKeys.push(parentKey.concat(field));
   }
 
   await nextTick();
@@ -72,8 +64,8 @@ function hasField(field: string) {
 }
 
 function fieldIndex(field: string) {
-  const path = props.parentKey.concat(field);
-  return props.visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
+  const path = parentKey.concat(field);
+  return visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
 }
 </script>
 

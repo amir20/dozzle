@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 withDefaults(
   defineProps<{
-    scrollable: boolean;
+    scrollable?: boolean;
   }>(),
   {
     scrollable: false,

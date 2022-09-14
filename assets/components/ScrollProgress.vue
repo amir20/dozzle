@@ -20,8 +20,8 @@
 <script lang="ts" setup>
 const props = withDefaults(
   defineProps<{
-    indeterminate: boolean;
-    autoHide: boolean;
+    indeterminate?: boolean;
+    autoHide?: boolean;
   }>(),
   {
     indeterminate: false,
