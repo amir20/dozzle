@@ -41,22 +41,19 @@
 </template>
 
 <script lang="ts" setup>
-import { type PropType, type ComputedRef } from "vue";
+import { type ComputedRef } from "vue";
 import { type Container } from "@/types/Container";
 import hotkeys from "hotkeys-js";
 
 const { showSearch } = useSearchFilter();
 const { base } = config;
 
-const props = defineProps({
-  onClearClicked: {
-    type: Function as PropType<(e: Event) => void>,
-    default: (e: Event) => {},
-  },
-});
+const { onClearClicked = (e: Event) => {} } = defineProps<{
+  onClearClicked: (e: Event) => void;
+}>();
 
 const onHotkey = (event: Event) => {
-  props.onClearClicked(event);
+  onClearClicked(event);
   event.preventDefault();
 };
 

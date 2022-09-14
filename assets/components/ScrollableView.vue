@@ -25,35 +25,28 @@
 </template>
 
 <script lang="ts" setup>
-withDefaults(
-  defineProps<{
-    scrollable?: boolean;
-  }>(),
-  {
-    scrollable: false,
-  }
-);
+const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
-const paused = ref(false);
-const hasMore = ref(false);
-const loading = ref(false);
+let paused = $ref(false);
+let hasMore = $ref(false);
+let loading = $ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
 provide("scrollingPaused", paused);
 
 const mutationObserver = new MutationObserver((e) => {
-  if (!paused.value) {
+  if (!paused) {
     scrollToBottom();
   } else {
     const record = e[e.length - 1];
     if (record.target.children[record.target.children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
-      hasMore.value = true;
+      hasMore = true;
     }
   }
 });
 
-const intersectionObserver = new IntersectionObserver((entries) => (paused.value = entries[0].intersectionRatio == 0), {
+const intersectionObserver = new IntersectionObserver((entries) => (paused = entries[0].intersectionRatio == 0), {
   threshold: [0, 1],
   rootMargin: "80px 0px",
 });
@@ -65,11 +58,11 @@ onMounted(() => {
 
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   scrollObserver.value?.scrollIntoView({ behavior });
-  hasMore.value = false;
+  hasMore = false;
 }
 
 function setLoading(value: boolean) {
-  loading.value = value;
+  loading = value;
 }
 </script>
 <style scoped lang="scss">

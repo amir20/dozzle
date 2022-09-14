@@ -26,26 +26,25 @@
 <script lang="ts" setup>
 import LogViewerWithSource from "./LogViewerWithSource.vue";
 
-const props = withDefaults(
-  defineProps<{
-    id: string;
-    showTitle?: boolean;
-    scrollable?: boolean;
-    closable?: boolean;
-  }>(),
-  {
-    showTitle: false,
-    scrollable: false,
-    closable: false,
-  }
-);
+const {
+  id,
+  showTitle = false,
+  scrollable = false,
+  closable = false,
+} = defineProps<{
+  id: string;
+  showTitle?: boolean;
+  scrollable?: boolean;
+  closable?: boolean;
+}>();
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits<{
+  (event: "close"): void;
+}>();
 
-const { id } = toRefs(props);
 const store = useContainerStore();
 
-const container = store.currentContainer(id);
+const container = store.currentContainer($$(id));
 
 provide("container", container);
 

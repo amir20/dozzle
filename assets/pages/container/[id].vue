@@ -5,11 +5,9 @@
 
 <script lang="ts" setup>
 const store = useContainerStore();
-const props = defineProps<{ id: string }>();
+const { id } = defineProps<{ id: string }>();
 
-const { id } = toRefs(props);
-
-const currentContainer = store.currentContainer(id);
+const currentContainer = store.currentContainer($$(id));
 const { activeContainers } = storeToRefs(store);
 
 setTitle("loading");

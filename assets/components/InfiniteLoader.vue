@@ -9,21 +9,21 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  onLoadMore: Function,
-  enabled: Boolean,
-});
+const { onLoadMore = () => {}, enabled } = defineProps<{
+  onLoadMore: () => void;
+  enabled: boolean;
+}>();
 
 const isLoading = ref(false);
 const root = ref<HTMLElement>();
 
 const observer = new IntersectionObserver(async (entries) => {
   if (entries[0].intersectionRatio <= 0) return;
-  if (props.onLoadMore && props.enabled) {
+  if (onLoadMore && enabled) {
     const scrollingParent = root.value?.closest("[data-scrolling]") || document.documentElement;
     const previousHeight = scrollingParent.scrollHeight;
     isLoading.value = true;
-    await props.onLoadMore();
+    await onLoadMore();
     isLoading.value = false;
     await nextTick();
     scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;

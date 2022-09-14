@@ -40,12 +40,12 @@ const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
 }>();
 
-const { messages } = toRefs(props);
 let visibleKeys = persistentVisibleKeys(inject("container") as ComputedRef<Container>);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 
+const { messages } = toRefs(props);
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
