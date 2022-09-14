@@ -36,12 +36,9 @@
 import fuzzysort from "fuzzysort";
 import { type Container } from "@/types/Container";
 
-const props = defineProps({
-  maxResults: {
-    default: 20,
-    type: Number,
-  },
-});
+const { maxResults = 20 } = defineProps<{
+  maxResults: number;
+}>();
 
 const emit = defineEmits(["close"]);
 
@@ -64,7 +61,7 @@ const preparedContainers = computed(() =>
 
 const results = computed(() => {
   const options = {
-    limit: props.maxResults,
+    limit: maxResults,
     key: "preparedName",
   };
   if (query.value) {

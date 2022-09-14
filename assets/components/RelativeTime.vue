@@ -7,7 +7,6 @@ defineProps<{
   date: Date;
 }>();
 
-// hourStyle
 const dateFormatter = new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "2-digit", year: "numeric" });
 const use12Hour = $computed(() => ({ auto: undefined, "12": true, "24": false }[hourStyle.value]));
 const timeFormatter = $computed(

@@ -5,13 +5,13 @@
 <script lang="ts" setup>
 import formatDistance from "date-fns/formatDistance";
 
-const props = defineProps<{
+const { date } = defineProps<{
   date: Date;
 }>();
 
 const text = ref<string>();
 function updateFromNow() {
-  text.value = formatDistance(props.date, new Date(), {
+  text.value = formatDistance(date, new Date(), {
     addSuffix: true,
   });
 }

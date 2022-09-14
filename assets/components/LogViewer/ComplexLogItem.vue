@@ -1,13 +1,15 @@
 <template>
-  <ul class="fields" @click="expanded = !expanded">
-    <li v-for="(value, name) in logEntry.message">
-      <template v-if="value">
-        <span class="has-text-grey">{{ name }}=</span>
-        <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
-      </template>
-    </li>
-  </ul>
-  <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  <div>
+    <ul class="fields" @click="expanded = !expanded">
+      <li v-for="(value, name) in logEntry.message">
+        <template v-if="value">
+          <span class="has-text-grey">{{ name }}=</span>
+          <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
+        </template>
+      </li>
+    </ul>
+    <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  </div>
 </template>
 <script lang="ts" setup>
 import { type ComplexLogEntry } from "@/models/LogEntry";
