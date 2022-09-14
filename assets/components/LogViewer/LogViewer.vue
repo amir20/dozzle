@@ -154,6 +154,7 @@ watch(
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 3px;
+  white-space: nowrap;
 }
 
 :deep(mark) {
