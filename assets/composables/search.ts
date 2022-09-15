@@ -34,7 +34,7 @@ export function useSearchFilter() {
             } else if (d instanceof ComplexLogEntry) {
               return matchRecord(d.message, regex.value);
             }
-            throw new Error("Unknown message type");
+            return false;
           });
         } catch (e) {
           if (e instanceof SyntaxError) {
