@@ -47,6 +47,9 @@ describe("<LogEventSource />", () => {
   ) {
     settings.value.hourStyle = hourStyle;
     search.searchFilter.value = searchFilter;
+    if(searchFilter){
+      search.showSearch.value = true;
+    }
 
     const router = createRouter({
       history: createWebHistory("/"),
