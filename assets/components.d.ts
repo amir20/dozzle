@@ -21,7 +21,7 @@ declare module '@vue/runtime-core' {
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     JSONPayload: typeof import('./components/LogViewer/JSONPayload.vue')['default']
-    LogActionsToolbar: typeof import('./components/LogActionsToolbar.vue')['default']
+    LogActionsToolbar: typeof import('./components/LogViewer/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogViewer/LogContainer.vue')['default']
     LogEventSource: typeof import('./components/LogViewer/LogEventSource.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']

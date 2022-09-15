@@ -26,7 +26,7 @@ export function useSearchFilter() {
 
   function filteredMessages(messages: Ref<LogEntry<string | JSONObject>[]>) {
     return computed(() => {
-      if (debouncedSearchFilter.value) {
+      if (debouncedSearchFilter.value && showSearch.value) {
         try {
           return messages.value.filter((d) => {
             if (d instanceof SimpleLogEntry) {
