@@ -22,26 +22,24 @@
 </template>
 
 <script lang="ts" setup>
-import hotkeys from "hotkeys-js";
-
+const { Meta_F, Ctrl_F, esc } = useMagicKeys({
+  passive: false,
+  onEventFired(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "f" && e.type === "keydown") e.preventDefault();
+  },
+});
 const input = ref<HTMLInputElement>();
 const { searchFilter, showSearch, resetSearch } = useSearchFilter();
 
-onMounted(() => {
-  hotkeys("command+f, ctrl+f", (event, handler) => {
+whenever(
+  () => Meta_F.value || Ctrl_F.value,
+  () => {
     showSearch.value = true;
     nextTick(() => input.value?.focus() || input.value?.select());
-    event.preventDefault();
-  });
-  hotkeys("esc", () => resetSearch());
-});
-
-onUnmounted(() => {
-  searchFilter.value = "";
-  showSearch.value = false;
-  hotkeys.unbind("command+f, ctrl+f");
-  hotkeys.unbind("esc");
-});
+  }
+);
+whenever(esc, () => resetSearch());
+onUnmounted(() => resetSearch());
 </script>
 
 <style lang="scss" scoped>

@@ -43,7 +43,6 @@
 <script lang="ts" setup>
 import { type ComputedRef } from "vue";
 import { type Container } from "@/types/Container";
-import hotkeys from "hotkeys-js";
 
 const { showSearch } = useSearchFilter();
 const { base } = config;
@@ -52,15 +51,7 @@ const { onClearClicked = (e: Event) => {} } = defineProps<{
   onClearClicked: (e: Event) => void;
 }>();
 
-const onHotkey = (event: Event) => {
-  onClearClicked(event);
-  event.preventDefault();
-};
-
 const container = inject("container") as ComputedRef<Container>;
-
-onMounted(() => hotkeys("shift+command+l, shift+ctrl+l", onHotkey));
-onUnmounted(() => hotkeys.unbind("shift+command+l, shift+ctrl+l", onHotkey));
 </script>
 
 <style lang="scss" scoped>

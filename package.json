@@ -38,7 +38,6 @@
     "bulma": "^0.9.4",
     "date-fns": "^2.29.3",
     "fuzzysort": "^2.0.1",
-    "hotkeys-js": "^3.10.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.0.22",
     "sass": "^1.54.9",

@@ -44,24 +44,19 @@
 <script lang="ts" setup>
 import { Splitpanes, Pane } from "splitpanes";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
-import hotkeys from "hotkeys-js";
-
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const { authorizationNeeded } = config;
-
+const { Meta_K, Ctrl_K } = useMagicKeys();
 const containerStore = useContainerStore();
-
 const { activeContainers, visibleContainers } = storeToRefs(containerStore);
 
-onMounted(() => {
-  hotkeys("command+k, ctrl+k", (event, handler) => {
-    event.preventDefault();
-    showFuzzySearch();
-  });
-});
+whenever(
+  () => Meta_K.value || Ctrl_K.value,
+  () => showFuzzySearch()
+);
 
 watchEffect(() => {
   setTitle(`${visibleContainers.value.length} containers`);
