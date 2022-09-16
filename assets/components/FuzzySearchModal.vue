@@ -37,7 +37,7 @@ import fuzzysort from "fuzzysort";
 import { type Container } from "@/types/Container";
 
 const { maxResults = 20 } = defineProps<{
-  maxResults: number;
+  maxResults?: number;
 }>();
 
 const emit = defineEmits(["close"]);

@@ -24,7 +24,6 @@ specifiers:
   date-fns: ^2.29.3
   eventsourcemock: ^2.0.0
   fuzzysort: ^2.0.1
-  hotkeys-js: ^3.10.0
   husky: ^8.0.1
   jest-serializer-vue: ^2.0.2
   jsdom: ^20.0.0
@@ -68,7 +67,6 @@ dependencies:
   bulma: 0.9.4
   date-fns: 2.29.3
   fuzzysort: 2.0.1
-  hotkeys-js: 3.10.0
   lodash.debounce: 4.0.8
   pinia: 2.0.22_arz4dztosvwy2ghjrlh2wdhejm
   sass: 1.54.9
@@ -2352,10 +2350,6 @@ packages:
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
-
-  /hotkeys-js/3.10.0:
-    resolution: {integrity: sha512-20xeVdOqcgTkMox0+BqFwADZP7+5dy/9CFPpAinSMh2d0s3b0Hs2V2D+lMh4Hphkf7VE9pwnOl58eP1te+REcg==}
-    dev: false
 
   /html-encoding-sniffer/3.0.0:
     resolution: {integrity: sha512-oWv4T4yJ52iKrufjnyZPkrN0CH3QnrUqdB6In1g5Fe1mia8GmF36gnfNySxoZtxD5+NmYw1EElVXiBk93UeskA==}
