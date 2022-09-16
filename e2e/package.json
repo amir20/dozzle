@@ -6,8 +6,8 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@frsource/cypress-plugin-visual-regression-diff": "^1.9.18",
-    "cypress": "^10.7.0",
+    "@frsource/cypress-plugin-visual-regression-diff": "^2.0.0",
+    "cypress": "^10.8.0",
     "typescript": "^4.8.3"
   }
 }
