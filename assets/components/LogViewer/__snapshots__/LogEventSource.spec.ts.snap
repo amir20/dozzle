@@ -5,12 +5,12 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
   <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
@@ -33,12 +33,12 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
   <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
@@ -61,12 +61,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
   <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
@@ -89,12 +89,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
   <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
@@ -117,12 +117,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
   <li data-key=\\"2\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
@@ -145,12 +145,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
   <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
     <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
       <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
           <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
               <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
                 <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg preserveAspectRatio=\\"xMidYMid meet\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
