@@ -49,9 +49,9 @@ export function useSearchFilter() {
     });
   }
 
-  function markSearch(log: string): string;
+  function markSearch(log: { toString(): string }): string;
   function markSearch(log: string[]): string[];
-  function markSearch(log: string | string[]) {
+  function markSearch(log: { toString(): string } | string[]) {
     if (!debouncedSearchFilter.value) {
       return log;
     }

@@ -6,7 +6,7 @@ import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "../../composables/settings";
 import { useSearchFilter } from "@/composables/search";
-import { vi, describe, expect, beforeEach, test, beforeAll, afterAll, afterEach } from "vitest";
+import { vi, describe, expect, beforeEach, test, afterEach } from "vitest";
 import { computed, nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
@@ -23,6 +23,7 @@ describe("<LogEventSource />", () => {
 
   beforeEach(() => {
     global.EventSource = EventSource;
+    // @ts-ignore
     window.scrollTo = vi.fn();
     global.IntersectionObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -112,6 +113,7 @@ describe("<LogEventSource />", () => {
     vi.runAllTimers();
     await nextTick();
 
+    // @ts-ignore
     const [message, _] = wrapper.vm.messages;
     expect(message).toMatchSnapshot();
   });
