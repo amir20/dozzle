@@ -5,11 +5,9 @@
     </div>
     <div class="column">
       <ul class="fields" @click="expanded = !expanded">
-        <li v-for="(value, name) in logEntry.message">
-          <template v-if="value">
-            <span class="has-text-grey">{{ name }}=</span>
-            <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
-          </template>
+        <li v-for="(value, name) in validValues(logEntry.message)">
+          <span class="has-text-grey">{{ name }}=</span>
+          <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
         </li>
       </ul>
       <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
@@ -21,12 +19,16 @@ import { type ComplexLogEntry } from "@/models/LogEntry";
 
 const { markSearch } = useSearchFilter();
 
-defineProps<{
+const { logEntry } = defineProps<{
   logEntry: ComplexLogEntry;
   visibleKeys: string[][];
 }>();
 
 let expanded = $ref(false);
+
+function validValues(obj: Record<string, any>) {
+  return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined));
+}
 </script>
 
 <style lang="scss" scoped>
@@ -47,6 +49,9 @@ let expanded = $ref(false);
 
   li {
     display: inline-block;
+    & + li {
+      margin-left: 1em;
+    }
   }
 }
 </style>
