@@ -16,8 +16,8 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
 }
 
 export function useLogStream(container: ComputedRef<Container>) {
-  let messages = $ref<LogEntry<string | JSONObject>[]>([]);
-  let buffer = $ref<LogEntry<string | JSONObject>[]>([]);
+  let messages: LogEntry<string | JSONObject>[] = $ref([]);
+  let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
@@ -117,8 +117,9 @@ export function useLogStream(container: ComputedRef<Container>) {
 
   watch(
     () => container.value.id,
-    () => connect()
+    () => connect(),
+    { immediate: true }
   );
 
-  return $$({ connect, messages, loadOlderLogs });
+  return { ...$$({ messages }), loadOlderLogs };
 }

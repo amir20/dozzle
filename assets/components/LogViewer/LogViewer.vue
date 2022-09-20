@@ -31,7 +31,7 @@
 import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { type Container } from "@/types/Container";
-import { type JSONObject, type LogEntry } from "@/models/LogEntry";
+import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -47,10 +47,10 @@ const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem = ref<LogEntry<string | JSONObject>>();
+let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
 
 function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
-  lastSelectedItem.value = item;
+  lastSelectedItem = item;
   resetSearch();
 }
 
