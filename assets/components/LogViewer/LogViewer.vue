@@ -68,12 +68,6 @@ watch(
   padding: 1em 0;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
-  &.disable-wrap {
-    .line {
-      white-space: nowrap;
-    }
-  }
-
   & > li {
     display: flex;
     word-wrap: break-word;
@@ -86,19 +80,10 @@ watch(
       background-color: rgba(125, 125, 125, 0.08);
     }
 
-    &.selected .date {
-      background-color: var(--menu-item-active-background-color);
+    &.selected {
+      border: 1px var(--secondary-color) solid;
+    }
 
-      color: var(--text-color);
-    }
-    &.selected > .date {
-      background-color: white;
-    }
-    & > .line {
-      margin: auto 0;
-      width: 100%;
-      display: flex;
-    }
     & > .line-options {
       display: flex;
       flex-direction: row-reverse;
