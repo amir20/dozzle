@@ -50,7 +50,12 @@ import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const { authorizationNeeded } = config;
-const { Meta_K, Ctrl_K } = useMagicKeys();
+const { Meta_K, Ctrl_K } = useMagicKeys({
+  passive: false,
+  onEventFired(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "k" && e.type === "keydown") e.preventDefault();
+  },
+});
 const containerStore = useContainerStore();
 const { activeContainers, visibleContainers } = storeToRefs(containerStore);
 
