@@ -22,10 +22,7 @@
           </a>
         </dropdown-menu>
       </div>
-      <div class="line">
-        <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
-      </div>
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
     </li>
   </ul>
 </template>
@@ -119,57 +116,6 @@ watch(
 
   &.large {
     font-size: 120%;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .date {
-    background-color: #262626;
-    color: #258ccd;
-  }
-}
-
-[data-theme="dark"] {
-  .date {
-    background-color: #262626;
-    color: #258ccd;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .date {
-    background-color: #f0f0f0;
-    color: #009900;
-  }
-}
-
-[data-theme="light"] {
-  .date {
-    background-color: #f0f0f0;
-    color: #009900;
-  }
-}
-
-.date {
-  padding-left: 5px;
-  padding-right: 5px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-
-:deep(mark) {
-  border-radius: 2px;
-  background-color: var(--secondary-color);
-  animation: pops 200ms ease-out;
-  display: inline-block;
-}
-
-@keyframes pops {
-  0% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1.05);
   }
 }
 </style>

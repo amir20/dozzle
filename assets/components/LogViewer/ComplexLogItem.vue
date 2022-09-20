@@ -1,14 +1,19 @@
 <template>
-  <div>
-    <ul class="fields" @click="expanded = !expanded">
-      <li v-for="(value, name) in logEntry.message">
-        <template v-if="value">
-          <span class="has-text-grey">{{ name }}=</span>
-          <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
-        </template>
-      </li>
-    </ul>
-    <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+  <div class="columns is-1 is-variable">
+    <div class="column is-narrow" v-if="showTimestamp">
+      <log-date :date="logEntry.date"></log-date>
+    </div>
+    <div class="column">
+      <ul class="fields" @click="expanded = !expanded">
+        <li v-for="(value, name) in logEntry.message">
+          <template v-if="value">
+            <span class="has-text-grey">{{ name }}=</span>
+            <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
+          </template>
+        </li>
+      </ul>
+      <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -42,7 +47,6 @@ let expanded = $ref(false);
 
   li {
     display: inline-block;
-    margin-left: 1em;
   }
 }
 </style>

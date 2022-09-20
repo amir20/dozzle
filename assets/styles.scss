@@ -176,3 +176,19 @@ html.has-custom-scrollbars {
 .button .button-wrapper > span {
   display: contents;
 }
+
+mark {
+  border-radius: 2px;
+  background-color: var(--secondary-color);
+  animation: pops 200ms ease-out;
+  display: inline-block;
+}
+
+@keyframes pops {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
