@@ -7,23 +7,17 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    2: typeof import('./components/LogViewer/SimpleLogItem copy 2.vue')['default']
-    3: typeof import('./components/LogViewer/SimpleLogItem copy 3.vue')['default']
-    4: typeof import('./components/LogViewer/SimpleLogItem copy 4.vue')['default']
     CarbonCaretDown: typeof import('~icons/carbon/caret-down')['default']
     CilColumns: typeof import('~icons/cil/columns')['default']
     CilFindInPage: typeof import('~icons/cil/find-in-page')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
-    ComplexPayload: typeof import('./components/LogViewer/ComplexPayload.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
-    copy: typeof import('./components/LogViewer/SimpleLogItem copy.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
-    JSONPayload: typeof import('./components/LogViewer/JSONPayload.vue')['default']
     LogActionsToolbar: typeof import('./components/LogViewer/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogViewer/LogContainer.vue')['default']
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']
@@ -50,7 +44,6 @@ declare module '@vue/runtime-core' {
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
-    StringPayload: typeof import('./components/LogViewer/StringPayload.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }
