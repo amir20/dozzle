@@ -55,7 +55,7 @@
                 type="text"
                 :placeholder="$t('placeholder.search-containers')"
                 v-model="search"
-                @keyup.esc="search = null"
+                @keyup.esc="search.value = null"
                 @keyup.enter="onEnter()"
               />
               <span class="icon is-left">

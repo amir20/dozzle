@@ -46,10 +46,10 @@ const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers, allContainersById } = storeToRefs(store);
 
-const showNav = ref(false);
+let showNav = $ref(false);
 
 watch(route, () => {
-  showNav.value = false;
+  showNav = false;
 });
 </script>
 <style scoped lang="scss">

@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>();
 
 const container = inject("container") as ComputedRef<Container>;
-const { connect, messages, loadOlderLogs } = useLogStream(container);
+const { messages, loadOlderLogs } = useLogStream(container);
 
 const beforeLoading = () => emit("loading-more", true);
 const afterLoading = () => emit("loading-more", false);
@@ -22,6 +22,4 @@ defineExpose({
 });
 
 const fetchMore = () => loadOlderLogs({ beforeLoading, afterLoading });
-
-connect();
 </script>

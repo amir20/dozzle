@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";

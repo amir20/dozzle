@@ -19,9 +19,6 @@ span {
   }
   &.text {
     white-space: pre-wrap;
-    &::before {
-      content: " ";
-    }
   }
 }
 </style>

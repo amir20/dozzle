@@ -23,7 +23,10 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42 AM</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42 AM</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+    </div>
   </li>
 </ul>"
 `;
@@ -51,7 +54,10 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+    </div>
   </li>
 </ul>"
 `;
@@ -79,7 +85,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42 AM</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">This is a message.</span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42 AM</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">This is a message.</div>
+    </div>
   </li>
 </ul>"
 `;
@@ -107,7 +116,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42 AM</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42 AM</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
+    </div>
   </li>
 </ul>"
 `;
@@ -135,7 +147,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42 AM</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\"><mark>test</mark> bar</span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42 AM</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\"><mark>test</mark> bar</div>
+    </div>
   </li>
 </ul>"
 `;
@@ -163,7 +178,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div class=\\"line\\" data-v-2e92daca=\\"\\"><span class=\\"date\\" data-v-2e92daca=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" data-v-2e92daca=\\"\\">06/12/2019 10:55:42 AM</time></span><span class=\\"text\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</span></div>
+    <div class=\\"columns is-1 is-variable\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
+      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\">06/12/2019 10:55:42 AM</time></div>
+      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+    </div>
   </li>
 </ul>"
 `;

@@ -22,10 +22,7 @@
           </a>
         </dropdown-menu>
       </div>
-      <div class="line">
-        <span class="date" v-if="showTimestamp"> <relative-time :date="item.date"></relative-time></span>
-        <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
-      </div>
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
     </li>
   </ul>
 </template>
@@ -34,7 +31,7 @@
 import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
 import { type Container } from "@/types/Container";
-import { type JSONObject, type LogEntry } from "@/models/LogEntry";
+import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -50,10 +47,10 @@ const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
 const events = ref<HTMLElement>();
-let lastSelectedItem = ref<LogEntry<string | JSONObject>>();
+let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
 
 function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
-  lastSelectedItem.value = item;
+  lastSelectedItem = item;
   resetSearch();
 }
 
@@ -71,12 +68,6 @@ watch(
   padding: 1em 0;
   font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
-  &.disable-wrap {
-    .line {
-      white-space: nowrap;
-    }
-  }
-
   & > li {
     display: flex;
     word-wrap: break-word;
@@ -89,19 +80,10 @@ watch(
       background-color: rgba(125, 125, 125, 0.08);
     }
 
-    &.selected .date {
-      background-color: var(--menu-item-active-background-color);
+    &.selected {
+      border: 1px var(--secondary-color) solid;
+    }
 
-      color: var(--text-color);
-    }
-    &.selected > .date {
-      background-color: white;
-    }
-    & > .line {
-      margin: auto 0;
-      width: 100%;
-      display: flex;
-    }
     & > .line-options {
       display: flex;
       flex-direction: row-reverse;
@@ -119,57 +101,6 @@ watch(
 
   &.large {
     font-size: 120%;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .date {
-    background-color: #262626;
-    color: #258ccd;
-  }
-}
-
-[data-theme="dark"] {
-  .date {
-    background-color: #262626;
-    color: #258ccd;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .date {
-    background-color: #f0f0f0;
-    color: #009900;
-  }
-}
-
-[data-theme="light"] {
-  .date {
-    background-color: #f0f0f0;
-    color: #009900;
-  }
-}
-
-.date {
-  padding-left: 5px;
-  padding-right: 5px;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-
-:deep(mark) {
-  border-radius: 2px;
-  background-color: var(--secondary-color);
-  animation: pops 200ms ease-out;
-  display: inline-block;
-}
-
-@keyframes pops {
-  0% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1.05);
   }
 }
 </style>

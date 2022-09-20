@@ -1,5 +1,10 @@
 <template>
-  <span class="text" v-html="colorize(logEntry.message)"></span>
+  <div class="columns is-1 is-variable">
+    <div class="column is-narrow" v-if="showTimestamp">
+      <log-date :date="logEntry.date"></log-date>
+    </div>
+    <div class="text column" v-html="colorize(logEntry.message)"></div>
+  </div>
 </template>
 <script lang="ts" setup>
 import { SimpleLogEntry } from "@/models/LogEntry";
@@ -23,8 +28,5 @@ const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 
 .text {
   white-space: pre-wrap;
-  &::before {
-    content: " ";
-  }
 }
 </style>
