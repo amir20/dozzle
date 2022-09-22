@@ -10,15 +10,17 @@ WORKDIR /build
 COPY pnpm-lock.yaml ./
 RUN pnpm fetch --prod
 
-# Copy files
-COPY package.json .* vite.config.ts index.html ./
+# Copy package.json and install dependencies
+COPY package.json ./
+RUN pnpm install -r --offline --prod --ignore-scripts
 
 # Copy assets and translations to build
+COPY .* vite.config.ts index.html ./
 COPY assets ./assets
 COPY locales ./locales
 
-# Install dependencies
-RUN pnpm install -r --offline --prod --ignore-scripts && pnpm build
+# Build assets
+RUN pnpm build
 
 FROM --platform=$BUILDPLATFORM golang:1.19.1-alpine AS builder
 
