@@ -9,7 +9,7 @@ context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () =>
     cy.get("li.running", { timeout: 10000 }).removeDates().replaceSkippedElements().matchImage();
   });
 
-  it("correct title", () => {
+  it("correct title is shown", () => {
     cy.title().should("eq", "1 containers - Dozzle");
 
     cy.get("li.running:first a").click();
@@ -17,9 +17,15 @@ context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () =>
     cy.title().should("include", "- Dozzle");
   });
 
-  it("settings page", () => {
+  it("navigating to setting page works ", () => {
     cy.get("a[href='/settings']").click();
 
     cy.contains("About");
+  });
+
+  it("shortcut for fuzzy search works", () => {
+    cy.get("body").type("{ctrl}k");
+
+    cy.get("input[placeholder='Search containers using ⌘ + k or ctrl + k']").should("be.visible");
   });
 });

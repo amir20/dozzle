@@ -22,23 +22,17 @@
 </template>
 
 <script lang="ts" setup>
-const { Meta_F, Ctrl_F, esc } = useMagicKeys({
-  passive: false,
-  onEventFired(e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === "f" && e.type === "keydown") e.preventDefault();
-  },
-});
 const input = ref<HTMLInputElement>();
 const { searchFilter, showSearch, resetSearch } = useSearchFilter();
 
-whenever(
-  () => Meta_F.value || Ctrl_F.value,
-  () => {
+onKeyStroke("f", (e) => {
+  if (e.ctrlKey || e.metaKey) {
     showSearch.value = true;
     nextTick(() => input.value?.focus() || input.value?.select());
+    e.preventDefault();
   }
-);
-whenever(esc, () => resetSearch());
+});
+
 onUnmounted(() => resetSearch());
 </script>
 
