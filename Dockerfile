@@ -19,7 +19,7 @@ COPY .* vite.config.ts index.html ./
 COPY assets ./assets
 COPY locales ./locales
 
-# Install dependencies
+# Build assets
 RUN pnpm build
 
 FROM --platform=$BUILDPLATFORM golang:1.19.1-alpine AS builder
