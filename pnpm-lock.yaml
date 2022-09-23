@@ -17,13 +17,14 @@ specifiers:
   '@vue/compiler-sfc': ^3.2.39
   '@vue/test-utils': ^2.0.2
   '@vueuse/core': ^9.2.0
+  '@vueuse/integrations': ^9.2.0
   '@vueuse/router': ^9.2.0
   ansi-to-html: ^0.7.2
   bulma: ^0.9.4
   c8: ^7.12.0
   date-fns: ^2.29.3
   eventsourcemock: ^2.0.0
-  fuzzysort: ^2.0.1
+  fuse.js: ^6.6.2
   husky: ^8.0.1
   jest-serializer-vue: ^2.0.2
   jsdom: ^20.0.0
@@ -62,11 +63,12 @@ dependencies:
   '@vitejs/plugin-vue': 3.1.0_vite@3.1.3+vue@3.2.39
   '@vue/compiler-sfc': 3.2.39
   '@vueuse/core': 9.2.0_vue@3.2.39
+  '@vueuse/integrations': 9.2.0_fuse.js@6.6.2+vue@3.2.39
   '@vueuse/router': 9.2.0_u55wpvgoaskkfdnhr4v2vlugdi
   ansi-to-html: 0.7.2
   bulma: 0.9.4
   date-fns: 2.29.3
-  fuzzysort: 2.0.1
+  fuse.js: 6.6.2
   lodash.debounce: 4.0.8
   pinia: 2.0.22_arz4dztosvwy2ghjrlh2wdhejm
   sass: 1.54.9
@@ -814,6 +816,50 @@ packages:
       '@types/web-bluetooth': 0.0.15
       '@vueuse/metadata': 9.2.0
       '@vueuse/shared': 9.2.0_vue@3.2.39
+      vue-demi: 0.13.11_vue@3.2.39
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/integrations/9.2.0_fuse.js@6.6.2+vue@3.2.39:
+    resolution: {integrity: sha512-0NerkCPUUWnbEb0ZZaJyrO8YKPPClR9+aLLF8yBbG/XRsoEo7pcpVq8d+uMhfHrXABoUpKD+9FZ+Tz/aRb7yFg==}
+    peerDependencies:
+      async-validator: '*'
+      axios: '*'
+      change-case: '*'
+      drauu: '*'
+      focus-trap: '*'
+      fuse.js: '*'
+      jwt-decode: '*'
+      nprogress: '*'
+      qrcode: '*'
+      universal-cookie: '*'
+    peerDependenciesMeta:
+      async-validator:
+        optional: true
+      axios:
+        optional: true
+      change-case:
+        optional: true
+      drauu:
+        optional: true
+      focus-trap:
+        optional: true
+      fuse.js:
+        optional: true
+      jwt-decode:
+        optional: true
+      nprogress:
+        optional: true
+      qrcode:
+        optional: true
+      universal-cookie:
+        optional: true
+    dependencies:
+      '@vueuse/core': 9.2.0_vue@3.2.39
+      '@vueuse/shared': 9.2.0_vue@3.2.39
+      fuse.js: 6.6.2
       vue-demi: 0.13.11_vue@3.2.39
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -2195,8 +2241,9 @@ packages:
   /functions-have-names/1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  /fuzzysort/2.0.1:
-    resolution: {integrity: sha512-SlgbPAq0eQ6JQ1h3l4MNeGH/t9DHKH8GGM0RD/6RhmJrNnSoWt3oIVaiQm9g9BPB+wAhRMeMqlUTbhbd7+Ufcg==}
+  /fuse.js/6.6.2:
+    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
+    engines: {node: '>=10'}
     dev: false
 
   /get-caller-file/2.0.5:

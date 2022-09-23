@@ -3,26 +3,29 @@
     <o-autocomplete
       ref="autocomplete"
       v-model="query"
-      placeholder="Search containers using ⌘ + k or ctrl + k"
-      field="name"
+      :placeholder="$t('placeholder.search-containers')"
       open-on-focus
       keep-first
       expanded
-      :data="results"
+      :data="data"
       @select="selected"
     >
-      <template #default="props">
+      <template #default="{ option: item }">
         <div class="media">
           <div class="media-left">
-            <span class="icon is-small" :class="props.option.state">
+            <span class="icon is-small" :class="item.state">
               <octicon-container-24 />
             </span>
           </div>
           <div class="media-content">
-            {{ props.option.name }}
+            {{ item.name }}
           </div>
           <div class="media-right">
-            <span class="icon is-small column-icon" @click.stop.prevent="addColumn(props.option)" title="Pin as column">
+            <span
+              class="icon is-small column-icon"
+              @click.stop.prevent="addColumn(item)"
+              :title="$t('tooltip.pin-column')"
+            >
               <cil-columns />
             </span>
           </div>
@@ -33,55 +36,61 @@
 </template>
 
 <script lang="ts" setup>
-import fuzzysort from "fuzzysort";
 import { type Container } from "@/types/Container";
+import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { maxResults = 20 } = defineProps<{
+const { maxResults: resultLimit = 20 } = defineProps<{
   maxResults?: number;
 }>();
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
 
 const query = ref("");
 const autocomplete = ref<HTMLElement>();
 const router = useRouter();
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
-const preparedContainers = computed(() =>
-  containers.value.map(({ name, id, created, state }) =>
-    reactive({
-      name,
+
+const list = computed(() => {
+  return containers.value.map(({ id, created, name, state }) => {
+    return {
       id,
       created,
+      name,
       state,
-      preparedName: fuzzysort.prepare(name),
-    })
-  )
-);
-
-const results = computed(() => {
-  const options = {
-    limit: maxResults,
-    key: "preparedName",
-  };
-  if (query.value) {
-    const results = fuzzysort.go(query.value, preparedContainers.value, options);
-    results.forEach((result) => {
-      if (result.obj.state === "running") {
-        // @ts-ignore
-        result.score += 1;
-      }
-    });
-    return [...results].sort((a, b) => b.score - a.score).map((i) => i.obj);
-  } else {
-    return [...preparedContainers.value].sort((a, b) => b.created - a.created);
-  }
+    };
+  });
 });
 
-onMounted(() => nextTick(() => autocomplete.value?.focus()));
+const { results } = useFuse(query, list, {
+  fuseOptions: { keys: ["name"], includeScore: true },
+  resultLimit,
+  matchAllWhenSearchEmpty: true,
+});
 
-function selected(item: { id: string; name: string }) {
-  router.push({ name: "container-id", params: { id: item.id } });
+const data = computed(() => {
+  return results.value
+    .sort((a, b) => {
+      if (a.score === b.score) {
+        if (a.item.state === "running" && b.item.state !== "running") {
+          return -1;
+        } else {
+          return 1;
+        }
+      } else if (a.score && b.score) {
+        return a.score - b.score;
+      } else {
+        return 0;
+      }
+    })
+    .map(({ item }) => item);
+});
+watchOnce(autocomplete, () => autocomplete.value?.focus());
+
+function selected({ id }: { id: string }) {
+  router.push({ name: "container-id", params: { id } });
   emit("close");
 }
 function addColumn(container: Container) {

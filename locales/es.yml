@@ -27,7 +27,7 @@ button:
   logout: Cerrar la sesión
   login: Iniciar sesión
 placeholder:
-  search-containers: Buscar Contenedores
+  search-containers: Buscar contenedores (⌘ + K, CTRL + K)
 settings:
   display: Vista
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas

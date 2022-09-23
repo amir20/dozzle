@@ -26,6 +26,6 @@ context("Dozzle default mode", { baseUrl: Cypress.env("DOZZLE_DEFAULT") }, () =>
   it("shortcut for fuzzy search works", () => {
     cy.get("body").type("{ctrl}k");
 
-    cy.get("input[placeholder='Search containers using ⌘ + k or ctrl + k']").should("be.visible");
+    cy.get("input[placeholder='Search containers (⌘ + k, ⌃k)']").should("be.visible");
   });
 });
