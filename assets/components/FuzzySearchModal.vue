@@ -65,12 +65,28 @@ const list = computed(() => {
 });
 
 const { results } = useFuse(query, list, {
-  fuseOptions: { keys: ["name"] },
+  fuseOptions: { keys: ["name"], includeScore: true },
   resultLimit,
   matchAllWhenSearchEmpty: true,
 });
 
-const data = computed(() => results.value.map(({ item }) => item));
+const data = computed(() => {
+  return results.value
+    .sort((a, b) => {
+      if (a.score === b.score) {
+        if (a.item.state === "running" && b.item.state !== "running") {
+          return -1;
+        } else {
+          return 1;
+        }
+      } else if (a.score && b.score) {
+        return a.score - b.score;
+      } else {
+        return 0;
+      }
+    })
+    .map(({ item }) => item);
+});
 watchOnce(autocomplete, () => autocomplete.value?.focus());
 
 function selected({ id }: { id: string }) {
