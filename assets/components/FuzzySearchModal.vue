@@ -58,8 +58,8 @@ const { results } = useFuse(query, containers, {
 const data = computed(() => results.value.map(({ item }) => item));
 watchOnce(autocomplete, () => autocomplete.value?.focus());
 
-function selected({ item }: { item: { id: string; name: string } }) {
-  router.push({ name: "container-id", params: { id: item.id } });
+function selected({ id }: { id: string }) {
+  router.push({ name: "container-id", params: { id } });
   emit("close");
 }
 function addColumn(container: Container) {
