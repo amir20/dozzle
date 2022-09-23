@@ -53,7 +53,18 @@ const router = useRouter();
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
 
-const { results } = useFuse(query, containers, {
+const list = computed(() => {
+  return containers.value.map(({ id, created, name, state }) => {
+    return {
+      id,
+      created,
+      name,
+      state,
+    };
+  });
+});
+
+const { results } = useFuse(query, list, {
   fuseOptions: { keys: ["name"] },
   resultLimit,
   matchAllWhenSearchEmpty: true,
