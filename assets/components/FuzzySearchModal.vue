@@ -21,7 +21,11 @@
             {{ item.name }}
           </div>
           <div class="media-right">
-            <span class="icon is-small column-icon" @click.stop.prevent="addColumn(item)" title="Pin as column">
+            <span
+              class="icon is-small column-icon"
+              @click.stop.prevent="addColumn(item)"
+              :title="$t('tooltip.pin-column')"
+            >
               <cil-columns />
             </span>
           </div>
