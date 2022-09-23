@@ -27,7 +27,7 @@ button:
   logout: Logout
   login: Login
 placeholder:
-  search-containers: Search Containers
+  search-containers: Search containers (⌘ + k, ⌃k)
 settings:
   display: Display
   small-scrollbars: Use smaller scrollbars

@@ -3,7 +3,7 @@
     <o-autocomplete
       ref="autocomplete"
       v-model="query"
-      placeholder="Search containers using ⌘ + k or ctrl + k"
+      :placeholder="$t('placeholder.search-containers')"
       open-on-focus
       keep-first
       expanded
