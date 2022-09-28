@@ -147,7 +147,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 				cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
 				systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
 				cpuPercent  = int64((cpuDelta / systemDelta) * float64(ncpus) * 100)
-				memUsage    = int64(v.MemoryStats.Usage - v.MemoryStats.Stats["cache"])
+				memUsage    = int64(calculateMemUsageUnixNoCache(v.MemoryStats))
 				memPercent  = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
 			)
 
