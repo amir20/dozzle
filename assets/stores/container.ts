@@ -29,7 +29,7 @@ export const useContainerStore = defineStore("container", () => {
     const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
     const container = allContainersById.value[stat.id];
     if (container) {
-      toRaw(container).stat.value = stat;
+      container.stat.value = stat;
     }
   });
   es.addEventListener("container-die", (e) => {

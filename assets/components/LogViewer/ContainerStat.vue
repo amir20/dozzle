@@ -1,18 +1,18 @@
 <template>
-  <div class="is-size-7 is-uppercase columns is-marginless is-mobile" v-if="container.stat">
+  <div class="is-size-7 is-uppercase columns is-marginless is-mobile" v-if="container.stat.value">
     <div class="column is-narrow has-text-weight-bold">
       {{ container.state }}
     </div>
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">mem</span>
       <span class="has-text-weight-bold">
-        {{ formatBytes(container.stat.memoryUsage) }}
+        {{ formatBytes(container.stat.value.memoryUsage) }}
       </span>
     </div>
 
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">load</span>
-      <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
+      <span class="has-text-weight-bold"> {{ container.stat.value.cpu }}% </span>
     </div>
   </div>
 </template>
@@ -22,12 +22,6 @@ import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
-
-console.log("container.value.stat", container.value.stat.value);
-
-setInterval(() => {
-  console.table(unref(container.value.statHistory).map((stat) => stat.snapshot.cpu));
-}, 1000);
 </script>
 
 <style lang="scss" scoped>
