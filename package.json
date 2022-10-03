@@ -30,7 +30,7 @@
     "@intlify/vite-plugin-vue-i18n": "^6.0.2",
     "@oruga-ui/oruga-next": "^0.5.6",
     "@oruga-ui/theme-bulma": "^0.2.7",
-    "@vitejs/plugin-vue": "3.1.0",
+    "@vitejs/plugin-vue": "3.1.2",
     "@vue/compiler-sfc": "^3.2.39",
     "@vueuse/core": "^9.3.0",
     "@vueuse/integrations": "^9.3.0",
