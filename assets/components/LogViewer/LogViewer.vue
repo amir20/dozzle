@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import { type ComputedRef, toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
-import { type Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{

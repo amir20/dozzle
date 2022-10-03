@@ -1,4 +1,4 @@
-import { Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 import { useStorage } from "@vueuse/core";
 import { computed, ComputedRef } from "vue";
 

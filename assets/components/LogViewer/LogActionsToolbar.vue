@@ -42,7 +42,7 @@
 
 <script lang="ts" setup>
 import { type ComputedRef } from "vue";
-import { type Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 
 const { showSearch } = useSearchFilter();
 const { base } = config;

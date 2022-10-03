@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
 const emit = defineEmits<{

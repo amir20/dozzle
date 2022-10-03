@@ -8,7 +8,7 @@ import {
   DockerEventLogEntry,
   SkippedLogsEntry,
 } from "@/models/LogEntry";
-import { type Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
