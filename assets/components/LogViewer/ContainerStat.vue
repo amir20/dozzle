@@ -1,18 +1,18 @@
 <template>
-  <div class="is-size-7 is-uppercase columns is-marginless is-mobile" v-if="container.stat.value">
+  <div class="is-size-7 is-uppercase columns is-marginless is-mobile" v-if="container.stat">
     <div class="column is-narrow has-text-weight-bold">
       {{ container.state }}
     </div>
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">mem</span>
       <span class="has-text-weight-bold">
-        {{ formatBytes(container.stat.value.memoryUsage) }}
+        {{ formatBytes(container.stat.memoryUsage) }}
       </span>
     </div>
 
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">load</span>
-      <span class="has-text-weight-bold"> {{ container.stat.value.cpu }}% </span>
+      <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
     </div>
   </div>
 </template>

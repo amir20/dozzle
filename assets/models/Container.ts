@@ -6,7 +6,7 @@ type Stat = Omit<ContainerStat, "id">;
 
 export class Container {
   public stat: Ref<Stat>;
-  private throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
+  private readonly throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
 
   constructor(
     public readonly id: string,
@@ -17,13 +17,11 @@ export class Container {
     public status: string,
     public state: ContainerState
   ) {
-    this.stat = markRaw(ref({ cpu: 0, memory: 0, memoryUsage: 0 }));
-    this.throttledStatHistory = markRaw(
-      useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 })
-    );
+    this.stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
+    this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });
   }
 
   public getStatHistory() {
-    return this.throttledStatHistory.history.value;
+    return unref(this.throttledStatHistory.history);
   }
 }
