@@ -37,6 +37,7 @@
     "@vueuse/router": "^9.3.0",
     "ansi-to-html": "^0.7.2",
     "bulma": "^0.9.4",
+    "d3": "^7.6.1",
     "date-fns": "^2.29.3",
     "fuse.js": "^6.6.2",
     "lodash.debounce": "^4.0.8",

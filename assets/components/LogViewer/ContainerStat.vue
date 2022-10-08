@@ -13,6 +13,7 @@
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">load</span>
       <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
+      <cpu-sparkline></cpu-sparkline>
     </div>
   </div>
 </template>

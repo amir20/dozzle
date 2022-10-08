@@ -13,6 +13,7 @@ declare module '@vue/runtime-core' {
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
+    CpuSparkline: typeof import('./components/CpuSparkline.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
