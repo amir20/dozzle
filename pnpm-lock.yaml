@@ -10,6 +10,11 @@ specifiers:
   '@oruga-ui/oruga-next': ^0.5.6
   '@oruga-ui/theme-bulma': ^0.2.7
   '@pinia/testing': ^0.0.14
+  '@types/d3-ease': ^3.0.0
+  '@types/d3-scale': ^4.0.2
+  '@types/d3-selection': ^3.0.3
+  '@types/d3-shape': ^3.1.0
+  '@types/d3-transition': ^3.0.2
   '@types/lodash.debounce': ^4.0.7
   '@types/node': ^18.8.4
   '@types/semver': ^7.3.12
@@ -89,6 +94,11 @@ dependencies:
 
 devDependencies:
   '@pinia/testing': 0.0.14_pinia@2.0.23+vue@3.2.40
+  '@types/d3-ease': 3.0.0
+  '@types/d3-scale': 4.0.2
+  '@types/d3-selection': 3.0.3
+  '@types/d3-shape': 3.1.0
+  '@types/d3-transition': 3.0.2
   '@types/lodash.debounce': 4.0.7
   '@types/node': 18.8.4
   '@types/semver': 7.3.12
@@ -595,6 +605,40 @@ packages:
 
   /@types/chai/4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
+    dev: true
+
+  /@types/d3-ease/3.0.0:
+    resolution: {integrity: sha512-aMo4eaAOijJjA6uU+GIeW018dvy9+oH5Y2VPPzjjfxevvGQ/oRDs+tfYC9b50Q4BygRR8yE2QCLsrT0WtAVseA==}
+    dev: true
+
+  /@types/d3-path/3.0.0:
+    resolution: {integrity: sha512-0g/A+mZXgFkQxN3HniRDbXMN79K3CdTpLsevj+PXiTcb2hVyvkZUBg37StmgCQkaD84cUJ4uaDAWq7UJOQy2Tg==}
+    dev: true
+
+  /@types/d3-scale/4.0.2:
+    resolution: {integrity: sha512-Yk4htunhPAwN0XGlIwArRomOjdoBFXC3+kCxK2Ubg7I9shQlVSJy/pG/Ht5ASN+gdMIalpk8TJ5xV74jFsetLA==}
+    dependencies:
+      '@types/d3-time': 3.0.0
+    dev: true
+
+  /@types/d3-selection/3.0.3:
+    resolution: {integrity: sha512-Mw5cf6nlW1MlefpD9zrshZ+DAWL4IQ5LnWfRheW6xwsdaWOb6IRRu2H7XPAQcyXEx1D7XQWgdoKR83ui1/HlEA==}
+    dev: true
+
+  /@types/d3-shape/3.1.0:
+    resolution: {integrity: sha512-jYIYxFFA9vrJ8Hd4Se83YI6XF+gzDL1aC5DCsldai4XYYiVNdhtpGbA/GM6iyQ8ayhSp3a148LY34hy7A4TxZA==}
+    dependencies:
+      '@types/d3-path': 3.0.0
+    dev: true
+
+  /@types/d3-time/3.0.0:
+    resolution: {integrity: sha512-sZLCdHvBUcNby1cB6Fd3ZBrABbjz3v1Vm90nysCQ6Vt7vd6e/h9Lt7SiJUoEX0l4Dzc7P5llKyhqSi1ycSf1Hg==}
+    dev: true
+
+  /@types/d3-transition/3.0.2:
+    resolution: {integrity: sha512-jo5o/Rf+/u6uerJ/963Dc39NI16FQzqwOc54bwvksGAdVfvDrqDpVeq95bEvPtBwLCVZutAEyAtmSyEMxN7vxQ==}
+    dependencies:
+      '@types/d3-selection': 3.0.3
     dev: true
 
   /@types/debug/4.1.7:
