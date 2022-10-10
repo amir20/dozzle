@@ -5,14 +5,12 @@
 <script lang="ts" setup>
 import { select, ValueFn } from "d3-selection";
 import { extent } from "d3-array";
-import { active, transition } from "d3-transition";
 import { scaleLinear } from "d3-scale";
-import { line } from "d3-shape";
-import { easeLinear } from "d3-ease";
+import { area } from "d3-shape";
 import { Container } from "@/models/Container";
 import { ComputedRef } from "vue";
 
-const d3 = { select, extent, active, transition, scaleLinear, line, easeLinear };
+const d3 = { select, extent, scaleLinear, area };
 
 const container = inject("container") as ComputedRef<Container>;
 
@@ -29,48 +27,23 @@ onMounted(() => {
   const x = d3.scaleLinear().range([0, innerWidth]);
   const y = d3.scaleLinear().range([innerHeight, 0]);
 
-  const line = d3
-    .line()
-    .x((d: any) => x(d.x))
-    .y((d: any) => y(d.y)) as ValueFn<any, any, string>;
-
   const g = svg.append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  const path = g
-    .append("path")
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1)
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round");
+  const path = g.append("path").attr("class", "area");
 
-  // const data = cpuData();
-
-  // x.domain(d3.extent(data, (d) => d.x) as [number, number]);
-  // y.domain(d3.extent(data, (d) => d.y) as [number, number]);
-
-  // path.datum(data).attr("d", line);
-
-  // const t = d3.transition().duration(1000).ease(d3.easeLinear);
-
-  // path.datum(data).attr("d", line);
-  // .transition(t)
-  // .attr("transform", "translate(" + x(-1) + ",0)")
-  // .on("start", tick);
+  const area = d3
+    .area()
+    .x((d: any) => x(d.x))
+    .y0(y(0))
+    .y1((d: any) => y(d.y)) as ValueFn<SVGGElement, any, string>;
 
   function tick() {
     const data = cpuData();
 
     x.domain(d3.extent(data, (d) => d.x) as [number, number]);
     y.domain(d3.extent(data, (d) => d.y) as [number, number]);
-    path.datum(data).attr("d", line);
 
-    // path.datum(data).attr("d", line).attr("transform", null);
-
-    // d3.active(this)
-    //   .transition(t)
-    //   .attr("transform", "translate(" + x(-1) + ",0)")
-    //   .on("start", tick);
+    path.datum(data).attr("d", area);
   }
 
   watch(() => container.value.stat, tick);
@@ -81,3 +54,11 @@ const cpuData = () => {
   return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.cpu }));
 };
 </script>
+
+<style scoped>
+:deep(.area) {
+  fill: steelblue;
+  stroke: steelblue;
+  stroke-width: 1;
+}
+</style>
