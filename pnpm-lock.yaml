@@ -71,7 +71,6 @@ dependencies:
   '@iconify-json/octicon': 1.1.20
   '@oruga-ui/oruga-next': 0.5.6_vue@3.2.40
   '@oruga-ui/theme-bulma': 0.2.7
-  '@types/d3-array': 3.0.3
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/integrations': 9.3.0_fuse.js@6.6.2+vue@3.2.40
   '@vueuse/router': 9.3.0_c7eza3xvlyb4mo6qeit5ggeo6u
@@ -96,6 +95,7 @@ dependencies:
 devDependencies:
   '@intlify/vite-plugin-vue-i18n': 6.0.3_vite@3.1.7+vue-i18n@9.2.2
   '@pinia/testing': 0.0.14_pinia@2.0.23+vue@3.2.40
+  '@types/d3-array': 3.0.3
   '@types/d3-ease': 3.0.0
   '@types/d3-scale': 4.0.2
   '@types/d3-selection': 3.0.3
@@ -620,7 +620,7 @@ packages:
 
   /@types/d3-array/3.0.3:
     resolution: {integrity: sha512-Reoy+pKnvsksN0lQUlcH6dOGjRZ/3WRwXR//m+/8lt1BXeI4xyaUZoqULNjyXXRuh0Mj4LNpkCvhUpQlY3X5xQ==}
-    dev: false
+    dev: true
 
   /@types/d3-ease/3.0.0:
     resolution: {integrity: sha512-aMo4eaAOijJjA6uU+GIeW018dvy9+oH5Y2VPPzjjfxevvGQ/oRDs+tfYC9b50Q4BygRR8yE2QCLsrT0WtAVseA==}
