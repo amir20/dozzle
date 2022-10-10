@@ -10,6 +10,7 @@ specifiers:
   '@oruga-ui/oruga-next': ^0.5.6
   '@oruga-ui/theme-bulma': ^0.2.7
   '@pinia/testing': ^0.0.14
+  '@types/d3-array': ^3.0.3
   '@types/d3-ease': ^3.0.0
   '@types/d3-scale': ^4.0.2
   '@types/d3-selection': ^3.0.3
@@ -27,6 +28,7 @@ specifiers:
   ansi-to-html: ^0.7.2
   bulma: ^0.9.4
   c8: ^7.12.0
+  d3-array: ^3.2.0
   d3-ease: ^3.0.1
   d3-scale: ^4.0.2
   d3-selection: ^3.0.0
@@ -69,11 +71,13 @@ dependencies:
   '@iconify-json/octicon': 1.1.20
   '@oruga-ui/oruga-next': 0.5.6_vue@3.2.40
   '@oruga-ui/theme-bulma': 0.2.7
+  '@types/d3-array': 3.0.3
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/integrations': 9.3.0_fuse.js@6.6.2+vue@3.2.40
   '@vueuse/router': 9.3.0_c7eza3xvlyb4mo6qeit5ggeo6u
   ansi-to-html: 0.7.2
   bulma: 0.9.4
+  d3-array: 3.2.0
   d3-ease: 3.0.1
   d3-scale: 4.0.2
   d3-selection: 3.0.0
@@ -613,6 +617,10 @@ packages:
   /@types/chai/4.3.3:
     resolution: {integrity: sha512-hC7OMnszpxhZPduX+m+nrx+uFoLkWOMiR4oa/AZF3MuSETYTZmFfJAHqZEM8MVlvfG7BEUcgvtwoCTxBp6hm3g==}
     dev: true
+
+  /@types/d3-array/3.0.3:
+    resolution: {integrity: sha512-Reoy+pKnvsksN0lQUlcH6dOGjRZ/3WRwXR//m+/8lt1BXeI4xyaUZoqULNjyXXRuh0Mj4LNpkCvhUpQlY3X5xQ==}
+    dev: false
 
   /@types/d3-ease/3.0.0:
     resolution: {integrity: sha512-aMo4eaAOijJjA6uU+GIeW018dvy9+oH5Y2VPPzjjfxevvGQ/oRDs+tfYC9b50Q4BygRR8yE2QCLsrT0WtAVseA==}
