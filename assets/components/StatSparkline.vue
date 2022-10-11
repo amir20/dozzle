@@ -3,18 +3,16 @@
 </template>
 
 <script lang="ts" setup>
-import { select, ValueFn } from "d3-selection";
+import { select, type ValueFn } from "d3-selection";
 import { extent } from "d3-array";
 import { scaleLinear } from "d3-scale";
-import { area } from "d3-shape";
-import { Container } from "@/models/Container";
-import { ComputedRef } from "vue";
+import { area, curveStep } from "d3-shape";
 
-const d3 = { select, extent, scaleLinear, area };
-
-const container = inject("container") as ComputedRef<Container>;
+const d3 = { select, extent, scaleLinear, area, curveStep };
 
 const root = useCurrentElement();
+
+const { data } = defineProps<{ data: { x: number; y: number }[] }>();
 
 onMounted(() => {
   const svg = d3.select(root.value);
@@ -33,26 +31,18 @@ onMounted(() => {
 
   const area = d3
     .area()
+    .curve(d3.curveStep)
     .x((d: any) => x(d.x))
     .y0(y(0))
     .y1((d: any) => y(d.y)) as ValueFn<SVGGElement, any, string>;
 
-  function tick() {
-    const data = cpuData();
-
+  watchEffect(() => {
     x.domain(d3.extent(data, (d) => d.x) as [number, number]);
     y.domain(d3.extent(data, (d) => d.y) as [number, number]);
 
     path.datum(data).attr("d", area);
-  }
-
-  watch(() => container.value.stat, tick);
+  });
 });
-
-const cpuData = () => {
-  const history = container.value.getStatHistory();
-  return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.cpu }));
-};
 </script>
 
 <style scoped>

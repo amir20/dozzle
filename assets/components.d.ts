@@ -13,7 +13,6 @@ declare module '@vue/runtime-core' {
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
-    CpuSparkline: typeof import('./components/CpuSparkline.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
@@ -45,6 +44,7 @@ declare module '@vue/runtime-core' {
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
+    StatSparkline: typeof import('./components/StatSparkline.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }

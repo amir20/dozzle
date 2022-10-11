@@ -24,4 +24,8 @@ export class Container {
   public getStatHistory() {
     return unref(this.throttledStatHistory.history);
   }
+
+  public getLastStat() {
+    return unref(this.throttledStatHistory.last);
+  }
 }

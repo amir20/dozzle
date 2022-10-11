@@ -9,13 +9,16 @@
         {{ formatBytes(container.stat.memoryUsage) }}
       </span>
     </div>
+    <div class="column is-narrow">
+      <stat-sparkline :data="memoryData"></stat-sparkline>
+    </div>
 
     <div class="column is-narrow">
       <span class="has-text-weight-light has-spacer">load</span>
       <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
     </div>
     <div class="column is-narrow">
-      <cpu-sparkline></cpu-sparkline>
+      <stat-sparkline :data="cpuData"></stat-sparkline>
     </div>
   </div>
 </template>
@@ -25,6 +28,22 @@ import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
+
+const cpuData = computedWithControl(
+  () => container.value.getLastStat(),
+  () => {
+    const history = container.value.getStatHistory();
+    return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.cpu }));
+  }
+);
+
+const memoryData = computedWithControl(
+  () => container.value.getLastStat(),
+  () => {
+    const history = container.value.getStatHistory();
+    return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.memory }));
+  }
+);
 </script>
 
 <style lang="scss" scoped>
