@@ -1,5 +1,5 @@
 <template>
-  <svg width="140" height="40"></svg>
+  <svg width="150" height="20"></svg>
 </template>
 
 <script lang="ts" setup>
@@ -47,8 +47,8 @@ onMounted(() => {
 
 <style scoped>
 :deep(.area) {
-  fill: steelblue;
-  stroke: steelblue;
+  fill: var(--primary-color);
+  stroke: var(--primary-color);
   stroke-width: 1;
 }
 </style>

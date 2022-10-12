@@ -3,22 +3,23 @@
     <div class="column is-narrow has-text-weight-bold">
       {{ container.state }}
     </div>
-    <div class="column is-narrow">
+    <div class="column is-narrow has-text-centered">
+      <div>
+        <stat-sparkline :data="memoryData"></stat-sparkline>
+      </div>
       <span class="has-text-weight-light has-spacer">mem</span>
       <span class="has-text-weight-bold">
         {{ formatBytes(container.stat.memoryUsage) }}
       </span>
     </div>
-    <div class="column is-narrow">
-      <stat-sparkline :data="memoryData"></stat-sparkline>
-    </div>
+    <div class="column is-narrow"></div>
 
-    <div class="column is-narrow">
+    <div class="column is-narrow has-text-centered">
+      <div>
+        <stat-sparkline :data="cpuData"></stat-sparkline>
+      </div>
       <span class="has-text-weight-light has-spacer">load</span>
       <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
-    </div>
-    <div class="column is-narrow">
-      <stat-sparkline :data="cpuData"></stat-sparkline>
     </div>
   </div>
 </template>
