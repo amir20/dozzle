@@ -6,7 +6,7 @@
           <container-title @close="$emit('close')" />
         </div>
         <div class="column is-narrow is-paddingless">
-          <container-stat v-if="container.stat" />
+          <container-stat />
         </div>
 
         <div class="mr-2 column is-narrow is-paddingless">

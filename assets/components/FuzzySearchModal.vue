@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
 const { maxResults: resultLimit = 20 } = defineProps<{

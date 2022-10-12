@@ -44,6 +44,7 @@ declare module '@vue/runtime-core' {
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
+    StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }

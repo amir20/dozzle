@@ -8,11 +8,11 @@ WORKDIR /build
 
 # Install dependencies from lock file
 COPY pnpm-lock.yaml ./
-RUN pnpm fetch --prod
+RUN pnpm fetch
 
 # Copy package.json and install dependencies
 COPY package.json ./
-RUN pnpm install -r --offline --prod --ignore-scripts
+RUN pnpm install -r --offline --ignore-scripts
 
 # Copy assets and translations to build
 COPY .* vite.config.ts index.html ./
