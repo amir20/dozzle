@@ -3,23 +3,27 @@
     <div class="column is-narrow has-text-weight-bold">
       {{ container.state }}
     </div>
-    <div class="column is-narrow has-text-centered">
-      <div>
+    <div class="column is-narrow has-text-centered is-relative">
+      <div class="has-border">
         <stat-sparkline :data="memoryData"></stat-sparkline>
       </div>
-      <span class="has-text-weight-light has-spacer">mem</span>
-      <span class="has-text-weight-bold">
-        {{ formatBytes(container.stat.memoryUsage) }}
-      </span>
-    </div>
-    <div class="column is-narrow"></div>
 
-    <div class="column is-narrow has-text-centered">
-      <div>
+      <div class="has-background-body-color is-top-left">
+        <span class="has-text-weight-light has-spacer">mem</span>
+        <span class="has-text-weight-bold">
+          {{ formatBytes(container.stat.memoryUsage) }}
+        </span>
+      </div>
+    </div>
+
+    <div class="column is-narrow has-text-centered is-relative">
+      <div class="has-border">
         <stat-sparkline :data="cpuData"></stat-sparkline>
       </div>
-      <span class="has-text-weight-light has-spacer">load</span>
-      <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
+      <div class="has-background-body-color is-top-left">
+        <span class="has-text-weight-light has-spacer">load</span>
+        <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
+      </div>
     </div>
   </div>
 </template>
@@ -52,5 +56,24 @@ const memoryData = computedWithControl(
   &::after {
     content: " ";
   }
+}
+
+.has-border {
+  border: 1px solid var(--primary-color);
+  border-radius: 3px;
+  padding: 1px 1px 0 1px;
+  display: flex;
+  overflow: hidden;
+  padding-top: 0.25em;
+}
+
+.has-background-body-color {
+  background-color: var(--body-background-color);
+}
+
+.is-top-left {
+  position: absolute;
+  top: 0;
+  left: 0.75em;
 }
 </style>
