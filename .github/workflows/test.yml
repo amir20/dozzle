@@ -16,7 +16,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.3
+        uses: pnpm/action-setup@v2.2.4
         with:
           version: 6.20.1
       - name: Install dependencies
