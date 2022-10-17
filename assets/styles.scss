@@ -159,6 +159,12 @@ html.has-custom-scrollbars {
   }
 }
 
+@media screen and (max-device-width: 480px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
 .splitpanes__splitter {
   z-index: 99;
 }
