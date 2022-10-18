@@ -37,7 +37,7 @@ export function useLogStream(container: ComputedRef<Container>) {
       } else {
         messages.push(...buffer);
         buffer = [];
-        messages.splice(0, messages.length - config.maxLogs);
+        messages = messages.slice(-config.maxLogs);
       }
     } else {
       messages.push(...buffer);
