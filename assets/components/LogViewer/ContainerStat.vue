@@ -1,30 +1,17 @@
 <template>
   <div class="is-size-7 is-uppercase columns is-marginless is-mobile is-vcentered" v-if="container.stat">
-    <div class="column is-narrow has-text-weight-bold">
-      {{ container.state }}
-    </div>
-    <div class="column is-narrow has-text-centered is-relative">
-      <div class="has-border">
-        <stat-sparkline :data="memoryData"></stat-sparkline>
-      </div>
-
-      <div class="has-background-body-color is-top-left">
-        <span class="has-text-weight-light has-spacer">mem</span>
-        <span class="has-text-weight-bold">
-          {{ formatBytes(container.stat.memoryUsage) }}
-        </span>
-      </div>
-    </div>
-
-    <div class="column is-narrow has-text-centered is-relative">
-      <div class="has-border">
-        <stat-sparkline :data="cpuData"></stat-sparkline>
-      </div>
-      <div class="has-background-body-color is-top-left">
-        <span class="has-text-weight-light has-spacer">load</span>
-        <span class="has-text-weight-bold"> {{ container.stat.cpu }}% </span>
-      </div>
-    </div>
+    <stat-monitor
+      class="column is-narrow"
+      :data="memoryData"
+      label="mem"
+      :stat-value="formatBytes(container.stat.memoryUsage)"
+    ></stat-monitor>
+    <stat-monitor
+      class="column is-narrow"
+      :data="cpuData"
+      label="load"
+      :stat-value="container.stat.cpu + '%'"
+    ></stat-monitor>
   </div>
 </template>
 
@@ -38,7 +25,12 @@ const cpuData = computedWithControl(
   () => container.value.getLastStat(),
   () => {
     const history = container.value.getStatHistory();
-    return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.cpu }));
+    const points: Point<unknown>[] = history.map((stat, i) => ({
+      x: i,
+      y: stat.snapshot.cpu,
+      value: stat.snapshot.cpu + "%",
+    }));
+    return points;
   }
 );
 
@@ -46,7 +38,12 @@ const memoryData = computedWithControl(
   () => container.value.getLastStat(),
   () => {
     const history = container.value.getStatHistory();
-    return history.map((stat, i) => ({ x: history.length - i, y: stat.snapshot.memory }));
+    const points: Point<string>[] = history.map((stat, i) => ({
+      x: i,
+      y: stat.snapshot.memory,
+      value: formatBytes(stat.snapshot.memoryUsage),
+    }));
+    return points;
   }
 );
 </script>

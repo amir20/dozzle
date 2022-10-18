@@ -1,1 +1,1 @@
-type Point = { x: number; y: number };
+type Point<T> = { x: number; y: number; value?: T };
