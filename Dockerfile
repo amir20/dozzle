@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:18-alpine as node
+FROM --platform=$BUILDPLATFORM node:19-alpine as node
 
 RUN npm install -g pnpm
 
