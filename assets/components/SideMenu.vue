@@ -9,7 +9,7 @@
         </router-link>
       </div>
       <div class="column is-narrow has-text-right px-1">
-        <button class="button is-rounded" @click="$emit('search')" title="$t('tooltip.search')">
+        <button class="button is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
           <span class="icon">
             <mdi-light-magnify />
           </span>
@@ -40,7 +40,7 @@
                 class="icon is-small"
                 @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
-                title="$t('tooltip.pin-column')"
+                :title="$t('tooltip.pin-column')"
               >
                 <cil-columns />
               </span>
