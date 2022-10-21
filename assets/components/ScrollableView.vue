@@ -16,7 +16,12 @@
 
     <div class="is-scrollbar-notification">
       <transition name="fade">
-        <button class="button" :class="hasMore ? 'has-more' : ''" @click="scrollToBottom()" v-show="paused">
+        <button
+          class="button has-boxshadow"
+          :class="hasMore ? 'has-more' : ''"
+          @click="scrollToBottom()"
+          v-show="paused"
+        >
           <mdi-light-chevron-double-down />
         </button>
       </transition>
@@ -109,18 +114,18 @@ section {
     button {
       position: fixed;
       bottom: 30px;
-      background-color: var(--secondary-color);
-      transition: background-color 1s ease-out;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      background-color: var(--primary-color);
+      transition: background-color 0.24s ease-out;
       border: none !important;
-      color: #222;
+      color: #eee;
 
       &.has-more {
-        background-color: var(--primary-color);
+        background-color: var(--secondary-color);
         animation-name: bounce;
         animation-duration: 1000ms;
         animation-fill-mode: both;
-        color: #fff;
+
+        color: #222;
       }
     }
   }

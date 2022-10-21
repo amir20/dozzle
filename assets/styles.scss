@@ -75,10 +75,10 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
 
   --border-color: #{$grey-lighter};
   --border-hover-color: var(--secondary-color);
-  --logo-color: #{$grey-darker};
+  --logo-color: var(--secondary-color);
 
   --primary-color: #{$turquoise};
-  --secondary-color: #d8f0ca;
+  --secondary-color: rgb(249 115 22);
 
   --body-background-color: #{$white-bis};
   --action-toolbar-background-color: #{$light-toolbar-color};
@@ -181,6 +181,14 @@ html.has-custom-scrollbars {
 
 .button .button-wrapper > span {
   display: contents;
+}
+
+.has-dropshadow {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+}
+
+.has-boxshadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 mark {

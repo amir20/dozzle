@@ -1,6 +1,6 @@
 <template>
   <div class="has-text-centered is-relative host" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
-    <div class="has-border">
+    <div class="has-border has-boxshadow">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
     <div class="has-background-body-color is-top-left">
