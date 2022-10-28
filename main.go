@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"io/fs"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -31,6 +32,8 @@ type args struct {
 	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
+	UsernameFILE         string              `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
+	PasswordFILE         string              `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -92,9 +95,27 @@ func main() {
 			args.WaitForDockerSeconds -= 5
 		}
 	}
+	
+	username := args.Username
+	password := args.Password
+	
+	if args.UsernameFILE != "" && args.PasswordFILE != "" {
+		contentUser, err := ioutil.ReadFile(args.UsernameFILE)
+		if err != nil {
+	  		log.Fatal(err)
+		}
+		username = string(contentUser)
+		
+		contentPassword, err := ioutil.ReadFile(args.PasswordFILE)
+		if err != nil {
+	  		log.Fatal(err)
+		}
+		
+		password = string(contentPassword)
+	}
 
-	if args.Username != "" || args.Password != "" {
-		if args.Username == "" || args.Password == "" {
+	if (args.Username != "" || args.Password != "") || (args.UsernameFILE != "" || args.PasswordFILE != "") {
+		if username == "" || password == "" {
 			log.Fatalf("Username AND password are required for authentication")
 		}
 	}
@@ -104,8 +125,8 @@ func main() {
 		Base:     args.Base,
 		Version:  version,
 		TailSize: args.TailSize,
-		Username: args.Username,
-		Password: args.Password,
+		Username: username,
+		Password: password,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -119,7 +140,7 @@ func main() {
 	}
 
 	srv := web.CreateServer(dockerClient, assets, config)
-	go doStartEvent(args)
+	go doStartEvent(args, username)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -138,7 +159,7 @@ func main() {
 	os.Exit(0)
 }
 
-func doStartEvent(arg args) {
+func doStartEvent(arg args, username string) {
 	if arg.NoAnalytics {
 		log.Debug("Analytics disabled.")
 		return
@@ -156,7 +177,7 @@ func doStartEvent(arg args) {
 		CustomAddress: arg.Addr != ":8080",
 		CustomBase:    arg.Base != "/",
 		TailSize:      arg.TailSize,
-		Protected:     arg.Username != "",
+		Protected:     username != "",
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {
