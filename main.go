@@ -105,6 +105,9 @@ func main() {
 		}
 	}
 	
+	username := ""
+	password := ""
+	
 	if args.Username == nil && args.UsernameFile != nil {
 		args.Username = &args.UsernameFile.Value
 	}
@@ -117,6 +120,8 @@ func main() {
 		if args.Username == nil || args.Password == nil {
 			log.Fatalf("Username AND password are required for authentication")
 		}
+		username = strings.TrimSpace(*args.Username)
+		password = strings.Split(*args.Password, "\n")[0]
 	}
 
 	config := web.Config{
@@ -124,8 +129,8 @@ func main() {
 		Base:     args.Base,
 		Version:  version,
 		TailSize: args.TailSize,
-		Username: strings.TrimSpace(*args.Username),
-		Password: strings.Split(*args.Password, "\n")[0],
+		Username: username,
+		Password: password,
 	}
 
 	assets, err := fs.Sub(content, "dist")
