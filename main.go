@@ -24,15 +24,25 @@ var (
 	version = "head"
 )
 
+type DockerSecret struct {
+  Value string
+}
+
+func (s *DockerSecret) UnmarshalText(b []byte) error {
+  v, err := os.ReadFile(string(b))
+  s.Value = string(v)
+  return err
+}
+
 type args struct {
 	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
 	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
-	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
-	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
-	UsernameFile         string              `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
-	PasswordFile         string              `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
+	Username             *string             `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
+	Password             *string             `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
+	UsernameFile         *DockerSecret       `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
+	PasswordFile         *DockerSecret       `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -95,25 +105,16 @@ func main() {
 		}
 	}
 	
-	username := args.Username
-	password := args.Password
-	
-	if args.UsernameFile != "" && args.PasswordFile != "" {
-		contentUser, err := os.ReadFile(args.UsernameFile)
-		if err != nil {
-	  		log.Fatal(err)
-		}
-		username = strings.TrimSpace(string(contentUser))
-		
-		contentPassword, err := os.ReadFile(args.PasswordFile)
-		if err != nil {
-	  		log.Fatal(err)
-		}
-		password = strings.Split(string(contentPassword), "\n")[0]
+	if args.Username == nil && args.UsernameFile != nil {
+		args.Username = &args.UsernameFile.Value
 	}
 
-	if (args.Username != "" || args.Password != "") || (args.UsernameFile != "" || args.PasswordFile != "") {
-		if username == "" || password == "" {
+	if args.Password == nil && args.PasswordFile != nil {
+		args.Password = &args.PasswordFile.Value
+	}
+
+	if args.Username != nil || args.Password != nil {
+		if args.Username == nil || args.Password == nil {
 			log.Fatalf("Username AND password are required for authentication")
 		}
 	}
@@ -123,8 +124,8 @@ func main() {
 		Base:     args.Base,
 		Version:  version,
 		TailSize: args.TailSize,
-		Username: username,
-		Password: password,
+		Username: strings.TrimSpace(*args.Username),
+		Password: strings.Split(*args.Password, "\n")[0],
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -138,7 +139,7 @@ func main() {
 	}
 
 	srv := web.CreateServer(dockerClient, assets, config)
-	go doStartEvent(args, username)
+	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -157,7 +158,7 @@ func main() {
 	os.Exit(0)
 }
 
-func doStartEvent(arg args, username string) {
+func doStartEvent(arg args) {
 	if arg.NoAnalytics {
 		log.Debug("Analytics disabled.")
 		return
@@ -175,7 +176,7 @@ func doStartEvent(arg args, username string) {
 		CustomAddress: arg.Addr != ":8080",
 		CustomBase:    arg.Base != "/",
 		TailSize:      arg.TailSize,
-		Protected:     username != "",
+		Protected:     arg.Username != nil,
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {
