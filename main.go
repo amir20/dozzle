@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,8 +31,8 @@ type args struct {
 	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
-	UsernameFILE         string              `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
-	PasswordFILE         string              `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
+	UsernameFile         string              `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
+	PasswordFile         string              `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -99,22 +98,21 @@ func main() {
 	username := args.Username
 	password := args.Password
 	
-	if args.UsernameFILE != "" && args.PasswordFILE != "" {
-		contentUser, err := ioutil.ReadFile(args.UsernameFILE)
+	if args.UsernameFile != "" && args.PasswordFile != "" {
+		contentUser, err := os.ReadFile(args.UsernameFile)
 		if err != nil {
 	  		log.Fatal(err)
 		}
-		username = string(contentUser)
+		username = strings.TrimSpace(string(contentUser))
 		
-		contentPassword, err := ioutil.ReadFile(args.PasswordFILE)
+		contentPassword, err := os.ReadFile(args.PasswordFile)
 		if err != nil {
 	  		log.Fatal(err)
 		}
-		
-		password = string(contentPassword)
+		password = strings.Split(string(contentPassword), "\n")[0]
 	}
 
-	if (args.Username != "" || args.Password != "") || (args.UsernameFILE != "" || args.PasswordFILE != "") {
+	if (args.Username != "" || args.Password != "") || (args.UsernameFile != "" || args.PasswordFile != "") {
 		if username == "" || password == "" {
 			log.Fatalf("Username AND password are required for authentication")
 		}
