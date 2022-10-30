@@ -6,12 +6,12 @@ label:
   containers: Контейнеры
   total-containers: Всего Контейнеров
   running: Запущенные
-  total-cpu-usage: Использование CPU
-  total-mem-usage: Использование Mem
+  total-cpu-usage: Использование процессора
+  total-mem-usage: Использование памяти
   dozzle-version: Версия Dozzle
   all: Все
   password: Пароль
-  username: Логин
+  username: Имя пользователя
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
@@ -29,15 +29,15 @@ button:
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
 settings:
-  display: Визуализация
-  small-scrollbars: Использовать уменьшенную прокрутку
-  show-timesamps: Показывать timestamps
-  soft-wrap: Перенос текста soft
+  display: Вид
+  small-scrollbars: Использовать уменьшенную полосу прокрутку
+  show-timesamps: Показывать временные метки
+  soft-wrap: Плавные перенос текста
   12-24-format: >-
     По умолчанию, Dozzle будет использовать локализацию вашего браузера для форматирования времени. Вы можете принудительно указать формат времени 12 или 24.
   font-size: Размер шрифта
   color-scheme: Цветовая схема
-  options: Дополнительно
+  options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
   about: Информация
   search: >-
