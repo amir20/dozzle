@@ -63,6 +63,8 @@ var content embed.FS
 func main() {
 	var args args
 	var err error
+	var username string
+	var password string
 	parser := arg.MustParse(&args)
 	args.Filter = make(map[string][]string)
 
@@ -104,10 +106,7 @@ func main() {
 			args.WaitForDockerSeconds -= 5
 		}
 	}
-	
-	username := ""
-	password := ""
-	
+
 	if args.Username == nil && args.UsernameFile != nil {
 		args.Username = &args.UsernameFile.Value
 	}
@@ -117,11 +116,15 @@ func main() {
 	}
 
 	if args.Username != nil || args.Password != nil {
+		errorMsg := "Username AND password are required for authentication"
 		if args.Username == nil || args.Password == nil {
 			log.Fatalf("Username AND password are required for authentication")
 		}
 		username = strings.TrimSpace(*args.Username)
 		password = strings.Split(*args.Password, "\n")[0]
+		if username == "" || password == "" {
+			log.Fatalf(errorMsg)
+		}
 	}
 
 	config := web.Config{
