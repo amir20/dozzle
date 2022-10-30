@@ -118,7 +118,7 @@ func main() {
 	if args.Username != nil || args.Password != nil {
 		errorMsg := "Username AND password are required for authentication"
 		if args.Username == nil || args.Password == nil {
-			log.Fatalf("Username AND password are required for authentication")
+			log.Fatalf(errorMsg)
 		}
 		username = strings.TrimSpace(*args.Username)
 		password = strings.Split(*args.Password, "\n")[0]
