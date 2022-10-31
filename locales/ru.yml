@@ -1,0 +1,49 @@
+toolbar:
+  clear: Очистить
+  download: Скачать
+  search: Поиск
+label:
+  containers: Контейнеры
+  total-containers: Всего Контейнеров
+  running: Запущенные
+  total-cpu-usage: Использование процессора
+  total-mem-usage: Использование памяти
+  dozzle-version: Версия Dozzle
+  all: Все
+  password: Пароль
+  username: Имя пользователя
+tooltip:
+  search: Поиск контейнеров (⌘ + k, ⌃k)
+  pin-column: Закрепить столбец
+error:
+  page-not-found: Эта страница не доступна.
+  invalid-auth: Имя пользователя или пароль неверны.
+  logs-skipped: Пропущено {total} записей
+title:
+  page-not-found: Страница не найдена
+  login: Требуется авторизация
+  settings: Настройки
+button:
+  logout: Выйти
+  login: Войти
+placeholder:
+  search-containers: Поиск контейнеров (⌘ + k, ⌃k)
+settings:
+  display: Вид
+  small-scrollbars: Использовать уменьшенную полосу прокрутку
+  show-timesamps: Показывать временные метки
+  soft-wrap: Плавные перенос текста
+  12-24-format: >-
+    По умолчанию, Dozzle будет использовать локализацию вашего браузера для форматирования времени. Вы можете принудительно указать формат времени 12 или 24.
+  font-size: Размер шрифта
+  color-scheme: Цветовая схема
+  options: Опции
+  show-stopped-containers: Показывать остановленные контейнеры
+  about: Информация
+  search: >-
+    Включить поиск с помощью Dozzle, используя <code>command+f</code> или
+    <code>ctrl+f</code>
+  using-version: Вы используете {version} версию Dozzle.
+  update-available: >-
+    Доступна новая версия! Обновить до <a :href="{href}" class="next-release"
+    target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
