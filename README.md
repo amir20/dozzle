@@ -98,7 +98,7 @@ this would then only allow you to view containers with a name starting with "foo
 
 #### Authentication
 
-Dozzle supports a very simple authentication out of the box with just username and password. You should deploy using SSL to keep the credentials safe. See configuration to use `--username` and `--password`.
+Dozzle supports a very simple authentication out of the box with just username and password. You should deploy using SSL to keep the credentials safe. See configuration to use `--username` and `--password`. You can also use [docker secrets](https://docs.docker.com/engine/swarm/secrets/) `--usernamefile` and `--passwordfile`.
 
 #### Changing base URL
 
@@ -129,6 +129,8 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--filter`       | `DOZZLE_FILTER`       | `""`    |
 | `--username`     | `DOZZLE_USERNAME`     | `""`    |
 | `--password`     | `DOZZLE_PASSWORD`     | `""`    |
+| `--usernamefile` | `DOZZLE_USERNAME_FILE`| `""`    |
+| `--passwordfile` | `DOZZLE_PASSWORD_FILE`| `""`    |
 | `--no-analytics` | `DOZZLE_NO_ANALYTICS` | false   |
 
 ## Troubleshooting and FAQs

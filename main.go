@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"io/fs"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,6 +24,16 @@ var (
 	version = "head"
 )
 
+type DockerSecret struct {
+  Value string
+}
+
+func (s *DockerSecret) UnmarshalText(b []byte) error {
+  v, err := os.ReadFile(string(b))
+  s.Value = string(v)
+  return err
+}
+
 type args struct {
 	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
 	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
@@ -32,8 +41,8 @@ type args struct {
 	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
-	UsernameFILE         string              `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
-	PasswordFILE         string              `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
+	UsernameFile         *DockerSecret       `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
+	PasswordFile         *DockerSecret       `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -95,27 +104,17 @@ func main() {
 			args.WaitForDockerSeconds -= 5
 		}
 	}
-	
-	username := args.Username
-	password := args.Password
-	
-	if args.UsernameFILE != "" && args.PasswordFILE != "" {
-		contentUser, err := ioutil.ReadFile(args.UsernameFILE)
-		if err != nil {
-	  		log.Fatal(err)
-		}
-		username = string(contentUser)
-		
-		contentPassword, err := ioutil.ReadFile(args.PasswordFILE)
-		if err != nil {
-	  		log.Fatal(err)
-		}
-		
-		password = string(contentPassword)
+
+	if args.Username == "" && args.UsernameFile != nil {
+		args.Username = strings.TrimSpace(args.UsernameFile.Value)
 	}
 
-	if (args.Username != "" || args.Password != "") || (args.UsernameFILE != "" || args.PasswordFILE != "") {
-		if username == "" || password == "" {
+	if args.Password == "" && args.PasswordFile != nil {
+		args.Password = strings.Split(args.PasswordFile.Value, "\n")[0]
+	}
+
+	if args.Username != "" || args.Password != "" {
+		if args.Username == "" || args.Password == "" {
 			log.Fatalf("Username AND password are required for authentication")
 		}
 	}
@@ -125,8 +124,8 @@ func main() {
 		Base:     args.Base,
 		Version:  version,
 		TailSize: args.TailSize,
-		Username: username,
-		Password: password,
+		Username: args.Username,
+		Password: args.Password,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -140,7 +139,7 @@ func main() {
 	}
 
 	srv := web.CreateServer(dockerClient, assets, config)
-	go doStartEvent(args, username)
+	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -159,7 +158,7 @@ func main() {
 	os.Exit(0)
 }
 
-func doStartEvent(arg args, username string) {
+func doStartEvent(arg args) {
 	if arg.NoAnalytics {
 		log.Debug("Analytics disabled.")
 		return
@@ -177,7 +176,7 @@ func doStartEvent(arg args, username string) {
 		CustomAddress: arg.Addr != ":8080",
 		CustomBase:    arg.Base != "/",
 		TailSize:      arg.TailSize,
-		Protected:     username != "",
+		Protected:     arg.Username != "",
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {
