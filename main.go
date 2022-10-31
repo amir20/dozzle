@@ -25,13 +25,13 @@ var (
 )
 
 type DockerSecret struct {
-  Value string
+	Value string
 }
 
 func (s *DockerSecret) UnmarshalText(b []byte) error {
-  v, err := os.ReadFile(string(b))
-  s.Value = string(v)
-  return err
+	v, err := os.ReadFile(string(b))
+	s.Value = string(v)
+	return err
 }
 
 type args struct {
