@@ -30,7 +30,7 @@ type DockerSecret struct {
 
 func (s *DockerSecret) UnmarshalText(b []byte) error {
 	v, err := os.ReadFile(string(b))
-	s.Value = string(v)
+	s.Value = strings.TrimRight(string(v), "\r\n")
 	return err
 }
 
@@ -106,11 +106,11 @@ func main() {
 	}
 
 	if args.Username == "" && args.UsernameFile != nil {
-		args.Username = strings.TrimSpace(args.UsernameFile.Value)
+		args.Username = args.UsernameFile.Value
 	}
 
 	if args.Password == "" && args.PasswordFile != nil {
-		args.Password = strings.Split(args.PasswordFile.Value, "\n")[0]
+		args.Password = args.PasswordFile.Value
 	}
 
 	if args.Username != "" || args.Password != "" {
