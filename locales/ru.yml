@@ -30,11 +30,11 @@ placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
 settings:
   display: Вид
-  small-scrollbars: Использовать уменьшенную полосу прокрутку
+  small-scrollbars: Уменьшенная полоса прокрутки
   show-timesamps: Показывать временные метки
-  soft-wrap: Плавные перенос текста
+  soft-wrap: Плавный перенос текста
   12-24-format: >-
-    По умолчанию, Dozzle будет использовать локализацию вашего браузера для форматирования времени. Вы можете принудительно указать формат времени 12 или 24.
+    Формат времени. По умолчанию, Dozzle будет использовать локализацию вашего браузера.
   font-size: Размер шрифта
   color-scheme: Цветовая схема
   options: Опции
@@ -43,7 +43,7 @@ settings:
   search: >-
     Включить поиск с помощью Dozzle, используя <code>command+f</code> или
     <code>ctrl+f</code>
-  using-version: Вы используете {version} версию Dozzle.
+  using-version: Вы используете версию Dozzle {version}.
   update-available: >-
     Доступна новая версия! Обновить до <a :href="{href}" class="next-release"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
