@@ -30,7 +30,7 @@ type DockerSecret struct {
 
 func (s *DockerSecret) UnmarshalText(b []byte) error {
 	v, err := os.ReadFile(string(b))
-	s.Value = strings.TrimRight(string(v), "\r\n")
+	s.Value = strings.Trim(string(v), "\r\n")
 	return err
 }
 
