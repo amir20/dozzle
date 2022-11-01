@@ -110,7 +110,7 @@ func main() {
 	}
 
 	if args.Password == "" && args.PasswordFile != nil {
-		args.Password = strings.Split(args.PasswordFile.Value, "\n")[0]
+		args.Password = strings.TrimRight(args.PasswordFile.Value, "\n\r")
 	}
 
 	if args.Username != "" || args.Password != "" {
