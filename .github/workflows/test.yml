@@ -37,7 +37,6 @@ jobs:
         run: make test SKIP_ASSET=1
   int-test:
     name: Integration Tests
-    if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -54,6 +53,7 @@ jobs:
       - name: Build images
         run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml build --build-arg BUILDKIT_INLINE_CACHE=1
       - name: Push images
+        if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
         run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml push
       - name: Set commit message for push
         if: github.event_name == 'push'
