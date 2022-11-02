@@ -37,6 +37,7 @@ jobs:
         run: make test SKIP_ASSET=1
   int-test:
     name: Integration Tests
+    if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
