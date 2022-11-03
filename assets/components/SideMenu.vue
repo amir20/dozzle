@@ -15,12 +15,19 @@
           </span>
         </button>
       </div>
-      <div class="column is-narrow has-text-right px-0">
+      <div class="column is-narrow has-text-right" :class="secured ? px-1 : px-0">
         <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded">
           <span class="icon">
             <mdi-light-cog />
           </span>
         </router-link>
+      </div>
+      <div class="column is-narrow has-text-right px-0" v-if="secured">
+        <a :href="`${base}/logout`" active-class="is-active" class="button is-rounded">
+          <span class="icon">
+            <mdi-logout />
+          </span>
+        </a>
       </div>
     </div>
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
@@ -58,6 +65,7 @@
 <script lang="ts" setup>
 import type { Container } from "@/types/Container";
 
+const { base, secured }  = config;
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);

@@ -1,16 +1,5 @@
 <template>
   <div>
-    <section class="hero is-small mt-4">
-      <div class="hero-body">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-narrow" v-if="secured">
-              <a class="button is-primary is-small" :href="`${base}/logout`">{{ $t("button.logout") }}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
     <section class="level section">
       <div class="level-item has-text-centered">
         <div>
@@ -45,7 +34,7 @@
     </section>
 
     <section class="columns is-centered section is-marginless">
-      <div class="column is-4">
+      <div class="column is-12-mobile is-6-tablet is-5-desktop is-4-fullhd">
         <div class="panel">
           <p class="panel-heading">{{ $t("label.containers") }}</p>
           <div class="panel-block">
@@ -89,7 +78,7 @@
 import SearchIcon from "~icons/mdi-light/magnify";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { base, version, secured } = config;
+const { base, version } = config;
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore);
 const router = useRouter();

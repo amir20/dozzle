@@ -24,7 +24,6 @@ title:
   login: Autenticação Requerida
   settings: Configurações
 button:
-  logout: Terminar sessão
   login: Iniciar sessão
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)

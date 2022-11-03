@@ -20,7 +20,7 @@
           <div class="media-content">
             {{ item.name }}
           </div>
-          <div class="media-right">
+          <div class="media-right" v-if="!isMobile">
             <span
               class="icon is-small column-icon"
               @click.stop.prevent="addColumn(item)"

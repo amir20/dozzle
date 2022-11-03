@@ -24,7 +24,6 @@ title:
   login: Требуется авторизация
   settings: Настройки
 button:
-  logout: Выйти
   login: Войти
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)

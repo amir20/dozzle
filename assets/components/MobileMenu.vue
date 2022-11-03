@@ -8,6 +8,27 @@
           </svg>
         </router-link>
       </div>
+      <div class="column is-narrow has-text-right is-2 push-right">
+        <button class="button is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
+          <span class="icon">
+            <mdi-light-magnify />
+          </span>
+        </button>
+      </div>
+      <div class="column is-narrow has-text-right is-2 push-right">
+        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded">
+          <span class="icon">
+            <mdi-light-cog />
+          </span>
+        </router-link>
+      </div>
+      <div class="column is-narrow has-text-right is-2 push-right" v-if="secured">
+        <a :href="`${base}/logout`" active-class="is-active" class="button is-rounded">
+          <span class="icon">
+            <mdi-logout />
+          </span>
+        </a>
+      </div>
       <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container'">
         {{ allContainersById[route.params.id].name }}
       </div>
@@ -42,6 +63,7 @@
 </template>
 
 <script lang="ts" setup>
+const { base, secured }  = config;
 const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers, allContainersById } = storeToRefs(store);

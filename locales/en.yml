@@ -24,7 +24,6 @@ title:
   login: Authentication Required
   settings: Settings
 button:
-  logout: Logout
   login: Login
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
