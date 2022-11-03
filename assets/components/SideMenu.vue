@@ -15,7 +15,7 @@
           </span>
         </button>
       </div>
-      <div class="column is-narrow has-text-right" :class="secured ? px-1 : px-0">
+      <div class="column is-narrow has-text-right" :class="secured ? 'px-1' : 'px-0'">
         <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded">
           <span class="icon">
             <mdi-light-cog />
