@@ -45,7 +45,7 @@
     </section>
 
     <section class="columns is-centered section is-marginless">
-      <div class="column is-4">
+      <div class="column is-12-mobile is-6-tablet is-5-desktop is-4-fullhd">
         <div class="panel">
           <p class="panel-heading">{{ $t("label.containers") }}</p>
           <div class="panel-block">
