@@ -105,6 +105,15 @@ function addColumn(container: Container) {
   width: 580px;
 }
 
+@media screen and (max-width: 768px) {
+  .panel {
+    min-height: 200px;
+    width: auto;
+    margin-left: 0.25rem!important;
+    margin-right: 0.25rem!important;
+  }
+}
+
 .running {
   color: var(--primary-color);
 }
