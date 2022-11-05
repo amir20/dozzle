@@ -47,7 +47,6 @@ import { Splitpanes, Pane } from "splitpanes";
 import { useProgrammatic } from "@oruga-ui/oruga-next";
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 
-//const collapseNav = ref(false);
 const { oruga } = useProgrammatic();
 const { authorizationNeeded } = config;
 
