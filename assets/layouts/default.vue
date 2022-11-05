@@ -24,6 +24,18 @@
         </splitpanes>
       </pane>
     </splitpanes>
+    <a
+      active-class="is-active"
+      class="button is-rounded"
+      :href="`${base}/logout`"
+      :title="$t('button.logout')"
+      id="hide-nav-logout"
+      v-if="secured && collapseNav"
+    >
+      <span class="icon ml-2">
+        <mdi-light-logout />
+      </span>
+    </a>
     <button
       @click="collapse"
       class="button is-rounded"
@@ -48,7 +60,7 @@ import { useProgrammatic } from "@oruga-ui/oruga-next";
 import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
 
 const { oruga } = useProgrammatic();
-const { authorizationNeeded } = config;
+const { authorizationNeeded, base, secured } = config;
 
 const containerStore = useContainerStore();
 const { activeContainers, visibleContainers } = storeToRefs(containerStore);
@@ -114,11 +126,26 @@ function onResized(e: any) {
     left: -40px;
     width: 60px;
     padding-left: 40px;
+    color: white;
     background: rgba(0, 0, 0, 0.95);
 
     &:hover {
       left: -25px;
     }
+  }
+}
+
+#hide-nav-logout {
+  position: fixed;
+  top: 30px;
+  left: -40px;
+  width: 60px;
+  padding-left: 40px;
+  color: white;
+  background: rgba(0, 0, 0, 0.95);
+
+  &:hover {
+    left: -25px;
   }
 }
 </style>
