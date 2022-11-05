@@ -1,6 +1,6 @@
 <template>
   <div>
-    <section class="hero is-small mt-4">
+    <section class="hero is-small mt-4" v-if="isMobile">
       <div class="hero-body">
         <div class="container">
           <div class="columns">

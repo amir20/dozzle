@@ -1,4 +1,5 @@
 const DOZZLE_SETTINGS_KEY = "DOZZLE_SETTINGS";
+const SPLITPANES_DEFAULT = config.secured ? 305 : 250;
 
 export const DEFAULT_SETTINGS: {
   search: boolean;
@@ -13,7 +14,7 @@ export const DEFAULT_SETTINGS: {
 } = {
   search: true,
   size: "medium",
-  menuWidth: 15,
+  menuWidth: (SPLITPANES_DEFAULT / window.innerWidth * 100).toFixed(4),
   smallerScrollbars: false,
   showTimestamp: true,
   showAllContainers: false,
