@@ -65,7 +65,7 @@
 <script lang="ts" setup>
 import type { Container } from "@/types/Container";
 
-const { secured } = config;
+const { base, secured } = config;
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);

@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: {
   lightTheme: "auto" | "dark" | "light";
   hourStyle: "auto" | "24" | "12";
   softWrap: boolean;
+  collapseNav: boolean;
 } = {
   search: true,
   size: "medium",
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: {
   lightTheme: "auto",
   hourStyle: "auto",
   softWrap: true,
+  collapseNav: false,
 };
 
 const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
@@ -70,7 +72,13 @@ const softWrap = computed({
   set: (value) => (settings.value.softWrap = value),
 });
 
+const collapseNav = computed({
+  get: () => settings.value.collapseNav,
+  set: (value) => (settings.value.collapseNav = value),
+});
+
 export {
+  collapseNav,
   softWrap,
   hourStyle,
   lightTheme,

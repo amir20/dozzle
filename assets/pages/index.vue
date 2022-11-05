@@ -1,10 +1,10 @@
 <template>
   <div>
-    <section class="hero is-small mt-4" v-if="isMobile">
+    <section class="hero is-small mt-4">
       <div class="hero-body">
         <div class="container">
           <div class="columns">
-            <div class="column is-narrow" v-if="secured">
+            <div class="column is-narrow" v-if="secured && (collapseNav || isMobile)">
               <a class="button is-primary is-small" :href="`${base}/logout`">{{ $t("button.logout") }}</a>
             </div>
           </div>
