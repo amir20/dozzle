@@ -8,19 +8,28 @@
           </svg>
         </router-link>
       </div>
-      <div class="column is-narrow has-text-right px-1">
-        <button class="button is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
+    </div>
+    <div class="columns is-marginless">
+      <div class="column is-narrow py-0 pl-0 pr-1">
+        <button class="button is-rounded is-small" @click="$emit('search')" :title="$t('tooltip.search')">
           <span class="icon">
             <mdi-light-magnify />
           </span>
         </button>
       </div>
-      <div class="column is-narrow has-text-right px-0">
-        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded">
+      <div class="column is-narrow py-0" :class="secured ? 'pl-0 pr-1' : 'px-0'">
+        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-small">
           <span class="icon">
             <mdi-light-cog />
           </span>
         </router-link>
+      </div>
+      <div class="column is-narrow py-0 px-0" v-if="secured">
+        <a class="button is-rounded is-small" :href="`${base}/logout`" :title="$t('button.logout')">
+          <span class="icon">
+            <mdi-light-logout />
+          </span>
+        </a>
       </div>
     </div>
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
@@ -58,6 +67,7 @@
 <script lang="ts" setup>
 import type { Container } from "@/types/Container";
 
+const { base, secured } = config;
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);

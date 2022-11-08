@@ -1,13 +1,9 @@
 <template>
   <div>
-    <section class="hero is-small mt-4">
-      <div class="hero-body">
-        <div class="container">
-          <div class="columns">
-            <div class="column is-narrow" v-if="secured">
-              <a class="button is-primary is-small" :href="`${base}/logout`">{{ $t("button.logout") }}</a>
-            </div>
-          </div>
+    <section class="is-small mt-1" v-if="secured && isMobile">
+      <div class="container">
+        <div class="ml-1">
+          <a class="button is-primary is-small" :href="`${base}/logout`">{{ $t("button.logout") }}</a>
         </div>
       </div>
     </section>
