@@ -1,13 +1,6 @@
 <template>
   <div>
-    <section class="is-small mt-1" v-if="secured && isMobile">
-      <div class="container">
-        <div class="ml-1">
-          <a class="button is-primary is-small" :href="`${base}/logout`">{{ $t("button.logout") }}</a>
-        </div>
-      </div>
-    </section>
-    <section class="level section">
+    <section class="level section pb-0-is-mobile">
       <div class="level-item has-text-centered">
         <div>
           <p class="title">{{ containers.length }}</p>
@@ -40,7 +33,7 @@
       </div>
     </section>
 
-    <section class="columns is-centered section is-marginless">
+    <section class="columns is-centered section is-marginless pt-0-is-mobile">
       <div class="column is-12-mobile is-6-tablet is-5-desktop is-4-fullhd">
         <div class="panel">
           <p class="panel-heading">{{ $t("label.containers") }}</p>
@@ -157,6 +150,16 @@ function onEnter() {
       margin-left: auto;
       white-space: nowrap;
     }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .pb-0-is-mobile {
+    padding-bottom: 0 !important;
+  }
+
+  .pt-0-is-mobile {
+    padding-top: 0 !important;
   }
 }
 
