@@ -14,6 +14,7 @@ declare global {
   const arrayEquals: typeof import('./utils/index')['arrayEquals']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
+  const collapseNav: typeof import('./composables/settings')['collapseNav']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -327,6 +328,7 @@ declare module 'vue' {
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly collapseNav: UnwrapRef<typeof import('./composables/settings')['collapseNav']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
