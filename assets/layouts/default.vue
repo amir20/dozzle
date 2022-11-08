@@ -1,6 +1,6 @@
 <template>
   <main v-if="!authorizationNeeded">
-    <mobile-menu v-if="isMobile"></mobile-menu>
+    <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
         <side-menu @search="showFuzzySearch"></side-menu>
