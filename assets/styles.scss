@@ -206,3 +206,8 @@ mark {
     transform: scale(1.05);
   }
 }
+
+.button.is-rounded:hover {
+  color: var(--text-strong-color);
+  background: var(--scheme-main-ter);
+}
