@@ -29,6 +29,7 @@ declare module '@vue/runtime-core' {
     MdiLightChevronLeft: typeof import('~icons/mdi-light/chevron-left')['default']
     MdiLightChevronRight: typeof import('~icons/mdi-light/chevron-right')['default']
     MdiLightCog: typeof import('~icons/mdi-light/cog')['default']
+    MdiLightLogout: typeof import('~icons/mdi-light/logout')['default']
     MdiLightMagnify: typeof import('~icons/mdi-light/magnify')['default']
     MobileMenu: typeof import('./components/MobileMenu.vue')['default']
     OcticonContainer24: typeof import('~icons/octicon/container24')['default']

@@ -70,7 +70,6 @@ const softWrap = computed({
 });
 
 export {
-  collapseNav,
   softWrap,
   hourStyle,
   lightTheme,
