@@ -25,7 +25,7 @@
       </pane>
     </splitpanes>
     <button
-      @click="collapseNav = !collapseNav"
+      @click="collapse"
       class="button is-small is-rounded"
       :class="{ collapsed: collapseNav }"
       id="hide-nav"
@@ -53,8 +53,6 @@ const { authorizationNeeded } = config;
 const containerStore = useContainerStore();
 const { activeContainers, visibleContainers } = storeToRefs(containerStore);
 
-const collapseNav = $ref(false);
-
 watchEffect(() => {
   setTitle(`${visibleContainers.value.length} containers`);
 });
@@ -75,7 +73,9 @@ function showFuzzySearch() {
     active: true,
   });
 }
-
+function collapse() {
+  collapseNav.value = !collapseNav.value;
+}
 function onResized(e: any) {
   if (e.length == 2) {
     menuWidth.value = e[0].size;
