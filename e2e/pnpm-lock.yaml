@@ -1,13 +1,13 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@frsource/cypress-plugin-visual-regression-diff': ^3.0.2
-  cypress: ^10.11.0
+  '@frsource/cypress-plugin-visual-regression-diff': ^3.1.2
+  cypress: ^11.0.0
   typescript: ^4.8.4
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 3.0.2_cypress@10.11.0
-  cypress: 10.11.0
+  '@frsource/cypress-plugin-visual-regression-diff': 3.1.2_cypress@11.0.0
+  cypress: 11.0.0
   typescript: 4.8.4
 
 packages:
@@ -56,20 +56,20 @@ packages:
     resolution: {integrity: sha512-IphM1ro1cvV5CqJWzX/LvPJcUE26cwgt/zMtBdssvTrfSNhh9KjfS2VXTA8SivkvPHK1DsdPnoMoXitmx8c3Cg==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/3.0.2_cypress@10.11.0:
-    resolution: {integrity: sha512-2KvHg6M5FFe1DPjnHtOjBHsAjsrHK4JNdv2dSutiOGe3LX5ji3H+4zs1j8n9BPVTdILXhYrG6lT8jcRyquHl2w==}
+  /@frsource/cypress-plugin-visual-regression-diff/3.1.2_cypress@11.0.0:
+    resolution: {integrity: sha512-Tl04uSoyRyt/mUBEWnU49ZOYtQNRJIel6DwrBADGfohgQ81AGBTbO7yXOhVqIrUZ/PIJaAJG2J2vw6MDw1ObmA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.4
-      cypress: 10.11.0
+      cypress: 11.0.0
       glob: 8.0.3
       meta-png: 1.0.3
       move-file: 2.1.0
       pixelmatch: 5.3.0
       pngjs: 6.0.0
-      sharp: 0.31.1
+      sharp: 0.31.2
     dev: false
 
   /@types/node/14.18.33:
@@ -342,8 +342,8 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress/10.11.0:
-    resolution: {integrity: sha512-lsaE7dprw5DoXM00skni6W5ElVVLGAdRUUdZjX2dYsGjbY/QnpzWZ95Zom1mkGg0hAaO/QVTZoFVS7Jgr/GUPA==}
+  /cypress/11.0.0:
+    resolution: {integrity: sha512-mYXGi2Wjmy9shRjAUDugSMOr4uuzE2nl7hXQi3oQkIQsnwwBx2HNB8Vbfsix3A0zyPXlL5jTcbb6rCVWKRaXbg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     requiresBuild: true
@@ -1068,7 +1068,7 @@ packages:
   /rxjs/7.5.7:
     resolution: {integrity: sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==}
     dependencies:
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /safe-buffer/5.2.1:
@@ -1087,8 +1087,8 @@ packages:
       lru-cache: 6.0.0
     dev: false
 
-  /sharp/0.31.1:
-    resolution: {integrity: sha512-GR8M1wBwOiFKLkm9JPun27OQnNRZdHfSf9VwcdZX6UrRmM1/XnOrLFTF0GAil+y/YK4E6qcM/ugxs80QirsHxg==}
+  /sharp/0.31.2:
+    resolution: {integrity: sha512-DUdNVEXgS5A97cTagSLIIp8dUZ/lZtk78iNVZgHdHbx1qnQR7JAHY0BnXnwwH39Iw+VKhO08CTYhIg0p98vQ5Q==}
     engines: {node: '>=14.15.0'}
     requiresBuild: true
     dependencies:
@@ -1259,8 +1259,8 @@ packages:
       punycode: 2.1.1
     dev: false
 
-  /tslib/2.4.0:
-    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
+  /tslib/2.4.1:
+    resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
     dev: false
 
   /tunnel-agent/0.6.0:
