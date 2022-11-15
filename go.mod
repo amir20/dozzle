@@ -19,7 +19,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/afero v1.9.2
+	github.com/spf13/afero v1.9.3
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/net v0.0.0-20211104170005-ce137452f963 // indirect
