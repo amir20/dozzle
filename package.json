@@ -77,7 +77,7 @@
     "sass": "^1.56.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.4",
-    "unplugin-auto-import": "^0.11.4",
+    "unplugin-auto-import": "^0.12.0",
     "unplugin-icons": "^0.14.13",
     "unplugin-vue-components": "^0.22.9",
     "vite": "3.2.4",
