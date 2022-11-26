@@ -183,6 +183,26 @@ Dozzle has a [special route](https://github.com/amir20/dozzle/blob/master/assets
 
 </details>
 
+<details>
+ <summary>I installed Dozzle but memory consumption doesn't show up!</summary>
+
+*This is an issue specific to ARM devices*
+
+Dozzle uses the Docker API to gather information about the containers' memory usage. If the memory usage is not showing up, then it is likely that the Docker API is not returning the memory usage.
+
+You can verify this by running `docker info`, and you should see the following:
+```
+WARNING: No memory limit support
+WARNING: No swap limit support
+```
+
+In this case, you'll need to add the following line to your `/boot/cmdline.txt` file and reboot your device.
+```
+cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
+```
+
+</details>
+
 ## License
 
 [MIT](LICENSE)
