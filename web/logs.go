@@ -67,8 +67,9 @@ func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 					var data map[string]interface{}
 					if err := json.Unmarshal([]byte(message), &data); err != nil {
 						log.Errorf("json unmarshal error while streaming %v", err.Error())
+					} else {
+						logEvent.Message = data
 					}
-					logEvent.Message = data
 				}
 			}
 		}
