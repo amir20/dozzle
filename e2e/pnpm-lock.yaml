@@ -2,12 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
   '@frsource/cypress-plugin-visual-regression-diff': ^3.1.2
-  cypress: ^11.0.0
+  cypress: ^12.0.0
   typescript: ^4.8.4
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 3.1.2_cypress@11.0.0
-  cypress: 11.0.0
+  '@frsource/cypress-plugin-visual-regression-diff': 3.1.2_cypress@12.0.0
+  cypress: 12.0.0
   typescript: 4.8.4
 
 packages:
@@ -56,14 +56,14 @@ packages:
     resolution: {integrity: sha512-IphM1ro1cvV5CqJWzX/LvPJcUE26cwgt/zMtBdssvTrfSNhh9KjfS2VXTA8SivkvPHK1DsdPnoMoXitmx8c3Cg==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/3.1.2_cypress@11.0.0:
+  /@frsource/cypress-plugin-visual-regression-diff/3.1.2_cypress@12.0.0:
     resolution: {integrity: sha512-Tl04uSoyRyt/mUBEWnU49ZOYtQNRJIel6DwrBADGfohgQ81AGBTbO7yXOhVqIrUZ/PIJaAJG2J2vw6MDw1ObmA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.4
-      cypress: 11.0.0
+      cypress: 12.0.0
       glob: 8.0.3
       meta-png: 1.0.3
       move-file: 2.1.0
@@ -342,9 +342,9 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress/11.0.0:
-    resolution: {integrity: sha512-mYXGi2Wjmy9shRjAUDugSMOr4uuzE2nl7hXQi3oQkIQsnwwBx2HNB8Vbfsix3A0zyPXlL5jTcbb6rCVWKRaXbg==}
-    engines: {node: '>=12.0.0'}
+  /cypress/12.0.0:
+    resolution: {integrity: sha512-hX/UeaKrL4uiRxJh+eX9t5YFXJconJyqG0hkFkK6CG+4xj2mMmzvJERF3e2h/9TzvLxPAkQ6cGz8eaHfJZeyGg==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     hasBin: true
     requiresBuild: true
     dependencies:
