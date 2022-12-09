@@ -9,13 +9,20 @@ import Pages from "vite-plugin-pages";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18n from "@intlify/vite-plugin-vue-i18n";
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   resolve: {
     alias: {
       "@/": `${path.resolve(__dirname, "assets")}/`,
     },
   },
-  base: mode === "production" ? "/{{ .Base }}/" : "/",
+  experimental: {
+    renderBuiltUrl(filename: string, { type }: { type: "public" | "asset" }) {
+      if (type === "asset") {
+        return `{{ .Base }}/${filename}`;
+      }
+      return filename;
+    },
+  },
   plugins: [
     vue({
       reactivityTransform: true,
@@ -51,7 +58,6 @@ export default defineConfig(({ mode }) => ({
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales/**")],
     }),
-    htmlPlugin(mode),
   ],
   server: {
     proxy: {
@@ -61,13 +67,3 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
-
-const htmlPlugin = (mode) => {
-  return {
-    name: "html-transform",
-    enforce: "post" as const,
-    transformIndexHtml(html) {
-      return mode === "production" ? html.replaceAll("/{{ .Base }}/", "{{ .Base }}/") : html;
-    },
-  };
-};
