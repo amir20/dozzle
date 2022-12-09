@@ -19,7 +19,7 @@ specifiers:
   '@types/lodash.debounce': ^4.0.7
   '@types/node': ^18.11.9
   '@types/semver': ^7.3.13
-  '@vitejs/plugin-vue': 3.2.0
+  '@vitejs/plugin-vue': 4.0.0
   '@vue/compiler-sfc': ^3.2.45
   '@vue/test-utils': ^2.2.4
   '@vueuse/core': ^9.6.0
@@ -104,7 +104,7 @@ devDependencies:
   '@types/lodash.debounce': 4.0.7
   '@types/node': 18.11.9
   '@types/semver': 7.3.13
-  '@vitejs/plugin-vue': 3.2.0_vite@3.2.5+vue@3.2.45
+  '@vitejs/plugin-vue': 4.0.0_vite@3.2.5+vue@3.2.45
   '@vue/compiler-sfc': 3.2.45
   '@vue/test-utils': 2.2.4_vue@3.2.45
   c8: 7.12.0
@@ -721,11 +721,11 @@ packages:
   /@types/web-bluetooth/0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
 
-  /@vitejs/plugin-vue/3.2.0_vite@3.2.5+vue@3.2.45:
-    resolution: {integrity: sha512-E0tnaL4fr+qkdCNxJ+Xd0yM31UwMkQje76fsDVBBUCoGOUPexu2VDUYHL8P4CwV+zMvWw6nlRw19OnRKmYAJpw==}
+  /@vitejs/plugin-vue/4.0.0_vite@3.2.5+vue@3.2.45:
+    resolution: {integrity: sha512-e0X4jErIxAB5oLtDqbHvHpJe/uWNkdpYV83AOG2xo2tEVSzCzewgJMtREZM30wXnM5ls90hxiOtAuVU6H5JgbA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      vite: ^3.0.0
+      vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
       vite: 3.2.5_ajklay5k626t46b6fyghkbup3i
