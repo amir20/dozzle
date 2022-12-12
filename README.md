@@ -58,7 +58,6 @@ Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). Yo
         ports:
           - 9999:8080
 
-
 ### Enabling health check
 
 Dozzle doesn't enable healthcheck by default as it adds extra CPU usage. `healthcheck` can be enabled manually.
@@ -80,7 +79,6 @@ Dozzle doesn't enable healthcheck by default as it adds extra CPU usage. `health
           timeout: 30s
           retries: 5
           start_period: 30s
-
 
 #### Security
 
@@ -119,17 +117,18 @@ If you do not want to be tracked at all, see the `--no-analytics` flag below.
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or environment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag             | Env Variable          | Default |
-| ---------------- | --------------------- | ------- |
-| `--addr`         | `DOZZLE_ADDR`         | `:8080` |
-| `--base`         | `DOZZLE_BASE`         | `/`     |
-| `--level`        | `DOZZLE_LEVEL`        | `info`  |
-| `--filter`       | `DOZZLE_FILTER`       | `""`    |
-| `--username`     | `DOZZLE_USERNAME`     | `""`    |
-| `--password`     | `DOZZLE_PASSWORD`     | `""`    |
-| `--usernamefile` | `DOZZLE_USERNAME_FILE`| `""`    |
-| `--passwordfile` | `DOZZLE_PASSWORD_FILE`| `""`    |
-| `--no-analytics` | `DOZZLE_NO_ANALYTICS` | false   |
+| Flag             | Env Variable           | Default |
+| ---------------- | ---------------------- | ------- |
+| `--addr`         | `DOZZLE_ADDR`          | `:8080` |
+| `--base`         | `DOZZLE_BASE`          | `/`     |
+| `--hostname`     | `DOZZLE_HOSTNAME`      | `""`    |
+| `--level`        | `DOZZLE_LEVEL`         | `info`  |
+| `--filter`       | `DOZZLE_FILTER`        | `""`    |
+| `--username`     | `DOZZLE_USERNAME`      | `""`    |
+| `--password`     | `DOZZLE_PASSWORD`      | `""`    |
+| `--usernamefile` | `DOZZLE_USERNAME_FILE` | `""`    |
+| `--passwordfile` | `DOZZLE_PASSWORD_FILE` | `""`    |
+| `--no-analytics` | `DOZZLE_NO_ANALYTICS`  | false   |
 
 ## Troubleshooting and FAQs
 
@@ -184,17 +183,19 @@ Dozzle has a [special route](https://github.com/amir20/dozzle/blob/master/assets
 <details>
  <summary>I installed Dozzle but memory consumption doesn't show up!</summary>
 
-*This is an issue specific to ARM devices*
+_This is an issue specific to ARM devices_
 
 Dozzle uses the Docker API to gather information about the containers' memory usage. If the memory usage is not showing up, then it is likely that the Docker API is not returning the memory usage.
 
 You can verify this by running `docker info`, and you should see the following:
+
 ```
 WARNING: No memory limit support
 WARNING: No swap limit support
 ```
 
 In this case, you'll need to add the following line to your `/boot/cmdline.txt` file and reboot your device.
+
 ```
 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
 ```

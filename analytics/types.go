@@ -7,4 +7,5 @@ type StartEvent struct {
 	CustomAddress bool   `json:"customAddress"`
 	CustomBase    bool   `json:"customBase"`
 	Protected     bool   `json:"protected"`
+	HasHostname   bool   `json:"hasHostname"`
 }
