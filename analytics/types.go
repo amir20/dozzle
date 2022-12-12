@@ -6,6 +6,5 @@ type StartEvent struct {
 	FilterLength  int    `json:"filterLength"`
 	CustomAddress bool   `json:"customAddress"`
 	CustomBase    bool   `json:"customBase"`
-	TailSize      int    `json:"tailSize"`
 	Protected     bool   `json:"protected"`
 }

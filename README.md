@@ -124,8 +124,6 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--addr`         | `DOZZLE_ADDR`         | `:8080` |
 | `--base`         | `DOZZLE_BASE`         | `/`     |
 | `--level`        | `DOZZLE_LEVEL`        | `info`  |
-| n/a              | `DOCKER_API_VERSION`  | not set |
-| `--tailSize`     | `DOZZLE_TAILSIZE`     | `300`   |
 | `--filter`       | `DOZZLE_FILTER`       | `""`    |
 | `--username`     | `DOZZLE_USERNAME`     | `""`    |
 | `--password`     | `DOZZLE_PASSWORD`     | `""`    |

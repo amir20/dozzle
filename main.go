@@ -38,7 +38,6 @@ type args struct {
 	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
 	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
-	TailSize             int                 `arg:"env:DOZZLE_TAILSIZE" default:"300" help:"update the initial tail size when fetching logs."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
 	UsernameFile         *DockerSecret       `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
@@ -123,7 +122,6 @@ func main() {
 		Addr:     args.Addr,
 		Base:     args.Base,
 		Version:  version,
-		TailSize: args.TailSize,
 		Username: args.Username,
 		Password: args.Password,
 	}
@@ -175,7 +173,6 @@ func doStartEvent(arg args) {
 		FilterLength:  len(arg.Filter),
 		CustomAddress: arg.Addr != ":8080",
 		CustomBase:    arg.Base != "/",
-		TailSize:      arg.TailSize,
 		Protected:     arg.Username != "",
 	}
 
