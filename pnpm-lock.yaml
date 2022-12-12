@@ -55,7 +55,7 @@ specifiers:
   unplugin-icons: ^0.14.14
   unplugin-vue-components: ^0.22.11
   vite: 4.0.0
-  vite-plugin-pages: ^0.27.1
+  vite-plugin-pages: ^0.28.0
   vite-plugin-vue-layouts: ^0.7.0
   vitest: ^0.25.6
   vue: ^3.2.45
@@ -123,7 +123,7 @@ devDependencies:
   unplugin-icons: 0.14.14_@vue+compiler-sfc@3.2.45
   unplugin-vue-components: 0.22.11_vue@3.2.45
   vite: 4.0.0_73lfsi4xmmmu3zhcuv45qpgb6a
-  vite-plugin-pages: 0.27.1_bfj6hk77mjywrsotfr4rwggdnm
+  vite-plugin-pages: 0.28.0_bfj6hk77mjywrsotfr4rwggdnm
   vite-plugin-vue-layouts: 0.7.0_h746x2iafd67rpfmrsda4xydfq
   vitest: 0.25.6_jsdom@20.0.3+sass@1.56.2
   vue-tsc: 1.0.12_typescript@4.9.4
@@ -1854,8 +1854,8 @@ packages:
       type-detect: 4.0.8
     dev: true
 
-  /deep-equal/2.0.5:
-    resolution: {integrity: sha512-nPiRgmbAtm1a3JsnLCf6/SLfXcjyN5v8L1TXzdCmHrXJ4hx+gW/w1YCcn7z8gJtSiDArZCgYtbao3QqLm/N1Sw==}
+  /deep-equal/2.1.0:
+    resolution: {integrity: sha512-2pxgvWu3Alv1PoWEyVg7HS8YhGlUFUV7N5oOvfL6d+7xAmLSemMwv/c8Zv/i9KFzxV5Kt5CAvQc70fLwVuf4UA==}
     dependencies:
       call-bind: 1.0.2
       es-get-iterator: 1.1.2
@@ -2022,38 +2022,8 @@ packages:
       object-inspect: 1.12.2
       object-keys: 1.1.1
       object.assign: 4.1.4
-      string.prototype.trimend: 1.0.5
-      string.prototype.trimstart: 1.0.5
-      unbox-primitive: 1.0.2
-    dev: true
-
-  /es-abstract/1.20.4:
-    resolution: {integrity: sha512-0UtvRN79eMe2L+UNEF1BwRe364sj/DXhQ/k5FmivgoSdpM90b8Jc0mDzKMGo7QS0BVbOP/bTwBKNnDc9rNzaPA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.2
-      es-to-primitive: 1.2.1
-      function-bind: 1.1.1
-      function.prototype.name: 1.1.5
-      get-intrinsic: 1.1.3
-      get-symbol-description: 1.0.0
-      has: 1.0.3
-      has-property-descriptors: 1.0.0
-      has-symbols: 1.0.3
-      internal-slot: 1.0.3
-      is-callable: 1.2.7
-      is-negative-zero: 2.0.2
-      is-regex: 1.1.4
-      is-shared-array-buffer: 1.0.2
-      is-string: 1.0.7
-      is-weakref: 1.0.2
-      object-inspect: 1.12.2
-      object-keys: 1.1.1
-      object.assign: 4.1.4
-      regexp.prototype.flags: 1.4.3
-      safe-regex-test: 1.0.0
-      string.prototype.trimend: 1.0.5
-      string.prototype.trimstart: 1.0.5
+      string.prototype.trimend: 1.0.6
+      string.prototype.trimstart: 1.0.6
       unbox-primitive: 1.0.2
     dev: true
 
@@ -2652,7 +2622,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.4
-      es-abstract: 1.20.4
+      es-abstract: 1.20.5
       functions-have-names: 1.2.3
     dev: true
 
@@ -3249,7 +3219,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.5
       call-bind: 1.0.2
-      es-abstract: 1.20.4
+      es-abstract: 1.20.5
       for-each: 0.3.3
       has-tostringtag: 1.0.0
     dev: true
@@ -4728,28 +4698,12 @@ packages:
       es-abstract: 1.19.1
     dev: true
 
-  /string.prototype.trimend/1.0.5:
-    resolution: {integrity: sha512-I7RGvmjV4pJ7O3kdf+LXFpVfdNOxtCW/2C8f6jNiW4+PQchwxkCDzlk1/7p+Wl4bqFIZeF47qAHXLuHHWKAxog==}
-    dependencies:
-      call-bind: 1.0.2
-      define-properties: 1.1.4
-      es-abstract: 1.20.4
-    dev: true
-
   /string.prototype.trimend/1.0.6:
     resolution: {integrity: sha512-JySq+4mrPf9EsDBEDYMOb/lM7XQLulwg5R/m1r0PXEFqrV0qHvl58sdTilSXtKOflCsK2E8jxf+GKC0T07RWwQ==}
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.4
       es-abstract: 1.20.5
-    dev: true
-
-  /string.prototype.trimstart/1.0.5:
-    resolution: {integrity: sha512-THx16TJCGlsN0o6dl2o6ncWUsdgnLRSA23rRE5pyGBw/mLr3Ej/R2LaqCtgP8VNMGZsvMWnf9ooZPyY2bHvUFg==}
-    dependencies:
-      call-bind: 1.0.2
-      define-properties: 1.1.4
-      es-abstract: 1.20.4
     dev: true
 
   /string.prototype.trimstart/1.0.6:
@@ -5179,11 +5133,11 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /vite-plugin-pages/0.27.1_bfj6hk77mjywrsotfr4rwggdnm:
-    resolution: {integrity: sha512-KXfeG9aQSNsSXBs1mPeeuC0rwkLti+MgoJ3GknrwRDNrdrojb9czcFAVlnoPNVdfuvTHcWdf5zqN7+vuvz2JZQ==}
+  /vite-plugin-pages/0.28.0_bfj6hk77mjywrsotfr4rwggdnm:
+    resolution: {integrity: sha512-yncDncFVnjUzhqJnwCgGDZoZ/wO6MEOMe93f2MQjplKXm1MpmHCrTkFCPnQyYGZTVKPAN+y7BQcIpNWPFLQ4+w==}
     peerDependencies:
       '@vue/compiler-sfc': ^2.7.0 || ^3.0.0
-      vite: ^2.0.0 || ^3.0.0-0
+      vite: ^2.0.0 || ^3.0.0-0 || ^4.0.0
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
@@ -5191,7 +5145,7 @@ packages:
       '@types/debug': 4.1.7
       '@vue/compiler-sfc': 3.2.45
       debug: 4.3.4
-      deep-equal: 2.0.5
+      deep-equal: 2.1.0
       extract-comments: 1.1.0
       fast-glob: 3.2.12
       json5: 2.2.1
@@ -5509,7 +5463,7 @@ packages:
     dependencies:
       available-typed-arrays: 1.0.5
       call-bind: 1.0.2
-      es-abstract: 1.20.4
+      es-abstract: 1.20.5
       for-each: 0.3.3
       has-tostringtag: 1.0.0
       is-typed-array: 1.1.9
