@@ -21,6 +21,7 @@ type Config struct {
 	Version  string
 	Username string
 	Password string
+	Hostname string
 }
 
 type handler struct {
@@ -110,11 +111,13 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		Version             string
 		AuthorizationNeeded bool
 		Secured             bool
+		Hostname            string
 	}{
 		path,
 		h.config.Version,
 		h.isAuthorizationNeeded(req),
 		secured,
+		h.config.Hostname,
 	}
 	err = tmpl.Execute(w, data)
 	if err != nil {

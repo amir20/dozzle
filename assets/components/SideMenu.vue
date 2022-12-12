@@ -2,11 +2,16 @@
   <aside>
     <div class="columns is-marginless">
       <div class="column is-paddingless">
-        <router-link :to="{ name: 'index' }">
-          <svg class="logo">
-            <use href="#logo"></use>
-          </svg>
-        </router-link>
+        <h1>
+          <router-link :to="{ name: 'index' }">
+            <svg class="logo">
+              <use href="#logo"></use>
+            </svg>
+          </router-link>
+          <small class="subtitle is-6 is-block mb-4" v-if="hostname">
+            {{ hostname }}
+          </small>
+        </h1>
       </div>
     </div>
     <div class="columns is-marginless">
@@ -65,9 +70,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { Container } from "@/types/Container";
+import { Container } from "@/models/Container";
 
-const { base, secured } = config;
+const { base, secured, hostname } = config;
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);

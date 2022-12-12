@@ -37,6 +37,7 @@ func (s *DockerSecret) UnmarshalText(b []byte) error {
 type args struct {
 	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
 	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
+	Hostname             string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
@@ -124,6 +125,7 @@ func main() {
 		Version:  version,
 		Username: args.Username,
 		Password: args.Password,
+		Hostname: args.Hostname,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -174,6 +176,7 @@ func doStartEvent(arg args) {
 		CustomAddress: arg.Addr != ":8080",
 		CustomBase:    arg.Base != "/",
 		Protected:     arg.Username != "",
+		HasHostname:   arg.Hostname != "",
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {

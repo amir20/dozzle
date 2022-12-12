@@ -6,6 +6,7 @@ interface Config {
   authorizationNeeded: boolean | "false" | "true";
   secured: boolean | "false" | "true";
   maxLogs: number;
+  hostname: string;
 }
 
 const pageConfig = JSON.parse(text);
@@ -20,6 +21,7 @@ if (config.version == "{{ .Version }}") {
   config.base = "";
   config.authorizationNeeded = false;
   config.secured = false;
+  config.hostname = "localhost";
 } else {
   config.version = config.version.replace(/^v/, "");
   config.authorizationNeeded = config.authorizationNeeded === "true";
