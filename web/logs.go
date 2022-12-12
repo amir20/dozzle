@@ -137,7 +137,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		lastEventId = r.URL.Query().Get("lastEventId")
 	}
 
-	reader, err := h.client.ContainerLogs(r.Context(), container.ID, h.config.TailSize, lastEventId)
+	reader, err := h.client.ContainerLogs(r.Context(), container.ID, lastEventId)
 	if err != nil {
 		if err == io.EOF {
 			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")

@@ -35,7 +35,7 @@ type dockerProxy interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, int, string) (io.ReadCloser, error)
+	ContainerLogs(context.Context, string, string) (io.ReadCloser, error)
 	Events(context.Context) (<-chan ContainerEvent, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
@@ -169,7 +169,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	return nil
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (io.ReadCloser, error) {
+func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since string) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
 
 	if since != "" {
@@ -184,7 +184,7 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, tailSize in
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
-		Tail:       strconv.Itoa(tailSize),
+		Tail:       "300",
 		Timestamps: true,
 		Since:      since,
 	}

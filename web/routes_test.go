@@ -41,8 +41,8 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, tailSize int, since string) (io.ReadCloser, error) {
-	args := m.Called(ctx, id, tailSize)
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since string) (io.ReadCloser, error) {
+	args := m.Called(ctx, id, since)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
@@ -75,9 +75,9 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient := new(MockedClient)
 	reader := ioutil.NopCloser(strings.NewReader("INFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(reader, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "").Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -96,9 +96,9 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	mockedClient := new(MockedClient)
 	reader := ioutil.NopCloser(strings.NewReader("2020-05-13T18:55:37.772853839Z INFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, 300).Return(reader, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "").Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -116,9 +116,9 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(ioutil.NopCloser(strings.NewReader("")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, id, "").Return(ioutil.NopCloser(strings.NewReader("")), io.EOF)
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -137,7 +137,7 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -155,9 +155,9 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, 300).Return(ioutil.NopCloser(strings.NewReader("")), errors.New("test error"))
+	mockedClient.On("ContainerLogs", mock.Anything, id, "").Return(ioutil.NopCloser(strings.NewReader("")), errors.New("test error"))
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -186,7 +186,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -208,7 +208,7 @@ func Test_handler_streamEvents_error(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -234,7 +234,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 		cancel()
 	}()
 
-	h := handler{client: mockedClient, config: &Config{TailSize: 300}}
+	h := handler{client: mockedClient, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -397,7 +397,7 @@ func Test_createRoutes_username_password_login_failed(t *testing.T) {
 func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, "123", "").Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	// Get cookie first
@@ -421,7 +421,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 func Test_createRoutes_username_password_invalid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, "123", 0).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, "since").Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/api/logs/stream?id=123", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
