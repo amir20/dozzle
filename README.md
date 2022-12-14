@@ -35,7 +35,7 @@ The simplest way to use dozzle is to run the docker container. Also, mount the D
 
     $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest
 
-Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
+Dozzle will be available at [http://localhost:8080/](http://localhost:8080/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
 
 ### With Docker swarm
 
