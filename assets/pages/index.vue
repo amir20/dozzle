@@ -78,7 +78,7 @@
 import SearchIcon from "~icons/mdi-light/magnify";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { base, version, secured } = config;
+const { version } = config;
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore);
 const router = useRouter();
@@ -89,10 +89,22 @@ const query = ref("");
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => b.created - a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
-const { results } = useFuse(query, containers, {
+const list = computed(() => {
+  return containers.value.map(({ id, created, name, state }) => {
+    return {
+      id,
+      created,
+      name,
+      state,
+    };
+  });
+});
+
+const { results } = useFuse(query, list, {
   fuseOptions: { keys: ["name"] },
   matchAllWhenSearchEmpty: false,
 });
+
 const data = computed(() => {
   if (results.value.length) {
     return results.value.map(({ item }) => item);
