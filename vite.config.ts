@@ -7,7 +7,7 @@ import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import Pages from "vite-plugin-pages";
 import Layouts from "vite-plugin-vue-layouts";
-import VueI18n from "@intlify/vite-plugin-vue-i18n";
+import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 
 export default defineConfig(() => ({
   resolve: {
@@ -53,7 +53,7 @@ export default defineConfig(() => ({
       dirs: ["assets/composables", "assets/stores", "assets/utils"],
       vueTemplate: true,
     }),
-    VueI18n({
+    VueI18nPlugin({
       runtimeOnly: true,
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales/**")],
