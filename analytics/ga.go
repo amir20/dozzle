@@ -21,7 +21,25 @@ func SendStartEvent(se StartEvent) error {
 		},
 	}
 
-	jsonValue, err := json.Marshal(postBody)
+	return doRequest(postBody)
+}
+
+func SendRequestEvent(re RequestEvent) error {
+	postBody := map[string]interface{}{
+		"client_id": re.ClientId,
+		"events": []map[string]interface{}{
+			{
+				"name":   "request",
+				"params": re,
+			},
+		},
+	}
+
+	return doRequest(postBody)
+}
+
+func doRequest(body map[string]interface{}) error {
+	jsonValue, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}

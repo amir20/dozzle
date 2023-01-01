@@ -6,8 +6,10 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path"
 
+	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
 
 	"github.com/gorilla/mux"
@@ -16,12 +18,13 @@ import (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base     string
-	Addr     string
-	Version  string
-	Username string
-	Password string
-	Hostname string
+	Base        string
+	Addr        string
+	Version     string
+	Username    string
+	Password    string
+	Hostname    string
+	NoAnalytics bool
 }
 
 type handler struct {
@@ -78,6 +81,27 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	_, err := h.content.Open(req.URL.Path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
+		if !h.config.NoAnalytics {
+			go func() {
+				host, _ := os.Hostname()
+
+				if containers, err := h.client.ListContainers(); err == nil {
+					totalContainers := len(containers)
+					runningContainers := 0
+					for _, container := range containers {
+						if container.State == "running" {
+							runningContainers++
+						}
+					}
+					re := analytics.RequestEvent{
+						ClientId:          host,
+						TotalContainers:   totalContainers,
+						RunningContainers: runningContainers,
+					}
+					analytics.SendRequestEvent(re)
+				}
+			}()
+		}
 	} else {
 		if !isAuthorized(req) && req.URL.Path != "login" {
 			http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)

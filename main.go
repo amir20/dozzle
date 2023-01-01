@@ -126,6 +126,7 @@ func main() {
 		Username: args.Username,
 		Password: args.Password,
 		Hostname: args.Hostname,
+		NoAnalytics: args.NoAnalytics,
 	}
 
 	assets, err := fs.Sub(content, "dist")
