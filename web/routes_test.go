@@ -434,6 +434,7 @@ func Test_createRoutes_username_password_invalid_session(t *testing.T) {
 func createHandler(client docker.Client, content fs.FS, config Config) *mux.Router {
 	if client == nil {
 		client = new(MockedClient)
+		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
 	}
 
 	if content == nil {
