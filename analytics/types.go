@@ -9,3 +9,9 @@ type StartEvent struct {
 	Protected     bool   `json:"protected"`
 	HasHostname   bool   `json:"hasHostname"`
 }
+
+type RequestEvent struct {
+	ClientId         string `json:"-"`
+	TotalContainers  int    `json:"totalContainers"`
+	RunningContainers int    `json:"runningContainers"`
+}
