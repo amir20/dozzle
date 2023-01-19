@@ -16,11 +16,12 @@ export interface LogEvent {
   readonly m: string | JSONObject;
   readonly ts: number;
   readonly id: number;
+  readonly l: string;
 }
 
 export abstract class LogEntry<T extends string | JSONObject> implements HasComponent {
   protected readonly _message: T;
-  constructor(message: T, public readonly id: number, public readonly date: Date) {
+  constructor(message: T, public readonly id: number, public readonly date: Date, public readonly level: string) {
     this._message = message;
   }
 
@@ -40,8 +41,14 @@ export class SimpleLogEntry extends LogEntry<string> {
 export class ComplexLogEntry extends LogEntry<JSONObject> {
   private readonly filteredMessage: ComputedRef<JSONObject>;
 
-  constructor(message: JSONObject, id: number, date: Date, visibleKeys?: Ref<string[][]>) {
-    super(message, id, date);
+  constructor(
+    message: JSONObject,
+    id: number,
+    date: Date,
+    public readonly level: string,
+    visibleKeys?: Ref<string[][]>
+  ) {
+    super(message, id, date, level);
     if (visibleKeys) {
       this.filteredMessage = computed(() => {
         if (!visibleKeys.value.length) {
@@ -73,7 +80,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
 
 export class DockerEventLogEntry extends LogEntry<string> {
   constructor(message: string, date: Date, public readonly event: string) {
-    super(message, date.getTime(), date);
+    super(message, date.getTime(), date, "info");
   }
   getComponent(): Component {
     return DockerEventLogItem;
@@ -90,7 +97,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     public readonly firstSkipped: LogEntry<string | JSONObject>,
     lastSkipped: LogEntry<string | JSONObject>
   ) {
-    super("", date.getTime(), date);
+    super("", date.getTime(), date, "info");
     this._totalSkipped = totalSkipped;
     this.lastSkipped = lastSkipped;
   }
@@ -114,8 +121,8 @@ export class SkippedLogsEntry extends LogEntry<string> {
 
 export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
   if (typeof event.m === "string") {
-    return new SimpleLogEntry(event.m, event.id, new Date(event.ts));
+    return new SimpleLogEntry(event.m, event.id, new Date(event.ts), event.l);
   } else {
-    return new ComplexLogEntry(event.m, event.id, new Date(event.ts));
+    return new ComplexLogEntry(event.m, event.id, new Date(event.ts), event.l);
   }
 }

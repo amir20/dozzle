@@ -3,6 +3,9 @@
     <div class="column is-narrow" v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>
+    <div class="column is-narrow">
+      <log-level :level="logEntry.level"></log-level>
+    </div>
     <div class="text column" v-html="colorize(logEntry.message)"></div>
   </div>
 </template>
