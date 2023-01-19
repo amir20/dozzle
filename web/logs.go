@@ -74,8 +74,47 @@ func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
 			}
 		}
 
+		logEvent.Level = guessLogLevel(logEvent)
+
 		return logEvent, readerError
 	}
+}
+
+func guessLogLevel(logEvent docker.LogEvent) string {
+	if logEvent.Message == nil {
+		return "info"
+	}
+
+	switch logEvent.Message.(type) {
+	case string:
+		message := logEvent.Message.(string)
+		if strings.HasPrefix(message, "ERROR") {
+			return "error"
+		}
+		if strings.HasPrefix(message, "WARN") {
+			return "warn"
+		}
+		if strings.HasPrefix(message, "INFO") {
+			return "info"
+		}
+		if strings.HasPrefix(message, "DEBUG") {
+			return "debug"
+		}
+		if strings.HasPrefix(message, "TRACE") {
+			return "trace"
+		}
+		if strings.HasPrefix(message, "FATAL") {
+			return "fatal"
+		}
+
+	case map[string]interface{}:
+		message := logEvent.Message.(map[string]interface{})
+		if message["level"] != nil {
+			return message["level"].(string)
+		}
+	}
+
+	return ""
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {

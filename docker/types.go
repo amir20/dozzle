@@ -31,4 +31,5 @@ type LogEvent struct {
 	Message   any    `json:"m,omitempty"`
 	Timestamp int64  `json:"ts"`
 	Id        uint32 `json:"id,omitempty"`
+	Level     string `json:"l,omitempty"`
 }
