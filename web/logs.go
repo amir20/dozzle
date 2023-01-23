@@ -5,13 +5,11 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
-	"hash/fnv"
 
 	"fmt"
 	"io"
 	"net/http"
 	"runtime"
-	"strings"
 
 	"time"
 
@@ -48,75 +46,6 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	io.Copy(zw, reader)
 }
 
-func logEventIterator(reader *bufio.Reader) func() (docker.LogEvent, error) {
-	return func() (docker.LogEvent, error) {
-		message, readerError := reader.ReadString('\n')
-
-		h := fnv.New32a()
-		h.Write([]byte(message))
-
-		logEvent := docker.LogEvent{Id: h.Sum32(), Message: message}
-
-		if index := strings.IndexAny(message, " "); index != -1 {
-			logId := message[:index]
-			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
-				logEvent.Timestamp = timestamp.UnixMilli()
-				message = strings.TrimSuffix(message[index+1:], "\n")
-				logEvent.Message = message
-				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
-					var data map[string]interface{}
-					if err := json.Unmarshal([]byte(message), &data); err != nil {
-						log.Errorf("json unmarshal error while streaming %v", err.Error())
-					} else {
-						logEvent.Message = data
-					}
-				}
-			}
-		}
-
-		logEvent.Level = guessLogLevel(logEvent)
-
-		return logEvent, readerError
-	}
-}
-
-func guessLogLevel(logEvent docker.LogEvent) string {
-	if logEvent.Message == nil {
-		return "info"
-	}
-
-	switch logEvent.Message.(type) {
-	case string:
-		message := logEvent.Message.(string)
-		if strings.HasPrefix(message, "ERROR") {
-			return "error"
-		}
-		if strings.HasPrefix(message, "WARN") {
-			return "warn"
-		}
-		if strings.HasPrefix(message, "INFO") {
-			return "info"
-		}
-		if strings.HasPrefix(message, "DEBUG") {
-			return "debug"
-		}
-		if strings.HasPrefix(message, "TRACE") {
-			return "trace"
-		}
-		if strings.HasPrefix(message, "FATAL") {
-			return "fatal"
-		}
-
-	case map[string]interface{}:
-		message := logEvent.Message.(map[string]interface{})
-		if message["level"] != nil {
-			return message["level"].(string)
-		}
-	}
-
-	return ""
-}
-
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/ld+json; charset=UTF-8")
 
@@ -132,18 +61,18 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	buffered := bufio.NewReader(reader)
-	eventIterator := logEventIterator(buffered)
+	// buffered := bufio.NewReader(reader)
+	// eventIterator := logEventIterator(buffered)
 
-	for {
-		logEvent, readerError := eventIterator()
-		if readerError != nil {
-			break
-		}
-		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
-			log.Errorf("json encoding error while streaming %v", err.Error())
-		}
-	}
+	// for {
+	// 	logEvent, readerError := eventIterator()
+	// 	if readerError != nil {
+	// 		break
+	// 	}
+	// 	if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+	// 		log.Errorf("json encoding error while streaming %v", err.Error())
+	// 	}
+	// }
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
@@ -204,13 +133,14 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	buffered := bufio.NewReader(reader)
-	var readerError error
-	eventIterator := logEventIterator(buffered)
+	iterator := docker.NewEventIterator(buffered)
 
 	for {
 
-		var logEvent docker.LogEvent
-		logEvent, readerError = eventIterator()
+		logEvent, err := iterator.Next()
+		if err != nil {
+			break
+		}
 		if buf, err := json.Marshal(logEvent); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
 		} else {
@@ -221,19 +151,17 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "\n")
 		f.Flush()
-		if readerError != nil {
-			break
-		}
+
 	}
 
 	log.Debugf("streaming stopped: %v", container.ID)
 
-	if readerError == io.EOF {
+	if iterator.LastError() == io.EOF {
 		log.Debugf("container stopped: %v", container.ID)
 		fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
 		f.Flush()
-	} else if readerError != context.Canceled {
-		log.Errorf("unknown error while streaming %v", readerError.Error())
+	} else if iterator.LastError() != context.Canceled {
+		log.Errorf("unknown error while streaming %v", iterator.LastError().Error())
 	}
 
 	log.WithField("routines", runtime.NumGoroutine()).Debug("runtime goroutine stats")

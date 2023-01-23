@@ -27,9 +27,19 @@ type ContainerEvent struct {
 	Name    string `json:"name"`
 }
 
+type LogPosition string
+
+const (
+	START  LogPosition = "start"
+	MIDDLE LogPosition = "middle"
+	END    LogPosition = "end"
+)
+
 type LogEvent struct {
-	Message   any    `json:"m,omitempty"`
-	Timestamp int64  `json:"ts"`
-	Id        uint32 `json:"id,omitempty"`
-	Level     string `json:"l,omitempty"`
+	Message   any         `json:"m,omitempty"`
+	Timestamp int64       `json:"ts"`
+	Id        uint32      `json:"id,omitempty"`
+	Level     string      `json:"l,omitempty"`
+	Position  LogPosition `json:"p,omitempty"`
 }
+

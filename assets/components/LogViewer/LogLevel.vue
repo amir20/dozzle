@@ -1,9 +1,12 @@
 <template>
-  <div :class="level"></div>
+  <div :class="level" :data-position="position"></div>
 </template>
 <script lang="ts" setup>
+import { Position } from "@/models/LogEntry";
+
 defineProps<{
   level: string;
+  position: Position;
 }>();
 </script>
 
@@ -12,7 +15,25 @@ div {
   display: inline-block;
   width: 0.7em;
   height: 0.7em;
-  border-radius: 50%;
+  border-radius: 0.5em;
+
+  &[data-position="middle"] {
+    border-radius: 0;
+    height: 2em;
+    margin: -0.5em 0;
+  }
+
+  &[data-position="start"] {
+    border-radius: 0.5em 0.5em 0 0;
+    height: 1.2em;
+    margin-bottom: -0.4em;
+  }
+
+  &[data-position="end"] {
+    border-radius: 0 0 0.5em 0.5em;
+    height: 1.4em;
+    margin-top: -0.4em;
+  }
 
   &.debug {
     background-color: #00b5ad;
