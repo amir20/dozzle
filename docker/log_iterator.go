@@ -127,32 +127,30 @@ func guessLogLevel(logEvent *LogEvent) string {
 		return "info"
 	}
 
-	switch logEvent.Message.(type) {
+	switch value := logEvent.Message.(type) {
 	case string:
-		message := logEvent.Message.(string)
-		if strings.HasPrefix(message, "ERROR") {
+		if strings.HasPrefix(value, "ERROR") {
 			return "error"
 		}
-		if strings.HasPrefix(message, "WARN") {
+		if strings.HasPrefix(value, "WARN") {
 			return "warn"
 		}
-		if strings.HasPrefix(message, "INFO") {
+		if strings.HasPrefix(value, "INFO") {
 			return "info"
 		}
-		if strings.HasPrefix(message, "DEBUG") {
+		if strings.HasPrefix(value, "DEBUG") {
 			return "debug"
 		}
-		if strings.HasPrefix(message, "TRACE") {
+		if strings.HasPrefix(value, "TRACE") {
 			return "trace"
 		}
-		if strings.HasPrefix(message, "FATAL") {
+		if strings.HasPrefix(value, "FATAL") {
 			return "fatal"
 		}
 
 	case map[string]interface{}:
-		message := logEvent.Message.(map[string]interface{})
-		if message["level"] != nil {
-			return message["level"].(string)
+		if value["level"] != nil {
+			return value["level"].(string)
 		}
 	}
 

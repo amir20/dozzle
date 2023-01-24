@@ -84,7 +84,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
   }
 
   static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<string[][]>): ComplexLogEntry {
-    return new ComplexLogEntry(event._message, event.id, event.date, visibleKeys);
+    return new ComplexLogEntry(event._message, event.id, event.date, event.level, visibleKeys);
   }
 }
 
