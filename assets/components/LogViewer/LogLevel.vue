@@ -5,8 +5,8 @@
 import { Position } from "@/models/LogEntry";
 
 defineProps<{
-  level: string;
-  position: Position;
+  level?: string;
+  position?: Position;
 }>();
 </script>
 

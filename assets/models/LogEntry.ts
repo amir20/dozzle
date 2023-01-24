@@ -22,7 +22,7 @@ export interface LogEvent {
 
 export abstract class LogEntry<T extends string | JSONObject> implements HasComponent {
   protected readonly _message: T;
-  constructor(message: T, public readonly id: number, public readonly date: Date, public readonly level: string) {
+  constructor(message: T, public readonly id: number, public readonly date: Date, public readonly level?: string) {
     this._message = message;
   }
 

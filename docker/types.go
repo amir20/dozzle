@@ -1,5 +1,7 @@
 package docker
 
+import "math"
+
 // Container represents an internal representation of docker containers
 type Container struct {
 	ID      string   `json:"id"`
@@ -43,3 +45,10 @@ type LogEvent struct {
 	Position  LogPosition `json:"p,omitempty"`
 }
 
+func (l *LogEvent) HasLevel() bool {
+	return l.Level != ""
+}
+
+func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
+	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 5
+}

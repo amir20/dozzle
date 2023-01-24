@@ -42,18 +42,21 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 	currentLevel := guessLogLevel(currentEvent)
 
 	if nextEvent != nil {
-		if currentEvent.Timestamp == nextEvent.Timestamp && currentLevel != "" && nextEvent.Level == "" {
+		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "" && !nextEvent.HasLevel() {
 			currentEvent.Position = START
 			nextEvent.Position = MIDDLE
 		}
 
-		if currentEvent.Position == MIDDLE && (nextEvent.Level != "" || currentEvent.Timestamp != nextEvent.Timestamp) {
+		// If next item is not close to current item or has level, set current item position to end
+		if currentEvent.Position == MIDDLE && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(nextEvent)) {
 			currentEvent.Position = END
 		}
 
-		if currentEvent.Position == MIDDLE && nextEvent.Level == "" && currentEvent.Timestamp == nextEvent.Timestamp {
+		// If next item is close to current item and has no level, set next item position to middle
+		if currentEvent.Position == MIDDLE && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(nextEvent) {
 			nextEvent.Position = MIDDLE
 		}
+		// Set next item level to current item level
 		if currentEvent.Position == START || currentEvent.Position == MIDDLE {
 			nextEvent.Level = currentEvent.Level
 		}
@@ -76,7 +79,7 @@ func (g *eventGenerator) Peek() *LogEvent {
 	case event := <-g.channel:
 		g.next = event
 		return g.next
-	default:
+	case <-time.After(50 * time.Millisecond):
 		return nil
 	}
 }

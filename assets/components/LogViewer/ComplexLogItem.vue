@@ -3,6 +3,9 @@
     <div class="column is-narrow" v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>
+    <div class="column is-narrow">
+      <log-level :level="logEntry.level"></log-level>
+    </div>
     <div class="column">
       <ul class="fields" :class="{ expanded }" @click="expanded = !expanded">
         <li v-for="(value, name) in validValues(logEntry.message)">

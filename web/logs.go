@@ -61,18 +61,18 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// buffered := bufio.NewReader(reader)
-	// eventIterator := logEventIterator(buffered)
+	buffered := bufio.NewReader(reader)
+	iterator := docker.NewEventIterator(buffered)
 
-	// for {
-	// 	logEvent, readerError := eventIterator()
-	// 	if readerError != nil {
-	// 		break
-	// 	}
-	// 	if err := json.NewEncoder(w).Encode(logEvent); err != nil {
-	// 		log.Errorf("json encoding error while streaming %v", err.Error())
-	// 	}
-	// }
+	for {
+		logEvent, readerError := iterator.Next()
+		if readerError != nil {
+			break
+		}
+		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
+		}
+	}
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
