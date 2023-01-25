@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"hash/fnv"
+	"regexp"
 	"strings"
 	"time"
 
@@ -122,35 +123,40 @@ func (g *eventGenerator) consume() {
 	}
 }
 
-func guessLogLevel(logEvent *LogEvent) string {
-	if logEvent.Message == nil {
-		return "info"
-	}
+var NON_ASCII_REGEX = regexp.MustCompile("^[^a-z]+[^ewidtf]?")
+var KEY_VALUE_REGEX = regexp.MustCompile("level=([^ ]+)")
 
+func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
-		if strings.HasPrefix(value, "ERROR") {
+		value = NON_ASCII_REGEX.ReplaceAllString(strings.ToLower(value), "")
+
+		if strings.HasPrefix(value, "error") {
 			return "error"
 		}
-		if strings.HasPrefix(value, "WARN") {
+		if strings.HasPrefix(value, "warn") {
 			return "warn"
 		}
-		if strings.HasPrefix(value, "INFO") {
+		if strings.HasPrefix(value, "info") {
 			return "info"
 		}
-		if strings.HasPrefix(value, "DEBUG") {
+		if strings.HasPrefix(value, "debug") {
 			return "debug"
 		}
-		if strings.HasPrefix(value, "TRACE") {
+		if strings.HasPrefix(value, "trace ") {
 			return "trace"
 		}
-		if strings.HasPrefix(value, "FATAL") {
+		if strings.HasPrefix(value, "fatal") {
 			return "fatal"
+		}
+
+		if matches := KEY_VALUE_REGEX.FindStringSubmatch(value); matches != nil {
+			return matches[1]
 		}
 
 	case map[string]interface{}:
 		if value["level"] != nil {
-			return value["level"].(string)
+			return strings.ToLower(value["level"].(string))
 		}
 	}
 

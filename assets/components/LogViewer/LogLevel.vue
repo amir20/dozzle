@@ -35,19 +35,21 @@ div {
     margin-top: -0.4em;
   }
 
-  &.debug {
-    background-color: #00b5ad;
+  &.debug,
+  &.trace {
+    background-color: #9c27b0;
   }
 
   &.info {
     background-color: #00b5ad;
   }
 
-  &.error {
+  &.error,
+  &.fatal {
     background-color: #f44336;
   }
 
-  &.warning {
+  &.warn {
     background-color: #ff9800;
   }
 }
