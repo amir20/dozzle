@@ -123,7 +123,7 @@ func (g *eventGenerator) consume() {
 	}
 }
 
-var NON_ASCII_REGEX = regexp.MustCompile("^[^a-z]+[^ewidtf]?")
+var NON_ASCII_REGEX = regexp.MustCompile("^[^a-z ]+[^ewidtf]?")
 var KEY_VALUE_REGEX = regexp.MustCompile("level=([^ ]+)")
 
 func guessLogLevel(logEvent *LogEvent) string {
@@ -131,23 +131,12 @@ func guessLogLevel(logEvent *LogEvent) string {
 	case string:
 		value = NON_ASCII_REGEX.ReplaceAllString(strings.ToLower(value), "")
 
-		if strings.HasPrefix(value, "error") {
-			return "error"
-		}
-		if strings.HasPrefix(value, "warn") {
-			return "warn"
-		}
-		if strings.HasPrefix(value, "info") {
-			return "info"
-		}
-		if strings.HasPrefix(value, "debug") {
-			return "debug"
-		}
-		if strings.HasPrefix(value, "trace ") {
-			return "trace"
-		}
-		if strings.HasPrefix(value, "fatal") {
-			return "fatal"
+		levels := []string{"error", "warn", "info", "debug", "trace", "fatal"}
+		for _, level := range levels {
+			prefix := regexp.MustCompile("^" + level + "[^a-z]")
+			if prefix.MatchString(value) {
+				return level
+			}
 		}
 
 		if matches := KEY_VALUE_REGEX.FindStringSubmatch(value); matches != nil {
