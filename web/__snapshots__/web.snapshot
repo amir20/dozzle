@@ -144,7 +144,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":4256192898}
+data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info"}
 
 event: container-stopped
 data: end of stream
@@ -170,7 +170,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724}
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info"}
 id: 1589396137772
 
 event: container-stopped

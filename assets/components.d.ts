@@ -22,6 +22,7 @@ declare module '@vue/runtime-core' {
     LogContainer: typeof import('./components/LogViewer/LogContainer.vue')['default']
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']
     LogEventSource: typeof import('./components/LogViewer/LogEventSource.vue')['default']
+    LogLevel: typeof import('./components/LogViewer/LogLevel.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewer/LogViewerWithSource.vue')['default']
     MdiDotsVertical: typeof import('~icons/mdi/dots-vertical')['default']

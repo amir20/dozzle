@@ -1,5 +1,7 @@
 package docker
 
+import "math"
+
 // Container represents an internal representation of docker containers
 type Container struct {
 	ID      string   `json:"id"`
@@ -27,8 +29,26 @@ type ContainerEvent struct {
 	Name    string `json:"name"`
 }
 
+type LogPosition string
+
+const (
+	START  LogPosition = "start"
+	MIDDLE LogPosition = "middle"
+	END    LogPosition = "end"
+)
+
 type LogEvent struct {
-	Message   any    `json:"m,omitempty"`
-	Timestamp int64  `json:"ts"`
-	Id        uint32 `json:"id,omitempty"`
+	Message   any         `json:"m,omitempty"`
+	Timestamp int64       `json:"ts"`
+	Id        uint32      `json:"id,omitempty"`
+	Level     string      `json:"l,omitempty"`
+	Position  LogPosition `json:"p,omitempty"`
+}
+
+func (l *LogEvent) HasLevel() bool {
+	return l.Level != ""
+}
+
+func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
+	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 5
 }

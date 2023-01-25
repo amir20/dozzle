@@ -1,7 +1,10 @@
 <template>
-  <div class="columns is-1 is-variable">
+  <div class="columns is-1 is-variable is-mobile">
     <div class="column is-narrow" v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
+    </div>
+    <div class="column is-narrow">
+      <log-level :level="logEntry.level" :position="logEntry.position"></log-level>
     </div>
     <div class="text column" v-html="colorize(logEntry.message)"></div>
   </div>
