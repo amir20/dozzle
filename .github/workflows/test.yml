@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run Tests
-        run: pnpm run test --outputTruncateLength=500
+        run: pnpm run test -- --outputTruncateLength=500
   go-test:
     name: Go Tests
     runs-on: ubuntu-latest
