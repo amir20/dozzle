@@ -16,23 +16,27 @@ div {
   width: 0.7em;
   height: 0.7em;
   border-radius: 0.5em;
-
-  &[data-position="middle"] {
-    border-radius: 0;
-    height: 2em;
-    margin: -0.5em 0;
-  }
+  align-self: center;
 
   &[data-position="start"] {
     border-radius: 0.5em 0.5em 0 0;
-    height: 1.2em;
-    margin-bottom: -0.4em;
+    height: 70%;
+    margin-bottom: -0.2em;
+    align-self: flex-end;
+  }
+
+  &[data-position="middle"] {
+    border-radius: 0;
+    height: auto;
+    margin: -0.2em 0;
+    align-self: auto;
   }
 
   &[data-position="end"] {
     border-radius: 0 0 0.5em 0.5em;
-    height: 1.4em;
-    margin-top: -0.4em;
+    height: 70%;
+    margin-top: -0.2em;
+    align-self: flex-start;
   }
 
   &.debug,
