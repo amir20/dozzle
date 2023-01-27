@@ -16,12 +16,14 @@ div {
   width: 0.7em;
   height: 0.7em;
   border-radius: 0.5em;
-  align-self: center;
+  align-self: auto;
+  margin-top: 0.4em;
 
   &[data-position="start"] {
     border-radius: 0.5em 0.5em 0 0;
     height: 70%;
     margin-bottom: -0.2em;
+    margin-top: auto;
     align-self: flex-end;
   }
 
