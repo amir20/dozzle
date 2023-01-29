@@ -1,9 +1,12 @@
 <template>
-  <time :datetime="date.toISOString()">{{ format(date) }}</time>
+  <div>
+    <time :datetime="date.toISOString()" class="is-hidden-mobile">{{ dateStr }}</time>
+    <time :datetime="date.toISOString()">{{ timeStr }}</time>
+  </div>
 </template>
 
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
   date: Date;
 }>();
 
@@ -13,9 +16,6 @@ const timeFormatter = $computed(
   () => new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: use12Hour })
 );
 
-function format(date: Date) {
-  const dateStr = dateFormatter.format(date);
-  const timeStr = timeFormatter.format(date);
-  return `${dateStr} ${timeStr}`;
-}
+const dateStr = $computed(() => dateFormatter.format(props.date));
+const timeStr = $computed(() => timeFormatter.format(props.date));
 </script>

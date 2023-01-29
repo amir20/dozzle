@@ -4,7 +4,7 @@
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
     <div class="has-background-body-color is-top-left">
-      <span class="has-text-weight-light has-spacer">{{ label }}</span>
+      <span class="has-text-weight-light">{{ label }}</span>
       <span class="has-text-weight-bold">
         {{ mouseOver ? selectedPoint?.value ?? selectedPoint?.y ?? statValue : statValue }}
       </span>
@@ -25,12 +25,6 @@ let mouseOver = $ref(false);
 </script>
 
 <style lang="scss" scoped>
-.has-spacer {
-  &::after {
-    content: " ";
-  }
-}
-
 .has-border {
   border: 1px solid var(--primary-color);
   border-radius: 3px;

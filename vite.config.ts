@@ -26,6 +26,11 @@ export default defineConfig(() => ({
   plugins: [
     vue({
       reactivityTransform: true,
+      template: {
+        compilerOptions: {
+          whitespace: "preserve",
+        },
+      },
     }),
     Icons({
       autoInstall: true,

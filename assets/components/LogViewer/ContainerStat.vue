@@ -49,12 +49,6 @@ const memoryData = computedWithControl(
 </script>
 
 <style lang="scss" scoped>
-.has-spacer {
-  &::after {
-    content: " ";
-  }
-}
-
 .has-border {
   border: 1px solid var(--primary-color);
   border-radius: 3px;
