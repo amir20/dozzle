@@ -51,7 +51,7 @@ specifiers:
   splitpanes: ^3.1.5
   ts-node: ^10.9.1
   typescript: ^4.9.4
-  unplugin-auto-import: ^0.12.2
+  unplugin-auto-import: ^0.13.0
   unplugin-icons: ^0.15.1
   unplugin-vue-components: ^0.23.0
   vite: 4.0.4
@@ -119,7 +119,7 @@ devDependencies:
   sass: 1.57.1
   ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
   typescript: 4.9.4
-  unplugin-auto-import: 0.12.2_@vueuse+core@9.11.1
+  unplugin-auto-import: 0.13.0_@vueuse+core@9.11.1
   unplugin-icons: 0.15.1_@vue+compiler-sfc@3.2.45
   unplugin-vue-components: 0.23.0_vue@3.2.45
   vite: 4.0.4_ovmyjmuuyckt3r3gpaexj2onji
@@ -811,7 +811,7 @@ packages:
       scule: 1.0.0
       semver: 7.3.8
       unctx: 2.1.1
-      unimport: 2.0.1
+      unimport: 2.1.0
       untyped: 1.2.2
     transitivePeerDependencies:
       - rollup
@@ -833,7 +833,7 @@ packages:
       scule: 1.0.0
       std-env: 3.3.1
       ufo: 1.0.1
-      unimport: 2.0.1
+      unimport: 2.1.0
       untyped: 1.2.2
     transitivePeerDependencies:
       - rollup
@@ -5343,8 +5343,8 @@ packages:
       unplugin: 1.0.1
     dev: true
 
-  /unimport/2.0.1:
-    resolution: {integrity: sha512-hMeDspGrEcocahicTr0AQYUGes24FvJtOxk9QEjeEOGv+n1EdpsDiT6z8t209PWhemPg0T5w/ooTVhup2GdrFA==}
+  /unimport/2.1.0:
+    resolution: {integrity: sha512-GDVIxATluUquX8EqelT6DtnmnZaXGID1jsO9IXwlnxb0OIEqKAxTOnTlnGmHbseoGTh+ZC9kcNDaO18HYQj9KA==}
     dependencies:
       '@rollup/pluginutils': 5.0.2
       escape-string-regexp: 5.0.0
@@ -5387,8 +5387,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
-  /unplugin-auto-import/0.12.2_@vueuse+core@9.11.1:
-    resolution: {integrity: sha512-hC4w0GZjPjmLtrxV0u10XO350V9eCtQyEyifXr7B9UGD7SvbbIvKuOcHt58Zd4FAqZJXKWoXkpr9mdhBp85Usw==}
+  /unplugin-auto-import/0.13.0_@vueuse+core@9.11.1:
+    resolution: {integrity: sha512-nKMxDbkjM4FRPInFfm7sWrJOKgxfKKwb5yLPP+DEGl/SG0/FtBoW1LnZL4PQfx0FXjertoHO1P/5nDf+RSip2Q==}
     engines: {node: '>=14'}
     peerDependencies:
       '@vueuse/core': '*'
@@ -5401,7 +5401,7 @@ packages:
       '@vueuse/core': 9.11.1_vue@3.2.45
       local-pkg: 0.4.3
       magic-string: 0.27.0
-      unimport: 2.0.1
+      unimport: 2.1.0
       unplugin: 1.0.1
     transitivePeerDependencies:
       - rollup
