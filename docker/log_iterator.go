@@ -12,10 +12,10 @@ import (
 )
 
 type eventGenerator struct {
-	reader  *bufio.Reader
-	channel chan *LogEvent
-	next    *LogEvent
-	error   error
+	reader    *bufio.Reader
+	channel   chan *LogEvent
+	next      *LogEvent
+	lastError error
 }
 
 func NewEventIterator(reader *bufio.Reader) *eventGenerator {
@@ -32,11 +32,8 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 		g.next = nil
 		nextEvent = g.Peek()
 	} else {
-		event, ok := <-g.channel
-		if !ok {
-			return nil, g.error
-		}
-		currentEvent = event
+		currentEvent = <-g.channel
+
 		nextEvent = g.Peek()
 	}
 
@@ -65,11 +62,11 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 		currentEvent.Position = END
 	}
 
-	return currentEvent, nil
+	return currentEvent, g.lastError
 }
 
 func (g *eventGenerator) LastError() error {
-	return g.error
+	return g.lastError
 }
 
 func (g *eventGenerator) Peek() *LogEvent {
@@ -117,7 +114,7 @@ func (g *eventGenerator) consume() {
 
 		if readerError != nil {
 			close(g.channel)
-			g.error = readerError
+			g.lastError = readerError
 			break
 		}
 	}
