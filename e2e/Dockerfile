@@ -1,6 +1,6 @@
-FROM cypress/included:12.3.0
+FROM cypress/included:12.4.1
 
-RUN apt install curl && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+RUN apt update && apt install curl -y && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
 WORKDIR /e2e
 
