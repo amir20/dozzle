@@ -50,5 +50,5 @@ func (l *LogEvent) HasLevel() bool {
 }
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
-	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 5
+	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 10
 }
