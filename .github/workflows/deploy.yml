@@ -41,9 +41,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Build images
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml build
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f e2e/docker-compose.yml build
       - name: Run tests
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
   buildx:
     needs: [go-test, npm-test, int-test]
     name: Release
