@@ -32,5 +32,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=amir20/dozzle:master
-          cache-to: type=inline
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
