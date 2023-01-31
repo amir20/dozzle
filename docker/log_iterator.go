@@ -32,8 +32,12 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 		g.next = nil
 		nextEvent = g.Peek()
 	} else {
-		currentEvent = <-g.channel
+		event, ok := <-g.channel
+		if !ok {
+			return nil, g.lastError
+		}
 
+		currentEvent = event
 		nextEvent = g.Peek()
 	}
 
@@ -62,7 +66,7 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 		currentEvent.Position = END
 	}
 
-	return currentEvent, g.lastError
+	return currentEvent, nil
 }
 
 func (g *eventGenerator) LastError() error {
@@ -86,36 +90,36 @@ func (g *eventGenerator) consume() {
 	for {
 		message, readerError := g.reader.ReadString('\n')
 
-		h := fnv.New32a()
-		h.Write([]byte(message))
+		if message != "" {
+			h := fnv.New32a()
+			h.Write([]byte(message))
 
-		logEvent := &LogEvent{Id: h.Sum32(), Message: message}
+			logEvent := &LogEvent{Id: h.Sum32(), Message: message}
 
-		if index := strings.IndexAny(message, " "); index != -1 {
-			logId := message[:index]
-			if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
-				logEvent.Timestamp = timestamp.UnixMilli()
-				message = strings.TrimSuffix(message[index+1:], "\n")
-				logEvent.Message = message
-				if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
-					var data map[string]interface{}
-					if err := json.Unmarshal([]byte(message), &data); err != nil {
-						log.Errorf("json unmarshal error while streaming %v", err.Error())
-					} else {
-						logEvent.Message = data
+			if index := strings.IndexAny(message, " "); index != -1 {
+				logId := message[:index]
+				if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+					logEvent.Timestamp = timestamp.UnixMilli()
+					message = strings.TrimSuffix(message[index+1:], "\n")
+					logEvent.Message = message
+					if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+						var data map[string]interface{}
+						if err := json.Unmarshal([]byte(message), &data); err != nil {
+							log.Errorf("json unmarshal error while streaming %v", err.Error())
+						} else {
+							logEvent.Message = data
+						}
 					}
 				}
 			}
+			logEvent.Level = guessLogLevel(logEvent)
+			g.channel <- logEvent
 		}
-
-		logEvent.Level = guessLogLevel(logEvent)
-
-		g.channel <- logEvent
-
+		
 		if readerError != nil {
-			close(g.channel)
 			g.lastError = readerError
-			break
+			close(g.channel)
+			return
 		}
 	}
 }
