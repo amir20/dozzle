@@ -66,13 +66,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	for {
 		logEvent, readerError := iterator.Next()
+		if readerError != nil {
+			break
+		}
 
 		if err := json.NewEncoder(w).Encode(logEvent); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
-		}
-
-		if readerError != nil {
-			break
 		}
 	}
 }
@@ -140,6 +139,9 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	for {
 
 		logEvent, err := iterator.Next()
+		if err != nil {
+			break
+		}
 
 		if buf, err := json.Marshal(logEvent); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
@@ -151,10 +153,6 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "\n")
 		f.Flush()
-		if err != nil {
-			break
-		}
-
 	}
 
 	log.Debugf("streaming stopped: %v", container.ID)
