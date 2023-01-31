@@ -71,6 +71,14 @@ Content-Type: text/html
 
 <pre>dev</pre>
 
+/* snapshot: Test_handler_between_dates */
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: application/ld+json; charset=UTF-8
+
+{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info"}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info"}
+
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
 Connection: close
