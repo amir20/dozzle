@@ -1,4 +1,4 @@
-FROM cypress/included:12.5.0
+FROM cypress/included:12.5.1
 
 RUN apt update && apt install curl -y && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
