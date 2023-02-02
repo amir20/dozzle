@@ -1,231 +1,231 @@
 // Vitest Snapshot v1
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">This is a message.</div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">This is a message.</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"2\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#2\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"2\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#2\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\"><mark>test</mark> bar</div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\"><mark>test</mark> bar</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with html entities 1`] = `
-"<ul class=\\"events medium\\" data-v-2e92daca=\\"\\">
-  <li data-key=\\"1\\" class=\\"\\" data-v-2e92daca=\\"\\">
-    <div class=\\"line-options\\" data-v-2e92daca=\\"\\" style=\\"display: none;\\">
-      <div class=\\"dropdown is-hoverable is-last is-top minimal\\" data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\">
-        <div class=\\"dropdown-trigger\\" data-v-539164cb=\\"\\"><button class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\" data-v-539164cb=\\"\\"><span class=\\"icon\\" data-v-539164cb=\\"\\"><svg viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\" data-v-539164cb=\\"\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
-        <div class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\" data-v-539164cb=\\"\\">
-          <div class=\\"dropdown-content\\" data-v-539164cb=\\"\\"><a class=\\"dropdown-item\\" href=\\"#1\\" data-v-2e92daca=\\"\\">
-              <div class=\\"level is-justify-content-start\\" data-v-2e92daca=\\"\\">
-                <div class=\\"level-left\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\"><svg viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\" data-v-2e92daca=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
+        <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
+          <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
+              <div data-v-2e92daca=\\"\\" class=\\"level is-justify-content-start\\">
+                <div data-v-2e92daca=\\"\\" class=\\"level-left\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\"><svg data-v-2e92daca=\\"\\" viewBox=\\"0 0 512 512\\" width=\\"1.2em\\" height=\\"1.2em\\" class=\\"mr-4\\">
                       <path fill=\\"currentColor\\" d=\\"M334.627 16H48v480h424V153.373ZM440 464H80V48h241.373L440 166.627Z\\"></path>
                       <path fill=\\"currentColor\\" d=\\"M239.861 152a95.861 95.861 0 1 0 53.624 175.284l68.03 68.029l22.627-22.626l-67.5-67.5A95.816 95.816 0 0 0 239.861 152ZM176 247.861a63.862 63.862 0 1 1 63.861 63.861A63.933 63.933 0 0 1 176 247.861Z\\"></path>
                     </svg></div>
                 </div>
-                <div class=\\"level-right\\" data-v-2e92daca=\\"\\">
-                  <div class=\\"level-item\\" data-v-2e92daca=\\"\\">Jump to Context</div>
+                <div data-v-2e92daca=\\"\\" class=\\"level-right\\">
+                  <div data-v-2e92daca=\\"\\" class=\\"level-item\\">Jump to Context</div>
                 </div>
               </div>
             </a></div>
         </div>
       </div>
     </div>
-    <div class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\" data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\">
-      <div class=\\"column is-narrow\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"date\\" data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
-      <div class=\\"column is-narrow is-flex\\" data-v-a49e52d4=\\"\\">
-        <div class=\\"\\" data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\"></div>
+      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
+        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
       </div>
-      <div class=\\"text column\\" data-v-a49e52d4=\\"\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > renders correctly 1`] = `
-"<div class=\\"infinte-loader\\" data-v-1cd63c6e=\\"\\">
-  <div class=\\"spinner\\" data-v-1cd63c6e=\\"\\" style=\\"display: none;\\">
-    <div class=\\"bounce1\\" data-v-1cd63c6e=\\"\\"></div>
-    <div class=\\"bounce2\\" data-v-1cd63c6e=\\"\\"></div>
-    <div class=\\"bounce3\\" data-v-1cd63c6e=\\"\\"></div>
+"<div data-v-1cd63c6e=\\"\\" class=\\"infinte-loader\\">
+  <div data-v-1cd63c6e=\\"\\" class=\\"spinner\\" style=\\"display: none;\\">
+    <div data-v-1cd63c6e=\\"\\" class=\\"bounce1\\"></div>
+    <div data-v-1cd63c6e=\\"\\" class=\\"bounce2\\"></div>
+    <div data-v-1cd63c6e=\\"\\" class=\\"bounce3\\"></div>
   </div>
 </div>
 
-<ul class=\\"events medium\\" data-v-2e92daca=\\"\\"></ul>"
+<ul data-v-2e92daca=\\"\\" class=\\"events medium\\"></ul>"
 `;
 
 exports[`<LogEventSource /> > should parse messages 1`] = `
