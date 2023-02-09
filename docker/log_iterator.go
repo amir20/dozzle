@@ -115,7 +115,7 @@ func (g *eventGenerator) consume() {
 			logEvent.Level = guessLogLevel(logEvent)
 			g.channel <- logEvent
 		}
-		
+
 		if readerError != nil {
 			g.lastError = readerError
 			close(g.channel)
@@ -125,7 +125,7 @@ func (g *eventGenerator) consume() {
 }
 
 var NON_ASCII_REGEX = regexp.MustCompile("^[^a-z ]+[^ewidtf]?")
-var KEY_VALUE_REGEX = regexp.MustCompile("level=([^ ]+)")
+var KEY_VALUE_REGEX = regexp.MustCompile(`level=(\w+)`)
 
 func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
@@ -145,8 +145,8 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 
 	case map[string]interface{}:
-		if value["level"] != nil {
-			return strings.ToLower(value["level"].(string))
+		if level, ok := value["level"].(string); ok {
+			return level
 		}
 	}
 
