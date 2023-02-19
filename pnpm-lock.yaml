@@ -54,7 +54,7 @@ specifiers:
   unplugin-auto-import: ^0.14.3
   unplugin-icons: ^0.15.3
   unplugin-vue-components: ^0.24.0
-  vite: 4.1.1
+  vite: 4.1.2
   vite-plugin-pages: ^0.28.0
   vite-plugin-vue-layouts: ^0.8.0
   vitest: ^0.28.5
@@ -104,7 +104,7 @@ devDependencies:
   '@types/lodash.debounce': 4.0.7
   '@types/node': 18.13.0
   '@types/semver': 7.3.13
-  '@vitejs/plugin-vue': 4.0.0_vite@4.1.1+vue@3.2.47
+  '@vitejs/plugin-vue': 4.0.0_vite@4.1.2+vue@3.2.47
   '@vue/compiler-sfc': 3.2.47
   '@vue/test-utils': 2.2.10_vue@3.2.47
   c8: 7.13.0
@@ -122,9 +122,9 @@ devDependencies:
   unplugin-auto-import: 0.14.3_@vueuse+core@9.12.0
   unplugin-icons: 0.15.3_@vue+compiler-sfc@3.2.47
   unplugin-vue-components: 0.24.0_vue@3.2.47
-  vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
-  vite-plugin-pages: 0.28.0_jcsmkydzzmiirbz2fx6lklq7mq
-  vite-plugin-vue-layouts: 0.8.0_fmudivyuqogzrsdw3ssoqrxof4
+  vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
+  vite-plugin-pages: 0.28.0_gbksogec5q26mvypozu2wdfyt4
+  vite-plugin-vue-layouts: 0.8.0_odivvtajfxy4ncwzzxzazp6cke
   vitest: 0.28.5_jsdom@21.1.0+sass@1.58.1
   vue-tsc: 1.1.2_typescript@4.9.5
 
@@ -1127,14 +1127,14 @@ packages:
   /@types/web-bluetooth/0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
 
-  /@vitejs/plugin-vue/4.0.0_vite@4.1.1+vue@3.2.47:
+  /@vitejs/plugin-vue/4.0.0_vite@4.1.2+vue@3.2.47:
     resolution: {integrity: sha512-e0X4jErIxAB5oLtDqbHvHpJe/uWNkdpYV83AOG2xo2tEVSzCzewgJMtREZM30wXnM5ls90hxiOtAuVU6H5JgbA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
+      vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
       vue: 3.2.47
     dev: true
 
@@ -5557,7 +5557,7 @@ packages:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
+      vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -5568,7 +5568,7 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-pages/0.28.0_jcsmkydzzmiirbz2fx6lklq7mq:
+  /vite-plugin-pages/0.28.0_gbksogec5q26mvypozu2wdfyt4:
     resolution: {integrity: sha512-yncDncFVnjUzhqJnwCgGDZoZ/wO6MEOMe93f2MQjplKXm1MpmHCrTkFCPnQyYGZTVKPAN+y7BQcIpNWPFLQ4+w==}
     peerDependencies:
       '@vue/compiler-sfc': ^2.7.0 || ^3.0.0
@@ -5586,13 +5586,13 @@ packages:
       json5: 2.2.1
       local-pkg: 0.4.2
       picocolors: 1.0.0
-      vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
+      vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
       yaml: 2.1.3
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /vite-plugin-vue-layouts/0.8.0_fmudivyuqogzrsdw3ssoqrxof4:
+  /vite-plugin-vue-layouts/0.8.0_odivvtajfxy4ncwzzxzazp6cke:
     resolution: {integrity: sha512-UZW2nSV2LraTSe7gsAL46hfdi7a0X1RvkGGoJVtA2O8beu7anzpXFwQLou8+kHy31CzVycT4gIPySBsHhtBN5g==}
     peerDependencies:
       vite: ^2.5.0 || ^3.0.0-0 || ^4.0.0
@@ -5602,15 +5602,15 @@ packages:
       '@vue/compiler-sfc': 3.2.47
       debug: 4.3.4
       fast-glob: 3.2.12
-      vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
+      vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
       vue: 3.2.47
       vue-router: 4.1.6_vue@3.2.47
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /vite/4.1.1_qwczgscu5yinpidm7yywvcndf4:
-    resolution: {integrity: sha512-LM9WWea8vsxhr782r9ntg+bhSFS06FJgCvvB0+8hf8UWtvaiDagKYWXndjfX6kGl74keHJUcpzrQliDXZlF5yg==}
+  /vite/4.1.2_qwczgscu5yinpidm7yywvcndf4:
+    resolution: {integrity: sha512-MWDb9Rfy3DI8omDQySbMK93nQqStwbsQWejXRY2EBzEWKmLAXWb1mkI9Yw2IJrc+oCvPCI1Os5xSSIBYY6DEAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -5688,7 +5688,7 @@ packages:
       tinybench: 2.3.1
       tinypool: 0.3.1
       tinyspy: 1.1.1
-      vite: 4.1.1_qwczgscu5yinpidm7yywvcndf4
+      vite: 4.1.2_qwczgscu5yinpidm7yywvcndf4
       vite-node: 0.28.5_qwczgscu5yinpidm7yywvcndf4
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
