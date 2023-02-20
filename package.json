@@ -52,7 +52,7 @@
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
-    "@pinia/testing": "^0.0.14",
+    "@pinia/testing": "^0.0.15",
     "@types/d3-array": "^3.0.4",
     "@types/d3-ease": "^3.0.0",
     "@types/d3-scale": "^4.0.3",

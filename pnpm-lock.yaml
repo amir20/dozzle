@@ -9,7 +9,7 @@ specifiers:
   '@intlify/unplugin-vue-i18n': ^0.8.2
   '@oruga-ui/oruga-next': ^0.5.10
   '@oruga-ui/theme-bulma': ^0.2.8
-  '@pinia/testing': ^0.0.14
+  '@pinia/testing': ^0.0.15
   '@types/d3-array': ^3.0.4
   '@types/d3-ease': ^3.0.0
   '@types/d3-scale': ^4.0.3
@@ -94,7 +94,7 @@ dependencies:
   vue-router: 4.1.6_vue@3.2.47
 
 devDependencies:
-  '@pinia/testing': 0.0.14_pinia@2.0.30+vue@3.2.47
+  '@pinia/testing': 0.0.15_pinia@2.0.30+vue@3.2.47
   '@types/d3-array': 3.0.4
   '@types/d3-ease': 3.0.0
   '@types/d3-scale': 4.0.3
@@ -953,13 +953,13 @@ packages:
       bulma: 0.9.4
     dev: false
 
-  /@pinia/testing/0.0.14_pinia@2.0.30+vue@3.2.47:
-    resolution: {integrity: sha512-ZmZwVNd/NnKYLIfjfuKl0zlJ3UdiXFpsHzSlL6wCeezSlyrqGMxsIQKv0J6fleu38gyCNTPBEipfxrt8V4+VIg==}
+  /@pinia/testing/0.0.15_pinia@2.0.30+vue@3.2.47:
+    resolution: {integrity: sha512-Ykz5sPUVDphDMssA27+ExPSzxqfn7Y3jax77KA0AChDB6ODu31CnXIwoiUG+U5WA6ey7gzHkZh8wlnAtzVnB8g==}
     peerDependencies:
-      pinia: '>=2.0.19'
+      pinia: '>=2.0.31'
     dependencies:
       pinia: 2.0.30_hmuptsblhheur2tugfgucj7gc4
-      vue-demi: 0.13.8_vue@3.2.47
+      vue-demi: 0.13.11_vue@3.2.47
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -5722,21 +5722,6 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.47
-
-  /vue-demi/0.13.8_vue@3.2.47:
-    resolution: {integrity: sha512-Vy1zbZhCOdsmvGR6tJhAvO5vhP7eiS8xkbYQSoVa7o6KlIy3W8Rc53ED4qI4qpeRDjv3mLfXSEpYU6Yq4pgXRg==}
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      vue: 3.2.47
-    dev: true
 
   /vue-i18n/9.2.2_vue@3.2.47:
     resolution: {integrity: sha512-yswpwtj89rTBhegUAv9Mu37LNznyu3NpyLQmozF3i1hYOhwpG8RjcjIFIIfnu+2MDZJGSZPXaKWvnQA71Yv9TQ==}
