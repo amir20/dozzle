@@ -28,15 +28,15 @@ type Config struct {
 }
 
 type handler struct {
-	client  docker.Client
+	clients map[string]docker.Client
 	content fs.FS
 	config  *Config
 }
 
 // CreateServer creates a service for http handler
-func CreateServer(c docker.Client, content fs.FS, config Config) *http.Server {
+func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
 	handler := &handler{
-		client:  c,
+		clients: clients,
 		content: content,
 		config:  &config,
 	}
@@ -85,7 +85,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			go func() {
 				host, _ := os.Hostname()
 
-				if containers, err := h.client.ListContainers(); err == nil {
+				if containers, err := h.clients["default"].ListContainers(); err == nil {
 					totalContainers := len(containers)
 					runningContainers := 0
 					for _, container := range containers {
@@ -158,10 +158,17 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
 
-	if ping, err := h.client.Ping(r.Context()); err != nil {
+	if ping, err := h.clients["default"].Ping(r.Context()); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		fmt.Fprintf(w, "OK API Version %v", ping.APIVersion)
 	}
+}
+
+func (h *handler) clientFromRequest(r *http.Request) docker.Client {
+	if client, ok := h.clients[r.Host]; ok {
+		return client
+	}
+	return h.clients["default"]
 }

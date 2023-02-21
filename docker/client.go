@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/cli/cli/connhelper"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
@@ -54,6 +55,35 @@ func NewClientWithFilters(f map[string][]string) Client {
 	log.Debugf("filterArgs = %v", filterArgs)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &dockerClient{cli, filterArgs}
+}
+
+func NewClientWithFiltersAndUrl(f map[string][]string, daemonURL string) Client {
+	filterArgs := filters.NewArgs()
+	for key, values := range f {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
+	}
+
+	log.Debugf("filterArgs = %v", filterArgs)
+
+	connHelper, err := connhelper.GetConnectionHelper(daemonURL)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cli, err := client.NewClientWithOpts(
+		client.WithHost(connHelper.Host),
+		client.WithDialContext(connHelper.Dialer),
+		client.WithAPIVersionNegotiation(),
+	)
 
 	if err != nil {
 		log.Fatal(err)

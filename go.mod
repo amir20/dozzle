@@ -30,6 +30,7 @@ require (
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/docker/cli v23.0.1+incompatible // indirect
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/kr/pretty v0.2.1 // indirect

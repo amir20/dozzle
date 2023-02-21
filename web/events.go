@@ -25,24 +25,26 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	events, err := h.client.Events(ctx)
+	client := h.clientFromRequest(r)
+	events, err := client.Events(ctx)
 	stats := make(chan docker.ContainerStat)
 
-	if containers, err := h.client.ListContainers(); err == nil {
-		for _, c := range containers {
-			if c.State == "running" {
-				if err := h.client.ContainerStats(ctx, c.ID, stats); err != nil {
-					log.Errorf("error while streaming container stats: %v", err)
-				}
-			}
-		}
-	}
-
-	if err := sendContainersJSON(h.client, w); err != nil {
+	if err := sendContainersJSON(client, w); err != nil {
 		log.Errorf("error while encoding containers to stream: %v", err)
 	}
-
 	f.Flush()
+
+	if containers, err := client.ListContainers(); err == nil {
+		go func() {
+			for _, c := range containers {
+				if c.State == "running" {
+					if err := client.ContainerStats(ctx, c.ID, stats); err != nil {
+						log.Errorf("error while streaming container stats: %v", err)
+					}
+				}
+			}
+		}()
+	}
 
 	for {
 		select {
@@ -62,10 +64,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-					if err := h.client.ContainerStats(ctx, event.ActorID, stats); err != nil {
+					if err := client.ContainerStats(ctx, event.ActorID, stats); err != nil {
 						log.Errorf("error when streaming new container stats: %v", err)
 					}
-					if err := sendContainersJSON(h.client, w); err != nil {
+					if err := sendContainersJSON(client, w); err != nil {
 						log.Errorf("error encoding containers to stream: %v", err)
 						return
 					}

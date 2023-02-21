@@ -48,6 +48,7 @@ type args struct {
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
 	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
+	Hosts                []string            `arg:"env:DOZZLE_HOSTS,--hosts,separate" help:"list of hosts to connect to"`
 }
 
 type HealthcheckCmd struct {
@@ -91,6 +92,7 @@ func main() {
 	}
 
 	log.Infof("Dozzle version %s", version)
+
 	dockerClient := docker.NewClientWithFilters(args.Filter)
 	for i := 1; ; i++ {
 		_, err := dockerClient.ListContainers()
@@ -103,6 +105,18 @@ func main() {
 			time.Sleep(5 * time.Second)
 			args.WaitForDockerSeconds -= 5
 		}
+	}
+
+	clients := make(map[string]docker.Client)
+	clients["default"] = dockerClient
+
+	for _, host := range args.Hosts {
+		log.Infof("Connecting to %s", host)
+		client := docker.NewClientWithFiltersAndUrl(args.Filter, host)
+		if _, err := client.ListContainers(); err != nil {
+			log.Fatalf("Could not connect to remote %s Docker Engine: %v", host, err)
+		}
+		clients[host] = client
 	}
 
 	if args.Username == "" && args.UsernameFile != nil {
@@ -120,12 +134,12 @@ func main() {
 	}
 
 	config := web.Config{
-		Addr:     args.Addr,
-		Base:     args.Base,
-		Version:  version,
-		Username: args.Username,
-		Password: args.Password,
-		Hostname: args.Hostname,
+		Addr:        args.Addr,
+		Base:        args.Base,
+		Version:     version,
+		Username:    args.Username,
+		Password:    args.Password,
+		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
 	}
 
@@ -139,7 +153,7 @@ func main() {
 		assets = os.DirFS("./dist")
 	}
 
-	srv := web.CreateServer(dockerClient, assets, config)
+	srv := web.CreateServer(clients, assets, config)
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)

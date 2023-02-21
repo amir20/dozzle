@@ -214,7 +214,10 @@ func Test_handler_between_dates(t *testing.T) {
 	reader := ioutil.NopCloser(strings.NewReader("2020-05-13T18:55:37.772853839Z INFO Testing logs...\n2020-05-13T18:55:37.772853839Z INFO Testing logs...\n"))
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "123456", from, to).Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"default": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.fetchLogsBetweenDates)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
