@@ -4,6 +4,8 @@ toolbar:
   search: Search
 label:
   containers: Containers
+  running-containers: Running Containers
+  stopped-containers: Stopped Containers
   total-containers: Total Containers
   running: Running
   total-cpu-usage: Total CPU Usage

@@ -37,9 +37,9 @@
         </a>
       </div>
     </div>
-    <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
+    <p class="menu-label is-hidden-mobile">{{ $t("label.running-containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
-      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
+      <li v-for="item in runningContainers" :key="item.id">
         <router-link
           :to="{ name: 'container-id', params: { id: item.id } }"
           active-class="is-active"
@@ -63,7 +63,35 @@
         </router-link>
       </li>
     </ul>
-    <ul class="menu-list is-hidden-mobile loading" v-else>
+    <p class="menu-label is-hidden-mobile" v-if="ready && stoppedContainers.length > 0">
+      {{ $t("label.stopped-containers") }}
+    </p>
+    <ul class="menu-list is-hidden-mobile" v-if="ready && stoppedContainers.length > 0">
+      <li v-for="item in stoppedContainers" :key="item.id">
+        <router-link
+          :to="{ name: 'container-id', params: { id: item.id } }"
+          active-class="is-active"
+          :title="item.name"
+        >
+          <div class="container is-flex is-align-items-center">
+            <div class="is-flex-grow-1 is-ellipsis">
+              {{ item.name }}
+            </div>
+            <div class="is-flex-shrink-1 column-icon">
+              <span
+                class="icon is-small"
+                @click.stop.prevent="store.appendActiveContainer(item)"
+                v-show="!activeContainersById[item.id]"
+                :title="$t('tooltip.pin-column')"
+              >
+                <cil-columns />
+              </span>
+            </div>
+          </div>
+        </router-link>
+      </li>
+    </ul>
+    <ul class="menu-list is-hidden-mobile loading" v-if="!ready">
       <li v-for="index in 7" class="my-4"><o-skeleton animated size="large" :key="index"></o-skeleton></li>
     </ul>
   </aside>
@@ -83,6 +111,10 @@ const activeContainersById = computed(() =>
     return acc;
   }, {} as Record<string, Container>)
 );
+
+const runningContainers = computed(() => visibleContainers.value.filter((item) => item.state === "running"));
+
+const stoppedContainers = computed(() => visibleContainers.value.filter((item) => item.state === "dead"));
 </script>
 <style scoped lang="scss">
 aside {
