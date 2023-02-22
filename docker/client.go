@@ -73,17 +73,24 @@ func NewClientWithFiltersAndUrl(f map[string][]string, daemonURL string) Client 
 
 	log.Debugf("filterArgs = %v", filterArgs)
 
-	connHelper, err := connhelper.GetConnectionHelper(daemonURL)
+	var err error
 
+	connHelper, err := connhelper.GetConnectionHelper(daemonURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cli, err := client.NewClientWithOpts(
-		client.WithHost(connHelper.Host),
-		client.WithDialContext(connHelper.Dialer),
-		client.WithAPIVersionNegotiation(),
-	)
+	var cli *client.Client
+
+	if connHelper == nil {
+		cli, err = client.NewClientWithOpts(client.WithHost(daemonURL), client.WithAPIVersionNegotiation())
+	} else {
+		cli, err = client.NewClientWithOpts(
+			client.WithHost(connHelper.Host),
+			client.WithDialContext(connHelper.Dialer),
+			client.WithAPIVersionNegotiation(),
+		)
+	}
 
 	if err != nil {
 		log.Fatal(err)

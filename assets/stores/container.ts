@@ -2,10 +2,13 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
+import { read } from "fs";
 
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
   const activeContainerIds: Ref<string[]> = ref([]);
+  let es: EventSource | null = null;
+  const ready = ref(false);
 
   const allContainersById = computed(() =>
     containers.value.reduce((acc, container) => {
@@ -21,25 +24,40 @@ export const useContainerStore = defineStore("container", () => {
 
   const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
-  const es = new EventSource(`${config.base}/api/events/stream`);
-  es.addEventListener("containers-changed", (e: Event) =>
-    setContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
+  watch(
+    sessionHost,
+    () => {
+      connect();
+    },
+    { immediate: true }
   );
-  es.addEventListener("container-stat", (e) => {
-    const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
-    const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
-    if (container) {
-      const { id, ...rest } = stat;
-      container.stat = rest;
-    }
-  });
-  es.addEventListener("container-die", (e) => {
-    const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
-    const container = allContainersById.value[event.actorId];
-    if (container) {
-      container.state = "dead";
-    }
-  });
+
+  function connect() {
+    es?.close();
+    ready.value = false;
+    es = new EventSource(`${config.base}/api/events/stream?host=${sessionHost.value}`);
+
+    es.addEventListener("containers-changed", (e: Event) =>
+      setContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
+    );
+    es.addEventListener("container-stat", (e) => {
+      const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
+      const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
+      if (container) {
+        const { id, ...rest } = stat;
+        container.stat = rest;
+      }
+    });
+    es.addEventListener("container-die", (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
+      const container = allContainersById.value[event.actorId];
+      if (container) {
+        container.state = "dead";
+      }
+    });
+
+    watchOnce(containers, () => (ready.value = true));
+  }
 
   const setContainers = (newContainers: ContainerJson[]) => {
     containers.value = newContainers.map((c) => {
@@ -57,9 +75,6 @@ export const useContainerStore = defineStore("container", () => {
   const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
   const removeActiveContainer = ({ id }: Container) =>
     activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
-
-  const ready = ref(false);
-  watchOnce(containers, () => (ready.value = true));
 
   return {
     containers,

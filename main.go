@@ -108,14 +108,11 @@ func main() {
 	}
 
 	clients := make(map[string]docker.Client)
-	clients["default"] = dockerClient
+	clients["localhost"] = dockerClient
 
 	for _, host := range args.Hosts {
-		log.Infof("Connecting to %s", host)
+		log.Infof("Creating a client for %s", host)
 		client := docker.NewClientWithFiltersAndUrl(args.Filter, host)
-		if _, err := client.ListContainers(); err != nil {
-			log.Fatalf("Could not connect to remote %s Docker Engine: %v", host, err)
-		}
 		clients[host] = client
 	}
 

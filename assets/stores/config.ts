@@ -7,6 +7,7 @@ interface Config {
   secured: boolean | "false" | "true";
   maxLogs: number;
   hostname: string;
+  hosts: string[] | string;
 }
 
 const pageConfig = JSON.parse(text);
@@ -22,10 +23,12 @@ if (config.version == "{{ .Version }}") {
   config.authorizationNeeded = false;
   config.secured = false;
   config.hostname = "localhost";
+  config.hosts = ["localhost"];
 } else {
   config.version = config.version.replace(/^v/, "");
   config.authorizationNeeded = config.authorizationNeeded === "true";
   config.secured = config.secured === "true";
+  config.hosts = (config.hosts as string).split(",");
 }
 
 export default config as Config;

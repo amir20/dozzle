@@ -1,7 +1,9 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -38,7 +40,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			for _, c := range containers {
 				if c.State == "running" {
-					if err := client.ContainerStats(ctx, c.ID, stats); err != nil {
+					if err := client.ContainerStats(ctx, c.ID, stats); err != nil && !errors.Is(err, context.Canceled) {
 						log.Errorf("error while streaming container stats: %v", err)
 					}
 				}
@@ -64,7 +66,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-					if err := client.ContainerStats(ctx, event.ActorID, stats); err != nil {
+					if err := client.ContainerStats(ctx, event.ActorID, stats); err != nil && !errors.Is(err, context.Canceled) {
 						log.Errorf("error when streaming new container stats: %v", err)
 					}
 					if err := sendContainersJSON(client, w); err != nil {

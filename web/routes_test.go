@@ -72,7 +72,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *mux.Rout
 	}
 
 	clients := map[string]docker.Client{
-		"default": client,
+		"localhost": client,
 	}
 	return createRouter(&handler{
 		clients: clients,

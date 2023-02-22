@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
@@ -85,7 +86,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			go func() {
 				host, _ := os.Hostname()
 
-				if containers, err := h.clients["default"].ListContainers(); err == nil {
+				if containers, err := h.clients["localhost"].ListContainers(); err == nil {
 					totalContainers := len(containers)
 					runningContainers := 0
 					for _, container := range containers {
@@ -93,6 +94,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 							runningContainers++
 						}
 					}
+
 					re := analytics.RequestEvent{
 						ClientId:          host,
 						TotalContainers:   totalContainers,
@@ -130,18 +132,26 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		path = h.config.Base
 	}
 
+	// Get all keys from hosts map
+	hosts := make([]string, 0, len(h.clients))
+	for k := range h.clients {
+		hosts = append(hosts, k)
+	}
+
 	data := struct {
 		Base                string
 		Version             string
 		AuthorizationNeeded bool
 		Secured             bool
 		Hostname            string
+		Hosts               string
 	}{
 		path,
 		h.config.Version,
 		h.isAuthorizationNeeded(req),
 		secured,
 		h.config.Hostname,
+		strings.Join(hosts, ","),
 	}
 	err = tmpl.Execute(w, data)
 	if err != nil {
@@ -158,7 +168,7 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
 
-	if ping, err := h.clients["default"].Ping(r.Context()); err != nil {
+	if ping, err := h.clients["localhost"].Ping(r.Context()); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
@@ -167,8 +177,9 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) clientFromRequest(r *http.Request) docker.Client {
-	if client, ok := h.clients[r.Host]; ok {
+	host := r.URL.Query().Get("host")
+	if client, ok := h.clients[host]; ok {
 		return client
 	}
-	return h.clients["default"]
+	return h.clients["localhost"]
 }

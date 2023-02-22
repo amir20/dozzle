@@ -215,7 +215,7 @@ func Test_handler_between_dates(t *testing.T) {
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "123456", from, to).Return(reader, nil)
 
 	clients := map[string]docker.Client{
-		"default": mockedClient,
+		"localhost": mockedClient,
 	}
 	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.fetchLogsBetweenDates)
