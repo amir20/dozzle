@@ -48,7 +48,7 @@ type args struct {
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
 	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
-	Hosts                []string            `arg:"env:DOZZLE_HOSTS,--hosts,separate" help:"list of hosts to connect to"`
+	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 }
 
 type HealthcheckCmd struct {
@@ -110,7 +110,7 @@ func main() {
 	clients := make(map[string]docker.Client)
 	clients["localhost"] = dockerClient
 
-	for _, host := range args.Hosts {
+	for _, host := range args.RemoteHost {
 		log.Infof("Creating a client for %s", host)
 		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
 		clients[host] = client
@@ -182,13 +182,14 @@ func doStartEvent(arg args) {
 	}
 
 	event := analytics.StartEvent{
-		ClientId:      host,
-		Version:       version,
-		FilterLength:  len(arg.Filter),
-		CustomAddress: arg.Addr != ":8080",
-		CustomBase:    arg.Base != "/",
-		Protected:     arg.Username != "",
-		HasHostname:   arg.Hostname != "",
+		ClientId:         host,
+		Version:          version,
+		FilterLength:     len(arg.Filter),
+		CustomAddress:    arg.Addr != ":8080",
+		CustomBase:       arg.Base != "/",
+		RemoteHostLength: len(arg.RemoteHost),
+		Protected:        arg.Username != "",
+		HasHostname:      arg.Hostname != "",
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {

@@ -13,7 +13,7 @@
             {{ hostname }}
           </small>
         </h1>
-        <div v-if="config.hosts.length > 0" class="mb-3">
+        <div v-if="config.hosts.length > 1" class="mb-3">
           <o-dropdown v-model="sessionHost" aria-role="list">
             <template #trigger>
               <o-button variant="primary" type="button" size="small">
