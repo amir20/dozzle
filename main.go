@@ -112,7 +112,7 @@ func main() {
 
 	for _, host := range args.Hosts {
 		log.Infof("Creating a client for %s", host)
-		client := docker.NewClientWithFiltersAndUrl(args.Filter, host)
+		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
 		clients[host] = client
 	}
 

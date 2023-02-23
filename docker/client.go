@@ -5,16 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
+	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/docker/cli/cli/connhelper"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -63,7 +66,7 @@ func NewClientWithFilters(f map[string][]string) Client {
 	return &dockerClient{cli, filterArgs}
 }
 
-func NewClientWithFiltersAndUrl(f map[string][]string, daemonURL string) Client {
+func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -73,24 +76,31 @@ func NewClientWithFiltersAndUrl(f map[string][]string, daemonURL string) Client 
 
 	log.Debugf("filterArgs = %v", filterArgs)
 
-	var err error
-
-	connHelper, err := connhelper.GetConnectionHelper(daemonURL)
+	remoteUrl, err := url.Parse(connection)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var cli *client.Client
-
-	if connHelper == nil {
-		cli, err = client.NewClientWithOpts(client.WithHost(daemonURL), client.WithAPIVersionNegotiation())
-	} else {
-		cli, err = client.NewClientWithOpts(
-			client.WithHost(connHelper.Host),
-			client.WithDialContext(connHelper.Dialer),
-			client.WithAPIVersionNegotiation(),
-		)
+	if remoteUrl.Scheme != "tcp" {
+		log.Fatal("Only tcp scheme is supported")
 	}
+
+	host := remoteUrl.Hostname()
+	basePath := "/certs"
+
+	if _, err := os.Stat(filepath.Join(basePath, host)); os.IsExist(err) {
+		basePath = filepath.Join(basePath, host)
+	}
+
+	cacertPath := filepath.Join(basePath, "ca.pem")
+	certPath := filepath.Join(basePath, "cert.pem")
+	keyPath := filepath.Join(basePath, "key.pem")
+
+	cli, err := client.NewClientWithOpts(
+		client.WithHost(connection),
+		client.WithTLSClientConfig(cacertPath, certPath, keyPath),
+		client.WithAPIVersionNegotiation(),
+	)
 
 	if err != nil {
 		log.Fatal(err)
