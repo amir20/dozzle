@@ -37,6 +37,18 @@ The simplest way to use dozzle is to run the docker container. Also, mount the D
 
 Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
 
+### Connecting with Docker compose
+
+    version: "3"
+    services:
+      dozzle:
+        container_name: dozzle
+        image: amir20/dozzle:latest
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+          - 9999:8080
+
 ### Connecting to remote hosts
 
 Dozzle supports connecting to multiple remote hosts via `tcp://` using TLS or without. Appropriate certs need to be mounted for Dozzle to be able to successfully connect. At this point, `ssh://` is not supported because Dozzle docker image does not ship with any ssh clients.
@@ -65,19 +77,7 @@ Or to use compose:
 
 You need to make sure appropriate certs are provided in `/certs/167.99.1.1/{ca,cert,key}.pem` and `/certs/167.99.1.2/{ca,cert,key}.pem` for both hosts to work.
 
-### With Docker compose
-
-    version: "3"
-    services:
-      dozzle:
-        container_name: dozzle
-        image: amir20/dozzle:latest
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
-        ports:
-          - 9999:8080
-
-### Enabling health check
+### Adding health check
 
 Dozzle doesn't enable healthcheck by default as it adds extra CPU usage. `healthcheck` can be enabled manually.
 
