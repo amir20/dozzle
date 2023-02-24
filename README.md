@@ -37,14 +37,33 @@ The simplest way to use dozzle is to run the docker container. Also, mount the D
 
 Dozzle will be available at [http://localhost:8888/](http://localhost:8888/). You can change `-p 8888:8080` to any port. For example, if you want to view dozzle over port 4040 then you would do `-p 4040:8080`.
 
-### With Docker swarm
+### Connecting to remote hosts
 
-    docker service create \
-    --name=dozzle \
-    --publish=8888:8080 \
-    --constraint=node.role==manager \
-    --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
-    amir20/dozzle:latest
+Dozzle supports connecting to multiple remote hosts via `tcp://` using TLS or without. Appropriate certs need to be mounted for Dozzle to be able to successfully connect. At this point, `ssh://` is not supported because Dozzle docker image does not ship with any ssh clients.
+
+To configure remote hosts, `--remote-host` or `DOZZLE_REMOTE_HOST` need to provided and the `pem` files need to be mounted to `/cert` directory. The `/cert` directory expects to have `/certs/{ca,cert,key}.pem` or `/certs/{host}/{ca,cert,key}.pem` in case of multiple hosts.
+
+Below are examples of using `--remote-host` via CLI:
+
+    $ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/certs:/certs -p 8080:8080 amir20/dozzle --remote-host tcp://167.99.1.1:2376
+
+Multiple `--remote-host` flags can be used to specify multiple hosts.
+
+Or to use compose:
+
+    version: "3"
+    services:
+      dozzle:
+        image: amir20/dozzle:latest
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /path/to/certs:/certs
+        ports:
+          - 8080:8080
+        environment:
+          DOZZLE_REMOTE_HOST: tcp://167.99.1.1:2376,tcp://167.99.1.2:2376
+
+You need to make sure appropriate certs are provided in `/certs/167.99.1.1/{ca,cert,key}.pem` and `/certs/167.99.1.2/{ca,cert,key}.pem` for both hosts to work.
 
 ### With Docker compose
 
@@ -129,6 +148,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--usernamefile` | `DOZZLE_USERNAME_FILE` | `""`    |
 | `--passwordfile` | `DOZZLE_PASSWORD_FILE` | `""`    |
 | `--no-analytics` | `DOZZLE_NO_ANALYTICS`  | false   |
+| `--remote-host`  | `DOZZLE_REMOTE_HOST`   |         |
 
 ## Troubleshooting and FAQs
 
