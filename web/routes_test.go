@@ -71,8 +71,11 @@ func createHandler(client docker.Client, content fs.FS, config Config) *mux.Rout
 		content = afero.NewIOFS(fs)
 	}
 
+	clients := map[string]docker.Client{
+		"localhost": client,
+	}
 	return createRouter(&handler{
-		client:  client,
+		clients: clients,
 		content: content,
 		config:  &config,
 	})

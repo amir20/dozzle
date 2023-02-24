@@ -8,10 +8,27 @@
               <use href="#logo"></use>
             </svg>
           </router-link>
+
           <small class="subtitle is-6 is-block mb-4" v-if="hostname">
             {{ hostname }}
           </small>
         </h1>
+        <div v-if="config.hosts.length > 1" class="mb-3">
+          <o-dropdown v-model="sessionHost" aria-role="list">
+            <template #trigger>
+              <o-button variant="primary" type="button" size="small">
+                <span>{{ sessionHost }}</span>
+                <span class="icon">
+                  <carbon-caret-down />
+                </span>
+              </o-button>
+            </template>
+
+            <o-dropdown-item :value="value" aria-role="listitem" v-for="value in config.hosts" :key="value">
+              <span>{{ value }}</span>
+            </o-dropdown-item>
+          </o-dropdown>
+        </div>
       </div>
     </div>
     <div class="columns is-marginless">
@@ -71,6 +88,7 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import { sessionHost } from "@/composables/storage";
 
 const { base, secured, hostname } = config;
 const store = useContainerStore();
@@ -122,6 +140,7 @@ li.exited a {
 
   &:hover .column-icon {
     visibility: visible;
+
     &:hover {
       color: var(--secondary-color);
     }

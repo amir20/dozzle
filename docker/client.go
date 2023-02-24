@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
+	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +17,7 @@ import (
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -54,6 +58,49 @@ func NewClientWithFilters(f map[string][]string) Client {
 	log.Debugf("filterArgs = %v", filterArgs)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &dockerClient{cli, filterArgs}
+}
+
+func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client {
+	filterArgs := filters.NewArgs()
+	for key, values := range f {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
+	}
+
+	log.Debugf("filterArgs = %v", filterArgs)
+
+	remoteUrl, err := url.Parse(connection)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if remoteUrl.Scheme != "tcp" {
+		log.Fatal("Only tcp scheme is supported")
+	}
+
+	host := remoteUrl.Hostname()
+	basePath := "/certs"
+
+	if _, err := os.Stat(filepath.Join(basePath, host)); os.IsExist(err) {
+		basePath = filepath.Join(basePath, host)
+	}
+
+	cacertPath := filepath.Join(basePath, "ca.pem")
+	certPath := filepath.Join(basePath, "cert.pem")
+	keyPath := filepath.Join(basePath, "key.pem")
+
+	cli, err := client.NewClientWithOpts(
+		client.WithHost(connection),
+		client.WithTLSClientConfig(cacertPath, certPath, keyPath),
+		client.WithAPIVersionNegotiation(),
+	)
 
 	if err != nil {
 		log.Fatal(err)

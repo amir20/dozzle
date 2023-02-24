@@ -31,7 +31,10 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "").Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -52,7 +55,10 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "").Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -72,7 +78,10 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, id, "").Return(ioutil.NopCloser(strings.NewReader("")), io.EOF)
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -91,7 +100,10 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -111,7 +123,10 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, id, "").Return(ioutil.NopCloser(strings.NewReader("")), errors.New("test error"))
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamLogs)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -140,7 +155,10 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -162,7 +180,10 @@ func Test_handler_streamEvents_error(t *testing.T) {
 		close(messages)
 	}()
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -188,7 +209,10 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 		cancel()
 	}()
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.streamEvents)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -214,7 +238,10 @@ func Test_handler_between_dates(t *testing.T) {
 	reader := ioutil.NopCloser(strings.NewReader("2020-05-13T18:55:37.772853839Z INFO Testing logs...\n2020-05-13T18:55:37.772853839Z INFO Testing logs...\n"))
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "123456", from, to).Return(reader, nil)
 
-	h := handler{client: mockedClient, config: &Config{}}
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+	h := handler{clients: clients, config: &Config{}}
 	handler := http.HandlerFunc(h.fetchLogsBetweenDates)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)

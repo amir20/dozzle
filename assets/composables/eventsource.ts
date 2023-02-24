@@ -58,7 +58,9 @@ export function useLogStream(container: ComputedRef<Container>) {
       lastEventId = "";
     }
 
-    es = new EventSource(`${config.base}/api/logs/stream?id=${container.value.id}&lastEventId=${lastEventId}`);
+    es = new EventSource(
+      `${config.base}/api/logs/stream?id=${container.value.id}&lastEventId=${lastEventId}&host=${sessionHost.value}`
+    );
     es.addEventListener("container-stopped", () => {
       es?.close();
       es = null;

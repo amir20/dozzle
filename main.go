@@ -48,6 +48,7 @@ type args struct {
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
 	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
+	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 }
 
 type HealthcheckCmd struct {
@@ -91,6 +92,7 @@ func main() {
 	}
 
 	log.Infof("Dozzle version %s", version)
+
 	dockerClient := docker.NewClientWithFilters(args.Filter)
 	for i := 1; ; i++ {
 		_, err := dockerClient.ListContainers()
@@ -103,6 +105,15 @@ func main() {
 			time.Sleep(5 * time.Second)
 			args.WaitForDockerSeconds -= 5
 		}
+	}
+
+	clients := make(map[string]docker.Client)
+	clients["localhost"] = dockerClient
+
+	for _, host := range args.RemoteHost {
+		log.Infof("Creating a client for %s", host)
+		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
+		clients[host] = client
 	}
 
 	if args.Username == "" && args.UsernameFile != nil {
@@ -120,12 +131,12 @@ func main() {
 	}
 
 	config := web.Config{
-		Addr:     args.Addr,
-		Base:     args.Base,
-		Version:  version,
-		Username: args.Username,
-		Password: args.Password,
-		Hostname: args.Hostname,
+		Addr:        args.Addr,
+		Base:        args.Base,
+		Version:     version,
+		Username:    args.Username,
+		Password:    args.Password,
+		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
 	}
 
@@ -139,7 +150,7 @@ func main() {
 		assets = os.DirFS("./dist")
 	}
 
-	srv := web.CreateServer(dockerClient, assets, config)
+	srv := web.CreateServer(clients, assets, config)
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
@@ -171,13 +182,14 @@ func doStartEvent(arg args) {
 	}
 
 	event := analytics.StartEvent{
-		ClientId:      host,
-		Version:       version,
-		FilterLength:  len(arg.Filter),
-		CustomAddress: arg.Addr != ":8080",
-		CustomBase:    arg.Base != "/",
-		Protected:     arg.Username != "",
-		HasHostname:   arg.Hostname != "",
+		ClientId:         host,
+		Version:          version,
+		FilterLength:     len(arg.Filter),
+		CustomAddress:    arg.Addr != ":8080",
+		CustomBase:       arg.Base != "/",
+		RemoteHostLength: len(arg.RemoteHost),
+		Protected:        arg.Username != "",
+		HasHostname:      arg.Hostname != "",
 	}
 
 	if err := analytics.SendStartEvent(event); err != nil {

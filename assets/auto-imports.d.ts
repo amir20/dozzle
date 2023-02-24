@@ -109,6 +109,7 @@ declare global {
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const search: typeof import('./composables/settings')['search']
+  const sessionHost: typeof import('./composables/storage')['sessionHost']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const setTitle: typeof import('./composables/title')['setTitle']
@@ -431,6 +432,7 @@ declare module 'vue' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly search: UnwrapRef<typeof import('./composables/settings')['search']>
+    readonly sessionHost: UnwrapRef<typeof import('./composables/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composables/title')['setTitle']>
