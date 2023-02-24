@@ -2,7 +2,6 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
-import { read } from "fs";
 
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
