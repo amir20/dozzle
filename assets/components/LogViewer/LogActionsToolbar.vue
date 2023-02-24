@@ -12,7 +12,7 @@
         </div>
       </div>
     </a>
-    <a class="dropdown-item" :href="`${base}/api/logs/download?id=${container.id}`">
+    <a class="dropdown-item" :href="`${base}/api/logs/download?id=${container.id}&host=${sessionHost}`">
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
