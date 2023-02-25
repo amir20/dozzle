@@ -88,7 +88,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client 
 	host := remoteUrl.Hostname()
 	basePath := "/certs"
 
-	if _, err := os.Stat(filepath.Join(basePath, host)); os.IsExist(err) {
+	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
 		basePath = filepath.Join(basePath, host)
 	}
 
@@ -96,11 +96,20 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client 
 	certPath := filepath.Join(basePath, "cert.pem")
 	keyPath := filepath.Join(basePath, "key.pem")
 
-	cli, err := client.NewClientWithOpts(
+	opts := []client.Opt{
 		client.WithHost(connection),
-		client.WithTLSClientConfig(cacertPath, certPath, keyPath),
-		client.WithAPIVersionNegotiation(),
-	)
+	}
+
+	if _, err := os.Stat(cacertPath); os.IsNotExist(err) {
+		log.Debugf("%s does not exist, using plain HTTP", cacertPath)
+	} else {
+		log.Debugf("Using TLS client config with certs at: %s", basePath)
+		opts = append(opts, client.WithTLSClientConfig(cacertPath, certPath, keyPath))
+	}
+
+	opts = append(opts, client.WithAPIVersionNegotiation())
+
+	cli, err := client.NewClientWithOpts(opts...)
 
 	if err != nil {
 		log.Fatal(err)
