@@ -35,5 +35,9 @@ export default defineConfig({
       },
     }),
   ],
-
+  theme: {
+    colors: {
+      brand: 'hsl(44, 100%, 77%)',
+    },
+  },
 })
