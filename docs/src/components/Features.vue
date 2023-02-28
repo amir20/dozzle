@@ -1,6 +1,8 @@
 <template>
   <sub-section>
-    <template #title> What's Dozzle </template>
+    <template #title>
+      What's Dozzle
+    </template>
     <p>
       Dozzle is a small Docker container which provides a web-based interface for viewing logs of other Docker
       containers running on the same system.

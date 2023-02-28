@@ -1,14 +1,14 @@
 <script setup lang="ts">
 const menu = [
   {
-    name: "What is Dozzle?",
-    path: "/guide/what-is-dozzle",
+    name: 'What is Dozzle?',
+    path: '/guide/what-is-dozzle',
   },
   {
-    name: "Getting Started",
-    path: "/guide/getting-started",
+    name: 'Getting Started',
+    path: '/guide/getting-started',
   },
-];
+]
 </script>
 
 <template>

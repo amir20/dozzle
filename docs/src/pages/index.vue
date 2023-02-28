@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineOptions({
-  name: "IndexPage",
-});
+  name: 'IndexPage',
+})
 </script>
 
 <template>

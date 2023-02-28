@@ -1,6 +1,8 @@
 <template>
   <sub-section>
-    <template #title> Installation </template>
+    <template #title>
+      Installation
+    </template>
     <p>
       Dozzle can be install using the Docker command line. Dozzle needs access to <code>docker.sock</code> file to
       access the logs of other containers. This file is usually located at <code>/var/run/docker.sock</code>. You can

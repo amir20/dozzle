@@ -6,7 +6,7 @@
       <h2 text="2xl" tracking-tight>
         <slot name="title" />
       </h2>
-      <div grid="lg:col-span-2" prose text-lg max-w-7xl>
+      <div grid="lg:col-span-2" prose text-lg max-w-7xl min-w-0>
         <slot />
       </div>
     </section>
