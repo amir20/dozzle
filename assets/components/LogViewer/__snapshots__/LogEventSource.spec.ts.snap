@@ -1,4 +1,4 @@
-// Vitest Snapshot v1
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
