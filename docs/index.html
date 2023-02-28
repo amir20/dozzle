@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/favicon.ico" type="image/svg+xml">
+  <title>Dozzle - Log viewer for Docker</title>
+  <meta name="description" content="Dozzle is a modern log viewer for Docker providing efficient and intuitive ways to view and search logs from containers">
+</head>
+<body class="font-sans antialiased dark:text-white dark:bg-[#17181c]">
+  <div id="app"></div>
+  <script>
+    (function () {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      const setting = localStorage.getItem('color-schema') || 'auto'
+      if (setting === 'dark' || (prefersDark && setting !== 'light'))
+        document.documentElement.classList.toggle('dark', true)
+    })()
+  </script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
