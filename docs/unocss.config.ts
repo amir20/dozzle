@@ -38,6 +38,8 @@ export default defineConfig({
   theme: {
     colors: {
       brand: 'hsl(44, 100%, 77%)',
+      bgLight: '#eff0eb',
+      bgDark: '#1e1e20',
     },
   },
 })

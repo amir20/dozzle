@@ -17,8 +17,8 @@ const { copy, copied, isSupported } = useClipboard({ source })
       v-if="isSupported"
       icon-btn
       ml-auto
-      :class="copied ? 'i-carbon-checkmark' : 'i-carbon-copy'"
-      text-2xl
+      :class="copied ? 'i-mdi-clipboard-check' : 'i-mdi-clipboard-outline'"
+      text-3xl
       @click="copy()"
     />
   </div>
