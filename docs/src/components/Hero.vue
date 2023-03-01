@@ -15,6 +15,7 @@
             <video muted loop autoplay playsinline>
               <source src="../media/dozzle.webm" type="video/webm">
               <source src="../media/dozzle.mp4" type="video/mp4">
+              <img src="../media/poster.png" alt="Dozzle">
             </video>
           </browser-window>
         </div>
