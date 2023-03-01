@@ -12,10 +12,9 @@
       <div grid="lg:col-span-2" flex m="t-8 lg:t-0">
         <div my-auto>
           <browser-window>
-            <video muted loop autoplay playsinline>
+            <video muted loop autoplay playsinline poster="../media/poster.png">
               <source src="../media/dozzle.webm" type="video/webm">
               <source src="../media/dozzle.mp4" type="video/mp4">
-              <img src="../media/poster.png" alt="Dozzle">
             </video>
           </browser-window>
         </div>
