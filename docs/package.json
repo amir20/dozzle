@@ -34,7 +34,7 @@
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-shiki": "^0.8.0",
     "pnpm": "^7.28.0",
-    "taze": "^0.8.5",
+    "taze": "^0.9.0",
     "typescript": "^4.9.5",
     "unocss": "^0.50.3",
     "unplugin-auto-import": "^0.15.0",
