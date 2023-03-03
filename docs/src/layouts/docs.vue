@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useHead } from '@vueuse/head'
 const menu = [
   {
     name: 'What is Dozzle?',
@@ -9,13 +10,16 @@ const menu = [
     path: '/guide/getting-started',
   },
 ]
+useHead({
+  titleTemplate: '%s | Dozzle',
+})
 </script>
 
 <template>
   <header py-2 px-4 bg-light dark:bg-dark z-10 container mx-auto sticky top-0>
     <nav flex my-3 gap-x-4 justify-end>
       <h1 font-playfair dark:text-brand mr-auto text-4xl>
-        Dozzle
+        <a href="/">Dozzle</a>
       </h1>
       <a
         icon-btn

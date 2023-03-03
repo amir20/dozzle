@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import { useHead } from '@vueuse/head'
+useHead({
+  title: 'Dozzle - Log viewer for Docker',
+})
+</script>
+
 <template>
   <header py-2 px-4 bg-light dark:bg-dark z-10>
     <nav flex my-3 gap-x-4 justify-end>

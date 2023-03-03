@@ -1,92 +1,33 @@
 ---
-title: Getting Started with Dozzle
+title: Getting Started
 ---
+# Getting Started
 
-fringilla vel, aliquet nec, vulputate eget, arcu! In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo? Nullam dictum felis eu pede mollis pretium;
-Integer tincidunt; Cras dapibus. Vivamus elementum semper nisi; Aenean vulputate
-eleifend tellus; Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim? Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
-viverra nulla ut metus varius laoreet? Quisque rutrum. Aenean imperdiet? Etiam
-ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi; Nam eget dui.
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit? Aenean commodo ligula
-eget dolor! Aenean massa. Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus; Donec quam felis, ultricies nec, pellentesque
-eu, pretium quis, sem; Nulla consequat massa quis enim. Donec pede justo,
-fringilla vel, aliquet nec, vulputate eget, arcu; In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo? Nullam dictum felis eu pede mollis pretium!
-Integer tincidunt! Cras dapibus! Vivamus elementum semper nisi! Aenean vulputate
-eleifend tellus; Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus! Phasellus
-viverra nulla ut metus varius laoreet; Quisque rutrum? Aenean imperdiet? Etiam
-ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi; Nam eget dui;
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit? Aenean commodo ligula
-eget dolor. Aenean massa! Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque
-eu, pretium quis, sem! Nulla consequat massa quis enim! Donec pede justo,
-fringilla vel, aliquet nec, vulputate eget, arcu; In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo; Nullam dictum felis eu pede mollis pretium!
+This section will help you to setup Dozzle locally. Dozzle can also be used to connect to remote hosts via `tcp://` and tls. See remote host if you want to connect to other hosts.
 
+## Using Docker CLI
 
-Integer tincidunt? Cras dapibus! Vivamus elementum semper nisi! Aenean vulputate
-eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim; Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
-viverra nulla ut metus varius laoreet. Quisque rutrum? Aenean imperdiet? Etiam
-ultricies nisi vel augue; Curabitur ullamcorper ultricies nisi. Nam eget dui.
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit; Aenean commodo ligula
-eget dolor; Aenean massa! Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus? Donec quam felis, ultricies nec, pellentesque
-eu, pretium quis, sem; Nulla consequat massa quis enim? Donec pede justo,
-fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo! Nullam dictum felis eu pede mollis pretium;
-Integer tincidunt? Cras dapibus! Vivamus elementum semper nisi. Aenean vulputate
-eleifend tellus! Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
+The easiest way to setup Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`.
 
-fringilla vel, aliquet nec, vulputate eget, arcu! In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo? Nullam dictum felis eu pede mollis pretium;
-Integer tincidunt; Cras dapibus. Vivamus elementum semper nisi; Aenean vulputate
-eleifend tellus; Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim? Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
-viverra nulla ut metus varius laoreet? Quisque rutrum. Aenean imperdiet? Etiam
-ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi; Nam eget dui.
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit? Aenean commodo ligula
-eget dolor! Aenean massa. Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus; Donec quam felis, ultricies nec, pellentesque
-eu, pretium quis, sem; Nulla consequat massa quis enim. Donec pede justo,
+```sh
+docker run --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle
+```
 
+## Using Docker Compose
+Docker compose makes it easier to configure Dozzle as part of an existing configuration.
 
-fringilla vel, aliquet nec, vulputate eget, arcu; In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo? Nullam dictum felis eu pede mollis pretium!
-Integer tincidunt! Cras dapibus! Vivamus elementum semper nisi! Aenean vulputate
-eleifend tellus; Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
+```yaml
+version: '3'
+services:
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9999:8080
+```
 
-enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus! Phasellus
-viverra nulla ut metus varius laoreet; Quisque rutrum? Aenean imperdiet? Etiam
-ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi; Nam eget dui;
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit? Aenean commodo ligula
-
-eget dolor. Aenean massa! Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque
-eu, pretium quis, sem! Nulla consequat massa quis enim! Donec pede justo,
-fringilla vel, aliquet nec, vulputate eget, arcu; In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo; Nullam dictum felis eu pede mollis pretium!
-Integer tincidunt? Cras dapibus! Vivamus elementum semper nisi! Aenean vulputate
-eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim; Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
-viverra nulla ut metus varius laoreet. Quisque rutrum? Aenean imperdiet? Etiam
-
-ultricies nisi vel augue; Curabitur ullamcorper ultricies nisi. Nam eget dui.
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit; Aenean commodo ligula
-eget dolor; Aenean massa! Cum sociis natoque penatibus et magnis dis parturient
-montes, nascetur ridiculus mus? Donec quam felis, ultricies nec, pellentesque
-
-eu, pretium quis, sem; Nulla consequat massa quis enim? Donec pede justo,
-fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
-imperdiet a, venenatis vitae, justo! Nullam dictum felis eu pede mollis pretium;
-Integer tincidunt? Cras dapibus! Vivamus elementum semper nisi. Aenean vulputate
-eleifend tellus! Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
 <route lang="yaml">
 meta:
   layout: docs

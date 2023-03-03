@@ -4,11 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <title>Dozzle - Log viewer for Docker</title>
   <meta name="description" content="Dozzle is a modern log viewer for Docker providing efficient and intuitive ways to view and search logs from containers">
-</head>
-<body class="font-sans antialiased dark:text-white bg-light dark:bg-dark">
-  <div id="app"></div>
   <script>
     (function () {
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -17,6 +13,9 @@
         document.documentElement.classList.toggle('dark', true)
     })()
   </script>
+</head>
+<body class="font-sans antialiased dark:text-white bg-light dark:bg-dark">
+  <div id="app"></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
