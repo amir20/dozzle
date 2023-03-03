@@ -65,7 +65,7 @@ export default defineConfig({
     // see unocss.config.ts for config
     Unocss(),
     Markdown({
-      wrapperClasses: 'prose prose-sm m-auto text-left',
+
       headEnabled: true,
       markdownItSetup(md) {
         // https://prismjs.com/

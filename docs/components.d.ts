@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     BrowserWindow: typeof import('./src/components/BrowserWindow.vue')['default']
     CodeBlock: typeof import('./src/components/CodeBlock.vue')['default']
     Features: typeof import('./src/components/Features.vue')['default']
+    Footer: typeof import('./src/components/TheFooter.vue')['default']
     Hero: typeof import('./src/components/Hero.vue')['default']
     Installation: typeof import('./src/components/Installation.vue')['default']
     KeyShortcut: typeof import('./src/components/KeyShortcut.vue')['default']
