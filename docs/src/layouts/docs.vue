@@ -2,12 +2,17 @@
 import { useHead } from '@vueuse/head'
 const menu = [
   {
-    name: 'What is Dozzle?',
-    path: '/guide/what-is-dozzle',
-  },
-  {
-    name: 'Getting Started',
-    path: '/guide/getting-started',
+    name: 'Introduction',
+    subMenu: [
+      {
+        name: 'What is Dozzle?',
+        path: '/guide/what-is-dozzle',
+      },
+      {
+        name: 'Getting Started',
+        path: '/guide/getting-started',
+      },
+    ],
   },
 ]
 useHead({
@@ -44,10 +49,20 @@ useHead({
     <aside>
       <nav w-64>
         <ul>
-          <li v-for="item in menu" :key="item.path">
-            <router-link :to="item.path">
-              {{ item.name }}
-            </router-link>
+          <li
+            v-for="m in menu"
+            :key="m.name"
+          >
+            <h2 class="text-lg font-bold">
+              {{ m.name }}
+            </h2>
+            <ul mt-4 space-y-4 border="l-2 dark-50/50">
+              <li v-for="item in m.subMenu" :key="item.path" pl-3>
+                <router-link :to="item.path" active-class="text-teal-600">
+                  {{ item.name }}
+                </router-link>
+              </li>
+            </ul>
           </li>
         </ul>
       </nav>

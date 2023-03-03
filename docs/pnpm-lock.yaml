@@ -7,6 +7,7 @@ specifiers:
   '@types/node': ^18.14.2
   '@unocss/preset-typography': ^0.50.3
   '@unocss/reset': ^0.50.3
+  '@unocss/transformer-directives': ^0.50.3
   '@vitejs/plugin-vue': ^4.0.0
   '@vue-macros/reactivity-transform': ^0.2.4
   '@vue-macros/volar': ^0.8.4
@@ -47,6 +48,7 @@ devDependencies:
   '@types/node': 18.14.2
   '@unocss/preset-typography': 0.50.3
   '@unocss/reset': 0.50.3
+  '@unocss/transformer-directives': 0.50.3
   '@vitejs/plugin-vue': 4.0.0_vite@4.1.4+vue@3.2.47
   '@vue-macros/reactivity-transform': 0.2.4_vue@3.2.47
   '@vue-macros/volar': 0.8.4_igk56f2koesnegulglkulhcgka
