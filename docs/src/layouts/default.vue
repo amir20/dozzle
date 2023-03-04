@@ -8,6 +8,9 @@ useHead({
 <template>
   <header py-2 px-4 bg-light dark:bg-dark z-10>
     <nav flex my-3 gap-x-4 justify-end>
+      <router-link to="/guide/what-is-dozzle">
+        Guide
+      </router-link>
       <a
         icon-btn
         i-mdi-docker
