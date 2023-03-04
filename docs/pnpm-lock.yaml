@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@antfu/eslint-config': ^0.35.3
+  '@antfu/eslint-config': ^0.36.0
   '@iconify-json/carbon': ^1.1.16
   '@iconify-json/mdi': ^1.1.48
   '@types/node': ^18.14.2
@@ -42,7 +42,7 @@ dependencies:
   vue-router: 4.1.6_vue@3.2.47
 
 devDependencies:
-  '@antfu/eslint-config': 0.35.3_ycpbpc6yetojsgtrx3mwntkhsu
+  '@antfu/eslint-config': 0.36.0_ycpbpc6yetojsgtrx3mwntkhsu
   '@iconify-json/carbon': 1.1.16
   '@iconify-json/mdi': 1.1.48
   '@types/node': 18.14.2
@@ -82,13 +82,13 @@ packages:
       '@jridgewell/trace-mapping': 0.3.17
     dev: true
 
-  /@antfu/eslint-config-basic/0.35.3_y46c5jzhegju5ppnhbs6d4llxi:
-    resolution: {integrity: sha512-NbWJKNgd3Ky3/ok2Z88cXNme/6I9otkiaB+FYLFgQE81sfMAhKpLKXtTSwzdcKMzhKDqUchAijt0BxjE/mcTJg==}
+  /@antfu/eslint-config-basic/0.36.0_y46c5jzhegju5ppnhbs6d4llxi:
+    resolution: {integrity: sha512-2b3ZB7pO00nxAERDXo82iYPjLQ4l/AOMm0CTKmGmqWbN3RB33EIQWzYheZRboSbAVzWpI1/3rg/Gu+7xYVMYHA==}
     peerDependencies:
       eslint: '>=7.4.0'
     dependencies:
       eslint: 8.35.0
-      eslint-plugin-antfu: 0.35.3_ycpbpc6yetojsgtrx3mwntkhsu
+      eslint-plugin-antfu: 0.36.0_ycpbpc6yetojsgtrx3mwntkhsu
       eslint-plugin-eslint-comments: 3.2.0_eslint@8.35.0
       eslint-plugin-html: 7.1.0
       eslint-plugin-import: 2.27.5_ajyizmi44oc3hrc35l6ndh7p4e
@@ -111,13 +111,13 @@ packages:
       - typescript
     dev: true
 
-  /@antfu/eslint-config-ts/0.35.3_ycpbpc6yetojsgtrx3mwntkhsu:
-    resolution: {integrity: sha512-FS5hir2ghXYlJWAiB2bpT9oAr0kpSNmYbaJWWkztocJG95AORl4tWzxMTkLT+TxaOmhuwJszcrMTHy5RgHL8/w==}
+  /@antfu/eslint-config-ts/0.36.0_ycpbpc6yetojsgtrx3mwntkhsu:
+    resolution: {integrity: sha512-I/h2ZOPBIqgnALG2fQp6lOBsOXk51QwLDumyEayt7GRnitdP4o9D8i+YAPowrMJ8M3kU7puQUyhWuJmZLgo57A==}
     peerDependencies:
       eslint: '>=7.4.0'
       typescript: '>=3.9'
     dependencies:
-      '@antfu/eslint-config-basic': 0.35.3_y46c5jzhegju5ppnhbs6d4llxi
+      '@antfu/eslint-config-basic': 0.36.0_y46c5jzhegju5ppnhbs6d4llxi
       '@typescript-eslint/eslint-plugin': 5.54.0_6mj2wypvdnknez7kws2nfdgupi
       '@typescript-eslint/parser': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
       eslint: 8.35.0
@@ -130,13 +130,13 @@ packages:
       - supports-color
     dev: true
 
-  /@antfu/eslint-config-vue/0.35.3_y46c5jzhegju5ppnhbs6d4llxi:
-    resolution: {integrity: sha512-BA3vGLyuzqtEUb9gfgE7YzBT+a4oUnQuUPasIUfN/BVXaEhRVYlMmUgxN4ekQLuzOgUjUH13lqplXtkLJ62t9g==}
+  /@antfu/eslint-config-vue/0.36.0_y46c5jzhegju5ppnhbs6d4llxi:
+    resolution: {integrity: sha512-YuTcNlVlrEWX1ESOiPgr+e2Walfd6xt3Toa0kAKJxq2aBS1RWqIi1l3zIVGCHaX72lOrSXNmQ7bryaZyGADGDg==}
     peerDependencies:
       eslint: '>=7.4.0'
     dependencies:
-      '@antfu/eslint-config-basic': 0.35.3_y46c5jzhegju5ppnhbs6d4llxi
-      '@antfu/eslint-config-ts': 0.35.3_ycpbpc6yetojsgtrx3mwntkhsu
+      '@antfu/eslint-config-basic': 0.36.0_y46c5jzhegju5ppnhbs6d4llxi
+      '@antfu/eslint-config-ts': 0.36.0_ycpbpc6yetojsgtrx3mwntkhsu
       eslint: 8.35.0
       eslint-plugin-vue: 9.9.0_eslint@8.35.0
       local-pkg: 0.4.3
@@ -150,12 +150,12 @@ packages:
       - typescript
     dev: true
 
-  /@antfu/eslint-config/0.35.3_ycpbpc6yetojsgtrx3mwntkhsu:
-    resolution: {integrity: sha512-wd0ry/TNqaZmniqkKtZKoCvpl55x9YbHgL5Ug3H9rVuUSqaNi9G9AjYlynQqn4/M1EhYYWO597Lu7f/fC+csrg==}
+  /@antfu/eslint-config/0.36.0_ycpbpc6yetojsgtrx3mwntkhsu:
+    resolution: {integrity: sha512-otZ9PfKRT3gnGMMX1gS8URTNPMPCZ69K5jHZvLkYojru0gLBZ3IO5fCvjEZpWqOyIUHtAgg6NWELf1DbEF+NDw==}
     peerDependencies:
       eslint: '>=7.4.0'
     dependencies:
-      '@antfu/eslint-config-vue': 0.35.3_y46c5jzhegju5ppnhbs6d4llxi
+      '@antfu/eslint-config-vue': 0.36.0_y46c5jzhegju5ppnhbs6d4llxi
       '@typescript-eslint/eslint-plugin': 5.54.0_6mj2wypvdnknez7kws2nfdgupi
       '@typescript-eslint/parser': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
       eslint: 8.35.0
@@ -2482,14 +2482,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /define-properties/1.1.4:
-    resolution: {integrity: sha512-uckOqKcfaVvtBdsVkdPv3XjveQJsNQqmhXgRi8uhvWWuPYZCNlzT8qAyblUgNoXdHdjMTzAqeGjAoli8f+bzPA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      has-property-descriptors: 1.0.0
-      object-keys: 1.1.1
-    dev: true
-
   /define-properties/1.2.0:
     resolution: {integrity: sha512-xvqAVKGfT1+UAvPwKTVw/njhdQ8ZhXK4lI0bCIuCMrp2up9nPnaDftrLtmpTazqd1o+UY4zgzU+avtMbDP+ldA==}
     engines: {node: '>= 0.4'}
@@ -2865,8 +2857,8 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-antfu/0.35.3_ycpbpc6yetojsgtrx3mwntkhsu:
-    resolution: {integrity: sha512-90Xct24s2n3aQhuuFFcPLhF5E6lU5s225B0VXupSjvDTuF+CmSQQLQG6KcqcdpA8O6dMbeXB9zy3SJ4aO7lndw==}
+  /eslint-plugin-antfu/0.36.0_ycpbpc6yetojsgtrx3mwntkhsu:
+    resolution: {integrity: sha512-qLYtjZC2y6d1fvVtG4nvVGoBUDEuUwQsS4E1RwjoEZyONZAkHYDPfeoeULDlPS0IqumSW8uGR6zGSAXi5rrVMg==}
     dependencies:
       '@typescript-eslint/utils': 5.54.0_ycpbpc6yetojsgtrx3mwntkhsu
     transitivePeerDependencies:
@@ -4905,10 +4897,6 @@ packages:
     resolution: {integrity: sha512-90yv+6538zuvUMnN+zCr8LuV6bPFdq50304114vJYJ8RDyK8D5O9Phpbd6SZWgI7PwzmmfN1upeOJlvybDSgCw==}
     dev: true
 
-  /object-inspect/1.12.2:
-    resolution: {integrity: sha512-z+cPxW0QGUp0mcqcsgQyLVRDoXFQbXOwBaqyF7VIgI4TWNQsDHrBpUQslRmIfAoYWdYzs6UlKJtB2XJpTaNSpQ==}
-    dev: true
-
   /object-inspect/1.12.3:
     resolution: {integrity: sha512-geUvdk7c+eizMNUDkRpW1wJwgfOiOeHbxBR/hLXK1aT6zmVSO0jsQcs7fj6MGw89jC/cjGfLcNOrtMYtGqm81g==}
     dev: true
@@ -4918,7 +4906,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
     dev: true
 
   /object-keys/1.1.1:
@@ -4931,7 +4919,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       has-symbols: 1.0.3
       object-keys: 1.1.1
     dev: true
@@ -5394,7 +5382,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.2
-      define-properties: 1.1.4
+      define-properties: 1.2.0
       functions-have-names: 1.2.3
     dev: true
 
@@ -5562,7 +5550,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.2.0
-      object-inspect: 1.12.2
+      object-inspect: 1.12.3
     dev: true
 
   /sigmund/1.0.1:
