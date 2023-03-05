@@ -6,3 +6,11 @@ html:not(.dark) .shiki-dark {
   display: none;
 }
 
+
+a:not(header a):not(nav a) {
+  @apply decoration-underline hover:text-teal-600;
+}
+
+header a {
+  @apply  hover:text-teal-600;
+}

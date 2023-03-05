@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head'
+
+import { isMobile } from '~/composables'
+
 const menu = [
   {
     name: 'Introduction',
@@ -22,8 +25,9 @@ useHead({
 
 <template>
   <header py-2 px-4 bg-light dark:bg-dark z-10 container mx-auto sticky top-0>
-    <nav flex my-3 gap-x-4 justify-end>
-      <h1 font-playfair dark:text-brand mr-auto text-4xl>
+    <nav flex my-3 gap-x-4 justify-end items-center>
+      <a v-if="isMobile" text-2xl i-mdi-menu />
+      <h1 font-playfair mr-auto text-4xl dark:text-brand>
         <a href="/">Dozzle</a>
       </h1>
       <a
@@ -45,8 +49,8 @@ useHead({
       />
     </nav>
   </header>
-  <div flex container mx-auto px-4>
-    <aside>
+  <div flex container mx-auto px-4 gap-4>
+    <aside bg-light dark:bg-dark :class="{ fixed: isMobile }">
       <nav w-64>
         <ul>
           <li
@@ -58,7 +62,7 @@ useHead({
             </h2>
             <ul mt-4 space-y-4 border="l-2 dark-50/50">
               <li v-for="item in m.subMenu" :key="item.path" pl-3>
-                <router-link :to="item.path" active-class="text-teal-600">
+                <router-link :to="item.path" active-class="text-teal-600" hover:text-teal-600>
                   {{ item.name }}
                 </router-link>
               </li>

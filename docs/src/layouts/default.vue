@@ -7,7 +7,7 @@ useHead({
 
 <template>
   <header py-2 px-4 bg-light dark:bg-dark z-10>
-    <nav flex my-3 gap-x-4 justify-end>
+    <nav flex my-3 gap-x-4 justify-end class="text-[0.9em]">
       <router-link to="/guide/what-is-dozzle">
         Guide
       </router-link>
