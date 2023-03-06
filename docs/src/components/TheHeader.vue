@@ -7,10 +7,10 @@ const emit = defineEmits(['menu-click'])
 </script>
 
 <template>
-  <header py-2 lg:px-4 main-bg mx-auto>
+  <header py-2 px-4 main-bg mx-auto>
     <nav flex my-3 gap-x-4 justify-end items-center>
       <a v-if="isMobile && showMenu" cursor-pointer text-2xl i-mdi-menu @click="emit('menu-click')" />
-      <h1 font-playfair mr-auto text-4xl dark:text-brand>
+      <h1 v-if="showMenu" font-playfair mr-auto text-4xl dark:text-brand>
         <a href="/">Dozzle</a>
       </h1>
       <slot />

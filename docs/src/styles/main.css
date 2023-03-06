@@ -14,3 +14,10 @@ a:not(header *):not(nav *) {
 header > nav > a {
   @apply  hover:text-teal-600 transition duration-200 ease-in-out ;
 }
+
+@screen lt-sm {
+  pre {
+    overflow-x: auto;
+    width: calc(100vw - 3rem);
+  }
+}
