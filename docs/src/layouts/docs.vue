@@ -24,11 +24,11 @@ const showMenu = ref(false)
 </script>
 
 <template>
-  <the-header container sticky top-0 @menu-click="showMenu = true" />
+  <the-header container sticky top-0 show-menu @menu-click="showMenu = true" />
   <div flex container mx-auto px-4 gap-4>
     <Teleport to="body" :disabled="!isMobile">
       <div v-if="showMenu" backdrop-blur-sm inset-0 fixed @click="showMenu = false" />
-      <aside class="transition-transform lg:translate-x-0" main-bg :class="isMobile ? 'fixed inset-y-0 left-0 p-4' : ''" :translate-x="showMenu ? 0 : -64">
+      <aside class="transition-transform lg:translate-x-0" main-bg :class="isMobile ? 'fixed inset-y-0 left-0 p-4' : ''" :translate-x="showMenu ? 0 : -84">
         <nav w-64>
           <ul>
             <li
@@ -51,7 +51,7 @@ const showMenu = ref(false)
       </aside>
     </Teleport>
     <main>
-      <article prose text-lg max-w-full>
+      <article prose text-lg lg:max-w-full>
         <RouterView />
       </article>
     </main>
