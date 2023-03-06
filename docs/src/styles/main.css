@@ -7,10 +7,10 @@ html:not(.dark) .shiki-dark {
 }
 
 
-a:not(header a):not(nav a) {
-  @apply decoration-underline hover:text-teal-600;
+a:not(header *):not(nav *) {
+  @apply underline hover:text-teal-600;
 }
 
-header a {
-  @apply  hover:text-teal-600;
+header > nav > a {
+  @apply  hover:text-teal-600 transition duration-200 ease-in-out ;
 }
