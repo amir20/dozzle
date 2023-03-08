@@ -6,13 +6,14 @@
       <div flex="~ col" text="center" p="x-4">
         <div m="t-8 lg:y-auto">
           <h1 text-4xl font-light>
-            <span font-playfair dark:text-brand>Dozzle</span> is a modern log viewer for Docker providing efficient and intuitive ways to
+            <span font-playfair dark:text-brand>Dozzle</span> is a modern log viewer for Docker providing efficient and
+            intuitive ways to
             view and search logs from containers
           </h1>
           <div mt-8>
-            <router-link to="/guide/getting-started" btn-primary>
+            <a href="/guide/getting-started" btn-primary>
               Get Started
-            </router-link>
+            </a>
           </div>
         </div>
       </div>
