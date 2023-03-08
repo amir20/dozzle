@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { showMenu = false } = defineProps<{
-  showMenu: boolean
+  showMenu?: boolean
 }>()
 
 const emit = defineEmits(['menu-click'])
