@@ -29,6 +29,7 @@
     "@vue-macros/reactivity-transform": "^0.2.4",
     "@vue-macros/volar": "^0.8.4",
     "@vue/test-utils": "^2.3.0",
+    "color": "^4.2.3",
     "critters": "^0.0.16",
     "eslint": "^8.35.0",
     "jsdom": "^21.1.0",
