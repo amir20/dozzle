@@ -27,7 +27,7 @@
     "@unocss/transformer-directives": "^0.50.4",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue-macros/reactivity-transform": "^0.2.4",
-    "@vue-macros/volar": "^0.8.4",
+    "@vue-macros/volar": "^0.9.0",
     "@vue/test-utils": "^2.3.0",
     "color": "^4.2.3",
     "critters": "^0.0.16",
