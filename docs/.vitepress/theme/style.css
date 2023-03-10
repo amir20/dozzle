@@ -118,15 +118,23 @@
 
 /**
   * Dozzle css
-  * -------------------------------------------------------------------------- 
+  * --------------------------------------------------------------------------
 **/
+
+@media (max-width: 960px) {
+  .is-home .VPHero {
+    margin-top: -1em;
+  }
+}
 
 .VPHero .container {
   max-width: 100%;
 }
 
-.is-home .container .main {
-  padding-right: 4em;
+@media (min-width: 960px) {
+  .is-home .container .main {
+    padding-right: 4em;
+  }
 }
 
 .VPHomeHero .tagline {
