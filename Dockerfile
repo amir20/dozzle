@@ -12,7 +12,7 @@ RUN pnpm fetch
 
 # Copy package.json and install dependencies
 COPY package.json ./
-RUN pnpm install -r --offline --ignore-scripts
+RUN pnpm install -r --offline --ignore-scripts --no-optional
 
 # Copy assets and translations to build
 COPY .* vite.config.ts index.html ./
