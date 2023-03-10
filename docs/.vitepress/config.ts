@@ -1,4 +1,8 @@
+import { createRequire } from "module";
 import { defineConfig } from "vitepress";
+
+const require = createRequire(import.meta.url);
+const pkg = require("dozzle/package.json");
 
 export default defineConfig({
   lang: "en-US",
@@ -28,7 +32,20 @@ export default defineConfig({
     },
     nav: [
       { text: "Home", link: "/" },
-      { text: "Guide", link: "/guide/what-is-dozzle" },
+      { text: "Guide", link: "/guide/what-is-dozzle", activeMatch: "/guide/" },
+      {
+        text: `v${pkg.version}`,
+        items: [
+          {
+            text: "Releases",
+            link: "https://github.com/amir20/dozzle/releases",
+          },
+          {
+            text: "New Issue",
+            link: "https://github.com/amir20/dozzle/issues/new/choose",
+          },
+        ],
+      },
     ],
     sidebar: [
       {
