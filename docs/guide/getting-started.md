@@ -27,8 +27,3 @@ services:
     ports:
       - 9999:8080
 ```
-
-<route lang="yaml">
-meta:
-  layout: docs
-</route>

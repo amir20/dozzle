@@ -1,103 +1,113 @@
 {
-  "name": "dozzle",
-  "version": "4.8.1",
-  "description": "Realtime log viewer for docker containers. ",
-  "homepage": "https://github.com/amir20/dozzle#readme",
-  "bugs": {
-    "url": "https://github.com/amir20/dozzle/issues"
+ "name": "dozzle",
+ "version": "4.8.1",
+ "description": "Realtime log viewer for docker containers. ",
+ "homepage": "https://github.com/amir20/dozzle#readme",
+ "bugs": {
+  "url": "https://github.com/amir20/dozzle/issues"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/amir20/dozzle.git"
+ },
+ "license": "ISC",
+ "author": "Amir Raminfar <findamir@gmail.com>",
+ "scripts": {
+  "watch:assets": "vite --open",
+  "watch:server": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
+  "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
+  "build": "vite build",
+  "release": "release-it",
+  "test": "TZ=UTC vitest",
+  "postinstall": "husky install",
+  "docs:dev": "vitepress dev docs --open",
+  "docs:build": "vitepress build docs",
+  "docs:preview": "vitepress preview docs"
+ },
+ "dependencies": {
+  "@iconify-json/carbon": "^1.1.16",
+  "@iconify-json/cil": "^1.1.4",
+  "@iconify-json/mdi": "^1.1.49",
+  "@iconify-json/mdi-light": "^1.1.6",
+  "@iconify-json/octicon": "^1.1.35",
+  "@intlify/unplugin-vue-i18n": "^0.9.1",
+  "@oruga-ui/oruga-next": "^0.5.10",
+  "@oruga-ui/theme-bulma": "^0.2.9",
+  "@vueuse/core": "^9.13.0",
+  "@vueuse/integrations": "^9.13.0",
+  "@vueuse/router": "^9.13.0",
+  "ansi-to-html": "^0.7.2",
+  "bulma": "^0.9.4",
+  "d3-array": "^3.2.2",
+  "d3-ease": "^3.0.1",
+  "d3-scale": "^4.0.2",
+  "d3-selection": "^3.0.0",
+  "d3-shape": "^3.2.0",
+  "d3-transition": "^3.0.1",
+  "date-fns": "^2.29.3",
+  "fuse.js": "^6.6.2",
+  "lodash.debounce": "^4.0.8",
+  "pinia": "^2.0.33",
+  "semver": "^7.3.8",
+  "splitpanes": "^3.1.5",
+  "vue": "^3.2.47",
+  "vue-i18n": "^9.2.2",
+  "vue-router": "^4.1.6"
+ },
+ "devDependencies": {
+  "@pinia/testing": "^0.0.15",
+  "@types/d3-array": "^3.0.4",
+  "@types/d3-ease": "^3.0.0",
+  "@types/d3-scale": "^4.0.3",
+  "@types/d3-selection": "^3.0.4",
+  "@types/d3-shape": "^3.1.1",
+  "@types/d3-transition": "^3.0.3",
+  "@types/lodash.debounce": "^4.0.7",
+  "@types/node": "^18.14.6",
+  "@types/semver": "^7.3.13",
+  "@vitejs/plugin-vue": "4.0.0",
+  "@vue/compiler-sfc": "^3.2.47",
+  "@vue/test-utils": "^2.3.0",
+  "c8": "^7.13.0",
+  "eventsourcemock": "^2.0.0",
+  "husky": "^8.0.3",
+  "jest-serializer-vue": "^3.0.0",
+  "jsdom": "^21.1.0",
+  "lint-staged": "^13.1.2",
+  "npm-run-all": "^4.1.5",
+  "prettier": "^2.8.4",
+  "release-it": "^15.7.0",
+  "sass": "^1.58.3",
+  "ts-node": "^10.9.1",
+  "typescript": "^4.9.5",
+  "unplugin-auto-import": "^0.15.1",
+  "unplugin-icons": "^0.15.3",
+  "unplugin-vue-components": "^0.24.1",
+  "vite": "4.1.4",
+  "vite-plugin-pages": "^0.28.0",
+  "vite-plugin-vue-layouts": "^0.8.0",
+  "vitest": "^0.29.2",
+  "vue-tsc": "^1.2.0"
+ },
+ "lint-staged": {
+  "*.{js,vue,css}": [
+   "prettier --write"
+  ]
+ },
+ "release-it": {
+  "github": {
+   "release": false,
+   "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amir20/dozzle.git"
-  },
-  "license": "ISC",
-  "author": "Amir Raminfar <findamir@gmail.com>",
-  "scripts": {
-    "watch:assets": "vite --open",
-    "watch:server": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
-    "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
-    "build": "vite build",
-    "release": "release-it",
-    "test": "TZ=UTC vitest",
-    "postinstall": "husky install"
-  },
-  "dependencies": {
-    "@iconify-json/carbon": "^1.1.16",
-    "@iconify-json/cil": "^1.1.4",
-    "@iconify-json/mdi": "^1.1.49",
-    "@iconify-json/mdi-light": "^1.1.6",
-    "@iconify-json/octicon": "^1.1.35",
-    "@intlify/unplugin-vue-i18n": "^0.9.1",
-    "@oruga-ui/oruga-next": "^0.5.10",
-    "@oruga-ui/theme-bulma": "^0.2.9",
-    "@vueuse/core": "^9.13.0",
-    "@vueuse/integrations": "^9.13.0",
-    "@vueuse/router": "^9.13.0",
-    "ansi-to-html": "^0.7.2",
-    "bulma": "^0.9.4",
-    "d3-array": "^3.2.2",
-    "d3-ease": "^3.0.1",
-    "d3-scale": "^4.0.2",
-    "d3-selection": "^3.0.0",
-    "d3-shape": "^3.2.0",
-    "d3-transition": "^3.0.1",
-    "date-fns": "^2.29.3",
-    "fuse.js": "^6.6.2",
-    "lodash.debounce": "^4.0.8",
-    "pinia": "^2.0.33",
-    "semver": "^7.3.8",
-    "splitpanes": "^3.1.5",
-    "vue": "^3.2.47",
-    "vue-i18n": "^9.2.2",
-    "vue-router": "^4.1.6"
-  },
-  "devDependencies": {
-    "@pinia/testing": "^0.0.15",
-    "@types/d3-array": "^3.0.4",
-    "@types/d3-ease": "^3.0.0",
-    "@types/d3-scale": "^4.0.3",
-    "@types/d3-selection": "^3.0.4",
-    "@types/d3-shape": "^3.1.1",
-    "@types/d3-transition": "^3.0.3",
-    "@types/lodash.debounce": "^4.0.7",
-    "@types/node": "^18.14.6",
-    "@types/semver": "^7.3.13",
-    "@vitejs/plugin-vue": "4.0.0",
-    "@vue/compiler-sfc": "^3.2.47",
-    "@vue/test-utils": "^2.3.0",
-    "c8": "^7.13.0",
-    "eventsourcemock": "^2.0.0",
-    "husky": "^8.0.3",
-    "jest-serializer-vue": "^3.0.0",
-    "jsdom": "^21.1.0",
-    "lint-staged": "^13.1.2",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.4",
-    "release-it": "^15.7.0",
-    "sass": "^1.58.3",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.5",
-    "unplugin-auto-import": "^0.15.1",
-    "unplugin-icons": "^0.15.3",
-    "unplugin-vue-components": "^0.24.1",
-    "vite": "4.1.4",
-    "vite-plugin-pages": "^0.28.0",
-    "vite-plugin-vue-layouts": "^0.8.0",
-    "vitest": "^0.29.2",
-    "vue-tsc": "^1.2.0"
-  },
-  "lint-staged": {
-    "*.{js,vue,css}": [
-      "prettier --write"
-    ]
-  },
-  "release-it": {
-    "github": {
-      "release": false,
-      "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
-    },
-    "npm": {
-      "publish": false
-    }
+  "npm": {
+   "publish": false
   }
+ },
+ "optionalDependencies": {
+  "@unocss/preset-typography": "^0.50.4",
+  "@unocss/reset": "^0.50.4",
+  "@unocss/transformer-directives": "^0.50.4",
+  "unocss": "^0.50.4",
+  "vitepress": "1.0.0-alpha.50"
+ }
 }
