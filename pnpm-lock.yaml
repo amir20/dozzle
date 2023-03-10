@@ -61,7 +61,7 @@ specifiers:
   vite: 4.1.4
   vite-plugin-pages: ^0.28.0
   vite-plugin-vue-layouts: ^0.8.0
-  vitepress: 1.0.0-alpha.50
+  vitepress: 1.0.0-alpha.51
   vitest: ^0.29.2
   vue: ^3.2.47
   vue-i18n: ^9.2.2
@@ -103,7 +103,7 @@ optionalDependencies:
   '@unocss/reset': 0.50.4
   '@unocss/transformer-directives': 0.50.4
   unocss: 0.50.4_vite@4.1.4
-  vitepress: 1.0.0-alpha.50_tbu6ibuzbmq2zng52hwcifltki
+  vitepress: 1.0.0-alpha.51_tbu6ibuzbmq2zng52hwcifltki
 
 devDependencies:
   '@pinia/testing': 0.0.15_pinia@2.0.33+vue@3.2.47
@@ -5880,8 +5880,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vitepress/1.0.0-alpha.50_tbu6ibuzbmq2zng52hwcifltki:
-    resolution: {integrity: sha512-6EdT6JIiHRD7KatKMfxCJ3J7aHlkMp67ZEcfYrMTLKAJ+K+qWs2p427udMHSenCOzVNLIikEC5v/rP3GOGWubQ==}
+  /vitepress/1.0.0-alpha.51_tbu6ibuzbmq2zng52hwcifltki:
+    resolution: {integrity: sha512-euZpjXeIaNUadLAQtd7NYbKhJJoDyZ6z8YK77qlM2c6NvUB5wmLPU6moP4rfcKUqpBDrsrxjJS6fdPk6azS5qQ==}
     hasBin: true
     requiresBuild: true
     dependencies:
