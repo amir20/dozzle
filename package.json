@@ -108,6 +108,6 @@
   "@unocss/reset": "^0.50.4",
   "@unocss/transformer-directives": "^0.50.4",
   "unocss": "^0.50.4",
-  "vitepress": "1.0.0-alpha.50"
+  "vitepress": "1.0.0-alpha.51"
  }
 }
