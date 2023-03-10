@@ -9,14 +9,9 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    BrowserWindow: typeof import('./src/components/BrowserWindow.vue')['default']
-    CodeBlock: typeof import('./src/components/CodeBlock.vue')['default']
-    Features: typeof import('./src/components/Features.vue')['default']
-    Hero: typeof import('./src/components/Hero.vue')['default']
-    Installation: typeof import('./src/components/Installation.vue')['default']
-    KeyShortcut: typeof import('./src/components/KeyShortcut.vue')['default']
+    BrowserWindow: typeof import('./.vitepress/theme/components/BrowserWindow.vue')['default']
+    HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SubSection: typeof import('./src/components/SubSection.vue')['default']
   }
 }
