@@ -129,6 +129,7 @@
 
 .VPHero .container {
   max-width: 100%;
+  justify-content: center;
 }
 
 @media (min-width: 960px) {
@@ -149,4 +150,8 @@
 .VPNavBarTitle .title {
   @apply font-playfair font-light text-3xl;
   color: var(--bar-title-color);
+}
+
+.VPHero .container .image {
+  max-width: 1200px;
 }
