@@ -111,7 +111,7 @@ func main() {
 	clients["localhost"] = dockerClient
 
 	for _, host := range args.RemoteHost {
-		log.Infof("Creating a client for %s", host)
+		log.Infof("Creating client for %s", host)
 		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
 		clients[host] = client
 	}

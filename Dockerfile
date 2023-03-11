@@ -7,12 +7,13 @@ RUN npm install -g pnpm
 WORKDIR /build
 
 # Install dependencies from lock file
-COPY pnpm-lock.yaml ./
+COPY pnpm-*.yaml ./
 RUN pnpm fetch
 
 # Copy package.json and install dependencies
+COPY docs/package.json ./docs/package.json
 COPY package.json ./
-RUN pnpm install -r --offline --ignore-scripts --no-optional
+RUN pnpm install --offline --ignore-scripts --no-optional
 
 # Copy assets and translations to build
 COPY .* vite.config.ts index.html ./

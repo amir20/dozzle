@@ -55,6 +55,19 @@ export default defineConfig({
           { text: "Getting Started", link: "/guide/getting-started" },
         ],
       },
+      {
+        text: "Advanced Configuration",
+        items: [
+          { text: "Authentication", link: "/guide/authentication" },
+          { text: "Healthcheck", link: "/guide/healthcheck" },
+          { text: "Remote Host", link: "/guide/remote-host" },
+          { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
+        ],
+      },
+      {
+        text: "Troubleshooting",
+        items: [{ text: "FAQ", link: "/guide/faq" }],
+      },
     ],
 
     footer: {
