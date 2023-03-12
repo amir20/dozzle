@@ -11,7 +11,6 @@ COPY pnpm-*.yaml ./
 RUN pnpm fetch
 
 # Copy package.json and install dependencies
-COPY docs/package.json ./docs/package.json
 COPY package.json ./
 RUN pnpm install --offline --ignore-scripts --no-optional
 

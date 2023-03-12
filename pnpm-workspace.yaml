@@ -1,2 +1,3 @@
 packages:
   - docs
+  - e2e

@@ -1,4 +1,4 @@
-FROM cypress/included:12.6.0
+FROM cypress/included:12.7.0
 
 RUN npm i -g pnpm
 
@@ -8,4 +8,4 @@ COPY pnpm-lock.yaml ./
 RUN pnpm fetch
 
 COPY package.json tsconfig.json ./
-RUN pnpm install -r --offline
+RUN pnpm install --offline

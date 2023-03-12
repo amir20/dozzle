@@ -5,4 +5,4 @@ node_modules
 dist
 .git
 e2e
-
+docs
