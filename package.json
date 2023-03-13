@@ -19,7 +19,6 @@
   "build": "vite build",
   "release": "release-it",
   "test": "TZ=UTC vitest",
-  "postinstall": "husky install",
   "docs:dev": "vitepress dev docs --open",
   "docs:build": "vitepress build docs",
   "docs:preview": "vitepress preview docs"
@@ -70,7 +69,6 @@
   "@vue/test-utils": "^2.3.1",
   "c8": "^7.13.0",
   "eventsourcemock": "^2.0.0",
-  "husky": "^8.0.3",
   "jest-serializer-vue": "^3.1.0",
   "jsdom": "^21.1.1",
   "lint-staged": "^13.2.0",
