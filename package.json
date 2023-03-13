@@ -84,7 +84,7 @@
   "unplugin-icons": "^0.15.3",
   "unplugin-vue-components": "^0.24.1",
   "vite": "4.1.4",
-  "vite-plugin-pages": "^0.28.0",
+  "vite-plugin-pages": "^0.29.0",
   "vite-plugin-vue-layouts": "^0.8.0",
   "vitepress": "1.0.0-alpha.51",
   "vitest": "^0.29.2",
