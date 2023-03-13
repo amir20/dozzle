@@ -3,7 +3,6 @@ FROM --platform=$BUILDPLATFORM node:19-alpine as node
 
 RUN npm install -g pnpm
 
-
 WORKDIR /build
 
 # Install dependencies from lock file
