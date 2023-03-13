@@ -90,7 +90,7 @@
   "vue-tsc": "^1.2.0"
  },
  "lint-staged": {
-  "*.{js,vue,css,ts,html}": [
+  "*.{js,vue,css,ts,html,md}": [
    "prettier --write"
   ]
  },

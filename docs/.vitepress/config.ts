@@ -65,13 +65,16 @@ export default defineConfig({
         items: [
           { text: "Authentication", link: "/guide/authentication" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
-          { text: "Remote Host", link: "/guide/remote-host" },
+          { text: "Remote Hosts", link: "/guide/remote-hosts" },
           { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
         ],
       },
       {
         text: "Troubleshooting",
-        items: [{ text: "FAQ", link: "/guide/faq" }],
+        items: [
+          { text: "FAQ", link: "/guide/faq" },
+          { text: "Debugging", link: "/guide/debugging" },
+        ],
       },
     ],
 
