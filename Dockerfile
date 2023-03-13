@@ -7,7 +7,7 @@ WORKDIR /build
 
 # Install dependencies from lock file
 COPY pnpm-*.yaml ./
-RUN pnpm fetch
+RUN pnpm fetch --ignore-scripts --no-optional
 
 # Copy package.json and install dependencies
 COPY package.json ./
