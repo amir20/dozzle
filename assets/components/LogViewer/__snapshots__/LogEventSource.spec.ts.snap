@@ -25,7 +25,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
         <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
@@ -97,7 +97,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
         <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
@@ -133,7 +133,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
         <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
@@ -169,7 +169,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
         <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
@@ -205,7 +205,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
         <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
