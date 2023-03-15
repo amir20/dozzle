@@ -57,7 +57,7 @@ specifiers:
   vite: 4.1.4
   vite-plugin-pages: ^0.29.0
   vite-plugin-vue-layouts: ^0.8.0
-  vitepress: 1.0.0-alpha.58
+  vitepress: 1.0.0-alpha.60
   vitest: ^0.29.2
   vue: ^3.2.47
   vue-i18n: ^9.2.2
@@ -126,7 +126,7 @@ devDependencies:
   vite: 4.1.4_swj55raienxruyuzro43n7r3he
   vite-plugin-pages: 0.29.0_7qibpnl744oravj7yuajw4vysm
   vite-plugin-vue-layouts: 0.8.0_s7i5cn7xswa4rctkzerr3e4clm
-  vitepress: 1.0.0-alpha.58_swj55raienxruyuzro43n7r3he
+  vitepress: 1.0.0-alpha.60_swj55raienxruyuzro43n7r3he
   vitest: 0.29.2_jsdom@21.1.1+sass@1.59.2
   vue-tsc: 1.2.0_typescript@4.9.5
 
@@ -5272,8 +5272,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.58_swj55raienxruyuzro43n7r3he:
-    resolution: {integrity: sha512-aENSAiE2uKMoQPwBTELY8Nig5qSWrmAl+MgsO3l/TE8At6kXii+2rseEId/bVfT700JeucYdqtCgWxu+LwpYIw==}
+  /vitepress/1.0.0-alpha.60_swj55raienxruyuzro43n7r3he:
+    resolution: {integrity: sha512-GI5iLDkZRqGEPixbSloT+p6pbKcMh9ykRRxt8vf9AjV1gaPit6Stg/t9WNxTdIhKVCuQMexGs1605DNApSRK2A==}
     hasBin: true
     dependencies:
       '@docsearch/css': 3.3.3
