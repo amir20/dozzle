@@ -87,5 +87,5 @@ export {
   menuWidth,
   size,
   search,
-  settings
+  settings,
 };

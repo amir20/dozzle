@@ -69,9 +69,9 @@ export default defineConfig(() => ({
       "/api": {
         target: {
           host: "127.0.0.1",
-          port: 3100
+          port: 3100,
         },
-        changeOrigin: false
+        changeOrigin: false,
       },
     },
   },
