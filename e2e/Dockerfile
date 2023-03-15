@@ -1,4 +1,4 @@
-FROM cypress/included:12.7.0
+FROM cypress/included:12.8.0
 
 RUN npm i -g pnpm
 
