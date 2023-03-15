@@ -1,6 +1,7 @@
 ---
 title: Getting Started
 ---
+
 # Getting Started
 
 This section will help you to setup Dozzle locally. Dozzle can also be used to connect to remote hosts via `tcp://` and tls. See remote host if you want to connect to other hosts.
@@ -14,10 +15,11 @@ docker run --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8
 ```
 
 ## Using Docker Compose
+
 Docker compose makes it easier to configure Dozzle as part of an existing configuration.
 
 ```yaml
-version: '3'
+version: "3"
 services:
   dozzle:
     container_name: dozzle

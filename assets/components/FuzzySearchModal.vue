@@ -109,8 +109,8 @@ function addColumn(container: Container) {
   .panel {
     min-height: 200px;
     width: auto;
-    margin-left: 0.25rem!important;
-    margin-right: 0.25rem!important;
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
   }
 }
 

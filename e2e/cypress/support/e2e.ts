@@ -14,8 +14,8 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
-import '@frsource/cypress-plugin-visual-regression-diff/dist/support';
+import "./commands";
+import "@frsource/cypress-plugin-visual-regression-diff/dist/support";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
