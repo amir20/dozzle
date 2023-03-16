@@ -2,13 +2,13 @@ lockfileVersion: 5.4
 
 specifiers:
   '@frsource/cypress-plugin-visual-regression-diff': ^3.2.8
-  cypress: ^12.7.0
-  typescript: ^4.9.5
+  cypress: ^12.8.1
+  typescript: ^5.0.2
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 3.2.8_cypress@12.7.0
-  cypress: 12.7.0
-  typescript: 4.9.5
+  '@frsource/cypress-plugin-visual-regression-diff': 3.2.8_cypress@12.8.1
+  cypress: 12.8.1
+  typescript: 5.0.2
 
 packages:
 
@@ -56,14 +56,14 @@ packages:
     resolution: {integrity: sha512-RIlQtKezeRhNuxIpIc2BuM4kNqAakIarKV/TCgx2EC+zgj1NxX3+Mc80AkJCCMO8dZUuGzbULG7295YeBQZlSA==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/3.2.8_cypress@12.7.0:
+  /@frsource/cypress-plugin-visual-regression-diff/3.2.8_cypress@12.8.1:
     resolution: {integrity: sha512-B7TbwdAiql73FxRr2tiFmx8PvpK4a2oCBygPzT1v9IvCxh4XwoXwY47/klKtg2402PrhdXwcqI/NBSVqb4CJnQ==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.5
-      cypress: 12.7.0
+      cypress: 12.8.1
       glob: 8.0.3
       meta-png: 1.0.5
       move-file: 2.1.0
@@ -72,8 +72,8 @@ packages:
       sharp: 0.31.2
     dev: false
 
-  /@types/node/14.18.37:
-    resolution: {integrity: sha512-7GgtHCs/QZrBrDzgIJnQtuSvhFSwhyYSI2uafSwZoNt1iOGhEN5fwNrQMjtONyHm9+/LoA4453jH0CMYcr06Pg==}
+  /@types/node/14.18.38:
+    resolution: {integrity: sha512-zMRIidN2Huikv/+/U7gRPFYsXDR/7IGqFZzTLnCEj5+gkrQjsowfamaxEnyvArct5hxGA3bTxMXlYhH78V6Cew==}
     dev: false
 
   /@types/sinonjs__fake-timers/8.1.1:
@@ -88,7 +88,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.37
+      '@types/node': 14.18.38
     dev: false
     optional: true
 
@@ -334,7 +334,7 @@ packages:
     dev: false
 
   /concat-map/0.0.1:
-    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
+    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
     dev: false
 
   /core-util-is/1.0.2:
@@ -350,15 +350,15 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress/12.7.0:
-    resolution: {integrity: sha512-7rq+nmhzz0u6yabCFyPtADU2OOrYt6pvUau9qV7xyifJ/hnsaw/vkr0tnLlcuuQKUAOC1v1M1e4Z0zG7S0IAvA==}
+  /cypress/12.8.1:
+    resolution: {integrity: sha512-lIFbKdaSYAOarNLHNFa2aPZu6YSF+8UY4VRXMxJrFUnk6RvfG0AWsZ7/qle/aIz30TNUD4aOihz2ZgS4vuQVSA==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.11
       '@cypress/xvfb': 1.2.4_supports-color@8.1.1
-      '@types/node': 14.18.37
+      '@types/node': 14.18.38
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
@@ -576,7 +576,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       at-least-node: 1.0.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
     dev: false
@@ -649,8 +649,8 @@ packages:
       ini: 2.0.0
     dev: false
 
-  /graceful-fs/4.2.10:
-    resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
+  /graceful-fs/4.2.11:
+    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
     dev: false
 
   /has-flag/4.0.0:
@@ -781,7 +781,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
     dev: false
 
   /jsprim/2.0.2:
@@ -1324,9 +1324,9 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /typescript/4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
+  /typescript/5.0.2:
+    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+    engines: {node: '>=12.20'}
     hasBin: true
     dev: false
 
@@ -1350,7 +1350,7 @@ packages:
     dev: false
 
   /verror/1.10.0:
-    resolution: {integrity: sha1-OhBcoXBTr1XW4nDB+CiGguGNpAA=}
+    resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
     engines: {'0': node >=0.6.0}
     dependencies:
       assert-plus: 1.0.0
