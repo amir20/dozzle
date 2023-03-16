@@ -13,7 +13,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: latest
       - name: Install pnpm
         uses: pnpm/action-setup@v2.2.4
         with:
@@ -83,7 +83,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: latest
       - name: Install pnpm
         uses: pnpm/action-setup@v2.2.4
         with:
