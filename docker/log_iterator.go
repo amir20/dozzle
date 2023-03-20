@@ -130,12 +130,15 @@ var KEY_VALUE_REGEX = regexp.MustCompile(`level=(\w+)`)
 func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
-		value = NON_ASCII_REGEX.ReplaceAllString(strings.ToLower(value), "")
 
 		levels := []string{"error", "warn", "info", "debug", "trace", "fatal"}
 		for _, level := range levels {
-			prefix := regexp.MustCompile("^" + level + "[^a-z]")
-			if prefix.MatchString(value) {
+			prefix := regexp.MustCompile("(?i)^" + level + "[^a-z]")
+			if prefix.MatchString(NON_ASCII_REGEX.ReplaceAllString(value, "")) {
+				return level
+			}
+
+			if strings.Contains(value, " "+strings.ToUpper(level)+" ") {
 				return level
 			}
 		}
