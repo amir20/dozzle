@@ -2,7 +2,7 @@
 
 Dozzle is a small lightweight application with a web based interface to monitor Docker logs. It doesn’t store any log files. It is for live monitoring of your container logs only.
 
-![Image](https://github.com/amir20/dozzle/blob/master/.github/demo.gif?raw=true)
+https://user-images.githubusercontent.com/260667/227634771-9ebbe381-16a8-465a-b28a-450c5cd20c94.mp4
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/amir20/dozzle)](https://goreportcard.com/report/github.com/amir20/dozzle)
 [![Docker Pulls](https://img.shields.io/docker/pulls/amir20/dozzle.svg)](https://hub.docker.com/r/amir20/dozzle/)
