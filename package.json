@@ -85,7 +85,7 @@
   "vite": "4.2.1",
   "vite-plugin-pages": "^0.29.0",
   "vite-plugin-vue-layouts": "^0.8.0",
-  "vitepress": "1.0.0-alpha.61",
+  "vitepress": "1.0.0-alpha.62",
   "vitest": "^0.29.7",
   "vue-tsc": "^1.2.0"
  },
