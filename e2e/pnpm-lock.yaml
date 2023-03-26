@@ -1,12 +1,12 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@frsource/cypress-plugin-visual-regression-diff': ^3.2.8
+  '@frsource/cypress-plugin-visual-regression-diff': ^3.2.11
   cypress: ^12.8.1
   typescript: ^5.0.2
 
 dependencies:
-  '@frsource/cypress-plugin-visual-regression-diff': 3.2.8_cypress@12.8.1
+  '@frsource/cypress-plugin-visual-regression-diff': 3.2.11_cypress@12.8.1
   cypress: 12.8.1
   typescript: 5.0.2
 
@@ -56,8 +56,8 @@ packages:
     resolution: {integrity: sha512-RIlQtKezeRhNuxIpIc2BuM4kNqAakIarKV/TCgx2EC+zgj1NxX3+Mc80AkJCCMO8dZUuGzbULG7295YeBQZlSA==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff/3.2.8_cypress@12.8.1:
-    resolution: {integrity: sha512-B7TbwdAiql73FxRr2tiFmx8PvpK4a2oCBygPzT1v9IvCxh4XwoXwY47/klKtg2402PrhdXwcqI/NBSVqb4CJnQ==}
+  /@frsource/cypress-plugin-visual-regression-diff/3.2.11_cypress@12.8.1:
+    resolution: {integrity: sha512-gEjqaCpfnnghZ5FHftg8UPyoa8PJUd+m1SX9NUJlcOE9GzVB8T9WmYH5JXJCwygfxvYCFO+7Mf7WyeCe9wC97A==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
