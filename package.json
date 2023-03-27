@@ -80,7 +80,7 @@
   "ts-node": "^10.9.1",
   "typescript": "^5.0.2",
   "unplugin-auto-import": "^0.15.2",
-  "unplugin-icons": "^0.15.3",
+  "unplugin-icons": "^0.16.0",
   "unplugin-vue-components": "^0.24.1",
   "vite": "4.2.1",
   "vite-plugin-pages": "^0.29.0",
