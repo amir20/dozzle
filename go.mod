@@ -5,7 +5,7 @@ require (
 	github.com/alexflint/go-arg v1.4.3
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/docker v23.0.1+incompatible
+	github.com/docker/docker v23.0.2+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1
