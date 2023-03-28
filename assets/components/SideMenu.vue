@@ -56,7 +56,7 @@
     </div>
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
-      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
+      <li v-for="item in visibleContainers" :key="item.id" :class="item.state" :health="item.health">
         <router-link
           :to="{ name: 'container-id', params: { id: item.id } }"
           active-class="is-active"
@@ -121,6 +121,29 @@ aside {
 
 li.exited a {
   color: #777;
+}
+
+li {
+  position: relative;
+
+  &[health]::before {
+    content: " ";
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    left: -2px;
+    top: 40%;
+  }
+
+  &[health="unhealthy"]::before {
+    background-color: #f44336;
+  }
+
+  &[health="healthy"]::before {
+    background-color: #00b5ad;
+  }
 }
 
 .logo {
