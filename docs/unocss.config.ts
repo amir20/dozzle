@@ -4,7 +4,7 @@ import { presetTypography } from "@unocss/preset-typography";
 import transformerDirectives from "@unocss/transformer-directives";
 
 export default defineConfig({
-  shortcuts: [[/^circle-(\w+)$/, ([, c]) => `rounded-full bg-${c}500 w-3 h-3`]],
+  shortcuts: [[/^circle-(\w+)$/, ([, c]) => `rounded-full bg-${c}500 w-2 h-2 lg:w-3 lg:h-3`]],
   transformers: [transformerDirectives()],
   presets: [
     presetUno(),
