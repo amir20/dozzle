@@ -134,15 +134,15 @@ li {
     display: block;
     position: absolute;
     left: -2px;
-    top: 40%;
+    top: calc(50% - 0.25em);
   }
 
   &[health="unhealthy"]::before {
-    background-color: #f44336;
+    background-color: var(--red-color);
   }
 
   &[health="healthy"]::before {
-    background-color: #00b5ad;
+    background-color: var(--green-color);
   }
 }
 
