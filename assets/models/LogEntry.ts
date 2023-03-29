@@ -127,6 +127,10 @@ export class SkippedLogsEntry extends LogEntry<string> {
   public get totalSkipped(): number {
     return this._totalSkipped;
   }
+
+  public get lastSkippedItem(): LogEntry<string | JSONObject> {
+    return this.lastSkipped;
+  }
 }
 
 export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
