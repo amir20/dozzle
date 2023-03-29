@@ -45,7 +45,8 @@ const mutationObserver = new MutationObserver((e) => {
     scrollToBottom();
   } else {
     const record = e[e.length - 1];
-    if (record.target.children[record.target.children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
+    const children = (record.target as HTMLElement).children;
+    if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
       hasMore = true;
     }
   }

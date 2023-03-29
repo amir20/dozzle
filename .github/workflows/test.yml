@@ -7,20 +7,38 @@ on:
       - master
 name: Test
 jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run Typecheck
+        run: pnpm run typecheck
   npm-test:
     name: JavaScript Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7.26.0
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install
       - name: Run Tests
