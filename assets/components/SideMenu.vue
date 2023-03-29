@@ -56,7 +56,7 @@
     </div>
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
-      <li v-for="item in visibleContainers" :key="item.id" :class="item.state" :health="item.health">
+      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
         <router-link
           :to="{ name: 'container-id', params: { id: item.id } }"
           active-class="is-active"
@@ -66,14 +66,18 @@
             <div class="is-flex-grow-1 is-ellipsis">
               {{ item.name }}
             </div>
-            <div class="is-flex-shrink-1 column-icon">
+            <div class="is-flex-shrink-1 is-flex icons">
               <span
-                class="icon is-small"
+                class="icon is-small pin"
                 @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
                 :title="$t('tooltip.pin-column')"
               >
-                <cil-columns />
+                <cil:columns />
+              </span>
+
+              <span class="icon is-small health" :health="item.health" v-if="item.health">
+                <cil:check-circle />
               </span>
             </div>
           </div>
@@ -115,6 +119,12 @@ aside {
   }
 }
 
+.logo {
+  width: 122px;
+  height: 54px;
+  fill: var(--logo-color);
+}
+
 .loading {
   opacity: 0.5;
 }
@@ -123,49 +133,32 @@ li.exited a {
   color: #777;
 }
 
-li {
-  position: relative;
-
-  &[health]::before {
-    content: " ";
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 50%;
-    display: block;
-    position: absolute;
-    left: -2px;
-    top: calc(50% - 0.25em);
+.health {
+  &[health="unhealthy"] {
+    color: var(--red-color);
   }
 
-  &[health="unhealthy"]::before {
-    background-color: var(--red-color);
-  }
-
-  &[health="healthy"]::before {
-    background-color: var(--green-color);
+  &[health="healthy"] {
+    color: var(--green-color);
   }
 }
 
-.logo {
-  width: 122px;
-  height: 54px;
-  fill: var(--logo-color);
-}
-
-.menu-list li {
-  .column-icon {
-    visibility: hidden;
-
-    & > span {
-      vertical-align: middle;
-    }
-  }
-
-  &:hover .column-icon {
-    visibility: visible;
+a {
+  .pin {
+    display: none;
 
     &:hover {
       color: var(--secondary-color);
+    }
+  }
+
+  &:hover {
+    .pin {
+      display: block;
+    }
+
+    .health {
+      display: none;
     }
   }
 }
