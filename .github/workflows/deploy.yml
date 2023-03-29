@@ -95,4 +95,4 @@ jobs:
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run release -- --github.release --no-increment --no-git --ci
+        run: pnpm run release --github.release --no-increment --no-git --ci
