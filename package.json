@@ -19,6 +19,7 @@
   "build": "vite build",
   "release": "release-it",
   "test": "TZ=UTC vitest",
+  "typecheck": "vue-tsc --noEmit",
   "docs:dev": "vitepress dev docs --open",
   "docs:build": "vitepress build docs",
   "docs:preview": "vitepress preview docs"

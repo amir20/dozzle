@@ -85,7 +85,7 @@ const router = useRouter();
 const sort = $ref("running");
 const query = ref("");
 
-const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => b.created - a.created));
+const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
 const list = computed(() => {
