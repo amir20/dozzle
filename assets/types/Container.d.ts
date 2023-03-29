@@ -13,6 +13,8 @@ export type ContainerJson = {
   readonly command: string;
   readonly status: string;
   readonly state: ContainerState;
+  readonly health?: ContainerHealth;
 };
 
 export type ContainerState = "created" | "running" | "exited" | "dead" | "paused" | "restarting";
+export type ContainerHealth = "healthy" | "unhealthy" | "starting";

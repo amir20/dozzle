@@ -1,4 +1,4 @@
-import type { ContainerStat, ContainerState } from "@/types/Container";
+import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Container";
 import type { UseThrottledRefHistoryReturn } from "@vueuse/core";
 import { Ref } from "vue";
 
@@ -10,12 +10,13 @@ export class Container {
 
   constructor(
     public readonly id: string,
-    public readonly created: number,
+    public readonly created: Date,
     public readonly image: string,
     public readonly name: string,
     public readonly command: string,
     public status: string,
-    public state: ContainerState
+    public state: ContainerState,
+    public health?: ContainerHealth
   ) {
     this.stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
     this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });

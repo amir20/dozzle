@@ -10,6 +10,10 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CarbonCaretDown: typeof import('~icons/carbon/caret-down')['default']
+    'Cil:checkAlt': typeof import('~icons/cil/check-alt')['default']
+    'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
+    'Cil:columns': typeof import('~icons/cil/columns')['default']
+    CilCheckAlt: typeof import('~icons/cil/check-alt')['default']
     CilColumns: typeof import('~icons/cil/columns')['default']
     CilFindInPage: typeof import('~icons/cil/find-in-page')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']

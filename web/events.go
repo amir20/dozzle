@@ -82,7 +82,25 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 				f.Flush()
+
+			case "health_status: healthy", "health_status: unhealthy":
+				log.Debugf("triggering docker health event: %v", event.Name)
+				healthy := "unhealthy"
+				if event.Name == "health_status: healthy" {
+					healthy = "healthy"
+				}
+				payload := map[string]string{
+					"actorId": event.ActorID,
+					"health":  healthy,
+				}
+				bytes, _ := json.Marshal(payload)
+				if _, err := fmt.Fprintf(w, "event: container-health\ndata: %s\n\n", string(bytes)); err != nil {
+					log.Errorf("error writing event to event stream: %v", err)
+					return
+				}
+				f.Flush()
 			default:
+				log.Tracef("ignoring docker event: %v", event.Name)
 				// do nothing
 			}
 		case <-ctx.Done():

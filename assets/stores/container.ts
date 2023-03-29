@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
-import type { ContainerJson, ContainerStat } from "@/types/Container";
+import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
 
 export const useContainerStore = defineStore("container", () => {
@@ -55,6 +55,14 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
+    es.addEventListener("container-health", (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; health: ContainerHealth };
+      const container = allContainersById.value[event.actorId];
+      if (container) {
+        container.health = event.health;
+      }
+    });
+
     watchOnce(containers, () => (ready.value = true));
   }
 
@@ -64,9 +72,10 @@ export const useContainerStore = defineStore("container", () => {
       if (existing) {
         existing.status = c.status;
         existing.state = c.state;
+        existing.health = c.health;
         return existing;
       }
-      return new Container(c.id, c.created, c.image, c.name, c.command, c.status, c.state);
+      return new Container(c.id, new Date(c.created * 1000), c.image, c.name, c.command, c.status, c.state, c.health);
     });
   };
 

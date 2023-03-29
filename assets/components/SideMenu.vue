@@ -66,14 +66,18 @@
             <div class="is-flex-grow-1 is-ellipsis">
               {{ item.name }}
             </div>
-            <div class="is-flex-shrink-1 column-icon">
+            <div class="is-flex-shrink-1 is-flex icons">
               <span
-                class="icon is-small"
+                class="icon is-small pin"
                 @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
                 :title="$t('tooltip.pin-column')"
               >
-                <cil-columns />
+                <cil:columns />
+              </span>
+
+              <span class="icon is-small health" :health="item.health" v-if="item.health">
+                <cil:check-circle />
               </span>
             </div>
           </div>
@@ -115,6 +119,12 @@ aside {
   }
 }
 
+.logo {
+  width: 122px;
+  height: 54px;
+  fill: var(--logo-color);
+}
+
 .loading {
   opacity: 0.5;
 }
@@ -123,26 +133,32 @@ li.exited a {
   color: #777;
 }
 
-.logo {
-  width: 122px;
-  height: 54px;
-  fill: var(--logo-color);
-}
-
-.menu-list li {
-  .column-icon {
-    visibility: hidden;
-
-    & > span {
-      vertical-align: middle;
-    }
+.health {
+  &[health="unhealthy"] {
+    color: var(--red-color);
   }
 
-  &:hover .column-icon {
-    visibility: visible;
+  &[health="healthy"] {
+    color: var(--green-color);
+  }
+}
+
+a {
+  .pin {
+    display: none;
 
     &:hover {
       color: var(--secondary-color);
+    }
+  }
+
+  &:hover {
+    .pin {
+      display: block;
+    }
+
+    .health {
+      display: none;
     }
   }
 }

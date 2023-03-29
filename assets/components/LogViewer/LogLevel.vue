@@ -43,20 +43,20 @@ div {
 
   &.debug,
   &.trace {
-    background-color: #9c27b0;
+    background-color: var(--purple-color);
   }
 
   &.info {
-    background-color: #00b5ad;
+    background-color: var(--green-color);
   }
 
   &.error,
   &.fatal {
-    background-color: #f44336;
+    background-color: var(--red-color);
   }
 
   &.warn {
-    background-color: #ff9800;
+    background-color: var(--orange-color);
   }
 }
 </style>

@@ -97,6 +97,13 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --text-light-color: #{$grey};
 }
 
+:root {
+  --green-color: #00b5ad;
+  --red-color: #f44336;
+  --purple-color: #9c27b0;
+  --orange-color: #ff9800;
+}
+
 [data-theme="dark"] {
   @include dark;
 }

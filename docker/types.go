@@ -13,6 +13,7 @@ type Container struct {
 	Created int64    `json:"created"`
 	State   string   `json:"state"`
 	Status  string   `json:"status"`
+	Health  string   `json:"health,omitempty"`
 }
 
 // ContainerStat represent stats instant for a container

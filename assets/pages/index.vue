@@ -65,7 +65,7 @@
             <span class="name">{{ item.name }}</span>
 
             <div class="subtitle is-7 status">
-              <past-time :date="new Date(item.created * 1000)"></past-time>
+              <past-time :date="item.created"></past-time>
             </div>
           </router-link>
         </div>
@@ -147,17 +147,21 @@ function onEnter() {
 <style lang="scss" scoped>
 .panel {
   border: 1px solid var(--border-color);
+
   .panel-block,
   .panel-tabs {
     border-color: var(--border-color);
+
     .is-active {
       border-color: var(--border-hover-color);
     }
+
     .name {
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
     }
+
     .status {
       margin-left: auto;
       white-space: nowrap;
