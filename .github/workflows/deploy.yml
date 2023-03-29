@@ -10,15 +10,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
           cache: pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - name: Install dependencies
         run: pnpm install
       - name: Run Tests
@@ -81,15 +81,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
           cache: pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - name: Install dependencies
         run: pnpm install
       - name: Release to Github
