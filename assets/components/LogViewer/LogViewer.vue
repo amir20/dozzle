@@ -12,7 +12,7 @@
             <div class="level is-justify-content-start">
               <div class="level-left">
                 <div class="level-item">
-                  <cil-find-in-page class="mr-4" />
+                  <cil:find-in-page class="mr-4" />
                 </div>
               </div>
               <div class="level-right">
@@ -72,10 +72,12 @@ watch(
     display: flex;
     word-wrap: break-word;
     padding: 0.2em 1em;
+
     &:last-child {
       scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
     }
+
     &:nth-child(odd) {
       background-color: rgba(125, 125, 125, 0.08);
     }

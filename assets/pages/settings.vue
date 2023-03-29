@@ -39,7 +39,7 @@
                   <o-button variant="primary" type="button">
                     <span class="is-capitalized">{{ hourStyle }}</span>
                     <span class="icon">
-                      <carbon-caret-down />
+                      <carbon:caret-down />
                     </span>
                   </o-button>
                 </template>
@@ -64,7 +64,7 @@
                   <o-button variant="primary" type="button">
                     <span class="is-capitalized">{{ size }}</span>
                     <span class="icon">
-                      <carbon-caret-down />
+                      <carbon:caret-down />
                     </span>
                   </o-button>
                 </template>
@@ -92,7 +92,7 @@
                   <o-button variant="primary" type="button">
                     <span class="is-capitalized">{{ lightTheme }}</span>
                     <span class="icon">
-                      <carbon-caret-down />
+                      <carbon:caret-down />
                     </span>
                   </o-button>
                 </template>
@@ -177,6 +177,7 @@ fetchNextRelease();
 
 a.next-release {
   text-decoration: underline;
+
   &:hover {
     text-decoration: none;
   }

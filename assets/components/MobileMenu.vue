@@ -29,7 +29,7 @@
         <div>
           <button class="button is-small is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
             <span class="icon">
-              <mdi-light-magnify />
+              <mdi:light-magnify />
             </span>
           </button>
         </div>
@@ -38,7 +38,7 @@
         <div>
           <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-small is-rounded">
             <span class="icon">
-              <mdi-light-cog />
+              <mdi:light-cog />
             </span>
           </router-link>
         </div>
@@ -47,7 +47,7 @@
         <div>
           <a class="button is-small is-rounded" :href="`${base}/logout`" :title="$t('button.logout')">
             <span class="icon">
-              <mdi-light-logout />
+              <mdi:light-logout />
             </span>
           </a>
         </div>

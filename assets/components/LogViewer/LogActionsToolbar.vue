@@ -4,7 +4,7 @@
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <octicon-trash-24 class="mr-4" />
+            <octicon:trash-24 class="mr-4" />
           </div>
         </div>
         <div class="level-right">
@@ -16,7 +16,7 @@
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <octicon-download-24 class="mr-4" />
+            <octicon:download-24 class="mr-4" />
           </div>
         </div>
         <div class="level-right">
@@ -29,7 +29,7 @@
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <mdi-light-magnify class="mr-4" />
+            <mdi:light-magnify class="mr-4" />
           </div>
         </div>
         <div class="level-right">

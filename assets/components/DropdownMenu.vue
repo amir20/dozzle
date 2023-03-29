@@ -3,7 +3,7 @@
     <div class="dropdown-trigger">
       <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
         <span class="icon">
-          <mdi-dots-vertical />
+          <mdi:dots-vertical />
         </span>
       </button>
     </div>
@@ -26,12 +26,14 @@
 
   & > .icon {
     height: 100%;
+
     & > svg {
       align-self: flex-start;
       height: 0.85em;
     }
   }
 }
+
 .is-top {
   & .dropdown-menu {
     top: 0;

@@ -48,7 +48,7 @@
                 @keyup.enter="onEnter()"
               />
               <span class="icon is-left">
-                <search-icon />
+                <mdi:light-magnify />
               </span>
             </p>
           </div>
@@ -75,7 +75,6 @@
 </template>
 
 <script lang="ts" setup>
-import SearchIcon from "~icons/mdi-light/magnify";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
 const { version } = config;

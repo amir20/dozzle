@@ -11,7 +11,7 @@
           @keyup.esc="resetSearch()"
         />
         <span class="icon is-left">
-          <mdi-light-magnify />
+          <mdi:light-magnify />
         </span>
       </p>
     </div>
@@ -52,6 +52,7 @@ onUnmounted(() => resetSearch());
     margin-left: 1em;
     background-color: var(--scheme-main-ter);
     opacity: 0.6;
+
     &:after,
     &:before {
       background-color: var(--text-color);
@@ -68,6 +69,7 @@ onUnmounted(() => resetSearch());
 
   .input {
     color: var(--body-color);
+
     &::placeholder {
       color: var(--border-color);
     }

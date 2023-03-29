@@ -14,7 +14,7 @@
         <div class="media">
           <div class="media-left">
             <span class="icon is-small" :class="item.state">
-              <octicon-container-24 />
+              <octicon:container-24 />
             </span>
           </div>
           <div class="media-content">
@@ -26,7 +26,7 @@
               @click.stop.prevent="addColumn(item)"
               :title="$t('tooltip.pin-column')"
             >
-              <cil-columns />
+              <cil:columns />
             </span>
           </div>
         </div>
@@ -130,9 +130,11 @@ function addColumn(container: Container) {
 
 :deep(a.dropdown-item) {
   padding-right: 1em;
+
   .media-right {
     visibility: hidden;
   }
+
   &:hover .media-right {
     visibility: visible;
   }

@@ -22,7 +22,7 @@
           @click="scrollToBottom()"
           v-show="paused"
         >
-          <mdi-light-chevron-double-down />
+          <mdi:light-chevron-double-down />
         </button>
       </transition>
     </div>
@@ -97,6 +97,7 @@ section {
   .is-scrollbar-progress {
     text-align: right;
     margin-right: 110px;
+
     .scroll-progress {
       position: fixed;
       top: 60px;
@@ -111,6 +112,7 @@ section {
   .is-scrollbar-notification {
     text-align: right;
     margin-right: 65px;
+
     button {
       position: fixed;
       bottom: 30px;
@@ -138,9 +140,11 @@ section {
     100% {
       transform: translateY(0);
     }
+
     40% {
       transform: translateY(-30px);
     }
+
     60% {
       transform: translateY(-15px);
     }
@@ -150,6 +154,7 @@ section {
   .fade-leave-active {
     transition: opacity 0.15s ease-in;
   }
+
   .fade-enter,
   .fade-leave-to {
     opacity: 0;

@@ -19,7 +19,7 @@
               <o-button variant="primary" type="button" size="small">
                 <span>{{ sessionHost }}</span>
                 <span class="icon">
-                  <carbon-caret-down />
+                  <carbon:caret-down />
                 </span>
               </o-button>
             </template>
@@ -35,21 +35,21 @@
       <div class="column is-narrow py-0 pl-0 pr-1">
         <button class="button is-rounded is-small" @click="$emit('search')" :title="$t('tooltip.search')">
           <span class="icon">
-            <mdi-light-magnify />
+            <mdi:light-magnify />
           </span>
         </button>
       </div>
       <div class="column is-narrow py-0" :class="secured ? 'pl-0 pr-1' : 'px-0'">
         <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-small">
           <span class="icon">
-            <mdi-light-cog />
+            <mdi:light-cog />
           </span>
         </router-link>
       </div>
       <div class="column is-narrow py-0 px-0" v-if="secured">
         <a class="button is-rounded is-small" :href="`${base}/logout`" :title="$t('button.logout')">
           <span class="icon">
-            <mdi-light-logout />
+            <mdi:light-logout />
           </span>
         </a>
       </div>

@@ -32,10 +32,10 @@
       v-if="!isMobile"
     >
       <span class="icon ml-2" v-if="collapseNav">
-        <mdi-light-chevron-right />
+        <mdi:light-chevron-right />
       </span>
       <span class="icon" v-else>
-        <mdi-light-chevron-left />
+        <mdi:light-chevron-left />
       </span>
     </button>
   </main>
@@ -87,6 +87,7 @@ function onResized(e: any) {
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
   min-width: 3px;
   background: var(--border-color);
+
   &:hover {
     background: var(--border-hover-color);
   }
@@ -110,6 +111,7 @@ function onResized(e: any) {
   position: fixed;
   left: 10px;
   bottom: 10px;
+
   &.collapsed {
     left: -40px;
     width: 60px;
