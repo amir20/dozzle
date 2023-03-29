@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 const { data, label, statValue } = defineProps<{ data: Point<unknown>[]; label: string; statValue: string | number }>();
 
-let selectedPoint: Point<unknown> = $ref();
+let selectedPoint: Point<unknown> | undefined = $ref();
 
 function onSelectedPoint(point: Point<unknown>) {
   selectedPoint = point;

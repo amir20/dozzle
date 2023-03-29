@@ -4,13 +4,13 @@
       class="column is-narrow"
       :data="memoryData"
       label="mem"
-      :stat-value="formatBytes(container.stat.memoryUsage)"
+      :stat-value="formatBytes(unref(container.stat).memoryUsage)"
     ></stat-monitor>
     <stat-monitor
       class="column is-narrow"
       :data="cpuData"
       label="load"
-      :stat-value="container.stat.cpu + '%'"
+      :stat-value="unref(container.stat).cpu + '%'"
     ></stat-monitor>
   </div>
 </template>

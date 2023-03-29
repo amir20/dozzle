@@ -57,7 +57,7 @@ setTitle(t("title.login"));
 let error = $ref(false);
 let username = $ref("");
 let password = $ref("");
-let form: HTMLFormElement = $ref();
+let form: HTMLFormElement | undefined = $ref();
 
 async function onLogin() {
   const response = await fetch(`${config.base}/api/validateCredentials`, {
