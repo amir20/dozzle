@@ -3,10 +3,10 @@ lockfileVersion: '6.0'
 dependencies:
   '@frsource/cypress-plugin-visual-regression-diff':
     specifier: ^3.2.14
-    version: 3.2.14(cypress@12.8.1)
+    version: 3.2.14(cypress@12.9.0)
   cypress:
-    specifier: ^12.8.1
-    version: 12.8.1
+    specifier: ^12.9.0
+    version: 12.9.0
   typescript:
     specifier: ^5.0.2
     version: 5.0.2
@@ -57,14 +57,14 @@ packages:
     resolution: {integrity: sha512-RIlQtKezeRhNuxIpIc2BuM4kNqAakIarKV/TCgx2EC+zgj1NxX3+Mc80AkJCCMO8dZUuGzbULG7295YeBQZlSA==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.8.1):
+  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.9.0):
     resolution: {integrity: sha512-g1LbLnOZrPVQjzZW9wBqVPcOZj2R9McjuuyKd3xmGRpvOkxZVhhupXaiKGZIyEG3tEYvULKRdkLY00/z/S2FfA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.5
-      cypress: 12.8.1
+      cypress: 12.9.0
       glob: 8.0.3
       meta-png: 1.0.5
       move-file: 2.1.0
@@ -73,8 +73,8 @@ packages:
       sharp: 0.31.2
     dev: false
 
-  /@types/node@14.18.38:
-    resolution: {integrity: sha512-zMRIidN2Huikv/+/U7gRPFYsXDR/7IGqFZzTLnCEj5+gkrQjsowfamaxEnyvArct5hxGA3bTxMXlYhH78V6Cew==}
+  /@types/node@14.18.42:
+    resolution: {integrity: sha512-xefu+RBie4xWlK8hwAzGh3npDz/4VhF6icY/shU+zv/1fNn+ZVG7T7CRwe9LId9sAYRPxI+59QBPuKL3WpyGRg==}
     dev: false
 
   /@types/sinonjs__fake-timers@8.1.1:
@@ -89,7 +89,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.38
+      '@types/node': 14.18.42
     dev: false
     optional: true
 
@@ -351,15 +351,15 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress@12.8.1:
-    resolution: {integrity: sha512-lIFbKdaSYAOarNLHNFa2aPZu6YSF+8UY4VRXMxJrFUnk6RvfG0AWsZ7/qle/aIz30TNUD4aOihz2ZgS4vuQVSA==}
+  /cypress@12.9.0:
+    resolution: {integrity: sha512-Ofe09LbHKgSqX89Iy1xen2WvpgbvNxDzsWx3mgU1mfILouELeXYGwIib3ItCwoRrRifoQwcBFmY54Vs0zw7QCg==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.11
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
-      '@types/node': 14.18.38
+      '@types/node': 14.18.42
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
