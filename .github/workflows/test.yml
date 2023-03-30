@@ -12,35 +12,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+        name: Install Node
         with:
-          version: 8
+          node-version: latest
+      - run: corepack enable
+      - run: pnpm --version
       - uses: actions/setup-node@v3
         with:
           node-version: latest
-          cache: pnpm
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run Typecheck
         run: pnpm run typecheck
   npm-test:
     name: JavaScript Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        name: Install Node
         with:
           node-version: latest
-          cache: pnpm
+      - run: corepack enable
+      - run: pnpm --version
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run Tests
         run: pnpm run test -- --outputTruncateLength=500
   go-test:
