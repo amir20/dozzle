@@ -1,7 +1,7 @@
 # Build assets
 FROM --platform=$BUILDPLATFORM node:19-alpine as node
 
-RUN npm install -g pnpm
+RUN corepack enable
 
 WORKDIR /build
 
