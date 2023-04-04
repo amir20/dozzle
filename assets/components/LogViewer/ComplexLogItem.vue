@@ -41,6 +41,7 @@ function validValues(obj: Record<string, any>) {
 
   &:hover {
     cursor: pointer;
+
     &::after {
       content: "expand json";
       color: var(--secondary-color);
@@ -58,6 +59,7 @@ function validValues(obj: Record<string, any>) {
 
   li {
     display: inline-block;
+
     & + li {
       margin-left: 1em;
     }

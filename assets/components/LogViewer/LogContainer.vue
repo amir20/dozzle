@@ -58,6 +58,7 @@ function onClearClicked() {
 button.delete {
   background-color: var(--scheme-main-ter);
   opacity: 0.6;
+
   &:after,
   &:before {
     background-color: var(--text-color);
