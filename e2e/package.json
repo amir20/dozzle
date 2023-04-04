@@ -8,6 +8,6 @@
   "dependencies": {
     "@frsource/cypress-plugin-visual-regression-diff": "^3.2.14",
     "cypress": "^12.9.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   }
 }
