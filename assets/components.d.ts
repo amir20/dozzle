@@ -11,8 +11,10 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
+    'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']
     'Cil:findInPage': typeof import('~icons/cil/find-in-page')['default']
+    'Cil:xCircle': typeof import('~icons/cil/x-circle')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']

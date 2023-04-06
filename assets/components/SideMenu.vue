@@ -67,18 +67,20 @@
               {{ item.name }}
             </div>
             <div class="is-flex-shrink-1 is-flex icons">
-              <span
+              <div
                 class="icon is-small pin"
                 @click.stop.prevent="store.appendActiveContainer(item)"
                 v-show="!activeContainersById[item.id]"
                 :title="$t('tooltip.pin-column')"
               >
                 <cil:columns />
-              </span>
+              </div>
 
-              <span class="icon is-small health" :health="item.health" v-if="item.health">
-                <cil:check-circle />
-              </span>
+              <div class="icon is-small health" :health="item.health" v-if="item.health" :title="item.health">
+                <cil:check-circle v-if="item.health == 'healthy'" />
+                <cil:x-circle v-else-if="item.health == 'unhealthy'" />
+                <cil:circle v-else />
+              </div>
             </div>
           </div>
         </router-link>
@@ -142,7 +144,10 @@ li.exited a {
     color: var(--green-color);
   }
 }
-
+.icons {
+  column-gap: 0.35em;
+  align-items: baseline;
+}
 a {
   .pin {
     display: none;
@@ -155,10 +160,6 @@ a {
   &:hover {
     .pin {
       display: block;
-    }
-
-    .health {
-      display: none;
     }
   }
 }
