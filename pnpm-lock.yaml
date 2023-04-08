@@ -88,8 +88,8 @@ dependencies:
 
 devDependencies:
   '@pinia/testing':
-    specifier: ^0.0.15
-    version: 0.0.15(pinia@2.0.33)(vue@3.2.47)
+    specifier: ^0.0.16
+    version: 0.0.16(pinia@2.0.33)(vue@3.2.47)
   '@types/d3-array':
     specifier: ^3.0.4
     version: 3.0.4
@@ -968,10 +968,10 @@ packages:
       bulma: 0.9.4
     dev: false
 
-  /@pinia/testing@0.0.15(pinia@2.0.33)(vue@3.2.47):
-    resolution: {integrity: sha512-Ykz5sPUVDphDMssA27+ExPSzxqfn7Y3jax77KA0AChDB6ODu31CnXIwoiUG+U5WA6ey7gzHkZh8wlnAtzVnB8g==}
+  /@pinia/testing@0.0.16(pinia@2.0.33)(vue@3.2.47):
+    resolution: {integrity: sha512-oa5kO82hzWekqMq1HTnS/b+ZM+ZKEcEApuuCTelvKK79jTxg7P026Qw8/2RbVn5eUGAvRWQu4ubObrshVqCRjQ==}
     peerDependencies:
-      pinia: '>=2.0.31'
+      pinia: '>=2.0.34'
     dependencies:
       pinia: 2.0.33(typescript@5.0.3)(vue@3.2.47)
       vue-demi: 0.13.11(vue@3.2.47)
