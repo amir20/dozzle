@@ -319,7 +319,7 @@ func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
 }
 
-var PARENTHESIS_RE = regexp.MustCompile(`\(([^)]+)\)`)
+var PARENTHESIS_RE = regexp.MustCompile(`\(([a-zA-Z]+)\)`)
 
 func findBetweenParentheses(s string) string {
 	if results := PARENTHESIS_RE.FindStringSubmatch(s); results != nil {
