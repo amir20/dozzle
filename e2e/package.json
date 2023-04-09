@@ -1,10 +1,8 @@
 {
   "name": "e2e",
-  "version": "1.0.0",
   "scripts": {
     "test": "cypress run"
   },
-  "license": "ISC",
   "dependencies": {
     "@frsource/cypress-plugin-visual-regression-diff": "^3.2.14",
     "cypress": "^12.9.0",
