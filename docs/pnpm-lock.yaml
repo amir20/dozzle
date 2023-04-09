@@ -8,8 +8,8 @@ devDependencies:
     specifier: ^0.50.6
     version: 0.50.6
   '@unocss/transformer-directives':
-    specifier: ^0.50.6
-    version: 0.50.6
+    specifier: ^0.51.0
+    version: 0.51.0
   dozzle:
     specifier: workspace:*
     version: link:..
@@ -391,6 +391,10 @@ packages:
     resolution: {integrity: sha512-WMIp8xr7YSlID2whqfRGLwagp59e6u4ckPACEpoDOW8sTeSPRZm54hxPhuWXD1SQuqcwHPMtM9nzGD8UOnqQxA==}
     dev: true
 
+  /@unocss/core@0.51.0:
+    resolution: {integrity: sha512-uU/dvbrAcRqx5j7Qm19aewtRZr1QQ0Lg6mQhfCYhXQdIlT4sjT8FtduCchWMYQdsAb/kh2eP0LXT5KAP1REnoQ==}
+    dev: true
+
   /@unocss/inspector@0.50.6:
     resolution: {integrity: sha512-6nX1YtaL67ohn/PfSSBv3npJ8qZcdc7S9X2zE6PUD/xhwtz7Bohx9I/KtmFdjJz5WeeGR7di0uYC6xsAcFLndQ==}
     dependencies:
@@ -493,6 +497,13 @@ packages:
     resolution: {integrity: sha512-deUJMZDDYQ/kGRFdGe3JrmnbiScs9Smc5Vj35Pr/MNMAM9pItbMwCgZLc+EcHgYNvO5tp0qfA9prPAIs4YpRbg==}
     dependencies:
       '@unocss/core': 0.50.6
+      css-tree: 2.3.1
+    dev: true
+
+  /@unocss/transformer-directives@0.51.0:
+    resolution: {integrity: sha512-sQgCvq5V6SsEBEBCQ2+COjWwqJ7QJl7qK6D5bSSjlc1u7QTX5WWkC7UfoH6j71jdhph+Qi+XvzBSTyXTbQD3nQ==}
+    dependencies:
+      '@unocss/core': 0.51.0
       css-tree: 2.3.1
     dev: true
 
