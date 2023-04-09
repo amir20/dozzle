@@ -7,6 +7,6 @@
     "@unocss/transformer-directives": "^0.50.6",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.50.6"
+    "unocss": "^0.51.0"
   }
 }
