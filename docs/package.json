@@ -2,11 +2,11 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@unocss/preset-typography": "^0.50.6",
-    "@unocss/reset": "^0.50.6",
-    "@unocss/transformer-directives": "^0.50.6",
+    "@unocss/preset-typography": "^0.51.2",
+    "@unocss/reset": "^0.51.2",
+    "@unocss/transformer-directives": "^0.51.2",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.50.6"
+    "unocss": "^0.51.2"
   }
 }
