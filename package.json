@@ -18,7 +18,7 @@
   "watch:server": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
   "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
   "build": "vite build",
-  "release": "release-it",
+  "release": "bumpp",
   "test": "TZ=UTC vitest",
   "typecheck": "vue-tsc --noEmit",
   "docs:dev": "vitepress dev docs --open",
@@ -69,6 +69,7 @@
   "@vitejs/plugin-vue": "4.1.0",
   "@vue/compiler-sfc": "^3.2.47",
   "@vue/test-utils": "^2.3.2",
+  "bumpp": "^9.1.0",
   "c8": "^7.13.0",
   "eventsourcemock": "^2.0.0",
   "jest-serializer-vue": "^3.1.0",
@@ -76,7 +77,6 @@
   "lint-staged": "^13.2.0",
   "npm-run-all": "^4.1.5",
   "prettier": "^2.8.7",
-  "release-it": "^15.10.1",
   "sass": "^1.60.0",
   "simple-git-hooks": "^2.8.1",
   "ts-node": "^10.9.1",
@@ -98,14 +98,5 @@
  },
  "simple-git-hooks": {
   "pre-commit": "pnpm lint-staged"
- },
- "release-it": {
-  "github": {
-   "release": false,
-   "releaseNotes": "git log --pretty=format:\"* %s (%h)\" $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))...HEAD~1"
-  },
-  "npm": {
-   "publish": false
-  }
  }
 }
