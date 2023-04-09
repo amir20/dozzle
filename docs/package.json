@@ -3,7 +3,7 @@
   "type": "module",
   "devDependencies": {
     "@unocss/preset-typography": "^0.50.6",
-    "@unocss/reset": "^0.50.6",
+    "@unocss/reset": "^0.51.0",
     "@unocss/transformer-directives": "^0.50.6",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
