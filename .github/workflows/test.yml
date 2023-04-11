@@ -79,29 +79,10 @@ jobs:
         uses: docker/bake-action@v2
         with:
           workdir: e2e
+          push: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
+          load: true
           set: |
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
-      - name: Push images
-        if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
-        uses: docker/bake-action@v2
-        with:
-          push: true
-          workdir: e2e
-          set: |
-            *.cache-from=type=gha
-            *.cache-to=type=gha,mode=max
-      - name: Set commit message for push
-        if: github.event_name == 'push'
-        run: |
-          echo "GIT_LOG_MESSAGE<<EOF" >> $GITHUB_ENV
-          git log -1 --pretty=%B ${GITHUB_SHA} >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      - name: Set commit message for pull request
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "GIT_LOG_MESSAGE<<EOF" >> $GITHUB_ENV
-          git log -1 --pretty=%B ${{github.event.pull_request.head.sha}} >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
       - name: Run tests
         run: docker compose -f e2e/docker-compose.yml up --force-recreate --exit-code-from cypress
