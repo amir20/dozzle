@@ -65,5 +65,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
+      - name: Build images
+        run: |
+          docker buildx create --use --driver=docker-container
+          cd e2e && docker buildx bake -f ./docker-compose.yml --set *.cache-to="type=gha,mode=max" --set *.cache-from="type=gha" --load
       - name: Run tests
-        run: docker compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+        run: docker compose -f e2e/docker-compose.yml up --force-recreate --exit-code-from cypress
