@@ -65,23 +65,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.5.0
-      - name: Login to DockerHub
-        if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
-        uses: docker/login-action@v2.1.0
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
-        uses: docker/bake-action@v2
-        with:
-          workdir: e2e
-          push: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
-          set: |
-            *.cache-from=type=gha
-            *.cache-to=type=gha,mode=max
       - name: Run tests
-        run: docker compose -f e2e/docker-compose.yml up --force-recreate --exit-code-from cypress
+        run: docker compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
