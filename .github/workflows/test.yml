@@ -80,7 +80,6 @@ jobs:
         with:
           workdir: e2e
           push: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork }}
-          load: true
           set: |
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
