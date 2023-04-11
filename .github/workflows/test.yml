@@ -104,4 +104,4 @@ jobs:
           git log -1 --pretty=%B ${{github.event.pull_request.head.sha}} >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Run tests
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+        run: docker compose -f e2e/docker-compose.yml up --force-recreate --exit-code-from cypress
