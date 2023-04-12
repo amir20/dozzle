@@ -21,7 +21,7 @@
       </template>
       <template v-else>
         <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
-        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold">{{ value }}</span>
+        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold" v-html="value"></span>
       </template>
     </li>
   </ul>
