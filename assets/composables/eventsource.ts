@@ -1,4 +1,5 @@
 import { type ComputedRef, type Ref } from "vue";
+import { encodeXML } from "entities";
 import debounce from "lodash.debounce";
 import {
   type LogEvent,
@@ -11,7 +12,12 @@ import {
 import { Container } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
-  const e = JSON.parse(data) as LogEvent;
+  const e = JSON.parse(data, (key, value) => {
+    if (typeof value === "string") {
+      return encodeXML(value);
+    }
+    return value;
+  }) as LogEvent;
   return asLogEntry(e);
 }
 
