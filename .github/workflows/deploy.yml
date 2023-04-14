@@ -42,10 +42,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Build images
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f e2e/docker-compose.yml build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build
+        uses: docker/bake-action@v2
+        with:
+          workdir: ./e2e
+          load: true
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
       - name: Run tests
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+        run: docker compose -f e2e/docker-compose.yml up --exit-code-from cypress
   buildx:
     needs: [go-test, npm-test, int-test]
     name: Release
