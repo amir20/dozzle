@@ -34,7 +34,7 @@
   "@intlify/unplugin-vue-i18n": "^0.10.0",
   "@oruga-ui/oruga-next": "^0.5.10",
   "@oruga-ui/theme-bulma": "^0.2.9",
-  "@vueuse/core": "^9.13.0",
+  "@vueuse/core": "^10.0.0",
   "@vueuse/integrations": "^9.13.0",
   "@vueuse/router": "^9.13.0",
   "ansi-to-html": "^0.7.2",
