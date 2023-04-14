@@ -5,18 +5,17 @@ import { onMounted, ref } from "vue";
 const isDark = ref(false);
 onMounted(() => {
   isDark.value = document.documentElement.classList.contains("dark");
+  useMutationObserver(
+    document.documentElement,
+    (mutations) => {
+      isDark.value = document.documentElement.classList.contains("dark");
+    },
+    {
+      attributes: true,
+      attributeFilter: ["class"],
+    }
+  );
 });
-
-useMutationObserver(
-  document.documentElement,
-  (mutations) => {
-    isDark.value = document.documentElement.classList.contains("dark");
-  },
-  {
-    attributes: true,
-    attributeFilter: ["class"],
-  }
-);
 </script>
 
 <template>
