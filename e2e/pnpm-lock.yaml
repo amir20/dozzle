@@ -3,10 +3,10 @@ lockfileVersion: '6.0'
 dependencies:
   '@frsource/cypress-plugin-visual-regression-diff':
     specifier: ^3.2.14
-    version: 3.2.14(cypress@12.9.0)
+    version: 3.2.14(cypress@12.10.0)
   cypress:
-    specifier: ^12.9.0
-    version: 12.9.0
+    specifier: ^12.10.0
+    version: 12.10.0
   typescript:
     specifier: ^5.0.4
     version: 5.0.4
@@ -57,14 +57,14 @@ packages:
     resolution: {integrity: sha512-RIlQtKezeRhNuxIpIc2BuM4kNqAakIarKV/TCgx2EC+zgj1NxX3+Mc80AkJCCMO8dZUuGzbULG7295YeBQZlSA==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.9.0):
+  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.10.0):
     resolution: {integrity: sha512-g1LbLnOZrPVQjzZW9wBqVPcOZj2R9McjuuyKd3xmGRpvOkxZVhhupXaiKGZIyEG3tEYvULKRdkLY00/z/S2FfA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.5
-      cypress: 12.9.0
+      cypress: 12.10.0
       glob: 8.0.3
       meta-png: 1.0.5
       move-file: 2.1.0
@@ -313,8 +313,8 @@ packages:
       color-string: 1.9.1
     dev: false
 
-  /colorette@2.0.19:
-    resolution: {integrity: sha512-3tlv/dIP7FWvj3BsbHrGLJ6l/oKh1O3TcgBqMn+yyCagOxc23fyzDS6HypQbgxWbkpDnf52p1LuR4eWDQ/K9WQ==}
+  /colorette@2.0.20:
+    resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
     dev: false
 
   /combined-stream@1.0.8:
@@ -324,8 +324,8 @@ packages:
       delayed-stream: 1.0.0
     dev: false
 
-  /commander@5.1.0:
-    resolution: {integrity: sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==}
+  /commander@6.2.1:
+    resolution: {integrity: sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==}
     engines: {node: '>= 6'}
     dev: false
 
@@ -351,8 +351,8 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress@12.9.0:
-    resolution: {integrity: sha512-Ofe09LbHKgSqX89Iy1xen2WvpgbvNxDzsWx3mgU1mfILouELeXYGwIib3ItCwoRrRifoQwcBFmY54Vs0zw7QCg==}
+  /cypress@12.10.0:
+    resolution: {integrity: sha512-Y0wPc221xKKW1/4iAFCphkrG2jNR4MjOne3iGn4mcuCaE7Y5EtXL83N8BzRsAht7GYfWVjJ/UeTqEdDKHz39HQ==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     hasBin: true
     requiresBuild: true
@@ -371,7 +371,7 @@ packages:
       check-more-types: 2.24.0
       cli-cursor: 3.1.0
       cli-table3: 0.6.3
-      commander: 5.1.0
+      commander: 6.2.1
       common-tags: 1.8.2
       dayjs: 1.11.7
       debug: 4.3.4(supports-color@8.1.1)
@@ -394,7 +394,7 @@ packages:
       pretty-bytes: 5.6.0
       proxy-from-env: 1.0.0
       request-progress: 3.0.0
-      semver: 7.3.8
+      semver: 7.5.0
       supports-color: 8.1.1
       tmp: 0.2.1
       untildify: 4.0.0
@@ -810,7 +810,7 @@ packages:
         optional: true
     dependencies:
       cli-truncate: 2.1.0
-      colorette: 2.0.19
+      colorette: 2.0.20
       enquirer: 2.3.6
       log-update: 4.0.0
       p-map: 4.0.0
@@ -1120,6 +1120,14 @@ packages:
 
   /semver@7.3.8:
     resolution: {integrity: sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+    dev: false
+
+  /semver@7.5.0:
+    resolution: {integrity: sha512-+XC0AD/R7Q2mPSRuy2Id0+CGTZ98+8f+KvwirxOKIEyid+XSx6HbC63p+O4IndTHuX5Z+JxQ0TghCkO5Cg/2HA==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
