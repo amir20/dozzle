@@ -50,7 +50,6 @@
   "fuse.js": "^6.6.2",
   "lodash.debounce": "^4.0.8",
   "pinia": "^2.0.35",
-  "semver": "^7.5.0",
   "splitpanes": "^3.1.5",
   "vue": "^3.2.47",
   "vue-i18n": "^9.2.2",

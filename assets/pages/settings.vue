@@ -131,7 +131,6 @@
 </template>
 
 <script lang="ts" setup>
-import gt from "semver/functions/gt";
 import {
   search,
   lightTheme,
@@ -147,7 +146,7 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 
-const currentVersion = $ref(config.version);
+const currentVersion = config.version;
 let nextRelease = $ref({ html_url: "", name: "" });
 let hasUpdate = $ref(false);
 
@@ -156,7 +155,7 @@ async function fetchNextRelease() {
     const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
       const release = await response.json();
-      hasUpdate = gt(release.tag_name, currentVersion);
+      hasUpdate = release.tag_name.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
       nextRelease = release;
     }
   } else {
