@@ -67,6 +67,7 @@
   "@types/lodash.debounce": "^4.0.7",
   "@types/node": "^18.15.13",
   "@types/semver": "^7.3.13",
+  "@vitejs/plugin-basic-ssl": "^1.0.1",
   "@vitejs/plugin-vue": "4.1.0",
   "@vue/compiler-sfc": "^3.2.47",
   "@vue/test-utils": "^2.3.2",

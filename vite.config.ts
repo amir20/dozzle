@@ -8,6 +8,8 @@ import IconsResolver from "unplugin-icons/resolver";
 import Pages from "vite-plugin-pages";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
 
 export default defineConfig(() => ({
   resolve: {
@@ -64,6 +66,7 @@ export default defineConfig(() => ({
       strictMessage: false,
       include: [path.resolve(__dirname, "locales/**")],
     }),
+    basicSsl()
   ],
   server: {
     proxy: {
