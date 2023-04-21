@@ -155,7 +155,7 @@ async function fetchNextRelease() {
     const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
       const release = await response.json();
-      hasUpdate = release.tag_name.localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
+      hasUpdate = release.tag_name.slice(1).localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
       nextRelease = release;
     }
   } else {
