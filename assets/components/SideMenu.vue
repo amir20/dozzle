@@ -56,7 +56,7 @@
     </div>
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
-      <li v-for="item in visibleContainers" :key="item.id" :class="item.state">
+      <li v-for="item in sortedContainers" :key="item.id" :class="item.state">
         <router-link
           :to="{ name: 'container-id', params: { id: item.id } }"
           active-class="is-active"
@@ -100,6 +100,18 @@ const { base, secured, hostname } = config;
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
+
+const sortedContainers = computed(() =>
+  visibleContainers.value.sort((a, b) => {
+    if (a.state === "running" && b.state !== "running") {
+      return -1;
+    } else if (a.state !== "running" && b.state === "running") {
+      return 1;
+    } else {
+      return a.name.localeCompare(b.name);
+    }
+  })
+);
 
 const activeContainersById = computed(() =>
   activeContainers.value.reduce((acc, item) => {
