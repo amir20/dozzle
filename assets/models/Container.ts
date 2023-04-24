@@ -4,9 +4,13 @@ import { Ref } from "vue";
 
 type Stat = Omit<ContainerStat, "id">;
 
+const SWARM_ID_REGEX = /\.([a-z0-9]{25})$/i;
+
 export class Container {
   public stat: Ref<Stat>;
   private readonly throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
+  public readonly swarmId: string | null = null;
+  public readonly isSwarm: boolean = false;
 
   constructor(
     public readonly id: string,
@@ -20,6 +24,14 @@ export class Container {
   ) {
     this.stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
     this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });
+
+    const match = name.match(SWARM_ID_REGEX);
+
+    if (match) {
+      this.swarmId = match[1];
+      this.name = name.replace(`.${this.swarmId}`, "");
+      this.isSwarm = true;
+    }
   }
 
   public getStatHistory() {
