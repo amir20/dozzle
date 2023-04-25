@@ -64,7 +64,8 @@
         >
           <div class="container is-flex is-align-items-center">
             <div class="is-flex-grow-1 is-ellipsis">
-              {{ item.name }}
+              <span class="has-text-weight-semibold">{{ item.name }}</span>
+              <span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">.{{ item.swarmId }}</span>
             </div>
             <div class="is-flex-shrink-1 is-flex icons">
               <div
@@ -133,6 +134,9 @@ aside {
   }
 }
 
+.has-light-opacity {
+  opacity: 0.5;
+}
 .logo {
   width: 122px;
   height: 54px;
