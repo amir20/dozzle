@@ -6,7 +6,7 @@
         <cil:x-circle v-else-if="container.health == 'unhealthy'" />
         <cil:circle v-else />
       </span>
-      {{ container.name }}
+      {{ container.name }}<span v-if="container.isSwarm">.{{ container.swarmId }}</span>
       <span class="tag is-dark">{{ container.image.replace(/@sha.*/, "") }}</span>
     </span>
   </div>
