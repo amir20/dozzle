@@ -83,20 +83,7 @@
             </div>
           </router-link>
           <template #content>
-            <div>
-              <span class="has-text-weight-light"> RUNNING </span>
-              <span class="has-text-weight-semibold">
-                <distance-time :date="item.created" strict :suffix="false"></distance-time>
-              </span>
-            </div>
-            <div>
-              <span class="has-text-weight-light"> LOAD </span>
-              <span class="has-text-weight-semibold"> {{ item.getLastStat().snapshot.cpu }}% </span>
-            </div>
-            <div>
-              <span class="has-text-weight-light"> MEM </span>
-              <span class="has-text-weight-semibold"> {{ formatBytes(item.getLastStat().snapshot.memoryUsage) }} </span>
-            </div>
+            <container-popup :container="item"></container-popup>
           </template>
         </popup>
       </li>
