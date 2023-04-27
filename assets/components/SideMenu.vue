@@ -78,11 +78,7 @@
                   <cil:columns />
                 </div>
 
-                <div class="icon is-small health" :health="item.health" v-if="item.health" :title="item.health">
-                  <cil:check-circle v-if="item.health == 'healthy'" />
-                  <cil:x-circle v-else-if="item.health == 'unhealthy'" />
-                  <cil:circle v-else />
-                </div>
+                <container-health :health="item.health"></container-health>
               </div>
             </div>
           </router-link>
@@ -99,7 +95,7 @@
             </div>
             <div>
               <span class="has-text-weight-light"> MEM </span>
-              <span class="has-text-weight-semibold"> {{ item.getLastStat().snapshot.memory }} </span>
+              <span class="has-text-weight-semibold"> {{ formatBytes(item.getLastStat().snapshot.memoryUsage) }} </span>
             </div>
           </template>
         </popup>
@@ -169,15 +165,6 @@ li.exited a {
   color: #777;
 }
 
-.health {
-  &[health="unhealthy"] {
-    color: var(--red-color);
-  }
-
-  &[health="healthy"] {
-    color: var(--green-color);
-  }
-}
 .icons {
   column-gap: 0.35em;
   align-items: baseline;

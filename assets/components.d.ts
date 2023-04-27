@@ -17,6 +17,7 @@ declare module '@vue/runtime-core' {
     'Cil:findInPage': typeof import('~icons/cil/find-in-page')['default']
     'Cil:xCircle': typeof import('~icons/cil/x-circle')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
+    ContainerHealth: typeof import('./components/LogViewer/ContainerHealth.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
     DateTime: typeof import('./components/DateTime.vue')['default']
