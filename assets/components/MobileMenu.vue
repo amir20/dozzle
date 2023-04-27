@@ -8,8 +8,20 @@
           </svg>
         </router-link>
       </div>
-      <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container-id'">
-        {{ allContainersById[route.params.id as string]?.name }}
+      <div class="column ml-4" v-if="config.hosts.length > 1">
+        <div class="mb-3">
+          <o-dropdown v-model="sessionHost" aria-role="list">
+            <template #trigger>
+              <o-button variant="primary" type="button" size="small">
+                <span>{{ sessionHost }}</span>
+              </o-button>
+            </template>
+
+            <o-dropdown-item :value="value" aria-role="listitem" v-for="value in config.hosts" :key="value">
+              <span>{{ value }}</span>
+            </o-dropdown-item>
+          </o-dropdown>
+        </div>
       </div>
 
       <div class="column is-narrow push-right">
@@ -72,6 +84,7 @@
 </template>
 
 <script lang="ts" setup>
+import { sessionHost } from "@/composables/storage";
 const { base, secured } = config;
 const store = useContainerStore();
 const route = useRoute();
