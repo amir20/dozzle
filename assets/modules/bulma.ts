@@ -19,9 +19,7 @@ export const install = (app: App) => {
     .use(Button)
     .use(Dropdown)
     .use(Switch)
-    .use(Tooltip)
     .use(Modal)
-    .use(Radio)
     .use(Field)
     .use(Skeleton)
     .use(Config, bulmaConfig);
