@@ -69,6 +69,7 @@ export const useContainerStore = defineStore("container", () => {
   const setContainers = (newContainers: ContainerJson[]) => {
     containers.value = newContainers.map((c) => {
       const existing = allContainersById.value[c.id];
+      console.debug(`Creating container name: ${c.name}, existing: ${!!existing}`);
       if (existing) {
         existing.status = c.status;
         existing.state = c.state;

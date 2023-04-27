@@ -17,5 +17,8 @@ onMounted(() => {
   setTitle(currentContainer.value?.name);
 });
 
-watchEffect(() => setTitle(currentContainer.value?.name));
+watchEffect(() => {
+  setTitle(currentContainer.value?.name);
+  console.debug(`Showing container name: ${currentContainer.value?.name}, id: ${id}`);
+});
 </script>
