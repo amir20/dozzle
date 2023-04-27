@@ -1,5 +1,5 @@
 <template>
-  <relative-time :date="date" class="date"></relative-time>
+  <date-time :date="date" class="date"></date-time>
 </template>
 <script lang="ts" setup>
 defineProps<{

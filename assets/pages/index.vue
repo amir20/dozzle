@@ -65,7 +65,7 @@
             <span class="name">{{ item.name }}</span>
 
             <div class="subtitle is-7 status">
-              <past-time :date="item.created"></past-time>
+              <distance-time :date="item.created"></distance-time>
             </div>
           </router-link>
         </div>
