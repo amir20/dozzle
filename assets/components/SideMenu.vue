@@ -57,34 +57,35 @@
     <p class="menu-label is-hidden-mobile">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" v-if="ready">
       <li v-for="item in sortedContainers" :key="item.id" :class="item.state">
-        <router-link
-          :to="{ name: 'container-id', params: { id: item.id } }"
-          active-class="is-active"
-          :title="item.name"
-        >
-          <div class="container is-flex is-align-items-center">
-            <div class="is-flex-grow-1 is-ellipsis">
-              <span class="has-text-weight-semibold">{{ item.name }}</span
-              ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">.{{ item.swarmId }}</span>
-            </div>
-            <div class="is-flex-shrink-1 is-flex icons">
-              <div
-                class="icon is-small pin"
-                @click.stop.prevent="store.appendActiveContainer(item)"
-                v-show="!activeContainersById[item.id]"
-                :title="$t('tooltip.pin-column')"
-              >
-                <cil:columns />
+        <popup>
+          <router-link
+            :to="{ name: 'container-id', params: { id: item.id } }"
+            active-class="is-active"
+            :title="item.name"
+          >
+            <div class="container is-flex is-align-items-center">
+              <div class="is-flex-grow-1 is-ellipsis">
+                <span class="has-text-weight-semibold">{{ item.name }}</span
+                ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">.{{ item.swarmId }}</span>
               </div>
+              <div class="is-flex-shrink-1 is-flex icons">
+                <div
+                  class="icon is-small pin"
+                  @click.stop.prevent="store.appendActiveContainer(item)"
+                  v-show="!activeContainersById[item.id]"
+                  :title="$t('tooltip.pin-column')"
+                >
+                  <cil:columns />
+                </div>
 
-              <div class="icon is-small health" :health="item.health" v-if="item.health" :title="item.health">
-                <cil:check-circle v-if="item.health == 'healthy'" />
-                <cil:x-circle v-else-if="item.health == 'unhealthy'" />
-                <cil:circle v-else />
+                <container-health :health="item.health"></container-health>
               </div>
             </div>
-          </div>
-        </router-link>
+          </router-link>
+          <template #content>
+            <container-popup :container="item"></container-popup>
+          </template>
+        </popup>
       </li>
     </ul>
     <ul class="menu-list is-hidden-mobile loading" v-else>
@@ -151,15 +152,6 @@ li.exited a {
   color: #777;
 }
 
-.health {
-  &[health="unhealthy"] {
-    color: var(--red-color);
-  }
-
-  &[health="healthy"] {
-    color: var(--green-color);
-  }
-}
 .icons {
   column-gap: 0.35em;
   align-items: baseline;
