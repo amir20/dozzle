@@ -88,7 +88,7 @@ import { sessionHost } from "@/composables/storage";
 const { base, secured } = config;
 const store = useContainerStore();
 const route = useRoute();
-const { visibleContainers, allContainersById } = storeToRefs(store);
+const { visibleContainers } = storeToRefs(store);
 
 let showNav = $ref(false);
 
