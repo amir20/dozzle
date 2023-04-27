@@ -42,6 +42,7 @@ declare module '@vue/runtime-core' {
     'Octicon:download24': typeof import('~icons/octicon/download24')['default']
     'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
     PastTime: typeof import('./components/PastTime.vue')['default']
+    Popup: typeof import('./components/Popup.vue')['default']
     RelativeTime: typeof import('./components/RelativeTime.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
