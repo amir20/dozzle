@@ -18,9 +18,10 @@ let trigger: HTMLElement | null = $ref(null);
 
 function onMouseEnter(e: MouseEvent) {
   show.value = true;
-  if (e.target && content) {
-    const x = e.target.offsetLeft + e.target.offsetWidth + 10;
-    const y = e.target.offsetTop;
+  if (e.target && content && e.target instanceof Element) {
+    const box = e.target.getBoundingClientRect();
+    const x = box.left + box.width + 10;
+    const y = box.top;
 
     content.style.left = `${x}px`;
     content.style.top = `${y}px`;
