@@ -46,6 +46,13 @@ const store = useContainerStore();
 
 const container = store.currentContainer($$(id));
 
+watch(() => container.value?.name, () => {
+  console.debug(`Found container from store name: ${container.value?.name}, id: ${id}`);
+},
+{
+  immediate: true,
+});
+
 provide("container", container);
 
 const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
