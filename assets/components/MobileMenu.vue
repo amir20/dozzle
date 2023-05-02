@@ -8,20 +8,8 @@
           </svg>
         </router-link>
       </div>
-      <div class="column ml-4" v-if="config.hosts.length > 1">
-        <div class="mb-3">
-          <o-dropdown v-model="sessionHost" aria-role="list">
-            <template #trigger>
-              <o-button variant="primary" type="button" size="small">
-                <span>{{ sessionHost }}</span>
-              </o-button>
-            </template>
-
-            <o-dropdown-item :value="value" aria-role="listitem" v-for="value in config.hosts" :key="value">
-              <span>{{ value }}</span>
-            </o-dropdown-item>
-          </o-dropdown>
-        </div>
+      <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container-id'">
+        {{ allContainersById[route.params.id as string]?.name }}
       </div>
 
       <div class="column is-narrow push-right">
@@ -37,6 +25,23 @@
     </div>
 
     <div class="menu-label level is-mobile is-hidden-mobile" :class="{ 'is-active': showNav }">
+      <div v-if="config.hosts.length > 1">
+        <o-dropdown v-model="sessionHost" aria-role="list">
+          <template #trigger>
+            <o-button variant="primary" type="button" size="small">
+              <span>{{ sessionHost }}</span>
+              <span class="icon">
+                <carbon:caret-down />
+              </span>
+            </o-button>
+          </template>
+
+          <o-dropdown-item :value="value" aria-role="listitem" v-for="value in config.hosts" :key="value">
+            <span>{{ value }}</span>
+          </o-dropdown-item>
+        </o-dropdown>
+      </div>
+
       <div class="level-item has-text-centered">
         <div>
           <button class="button is-small is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
@@ -84,11 +89,11 @@
 </template>
 
 <script lang="ts" setup>
-import { sessionHost } from "@/composables/storage";
 const { base, secured } = config;
+import { sessionHost } from "@/composables/storage";
 const store = useContainerStore();
 const route = useRoute();
-const { visibleContainers } = storeToRefs(store);
+const { visibleContainers, allContainersById } = storeToRefs(store);
 
 let showNav = $ref(false);
 
