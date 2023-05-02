@@ -74,7 +74,7 @@
   "c8": "^7.13.0",
   "eventsourcemock": "^2.0.0",
   "jest-serializer-vue": "^3.1.0",
-  "jsdom": "^21.1.1",
+  "jsdom": "^22.0.0",
   "lint-staged": "^13.2.2",
   "npm-run-all": "^4.1.5",
   "prettier": "^2.8.8",
