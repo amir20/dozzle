@@ -1,8 +1,8 @@
 <template>
-  <div @mouseenter="onMouseEnter" @mouseleave="show = false" ref="trigger"><slot></slot></div>
+  <div @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" ref="trigger"><slot></slot></div>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-show="show && delayedShow" class="content" ref="content">
+      <div v-show="show && (delayedShow || glopbalShow)" class="content" ref="content">
         <slot name="content"></slot>
       </div>
     </Transition>
@@ -10,14 +10,18 @@
 </template>
 
 <script lang="ts" setup>
-import { refDebounced } from "@vueuse/core";
-let show = ref(false);
+import { globalShowPopup } from "@/composables/popup";
+
+let glopbalShow = globalShowPopup();
+let show = ref(glopbalShow.value);
 let delayedShow = refDebounced(show, 1000);
+
 let content: HTMLElement | null = $ref(null);
 let trigger: HTMLElement | null = $ref(null);
 
 function onMouseEnter(e: MouseEvent) {
   show.value = true;
+  glopbalShow.value = true;
   if (e.target && content && e.target instanceof Element) {
     const { left, top, width } = e.target.getBoundingClientRect();
     const x = left + width + 10;
@@ -26,6 +30,11 @@ function onMouseEnter(e: MouseEvent) {
     content.style.left = `${x}px`;
     content.style.top = `${y}px`;
   }
+}
+
+function onMouseLeave() {
+  show.value = false;
+  glopbalShow.value = false;
 }
 </script>
 
