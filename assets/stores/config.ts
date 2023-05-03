@@ -31,4 +31,8 @@ if (config.version == "{{ .Version }}") {
   config.hosts = (config.hosts as string).split(",");
 }
 
-export default config as Config;
+export default config as Omit<Config, "hosts" | "authorizationNeeded" | "secured"> & {
+  hosts: string[];
+  authorizationNeeded: boolean;
+  secured: boolean;
+};
