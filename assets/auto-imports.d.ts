@@ -51,6 +51,7 @@ declare global {
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const getDeep: typeof import('./utils/index')['getDeep']
+  const globalShowPopup: typeof import('./composables/popup')['globalShowPopup']
   const h: typeof import('vue')['h']
   const hourStyle: typeof import('./composables/settings')['hourStyle']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
@@ -120,7 +121,6 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const showAllContainers: typeof import('./composables/settings')['showAllContainers']
-  const showPopup: typeof import('./composables/popup')['showPopup']
   const showTimestamp: typeof import('./composables/settings')['showTimestamp']
   const size: typeof import('./composables/settings')['size']
   const smallerScrollbars: typeof import('./composables/settings')['smallerScrollbars']
@@ -385,6 +385,7 @@ declare module 'vue' {
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
+    readonly globalShowPopup: UnwrapRef<typeof import('./composables/popup')['globalShowPopup']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hourStyle: UnwrapRef<typeof import('./composables/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
@@ -454,7 +455,6 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./composables/settings')['showAllContainers']>
-    readonly showPopup: UnwrapRef<typeof import('./composables/popup')['showPopup']>
     readonly showTimestamp: UnwrapRef<typeof import('./composables/settings')['showTimestamp']>
     readonly size: UnwrapRef<typeof import('./composables/settings')['size']>
     readonly smallerScrollbars: UnwrapRef<typeof import('./composables/settings')['smallerScrollbars']>

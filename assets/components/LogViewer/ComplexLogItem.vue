@@ -7,11 +7,12 @@
       <log-level :level="logEntry.level"></log-level>
     </div>
     <div class="column">
-      <ul class="fields" :class="{ expanded }" @click="expanded = !expanded">
-        <li v-for="(value, name) in validValues(logEntry.message)">
-          <span class="has-text-grey">{{ name }}=</span>
-          <span class="has-text-weight-bold" v-html="markSearch(value)"></span>
+      <ul class="fields" :class="{ expanded }" @click="expandToggle()">
+        <li v-for="(value, name) in validValues">
+          <span class="has-text-grey">{{ name }}=</span
+          ><span class="has-text-weight-bold" v-html="markSearch(value)"></span>
         </li>
+        <li class="has-text-grey" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
       <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
     </div>
@@ -27,11 +28,11 @@ const { logEntry } = defineProps<{
   visibleKeys: string[][];
 }>();
 
-let expanded = $ref(false);
+const [expanded, expandToggle] = useToggle();
 
-function validValues(obj: Record<string, any>) {
-  return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined));
-}
+const validValues = computed(() => {
+  return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
+});
 </script>
 
 <style lang="scss" scoped>
