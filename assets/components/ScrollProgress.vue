@@ -29,7 +29,7 @@ const root = ref<HTMLElement>();
 const store = useContainerStore();
 const { activeContainers } = storeToRefs(store);
 const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
-const { y: scrollY } = useScroll(scrollElement, { throttle: 100 });
+const { y: scrollY } = useScroll(scrollElement as Ref<HTMLElement | Document>, { throttle: 100 });
 
 onMounted(() => {
   watch(
