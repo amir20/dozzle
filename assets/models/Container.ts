@@ -4,7 +4,7 @@ import { Ref } from "vue";
 
 type Stat = Omit<ContainerStat, "id">;
 
-const SWARM_ID_REGEX = /\.([a-z0-9]{25})$/i;
+const SWARM_ID_REGEX = /(\.[a-z0-9]{25})+$/i;
 
 export class Container {
   public stat: Ref<Stat>;
