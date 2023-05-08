@@ -65,7 +65,7 @@
           >
             <div class="container is-flex is-align-items-center">
               <div class="is-flex-grow-1 is-ellipsis">
-                <span class="has-text-weight-semibold">{{ item.name }}</span
+                <span>{{ item.name }}</span
                 ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">.{{ item.swarmId }}</span>
               </div>
               <div class="is-flex-shrink-1 is-flex icons">
