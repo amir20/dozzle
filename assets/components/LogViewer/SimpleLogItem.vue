@@ -13,7 +13,7 @@
 import { SimpleLogEntry } from "@/models/LogEntry";
 import AnsiConvertor from "ansi-to-html";
 
-const ansiConvertor = new AnsiConvertor({ escapeXML: false });
+const ansiConvertor = new AnsiConvertor({ escapeXML: false, fg: "var(--text-color)" });
 defineProps<{
   logEntry: SimpleLogEntry;
 }>();
