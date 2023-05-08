@@ -88,8 +88,8 @@ dependencies:
 
 devDependencies:
   '@pinia/testing':
-    specifier: ^0.0.16
-    version: 0.0.16(pinia@2.0.35)(vue@3.2.47)
+    specifier: ^0.1.0
+    version: 0.1.0(pinia@2.0.35)(vue@3.2.47)
   '@types/d3-array':
     specifier: ^3.0.4
     version: 3.0.4
@@ -856,13 +856,13 @@ packages:
       bulma: 0.9.4
     dev: false
 
-  /@pinia/testing@0.0.16(pinia@2.0.35)(vue@3.2.47):
-    resolution: {integrity: sha512-oa5kO82hzWekqMq1HTnS/b+ZM+ZKEcEApuuCTelvKK79jTxg7P026Qw8/2RbVn5eUGAvRWQu4ubObrshVqCRjQ==}
+  /@pinia/testing@0.1.0(pinia@2.0.35)(vue@3.2.47):
+    resolution: {integrity: sha512-6lcP6QvQNrFtjslppFjfnpiyRnEKrwgro/TjujLlHI8HwWbdfHfMU4BpciuLLLuuSIENIH9zrevl+eAvmUgh7A==}
     peerDependencies:
-      pinia: '>=2.0.34'
+      pinia: '>=2.0.36'
     dependencies:
       pinia: 2.0.35(typescript@5.0.4)(vue@3.2.47)
-      vue-demi: 0.13.11(vue@3.2.47)
+      vue-demi: 0.14.0(vue@3.2.47)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -4429,21 +4429,6 @@ packages:
 
   /vscode-textmate@8.0.0:
     resolution: {integrity: sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==}
-    dev: true
-
-  /vue-demi@0.13.11(vue@3.2.47):
-    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      vue: 3.2.47
     dev: true
 
   /vue-demi@0.14.0(vue@3.2.47):
