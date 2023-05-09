@@ -66,9 +66,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-          name: Install Node
-          with:
-            node-version: latest
+        name: Install Node
+        with:
+          node-version: latest
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v3
