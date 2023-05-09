@@ -61,19 +61,31 @@ jobs:
         run: make test SKIP_ASSET=1
   int-test:
     name: Integration Tests
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Build
-        uses: docker/bake-action@v3
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+        name: Install Node
         with:
-          workdir: ./e2e
-          load: true
-          set: |
-            *.cache-from=type=gha
-            *.cache-to=type=gha,mode=max
-      - name: Run tests
-        run: docker compose -f e2e/docker-compose.yml up --exit-code-from cypress
+          node-version: latest
+    - run: corepack enable
+    - run: pnpm --version
+    - uses: actions/setup-node@v3
+      with:
+        node-version: latest
+        cache: "pnpm"
+        cache-dependency-path: "**/pnpm-lock.yaml"
+    - name: Install dependencies
+      run: pnpm install
+    - name: Install Playwright Browsers
+      run: pnpm playwright install --with-deps
+    - name: Run Playwright tests
+      run: pnpm playwright test
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+
