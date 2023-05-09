@@ -80,6 +80,15 @@ jobs:
         run: pnpm install
       - name: Install Playwright Browsers
         run: pnpm playwright install --with-deps
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build
+        uses: docker/bake-action@v3
+        with:
+          load: true
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
       - name: Run Playwright tests
         run: pnpm playwright test
       - uses: actions/upload-artifact@v3
