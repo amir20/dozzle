@@ -4,7 +4,7 @@
       <container-health :health="container.health"></container-health>
     </div>
     <div class="column is-ellipsis">
-      {{ container.name }}<span v-if="container.isSwarm">.{{ container.swarmId }}</span>
+      {{ container.name }}<span v-if="container.isSwarm">{{ container.swarmId }}</span>
       <span class="tag is-dark">{{ container.image.replace(/@sha.*/, "") }}</span>
     </div>
   </div>

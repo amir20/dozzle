@@ -29,7 +29,7 @@ export class Container {
 
     if (match) {
       this.swarmId = match[1];
-      this.name = name.replace(`.${this.swarmId}`, "");
+      this.name = name.replace(`${this.swarmId}`, "");
       this.isSwarm = true;
     }
   }
