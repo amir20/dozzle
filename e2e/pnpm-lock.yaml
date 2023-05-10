@@ -3,10 +3,10 @@ lockfileVersion: '6.0'
 dependencies:
   '@frsource/cypress-plugin-visual-regression-diff':
     specifier: ^3.2.14
-    version: 3.2.14(cypress@12.11.0)
+    version: 3.2.14(cypress@12.12.0)
   cypress:
-    specifier: ^12.11.0
-    version: 12.11.0
+    specifier: ^12.12.0
+    version: 12.12.0
   typescript:
     specifier: ^5.0.4
     version: 5.0.4
@@ -57,14 +57,14 @@ packages:
     resolution: {integrity: sha512-RIlQtKezeRhNuxIpIc2BuM4kNqAakIarKV/TCgx2EC+zgj1NxX3+Mc80AkJCCMO8dZUuGzbULG7295YeBQZlSA==}
     dev: false
 
-  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.11.0):
+  /@frsource/cypress-plugin-visual-regression-diff@3.2.14(cypress@12.12.0):
     resolution: {integrity: sha512-g1LbLnOZrPVQjzZW9wBqVPcOZj2R9McjuuyKd3xmGRpvOkxZVhhupXaiKGZIyEG3tEYvULKRdkLY00/z/S2FfA==}
     engines: {node: '>=10'}
     peerDependencies:
       cypress: '>=4.5.0'
     dependencies:
       '@frsource/base64': 1.0.5
-      cypress: 12.11.0
+      cypress: 12.12.0
       glob: 8.0.3
       meta-png: 1.0.5
       move-file: 2.1.0
@@ -73,8 +73,8 @@ packages:
       sharp: 0.31.2
     dev: false
 
-  /@types/node@14.18.43:
-    resolution: {integrity: sha512-n3eFEaoem0WNwLux+k272P0+aq++5o05bA9CfiwKPdYPB5ZambWKdWoeHy7/OJiizMhzg27NLaZ6uzjLTzXceQ==}
+  /@types/node@14.18.46:
+    resolution: {integrity: sha512-n4yVT5FuY5NCcGHCosQSGvvCT74HhowymPN2OEcsHPw6U1NuxV9dvxWbrM2dnBukWjdMYzig1WfIkWdTTQJqng==}
     dev: false
 
   /@types/sinonjs__fake-timers@8.1.1:
@@ -89,7 +89,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 14.18.43
+      '@types/node': 14.18.46
     dev: false
     optional: true
 
@@ -351,15 +351,15 @@ packages:
       which: 2.0.2
     dev: false
 
-  /cypress@12.11.0:
-    resolution: {integrity: sha512-TJE+CCWI26Hwr5Msb9GpQhFLubdYooW0fmlPwTsfiyxmngqc7+SZGLPeIkj2dTSSZSEtpQVzOzvcnzH0o8G7Vw==}
+  /cypress@12.12.0:
+    resolution: {integrity: sha512-UU5wFQ7SMVCR/hyKok/KmzG6fpZgBHHfrXcHzDmPHWrT+UUetxFzQgt7cxCszlwfozckzwkd22dxMwl/vNkWRw==}
     engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@cypress/request': 2.88.11
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
-      '@types/node': 14.18.43
+      '@types/node': 14.18.46
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.3
       arch: 2.2.0
