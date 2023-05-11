@@ -51,9 +51,9 @@
   "lodash.debounce": "^4.0.8",
   "pinia": "^2.0.36",
   "splitpanes": "^3.1.5",
-  "vue": "^3.2.47",
+  "vue": "^3.3.1",
   "vue-i18n": "^9.2.2",
-  "vue-router": "^4.1.6"
+  "vue-router": "^4.2.0"
  },
  "devDependencies": {
   "@pinia/testing": "^0.1.0",
@@ -68,7 +68,7 @@
   "@types/semver": "^7.5.0",
   "@vitejs/plugin-basic-ssl": "^1.0.1",
   "@vitejs/plugin-vue": "4.2.2",
-  "@vue/compiler-sfc": "^3.3.0-beta",
+  "@vue/compiler-sfc": "^3.3.1",
   "@vue/test-utils": "^2.3.2",
   "bumpp": "^9.1.0",
   "c8": "^7.13.0",
