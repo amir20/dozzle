@@ -26,9 +26,8 @@ export class Container {
     this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });
 
     const match = name.match(SWARM_ID_REGEX);
-
     if (match) {
-      this.swarmId = match[1];
+      this.swarmId = match[0];
       this.name = name.replace(`${this.swarmId}`, "");
       this.isSwarm = true;
     }
