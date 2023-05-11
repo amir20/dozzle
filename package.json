@@ -67,7 +67,7 @@
   "@types/node": "^20.1.2",
   "@types/semver": "^7.5.0",
   "@vitejs/plugin-basic-ssl": "^1.0.1",
-  "@vitejs/plugin-vue": "4.2.1",
+  "@vitejs/plugin-vue": "4.2.2",
   "@vue/compiler-sfc": "^3.3.0-beta",
   "@vue/test-utils": "^2.3.2",
   "bumpp": "^9.1.0",
