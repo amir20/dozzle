@@ -39,6 +39,8 @@ services:
     volumes:
       - .:/app
     command: npx --yes playwright test
+    environment:
+      - PWTEST_SKIP_TEST_OUTPUT=1
     depends_on:
       - dozzle
       - custom_base
