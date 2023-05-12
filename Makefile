@@ -31,4 +31,4 @@ dev:
 
 .PHONY: int
 int:
-	docker-compose -f e2e/docker-compose.yml up --build --force-recreate --exit-code-from cypress
+	docker compose up --exit-code-from playwright

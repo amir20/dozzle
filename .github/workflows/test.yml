@@ -78,8 +78,6 @@ jobs:
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
         run: pnpm install
-      - name: Install Playwright Browsers
-        run: pnpm playwright install --with-deps
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build
@@ -90,7 +88,7 @@ jobs:
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
       - name: Run Playwright tests
-        run: pnpm playwright test
+        run: docker compose up --exit-code-from playwright
       - uses: actions/upload-artifact@v3
         if: always()
         with:

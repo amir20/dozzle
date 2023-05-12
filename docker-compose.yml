@@ -33,3 +33,13 @@ services:
       - 7070:8080
     build:
       context: .
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.33.0-jammy
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npx --yes playwright test
+    depends_on:
+      - dozzle
+      - custom_base
+      - auth

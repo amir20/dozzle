@@ -62,11 +62,9 @@ export default defineConfig({
     //   use: { ..devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "docker compose up",
-    url: "http://127.0.0.1:7070",
-    reuseExistingServer: !process.env.CI,
-  },
+  // webServer: {
+  //   command: "docker compose up",
+  //   url: "http://127.0.0.1:7070",
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });
