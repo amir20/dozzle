@@ -31,4 +31,4 @@ dev:
 
 .PHONY: int
 int:
-	docker compose up --exit-code-from playwright
+	docker compose up --force-recreate --exit-code-from playwright

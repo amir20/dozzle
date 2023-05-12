@@ -6,17 +6,15 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("default", () => {
   test("homepage", async ({ page }) => {
-    await expect(page).toHaveScreenshot({
-      mask: [page.locator("time"), page.locator("[data-ci-skip]")],
-    });
+    await page.addStyleTag({ content: `[data-ci-skip] { visibility: hidden; }` });
+    await expect(page).toHaveScreenshot({});
   });
 });
 
 test.describe("dark", () => {
   test.use({ colorScheme: "dark" });
   test("homepage", async ({ page }) => {
-    await expect(page).toHaveScreenshot({
-      mask: [page.locator("time"), page.locator("[data-ci-skip]")],
-    });
+    await page.addStyleTag({ content: `[data-ci-skip] { visibility: hidden; }` });
+    await expect(page).toHaveScreenshot({});
   });
 });
