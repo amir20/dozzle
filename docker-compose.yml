@@ -1,6 +1,7 @@
 version: "3.4"
 services:
   custom_base:
+    container_name: dozzle_base
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -12,6 +13,7 @@ services:
     build:
       context: .
   auth:
+    container_name: auth
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -24,6 +26,7 @@ services:
     build:
       context: .
   dozzle:
+    container_name: dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -34,6 +37,7 @@ services:
     build:
       context: .
   playwright:
+    container_name: playwright
     image: mcr.microsoft.com/playwright:v1.33.0-jammy
     working_dir: /app
     volumes:
