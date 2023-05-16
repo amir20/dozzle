@@ -82,7 +82,7 @@
   "simple-git-hooks": "^2.8.1",
   "ts-node": "^10.9.1",
   "typescript": "^5.0.4",
-  "unplugin-auto-import": "^0.15.3",
+  "unplugin-auto-import": "^0.16.0",
   "unplugin-icons": "^0.16.1",
   "unplugin-vue-components": "^0.24.1",
   "vite": "4.3.6",
