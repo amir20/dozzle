@@ -66,7 +66,7 @@ watch(
 <style scoped lang="scss">
 .events {
   padding: 1em 0;
-  font-family: SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
+  font-family: ui-monospace, SFMono-Regular, Consolas, Liberation Mono, monaco, Menlo, monospace;
 
   & > li {
     display: flex;
