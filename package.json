@@ -85,7 +85,7 @@
   "unplugin-auto-import": "^0.16.0",
   "unplugin-icons": "^0.16.1",
   "unplugin-vue-components": "^0.24.1",
-  "vite": "4.3.7",
+  "vite": "4.3.8",
   "vite-plugin-pages": "^0.29.0",
   "vite-plugin-vue-layouts": "^0.8.0",
   "vitepress": "1.0.0-alpha.75",
