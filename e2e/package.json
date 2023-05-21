@@ -4,7 +4,7 @@
     "test": "cypress run"
   },
   "dependencies": {
-    "@frsource/cypress-plugin-visual-regression-diff": "^3.2.14",
+    "@frsource/cypress-plugin-visual-regression-diff": "^3.3.0",
     "cypress": "^12.12.0",
     "typescript": "^5.0.4"
   }
