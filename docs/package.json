@@ -4,7 +4,7 @@
   "devDependencies": {
     "@netlify/functions": "^1.5.0",
     "@unocss/preset-typography": "^0.51.12",
-    "@unocss/reset": "^0.51.12",
+    "@unocss/reset": "^0.52.0",
     "@unocss/transformer-directives": "^0.51.12",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
