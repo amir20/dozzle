@@ -5,8 +5,8 @@ devDependencies:
     specifier: ^1.5.0
     version: 1.5.0
   '@unocss/preset-typography':
-    specifier: ^0.51.12
-    version: 0.51.12
+    specifier: ^0.52.0
+    version: 0.52.0
   '@unocss/reset':
     specifier: ^0.51.12
     version: 0.51.12
@@ -406,10 +406,20 @@ packages:
     resolution: {integrity: sha512-H8mLy6ZKu9nGZe5jlHhLPIVwh2G3cCDSBGl5aIZJFI1qpmDC+Zb3iueBGigNpX75IzkjaGKZiK1WUWq8TShjtA==}
     dev: true
 
+  /@unocss/core@0.52.0:
+    resolution: {integrity: sha512-MGyG1LpiVtyrHmWmXiDRnf7j+JaJua14K058FGBAhNSLaG37dG6xIfwPuVDBOqEI8EgICmNTJs1T/ImQJYWxtw==}
+    dev: true
+
   /@unocss/extractor-arbitrary-variants@0.51.12:
     resolution: {integrity: sha512-/HJH48LbnzTzPkq7yNf+F8tpq7F8b0ibuv0Y/PFQdRN+5OBpRoVwzK7pnJccpiOFbWqlfIQ/ao0MgVc+321tUw==}
     dependencies:
       '@unocss/core': 0.51.12
+    dev: true
+
+  /@unocss/extractor-arbitrary-variants@0.52.0:
+    resolution: {integrity: sha512-wJ7a9NWVywHwjWMeB8wN9PHl0fhwOcvAgmhDkyY7A9wXSazaecSMLbKrcnQe7q5bOFGvn5jyxYkk78XZqLWgyg==}
+    dependencies:
+      '@unocss/core': 0.52.0
     dev: true
 
   /@unocss/inspector@0.51.12:
@@ -456,6 +466,13 @@ packages:
       '@unocss/extractor-arbitrary-variants': 0.51.12
     dev: true
 
+  /@unocss/preset-mini@0.52.0:
+    resolution: {integrity: sha512-P4mQimuZ+yLba2FN3+hKA7anBvjypmEgNof/LdPhTydv138zlhDVly7KlYADISt7QPNIVaGD3U34HLKtgyfBmQ==}
+    dependencies:
+      '@unocss/core': 0.52.0
+      '@unocss/extractor-arbitrary-variants': 0.52.0
+    dev: true
+
   /@unocss/preset-tagify@0.51.12:
     resolution: {integrity: sha512-EP9D7UFywSVD4oKikZ9AkBJ+J8oOUCEmgkK8FiGsoRs5Wy60QMKw0VSA9S2LsSJBFvw+8y4UJWqXVrm/PJ1AuA==}
     dependencies:
@@ -467,6 +484,13 @@ packages:
     dependencies:
       '@unocss/core': 0.51.12
       '@unocss/preset-mini': 0.51.12
+    dev: true
+
+  /@unocss/preset-typography@0.52.0:
+    resolution: {integrity: sha512-lyMDe/vz9C18V//sieKVjIrkaiJwrY3PMPQtA8Nh233Ki+jnD6ymrEmDXKEHQeNorA2HsEqpmhS+B+g0waLjwA==}
+    dependencies:
+      '@unocss/core': 0.52.0
+      '@unocss/preset-mini': 0.52.0
     dev: true
 
   /@unocss/preset-uno@0.51.12:
