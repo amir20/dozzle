@@ -1,6 +1,6 @@
 <template>
   <div class="has-text-centered is-relative host" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
-    <div class="has-border has-boxshadow">
+    <div class="has-border has-boxshadow is-hidden-mobile">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
     <div class="has-background-body-color is-top-left">
@@ -42,9 +42,11 @@ let mouseOver = $ref(false);
   color: var(--secondary-color);
 }
 
-.is-top-left {
-  position: absolute;
-  top: 0;
-  left: 0.75em;
+@media screen and (min-width: 768px) {
+  .is-top-left {
+    position: absolute;
+    top: 0;
+    left: 0.75em;
+  }
 }
 </style>

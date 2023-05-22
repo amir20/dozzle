@@ -5,7 +5,7 @@
     </div>
     <div class="column is-ellipsis">
       {{ container.name }}<span v-if="container.isSwarm">{{ container.swarmId }}</span>
-      <span class="tag is-dark">{{ container.image.replace(/@sha.*/, "") }}</span>
+      <span class="tag is-dark is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</span>
     </div>
   </div>
 </template>
