@@ -1,6 +1,7 @@
 import path from "path";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
@@ -25,8 +26,8 @@ export default defineConfig(() => ({
     },
   },
   plugins: [
+    ReactivityTransform(),
     vue({
-      reactivityTransform: true,
       template: {
         compilerOptions: {
           whitespace: "preserve",
