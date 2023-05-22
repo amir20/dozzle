@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   custom_base:
-    container_name: dozzle_base
+    container_name: custom_base
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
