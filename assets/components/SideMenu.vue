@@ -40,7 +40,12 @@
         </button>
       </div>
       <div class="column is-narrow py-0" :class="secured ? 'pl-0 pr-1' : 'px-0'">
-        <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-rounded is-small">
+        <router-link
+          :to="{ name: 'settings' }"
+          active-class="is-active"
+          class="button is-rounded is-small"
+          :aria-label="$t('title.settings')"
+        >
           <span class="icon">
             <mdi:light-cog />
           </span>

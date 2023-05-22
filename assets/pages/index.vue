@@ -13,15 +13,15 @@
           <p class="heading">{{ $t("label.running") }}</p>
         </div>
       </div>
-      <div class="level-item has-text-centered">
+      <div class="level-item has-text-centered" data-ci-skip>
         <div>
-          <p class="title" data-ci-skip>{{ totalCpu }}%</p>
+          <p class="title">{{ totalCpu }}%</p>
           <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
         </div>
       </div>
-      <div class="level-item has-text-centered">
+      <div class="level-item has-text-centered" data-ci-skip>
         <div>
-          <p class="title" data-ci-skip>{{ formatBytes(totalMem) }}</p>
+          <p class="title">{{ formatBytes(totalMem) }}</p>
           <p class="heading">{{ $t("label.total-mem-usage") }}</p>
         </div>
       </div>

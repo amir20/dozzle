@@ -9,3 +9,6 @@ coverage
 .vscode
 coverage.out
 .netlify
+/test-results/
+/playwright-report/
+/playwright/.cache/
