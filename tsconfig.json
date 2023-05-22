@@ -17,7 +17,14 @@
       "@/*": ["assets/*"]
     },
     "jsx": "preserve",
-    "types": ["vitest", "vite/client", "vue/ref-macros", "vite-plugin-pages/client", "vite-plugin-vue-layouts/client"]
+    "types": [
+      "vitest",
+      "vite/client",
+      "vue/ref-macros",
+      "vite-plugin-pages/client",
+      "vite-plugin-vue-layouts/client",
+      "@vue-macros/reactivity-transform/macros-global"
+    ]
   },
   "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
 
