@@ -1,7 +1,7 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="mr-0 columns is-vcentered is-marginless is-hidden-mobile has-boxshadow">
+      <div class="mr-0 columns is-mobile is-vcentered is-marginless has-boxshadow">
         <div class="column is-clipped is-paddingless">
           <container-title @close="$emit('close')" />
         </div>
@@ -9,7 +9,7 @@
           <container-stat />
         </div>
 
-        <div class="mr-2 column is-narrow is-paddingless">
+        <div class="mr-2 column is-narrow is-paddingless is-hidden-mobile">
           <log-actions-toolbar :onClearClicked="onClearClicked" />
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">

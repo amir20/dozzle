@@ -82,6 +82,10 @@ section {
     background: var(--body-background-color);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 1;
+
+    @media screen and (max-width: 768px) {
+      top: 70px;
+    }
   }
 
   &.is-full-height-scrollable {
@@ -159,6 +163,14 @@ section {
   .fade-enter,
   .fade-leave-to {
     opacity: 0;
+  }
+}
+</style>
+
+<style>
+@media screen and (max-width: 768px) {
+  .splitpanes__pane {
+    overflow: unset !important;
   }
 }
 </style>

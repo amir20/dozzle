@@ -8,9 +8,6 @@
           </svg>
         </router-link>
       </div>
-      <div class="column ml-4 is-family-monospace is-ellipsis" v-if="$route.name == 'container-id'">
-        {{ allContainersById[route.params.id as string]?.name }}
-      </div>
 
       <div class="column is-narrow push-right">
         <a
@@ -93,7 +90,7 @@ const { base, secured } = config;
 import { sessionHost } from "@/composables/storage";
 const store = useContainerStore();
 const route = useRoute();
-const { visibleContainers, allContainersById } = storeToRefs(store);
+const { visibleContainers } = storeToRefs(store);
 
 let showNav = $ref(false);
 

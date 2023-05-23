@@ -10,7 +10,7 @@
 import { ContainerHealth } from "@/types/Container";
 
 defineProps<{
-  health: ContainerHealth;
+  health: ContainerHealth | undefined;
 }>();
 </script>
 
