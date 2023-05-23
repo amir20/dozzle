@@ -19,6 +19,7 @@ error:
   page-not-found: This page does not exist.
   invalid-auth: Username and password are not valid.
   logs-skipped: Skipped {total} entries
+  container-not-found: Container not found.
 title:
   page-not-found: Page not found
   login: Authentication Required

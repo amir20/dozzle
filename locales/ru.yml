@@ -19,6 +19,7 @@ error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
   logs-skipped: Пропущено {total} записей
+  container-not-found: Контейнер не найден.
 title:
   page-not-found: Страница не найдена
   login: Требуется авторизация

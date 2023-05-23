@@ -19,6 +19,7 @@ error:
   page-not-found: Esta página no existe.
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
   logs-skipped: Omitidas {total} entrada/s
+  container-not-found: Contenedor no encontrado.
 title:
   page-not-found: Página no encontrada
   login: Autenticación requerida
