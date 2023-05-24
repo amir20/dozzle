@@ -57,7 +57,7 @@
  },
  "devDependencies": {
   "@pinia/testing": "^0.1.2",
-  "@playwright/test": "^1.34.0",
+  "@playwright/test": "^1.34.2",
   "@types/d3-array": "^3.0.4",
   "@types/d3-ease": "^3.0.0",
   "@types/d3-scale": "^4.0.3",
@@ -69,7 +69,7 @@
   "@types/semver": "^7.5.0",
   "@vitejs/plugin-basic-ssl": "^1.0.1",
   "@vitejs/plugin-vue": "4.2.3",
-  "@vue-macros/reactivity-transform": "^0.3.7",
+  "@vue-macros/reactivity-transform": "^0.3.8",
   "@vue/compiler-sfc": "^3.3.4",
   "@vue/test-utils": "^2.3.2",
   "bumpp": "^9.1.0",
