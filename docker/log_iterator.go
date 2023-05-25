@@ -132,7 +132,6 @@ func guessLogLevel(logEvent *LogEvent) string {
 	case string:
 		levels := []string{"error", "warn", "info", "debug", "trace", "fatal"}
 		stripped := ANSI_COLOR_REGEX.ReplaceAllString(value, "") // remove ansi color codes
-		log.Debugf("colors stripped: %s", stripped)
 		for _, level := range levels {
 			if match, _ := regexp.MatchString("(?i)^"+level+"[^a-z]", stripped); match {
 				return level
