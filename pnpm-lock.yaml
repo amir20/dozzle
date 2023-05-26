@@ -17,8 +17,8 @@ dependencies:
     specifier: ^1.1.39
     version: 1.1.39
   '@intlify/unplugin-vue-i18n':
-    specifier: ^0.10.0
-    version: 0.10.0(vue-i18n@9.2.2)
+    specifier: ^0.11.0
+    version: 0.11.0(vue-i18n@9.2.2)
   '@oruga-ui/oruga-next':
     specifier: ^0.6.0
     version: 0.6.0(vue@3.3.4)
@@ -689,9 +689,9 @@ packages:
       - supports-color
     dev: true
 
-  /@intlify/bundle-utils@5.4.0(vue-i18n@9.2.2):
-    resolution: {integrity: sha512-oJbibbP5djdQYTv0cQC4PYRHPpS5nF/KZ7MWM1/yhdsGzjvCekJHWk25MCQIIOrfQ+aw5tKi2t66KpYEUki/tw==}
-    engines: {node: '>= 12'}
+  /@intlify/bundle-utils@6.0.1(vue-i18n@9.2.2):
+    resolution: {integrity: sha512-BkeZNKZiC0B7K3OYMwiPLoAqsZmKH3SxTL75vYAkuQ//XWR8WO0NpfjXhTxgLTVFHxMcNb2agAopC0DP6fqDrg==}
+    engines: {node: '>= 14.16'}
     peerDependencies:
       petite-vue-i18n: '*'
       vue-i18n: '*'
@@ -708,6 +708,7 @@ packages:
       estree-walker: 2.0.2
       jsonc-eslint-parser: 1.4.1
       magic-string: 0.30.0
+      mlly: 1.2.1
       source-map: 0.6.1
       vue-i18n: 9.2.2(vue@3.3.4)
       yaml-eslint-parser: 0.3.2
@@ -756,8 +757,8 @@ packages:
     engines: {node: '>= 14'}
     dev: false
 
-  /@intlify/unplugin-vue-i18n@0.10.0(vue-i18n@9.2.2):
-    resolution: {integrity: sha512-Sf8fe26/d8rBNcg+zBSb7RA1uyhrG9zhIM+CRX6lqcznMDjLRr/1tuVaJ9E6xqJkzjfPgRzNcCqwMt6rpNkL7Q==}
+  /@intlify/unplugin-vue-i18n@0.11.0(vue-i18n@9.2.2):
+    resolution: {integrity: sha512-ivcLZo08fvepHWV8o5lcKfhcKFSWqhwrqIAU6pUIbvq2ICo9fnXnIPYIZj7FeuHDLW1G3ADm44ZhQC3nYmvDlg==}
     engines: {node: '>= 14.16'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -771,7 +772,7 @@ packages:
       vue-i18n-bridge:
         optional: true
     dependencies:
-      '@intlify/bundle-utils': 5.4.0(vue-i18n@9.2.2)
+      '@intlify/bundle-utils': 6.0.1(vue-i18n@9.2.2)
       '@intlify/shared': 9.3.0-beta.17
       '@rollup/pluginutils': 5.0.2
       '@vue/compiler-sfc': 3.3.4
@@ -2928,7 +2929,6 @@ packages:
 
   /jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
-    dev: true
 
   /kind-of@3.2.2:
     resolution: {integrity: sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ==}
@@ -3199,8 +3199,8 @@ packages:
     dependencies:
       acorn: 8.8.2
       pathe: 1.1.0
-      pkg-types: 1.0.2
-      ufo: 1.1.1
+      pkg-types: 1.0.3
+      ufo: 1.1.2
     dev: true
 
   /mlly@1.2.1:
@@ -3210,7 +3210,6 @@ packages:
       pathe: 1.1.0
       pkg-types: 1.0.3
       ufo: 1.1.2
-    dev: true
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -3486,7 +3485,7 @@ packages:
     resolution: {integrity: sha512-hM58GKXOcj8WTqUXnsQyJYXdeAPbythQgEF3nTcEo+nkD49chjQ9IKm/QJy9xf6JakXptz86h7ecP2024rrLaQ==}
     dependencies:
       jsonc-parser: 3.2.0
-      mlly: 1.2.0
+      mlly: 1.2.1
       pathe: 1.1.0
     dev: true
 
@@ -3496,7 +3495,6 @@ packages:
       jsonc-parser: 3.2.0
       mlly: 1.2.1
       pathe: 1.1.0
-    dev: true
 
   /playwright-core@1.34.2:
     resolution: {integrity: sha512-MrkgGWLANc5qthXduvIY1a/tuafROyTORVd86fwKwgoYrmnBooN/GgeZSBm7ljTLV2FCWNSXV3se7qeScKn83g==}
@@ -4127,13 +4125,8 @@ packages:
     engines: {node: '>=12.20'}
     hasBin: true
 
-  /ufo@1.1.1:
-    resolution: {integrity: sha512-MvlCc4GHrmZdAllBc0iUDowff36Q9Ndw/UzqmEKyrfSzokTd9ZCy1i+IIk5hrYKkjoYVQyNbrw7/F8XJ2rEwTg==}
-    dev: true
-
   /ufo@1.1.2:
     resolution: {integrity: sha512-TrY6DsjTQQgyS3E3dBaOXf0TpPD8u9FVrVYmKVegJuFw51n/YB9XPt+U6ydzFG5ZIN7+DIjPbNmXoBj9esYhgQ==}
-    dev: true
 
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
