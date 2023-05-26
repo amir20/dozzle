@@ -55,7 +55,8 @@ div {
     background-color: var(--red-color);
   }
 
-  &.warn {
+  &.warn,
+  &.warning {
     background-color: var(--orange-color);
   }
 }
