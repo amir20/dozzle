@@ -28,7 +28,7 @@ const shape = d3
 
 const path = computed(() => {
   x.domain(d3.extent(data, (d) => d.x) as [number, number]);
-  y.domain(d3.extent(data, (d) => d.y) as [number, number]);
+  y.domain(d3.extent([...data, { y: 1 }], (d) => d.y) as [number, number]);
 
   return shape(data) ?? "";
 });
