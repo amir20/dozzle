@@ -158,16 +158,18 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	<-c
-	log.Info("Shutting down...")
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	<-ctx.Done()
+	stop()
+	log.Info("shutting down gracefully, press Ctrl+C again to force")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	srv.Shutdown(ctx)
-	os.Exit(0)
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
+	log.Debug("shut down complete")
 }
 
 func doStartEvent(arg args) {
