@@ -6,11 +6,11 @@
 </template>
 
 <script lang="ts" setup>
-import { extent } from "d3-array";
+import { extent, max } from "d3-array";
 import { scaleLinear } from "d3-scale";
 import { area, curveStep } from "d3-shape";
 
-const d3 = { extent, scaleLinear, area, curveStep };
+const d3 = { extent, scaleLinear, area, curveStep, max };
 const { data, width = 150, height = 30 } = defineProps<{ data: Point<unknown>[]; width?: number; height?: number }>();
 const x = d3.scaleLinear().range([width, 0]);
 const y = d3.scaleLinear().range([height, 0]);
@@ -28,7 +28,7 @@ const shape = d3
 
 const path = computed(() => {
   x.domain(d3.extent(data, (d) => d.x) as [number, number]);
-  y.domain(d3.extent(data, (d) => d.y) as [number, number]);
+  y.domain(d3.extent([...data, { y: 1 }], (d) => d.y) as [number, number]);
 
   return shape(data) ?? "";
 });
