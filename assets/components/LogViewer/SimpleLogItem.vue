@@ -1,5 +1,8 @@
 <template>
   <div class="columns is-1 is-variable is-mobile">
+    <div class="column is-narrow">
+      <span class="tag is-dark is-small">{{ logEntry.std }}</span>
+    </div>
     <div class="column is-narrow" v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>
@@ -31,5 +34,9 @@ const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 
 .text {
   white-space: pre-wrap;
+}
+
+.tag.is-small {
+  font-size: 0.6rem;
 }
 </style>

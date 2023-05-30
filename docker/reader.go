@@ -11,14 +11,16 @@ type logReader struct {
 	tty          bool
 	lastHeader   []byte
 	buffer       bytes.Buffer
+	label        bool
 }
 
-func newLogReader(reader io.ReadCloser, tty bool) io.ReadCloser {
+func newLogReader(reader io.ReadCloser, tty bool, labelStd bool) io.ReadCloser {
 	return &logReader{
 		reader,
 		tty,
 		make([]byte, 8),
 		bytes.Buffer{},
+		labelStd,
 	}
 }
 
@@ -33,6 +35,16 @@ func (r *logReader) Read(p []byte) (n int, err error) {
 			_, err := r.readerCloser.Read(r.lastHeader)
 			if err != nil {
 				return 0, err
+			}
+			if r.label {
+				std := r.lastHeader[0] // https://github.com/rancher/docker/blob/master/pkg/stdcopy/stdcopy.go#L94
+
+				if std == 1 {
+					r.buffer.WriteString("OUT")
+				}
+				if std == 2 {
+					r.buffer.WriteString("ERR")
+				}
 			}
 			count := binary.BigEndian.Uint32(r.lastHeader[4:])
 			_, err = io.CopyN(&r.buffer, r.readerCloser, int64(count))

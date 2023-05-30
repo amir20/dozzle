@@ -27,6 +27,27 @@ type dockerClient struct {
 	filters filters.Args
 }
 
+type StdType int
+
+const (
+	STDOUT StdType = 1 << iota
+	STDERR
+)
+const STDALL = STDOUT | STDERR
+
+func (s StdType) String() string {
+	switch s {
+	case STDOUT:
+		return "out"
+	case STDERR:
+		return "err"
+	case STDALL:
+		return "all"
+	default:
+		return ""
+	}
+}
+
 type dockerProxy interface {
 	ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error)
 	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
@@ -40,9 +61,9 @@ type dockerProxy interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, string) (io.ReadCloser, error)
+	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
 	Events(context.Context) (<-chan ContainerEvent, <-chan error)
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time) (io.ReadCloser, error)
+	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 }
@@ -227,8 +248,8 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	return nil
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since string) (io.ReadCloser, error) {
-	log.WithField("id", id).WithField("since", since).Debug("streaming logs for container")
+func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
+	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
 	if since != "" {
 		if millis, err := strconv.ParseInt(since, 10, 64); err == nil {
@@ -239,8 +260,8 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since strin
 	}
 
 	options := types.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
+		ShowStdout: stdType&STDOUT != 0,
+		ShowStderr: stdType&STDERR != 0,
 		Follow:     true,
 		Tail:       "300",
 		Timestamps: true,
@@ -258,7 +279,7 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since strin
 		return nil, err
 	}
 
-	return newLogReader(reader, containerJSON.Config.Tty), nil
+	return newLogReader(reader, containerJSON.Config.Tty, true), nil
 }
 
 func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-chan error) {
@@ -290,10 +311,10 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 	return messages, errors
 }
 
-func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) (io.ReadCloser, error) {
+func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
 	options := types.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
+		ShowStdout: stdType&STDOUT != 0,
+		ShowStderr: stdType&STDERR != 0,
 		Timestamps: true,
 		Since:      from.Format(time.RFC3339),
 		Until:      to.Format(time.RFC3339),
@@ -312,7 +333,7 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 		return nil, err
 	}
 
-	return newLogReader(reader, containerJSON.Config.Tty), nil
+	return newLogReader(reader, containerJSON.Config.Tty, true), nil
 }
 
 func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {

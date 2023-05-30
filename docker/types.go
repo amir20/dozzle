@@ -1,6 +1,8 @@
 package docker
 
-import "math"
+import (
+	"math"
+)
 
 // Container represents an internal representation of docker containers
 type Container struct {
@@ -44,6 +46,7 @@ type LogEvent struct {
 	Id        uint32      `json:"id,omitempty"`
 	Level     string      `json:"l,omitempty"`
 	Position  LogPosition `json:"p,omitempty"`
+	StdType   StdType     `json:"s,omitempty"`
 }
 
 func (l *LogEvent) HasLevel() bool {

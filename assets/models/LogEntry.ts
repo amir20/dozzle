@@ -12,17 +12,25 @@ export interface HasComponent {
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
 export type Position = "start" | "end" | "middle" | undefined;
+export type Std = "stdout" | "stderr";
 export interface LogEvent {
   readonly m: string | JSONObject;
   readonly ts: number;
   readonly id: number;
   readonly l: string;
   readonly p: Position;
+  readonly s: number;
 }
 
 export abstract class LogEntry<T extends string | JSONObject> implements HasComponent {
   protected readonly _message: T;
-  constructor(message: T, public readonly id: number, public readonly date: Date, public readonly level?: string) {
+  constructor(
+    message: T,
+    public readonly id: number,
+    public readonly date: Date,
+    public readonly std: Std,
+    public readonly level?: string
+  ) {
     this._message = message;
   }
 
@@ -39,9 +47,10 @@ export class SimpleLogEntry extends LogEntry<string> {
     id: number,
     date: Date,
     public readonly level: string,
-    public readonly position: Position
+    public readonly position: Position,
+    public readonly std: Std
   ) {
-    super(message, id, date, level);
+    super(message, id, date, std, level);
   }
   getComponent(): Component {
     return SimpleLogItem;
@@ -56,9 +65,10 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     id: number,
     date: Date,
     public readonly level: string,
+    public readonly std: Std,
     visibleKeys?: Ref<string[][]>
   ) {
-    super(message, id, date, level);
+    super(message, id, date, std, level);
     if (visibleKeys) {
       this.filteredMessage = computed(() => {
         if (!visibleKeys.value.length) {
@@ -84,13 +94,13 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
   }
 
   static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<string[][]>): ComplexLogEntry {
-    return new ComplexLogEntry(event._message, event.id, event.date, event.level, visibleKeys);
+    return new ComplexLogEntry(event._message, event.id, event.date, event.level, event.std, visibleKeys);
   }
 }
 
 export class DockerEventLogEntry extends LogEntry<string> {
   constructor(message: string, date: Date, public readonly event: string) {
-    super(message, date.getTime(), date, "info");
+    super(message, date.getTime(), date, "stderr", "info");
   }
   getComponent(): Component {
     return DockerEventLogItem;
@@ -107,7 +117,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     public readonly firstSkipped: LogEntry<string | JSONObject>,
     lastSkipped: LogEntry<string | JSONObject>
   ) {
-    super("", date.getTime(), date, "info");
+    super("", date.getTime(), date, "stderr", "info");
     this._totalSkipped = totalSkipped;
     this.lastSkipped = lastSkipped;
   }
@@ -135,8 +145,15 @@ export class SkippedLogsEntry extends LogEntry<string> {
 
 export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
   if (typeof event.m === "string") {
-    return new SimpleLogEntry(event.m, event.id, new Date(event.ts), event.l, event.p);
+    return new SimpleLogEntry(
+      event.m,
+      event.id,
+      new Date(event.ts),
+      event.l,
+      event.p,
+      event.s === 1 ? "stdout" : "stderr"
+    );
   } else {
-    return new ComplexLogEntry(event.m, event.id, new Date(event.ts), event.l);
+    return new ComplexLogEntry(event.m, event.id, new Date(event.ts), event.l, event.s === 1 ? "stdout" : "stderr");
   }
 }
