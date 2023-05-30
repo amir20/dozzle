@@ -35,8 +35,4 @@ const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 .text {
   white-space: pre-wrap;
 }
-
-.tag.is-small {
-  font-size: 0.6rem;
-}
 </style>
