@@ -3,8 +3,9 @@ package web
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
-	"io/ioutil"
+
 	"net/http"
 	"os"
 	"path"
@@ -118,7 +119,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Panic(err)
 	}
-	bytes, err := ioutil.ReadAll(file)
+	bytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Panic(err)
 	}

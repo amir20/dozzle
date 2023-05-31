@@ -6,7 +6,6 @@ import (
 	"io"
 	"time"
 
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -29,7 +28,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	reader := ioutil.NopCloser(strings.NewReader("OUTINFO Testing logs..."))
+	reader := io.NopCloser(strings.NewReader("OUTINFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(reader, nil)
 
@@ -55,7 +54,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	reader := ioutil.NopCloser(strings.NewReader("OUT2020-05-13T18:55:37.772853839Z INFO Testing logs..."))
+	reader := io.NopCloser(strings.NewReader("OUT2020-05-13T18:55:37.772853839Z INFO Testing logs..."))
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(reader, nil)
 
@@ -82,7 +81,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(ioutil.NopCloser(strings.NewReader("")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF)
 
 	clients := map[string]docker.Client{
 		"localhost": mockedClient,
@@ -131,7 +130,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(ioutil.NopCloser(strings.NewReader("")), errors.New("test error"))
+	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error"))
 
 	clients := map[string]docker.Client{
 		"localhost": mockedClient,
@@ -268,7 +267,7 @@ func Test_handler_between_dates(t *testing.T) {
 	req.URL.RawQuery = q.Encode()
 
 	mockedClient := new(MockedClient)
-	reader := ioutil.NopCloser(strings.NewReader("OUT2020-05-13T18:55:37.772853839Z INFO Testing logs...\nERR2020-05-13T18:55:37.772853839Z INFO Testing logs...\n"))
+	reader := io.NopCloser(strings.NewReader("OUT2020-05-13T18:55:37.772853839Z INFO Testing logs...\nERR2020-05-13T18:55:37.772853839Z INFO Testing logs...\n"))
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "123456", from, to, docker.STDALL).Return(reader, nil)
 
 	clients := map[string]docker.Client{

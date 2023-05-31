@@ -5,7 +5,6 @@ import (
 
 	"io"
 
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -179,7 +178,7 @@ func Test_createRoutes_username_password_login_failed(t *testing.T) {
 func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, "123", "", docker.STDALL).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, "123", "", docker.STDALL).Return(io.NopCloser(strings.NewReader("test data")), io.EOF)
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	// Get cookie first
@@ -203,7 +202,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 func Test_createRoutes_username_password_invalid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, "since", docker.STDALL).Return(ioutil.NopCloser(strings.NewReader("test data")), io.EOF)
+	mockedClient.On("ContainerLogs", mock.Anything, "since", docker.STDALL).Return(io.NopCloser(strings.NewReader("test data")), io.EOF)
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 	req, err := http.NewRequest("GET", "/api/logs/stream?id=123&stdout=1&stderr=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
