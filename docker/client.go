@@ -62,6 +62,7 @@ type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
+	ContainerLogReader(context.Context, string) (io.ReadCloser, error)
 	Events(context.Context) (<-chan ContainerEvent, <-chan error)
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
@@ -309,6 +310,30 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 	}()
 
 	return messages, errors
+}
+
+func (d *dockerClient) ContainerLogReader(ctx context.Context, id string) (io.ReadCloser, error) {
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+		Since:      time.Unix(0, 0).Format(time.RFC3339),
+		Until:      time.Now().Format(time.RFC3339),
+	}
+
+	reader, err := d.cli.ContainerLogs(ctx, id, options)
+
+	if err != nil {
+		return nil, err
+	}
+
+	containerJSON, err := d.cli.ContainerInspect(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return newLogReader(reader, containerJSON.Config.Tty, false), nil
+
 }
 
 func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
