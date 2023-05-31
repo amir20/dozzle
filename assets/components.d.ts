@@ -35,6 +35,7 @@ declare module '@vue/runtime-core' {
     LogStd: typeof import('./components/LogViewer/LogStd.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewer/LogViewerWithSource.vue')['default']
+    'Mdi:check': typeof import('~icons/mdi/check')['default']
     'Mdi:dotsVertical': typeof import('~icons/mdi/dots-vertical')['default']
     'Mdi:lightChevronDoubleDown': typeof import('~icons/mdi-light/chevron-double-down')['default']
     'Mdi:lightChevronLeft': typeof import('~icons/mdi-light/chevron-left')['default']

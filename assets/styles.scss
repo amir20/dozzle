@@ -124,6 +124,26 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --blue-color: #2196f3;
 }
 
+.is-red {
+  color: var(--red-color);
+}
+
+.is-green {
+  color: var(--green-color);
+}
+
+.is-purple {
+  color: var(--purple-color);
+}
+
+.is-orange {
+  color: var(--orange-color);
+}
+
+.is-blue {
+  color: var(--blue-color);
+}
+
 html {
   overflow-x: unset;
   overflow-y: unset;

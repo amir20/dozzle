@@ -2,6 +2,8 @@ toolbar:
   clear: Clear
   download: Download
   search: Search
+  stderr: Show STDERR
+  stdout: Show STDOUT
 label:
   containers: Containers
   total-containers: Total Containers

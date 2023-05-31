@@ -1,7 +1,3 @@
-import { Container } from "@/models/Container";
-import { useStorage } from "@vueuse/core";
-import { computed, ComputedRef } from "vue";
-
 export function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
@@ -35,10 +31,6 @@ export function flattenJSON(obj: Record<string, any>, path: string[] = []) {
 
 export function arrayEquals(a: string[], b: string[]): boolean {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index]);
-}
-
-export function persistentVisibleKeys(container: ComputedRef<Container>) {
-  return computed(() => useStorage(stripVersion(container.value.image) + ":" + container.value.command, []));
 }
 
 export function stripVersion(label: string) {

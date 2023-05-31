@@ -21,7 +21,12 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-export function useLogStream(container: ComputedRef<Container>) {
+type LogStreamConfig = {
+  stdout: boolean;
+  stderr: boolean;
+};
+
+export function useLogStream(container: ComputedRef<Container>, streamConfig: LogStreamConfig) {
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
@@ -68,9 +73,14 @@ export function useLogStream(container: ComputedRef<Container>) {
       id: container.value.id,
       lastEventId,
       host: sessionHost.value,
-      stdout: "true",
-      stderr: "true",
-    };
+    } as { id: string; lastEventId: string; host: string; stdout?: string; stderr?: string };
+
+    if (streamConfig.stdout) {
+      params.stdout = "1";
+    }
+    if (streamConfig.stderr) {
+      params.stderr = "1";
+    }
 
     es = new EventSource(`${config.base}/api/logs/stream?${new URLSearchParams(params).toString()}`);
     es.addEventListener("container-stopped", () => {
@@ -99,9 +109,22 @@ export function useLogStream(container: ComputedRef<Container>) {
     const last = messages[299].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
-    const logs = await (
-      await fetch(`${config.base}/api/logs?id=${container.value.id}&from=${from.toISOString()}&to=${to.toISOString()}`)
-    ).text();
+
+    const params = {
+      id: container.value.id,
+      from: from.toISOString(),
+      to: to.toISOString(),
+      host: sessionHost.value,
+    } as { id: string; from: string; to: string; host: string; stdout?: string; stderr?: string };
+
+    if (streamConfig.stdout) {
+      params.stdout = "1";
+    }
+    if (streamConfig.stderr) {
+      params.stderr = "1";
+    }
+
+    const logs = await (await fetch(`${config.base}/api/logs?${new URLSearchParams(params).toString()}`)).text();
     if (logs) {
       const newMessages = logs
         .trim()
@@ -134,6 +157,8 @@ export function useLogStream(container: ComputedRef<Container>) {
     () => connect(),
     { immediate: true }
   );
+
+  watch(streamConfig, () => connect());
 
   return { ...$$({ messages }), loadOlderLogs };
 }
