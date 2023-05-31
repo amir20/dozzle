@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item">{{ $t("toolbar.stdout") }}</div>
+          {{ $t(streamConfig.stdout ? "toolbar.hide" : "toolbar.show", { std: "STDOUT" }) }}
         </div>
       </div>
     </a>
@@ -59,7 +59,9 @@
           </div>
         </div>
         <div class="level-right">
-          <div class="level-item">{{ $t("toolbar.stderr") }}</div>
+          <div class="level-item">
+            {{ $t(streamConfig.stderr ? "toolbar.hide" : "toolbar.show", { std: "STDERR" }) }}
+          </div>
         </div>
       </div>
     </a>
@@ -81,6 +83,6 @@ const streamConfig = inject("stream-config") as { stdout: boolean; stderr: boole
 
 <style lang="scss" scoped>
 .level-left .level-item {
-  width: 3em;
+  width: 2.2em;
 }
 </style>

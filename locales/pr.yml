@@ -2,6 +2,8 @@ toolbar:
   clear: Limpar
   download: Descarregar
   search: Pesquisa
+  show: Mostrar {std}
+  hide: Ocultar {std}
 label:
   containers: Contentores
   total-containers: Contentores Totais
@@ -49,3 +51,4 @@ settings:
   update-available: >-
     Está disponível uma nova versão! Actualização para
     <a :href="{href}" class="next-release" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Mostrar etiquetas de saída padrão e saída de erro padrão
