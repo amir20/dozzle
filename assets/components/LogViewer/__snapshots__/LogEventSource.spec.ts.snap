@@ -24,6 +24,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
@@ -60,6 +61,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
       </div>
@@ -96,6 +98,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
@@ -132,6 +135,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
@@ -168,6 +172,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
@@ -204,6 +209,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
     </div>
     <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+      <!--v-if-->
       <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
         <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
@@ -235,5 +241,6 @@ SimpleLogEntry {
   "id": 1,
   "level": undefined,
   "position": undefined,
+  "std": "stderr",
 }
 `;

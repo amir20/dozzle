@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS: {
   menuWidth: number;
   smallerScrollbars: boolean;
   showTimestamp: boolean;
+  showStd: boolean;
   showAllContainers: boolean;
   lightTheme: "auto" | "dark" | "light";
   hourStyle: "auto" | "24" | "12";
@@ -17,6 +18,7 @@ export const DEFAULT_SETTINGS: {
   menuWidth: 15,
   smallerScrollbars: false,
   showTimestamp: true,
+  showStd: false,
   showAllContainers: false,
   lightTheme: "auto",
   hourStyle: "auto",
@@ -51,6 +53,11 @@ const showTimestamp = computed({
   set: (value) => (settings.value.showTimestamp = value),
 });
 
+const showStd = computed({
+  get: () => settings.value.showStd,
+  set: (value) => (settings.value.showStd = value),
+});
+
 const showAllContainers = computed({
   get: () => settings.value.showAllContainers,
   set: (value) => (settings.value.showAllContainers = value),
@@ -83,6 +90,7 @@ export {
   lightTheme,
   showAllContainers,
   showTimestamp,
+  showStd,
   smallerScrollbars,
   menuWidth,
   size,

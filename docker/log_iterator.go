@@ -101,7 +101,7 @@ func (g *eventGenerator) consume() {
 			case "ERR":
 				stdType = STDERR
 			default:
-				log.Panicf("unknown std type %s", std)
+				log.Panicf("unknown std type [%s] with message [%s]", std, message)
 			}
 
 			message = message[3:]

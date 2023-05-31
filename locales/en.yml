@@ -49,3 +49,4 @@ settings:
   update-available: >-
     New version is available! Update to <a :href="{href}" class="next-release"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Show stdout and stderr labels

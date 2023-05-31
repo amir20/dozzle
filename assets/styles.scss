@@ -96,13 +96,6 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --text-light-color: #{$grey};
 }
 
-:root {
-  --green-color: #00b5ad;
-  --red-color: #f44336;
-  --purple-color: #9c27b0;
-  --orange-color: #ff9800;
-}
-
 [data-theme="dark"] {
   @include dark;
 }
@@ -121,6 +114,14 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   html {
     @include light;
   }
+}
+
+:root {
+  --green-color: #00b5ad;
+  --red-color: #f44336;
+  --purple-color: #9c27b0;
+  --orange-color: #ff9800;
+  --blue-color: #2196f3;
 }
 
 html {
@@ -219,8 +220,4 @@ mark {
 .button.is-rounded:hover {
   color: var(--text-strong-color);
   background: var(--scheme-main-ter);
-}
-
-.tag.is-small {
-  font-size: 0.6rem;
 }

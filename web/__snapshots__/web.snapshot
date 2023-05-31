@@ -76,8 +76,8 @@ HTTP/1.1 200 OK
 Connection: close
 Content-Type: application/ld+json; charset=UTF-8
 
-{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info"}
-{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info"}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":1122614848,"l":"info","s":1}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":1543246723,"l":"info","s":2}
 
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
@@ -143,6 +143,14 @@ X-Content-Type-Options: nosniff
 
 test error
 
+/* snapshot: Test_handler_streamLogs_error_std */
+HTTP/1.1 400 Bad Request
+Connection: close
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+
+stdout or stderr is required
+
 /* snapshot: Test_handler_streamLogs_happy */
 HTTP/1.1 200 OK
 Connection: close
@@ -152,7 +160,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info"}
+data: {"m":"INFO Testing logs...","ts":0,"id":852638900,"l":"info","s":1}
 
 event: container-stopped
 data: end of stream
@@ -178,7 +186,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info"}
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":3373215946,"l":"info","s":1}
 id: 1589396137772
 
 event: container-stopped
