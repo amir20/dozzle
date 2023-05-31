@@ -1,7 +1,7 @@
 import path from "path";
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import ReactivityTransform from "@vue-macros/reactivity-transform/vite";
+import Vue from "@vitejs/plugin-vue";
+import VueMacros from "unplugin-vue-macros/vite";
 import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
@@ -26,12 +26,15 @@ export default defineConfig(() => ({
     },
   },
   plugins: [
-    ReactivityTransform(),
-    vue({
-      template: {
-        compilerOptions: {
-          whitespace: "preserve",
-        },
+    VueMacros({
+      plugins: {
+        vue: Vue({
+          template: {
+            compilerOptions: {
+              whitespace: "preserve",
+            },
+          },
+        }),
       },
     }),
     Icons({

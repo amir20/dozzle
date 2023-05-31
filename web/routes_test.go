@@ -31,8 +31,8 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since string) (io.ReadCloser, error) {
-	args := m.Called(ctx, id, since)
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since string, stdType docker.StdType) (io.ReadCloser, error) {
+	args := m.Called(ctx, id, since, stdType)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
@@ -54,8 +54,8 @@ func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.Con
 	return nil
 }
 
-func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time) (io.ReadCloser, error) {
-	args := m.Called(ctx, id, from, to)
+func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType docker.StdType) (io.ReadCloser, error) {
+	args := m.Called(ctx, id, from, to, stdType)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 

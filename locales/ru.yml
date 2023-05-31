@@ -2,6 +2,8 @@ toolbar:
   clear: Очистить
   download: Скачать
   search: Поиск
+  show: Показать {std}
+  hide: Скрыть {std}
 label:
   containers: Контейнеры
   total-containers: Всего Контейнеров
@@ -48,3 +50,4 @@ settings:
   update-available: >-
     Доступна новая версия! Обновить до <a :href="{href}" class="next-release"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Показывать метки stdout и stderr

@@ -1,6 +1,6 @@
 <template>
   <dropdown-menu class="is-right">
-    <a class="dropdown-item" @click="onClearClicked">
+    <a class="dropdown-item" @click="clear()">
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
@@ -37,6 +37,34 @@
         </div>
       </div>
     </a>
+
+    <hr class="dropdown-divider" />
+    <a class="dropdown-item" @click="streamConfig.stdout = !streamConfig.stdout">
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <mdi:check class="mr-4 is-blue" v-if="streamConfig.stdout" />
+          </div>
+        </div>
+        <div class="level-right">
+          {{ $t(streamConfig.stdout ? "toolbar.hide" : "toolbar.show", { std: "STDOUT" }) }}
+        </div>
+      </div>
+    </a>
+    <a class="dropdown-item" @click="streamConfig.stderr = !streamConfig.stderr">
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <mdi:check class="mr-4 is-red" v-if="streamConfig.stderr" />
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            {{ $t(streamConfig.stderr ? "toolbar.hide" : "toolbar.show", { std: "STDERR" }) }}
+          </div>
+        </div>
+      </div>
+    </a>
   </dropdown-menu>
 </template>
 
@@ -47,23 +75,14 @@ import { Container } from "@/models/Container";
 const { showSearch } = useSearchFilter();
 const { base } = config;
 
-const { onClearClicked = (e: Event) => {} } = defineProps<{
-  onClearClicked: (e: Event) => void;
-}>();
+const clear = defineEmit();
 
 const container = inject("container") as ComputedRef<Container>;
+const streamConfig = inject("stream-config") as { stdout: boolean; stderr: boolean };
 </script>
 
 <style lang="scss" scoped>
-#download.button,
-#clear.button {
-  .icon {
-    height: 80%;
-  }
-
-  &:hover {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-  }
+.level-left .level-item {
+  width: 2.2em;
 }
 </style>

@@ -96,13 +96,6 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --text-light-color: #{$grey};
 }
 
-:root {
-  --green-color: #00b5ad;
-  --red-color: #f44336;
-  --purple-color: #9c27b0;
-  --orange-color: #ff9800;
-}
-
 [data-theme="dark"] {
   @include dark;
 }
@@ -121,6 +114,34 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   html {
     @include light;
   }
+}
+
+:root {
+  --green-color: #00b5ad;
+  --red-color: #f44336;
+  --purple-color: #9c27b0;
+  --orange-color: #ff9800;
+  --blue-color: #2196f3;
+}
+
+.is-red {
+  color: var(--red-color);
+}
+
+.is-green {
+  color: var(--green-color);
+}
+
+.is-purple {
+  color: var(--purple-color);
+}
+
+.is-orange {
+  color: var(--orange-color);
+}
+
+.is-blue {
+  color: var(--blue-color);
 }
 
 html {

@@ -133,7 +133,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	logReader, _ := client.ContainerLogs(context.Background(), id, "since")
+	logReader, _ := client.ContainerLogs(context.Background(), id, "since", STDALL)
 
 	actual, _ := io.ReadAll(logReader)
 	assert.Equal(t, expected, string(actual), "message doesn't match expected")
@@ -154,7 +154,7 @@ func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
 	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
 
 	client := &dockerClient{proxy, filters.NewArgs()}
-	logReader, _ := client.ContainerLogs(context.Background(), id, "")
+	logReader, _ := client.ContainerLogs(context.Background(), id, "", STDALL)
 
 	actual, _ := io.ReadAll(logReader)
 	assert.Equal(t, expected, string(actual), "message doesn't match expected")
@@ -170,7 +170,7 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 
 	client := &dockerClient{proxy, filters.NewArgs()}
 
-	reader, err := client.ContainerLogs(context.Background(), id, "")
+	reader, err := client.ContainerLogs(context.Background(), id, "", STDALL)
 
 	assert.Nil(t, reader, "reader should be nil")
 	assert.Error(t, err, "error should have been returned")

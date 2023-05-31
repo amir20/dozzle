@@ -12,7 +12,8 @@ const emit = defineEmits<{
 }>();
 
 const container = inject("container") as ComputedRef<Container>;
-const { messages, loadOlderLogs } = useLogStream(container);
+const config = inject("stream-config") as { stdout: boolean; stderr: boolean };
+const { messages, loadOlderLogs } = useLogStream(container, config);
 
 const beforeLoading = () => emit("loading-more", true);
 const afterLoading = () => emit("loading-more", false);

@@ -25,6 +25,9 @@
       <div class="item">
         <o-switch v-model="showTimestamp"> {{ $t("settings.show-timesamps") }} </o-switch>
       </div>
+      <div class="item">
+        <o-switch v-model="showStd"> {{ $t("settings.show-std") }} </o-switch>
+      </div>
 
       <div class="item">
         <o-switch v-model="softWrap"> {{ $t("settings.soft-wrap") }}</o-switch>
@@ -136,6 +139,7 @@ import {
   lightTheme,
   smallerScrollbars,
   showTimestamp,
+  showStd,
   hourStyle,
   showAllContainers,
   size,
@@ -155,7 +159,8 @@ async function fetchNextRelease() {
     const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
     if (response.ok) {
       const release = await response.json();
-      hasUpdate = release.tag_name.slice(1).localeCompare(currentVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
+      hasUpdate =
+        release.tag_name.slice(1).localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0;
       nextRelease = release;
     }
   } else {

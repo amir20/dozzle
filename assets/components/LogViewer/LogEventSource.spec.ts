@@ -72,6 +72,7 @@ describe("<LogEventSource />", () => {
         },
         provide: {
           container: computed(() => ({ id: "abc", image: "test:v123" })),
+          "stream-config": reactive({ stdout: true, stderr: true }),
           scrollingPaused: computed(() => false),
         },
       },
@@ -84,6 +85,8 @@ describe("<LogEventSource />", () => {
     });
   }
 
+  const sourceUrl = "/api/logs/stream?id=abc&lastEventId=&host=localhost&stdout=1&stderr=1";
+
   test("renders correctly", async () => {
     const wrapper = createLogEventSource();
     expect(wrapper.html()).toMatchSnapshot();
@@ -91,22 +94,22 @@ describe("<LogEventSource />", () => {
 
   test("should connect to EventSource", async () => {
     const wrapper = createLogEventSource();
-    sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-    expect(sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].readyState).toBe(1);
+    sources[sourceUrl].emitOpen();
+    expect(sources[sourceUrl].readyState).toBe(1);
     wrapper.unmount();
   });
 
   test("should close EventSource", async () => {
     const wrapper = createLogEventSource();
-    sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
+    sources[sourceUrl].emitOpen();
     wrapper.unmount();
-    expect(sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].readyState).toBe(2);
+    expect(sources[sourceUrl].readyState).toBe(2);
   });
 
   test("should parse messages", async () => {
     const wrapper = createLogEventSource();
-    sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-    sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+    sources[sourceUrl].emitOpen();
+    sources[sourceUrl].emitMessage({
       data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
     });
 
@@ -121,8 +124,8 @@ describe("<LogEventSource />", () => {
   describe("render html correctly", () => {
     test("should render messages", async () => {
       const wrapper = createLogEventSource();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
       });
 
@@ -134,8 +137,8 @@ describe("<LogEventSource />", () => {
 
     test("should render messages with color", async () => {
       const wrapper = createLogEventSource();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: '{"ts":1560336942459,"m":"\\u001b[30mblack\\u001b[37mwhite", "id":1}',
       });
 
@@ -147,8 +150,8 @@ describe("<LogEventSource />", () => {
 
     test("should render messages with html entities", async () => {
       const wrapper = createLogEventSource();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
@@ -160,8 +163,8 @@ describe("<LogEventSource />", () => {
 
     test("should render dates with 12 hour style", async () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
@@ -173,8 +176,8 @@ describe("<LogEventSource />", () => {
 
     test("should render dates with 24 hour style", async () => {
       const wrapper = createLogEventSource({ hourStyle: "24" });
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
       });
 
@@ -186,11 +189,11 @@ describe("<LogEventSource />", () => {
 
     test("should render messages with filter", async () => {
       const wrapper = createLogEventSource({ searchFilter: "test" });
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitOpen();
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitOpen();
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"foo bar", "id":1}`,
       });
-      sources["/api/logs/stream?id=abc&lastEventId=&host=localhost"].emitMessage({
+      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"test bar", "id":2}`,
       });
 

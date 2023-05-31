@@ -1,5 +1,8 @@
 <template>
   <div class="columns is-1 is-variable is-mobile">
+    <div class="column is-narrow" v-if="showStd">
+      <log-std :std="logEntry.std"></log-std>
+    </div>
     <div class="column is-narrow" v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>

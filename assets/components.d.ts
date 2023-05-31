@@ -32,8 +32,10 @@ declare module '@vue/runtime-core' {
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']
     LogEventSource: typeof import('./components/LogViewer/LogEventSource.vue')['default']
     LogLevel: typeof import('./components/LogViewer/LogLevel.vue')['default']
+    LogStd: typeof import('./components/LogViewer/LogStd.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewer/LogViewerWithSource.vue')['default']
+    'Mdi:check': typeof import('~icons/mdi/check')['default']
     'Mdi:dotsVertical': typeof import('~icons/mdi/dots-vertical')['default']
     'Mdi:lightChevronDoubleDown': typeof import('~icons/mdi-light/chevron-double-down')['default']
     'Mdi:lightChevronLeft': typeof import('~icons/mdi-light/chevron-left')['default']
@@ -56,6 +58,7 @@ declare module '@vue/runtime-core' {
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
     StatMonitor: typeof import('./components/LogViewer/StatMonitor.vue')['default']
     StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
+    Tag: typeof import('./components/Tag.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }

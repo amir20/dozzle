@@ -93,8 +93,20 @@ func (g *eventGenerator) consume() {
 		if message != "" {
 			h := fnv.New32a()
 			h.Write([]byte(message))
+			std := message[:3]
+			var stdType StdType
+			switch std {
+			case "OUT":
+				stdType = STDOUT
+			case "ERR":
+				stdType = STDERR
+			default:
+				log.Panicf("unknown std type [%s] with message [%s]", std, message)
+			}
 
-			logEvent := &LogEvent{Id: h.Sum32(), Message: message}
+			message = message[3:]
+
+			logEvent := &LogEvent{Id: h.Sum32(), Message: message, StdType: stdType}
 
 			if index := strings.IndexAny(message, " "); index != -1 {
 				logId := message[:index]
