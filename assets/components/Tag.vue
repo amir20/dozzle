@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-const { size = undefined } = defineProps<{ size: "small" | undefined }>();
+const { size = undefined } = defineProps<{ size?: "small" | undefined }>();
 </script>
 
 <style scoped lang="scss">

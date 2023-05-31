@@ -1,6 +1,6 @@
 <template>
   <dropdown-menu class="is-right">
-    <a class="dropdown-item" @click="onClearClicked">
+    <a class="dropdown-item" @click="clear()">
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
@@ -47,9 +47,7 @@ import { Container } from "@/models/Container";
 const { showSearch } = useSearchFilter();
 const { base } = config;
 
-const { onClearClicked = (e: Event) => {} } = defineProps<{
-  onClearClicked: (e: Event) => void;
-}>();
+const clear = defineEmit();
 
 const container = inject("container") as ComputedRef<Container>;
 </script>

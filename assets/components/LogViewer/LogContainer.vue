@@ -10,7 +10,7 @@
         </div>
 
         <div class="mr-2 column is-narrow is-paddingless is-hidden-mobile">
-          <log-actions-toolbar :onClearClicked="onClearClicked" />
+          <log-actions-toolbar @clear="onClearClicked()" />
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
           <button class="delete is-medium" @click="emit('close')"></button>

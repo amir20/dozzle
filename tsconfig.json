@@ -23,7 +23,7 @@
       "vue/ref-macros",
       "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
-      "@vue-macros/reactivity-transform/macros-global"
+      "unplugin-vue-macros/macros-global"
     ]
   },
   "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
