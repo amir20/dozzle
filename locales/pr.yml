@@ -2,8 +2,8 @@ toolbar:
   clear: Limpar
   download: Descarregar
   search: Pesquisa
-  show: Mostrar {std}
-  hide: Ocultar {std}
+  show: Mostrar apenas {std}
+  show-all: Mostrar todos os fluxos
 label:
   containers: Contentores
   total-containers: Contentores Totais

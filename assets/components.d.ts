@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
+    'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']
@@ -20,8 +21,8 @@ declare module '@vue/runtime-core' {
     ContainerPopup: typeof import('./components/LogViewer/ContainerPopup.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
-    DateTime: typeof import('./components/DateTime.vue')['default']
-    DistanceTime: typeof import('./components/DistanceTime.vue')['default']
+    DateTime: typeof import('./components/common/DateTime.vue')['default']
+    DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     DropdownMenu: typeof import('./components/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
@@ -43,7 +44,7 @@ declare module '@vue/runtime-core' {
     'Mdi:lightCog': typeof import('~icons/mdi-light/cog')['default']
     'Mdi:lightLogout': typeof import('~icons/mdi-light/logout')['default']
     'Mdi:lightMagnify': typeof import('~icons/mdi-light/magnify')['default']
-    MobileMenu: typeof import('./components/MobileMenu.vue')['default']
+    MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']
     'Octicon:download24': typeof import('~icons/octicon/download24')['default']
     'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
@@ -58,7 +59,7 @@ declare module '@vue/runtime-core' {
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
     StatMonitor: typeof import('./components/LogViewer/StatMonitor.vue')['default']
     StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
-    Tag: typeof import('./components/Tag.vue')['default']
+    Tag: typeof import('./components/common/Tag.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }
