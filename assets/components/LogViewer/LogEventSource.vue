@@ -7,16 +7,14 @@
 import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
-const emit = defineEmits<{
-  (e: "loading-more", value: boolean): void;
-}>();
+const loadingMore = defineEmit<[value: boolean]>();
 
 const container = inject("container") as ComputedRef<Container>;
 const config = inject("stream-config") as { stdout: boolean; stderr: boolean };
 const { messages, loadOlderLogs } = useLogStream(container, config);
 
-const beforeLoading = () => emit("loading-more", true);
-const afterLoading = () => emit("loading-more", false);
+const beforeLoading = () => loadingMore(true);
+const afterLoading = () => loadingMore(false);
 
 defineExpose({
   clear: () => (messages.value = []),

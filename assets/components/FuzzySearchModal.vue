@@ -43,9 +43,7 @@ const { maxResults: resultLimit = 20 } = defineProps<{
   maxResults?: number;
 }>();
 
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+const close = defineEmit();
 
 const query = ref("");
 const autocomplete = ref<HTMLElement>();
@@ -91,11 +89,11 @@ watchOnce(autocomplete, () => autocomplete.value?.focus());
 
 function selected({ id }: { id: string }) {
   router.push({ name: "container-id", params: { id } });
-  emit("close");
+  close();
 }
 function addColumn(container: Container) {
   store.appendActiveContainer(container);
-  emit("close");
+  close();
 }
 </script>
 

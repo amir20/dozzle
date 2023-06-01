@@ -13,7 +13,7 @@
           <log-actions-toolbar @clear="onClearClicked()" />
         </div>
         <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
-          <button class="delete is-medium" @click="emit('close')"></button>
+          <button class="delete is-medium" @click="close()"></button>
         </div>
       </div>
     </template>
@@ -38,9 +38,7 @@ const {
   closable?: boolean;
 }>();
 
-const emit = defineEmits<{
-  (event: "close"): void;
-}>();
+const close = defineEmit();
 
 const store = useContainerStore();
 

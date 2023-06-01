@@ -15,9 +15,7 @@ const { data, width = 150, height = 30 } = defineProps<{ data: Point<unknown>[];
 const x = d3.scaleLinear().range([width, 0]);
 const y = d3.scaleLinear().range([height, 0]);
 
-const emit = defineEmits<{
-  (event: "selected-point", value: Point<unknown>): void;
-}>();
+const selectedPoint = defineEmit<[value: Point<unknown>]>();
 
 const shape = d3
   .area<Point<unknown>>()
@@ -41,7 +39,7 @@ function onMove(e: MouseEvent) {
   const index = Math.round(xValue);
   lineX = x(index);
   const point = data[index];
-  emit("selected-point", point);
+  selectedPoint(point);
 }
 </script>
 
