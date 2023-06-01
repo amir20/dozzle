@@ -3,8 +3,8 @@
     <template #trigger>
       <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
         <span class="icon">
-          <carbon:circle-solid class="is-red is-small" v-if="streamConfig.stdout" />
-          <carbon:circle-solid class="is-blue is-small" v-if="streamConfig.stderr" />
+          <carbon:circle-solid class="is-red is-small" v-if="streamConfig.stderr" />
+          <carbon:circle-solid class="is-blue is-small" v-if="streamConfig.stdout" />
         </span>
       </button>
     </template>
