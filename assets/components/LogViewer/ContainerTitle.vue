@@ -1,6 +1,6 @@
 <template>
   <div class="columns is-marginless has-text-weight-bold is-family-monospace">
-    <div class="column is-narrow" v-if="container.health">
+    <div class="column is-narrow is-hidden-mobile" v-if="container.health">
       <container-health :health="container.health"></container-health>
     </div>
     <div class="column is-ellipsis">

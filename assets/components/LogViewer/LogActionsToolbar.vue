@@ -1,10 +1,18 @@
 <template>
   <dropdown-menu class="is-right">
+    <template #trigger>
+      <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+        <span class="icon">
+          <carbon:circle-solid class="is-red is-small" v-if="streamConfig.stdout" />
+          <carbon:circle-solid class="is-blue is-small" v-if="streamConfig.stderr" />
+        </span>
+      </button>
+    </template>
     <a class="dropdown-item" @click="clear()">
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <octicon:trash-24 class="mr-4" />
+            <octicon:trash-24 />
           </div>
         </div>
         <div class="level-right">
@@ -16,7 +24,7 @@
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <octicon:download-24 class="mr-4" />
+            <octicon:download-24 />
           </div>
         </div>
         <div class="level-right">
@@ -29,7 +37,7 @@
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <mdi:light-magnify class="mr-4" />
+            <mdi:light-magnify />
           </div>
         </div>
         <div class="level-right">
@@ -39,28 +47,61 @@
     </a>
 
     <hr class="dropdown-divider" />
-    <a class="dropdown-item" @click="streamConfig.stdout = !streamConfig.stdout">
+    <a
+      class="dropdown-item"
+      @click="
+        streamConfig.stdout = true;
+        streamConfig.stderr = true;
+      "
+    >
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <mdi:check class="mr-4 is-blue" v-if="streamConfig.stdout" />
+            <template v-if="streamConfig.stderr && streamConfig.stdout">
+              <carbon:circle-solid class="is-red is-small" />
+              <carbon:circle-solid class="is-blue is-small" />
+            </template>
           </div>
         </div>
         <div class="level-right">
-          {{ $t(streamConfig.stdout ? "toolbar.hide" : "toolbar.show", { std: "STDOUT" }) }}
+          {{ $t("toolbar.show-all") }}
         </div>
       </div>
     </a>
-    <a class="dropdown-item" @click="streamConfig.stderr = !streamConfig.stderr">
+    <a
+      class="dropdown-item"
+      @click="
+        streamConfig.stdout = true;
+        streamConfig.stderr = false;
+      "
+    >
       <div class="level is-justify-content-start">
         <div class="level-left">
           <div class="level-item">
-            <mdi:check class="mr-4 is-red" v-if="streamConfig.stderr" />
+            <carbon:circle-solid class="is-blue is-small" v-if="!streamConfig.stderr && streamConfig.stdout" />
+          </div>
+        </div>
+        <div class="level-right">
+          {{ $t("toolbar.show", { std: "STDOUT" }) }}
+        </div>
+      </div>
+    </a>
+    <a
+      class="dropdown-item"
+      @click="
+        streamConfig.stdout = false;
+        streamConfig.stderr = true;
+      "
+    >
+      <div class="level is-justify-content-start">
+        <div class="level-left">
+          <div class="level-item">
+            <carbon:circle-solid class="is-red is-small" v-if="streamConfig.stderr && !streamConfig.stdout" />
           </div>
         </div>
         <div class="level-right">
           <div class="level-item">
-            {{ $t(streamConfig.stderr ? "toolbar.hide" : "toolbar.show", { std: "STDERR" }) }}
+            {{ $t("toolbar.show", { std: "STDERR" }) }}
           </div>
         </div>
       </div>
@@ -84,5 +125,11 @@ const streamConfig = inject("stream-config") as { stdout: boolean; stderr: boole
 <style lang="scss" scoped>
 .level-left .level-item {
   width: 2.2em;
+  align-items: center;
+  margin-right: 0.5em;
+}
+
+.is-small {
+  width: 0.6em;
 }
 </style>

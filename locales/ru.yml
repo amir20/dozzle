@@ -2,8 +2,8 @@ toolbar:
   clear: Очистить
   download: Скачать
   search: Поиск
-  show: Показать {std}
-  hide: Скрыть {std}
+  show: Показать только {std}
+  show-all: Показать все потоки
 label:
   containers: Контейнеры
   total-containers: Всего Контейнеров

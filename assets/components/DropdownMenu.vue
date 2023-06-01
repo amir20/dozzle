@@ -1,11 +1,13 @@
 <template>
   <div class="dropdown is-hoverable">
     <div class="dropdown-trigger">
-      <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-        <span class="icon">
-          <mdi:dots-vertical />
-        </span>
-      </button>
+      <slot name="trigger">
+        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+          <span class="icon">
+            <mdi:dots-vertical />
+          </span>
+        </button>
+      </slot>
     </div>
     <div class="dropdown-menu" id="dropdown-menu" role="menu">
       <div class="dropdown-content">
