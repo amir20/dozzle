@@ -13,8 +13,9 @@ import (
 
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,31 +48,40 @@ func CreateServer(clients map[string]docker.Client, content fs.FS, config Config
 
 var fileServer http.Handler
 
-func createRouter(h *handler) *mux.Router {
+func createRouter(h *handler) *chi.Mux {
 	initializeAuth(h)
 
 	base := h.config.Base
-	r := mux.NewRouter()
-	r.Use(cspHeaders)
-	if base != "/" {
-		r.HandleFunc(base, func(w http.ResponseWriter, req *http.Request) {
-			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
-		})
+	r := chi.NewRouter()
+
+	if log.IsLevelEnabled(log.DebugLevel) {
+		r.Use(middleware.Logger)
 	}
-	s := r.PathPrefix(base).Subrouter()
-	s.Handle("/api/logs/stream", authorizationRequired(h.streamLogs))
-	s.Handle("/api/logs/download", authorizationRequired(h.downloadLogs))
-	s.Handle("/api/logs", authorizationRequired(h.fetchLogsBetweenDates))
-	s.Handle("/api/events/stream", authorizationRequired(h.streamEvents))
-	s.HandleFunc("/api/validateCredentials", h.validateCredentials)
-	s.Handle("/logout", authorizationRequired(h.clearSession))
-	s.Handle("/version", authorizationRequired(h.version))
-	s.HandleFunc("/healthcheck", h.healthcheck)
+	r.Use(cspHeaders)
+
+	r.Route(base, func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(authorizationRequired)
+			r.Get("/api/logs/stream", h.streamLogs)
+			r.Get("/api/events/stream", h.streamEvents)
+			r.Get("/api/logs/download", h.downloadLogs)
+			r.Get("/api/logs", h.fetchLogsBetweenDates)
+			r.Get("/logout", h.clearSession)
+			r.Get("/version", h.version)
+		})
+
+		r.Post("/api/validateCredentials", h.validateCredentials)
+		r.Get("/healthcheck", h.healthcheck)
+		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
+		r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+			defaultHandler.ServeHTTP(w, req)
+		})
+	})
 
 	if base != "/" {
-		s.PathPrefix("/").Handler(http.StripPrefix(base+"/", http.HandlerFunc(h.index)))
-	} else {
-		s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
+		r.Get(base, func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
+		})
 	}
 
 	fileServer = http.FileServer(http.FS(h.content))

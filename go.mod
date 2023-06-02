@@ -10,7 +10,6 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/magiconair/properties v1.8.7
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
@@ -27,6 +26,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
+require github.com/go-chi/chi/v5 v5.0.8
+
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -42,4 +43,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-go 1.19
+go 1.20

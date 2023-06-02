@@ -7,9 +7,8 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/gorilla/mux"
-
 	"github.com/amir20/dozzle/docker"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/stretchr/testify/mock"
 
@@ -59,7 +58,7 @@ func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func createHandler(client docker.Client, content fs.FS, config Config) *mux.Router {
+func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
