@@ -36,8 +36,6 @@ type handler struct {
 	config  *Config
 }
 
-var fileServer http.Handler
-
 // CreateServer creates a service for http handler
 func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
 	handler := &handler{
@@ -45,12 +43,14 @@ func CreateServer(clients map[string]docker.Client, content fs.FS, config Config
 		content: content,
 		config:  &config,
 	}
-	initializeAuth(handler)
-	fileServer = http.FileServer(http.FS(content))
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
 
+var fileServer http.Handler
+
 func createRouter(h *handler) *chi.Mux {
+	initializeAuth(h)
+
 	base := h.config.Base
 	r := chi.NewRouter()
 
@@ -83,6 +83,8 @@ func createRouter(h *handler) *chi.Mux {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		})
 	}
+
+	fileServer = http.FileServer(http.FS(h.content))
 
 	return r
 }
