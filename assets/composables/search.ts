@@ -11,6 +11,9 @@ function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
     if (typeof value === "string" && regex.test(value)) {
       return true;
     }
+    if (isObject(value) && regex.test(JSON.stringify(value))) {
+      return true;
+    }
     if (Array.isArray(value) && matchRecord(value, regex)) {
       return true;
     }

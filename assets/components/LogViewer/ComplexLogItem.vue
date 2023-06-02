@@ -13,7 +13,11 @@
       <ul class="fields" :class="{ expanded }" @click="expandToggle()">
         <li v-for="(value, name) in validValues">
           <span class="has-text-grey">{{ name }}=</span
-          ><span class="has-text-weight-bold" v-html="markSearch(value)"></span>
+          ><span class="has-text-weight-bold" v-if="value === null">&lt;null&gt;</span>
+          <template v-else-if="Array.isArray(value)">
+            <span class="has-text-weight-bold" v-html="markSearch(JSON.stringify(value))"> </span>
+          </template>
+          <span class="has-text-weight-bold" v-html="markSearch(value)" v-else></span>
         </li>
         <li class="has-text-grey" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
