@@ -14,6 +14,7 @@ import (
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -53,12 +54,11 @@ func createRouter(h *handler) *chi.Mux {
 	base := h.config.Base
 	// r := mux.NewRouter()
 	r := chi.NewRouter()
-	r.Use(cspHeaders)
-	if base != "/" {
-		r.HandleFunc(base, func(w http.ResponseWriter, req *http.Request) {
-			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
-		})
+
+	if log.IsLevelEnabled(log.DebugLevel) {
+		r.Use(middleware.Logger)
 	}
+	r.Use(cspHeaders)
 
 	r.Route(base, func(r chi.Router) {
 		r.Group(func(r chi.Router) {
@@ -73,8 +73,17 @@ func createRouter(h *handler) *chi.Mux {
 
 		r.Post("/api/validateCredentials", h.validateCredentials)
 		r.Get("/healthcheck", h.healthcheck)
-		r.Get("/", h.index)
+		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
+		r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+			defaultHandler.ServeHTTP(w, req)
+		})
 	})
+
+	if base != "/" {
+		r.Get(base, func(w http.ResponseWriter, req *http.Request) {
+			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
+		})
+	}
 
 	fileServer = http.FileServer(http.FS(h.content))
 
