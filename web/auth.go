@@ -27,17 +27,17 @@ func initializeAuth(h *handler) {
 	}
 }
 
-func authorizationRequired(f http.HandlerFunc) http.Handler {
+func authorizationRequired(next http.Handler) http.Handler {
 	if secured {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if isAuthorized(r) {
-				f(w, r)
+				next.ServeHTTP(w, r)
 			} else {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			}
 		})
 	} else {
-		return f
+		return next
 	}
 }
 

@@ -13,8 +13,8 @@ import (
 
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
+	"github.com/go-chi/chi/v5"
 
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,32 +47,34 @@ func CreateServer(clients map[string]docker.Client, content fs.FS, config Config
 
 var fileServer http.Handler
 
-func createRouter(h *handler) *mux.Router {
+func createRouter(h *handler) *chi.Mux {
 	initializeAuth(h)
 
 	base := h.config.Base
-	r := mux.NewRouter()
+	// r := mux.NewRouter()
+	r := chi.NewRouter()
 	r.Use(cspHeaders)
 	if base != "/" {
 		r.HandleFunc(base, func(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		})
 	}
-	s := r.PathPrefix(base).Subrouter()
-	s.Handle("/api/logs/stream", authorizationRequired(h.streamLogs))
-	s.Handle("/api/logs/download", authorizationRequired(h.downloadLogs))
-	s.Handle("/api/logs", authorizationRequired(h.fetchLogsBetweenDates))
-	s.Handle("/api/events/stream", authorizationRequired(h.streamEvents))
-	s.HandleFunc("/api/validateCredentials", h.validateCredentials)
-	s.Handle("/logout", authorizationRequired(h.clearSession))
-	s.Handle("/version", authorizationRequired(h.version))
-	s.HandleFunc("/healthcheck", h.healthcheck)
 
-	if base != "/" {
-		s.PathPrefix("/").Handler(http.StripPrefix(base+"/", http.HandlerFunc(h.index)))
-	} else {
-		s.PathPrefix("/").Handler(http.StripPrefix(base, http.HandlerFunc(h.index)))
-	}
+	r.Route(base, func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(authorizationRequired)
+			r.Get("/api/logs/stream", h.streamLogs)
+			r.Get("/api/events/stream", h.streamEvents)
+			r.Get("/api/logs/download", h.downloadLogs)
+			r.Get("/api/logs", h.fetchLogsBetweenDates)
+			r.Get("/logout", h.clearSession)
+			r.Get("/version", h.version)
+		})
+
+		r.Post("/api/validateCredentials", h.validateCredentials)
+		r.Get("/healthcheck", h.healthcheck)
+		r.Get("/", h.index)
+	})
 
 	fileServer = http.FileServer(http.FS(h.content))
 
