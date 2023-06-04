@@ -15,8 +15,8 @@ devDependencies:
     specifier: ^0.53.0
     version: 0.53.0
   '@unocss/transformer-directives':
-    specifier: ^0.52.7
-    version: 0.52.7
+    specifier: ^0.53.0
+    version: 0.53.0
   dozzle:
     specifier: workspace:*
     version: link:..
@@ -549,6 +549,13 @@ packages:
     resolution: {integrity: sha512-v68nQjeU/8I8aOIQC6prIk5GJi8SpkaFsdh9p1UPSkJPL3rYv0bBLIkYrwBcmaqKUOvzL5joN0Cueolq/+GtUw==}
     dependencies:
       '@unocss/core': 0.52.7
+      css-tree: 2.3.1
+    dev: true
+
+  /@unocss/transformer-directives@0.53.0:
+    resolution: {integrity: sha512-EIrrVphm0Bv+Ng2w1Qj5f0JFkfbN0b1/1fJ9hwgb5S2ewE3Xvwk59/h321D/GGDraQCUqqyZGgcG368xVh3pQA==}
+    dependencies:
+      '@unocss/core': 0.53.0
       css-tree: 2.3.1
     dev: true
 
