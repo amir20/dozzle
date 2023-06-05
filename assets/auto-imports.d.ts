@@ -204,6 +204,7 @@ declare global {
   const useEventBus: typeof import('@vueuse/core')['useEventBus']
   const useEventListener: typeof import('@vueuse/core')['useEventListener']
   const useEventSource: typeof import('@vueuse/core')['useEventSource']
+  const useExponentialMovingAverage: typeof import('./utils/index')['useExponentialMovingAverage']
   const useEyeDropper: typeof import('@vueuse/core')['useEyeDropper']
   const useFavicon: typeof import('@vueuse/core')['useFavicon']
   const useFetch: typeof import('@vueuse/core')['useFetch']
@@ -540,6 +541,7 @@ declare module 'vue' {
     readonly useEventBus: UnwrapRef<typeof import('@vueuse/core')['useEventBus']>
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
     readonly useEventSource: UnwrapRef<typeof import('@vueuse/core')['useEventSource']>
+    readonly useExponentialMovingAverage: UnwrapRef<typeof import('./utils/index')['useExponentialMovingAverage']>
     readonly useEyeDropper: UnwrapRef<typeof import('@vueuse/core')['useEyeDropper']>
     readonly useFavicon: UnwrapRef<typeof import('@vueuse/core')['useFavicon']>
     readonly useFetch: UnwrapRef<typeof import('@vueuse/core')['useFetch']>
@@ -870,6 +872,7 @@ declare module '@vue/runtime-core' {
     readonly useEventBus: UnwrapRef<typeof import('@vueuse/core')['useEventBus']>
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
     readonly useEventSource: UnwrapRef<typeof import('@vueuse/core')['useEventSource']>
+    readonly useExponentialMovingAverage: UnwrapRef<typeof import('./utils/index')['useExponentialMovingAverage']>
     readonly useEyeDropper: UnwrapRef<typeof import('@vueuse/core')['useEyeDropper']>
     readonly useFavicon: UnwrapRef<typeof import('@vueuse/core')['useFavicon']>
     readonly useFetch: UnwrapRef<typeof import('@vueuse/core')['useFetch']>

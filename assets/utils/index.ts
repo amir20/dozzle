@@ -1,3 +1,5 @@
+import { ShallowRef } from "vue";
+
 export function formatBytes(bytes: number, decimals = 2) {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
@@ -36,4 +38,19 @@ export function arrayEquals(a: string[], b: string[]): boolean {
 export function stripVersion(label: string) {
   const [name, _] = label.split(":");
   return name;
+}
+
+export function useExponentialMovingAverage<T extends Record<string, number>>(
+  source: ShallowRef<T>,
+  alpha: number = 0.2
+) {
+  const ema = shallowRef<T>(source.value);
+
+  watch(source, (value) => {
+    for (const key in value) {
+      ema.value[key] = alpha * value[key] + (1 - alpha) * ema.value[key];
+    }
+  });
+
+  return ema;
 }
