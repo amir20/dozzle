@@ -34,18 +34,18 @@ const cpuData = computedWithControl(
   },
 );
 
-const memoryData = computedWithControl(
-  () => container.value.getLastStat(),
-  () => {
-    const history = container.value.getStatHistory();
-    const points: Point<string>[] = history.map((stat, i) => ({
-      x: i,
-      y: stat.snapshot.memory,
-      value: formatBytes(stat.snapshot.memoryUsage),
-    }));
-    return points;
-  },
-);
+const avg = computed(() => container.value.movingAverageStat);
+const ema = useRefHistory(avg, { capacity: 300 });
+
+const memoryData = computed(() => {
+  const history = ema.history.value;
+  const points: Point<string>[] = history.map((stat, i) => ({
+    x: i,
+    y: stat.snapshot.cpu,
+    value: Math.round(stat.snapshot.cpu) + "%",
+  }));
+  return points;
+});
 </script>
 
 <style lang="scss" scoped>

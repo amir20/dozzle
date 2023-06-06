@@ -40,16 +40,15 @@ export function stripVersion(label: string) {
   return name;
 }
 
-export function useExponentialMovingAverage<T extends Record<string, number>>(
-  source: ShallowRef<T>,
-  alpha: number = 0.2
-) {
-  const ema = shallowRef<T>(source.value);
+export function useExponentialMovingAverage<T extends Record<string, number>>(source: Ref<T>, alpha: number = 0.2) {
+  const ema = ref<T>(source.value) as Ref<T>;
 
   watch(source, (value) => {
+    const newValue = {} as Record<string, number>;
     for (const key in value) {
-      ema.value[key] = alpha * value[key] + (1 - alpha) * ema.value[key];
+      newValue[key] = alpha * value[key] + (1 - alpha) * ema.value[key];
     }
+    ema.value = newValue as T;
   });
 
   return ema;

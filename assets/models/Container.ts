@@ -25,7 +25,7 @@ export class Container {
     public state: ContainerState,
     public health?: ContainerHealth,
   ) {
-    this.stat = shallowRef({ cpu: 0, memory: 0, memoryUsage: 0 });
+    this.stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
     this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });
     this.movingAverageStat = useExponentialMovingAverage(this.stat, 0.2);
 
