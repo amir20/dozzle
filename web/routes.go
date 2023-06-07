@@ -14,7 +14,6 @@ import (
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 
 	log "github.com/sirupsen/logrus"
 )
