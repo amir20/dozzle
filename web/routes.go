@@ -54,9 +54,6 @@ func createRouter(h *handler) *chi.Mux {
 	base := h.config.Base
 	r := chi.NewRouter()
 
-	if log.IsLevelEnabled(log.DebugLevel) {
-		r.Use(middleware.Logger)
-	}
 	r.Use(cspHeaders)
 
 	r.Route(base, func(r chi.Router) {
