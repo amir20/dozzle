@@ -76,8 +76,8 @@ HTTP/1.1 200 OK
 Connection: close
 Content-Type: application/ld+json; charset=UTF-8
 
-{"m":"INFO Testing logs...","ts":1589396137772,"id":1122614848,"l":"info","s":1}
-{"m":"INFO Testing logs...","ts":1589396137772,"id":1543246723,"l":"info","s":2}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":1122614848,"l":"info","s":"stdout"}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":1543246723,"l":"info","s":"stderr"}
 
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
@@ -160,7 +160,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":852638900,"l":"info","s":1}
+data: {"m":"INFO Testing logs...","ts":0,"id":852638900,"l":"info","s":"stdout"}
 
 event: container-stopped
 data: end of stream
@@ -186,7 +186,7 @@ Connection: keep-alive
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":3373215946,"l":"info","s":1}
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":3373215946,"l":"info","s":"stdout"}
 id: 1589396137772
 
 event: container-stopped
