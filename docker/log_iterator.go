@@ -98,15 +98,16 @@ func (g *eventGenerator) consume() {
 			switch std {
 			case "OUT":
 				stdType = STDOUT
+				message = message[3:]
 			case "ERR":
 				stdType = STDERR
+				message = message[3:]
 			default:
-				log.Panicf("unknown std type [%s] with message [%s]", std, message)
+				log.Debugf("unknown std type [%s] with message [%s]", std, message)
+				stdType = UNKNOWN
 			}
 
-			message = message[3:]
-
-			logEvent := &LogEvent{Id: h.Sum32(), Message: message, StdType: stdType}
+			logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: stdType.String()}
 
 			if index := strings.IndexAny(message, " "); index != -1 {
 				logId := message[:index]

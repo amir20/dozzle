@@ -19,7 +19,7 @@ export interface LogEvent {
   readonly id: number;
   readonly l: string;
   readonly p: Position;
-  readonly s: number;
+  readonly s: "stdout" | "stderr" | "unknown";
 }
 
 export abstract class LogEntry<T extends string | JSONObject> implements HasComponent {
@@ -151,9 +151,15 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       new Date(event.ts),
       event.l,
       event.p,
-      event.s === 1 ? "stdout" : "stderr"
+      event.s === "unknown" ? "stderr" : event.s
     );
   } else {
-    return new ComplexLogEntry(event.m, event.id, new Date(event.ts), event.l, event.s === 1 ? "stdout" : "stderr");
+    return new ComplexLogEntry(
+      event.m,
+      event.id,
+      new Date(event.ts),
+      event.l,
+      event.s === "unknown" ? "stderr" : event.s
+    );
   }
 }
