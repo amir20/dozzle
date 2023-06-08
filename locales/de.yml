@@ -20,7 +20,7 @@ tooltip:
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.
-  logs-skipped: {total} Einträge übersprungen
+  logs-skipped: \{total} Einträge übersprungen
   container-not-found: Container nicht gefunden.
 title:
   page-not-found: Seite nicht gefunden
@@ -52,4 +52,3 @@ settings:
     Eine neue Version ist verfügbar! Aktualisiere auf <a :href="{href}" class="next-release"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
-
