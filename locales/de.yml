@@ -27,8 +27,8 @@ title:
   login: Authentifizierung erforderlich
   settings: Einstellungen
 button:
-  logout: Abmelden
-  login: Anmelden
+  logout: Ausloggen
+  login: Anmeldung
 placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
 settings:
