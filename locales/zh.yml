@@ -1,0 +1,54 @@
+toolbar:
+  clear: 清除
+  download: 下载
+  search: 搜索
+  show: 显示 {std}
+  show-all: 显示所有流
+label:
+  containers: 容器
+  total-containers: 总容器
+  running: 运行中
+  total-cpu-usage: 总CPU使用率
+  total-mem-usage: 总内存使用率
+  dozzle-version: Dozzle版本
+  all: 所有
+  password: 密码
+  username: 用户名
+tooltip:
+  search: 搜索容器 (⌘ + k, ⌃k)
+  pin-column: 固定为列
+error:
+  page-not-found: 此页面不存在。
+  invalid-auth: 用户名和密码无效。
+  logs-skipped: 跳过 {total} 条记录
+  container-not-found: 容器未找到。
+title:
+  page-not-found: 页面未找到
+  login: 需要身份验证
+  settings: 设置
+button:
+  logout: 登出
+  login: 登录
+placeholder:
+  search-containers: 搜索容器 (⌘ + k, ⌃k)
+settings:
+  display: 显示
+  small-scrollbars: 使用较小的滚动条
+  show-timesamps: 显示时间戳
+  soft-wrap: 软换行
+  12-24-format: >-
+    默认情况下，Dozzle将使用您的浏览器区域设置来格式化时间。您可以
+    强制使用12或24小时制。
+  font-size: 用于日志的字体大小
+  color-scheme: 颜色方案
+  options: 选项
+  show-stopped-containers: 显示已停止的容器
+  about: 关于
+  search: >-
+    使用Dozzle启用搜索 <code>command+f</code> 或
+    <code>ctrl+f</code>
+  using-version: 您正在使用Dozzle {version}。
+  update-available: >-
+    新版本可用！更新到 <a :href="{href}" class="next-release"
+    target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
+  show-std: 显示stdout和stderr标签
