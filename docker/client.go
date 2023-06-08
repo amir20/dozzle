@@ -30,7 +30,8 @@ type dockerClient struct {
 type StdType int
 
 const (
-	STDOUT StdType = 1 << iota
+	UNKNOWN StdType = 1 << iota
+	STDOUT
 	STDERR
 )
 const STDALL = STDOUT | STDERR
@@ -38,13 +39,13 @@ const STDALL = STDOUT | STDERR
 func (s StdType) String() string {
 	switch s {
 	case STDOUT:
-		return "out"
+		return "stdout"
 	case STDERR:
-		return "err"
+		return "stderr"
 	case STDALL:
 		return "all"
 	default:
-		return ""
+		return "unknown"
 	}
 }
 
