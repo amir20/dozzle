@@ -1,0 +1,55 @@
+toolbar:
+  clear: Leeren
+  download: Herunterladen
+  search: Suchen
+  show: Zeige nur {std}
+  show-all: Zeige alle Streams
+label:
+  containers: Container
+  total-containers: Gesamt Container
+  running: Laufend
+  total-cpu-usage: Gesamte CPU Auslastung
+  total-mem-usage: Gesamte Speicher Auslastung
+  dozzle-version: Dozzle Version
+  all: Alle
+  password: Passwort
+  username: Benutzername
+tooltip:
+  search: Suche Container (⌘ + k, ⌃k)
+  pin-column: Als Spalte anheften
+error:
+  page-not-found: Diese Seite existiert nicht.
+  invalid-auth: Benutzername und Passwort sind ungültig.
+  logs-skipped: {total} Einträge übersprungen
+  container-not-found: Container nicht gefunden.
+title:
+  page-not-found: Seite nicht gefunden
+  login: Authentifizierung erforderlich
+  settings: Einstellungen
+button:
+  logout: Abmelden
+  login: Anmelden
+placeholder:
+  search-containers: Suche Container (⌘ + k, ⌃k)
+settings:
+  display: Anzeige
+  small-scrollbars: Verwende kleinere Scrollbars
+  show-timesamps: Zeige Zeitstempel
+  soft-wrap: Zeilenumbruch
+  12-24-format: >-
+    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
+    Zeit anzuzeigen. Sie können die Zeit auf 12 oder 24 Stunden umstellen.
+  font-size: Schriftgröße für Logs
+  color-scheme: Farbschema
+  options: Optionen
+  show-stopped-containers: Zeige gestoppte Container
+  about: Über
+  search: >-
+    Aktiviere die Suche mit Dozzle mit <code>command+f</code> oder
+    <code>ctrl+f</code>
+  using-version: Du verwendest Dozzle {version}.
+  update-available: >-
+    Eine neue Version ist verfügbar! Aktualisiere auf <a :href="{href}" class="next-release"
+    target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Zeige stdout und stderr Labels
+
