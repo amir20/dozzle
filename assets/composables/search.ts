@@ -1,5 +1,6 @@
 import { type Ref } from "vue";
 import { type LogEntry, type JSONObject, SimpleLogEntry, ComplexLogEntry } from "@/models/LogEntry";
+import { encodeXML } from "entities";
 
 const searchFilter = ref<string>("");
 const debouncedSearchFilter = useDebounce(searchFilter);
@@ -22,9 +23,9 @@ function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
 }
 
 export function useSearchFilter() {
-  const regex = computed(() => {
+  const regex = $computed(() => {
     const isSmartCase = debouncedSearchFilter.value === debouncedSearchFilter.value.toLowerCase();
-    return isSmartCase ? new RegExp(debouncedSearchFilter.value, "i") : new RegExp(debouncedSearchFilter.value);
+    return new RegExp(encodeXML(debouncedSearchFilter.value), isSmartCase ? "i" : undefined);
   });
 
   function filteredMessages(messages: Ref<LogEntry<string | JSONObject>[]>) {
@@ -33,9 +34,9 @@ export function useSearchFilter() {
         try {
           return messages.value.filter((d) => {
             if (d instanceof SimpleLogEntry) {
-              return regex.value.test(d.message);
+              return regex.test(d.message);
             } else if (d instanceof ComplexLogEntry) {
-              return matchRecord(d.message, regex.value);
+              return matchRecord(d.message, regex);
             }
             return false;
           });
@@ -62,7 +63,7 @@ export function useSearchFilter() {
       return log.map((d) => markSearch(d));
     }
 
-    return log.toString().replace(regex.value, (match) => `<mark>${match}</mark>`);
+    return log.toString().replace(regex, (match) => `<mark>${match}</mark>`);
   }
 
   function resetSearch() {
