@@ -35,40 +35,31 @@
 
     <section class="columns is-centered section is-marginless pt-0-is-mobile">
       <div class="column is-12-mobile is-6-tablet is-5-desktop is-4-fullhd">
-        <div class="panel">
-          <p class="panel-heading">{{ $t("label.containers") }}</p>
-          <div class="panel-block">
-            <p class="control has-icons-left">
-              <input
-                class="input"
-                type="text"
-                :placeholder="$t('placeholder.search-containers')"
-                v-model="query"
-                @keyup.esc="query = ''"
-                @keyup.enter="onEnter()"
-              />
-              <span class="icon is-left">
-                <mdi:light-magnify />
-              </span>
-            </p>
-          </div>
-          <p class="panel-tabs" v-if="query === ''">
-            <a :class="{ 'is-active': sort === 'running' }" @click="sort = 'running'">{{ $t("label.running") }}</a>
-            <a :class="{ 'is-active': sort === 'all' }" @click="sort = 'all'">{{ $t("label.all") }}</a>
-          </p>
-          <router-link
-            :to="{ name: 'container-id', params: { id: item.id } }"
-            v-for="item in data.slice(0, 10)"
-            :key="item.id"
-            class="panel-block"
-          >
-            <span class="name">{{ item.name }}</span>
+        <table class="table">
+          <tbody>
+            <tr v-for="container in data" :key="container.id">
+              <td>
+                {{ container.name }}
+              </td>
+              <td>
+                {{ container.state }}
+              </td>
+              <td>
+                <distance-time :date="container.created" strict :suffix="false"></distance-time>
+              </td>
+              <td>
+                {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+              </td>
 
-            <div class="subtitle is-7 status">
-              <distance-time :date="item.created"></distance-time>
-            </div>
-          </router-link>
-        </div>
+              <td>
+                {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+              </td>
+              <td>
+                <router-link :to="`/containers/${container.id}`" class="button is-small is-primary"> GO </router-link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
   </div>
@@ -135,13 +126,6 @@ useIntervalFn(
   1000,
   { immediate: true },
 );
-
-function onEnter() {
-  if (data.value.length > 0) {
-    const item = data.value[0];
-    router.push({ name: "container-id", params: { id: item.id } });
-  }
-}
 </script>
 <style lang="scss" scoped>
 .panel {
