@@ -33,34 +33,40 @@
       </div>
     </section>
 
-    <section class="columns is-centered section is-marginless pt-0-is-mobile">
-      <div class="column is-12-mobile is-6-tablet is-5-desktop is-4-fullhd">
-        <table class="table">
-          <tbody>
-            <tr v-for="container in data" :key="container.id">
-              <td>
-                {{ container.name }}
-              </td>
-              <td>
-                {{ container.state }}
-              </td>
-              <td>
-                <distance-time :date="container.created" strict :suffix="false"></distance-time>
-              </td>
-              <td>
-                {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-              </td>
+    <section class="section table-container">
+      <table class="table is-fullwidth">
+        <thead>
+          <th>Name</th>
+          <th>State</th>
+          <th>Running</th>
+          <th>Avg. CPU</th>
+          <th>Avg. Memory</th>
+          <th>Actions</th>
+        </thead>
+        <tbody>
+          <tr v-for="container in data" :key="container.id">
+            <td>
+              {{ container.name }}
+            </td>
+            <td>
+              {{ container.state }}
+            </td>
+            <td>
+              <distance-time :date="container.created" strict :suffix="false"></distance-time>
+            </td>
+            <td>
+              {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+            </td>
 
-              <td>
-                {{ formatBytes(container.movingAverageStat.memoryUsage) }}
-              </td>
-              <td>
-                <router-link :to="`/containers/${container.id}`" class="button is-small is-primary"> GO </router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            <td>
+              {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+            </td>
+            <td>
+              <router-link :to="`/containers/${container.id}`" class="button is-small is-primary"> GO </router-link>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </div>
 </template>
