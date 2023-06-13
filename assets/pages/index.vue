@@ -72,39 +72,16 @@
 </template>
 
 <script lang="ts" setup>
-import { useFuse } from "@vueuse/integrations/useFuse";
-
 const { version } = config;
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore);
-const router = useRouter();
 
 const sort = $ref("running");
-const query = ref("");
 
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
-const list = computed(() => {
-  return containers.value.map(({ id, created, name, state }) => {
-    return {
-      id,
-      created,
-      name,
-      state,
-    };
-  });
-});
-
-const { results } = useFuse(query, list, {
-  fuseOptions: { keys: ["name"] },
-  matchAllWhenSearchEmpty: false,
-});
-
 const data = computed(() => {
-  if (results.value.length) {
-    return results.value.map(({ item }) => item);
-  }
   switch (sort) {
     case "all":
       return mostRecentContainers;
