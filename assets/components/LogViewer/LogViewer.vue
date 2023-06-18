@@ -58,7 +58,9 @@ const routeHash = useRouteHash();
 watch(
   routeHash,
   (hash) => {
-    document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
+    if(hash){
+      document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
+    }
   },
   { immediate: true, flush: "post" }
 );
