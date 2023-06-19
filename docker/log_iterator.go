@@ -118,7 +118,7 @@ func (g *eventGenerator) consume() {
 					if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
 						var data map[string]interface{}
 						if err := json.Unmarshal([]byte(message), &data); err != nil {
-							log.Errorf("json unmarshal error while streaming \"%v\" with [%v]", err.Error(), message)
+							log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
 						} else {
 							logEvent.Message = data
 						}
