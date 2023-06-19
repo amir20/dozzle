@@ -93,27 +93,43 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	dockerClient := docker.NewClientWithFilters(args.Filter)
+	clients := make(map[string]docker.Client)
 	for i := 1; ; i++ {
-		_, err := dockerClient.ListContainers()
+		dockerClient, err := docker.NewClientWithFilters(args.Filter)
+
 		if err == nil {
-			break
-		} else if args.WaitForDockerSeconds <= 0 {
-			log.Fatalf("Could not connect to Docker Engine: %v", err)
-		} else {
+			_, err := dockerClient.ListContainers()
+
+			if err == nil {
+				log.Debugf("Connected to local Docker Engine")
+				clients["localhost"] = dockerClient
+				break
+			}
+		}
+		if args.WaitForDockerSeconds > 0 {
 			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
 			time.Sleep(5 * time.Second)
 			args.WaitForDockerSeconds -= 5
+		} else {
+			log.Debugf("Local Docker Engine not found")
+			break
 		}
 	}
 
-	clients := make(map[string]docker.Client)
-	clients["localhost"] = dockerClient
-
 	for _, host := range args.RemoteHost {
 		log.Infof("Creating client for %s", host)
-		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
-		clients[host] = client
+		client, err := docker.NewClientWithTlsAndFilter(args.Filter, host)
+		if err == nil {
+			clients[host] = client
+		} else {
+			log.Warnf("Could not create client for %s: %s", host, err)
+		}
+	}
+
+	if len(clients) == 0 {
+		log.Fatal("Could not connect to any Docker Engines")
+	} else {
+		log.Infof("Connected to %d Docker Engine(s)", len(clients))
 	}
 
 	if args.Username == "" && args.UsernameFile != nil {

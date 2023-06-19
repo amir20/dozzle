@@ -188,5 +188,7 @@ func (h *handler) clientFromRequest(r *http.Request) docker.Client {
 	if client, ok := h.clients[host]; ok {
 		return client
 	}
-	return h.clients["localhost"]
+
+	log.Fatalf("No client found for host %v", host)
+	return nil
 }
