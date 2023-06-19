@@ -94,26 +94,9 @@ func main() {
 	log.Infof("Dozzle version %s", version)
 
 	clients := make(map[string]docker.Client)
-	for i := 1; ; i++ {
-		dockerClient, err := docker.NewClientWithFilters(args.Filter)
 
-		if err == nil {
-			_, err := dockerClient.ListContainers()
-
-			if err == nil {
-				log.Debugf("Connected to local Docker Engine")
-				clients["localhost"] = dockerClient
-				break
-			}
-		}
-		if args.WaitForDockerSeconds > 0 {
-			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
-			time.Sleep(5 * time.Second)
-			args.WaitForDockerSeconds -= 5
-		} else {
-			log.Debugf("Local Docker Engine not found")
-			break
-		}
+	if localClient := createLocalClient(args); localClient != nil {
+		clients["localhost"] = localClient
 	}
 
 	for _, host := range args.RemoteHost {
@@ -185,7 +168,7 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
-	log.Debug("shut down complete")
+	log.Debug("shutdown complete")
 }
 
 func doStartEvent(arg args) {
@@ -213,4 +196,29 @@ func doStartEvent(arg args) {
 	if err := analytics.SendStartEvent(event); err != nil {
 		log.Debug(err)
 	}
+}
+
+func createLocalClient(args args) docker.Client {
+	for i := 1; ; i++ {
+		dockerClient, err := docker.NewClientWithFilters(args.Filter)
+
+		if err == nil {
+			_, err := dockerClient.ListContainers()
+
+			if err == nil {
+				log.Debugf("Connected to local Docker Engine")
+				return dockerClient
+
+			}
+		}
+		if args.WaitForDockerSeconds > 0 {
+			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
+			time.Sleep(5 * time.Second)
+			args.WaitForDockerSeconds -= 5
+		} else {
+			log.Debugf("Local Docker Engine not found")
+			break
+		}
+	}
+	return nil
 }
