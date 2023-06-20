@@ -36,6 +36,29 @@ services:
       - 7070:8080
     build:
       context: .
+  remote:
+    container_name: remote
+    environment:
+      - DOZZLE_REMOTE_HOST=tcp://proxy:2375
+      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_NO_ANALYTICS=1
+    ports:
+      - 5050:8080
+    build:
+      context: .
+    depends_on:
+      - proxy
+
+  proxy:
+    container_name: proxy
+    image: tecnativa/docker-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - CONTAINERS=1
+    ports:
+      - 2375:2375
+
   playwright:
     container_name: playwright
     image: mcr.microsoft.com/playwright:v1.35.1-jammy
@@ -50,3 +73,4 @@ services:
       - dozzle
       - custom_base
       - auth
+      - remote
