@@ -24,6 +24,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -50,6 +51,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -76,6 +78,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -101,6 +104,7 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -125,6 +129,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -148,6 +153,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("id", id)
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -167,6 +173,9 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 func Test_handler_streamEvents_happy(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
+	q := req.URL.Query()
+	q.Add("host", "localhost")
+	req.URL.RawQuery = q.Encode()
 	mockedClient := new(MockedClient)
 	messages := make(chan docker.ContainerEvent)
 	errChannel := make(chan error)
@@ -199,6 +208,9 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 func Test_handler_streamEvents_error(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
+	q := req.URL.Query()
+	q.Add("host", "localhost")
+	req.URL.RawQuery = q.Encode()
 	mockedClient := new(MockedClient)
 	messages := make(chan docker.ContainerEvent)
 	errChannel := make(chan error)
@@ -224,6 +236,9 @@ func Test_handler_streamEvents_error(t *testing.T) {
 func Test_handler_streamEvents_error_request(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/events/stream", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
+	q := req.URL.Query()
+	q.Add("host", "localhost")
+	req.URL.RawQuery = q.Encode()
 
 	mockedClient := new(MockedClient)
 
@@ -264,6 +279,7 @@ func Test_handler_between_dates(t *testing.T) {
 	q.Add("id", "123456")
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("host", "localhost")
 	req.URL.RawQuery = q.Encode()
 
 	mockedClient := new(MockedClient)

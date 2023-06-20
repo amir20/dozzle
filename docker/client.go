@@ -71,7 +71,7 @@ type Client interface {
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f map[string][]string) Client {
+func NewClientWithFilters(f map[string][]string) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -84,13 +84,13 @@ func NewClientWithFilters(f map[string][]string) Client {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs}
+	return &dockerClient{cli, filterArgs}, nil
 }
 
-func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client {
+func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -102,7 +102,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client 
 
 	remoteUrl, err := url.Parse(connection)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	if remoteUrl.Scheme != "tcp" {
@@ -136,10 +136,10 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) Client 
 	cli, err := client.NewClientWithOpts(opts...)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs}
+	return &dockerClient{cli, filterArgs}, nil
 }
 
 func (d *dockerClient) FindContainer(id string) (Container, error) {

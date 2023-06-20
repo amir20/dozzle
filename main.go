@@ -62,20 +62,7 @@ func (args) Version() string {
 var content embed.FS
 
 func main() {
-	var args args
-	var err error
-	parser := arg.MustParse(&args)
-	args.Filter = make(map[string][]string)
-
-	for _, filter := range args.FilterStrings {
-		pos := strings.Index(filter, "=")
-		if pos == -1 {
-			parser.Fail("each filter should be of the form key=value")
-		}
-		key := filter[:pos]
-		val := filter[pos+1:]
-		args.Filter[key] = append(args.Filter[key], val)
-	}
+	args := parseArgs()
 
 	level, _ := log.ParseLevel(args.Level)
 	log.SetLevel(level)
@@ -93,64 +80,15 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	dockerClient := docker.NewClientWithFilters(args.Filter)
-	for i := 1; ; i++ {
-		_, err := dockerClient.ListContainers()
-		if err == nil {
-			break
-		} else if args.WaitForDockerSeconds <= 0 {
-			log.Fatalf("Could not connect to Docker Engine: %v", err)
-		} else {
-			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
-			time.Sleep(5 * time.Second)
-			args.WaitForDockerSeconds -= 5
-		}
+	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter)
+
+	if len(clients) == 0 {
+		log.Fatal("Could not connect to any Docker Engines")
+	} else {
+		log.Infof("Connected to %d Docker Engine(s)", len(clients))
 	}
 
-	clients := make(map[string]docker.Client)
-	clients["localhost"] = dockerClient
-
-	for _, host := range args.RemoteHost {
-		log.Infof("Creating client for %s", host)
-		client := docker.NewClientWithTlsAndFilter(args.Filter, host)
-		clients[host] = client
-	}
-
-	if args.Username == "" && args.UsernameFile != nil {
-		args.Username = args.UsernameFile.Value
-	}
-
-	if args.Password == "" && args.PasswordFile != nil {
-		args.Password = args.PasswordFile.Value
-	}
-
-	if args.Username != "" || args.Password != "" {
-		if args.Username == "" || args.Password == "" {
-			log.Fatalf("Username AND password are required for authentication")
-		}
-	}
-
-	config := web.Config{
-		Addr:        args.Addr,
-		Base:        args.Base,
-		Version:     version,
-		Username:    args.Username,
-		Password:    args.Password,
-		Hostname:    args.Hostname,
-		NoAnalytics: args.NoAnalytics,
-	}
-
-	assets, err := fs.Sub(content, "dist")
-	if err != nil {
-		log.Fatalf("Could not open embedded dist folder: %v", err)
-	}
-
-	if _, ok := os.LookupEnv("LIVE_FS"); ok {
-		log.Info("Using live filesystem at ./dist")
-		assets = os.DirFS("./dist")
-	}
-
-	srv := web.CreateServer(clients, assets, config)
+	srv := createServer(args, clients)
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
@@ -169,7 +107,7 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
-	log.Debug("shut down complete")
+	log.Debug("shutdown complete")
 }
 
 func doStartEvent(arg args) {
@@ -197,4 +135,104 @@ func doStartEvent(arg args) {
 	if err := analytics.SendStartEvent(event); err != nil {
 		log.Debug(err)
 	}
+}
+
+func createClients(args args, localClientFactory func(map[string][]string) (docker.Client, error), remoteClientFactory func(map[string][]string, string) (docker.Client, error)) map[string]docker.Client {
+	clients := make(map[string]docker.Client)
+
+	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
+		clients["localhost"] = localClient
+	}
+
+	for _, host := range args.RemoteHost {
+		log.Infof("Creating client for %s", host)
+		client, err := remoteClientFactory(args.Filter, host)
+		if err == nil {
+			clients[host] = client
+		} else {
+			log.Warnf("Could not create client for %s: %s", host, err)
+		}
+	}
+
+	return clients
+}
+
+func createServer(args args, clients map[string]docker.Client) *http.Server {
+	config := web.Config{
+		Addr:        args.Addr,
+		Base:        args.Base,
+		Version:     version,
+		Username:    args.Username,
+		Password:    args.Password,
+		Hostname:    args.Hostname,
+		NoAnalytics: args.NoAnalytics,
+	}
+
+	assets, err := fs.Sub(content, "dist")
+	if err != nil {
+		log.Fatalf("Could not open embedded dist folder: %v", err)
+	}
+
+	if _, ok := os.LookupEnv("LIVE_FS"); ok {
+		log.Info("Using live filesystem at ./dist")
+		assets = os.DirFS("./dist")
+	}
+
+	return web.CreateServer(clients, assets, config)
+}
+
+func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) docker.Client {
+	for i := 1; ; i++ {
+		dockerClient, err := localClientFactory(args.Filter)
+
+		if err == nil {
+			_, err := dockerClient.ListContainers()
+
+			if err == nil {
+				log.Debugf("Connected to local Docker Engine")
+				return dockerClient
+
+			}
+		}
+		if args.WaitForDockerSeconds > 0 {
+			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
+			time.Sleep(5 * time.Second)
+			args.WaitForDockerSeconds -= 5
+		} else {
+			log.Debugf("Local Docker Engine not found")
+			break
+		}
+	}
+	return nil
+}
+
+func parseArgs() args {
+	var args args
+	parser := arg.MustParse(&args)
+	args.Filter = make(map[string][]string)
+
+	for _, filter := range args.FilterStrings {
+		pos := strings.Index(filter, "=")
+		if pos == -1 {
+			parser.Fail("each filter should be of the form key=value")
+		}
+		key := filter[:pos]
+		val := filter[pos+1:]
+		args.Filter[key] = append(args.Filter[key], val)
+	}
+
+	if args.Username == "" && args.UsernameFile != nil {
+		args.Username = args.UsernameFile.Value
+	}
+
+	if args.Password == "" && args.PasswordFile != nil {
+		args.Password = args.PasswordFile.Value
+	}
+
+	if args.Username != "" || args.Password != "" {
+		if args.Username == "" || args.Password == "" {
+			log.Fatalf("Username AND password are required for authentication")
+		}
+	}
+	return args
 }

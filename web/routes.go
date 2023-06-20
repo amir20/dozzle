@@ -184,9 +184,15 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) clientFromRequest(r *http.Request) docker.Client {
+	if !r.URL.Query().Has("host") {
+		log.Fatalf("No host parameter found in request %v", r.URL)
+	}
+
 	host := r.URL.Query().Get("host")
 	if client, ok := h.clients[host]; ok {
 		return client
 	}
-	return h.clients["localhost"]
+
+	log.Fatalf("No client found for host %v and url %v", host, r.URL)
+	return nil
 }
