@@ -93,7 +93,13 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			go func() {
 				host, _ := os.Hostname()
 
-				if containers, err := h.clients["localhost"].ListContainers(); err == nil {
+				var client docker.Client
+				for _, v := range h.clients {
+					client = v
+					break
+				}
+
+				if containers, err := client.ListContainers(); err == nil {
 					totalContainers := len(containers)
 					runningContainers := 0
 					for _, container := range containers {
@@ -174,8 +180,13 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
+	var client docker.Client
+	for _, v := range h.clients {
+		client = v
+		break
+	}
 
-	if ping, err := h.clients["localhost"].Ping(r.Context()); err != nil {
+	if ping, err := client.Ping(r.Context()); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
