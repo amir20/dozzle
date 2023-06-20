@@ -64,6 +64,20 @@ var content embed.FS
 func main() {
 	args := parseArgs()
 
+	level, _ := log.ParseLevel(args.Level)
+	log.SetLevel(level)
+
+	log.SetFormatter(&log.TextFormatter{
+		DisableTimestamp:       true,
+		DisableLevelTruncation: true,
+	})
+
+	if args.Healthcheck != nil {
+		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	log.Infof("Dozzle version %s", version)
 
 	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter)
@@ -207,19 +221,6 @@ func parseArgs() args {
 		args.Filter[key] = append(args.Filter[key], val)
 	}
 
-	level, _ := log.ParseLevel(args.Level)
-	log.SetLevel(level)
-
-	log.SetFormatter(&log.TextFormatter{
-		DisableTimestamp:       true,
-		DisableLevelTruncation: true,
-	})
-
-	if args.Healthcheck != nil {
-		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-			log.Fatal(err)
-		}
-	}
 	if args.Username == "" && args.UsernameFile != nil {
 		args.Username = args.UsernameFile.Value
 	}
