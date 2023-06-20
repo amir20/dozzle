@@ -62,56 +62,16 @@ func (args) Version() string {
 var content embed.FS
 
 func main() {
-	var args args
-	parser := arg.MustParse(&args)
-	args.Filter = make(map[string][]string)
-
-	for _, filter := range args.FilterStrings {
-		pos := strings.Index(filter, "=")
-		if pos == -1 {
-			parser.Fail("each filter should be of the form key=value")
-		}
-		key := filter[:pos]
-		val := filter[pos+1:]
-		args.Filter[key] = append(args.Filter[key], val)
-	}
-
-	level, _ := log.ParseLevel(args.Level)
-	log.SetLevel(level)
-
-	log.SetFormatter(&log.TextFormatter{
-		DisableTimestamp:       true,
-		DisableLevelTruncation: true,
-	})
-
-	if args.Healthcheck != nil {
-		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-			log.Fatal(err)
-		}
-	}
+	args := parseArgs()
 
 	log.Infof("Dozzle version %s", version)
 
-	clients := createClients(args)
+	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter)
 
 	if len(clients) == 0 {
 		log.Fatal("Could not connect to any Docker Engines")
 	} else {
 		log.Infof("Connected to %d Docker Engine(s)", len(clients))
-	}
-
-	if args.Username == "" && args.UsernameFile != nil {
-		args.Username = args.UsernameFile.Value
-	}
-
-	if args.Password == "" && args.PasswordFile != nil {
-		args.Password = args.PasswordFile.Value
-	}
-
-	if args.Username != "" || args.Password != "" {
-		if args.Username == "" || args.Password == "" {
-			log.Fatalf("Username AND password are required for authentication")
-		}
 	}
 
 	srv := createServer(args, clients)
@@ -163,16 +123,16 @@ func doStartEvent(arg args) {
 	}
 }
 
-func createClients(args args) map[string]docker.Client {
+func createClients(args args, localClientFactory func(map[string][]string) (docker.Client, error), remoteClientFactory func(map[string][]string, string) (docker.Client, error)) map[string]docker.Client {
 	clients := make(map[string]docker.Client)
 
-	if localClient := createLocalClient(args); localClient != nil {
+	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
 		clients["localhost"] = localClient
 	}
 
 	for _, host := range args.RemoteHost {
 		log.Infof("Creating client for %s", host)
-		client, err := docker.NewClientWithTlsAndFilter(args.Filter, host)
+		client, err := remoteClientFactory(args.Filter, host)
 		if err == nil {
 			clients[host] = client
 		} else {
@@ -207,9 +167,9 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 	return web.CreateServer(clients, assets, config)
 }
 
-func createLocalClient(args args) docker.Client {
+func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) docker.Client {
 	for i := 1; ; i++ {
-		dockerClient, err := docker.NewClientWithFilters(args.Filter)
+		dockerClient, err := localClientFactory(args.Filter)
 
 		if err == nil {
 			_, err := dockerClient.ListContainers()
@@ -230,4 +190,48 @@ func createLocalClient(args args) docker.Client {
 		}
 	}
 	return nil
+}
+
+func parseArgs() args {
+	var args args
+	parser := arg.MustParse(&args)
+	args.Filter = make(map[string][]string)
+
+	for _, filter := range args.FilterStrings {
+		pos := strings.Index(filter, "=")
+		if pos == -1 {
+			parser.Fail("each filter should be of the form key=value")
+		}
+		key := filter[:pos]
+		val := filter[pos+1:]
+		args.Filter[key] = append(args.Filter[key], val)
+	}
+
+	level, _ := log.ParseLevel(args.Level)
+	log.SetLevel(level)
+
+	log.SetFormatter(&log.TextFormatter{
+		DisableTimestamp:       true,
+		DisableLevelTruncation: true,
+	})
+
+	if args.Healthcheck != nil {
+		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if args.Username == "" && args.UsernameFile != nil {
+		args.Username = args.UsernameFile.Value
+	}
+
+	if args.Password == "" && args.PasswordFile != nil {
+		args.Password = args.PasswordFile.Value
+	}
+
+	if args.Username != "" || args.Password != "" {
+		if args.Username == "" || args.Password == "" {
+			log.Fatalf("Username AND password are required for authentication")
+		}
+	}
+	return args
 }
