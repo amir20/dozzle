@@ -63,7 +63,6 @@ var content embed.FS
 
 func main() {
 	var args args
-	var err error
 	parser := arg.MustParse(&args)
 	args.Filter = make(map[string][]string)
 
@@ -93,21 +92,7 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	clients := make(map[string]docker.Client)
-
-	if localClient := createLocalClient(args); localClient != nil {
-		clients["localhost"] = localClient
-	}
-
-	for _, host := range args.RemoteHost {
-		log.Infof("Creating client for %s", host)
-		client, err := docker.NewClientWithTlsAndFilter(args.Filter, host)
-		if err == nil {
-			clients[host] = client
-		} else {
-			log.Warnf("Could not create client for %s: %s", host, err)
-		}
-	}
+	clients := createClients(args)
 
 	if len(clients) == 0 {
 		log.Fatal("Could not connect to any Docker Engines")
@@ -129,27 +114,7 @@ func main() {
 		}
 	}
 
-	config := web.Config{
-		Addr:        args.Addr,
-		Base:        args.Base,
-		Version:     version,
-		Username:    args.Username,
-		Password:    args.Password,
-		Hostname:    args.Hostname,
-		NoAnalytics: args.NoAnalytics,
-	}
-
-	assets, err := fs.Sub(content, "dist")
-	if err != nil {
-		log.Fatalf("Could not open embedded dist folder: %v", err)
-	}
-
-	if _, ok := os.LookupEnv("LIVE_FS"); ok {
-		log.Info("Using live filesystem at ./dist")
-		assets = os.DirFS("./dist")
-	}
-
-	srv := web.CreateServer(clients, assets, config)
+	srv := createServer(args, clients)
 	go doStartEvent(args)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
@@ -196,6 +161,50 @@ func doStartEvent(arg args) {
 	if err := analytics.SendStartEvent(event); err != nil {
 		log.Debug(err)
 	}
+}
+
+func createClients(args args) map[string]docker.Client {
+	clients := make(map[string]docker.Client)
+
+	if localClient := createLocalClient(args); localClient != nil {
+		clients["localhost"] = localClient
+	}
+
+	for _, host := range args.RemoteHost {
+		log.Infof("Creating client for %s", host)
+		client, err := docker.NewClientWithTlsAndFilter(args.Filter, host)
+		if err == nil {
+			clients[host] = client
+		} else {
+			log.Warnf("Could not create client for %s: %s", host, err)
+		}
+	}
+
+	return clients
+}
+
+func createServer(args args, clients map[string]docker.Client) *http.Server {
+	config := web.Config{
+		Addr:        args.Addr,
+		Base:        args.Base,
+		Version:     version,
+		Username:    args.Username,
+		Password:    args.Password,
+		Hostname:    args.Hostname,
+		NoAnalytics: args.NoAnalytics,
+	}
+
+	assets, err := fs.Sub(content, "dist")
+	if err != nil {
+		log.Fatalf("Could not open embedded dist folder: %v", err)
+	}
+
+	if _, ok := os.LookupEnv("LIVE_FS"); ok {
+		log.Info("Using live filesystem at ./dist")
+		assets = os.DirFS("./dist")
+	}
+
+	return web.CreateServer(clients, assets, config)
 }
 
 func createLocalClient(args args) docker.Client {
