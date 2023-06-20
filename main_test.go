@@ -92,3 +92,22 @@ func Test_valid_remote_and_local(t *testing.T) {
 	assert.Contains(t, clients, "tcp://localhost:2375")
 	assert.Contains(t, clients, "localhost")
 }
+
+func Test_no_clients(t *testing.T) {
+	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
+		client := new(fakeClient)
+		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
+		return client, nil
+	}
+
+	fakeRemoteClientFactory := func(filter map[string][]string, host string) (docker.Client, error) {
+		client := new(fakeClient)
+		return client, nil
+	}
+
+	args := args{}
+
+	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory)
+
+	assert.Equal(t, 0, len(clients))
+}
