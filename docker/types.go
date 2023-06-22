@@ -16,6 +16,7 @@ type Container struct {
 	State   string   `json:"state"`
 	Status  string   `json:"status"`
 	Health  string   `json:"health,omitempty"`
+	Host    string   `json:"host,omitempty"`
 }
 
 // ContainerStat represent stats instant for a container
@@ -30,6 +31,7 @@ type ContainerStat struct {
 type ContainerEvent struct {
 	ActorID string `json:"actorId"`
 	Name    string `json:"name"`
+	Host    string `json:"host"`
 }
 
 type LogPosition string

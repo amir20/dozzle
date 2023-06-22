@@ -23,18 +23,10 @@ export const useContainerStore = defineStore("container", () => {
 
   const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
-  watch(
-    sessionHost,
-    () => {
-      connect();
-    },
-    { immediate: true }
-  );
-
   function connect() {
     es?.close();
     ready.value = false;
-    es = new EventSource(`${config.base}/api/events/stream?host=${sessionHost.value}`);
+    es = new EventSource(`${config.base}/api/events/stream`);
 
     es.addEventListener("containers-changed", (e: Event) =>
       setContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
@@ -66,6 +58,8 @@ export const useContainerStore = defineStore("container", () => {
     watchOnce(containers, () => (ready.value = true));
   }
 
+  connect();
+
   const setContainers = (newContainers: ContainerJson[]) => {
     containers.value = newContainers.map((c) => {
       const existing = allContainersById.value[c.id];
@@ -75,7 +69,17 @@ export const useContainerStore = defineStore("container", () => {
         existing.health = c.health;
         return existing;
       }
-      return new Container(c.id, new Date(c.created * 1000), c.image, c.name, c.command, c.status, c.state, c.health);
+      return new Container(
+        c.id,
+        new Date(c.created * 1000),
+        c.image,
+        c.name,
+        c.command,
+        c.host,
+        c.status,
+        c.state,
+        c.health
+      );
     });
   };
 

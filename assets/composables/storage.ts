@@ -1,6 +1,6 @@
 import { Container } from "@/models/Container";
 
-const sessionHost = useSessionStorage("host", config.hosts[0]);
+const sessionHost = useSessionStorage<string | null>("host", null);
 
 function persistentVisibleKeys(container: ComputedRef<Container>) {
   return computed(() => useStorage(stripVersion(container.value.image) + ":" + container.value.command, []));

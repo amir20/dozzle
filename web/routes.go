@@ -58,10 +58,10 @@ func createRouter(h *handler) *chi.Mux {
 	r.Route(base, func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(authorizationRequired)
-			r.Get("/api/logs/stream", h.streamLogs)
+			r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
+			r.Get("/api/logs/download/{host}/{id}", h.downloadLogs) //TODO
+			r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 			r.Get("/api/events/stream", h.streamEvents)
-			r.Get("/api/logs/download", h.downloadLogs)
-			r.Get("/api/logs", h.fetchLogsBetweenDates)
 			r.Get("/logout", h.clearSession)
 			r.Get("/version", h.version)
 		})
@@ -195,11 +195,12 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) clientFromRequest(r *http.Request) docker.Client {
-	if !r.URL.Query().Has("host") {
-		log.Fatalf("No host parameter found in request %v", r.URL)
+	host := chi.URLParam(r, "host")
+
+	if host == "" {
+		log.Fatalf("No host found for url %v", r.URL)
 	}
 
-	host := r.URL.Query().Get("host")
 	if client, ok := h.clients[host]; ok {
 		return client
 	}

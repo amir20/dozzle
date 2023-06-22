@@ -141,14 +141,14 @@ func createClients(args args, localClientFactory func(map[string][]string) (dock
 	clients := make(map[string]docker.Client)
 
 	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
-		clients["localhost"] = localClient
+		clients[localClient.Host()] = localClient
 	}
 
 	for _, host := range args.RemoteHost {
 		log.Infof("Creating client for %s", host)
 		client, err := remoteClientFactory(args.Filter, host)
 		if err == nil {
-			clients[host] = client
+			clients[client.Host()] = client
 		} else {
 			log.Warnf("Could not create client for %s: %s", host, err)
 		}

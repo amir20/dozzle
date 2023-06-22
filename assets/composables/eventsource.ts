@@ -70,10 +70,8 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
     }
 
     const params = {
-      id: container.value.id,
       lastEventId,
-      host: sessionHost.value,
-    } as { id: string; lastEventId: string; host: string; stdout?: string; stderr?: string };
+    } as { lastEventId: string; stdout?: string; stderr?: string };
 
     if (streamConfig.stdout) {
       params.stdout = "1";
@@ -82,7 +80,11 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
       params.stderr = "1";
     }
 
-    es = new EventSource(`${config.base}/api/logs/stream?${new URLSearchParams(params).toString()}`);
+    es = new EventSource(
+      `${config.base}/api/logs/stream/${container.value.host}/${container.value.id}?${new URLSearchParams(
+        params
+      ).toString()}`
+    );
     es.addEventListener("container-stopped", () => {
       es?.close();
       es = null;
@@ -111,11 +113,9 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
     const from = new Date(to.getTime() + delta);
 
     const params = {
-      id: container.value.id,
       from: from.toISOString(),
       to: to.toISOString(),
-      host: sessionHost.value,
-    } as { id: string; from: string; to: string; host: string; stdout?: string; stderr?: string };
+    } as { from: string; to: string; stdout?: string; stderr?: string };
 
     if (streamConfig.stdout) {
       params.stdout = "1";
@@ -124,7 +124,13 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
       params.stderr = "1";
     }
 
-    const logs = await (await fetch(`${config.base}/api/logs?${new URLSearchParams(params).toString()}`)).text();
+    const logs = await (
+      await fetch(
+        `${config.base}/api/logs/${container.value.host}/${container.value.id}?${new URLSearchParams(
+          params
+        ).toString()}`
+      )
+    ).text();
     if (logs) {
       const newMessages = logs
         .trim()

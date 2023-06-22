@@ -1,19 +1,22 @@
 <template>
   <div v-if="ready">
     <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
+      <ul v-if="sessionHost">
         <li>
-          <a href="#" @click.prevent="showHosts = true">{{ sessionHost }}</a>
+          <a href="#" @click.prevent="setHost(null)">{{ sessionHost }}</a>
         </li>
         <li class="is-active">
           <a href="#" aria-current="page">{{ $t("label.containers") }}</a>
         </li>
       </ul>
+      <ul v-else>
+        <li>Hosts</li>
+      </ul>
     </nav>
-    <transition :name="showHosts ? 'slide-right' : 'slide-left'" mode="out-in">
-      <ul class="menu-list" v-if="showHosts">
+    <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
+      <ul class="menu-list" v-if="!sessionHost">
         <li v-for="host in config.hosts">
-          <a @click.prevent="showHosts = false">{{ host }}</a>
+          <a @click.prevent="setHost(host)">{{ host }}</a>
         </li>
       </ul>
       <ul class="menu-list" v-else>
@@ -58,23 +61,28 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import { sessionHost } from "@/composables/storage";
 
 const store = useContainerStore();
 
-const showHosts = ref(false);
-
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
 
+function setHost(host: string | null) {
+  sessionHost.value = host;
+}
+
 const sortedContainers = computed(() =>
-  visibleContainers.value.sort((a, b) => {
-    if (a.state === "running" && b.state !== "running") {
-      return -1;
-    } else if (a.state !== "running" && b.state === "running") {
-      return 1;
-    } else {
-      return a.name.localeCompare(b.name);
-    }
-  })
+  visibleContainers.value
+    .filter((c) => c.host === sessionHost.value)
+    .sort((a, b) => {
+      if (a.state === "running" && b.state !== "running") {
+        return -1;
+      } else if (a.state !== "running" && b.state === "running") {
+        return 1;
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    })
 );
 
 const activeContainersById = computed(() =>
