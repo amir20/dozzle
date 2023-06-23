@@ -71,7 +71,7 @@ describe("<LogEventSource />", () => {
           LogViewer,
         },
         provide: {
-          container: computed(() => ({ id: "abc", image: "test:v123" })),
+          container: computed(() => ({ id: "abc", image: "test:v123", host: "localhost" })),
           "stream-config": reactive({ stdout: true, stderr: true }),
           scrollingPaused: computed(() => false),
         },
@@ -85,7 +85,7 @@ describe("<LogEventSource />", () => {
     });
   }
 
-  const sourceUrl = "/api/logs/stream?id=abc&lastEventId=&host=localhost&stdout=1&stderr=1";
+  const sourceUrl = "/api/logs/stream/localhost/abc?lastEventId=&stdout=1&stderr=1";
 
   test("renders correctly", async () => {
     const wrapper = createLogEventSource();
