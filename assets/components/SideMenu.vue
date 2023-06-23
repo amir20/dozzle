@@ -1,6 +1,6 @@
 <template>
   <div v-if="ready">
-    <nav class="breadcrumb" aria-label="breadcrumbs">
+    <nav class="breadcrumb menu-label" aria-label="breadcrumbs">
       <ul v-if="sessionHost">
         <li>
           <a href="#" @click.prevent="setHost(null)">{{ sessionHost }}</a>
@@ -129,26 +129,26 @@ a {
 .slide-left-leave-active,
 .slide-right-enter-active,
 .slide-right-leave-active {
-  transition: all 0.2s ease-out;
+  transition: all 0.1s ease-out;
 }
 
 .slide-left-enter-from {
   opacity: 0;
-  transform: translateX(300px);
+  transform: translateX(100%);
 }
 
 .slide-right-enter-from {
   opacity: 0;
-  transform: translateX(-240px);
+  transform: translateX(-100%);
 }
 
 .slide-left-leave-to {
   opacity: 0;
-  transform: translateX(-240px);
+  transform: translateX(-100%);
 }
 
 .slide-right-leave-to {
   opacity: 0;
-  transform: translateX(240px);
+  transform: translateX(100%);
 }
 </style>
