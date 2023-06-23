@@ -1,7 +1,6 @@
 package web
 
 import (
-	"context"
 	"errors"
 	"io"
 	"time"
@@ -19,12 +18,11 @@ import (
 
 func Test_handler_streamLogs_happy(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
 	q := req.URL.Query()
-	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -33,11 +31,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(reader, nil)
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -46,12 +40,11 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
 	q := req.URL.Query()
-	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -60,11 +53,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(reader, nil)
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -73,12 +62,11 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
 	q := req.URL.Query()
-	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -86,11 +74,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF)
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -99,23 +83,18 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
 	q := req.URL.Query()
-	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -124,12 +103,11 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 
 func Test_handler_streamLogs_error_reading(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
 	q := req.URL.Query()
-	q.Add("id", id)
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -137,11 +115,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error"))
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -150,115 +124,13 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 func Test_handler_streamLogs_error_std(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream", nil)
-	q := req.URL.Query()
-	q.Add("id", id)
-	q.Add("host", "localhost")
-	req.URL.RawQuery = q.Encode()
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamLogs)
-	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
-}
-
-func Test_handler_streamEvents_happy(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/events/stream", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-	q := req.URL.Query()
-	q.Add("host", "localhost")
-	req.URL.RawQuery = q.Encode()
-	mockedClient := new(MockedClient)
-	messages := make(chan docker.ContainerEvent)
-	errChannel := make(chan error)
-	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
-
-	go func() {
-		messages <- docker.ContainerEvent{
-			Name:    "start",
-			ActorID: "1234",
-		}
-		messages <- docker.ContainerEvent{
-			Name:    "something-random",
-			ActorID: "1234",
-		}
-		close(messages)
-	}()
-
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamEvents)
-	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
-}
-
-func Test_handler_streamEvents_error(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/events/stream", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-	q := req.URL.Query()
-	q.Add("host", "localhost")
-	req.URL.RawQuery = q.Encode()
-	mockedClient := new(MockedClient)
-	messages := make(chan docker.ContainerEvent)
-	errChannel := make(chan error)
-	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
-
-	go func() {
-		errChannel <- errors.New("fake error")
-		close(messages)
-	}()
-
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamEvents)
-	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
-}
-
-func Test_handler_streamEvents_error_request(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/events/stream", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-	q := req.URL.Query()
-	q.Add("host", "localhost")
-	req.URL.RawQuery = q.Encode()
-
-	mockedClient := new(MockedClient)
-
-	messages := make(chan docker.ContainerEvent)
-	errChannel := make(chan error)
-	mockedClient.On("Events", mock.Anything).Return(messages, errChannel)
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	req = req.WithContext(ctx)
-
-	go func() {
-		cancel()
-	}()
-
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.streamEvents)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
@@ -267,7 +139,7 @@ func Test_handler_streamEvents_error_request(t *testing.T) {
 
 // for /api/logs
 func Test_handler_between_dates(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/logs", nil)
+	req, err := http.NewRequest("GET", "/api/logs/localhost/123456", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
@@ -276,21 +148,16 @@ func Test_handler_between_dates(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("from", from.Format(time.RFC3339))
 	q.Add("to", to.Format(time.RFC3339))
-	q.Add("id", "123456")
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("host", "localhost")
+
 	req.URL.RawQuery = q.Encode()
 
 	mockedClient := new(MockedClient)
 	reader := io.NopCloser(strings.NewReader("OUT2020-05-13T18:55:37.772853839Z INFO Testing logs...\nERR2020-05-13T18:55:37.772853839Z INFO Testing logs...\n"))
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, "123456", from, to, docker.STDALL).Return(reader, nil)
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-	h := handler{clients: clients, config: &Config{}}
-	handler := http.HandlerFunc(h.fetchLogsBetweenDates)
+	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())

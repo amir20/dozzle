@@ -111,7 +111,7 @@ func Test_createRoutes_username_password(t *testing.T) {
 
 func Test_createRoutes_username_password_invalid(t *testing.T) {
 	handler := createHandler(nil, nil, Config{Base: "/", Username: "amir", Password: "password"})
-	req, err := http.NewRequest("GET", "/api/logs/stream?id=123&stdout=1&stderr=1", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/123?stdout=1&stderr=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -182,7 +182,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
 
 	// Get cookie first
-	req, err := http.NewRequest("GET", "/api/logs/stream?id=123&stdout=1&stderr=1&host=localhost", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/123?stdout=1&stderr=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	session, _ := store.Get(req, sessionName)
 	session.Values[authorityKey] = time.Now().Unix()
@@ -191,7 +191,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	cookies := recorder.Result().Cookies()
 
 	// Test with cookie
-	req, err = http.NewRequest("GET", "/api/logs/stream?id=123&stdout=1&stderr=1&host=localhost", nil)
+	req, err = http.NewRequest("GET", "/api/logs/stream/localhost/123?stdout=1&stderr=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	req.AddCookie(cookies[0])
 	rr := httptest.NewRecorder()
@@ -204,7 +204,7 @@ func Test_createRoutes_username_password_invalid_session(t *testing.T) {
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, "since", docker.STDALL).Return(io.NopCloser(strings.NewReader("test data")), io.EOF)
 	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
-	req, err := http.NewRequest("GET", "/api/logs/stream?id=123&stdout=1&stderr=1&host=localhost", nil)
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/123?stdout=1&stderr=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	req.AddCookie(&http.Cookie{Name: "session", Value: "baddata"})
 	rr := httptest.NewRecorder()
