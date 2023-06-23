@@ -12,7 +12,7 @@ describe("Container", () => {
   ];
 
   test.each(names)("name %s should be %s and %s", (name, expectedName, expectedSwarmId) => {
-    const c = new Container("id", new Date(), "image", name!, "command", "status", "created");
+    const c = new Container("id", new Date(), "image", name!, "command", "host", "status", "created");
     expect(c.name).toBe(expectedName);
     expect(c.swarmId).toBe(expectedSwarmId);
   });
