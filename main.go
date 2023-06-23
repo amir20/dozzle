@@ -146,9 +146,13 @@ func createClients(args args, localClientFactory func(map[string][]string) (dock
 
 	for _, host := range args.RemoteHost {
 		log.Infof("Creating client for %s", host)
-		client, err := remoteClientFactory(args.Filter, host)
-		if err == nil {
-			clients[client.Host()] = client
+		if client, err := remoteClientFactory(args.Filter, host); err == nil {
+			if _, err := client.ListContainers(); err == nil {
+				log.Debugf("Connected to local Docker Engine")
+				clients[client.Host()] = client
+			} else {
+				log.Warnf("Could not connect to remote host %s: %s", host, err)
+			}
 		} else {
 			log.Warnf("Could not create client for %s: %s", host, err)
 		}
@@ -184,14 +188,12 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) docker.Client {
 	for i := 1; ; i++ {
 		dockerClient, err := localClientFactory(args.Filter)
-
 		if err == nil {
 			_, err := dockerClient.ListContainers()
 
 			if err == nil {
 				log.Debugf("Connected to local Docker Engine")
 				return dockerClient
-
 			}
 		}
 		if args.WaitForDockerSeconds > 0 {

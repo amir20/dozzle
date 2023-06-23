@@ -112,7 +112,10 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client
 	}
 
 	host := remoteUrl.Hostname()
-	basePath := "/certs"
+	basePath, err := filepath.Abs("./certs")
+	if err != nil {
+		log.Fatalf("error converting certs path to absolute: %s", err)
+	}
 
 	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
 		basePath = filepath.Join(basePath, host)

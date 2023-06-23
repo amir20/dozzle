@@ -65,6 +65,7 @@ func Test_valid_remote(t *testing.T) {
 
 	fakeRemoteClientFactory := func(filter map[string][]string, host string) (docker.Client, error) {
 		client := new(fakeClient)
+		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return("test")
 		return client, nil
 	}
@@ -90,6 +91,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 
 	fakeRemoteClientFactory := func(filter map[string][]string, host string) (docker.Client, error) {
 		client := new(fakeClient)
+		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return("test")
 		return client, nil
 	}
