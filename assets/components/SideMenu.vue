@@ -101,7 +101,7 @@ const activeContainersById = computed(() =>
   opacity: 0.5;
 }
 
-li.exited a {
+li.exited a, li.dead a {
   color: #777;
 }
 
