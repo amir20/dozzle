@@ -74,6 +74,7 @@ Content-Type: text/html
 /* snapshot: Test_handler_between_dates */
 HTTP/1.1 200 OK
 Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: application/ld+json; charset=UTF-8
 
 {"m":"INFO Testing logs...","ts":1589396137772,"id":1122614848,"l":"info","s":"stdout"}
@@ -97,6 +98,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -109,6 +111,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -121,11 +124,12 @@ data: []
 
 
 event: container-start
-data: {"actorId":"1234","name":"start"}
+data: {"actorId":"1234","name":"start","host":"localhost"}
 
 /* snapshot: Test_handler_streamLogs_error_finding_container */
 HTTP/1.1 404 Not Found
 Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -137,6 +141,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 X-Accel-Buffering: no
 X-Content-Type-Options: nosniff
@@ -146,6 +151,7 @@ test error
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
 Connection: close
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -157,6 +163,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -171,6 +178,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -183,6 +191,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
+Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 

@@ -23,7 +23,7 @@ if (config.version == "{{ .Version }}") {
   config.authorizationNeeded = false;
   config.secured = false;
   config.hostname = "localhost";
-  config.hosts = ["localhost"];
+  config.hosts = ["localhost", "64.225.88.189"];
 } else {
   config.version = config.version.replace(/^v/, "");
   config.authorizationNeeded = config.authorizationNeeded === "true";

@@ -27,26 +27,28 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	client := h.clientFromRequest(r)
-	events, err := client.Events(ctx)
+	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
 
-	if err := sendContainersJSON(client, w); err != nil {
-		log.Errorf("error while encoding containers to stream: %v", err)
-	}
-	f.Flush()
-
-	if containers, err := client.ListContainers(); err == nil {
-		go func() {
-			for _, c := range containers {
-				if c.State == "running" {
-					if err := client.ContainerStats(ctx, c.ID, stats); err != nil && !errors.Is(err, context.Canceled) {
-						log.Errorf("error while streaming container stats: %v", err)
+	for _, client := range h.clients {
+		client.Events(ctx, events)
+		if err := sendContainersJSON(client, w); err != nil {
+			log.Errorf("error while encoding containers to stream: %v", err)
+		}
+		if containers, err := client.ListContainers(); err == nil {
+			go func(client docker.Client) {
+				for _, c := range containers {
+					if c.State == "running" {
+						if err := client.ContainerStats(ctx, c.ID, stats); err != nil && !errors.Is(err, context.Canceled) {
+							log.Errorf("error while streaming container stats: %v", err)
+						}
 					}
 				}
-			}
-		}()
+			}(client)
+		}
 	}
+
+	f.Flush()
 
 	for {
 		select {
@@ -66,10 +68,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-					if err := client.ContainerStats(ctx, event.ActorID, stats); err != nil && !errors.Is(err, context.Canceled) {
+
+					if err := h.clients[event.Host].ContainerStats(ctx, event.ActorID, stats); err != nil && !errors.Is(err, context.Canceled) {
 						log.Errorf("error when streaming new container stats: %v", err)
 					}
-					if err := sendContainersJSON(client, w); err != nil {
+					if err := sendContainersJSON(h.clients[event.Host], w); err != nil {
 						log.Errorf("error encoding containers to stream: %v", err)
 						return
 					}
@@ -104,8 +107,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				// do nothing
 			}
 		case <-ctx.Done():
-			return
-		case <-err:
 			return
 		}
 	}

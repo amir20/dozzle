@@ -70,7 +70,7 @@
 
     <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">{{ $t("label.containers") }}</p>
     <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
-      <li v-for="item in visibleContainers" :key="item.id">
+      <li v-for="item in sortedContainers" :key="item.id">
         <router-link
           :to="{ name: 'container-id', params: { id: item.id } }"
           active-class="is-active"
@@ -97,6 +97,20 @@ let showNav = $ref(false);
 watch(route, () => {
   showNav = false;
 });
+
+const sortedContainers = computed(() =>
+  visibleContainers.value
+    .filter((c) => c.host === sessionHost.value)
+    .sort((a, b) => {
+      if (a.state === "running" && b.state !== "running") {
+        return -1;
+      } else if (a.state !== "running" && b.state === "running") {
+        return 1;
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    })
+);
 </script>
 <style scoped lang="scss">
 aside {

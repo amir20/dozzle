@@ -17,9 +17,7 @@
               <octicon:container-24 />
             </span>
           </div>
-          <div class="media-content">
-            {{ item.name }}
-          </div>
+          <div class="media-content">{{ item.host }} / {{ item.name }}</div>
           <div class="media-right">
             <span
               class="icon is-small column-icon"
@@ -52,12 +50,13 @@ const store = useContainerStore();
 const { containers } = storeToRefs(store);
 
 const list = computed(() => {
-  return containers.value.map(({ id, created, name, state }) => {
+  return containers.value.map(({ id, created, name, state, host }) => {
     return {
       id,
       created,
       name,
       state,
+      host,
     };
   });
 });

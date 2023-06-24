@@ -25,6 +25,7 @@ import (
 type dockerClient struct {
 	cli     dockerProxy
 	filters filters.Args
+	host    string
 }
 
 type StdType int
@@ -64,10 +65,11 @@ type Client interface {
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
 	ContainerLogReader(context.Context, string) (io.ReadCloser, error)
-	Events(context.Context) (<-chan ContainerEvent, <-chan error)
+	Events(context.Context, chan<- ContainerEvent) <-chan error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
+	Host() string
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
@@ -87,7 +89,7 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs}, nil
+	return &dockerClient{cli, filterArgs, "localhost"}, nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client, error) {
@@ -110,7 +112,10 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client
 	}
 
 	host := remoteUrl.Hostname()
-	basePath := "/certs"
+	basePath, err := filepath.Abs("./certs")
+	if err != nil {
+		log.Fatalf("error converting certs path to absolute: %s", err)
+	}
 
 	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
 		basePath = filepath.Join(basePath, host)
@@ -139,7 +144,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs}, nil
+	return &dockerClient{cli, filterArgs, host}, nil
 }
 
 func (d *dockerClient) FindContainer(id string) (Container, error) {
@@ -186,6 +191,7 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 			Created: c.Created,
 			State:   c.State,
 			Status:  c.Status,
+			Host:    d.host,
 			Health:  findBetweenParentheses(c.Status),
 		}
 		containers = append(containers, container)
@@ -284,12 +290,10 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since strin
 	return newLogReader(reader, containerJSON.Config.Tty, true), nil
 }
 
-func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-chan error) {
+func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEvent) <-chan error {
 	dockerMessages, errors := d.cli.Events(ctx, types.EventsOptions{})
-	messages := make(chan ContainerEvent)
 
 	go func() {
-		defer close(messages)
 
 		for {
 			select {
@@ -304,13 +308,14 @@ func (d *dockerClient) Events(ctx context.Context) (<-chan ContainerEvent, <-cha
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
 						Name:    message.Action,
+						Host:    d.host,
 					}
 				}
 			}
 		}
 	}()
 
-	return messages, errors
+	return errors
 }
 
 func (d *dockerClient) ContainerLogReader(ctx context.Context, id string) (io.ReadCloser, error) {
@@ -364,6 +369,10 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 
 func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
+}
+
+func (d *dockerClient) Host() string {
+	return d.host
 }
 
 var PARENTHESIS_RE = regexp.MustCompile(`\(([a-zA-Z]+)\)`)

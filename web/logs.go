@@ -15,6 +15,7 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/dustin/go-humanize"
+	"github.com/go-chi/chi/v5"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -50,7 +51,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
 	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
@@ -89,11 +90,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		http.Error(w, "id is required", http.StatusBadRequest)
-		return
-	}
+	id := chi.URLParam(r, "id")
 
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {

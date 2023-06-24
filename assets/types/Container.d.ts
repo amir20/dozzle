@@ -13,6 +13,7 @@ export type ContainerJson = {
   readonly command: string;
   readonly status: string;
   readonly state: ContainerState;
+  readonly host: string;
   readonly health?: ContainerHealth;
 };
 

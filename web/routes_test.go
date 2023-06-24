@@ -35,18 +35,9 @@ func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since strin
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) Events(ctx context.Context) (<-chan docker.ContainerEvent, <-chan error) {
-	args := m.Called(ctx)
-	channel, ok := args.Get(0).(chan docker.ContainerEvent)
-	if !ok {
-		panic("channel is not of type chan events.Message")
-	}
-
-	err, ok := args.Get(1).(chan error)
-	if !ok {
-		panic("error is not of type chan error")
-	}
-	return channel, err
+func (m *MockedClient) Events(ctx context.Context, events chan<- docker.ContainerEvent) <-chan error {
+	args := m.Called(ctx, events)
+	return args.Get(0).(chan error)
 }
 
 func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.ContainerStat) error {
@@ -56,6 +47,11 @@ func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.Con
 func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType docker.StdType) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, from, to, stdType)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
+}
+
+func (m *MockedClient) Host() string {
+	args := m.Called()
+	return args.String(0)
 }
 
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
@@ -78,4 +74,8 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content: content,
 		config:  &config,
 	})
+}
+
+func createDefaultHandler(client docker.Client) *chi.Mux {
+	return createHandler(client, nil, Config{Base: "/"})
 }

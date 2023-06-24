@@ -23,21 +23,13 @@ export const useContainerStore = defineStore("container", () => {
 
   const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
-  watch(
-    sessionHost,
-    () => {
-      connect();
-    },
-    { immediate: true }
-  );
-
   function connect() {
     es?.close();
     ready.value = false;
-    es = new EventSource(`${config.base}/api/events/stream?host=${sessionHost.value}`);
+    es = new EventSource(`${config.base}/api/events/stream`);
 
     es.addEventListener("containers-changed", (e: Event) =>
-      setContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
+      updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
     );
     es.addEventListener("container-stat", (e) => {
       const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
@@ -66,17 +58,35 @@ export const useContainerStore = defineStore("container", () => {
     watchOnce(containers, () => (ready.value = true));
   }
 
-  const setContainers = (newContainers: ContainerJson[]) => {
-    containers.value = newContainers.map((c) => {
+  connect();
+
+  const updateContainers = (containersPayload: ContainerJson[]) => {
+    const existingContainers = containersPayload.filter((c) => allContainersById.value[c.id]);
+    const newContainers = containersPayload.filter((c) => !allContainersById.value[c.id]);
+
+    existingContainers.forEach((c) => {
       const existing = allContainersById.value[c.id];
-      if (existing) {
-        existing.status = c.status;
-        existing.state = c.state;
-        existing.health = c.health;
-        return existing;
-      }
-      return new Container(c.id, new Date(c.created * 1000), c.image, c.name, c.command, c.status, c.state, c.health);
+      existing.status = c.status;
+      existing.state = c.state;
+      existing.health = c.health;
     });
+
+    containers.value = [
+      ...containers.value,
+      ...newContainers.map((c) => {
+        return new Container(
+          c.id,
+          new Date(c.created * 1000),
+          c.image,
+          c.name,
+          c.command,
+          c.host,
+          c.status,
+          c.state,
+          c.health
+        );
+      }),
+    ];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);

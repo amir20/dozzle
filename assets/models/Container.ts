@@ -18,6 +18,7 @@ export class Container {
     public readonly image: string,
     public readonly name: string,
     public readonly command: string,
+    public readonly host: string,
     public status: string,
     public state: ContainerState,
     public health?: ContainerHealth
