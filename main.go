@@ -162,6 +162,7 @@ func createClients(args args, localClientFactory func(map[string][]string) (dock
 }
 
 func createServer(args args, clients map[string]docker.Client) *http.Server {
+	_, dev := os.LookupEnv("DEV")
 	config := web.Config{
 		Addr:        args.Addr,
 		Base:        args.Base,
@@ -170,6 +171,7 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 		Password:    args.Password,
 		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
+		Dev:         dev,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -178,8 +180,13 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 	}
 
 	if _, ok := os.LookupEnv("LIVE_FS"); ok {
-		log.Info("Using live filesystem at ./dist")
-		assets = os.DirFS("./dist")
+		if dev {
+			log.Info("Using live filesystem at ./public")
+			assets = os.DirFS("./public")
+		} else {
+			log.Info("Using live filesystem at ./dist")
+			assets = os.DirFS("./dist")
+		}
 	}
 
 	return web.CreateServer(clients, assets, config)

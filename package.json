@@ -14,8 +14,8 @@
  "license": "ISC",
  "author": "Amir Raminfar <findamir@gmail.com>",
  "scripts": {
-  "watch:assets": "vite --open",
-  "watch:server": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
+  "watch:assets": "vite --open http://localhost:3100/",
+  "watch:server": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
   "dev": "make fake_assets && npm-run-all -p watch:assets watch:server",
   "build": "vite build",
   "release": "bumpp",
@@ -67,7 +67,6 @@
   "@types/lodash.debounce": "^4.0.7",
   "@types/node": "^20.3.1",
   "@types/semver": "^7.5.0",
-  "@vitejs/plugin-basic-ssl": "^1.0.1",
   "@vitejs/plugin-vue": "4.2.3",
   "@vue/compiler-sfc": "^3.3.4",
   "@vue/test-utils": "^2.3.2",

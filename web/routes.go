@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -27,6 +28,7 @@ type Config struct {
 	Password    string
 	Hostname    string
 	NoAnalytics bool
+	Dev         bool
 }
 
 type handler struct {
@@ -53,7 +55,9 @@ func createRouter(h *handler) *chi.Mux {
 	base := h.config.Base
 	r := chi.NewRouter()
 
-	r.Use(cspHeaders)
+	if !h.config.Dev {
+		r.Use(cspHeaders)
+	}
 
 	r.Route(base, func(r chi.Router) {
 		r.Group(func(r chi.Router) {
@@ -69,7 +73,7 @@ func createRouter(h *handler) *chi.Mux {
 		r.Post("/api/validateCredentials", h.validateCredentials)
 		r.Get("/healthcheck", h.healthcheck)
 		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
-		r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+		r.Get("/*", func(w http.ResponseWriter, req *http.Request) {
 			defaultHandler.ServeHTTP(w, req)
 		})
 	})
@@ -135,7 +139,12 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Panic(err)
 	}
-	tmpl, err := template.New("index.html").Parse(string(bytes))
+	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
+		"marshal": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+	}).Parse(string(bytes))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -151,13 +160,13 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		hosts = append(hosts, k)
 	}
 
-	data := struct {
-		Base                string
-		Version             string
-		AuthorizationNeeded bool
-		Secured             bool
-		Hostname            string
-		Hosts               string
+	config := struct {
+		Base                string `json:"base"`
+		Version             string `json:"version"`
+		AuthorizationNeeded bool   `json:"authorizationNeeded"`
+		Secured             bool   `json:"secured"`
+		Hostname            string `json:"hostname"`
+		Hosts               string `json:"hosts"`
 	}{
 		path,
 		h.config.Version,
@@ -166,11 +175,40 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		h.config.Hostname,
 		strings.Join(hosts, ","),
 	}
+
+	data := map[string]interface{}{
+		"config":   config,
+		"dev":      h.config.Dev,
+		"manifest": h.readManifest(),
+	}
+
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Panic(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (h *handler) readManifest() map[string]interface{} {
+	if h.config.Dev {
+		return map[string]interface{}{}
+	} else {
+		file, err := h.content.Open("manifest.json")
+		if err != nil {
+			log.Fatalf("Could not read manifest.json: %v", err)
+		}
+		bytes, err := io.ReadAll(file)
+		if err != nil {
+			log.Fatalf("Could not read manifest.json: %v", err)
+		}
+		var manifest map[string]interface{}
+		err = json.Unmarshal(bytes, &manifest)
+		if err != nil {
+			log.Fatalf("Could not parse manifest.json: %v", err)
+		}
+		return manifest
+	}
+
 }
 
 func (h *handler) version(w http.ResponseWriter, r *http.Request) {
