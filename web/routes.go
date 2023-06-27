@@ -161,19 +161,19 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 
 	config := struct {
-		Base                string `json:"base"`
-		Version             string `json:"version"`
-		AuthorizationNeeded bool   `json:"authorizationNeeded"`
-		Secured             bool   `json:"secured"`
-		Hostname            string `json:"hostname"`
-		Hosts               string `json:"hosts"`
+		Base                string   `json:"base"`
+		Version             string   `json:"version"`
+		AuthorizationNeeded bool     `json:"authorizationNeeded"`
+		Secured             bool     `json:"secured"`
+		Hostname            string   `json:"hostname"`
+		Hosts               []string `json:"hosts"`
 	}{
 		path,
 		h.config.Version,
 		h.isAuthorizationNeeded(req),
 		secured,
 		h.config.Hostname,
-		strings.Join(hosts, ","),
+		hosts,
 	}
 
 	data := map[string]interface{}{
