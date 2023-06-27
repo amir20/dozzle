@@ -196,7 +196,8 @@ func (h *handler) readManifest() map[string]interface{} {
 	} else {
 		file, err := h.content.Open("manifest.json")
 		if err != nil {
-			log.Fatalf("Could not read manifest.json: %v", err)
+			// this should only happen during test. In production, the file is embedded in the binary and checked in main.go
+			return map[string]interface{}{}
 		}
 		bytes, err := io.ReadAll(file)
 		if err != nil {

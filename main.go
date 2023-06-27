@@ -189,6 +189,15 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 		}
 	}
 
+	if !dev {
+		if _, err := assets.Open("manifest.json"); err != nil {
+			log.Fatal("manifest.json not found")
+		}
+		if _, err := assets.Open("index.html"); err != nil {
+			log.Fatal("index.html not found")
+		}
+	}
+
 	return web.CreateServer(clients, assets, config)
 }
 
