@@ -14,9 +14,10 @@ COPY package.json ./
 RUN pnpm install --offline --ignore-scripts --no-optional
 
 # Copy assets and translations to build
-COPY .* vite.config.ts index.html ./
+COPY .* vite.config.ts ./
 COPY assets ./assets
 COPY locales ./locales
+COPY public ./public
 
 # Build assets
 RUN pnpm build
