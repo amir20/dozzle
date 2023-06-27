@@ -63,7 +63,7 @@ func createRouter(h *handler) *chi.Mux {
 		r.Group(func(r chi.Router) {
 			r.Use(authorizationRequired)
 			r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
-			r.Get("/api/logs/download/{host}/{id}", h.downloadLogs) //TODO
+			r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 			r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 			r.Get("/api/events/stream", h.streamEvents)
 			r.Get("/logout", h.clearSession)

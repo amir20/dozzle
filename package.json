@@ -16,7 +16,7 @@
  "scripts": {
   "watch:frontend": "vite --open http://localhost:3100/",
   "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
-  "dev": "concurrently \"npm:watch:*\"",
+  "dev": "concurrently --kill-others \"npm:watch:*\"",
   "build": "vite build",
   "preview": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
   "release": "bumpp",

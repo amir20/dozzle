@@ -21,7 +21,7 @@ import (
 )
 
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 	container, err := h.clientFromRequest(r).FindContainer(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
