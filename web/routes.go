@@ -180,7 +180,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"Config":   config,
 		"Dev":      h.config.Dev,
 		"Manifest": h.readManifest(),
-		"Base":     h.config.Base,
+		"Base":     path,
 	}
 
 	err = tmpl.Execute(w, data)
