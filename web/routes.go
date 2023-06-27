@@ -177,9 +177,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"config":   config,
-		"dev":      h.config.Dev,
-		"manifest": h.readManifest(),
+		"Config":   config,
+		"Dev":      h.config.Dev,
+		"Manifest": h.readManifest(),
+		"Base":     h.config.Base,
 	}
 
 	err = tmpl.Execute(w, data)

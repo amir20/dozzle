@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dozzle</title>
     <script type="application/json" id="config__json">
-      {{ marshal .config }}
+      {{ marshal .Config }}
     </script>
     <link
       rel="icon"
@@ -15,10 +15,10 @@
     {{- if .dev}}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
     <script type="module" src="http://localhost:5173/assets/main.ts"></script>
-    {{- else }} {{ $js := index .manifest "assets/main.ts" "file" }} {{ $css := index .manifest "assets/main.css" "file"
+    {{- else }} {{ $js := index .Manifest "assets/main.ts" "file" }} {{ $css := index .Manifest "assets/main.css" "file"
     }}
-    <link rel="stylesheet" href="/{{ $css }}" />
-    <script type="module" src="/{{ $js }}"></script>
+    <link rel="stylesheet" href="{{ .Base }}/{{ $css }}" />
+    <script type="module" src="{{ .Base }}/{{ $js }}"></script>
 
     {{- end }}
   </head>

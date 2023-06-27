@@ -25,14 +25,6 @@ export default defineConfig(() => ({
       polyfill: false,
     },
   },
-  experimental: {
-    renderBuiltUrl(filename: string, { type }: { type: "public" | "asset" }) {
-      if (type === "asset") {
-        return `{{ .Base }}/${filename}`;
-      }
-      return filename;
-    },
-  },
   plugins: [
     VueMacros({
       plugins: {
