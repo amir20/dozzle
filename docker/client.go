@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/url"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -25,7 +23,7 @@ import (
 type dockerClient struct {
 	cli     dockerProxy
 	filters filters.Args
-	host    string
+	host    *Host
 }
 
 type StdType int
@@ -69,7 +67,7 @@ type Client interface {
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
-	Host() string
+	Host() *Host
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
@@ -89,10 +87,10 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs, "localhost"}, nil
+	return &dockerClient{cli, filterArgs, &Host{Name: "localhost", Host: "localhost"}}, nil
 }
 
-func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client, error) {
+func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -102,38 +100,19 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client
 
 	log.Debugf("filterArgs = %v", filterArgs)
 
-	remoteUrl, err := url.Parse(connection)
-	if err != nil {
-		return nil, err
-	}
-
-	if remoteUrl.Scheme != "tcp" {
+	if host.URL.Scheme != "tcp" {
 		log.Fatal("Only tcp scheme is supported")
 	}
 
-	host := remoteUrl.Hostname()
-	basePath, err := filepath.Abs("./certs")
-	if err != nil {
-		log.Fatalf("error converting certs path to absolute: %s", err)
-	}
-
-	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
-		basePath = filepath.Join(basePath, host)
-	}
-
-	cacertPath := filepath.Join(basePath, "ca.pem")
-	certPath := filepath.Join(basePath, "cert.pem")
-	keyPath := filepath.Join(basePath, "key.pem")
-
 	opts := []client.Opt{
-		client.WithHost(connection),
+		client.WithHost(host.URL.String()),
 	}
 
-	if _, err := os.Stat(cacertPath); os.IsNotExist(err) {
-		log.Debugf("%s does not exist, using plain HTTP", cacertPath)
+	if host.ValidCerts {
+		log.Debugf("Using TLS client config with certs at: %s", filepath.Dir(host.CertPath))
+		opts = append(opts, client.WithTLSClientConfig(host.CACertPath, host.CertPath, host.KeyPath))
 	} else {
-		log.Debugf("Using TLS client config with certs at: %s", basePath)
-		opts = append(opts, client.WithTLSClientConfig(cacertPath, certPath, keyPath))
+		log.Debugf("No valid certs found, using plain TCP")
 	}
 
 	opts = append(opts, client.WithAPIVersionNegotiation())
@@ -144,7 +123,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, connection string) (Client
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs, host}, nil
+	return &dockerClient{cli, filterArgs, &host}, nil
 }
 
 func (d *dockerClient) FindContainer(id string) (Container, error) {
@@ -191,7 +170,7 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 			Created: c.Created,
 			State:   c.State,
 			Status:  c.Status,
-			Host:    d.host,
+			Host:    d.host.Host,
 			Health:  findBetweenParentheses(c.Status),
 		}
 		containers = append(containers, container)
@@ -308,7 +287,7 @@ func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEven
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
 						Name:    message.Action,
-						Host:    d.host,
+						Host:    d.host.Host,
 					}
 				}
 			}
@@ -371,7 +350,7 @@ func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
 }
 
-func (d *dockerClient) Host() string {
+func (d *dockerClient) Host() *Host {
 	return d.host
 }
 

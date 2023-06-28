@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"sort"
 
 	"net/http"
 	"os"
@@ -154,26 +155,21 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		path = h.config.Base
 	}
 
-	// Get all keys from hosts map
-	hosts := make([]string, 0, len(h.clients))
-	for k := range h.clients {
-		hosts = append(hosts, k)
+	hosts := make([]*docker.Host, 0, len(h.clients))
+	for _, v := range h.clients {
+		hosts = append(hosts, v.Host())
 	}
+	sort.Slice(hosts, func(i, j int) bool {
+		return hosts[i].Name < hosts[j].Name
+	})
 
-	config := struct {
-		Base                string   `json:"base"`
-		Version             string   `json:"version"`
-		AuthorizationNeeded bool     `json:"authorizationNeeded"`
-		Secured             bool     `json:"secured"`
-		Hostname            string   `json:"hostname"`
-		Hosts               []string `json:"hosts"`
-	}{
-		path,
-		h.config.Version,
-		h.isAuthorizationNeeded(req),
-		secured,
-		h.config.Hostname,
-		hosts,
+	config := map[string]interface{}{
+		"base":                path,
+		"version":             h.config.Version,
+		"authorizationNeeded": h.isAuthorizationNeeded(req),
+		"secured":             secured,
+		"hostname":            h.config.Hostname,
+		"hosts":               hosts,
 	}
 
 	data := map[string]interface{}{

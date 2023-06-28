@@ -26,15 +26,15 @@
         <o-dropdown v-model="sessionHost" aria-role="list">
           <template #trigger>
             <o-button variant="primary" type="button" size="small">
-              <span>{{ sessionHost }}</span>
+              <span>{{ sessionHost ? hosts[sessionHost].name : "" }}</span>
               <span class="icon">
                 <carbon:caret-down />
               </span>
             </o-button>
           </template>
 
-          <o-dropdown-item :value="value" aria-role="listitem" v-for="value in config.hosts" :key="value">
-            <span>{{ value }}</span>
+          <o-dropdown-item :value="value.host" aria-role="listitem" v-for="value in config.hosts" :key="value">
+            <span>{{ value.name }}</span>
           </o-dropdown-item>
         </o-dropdown>
       </div>
@@ -110,6 +110,13 @@ const sortedContainers = computed(() =>
         return a.name.localeCompare(b.name);
       }
     })
+);
+
+const hosts = computed(() =>
+  config.hosts.reduce((acc, item) => {
+    acc[item.host] = item;
+    return acc;
+  }, {} as Record<string, { name: string; host: string }>)
 );
 </script>
 <style scoped lang="scss">
