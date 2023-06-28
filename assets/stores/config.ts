@@ -7,7 +7,7 @@ interface Config {
   secured: boolean;
   maxLogs: number;
   hostname: string;
-  hosts: string[];
+  hosts: { name: string; host: string }[];
 }
 
 const pageConfig = JSON.parse(text);

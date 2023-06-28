@@ -3,7 +3,7 @@
     <nav class="breadcrumb menu-label" aria-label="breadcrumbs">
       <ul v-if="sessionHost">
         <li>
-          <a href="#" @click.prevent="setHost(null)">{{ sessionHost }}</a>
+          <a href="#" @click.prevent="setHost(null)">{{ hosts[sessionHost].name }}</a>
         </li>
         <li class="is-active">
           <a href="#" aria-current="page">{{ $t("label.containers") }}</a>
@@ -16,7 +16,7 @@
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu-list" v-if="!sessionHost">
         <li v-for="host in config.hosts">
-          <a @click.prevent="setHost(host)">{{ host }}</a>
+          <a @click.prevent="setHost(host.host)">{{ host.name }}</a>
         </li>
       </ul>
       <ul class="menu-list" v-else>
@@ -85,6 +85,13 @@ const sortedContainers = computed(() =>
     })
 );
 
+const hosts = computed(() =>
+  config.hosts.reduce((acc, item) => {
+    acc[item.host] = item;
+    return acc;
+  }, {} as Record<string, { name: string; host: string }>)
+);
+
 const activeContainersById = computed(() =>
   activeContainers.value.reduce((acc, item) => {
     acc[item.id] = item;
@@ -101,7 +108,8 @@ const activeContainersById = computed(() =>
   opacity: 0.5;
 }
 
-li.exited a, li.dead a {
+li.exited a,
+li.dead a {
   color: #777;
 }
 

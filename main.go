@@ -137,24 +137,29 @@ func doStartEvent(arg args) {
 	}
 }
 
-func createClients(args args, localClientFactory func(map[string][]string) (docker.Client, error), remoteClientFactory func(map[string][]string, string) (docker.Client, error)) map[string]docker.Client {
+func createClients(args args, localClientFactory func(map[string][]string) (docker.Client, error), remoteClientFactory func(map[string][]string, docker.Host) (docker.Client, error)) map[string]docker.Client {
 	clients := make(map[string]docker.Client)
 
 	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
-		clients[localClient.Host()] = localClient
+		clients[localClient.Host().Host] = localClient
 	}
 
-	for _, host := range args.RemoteHost {
-		log.Infof("Creating client for %s", host)
+	for _, remoteHost := range args.RemoteHost {
+		host, err := docker.ParseConnection(remoteHost)
+		if err != nil {
+			log.Fatalf("Could not parse remote host %s: %s", remoteHost, err)
+		}
+		log.Debugf("Creating remote client for %s with %+v", host.Name, host)
+		log.Infof("Creating client for %s with %s", host.Name, host.URL.String())
 		if client, err := remoteClientFactory(args.Filter, host); err == nil {
 			if _, err := client.ListContainers(); err == nil {
 				log.Debugf("Connected to local Docker Engine")
-				clients[client.Host()] = client
+				clients[client.Host().Host] = client
 			} else {
-				log.Warnf("Could not connect to remote host %s: %s", host, err)
+				log.Warnf("Could not connect to remote host %s: %s", host.Host, err)
 			}
 		} else {
-			log.Warnf("Could not create client for %s: %s", host, err)
+			log.Warnf("Could not create client for %s: %s", host.Host, err)
 		}
 	}
 
