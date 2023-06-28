@@ -26,6 +26,7 @@ import (
 func Test_createRoutes_index(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
+
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/"})
 	req, err := http.NewRequest("GET", "/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -64,6 +65,7 @@ func Test_createRoutes_redirect_with_auth(t *testing.T) {
 func Test_createRoutes_foobar(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("foo page"), 0644), "WriteFile should have no error.")
+
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/foobar"})
 	req, err := http.NewRequest("GET", "/foobar/", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")

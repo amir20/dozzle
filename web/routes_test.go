@@ -49,15 +49,18 @@ func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) Host() string {
+func (m *MockedClient) Host() *docker.Host {
 	args := m.Called()
-	return args.String(0)
+	return args.Get(0).(*docker.Host)
 }
 
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
+		client.(*MockedClient).On("Host").Return(&docker.Host{
+			Host: "localhost",
+		})
 	}
 
 	if content == nil {
