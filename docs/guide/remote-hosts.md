@@ -53,3 +53,29 @@ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir2
 ::: warning
 Exposing `docker.sock` publicly is not safe. Only use a proxy for an internal network where all clients are trusted.
 :::
+
+## Adding labels to hosts
+
+`--remote-host` supports host labels by appending them to the connection string with `|`. For example, `--remote-host tcp://123.1.1.1:2375|foobar.com` will use foobar.com as the label in the UI. A full example of this using the CLI or compose are:
+
+::: code-group
+
+```sh
+docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle --remote-host tcp://123.1.1.1:2375|foobar.com
+```
+
+```yaml [docker-compose.yml]
+version: "3"
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/certs:/certs
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_REMOTE_HOST: tcp://167.99.1.1:2376|foo.com,tcp://167.99.1.2:2376|bar.com
+```
+
+:::
