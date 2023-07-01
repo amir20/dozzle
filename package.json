@@ -32,7 +32,7 @@
   "@iconify-json/mdi": "^1.1.52",
   "@iconify-json/mdi-light": "^1.1.6",
   "@iconify-json/octicon": "^1.1.44",
-  "@intlify/unplugin-vue-i18n": "^0.11.0",
+  "@intlify/unplugin-vue-i18n": "^0.12.0",
   "@oruga-ui/oruga-next": "^0.6.0",
   "@oruga-ui/theme-bulma": "^0.2.11",
   "@vueuse/core": "^10.2.1",
