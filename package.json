@@ -78,7 +78,7 @@
   "jest-serializer-vue": "^3.1.0",
   "jsdom": "^22.1.0",
   "lint-staged": "^13.2.3",
-  "prettier": "^2.8.8",
+  "prettier": "^3.0.0",
   "sass": "^1.63.6",
   "simple-git-hooks": "^2.8.1",
   "ts-node": "^10.9.1",
