@@ -37,7 +37,7 @@ onMounted(() => {
     () => {
       scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
     },
-    { immediate: true, flush: "post" }
+    { immediate: true, flush: "post" },
   );
 });
 
@@ -56,7 +56,7 @@ watchPostEffect(() => {
         delay: 2000,
         fill: "both",
         easing: "ease-out",
-      }
+      },
     );
   }
 });

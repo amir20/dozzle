@@ -58,17 +58,25 @@ const routeHash = useRouteHash();
 watch(
   routeHash,
   (hash) => {
-    if(hash){
+    if (hash) {
       document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
     }
   },
-  { immediate: true, flush: "post" }
+  { immediate: true, flush: "post" },
 );
 </script>
 <style scoped lang="scss">
 .events {
   padding: 1em 0;
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, monaco, Menlo, monospace;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Consolas,
+    Liberation Mono,
+    monaco,
+    Menlo,
+    monospace;
 
   & > li {
     display: flex;

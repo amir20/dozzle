@@ -82,8 +82,8 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
 
     es = new EventSource(
       `${config.base}/api/logs/stream/${container.value.host}/${container.value.id}?${new URLSearchParams(
-        params
-      ).toString()}`
+        params,
+      ).toString()}`,
     );
     es.addEventListener("container-stopped", () => {
       es?.close();
@@ -127,8 +127,8 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
     const logs = await (
       await fetch(
         `${config.base}/api/logs/${container.value.host}/${container.value.id}?${new URLSearchParams(
-          params
-        ).toString()}`
+          params,
+        ).toString()}`,
       )
     ).text();
     if (logs) {
@@ -149,7 +149,7 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
         buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
         connect({ clear: false });
       }
-    }
+    },
   );
 
   onUnmounted(() => {
@@ -161,7 +161,7 @@ export function useLogStream(container: ComputedRef<Container>, streamConfig: Lo
   watch(
     () => container.value.id,
     () => connect(),
-    { immediate: true }
+    { immediate: true },
   );
 
   watch(streamConfig, () => connect());

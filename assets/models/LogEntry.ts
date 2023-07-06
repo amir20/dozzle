@@ -29,7 +29,7 @@ export abstract class LogEntry<T extends string | JSONObject> implements HasComp
     public readonly id: number,
     public readonly date: Date,
     public readonly std: Std,
-    public readonly level?: string
+    public readonly level?: string,
   ) {
     this._message = message;
   }
@@ -48,7 +48,7 @@ export class SimpleLogEntry extends LogEntry<string> {
     date: Date,
     public readonly level: string,
     public readonly position: Position,
-    public readonly std: Std
+    public readonly std: Std,
   ) {
     super(message, id, date, std, level);
   }
@@ -66,7 +66,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     date: Date,
     public readonly level: string,
     public readonly std: Std,
-    visibleKeys?: Ref<string[][]>
+    visibleKeys?: Ref<string[][]>,
   ) {
     super(message, id, date, std, level);
     if (visibleKeys) {
@@ -99,7 +99,11 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
 }
 
 export class DockerEventLogEntry extends LogEntry<string> {
-  constructor(message: string, date: Date, public readonly event: string) {
+  constructor(
+    message: string,
+    date: Date,
+    public readonly event: string,
+  ) {
     super(message, date.getTime(), date, "stderr", "info");
   }
   getComponent(): Component {
@@ -115,7 +119,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     date: Date,
     totalSkipped: number,
     public readonly firstSkipped: LogEntry<string | JSONObject>,
-    lastSkipped: LogEntry<string | JSONObject>
+    lastSkipped: LogEntry<string | JSONObject>,
   ) {
     super("", date.getTime(), date, "stderr", "info");
     this._totalSkipped = totalSkipped;
@@ -151,7 +155,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       new Date(event.ts),
       event.l,
       event.p,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr"
+      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
     );
   } else {
     return new ComplexLogEntry(
@@ -159,7 +163,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       event.id,
       new Date(event.ts),
       event.l,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr"
+      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
     );
   }
 }

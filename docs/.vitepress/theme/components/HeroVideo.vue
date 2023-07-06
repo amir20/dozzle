@@ -13,7 +13,7 @@ onMounted(() => {
     {
       attributes: true,
       attributeFilter: ["class"],
-    }
+    },
   );
 });
 </script>

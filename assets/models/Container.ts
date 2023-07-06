@@ -21,7 +21,7 @@ export class Container {
     public readonly host: string,
     public status: string,
     public state: ContainerState,
-    public health?: ContainerHealth
+    public health?: ContainerHealth,
   ) {
     this.stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
     this.throttledStatHistory = useThrottledRefHistory(this.stat, { capacity: 300, deep: true, throttle: 1000 });

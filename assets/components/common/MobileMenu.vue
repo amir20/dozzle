@@ -109,14 +109,17 @@ const sortedContainers = computed(() =>
       } else {
         return a.name.localeCompare(b.name);
       }
-    })
+    }),
 );
 
 const hosts = computed(() =>
-  config.hosts.reduce((acc, item) => {
-    acc[item.host] = item;
-    return acc;
-  }, {} as Record<string, { name: string; host: string }>)
+  config.hosts.reduce(
+    (acc, item) => {
+      acc[item.host] = item;
+      return acc;
+    },
+    {} as Record<string, { name: string; host: string }>,
+  ),
 );
 </script>
 <style scoped lang="scss">

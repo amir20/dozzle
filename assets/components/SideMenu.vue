@@ -82,21 +82,27 @@ const sortedContainers = computed(() =>
       } else {
         return a.name.localeCompare(b.name);
       }
-    })
+    }),
 );
 
 const hosts = computed(() =>
-  config.hosts.reduce((acc, item) => {
-    acc[item.host] = item;
-    return acc;
-  }, {} as Record<string, { name: string; host: string }>)
+  config.hosts.reduce(
+    (acc, item) => {
+      acc[item.host] = item;
+      return acc;
+    },
+    {} as Record<string, { name: string; host: string }>,
+  ),
 );
 
 const activeContainersById = computed(() =>
-  activeContainers.value.reduce((acc, item) => {
-    acc[item.id] = item;
-    return acc;
-  }, {} as Record<string, Container>)
+  activeContainers.value.reduce(
+    (acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    },
+    {} as Record<string, Container>,
+  ),
 );
 </script>
 <style scoped lang="scss">

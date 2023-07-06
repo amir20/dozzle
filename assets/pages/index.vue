@@ -124,7 +124,7 @@ useIntervalFn(
     totalCpu = runningContainers.reduce((acc, c) => acc + (c.stat?.cpu ?? 0), 0);
   },
   1000,
-  { immediate: true }
+  { immediate: true },
 );
 
 let totalMem = $ref(0);
@@ -133,7 +133,7 @@ useIntervalFn(
     totalMem = runningContainers.reduce((acc, c) => acc + (c.stat?.memoryUsage ?? 0), 0);
   },
   1000,
-  { immediate: true }
+  { immediate: true },
 );
 
 function onEnter() {

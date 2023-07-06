@@ -46,7 +46,9 @@ onUnmounted(() => resetSearch());
   right: 0;
   border-radius: 0 0 0 5px;
   z-index: 10;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
 
   button.delete {
     margin-left: 1em;

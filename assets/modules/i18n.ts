@@ -7,8 +7,8 @@ export const install = (app: App) => {
       ([key, value]) => {
         const yaml = key.endsWith(".yaml");
         return [key.slice(14, yaml ? -5 : -4), value.default];
-      }
-    )
+      },
+    ),
   );
   const i18n = createI18n({
     legacy: false,

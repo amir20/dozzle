@@ -10,10 +10,13 @@ export const useContainerStore = defineStore("container", () => {
   const ready = ref(false);
 
   const allContainersById = computed(() =>
-    containers.value.reduce((acc, container) => {
-      acc[container.id] = container;
-      return acc;
-    }, {} as Record<string, Container>)
+    containers.value.reduce(
+      (acc, container) => {
+        acc[container.id] = container;
+        return acc;
+      },
+      {} as Record<string, Container>,
+    ),
   );
 
   const visibleContainers = computed(() => {
@@ -29,7 +32,7 @@ export const useContainerStore = defineStore("container", () => {
     es = new EventSource(`${config.base}/api/events/stream`);
 
     es.addEventListener("containers-changed", (e: Event) =>
-      updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[])
+      updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[]),
     );
     es.addEventListener("container-stat", (e) => {
       const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
@@ -83,7 +86,7 @@ export const useContainerStore = defineStore("container", () => {
           c.host,
           c.status,
           c.state,
-          c.health
+          c.health,
         );
       }),
     ];

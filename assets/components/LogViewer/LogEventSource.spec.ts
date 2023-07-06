@@ -44,7 +44,7 @@ describe("<LogEventSource />", () => {
       hourStyle = "auto",
     }: { searchFilter?: string | undefined; hourStyle?: "auto" | "24" | "12" } = {
       hourStyle: "auto",
-    }
+    },
   ) {
     settings.value.hourStyle = hourStyle;
     search.searchFilter.value = searchFilter;
