@@ -59,7 +59,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
 		client.(*MockedClient).On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 	}
 

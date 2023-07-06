@@ -3,7 +3,7 @@ import { Container } from "@/models/Container";
 const sessionHost = useSessionStorage<string | null>("host", null);
 
 if (config.hosts.length === 1 && !sessionHost.value) {
-  sessionHost.value = config.hosts[0].host;
+  sessionHost.value = config.hosts[0].id;
 }
 
 function persistentVisibleKeys(container: ComputedRef<Container>) {

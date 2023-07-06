@@ -87,7 +87,7 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs, &Host{Name: "localhost", Host: "localhost"}}, nil
+	return &dockerClient{cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}}, nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
@@ -170,7 +170,7 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 			Created: c.Created,
 			State:   c.State,
 			Status:  c.Status,
-			Host:    d.host.Host,
+			Host:    d.host.ID,
 			Health:  findBetweenParentheses(c.Status),
 		}
 		containers = append(containers, container)
@@ -287,7 +287,7 @@ func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEven
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
 						Name:    message.Action,
-						Host:    d.host.Host,
+						Host:    d.host.ID,
 					}
 				}
 			}

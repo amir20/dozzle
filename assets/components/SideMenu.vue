@@ -16,7 +16,7 @@
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu-list" v-if="!sessionHost">
         <li v-for="host in config.hosts">
-          <a @click.prevent="setHost(host.host)">{{ host.name }}</a>
+          <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
         </li>
       </ul>
       <ul class="menu-list" v-else>
@@ -88,10 +88,10 @@ const sortedContainers = computed(() =>
 const hosts = computed(() =>
   config.hosts.reduce(
     (acc, item) => {
-      acc[item.host] = item;
+      acc[item.id] = item;
       return acc;
     },
-    {} as Record<string, { name: string; host: string }>,
+    {} as Record<string, { name: string; id: string }>,
   ),
 );
 
