@@ -33,7 +33,7 @@
             </o-button>
           </template>
 
-          <o-dropdown-item :value="value.host" aria-role="listitem" v-for="value in config.hosts" :key="value">
+          <o-dropdown-item :value="value.id" aria-role="listitem" v-for="value in config.hosts" :key="value">
             <span>{{ value.name }}</span>
           </o-dropdown-item>
         </o-dropdown>
@@ -115,10 +115,10 @@ const sortedContainers = computed(() =>
 const hosts = computed(() =>
   config.hosts.reduce(
     (acc, item) => {
-      acc[item.host] = item;
+      acc[item.id] = item;
       return acc;
     },
-    {} as Record<string, { name: string; host: string }>,
+    {} as Record<string, { name: string; id: string }>,
   ),
 );
 </script>

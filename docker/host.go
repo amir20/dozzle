@@ -11,7 +11,7 @@ import (
 
 type Host struct {
 	Name       string   `json:"name"`
-	Host       string   `json:"host"`
+	ID         string   `json:"id"`
 	URL        *url.URL `json:"-"`
 	CertPath   string   `json:"-"`
 	CACertPath string   `json:"-"`
@@ -56,8 +56,8 @@ func ParseConnection(connection string) (Host, error) {
 	}
 
 	return Host{
+		ID:         strings.ReplaceAll(remoteUrl.String(), "/", ""),
 		Name:       name,
-		Host:       host,
 		URL:        remoteUrl,
 		CertPath:   certPath,
 		CACertPath: cacertPath,
