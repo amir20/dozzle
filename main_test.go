@@ -29,7 +29,7 @@ func Test_valid_localhost(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 		return client, nil
 	}
@@ -46,7 +46,7 @@ func Test_invalid_localhost(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
 		client.On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 		return client, nil
 	}
@@ -63,7 +63,7 @@ func Test_valid_remote(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
 		client.On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 
 		return client, nil
@@ -73,7 +73,7 @@ func Test_valid_remote(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return(&docker.Host{
-			Host: "test",
+			ID: "test",
 		})
 		return client, nil
 	}
@@ -94,7 +94,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 		return client, nil
 	}
@@ -103,7 +103,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, nil)
 		client.On("Host").Return(&docker.Host{
-			Host: "test",
+			ID: "test",
 		})
 		return client, nil
 	}
@@ -124,7 +124,7 @@ func Test_no_clients(t *testing.T) {
 		client := new(fakeClient)
 		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
 		client.On("Host").Return(&docker.Host{
-			Host: "localhost",
+			ID: "localhost",
 		})
 		return client, nil
 	}
@@ -132,7 +132,7 @@ func Test_no_clients(t *testing.T) {
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		client := new(fakeClient)
 		client.On("Host").Return(&docker.Host{
-			Host: "test",
+			ID: "test",
 		})
 		return client, nil
 	}
