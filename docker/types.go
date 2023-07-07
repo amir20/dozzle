@@ -17,6 +17,7 @@ type Container struct {
 	Status  string   `json:"status"`
 	Health  string   `json:"health,omitempty"`
 	Host    string   `json:"host,omitempty"`
+	Tty     bool     `json:"-"`
 }
 
 // ContainerStat represent stats instant for a container

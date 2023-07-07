@@ -16,10 +16,11 @@ type eventGenerator struct {
 	channel   chan *LogEvent
 	next      *LogEvent
 	lastError error
+	stream    StdType
 }
 
-func NewEventIterator(reader *bufio.Reader) *eventGenerator {
-	generator := &eventGenerator{reader: reader, channel: make(chan *LogEvent, 100)}
+func NewEventGenerator(reader *bufio.Reader, stream StdType) *eventGenerator {
+	generator := &eventGenerator{reader: reader, channel: make(chan *LogEvent, 100), stream: stream}
 	go generator.consume()
 	return generator
 }
@@ -93,21 +94,8 @@ func (g *eventGenerator) consume() {
 		if message != "" {
 			h := fnv.New32a()
 			h.Write([]byte(message))
-			std := message[:3]
-			var stdType StdType
-			switch std {
-			case "OUT":
-				stdType = STDOUT
-				message = message[3:]
-			case "ERR":
-				stdType = STDERR
-				message = message[3:]
-			default:
-				log.Debugf("unknown std type [%s] with message [%s]", std, message)
-				stdType = UNKNOWN
-			}
 
-			logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: stdType.String()}
+			logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: g.stream.String()}
 
 			if index := strings.IndexAny(message, " "); index != -1 {
 				logId := message[:index]
