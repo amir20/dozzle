@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 
-	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
@@ -126,36 +125,11 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true, Since: "since"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
-	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
-	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
-
 	client := &dockerClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}}
 	logReader, _ := client.ContainerLogs(context.Background(), id, "since", STDALL)
 
 	actual, _ := io.ReadAll(logReader)
-	assert.Equal(t, expected, string(actual), "message doesn't match expected")
-	proxy.AssertExpectations(t)
-}
-
-func Test_dockerClient_ContainerLogs_happy_with_tty(t *testing.T) {
-	id := "123456"
-
-	proxy := new(mockedProxy)
-	expected := "INFO Testing logs..."
-
-	reader := io.NopCloser(strings.NewReader(expected))
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true}
-	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
-
-	json := types.ContainerJSON{Config: &container.Config{Tty: true}}
-	proxy.On("ContainerInspect", mock.Anything, id).Return(json, nil)
-
-	client := &dockerClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}}
-	logReader, _ := client.ContainerLogs(context.Background(), id, "", STDALL)
-
-	actual, _ := io.ReadAll(logReader)
-	assert.Equal(t, expected, string(actual), "message doesn't match expected")
-
+	assert.Equal(t, string(b), string(actual), "message doesn't match expected")
 	proxy.AssertExpectations(t)
 }
 
@@ -188,6 +162,10 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
+
+	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
+	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
+
 	client := &dockerClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}}
 
 	container, err := client.FindContainer("abcdefghijkl")
@@ -198,6 +176,7 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 		Name:  "z_test_container",
 		Names: []string{"/z_test_container"},
 		Host:  "localhost",
+		Tty:   false,
 	})
 
 	proxy.AssertExpectations(t)

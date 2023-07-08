@@ -165,13 +165,16 @@ loop:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
 		case err := <-errors:
-			if err == io.EOF {
-				log.Debugf("container stopped: %v", container.ID)
-				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-				f.Flush()
-			} else if err != context.Canceled {
-				log.Errorf("unknown error while streaming %v", err.Error())
+			if err != nil {
+				if err == io.EOF {
+					log.Debugf("container stopped: %v", container.ID)
+					fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+					f.Flush()
+				} else if err != context.Canceled {
+					log.Errorf("unknown error while streaming %v", err.Error())
+				}
 			}
+
 			break loop
 		}
 	}

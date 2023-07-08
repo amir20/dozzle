@@ -12,17 +12,17 @@ import (
 
 func TestNewEventIterator(t *testing.T) {
 	input := "example input"
-	reader := bufio.NewReader(strings.NewReader("OUT" + input))
+	reader := bufio.NewReader(strings.NewReader(input))
 
-	generator := NewEventIterator(reader)
+	generator := NewEventGenerator(reader, STDOUT)
 	require.NotNil(t, generator, "Expected generator to not be nil, but got nil")
 }
 
 func TestEventGenerator_Next(t *testing.T) {
 	input := "example input"
-	reader := bufio.NewReader(strings.NewReader("OUT" + input))
+	reader := bufio.NewReader(strings.NewReader(input))
 
-	generator := NewEventIterator(reader)
+	generator := NewEventGenerator(reader, STDOUT)
 
 	event, err := generator.Next()
 	require.NoError(t, err, "Expected no error, but got: %v", err)
@@ -31,9 +31,9 @@ func TestEventGenerator_Next(t *testing.T) {
 
 func TestEventGenerator_LastError(t *testing.T) {
 	input := "example input"
-	reader := bufio.NewReader(strings.NewReader("OUT" + input))
+	reader := bufio.NewReader(strings.NewReader(input))
 
-	generator := NewEventIterator(reader)
+	generator := NewEventGenerator(reader, STDOUT)
 
 	require.Nil(t, generator.LastError(), "Expected LastError to return nil, but got: %v", generator.LastError())
 
@@ -45,9 +45,9 @@ func TestEventGenerator_LastError(t *testing.T) {
 
 func TestEventGenerator_Peek(t *testing.T) {
 	input := "example input"
-	reader := bufio.NewReader(strings.NewReader("OUT" + input))
+	reader := bufio.NewReader(strings.NewReader(input))
 
-	generator := NewEventIterator(reader)
+	generator := NewEventGenerator(reader, STDOUT)
 
 	event := generator.Peek()
 

@@ -77,8 +77,8 @@ Connection: close
 Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: application/ld+json; charset=UTF-8
 
-{"m":"INFO Testing logs...","ts":1589396137772,"id":1122614848,"l":"info","s":"stdout"}
-{"m":"INFO Testing logs...","ts":1589396137772,"id":1543246723,"l":"info","s":"stderr"}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stderr"}
+{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout"}
 
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK
@@ -167,10 +167,7 @@ Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":852638900,"l":"info","s":"stdout"}
-
-event: container-stopped
-data: end of stream
+data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout"}
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 HTTP/1.1 200 OK
@@ -195,8 +192,5 @@ Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":3373215946,"l":"info","s":"stdout"}
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout"}
 id: 1589396137772
-
-event: container-stopped
-data: end of stream
