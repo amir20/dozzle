@@ -25,6 +25,9 @@ func ReaderConvertor(reader io.Reader, tty bool) (chan *LogEvent, chan error) {
 			errReader.Close()
 			outReader.Close()
 			wg.Wait()
+			if err == nil {
+				err = io.EOF
+			}
 			errors <- err
 		}(&wg)
 

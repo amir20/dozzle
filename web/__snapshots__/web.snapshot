@@ -169,6 +169,9 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout"}
 
+event: container-stopped
+data: end of stream
+
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 HTTP/1.1 200 OK
 Connection: close
@@ -194,3 +197,6 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout"}
 id: 1589396137772
+
+event: container-stopped
+data: end of stream

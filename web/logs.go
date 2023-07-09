@@ -166,6 +166,7 @@ loop:
 			f.Flush()
 		case err := <-errors:
 			if err != nil {
+				log.Debugf("error while streaming %v", err.Error())
 				if err == io.EOF {
 					log.Debugf("container stopped: %v", container.ID)
 					fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
