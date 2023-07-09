@@ -10,7 +10,7 @@ import (
 )
 
 func ReaderConvertor(reader io.Reader, tty bool) (chan *LogEvent, chan error) {
-	events := make(chan *LogEvent, 100)
+	events := make(chan *LogEvent)
 	errors := make(chan error)
 
 	if tty {

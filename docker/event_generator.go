@@ -20,7 +20,7 @@ type eventGenerator struct {
 }
 
 func NewEventGenerator(reader *bufio.Reader, stream StdType) *eventGenerator {
-	generator := &eventGenerator{reader: reader, channel: make(chan *LogEvent, 100), stream: stream}
+	generator := &eventGenerator{reader: reader, channel: make(chan *LogEvent), stream: stream}
 	go generator.consume()
 	return generator
 }
