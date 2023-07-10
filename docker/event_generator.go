@@ -74,10 +74,10 @@ func (g *eventGenerator) consumeReader() {
 		}
 
 		if readerError != nil {
-			close(g.buffer)
 			if readerError != BadHeaderErr {
 				g.errors <- readerError
 			}
+			close(g.buffer)
 			break
 		}
 	}
