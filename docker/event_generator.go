@@ -10,6 +10,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -22,6 +23,12 @@ type eventGenerator struct {
 	next   *LogEvent
 	buffer chan *LogEvent
 	tty    bool
+}
+
+var bufPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
 }
 
 var BadHeaderErr = fmt.Errorf("dozzle/docker: unable to read header")
@@ -98,7 +105,9 @@ func (g *eventGenerator) peek() *LogEvent {
 
 func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 	header := []byte{0, 0, 0, 0, 0, 0, 0, 0}
-	buffer := bytes.Buffer{} // todo: use a pool
+	buffer := bufPool.Get().(*bytes.Buffer)
+	buffer.Reset()
+	defer bufPool.Put(buffer)
 	var streamType StdType = STDOUT
 	if tty {
 		message, err := reader.ReadString('\n')
@@ -128,8 +137,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		if count == 0 {
 			return "", streamType, nil
 		}
-		buffer.Reset()
-		_, err = io.CopyN(&buffer, reader, int64(count))
+		_, err = io.CopyN(buffer, reader, int64(count))
 		if err != nil {
 			return "", streamType, err
 		}
