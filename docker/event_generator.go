@@ -2,8 +2,12 @@ package docker
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"hash/fnv"
+	"io"
 	"regexp"
 	"strings"
 	"time"
@@ -12,15 +16,18 @@ import (
 )
 
 type eventGenerator struct {
-	reader    *bufio.Reader
-	channel   chan *LogEvent
-	next      *LogEvent
-	lastError error
-	stream    StdType
+	reader *bufio.Reader
+	events chan *LogEvent
+	errors chan error
+	next   *LogEvent
+
+	tty bool
 }
 
-func NewEventGenerator(reader *bufio.Reader, stream StdType) *eventGenerator {
-	generator := &eventGenerator{reader: reader, channel: make(chan *LogEvent), stream: stream}
+func NewEventGenerator(reader *io.Reader, tty bool) *eventGenerator {
+	generator := &eventGenerator{
+		reader:  bufio.NewReader(*reader),
+		channel: make(chan *LogEvent), errors: make(chan error), tty: tty}
 	go generator.consume()
 	return generator
 }
@@ -70,10 +77,6 @@ func (g *eventGenerator) Next() (*LogEvent, error) {
 	return currentEvent, nil
 }
 
-func (g *eventGenerator) LastError() error {
-	return g.lastError
-}
-
 func (g *eventGenerator) Peek() *LogEvent {
 	if g.next != nil {
 		return g.next
@@ -89,33 +92,10 @@ func (g *eventGenerator) Peek() *LogEvent {
 
 func (g *eventGenerator) consume() {
 	for {
-		message, readerError := g.reader.ReadString('\n')
-
-		if message != "" {
-			h := fnv.New32a()
-			h.Write([]byte(message))
-
-			logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: g.stream.String()}
-
-			if index := strings.IndexAny(message, " "); index != -1 {
-				logId := message[:index]
-				if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
-					logEvent.Timestamp = timestamp.UnixMilli()
-					message = strings.TrimSuffix(message[index+1:], "\n")
-					logEvent.Message = message
-					if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
-						var data map[string]interface{}
-						if err := json.Unmarshal([]byte(message), &data); err != nil {
-							log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
-						} else {
-							logEvent.Message = data
-						}
-					}
-				}
-			}
-			logEvent.Level = guessLogLevel(logEvent)
-			g.channel <- logEvent
-		}
+		message, streamType, readerError := readEvent(g.reader, g.tty)
+		logEvent := createEvent(message, streamType)
+		logEvent.Level = guessLogLevel(logEvent)
+		g.events <- logEvent
 
 		if readerError != nil {
 			g.lastError = readerError
@@ -123,6 +103,70 @@ func (g *eventGenerator) consume() {
 			return
 		}
 	}
+}
+
+func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
+	header := []byte{0, 0, 0, 0, 0, 0, 0, 0}
+	buffer := bytes.Buffer{} // todo: use a pool
+	var streamType StdType = STDOUT
+	if tty {
+		message, err := reader.ReadString('\n')
+		if err != nil {
+			return "", streamType, err
+		}
+		return message, streamType, nil
+	} else {
+		n, err := reader.Read(header)
+		if err != nil {
+			return "", streamType, err
+		}
+		if n != 8 {
+			return "", streamType, fmt.Errorf("unable to read header")
+		}
+
+		switch header[0] {
+		case 1:
+			streamType = STDOUT
+		case 2:
+			streamType = STDERR
+		default:
+			log.Warnf("unknown stream type %d", header[0])
+		}
+
+		count := binary.BigEndian.Uint32(header[4:])
+		if count == 0 {
+			return "", streamType, nil
+		}
+		buffer.Reset()
+		_, err = io.CopyN(&buffer, reader, int64(count))
+		if err != nil {
+			return "", streamType, err
+		}
+		return buffer.String(), streamType, nil
+	}
+}
+
+func createEvent(message string, streamType StdType) *LogEvent {
+	h := fnv.New32a()
+	h.Write([]byte(message))
+	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String()}
+	if index := strings.IndexAny(message, " "); index != -1 {
+		logId := message[:index]
+		if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+			logEvent.Timestamp = timestamp.UnixMilli()
+			message = strings.TrimSuffix(message[index+1:], "\n")
+			logEvent.Message = message
+			if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+				var data map[string]interface{}
+				if err := json.Unmarshal([]byte(message), &data); err != nil {
+					log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
+				} else {
+					logEvent.Message = data
+				}
+			}
+		}
+	}
+	return logEvent
 }
 
 var KEY_VALUE_REGEX = regexp.MustCompile(`level=(\w+)`)
