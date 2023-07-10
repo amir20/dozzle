@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
 
@@ -42,7 +43,11 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	io.Copy(zw, reader)
+	if container.Tty {
+		io.Copy(zw, reader)
+	} else {
+		stdcopy.StdCopy(zw, zw, reader)
+	}
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
