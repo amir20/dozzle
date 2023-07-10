@@ -170,19 +170,11 @@ func Test_handler_between_dates(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := make([]byte, 8)
-	first := "2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n"
-	binary.BigEndian.PutUint32(data[4:], uint32(len(first)))
-	data[0] = 1 // stdout
-	data = append(data, []byte(first)...)
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
 
-	data2 := make([]byte, 8)
-	second := "2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n"
-	binary.BigEndian.PutUint32(data2[4:], uint32(len(second)))
-	data2[0] = 2 // stderr
-	data2 = append(data2, []byte(second)...)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
 
-	data = append(data, data2...)
+	data := append(first, second...)
 
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
@@ -192,4 +184,13 @@ func Test_handler_between_dates(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
+}
+
+func makeMessage(message string, stream docker.StdType) []byte {
+	data := make([]byte, 8)
+	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
+	data[0] = byte(stream / 2)
+	data = append(data, []byte(message)...)
+
+	return data
 }
