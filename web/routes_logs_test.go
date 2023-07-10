@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"runtime"
 	"time"
 
 	"net/http"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
+	"github.com/magiconair/properties/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -64,6 +66,32 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_streamLogs_happy_with_id_goroutines(t *testing.T) {
+	before := runtime.NumGoroutine()
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	q := req.URL.Query()
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+
+	req.URL.RawQuery = q.Encode()
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	mockedClient := new(MockedClient)
+
+	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", docker.STDOUT)
+
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	mockedClient.AssertExpectations(t)
+	after := runtime.NumGoroutine()
+	assert.Equal(t, before, after, "Number of goroutines should be the same")
 }
 
 func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
@@ -174,6 +202,42 @@ func Test_handler_between_dates(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_between_dates_goroutines(t *testing.T) {
+	before := runtime.NumGoroutine()
+
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/logs/localhost/"+id, nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
+	to, _ := time.Parse(time.RFC3339, "2018-01-01T010:00:00Z")
+
+	q := req.URL.Query()
+	q.Add("from", from.Format(time.RFC3339))
+	q.Add("to", to.Format(time.RFC3339))
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+
+	req.URL.RawQuery = q.Encode()
+
+	mockedClient := new(MockedClient)
+
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
+	data := append(first, second...)
+
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	mockedClient.AssertExpectations(t)
+
+	after := runtime.NumGoroutine()
+	assert.Equal(t, before, after, "Number of goroutines should be the same")
 }
 
 func makeMessage(message string, stream docker.StdType) []byte {
