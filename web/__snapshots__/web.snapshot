@@ -77,8 +77,8 @@ Connection: close
 Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; connect-src 'self' api.github.com;
 Content-Type: application/ld+json; charset=UTF-8
 
-{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stderr"}
-{"m":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout"}
+{"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout"}
+{"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr"}
 
 /* snapshot: Test_handler_streamEvents_error */
 HTTP/1.1 200 OK

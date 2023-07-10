@@ -77,17 +77,18 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	events, errors := docker.ReaderConvertor(reader, container.Tty)
+	events, _ := docker.NewEventGenerator(reader, container.Tty)
 
 loop:
 	for {
 		select {
-		case event := <-events:
+		case event, ok := <-events:
+			if !ok {
+				break loop
+			}
 			if err := json.NewEncoder(w).Encode(event); err != nil {
 				log.Errorf("json encoding error while streaming %v", err.Error())
 			}
-		case <-errors:
-			break loop
 		}
 	}
 }
@@ -145,12 +146,16 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	events, errors := docker.ReaderConvertor(reader, container.Tty)
+	events, errors := docker.NewEventGenerator(reader, container.Tty)
 
 loop:
 	for {
 		select {
-		case event := <-events:
+		case event, ok := <-events:
+			if !ok {
+				log.WithFields(log.Fields{"id": id}).Debug("stream closed")
+				break loop
+			}
 			if buf, err := json.Marshal(event); err != nil {
 				log.Errorf("json encoding error while streaming %v", err.Error())
 			} else {
@@ -164,20 +169,21 @@ loop:
 		case <-ticker.C:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
-		case err := <-errors:
-			if err != nil {
-				log.Debugf("error while streaming %v", err.Error())
-				if err == io.EOF {
-					log.Debugf("container stopped: %v", container.ID)
-					fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-					f.Flush()
-				} else if err != context.Canceled {
-					log.Errorf("unknown error while streaming %v", err.Error())
-				}
-			}
-
-			break loop
 		}
+	}
+
+	select {
+	case err := <-errors:
+		if err != nil {
+			if err == io.EOF {
+				log.Debugf("container stopped: %v", container.ID)
+				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+				f.Flush()
+			} else if err != context.Canceled {
+				log.Errorf("unknown error while streaming %v", err.Error())
+			}
+		}
+	default:
 	}
 
 	if log.IsLevelEnabled(log.DebugLevel) {

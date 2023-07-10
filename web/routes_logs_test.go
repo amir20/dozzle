@@ -14,7 +14,6 @@ import (
 
 	"github.com/amir20/dozzle/docker"
 	"github.com/beme/abide"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -178,7 +177,7 @@ func Test_handler_between_dates(t *testing.T) {
 	data = append(data, []byte(first)...)
 
 	data2 := make([]byte, 8)
-	second := "2020-05-13T18:55:37.772853839Z INFO Testing stderr logs...\n"
+	second := "2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n"
 	binary.BigEndian.PutUint32(data2[4:], uint32(len(second)))
 	data2[0] = 2 // stderr
 	data2 = append(data2, []byte(second)...)
@@ -191,8 +190,6 @@ func Test_handler_between_dates(t *testing.T) {
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-
-	assert.Contains(t, rr.Body.String(), `{"m":"INFO Testing stderr logs...","ts":1589396137772,"id":3379837544,"l":"info","s":"stderr"}`)
-	assert.Contains(t, rr.Body.String(), `{"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout"}`)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
 }

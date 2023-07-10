@@ -20,88 +20,79 @@ type eventGenerator struct {
 	events chan *LogEvent
 	errors chan error
 	next   *LogEvent
-
-	tty bool
+	buffer chan *LogEvent
+	tty    bool
 }
 
-func NewEventGenerator(reader *io.Reader, tty bool) *eventGenerator {
+var BadHeaderErr = fmt.Errorf("dozzle/docker: unable to read header")
+
+func NewEventGenerator(reader io.Reader, tty bool) (chan *LogEvent, chan error) {
 	generator := &eventGenerator{
-		reader:  bufio.NewReader(*reader),
-		channel: make(chan *LogEvent), errors: make(chan error), tty: tty}
-	go generator.consume()
-	return generator
+		reader: bufio.NewReader(reader),
+		buffer: make(chan *LogEvent, 100),
+		errors: make(chan error, 1),
+		events: make(chan *LogEvent),
+		tty:    tty,
+	}
+	go generator.consumeReader()
+	go generator.processBuffer()
+	return generator.events, generator.errors
 }
 
-func (g *eventGenerator) Next() (*LogEvent, error) {
-	var currentEvent *LogEvent
-	var nextEvent *LogEvent
-	if g.next != nil {
-		currentEvent = g.next
-		g.next = nil
-		nextEvent = g.Peek()
-	} else {
-		event, ok := <-g.channel
-		if !ok {
-			return nil, g.lastError
+func (g *eventGenerator) processBuffer() {
+	var current, next *LogEvent
+
+	for {
+		if g.next != nil {
+			current = g.next
+			g.next = nil
+			next = g.peek()
+		} else {
+			event, ok := <-g.buffer
+			if !ok {
+				close(g.events)
+				break
+			}
+
+			current = event
+			next = g.peek()
 		}
 
-		currentEvent = event
-		nextEvent = g.Peek()
+		checkPosition(current, next)
+
+		g.events <- current
 	}
-
-	currentLevel := guessLogLevel(currentEvent)
-
-	if nextEvent != nil {
-		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "" && !nextEvent.HasLevel() {
-			currentEvent.Position = START
-			nextEvent.Position = MIDDLE
-		}
-
-		// If next item is not close to current item or has level, set current item position to end
-		if currentEvent.Position == MIDDLE && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(nextEvent)) {
-			currentEvent.Position = END
-		}
-
-		// If next item is close to current item and has no level, set next item position to middle
-		if currentEvent.Position == MIDDLE && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(nextEvent) {
-			nextEvent.Position = MIDDLE
-		}
-		// Set next item level to current item level
-		if currentEvent.Position == START || currentEvent.Position == MIDDLE {
-			nextEvent.Level = currentEvent.Level
-		}
-	} else if currentEvent.Position == MIDDLE {
-		currentEvent.Position = END
-	}
-
-	return currentEvent, nil
 }
 
-func (g *eventGenerator) Peek() *LogEvent {
+func (g *eventGenerator) consumeReader() {
+	for {
+		message, streamType, readerError := readEvent(g.reader, g.tty)
+		if message != "" {
+			logEvent := createEvent(message, streamType)
+			logEvent.Level = guessLogLevel(logEvent)
+			g.buffer <- logEvent
+		}
+
+		if readerError != nil {
+			close(g.buffer)
+			if readerError != BadHeaderErr {
+				g.errors <- readerError
+			}
+			break
+		}
+	}
+}
+
+func (g *eventGenerator) peek() *LogEvent {
 	if g.next != nil {
 		return g.next
 	}
 	select {
-	case event := <-g.channel:
+	case event := <-g.buffer:
 		g.next = event
 		return g.next
 	case <-time.After(50 * time.Millisecond):
 		return nil
-	}
-}
-
-func (g *eventGenerator) consume() {
-	for {
-		message, streamType, readerError := readEvent(g.reader, g.tty)
-		logEvent := createEvent(message, streamType)
-		logEvent.Level = guessLogLevel(logEvent)
-		g.events <- logEvent
-
-		if readerError != nil {
-			g.lastError = readerError
-			close(g.channel)
-			return
-		}
 	}
 }
 
@@ -112,7 +103,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 	if tty {
 		message, err := reader.ReadString('\n')
 		if err != nil {
-			return "", streamType, err
+			return message, streamType, err
 		}
 		return message, streamType, nil
 	} else {
@@ -121,7 +112,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 			return "", streamType, err
 		}
 		if n != 8 {
-			return "", streamType, fmt.Errorf("unable to read header")
+			return "", streamType, BadHeaderErr
 		}
 
 		switch header[0] {
@@ -167,6 +158,32 @@ func createEvent(message string, streamType StdType) *LogEvent {
 		}
 	}
 	return logEvent
+}
+
+func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
+	currentLevel := guessLogLevel(currentEvent)
+	if nextEvent != nil {
+		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "" && !nextEvent.HasLevel() {
+			currentEvent.Position = START
+			nextEvent.Position = MIDDLE
+		}
+
+		// If next item is not close to current item or has level, set current item position to end
+		if currentEvent.Position == MIDDLE && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(nextEvent)) {
+			currentEvent.Position = END
+		}
+
+		// If next item is close to current item and has no level, set next item position to middle
+		if currentEvent.Position == MIDDLE && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(nextEvent) {
+			nextEvent.Position = MIDDLE
+		}
+		// Set next item level to current item level
+		if currentEvent.Position == START || currentEvent.Position == MIDDLE {
+			nextEvent.Level = currentEvent.Level
+		}
+	} else if currentEvent.Position == MIDDLE {
+		currentEvent.Position = END
+	}
 }
 
 var KEY_VALUE_REGEX = regexp.MustCompile(`level=(\w+)`)
