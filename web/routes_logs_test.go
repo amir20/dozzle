@@ -30,11 +30,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := make([]byte, 8)
-	message := "INFO Testing logs..."
-	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
-	data[0] = 1 // stdout
-	data = append(data, []byte(message)...)
+	data := makeMessage("INFO Testing logs...", docker.STDOUT)
 
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
@@ -58,11 +54,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := make([]byte, 8)
-	message := "2020-05-13T18:55:37.772853839Z INFO Testing logs..."
-	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
-	data[0] = 1 // stdout
-	data = append(data, []byte(message)...)
+	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", docker.STDOUT)
 
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
@@ -171,9 +163,7 @@ func Test_handler_between_dates(t *testing.T) {
 	mockedClient := new(MockedClient)
 
 	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
-
 	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
-
 	data := append(first, second...)
 
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
