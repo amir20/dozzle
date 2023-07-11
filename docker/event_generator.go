@@ -16,13 +16,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type eventGenerator struct {
+type EventGenerator struct {
+	Events chan *LogEvent
+	Errors chan error
 	reader *bufio.Reader
-	events chan *LogEvent
-	errors chan error
 	next   *LogEvent
 	buffer chan *LogEvent
 	tty    bool
+	wg     sync.WaitGroup
 }
 
 var bufPool = sync.Pool{
@@ -33,20 +34,21 @@ var bufPool = sync.Pool{
 
 var BadHeaderErr = fmt.Errorf("dozzle/docker: unable to read header")
 
-func NewEventGenerator(reader io.Reader, tty bool) (chan *LogEvent, chan error) {
-	generator := &eventGenerator{
+func NewEventGenerator(reader io.Reader, tty bool) *EventGenerator {
+	generator := &EventGenerator{
 		reader: bufio.NewReader(reader),
 		buffer: make(chan *LogEvent, 100),
-		errors: make(chan error, 1),
-		events: make(chan *LogEvent),
+		Errors: make(chan error, 1),
+		Events: make(chan *LogEvent),
 		tty:    tty,
 	}
-	go generator.consumeReader()
-	go generator.processBuffer()
-	return generator.events, generator.errors
+	generator.wg.Add(2)
+	go generator.consumeReader(&generator.wg)
+	go generator.processBuffer(&generator.wg)
+	return generator
 }
 
-func (g *eventGenerator) processBuffer() {
+func (g *EventGenerator) processBuffer(wg *sync.WaitGroup) {
 	var current, next *LogEvent
 
 	for {
@@ -57,7 +59,7 @@ func (g *eventGenerator) processBuffer() {
 		} else {
 			event, ok := <-g.buffer
 			if !ok {
-				close(g.events)
+				close(g.Events)
 				break
 			}
 
@@ -67,11 +69,12 @@ func (g *eventGenerator) processBuffer() {
 
 		checkPosition(current, next)
 
-		g.events <- current
+		g.Events <- current
 	}
+	wg.Done()
 }
 
-func (g *eventGenerator) consumeReader() {
+func (g *EventGenerator) consumeReader(wg *sync.WaitGroup) {
 	for {
 		message, streamType, readerError := readEvent(g.reader, g.tty)
 		if message != "" {
@@ -82,15 +85,16 @@ func (g *eventGenerator) consumeReader() {
 
 		if readerError != nil {
 			if readerError != BadHeaderErr {
-				g.errors <- readerError
+				g.Errors <- readerError
 			}
 			close(g.buffer)
 			break
 		}
 	}
+	wg.Done()
 }
 
-func (g *eventGenerator) peek() *LogEvent {
+func (g *EventGenerator) peek() *LogEvent {
 	if g.next != nil {
 		return g.next
 	}

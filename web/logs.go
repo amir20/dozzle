@@ -82,12 +82,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	events, _ := docker.NewEventGenerator(reader, container.Tty)
+	g := docker.NewEventGenerator(reader, container.Tty)
 
 loop:
 	for {
 		select {
-		case event, ok := <-events:
+		case event, ok := <-g.Events:
 			if !ok {
 				break loop
 			}
@@ -151,12 +151,12 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	events, errors := docker.NewEventGenerator(reader, container.Tty)
+	g := docker.NewEventGenerator(reader, container.Tty)
 
 loop:
 	for {
 		select {
-		case event, ok := <-events:
+		case event, ok := <-g.Events:
 			if !ok {
 				log.WithFields(log.Fields{"id": id}).Debug("stream closed")
 				break loop
@@ -178,7 +178,7 @@ loop:
 	}
 
 	select {
-	case err := <-errors:
+	case err := <-g.Errors:
 		if err != nil {
 			if err == io.EOF {
 				log.Debugf("container stopped: %v", container.ID)
