@@ -39,11 +39,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		for _, client := range h.clients {
 			client.Events(ctx, events)
 
-			go func(client docker.Client) {
+			go func(client DockerClient) {
 				defer wg.Done()
 				if containers, err := client.ListContainers(); err == nil {
 					results <- containers
-					go func(client docker.Client) {
+					go func(client DockerClient) {
 						for _, c := range containers {
 							if c.State == "running" {
 								if err := client.ContainerStats(ctx, c.ID, stats); err != nil && !errors.Is(err, context.Canceled) {

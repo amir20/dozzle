@@ -20,12 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type dockerClient struct {
-	cli     dockerProxy
-	filters filters.Args
-	host    *Host
-}
-
 type StdType int
 
 const (
@@ -48,7 +42,7 @@ func (s StdType) String() string {
 	}
 }
 
-type dockerProxy interface {
+type DockerCLI interface {
 	ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error)
 	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
 	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
@@ -57,20 +51,18 @@ type dockerProxy interface {
 	Ping(ctx context.Context) (types.Ping, error)
 }
 
-// Client is a proxy around the docker client
-type Client interface {
-	ListContainers() ([]Container, error)
-	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
-	Events(context.Context, chan<- ContainerEvent) <-chan error
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
-	ContainerStats(context.Context, string, chan<- ContainerStat) error
-	Ping(context.Context) (types.Ping, error)
-	Host() *Host
+type Client struct {
+	cli     DockerCLI
+	filters filters.Args
+	host    *Host
+}
+
+func NewClient(cli DockerCLI, filters filters.Args, host *Host) *Client {
+	return &Client{cli, filters, host}
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f map[string][]string) (Client, error) {
+func NewClientWithFilters(f map[string][]string) (*Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -86,10 +78,10 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}}, nil
+	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}), nil
 }
 
-func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
+func NewClientWithTlsAndFilter(f map[string][]string, host Host) (*Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -122,10 +114,10 @@ func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error)
 		return nil, err
 	}
 
-	return &dockerClient{cli, filterArgs, &host}, nil
+	return NewClient(cli, filterArgs, &host), nil
 }
 
-func (d *dockerClient) FindContainer(id string) (Container, error) {
+func (d *Client) FindContainer(id string) (Container, error) {
 	var container Container
 	containers, err := d.ListContainers()
 	if err != nil {
@@ -153,7 +145,7 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *dockerClient) ListContainers() ([]Container, error) {
+func (d *Client) ListContainers() ([]Container, error) {
 	containerListOptions := types.ContainerListOptions{
 		Filters: d.filters,
 		All:     true,
@@ -188,7 +180,7 @@ func (d *dockerClient) ListContainers() ([]Container, error) {
 	return containers, nil
 }
 
-func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
+func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -240,7 +232,7 @@ func (d *dockerClient) ContainerStats(ctx context.Context, id string, stats chan
 	return nil
 }
 
-func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
+func (d *Client) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
 	if since != "" {
@@ -268,7 +260,7 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since strin
 	return reader, nil
 }
 
-func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEvent) <-chan error {
+func (d *Client) Events(ctx context.Context, messages chan<- ContainerEvent) <-chan error {
 	dockerMessages, errors := d.cli.Events(ctx, types.EventsOptions{})
 
 	go func() {
@@ -296,7 +288,7 @@ func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEven
 	return errors
 }
 
-func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
+func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
@@ -315,11 +307,11 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return reader, nil
 }
 
-func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
+func (d *Client) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
 }
 
-func (d *dockerClient) Host() *Host {
+func (d *Client) Host() *Host {
 	return d.host
 }
 
