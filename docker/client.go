@@ -62,7 +62,6 @@ type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
-	ContainerLogReader(context.Context, string) (io.ReadCloser, error)
 	Events(context.Context, chan<- ContainerEvent) <-chan error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
@@ -143,6 +142,12 @@ func (d *dockerClient) FindContainer(id string) (Container, error) {
 	}
 	if !found {
 		return container, fmt.Errorf("unable to find container with id: %s", id)
+	}
+
+	if json, err := d.cli.ContainerInspect(context.Background(), container.ID); err == nil {
+		container.Tty = json.Config.Tty
+	} else {
+		return container, err
 	}
 
 	return container, nil
@@ -255,18 +260,12 @@ func (d *dockerClient) ContainerLogs(ctx context.Context, id string, since strin
 		Since:      since,
 	}
 
-	log.Debugf("streaming logs from Docker with option: %+v", options)
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
 	if err != nil {
 		return nil, err
 	}
 
-	containerJSON, err := d.cli.ContainerInspect(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return newLogReader(reader, containerJSON.Config.Tty, true), nil
+	return reader, nil
 }
 
 func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEvent) <-chan error {
@@ -297,30 +296,6 @@ func (d *dockerClient) Events(ctx context.Context, messages chan<- ContainerEven
 	return errors
 }
 
-func (d *dockerClient) ContainerLogReader(ctx context.Context, id string) (io.ReadCloser, error) {
-	options := types.ContainerLogsOptions{
-		ShowStdout: true,
-		ShowStderr: true,
-		Timestamps: true,
-		Since:      time.Unix(0, 0).Format(time.RFC3339),
-		Until:      time.Now().Format(time.RFC3339),
-	}
-
-	reader, err := d.cli.ContainerLogs(ctx, id, options)
-
-	if err != nil {
-		return nil, err
-	}
-
-	containerJSON, err := d.cli.ContainerInspect(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return newLogReader(reader, containerJSON.Config.Tty, false), nil
-
-}
-
 func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
@@ -333,17 +308,11 @@ func (d *dockerClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	log.Debugf("fetching logs from Docker with option: %+v", options)
 
 	reader, err := d.cli.ContainerLogs(ctx, id, options)
-
 	if err != nil {
 		return nil, err
 	}
 
-	containerJSON, err := d.cli.ContainerInspect(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return newLogReader(reader, containerJSON.Config.Tty, true), nil
+	return reader, nil
 }
 
 func (d *dockerClient) Ping(ctx context.Context) (types.Ping, error) {
