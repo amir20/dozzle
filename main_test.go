@@ -1,37 +1,34 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"testing"
 
 	"github.com/amir20/dozzle/docker"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-type fakeClient struct {
-	docker.Client
+type fakeCLI struct {
+	docker.DockerCLI
 	mock.Mock
 }
 
-func (f *fakeClient) ListContainers() ([]docker.Container, error) {
+func (f *fakeCLI) ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error) {
 	args := f.Called()
-	return args.Get(0).([]docker.Container), args.Error(1)
-}
-
-func (f *fakeClient) Host() *docker.Host {
-	args := f.Called()
-	return args.Get(0).(*docker.Host)
+	return args.Get(0).([]types.Container), args.Error(1)
 }
 
 func Test_valid_localhost(t *testing.T) {
-	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, nil)
-		client.On("Host").Return(&docker.Host{
+	fakeClientFactory := func(filter map[string][]string) (*docker.Client, error) {
+		client := new(fakeCLI)
+		client.On("ContainerList").Return([]types.Container{}, nil)
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		})
-		return client, nil
+		}), nil
 	}
 
 	args := args{}
@@ -42,13 +39,12 @@ func Test_valid_localhost(t *testing.T) {
 }
 
 func Test_invalid_localhost(t *testing.T) {
-	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
-		client.On("Host").Return(&docker.Host{
+	fakeClientFactory := func(filter map[string][]string) (*docker.Client, error) {
+		client := new(fakeCLI)
+		client.On("ContainerList").Return([]types.Container{}, errors.New("error"))
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		})
-		return client, nil
+		}), nil
 	}
 
 	args := args{}
@@ -59,23 +55,20 @@ func Test_invalid_localhost(t *testing.T) {
 }
 
 func Test_valid_remote(t *testing.T) {
-	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
-		client.On("Host").Return(&docker.Host{
+	local := new(fakeCLI)
+	local.On("ContainerList").Return([]types.Container{}, errors.New("error"))
+	fakeLocalClientFactory := func(filter map[string][]string) (*docker.Client, error) {
+		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		})
-
-		return client, nil
+		}), nil
 	}
 
-	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, nil)
-		client.On("Host").Return(&docker.Host{
+	remote := new(fakeCLI)
+	remote.On("ContainerList").Return([]types.Container{}, nil)
+	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (*docker.Client, error) {
+		return docker.NewClient(remote, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		})
-		return client, nil
+		}), nil
 	}
 
 	args := args{
@@ -87,27 +80,26 @@ func Test_valid_remote(t *testing.T) {
 	assert.Equal(t, 1, len(clients))
 	assert.Contains(t, clients, "test")
 	assert.NotContains(t, clients, "localhost")
+	local.AssertExpectations(t)
+	remote.AssertExpectations(t)
 }
 
 func Test_valid_remote_and_local(t *testing.T) {
-	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, nil)
-		client.On("Host").Return(&docker.Host{
+	fakeLocalClientFactory := func(filter map[string][]string) (*docker.Client, error) {
+		client := new(fakeCLI)
+		client.On("ContainerList").Return([]types.Container{}, nil)
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		})
-		return client, nil
+		}), nil
 	}
 
-	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, nil)
-		client.On("Host").Return(&docker.Host{
+	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (*docker.Client, error) {
+		client := new(fakeCLI)
+		client.On("ContainerList").Return([]types.Container{}, nil)
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		})
-		return client, nil
+		}), nil
 	}
-
 	args := args{
 		RemoteHost: []string{"tcp://test:2375"},
 	}
@@ -120,21 +112,19 @@ func Test_valid_remote_and_local(t *testing.T) {
 }
 
 func Test_no_clients(t *testing.T) {
-	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("ListContainers").Return([]docker.Container{}, errors.New("error"))
-		client.On("Host").Return(&docker.Host{
+	fakeLocalClientFactory := func(filter map[string][]string) (*docker.Client, error) {
+		client := new(fakeCLI)
+		client.On("ContainerList").Return([]types.Container{}, errors.New("error"))
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		})
-		return client, nil
+		}), nil
 	}
 
-	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
-		client := new(fakeClient)
-		client.On("Host").Return(&docker.Host{
+	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (*docker.Client, error) {
+		client := new(fakeCLI)
+		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		})
-		return client, nil
+		}), nil
 	}
 
 	args := args{}

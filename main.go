@@ -137,8 +137,10 @@ func doStartEvent(arg args) {
 	}
 }
 
-func createClients(args args, localClientFactory func(map[string][]string) (docker.Client, error), remoteClientFactory func(map[string][]string, docker.Host) (docker.Client, error)) map[string]docker.Client {
-	clients := make(map[string]docker.Client)
+func createClients(args args,
+	localClientFactory func(map[string][]string) (*docker.Client, error),
+	remoteClientFactory func(map[string][]string, docker.Host) (*docker.Client, error)) map[string]web.DockerClient {
+	clients := make(map[string]web.DockerClient)
 
 	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
 		clients[localClient.Host().ID] = localClient
@@ -166,7 +168,7 @@ func createClients(args args, localClientFactory func(map[string][]string) (dock
 	return clients
 }
 
-func createServer(args args, clients map[string]docker.Client) *http.Server {
+func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 	config := web.Config{
 		Addr:        args.Addr,
@@ -206,7 +208,7 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 	return web.CreateServer(clients, assets, config)
 }
 
-func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) docker.Client {
+func createLocalClient(args args, localClientFactory func(map[string][]string) (*docker.Client, error)) *docker.Client {
 	for i := 1; ; i++ {
 		dockerClient, err := localClientFactory(args.Filter)
 		if err == nil {

@@ -17,7 +17,7 @@ import (
 
 type MockedClient struct {
 	mock.Mock
-	docker.Client
+	DockerClient
 }
 
 func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
@@ -54,7 +54,7 @@ func (m *MockedClient) Host() *docker.Host {
 	return args.Get(0).(*docker.Host)
 }
 
-func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
+func createHandler(client DockerClient, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
@@ -69,7 +69,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	clients := map[string]docker.Client{
+	clients := map[string]DockerClient{
 		"localhost": client,
 	}
 	return createRouter(&handler{
@@ -79,6 +79,6 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 	})
 }
 
-func createDefaultHandler(client docker.Client) *chi.Mux {
+func createDefaultHandler(client DockerClient) *chi.Mux {
 	return createHandler(client, nil, Config{Base: "/"})
 }

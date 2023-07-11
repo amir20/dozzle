@@ -1,12 +1,14 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
 	"sort"
+	"time"
 
 	"net/http"
 	"os"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
+	"github.com/docker/docker/api/types"
 	"github.com/go-chi/chi/v5"
 
 	log "github.com/sirupsen/logrus"
@@ -33,13 +36,24 @@ type Config struct {
 }
 
 type handler struct {
-	clients map[string]docker.Client
+	clients map[string]DockerClient
 	content fs.FS
 	config  *Config
 }
 
-// CreateServer creates a service for http handler
-func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
+// Client is a proxy around the docker client
+type DockerClient interface {
+	ListContainers() ([]docker.Container, error)
+	FindContainer(string) (docker.Container, error)
+	ContainerLogs(context.Context, string, string, docker.StdType) (io.ReadCloser, error)
+	Events(context.Context, chan<- docker.ContainerEvent) <-chan error
+	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, docker.StdType) (io.ReadCloser, error)
+	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
+	Ping(context.Context) (types.Ping, error)
+	Host() *docker.Host
+}
+
+func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
 	handler := &handler{
 		clients: clients,
 		content: content,
@@ -98,7 +112,7 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			go func() {
 				host, _ := os.Hostname()
 
-				var client docker.Client
+				var client DockerClient
 				for _, v := range h.clients {
 					client = v
 					break
@@ -216,7 +230,7 @@ func (h *handler) version(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
-	var client docker.Client
+	var client DockerClient
 	for _, v := range h.clients {
 		client = v
 		break
@@ -230,7 +244,7 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *handler) clientFromRequest(r *http.Request) docker.Client {
+func (h *handler) clientFromRequest(r *http.Request) DockerClient {
 	host := chi.URLParam(r, "host")
 
 	if host == "" {
