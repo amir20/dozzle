@@ -4,7 +4,7 @@ title: Following Log Files on Disk
 
 # Following Log Files on Disk
 
-Some containers do not write logs to `sysout` or `syserr`. Many folks have asked if Dozzle can also show logs that are written to files. Unfortunately, files in containers are not accessible to other containers and so Dozzle wouldn't have a way to access these files. Dozzle can only access logs written to `sysout` or `syserr` which is the same functionality of `docker logs` command.
+Some containers do not write logs to `sysout` or `syserr`. Many folks have asked if Dozzle can also show logs that are written to files. Unfortunately, files in containers are not accessible to other containers and so Dozzle wouldn't have a way to access these files. Dozzle can only access logs written to `sysout` or `syserr` which is the same functionality as `docker logs` command.
 
 If you are creating a service using Docker then make sure to write logs to streams. An application should not attempt to write to logfiles. Instead delegate the logging to Docker. The [twelve factor app](https://12factor.net/logs) has a great principle around logging that explains the importance of this principle.
 
