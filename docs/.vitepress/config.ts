@@ -67,6 +67,7 @@ export default defineConfig({
           { text: "Healthcheck", link: "/guide/healthcheck" },
           { text: "Remote Hosts", link: "/guide/remote-hosts" },
           { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
+          { text: "Logging Files on Disk", link: "/guide/log-files-on-disk" },
           { text: "Analytics", link: "/guide/analytics" },
         ],
       },
