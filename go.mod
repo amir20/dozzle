@@ -26,7 +26,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-require github.com/go-chi/chi/v5 v5.0.8
+require github.com/go-chi/chi/v5 v5.0.10
 
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
