@@ -58,7 +58,7 @@
  },
  "devDependencies": {
   "@pinia/testing": "^0.1.2",
-  "@playwright/test": "^1.35.1",
+  "@playwright/test": "^1.36.0",
   "@types/d3-array": "^3.0.5",
   "@types/d3-ease": "^3.0.0",
   "@types/d3-scale": "^4.0.3",
