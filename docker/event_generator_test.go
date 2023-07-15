@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -75,5 +76,53 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 		return false // completed normally
 	case <-time.After(timeout):
 		return true // timed out
+	}
+}
+
+func Test_createEvent(t *testing.T) {
+	type args struct {
+		message    string
+		streamType StdType
+	}
+	tests := []struct {
+		name string
+		args args
+		want *LogEvent
+	}{
+		{
+			name: "empty message",
+			args: args{
+				message: "",
+			},
+			want: &LogEvent{
+				Message: "",
+			},
+		}, {
+			name: "simple json message",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z {\"key\": \"value\"}",
+			},
+			want: &LogEvent{
+				Message: map[string]interface{}{
+					"key": "value",
+				},
+			},
+		},
+		{
+			name: "invalid json message",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z {\"key\"}",
+			},
+			want: &LogEvent{
+				Message: "{\"key\"}",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createEvent(tt.args.message, STDOUT); !reflect.DeepEqual(got.Message, tt.want.Message) {
+				t.Errorf("createEvent() = %v, want %v", got.Message, tt.want.Message)
+			}
+		})
 	}
 }
