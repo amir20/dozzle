@@ -158,7 +158,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			logEvent.Timestamp = timestamp.UnixMilli()
 			message = strings.TrimSuffix(message[index+1:], "\n")
 			logEvent.Message = message
-			if strings.HasPrefix(message, "{") && strings.HasSuffix(message, "}") {
+			if json.Valid([]byte(message)) {
 				var data map[string]interface{}
 				if err := json.Unmarshal([]byte(message), &data); err != nil {
 					log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
