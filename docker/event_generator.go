@@ -42,12 +42,12 @@ func NewEventGenerator(reader io.Reader, tty bool) *EventGenerator {
 		tty:    tty,
 	}
 	generator.wg.Add(2)
-	go generator.consumeReader(&generator.wg)
-	go generator.processBuffer(&generator.wg)
+	go generator.consumeReader()
+	go generator.processBuffer()
 	return generator
 }
 
-func (g *EventGenerator) processBuffer(wg *sync.WaitGroup) {
+func (g *EventGenerator) processBuffer() {
 	var current, next *LogEvent
 
 	for {
@@ -70,10 +70,10 @@ func (g *EventGenerator) processBuffer(wg *sync.WaitGroup) {
 
 		g.Events <- current
 	}
-	wg.Done()
+	g.wg.Done()
 }
 
-func (g *EventGenerator) consumeReader(wg *sync.WaitGroup) {
+func (g *EventGenerator) consumeReader() {
 	for {
 		message, streamType, readerError := readEvent(g.reader, g.tty)
 		if message != "" {
@@ -90,7 +90,7 @@ func (g *EventGenerator) consumeReader(wg *sync.WaitGroup) {
 			break
 		}
 	}
-	wg.Done()
+	g.wg.Done()
 }
 
 func (g *EventGenerator) peek() *LogEvent {
