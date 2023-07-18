@@ -155,3 +155,7 @@
 .VPHero .container .image {
   max-width: 1200px;
 }
+
+.home .VPNav .container {
+  max-width: 100%;
+}

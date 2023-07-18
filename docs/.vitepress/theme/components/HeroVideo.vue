@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMutationObserver } from "@vueuse/core";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const isDark = ref(false);
 onMounted(() => {
@@ -15,6 +15,14 @@ onMounted(() => {
       attributeFilter: ["class"],
     },
   );
+});
+
+onMounted(() => {
+  document.documentElement.classList.add("home");
+});
+
+onUnmounted(() => {
+  document.documentElement.classList.remove("home");
 });
 </script>
 
