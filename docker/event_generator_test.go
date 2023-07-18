@@ -126,3 +126,24 @@ func Test_createEvent(t *testing.T) {
 		})
 	}
 }
+
+type mockReadCloser struct {
+	bytes []byte
+}
+
+func (m mockReadCloser) Read(p []byte) (int, error) {
+	return copy(p, m.bytes), nil
+}
+
+func Benchmark_readEvent(b *testing.B) {
+	b.ReportAllocs()
+
+	data := makeMessage("2020-05-13T18:55:37.772853839Z {\"key\": \"value\"}\n", STDOUT)
+
+	reader := bufio.NewReader(mockReadCloser{bytes: data})
+
+	for i := 0; i < b.N; i++ {
+		readEvent(reader, true)
+		// println(message, stream)
+	}
+}
