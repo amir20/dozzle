@@ -56,10 +56,12 @@
             </td>
             <td>
               {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+              <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
             </td>
 
             <td>
               {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+              <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
             </td>
             <td>
               <router-link :to="`/containers/${container.id}`" class="button is-small is-primary"> GO </router-link>
@@ -147,5 +149,9 @@ useIntervalFn(
 
 .icon {
   padding: 10px 3px;
+}
+
+.bar-chart {
+  height: 1.8em;
 }
 </style>
