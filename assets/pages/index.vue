@@ -34,41 +34,25 @@
     </section>
 
     <section class="section table-container">
-      <table class="table is-fullwidth">
-        <thead>
-          <th>Name</th>
-          <th>State</th>
-          <th>Running</th>
-          <th>Avg. CPU</th>
-          <th>Avg. Memory</th>
-          <th>Actions</th>
-        </thead>
-        <tbody>
-          <tr v-for="container in data" :key="container.id">
-            <td>
-              {{ container.name }}
-            </td>
-            <td>
-              {{ container.state }}
-            </td>
-            <td>
-              <distance-time :date="container.created" strict :suffix="false"></distance-time>
-            </td>
-            <td>
-              {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-              <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
-            </td>
-
-            <td>
-              {{ formatBytes(container.movingAverageStat.memoryUsage) }}
-              <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
-            </td>
-            <td>
-              <router-link :to="`/containers/${container.id}`" class="button is-small is-primary"> GO </router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <o-table :data="data" sticky-header>
+        <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
+          {{ container.name }}
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="State" sortable field="state">
+          {{ container.state }}
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Running" sortable field="created">
+          <distance-time :date="container.created" strict :suffix="false"></distance-time>
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
+          {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+          <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
+          {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+          <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
+        </o-table-column>
+      </o-table>
     </section>
   </div>
 </template>

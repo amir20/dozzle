@@ -17,6 +17,9 @@ const {
 }>();
 
 const text = ref<string>();
+
+watch($$(date), updateFromNow, { immediate: true });
+
 function updateFromNow() {
   const fn = strict ? formatDistanceToNowStrict : formatDistanceToNow;
   text.value = fn(date, {
