@@ -1,58 +1,69 @@
 <template>
   <div>
-    <section class="level section pb-0-is-mobile">
-      <div class="level-item has-text-centered">
-        <div>
-          <p class="title">{{ containers.length }}</p>
-          <p class="heading">{{ $t("label.total-containers") }}</p>
+    <section class="section columns">
+      <div class="column is-3">
+        <div class="box">
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="title">{{ containers.length }}</p>
+              <p class="heading">Total Hosts</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="level-item has-text-centered">
-        <div>
-          <p class="title">{{ runningContainers.length }}</p>
-          <p class="heading">{{ $t("label.running") }}</p>
+      <div class="column is-3">
+        <div class="box">
+          <div class="level-item has-text-centered" data-ci-skip>
+            <div>
+              <p class="title">{{ totalCpu }}%</p>
+              <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="level-item has-text-centered" data-ci-skip>
-        <div>
-          <p class="title">{{ totalCpu }}%</p>
-          <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
+      <div class="column is-3">
+        <div class="box">
+          <div class="level-item has-text-centered" data-ci-skip>
+            <div>
+              <p class="title">{{ formatBytes(totalMem) }}</p>
+              <p class="heading">{{ $t("label.total-mem-usage") }}</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="level-item has-text-centered" data-ci-skip>
-        <div>
-          <p class="title">{{ formatBytes(totalMem) }}</p>
-          <p class="heading">{{ $t("label.total-mem-usage") }}</p>
-        </div>
-      </div>
-      <div class="level-item has-text-centered">
-        <div>
-          <p class="title">{{ version }}</p>
-          <p class="heading">{{ $t("label.dozzle-version") }}</p>
+      <div class="column is-3">
+        <div class="box">
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="title">{{ version }}</p>
+              <p class="heading">{{ $t("label.dozzle-version") }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
-
     <section class="section table-container">
-      <o-table :data="data" sticky-header>
-        <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
-          {{ container.name }}
-        </o-table-column>
-        <o-table-column #default="{ row: container }" label="State" sortable field="state">
-          {{ container.state }}
-        </o-table-column>
-        <o-table-column #default="{ row: container }" label="Running" sortable field="created">
-          <distance-time :date="container.created" strict :suffix="false"></distance-time>
-        </o-table-column>
-        <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
-          {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-          <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
-        </o-table-column>
-        <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
-          {{ formatBytes(container.movingAverageStat.memoryUsage) }}
-          <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
-        </o-table-column>
-      </o-table>
+      <div class="box">
+        <o-table :data="data">
+          <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
+            {{ container.name }}
+          </o-table-column>
+          <o-table-column #default="{ row: container }" label="State" sortable field="state">
+            {{ container.state }}
+          </o-table-column>
+          <o-table-column #default="{ row: container }" label="Running" sortable field="created">
+            <distance-time :date="container.created" strict :suffix="false"></distance-time>
+          </o-table-column>
+          <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
+            {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+            <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
+          </o-table-column>
+          <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
+            {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+            <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
+          </o-table-column>
+        </o-table>
+      </div>
     </section>
   </div>
 </template>
