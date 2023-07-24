@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 const { version } = config;
 const containerStore = useContainerStore();
-const { containers, ready } = storeToRefs(containerStore);
+const { containers } = storeToRefs(containerStore);
 
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
