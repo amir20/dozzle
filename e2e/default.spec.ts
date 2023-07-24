@@ -8,6 +8,13 @@ test("has right title", async ({ page }) => {
   await expect(page).toHaveTitle(/.* - Dozzle/);
 });
 
+test("has dashboard text", async ({ page }) => {
+  await expect(page.getByText("Total Containers")).toBeVisible();
+  await expect(page.getByText("Total CPU Usage")).toBeVisible();
+  await expect(page.getByText("Total Mem Usage")).toBeVisible();
+  await expect(page.getByText("Dozzle Version")).toBeVisible();
+});
+
 test("click on settings button", async ({ page }) => {
   await page.getByRole("link", { name: "Settings" }).click();
   await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
