@@ -43,7 +43,7 @@
   </div>
 
   <section class="section table-container">
-    <div class="box">
+    <div class="box" data-ci-skip>
       <o-table :data="runningContainers">
         <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
           <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
