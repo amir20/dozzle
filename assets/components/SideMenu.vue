@@ -54,7 +54,7 @@
       </ul>
     </transition>
   </div>
-  <ul class="menu-list is-hidden-mobile loading" v-else>
+  <ul class="menu-list is-hidden-mobile has-light-opacity" v-else>
     <li v-for="index in 7" class="my-4"><o-skeleton animated size="large" :key="index"></o-skeleton></li>
   </ul>
 </template>
@@ -110,7 +110,7 @@ const activeContainersById = computed(() =>
   opacity: 0.5;
 }
 
-.loading {
+.has-light-opacity {
   opacity: 0.5;
 }
 

@@ -28,14 +28,8 @@ $link-active: $grey-dark;
 $dark-toolbar-color: rgba($black-bis, 0.7);
 $light-toolbar-color: rgba($grey-darker, 0.7);
 
-@import "bulma/bulma.sass";
-@import "@oruga-ui/theme-bulma/dist/scss/components/utils/all.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/autocomplete.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/button.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/modal.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/switch.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/dropdown.scss";
-@import "@oruga-ui/theme-bulma/dist/scss/components/skeleton.scss";
+@import "bulma/bulma";
+@import "@oruga-ui/theme-bulma/dist/scss/bulma";
 @import "splitpanes/dist/splitpanes.css";
 
 @mixin dark {
@@ -218,7 +212,9 @@ html.has-custom-scrollbars {
 }
 
 .has-boxshadow {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 mark {

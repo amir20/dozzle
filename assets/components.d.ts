@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
@@ -34,6 +35,7 @@ declare module 'vue' {
     LogStd: typeof import('./components/LogViewer/LogStd.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewer/LogViewerWithSource.vue')['default']
+    'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:dotsVertical': typeof import('~icons/mdi/dots-vertical')['default']
     'Mdi:lightChevronDoubleDown': typeof import('~icons/mdi-light/chevron-double-down')['default']
     'Mdi:lightChevronLeft': typeof import('~icons/mdi-light/chevron-left')['default']
@@ -45,6 +47,7 @@ declare module 'vue' {
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']
     'Octicon:download24': typeof import('~icons/octicon/download24')['default']
     'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
+    OrugaIcon: typeof import('./components/OrugaIcon.vue')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

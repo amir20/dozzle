@@ -6,7 +6,6 @@ static
 dozzle
 coverage
 .pnpm-debug.log
-.vscode
 coverage.out
 .netlify
 /test-results/

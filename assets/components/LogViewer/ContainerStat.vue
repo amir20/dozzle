@@ -44,7 +44,7 @@ const memoryData = computedWithControl(
       value: formatBytes(stat.snapshot.memoryUsage),
     }));
     return points;
-  },
+  }
 );
 </script>
 
