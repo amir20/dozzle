@@ -1,71 +1,78 @@
 <template>
-  <div>
-    <section class="section columns">
-      <div class="column is-3">
-        <div class="box">
-          <div class="level-item has-text-centered">
-            <div>
-              <p class="title">{{ containers.length }}</p>
-              <p class="heading">Total Hosts</p>
-            </div>
+  <div class="section tile is-ancestor">
+    <div class="tile is-parent">
+      <div class="tile is-child box">
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="title">{{ containers.length }}</p>
+            <p class="heading">{{ $t("label.total-containers") }}</p>
           </div>
         </div>
       </div>
-      <div class="column is-3">
-        <div class="box">
-          <div class="level-item has-text-centered" data-ci-skip>
-            <div>
-              <p class="title">{{ totalCpu }}%</p>
-              <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
-            </div>
+    </div>
+    <div class="tile is-parent">
+      <div class="tile is-child box">
+        <div class="level-item has-text-centered" data-ci-skip>
+          <div>
+            <p class="title">{{ totalCpu }}%</p>
+            <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
           </div>
         </div>
       </div>
-      <div class="column is-3">
-        <div class="box">
-          <div class="level-item has-text-centered" data-ci-skip>
-            <div>
-              <p class="title">{{ formatBytes(totalMem) }}</p>
-              <p class="heading">{{ $t("label.total-mem-usage") }}</p>
-            </div>
+    </div>
+    <div class="tile is-parent">
+      <div class="tile is-child box">
+        <div class="level-item has-text-centered" data-ci-skip>
+          <div>
+            <p class="title">{{ formatBytes(totalMem) }}</p>
+            <p class="heading">{{ $t("label.total-mem-usage") }}</p>
           </div>
         </div>
       </div>
-      <div class="column is-3">
-        <div class="box">
-          <div class="level-item has-text-centered">
-            <div>
-              <p class="title">{{ version }}</p>
-              <p class="heading">{{ $t("label.dozzle-version") }}</p>
-            </div>
+    </div>
+    <div class="tile is-parent">
+      <div class="tile is-child box">
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="title">{{ version }}</p>
+            <p class="heading">{{ $t("label.dozzle-version") }}</p>
           </div>
         </div>
       </div>
-    </section>
-    <section class="section table-container">
-      <div class="box">
-        <o-table :data="data">
-          <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
-            {{ container.name }}
-          </o-table-column>
-          <o-table-column #default="{ row: container }" label="State" sortable field="state">
-            {{ container.state }}
-          </o-table-column>
-          <o-table-column #default="{ row: container }" label="Running" sortable field="created">
-            <distance-time :date="container.created" strict :suffix="false"></distance-time>
-          </o-table-column>
-          <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
-            {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-            <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart"></bar-chart>
-          </o-table-column>
-          <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
-            {{ formatBytes(container.movingAverageStat.memoryUsage) }}
-            <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart"></bar-chart>
-          </o-table-column>
-        </o-table>
-      </div>
-    </section>
+    </div>
   </div>
+
+  <section class="section table-container">
+    <div class="box">
+      <o-table :data="runningContainers">
+        <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
+          <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
+            {{ container.name }}
+          </router-link>
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="State" sortable field="state">
+          {{ container.state }}
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Running" sortable field="created">
+          <distance-time :date="container.created" strict :suffix="false"></distance-time>
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
+          <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart">
+            <div class="bar-text">
+              {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+            </div>
+          </bar-chart>
+        </o-table-column>
+        <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
+          <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart">
+            <div class="bar-text">
+              {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+            </div>
+          </bar-chart>
+        </o-table-column>
+      </o-table>
+    </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -73,21 +80,8 @@ const { version } = config;
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore);
 
-const sort = $ref("running");
-
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
-
-const data = computed(() => {
-  switch (sort) {
-    case "all":
-      return mostRecentContainers;
-    case "running":
-      return runningContainers;
-    default:
-      throw `Invalid sort order: ${sort}`;
-  }
-});
 
 let totalCpu = $ref(0);
 useIntervalFn(
@@ -147,6 +141,15 @@ useIntervalFn(
 }
 
 .bar-chart {
-  height: 1.8em;
+  height: 1.5em;
+  .bar-text {
+    font-size: 0.9em;
+    padding: 0 0.5em;
+  }
+}
+
+:deep(tr td) {
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 </style>
