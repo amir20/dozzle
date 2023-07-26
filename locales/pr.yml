@@ -14,6 +14,11 @@ label:
   all: Tudo
   password: Senha
   username: Nome de usuário
+  container-name: Nome do contentor
+  status: Estado
+  last-started: Última iniciada
+  avg-cpu: Média de CPU (%)
+  avg-mem: Média de MEM (%)
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna

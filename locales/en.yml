@@ -14,6 +14,11 @@ label:
   all: All
   password: Password
   username: Username
+  container-name: Container Name
+  status: Status
+  last-started: Last started
+  avg-cpu: Avg. CPU (%)
+  avg-mem: Avg. MEM (%)
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

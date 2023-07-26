@@ -14,6 +14,11 @@ label:
   all: Все
   password: Пароль
   username: Имя пользователя
+  container-name: Имя контейнера
+  status: Статус
+  last-started: Последний запуск
+  avg-cpu: средний процессор (%)
+  avg-mem: средняя память (%)
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
