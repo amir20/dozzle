@@ -45,28 +45,38 @@
   <section class="section table-container">
     <div class="box" data-ci-skip>
       <o-table :data="runningContainers" :defaultSort="['created', 'desc']">
-        <o-table-column #default="{ row: container }" label="Container Name" sortable field="name">
+        <o-table-column #default="{ row: container }" :label="$t('label.container-name')" sortable field="name">
           <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
           </router-link>
         </o-table-column>
-        <o-table-column #default="{ row: container }" label="State" sortable field="state">
+        <o-table-column #default="{ row: container }" :label="$t('label.status')" sortable field="state">
           {{ container.state }}
         </o-table-column>
-        <o-table-column #default="{ row: container }" label="Running" sortable field="created">
+        <o-table-column #default="{ row: container }" :label="$t('label.last-started')" sortable field="created">
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </o-table-column>
-        <o-table-column #default="{ row: container }" label="Avg. CPU" sortable field="movingAverageStat.cpu">
+        <o-table-column
+          #default="{ row: container }"
+          :label="$t('label.avg-cpu')"
+          sortable
+          field="movingAverageStat.cpu"
+        >
           <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart">
             <div class="bar-text">
               {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
             </div>
           </bar-chart>
         </o-table-column>
-        <o-table-column #default="{ row: container }" label="Avg. Memory" sortable field="movingAverageStat.memory">
+        <o-table-column
+          #default="{ row: container }"
+          :label="$t('label.avg-mem')"
+          sortable
+          field="movingAverageStat.memory"
+        >
           <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart">
             <div class="bar-text">
-              {{ formatBytes(container.movingAverageStat.memoryUsage) }}
+              {{ (container.movingAverageStat.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
             </div>
           </bar-chart>
         </o-table-column>
