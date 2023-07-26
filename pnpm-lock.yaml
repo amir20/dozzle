@@ -75,8 +75,8 @@ dependencies:
     specifier: ^4.0.8
     version: 4.0.8
   pinia:
-    specifier: ^2.1.4
-    version: 2.1.4(typescript@5.1.6)(vue@3.3.4)
+    specifier: ^2.1.6
+    version: 2.1.6(typescript@5.1.6)(vue@3.3.4)
   splitpanes:
     specifier: ^3.1.5
     version: 3.1.5
@@ -92,8 +92,8 @@ dependencies:
 
 devDependencies:
   '@pinia/testing':
-    specifier: ^0.1.2
-    version: 0.1.2(pinia@2.1.4)(vue@3.3.4)
+    specifier: ^0.1.3
+    version: 0.1.3(pinia@2.1.6)(vue@3.3.4)
   '@playwright/test':
     specifier: ^1.36.2
     version: 1.36.2
@@ -119,8 +119,8 @@ devDependencies:
     specifier: ^4.0.7
     version: 4.0.7
   '@types/node':
-    specifier: ^20.4.4
-    version: 20.4.4
+    specifier: ^20.4.5
+    version: 20.4.5
   '@types/semver':
     specifier: ^7.5.0
     version: 7.5.0
@@ -165,7 +165,7 @@ devDependencies:
     version: 2.9.0
   ts-node:
     specifier: ^10.9.1
-    version: 10.9.1(@types/node@20.4.4)(typescript@5.1.6)
+    version: 10.9.1(@types/node@20.4.5)(typescript@5.1.6)
   typescript:
     specifier: ^5.1.6
     version: 5.1.6
@@ -183,7 +183,7 @@ devDependencies:
     version: 2.4.0(@vueuse/core@10.2.1)(vite@4.4.7)(vue@3.3.4)
   vite:
     specifier: 4.4.7
-    version: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+    version: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
   vite-plugin-pages:
     specifier: ^0.31.0
     version: 0.31.0(@vue/compiler-sfc@3.3.4)(vite@4.4.7)
@@ -192,7 +192,7 @@ devDependencies:
     version: 0.8.0(vite@4.4.7)(vue-router@4.2.4)(vue@3.3.4)
   vitepress:
     specifier: 1.0.0-beta.6
-    version: 1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.4)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0)
+    version: 1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0)
   vitest:
     specifier: ^0.33.0
     version: 0.33.0(jsdom@22.1.0)(sass@1.64.1)
@@ -935,12 +935,12 @@ packages:
       bulma: 0.9.4
     dev: false
 
-  /@pinia/testing@0.1.2(pinia@2.1.4)(vue@3.3.4):
-    resolution: {integrity: sha512-8EyBaVFtv682tBiF810u81vAJ1ykwnaldkVDU52oqtVbh5FUj5dSCSM9+MtRM/tZkq0AulwMK4BnBktqwsnEnw==}
+  /@pinia/testing@0.1.3(pinia@2.1.6)(vue@3.3.4):
+    resolution: {integrity: sha512-D2Ds2s69kKFaRf2KCcP1NhNZEg5+we59aRyQalwRm7ygWfLM25nDH66267U3hNvRUOTx8ofL24GzodZkOmB5xw==}
     peerDependencies:
-      pinia: '>=2.1.2'
+      pinia: '>=2.1.5'
     dependencies:
-      pinia: 2.1.4(typescript@5.1.6)(vue@3.3.4)
+      pinia: 2.1.6(typescript@5.1.6)(vue@3.3.4)
       vue-demi: 0.14.5(vue@3.3.4)
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -952,7 +952,7 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 20.4.4
+      '@types/node': 20.4.5
       playwright-core: 1.36.2
     optionalDependencies:
       fsevents: 2.3.2
@@ -1076,8 +1076,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node@20.4.4:
-    resolution: {integrity: sha512-CukZhumInROvLq3+b5gLev+vgpsIqC2D0deQr/yS1WnxvmYLlJXZpaQrQiseMY+6xusl79E04UjWoqyr+t1/Ew==}
+  /@types/node@20.4.5:
+    resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
     dev: true
 
   /@types/semver@7.5.0:
@@ -1094,7 +1094,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
       vue: 3.3.4
     dev: true
 
@@ -1317,7 +1317,7 @@ packages:
         optional: true
     dependencies:
       sirv: 2.0.3
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
       vue: 3.3.4
     dev: true
 
@@ -3580,8 +3580,8 @@ packages:
     hasBin: true
     dev: true
 
-  /pinia@2.1.4(typescript@5.1.6)(vue@3.3.4):
-    resolution: {integrity: sha512-vYlnDu+Y/FXxv1ABo1vhjC+IbqvzUdiUC3sfDRrRyY2CQSrqqaa+iiHmqtARFxJVqWQMCJfXx1PBvFs9aJVLXQ==}
+  /pinia@2.1.6(typescript@5.1.6)(vue@3.3.4):
+    resolution: {integrity: sha512-bIU6QuE5qZviMmct5XwCesXelb5VavdOWKWaB17ggk++NUwQWWbP5YnsONTk3b752QkW9sACiR81rorpeOMSvQ==}
     peerDependencies:
       '@vue/composition-api': ^1.4.0
       typescript: '>=4.4.4'
@@ -4118,7 +4118,7 @@ packages:
     hasBin: true
     dev: true
 
-  /ts-node@10.9.1(@types/node@20.4.4)(typescript@5.1.6):
+  /ts-node@10.9.1(@types/node@20.4.5)(typescript@5.1.6):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -4137,7 +4137,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 20.4.4
+      '@types/node': 20.4.5
       acorn: 8.8.2
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -4239,7 +4239,7 @@ packages:
     dependencies:
       '@antfu/utils': 0.7.5
       unplugin: 1.4.0
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
     dev: true
 
   /unplugin-icons@0.16.5(@vue/compiler-sfc@3.3.4):
@@ -4400,7 +4400,7 @@ packages:
       convert-source-map: 1.9.0
     dev: true
 
-  /vite-node@0.33.0(@types/node@20.4.4)(sass@1.64.1):
+  /vite-node@0.33.0(@types/node@20.4.5)(sass@1.64.1):
     resolution: {integrity: sha512-19FpHYbwWWxDr73ruNahC+vtEdza52kA90Qb3La98yZ0xULqV8A5JLNPUff0f5zID4984tW7l3DH2przTJUZSw==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -4410,7 +4410,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -4440,7 +4440,7 @@ packages:
       json5: 2.2.3
       local-pkg: 0.4.3
       picocolors: 1.0.0
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
       yaml: 2.3.1
     transitivePeerDependencies:
       - supports-color
@@ -4456,14 +4456,14 @@ packages:
       '@vue/compiler-sfc': 3.3.4
       debug: 4.3.4
       fast-glob: 3.2.12
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
       vue: 3.3.4
       vue-router: 4.2.4(vue@3.3.4)
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /vite@4.4.7(@types/node@20.4.4)(sass@1.64.1):
+  /vite@4.4.7(@types/node@20.4.5)(sass@1.64.1):
     resolution: {integrity: sha512-6pYf9QJ1mHylfVh39HpuSfMPojPSKVxZvnclX1K1FyZ1PXDOcLBibdq5t1qxJSnL63ca8Wf4zts6mD8u8oc9Fw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -4491,7 +4491,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.4
+      '@types/node': 20.4.5
       esbuild: 0.18.16
       postcss: 8.4.27
       rollup: 3.26.3
@@ -4500,7 +4500,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress@1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.4)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0):
+  /vitepress@1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0):
     resolution: {integrity: sha512-xK/ulKgQpKZVbvlL4+/vW49VG7ySi5nmSoKUNH1G4kM+Cj9JwYM+PDJO7jSJROv8zW99G0ise+maDYnaLlbGBQ==}
     hasBin: true
     dependencies:
@@ -4515,7 +4515,7 @@ packages:
       mark.js: 8.11.1
       minisearch: 6.1.0
       shiki: 0.14.3
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -4577,7 +4577,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.4.4
+      '@types/node': 20.4.5
       '@vitest/expect': 0.33.0
       '@vitest/runner': 0.33.0
       '@vitest/snapshot': 0.33.0
@@ -4597,8 +4597,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.6.0
-      vite: 4.4.7(@types/node@20.4.4)(sass@1.64.1)
-      vite-node: 0.33.0(@types/node@20.4.4)(sass@1.64.1)
+      vite: 4.4.7(@types/node@20.4.5)(sass@1.64.1)
+      vite-node: 0.33.0(@types/node@20.4.5)(sass@1.64.1)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
