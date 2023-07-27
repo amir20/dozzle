@@ -12,7 +12,7 @@
     </div>
     <div class="tile is-parent">
       <div class="tile is-child box">
-        <div class="level-item has-text-centered" data-ci-skip>
+        <div class="level-item has-text-centered">
           <div>
             <p class="title">{{ totalCpu }}%</p>
             <p class="heading">{{ $t("label.total-cpu-usage") }}</p>
@@ -22,7 +22,7 @@
     </div>
     <div class="tile is-parent">
       <div class="tile is-child box">
-        <div class="level-item has-text-centered" data-ci-skip>
+        <div class="level-item has-text-centered">
           <div>
             <p class="title">{{ formatBytes(totalMem) }}</p>
             <p class="heading">{{ $t("label.total-mem-usage") }}</p>
@@ -43,26 +43,8 @@
   </div>
 
   <section class="section table-container">
-    <div class="box" data-ci-skip>
-      <o-table :data="runningContainers" backend-sorting backend-filtering paginated :per-page="15">
-        <o-table-column #default="{ row: container }" :label="$t('label.container-name')" field="name">
-          <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
-            {{ container.name }}
-          </router-link>
-        </o-table-column>
-        <o-table-column #default="{ row: container }" :label="$t('label.status')" field="state">
-          {{ container.state }}
-        </o-table-column>
-        <o-table-column #default="{ row: container }" :label="$t('label.last-started')" field="created">
-          <distance-time :date="container.created" strict :suffix="false"></distance-time>
-        </o-table-column>
-        <o-table-column #default="{ row: container }" :label="$t('label.avg-cpu')" field="movingAverageStat.cpu">
-          {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-        </o-table-column>
-        <o-table-column #default="{ row: container }" :label="$t('label.avg-mem')" field="movingAverageStat.memory">
-          {{ (container.movingAverageStat.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
-        </o-table-column>
-      </o-table>
+    <div class="box">
+      <container-table :containers="runningContainers"></container-table>
     </div>
   </section>
 </template>
