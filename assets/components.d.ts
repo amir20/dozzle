@@ -36,6 +36,8 @@ declare module 'vue' {
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     LogViewerWithSource: typeof import('./components/LogViewer/LogViewerWithSource.vue')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
+    'Mdi:chevronLeft': typeof import('~icons/mdi/chevron-left')['default']
+    'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
     'Mdi:dotsVertical': typeof import('~icons/mdi/dots-vertical')['default']
     'Mdi:lightChevronDoubleDown': typeof import('~icons/mdi-light/chevron-double-down')['default']
     'Mdi:lightChevronLeft': typeof import('~icons/mdi-light/chevron-left')['default']
