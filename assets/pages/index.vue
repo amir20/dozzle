@@ -44,7 +44,7 @@
 
   <section class="section table-container">
     <div class="box" data-ci-skip>
-      <o-table :data="runningContainers" backend-sorting backend-filtering>
+      <o-table :data="runningContainers" backend-sorting backend-filtering paginated :per-page="15">
         <o-table-column #default="{ row: container }" :label="$t('label.container-name')" field="name">
           <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
@@ -57,18 +57,10 @@
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </o-table-column>
         <o-table-column #default="{ row: container }" :label="$t('label.avg-cpu')" field="movingAverageStat.cpu">
-          <bar-chart :value="container.movingAverageStat.cpu / 100" class="bar-chart">
-            <div class="bar-text">
-              {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-            </div>
-          </bar-chart>
+          {{ (container.movingAverageStat.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
         </o-table-column>
         <o-table-column #default="{ row: container }" :label="$t('label.avg-mem')" field="movingAverageStat.memory">
-          <bar-chart :value="container.movingAverageStat.memory / 100" class="bar-chart">
-            <div class="bar-text">
-              {{ (container.movingAverageStat.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
-            </div>
-          </bar-chart>
+          {{ (container.movingAverageStat.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
         </o-table-column>
       </o-table>
     </div>
