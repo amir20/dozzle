@@ -12,7 +12,7 @@ export class Container {
   private readonly throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
   public readonly swarmId: string | null = null;
   public readonly isSwarm: boolean = false;
-  public readonly movingAverageStat: Ref<Stat>;
+  private readonly movingAverageStat: Ref<Stat>;
 
   constructor(
     public readonly id: string,
@@ -43,5 +43,9 @@ export class Container {
 
   public getLastStat() {
     return unref(this.throttledStatHistory.last);
+  }
+
+  get movingAverage() {
+    return unref(this.movingAverageStat);
   }
 }

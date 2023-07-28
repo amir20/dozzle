@@ -19,6 +19,7 @@ declare module 'vue' {
     ContainerHealth: typeof import('./components/LogViewer/ContainerHealth.vue')['default']
     ContainerPopup: typeof import('./components/LogViewer/ContainerPopup.vue')['default']
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
+    ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
