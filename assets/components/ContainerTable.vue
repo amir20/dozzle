@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="container in containers" :key="container.id">
+      <tr v-for="container in paginated" :key="container.id">
         <td>
           <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
@@ -28,10 +28,17 @@
       </tr>
     </tbody>
   </table>
+  <nav class="pagination is-right" role="navigation" aria-label="pagination" v-if="isPaginated">
+    <ul class="pagination-list">
+      <li v-for="i in totalPages">
+        <a class="pagination-link" :class="{ 'is-current': i === currentPage }" @click="currentPage = i">{{ i }}</a>
+      </li>
+    </ul>
+  </nav>
 </template>
 
 <script setup lang="ts">
-const { containers } = defineProps<{
+const { containers, perPage = 15 } = defineProps<{
   containers: {
     movingAverage: { cpu: number; memory: number };
     created: Date;
@@ -39,7 +46,18 @@ const { containers } = defineProps<{
     name: string;
     id: string;
   }[];
+  perPage?: number;
 }>();
+
+const totalPages = computed(() => Math.ceil(containers.length / perPage));
+const isPaginated = computed(() => totalPages.value > 1);
+const currentPage = ref(1);
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * perPage;
+  const end = start + perPage;
+
+  return containers.slice(start, end);
+});
 </script>
 
 <style lang="scss" scoped></style>
