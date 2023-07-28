@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="container in containers">
+      <tr v-for="container in containers" :key="container.id">
         <td>
           <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
