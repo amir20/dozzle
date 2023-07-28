@@ -14,8 +14,7 @@
         <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
         <span class="has-text-grey">{{ name }}=</span>[
         <span class="has-text-weight-bold" v-for="(item, index) in value">
-          {{ item }}
-          <span v-if="index !== value.length - 1">,</span>
+          <span v-html="JSON.stringify(item)"></span><span v-if="index !== value.length - 1">,</span>
         </span>
         ]
       </template>
