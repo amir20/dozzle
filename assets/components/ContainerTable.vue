@@ -3,10 +3,14 @@
   <table class="table is-fullwidth">
     <thead>
       <tr>
-        <th>{{ $t("label.container-name") }}</th>
+        <th>
+          <a href="" @click.prevent="sortField = 'name'">{{ $t("label.container-name") }}</a>
+        </th>
         <th>{{ $t("label.status") }}</th>
         <th>{{ $t("label.last-started") }}</th>
-        <th>{{ $t("label.avg-cpu") }}</th>
+        <th>
+          <a href="" @click.prevent="sortField = 'cpu'">{{ $t("label.avg-cpu") }}</a>
+        </th>
         <th>{{ $t("label.avg-mem") }}</th>
       </tr>
     </thead>
@@ -48,15 +52,35 @@ const { containers, perPage = 15 } = defineProps<{
   }[];
   perPage?: number;
 }>();
+const sortField: Ref<"cpu" | "mem" | "name" | "created"> = ref("created");
+const sortedContainers = computedWithControl(
+  () => [containers.length, sortField.value],
+  () => {
+    console.log("sorting");
+    return containers.sort((a, b) => {
+      if (sortField.value === "name") {
+        return a.name.localeCompare(b.name);
+      } else if (sortField.value === "created") {
+        return a.created.getTime() - b.created.getTime();
+      } else if (sortField.value === "cpu") {
+        return a.movingAverage.cpu - b.movingAverage.cpu;
+      } else if (sortField.value === "mem") {
+        return a.movingAverage.memory - b.movingAverage.memory;
+      } else {
+        throw new Error("Unknown sort field");
+      }
+    });
+  },
+);
 
-const totalPages = computed(() => Math.ceil(containers.length / perPage));
+const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage));
 const isPaginated = computed(() => totalPages.value > 1);
 const currentPage = ref(1);
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * perPage;
   const end = start + perPage;
 
-  return containers.slice(start, end);
+  return sortedContainers.value.slice(start, end);
 });
 </script>
 
