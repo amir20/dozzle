@@ -33,10 +33,14 @@
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </td>
         <td v-if="isVisible('cpu')">
-          {{ (container.movingAverage.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+          <bar-chart :value="container.movingAverage.cpu / 100">
+            {{ (container.movingAverage.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
+          </bar-chart>
         </td>
         <td v-if="isVisible('mem')">
-          {{ (container.movingAverage.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
+          <bar-chart :value="container.movingAverage.memory / 100">
+            {{ (container.movingAverage.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
+          </bar-chart>
         </td>
       </tr>
     </tbody>
