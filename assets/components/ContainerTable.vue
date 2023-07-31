@@ -68,7 +68,7 @@ const { containers, perPage = 15 } = defineProps<{
   perPage?: number;
 }>();
 const sortField: Ref<keyof typeof headers> = ref("created");
-const direction = ref<1 | -1>(1);
+const direction = ref<1 | -1>(-1);
 const sortedContainers = computedWithControl(
   () => [containers.length, sortField.value, direction.value],
   () => {
