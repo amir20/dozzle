@@ -191,8 +191,8 @@ devDependencies:
     specifier: ^0.8.0
     version: 0.8.0(vite@4.4.7)(vue-router@4.2.4)(vue@3.3.4)
   vitepress:
-    specifier: 1.0.0-beta.6
-    version: 1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0)
+    specifier: 1.0.0-beta.7
+    version: 1.0.0-beta.7(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0)
   vitest:
     specifier: ^0.33.0
     version: 0.33.0(jsdom@22.1.0)(sass@1.64.1)
@@ -4500,8 +4500,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress@1.0.0-beta.6(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0):
-    resolution: {integrity: sha512-xK/ulKgQpKZVbvlL4+/vW49VG7ySi5nmSoKUNH1G4kM+Cj9JwYM+PDJO7jSJROv8zW99G0ise+maDYnaLlbGBQ==}
+  /vitepress@1.0.0-beta.7(@algolia/client-search@4.19.1)(@types/node@20.4.5)(fuse.js@6.6.2)(sass@1.64.1)(search-insights@2.7.0):
+    resolution: {integrity: sha512-P9Rw+FXatKIU4fVdtKxqwHl6fby8E/8zE3FIfep6meNgN4BxbWqoKJ6yfuuQQR9IrpQqwnyaBh4LSabyll6tWg==}
     hasBin: true
     dependencies:
       '@docsearch/css': 3.5.1
