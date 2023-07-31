@@ -120,7 +120,7 @@ function sort(field: keyof typeof headers) {
 }
 .selected-sort {
   font-weight: bold;
-  border-color: var(--primary);
+  border-color: var(--primary-color);
   .icon {
     display: inline-block;
   }
