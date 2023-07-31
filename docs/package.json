@@ -3,11 +3,11 @@
   "type": "module",
   "devDependencies": {
     "@netlify/functions": "^1.6.0",
-    "@unocss/preset-typography": "^0.53.6",
-    "@unocss/reset": "^0.53.6",
-    "@unocss/transformer-directives": "^0.53.6",
+    "@unocss/preset-typography": "^0.54.0",
+    "@unocss/reset": "^0.54.0",
+    "@unocss/transformer-directives": "^0.54.0",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.53.6"
+    "unocss": "^0.54.0"
   }
 }
