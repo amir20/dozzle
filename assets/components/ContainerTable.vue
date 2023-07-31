@@ -73,18 +73,18 @@ const sortedContainers = computedWithControl(
   () => [containers.length, sortField.value, direction.value],
   () => {
     return containers.sort((a, b) => {
-      if (sortField.value === "name") {
-        return direction.value * a.name.localeCompare(b.name);
-      } else if (sortField.value === "created") {
-        return direction.value * (a.created.getTime() - b.created.getTime());
-      } else if (sortField.value === "cpu") {
-        return direction.value * (a.movingAverage.cpu - b.movingAverage.cpu);
-      } else if (sortField.value === "mem") {
-        return direction.value * (a.movingAverage.memory - b.movingAverage.memory);
-      } else if (sortField.value === "state") {
-        return direction.value * a.state.localeCompare(b.state);
+      switch (sortField.value) {
+        case "name":
+          return a.name.localeCompare(b.name) * direction.value;
+        case "state":
+          return a.state.localeCompare(b.state) * direction.value;
+        case "created":
+          return (a.created.getTime() - b.created.getTime()) * direction.value;
+        case "cpu":
+          return (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value;
+        case "mem":
+          return (a.movingAverage.memory - b.movingAverage.memory) * direction.value;
       }
-      throw new Error("Invalid sort field");
     });
   },
 );
