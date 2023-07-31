@@ -72,7 +72,6 @@ const direction = ref<1 | -1>(1);
 const sortedContainers = computedWithControl(
   () => [containers.length, sortField.value, direction.value],
   () => {
-    console.log("sorting");
     return containers.sort((a, b) => {
       if (sortField.value === "name") {
         return direction.value * a.name.localeCompare(b.name);
