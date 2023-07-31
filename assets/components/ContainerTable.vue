@@ -2,12 +2,22 @@
 <template>
   <table class="table is-fullwidth">
     <thead>
-      <tr>
-        <th>{{ $t("label.container-name") }}</th>
-        <th>{{ $t("label.status") }}</th>
-        <th>{{ $t("label.last-started") }}</th>
-        <th>{{ $t("label.avg-cpu") }}</th>
-        <th>{{ $t("label.avg-mem") }}</th>
+      <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
+        <th
+          v-for="(label, field) in headers"
+          :key="field"
+          @click.prevent="sort(field)"
+          :class="{ 'selected-sort': field === sortField }"
+        >
+          <a>
+            <span class="icon-text">
+              <span>{{ $t(label) }}</span>
+              <span class="icon">
+                <mdi:arrow-up />
+              </span>
+            </span>
+          </a>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -31,13 +41,22 @@
   <nav class="pagination is-right" role="navigation" aria-label="pagination" v-if="isPaginated">
     <ul class="pagination-list">
       <li v-for="i in totalPages">
-        <a class="pagination-link" :class="{ 'is-current': i === currentPage }" @click="currentPage = i">{{ i }}</a>
+        <a class="pagination-link" :class="{ 'is-current': i === currentPage }" @click.prevent="currentPage = i">{{
+          i
+        }}</a>
       </li>
     </ul>
   </nav>
 </template>
 
 <script setup lang="ts">
+const headers = {
+  name: "label.container-name",
+  state: "label.status",
+  created: "label.last-started",
+  cpu: "label.avg-cpu",
+  mem: "label.avg-mem",
+};
 const { containers, perPage = 15 } = defineProps<{
   containers: {
     movingAverage: { cpu: number; memory: number };
@@ -48,16 +67,62 @@ const { containers, perPage = 15 } = defineProps<{
   }[];
   perPage?: number;
 }>();
+const sortField: Ref<keyof typeof headers> = ref("created");
+const direction = ref<1 | -1>(1);
+const sortedContainers = computedWithControl(
+  () => [containers.length, sortField.value, direction.value],
+  () => {
+    console.log("sorting");
+    return containers.sort((a, b) => {
+      if (sortField.value === "name") {
+        return direction.value * a.name.localeCompare(b.name);
+      } else if (sortField.value === "created") {
+        return direction.value * (a.created.getTime() - b.created.getTime());
+      } else if (sortField.value === "cpu") {
+        return direction.value * (a.movingAverage.cpu - b.movingAverage.cpu);
+      } else if (sortField.value === "mem") {
+        return direction.value * (a.movingAverage.memory - b.movingAverage.memory);
+      } else if (sortField.value === "state") {
+        return direction.value * a.state.localeCompare(b.state);
+      }
+      throw new Error("Invalid sort field");
+    });
+  },
+);
 
-const totalPages = computed(() => Math.ceil(containers.length / perPage));
+const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage));
 const isPaginated = computed(() => totalPages.value > 1);
 const currentPage = ref(1);
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * perPage;
   const end = start + perPage;
 
-  return containers.slice(start, end);
+  return sortedContainers.value.slice(start, end);
 });
+
+function sort(field: keyof typeof headers) {
+  if (sortField.value === field) {
+    direction.value *= -1;
+  } else {
+    sortField.value = field;
+    direction.value = 1;
+  }
+}
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.icon {
+  display: none;
+  transition: transform 0.2s ease-in-out;
+  [data-direction="desc"] & {
+    transform: rotate(180deg);
+  }
+}
+.selected-sort {
+  font-weight: bold;
+  border-color: var(--primary-color);
+  .icon {
+    display: inline-block;
+  }
+}
+</style>
