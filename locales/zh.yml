@@ -16,7 +16,7 @@ label:
   username: 用户名
   container-name: 容器名称
   status: 状态
-  last-started: 最后启动
+  created: 创建时间
   avg-cpu: 平均CPU (%)
   avg-mem: 平均MEM (%)
 tooltip:

@@ -65,7 +65,7 @@ const fields = {
     mobileVisible: false,
   },
   created: {
-    label: "label.last-started",
+    label: "label.created",
     sortFunc: (a: Container, b: Container) => (a.created.getTime() - b.created.getTime()) * direction.value,
     mobileVisible: true,
   },

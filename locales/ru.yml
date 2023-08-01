@@ -16,7 +16,7 @@ label:
   username: Имя пользователя
   container-name: Имя контейнера
   status: Статус
-  last-started: Последний запуск
+  created: Создан
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
 tooltip:

@@ -16,7 +16,7 @@ label:
   username: Benutzername
   container-name: Container Name
   status: Status
-  last-started: Zuletzt gestartet
+  created: Erstellt
   avg-cpu: Avg CPU (%)
   avg-mem: Avg MEM (%)
 tooltip:
