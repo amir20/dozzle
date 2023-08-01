@@ -144,4 +144,11 @@ function isVisible(field: keyof typeof fields) {
     display: inline-block;
   }
 }
+
+tbody td {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
