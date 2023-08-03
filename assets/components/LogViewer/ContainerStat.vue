@@ -22,9 +22,9 @@ import { type ComputedRef } from "vue";
 const container = inject("container") as ComputedRef<Container>;
 
 const cpuData = computedWithControl(
-  () => container.value.getLastStat(),
+  () => container.value.stat,
   () => {
-    const history = container.value.getStatHistory();
+    const history = container.value.statHistory;
     const points: Point<unknown>[] = history.map((stat, i) => ({
       x: i,
       y: stat.snapshot.cpu,
@@ -35,9 +35,9 @@ const cpuData = computedWithControl(
 );
 
 const memoryData = computedWithControl(
-  () => container.value.getLastStat(),
+  () => container.value.stat,
   () => {
-    const history = container.value.getStatHistory();
+    const history = container.value.statHistory;
     const points: Point<string>[] = history.map((stat, i) => ({
       x: i,
       y: stat.snapshot.memory,

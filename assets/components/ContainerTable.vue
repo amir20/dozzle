@@ -57,6 +57,8 @@
 </template>
 
 <script setup lang="ts">
+import { Container } from "@/models/Container";
+
 const fields = {
   name: {
     label: "label.container-name",
@@ -83,16 +85,6 @@ const fields = {
     sortFunc: (a: Container, b: Container) => (a.movingAverage.memory - b.movingAverage.memory) * direction.value,
     mobileVisible: false,
   },
-};
-type Container = {
-  id: string;
-  name: string;
-  state: string;
-  created: Date;
-  movingAverage: {
-    cpu: number;
-    memory: number;
-  };
 };
 
 const { containers, perPage = 15 } = defineProps<{
