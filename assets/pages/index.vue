@@ -50,9 +50,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Container } from "@/models/Container";
+
 const { version } = config;
 const containerStore = useContainerStore();
-const { containers } = storeToRefs(containerStore);
+const { containers } = storeToRefs(containerStore) as { containers: unknown } as { containers: Ref<Container[]> };
 
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
@@ -60,7 +62,7 @@ const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.s
 let totalCpu = $ref(0);
 useIntervalFn(
   () => {
-    totalCpu = runningContainers.reduce((acc, c) => acc + (c.stat?.cpu ?? 0), 0);
+    totalCpu = runningContainers.reduce((acc, c) => acc + c.stat.cpu, 0);
   },
   1000,
   { immediate: true },
@@ -69,7 +71,7 @@ useIntervalFn(
 let totalMem = $ref(0);
 useIntervalFn(
   () => {
-    totalMem = runningContainers.reduce((acc, c) => acc + (c.stat?.memoryUsage ?? 0), 0);
+    totalMem = runningContainers.reduce((acc, c) => acc + c.stat.memoryUsage, 0);
   },
   1000,
   { immediate: true },

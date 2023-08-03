@@ -7,11 +7,11 @@
   </div>
   <div>
     <span class="has-text-weight-light"> LOAD </span>
-    <span class="has-text-weight-semibold"> {{ container.getLastStat().snapshot.cpu }}% </span>
+    <span class="has-text-weight-semibold"> {{ container.stat.cpu }}% </span>
   </div>
   <div>
     <span class="has-text-weight-light"> MEM </span>
-    <span class="has-text-weight-semibold"> {{ formatBytes(container.getLastStat().snapshot.memoryUsage) }} </span>
+    <span class="has-text-weight-semibold"> {{ formatBytes(container.stat.memoryUsage) }} </span>
   </div>
 </template>
 

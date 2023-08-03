@@ -39,7 +39,7 @@ export const useContainerStore = defineStore("container", () => {
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
       if (container) {
         const { id, ...rest } = stat;
-        container.stat = rest;
+        container.updateStat(rest);
       }
     });
     es.addEventListener("container-die", (e) => {
