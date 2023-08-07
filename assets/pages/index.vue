@@ -4,8 +4,8 @@
       <div class="tile is-child box">
         <div class="level-item has-text-centered">
           <div>
-            <p class="title">{{ containers.length }}</p>
-            <p class="heading">{{ $t("label.total-containers") }}</p>
+            <p class="title">{{ runningContainers.length }} / {{ containers.length }}</p>
+            <p class="heading">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</p>
           </div>
         </div>
       </div>
