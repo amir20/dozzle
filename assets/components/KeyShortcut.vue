@@ -1,5 +1,5 @@
 <template>
-  <div class="tag is-dark">
+  <div class="tag">
     <span v-if="modifiers.includes('shift')"><carbon:mac-shift /></span>
     <span v-if="modifiers.includes('meta')">
       <ph:command v-if="isMac" />
@@ -20,5 +20,6 @@ const { modifiers = ["meta"], char } = defineProps<{ char: string; modifiers?: (
 div.tag {
   gap: 0.1em;
   line-height: 0.5;
+  background-color: var(--scheme-main-ter);
 }
 </style>
