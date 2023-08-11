@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"strings"
 	"syscall"
 	"time"
@@ -232,6 +233,24 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 }
 
 func parseArgs() args {
+	argsType := reflect.TypeOf(args{})
+	expectedEnvs := make(map[string]bool)
+	for i := 0; i < argsType.NumField(); i++ {
+		field := argsType.Field(i)
+		for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
+			if strings.HasPrefix(tag, "env:") {
+				expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
+			}
+		}
+	}
+
+	for _, env := range os.Environ() {
+		actual := strings.Split(env, "=")[0]
+		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
+			log.Warnf("Unexpected environment variable %s", actual)
+		}
+	}
+
 	var args args
 	parser := arg.MustParse(&args)
 	args.Filter = make(map[string][]string)
