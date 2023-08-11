@@ -205,7 +205,7 @@ html.has-custom-scrollbars {
 .modal {
   z-index: 1000;
   .modal-background {
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(10px);
   }
 }
 

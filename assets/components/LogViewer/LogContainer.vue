@@ -53,6 +53,13 @@ const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
 function onClearClicked() {
   viewer.value?.clear();
 }
+
+onKeyStroke("k", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    onClearClicked();
+    e.preventDefault();
+  }
+});
 </script>
 <style lang="scss" scoped>
 button.delete {

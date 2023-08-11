@@ -58,7 +58,7 @@ watchEffect(() => {
 });
 
 onKeyStroke("k", (e) => {
-  if (e.ctrlKey || e.metaKey) {
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showFuzzySearch();
     e.preventDefault();
   }
