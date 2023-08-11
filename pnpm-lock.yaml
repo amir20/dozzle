@@ -35,9 +35,6 @@ dependencies:
   '@vueuse/integrations':
     specifier: ^10.3.0
     version: 10.3.0(focus-trap@7.5.2)(fuse.js@6.6.2)(vue@3.3.4)
-  '@vueuse/math':
-    specifier: ^10.3.0
-    version: 10.3.0(vue@3.3.4)
   '@vueuse/router':
     specifier: ^10.3.0
     version: 10.3.0(vue-router@4.2.4)(vue@3.3.4)
@@ -1634,16 +1631,6 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
-
-  /@vueuse/math@10.3.0(vue@3.3.4):
-    resolution: {integrity: sha512-egJN5b7Ks1s92XS/DuP/irxC2GyR59BfLm19aeWDHbAXhDgK9L+X/z9fZGobI9U7dZ/2A9nlqf0FeMDgh+oWEA==}
-    dependencies:
-      '@vueuse/shared': 10.3.0(vue@3.3.4)
-      vue-demi: 0.14.5(vue@3.3.4)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-    dev: false
 
   /@vueuse/metadata@10.3.0:
     resolution: {integrity: sha512-Ema3YhNOa4swDsV0V7CEY5JXvK19JI/o1szFO1iWxdFg3vhdFtCtSTP26PCvbUpnUtNHBY2wx5y3WDXND5Pvnw==}

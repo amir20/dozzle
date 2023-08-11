@@ -37,7 +37,6 @@
   "@oruga-ui/theme-bulma": "^0.2.11",
   "@vueuse/core": "^10.3.0",
   "@vueuse/integrations": "^10.3.0",
-  "@vueuse/math": "^10.3.0",
   "@vueuse/router": "^10.3.0",
   "ansi-to-html": "^0.7.2",
   "bulma": "^0.9.4",
