@@ -64,15 +64,7 @@ var content embed.FS
 
 func main() {
 	args := parseArgs()
-
-	level, _ := log.ParseLevel(args.Level)
-	log.SetLevel(level)
-
-	log.SetFormatter(&log.TextFormatter{
-		DisableTimestamp:       true,
-		DisableLevelTruncation: true,
-	})
-
+	validateEnvVars()
 	if args.Healthcheck != nil {
 		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 			log.Fatal(err)
@@ -233,26 +225,11 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 }
 
 func parseArgs() args {
-	argsType := reflect.TypeOf(args{})
-	expectedEnvs := make(map[string]bool)
-	for i := 0; i < argsType.NumField(); i++ {
-		field := argsType.Field(i)
-		for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
-			if strings.HasPrefix(tag, "env:") {
-				expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
-			}
-		}
-	}
-
-	for _, env := range os.Environ() {
-		actual := strings.Split(env, "=")[0]
-		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
-			log.Warnf("Unexpected environment variable %s", actual)
-		}
-	}
-
 	var args args
 	parser := arg.MustParse(&args)
+
+	configureLogger(args.Level)
+
 	args.Filter = make(map[string][]string)
 
 	for _, filter := range args.FilterStrings {
@@ -279,4 +256,38 @@ func parseArgs() args {
 		}
 	}
 	return args
+}
+
+func configureLogger(level string) {
+	if l, err := log.ParseLevel(level); err == nil {
+		log.SetLevel(l)
+	} else {
+		panic(err)
+	}
+
+	log.SetFormatter(&log.TextFormatter{
+		DisableTimestamp:       true,
+		DisableLevelTruncation: true,
+	})
+
+}
+
+func validateEnvVars() {
+	argsType := reflect.TypeOf(args{})
+	expectedEnvs := make(map[string]bool)
+	for i := 0; i < argsType.NumField(); i++ {
+		field := argsType.Field(i)
+		for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
+			if strings.HasPrefix(tag, "env:") {
+				expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
+			}
+		}
+	}
+
+	for _, env := range os.Environ() {
+		actual := strings.Split(env, "=")[0]
+		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
+			log.Warnf("Unexpected environment variable %s", actual)
+		}
+	}
 }
