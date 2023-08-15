@@ -17,7 +17,7 @@
         </li>
       </ul>
       <transition-group tag="ul" name="list" class="menu-list" v-else>
-        <li v-for="item in menuItems" :key="item.id" :class="item.state">
+        <li v-for="item in menuItems" :key="item.id" :class="item.state" :data-label="item.id">
           <div class="menu-label mt-4 mb-3" v-if="isLabel(item)">
             {{ item.label }}
           </div>

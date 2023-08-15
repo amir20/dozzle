@@ -34,6 +34,6 @@ test.describe("es locale", () => {
   test.use({ locale: "es" });
 
   test("translated text", async ({ page }) => {
-    await expect(page.locator(".menu-label [aria-current]").getByText("Contenedores")).toBeVisible();
+    await expect(page.locator("[data-label=all].label")).toHaveText("Contenedores");
   });
 });
