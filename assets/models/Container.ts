@@ -49,6 +49,10 @@ export class Container {
     return unref(this._stat);
   }
 
+  get storageKey() {
+    return `${stripVersion(this.image)}:${this.command}`;
+  }
+
   public updateStat(stat: Stat) {
     if (isRef(this._stat)) {
       this._stat.value = stat;

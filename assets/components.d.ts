@@ -11,6 +11,8 @@ declare module 'vue' {
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
+    'Carbon:star': typeof import('~icons/carbon/star')['default']
+    'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']

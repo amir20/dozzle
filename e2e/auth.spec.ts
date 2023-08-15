@@ -5,5 +5,5 @@ test("authentication", async ({ page }) => {
   await page.locator('input[name="username"]').fill("foo");
   await page.locator('input[name="password"]').fill("bar");
   await page.getByRole("button", { name: "Login" }).click();
-  await expect(page.locator(".menu-label [aria-current]")).toHaveText("Containers");
+  await expect(page.locator("[data-label=all].label")).toHaveText("Containers");
 });

@@ -128,4 +128,8 @@ useIntervalFn(
   padding-top: 1em;
   padding-bottom: 1em;
 }
+
+.section + .section {
+  padding-top: 0;
+}
 </style>
