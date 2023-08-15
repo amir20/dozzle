@@ -12,7 +12,7 @@
     </nav>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu-list" v-if="!sessionHost">
-        <li v-for="host in config.hosts" :key="host.id">
+        <li v-for="host in config.hosts">
           <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
         </li>
       </ul>
@@ -195,7 +195,7 @@ a {
   transform: translateX(100%);
 }
 
-.list-move, /* apply transition to moving elements */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.19s ease;
@@ -207,8 +207,6 @@ a {
   transform: translateX(30px);
 }
 
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
 .list-leave-active {
   position: absolute;
 }
