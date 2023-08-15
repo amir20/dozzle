@@ -10,57 +10,48 @@
         <li>Hosts</li>
       </ul>
     </nav>
-    <MenuItemTemplate v-slot="{ item }">
-      <popup>
-        <router-link
-          :to="{ name: 'container-id', params: { id: item.id } }"
-          active-class="is-active"
-          :title="item.name"
-        >
-          <div class="container is-flex is-align-items-center">
-            <div class="is-flex-grow-1 is-ellipsis">
-              <span>{{ item.name }}</span
-              ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
-            </div>
-            <div class="is-flex-shrink-1 is-flex icons">
-              <div
-                class="icon is-small pin"
-                @click.stop.prevent="store.appendActiveContainer(item)"
-                v-show="!activeContainersById[item.id]"
-                :title="$t('tooltip.pin-column')"
-              >
-                <cil:columns />
-              </div>
-
-              <container-health :health="item.health"></container-health>
-            </div>
-          </div>
-        </router-link>
-        <template #content>
-          <container-popup :container="item"></container-popup>
-        </template>
-      </popup>
-    </MenuItemTemplate>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu-list" v-if="!sessionHost">
-        <li v-for="host in config.hosts">
+        <li v-for="host in config.hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
         </li>
       </ul>
-      <ul class="menu-list" v-else>
-        <li class="my-2" v-if="groupedContainers.pinned.length > 0">
-          <div class="menu-label">Pinned Containers</div>
+      <transition-group tag="ul" name="list" class="menu-list" v-else>
+        <li v-for="item in menuItems" :key="item.id" :class="item.state">
+          <div class="menu-label mt-4 mb-3" v-if="isLabel(item)">
+            {{ item.label }}
+          </div>
+          <popup v-else>
+            <router-link
+              :to="{ name: 'container-id', params: { id: item.id } }"
+              active-class="is-active"
+              :title="item.name"
+            >
+              <div class="container is-flex is-align-items-center">
+                <div class="is-flex-grow-1 is-ellipsis">
+                  <span>{{ item.name }}</span
+                  ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
+                </div>
+                <div class="is-flex-shrink-1 is-flex icons">
+                  <div
+                    class="icon is-small pin"
+                    @click.stop.prevent="store.appendActiveContainer(item)"
+                    v-show="!activeContainersById[item.id]"
+                    :title="$t('tooltip.pin-column')"
+                  >
+                    <cil:columns />
+                  </div>
+
+                  <container-health :health="item.health"></container-health>
+                </div>
+              </div>
+            </router-link>
+            <template #content>
+              <container-popup :container="item"></container-popup>
+            </template>
+          </popup>
         </li>
-        <li v-for="item in groupedContainers.pinned" :key="item.id" :class="item.state">
-          <MenuItem :item="item"></MenuItem>
-        </li>
-        <li class="mt-5 mb-2">
-          <div class="menu-label">{{ $t("label.containers") }}</div>
-        </li>
-        <li v-for="item in groupedContainers.unpinned" :key="item.id" :class="item.state">
-          <MenuItem :item="item"></MenuItem>
-        </li>
-      </ul>
+      </transition-group>
     </transition>
   </div>
   <ul class="menu-list is-hidden-mobile has-light-opacity" v-else>
@@ -72,8 +63,9 @@
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composables/storage";
 
+const { t } = useI18n();
+
 const store = useContainerStore();
-const [MenuItemTemplate, MenuItem] = createReusableTemplate<{ item: Container }>();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
 
@@ -81,6 +73,7 @@ function setHost(host: string | null) {
   sessionHost.value = host;
 }
 
+const debouncedIds = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
   visibleContainers.value
     .filter((c) => c.host === sessionHost.value)
@@ -98,7 +91,7 @@ const sortedContainers = computed(() =>
 const groupedContainers = computed(() =>
   sortedContainers.value.reduce(
     (acc, item) => {
-      if (pinnedContainers.value.has(item.storageKey)) {
+      if (debouncedIds.value.has(item.storageKey)) {
         acc.pinned.push(item);
       } else {
         acc.unpinned.push(item);
@@ -108,6 +101,22 @@ const groupedContainers = computed(() =>
     { pinned: [] as Container[], unpinned: [] as Container[] },
   ),
 );
+
+type MenuLabel = { label: string; id: string; state: string };
+const pinnedLabel = { label: t("label.pinned"), id: "pinned", state: "label" } as MenuLabel;
+const allLabel = { label: t("label.containers"), id: "all", state: "label" } as MenuLabel;
+
+function isLabel(item: Container | MenuLabel): item is MenuLabel {
+  return (item as MenuLabel).label !== undefined;
+}
+
+const menuItems = computed(() => {
+  if (groupedContainers.value.pinned.length > 0) {
+    return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
+  } else {
+    return [allLabel, ...groupedContainers.value.unpinned];
+  }
+});
 
 const hosts = computed(() =>
   config.hosts.reduce(
@@ -130,10 +139,6 @@ const activeContainersById = computed(() =>
 );
 </script>
 <style scoped lang="scss">
-.has-light-opacity {
-  opacity: 0.5;
-}
-
 .has-light-opacity {
   opacity: 0.5;
 }
@@ -188,5 +193,23 @@ a {
 .slide-right-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.19s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>

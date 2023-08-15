@@ -19,6 +19,7 @@ label:
   created: Created
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
+  pinned: Pinned
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
