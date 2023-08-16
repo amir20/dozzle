@@ -2,9 +2,10 @@
   <div class="columns is-marginless has-text-weight-bold is-family-monospace">
     <div class="column is-ellipsis">
       <container-health :health="container.health" v-if="container.health"></container-health>
-      <span class="name">
-        {{ container.name }}<span v-if="container.isSwarm" class="swarm-id">{{ container.swarmId }}</span>
-      </span>
+      <div class="name">
+        <span>{{ container.name }}</span
+        ><span v-if="container.isSwarm" class="swarm-id">{{ container.swarmId }}</span>
+      </div>
       <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
       <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
         <carbon:star-filled v-if="pinned" />
@@ -28,13 +29,19 @@ const pinned = computed(() => pinnedContainers.value.has(container.value.storage
 }
 
 .name {
+  display: inline-flex;
   .swarm-id {
-    display: none;
+    max-width: 0;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.2s ease-in-out;
+    will-change: max-width;
   }
 
   &:hover {
     .swarm-id {
-      display: inline;
+      max-width: 400px;
     }
   }
 }
