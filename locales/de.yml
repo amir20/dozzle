@@ -49,9 +49,7 @@ settings:
   options: Optionen
   show-stopped-containers: Zeige gestoppte Container
   about: Über
-  search: >-
-    Aktiviere die Suche mit Dozzle mit <code>command+f</code> oder
-    <code>ctrl+f</code>
+  search: Aktiviere die Suche mit Dozzle mit
   using-version: Du verwendest Dozzle {version}.
   update-available: >-
     Eine neue Version ist verfügbar! Aktualisiere auf <a :href="{href}" class="next-release"

@@ -49,9 +49,7 @@ settings:
   options: Opções
   show-stopped-containers: Mostrar contentores parados
   about: Acerca de
-  search: >-
-    Habilitar a pesquisa com Dozzle usando <code>comando+f</code> ou
-    <code>ctrl+f</code>
+  search: Habilitar a pesquisa com Dozzle usando
   using-version: Está a usar o Dozzle {version}.
   update-available: >-
     Está disponível uma nova versão! Actualização para

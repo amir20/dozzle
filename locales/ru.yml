@@ -48,9 +48,7 @@ settings:
   options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
   about: Информация
-  search: >-
-    Включить поиск с помощью Dozzle, используя <code>command+f</code> или
-    <code>ctrl+f</code>
+  search: Включить поиск с помощью Dozzle, используя
   using-version: Вы используете версию Dozzle {version}.
   update-available: >-
     Доступна новая версия! Обновить до <a :href="{href}" class="next-release"

@@ -1,12 +1,14 @@
 <template>
-  <div class="tag">
-    <span v-if="modifiers.includes('shift')"><carbon:mac-shift /></span>
-    <span v-if="modifiers.includes('meta')">
+  <span class="icon-text">
+    <span class="icon mx-0" v-if="modifiers.includes('shift')">
+      <carbon:mac-shift />
+    </span>
+    <span class="icon mx-0" v-if="modifiers.includes('meta')">
       <ph:command v-if="isMac" />
       <ph:control-bold v-else />
     </span>
-    <kbd class="is-uppercase is-family-sans-serif">{{ char }}</kbd>
-  </div>
+    <kbd class="is-uppercase is-family-sans-serif ml-1">{{ char }}</kbd>
+  </span>
 </template>
 
 <script lang="ts">
@@ -17,9 +19,7 @@ const { modifiers = ["meta"], char } = defineProps<{ char: string; modifiers?: (
 </script>
 
 <style scoped lang="scss">
-div.tag {
-  gap: 0.1em;
-  line-height: 0.5;
-  background-color: var(--scheme-main-ter);
+.icon {
+  width: unset;
 }
 </style>
