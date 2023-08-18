@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="scroll-progress" ref="root" v-show="show">
+    <div class="scroll-progress" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
         <circle r="44" cx="50" cy="50" />
       </svg>
@@ -8,7 +8,7 @@
         <template v-if="indeterminate">
           <div class="column is-narrow is-paddingless is-size-2">&#8734;</div>
         </template>
-        <template v-else>
+        <template v-else-if="!isNaN(scrollProgress)">
           <span class="column is-narrow is-paddingless is-size-2">
             {{ Math.ceil(scrollProgress * 100) }}
           </span>
