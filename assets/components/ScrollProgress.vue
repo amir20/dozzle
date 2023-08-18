@@ -48,7 +48,7 @@ watchPostEffect(() => {
     scrollElement.value === document
       ? (scrollElement.value as Document).documentElement
       : (scrollElement.value as HTMLElement);
-  scrollProgress.value = Math.min(scrollY.value / (parent.scrollHeight - parent.clientHeight), 1);
+  scrollProgress.value = Math.max(0, Math.min(1, scrollY.value / (parent.scrollHeight - parent.clientHeight)));
   if (autoHide) {
     show.value = true;
   }
