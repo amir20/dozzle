@@ -157,7 +157,7 @@ section {
 
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.15s ease-in;
+    transition: opacity 0.2s ease-out !important;
   }
 
   .fade-enter,
