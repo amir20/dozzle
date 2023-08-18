@@ -50,9 +50,7 @@ settings:
   options: Options
   show-stopped-containers: Show stopped containers
   about: About
-  search: >-
-    Enable searching with Dozzle using <code>command+f</code> or
-    <code>ctrl+f</code>
+  search: Enable searching with Dozzle using
   using-version: You are using Dozzle {version}.
   update-available: >-
     New version is available! Update to <a :href="{href}" class="next-release"

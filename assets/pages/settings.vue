@@ -122,7 +122,7 @@
 
       <div class="item">
         <o-switch v-model="search">
-          <span v-html="$t('settings.search')"></span>
+          <span>{{ $t("settings.search") }} <key-shortcut char="f"></key-shortcut></span>
         </o-switch>
       </div>
 

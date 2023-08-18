@@ -48,9 +48,7 @@ settings:
   options: 选项
   show-stopped-containers: 显示已停止的容器
   about: 关于
-  search: >-
-    使用Dozzle启用搜索 <code>command+f</code> 或
-    <code>ctrl+f</code>
+  search: 使用Dozzle启用搜索
   using-version: 您正在使用Dozzle {version}。
   update-available: >-
     新版本可用！更新到 <a :href="{href}" class="next-release"

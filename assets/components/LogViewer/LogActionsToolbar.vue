@@ -114,7 +114,6 @@
 <script lang="ts" setup>
 import { type ComputedRef } from "vue";
 import { Container } from "@/models/Container";
-import KeyShortcut from "../KeyShortcut.vue";
 
 const { showSearch } = useSearchFilter();
 const { base } = config;
