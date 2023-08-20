@@ -91,8 +91,9 @@ const { containers, perPage = 15 } = defineProps<{
   containers: Container[];
   perPage?: number;
 }>();
-const sortField: Ref<keyof typeof fields> = ref("created");
-const direction = ref<1 | -1>(-1);
+type keys = keyof typeof fields;
+const sortField = useStorage<keys>("DOZZLE_TABLE_CONTAINERS_SORT", "created");
+const direction = useStorage<1 | -1>("DOZZLE_TABLE_CONTAINERS_DIRECTION", -1);
 const sortedContainers = computedWithControl(
   () => [containers.length, sortField.value, direction.value],
   () => {
@@ -112,7 +113,7 @@ const paginated = computed(() => {
   return sortedContainers.value.slice(start, end);
 });
 
-function sort(field: keyof typeof fields) {
+function sort(field: keys) {
   if (sortField.value === field) {
     direction.value *= -1;
   } else {
@@ -120,7 +121,7 @@ function sort(field: keyof typeof fields) {
     direction.value = 1;
   }
 }
-function isVisible(field: keyof typeof fields) {
+function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
 </script>

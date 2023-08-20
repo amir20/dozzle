@@ -1,6 +1,7 @@
 import { Container } from "@/models/Container";
 
-export const sessionHost = useSessionStorage<string | null>("host", null);
+const DOZZLE_HOST = "DOZZLE_HOST";
+export const sessionHost = useSessionStorage<string | null>(DOZZLE_HOST, null);
 
 if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
