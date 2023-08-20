@@ -244,3 +244,7 @@ mark {
   color: var(--text-strong-color);
   background: var(--scheme-main-ter);
 }
+
+a {
+  transition: color 0.2s ease-in-out;
+}
