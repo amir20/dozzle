@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
+import { toRefs } from "@vueuse/core";
 
 const fields = {
   name: {
@@ -92,8 +93,12 @@ const { containers, perPage = 15 } = defineProps<{
   perPage?: number;
 }>();
 type keys = keyof typeof fields;
-const sortField = useStorage<keys>("DOZZLE_TABLE_CONTAINERS_SORT", "created");
-const direction = useStorage<1 | -1>("DOZZLE_TABLE_CONTAINERS_DIRECTION", -1);
+
+const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CONTAINERS_SORT", {
+  column: "created",
+  direction: -1,
+});
+const { column: sortField, direction } = toRefs(storage);
 const sortedContainers = computedWithControl(
   () => [containers.length, sortField.value, direction.value],
   () => {
