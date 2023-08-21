@@ -1,3 +1,4 @@
+import { toRefs } from "@vueuse/core";
 const DOZZLE_SETTINGS_KEY = "DOZZLE_SETTINGS";
 
 export const DEFAULT_SETTINGS: {
@@ -26,64 +27,10 @@ export const DEFAULT_SETTINGS: {
   collapseNav: false,
 };
 
-const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
+export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
 settings.value = { ...DEFAULT_SETTINGS, ...settings.value };
 
-const search = computed({
-  get: () => settings.value.search,
-  set: (value) => (settings.value.search = value),
-});
-
-const size = computed({
-  get: () => settings.value.size,
-  set: (value) => (settings.value.size = value),
-});
-
-const menuWidth = computed({
-  get: () => settings.value.menuWidth,
-  set: (value) => (settings.value.menuWidth = value),
-});
-const smallerScrollbars = computed({
-  get: () => settings.value.smallerScrollbars,
-  set: (value) => (settings.value.smallerScrollbars = value),
-});
-
-const showTimestamp = computed({
-  get: () => settings.value.showTimestamp,
-  set: (value) => (settings.value.showTimestamp = value),
-});
-
-const showStd = computed({
-  get: () => settings.value.showStd,
-  set: (value) => (settings.value.showStd = value),
-});
-
-const showAllContainers = computed({
-  get: () => settings.value.showAllContainers,
-  set: (value) => (settings.value.showAllContainers = value),
-});
-
-const lightTheme = computed({
-  get: () => settings.value.lightTheme,
-  set: (value) => (settings.value.lightTheme = value),
-});
-
-const hourStyle = computed({
-  get: () => settings.value.hourStyle,
-  set: (value) => (settings.value.hourStyle = value),
-});
-
-const softWrap = computed({
-  get: () => settings.value.softWrap,
-  set: (value) => (settings.value.softWrap = value),
-});
-
-const collapseNav = computed({
-  get: () => settings.value.collapseNav,
-  set: (value) => (settings.value.collapseNav = value),
-});
-
-export {
+export const {
   collapseNav,
   softWrap,
   hourStyle,
@@ -95,5 +42,4 @@ export {
   menuWidth,
   size,
   search,
-  settings,
-};
+} = toRefs(settings);
