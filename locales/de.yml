@@ -52,6 +52,6 @@ settings:
   search: Aktiviere die Suche mit Dozzle mit
   using-version: Du verwendest Dozzle {version}.
   update-available: >-
-    Eine neue Version ist verfügbar! Aktualisiere auf <a :href="{href}" class="next-release"
+    Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" class="next-release"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
