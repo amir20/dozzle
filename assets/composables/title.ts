@@ -1,6 +1,6 @@
 const { hostname } = config;
 let subtitle = $ref("");
-const title = $computed(() => `${subtitle} - Dozzle` + (hostname ? ` @ ${hostname}` : ""));
+const title = $computed(() => (subtitle ? `${subtitle} - ` : "") + "Dozzle" + (hostname ? ` @ ${hostname}` : ""));
 
 useTitle($$(title));
 

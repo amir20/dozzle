@@ -30,6 +30,7 @@ error:
 title:
   page-not-found: Seite nicht gefunden
   login: Authentifizierung erforderlich
+  dashboard: 1 Container | {count} Container
   settings: Einstellungen
 button:
   logout: Ausloggen

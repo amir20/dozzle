@@ -30,6 +30,7 @@ error:
 title:
   page-not-found: Página no encontrada
   login: Autenticación requerida
+  dashboard: 1 contenedor | {count} contenedores
   settings: Configuración
 button:
   logout: Cerrar la sesión

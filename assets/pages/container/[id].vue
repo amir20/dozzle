@@ -16,11 +16,8 @@ const { id } = defineProps<{ id: string }>();
 const currentContainer = store.currentContainer($$(id));
 const { activeContainers, ready } = storeToRefs(store);
 
-setTitle("loading");
-
-onMounted(() => {
-  setTitle(currentContainer.value?.name);
+watchEffect(() => {
+  if (ready.value === true)
+    currentContainer.value !== undefined ? setTitle(currentContainer.value.name) : setTitle("Not Found");
 });
-
-watchEffect(() => setTitle(currentContainer.value?.name));
 </script>
