@@ -4,7 +4,7 @@
       <container-health :health="container.health" v-if="container.health"></container-health>
       <div class="name">
         <span>{{ container.name }}</span
-        ><span v-if="container.isSwarm" class="swarm-id">{{ container.swarmId }}</span>
+        ><span v-if="container.isSwarm" class="swarm-id is-ellipsis">{{ container.swarmId }}</span>
       </div>
       <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
       <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
@@ -31,7 +31,7 @@ const pinned = computed(() => pinnedContainers.value.has(container.value.storage
 .name {
   display: inline-flex;
   .swarm-id {
-    max-width: 0;
+    max-width: 1.5em;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
