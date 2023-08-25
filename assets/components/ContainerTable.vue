@@ -28,7 +28,7 @@
             {{ container.name }}
           </router-link>
         </td>
-        <td v-if="isVisible('host')">{{ container.host }}</td>
+        <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
         <td v-if="isVisible('state')">{{ container.state }}</td>
         <td v-if="isVisible('created')">
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
@@ -69,7 +69,7 @@ const fields = {
   },
   host: {
     label: "label.host",
-    sortFunc: (a: Container, b: Container) => a.host.localeCompare(b.host) * direction.value,
+    sortFunc: (a: Container, b: Container) => a.hostLabel.localeCompare(b.hostLabel) * direction.value,
     mobileVisible: false,
   },
   state: {
