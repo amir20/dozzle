@@ -12,6 +12,7 @@ label:
   total-mem-usage: 所有内存使用率
   dozzle-version: Dozzle版本
   all: 全部
+  host: 主机
   password: 密码
   username: 用户名
   container-name: 容器名称

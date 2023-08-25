@@ -12,6 +12,7 @@ label:
   total-mem-usage: Total de utilização da memória
   dozzle-version: Versão Dozzle
   all: Tudo
+  host: Anfitrião
   password: Senha
   username: Nome de usuário
   container-name: Nome do contentor
