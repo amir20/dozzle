@@ -12,7 +12,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
-  default: { base: "", hosts: ["localhost"] },
+  default: { base: "", hosts: [{ name: "localhost", id: "localhost" }] },
 }));
 
 /**
