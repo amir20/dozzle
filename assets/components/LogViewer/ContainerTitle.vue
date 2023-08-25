@@ -3,11 +3,10 @@
     <div class="column is-ellipsis">
       <container-health :health="container.health" v-if="container.health"></container-health>
       <div class="name">
-        <span v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile">{{
-          container.hostLabel
-        }}</span
-        ><span class="has-text-weight-light mx-2">/</span><span class="">{{ container.name }}</span
-        ><span v-if="container.isSwarm" class="swarm-id is-ellipsis">{{ container.swarmId }}</span>
+        <span v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile"
+          >{{ container.hostLabel }}<span class="has-text-weight-light mx-2">/</span></span
+        ><span class="">{{ container.name }}</span
+        ><span v-if="container.isSwarm" class="swarm-id is-hidden-mobile is-ellipsis">{{ container.swarmId }}</span>
       </div>
       <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
       <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
