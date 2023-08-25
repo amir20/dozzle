@@ -52,9 +52,13 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 
+const { t } = useI18n();
 const { version } = config;
 const containerStore = useContainerStore();
-const { containers } = storeToRefs(containerStore) as { containers: unknown } as { containers: Ref<Container[]> };
+const { containers, ready } = storeToRefs(containerStore) as unknown as {
+  containers: Ref<Container[]>;
+  ready: Ref<boolean>;
+};
 
 const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
@@ -76,6 +80,10 @@ useIntervalFn(
   1000,
   { immediate: true },
 );
+
+watchEffect(() => {
+  if (ready.value === true) setTitle(t("title.dashboard", { count: runningContainers.length }));
+});
 </script>
 <style lang="scss" scoped>
 .panel {

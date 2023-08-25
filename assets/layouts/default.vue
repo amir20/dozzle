@@ -51,11 +51,7 @@ const { oruga } = useProgrammatic();
 const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
-const { activeContainers, visibleContainers } = storeToRefs(containerStore);
-
-watchEffect(() => {
-  setTitle(`${visibleContainers.value.length} containers`);
-});
+const { activeContainers } = storeToRefs(containerStore);
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {

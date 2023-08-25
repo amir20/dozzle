@@ -30,6 +30,7 @@ error:
 title:
   page-not-found: 页面未找到
   login: 需要身份验证
+  dashboard: 1 容器 | {count} 容器
   settings: 设置
 button:
   logout: 退出

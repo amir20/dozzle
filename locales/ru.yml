@@ -30,6 +30,7 @@ error:
 title:
   page-not-found: Страница не найдена
   login: Требуется авторизация
+  dashboard: 1 контейнер | {count} контейнеров
   settings: Настройки
 button:
   logout: Выйти
