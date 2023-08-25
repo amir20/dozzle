@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@netlify/functions": "^1.6.0",
+    "@netlify/functions": "^2.0.2",
     "@unocss/preset-typography": "^0.55.3",
     "@unocss/reset": "^0.55.3",
     "@unocss/transformer-directives": "^0.55.3",
