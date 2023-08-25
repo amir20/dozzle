@@ -17,7 +17,12 @@ const currentContainer = store.currentContainer($$(id));
 const { activeContainers, ready } = storeToRefs(store);
 
 watchEffect(() => {
-  if (ready.value === true)
-    currentContainer.value !== undefined ? setTitle(currentContainer.value.name) : setTitle("Not Found");
+  if (ready.value) {
+    if (currentContainer.value) {
+      setTitle(currentContainer.value.name);
+    } else {
+      setTitle("Not Found");
+    }
+  }
 });
 </script>
