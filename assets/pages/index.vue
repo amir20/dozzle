@@ -82,7 +82,9 @@ useIntervalFn(
 );
 
 watchEffect(() => {
-  if (ready.value === true) setTitle(t("title.dashboard", { count: runningContainers.length }));
+  if (ready.value) {
+    setTitle(t("title.dashboard", { count: runningContainers.length }));
+  }
 });
 </script>
 <style lang="scss" scoped>
