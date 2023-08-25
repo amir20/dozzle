@@ -50,7 +50,7 @@ const store = useContainerStore();
 const { containers } = storeToRefs(store);
 
 const list = computed(() => {
-  return containers.value.map(({ id, created, name, state, host }) => {
+  return containers.value.map(({ id, created, name, state, hostLabel: host }) => {
     return {
       id,
       created,

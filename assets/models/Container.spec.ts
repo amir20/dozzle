@@ -1,5 +1,11 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { Container } from "./Container";
+
+vi.mock("@/stores/config", () => ({
+  __esModule: true,
+  default: { base: "", hosts: [{ name: "localhost", id: "localhost" }] },
+}));
+
 describe("Container", () => {
   const names = [
     [

@@ -7,6 +7,16 @@ type Stat = Omit<ContainerStat, "id">;
 
 const SWARM_ID_REGEX = /(\.[a-z0-9]{25})+$/i;
 
+const hosts = computed(() =>
+  config.hosts.reduce(
+    (acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    },
+    {} as Record<string, { name: string; id: string }>,
+  ),
+);
+
 export class Container {
   private _stat: Ref<Stat>;
   private readonly throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
@@ -47,6 +57,10 @@ export class Container {
 
   get stat() {
     return unref(this._stat);
+  }
+
+  get hostLabel() {
+    return hosts.value[this.host]?.name;
   }
 
   get storageKey() {
