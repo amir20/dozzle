@@ -1,1 +1,1 @@
--r '\.(go)$' -R 'node_modules' -G '\*\_test.go' -s -- go run main.go --level debug --remote-host tcp://64.225.88.189:2376|clashleaders.com
+-r '\.(go)$' -R 'node_modules' -G '\*\_test.go' -s -- go run main.go --level debug
