@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.6.12",
+ "packageManager": "pnpm@8.7.0",
  "repository": {
   "type": "git",
   "url": "git+https://github.com/amir20/dozzle.git"
@@ -87,11 +87,11 @@
   "unplugin-auto-import": "^0.16.6",
   "unplugin-icons": "^0.16.5",
   "unplugin-vue-components": "^0.25.1",
-  "unplugin-vue-macros": "^2.4.13",
+  "unplugin-vue-macros": "^2.4.14",
   "vite": "4.4.9",
   "vite-plugin-pages": "^0.31.0",
   "vite-plugin-vue-layouts": "^0.8.0",
-  "vitepress": "1.0.0-rc.4",
+  "vitepress": "1.0.0-rc.7",
   "vitest": "^0.34.3",
   "vue-tsc": "^1.8.8"
  },
