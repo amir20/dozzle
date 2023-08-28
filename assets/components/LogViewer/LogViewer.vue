@@ -1,5 +1,5 @@
 <template>
-  <ul class="events" ref="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
+  <ul class="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
       :key="item.id"
@@ -46,7 +46,6 @@ const { messages } = toRefs(props);
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
-const events = ref<HTMLElement>();
 let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
 
 function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {

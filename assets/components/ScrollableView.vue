@@ -4,8 +4,8 @@
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined">
-      <div class="is-scrollbar-progress is-hidden-mobile">
-        <scroll-progress v-if="paused" :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
+      <div class="is-scrollbar-progress is-hidden-mobile" v-show="paused">
+        <scroll-progress :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
       <div ref="scrollableContent">
         <slot :setLoading="setLoading"></slot>
