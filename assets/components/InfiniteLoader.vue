@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-const { onLoadMore = () => {}, enabled } = defineProps<{
-  onLoadMore: () => void;
+const { onLoadMore = () => Promise.resolve(), enabled } = defineProps<{
+  onLoadMore: () => Promise<void>;
   enabled: boolean;
 }>();
 
