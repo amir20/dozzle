@@ -8,7 +8,18 @@ export default {
   },
   plugins: [DaisyUI],
   daisyui: {
-    themes: [],
+    themes: [
+      {
+        dozzle: {
+          primary: "hsl(171, 100%, 41%)",
+          secondary: "hsl(44,  100%, 77%)",
+          accent: "#1fb2a6",
+          neutral: "#2a323c",
+          "base-100": "#dedede",
+          "base-content": "#dedede",
+        },
+      },
+    ],
     base: false,
   },
 } satisfies Config;

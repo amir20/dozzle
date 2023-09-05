@@ -23,7 +23,10 @@
         <o-switch v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </o-switch>
       </div>
       <div class="item">
-        <o-switch v-model="showTimestamp"> {{ $t("settings.show-timesamps") }} </o-switch>
+        <label class="label cursor-pointer justify-start gap-4">
+          <input type="checkbox" class="toggle toggle-primary" :checked="showTimestamp" @click="timestampToggle()" />
+          {{ $t("settings.show-timesamps") }}
+        </label>
       </div>
       <div class="item">
         <o-switch v-model="showStd"> {{ $t("settings.show-std") }} </o-switch>
@@ -153,6 +156,10 @@ setTitle(t("title.settings"));
 const currentVersion = config.version;
 let nextRelease = $ref({ html_url: "", name: "" });
 let hasUpdate = $ref(false);
+
+const scrollbarsToggle = useToggle(smallerScrollbars);
+const timestampToggle = useToggle(showTimestamp);
+const stdToggle = useToggle(showStd);
 
 async function fetchNextRelease() {
   if (!["dev", "master"].includes(currentVersion)) {

@@ -1,7 +1,7 @@
 <template>
-  <div class="hero is-halfheight">
+  <div class="is-halfheight hero">
     <div class="hero-body">
-      <div class="container has-text-centered">
+      <div class="has-text-centered container">
         <h1 class="title">
           404.
           <small class="subtitle">{{ $t("error.page-not-found") }}</small>

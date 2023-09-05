@@ -1,6 +1,6 @@
 !
 <template>
-  <table class="table is-fullwidth">
+  <table class="is-fullwidth table">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th

@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown is-hoverable">
+  <div class="is-hoverable dropdown">
     <div class="dropdown-trigger">
       <slot name="trigger">
         <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">

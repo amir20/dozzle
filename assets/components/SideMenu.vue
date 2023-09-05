@@ -18,7 +18,7 @@
       </ul>
       <transition-group tag="ul" name="list" class="menu-list" v-else>
         <li v-for="item in menuItems" :key="item.id" :class="item.state" :data-label="item.id">
-          <div class="menu-label mt-4 mb-3" v-if="isLabel(item)">
+          <div class="menu-label mb-3 mt-4" v-if="isLabel(item)">
             {{ item.label }}
           </div>
           <popup v-else>
@@ -27,7 +27,7 @@
               active-class="is-active"
               :title="item.name"
             >
-              <div class="container is-flex is-align-items-center">
+              <div class="is-flex is-align-items-center container">
                 <div class="is-flex-grow-1 is-ellipsis">
                   <span>{{ item.name }}</span
                   ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>

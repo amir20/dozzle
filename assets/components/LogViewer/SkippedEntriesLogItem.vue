@@ -2,7 +2,7 @@
   <div class="is-flex-grow-1 has-text-centered my-4">
     <div class="is-relative">
       <zig-zag class="is-overlay mt-2"></zig-zag>
-      <span class="text is-relative py-2 px-4">{{ $t("error.logs-skipped", { total: logEntry.totalSkipped }) }}</span>
+      <span class="text is-relative px-4 py-2">{{ $t("error.logs-skipped", { total: logEntry.totalSkipped }) }}</span>
     </div>
   </div>
 </template>

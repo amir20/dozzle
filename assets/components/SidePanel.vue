@@ -35,7 +35,7 @@
           </span>
         </router-link>
       </div>
-      <div class="column is-narrow py-0 px-0" v-if="secured">
+      <div class="column is-narrow px-0 py-0" v-if="secured">
         <a class="button is-rounded is-small" :href="`${base}/logout`" :title="$t('button.logout')">
           <span class="icon">
             <mdi:light-logout />

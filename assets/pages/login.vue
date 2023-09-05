@@ -1,5 +1,5 @@
 <template>
-  <div class="hero is-halfheight">
+  <div class="is-halfheight hero">
     <div class="hero-body">
       <div class="container">
         <section class="columns is-centered section">
