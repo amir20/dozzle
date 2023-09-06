@@ -23,20 +23,7 @@
 
     <div class="menu-label level is-mobile is-hidden-mobile" :class="{ 'is-active': showNav }">
       <div v-if="config.hosts.length > 1">
-        <o-dropdown v-model="sessionHost" aria-role="list">
-          <template #trigger>
-            <o-button variant="primary" type="button" size="small">
-              <span>{{ sessionHost ? hosts[sessionHost].name : "" }}</span>
-              <span class="icon">
-                <carbon:caret-down />
-              </span>
-            </o-button>
-          </template>
-
-          <o-dropdown-item :value="value.id" aria-role="listitem" v-for="value in config.hosts" :key="value">
-            <span>{{ value.name }}</span>
-          </o-dropdown-item>
-        </o-dropdown>
+        <dropdown v-model="sessionHost" :options="hosts" />
       </div>
 
       <div class="level-item has-text-centered">
@@ -113,13 +100,7 @@ const sortedContainers = computed(() =>
 );
 
 const hosts = computed(() =>
-  config.hosts.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, { name: string; id: string }>,
-  ),
+  config.hosts.map(({ id, name }) => ({ value: id, label: name }) as { value: string; label: string }),
 );
 </script>
 <style scoped lang="scss">
