@@ -37,20 +37,14 @@
         <div class="columns is-vcentered">
           <div class="column is-narrow">
             <o-field>
-              <o-dropdown v-model="hourStyle" aria-role="list">
-                <template #trigger>
-                  <o-button variant="primary" type="button">
-                    <span class="is-capitalized">{{ hourStyle }}</span>
-                    <span class="icon">
-                      <carbon:caret-down />
-                    </span>
-                  </o-button>
-                </template>
-
-                <o-dropdown-item :value="value" aria-role="listitem" v-for="value in ['auto', '12', '24']" :key="value">
-                  <span class="is-capitalized">{{ value }}</span>
-                </o-dropdown-item>
-              </o-dropdown>
+              <dropdown
+                v-model="hourStyle"
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: '12', value: '12' },
+                  { label: '24', value: '24' },
+                ]"
+              />
             </o-field>
           </div>
           <div class="column">
@@ -62,25 +56,14 @@
         <div class="columns is-vcentered">
           <div class="column is-narrow">
             <o-field>
-              <o-dropdown v-model="size" aria-role="list">
-                <template #trigger>
-                  <o-button variant="primary" type="button">
-                    <span class="is-capitalized">{{ size }}</span>
-                    <span class="icon">
-                      <carbon:caret-down />
-                    </span>
-                  </o-button>
-                </template>
-
-                <o-dropdown-item
-                  :value="value"
-                  aria-role="listitem"
-                  v-for="value in ['small', 'medium', 'large']"
-                  :key="value"
-                >
-                  <span class="is-capitalized">{{ value }}</span>
-                </o-dropdown-item>
-              </o-dropdown>
+              <dropdown
+                v-model="size"
+                :options="[
+                  { label: 'Small', value: 'small' },
+                  { label: 'Medium', value: 'medium' },
+                  { label: 'Large', value: 'large' },
+                ]"
+              />
             </o-field>
           </div>
           <div class="column">{{ $t("settings.font-size") }}</div>

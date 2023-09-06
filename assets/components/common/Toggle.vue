@@ -1,5 +1,5 @@
 <template>
-  <label class="label cursor-pointer justify-start gap-4 font-normal">
+  <label class="label inline-flex cursor-pointer gap-4 font-normal">
     <input type="checkbox" class="toggle toggle-primary" :checked="modelValue" @click="toggle()" />
     <span>
       <slot />
