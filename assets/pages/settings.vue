@@ -20,20 +20,17 @@
       </div>
 
       <div class="item">
-        <o-switch v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </o-switch>
+        <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
       </div>
       <div class="item">
-        <label class="label cursor-pointer justify-start gap-4">
-          <input type="checkbox" class="toggle toggle-primary" :checked="showTimestamp" @click="timestampToggle()" />
-          {{ $t("settings.show-timesamps") }}
-        </label>
+        <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
       </div>
       <div class="item">
-        <o-switch v-model="showStd"> {{ $t("settings.show-std") }} </o-switch>
+        <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
       </div>
 
       <div class="item">
-        <o-switch v-model="softWrap"> {{ $t("settings.soft-wrap") }}</o-switch>
+        <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
       </div>
 
       <div class="item">
@@ -122,15 +119,14 @@
       <div class="has-underline">
         <h2 class="title is-4">{{ $t("settings.options") }}</h2>
       </div>
-
       <div class="item">
-        <o-switch v-model="search">
-          <span>{{ $t("settings.search") }} <key-shortcut char="f"></key-shortcut></span>
-        </o-switch>
+        <toggle v-model="search">
+          <span>{{ $t("settings.search") }}</span> <key-shortcut char="f"></key-shortcut>
+        </toggle>
       </div>
 
       <div class="item">
-        <o-switch v-model="showAllContainers"> {{ $t("settings.show-stopped-containers") }} </o-switch>
+        <toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</toggle>
       </div>
     </section>
   </div>
@@ -156,10 +152,6 @@ setTitle(t("title.settings"));
 const currentVersion = config.version;
 let nextRelease = $ref({ html_url: "", name: "" });
 let hasUpdate = $ref(false);
-
-const scrollbarsToggle = useToggle(smallerScrollbars);
-const timestampToggle = useToggle(showTimestamp);
-const stdToggle = useToggle(showStd);
 
 async function fetchNextRelease() {
   if (!["dev", "master"].includes(currentVersion)) {

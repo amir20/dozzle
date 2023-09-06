@@ -75,6 +75,7 @@ declare module 'vue' {
     StatMonitor: typeof import('./components/LogViewer/StatMonitor.vue')['default']
     StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
     Tag: typeof import('./components/common/Tag.vue')['default']
+    Toggle: typeof import('./components/common/Toggle.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }
