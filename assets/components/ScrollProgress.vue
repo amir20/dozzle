@@ -4,15 +4,15 @@
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
         <circle r="44" cx="50" cy="50" />
       </svg>
-      <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
+      <div class="s-2 absolute inset-0 flex items-center justify-center font-light">
         <template v-if="indeterminate">
-          <div class="column is-narrow is-paddingless is-size-2">&#8734;</div>
+          <div class="text-4xl">&#8734;</div>
         </template>
         <template v-else-if="!isNaN(scrollProgress)">
-          <span class="column is-narrow is-paddingless is-size-2">
+          <span class="text-4xl">
             {{ Math.ceil(scrollProgress * 100) }}
           </span>
-          <span class="column is-narrow is-paddingless"> % </span>
+          <span> % </span>
         </template>
       </div>
     </div>
