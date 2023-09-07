@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div class="scroll-progress" ref="root" v-show="!autoHide || show">
+    <div class="scroll-progress pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
         <circle r="44" cx="50" cy="50" />
       </svg>
@@ -56,10 +56,6 @@ watchPostEffect(() => {
 </script>
 <style scoped lang="scss">
 .scroll-progress {
-  display: inline-block;
-  position: relative;
-  pointer-events: none;
-
   svg {
     filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
     margin-top: 5px;

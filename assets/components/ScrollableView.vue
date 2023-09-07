@@ -7,8 +7,8 @@
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
-      <div class="is-scrollbar-progress is-hidden-mobile" v-show="paused">
-        <scroll-progress :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
+      <div class="invisible mr-28 text-right md:visible" v-show="paused">
+        <scroll-progress :indeterminate="loading" :auto-hide="!loading" class="z-2 !fixed top-16" />
       </div>
       <div ref="scrollableContent">
         <slot :setLoading="setLoading"></slot>
@@ -75,19 +75,6 @@ function setLoading(value: boolean) {
 }
 </script>
 <style scoped lang="scss">
-section {
-  .is-scrollbar-progress {
-    text-align: right;
-    margin-right: 110px;
-
-    .scroll-progress {
-      position: fixed;
-      top: 60px;
-      z-index: 2;
-    }
-  }
-}
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease-out !important;
