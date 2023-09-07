@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       animation: {
-        "bounce-fast": "bounce 1s 2",
+        "bounce-fast": "bounce 0.5s 2 both",
       },
     },
   },
