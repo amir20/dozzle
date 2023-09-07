@@ -1,9 +1,12 @@
 <template>
-  <section :class="{ 'is-full-height-scrollable': scrollable }">
-    <header v-if="$slots.header">
+  <section :class="{ 'h-screen min-h-0': scrollable }" class="grid grid-rows-[auto_1fr]">
+    <header
+      v-if="$slots.header"
+      class="sticky top-[70px] border-b border-white/10 bg-[var(--body-background-color)] md:top-0"
+    >
       <slot name="header"></slot>
     </header>
-    <main :data-scrolling="scrollable ? true : undefined">
+    <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
       <div class="is-scrollbar-progress is-hidden-mobile" v-show="paused">
         <scroll-progress :indeterminate="loading" :auto-hide="!loading"></scroll-progress>
       </div>
@@ -11,14 +14,14 @@
         <slot :setLoading="setLoading"></slot>
       </div>
 
-      <div ref="scrollObserver" class="is-scroll-observer"></div>
+      <div ref="scrollObserver" class="h-px"></div>
     </main>
 
-    <div class="is-scrollbar-notification">
+    <div class="mr-16 text-right">
       <transition name="fade">
         <button
-          class="button has-boxshadow"
-          :class="hasMore ? 'has-more' : ''"
+          class="fixed bottom-8 rounded bg-primary p-3 text-primary-content shadow transition-colors hover:bg-primary-focus"
+          :class="hasMore ? 'animate-bounce-fast bg-secondary text-secondary-content hover:bg-secondary-focus' : ''"
           @click="scrollToBottom()"
           v-show="paused"
         >
@@ -73,32 +76,6 @@ function setLoading(value: boolean) {
 </script>
 <style scoped lang="scss">
 section {
-  display: flex;
-  flex-direction: column;
-
-  header {
-    position: sticky;
-    top: 0;
-    background: var(--body-background-color);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    z-index: 1;
-
-    @media screen and (max-width: 768px) {
-      top: 70px;
-    }
-  }
-
-  &.is-full-height-scrollable {
-    height: 100vh;
-    min-height: 0;
-  }
-
-  main {
-    flex: 1;
-    overflow: auto;
-    scroll-snap-type: y proximity;
-  }
-
   .is-scrollbar-progress {
     text-align: right;
     margin-right: 110px;
@@ -109,61 +86,16 @@ section {
       z-index: 2;
     }
   }
+}
 
-  .is-scroll-observer {
-    height: 1px;
-  }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease-out !important;
+}
 
-  .is-scrollbar-notification {
-    text-align: right;
-    margin-right: 65px;
-
-    button {
-      position: fixed;
-      bottom: 30px;
-      background-color: var(--primary-color);
-      transition: background-color 0.24s ease-out;
-      border: none !important;
-      color: #eee;
-
-      &.has-more {
-        background-color: var(--secondary-color);
-        animation-name: bounce;
-        animation-duration: 1000ms;
-        animation-fill-mode: both;
-
-        color: #222;
-      }
-    }
-  }
-
-  @keyframes bounce {
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-      transform: translateY(0);
-    }
-
-    40% {
-      transform: translateY(-30px);
-    }
-
-    60% {
-      transform: translateY(-15px);
-    }
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.2s ease-out !important;
-  }
-
-  .fade-enter,
-  .fade-leave-to {
-    opacity: 0;
-  }
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
 

@@ -4,7 +4,11 @@ import DaisyUI from "daisyui";
 export default {
   content: ["./assets/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        "bounce-fast": "bounce 1s 2",
+      },
+    },
   },
   plugins: [DaisyUI],
   daisyui: {
