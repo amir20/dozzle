@@ -1,15 +1,15 @@
 <template>
-  <div class="columns is-1 is-variable is-mobile">
-    <div class="column is-narrow" v-if="showStd">
-      <log-std :std="logEntry.std"></log-std>
+  <div class="flex gap-x-2">
+    <div v-if="showStd">
+      <log-std :std="logEntry.std" />
     </div>
-    <div class="column is-narrow" v-if="showTimestamp">
-      <log-date :date="logEntry.date"></log-date>
+    <div v-if="showTimestamp">
+      <log-date :date="logEntry.date" />
     </div>
-    <div class="column is-narrow is-flex">
-      <log-level :level="logEntry.level" :position="logEntry.position"></log-level>
+    <div class="flex">
+      <log-level :level="logEntry.level" :position="logEntry.position" />
     </div>
-    <div class="text column" v-html="colorize(logEntry.message)"></div>
+    <div class="text" v-html="colorize(logEntry.message)"></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -26,13 +26,10 @@ const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 </script>
 
 <style lang="scss" scoped>
-.disable-wrap {
-  .text {
-    white-space: nowrap;
-  }
-}
-
 .text {
   white-space: pre-wrap;
+  .disable-wrap & {
+    white-space: nowrap;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="search columns is-gapless is-vcentered" v-show="showSearch" v-if="search">
-    <div class="column">
+  <div class="search flex items-center gap-4" v-show="showSearch" v-if="search">
+    <div>
       <p class="control has-icons-left">
         <input
           class="input"
@@ -15,7 +15,7 @@
         </span>
       </p>
     </div>
-    <div class="column is-1 has-text-centered">
+    <div class="is-1 has-text-centered">
       <button class="delete is-medium" @click="resetSearch()"></button>
     </div>
   </div>
