@@ -1,10 +1,11 @@
 <template>
-  <ul class="events" :class="{ 'disable-wrap': !softWrap, [size]: true }">
+  <ul class="events group" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
       :key="item.id"
       :data-key="item.id"
       :class="{ selected: toRaw(item) === toRaw(lastSelectedItem) }"
+      class="flex px-4 py-1"
     >
       <div class="line-options" v-show="isSearching()">
         <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
@@ -80,7 +81,6 @@ watch(
   & > li {
     display: flex;
     word-wrap: break-word;
-    padding: 0.2em 1em;
 
     &:last-child {
       scroll-snap-align: end;

@@ -1,15 +1,15 @@
 <template>
-  <div class="columns is-1 is-variable is-mobile">
-    <div class="column is-narrow" v-if="showStd">
+  <div class="flex gap-x-2">
+    <div v-if="showStd">
       <log-std :std="logEntry.std"></log-std>
     </div>
-    <div class="column is-narrow" v-if="showTimestamp">
+    <div v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>
-    <div class="column is-narrow is-flex">
+    <div class="flex">
       <log-level :level="logEntry.level"></log-level>
     </div>
-    <div class="column">
+    <div>
       <ul class="fields" :class="{ expanded }" @click="expandToggle()">
         <li v-for="(value, name) in validValues">
           <span class="has-text-grey">{{ name }}=</span

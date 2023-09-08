@@ -9,7 +9,7 @@
     <div class="flex">
       <log-level :level="logEntry.level" :position="logEntry.position" />
     </div>
-    <div class="text" v-html="colorize(logEntry.message)"></div>
+    <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap" v-html="colorize(logEntry.message)"></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -25,11 +25,4 @@ const { markSearch } = useSearchFilter();
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 </script>
 
-<style lang="scss" scoped>
-.text {
-  white-space: pre-wrap;
-  .disable-wrap & {
-    white-space: nowrap;
-  }
-}
-</style>
+<style lang="scss" scoped></style>
