@@ -1,6 +1,6 @@
 !
 <template>
-  <table class="is-fullwidth table">
+  <table class="table table-lg bg-scheme">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th
@@ -10,12 +10,10 @@
           :class="{ 'selected-sort': key === sortField }"
           v-show="isVisible(key)"
         >
-          <a>
-            <span class="icon-text">
-              <span>{{ $t(value.label) }}</span>
-              <span class="icon">
-                <mdi:arrow-up />
-              </span>
+          <a class="uppercase inline-flex text-sm gap-2 cursor-pointer">
+            <span>{{ $t(value.label) }}</span>
+            <span class="h-4" data-icon>
+              <mdi:arrow-up />
             </span>
           </a>
         </th>
@@ -138,7 +136,7 @@ function isVisible(field: keys) {
 </script>
 
 <style lang="scss" scoped>
-.icon {
+[data-icon] {
   display: none;
   transition: transform 0.2s ease-in-out;
   [data-direction="desc"] & {
@@ -148,7 +146,7 @@ function isVisible(field: keys) {
 .selected-sort {
   font-weight: bold;
   border-color: var(--primary-color);
-  .icon {
+  [data-icon] {
     display: inline-block;
   }
 }

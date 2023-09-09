@@ -8,6 +8,11 @@ export default {
       animation: {
         "bounce-fast": "bounce 0.5s 2 both",
       },
+      colors: {
+        "primary-color": "var(--primary-color)",
+        scheme: "var(--scheme-main)",
+        "scheme-bis": "var(--scheme-main-bis)",
+      },
     },
   },
   plugins: [DaisyUI],
@@ -21,6 +26,7 @@ export default {
           neutral: "#2a323c",
           "base-100": "#dedede",
           "base-content": "#dedede",
+          test: "red",
         },
       },
     ],
