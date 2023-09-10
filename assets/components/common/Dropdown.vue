@@ -3,9 +3,9 @@
     <summary class="btn border-none bg-primary hover:bg-primary-focus">
       {{ values[modelValue] }} <carbon:caret-down />
     </summary>
-    <ul class="menu dropdown-content rounded-box z-50 w-52 p-2 shadow">
+    <ul class="menu dropdown-content rounded-box z-50 w-52 p-2 shadow bg-scheme-main">
       <li v-for="item in options">
-        <a @click="modelValue = item.value"> {{ item.label }} </a>
+        <a @click="modelValue = item.value" class="hover:bg-primary"> {{ item.label }} </a>
       </li>
     </ul>
   </details>

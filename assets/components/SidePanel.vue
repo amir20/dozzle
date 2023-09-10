@@ -4,7 +4,7 @@
       <div class="column is-paddingless">
         <h1>
           <router-link :to="{ name: 'index' }">
-            <svg class="logo">
+            <svg class="fill-secondary w-28 h-14">
               <use href="#logo"></use>
             </svg>
           </router-link>
@@ -61,11 +61,5 @@ aside {
   .is-hidden-mobile.is-active {
     display: block !important;
   }
-}
-
-.logo {
-  width: 122px;
-  height: 54px;
-  fill: var(--logo-color);
 }
 </style>

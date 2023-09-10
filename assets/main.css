@@ -1,3 +1,46 @@
+@import "splitpanes/dist/splitpanes.css";
+
+@define-mixin light {
+  --scheme-main-color: theme("colors.white");
+  --scheme-main-bis-color: theme("colors.white-bis");
+  --scheme-main-ter-color: theme("colors.white-ter");
+  --scheme-inverted-color: theme("colors.grey-lightest");
+  --scheme-inverted-bis-color: theme("colors.grey-darker");
+  --scheme-inverted-ter-color: theme("colors.grey");
+  --primary-color: theme("colors.turquoise");
+  --secondary-color: theme("colors.yellow");
+}
+
+@define-mixin dark {
+  --scheme-main-color: theme("colors.black");
+  --scheme-main-bis-color: theme("colors.black-bis");
+  --scheme-main-ter-color: theme("colors.black-ter");
+  --scheme-inverted-color: theme("colors.grey");
+  --scheme-inverted-bis-color: theme("colors.grey-lighter");
+  --scheme-inverted-ter-color: theme("colors.grey-lightest");
+  --primary-color: theme("colors.turquoise");
+  --secondary-color: theme("colors.yellow");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html[data-theme="dark"] {
+    @mixin dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    html {
+      @mixin dark;
+    }
+  }
+  html[data-theme="light"] {
+    @mixin light;
+  }
+  @media (prefers-color-scheme: light) {
+    html {
+      @mixin light;
+    }
+  }
+}

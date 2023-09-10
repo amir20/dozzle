@@ -94,11 +94,6 @@ $light-toolbar-color: rgba($grey-darker, 0.7);
   --text-light-color: #{$grey};
 }
 
-body {
-  background-color: var(--body-background-color);
-  color: var(--text-color);
-}
-
 [data-theme="dark"] {
   @include dark;
 }
@@ -147,12 +142,6 @@ body {
   color: var(--blue-color);
 }
 
-html {
-  overflow-x: unset;
-  overflow-y: unset;
-  scroll-snap-type: y proximity;
-}
-
 html.has-custom-scrollbars {
   ::-webkit-scrollbar {
     width: 8px;
@@ -180,12 +169,6 @@ html.has-custom-scrollbars {
   section main {
     scrollbar-color: #353535 transparent;
     scrollbar-width: thin;
-  }
-}
-
-@media screen and (min-width: 770px) {
-  .splitpanes__pane {
-    overflow: unset;
   }
 }
 

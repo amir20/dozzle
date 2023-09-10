@@ -87,7 +87,7 @@ function setLoading(value: boolean) {
 </style>
 
 <style>
-@media screen and (max-width: 768px) {
+@media screen and (min-width: 770px) {
   .splitpanes__pane {
     overflow: unset !important;
   }
