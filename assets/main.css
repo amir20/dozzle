@@ -46,7 +46,9 @@
 }
 
 @layer utilities {
-  .mobile-hidden {
-    @apply hidden md:block;
+  @media (max-width: 768px) {
+    .mobile-hidden {
+      display: none;
+    }
   }
 }
