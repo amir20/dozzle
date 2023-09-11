@@ -2,12 +2,8 @@
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
       <div class="flex items-center">
-        <div class="">
-          <container-title @close="$emit('close')" />
-        </div>
-        <div class="ml-auto">
-          <container-stat />
-        </div>
+        <container-title @close="$emit('close')" />
+        <container-stat class="ml-auto" />
 
         <div class="">
           <log-actions-toolbar @clear="onClearClicked()" />

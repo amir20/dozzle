@@ -1,19 +1,18 @@
 <template>
-  <div class="has-text-weight-bold is-family-monospace flex">
-    <div class="flex truncate">
-      <container-health :health="container.health" v-if="container.health"></container-health>
-      <div class="name">
-        <span v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile"
-          >{{ container.hostLabel }}<span class="has-text-weight-light mx-2">/</span></span
-        ><span class="">{{ container.name }}</span
-        ><span v-if="container.isSwarm" class="swarm-id is-hidden-mobile is-ellipsis">{{ container.swarmId }}</span>
+  <div class="flex items-center gap-2">
+    <container-health :health="container.health" v-if="container.health"></container-health>
+    <div class="name inline-flex truncate">
+      <div v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile">
+        {{ container.hostLabel }}<span class="has-text-weight-light mx-2">/</span>
       </div>
-      <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
-      <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
-        <carbon:star-filled v-if="pinned" />
-        <carbon:star v-else />
-      </span>
+      <div>{{ container.name }}</div>
+      <span v-if="container.isSwarm" class="swarm-id is-hidden-mobile truncate">{{ container.swarmId }}</span>
     </div>
+    <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
+    <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
+      <carbon:star-filled v-if="pinned" />
+      <carbon:star v-else />
+    </span>
   </div>
 </template>
 

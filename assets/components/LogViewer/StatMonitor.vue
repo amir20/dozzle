@@ -1,11 +1,11 @@
 <template>
-  <div class="has-text-centered is-relative host" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
-    <div class="has-border has-boxshadow is-hidden-mobile">
+  <div class="has-text-centered host relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+    <div class="is-hidden-mobile flex overflow-hidden rounded-sm border border-primary px-px pb-px pt-1">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
-    <div class="has-background-body-color is-top-left">
+    <div class="absolute left-1 top-0 rounded bg-scheme-main-bis text-sm">
       <span class="has-text-weight-light">{{ label }}</span>
-      <span class="has-text-weight-bold">
+      <span class="has-text-weight-bold select-none">
         {{ mouseOver ? selectedPoint?.value ?? selectedPoint?.y ?? statValue : statValue }}
       </span>
     </div>

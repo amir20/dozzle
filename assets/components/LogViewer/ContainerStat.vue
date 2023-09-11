@@ -1,5 +1,5 @@
 <template>
-  <div class="flex" v-if="container.stat">
+  <div class="flex gap-4" v-if="container.stat">
     <stat-monitor
       :data="memoryData"
       label="mem"
