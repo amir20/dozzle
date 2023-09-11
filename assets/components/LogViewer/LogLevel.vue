@@ -10,7 +10,7 @@ defineProps<{
 }>();
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 div {
   display: inline-block;
   width: 0.7em;
@@ -30,7 +30,7 @@ div {
   &[data-position="middle"] {
     border-radius: 0;
     height: auto;
-    margin: -0.2em 0;
+    margin: -0.4em 0;
     align-self: auto;
   }
 

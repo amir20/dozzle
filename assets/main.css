@@ -44,3 +44,9 @@
     }
   }
 }
+
+@layer utilities {
+  .mobile-hidden {
+    @apply hidden md:block;
+  }
+}

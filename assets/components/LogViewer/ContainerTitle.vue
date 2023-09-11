@@ -6,13 +6,18 @@
         {{ container.hostLabel }}<span class="has-text-weight-light mx-2">/</span>
       </div>
       <div>{{ container.name }}</div>
-      <span v-if="container.isSwarm" class="swarm-id is-hidden-mobile truncate">{{ container.swarmId }}</span>
+      <div
+        class="mobile-hidden max-w-[1.5em] truncate transition-[max-width] hover:max-w-[400px]"
+        v-if="container.isSwarm"
+      >
+        {{ container.swarmId }}
+      </div>
     </div>
-    <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
-    <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
+    <tag class="mobile-hidden">{{ container.image.replace(/@sha.*/, "") }}</tag>
+    <div class="cursor-pointer" @click="togglePinnedContainer(container.storageKey)">
       <carbon:star-filled v-if="pinned" />
       <carbon:star v-else />
-    </span>
+    </div>
   </div>
 </template>
 
@@ -24,26 +29,4 @@ const container = inject("container") as ComputedRef<Container>;
 const pinned = computed(() => pinnedContainers.value.has(container.value.storageKey));
 </script>
 
-<style lang="scss" scoped>
-.icon {
-  vertical-align: middle;
-}
-
-.name {
-  display: inline-flex;
-  .swarm-id {
-    max-width: 1.5em;
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: max-width 0.2s ease-in-out;
-    will-change: max-width;
-  }
-
-  &:hover {
-    .swarm-id {
-      max-width: 400px;
-    }
-  }
-}
-</style>
+<style scoped></style>
