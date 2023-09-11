@@ -1,5 +1,5 @@
 <template>
-  <div :class="level" :data-position="position"></div>
+  <div :data-level="level" :data-position="position" class="inline-block"></div>
 </template>
 <script lang="ts" setup>
 import { Position } from "@/models/LogEntry";
@@ -12,7 +12,6 @@ defineProps<{
 
 <style lang="postcss" scoped>
 div {
-  display: inline-block;
   width: 0.7em;
   height: 0.7em;
   border-radius: 0.5em;
@@ -37,26 +36,26 @@ div {
   &[data-position="end"] {
     border-radius: 0 0 0.5em 0.5em;
     height: 70%;
-    margin-top: -0.2em;
+    margin-top: -0.3em;
     align-self: flex-start;
   }
 
-  &.debug,
-  &.trace {
+  &[data-level="debug"],
+  &[data-level="trace"] {
     @apply bg-purple;
   }
 
-  &.info {
+  &[data-level="info"] {
     @apply bg-green;
   }
 
-  &.error,
-  &.fatal {
+  &[data-level="error"],
+  &[data-level="fatal"] {
     @apply bg-red;
   }
 
-  &.warn,
-  &.warning {
+  &[data-level="warn"],
+  &[data-level="warning"] {
     @apply bg-orange;
   }
 }

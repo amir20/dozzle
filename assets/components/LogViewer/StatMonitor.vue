@@ -1,13 +1,13 @@
 <template>
-  <div class="has-text-centered host relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
-    <div class="is-hidden-mobile flex overflow-hidden rounded-sm border border-primary px-px pb-px pt-1">
+  <div class="host relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+    <div class="mobile-hidden flex overflow-hidden rounded-sm border border-primary px-px pb-px pt-1">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
-    <div class="absolute left-1 top-0 rounded bg-scheme-main-bis text-sm">
-      <span class="has-text-weight-light">{{ label }}</span>
-      <span class="has-text-weight-bold select-none">
+    <div class="absolute -left-0.5 -top-2 inline-flex gap-1 rounded bg-scheme-main-bis p-px text-xs">
+      <div class="font-light uppercase">{{ label }}</div>
+      <div class="select-none font-bold">
         {{ mouseOver ? selectedPoint?.value ?? selectedPoint?.y ?? statValue : statValue }}
-      </span>
+      </div>
     </div>
   </div>
 </template>
@@ -25,28 +25,7 @@ let mouseOver = $ref(false);
 </script>
 
 <style lang="scss" scoped>
-.has-border {
-  border: 1px solid var(--primary-color);
-  border-radius: 3px;
-  padding: 1px 1px 0 1px;
-  display: flex;
-  overflow: hidden;
-  padding-top: 0.25em;
-}
-
-.has-background-body-color {
-  background-color: var(--body-background-color);
-}
-
 .host:hover span {
   color: var(--secondary-color);
-}
-
-@media screen and (min-width: 768px) {
-  .is-top-left {
-    position: absolute;
-    top: 0;
-    left: 0.75em;
-  }
 }
 </style>
