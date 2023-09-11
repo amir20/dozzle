@@ -35,7 +35,7 @@ declare module 'vue' {
     'Ic:sharpFindInPage': typeof import('~icons/ic/sharp-find-in-page')['default']
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
-    KeyShortcut: typeof import('./components/KeyShortcut.vue')['default']
+    KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     LogActionsToolbar: typeof import('./components/LogViewer/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogViewer/LogContainer.vue')['default']
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']

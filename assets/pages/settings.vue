@@ -93,7 +93,7 @@
       </div>
       <div class="item">
         <toggle v-model="search">
-          <span>{{ $t("settings.search") }}</span> <key-shortcut char="f"></key-shortcut>
+          <div>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></div>
         </toggle>
       </div>
 

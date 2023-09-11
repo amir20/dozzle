@@ -1,14 +1,14 @@
 <template>
-  <span class="icon-text">
-    <span class="icon mx-0" v-if="modifiers.includes('shift')">
+  <div class="inline-flex items-center">
+    <span v-if="modifiers.includes('shift')">
       <carbon:mac-shift />
     </span>
-    <span class="icon mx-0" v-if="modifiers.includes('meta')">
+    <span v-if="modifiers.includes('meta')">
       <ph:command v-if="isMac" />
       <ph:control-bold v-else />
     </span>
-    <kbd class="is-uppercase is-family-sans-serif ml-1">{{ char }}</kbd>
-  </span>
+    <kbd class="uppercase">{{ char }}</kbd>
+  </div>
 </template>
 
 <script lang="ts">
