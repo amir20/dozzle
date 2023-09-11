@@ -1,16 +1,15 @@
 <template>
-  <div class="rounded bg-scheme-main-ter px-1 py-[0.2em]" :size="size" :class="sizes[size]">
+  <div class="inline-flex items-center justify-center rounded bg-scheme-main-ter px-2 py-[0.2em] text-sm" :size="size">
     <slot></slot>
   </div>
 </template>
 
 <script lang="ts" setup>
 const { size = undefined } = defineProps<{ size?: "small" | undefined }>();
-const sizes = {
-  small: "text-xs",
-  medium: "text-sm",
-  large: "text-base",
-};
 </script>
 
-<style scoped></style>
+<style scoped lang="postcss">
+[size="small"] {
+  @apply text-xs;
+}
+</style>
