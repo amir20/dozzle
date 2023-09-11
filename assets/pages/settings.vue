@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <section class="section">
+  <div class="mt-10 flex flex-col gap-8 px-10">
+    <section>
       <div class="has-underline">
-        <h2 class="title is-4">{{ $t("settings.about") }}</h2>
+        <h2>{{ $t("settings.about") }}</h2>
       </div>
 
       <div>
@@ -14,9 +14,9 @@
       </div>
     </section>
 
-    <section class="section">
+    <section>
       <div class="has-underline">
-        <h2 class="title is-4">{{ $t("settings.display") }}</h2>
+        <h2>{{ $t("settings.display") }}</h2>
       </div>
 
       <div class="item">
@@ -87,9 +87,9 @@
         </div>
       </div>
     </section>
-    <section class="section">
+    <section>
       <div class="has-underline">
-        <h2 class="title is-4">{{ $t("settings.options") }}</h2>
+        <h2>{{ $t("settings.options") }}</h2>
       </div>
       <div class="item">
         <toggle v-model="search">
@@ -145,11 +145,7 @@ async function fetchNextRelease() {
 
 fetchNextRelease();
 </script>
-<style lang="scss" scoped>
-.title {
-  color: var(--title-color);
-}
-
+<style lang="postcss" scoped>
 a.next-release {
   text-decoration: underline;
 
@@ -158,14 +154,12 @@ a.next-release {
   }
 }
 
-.section {
-  padding: 1rem 1.5rem;
-}
-
 .has-underline {
-  border-bottom: 1px solid var(--border-color);
-  padding: 1em 0px;
-  margin-bottom: 1em;
+  @apply mb-4 border-b border-scheme-inverted py-4;
+
+  h2 {
+    @apply text-3xl;
+  }
 }
 
 .item {

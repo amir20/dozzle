@@ -7,7 +7,7 @@
   --scheme-inverted-color: theme("colors.grey-lightest");
   --scheme-inverted-bis-color: theme("colors.grey-darker");
   --scheme-inverted-ter-color: theme("colors.grey");
-  --primary-color: theme("colors.turquoise");
+  --primary-color: theme("colors.turquoise.DEFAULT");
   --secondary-color: theme("colors.yellow");
 }
 
@@ -18,7 +18,7 @@
   --scheme-inverted-color: theme("colors.grey");
   --scheme-inverted-bis-color: theme("colors.grey-lighter");
   --scheme-inverted-ter-color: theme("colors.grey-lightest");
-  --primary-color: theme("colors.turquoise");
+  --primary-color: theme("colors.turquoise.DEFAULT");
   --secondary-color: theme("colors.yellow");
 }
 

@@ -3,7 +3,7 @@
     <summary class="btn border-none bg-primary hover:bg-primary-focus">
       {{ values[modelValue] }} <carbon:caret-down />
     </summary>
-    <ul class="menu dropdown-content rounded-box z-50 w-52 p-2 shadow bg-scheme-main">
+    <ul class="menu dropdown-content rounded-box z-50 w-52 bg-scheme-main p-2 shadow">
       <li v-for="item in options">
         <a @click="modelValue = item.value" class="hover:bg-primary"> {{ item.label }} </a>
       </li>
@@ -36,5 +36,3 @@ const details = ref<HTMLElement | null>(null);
 const close = () => details.value?.removeAttribute("open");
 watch(modelValue, () => close());
 </script>
-
-<style scoped lang="scss"></style>

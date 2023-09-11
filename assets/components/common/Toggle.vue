@@ -3,7 +3,7 @@
     <input
       type="checkbox"
       class="toggle bg-primary"
-      style="--tglbg: var(--scheme-main-ter)"
+      style="--tglbg: var(--scheme-main-ter-color)"
       :checked="modelValue"
       @click="toggle()"
     />
