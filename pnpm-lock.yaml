@@ -75,7 +75,7 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^3.6.5
+    specifier: ^3.7.3
     version: 3.7.5(ts-node@10.9.1)
   date-fns:
     specifier: ^2.30.0
