@@ -1,10 +1,10 @@
 <template>
   <transition name="fade">
-    <div class="scroll-progress pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
+    <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
         <circle r="44" cx="50" cy="50" />
       </svg>
-      <div class="s-2 absolute inset-0 flex items-center justify-center font-light">
+      <div class="absolute inset-0 flex items-center justify-center font-light">
         <template v-if="indeterminate">
           <div class="text-4xl">&#8734;</div>
         </template>
@@ -55,30 +55,28 @@ watchPostEffect(() => {
 });
 </script>
 <style scoped lang="scss">
-.scroll-progress {
-  svg {
-    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
-    margin-top: 5px;
-    &.indeterminate {
-      animation: 2s linear infinite svg-animation;
+svg {
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
+  margin-top: 5px;
+  &.indeterminate {
+    animation: 2s linear infinite svg-animation;
 
-      circle {
-        animation: 1.4s ease-in-out infinite both circle-animation;
-      }
-    }
     circle {
-      fill: var(--scheme-main-ter);
-      fill-opacity: 0.8;
-      transition: stroke-dashoffset 250ms ease-out;
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-      stroke: var(--primary-color);
-      stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
-      stroke-dasharray: 276.32px 276.32px;
-      stroke-linecap: round;
-      stroke-width: 3;
-      will-change: stroke-dashoffset;
+      animation: 1.4s ease-in-out infinite both circle-animation;
     }
+  }
+  circle {
+    fill: var(--scheme-main-ter-color);
+    fill-opacity: 0.8;
+    transition: stroke-dashoffset 250ms ease-out;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke: var(--primary-color);
+    stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
+    stroke-dasharray: 276.32px 276.32px;
+    stroke-linecap: round;
+    stroke-width: 3;
+    will-change: stroke-dashoffset;
   }
 }
 
