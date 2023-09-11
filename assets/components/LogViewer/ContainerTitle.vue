@@ -1,6 +1,6 @@
 <template>
-  <div class="columns is-marginless has-text-weight-bold is-family-monospace">
-    <div class="column is-ellipsis">
+  <div class="has-text-weight-bold is-family-monospace flex">
+    <div class="flex truncate">
       <container-health :health="container.health" v-if="container.health"></container-health>
       <div class="name">
         <span v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile"

@@ -1,19 +1,16 @@
 <template>
-  <div class="tag" :size="size">
+  <div class="rounded bg-scheme-main-ter px-1 py-[0.2em]" :size="size" :class="sizes[size]">
     <slot></slot>
   </div>
 </template>
 
 <script lang="ts" setup>
 const { size = undefined } = defineProps<{ size?: "small" | undefined }>();
+const sizes = {
+  small: "text-xs",
+  medium: "text-sm",
+  large: "text-base",
+};
 </script>
 
-<style scoped lang="scss">
-.tag {
-  background-color: var(--scheme-main-ter);
-  border: 1px solid var(--border-color);
-  &[size="small"] {
-    font-size: 0.61rem;
-  }
-}
-</style>
+<style scoped></style>

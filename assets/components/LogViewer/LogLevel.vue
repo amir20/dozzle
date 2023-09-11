@@ -43,21 +43,21 @@ div {
 
   &.debug,
   &.trace {
-    background-color: var(--purple-color);
+    @apply bg-purple;
   }
 
   &.info {
-    background-color: var(--green-color);
+    @apply bg-green;
   }
 
   &.error,
   &.fatal {
-    background-color: var(--red-color);
+    @apply bg-red;
   }
 
   &.warn,
   &.warning {
-    background-color: var(--orange-color);
+    @apply bg-orange;
   }
 }
 </style>

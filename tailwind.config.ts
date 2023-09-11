@@ -23,7 +23,6 @@ export default {
         "white-ter": "hsl(0, 0%, 96%)",
         "white-bis": "hsl(0, 0%, 98%)",
         white: "hsl(0, 0%, 100%)",
-        "scheme-bis": "var(--scheme-main-bis)",
         green: "#00b5ad",
         red: "#f44336",
         purple: "#9c27b0",

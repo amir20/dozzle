@@ -1,18 +1,18 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="columns is-mobile is-vcentered is-marginless has-boxshadow mr-0">
-        <div class="column is-clipped is-paddingless">
+      <div class="flex items-center">
+        <div class="">
           <container-title @close="$emit('close')" />
         </div>
-        <div class="column is-narrow is-paddingless">
+        <div class="ml-auto">
           <container-stat />
         </div>
 
-        <div class="column is-narrow is-paddingless is-hidden-mobile mr-2">
+        <div class="">
           <log-actions-toolbar @clear="onClearClicked()" />
         </div>
-        <div class="column is-narrow is-paddingless mr-2" v-if="closable">
+        <div class="" v-if="closable">
           <button class="delete is-medium" @click="close()"></button>
         </div>
       </div>

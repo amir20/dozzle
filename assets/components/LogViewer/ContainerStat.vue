@@ -1,17 +1,11 @@
 <template>
-  <div class="is-size-7 is-uppercase columns is-marginless is-mobile is-vcentered" v-if="container.stat">
+  <div class="flex" v-if="container.stat">
     <stat-monitor
-      class="column is-narrow"
       :data="memoryData"
       label="mem"
       :stat-value="formatBytes(unref(container.stat).memoryUsage)"
     ></stat-monitor>
-    <stat-monitor
-      class="column is-narrow"
-      :data="cpuData"
-      label="load"
-      :stat-value="unref(container.stat).cpu + '%'"
-    ></stat-monitor>
+    <stat-monitor :data="cpuData" label="load" :stat-value="unref(container.stat).cpu + '%'"></stat-monitor>
   </div>
 </template>
 
