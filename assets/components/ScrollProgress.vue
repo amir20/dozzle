@@ -2,7 +2,7 @@
   <transition name="fade">
     <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-        <circle r="44" cx="50" cy="50" />
+        <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
       </svg>
       <div class="absolute inset-0 flex items-center justify-center font-light">
         <template v-if="indeterminate">
@@ -66,12 +66,10 @@ svg {
     }
   }
   circle {
-    fill: var(--scheme-main-ter-color);
-    fill-opacity: 0.8;
+    fill-opacity: 0.75;
     transition: stroke-dashoffset 250ms ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
-    stroke: var(--primary-color);
     stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
     stroke-dasharray: 276.32px 276.32px;
     stroke-linecap: round;
