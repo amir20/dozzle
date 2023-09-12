@@ -1,27 +1,23 @@
 @import "splitpanes/dist/splitpanes.css";
 
 @define-mixin light {
-  --scheme-main-color: theme("colors.white");
-  --scheme-main-bis-color: theme("colors.white-bis");
-  --scheme-main-ter-color: theme("colors.white-ter");
-  --scheme-inverted-color: theme("colors.grey-lightest");
-  --scheme-inverted-bis-color: theme("colors.grey-darker");
-  --scheme-inverted-ter-color: theme("colors.grey");
-  --primary-color: theme("colors.turquoise.DEFAULT");
-  --primary-focus-color: theme("colors.turquoise.dark");
-  --secondary-color: theme("colors.yellow");
+  --base-lighter-color: 0 0% 100%;
+  --base-color: 0 0% 97%;
+  --base-darker-color: 0 0% 90%;
+  --base-content-color: 0 0% 21%;
+  --primary-color: 171 100% 41%;
+  --primary-focus-color: 171 100% 31%;
+  --secondary-color: 44 100% 77%;
 }
 
 @define-mixin dark {
-  --scheme-main-color: theme("colors.black");
-  --scheme-main-bis-color: theme("colors.black-bis");
-  --scheme-main-ter-color: theme("colors.black-ter");
-  --scheme-inverted-color: theme("colors.grey");
-  --scheme-inverted-bis-color: theme("colors.grey-lighter");
-  --scheme-inverted-ter-color: theme("colors.grey-lightest");
-  --primary-color: theme("colors.turquoise.DEFAULT");
-  --primary-focus-color: theme("colors.turquoise.dark");
-  --secondary-color: theme("colors.yellow");
+  --base-lighter-color: 0 0% 14%;
+  --base-color: 0 0% 7%;
+  --base-darker-color: 0 0% 4%;
+  --base-content-color: 0 0% 86%;
+  --primary-color: 171 100% 41%;
+  --primary-focus-color: 171 100% 31%;
+  --secondary-color: 44 100% 77%;
 }
 
 @tailwind base;
@@ -29,6 +25,13 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --p: var(--primary-color);
+    --pf: var(--primary-focus-color);
+    --pc: 0 0% 100%;
+    --b1: var(--base-lighter-color);
+    --bc: var(--base-content-color);
+  }
   html[data-theme="dark"] {
     @mixin dark;
   }
@@ -44,6 +47,18 @@
     html {
       @mixin light;
     }
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-lg;
   }
 }
 

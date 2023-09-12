@@ -146,28 +146,11 @@ async function fetchNextRelease() {
 fetchNextRelease();
 </script>
 <style lang="postcss" scoped>
-a.next-release {
-  text-decoration: underline;
-
-  &:hover {
-    text-decoration: none;
-  }
-}
-
 .has-underline {
-  @apply mb-4 border-b border-scheme-inverted py-4;
-
-  h2 {
-    @apply text-3xl;
-  }
+  @apply mb-4 border-b border-base-content/50 py-4;
 }
 
 .item {
   padding: 1em 0;
-}
-
-code {
-  border-radius: 4px;
-  background-color: #444;
 }
 </style>

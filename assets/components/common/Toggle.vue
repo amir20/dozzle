@@ -2,8 +2,7 @@
   <label class="label inline-flex cursor-pointer gap-4 font-normal">
     <input
       type="checkbox"
-      class="toggle bg-primary hover:bg-primary-focus"
-      style="--tglbg: var(--scheme-main-ter-color)"
+      class="toggle toggle-primary hover:bg-primary-focus"
       :checked="modelValue"
       @click="toggle()"
     />
