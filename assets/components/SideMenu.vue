@@ -11,40 +11,39 @@
       </ul>
     </nav>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
-      <ul class="menu-list" v-if="!sessionHost">
+      <ul class="menu" v-if="!sessionHost">
         <li v-for="host in config.hosts">
           <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="menu-list" v-else>
-        <li v-for="item in menuItems" :key="item.id" :class="item.state" :data-label="item.id">
-          <div class="menu-label mb-3 mt-4" v-if="isLabel(item)">
+      <transition-group tag="ul" name="list" class="menu" v-else>
+        <li
+          v-for="item in menuItems"
+          :key="item.id"
+          :class="isLabel(item) ? 'menu-title' : item.state"
+          :data-label="item.id"
+        >
+          <template v-if="isLabel(item)">
             {{ item.label }}
-          </div>
+          </template>
           <popup v-else>
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
               active-class="is-active"
               :title="item.name"
             >
-              <div class="is-flex is-align-items-center container">
-                <div class="is-flex-grow-1 is-ellipsis">
-                  <span>{{ item.name }}</span
-                  ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
-                </div>
-                <div class="is-flex-shrink-1 is-flex icons">
-                  <div
-                    class="icon is-small pin"
-                    @click.stop.prevent="store.appendActiveContainer(item)"
-                    v-show="!activeContainersById[item.id]"
-                    :title="$t('tooltip.pin-column')"
-                  >
-                    <cil:columns />
-                  </div>
+              <span>{{ item.name }}</span
+              ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
+              <span
+                class="pin"
+                @click.stop.prevent="store.appendActiveContainer(item)"
+                v-show="!activeContainersById[item.id]"
+                :title="$t('tooltip.pin-column')"
+              >
+                <cil:columns />
+              </span>
 
-                  <container-health :health="item.health"></container-health>
-                </div>
-              </div>
+              <container-health :health="item.health"></container-health>
             </router-link>
             <template #content>
               <container-popup :container="item"></container-popup>
@@ -163,7 +162,7 @@ a {
 
   &:hover {
     .pin {
-      display: block;
+      display: inline-block;
     }
   }
 }
