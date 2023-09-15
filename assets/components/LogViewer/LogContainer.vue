@@ -1,15 +1,15 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="flex items-center">
+      <div class="mx-2 flex items-center gap-2">
         <container-title @close="$emit('close')" />
         <container-stat class="ml-auto" />
 
-        <div class="">
+        <!-- <div class="">
           <log-actions-toolbar @clear="onClearClicked()" />
-        </div>
-        <div class="" v-if="closable">
-          <button class="delete is-medium" @click="close()"></button>
+        </div> -->
+        <div class="btn btn-circle btn-outline btn-xs" @click="close()" v-if="closable">
+          <mdi:close />
         </div>
       </div>
     </template>

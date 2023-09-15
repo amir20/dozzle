@@ -1,22 +1,23 @@
 <template>
   <div v-if="ready">
-    <nav class="breadcrumb menu-label" aria-label="breadcrumbs">
-      <ul v-if="sessionHost">
-        <li>
-          <a href="#" @click.prevent="setHost(null)">{{ hosts[sessionHost].name }}</a>
+    <div class="breadcrumbs text-sm">
+      <ul>
+        <li><a @click.prevent="setHost(null)">Hosts</a></li>
+        <li v-if="sessionHost && hosts[sessionHost]">
+          {{ hosts[sessionHost].name }}
         </li>
       </ul>
-      <ul v-else>
-        <li>Hosts</li>
-      </ul>
-    </nav>
+    </div>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
-      <ul class="menu" v-if="!sessionHost">
+      <ul class="menu p-0" v-if="!sessionHost">
         <li v-for="host in config.hosts">
-          <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
+          <a @click.prevent="setHost(host.id)">
+            <ph:computer-tower />
+            {{ host.name }}</a
+          >
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="menu" v-else>
+      <transition-group tag="ul" name="list" class="menu p-0 [&_li.menu-title]:px-0" v-else>
         <li
           v-for="item in menuItems"
           :key="item.id"
@@ -32,8 +33,9 @@
               active-class="is-active"
               :title="item.name"
             >
-              <span>{{ item.name }}</span
-              ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
+              <div class="truncate">
+                {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
+              </div>
               <span
                 class="pin"
                 @click.stop.prevent="store.appendActiveContainer(item)"

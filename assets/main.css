@@ -30,6 +30,8 @@
     --pf: var(--primary-focus-color);
     --pc: 0 0% 100%;
     --b1: var(--base-lighter-color);
+    --b2: var(--base-color);
+    --b3: var(--base-darker-color);
     --bc: var(--base-content-color);
   }
   html[data-theme="dark"] {
