@@ -1,5 +1,10 @@
 <template>
   <main v-if="!authorizationNeeded">
+    <dialog ref="modal" class="modal items-start bg-white/20 pt-20 backdrop:backdrop-blur-sm">
+      <div class="modal-box bg-transparent shadow-none">
+        <FuzzySearchModal @close="modal?.close()" />
+      </div>
+    </dialog>
     <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
@@ -44,14 +49,12 @@
 <script lang="ts" setup>
 // @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
-import { useProgrammatic } from "@oruga-ui/oruga-next";
-import FuzzySearchModal from "@/components/FuzzySearchModal.vue";
-
-const { oruga } = useProgrammatic();
 const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
 const { activeContainers } = storeToRefs(containerStore);
+
+const modal = ref<HTMLDialogElement>();
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
@@ -61,13 +64,7 @@ onKeyStroke("k", (e) => {
 });
 
 function showFuzzySearch() {
-  oruga.modal.open({
-    // parent: this,
-    component: FuzzySearchModal,
-    animation: "false",
-    width: 600,
-    active: true,
-  });
+  modal.value?.showModal();
 }
 function collapse() {
   collapseNav.value = !collapseNav.value;
@@ -93,10 +90,6 @@ function onResized(e: any) {
   .router-view {
     padding-top: 75px;
   }
-}
-
-.button.has-no-border {
-  border-color: transparent !important;
 }
 
 .has-min-height {

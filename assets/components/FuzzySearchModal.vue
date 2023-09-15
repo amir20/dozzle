@@ -1,24 +1,20 @@
 <template>
-  <div class="panel">
-    <o-autocomplete
-      ref="autocomplete"
+  <div class="dropdown w-full">
+    <input
+      tabindex="0"
+      class="input input-primary w-full bg-base-lighter"
+      autofocus
       v-model="query"
       :placeholder="$t('placeholder.search-containers')"
-      open-on-focus
-      keep-first
-      expanded
-      :data="data"
-      @select="selected"
-    >
-      <template #default="{ option: item }">
-        <div class="media">
-          <div class="media-left">
-            <span class="icon is-small" :class="item.state">
-              <octicon:container-24 />
-            </span>
+    />
+    <ul tabindex="0" class="menu dropdown-content rounded-box !relative w-full bg-base-100 p-2">
+      <li v-for="item in data">
+        <a class="flex gap-2" @click.prevent="selected(item)">
+          <div>
+            <octicon:container-24 />
           </div>
-          <div class="media-content">{{ item.host }} / {{ item.name }}</div>
-          <div class="media-right">
+          <div>{{ item.host }} / {{ item.name }}</div>
+          <div class="ml-auto">
             <span
               class="icon is-small column-icon"
               @click.stop.prevent="addColumn(item)"
@@ -27,9 +23,9 @@
               <cil:columns />
             </span>
           </div>
-        </div>
-      </template>
-    </o-autocomplete>
+        </a>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -37,7 +33,7 @@
 import { Container } from "@/models/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { maxResults: resultLimit = 20 } = defineProps<{
+const { maxResults: resultLimit = 15 } = defineProps<{
   maxResults?: number;
 }>();
 
@@ -82,7 +78,8 @@ const data = computed(() => {
         return 0;
       }
     })
-    .map(({ item }) => item);
+    .map(({ item }) => item)
+    .slice(0, resultLimit);
 });
 watchOnce(autocomplete, () => autocomplete.value?.focus());
 
