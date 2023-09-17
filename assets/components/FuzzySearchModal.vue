@@ -7,22 +7,20 @@
       v-model="query"
       :placeholder="$t('placeholder.search-containers')"
     />
-    <ul tabindex="0" class="menu dropdown-content rounded-box !relative w-full bg-base-100 p-2">
+    <ul tabindex="0" class="menu dropdown-content rounded-box !relative mt-2 w-full bg-base-lighter p-2">
       <li v-for="item in data">
         <a class="flex gap-2" @click.prevent="selected(item)">
           <div>
             <octicon:container-24 />
           </div>
           <div>{{ item.host }} / {{ item.name }}</div>
-          <div class="ml-auto">
-            <span
-              class="icon is-small column-icon"
-              @click.stop.prevent="addColumn(item)"
-              :title="$t('tooltip.pin-column')"
-            >
-              <cil:columns />
-            </span>
-          </div>
+          <a
+            @click.stop.prevent="addColumn(item)"
+            :title="$t('tooltip.pin-column')"
+            class="ml-auto hover:text-secondary"
+          >
+            <cil:columns />
+          </a>
         </a>
       </li>
     </ul>
@@ -85,56 +83,22 @@ watchOnce(autocomplete, () => autocomplete.value?.focus());
 
 function selected({ id }: { id: string }) {
   router.push({ name: "container-id", params: { id } });
+  query.value = "";
   close();
 }
 function addColumn(container: Container) {
   store.appendActiveContainer(container);
+  query.value = "";
   close();
 }
 </script>
 
-<style lang="scss" scoped>
-.panel {
-  min-height: 400px;
-  width: 580px;
-}
-
-@media screen and (max-width: 768px) {
-  .panel {
-    min-height: 200px;
-    width: auto;
-    margin-left: 0.25rem !important;
-    margin-right: 0.25rem !important;
-  }
-}
-
+<style scoped>
 .running {
   color: var(--primary-color);
 }
 
 .exited {
   color: var(--scheme-main-ter);
-}
-
-.column-icon {
-  &:hover {
-    color: var(--secondary-color);
-  }
-}
-
-:deep(a.dropdown-item) {
-  padding-right: 1em;
-
-  .media-right {
-    visibility: hidden;
-  }
-
-  &:hover .media-right {
-    visibility: visible;
-  }
-}
-
-.icon {
-  vertical-align: middle;
 }
 </style>
