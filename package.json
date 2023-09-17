@@ -40,6 +40,7 @@
   "@vueuse/components": "^10.4.1",
   "@vueuse/core": "^10.4.1",
   "@vueuse/integrations": "^10.4.1",
+  "@vueuse/math": "^10.4.1",
   "@vueuse/router": "^10.4.1",
   "ansi-to-html": "^0.7.2",
   "autoprefixer": "^10.4.15",

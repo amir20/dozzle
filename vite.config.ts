@@ -52,7 +52,7 @@ export default defineConfig(() => ({
       dts: "assets/components.d.ts",
     }),
     AutoImport({
-      imports: ["vue", "vue-router", "vue-i18n", "vue/macros", "pinia", "@vueuse/head", "@vueuse/core"],
+      imports: ["vue", "vue-router", "vue-i18n", "vue/macros", "pinia", "@vueuse/head", "@vueuse/core", "@vueuse/math"],
       dts: "assets/auto-imports.d.ts",
       dirs: ["assets/composables", "assets/stores", "assets/utils"],
       vueTemplate: true,

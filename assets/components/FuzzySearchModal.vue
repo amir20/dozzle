@@ -1,24 +1,24 @@
 <template>
-  <div class="dropdown w-full">
+  <div class="dropdown dropdown-open w-full">
     <input
       tabindex="0"
       class="input input-primary w-full bg-base-lighter"
-      autofocus
+      ref="input"
+      @keyup.down="selectedIndex++"
       v-model="query"
       :placeholder="$t('placeholder.search-containers')"
     />
     <ul tabindex="0" class="menu dropdown-content rounded-box !relative mt-2 w-full bg-base-lighter p-2">
-      <li v-for="item in data">
-        <a class="flex gap-2" @click.prevent="selected(item)">
-          <div>
+      <li v-for="(item, index) in data">
+        <a class="flex gap-2" @click.prevent="selected(item)" :class="index === selectedIndex ? 'focus' : ''">
+          <div :class="{ 'text-primary': item.state === 'running' }">
             <octicon:container-24 />
           </div>
-          <div>{{ item.host }} / {{ item.name }}</div>
-          <a
-            @click.stop.prevent="addColumn(item)"
-            :title="$t('tooltip.pin-column')"
-            class="ml-auto hover:text-secondary"
-          >
+          <div>
+            <span class="font-light">{{ item.host }}</span> / {{ item.name }}
+          </div>
+          <distance-time :date="item.created" class="ml-auto text-xs font-light" />
+          <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
             <cil:columns />
           </a>
         </a>
@@ -38,7 +38,9 @@ const { maxResults: resultLimit = 15 } = defineProps<{
 const close = defineEmit();
 
 const query = ref("");
-const autocomplete = ref<HTMLElement>();
+const input = ref<HTMLInputElement>();
+const selectedIndex = ref(0);
+
 const router = useRouter();
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
@@ -79,7 +81,14 @@ const data = computed(() => {
     .map(({ item }) => item)
     .slice(0, resultLimit);
 });
-watchOnce(autocomplete, () => autocomplete.value?.focus());
+
+watch(data, (data) => {
+  if (data.length > 0) {
+    selectedIndex.value = 0;
+  }
+});
+
+onMounted(() => input.value?.focus());
 
 function selected({ id }: { id: string }) {
   router.push({ name: "container-id", params: { id } });

@@ -1,9 +1,12 @@
 <template>
   <main v-if="!authorizationNeeded">
-    <dialog ref="modal" class="modal items-start bg-white/20 pt-20 backdrop:backdrop-blur-sm">
-      <div class="modal-box bg-transparent shadow-none">
-        <FuzzySearchModal @close="modal?.close()" />
+    <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm">
+      <div class="modal-box bg-transparent pt-20 shadow-none">
+        <FuzzySearchModal @close="open = false" v-if="open" />
       </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
     <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
@@ -12,7 +15,7 @@
       </pane>
       <pane min-size="10">
         <splitpanes>
-          <pane class="has-min-height router-view">
+          <pane class="router-view min-h-screen">
             <router-view></router-view>
           </pane>
           <template v-if="!isMobile">
@@ -55,6 +58,11 @@ const containerStore = useContainerStore();
 const { activeContainers } = storeToRefs(containerStore);
 
 const modal = ref<HTMLDialogElement>();
+const open = ref(false);
+
+useEventListener(modal, "close", () => (open.value = false));
+whenever(open, () => modal.value?.showModal());
+whenever(logicNot(open), () => modal.value?.close());
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
@@ -64,8 +72,9 @@ onKeyStroke("k", (e) => {
 });
 
 function showFuzzySearch() {
-  modal.value?.showModal();
+  open.value = true;
 }
+
 function collapse() {
   collapseNav.value = !collapseNav.value;
 }
@@ -76,24 +85,15 @@ function onResized(e: any) {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="postcss">
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  min-width: 3px;
-  background: var(--border-color);
-
-  &:hover {
-    background: var(--border-hover-color);
-  }
+  @apply min-w-[3px] bg-base-lighter hover:bg-secondary;
 }
 
 @media screen and (max-width: 768px) {
   .router-view {
     padding-top: 75px;
   }
-}
-
-.has-min-height {
-  min-height: 100vh;
 }
 
 #hide-nav {
