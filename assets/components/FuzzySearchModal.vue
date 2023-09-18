@@ -69,7 +69,7 @@ const list = computed(() => {
 });
 
 const { results } = useFuse(query, list, {
-  fuseOptions: { keys: ["name"], includeScore: true },
+  fuseOptions: { keys: ["name", "host"], includeScore: true },
   resultLimit,
   matchAllWhenSearchEmpty: true,
 });
