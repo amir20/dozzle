@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@headlessui/vue':
-    specifier: ^1.7.16
-    version: 1.7.16(vue@3.3.4)
   '@iconify-json/carbon':
     specifier: ^1.1.21
     version: 1.1.21
@@ -29,12 +26,6 @@ dependencies:
   '@intlify/unplugin-vue-i18n':
     specifier: ^1.2.0
     version: 1.2.0(vue-i18n@9.4.1)
-  '@oruga-ui/oruga-next':
-    specifier: ^0.6.0
-    version: 0.6.0(vue@3.3.4)
-  '@oruga-ui/theme-bulma':
-    specifier: ^0.2.11
-    version: 0.2.11
   '@vueuse/components':
     specifier: ^10.4.1
     version: 10.4.1(vue@3.3.4)
@@ -56,9 +47,6 @@ dependencies:
   autoprefixer:
     specifier: ^10.4.15
     version: 10.4.15(postcss@8.4.29)
-  bulma:
-    specifier: ^0.9.4
-    version: 0.9.4
   d3-array:
     specifier: ^3.2.4
     version: 3.2.4
@@ -671,15 +659,6 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@headlessui/vue@1.7.16(vue@3.3.4):
-    resolution: {integrity: sha512-nKT+nf/q6x198SsyK54mSszaQl/z+QxtASmgMEJtpxSX2Q0OPJX0upS/9daDyiECpeAsvjkoOrm2O/6PyBQ+Qg==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      vue: ^3.2.0
-    dependencies:
-      vue: 3.3.4
-    dev: false
-
   /@iconify-json/carbon@1.1.21:
     resolution: {integrity: sha512-bK2cMVM4noBU+FGlay433flpXLRzQu0ED095iAnoO6ka3yb4uz0lvb8acpN5gthyGLJ89C4HpfIbQZLQnMKQww==}
     dependencies:
@@ -894,20 +873,6 @@ packages:
   /@one-ini/wasm@0.1.1:
     resolution: {integrity: sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==}
     dev: true
-
-  /@oruga-ui/oruga-next@0.6.0(vue@3.3.4):
-    resolution: {integrity: sha512-M1Y5PgCWBUDmQGH74cgzrp3vKaRFdHVtGNr0DwejeJGScB7Q6jodW4xgCz6K4hajLgHW6zxz/3ukpC4ZczlfaQ==}
-    peerDependencies:
-      vue: ^3.0.0
-    dependencies:
-      vue: 3.3.4
-    dev: false
-
-  /@oruga-ui/theme-bulma@0.2.11:
-    resolution: {integrity: sha512-yMYNTWDNZQ0qyzAlWVyvEO/ZDRjRIyPDTf58IL+OVJuVCsq1Nn/4nFltemuQA1foL6KpsqXMFT9pBTf4wQHMPw==}
-    dependencies:
-      bulma: 0.9.4
-    dev: false
 
   /@pinia/testing@0.1.3(pinia@2.1.6)(vue@3.3.4):
     resolution: {integrity: sha512-D2Ds2s69kKFaRf2KCcP1NhNZEg5+we59aRyQalwRm7ygWfLM25nDH66267U3hNvRUOTx8ofL24GzodZkOmB5xw==}
@@ -1926,10 +1891,6 @@ packages:
       electron-to-chromium: 1.4.523
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11(browserslist@4.21.10)
-    dev: false
-
-  /bulma@0.9.4:
-    resolution: {integrity: sha512-86FlT5+1GrsgKbPLRRY7cGDg8fsJiP/jzTqXXVqiUZZ2aZT8uemEOHlU1CDU+TxklPEZ11HZNNWclRBBecP4CQ==}
     dev: false
 
   /bumpp@9.2.0:
