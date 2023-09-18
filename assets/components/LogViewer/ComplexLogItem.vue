@@ -42,7 +42,7 @@ const validValues = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .fields {
   display: inline-block;
   list-style: none;

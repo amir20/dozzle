@@ -103,7 +103,7 @@ const hosts = computed(() =>
   config.hosts.map(({ id, name }) => ({ value: id, label: name }) as { value: string; label: string }),
 );
 </script>
-<style scoped lang="scss">
+<style scoped lang="postcss">
 aside {
   padding: 1em;
   position: fixed;

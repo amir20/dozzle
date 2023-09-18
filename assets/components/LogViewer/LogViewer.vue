@@ -65,7 +65,7 @@ watch(
   { immediate: true, flush: "post" },
 );
 </script>
-<style scoped lang="scss">
+<style scoped lang="postcss">
 .events {
   padding: 1em 0;
   font-family:

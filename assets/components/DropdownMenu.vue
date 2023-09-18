@@ -19,7 +19,7 @@
 
 <script lang="ts" setup></script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 .minimal .button {
   background-color: rgba(0, 0, 0, 0);
   border: none;

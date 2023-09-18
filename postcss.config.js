@@ -3,6 +3,6 @@ module.exports = {
     "postcss-mixins": {},
     "tailwindcss/nesting": {},
     tailwindcss: {},
-    // autoprefixer: {},
+    autoprefixer: {},
   },
 };

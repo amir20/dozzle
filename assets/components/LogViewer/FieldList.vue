@@ -1,5 +1,5 @@
 <template>
-  <ul v-if="expanded" ref="root">
+  <ul v-if="expanded" ref="root" class="ml-8">
     <li v-for="(value, name) in fields">
       <template v-if="isObject(value)">
         <span class="has-text-grey">{{ name }}=</span>
@@ -67,9 +67,3 @@ function fieldIndex(field: string) {
   return visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
 }
 </script>
-
-<style lang="scss" scoped>
-ul {
-  margin-left: 2em;
-}
-</style>
