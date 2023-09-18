@@ -4,7 +4,7 @@
       <div class="column is-paddingless">
         <h1>
           <router-link :to="{ name: 'index' }">
-            <svg class="fill-secondary w-28 h-14">
+            <svg class="h-14 w-28 fill-secondary">
               <use href="#logo"></use>
             </svg>
           </router-link>

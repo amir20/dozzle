@@ -1,25 +1,37 @@
 <template>
   <div class="dropdown dropdown-open w-full">
-    <input
-      tabindex="0"
-      class="input input-primary w-full bg-base-lighter"
-      ref="input"
-      @keyup.down="selectedIndex++"
-      v-model="query"
-      :placeholder="$t('placeholder.search-containers')"
-    />
+    <div class="input input-primary flex h-auto items-center">
+      <mdi:light-magnify class="flex h-8 w-8" />
+      <input
+        tabindex="0"
+        class="input input-ghost input-lg flex-1 px-1 focus:outline-none"
+        ref="input"
+        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
+        @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
+        @keypress.enter="selected(data[selectedIndex])"
+        v-model="query"
+        :placeholder="$t('placeholder.search-containers')"
+      />
+      <mdi:keyboard-esc class="flex" />
+    </div>
     <ul tabindex="0" class="menu dropdown-content rounded-box !relative mt-2 w-full bg-base-lighter p-2">
       <li v-for="(item, index) in data">
-        <a class="flex gap-2" @click.prevent="selected(item)" :class="index === selectedIndex ? 'focus' : ''">
+        <a
+          class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
+          @click.prevent="selected(item)"
+          @mouseenter="selectedIndex = index"
+          :class="index === selectedIndex ? 'focus' : ''"
+        >
           <div :class="{ 'text-primary': item.state === 'running' }">
             <octicon:container-24 />
           </div>
-          <div>
+          <div class="truncate">
             <span class="font-light">{{ item.host }}</span> / {{ item.name }}
           </div>
           <distance-time :date="item.created" class="ml-auto text-xs font-light" />
           <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
-            <cil:columns />
+            <ic:sharp-keyboard-return v-if="index === selectedIndex" />
+            <cil:columns v-else />
           </a>
         </a>
       </li>
@@ -28,10 +40,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { maxResults: resultLimit = 15 } = defineProps<{
+const { maxResults: resultLimit = 5 } = defineProps<{
   maxResults?: number;
 }>();
 
@@ -82,7 +93,7 @@ const data = computed(() => {
     .slice(0, resultLimit);
 });
 
-watch(data, (data) => {
+watch(query, (data) => {
   if (data.length > 0) {
     selectedIndex.value = 0;
   }
@@ -95,16 +106,20 @@ function selected({ id }: { id: string }) {
   query.value = "";
   close();
 }
-function addColumn(container: Container) {
+function addColumn(container: { id: string }) {
   store.appendActiveContainer(container);
   query.value = "";
   close();
 }
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .running {
   color: var(--primary-color);
+}
+
+.menu .focus {
+  @apply bg-primary/80 text-primary-content;
 }
 
 .exited {

@@ -1,7 +1,7 @@
 <template>
   <main v-if="!authorizationNeeded">
     <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm">
-      <div class="modal-box bg-transparent pt-20 shadow-none">
+      <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
         <FuzzySearchModal @close="open = false" v-if="open" />
       </div>
       <form method="dialog" class="modal-backdrop">
