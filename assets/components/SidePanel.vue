@@ -13,10 +13,14 @@
     </h1>
 
     <div class="mt-4 flex gap-4">
-      <router-link :to="{ name: 'settings' }" :aria-label="$t('title.settings')">
+      <router-link
+        :to="{ name: 'settings' }"
+        :aria-label="$t('title.settings')"
+        class="btn btn-circle btn-outline btn-sm"
+      >
         <mdi:light-cog />
       </router-link>
-      <a :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured">
+      <a :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured" class="btn btn-circle btn-outline btn-sm">
         <mdi:light-logout />
       </a>
     </div>

@@ -124,7 +124,7 @@ const container = inject("container") as ComputedRef<Container>;
 const streamConfig = inject("stream-config") as { stdout: boolean; stderr: boolean };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .level-left .level-item {
   width: 2.2em;
   align-items: center;

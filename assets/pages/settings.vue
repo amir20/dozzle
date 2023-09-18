@@ -14,90 +14,70 @@
       </div>
     </section>
 
-    <section>
+    <section class="flex flex-col gap-4">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <div class="item">
+      <div>
         <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
       </div>
-      <div class="item">
+      <div>
         <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
       </div>
-      <div class="item">
+      <div>
         <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
       </div>
 
-      <div class="item">
+      <div>
         <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
       </div>
 
-      <div class="item">
-        <div class="columns is-vcentered">
-          <div class="column is-narrow">
-            <o-field>
-              <dropdown
-                v-model="hourStyle"
-                :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: '12', value: '12' },
-                  { label: '24', value: '24' },
-                ]"
-              />
-            </o-field>
-          </div>
-          <div class="column">
-            {{ $t("settings.12-24-format") }}
-          </div>
-        </div>
+      <div class="flex items-center gap-6">
+        <dropdown
+          v-model="hourStyle"
+          :options="[
+            { label: 'Auto', value: 'auto' },
+            { label: '12', value: '12' },
+            { label: '24', value: '24' },
+          ]"
+        />
+        {{ $t("settings.12-24-format") }}
       </div>
-      <div class="item">
-        <div class="columns is-vcentered">
-          <div class="column is-narrow">
-            <o-field>
-              <dropdown
-                v-model="size"
-                :options="[
-                  { label: 'Small', value: 'small' },
-                  { label: 'Medium', value: 'medium' },
-                  { label: 'Large', value: 'large' },
-                ]"
-              />
-            </o-field>
-          </div>
-          <div class="column">{{ $t("settings.font-size") }}</div>
-        </div>
+      <div class="flex items-center gap-6">
+        <dropdown
+          v-model="size"
+          :options="[
+            { label: 'Small', value: 'small' },
+            { label: 'Medium', value: 'medium' },
+            { label: 'Large', value: 'large' },
+          ]"
+        />
+        {{ $t("settings.font-size") }}
       </div>
-      <div class="item">
-        <div class="columns is-vcentered">
-          <div class="column is-narrow">
-            <o-field>
-              <dropdown
-                v-model="lightTheme"
-                :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: 'Dark', value: 'dark' },
-                  { label: 'Light', value: 'light' },
-                ]"
-              />
-            </o-field>
-          </div>
-          <div class="column">{{ $t("settings.color-scheme") }}</div>
-        </div>
+      <div class="flex items-center gap-6">
+        <dropdown
+          v-model="lightTheme"
+          :options="[
+            { label: 'Auto', value: 'auto' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Light', value: 'light' },
+          ]"
+        />
+        {{ $t("settings.color-scheme") }}
       </div>
     </section>
-    <section>
+    <section class="flex flex-col gap-2">
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
-      <div class="item">
+      <div>
         <toggle v-model="search">
           <div>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></div>
         </toggle>
       </div>
 
-      <div class="item">
+      <div>
         <toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</toggle>
       </div>
     </section>
@@ -148,9 +128,5 @@ fetchNextRelease();
 <style lang="postcss" scoped>
 .has-underline {
   @apply mb-4 border-b border-base-content/50 py-4;
-}
-
-.item {
-  padding: 1em 0;
 }
 </style>
