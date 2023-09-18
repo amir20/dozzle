@@ -64,6 +64,12 @@
   }
 }
 
+@layer components {
+  .input {
+    @apply focus:outline-none;
+  }
+}
+
 @layer utilities {
   @media (max-width: 768px) {
     .mobile-hidden {

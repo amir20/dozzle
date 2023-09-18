@@ -4,7 +4,7 @@
       <mdi:light-magnify class="flex h-8 w-8" />
       <input
         tabindex="0"
-        class="input input-ghost input-lg flex-1 px-1 focus:outline-none"
+        class="input input-ghost input-lg flex-1 px-1"
         ref="input"
         @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
