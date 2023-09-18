@@ -58,7 +58,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v4
         with:
           load: true
           set: |
