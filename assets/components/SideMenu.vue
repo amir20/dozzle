@@ -13,8 +13,8 @@
         <li v-for="host in config.hosts">
           <a @click.prevent="setHost(host.id)">
             <ph:computer-tower />
-            {{ host.name }}</a
-          >
+            {{ host.name }}
+          </a>
         </li>
       </ul>
       <transition-group tag="ul" name="list" class="menu p-0 [&_li.menu-title]:px-0" v-else>
