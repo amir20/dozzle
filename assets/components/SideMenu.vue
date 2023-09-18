@@ -55,9 +55,10 @@
       </transition-group>
     </transition>
   </div>
-  <ul class="menu-list is-hidden-mobile has-light-opacity" v-else>
-    <li v-for="index in 7" class="my-4"><o-skeleton animated size="large" :key="index"></o-skeleton></li>
-  </ul>
+  <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
+    <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50" v-for="_ in 9"></div>
+    <span class="sr-only">Loading...</span>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -139,26 +140,13 @@ const activeContainersById = computed(() =>
   ),
 );
 </script>
-<style scoped lang="scss">
-.has-light-opacity {
-  opacity: 0.5;
-}
-
-li.exited a,
-li.dead a {
-  color: #777;
-}
-
-.icons {
-  column-gap: 0.35em;
-  align-items: baseline;
-}
+<style scoped lang="postcss">
 a {
   .pin {
     display: none;
 
     &:hover {
-      color: var(--secondary-color);
+      @apply text-secondary;
     }
   }
 

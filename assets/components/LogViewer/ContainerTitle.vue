@@ -28,5 +28,3 @@ import { type ComputedRef } from "vue";
 const container = inject("container") as ComputedRef<Container>;
 const pinned = computed(() => pinnedContainers.value.has(container.value.storageKey));
 </script>
-
-<style scoped></style>

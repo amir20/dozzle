@@ -24,5 +24,3 @@ defineProps<{
 const { markSearch } = useSearchFilter();
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 </script>
-
-<style lang="scss" scoped></style>

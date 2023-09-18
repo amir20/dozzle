@@ -37,5 +37,3 @@ const memoryData = computedWithControl(
   },
 );
 </script>
-
-<style scoped></style>

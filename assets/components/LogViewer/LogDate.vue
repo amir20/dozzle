@@ -8,5 +8,3 @@ defineProps<{
   date: Date;
 }>();
 </script>
-
-<style scoped></style>

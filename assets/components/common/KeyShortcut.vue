@@ -17,9 +17,3 @@ const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 <script lang="ts" setup>
 const { modifiers = ["meta"], char } = defineProps<{ char: string; modifiers?: ("^" | "meta" | "shift")[] }>();
 </script>
-
-<style scoped lang="scss">
-.icon {
-  width: unset;
-}
-</style>

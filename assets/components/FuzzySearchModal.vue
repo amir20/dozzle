@@ -113,16 +113,4 @@ function addColumn(container: { id: string }) {
 }
 </script>
 
-<style scoped lang="postcss">
-.running {
-  color: var(--primary-color);
-}
-
-.menu .focus {
-  @apply bg-primary/80 text-primary-content;
-}
-
-.exited {
-  color: var(--scheme-main-ter);
-}
-</style>
+<style scoped lang="postcss"></style>

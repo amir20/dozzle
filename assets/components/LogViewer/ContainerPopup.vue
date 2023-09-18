@@ -22,5 +22,3 @@ const { container } = defineProps<{
   container: Container;
 }>();
 </script>
-
-<style lang="scss" scoped></style>

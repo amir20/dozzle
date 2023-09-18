@@ -8,9 +8,9 @@
         <!-- <div class="">
           <log-actions-toolbar @clear="onClearClicked()" />
         </div> -->
-        <div class="btn btn-circle btn-outline btn-xs" @click="close()" v-if="closable">
+        <a class="btn btn-circle btn-outline btn-xs" @click="close()" v-if="closable">
           <mdi:close />
-        </div>
+        </a>
       </div>
     </template>
     <template #default="{ setLoading }">
