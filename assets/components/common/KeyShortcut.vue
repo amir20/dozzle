@@ -1,12 +1,12 @@
 <template>
   <div class="inline-flex items-center">
-    <span v-if="modifiers.includes('shift')">
+    <template v-if="modifiers.includes('shift')">
       <carbon:mac-shift />
-    </span>
-    <span v-if="modifiers.includes('meta')">
-      <ph:command v-if="isMac" />
-      <ph:control-bold v-else />
-    </span>
+    </template>
+    <template v-if="modifiers.includes('meta')">
+      <ph:command v-if="isMac" class="h-4 w-4" />
+      <ph:control-bold v-else class="h-4 w-4" />
+    </template>
     <kbd class="uppercase">{{ char }}</kbd>
   </div>
 </template>
