@@ -74,15 +74,15 @@ function setLoading(value: boolean) {
   loading = value;
 }
 </script>
-<style scoped>
+<style scoped lang="postcss">
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease-out !important;
+  @apply transition-opacity;
 }
 
-.fade-enter,
+.fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+  @apply opacity-0;
 }
 </style>
 

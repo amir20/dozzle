@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade">
+  <transition name="fadeout">
     <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
         <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
@@ -105,11 +105,11 @@ svg {
   }
 }
 
-.fade-leave-active {
-  transition: opacity 0.2s ease-in-out;
+.fadeout-leave-active {
+  @apply transition-opacity;
 }
 
-.fade-leave-to {
+.fadeout-leave-to {
   opacity: 0;
 }
 </style>

@@ -1,19 +1,11 @@
 <template>
-  <main v-if="!authorizationNeeded">
-    <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm">
-      <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
-        <FuzzySearchModal @close="open = false" v-if="open" />
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+  <div v-if="!authorizationNeeded">
     <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
         <side-panel @search="showFuzzySearch"></side-panel>
       </pane>
-      <pane min-size="10">
+      <pane min-size="10" class="drawer-content">
         <splitpanes>
           <pane class="router-view min-h-screen">
             <router-view></router-view>
@@ -34,19 +26,22 @@
     </splitpanes>
     <button
       @click="collapse"
-      class="button is-small is-rounded"
-      :class="{ collapsed: collapseNav }"
-      id="hide-nav"
+      class="btn btn-circle fixed bottom-8 left-4"
+      :class="{ '-left-3': collapseNav }"
       v-if="!isMobile"
     >
-      <span class="icon ml-2" v-if="collapseNav">
-        <mdi:light-chevron-right />
-      </span>
-      <span class="icon" v-else>
-        <mdi:light-chevron-left />
-      </span>
+      <mdi:light-chevron-right v-if="collapseNav" />
+      <mdi:light-chevron-left v-else />
     </button>
-  </main>
+  </div>
+  <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm">
+    <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
+      <FuzzySearchModal @close="open = false" v-if="open" />
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 </template>
 
 <script lang="ts" setup>
@@ -93,24 +88,6 @@ function onResized(e: any) {
 @media screen and (max-width: 768px) {
   .router-view {
     padding-top: 75px;
-  }
-}
-
-#hide-nav {
-  position: fixed;
-  left: 10px;
-  bottom: 10px;
-
-  &.collapsed {
-    left: -40px;
-    width: 60px;
-    padding-left: 40px;
-    color: var(--text-strong-color);
-    background: var(--scheme-main);
-
-    &:hover {
-      left: -25px;
-    }
   }
 }
 </style>

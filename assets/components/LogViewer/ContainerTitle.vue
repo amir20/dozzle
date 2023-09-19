@@ -14,10 +14,11 @@
       </div>
     </div>
     <tag class="mobile-hidden font-mono" size="small">{{ container.image.replace(/@sha.*/, "") }}</tag>
-    <div class="inline-flex cursor-pointer" @click="togglePinnedContainer(container.storageKey)">
-      <carbon:star-filled v-if="pinned" />
-      <carbon:star v-else />
-    </div>
+    <label class="swap swap-rotate">
+      <input type="checkbox" v-model="pinned" />
+      <carbon:star-filled class="swap-on" />
+      <carbon:star class="swap-off" />
+    </label>
   </div>
 </template>
 
@@ -26,5 +27,14 @@ import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
-const pinned = computed(() => pinnedContainers.value.has(container.value.storageKey));
+const pinned = computed({
+  get: () => pinnedContainers.value.has(container.value.storageKey),
+  set: (value) => {
+    if (value) {
+      pinnedContainers.value.add(container.value.storageKey);
+    } else {
+      pinnedContainers.value.delete(container.value.storageKey);
+    }
+  },
+});
 </script>
