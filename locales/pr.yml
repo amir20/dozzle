@@ -36,6 +36,7 @@ title:
 button:
   logout: Terminar sessão
   login: Iniciar sessão
+  settings: Configurações
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
 settings:

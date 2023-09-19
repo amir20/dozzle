@@ -37,6 +37,7 @@ title:
 button:
   logout: Logout
   login: Login
+  settings: Settings
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
 settings:

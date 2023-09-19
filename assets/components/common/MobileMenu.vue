@@ -11,7 +11,7 @@
         <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
           <mdi:light-magnify class="h-5 w-5" />
         </a>
-        <label class="swap-rotate btn btn-circle swap">
+        <label class="btn btn-circle swap swap-rotate">
           <input type="checkbox" v-model="show" />
           <mdi:close class="swap-on" />
           <mdi:hamburger-menu class="swap-off" />
@@ -21,34 +21,29 @@
 
     <transition name="fade">
       <div v-show="show">
-        <div v-if="config.hosts.length > 1">
-          <!-- <dropdown v-model="sessionHost" :options="hosts" /> -->
-        </div>
-
-        <div class="level-item has-text-centered">
-          <div>
-            <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-small is-rounded">
-              <span class="icon">
-                <mdi:light-cog />
-              </span>
-            </router-link>
-          </div>
-        </div>
-        <div class="level-item has-text-centered" v-if="secured">
-          <div>
-            <a class="button is-small is-rounded" :href="`${base}/logout`" :title="$t('button.logout')">
-              <span class="icon">
-                <mdi:light-logout />
-              </span>
-            </a>
-          </div>
+        <div class="mt-4 flex items-center justify-center gap-2">
+          <dropdown
+            v-model="sessionHost"
+            :options="hosts"
+            defaultLabel="Hosts"
+            class="btn-sm"
+            v-if="config.hosts.length > 1"
+          />
+          <router-link :to="{ name: 'settings' }" class="btn btn-outline btn-sm">
+            <mdi:light-cog /> {{ $t("button.settings") }}
+          </router-link>
+          <a class="btn btn-outline btn-sm" :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured">
+            <mdi:light-logout /> {{ $t("button.logout") }}
+          </a>
         </div>
 
         <ul class="menu">
+          <li class="menu-title">{{ $t("label.containers") }}</li>
           <li v-for="item in sortedContainers" :key="item.id">
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
-              active-class="active truncate"
+              active-class="active-primary"
+              class="truncate"
               :title="item.name"
             >
               {{ item.name }}

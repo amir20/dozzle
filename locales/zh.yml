@@ -36,6 +36,7 @@ title:
 button:
   logout: 退出
   login: 登录
+  settings: 设置
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
 settings:

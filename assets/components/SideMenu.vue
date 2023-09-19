@@ -30,7 +30,7 @@
           <popup v-else>
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
-              active-class="active bg-primary text-primary-content "
+              active-class="active-primary"
               :title="item.name"
             >
               <div class="truncate">

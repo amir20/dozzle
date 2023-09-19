@@ -1,7 +1,9 @@
 <template>
   <details class="dropdown" ref="details" v-on-click-outside="close">
-    <summary class="med btn btn-primary font-normal">{{ values[modelValue] }} <carbon:caret-down /></summary>
-    <ul class="menu dropdown-content rounded-box z-50 w-52 bg-base p-2 shadow">
+    <summary class="btn btn-primary font-normal" v-bind="$attrs">
+      {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down />
+    </summary>
+    <ul class="dropdown-content menu rounded-box z-50 w-52 bg-base p-2 shadow">
       <li v-for="item in options">
         <a @click="modelValue = item.value"> {{ item.label }} </a>
       </li>
@@ -15,7 +17,7 @@ type DropdownItem = {
   label: string;
   value: string;
 };
-const { options } = defineProps<{ options: DropdownItem[] }>();
+const { options, defaultLabel = "" } = defineProps<{ options: DropdownItem[]; defaultLabel: string }>();
 const { modelValue } = defineModels<{
   modelValue: string;
 }>();

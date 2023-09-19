@@ -36,6 +36,7 @@ title:
 button:
   logout: Выйти
   login: Войти
+  settings: Настройки
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
 settings:

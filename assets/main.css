@@ -95,4 +95,10 @@
       display: none;
     }
   }
+
+  .active-primary {
+    --n: var(--p);
+    --nc: var(--pc);
+    @apply active;
+  }
 }
