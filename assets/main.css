@@ -18,6 +18,7 @@
   --primary-color: 171 100% 41%;
   --primary-focus-color: 171 100% 31%;
   --secondary-color: 44 100% 77%;
+  --secondary-focus-color: 44 100% 67%;
 }
 
 @tailwind base;
@@ -29,6 +30,9 @@
     --p: var(--primary-color);
     --pf: var(--primary-focus-color);
     --pc: 0 0% 100%;
+    --s: var(--secondary-color);
+    --sf: var(--secondary-focus-color);
+    --sc: 0 0% 4%;
     --b1: var(--base-lighter-color);
     --b2: var(--base-color);
     --b3: var(--base-darker-color);
