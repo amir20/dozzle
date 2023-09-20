@@ -156,6 +156,9 @@ a {
     }
   }
 }
+li.exited {
+  @apply opacity-50;
+}
 
 .slide-left-enter-active,
 .slide-left-leave-active,
@@ -166,22 +169,22 @@ a {
 
 .slide-left-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(20px);
 }
 
 .slide-right-enter-from {
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-20px);
 }
 
 .slide-left-leave-to {
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-20px);
 }
 
 .slide-right-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(20px);
 }
 
 .list-move,

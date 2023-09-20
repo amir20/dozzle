@@ -160,4 +160,8 @@ tbody td {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+a {
+  @apply hover:text-primary;
+}
 </style>

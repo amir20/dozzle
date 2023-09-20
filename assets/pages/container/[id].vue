@@ -6,10 +6,12 @@
     :scrollable="activeContainers.length > 0"
     v-if="currentContainer"
   ></log-container>
-  <div v-else-if="ready" class="notification is-warning is-light m-6">
-    <h1 class="title">
-      {{ $t("error.container-not-found") }}
-    </h1>
+  <div v-else-if="ready" class="hero min-h-screen bg-base-200">
+    <div class="hero-content text-center">
+      <div class="max-w-md">
+        <p class="py-6 text-2xl font-bold">{{ $t("error.container-not-found") }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
