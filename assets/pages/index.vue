@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-16 px-8 pt-8">
     <section>
-      <div class="stats grid shadow bg-scheme">
+      <div class="bg-scheme stats grid shadow">
         <div class="stat">
           <div class="stat-value">{{ runningContainers.length }} / {{ containers.length }}</div>
           <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
@@ -68,7 +68,7 @@ watchEffect(() => {
   }
 });
 </script>
-<style lang="css" scoped>
+<style lang="postcss" scoped>
 :deep(tr td) {
   padding-top: 1em;
   padding-bottom: 1em;
@@ -76,6 +76,14 @@ watchEffect(() => {
 
 .stat > div {
   @apply text-center;
+}
+
+.stat-value {
+  @apply font-light;
+}
+
+.stat-title {
+  @apply font-light;
 }
 
 .section + .section {
