@@ -1,10 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
@@ -23,25 +23,27 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
@@ -60,25 +62,27 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
@@ -97,25 +101,27 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">This is a message.</div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">This is a message.</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
@@ -134,25 +140,27 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"2\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"2\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#2\\">
@@ -171,25 +179,27 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\"><mark>test</mark> bar</div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\"><mark>test</mark> bar</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > render html correctly > should render messages with html entities 1`] = `
-"<ul data-v-2e92daca=\\"\\" class=\\"events medium\\">
-  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"\\">
+"<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\">
+  <li data-v-2e92daca=\\"\\" data-key=\\"1\\" class=\\"flex px-4 py-1\\">
     <div data-v-2e92daca=\\"\\" class=\\"line-options\\" style=\\"display: none;\\">
-      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"dropdown is-hoverable is-last is-top minimal\\">
+      <div data-v-539164cb=\\"\\" data-v-2e92daca=\\"\\" class=\\"is-hoverable dropdown is-last is-top minimal\\">
         <div data-v-539164cb=\\"\\" class=\\"dropdown-trigger\\"><button data-v-539164cb=\\"\\" class=\\"button\\" aria-haspopup=\\"true\\" aria-controls=\\"dropdown-menu\\"><span data-v-539164cb=\\"\\" class=\\"icon\\"><svg data-v-539164cb=\\"\\" viewBox=\\"0 0 24 24\\" width=\\"1.2em\\" height=\\"1.2em\\"><path fill=\\"currentColor\\" d=\\"M12 16a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2Z\\"></path></svg></span></button></div>
         <div data-v-539164cb=\\"\\" class=\\"dropdown-menu\\" id=\\"dropdown-menu\\" role=\\"menu\\">
           <div data-v-539164cb=\\"\\" class=\\"dropdown-content\\"><a data-v-2e92daca=\\"\\" class=\\"dropdown-item\\" href=\\"#1\\">
@@ -208,30 +218,25 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         </div>
       </div>
     </div>
-    <div data-v-a49e52d4=\\"\\" data-v-2e92daca=\\"\\" class=\\"columns is-1 is-variable is-mobile\\" visible-keys=\\"\\">
+    <div data-v-2e92daca=\\"\\" class=\\"flex gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow\\">
-        <div data-v-de513450=\\"\\" data-v-a49e52d4=\\"\\" class=\\"date\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"is-hidden-mobile\\">06/12/2019</time> <time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+      <div>
+        <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
+          <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        </div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"column is-narrow is-flex\\">
-        <div data-v-e625cddd=\\"\\" data-v-a49e52d4=\\"\\" class=\\"\\"></div>
+      <div class=\\"flex\\">
+        <div data-v-e625cddd=\\"\\" class=\\"inline-block\\"></div>
       </div>
-      <div data-v-a49e52d4=\\"\\" class=\\"text column\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
     </div>
   </li>
 </ul>"
 `;
 
 exports[`<LogEventSource /> > renders correctly 1`] = `
-"<div data-v-1cd63c6e=\\"\\" class=\\"infinte-loader\\">
-  <div data-v-1cd63c6e=\\"\\" class=\\"spinner\\" style=\\"display: none;\\">
-    <div data-v-1cd63c6e=\\"\\" class=\\"bounce1\\"></div>
-    <div data-v-1cd63c6e=\\"\\" class=\\"bounce2\\"></div>
-    <div data-v-1cd63c6e=\\"\\" class=\\"bounce3\\"></div>
-  </div>
-</div>
-
-<ul data-v-2e92daca=\\"\\" class=\\"events medium\\"></ul>"
+"<div class=\\"flex min-h-[1px] justify-center\\"><span class=\\"loading loading-bars loading-md mt-4 text-primary\\" style=\\"display: none;\\"></span></div>
+<ul data-v-2e92daca=\\"\\" class=\\"events group medium\\"></ul>"
 `;
 
 exports[`<LogEventSource /> > should parse messages 1`] = `
