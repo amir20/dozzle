@@ -146,11 +146,15 @@ function isVisible(field: keys) {
     transform: rotate(180deg);
   }
 }
-.selected-sort {
-  font-weight: bold;
-  @apply border-b border-primary;
-  [data-icon] {
-    display: inline-block;
+
+th {
+  @apply border-b-2 border-base-lighter;
+  &.selected-sort {
+    font-weight: bold;
+    @apply border-primary;
+    [data-icon] {
+      display: inline-block;
+    }
   }
 }
 
