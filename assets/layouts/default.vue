@@ -34,7 +34,7 @@
       <mdi:light-chevron-left v-else />
     </button>
   </div>
-  <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm">
+  <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm" @close="open = false">
     <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="open = false" v-if="open" />
     </div>
@@ -55,9 +55,13 @@ const { activeContainers } = storeToRefs(containerStore);
 const modal = ref<HTMLDialogElement>();
 const open = ref(false);
 
-useEventListener(modal, "close", () => (open.value = false));
-whenever(open, () => modal.value?.showModal());
-whenever(logicNot(open), () => modal.value?.close());
+watch(open, () => {
+  if (open.value) {
+    modal.value?.showModal();
+  } else {
+    modal.value?.close();
+  }
+});
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {

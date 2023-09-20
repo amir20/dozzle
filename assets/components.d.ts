@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
+    'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
@@ -54,6 +55,8 @@ declare module 'vue' {
     'Mdi:lightMagnify': typeof import('~icons/mdi-light/magnify')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']
+    'Octicon:download24': typeof import('~icons/octicon/download24')['default']
+    'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
     'Ph:command': typeof import('~icons/ph/command')['default']
     'Ph:computerTower': typeof import('~icons/ph/computer-tower')['default']
     'Ph:controlBold': typeof import('~icons/ph/control-bold')['default']
