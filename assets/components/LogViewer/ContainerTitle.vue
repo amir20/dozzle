@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center gap-2">
+  <div class="flex flex-1 items-center gap-2 truncate">
     <container-health :health="container.health" v-if="container.health"></container-health>
-    <div class="inline-flex truncate font-mono text-sm">
+    <div class="inline-flex font-mono text-sm">
       <div v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
         {{ container.hostLabel }}<span class="mx-2">/</span>
       </div>

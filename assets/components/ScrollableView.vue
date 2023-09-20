@@ -1,5 +1,5 @@
 <template>
-  <section :class="{ 'h-screen min-h-0': scrollable }" class="grid grid-rows-[auto_1fr]">
+  <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col">
     <header
       v-if="$slots.header"
       class="sticky top-[70px] border-b border-base-content/10 bg-base py-2 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0"

@@ -1,8 +1,8 @@
 <template>
   <div class="dropdown dropdown-end dropdown-hover">
-    <label tabindex="0" class="btn btn-ghost flex-col gap-0">
-      <carbon:circle-solid class="w-3 text-red" v-if="streamConfig.stderr" />
-      <carbon:circle-solid class="w-3 text-blue" v-if="streamConfig.stdout" />
+    <label tabindex="0" class="btn btn-ghost btn-sm gap-0.5 px-2">
+      <carbon:circle-solid class="w-2.5 text-red" v-if="streamConfig.stderr" />
+      <carbon:circle-solid class="w-2.5 text-blue" v-if="streamConfig.stdout" />
     </label>
     <ul tabindex="0" class="menu dropdown-content rounded-box z-50 w-52 bg-base p-1 shadow">
       <li>
