@@ -30,7 +30,7 @@
             streamConfig.stderr = true;
           "
         >
-          <div class="flex h-4 w-4 flex-col gap-1">
+          <div class="flex h-4 w-4 gap-0.5">
             <template v-if="streamConfig.stderr && streamConfig.stdout">
               <carbon:circle-solid class="w-2 text-red" />
               <carbon:circle-solid class="w-2 text-blue" />

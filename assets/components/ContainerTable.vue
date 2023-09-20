@@ -1,6 +1,6 @@
 !
 <template>
-  <table class="bg-scheme table table-lg">
+  <table class="table table-lg bg-base">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th
@@ -44,15 +44,18 @@
       </tr>
     </tbody>
   </table>
-  <nav class="pagination is-right" role="navigation" aria-label="pagination" v-if="isPaginated">
-    <ul class="pagination-list">
-      <li v-for="i in totalPages">
-        <a class="pagination-link" :class="{ 'is-current': i === currentPage }" @click.prevent="currentPage = i">{{
-          i
-        }}</a>
-      </li>
-    </ul>
-  </nav>
+  <div class="p-4 text-center">
+    <nav class="join" v-if="isPaginated">
+      <button
+        v-for="i in totalPages"
+        class="btn join-item"
+        :class="{ 'btn-primary': i === currentPage }"
+        @click="currentPage = i"
+      >
+        {{ i }}
+      </button>
+    </nav>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -145,7 +148,7 @@ function isVisible(field: keys) {
 }
 .selected-sort {
   font-weight: bold;
-  @apply border-primary;
+  @apply border-b border-primary;
   [data-icon] {
     display: inline-block;
   }
