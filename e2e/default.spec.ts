@@ -16,7 +16,7 @@ test("has dashboard text", async ({ page }) => {
 });
 
 test("click on settings button", async ({ page }) => {
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByTestId("settings").click();
   await expect(page.getByRole("heading", { name: "About" })).toBeVisible();
 });
 
@@ -34,6 +34,6 @@ test.describe("es locale", () => {
   test.use({ locale: "es" });
 
   test("translated text", async ({ page }) => {
-    await expect(page.locator("[data-label=all].label")).toHaveText("Contenedores");
+    await expect(page.getByTestId("containers")).toHaveText("Contenedores");
   });
 });

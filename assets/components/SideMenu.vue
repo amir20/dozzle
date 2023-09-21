@@ -1,5 +1,5 @@
 <template>
-  <div v-if="ready">
+  <div v-if="ready" data-testid="side-menu">
     <div class="breadcrumbs text-sm">
       <ul>
         <li><a @click.prevent="setHost(null)">Hosts</a></li>
@@ -17,12 +17,12 @@
           </a>
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="menu p-0 [&_li.menu-title]:px-0" v-else>
+      <transition-group tag="ul" name="list" class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
         <li
           v-for="item in menuItems"
           :key="item.id"
           :class="isLabel(item) ? 'menu-title' : item.state"
-          :data-label="item.id"
+          :data-testid="item.id"
         >
           <template v-if="isLabel(item)">
             {{ item.label }}
@@ -106,7 +106,7 @@ const groupedContainers = computed(() =>
 
 type MenuLabel = { label: string; id: string; state: string };
 const pinnedLabel = { label: t("label.pinned"), id: "pinned", state: "label" } as MenuLabel;
-const allLabel = { label: t("label.containers"), id: "all", state: "label" } as MenuLabel;
+const allLabel = { label: t("label.containers"), id: "containers", state: "label" } as MenuLabel;
 
 function isLabel(item: Container | MenuLabel): item is MenuLabel {
   return (item as MenuLabel).label !== undefined;
@@ -141,7 +141,8 @@ const activeContainersById = computed(() =>
 );
 </script>
 <style scoped lang="postcss">
-a {
+.containers a {
+  @apply auto-cols-[auto_max-content];
   .pin {
     display: none;
 
