@@ -5,7 +5,7 @@
         <container-title @close="$emit('close')" />
         <container-stat class="ml-auto" />
 
-        <log-actions-toolbar @clear="onClearClicked()" />
+        <log-actions-toolbar @clear="onClearClicked()" class="mobile-hidden" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
           <mdi:close />
         </a>

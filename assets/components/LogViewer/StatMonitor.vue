@@ -3,7 +3,7 @@
     <div class="mobile-hidden flex overflow-hidden rounded-sm border border-primary px-px pb-px pt-1">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
-    <div class="absolute -left-0.5 -top-2 inline-flex gap-1 rounded bg-base p-px text-xs">
+    <div class="inline-flex gap-1 rounded bg-base p-px text-xs lg:absolute lg:-left-0.5 lg:-top-2">
       <div class="font-light uppercase">{{ label }}</div>
       <div class="select-none font-bold">
         {{ mouseOver ? selectedPoint?.value ?? selectedPoint?.y ?? statValue : statValue }}

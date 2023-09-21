@@ -5,7 +5,7 @@
       <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
         <side-panel @search="showFuzzySearch"></side-panel>
       </pane>
-      <pane min-size="10" class="drawer-content">
+      <pane min-size="10">
         <splitpanes>
           <pane class="router-view min-h-screen">
             <router-view></router-view>
