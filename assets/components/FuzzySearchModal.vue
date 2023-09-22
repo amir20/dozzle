@@ -74,9 +74,15 @@ const { results } = useFuse(query, list, {
     keys: ["name", "host"],
     includeScore: true,
     useExtendedSearch: true,
-    sortFn: (a, b) => {
+  },
+  resultLimit,
+  matchAllWhenSearchEmpty: true,
+});
+
+const data = computed(() => {
+  return results.value
+    .sort((a, b) => {
       if (a.score === b.score) {
-        // @ts-ignore
         if (a.item.state === "running" && b.item.state !== "running") {
           return -1;
         } else {
@@ -87,14 +93,9 @@ const { results } = useFuse(query, list, {
       } else {
         return 0;
       }
-    },
-  },
-  resultLimit,
-  matchAllWhenSearchEmpty: true,
-});
-
-const data = computed(() => {
-  return results.value.map(({ item }) => item).slice(0, resultLimit);
+    })
+    .map(({ item }) => item)
+    .slice(0, resultLimit);
 });
 
 watch(query, (data) => {
