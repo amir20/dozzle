@@ -1,5 +1,5 @@
 <template>
-  <span class="text" :data-event="logEntry.event" v-html="logEntry.message"></span>
+  <span class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></span>
 </template>
 <script lang="ts" setup>
 import { DockerEventLogEntry } from "@/models/LogEntry";
@@ -9,16 +9,11 @@ defineProps<{
 }>();
 </script>
 
-<style lang="scss" scoped>
-span {
-  &[data-event="container-stopped"] {
-    color: #f14668;
-  }
-  &[data-event="container-started"] {
-    color: hsl(141, 53%, 53%);
-  }
-  &.text {
-    white-space: pre-wrap;
-  }
+<style lang="postcss" scoped>
+[data-event="container-stopped"] {
+  @apply text-red;
+}
+[data-event="container-started"] {
+  @apply text-green;
 }
 </style>

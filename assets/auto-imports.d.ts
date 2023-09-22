@@ -29,9 +29,11 @@ declare global {
   const controlledRef: typeof import('@vueuse/core')['controlledRef']
   const createApp: typeof import('vue')['createApp']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
+  const createGenericProjection: typeof import('@vueuse/math')['createGenericProjection']
   const createGlobalState: typeof import('@vueuse/core')['createGlobalState']
   const createInjectionState: typeof import('@vueuse/core')['createInjectionState']
   const createPinia: typeof import('pinia')['createPinia']
+  const createProjection: typeof import('@vueuse/math')['createProjection']
   const createReactiveFn: typeof import('@vueuse/core')['createReactiveFn']
   const createReusableTemplate: typeof import('@vueuse/core')['createReusableTemplate']
   const createSharedComposable: typeof import('@vueuse/core')['createSharedComposable']
@@ -60,12 +62,14 @@ declare global {
   const isDefined: typeof import('@vueuse/core')['isDefined']
   const isMobile: typeof import('./composables/media')['isMobile']
   const isObject: typeof import('./utils/index')['isObject']
-  const isPinnedContainer: typeof import('./composables/storage')['isPinnedContainer']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const lightTheme: typeof import('./composables/settings')['lightTheme']
+  const logicAnd: typeof import('@vueuse/math')['logicAnd']
+  const logicNot: typeof import('@vueuse/math')['logicNot']
+  const logicOr: typeof import('@vueuse/math')['logicOr']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const mapActions: typeof import('pinia')['mapActions']
   const mapGetters: typeof import('pinia')['mapGetters']
@@ -141,7 +145,6 @@ declare global {
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
-  const togglePinnedContainer: typeof import('./composables/storage')['togglePinnedContainer']
   const triggerRef: typeof import('vue')['triggerRef']
   const tryOnBeforeMount: typeof import('@vueuse/core')['tryOnBeforeMount']
   const tryOnBeforeUnmount: typeof import('@vueuse/core')['tryOnBeforeUnmount']
@@ -151,6 +154,7 @@ declare global {
   const unref: typeof import('vue')['unref']
   const unrefElement: typeof import('@vueuse/core')['unrefElement']
   const until: typeof import('@vueuse/core')['until']
+  const useAbs: typeof import('@vueuse/math')['useAbs']
   const useActiveElement: typeof import('@vueuse/core')['useActiveElement']
   const useAnimate: typeof import('@vueuse/core')['useAnimate']
   const useArrayDifference: typeof import('@vueuse/core')['useArrayDifference']
@@ -168,6 +172,7 @@ declare global {
   const useAsyncQueue: typeof import('@vueuse/core')['useAsyncQueue']
   const useAsyncState: typeof import('@vueuse/core')['useAsyncState']
   const useAttrs: typeof import('vue')['useAttrs']
+  const useAverage: typeof import('@vueuse/math')['useAverage']
   const useBase64: typeof import('@vueuse/core')['useBase64']
   const useBattery: typeof import('@vueuse/core')['useBattery']
   const useBluetooth: typeof import('@vueuse/core')['useBluetooth']
@@ -175,6 +180,8 @@ declare global {
   const useBroadcastChannel: typeof import('@vueuse/core')['useBroadcastChannel']
   const useBrowserLocation: typeof import('@vueuse/core')['useBrowserLocation']
   const useCached: typeof import('@vueuse/core')['useCached']
+  const useCeil: typeof import('@vueuse/math')['useCeil']
+  const useClamp: typeof import('@vueuse/math')['useClamp']
   const useClipboard: typeof import('@vueuse/core')['useClipboard']
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
@@ -213,6 +220,7 @@ declare global {
   const useFetch: typeof import('@vueuse/core')['useFetch']
   const useFileDialog: typeof import('@vueuse/core')['useFileDialog']
   const useFileSystemAccess: typeof import('@vueuse/core')['useFileSystemAccess']
+  const useFloor: typeof import('@vueuse/math')['useFloor']
   const useFocus: typeof import('@vueuse/core')['useFocus']
   const useFocusWithin: typeof import('@vueuse/core')['useFocusWithin']
   const useFps: typeof import('@vueuse/core')['useFps']
@@ -234,10 +242,13 @@ declare global {
   const useLogStream: typeof import('./composables/eventsource')['useLogStream']
   const useMagicKeys: typeof import('@vueuse/core')['useMagicKeys']
   const useManualRefHistory: typeof import('@vueuse/core')['useManualRefHistory']
+  const useMath: typeof import('@vueuse/math')['useMath']
+  const useMax: typeof import('@vueuse/math')['useMax']
   const useMediaControls: typeof import('@vueuse/core')['useMediaControls']
   const useMediaQuery: typeof import('@vueuse/core')['useMediaQuery']
   const useMemoize: typeof import('@vueuse/core')['useMemoize']
   const useMemory: typeof import('@vueuse/core')['useMemory']
+  const useMin: typeof import('@vueuse/math')['useMin']
   const useMounted: typeof import('@vueuse/core')['useMounted']
   const useMouse: typeof import('@vueuse/core')['useMouse']
   const useMouseInElement: typeof import('@vueuse/core')['useMouseInElement']
@@ -257,15 +268,18 @@ declare global {
   const usePointer: typeof import('@vueuse/core')['usePointer']
   const usePointerLock: typeof import('@vueuse/core')['usePointerLock']
   const usePointerSwipe: typeof import('@vueuse/core')['usePointerSwipe']
+  const usePrecision: typeof import('@vueuse/math')['usePrecision']
   const usePreferredColorScheme: typeof import('@vueuse/core')['usePreferredColorScheme']
   const usePreferredContrast: typeof import('@vueuse/core')['usePreferredContrast']
   const usePreferredDark: typeof import('@vueuse/core')['usePreferredDark']
   const usePreferredLanguages: typeof import('@vueuse/core')['usePreferredLanguages']
   const usePreferredReducedMotion: typeof import('@vueuse/core')['usePreferredReducedMotion']
   const usePrevious: typeof import('@vueuse/core')['usePrevious']
+  const useProjection: typeof import('@vueuse/math')['useProjection']
   const useRafFn: typeof import('@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('@vueuse/core')['useRefHistory']
   const useResizeObserver: typeof import('@vueuse/core')['useResizeObserver']
+  const useRound: typeof import('@vueuse/math')['useRound']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']
   const useScreenOrientation: typeof import('@vueuse/core')['useScreenOrientation']
@@ -285,6 +299,7 @@ declare global {
   const useStorage: typeof import('@vueuse/core')['useStorage']
   const useStorageAsync: typeof import('@vueuse/core')['useStorageAsync']
   const useStyleTag: typeof import('@vueuse/core')['useStyleTag']
+  const useSum: typeof import('@vueuse/math')['useSum']
   const useSupported: typeof import('@vueuse/core')['useSupported']
   const useSwipe: typeof import('@vueuse/core')['useSwipe']
   const useTemplateRefsList: typeof import('@vueuse/core')['useTemplateRefsList']
@@ -304,6 +319,7 @@ declare global {
   const useToString: typeof import('@vueuse/core')['useToString']
   const useToggle: typeof import('@vueuse/core')['useToggle']
   const useTransition: typeof import('@vueuse/core')['useTransition']
+  const useTrunc: typeof import('@vueuse/math')['useTrunc']
   const useUrlSearchParams: typeof import('@vueuse/core')['useUrlSearchParams']
   const useUserMedia: typeof import('@vueuse/core')['useUserMedia']
   const useVModel: typeof import('@vueuse/core')['useVModel']
@@ -480,7 +496,6 @@ declare module 'vue' {
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
-    readonly togglePinnedContainer: UnwrapRef<typeof import('./composables/storage')['togglePinnedContainer']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>
@@ -813,7 +828,6 @@ declare module '@vue/runtime-core' {
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
-    readonly togglePinnedContainer: UnwrapRef<typeof import('./composables/storage')['togglePinnedContainer']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>

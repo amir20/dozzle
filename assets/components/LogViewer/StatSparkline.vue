@@ -1,7 +1,7 @@
 <template>
-  <svg :width="width" :height="height" @mousemove="onMove">
-    <path :d="path" class="area" />
-    <line :x1="lineX" y1="0" :x2="lineX" :y2="height" class="line" />
+  <svg :width="width" :height="height" @mousemove="onMove" class="group">
+    <path :d="path" class="fill-primary" />
+    <line :x1="lineX" y1="0" :x2="lineX" :y2="height" class="invisible stroke-secondary stroke-2 group-hover:visible" />
   </svg>
 </template>
 
@@ -42,19 +42,3 @@ function onMove(e: MouseEvent) {
   selectedPoint(point);
 }
 </script>
-
-<style scoped>
-:deep(.area) {
-  fill: var(--primary-color);
-}
-
-:deep(.line) {
-  stroke: var(--secondary-color);
-  stroke-width: 2;
-  display: none;
-}
-
-svg:hover :deep(.line) {
-  display: unset;
-}
-</style>

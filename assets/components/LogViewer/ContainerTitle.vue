@@ -1,19 +1,24 @@
 <template>
-  <div class="columns is-marginless has-text-weight-bold is-family-monospace">
-    <div class="column is-ellipsis">
-      <container-health :health="container.health" v-if="container.health"></container-health>
-      <div class="name">
-        <span v-if="config.hosts.length > 1" class="host has-text-weight-light is-hidden-mobile"
-          >{{ container.hostLabel }}<span class="has-text-weight-light mx-2">/</span></span
-        ><span class="">{{ container.name }}</span
-        ><span v-if="container.isSwarm" class="swarm-id is-hidden-mobile is-ellipsis">{{ container.swarmId }}</span>
+  <div class="flex flex-1 items-center gap-2 truncate">
+    <container-health :health="container.health" v-if="container.health"></container-health>
+    <div class="inline-flex font-mono text-sm">
+      <div v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
+        {{ container.hostLabel }}<span class="mx-2">/</span>
       </div>
-      <tag class="is-hidden-mobile">{{ container.image.replace(/@sha.*/, "") }}</tag>
-      <span class="icon is-clickable" @click="togglePinnedContainer(container.storageKey)">
-        <carbon:star-filled v-if="pinned" />
-        <carbon:star v-else />
-      </span>
+      <div class="font-semibold">{{ container.name }}</div>
+      <div
+        class="mobile-hidden max-w-[1.5em] truncate transition-[max-width] hover:max-w-[400px]"
+        v-if="container.isSwarm"
+      >
+        {{ container.swarmId }}
+      </div>
     </div>
+    <tag class="mobile-hidden font-mono" size="small">{{ container.image.replace(/@sha.*/, "") }}</tag>
+    <label class="swap swap-rotate">
+      <input type="checkbox" v-model="pinned" />
+      <carbon:star-filled class="swap-on" />
+      <carbon:star class="swap-off" />
+    </label>
   </div>
 </template>
 
@@ -22,29 +27,14 @@ import { Container } from "@/models/Container";
 import { type ComputedRef } from "vue";
 
 const container = inject("container") as ComputedRef<Container>;
-const pinned = computed(() => pinnedContainers.value.has(container.value.storageKey));
-</script>
-
-<style lang="scss" scoped>
-.icon {
-  vertical-align: middle;
-}
-
-.name {
-  display: inline-flex;
-  .swarm-id {
-    max-width: 1.5em;
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: max-width 0.2s ease-in-out;
-    will-change: max-width;
-  }
-
-  &:hover {
-    .swarm-id {
-      max-width: 400px;
+const pinned = computed({
+  get: () => pinnedContainers.value.has(container.value.storageKey),
+  set: (value) => {
+    if (value) {
+      pinnedContainers.value.add(container.value.storageKey);
+    } else {
+      pinnedContainers.value.delete(container.value.storageKey);
     }
-  }
-}
-</style>
+  },
+});
+</script>

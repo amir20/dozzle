@@ -1,8 +1,8 @@
 <template>
-  <ul v-if="expanded" ref="root">
+  <ul v-if="expanded" ref="root" class="ml-8">
     <li v-for="(value, name) in fields">
       <template v-if="isObject(value)">
-        <span class="has-text-grey">{{ name }}=</span>
+        <span class="text-light">{{ name }}=</span>
         <field-list
           :fields="value"
           :parent-key="parentKey.concat(name)"
@@ -12,15 +12,15 @@
       </template>
       <template v-else-if="Array.isArray(value)">
         <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
-        <span class="has-text-grey">{{ name }}=</span>[
-        <span class="has-text-weight-bold" v-for="(item, index) in value">
+        <span class="text-light">{{ name }}=</span>[
+        <span class="font-bold" v-for="(item, index) in value">
           <span v-html="JSON.stringify(item)"></span><span v-if="index !== value.length - 1">,</span>
         </span>
         ]
       </template>
       <template v-else>
         <a @click="toggleField(name)"> {{ hasField(name) ? "remove" : "add" }}&nbsp;</a>
-        <span class="has-text-grey">{{ name }}=</span><span class="has-text-weight-bold" v-html="value"></span>
+        <span class="text-light">{{ name }}=</span><span class="font-bold" v-html="value"></span>
       </template>
     </li>
   </ul>
@@ -68,8 +68,8 @@ function fieldIndex(field: string) {
 }
 </script>
 
-<style lang="scss" scoped>
-ul {
-  margin-left: 2em;
+<style scoped lang="postcss">
+.text-light {
+  @apply text-base-content/70;
 }
 </style>

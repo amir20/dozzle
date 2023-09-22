@@ -1,50 +1,57 @@
 <template>
-  <div class="panel">
-    <o-autocomplete
-      ref="autocomplete"
-      v-model="query"
-      :placeholder="$t('placeholder.search-containers')"
-      open-on-focus
-      keep-first
-      expanded
-      :data="data"
-      @select="selected"
-    >
-      <template #default="{ option: item }">
-        <div class="media">
-          <div class="media-left">
-            <span class="icon is-small" :class="item.state">
-              <octicon:container-24 />
-            </span>
+  <div class="dropdown dropdown-open w-full">
+    <div class="input input-primary flex h-auto items-center">
+      <mdi:light-magnify class="flex h-8 w-8" />
+      <input
+        tabindex="0"
+        class="input input-ghost input-lg flex-1 px-1"
+        ref="input"
+        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
+        @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
+        @keypress.enter="selected(data[selectedIndex])"
+        v-model="query"
+        :placeholder="$t('placeholder.search-containers')"
+      />
+      <mdi:keyboard-esc class="flex" />
+    </div>
+    <ul tabindex="0" class="menu dropdown-content rounded-box !relative mt-2 w-full bg-base-lighter p-2">
+      <li v-for="(item, index) in data">
+        <a
+          class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
+          @click.prevent="selected(item)"
+          @mouseenter="selectedIndex = index"
+          :class="index === selectedIndex ? 'focus' : ''"
+        >
+          <div :class="{ 'text-primary': item.state === 'running' }">
+            <octicon:container-24 />
           </div>
-          <div class="media-content">{{ item.host }} / {{ item.name }}</div>
-          <div class="media-right">
-            <span
-              class="icon is-small column-icon"
-              @click.stop.prevent="addColumn(item)"
-              :title="$t('tooltip.pin-column')"
-            >
-              <cil:columns />
-            </span>
+          <div class="truncate">
+            <span class="font-light">{{ item.host }}</span> / {{ item.name }}
           </div>
-        </div>
-      </template>
-    </o-autocomplete>
+          <distance-time :date="item.created" class="ml-auto text-xs font-light" />
+          <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
+            <ic:sharp-keyboard-return v-if="index === selectedIndex" />
+            <cil:columns v-else />
+          </a>
+        </a>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 
-const { maxResults: resultLimit = 20 } = defineProps<{
+const { maxResults: resultLimit = 5 } = defineProps<{
   maxResults?: number;
 }>();
 
 const close = defineEmit();
 
 const query = ref("");
-const autocomplete = ref<HTMLElement>();
+const input = ref<HTMLInputElement>();
+const selectedIndex = ref(0);
+
 const router = useRouter();
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
@@ -62,7 +69,7 @@ const list = computed(() => {
 });
 
 const { results } = useFuse(query, list, {
-  fuseOptions: { keys: ["name"], includeScore: true },
+  fuseOptions: { keys: ["name", "host"], includeScore: true },
   resultLimit,
   matchAllWhenSearchEmpty: true,
 });
@@ -82,62 +89,28 @@ const data = computed(() => {
         return 0;
       }
     })
-    .map(({ item }) => item);
+    .map(({ item }) => item)
+    .slice(0, resultLimit);
 });
-watchOnce(autocomplete, () => autocomplete.value?.focus());
+
+watch(query, (data) => {
+  if (data.length > 0) {
+    selectedIndex.value = 0;
+  }
+});
+
+onMounted(() => input.value?.focus());
 
 function selected({ id }: { id: string }) {
   router.push({ name: "container-id", params: { id } });
+  query.value = "";
   close();
 }
-function addColumn(container: Container) {
+function addColumn(container: { id: string }) {
   store.appendActiveContainer(container);
+  query.value = "";
   close();
 }
 </script>
 
-<style lang="scss" scoped>
-.panel {
-  min-height: 400px;
-  width: 580px;
-}
-
-@media screen and (max-width: 768px) {
-  .panel {
-    min-height: 200px;
-    width: auto;
-    margin-left: 0.25rem !important;
-    margin-right: 0.25rem !important;
-  }
-}
-
-.running {
-  color: var(--primary-color);
-}
-
-.exited {
-  color: var(--scheme-main-ter);
-}
-
-.column-icon {
-  &:hover {
-    color: var(--secondary-color);
-  }
-}
-
-:deep(a.dropdown-item) {
-  padding-right: 1em;
-
-  .media-right {
-    visibility: hidden;
-  }
-
-  &:hover .media-right {
-    visibility: visible;
-  }
-}
-
-.icon {
-  vertical-align: middle;
-}
-</style>
+<style scoped lang="postcss"></style>

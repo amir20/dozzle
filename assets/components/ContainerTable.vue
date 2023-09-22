@@ -1,6 +1,6 @@
 !
 <template>
-  <table class="table is-fullwidth">
+  <table class="table table-lg bg-base">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th
@@ -10,12 +10,10 @@
           :class="{ 'selected-sort': key === sortField }"
           v-show="isVisible(key)"
         >
-          <a>
-            <span class="icon-text">
-              <span>{{ $t(value.label) }}</span>
-              <span class="icon">
-                <mdi:arrow-up />
-              </span>
+          <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
+            <span>{{ $t(value.label) }}</span>
+            <span class="h-4" data-icon>
+              <mdi:arrow-up />
             </span>
           </a>
         </th>
@@ -46,15 +44,18 @@
       </tr>
     </tbody>
   </table>
-  <nav class="pagination is-right" role="navigation" aria-label="pagination" v-if="isPaginated">
-    <ul class="pagination-list">
-      <li v-for="i in totalPages">
-        <a class="pagination-link" :class="{ 'is-current': i === currentPage }" @click.prevent="currentPage = i">{{
-          i
-        }}</a>
-      </li>
-    </ul>
-  </nav>
+  <div class="p-4 text-center">
+    <nav class="join" v-if="isPaginated">
+      <button
+        v-for="i in totalPages"
+        class="btn join-item"
+        :class="{ 'btn-primary': i === currentPage }"
+        @click="currentPage = i"
+      >
+        {{ i }}
+      </button>
+    </nav>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -137,19 +138,23 @@ function isVisible(field: keys) {
 }
 </script>
 
-<style lang="scss" scoped>
-.icon {
+<style lang="postcss" scoped>
+[data-icon] {
   display: none;
   transition: transform 0.2s ease-in-out;
   [data-direction="desc"] & {
     transform: rotate(180deg);
   }
 }
-.selected-sort {
-  font-weight: bold;
-  border-color: var(--primary-color);
-  .icon {
-    display: inline-block;
+
+th {
+  @apply border-b-2 border-base-lighter;
+  &.selected-sort {
+    font-weight: bold;
+    @apply border-primary;
+    [data-icon] {
+      display: inline-block;
+    }
   }
 }
 
@@ -158,5 +163,9 @@ tbody td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+a {
+  @apply hover:text-primary;
 }
 </style>

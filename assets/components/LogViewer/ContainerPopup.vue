@@ -1,17 +1,17 @@
 <template>
   <div>
-    <span class="has-text-weight-light"> RUNNING </span>
-    <span class="has-text-weight-semibold">
+    <span class="font-light capitalize"> RUNNING </span>
+    <span class="font-semibold">
       <distance-time :date="container.created" strict :suffix="false"></distance-time>
     </span>
   </div>
   <div>
-    <span class="has-text-weight-light"> LOAD </span>
-    <span class="has-text-weight-semibold"> {{ container.stat.cpu }}% </span>
+    <span class="font-light capitalize"> Load </span>
+    <span class="font-semibold"> {{ container.stat.cpu }}% </span>
   </div>
   <div>
-    <span class="has-text-weight-light"> MEM </span>
-    <span class="has-text-weight-semibold"> {{ formatBytes(container.stat.memoryUsage) }} </span>
+    <span class="font-light capitalize"> MEM </span>
+    <span class="font-semibold"> {{ formatBytes(container.stat.memoryUsage) }} </span>
   </div>
 </template>
 
@@ -22,5 +22,3 @@ const { container } = defineProps<{
   container: Container;
 }>();
 </script>
-
-<style lang="scss" scoped></style>

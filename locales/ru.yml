@@ -36,6 +36,7 @@ title:
 button:
   logout: Выйти
   login: Войти
+  settings: Настройки
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
 settings:
@@ -53,6 +54,5 @@ settings:
   search: Включить поиск с помощью Dozzle, используя
   using-version: Вы используете версию Dozzle {version}.
   update-available: >-
-    Доступна новая версия! Обновить до <a href="{href}" class="next-release"
-    target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+    Доступна новая версия! Обновить до <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Показывать метки stdout и stderr

@@ -36,6 +36,7 @@ title:
 button:
   logout: 退出
   login: 登录
+  settings: 设置
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
 settings:
@@ -53,6 +54,5 @@ settings:
   search: 使用Dozzle启用搜索
   using-version: 您正在使用Dozzle {version}。
   update-available: >-
-    新版本可用！更新到 <a href="{href}" class="next-release"
-    target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
+    新版本可用！更新到 <a href="{href}" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 显示stdout和stderr标签

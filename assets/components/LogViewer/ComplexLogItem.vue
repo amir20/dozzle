@@ -1,25 +1,24 @@
 <template>
-  <div class="columns is-1 is-variable is-mobile">
-    <div class="column is-narrow" v-if="showStd">
+  <div class="flex gap-x-2">
+    <div v-if="showStd">
       <log-std :std="logEntry.std"></log-std>
     </div>
-    <div class="column is-narrow" v-if="showTimestamp">
+    <div v-if="showTimestamp">
       <log-date :date="logEntry.date"></log-date>
     </div>
-    <div class="column is-narrow is-flex">
+    <div class="flex">
       <log-level :level="logEntry.level"></log-level>
     </div>
-    <div class="column">
-      <ul class="fields" :class="{ expanded }" @click="expandToggle()">
-        <li v-for="(value, name) in validValues">
-          <span class="has-text-grey">{{ name }}=</span
-          ><span class="has-text-weight-bold" v-if="value === null">&lt;null&gt;</span>
+    <div>
+      <ul class="fields cursor-pointer space-x-4" :class="{ expanded }" @click="expandToggle()">
+        <li v-for="(value, name) in validValues" class="inline-block">
+          <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
-            <span class="has-text-weight-bold" v-html="markSearch(JSON.stringify(value))"> </span>
+            <span class="font-bold" v-html="markSearch(JSON.stringify(value))"> </span>
           </template>
-          <span class="has-text-weight-bold" v-html="markSearch(value)" v-else></span>
+          <span class="font-bold" v-html="markSearch(value)" v-else></span>
         </li>
-        <li class="has-text-grey" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
+        <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
       <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
     </div>
@@ -42,19 +41,15 @@ const validValues = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
+.text-light {
+  @apply text-base-content/70;
+}
 .fields {
-  display: inline-block;
-  list-style: none;
-
   &:hover {
-    cursor: pointer;
-
     &::after {
       content: "expand json";
-      color: var(--secondary-color);
-      display: inline-block;
-      margin-left: 0.5em;
+      @apply ml-2 inline-block text-secondary;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
   }
@@ -62,14 +57,6 @@ const validValues = computed(() => {
   &.expanded:hover {
     &::after {
       content: "collapse json";
-    }
-  }
-
-  li {
-    display: inline-block;
-
-    & + li {
-      margin-left: 1em;
     }
   }
 }

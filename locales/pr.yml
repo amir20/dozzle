@@ -36,6 +36,7 @@ title:
 button:
   logout: Terminar sessão
   login: Iniciar sessão
+  settings: Configurações
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
 settings:
@@ -55,5 +56,5 @@ settings:
   using-version: Está a usar o Dozzle {version}.
   update-available: >-
     Está disponível uma nova versão! Actualização para
-    <a href="{href}" class="next-release" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+    <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de saída padrão e saída de erro padrão

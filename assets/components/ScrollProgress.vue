@@ -1,18 +1,18 @@
 <template>
-  <transition name="fade">
-    <div class="scroll-progress" ref="root" v-show="!autoHide || show">
+  <transition name="fadeout">
+    <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
       <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-        <circle r="44" cx="50" cy="50" />
+        <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
       </svg>
-      <div class="is-overlay columns is-vcentered is-centered has-text-weight-light">
+      <div class="absolute inset-0 flex items-center justify-center font-light">
         <template v-if="indeterminate">
-          <div class="column is-narrow is-paddingless is-size-2">&#8734;</div>
+          <div class="text-4xl">&#8734;</div>
         </template>
         <template v-else-if="!isNaN(scrollProgress)">
-          <span class="column is-narrow is-paddingless is-size-2">
+          <span class="text-4xl">
             {{ Math.ceil(scrollProgress * 100) }}
           </span>
-          <span class="column is-narrow is-paddingless"> % </span>
+          <span> % </span>
         </template>
       </div>
     </div>
@@ -54,35 +54,27 @@ watchPostEffect(() => {
   }
 });
 </script>
-<style scoped lang="scss">
-.scroll-progress {
-  display: inline-block;
-  position: relative;
-  pointer-events: none;
+<style scoped lang="postcss">
+svg {
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
+  margin-top: 5px;
+  &.indeterminate {
+    animation: 2s linear infinite svg-animation;
 
-  svg {
-    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
-    margin-top: 5px;
-    &.indeterminate {
-      animation: 2s linear infinite svg-animation;
-
-      circle {
-        animation: 1.4s ease-in-out infinite both circle-animation;
-      }
-    }
     circle {
-      fill: var(--scheme-main-ter);
-      fill-opacity: 0.8;
-      transition: stroke-dashoffset 250ms ease-out;
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-      stroke: var(--primary-color);
-      stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
-      stroke-dasharray: 276.32px 276.32px;
-      stroke-linecap: round;
-      stroke-width: 3;
-      will-change: stroke-dashoffset;
+      animation: 1.4s ease-in-out infinite both circle-animation;
     }
+  }
+  circle {
+    fill-opacity: 0.75;
+    transition: stroke-dashoffset 250ms ease-out;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
+    stroke-dasharray: 276.32px 276.32px;
+    stroke-linecap: round;
+    stroke-width: 3;
+    will-change: stroke-dashoffset;
   }
 }
 
@@ -113,11 +105,11 @@ watchPostEffect(() => {
   }
 }
 
-.fade-leave-active {
-  transition: opacity 0.2s ease-in-out;
+.fadeout-leave-active {
+  @apply transition-opacity;
 }
 
-.fade-leave-to {
+.fadeout-leave-to {
   opacity: 0;
 }
 </style>

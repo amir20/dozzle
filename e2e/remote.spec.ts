@@ -9,7 +9,7 @@ test("has right title", async ({ page }) => {
 });
 
 test("select running container", async ({ page }) => {
-  await page.locator("ul.menu-list").getByRole("link", { name: "dozzle" }).click();
+  await page.getByTestId("side-menu").getByRole("link", { name: "dozzle" }).click();
   await expect(page).toHaveURL(/\/container/);
   await expect(page.getByText("Accepting connections")).toBeVisible();
 });

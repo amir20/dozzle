@@ -1,15 +1,9 @@
 <template>
-  <div class="columns is-1 is-variable is-mobile">
-    <div class="column is-narrow" v-if="showStd">
-      <log-std :std="logEntry.std"></log-std>
-    </div>
-    <div class="column is-narrow" v-if="showTimestamp">
-      <log-date :date="logEntry.date"></log-date>
-    </div>
-    <div class="column is-narrow is-flex">
-      <log-level :level="logEntry.level" :position="logEntry.position"></log-level>
-    </div>
-    <div class="text column" v-html="colorize(logEntry.message)"></div>
+  <div class="flex items-start gap-x-2">
+    <log-std :std="logEntry.std" v-if="showStd" />
+    <log-date :date="logEntry.date" v-if="showTimestamp" />
+    <log-level class="flex" :level="logEntry.level" :position="logEntry.position" />
+    <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap" v-html="colorize(logEntry.message)"></div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -24,15 +18,3 @@ defineProps<{
 const { markSearch } = useSearchFilter();
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
 </script>
-
-<style lang="scss" scoped>
-.disable-wrap {
-  .text {
-    white-space: nowrap;
-  }
-}
-
-.text {
-  white-space: pre-wrap;
-}
-</style>

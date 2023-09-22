@@ -1,88 +1,58 @@
 <template>
-  <aside>
-    <div class="columns is-marginless is-gapless is-mobile is-vcentered">
-      <div class="column is-narrow">
-        <router-link :to="{ name: 'index' }">
-          <svg class="logo">
-            <use href="#logo"></use>
-          </svg>
-        </router-link>
-      </div>
+  <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
+    <div class="flex items-center">
+      <router-link :to="{ name: 'index' }">
+        <svg class="h-14 w-28 fill-secondary">
+          <use href="#logo"></use>
+        </svg>
+      </router-link>
 
-      <div class="column is-narrow push-right">
-        <a
-          role="button"
-          class="navbar-burger burger is-hidden-tablet is-pulled-right"
-          @click="showNav = !showNav"
-          :class="{ 'is-active': showNav }"
-        >
-          <span></span> <span></span> <span></span>
+      <div class="ml-auto flex items-center gap-2">
+        <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
+          <mdi:light-magnify class="h-5 w-5" />
         </a>
+        <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
+          <input type="checkbox" v-model="show" />
+          <mdi:close class="swap-on" />
+          <mdi:hamburger-menu class="swap-off" />
+        </label>
       </div>
     </div>
 
-    <div class="menu-label level is-mobile is-hidden-mobile" :class="{ 'is-active': showNav }">
-      <div v-if="config.hosts.length > 1">
-        <o-dropdown v-model="sessionHost" aria-role="list">
-          <template #trigger>
-            <o-button variant="primary" type="button" size="small">
-              <span>{{ sessionHost ? hosts[sessionHost].name : "" }}</span>
-              <span class="icon">
-                <carbon:caret-down />
-              </span>
-            </o-button>
-          </template>
-
-          <o-dropdown-item :value="value.id" aria-role="listitem" v-for="value in config.hosts" :key="value">
-            <span>{{ value.name }}</span>
-          </o-dropdown-item>
-        </o-dropdown>
-      </div>
-
-      <div class="level-item has-text-centered">
-        <div>
-          <button class="button is-small is-rounded" @click="$emit('search')" :title="$t('tooltip.search')">
-            <span class="icon">
-              <mdi:light-magnify />
-            </span>
-          </button>
-        </div>
-      </div>
-      <div class="level-item has-text-centered">
-        <div>
-          <router-link :to="{ name: 'settings' }" active-class="is-active" class="button is-small is-rounded">
-            <span class="icon">
-              <mdi:light-cog />
-            </span>
+    <transition name="fade">
+      <div v-show="show">
+        <div class="mt-4 flex items-center justify-center gap-2">
+          <dropdown
+            v-model="sessionHost"
+            :options="hosts"
+            defaultLabel="Hosts"
+            class="btn-sm"
+            v-if="config.hosts.length > 1"
+          />
+          <router-link :to="{ name: 'settings' }" class="btn btn-outline btn-sm">
+            <mdi:light-cog /> {{ $t("button.settings") }}
           </router-link>
-        </div>
-      </div>
-      <div class="level-item has-text-centered" v-if="secured">
-        <div>
-          <a class="button is-small is-rounded" :href="`${base}/logout`" :title="$t('button.logout')">
-            <span class="icon">
-              <mdi:light-logout />
-            </span>
+          <a class="btn btn-outline btn-sm" :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured">
+            <mdi:light-logout /> {{ $t("button.logout") }}
           </a>
         </div>
-      </div>
-    </div>
 
-    <p class="menu-label is-hidden-mobile" :class="{ 'is-active': showNav }">{{ $t("label.containers") }}</p>
-    <ul class="menu-list is-hidden-mobile" :class="{ 'is-active': showNav }">
-      <li v-for="item in sortedContainers" :key="item.id">
-        <router-link
-          :to="{ name: 'container-id', params: { id: item.id } }"
-          active-class="is-active"
-          :title="item.name"
-        >
-          <div class="is-ellipsis">
-            {{ item.name }}
-          </div>
-        </router-link>
-      </li>
-    </ul>
-  </aside>
+        <ul class="menu">
+          <li class="menu-title">{{ $t("label.containers") }}</li>
+          <li v-for="item in sortedContainers" :key="item.id">
+            <router-link
+              :to="{ name: 'container-id', params: { id: item.id } }"
+              active-class="active-primary"
+              class="truncate"
+              :title="item.name"
+            >
+              {{ item.name }}
+            </router-link>
+          </li>
+        </ul>
+      </div>
+    </transition>
+  </nav>
 </template>
 
 <script lang="ts" setup>
@@ -92,10 +62,10 @@ const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers } = storeToRefs(store);
 
-let showNav = $ref(false);
+const show = ref(false);
 
 watch(route, () => {
-  showNav = false;
+  show.value = false;
 });
 
 const sortedContainers = computed(() =>
@@ -112,59 +82,26 @@ const sortedContainers = computed(() =>
     }),
 );
 
-const hosts = computed(() =>
-  config.hosts.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, { name: string; id: string }>,
-  ),
-);
+const hosts = computed(() => config.hosts.map(({ id, name }) => ({ value: id, label: name })));
 </script>
-<style scoped lang="scss">
-aside {
-  padding: 1em;
-  position: fixed;
-  left: 0;
-  right: 0;
-  background: var(--scheme-main-ter);
-  z-index: 10;
-  max-height: 100vh;
-  overflow: auto;
+<style scoped lang="postcss">
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity;
+}
 
-  .level.is-hidden-mobile.is-active {
-    display: flex !important;
-  }
+.fade-enter-active .menu,
+.fade-leave-active .menu {
+  @apply transition-transform;
+}
 
-  .menu-label {
-    margin-top: 1em;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  @apply opacity-0;
+}
 
-  .title {
-    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.2);
-  }
-
-  .burger {
-    color: var(--body-color);
-  }
-
-  .is-hidden-mobile.is-active {
-    display: block !important;
-  }
-
-  .navbar-burger {
-    height: 2.35rem;
-  }
-
-  .logo {
-    width: 82px;
-    height: 36px;
-    fill: var(--logo-color);
-  }
-
-  .column.push-right {
-    margin-left: auto;
-  }
+.fade-enter-from .menu,
+.fade-leave-to .menu {
+  @apply -translate-y-2;
 }
 </style>

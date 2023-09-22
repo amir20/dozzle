@@ -1,50 +1,39 @@
 <template>
-  <div class="hero is-halfheight">
-    <div class="hero-body">
-      <div class="container">
-        <section class="columns is-centered section">
-          <div class="column is-4">
-            <div class="card">
-              <div class="card-content">
-                <form action="" method="post" @submit.prevent="onLogin" ref="form">
-                  <div class="field">
-                    <label class="label">{{ $t("label.username") }}</label>
-                    <div class="control">
-                      <input
-                        class="input"
-                        type="text"
-                        name="username"
-                        autocomplete="username"
-                        v-model="username"
-                        autofocus
-                      />
-                    </div>
-                  </div>
-
-                  <div class="field">
-                    <label class="label">{{ $t("label.password") }}</label>
-                    <div class="control">
-                      <input
-                        class="input"
-                        type="password"
-                        name="password"
-                        autocomplete="current-password"
-                        v-model="password"
-                      />
-                    </div>
-                    <p class="help is-danger" v-if="error">{{ $t("error.invalid-auth") }}</p>
-                  </div>
-                  <div class="field is-grouped is-grouped-centered mt-5">
-                    <p class="control">
-                      <button class="button is-primary" type="submit">{{ $t("button.login") }}</button>
-                    </p>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+  <div class="card w-96 flex-shrink-0 bg-base-lighter shadow-2xl">
+    <div class="card-body">
+      <form action="" method="post" @submit.prevent="onLogin" ref="form">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text"> {{ $t("label.username") }} </span>
+          </label>
+          <input
+            class="input input-bordered"
+            type="text"
+            name="username"
+            autocomplete="username"
+            v-model="username"
+            autofocus
+          />
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Password</span>
+          </label>
+          <input
+            class="input input-bordered"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            v-model="password"
+          />
+        </div>
+        <label class="label text-red" v-if="error">
+          {{ $t("error.invalid-auth") }}
+        </label>
+        <div class="form-control mt-6">
+          <button class="btn btn-primary" type="submit">{{ $t("button.login") }}</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>

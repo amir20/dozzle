@@ -93,8 +93,8 @@ export const useContainerStore = defineStore("container", () => {
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
-  const appendActiveContainer = ({ id }: Container) => activeContainerIds.value.push(id);
-  const removeActiveContainer = ({ id }: Container) =>
+  const appendActiveContainer = ({ id }: { id: string }) => activeContainerIds.value.push(id);
+  const removeActiveContainer = ({ id }: { id: string }) =>
     activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
 
   return {

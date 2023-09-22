@@ -1,50 +1,51 @@
 <template>
-  <div v-if="ready">
-    <nav class="breadcrumb menu-label" aria-label="breadcrumbs">
-      <ul v-if="sessionHost">
-        <li>
-          <a href="#" @click.prevent="setHost(null)">{{ hosts[sessionHost].name }}</a>
+  <div v-if="ready" data-testid="side-menu">
+    <div class="breadcrumbs text-sm">
+      <ul>
+        <li><a @click.prevent="setHost(null)">Hosts</a></li>
+        <li v-if="sessionHost && hosts[sessionHost]">
+          {{ hosts[sessionHost].name }}
         </li>
       </ul>
-      <ul v-else>
-        <li>Hosts</li>
-      </ul>
-    </nav>
+    </div>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
-      <ul class="menu-list" v-if="!sessionHost">
+      <ul class="menu p-0" v-if="!sessionHost">
         <li v-for="host in config.hosts">
-          <a @click.prevent="setHost(host.id)">{{ host.name }}</a>
+          <a @click.prevent="setHost(host.id)">
+            <ph:computer-tower />
+            {{ host.name }}
+          </a>
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="menu-list" v-else>
-        <li v-for="item in menuItems" :key="item.id" :class="item.state" :data-label="item.id">
-          <div class="menu-label mt-4 mb-3" v-if="isLabel(item)">
+      <transition-group tag="ul" name="list" class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
+        <li
+          v-for="item in menuItems"
+          :key="item.id"
+          :class="isLabel(item) ? 'menu-title' : item.state"
+          :data-testid="item.id"
+        >
+          <template v-if="isLabel(item)">
             {{ item.label }}
-          </div>
+          </template>
           <popup v-else>
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
-              active-class="is-active"
+              active-class="active-primary"
               :title="item.name"
             >
-              <div class="container is-flex is-align-items-center">
-                <div class="is-flex-grow-1 is-ellipsis">
-                  <span>{{ item.name }}</span
-                  ><span class="has-text-weight-light has-light-opacity" v-if="item.isSwarm">{{ item.swarmId }}</span>
-                </div>
-                <div class="is-flex-shrink-1 is-flex icons">
-                  <div
-                    class="icon is-small pin"
-                    @click.stop.prevent="store.appendActiveContainer(item)"
-                    v-show="!activeContainersById[item.id]"
-                    :title="$t('tooltip.pin-column')"
-                  >
-                    <cil:columns />
-                  </div>
-
-                  <container-health :health="item.health"></container-health>
-                </div>
+              <div class="truncate">
+                {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
               </div>
+              <span
+                class="pin"
+                @click.stop.prevent="store.appendActiveContainer(item)"
+                v-show="!activeContainersById[item.id]"
+                :title="$t('tooltip.pin-column')"
+              >
+                <cil:columns />
+              </span>
+
+              <container-health :health="item.health"></container-health>
             </router-link>
             <template #content>
               <container-popup :container="item"></container-popup>
@@ -54,9 +55,10 @@
       </transition-group>
     </transition>
   </div>
-  <ul class="menu-list is-hidden-mobile has-light-opacity" v-else>
-    <li v-for="index in 7" class="my-4"><o-skeleton animated size="large" :key="index"></o-skeleton></li>
-  </ul>
+  <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
+    <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50" v-for="_ in 9"></div>
+    <span class="sr-only">Loading...</span>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -104,7 +106,7 @@ const groupedContainers = computed(() =>
 
 type MenuLabel = { label: string; id: string; state: string };
 const pinnedLabel = { label: t("label.pinned"), id: "pinned", state: "label" } as MenuLabel;
-const allLabel = { label: t("label.containers"), id: "all", state: "label" } as MenuLabel;
+const allLabel = { label: t("label.containers"), id: "containers", state: "label" } as MenuLabel;
 
 function isLabel(item: Container | MenuLabel): item is MenuLabel {
   return (item as MenuLabel).label !== undefined;
@@ -138,34 +140,25 @@ const activeContainersById = computed(() =>
   ),
 );
 </script>
-<style scoped lang="scss">
-.has-light-opacity {
-  opacity: 0.5;
-}
-
-li.exited a,
-li.dead a {
-  color: #777;
-}
-
-.icons {
-  column-gap: 0.35em;
-  align-items: baseline;
-}
-a {
+<style scoped lang="postcss">
+.containers a {
+  @apply auto-cols-[auto_max-content];
   .pin {
     display: none;
 
     &:hover {
-      color: var(--secondary-color);
+      @apply text-secondary;
     }
   }
 
   &:hover {
     .pin {
-      display: block;
+      display: inline-block;
     }
   }
+}
+li.exited {
+  @apply opacity-50;
 }
 
 .slide-left-enter-active,
@@ -177,22 +170,22 @@ a {
 
 .slide-left-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(20px);
 }
 
 .slide-right-enter-from {
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-20px);
 }
 
 .slide-left-leave-to {
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-20px);
 }
 
 .slide-right-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(20px);
 }
 
 .list-move,

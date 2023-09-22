@@ -1,20 +1,14 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="mr-0 columns is-mobile is-vcentered is-marginless has-boxshadow">
-        <div class="column is-clipped is-paddingless">
-          <container-title @close="$emit('close')" />
-        </div>
-        <div class="column is-narrow is-paddingless">
-          <container-stat />
-        </div>
+      <div class="mx-2 flex items-center gap-2">
+        <container-title @close="$emit('close')" />
+        <container-stat class="ml-auto" />
 
-        <div class="mr-2 column is-narrow is-paddingless is-hidden-mobile">
-          <log-actions-toolbar @clear="onClearClicked()" />
-        </div>
-        <div class="mr-2 column is-narrow is-paddingless" v-if="closable">
-          <button class="delete is-medium" @click="close()"></button>
-        </div>
+        <log-actions-toolbar @clear="onClearClicked()" class="mobile-hidden" />
+        <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
+          <mdi:close />
+        </a>
       </div>
     </template>
     <template #default="{ setLoading }">
@@ -61,18 +55,3 @@ onKeyStroke("k", (e) => {
   }
 });
 </script>
-<style lang="scss" scoped>
-button.delete {
-  background-color: var(--scheme-main-ter);
-  opacity: 0.6;
-
-  &:after,
-  &:before {
-    background-color: var(--text-color);
-  }
-
-  &:hover {
-    opacity: 1;
-  }
-}
-</style>

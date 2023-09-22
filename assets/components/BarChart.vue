@@ -1,7 +1,7 @@
 <template>
-  <div class="is-relative">
-    <div class="bar"></div>
-    <div class="is-overlay">
+  <div class="relative">
+    <div class="bar h-7 origin-left rounded-br rounded-tr bg-primary transition-transform"></div>
+    <div class="absolute inset-0 flex flex-col justify-center px-2 text-sm">
       <slot></slot>
     </div>
   </div>
@@ -15,17 +15,6 @@ const minValue = computed(() => Math.min(value, 1));
 
 <style scoped>
 .bar {
-  height: 1.5em;
-  background-color: var(--primary-color);
-  transform-origin: left;
   transform: scaleX(v-bind(minValue));
-  transition: transform 0.2s ease-out;
-  border-top-right-radius: 0.2em;
-  border-bottom-right-radius: 0.2em;
-}
-
-.is-overlay {
-  font-size: 0.9em;
-  padding: 0 0.5em;
 }
 </style>

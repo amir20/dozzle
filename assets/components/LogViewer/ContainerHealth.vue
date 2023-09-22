@@ -1,5 +1,5 @@
 <template>
-  <div class="icon is-small health" :health="health" v-if="health" :title="health">
+  <div class="inline-flex h-4 w-4" :health="health" v-if="health" :title="health">
     <cil:check-circle v-if="health == 'healthy'" />
     <cil:x-circle v-else-if="health == 'unhealthy'" />
     <cil:circle v-else />
@@ -14,14 +14,12 @@ defineProps<{
 }>();
 </script>
 
-<style lang="scss" scoped>
-.health {
-  &[health="unhealthy"] {
-    color: var(--red-color);
-  }
+<style lang="postcss" scoped>
+[health="unhealthy"] {
+  @apply text-red;
+}
 
-  &[health="healthy"] {
-    color: var(--green-color);
-  }
+[health="healthy"] {
+  @apply text-green;
 }
 </style>

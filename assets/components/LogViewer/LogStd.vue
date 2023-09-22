@@ -12,14 +12,12 @@ defineProps<{
 }>();
 </script>
 
-<style lang="scss" scoped>
-.tag {
-  &[std="stdout"] {
-    color: var(--blue-color);
-  }
+<style lang="postcss" scoped>
+[std="stdout"] {
+  @apply text-blue;
+}
 
-  &[std="stderr"] {
-    color: var(--red-color);
-  }
+[std="stderr"] {
+  @apply text-red;
 }
 </style>

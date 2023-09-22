@@ -1,17 +1,7 @@
 <template>
-  <div class="is-size-7 is-uppercase columns is-marginless is-mobile is-vcentered" v-if="container.stat">
-    <stat-monitor
-      class="column is-narrow"
-      :data="memoryData"
-      label="mem"
-      :stat-value="formatBytes(unref(container.stat).memoryUsage)"
-    ></stat-monitor>
-    <stat-monitor
-      class="column is-narrow"
-      :data="cpuData"
-      label="load"
-      :stat-value="unref(container.stat).cpu + '%'"
-    ></stat-monitor>
+  <div class="flex gap-4" v-if="container.stat">
+    <stat-monitor :data="memoryData" label="mem" :stat-value="formatBytes(unref(container.stat).memoryUsage)" />
+    <stat-monitor :data="cpuData" label="load" :stat-value="unref(container.stat).cpu + '%'" />
   </div>
 </template>
 
@@ -47,24 +37,3 @@ const memoryData = computedWithControl(
   },
 );
 </script>
-
-<style lang="scss" scoped>
-.has-border {
-  border: 1px solid var(--primary-color);
-  border-radius: 3px;
-  padding: 1px 1px 0 1px;
-  display: flex;
-  overflow: hidden;
-  padding-top: 0.25em;
-}
-
-.has-background-body-color {
-  background-color: var(--body-background-color);
-}
-
-.is-top-left {
-  position: absolute;
-  top: 0;
-  left: 0.75em;
-}
-</style>

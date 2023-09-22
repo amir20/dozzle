@@ -28,13 +28,7 @@ export default defineConfig(() => ({
   plugins: [
     VueMacros({
       plugins: {
-        vue: Vue({
-          template: {
-            compilerOptions: {
-              whitespace: "preserve",
-            },
-          },
-        }),
+        vue: Vue(),
       },
     }),
     Icons({

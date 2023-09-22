@@ -1,5 +1,5 @@
 <template>
-  <div class="tag" :size="size">
+  <div class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" :size="size">
     <slot></slot>
   </div>
 </template>
@@ -8,12 +8,8 @@
 const { size = undefined } = defineProps<{ size?: "small" | undefined }>();
 </script>
 
-<style scoped lang="scss">
-.tag {
-  background-color: var(--scheme-main-ter);
-  border: 1px solid var(--border-color);
-  &[size="small"] {
-    font-size: 0.61rem;
-  }
+<style scoped lang="postcss">
+[size="small"] {
+  @apply text-xs;
 }
 </style>

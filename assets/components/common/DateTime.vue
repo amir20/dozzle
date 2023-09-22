@@ -1,6 +1,6 @@
 <template>
   <div>
-    <time :datetime="date.toISOString()" class="is-hidden-mobile">{{ dateStr }}</time>
+    <time :datetime="date.toISOString()" class="mobile-hidden">{{ dateStr }}</time>
     <time :datetime="date.toISOString()">{{ timeStr }}</time>
   </div>
 </template>

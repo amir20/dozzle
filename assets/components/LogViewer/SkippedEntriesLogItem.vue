@@ -1,8 +1,10 @@
 <template>
-  <div class="is-flex-grow-1 has-text-centered my-4">
-    <div class="is-relative">
-      <zig-zag class="is-overlay mt-2"></zig-zag>
-      <span class="text is-relative py-2 px-4">{{ $t("error.logs-skipped", { total: logEntry.totalSkipped }) }}</span>
+  <div class="my-4 flex-1 text-center">
+    <div class="relative">
+      <zig-zag class="absolute inset-0 mt-2"></zig-zag>
+      <span class="relative whitespace-pre-wrap bg-base px-4 py-2 font-bold">{{
+        $t("error.logs-skipped", { total: logEntry.totalSkipped })
+      }}</span>
     </div>
   </div>
 </template>
@@ -13,11 +15,3 @@ defineProps<{
   logEntry: SkippedLogsEntry;
 }>();
 </script>
-
-<style lang="scss" scoped>
-.text {
-  font-weight: bold;
-  white-space: pre-wrap;
-  background-color: var(--body-background-color);
-}
-</style>

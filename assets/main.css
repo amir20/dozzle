@@ -1,0 +1,108 @@
+@import "splitpanes/dist/splitpanes.css";
+
+@define-mixin light {
+  --base-lighter-color: 0 0% 100%;
+  --base-color: 0 0% 97%;
+  --base-darker-color: 0 0% 90%;
+  --base-content-color: 0 0% 21%;
+  --primary-color: 171 100% 41%;
+  --primary-focus-color: 171 100% 31%;
+  --secondary-color: 44 100% 77%;
+}
+
+@define-mixin dark {
+  --base-lighter-color: 0 0% 14%;
+  --base-color: 0 0% 7%;
+  --base-darker-color: 0 0% 4%;
+  --base-content-color: 0 0% 86%;
+  --primary-color: 171 100% 41%;
+  --primary-focus-color: 171 100% 31%;
+  --secondary-color: 44 100% 77%;
+  --secondary-focus-color: 44 100% 67%;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --p: var(--primary-color);
+    --pf: var(--primary-focus-color);
+    --pc: 0 0% 100%;
+    --s: var(--secondary-color);
+    --sf: var(--secondary-focus-color);
+    --sc: 0 0% 4%;
+    --b1: var(--base-lighter-color);
+    --b2: var(--base-color);
+    --b3: var(--base-darker-color);
+    --bc: var(--base-content-color);
+  }
+  html[data-theme="dark"] {
+    @mixin dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    html {
+      @mixin dark;
+    }
+  }
+  html[data-theme="light"] {
+    @mixin light;
+  }
+  @media (prefers-color-scheme: light) {
+    html {
+      @mixin light;
+    }
+  }
+  @media screen and (max-device-width: 480px) {
+    body {
+      -webkit-text-size-adjust: 100%;
+    }
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-lg;
+  }
+
+  mark {
+    @apply inline-block rounded-sm bg-secondary;
+    animation: pops 200ms ease-out;
+  }
+
+  @keyframes pops {
+    0% {
+      transform: scale(1.5);
+    }
+    100% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@layer components {
+  .input {
+    @apply focus:outline-none;
+  }
+}
+
+@layer utilities {
+  @media (max-width: 768px) {
+    .mobile-hidden {
+      display: none;
+    }
+  }
+
+  .active-primary {
+    --n: var(--p);
+    --nc: var(--pc);
+    @apply active;
+  }
+}
