@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-16 px-8 pt-8">
     <section>
-      <div class="bg-scheme stats grid shadow">
+      <div class="stats grid bg-base-lighter shadow">
         <div class="stat">
           <div class="stat-value">{{ runningContainers.length }} / {{ containers.length }}</div>
           <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
@@ -23,9 +23,7 @@
     </section>
 
     <section>
-      <div class="box">
-        <container-table :containers="runningContainers"></container-table>
-      </div>
+      <container-table :containers="runningContainers"></container-table>
     </section>
   </div>
 </template>

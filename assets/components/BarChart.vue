@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <div class="bar h-7 origin-left rounded-br rounded-tr bg-primary transition-transform"></div>
-    <div class="absolute inset-0 flex flex-col justify-center px-2 text-sm text-primary-content">
+    <div class="absolute inset-0 flex flex-col justify-center px-2 text-sm">
       <slot></slot>
     </div>
   </div>

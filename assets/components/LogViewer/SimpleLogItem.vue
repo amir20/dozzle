@@ -1,14 +1,8 @@
 <template>
-  <div class="flex gap-x-2">
-    <div v-if="showStd">
-      <log-std :std="logEntry.std" />
-    </div>
-    <div v-if="showTimestamp">
-      <log-date :date="logEntry.date" />
-    </div>
-    <div class="flex">
-      <log-level :level="logEntry.level" :position="logEntry.position" />
-    </div>
+  <div class="flex items-start gap-x-2">
+    <log-std :std="logEntry.std" v-if="showStd" />
+    <log-date :date="logEntry.date" v-if="showTimestamp" />
+    <log-level class="flex" :level="logEntry.level" :position="logEntry.position" />
     <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap" v-html="colorize(logEntry.message)"></div>
   </div>
 </template>

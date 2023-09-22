@@ -1,28 +1,21 @@
 <template>
-  <ul class="events group" :class="{ 'disable-wrap': !softWrap, [size]: true }">
+  <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
       v-for="(item, index) in filtered"
       :key="item.id"
       :data-key="item.id"
-      :class="{ selected: toRaw(item) === toRaw(lastSelectedItem) }"
-      class="flex px-4 py-1"
+      :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
+      class="flex break-words px-4 py-1 last:snap-end odd:bg-base-lighter/30"
     >
-      <div class="line-options" v-show="isSearching()">
-        <dropdown-menu :class="{ 'is-last': index === filtered.length - 1 }" class="is-top minimal">
-          <a class="dropdown-item" @click="handleJumpLineSelected($event, item)" :href="`#${item.id}`">
-            <div class="level is-justify-content-start">
-              <div class="level-left">
-                <div class="level-item">
-                  <cil:find-in-page class="mr-4" />
-                </div>
-              </div>
-              <div class="level-right">
-                <div class="level-item">Jump to Context</div>
-              </div>
-            </div>
-          </a>
-        </dropdown-menu>
-      </div>
+      <a
+        class="btn btn-ghost tooltip-primary tooltip btn-sm tooltip-right mr-4 flex self-start font-sans font-normal normal-case text-secondary hover:text-secondary-focus"
+        v-show="isSearching()"
+        data-tip="Jump to Context"
+        @click="handleJumpLineSelected($event, item)"
+        :href="`#${item.id}`"
+      >
+        <ic:sharp-find-in-page />
+      </a>
       <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
     </li>
   </ul>
@@ -67,7 +60,6 @@ watch(
 </script>
 <style scoped lang="postcss">
 .events {
-  padding: 1em 0;
   font-family:
     ui-monospace,
     SFMono-Regular,
@@ -78,40 +70,22 @@ watch(
     Menlo,
     monospace;
 
-  & > li {
-    display: flex;
-    word-wrap: break-word;
-
+  > li {
     &:last-child {
-      scroll-snap-align: end;
       scroll-margin-block-end: 5rem;
-    }
-
-    &:nth-child(odd) {
-      background-color: rgba(125, 125, 125, 0.08);
-    }
-
-    &.selected {
-      border: 1px var(--secondary-color) solid;
-    }
-
-    & > .line-options {
-      display: flex;
-      flex-direction: row-reverse;
-      margin-right: 1em;
     }
   }
 
   &.small {
-    font-size: 60%;
+    @apply text-[0.7em];
   }
 
   &.medium {
-    font-size: 80%;
+    @apply text-[0.8em];
   }
 
   &.large {
-    font-size: 120%;
+    @apply text-lg;
   }
 }
 </style>

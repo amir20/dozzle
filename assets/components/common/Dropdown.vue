@@ -1,16 +1,18 @@
 <template>
   <details class="dropdown" ref="details" v-on-click-outside="close">
     <summary class="btn btn-primary flex-nowrap font-normal" v-bind="$attrs">
-      {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down />
+      <slot name="trigger"> {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down /></slot>
     </summary>
     <ul class="menu dropdown-content rounded-box z-50 w-52 bg-base p-2 shadow">
-      <li v-for="item in options">
-        <a @click="modelValue = item.value">
-          <mdi-light:check class="w-4" v-if="modelValue == item.value" />
-          <div v-else class="w-4"></div>
-          {{ item.label }}
-        </a>
-      </li>
+      <slot>
+        <li v-for="item in options">
+          <a @click="modelValue = item.value">
+            <mdi-light:check class="w-4" v-if="modelValue == item.value" />
+            <div v-else class="w-4"></div>
+            {{ item.label }}
+          </a>
+        </li>
+      </slot>
     </ul>
   </details>
 </template>
@@ -21,7 +23,7 @@ type DropdownItem = {
   label: string;
   value: string;
 };
-const { options, defaultLabel = "" } = defineProps<{ options: DropdownItem[]; defaultLabel?: string }>();
+const { options = [], defaultLabel = "" } = defineProps<{ options?: DropdownItem[]; defaultLabel?: string }>();
 const { modelValue } = defineModels<{
   modelValue: string;
 }>();
