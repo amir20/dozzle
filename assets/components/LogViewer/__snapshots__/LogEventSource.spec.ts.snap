@@ -8,7 +8,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
@@ -25,7 +25,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
@@ -42,7 +42,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">This is a message.</div>
@@ -59,7 +59,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\"><span style=\\"color:#000\\">black<span style=\\"color:#AAA\\">white</span></span></div>
@@ -76,7 +76,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\"><mark>test</mark> bar</div>
@@ -93,7 +93,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
     <div data-v-2e92daca=\\"\\" class=\\"flex items-start gap-x-2\\" visible-keys=\\"\\">
       <!--v-if-->
       <div data-v-961504e7=\\"\\" class=\\"inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm\\" size=\\"small\\">
-        <div class=\\"whitespace-nowrap text-[#258ccd]\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
+        <div class=\\"whitespace-nowrap text-blue\\"><time datetime=\\"2019-06-12T10:55:42.459Z\\" class=\\"mobile-hidden\\">06/12/2019</time><time datetime=\\"2019-06-12T10:55:42.459Z\\">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd=\\"\\" class=\\"mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex\\"></div>
       <div class=\\"whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap\\">&lt;test&gt;foo bar&lt;/test&gt;</div>
