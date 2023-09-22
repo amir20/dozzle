@@ -23,10 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
-import { type ComputedRef } from "vue";
-
-const container = inject("container") as ComputedRef<Container>;
+const { container } = useContainerContext();
 const pinned = computed({
   get: () => pinnedContainers.value.has(container.value.storageKey),
   set: (value) => {

@@ -6,10 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
-import { type ComputedRef } from "vue";
-
-const container = inject("container") as ComputedRef<Container>;
+const { container } = useContainerContext();
 
 const cpuData = computedWithControl(
   () => container.value.stat,

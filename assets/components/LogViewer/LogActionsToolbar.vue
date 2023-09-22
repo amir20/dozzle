@@ -70,16 +70,12 @@
 </template>
 
 <script lang="ts" setup>
-import { type ComputedRef } from "vue";
-import { Container } from "@/models/Container";
-
 const { showSearch } = useSearchFilter();
 const { base } = config;
 
 const clear = defineEmit();
 
-const container = inject("container") as ComputedRef<Container>;
-const streamConfig = inject("stream-config") as { stdout: boolean; stderr: boolean };
+const { container, streamConfig } = useContainerContext();
 </script>
 
 <style scoped lang="postcss">

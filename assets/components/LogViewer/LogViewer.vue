@@ -22,16 +22,18 @@
 </template>
 
 <script lang="ts" setup>
-import { type ComputedRef, toRaw } from "vue";
+import { toRaw } from "vue";
 import { useRouteHash } from "@vueuse/router";
-import { Container } from "@/models/Container";
+
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
 }>();
 
-let visibleKeys = persistentVisibleKeys(inject("container") as ComputedRef<Container>);
+const { container } = useContainerContext();
+
+let visibleKeys = persistentVisibleKeys(container);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
