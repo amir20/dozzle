@@ -4,11 +4,12 @@ import { createTestingPinia } from "@pinia/testing";
 import EventSource, { sources } from "eventsourcemock";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
-import { settings } from "../../composables/settings";
+import { settings } from "@/composables/settings";
 import { useSearchFilter } from "@/composables/search";
 import { vi, describe, expect, beforeEach, test, afterEach } from "vitest";
 import { computed, nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
+import { containerContext } from "@/composables/containerContext";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -71,8 +72,10 @@ describe("<LogEventSource />", () => {
           LogViewer,
         },
         provide: {
-          container: computed(() => ({ id: "abc", image: "test:v123", host: "localhost" })),
-          "stream-config": reactive({ stdout: true, stderr: true }),
+          [containerContext as symbol]: {
+            container: computed(() => ({ id: "abc", image: "test:v123", host: "localhost" })),
+            streamConfig: reactive({ stdout: true, stderr: true }),
+          },
           scrollingPaused: computed(() => false),
         },
       },

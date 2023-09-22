@@ -5,7 +5,7 @@ type ContainerContext = {
   streamConfig: { stdout: boolean; stderr: boolean };
 };
 
-const containerContext = Symbol("containerContext") as InjectionKey<ContainerContext>;
+export const containerContext = Symbol("containerContext") as InjectionKey<ContainerContext>;
 
 export const provideContainerContext = (container: Ref<Container>) => {
   provide(containerContext, {
