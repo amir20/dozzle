@@ -1,6 +1,6 @@
 <template>
   <tag size="small">
-    <date-time :date="date" class="whitespace-nowrap text-[#258ccd]"></date-time>
+    <date-time :date="date" class="whitespace-nowrap text-blue"></date-time>
   </tag>
 </template>
 <script lang="ts" setup>

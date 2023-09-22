@@ -6,9 +6,10 @@
         tabindex="0"
         class="input input-ghost input-lg flex-1 px-1"
         ref="input"
-        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
-        @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
-        @keypress.enter="selected(data[selectedIndex])"
+        @keyup.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
+        @keyup.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
+        @keyup.enter.exact="selected(data[selectedIndex])"
+        @keyup.alt.enter="addColumn(data[selectedIndex])"
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
       />
@@ -69,15 +70,13 @@ const list = computed(() => {
 });
 
 const { results } = useFuse(query, list, {
-  fuseOptions: { keys: ["name", "host"], includeScore: true },
-  resultLimit,
-  matchAllWhenSearchEmpty: true,
-});
-
-const data = computed(() => {
-  return results.value
-    .sort((a, b) => {
+  fuseOptions: {
+    keys: ["name", "host"],
+    includeScore: true,
+    useExtendedSearch: true,
+    sortFn: (a, b) => {
       if (a.score === b.score) {
+        // @ts-ignore
         if (a.item.state === "running" && b.item.state !== "running") {
           return -1;
         } else {
@@ -88,9 +87,14 @@ const data = computed(() => {
       } else {
         return 0;
       }
-    })
-    .map(({ item }) => item)
-    .slice(0, resultLimit);
+    },
+  },
+  resultLimit,
+  matchAllWhenSearchEmpty: true,
+});
+
+const data = computed(() => {
+  return results.value.map(({ item }) => item).slice(0, resultLimit);
 });
 
 watch(query, (data) => {
@@ -103,12 +107,10 @@ onMounted(() => input.value?.focus());
 
 function selected({ id }: { id: string }) {
   router.push({ name: "container-id", params: { id } });
-  query.value = "";
   close();
 }
 function addColumn(container: { id: string }) {
   store.appendActiveContainer(container);
-  query.value = "";
   close();
 }
 </script>
