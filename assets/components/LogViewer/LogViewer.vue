@@ -1,7 +1,7 @@
 <template>
   <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
-      v-for="(item, index) in filtered"
+      v-for="item in filtered"
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
