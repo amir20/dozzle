@@ -37,11 +37,11 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
 
-    // {
-    //   name: "Mobile Chrome",
-    //   use: { ...devices["Pixel 5"] },
-    //   testMatch: "**/visual.spec.ts",
-    // },
+    {
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
+      testMatch: "**/visual.spec.ts",
+    },
 
     /* Test against branded browsers. */
     // {

@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2">
+  <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: 'index' }">
         <svg class="h-14 w-28 fill-secondary">
@@ -11,7 +11,7 @@
         <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
           <mdi:light-magnify class="h-5 w-5" />
         </a>
-        <label class="btn btn-circle swap swap-rotate">
+        <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
           <input type="checkbox" v-model="show" />
           <mdi:close class="swap-on" />
           <mdi:hamburger-menu class="swap-off" />
