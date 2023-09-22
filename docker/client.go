@@ -157,10 +157,14 @@ func (d *Client) ListContainers() ([]Container, error) {
 
 	var containers = make([]Container, 0, len(list))
 	for _, c := range list {
+		name := "no name"
+		if len(c.Names) > 0 {
+			name = strings.TrimPrefix(c.Names[0], "/")
+		}
 		container := Container{
 			ID:      c.ID[:12],
 			Names:   c.Names,
-			Name:    strings.TrimPrefix(c.Names[0], "/"),
+			Name:    name,
 			Image:   c.Image,
 			ImageID: c.ImageID,
 			Command: c.Command,
