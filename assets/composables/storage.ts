@@ -7,7 +7,7 @@ if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
 }
 
-export function persistentVisibleKeys(container: ComputedRef<Container>) {
+export function persistentVisibleKeys(container: Ref<Container>) {
   return computed(() => useStorage(container.value.storageKey, []));
 }
 

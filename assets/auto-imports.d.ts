@@ -102,6 +102,7 @@ declare global {
   const persistentVisibleKeys: typeof import('./composables/storage')['persistentVisibleKeys']
   const pinnedContainers: typeof import('./composables/storage')['pinnedContainers']
   const provide: typeof import('vue')['provide']
+  const provideContainerContext: typeof import('./composables/containerContext')['provideContainerContext']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
   const reactive: typeof import('vue')['reactive']
@@ -186,6 +187,7 @@ declare global {
   const useCloned: typeof import('@vueuse/core')['useCloned']
   const useColorMode: typeof import('@vueuse/core')['useColorMode']
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
+  const useContainerContext: typeof import('./composables/containerContext')['useContainerContext']
   const useContainerStore: typeof import('./stores/container')['useContainerStore']
   const useCounter: typeof import('@vueuse/core')['useCounter']
   const useCssModule: typeof import('vue')['useCssModule']
@@ -453,6 +455,7 @@ declare module 'vue' {
     readonly persistentVisibleKeys: UnwrapRef<typeof import('./composables/storage')['persistentVisibleKeys']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composables/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly provideContainerContext: UnwrapRef<typeof import('./composables/containerContext')['provideContainerContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -533,6 +536,7 @@ declare module 'vue' {
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
+    readonly useContainerContext: UnwrapRef<typeof import('./composables/containerContext')['useContainerContext']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
@@ -785,6 +789,7 @@ declare module '@vue/runtime-core' {
     readonly persistentVisibleKeys: UnwrapRef<typeof import('./composables/storage')['persistentVisibleKeys']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composables/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly provideContainerContext: UnwrapRef<typeof import('./composables/containerContext')['provideContainerContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -865,6 +870,7 @@ declare module '@vue/runtime-core' {
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
+    readonly useContainerContext: UnwrapRef<typeof import('./composables/containerContext')['useContainerContext']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>

@@ -35,12 +35,8 @@ const {
 const close = defineEmit();
 
 const store = useContainerStore();
-
 const container = store.currentContainer($$(id));
-const config = reactive({ stdout: true, stderr: true });
-
-provide("container", container);
-provide("stream-config", config);
+provideContainerContext(container);
 
 const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
 

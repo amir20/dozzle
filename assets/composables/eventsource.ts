@@ -26,7 +26,7 @@ type LogStreamConfig = {
   stderr: boolean;
 };
 
-export function useLogStream(container: ComputedRef<Container>, streamConfig: LogStreamConfig) {
+export function useLogStream(container: Ref<Container>, streamConfig: LogStreamConfig) {
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
