@@ -7,7 +7,8 @@
   --base-content-color: 0 0% 21%;
   --primary-color: 171 100% 41%;
   --primary-focus-color: 171 100% 31%;
-  --secondary-color: 44 100% 77%;
+  --secondary-color: 34 95% 53%;
+  --secondary-focus-color: 34 95% 43%;
 }
 
 @define-mixin dark {

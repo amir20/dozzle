@@ -5,7 +5,7 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
-      class="flex break-words px-4 py-1 last:snap-end odd:bg-base-lighter/30"
+      class="flex break-words px-4 py-1 last:snap-end odd:bg-gray-400/[0.07]"
     >
       <a
         class="btn btn-ghost tooltip-primary tooltip btn-sm tooltip-right mr-4 flex self-start font-sans font-normal normal-case text-secondary hover:text-secondary-focus"

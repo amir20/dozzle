@@ -16,7 +16,7 @@
     <tag class="mobile-hidden font-mono" size="small">{{ container.image.replace(/@sha.*/, "") }}</tag>
     <label class="swap swap-rotate">
       <input type="checkbox" v-model="pinned" />
-      <carbon:star-filled class="swap-on" />
+      <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
   </div>

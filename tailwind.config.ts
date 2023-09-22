@@ -22,6 +22,7 @@ export default {
         primary: "hsl(var(--primary-color) / <alpha-value>)",
         "primary-focus": "hsl(var(--primary-focus-color) / <alpha-value>)",
         secondary: "hsl(var(--secondary-color) / <alpha-value>)",
+        "secondary-focus": "hsl(var(--secondary-focus-color) / <alpha-value>)",
       },
     },
   },
