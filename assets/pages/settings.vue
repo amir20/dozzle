@@ -130,7 +130,7 @@ fetchNextRelease();
   @apply mb-4 border-b border-base-content/50 py-4;
 }
 
-a {
+:deep(a) {
   @apply text-primary underline-offset-4 hover:underline;
 }
 </style>
