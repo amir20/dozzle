@@ -1,6 +1,6 @@
 <template>
   <details class="dropdown" ref="details" v-on-click-outside="close">
-    <summary class="btn btn-primary flex-nowrap font-normal" v-bind="$attrs">
+    <summary class="btn btn-primary flex-nowrap" v-bind="$attrs">
       <slot name="trigger"> {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down /></slot>
     </summary>
     <ul class="menu dropdown-content rounded-box z-50 w-52 bg-base p-2 shadow">

@@ -92,6 +92,10 @@
   .input {
     @apply focus:outline-none;
   }
+
+  .btn {
+    @apply font-normal normal-case;
+  }
 }
 
 @layer utilities {
