@@ -1,5 +1,5 @@
 <template>
-  <aside class="fixed h-screen w-[inherit] overflow-auto p-4" data-testid="navigation">
+  <aside class="fixed h-screen w-[inherit] overflow-auto p-3" data-testid="navigation">
     <h1>
       <router-link :to="{ name: 'index' }">
         <svg class="h-14 w-28 fill-secondary">
@@ -12,7 +12,7 @@
       </small>
     </h1>
 
-    <div class="mt-4 flex gap-4">
+    <div class="flex gap-4">
       <router-link
         :to="{ name: 'settings' }"
         :aria-label="$t('title.settings')"

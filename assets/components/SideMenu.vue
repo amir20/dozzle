@@ -1,9 +1,9 @@
 <template>
   <div v-if="ready" data-testid="side-menu">
-    <div class="breadcrumbs text-sm">
+    <div class="breadcrumbs">
       <ul>
-        <li><a @click.prevent="setHost(null)">Hosts</a></li>
-        <li v-if="sessionHost && hosts[sessionHost]">
+        <li><a @click.prevent="setHost(null)" class="link-primary">Hosts</a></li>
+        <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
           {{ hosts[sessionHost].name }}
         </li>
       </ul>
@@ -141,6 +141,9 @@ const activeContainersById = computed(() =>
 );
 </script>
 <style scoped lang="postcss">
+.menu {
+  @apply text-[0.95em];
+}
 .containers a {
   @apply auto-cols-[auto_max-content];
   .pin {

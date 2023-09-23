@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-16 px-8 pt-8">
+  <div class="flex flex-col gap-16 px-4 pt-8 md:px-8">
     <section>
       <div class="stats grid bg-base-lighter shadow">
         <div class="stat">
