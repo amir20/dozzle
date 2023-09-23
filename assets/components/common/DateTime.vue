@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="inline-flex gap-2">
     <time :datetime="date.toISOString()" class="mobile-hidden">{{ dateStr }}</time>
     <time :datetime="date.toISOString()">{{ timeStr }}</time>
   </div>
