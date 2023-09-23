@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 flex flex-col gap-8 px-10">
+  <div class="mt-10 flex flex-col gap-8 px-4 md:px-8">
     <section>
       <div class="has-underline">
         <h2>{{ $t("settings.about") }}</h2>
