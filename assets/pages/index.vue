@@ -39,7 +39,7 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
   ready: Ref<boolean>;
 };
 
-const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
+const mostRecentContainers = $computed(() => containers.value.toSorted((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
 let totalCpu = $ref(0);

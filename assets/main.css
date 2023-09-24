@@ -38,6 +38,8 @@
     --b2: var(--base-color);
     --b3: var(--base-darker-color);
     --bc: var(--base-content-color);
+    --in: 207 90% 54%;
+    --inc: 207 90% 94%;
   }
   html[data-theme="dark"] {
     @mixin dark;

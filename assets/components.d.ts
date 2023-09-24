@@ -10,6 +10,7 @@ declare module 'vue' {
     BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
+    'Carbon:information': typeof import('~icons/carbon/information')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
