@@ -7,7 +7,7 @@
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
     >
       <a
-        class="tooltip-primary tooltip tooltip-right mr-2 flex items-center font-sans text-secondary hover:text-secondary-focus"
+        class="jump-context tooltip-primary tooltip tooltip-right"
         v-if="isSearching()"
         data-tip="Jump to Context"
         @click="handleJumpLineSelected($event, item)"
@@ -75,6 +75,10 @@ watch(
     @apply flex break-words px-4 py-1 last:snap-end odd:bg-gray-400/[0.07];
     &:last-child {
       scroll-margin-block-end: 5rem;
+    }
+
+    .jump-context {
+      @apply mr-2 flex items-center font-sans text-secondary hover:text-secondary-focus;
     }
   }
 
