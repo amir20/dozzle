@@ -14,8 +14,8 @@ const cpuData = computedWithControl(
     const history = container.value.statHistory;
     const points: Point<unknown>[] = history.map((stat, i) => ({
       x: i,
-      y: stat.snapshot.cpu,
-      value: stat.snapshot.cpu + "%",
+      y: Math.max(0, stat.snapshot.cpu),
+      value: Math.max(0, stat.snapshot.cpu) + "%",
     }));
     return points;
   },

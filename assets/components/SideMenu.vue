@@ -142,7 +142,7 @@ const activeContainersById = computed(() =>
 </script>
 <style scoped lang="postcss">
 .menu {
-  @apply text-[0.95em];
+  @apply text-[0.95rem];
 }
 .containers a {
   @apply auto-cols-[auto_max-content];

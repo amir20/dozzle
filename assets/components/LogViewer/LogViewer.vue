@@ -5,11 +5,10 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
-      class="flex break-words px-4 py-1 last:snap-end odd:bg-gray-400/[0.07]"
     >
       <a
-        class="btn btn-ghost tooltip-primary tooltip btn-sm tooltip-right mr-4 flex self-start font-sans font-normal normal-case text-secondary hover:text-secondary-focus"
-        v-show="isSearching()"
+        class="jump-context tooltip-primary tooltip tooltip-right"
+        v-if="isSearching()"
         data-tip="Jump to Context"
         @click="handleJumpLineSelected($event, item)"
         :href="`#${item.id}`"
@@ -73,8 +72,13 @@ watch(
     monospace;
 
   > li {
+    @apply flex break-words px-4 py-1 last:snap-end odd:bg-gray-400/[0.07];
     &:last-child {
       scroll-margin-block-end: 5rem;
+    }
+
+    .jump-context {
+      @apply mr-2 flex items-center font-sans text-secondary hover:text-secondary-focus;
     }
   }
 
