@@ -102,7 +102,7 @@ export class DockerEventLogEntry extends LogEntry<string> {
   constructor(
     message: string,
     date: Date,
-    public readonly event: string,
+    public readonly event: "container-stopped" | "container-started",
   ) {
     super(message, date.getTime(), date, "stderr", "info");
   }
