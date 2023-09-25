@@ -5,10 +5,6 @@ import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
 import DockerEventLogItem from "@/components/LogViewer/DockerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 
-export interface HasComponent {
-  getComponent(): Component;
-}
-
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
 export type Position = "start" | "end" | "middle" | undefined;
@@ -22,7 +18,7 @@ export interface LogEvent {
   readonly s: "stdout" | "stderr" | "unknown";
 }
 
-export abstract class LogEntry<T extends string | JSONObject> implements HasComponent {
+export abstract class LogEntry<T extends string | JSONObject> {
   protected readonly _message: T;
   constructor(
     message: T,

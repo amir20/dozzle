@@ -15,7 +15,7 @@
       >
         <ic:sharp-find-in-page />
       </a>
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value"></component>
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value" />
     </li>
   </ul>
 </template>
