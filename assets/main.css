@@ -98,6 +98,10 @@
   .btn {
     @apply font-normal normal-case;
   }
+
+  .btn:not(.btn-primary):not(.btn-secondary) {
+    @apply hover:bg-base-lighter;
+  }
 }
 
 @layer utilities {
