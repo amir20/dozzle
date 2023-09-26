@@ -118,4 +118,8 @@
     --nc: var(--pc);
     @apply active;
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
