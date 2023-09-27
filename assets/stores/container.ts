@@ -36,15 +36,17 @@ export const useContainerStore = defineStore("container", () => {
     ready.value = false;
     es = new EventSource(`${config.base}/api/events/stream`);
     es.addEventListener("error", (e) => {
-      showToast(
-        {
-          id: "events-stream",
-          message: t("error.events-stream.message"),
-          title: t("error.events-stream.title"),
-          type: "error",
-        },
-        { once: true },
-      );
+      if (es?.readyState === EventSource.CLOSED) {
+        showToast(
+          {
+            id: "events-stream",
+            message: t("error.events-stream.message"),
+            title: t("error.events-stream.title"),
+            type: "error",
+          },
+          { once: true },
+        );
+      }
     });
 
     es.addEventListener("containers-changed", (e: Event) =>
