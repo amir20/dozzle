@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: {
   hourStyle: "auto" | "24" | "12";
   softWrap: boolean;
   collapseNav: boolean;
+  automaticRedirect: boolean;
 } = {
   search: true,
   size: "medium",
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: {
   hourStyle: "auto",
   softWrap: true,
   collapseNav: false,
+  automaticRedirect: true,
 };
 
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
@@ -42,4 +44,5 @@ export const {
   menuWidth,
   size,
   search,
+  automaticRedirect,
 } = toRefs(settings);

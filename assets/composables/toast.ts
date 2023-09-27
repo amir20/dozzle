@@ -1,18 +1,18 @@
 type Toast = {
   id: number;
   createdAt: Date;
+  title?: string;
   message: string;
   type: "success" | "error" | "warning" | "info";
 };
 
 const toasts = ref<Toast[]>([]);
 
-const showToast = (message: string, type: Toast["type"], expire = -1) => {
+const showToast = (toast: Omit<Toast, "id" | "createdAt">, expire = -1) => {
   toasts.value.push({
     id: Date.now(),
     createdAt: new Date(),
-    message,
-    type,
+    ...toast,
   });
   if (expire > 0) {
     setTimeout(() => {

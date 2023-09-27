@@ -80,6 +80,10 @@
       <div>
         <toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</toggle>
       </div>
+
+      <div>
+        <toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</toggle>
+      </div>
     </section>
   </div>
 </template>
@@ -95,6 +99,7 @@ import {
   showAllContainers,
   size,
   softWrap,
+  automaticRedirect,
 } from "@/composables/settings";
 
 const { t } = useI18n();
