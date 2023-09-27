@@ -7,13 +7,18 @@ type Toast = {
 
 const toasts = ref<Toast[]>([]);
 
-const showToast = (message: string, type: Toast["type"]) => {
+const showToast = (message: string, type: Toast["type"], expire = -1) => {
   toasts.value.push({
     id: Date.now(),
     createdAt: new Date(),
     message,
     type,
   });
+  if (expire > 0) {
+    setTimeout(() => {
+      removeToast(toasts.value[0].id);
+    }, expire);
+  }
 };
 
 const removeToast = (id: Toast["id"]) => {

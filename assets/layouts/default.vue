@@ -49,6 +49,8 @@
       :key="toast.id"
       :class="{ 'alert-error': toast.type === 'error', 'alert-info': toast.type === 'info' }"
     >
+      <carbon:information class="h-6 w-6 shrink-0 stroke-current" v-if="toast.type === 'info'" />
+      <carbon:warning class="h-6 w-6 shrink-0 stroke-current" v-else-if="toast.type === 'error'" />
       <span>{{ toast.message }}</span>
       <div>
         <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)"><mdi:close /></button>

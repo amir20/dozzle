@@ -14,6 +14,7 @@ declare module 'vue' {
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
+    'Carbon:warning': typeof import('~icons/carbon/warning')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']
@@ -24,6 +25,7 @@ declare module 'vue' {
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
+    copy: typeof import('./components/common/Tag copy.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
@@ -73,6 +75,7 @@ declare module 'vue' {
     StatMonitor: typeof import('./components/LogViewer/StatMonitor.vue')['default']
     StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
     Tag: typeof import('./components/common/Tag.vue')['default']
+    TimedButton: typeof import('./components/common/TimedButton.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }

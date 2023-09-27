@@ -11,7 +11,12 @@
         you want to redirect to the new one?
       </span>
       <div>
-        <router-link :to="{ name: 'container-id', params: { id: nextContainer.id } }" class="btn btn-primary btn-sm">
+        <TimedButton v-if="redirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
+        <router-link
+          :to="{ name: 'container-id', params: { id: nextContainer.id } }"
+          class="btn btn-primary btn-sm"
+          v-else
+        >
           Redirect
         </router-link>
       </div>
@@ -20,6 +25,8 @@
 </template>
 <script lang="ts" setup>
 import { DockerEventLogEntry } from "@/models/LogEntry";
+const router = useRouter();
+const { showToast } = useToast();
 
 const { logEntry } = defineProps<{
   logEntry: DockerEventLogEntry;
@@ -28,6 +35,7 @@ const { logEntry } = defineProps<{
 const store = useContainerStore();
 const { containers } = storeToRefs(store);
 const { container } = useContainerContext();
+const redirect = ref(true);
 
 const nextContainer = computed(
   () =>
@@ -41,6 +49,10 @@ const nextContainer = computed(
       )
       .toSorted((a, b) => +a.created - +b.created)[0],
 );
+function redirectNow() {
+  showToast("Redirected to new container.", "info", 5000);
+  router.push({ name: "container-id", params: { id: nextContainer.value.id } });
+}
 </script>
 
 <style lang="postcss" scoped>
