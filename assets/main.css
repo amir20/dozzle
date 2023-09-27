@@ -40,6 +40,8 @@
     --bc: var(--base-content-color);
     --in: 207 90% 54%;
     --inc: 207 90% 94%;
+    --er: 4 90% 58%;
+    --erc: 4 90% 98%;
   }
   html[data-theme="dark"] {
     @mixin dark;

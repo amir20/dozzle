@@ -24,15 +24,15 @@
         </splitpanes>
       </pane>
     </splitpanes>
-    <button
-      @click="collapse"
-      class="btn btn-circle fixed bottom-8 left-4"
-      :class="{ '-left-3': collapseNav }"
+    <label
+      class="btn btn-circle swap swap-rotate fixed bottom-8 left-4"
+      :class="{ '!-left-3': collapseNav }"
       v-if="!isMobile"
     >
-      <mdi:light-chevron-right v-if="collapseNav" />
-      <mdi:light-chevron-left v-else />
-    </button>
+      <input type="checkbox" v-model="collapseNav" />
+      <mdi:light-chevron-right class="swap-on text-secondary" />
+      <mdi:light-chevron-left class="swap-off" />
+    </label>
   </div>
   <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm" @close="open = false">
     <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
@@ -42,15 +42,31 @@
       <button>close</button>
     </form>
   </dialog>
+  <div class="toast toast-end whitespace-normal">
+    <div
+      class="alert max-w-xl"
+      v-for="toast in toasts"
+      :key="toast.id"
+      :class="{ 'alert-error': toast.type === 'error', 'alert-info': toast.type === 'info' }"
+    >
+      <span>{{ toast.message }}</span>
+      <div>
+        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)"><mdi:close /></button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 // @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
+import { collapseNav } from "@/composables/settings";
 const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
 const { activeContainers } = storeToRefs(containerStore);
+
+const { toasts, removeToast } = useToast();
 
 const modal = ref<HTMLDialogElement>();
 const open = ref(false);
@@ -74,9 +90,6 @@ function showFuzzySearch() {
   open.value = true;
 }
 
-function collapse() {
-  collapseNav.value = !collapseNav.value;
-}
 function onResized(e: any) {
   if (e.length == 2) {
     menuWidth.value = e[0].size;

@@ -2,6 +2,11 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
+import i18n from "@/modules/i18n";
+
+const { showToast } = useToast();
+// @ts-ignore
+const { t } = i18n.global;
 
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
@@ -30,6 +35,9 @@ export const useContainerStore = defineStore("container", () => {
     es?.close();
     ready.value = false;
     es = new EventSource(`${config.base}/api/events/stream`);
+    es.addEventListener("error", (e) => {
+      showToast(t("error.events-stream"), "error");
+    });
 
     es.addEventListener("containers-changed", (e: Event) =>
       updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[]),
@@ -62,6 +70,14 @@ export const useContainerStore = defineStore("container", () => {
   }
 
   connect();
+
+  (async function () {
+    try {
+      await until(ready).toBe(true, { timeout: 8000, throwOnTimeout: true });
+    } catch (e) {
+      showToast(t("error.events-timeout"), "error");
+    }
+  })();
 
   const updateContainers = (containersPayload: ContainerJson[]) => {
     const existingContainers = containersPayload.filter((c) => allContainersById.value[c.id]);
