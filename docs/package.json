@@ -1,13 +1,14 @@
 {
   "private": true,
   "type": "module",
+  "name": "docs",
   "devDependencies": {
-    "@netlify/functions": "^2.0.2",
-    "@unocss/preset-typography": "^0.56.1",
-    "@unocss/reset": "^0.56.1",
-    "@unocss/transformer-directives": "^0.56.1",
+    "@netlify/functions": "^2.1.0",
+    "@unocss/preset-typography": "^0.56.4",
+    "@unocss/reset": "^0.56.4",
+    "@unocss/transformer-directives": "^0.56.4",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.56.1"
+    "unocss": "^0.56.4"
   }
 }
