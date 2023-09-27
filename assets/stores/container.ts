@@ -36,7 +36,15 @@ export const useContainerStore = defineStore("container", () => {
     ready.value = false;
     es = new EventSource(`${config.base}/api/events/stream`);
     es.addEventListener("error", (e) => {
-      showToast(t("error.events-stream"), "error");
+      showToast(
+        {
+          id: "events-stream",
+          message: t("error.events-stream.message"),
+          title: t("error.events-stream.title"),
+          type: "error",
+        },
+        { once: true },
+      );
     });
 
     es.addEventListener("containers-changed", (e: Event) =>
@@ -75,7 +83,15 @@ export const useContainerStore = defineStore("container", () => {
     try {
       await until(ready).toBe(true, { timeout: 8000, throwOnTimeout: true });
     } catch (e) {
-      showToast(t("error.events-timeout"), "error");
+      showToast(
+        {
+          id: "events-timeout",
+          message: t("error.events-timeout.message"),
+          title: t("error.events-timeout.title"),
+          type: "error",
+        },
+        { once: true },
+      );
     }
   })();
 

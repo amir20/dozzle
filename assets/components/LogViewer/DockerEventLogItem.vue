@@ -6,12 +6,17 @@
       v-if="nextContainer && logEntry.event === 'container-stopped'"
     >
       <carbon:information class="h-6 w-6 shrink-0 stroke-current" />
-      <span>
-        Another container instance with the same name was created <distance-time :date="nextContainer.created" />. Do
-        you want to redirect to the new one?
-      </span>
       <div>
-        <router-link :to="{ name: 'container-id', params: { id: nextContainer.id } }" class="btn btn-primary btn-sm">
+        <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
+        {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
+      </div>
+      <div>
+        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
+        <router-link
+          :to="{ name: 'container-id', params: { id: nextContainer.id } }"
+          class="btn btn-primary btn-sm"
+          v-else
+        >
           Redirect
         </router-link>
       </div>
@@ -20,6 +25,9 @@
 </template>
 <script lang="ts" setup>
 import { DockerEventLogEntry } from "@/models/LogEntry";
+const router = useRouter();
+const { showToast } = useToast();
+const { t } = useI18n();
 
 const { logEntry } = defineProps<{
   logEntry: DockerEventLogEntry;
@@ -41,6 +49,18 @@ const nextContainer = computed(
       )
       .toSorted((a, b) => +a.created - +b.created)[0],
 );
+
+function redirectNow() {
+  showToast(
+    {
+      title: t("alert.redirected.title"),
+      message: t("alert.redirected.message", { containerId: nextContainer.value.id }),
+      type: "info",
+    },
+    { expire: 5000 },
+  );
+  router.push({ name: "container-id", params: { id: nextContainer.value.id } });
+}
 </script>
 
 <style lang="postcss" scoped>

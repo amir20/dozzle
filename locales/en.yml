@@ -25,16 +25,30 @@ tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
 error:
-  page-not-found: This page does not exist.
-  invalid-auth: Username and password are not valid.
+  page-not-found: This page does not exist
+  invalid-auth: Username or password are not valid
   logs-skipped: Skipped {total} entries
-  container-not-found: Container not found.
-  events-stream: >-
-    Unexpected error received from Dozzle API. Please check Dozzle logs and make
-    sure proper installation.
-  events-timeout: >-
-    Something is not right. Dozzle still hasn't received any data over 8
-    seconds. Please check network settings.
+  container-not-found: Container not found
+  events-stream:
+    title: Unexpected Error
+    message: >-
+      Dozzle UI wasn't able to connect API. Please check your network settings.
+      If you are using a reverse proxy, please make sure it is configured
+      properly.
+  events-timeout:
+    title: Something is not right
+    message: >-
+      Dozzle UI timeed out while connecting to API. Please check network
+      connection and try again.
+alert:
+  redirected:
+    title: Redirected to new container
+    message: Dozzle automatically redirected you to new container {containerId}.
+  similar-container-found:
+    title: Similar container found
+    message: >-
+      Dozzle found a similar container {containerId} that is running on the same
+      host. Do you want to switch to it?
 title:
   page-not-found: Page not found
   login: Authentication Required
@@ -65,3 +79,4 @@ settings:
     New version is available! Update to <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Show stdout and stderr labels
+  automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen

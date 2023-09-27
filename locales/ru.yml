@@ -28,6 +28,23 @@ error:
   invalid-auth: Имя пользователя или пароль неверны.
   logs-skipped: Пропущено {total} записей
   container-not-found: Контейнер не найден.
+  events-stream:
+    title: Неожиданная ошибка
+    message: >-
+      Dozzle UI не смог подключиться к API. Пожалуйста, проверьте настройки сети.
+      Если вы используете обратный прокси, убедитесь, что он настроен правильно.
+  events-timeout:
+    title: Что-то не так
+    message: >-
+      Dozzle UI превысил время ожидания при подключении к API. Пожалуйста, проверьте сетевое подключение и повторите попытку.
+alert:
+  redirected:
+    title: Перенаправлен на новый контейнер
+    message: Dozzle автоматически перенаправил вас на новый контейнер {containerId}.
+  similar-container-found:
+    title: Найден похожий контейнер
+    message: >-
+      Dozzle нашел похожий контейнер {containerId}, который работает на том же хосте. Хотите переключиться на него?
 title:
   page-not-found: Страница не найдена
   login: Требуется авторизация
@@ -56,3 +73,4 @@ settings:
   update-available: >-
     Доступна новая версия! Обновить до <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Показывать метки stdout и stderr
+  automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.

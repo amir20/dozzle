@@ -28,6 +28,23 @@ error:
   invalid-auth: 用户名和密码无效。
   logs-skipped: 跳过 {total} 条记录
   container-not-found: 容器未找到。
+  events-stream:
+    title: 意外错误
+    message: >-
+      Dozzle UI无法连接到API。请检查您的网络设置。
+      如果您使用反向代理，请确保其正确配置。
+  events-timeout:
+    title: 出了点问题
+    message: >-
+      Dozzle UI在连接到API时超时。请检查网络连接并重试。
+alert:
+  redirected:
+    title: 重定向到新容器
+    message: Dozzle自动将您重定向到新容器 {containerId}。
+  similar-container-found:
+    title: 找到相似的容器
+    message: >-
+      Dozzle发现了一个相似的容器 {containerId}，它在同一主机上运行。您想切换到它吗？d
 title:
   page-not-found: 页面未找到
   login: 需要身份验证
@@ -56,3 +73,4 @@ settings:
   update-available: >-
     新版本可用！更新到 <a href="{href}" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 显示stdout和stderr标签
+  automatic-redirect: 自动重定向到同名的新容器
