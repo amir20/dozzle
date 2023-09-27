@@ -77,4 +77,4 @@ settings:
   update-available: >-
     Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
-  automatic-redirect: Automatische Weiterleitung
+  automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
