@@ -57,7 +57,7 @@ function redirectNow() {
       message: t("alert.redirected.message", { containerId: nextContainer.value.id }),
       type: "info",
     },
-    5000,
+    { expire: 5000 },
   );
   router.push({ name: "container-id", params: { id: nextContainer.value.id } });
 }

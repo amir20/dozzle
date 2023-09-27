@@ -28,6 +28,23 @@ error:
   invalid-auth: O nome de usuário e a senha não são válidos.
   logs-skipped: Saltado {total} entradas
   container-not-found: Contentor não encontrado.
+  events-stream:
+    title: Erro inesperado
+    message: >-
+      Dozzle UI não conseguiu ligar à API. Por favor, verifique as suas definições de rede.
+      Se estiver a utilizar um proxy reverso, certifique-se de que está configurado correctamente.
+  events-timeout:
+    title: Algo não está bem
+    message: >-
+      Dozzle UI esgotou o tempo limite ao ligar à API. Por favor, verifique a ligação de rede e tente novamente.
+alert:
+  redirected:
+    title: Redirecionado para novo contentor
+    message: Dozzle redirecionou-o automaticamente para o novo contentor {containerId}.
+  similar-container-found:
+    title: Contentor semelhante encontrado
+    message: >-
+      Dozzle encontrou um contentor semelhante {containerId} que está a ser executado no mesmo anfitrião. Quer mudar para ele?
 title:
   page-not-found: Página não encontrada
   login: Autenticação Requerida
@@ -58,3 +75,4 @@ settings:
     Está disponível uma nova versão! Actualização para
     <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de saída padrão e saída de erro padrão
+  automatic-redirect: Redirecionar automaticamente para novos contentores com o mesmo nome

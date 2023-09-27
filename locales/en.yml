@@ -79,4 +79,4 @@ settings:
     New version is available! Update to <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Show stdout and stderr labels
-  automatic-redirect: Automatically redirect to new containers with the same name
+  automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen

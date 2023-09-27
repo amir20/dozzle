@@ -28,6 +28,26 @@ error:
   invalid-auth: Benutzername und Passwort sind ungültig.
   logs-skipped: \{total} Einträge übersprungen
   container-not-found: Container nicht gefunden.
+  events-stream:
+    title: Unerwarteter Fehler
+    message: >-
+      Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfen Sie
+      Ihre Netzwerkeinstellungen. Wenn Sie einen Reverse-Proxy verwenden,
+      stellen Sie bitte sicher, dass er ordnungsgemäß konfiguriert ist.
+  events-timeout:
+    title: Etwas stimmt nicht
+    message: >-
+      Dozzle UI hat beim Verbinden mit der API ein Timeout. Bitte überprüfen Sie
+      die Netzwerkverbindung und versuchen Sie es erneut.
+alert:
+  redirected:
+    title: Zu neuem Container umgeleitet
+    message: Dozzle hat Sie automatisch zu neuem Container {containerId} umgeleitet.
+  similar-container-found:
+    title: Ähnlicher Container gefunden
+    message: >-
+      Dozzle hat einen ähnlichen Container {containerId} gefunden, der auf dem
+      gleichen Host ausgeführt wird. Möchten Sie zu ihm wechseln?
 title:
   page-not-found: Seite nicht gefunden
   login: Authentifizierung erforderlich
@@ -57,3 +77,4 @@ settings:
   update-available: >-
     Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
+  automatic-redirect: Automatische Weiterleitung
