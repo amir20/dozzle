@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-4" v-if="container.stat">
     <stat-monitor :data="memoryData" label="mem" :stat-value="formatBytes(unref(container.stat).memoryUsage)" />
-    <stat-monitor :data="cpuData" label="load" :stat-value="unref(container.stat).cpu + '%'" />
+    <stat-monitor :data="cpuData" label="load" :stat-value="Math.max(0, unref(container.stat).cpu) + '%'" />
   </div>
 </template>
 
