@@ -93,7 +93,7 @@ jobs:
         uses: docker/build-push-action@v5.0.0
         with:
           push: true
-          platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
