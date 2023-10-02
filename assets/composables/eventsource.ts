@@ -106,10 +106,10 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       flushBuffer();
       flushBuffer.flush();
     });
-    // es.onerror = (e) => {
-    //   console.error(`EventSource error for ${containerId}.`);
-    //   clearMessage();
-    // };
+    es.onerror = (e) => {
+      console.error(`EventSource error for ${containerId}.`);
+      clearMessage();
+    };
     es.onmessage = (e) => {
       lastEventId = e.lastEventId;
       if (e.data) {
