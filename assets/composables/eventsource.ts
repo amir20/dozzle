@@ -172,7 +172,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   watch(
     () => container.value.id,
     () => connect(),
-    { immediate: true, flush: "pre" },
+    { immediate: true },
   );
 
   watch(streamConfig, () => connect());
