@@ -62,7 +62,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   function close() {
     if (es) {
       es.close();
-      console.log(`EventSource closed for ${containerId}`);
+      console.debug(`EventSource closed for ${containerId}`);
       es = null;
     }
   }
@@ -72,7 +72,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     messages = [];
     buffer = [];
     lastEventId = "";
-    console.log(`Clearing messages for ${containerId}`);
+    console.debug(`Clearing messages for ${containerId}`);
   }
 
   function connect({ clear } = { clear: true }) {
@@ -94,7 +94,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     }
     containerId = container.value.id;
 
-    console.log(`Connecting to ${containerId} with params`, params);
+    console.debug(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
       `${config.base}/api/logs/stream/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
@@ -107,7 +107,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       flushBuffer.flush();
     });
     es.onerror = (e) => {
-      console.error(`EventSource error for ${containerId}.`);
+      console.error(`Unexpected error for eventsource container-id:${containerId}. Clearing logs and reconnecting.`);
       clearMessage();
     };
     es.onmessage = (e) => {
@@ -117,7 +117,6 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
         flushBuffer();
       }
     };
-    es.onopen = () => console.log(`EventSource connected to ${containerId}`);
   }
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
