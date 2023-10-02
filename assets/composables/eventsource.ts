@@ -30,6 +30,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
+  let containerId = container.value.id;
 
   function flushNow() {
     if (messages.length > config.maxLogs) {
@@ -61,7 +62,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   function close() {
     if (es) {
       es.close();
-      console.log(`EventSource closed for ${container.value.id}`);
+      console.log(`EventSource closed for ${containerId}`);
       es = null;
     }
   }
@@ -71,7 +72,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     messages = [];
     buffer = [];
     lastEventId = "";
-    console.log(`Clearing messages for ${container.value.id}`);
+    console.log(`Clearing messages for ${containerId}`);
   }
 
   function connect({ clear } = { clear: true }) {
@@ -91,13 +92,12 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     if (streamConfig.stderr) {
       params.stderr = "1";
     }
+    containerId = container.value.id;
 
-    console.log(`Connecting to ${container.value.id} with params`, params);
+    console.log(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
-      `${config.base}/api/logs/stream/${container.value.host}/${container.value.id}?${new URLSearchParams(
-        params,
-      ).toString()}`,
+      `${config.base}/api/logs/stream/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
     );
     es.addEventListener("container-stopped", () => {
       close();
@@ -106,10 +106,10 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       flushBuffer();
       flushBuffer.flush();
     });
-    es.onerror = (e) => {
-      console.log(`EventSource error for ${container.value.id}. `);
-      clearMessage();
-    };
+    // es.onerror = (e) => {
+    //   console.error(`EventSource error for ${containerId}.`);
+    //   clearMessage();
+    // };
     es.onmessage = (e) => {
       lastEventId = e.lastEventId;
       if (e.data) {
@@ -117,7 +117,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
         flushBuffer();
       }
     };
-    es.onopen = () => console.log(`EventSource connected to ${container.value.id}`);
+    es.onopen = () => console.log(`EventSource connected to ${containerId}`);
   }
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
@@ -143,9 +143,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
 
     const logs = await (
       await fetch(
-        `${config.base}/api/logs/${container.value.host}/${container.value.id}?${new URLSearchParams(
-          params,
-        ).toString()}`,
+        `${config.base}/api/logs/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
       )
     ).text();
     if (logs) {
@@ -174,7 +172,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   watch(
     () => container.value.id,
     () => connect(),
-    { immediate: true },
+    { immediate: true, flush: "pre" },
   );
 
   watch(streamConfig, () => connect());
