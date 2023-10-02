@@ -58,15 +58,27 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;
   let lastEventId = "";
+  function close() {
+    if (es) {
+      es.close();
+      console.log(`EventSource closed for ${container.value.id}`);
+      es = null;
+    }
+  }
+
+  function clearMessage() {
+    flushBuffer.cancel();
+    messages = [];
+    buffer = [];
+    lastEventId = "";
+    console.log(`Clearing messages for ${container.value.id}`);
+  }
 
   function connect({ clear } = { clear: true }) {
-    es?.close();
+    close();
 
     if (clear) {
-      flushBuffer.cancel();
-      messages = [];
-      buffer = [];
-      lastEventId = "";
+      clearMessage();
     }
 
     const params = {
@@ -80,20 +92,24 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       params.stderr = "1";
     }
 
+    console.log(`Connecting to ${container.value.id} with params`, params);
+
     es = new EventSource(
       `${config.base}/api/logs/stream/${container.value.host}/${container.value.id}?${new URLSearchParams(
         params,
       ).toString()}`,
     );
     es.addEventListener("container-stopped", () => {
-      es?.close();
-      es = null;
+      close();
       buffer.push(new DockerEventLogEntry("Container stopped", new Date(), "container-stopped"));
 
       flushBuffer();
       flushBuffer.flush();
     });
-    es.addEventListener("error", (e) => console.error("EventSource failed: " + JSON.stringify(e)));
+    es.onerror = (e) => {
+      console.log(`EventSource error for ${container.value.id}. `);
+      clearMessage();
+    };
     es.onmessage = (e) => {
       lastEventId = e.lastEventId;
       if (e.data) {
@@ -101,6 +117,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
         flushBuffer();
       }
     };
+    es.onopen = () => console.log(`EventSource connected to ${container.value.id}`);
   }
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
@@ -152,11 +169,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     },
   );
 
-  onUnmounted(() => {
-    if (es) {
-      es.close();
-    }
-  });
+  onUnmounted(() => close());
 
   watch(
     () => container.value.id,
