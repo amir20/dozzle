@@ -58,7 +58,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;
-  let lastEventId = "";
+
   function close() {
     if (es) {
       es.close();
@@ -67,11 +67,10 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     }
   }
 
-  function clearMessage() {
+  function clearMessages() {
     flushBuffer.cancel();
     messages = [];
     buffer = [];
-    lastEventId = "";
     console.debug(`Clearing messages for ${containerId}`);
   }
 
@@ -79,12 +78,10 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     close();
 
     if (clear) {
-      clearMessage();
+      clearMessages();
     }
 
-    const params = {
-      lastEventId,
-    } as { lastEventId: string; stdout?: string; stderr?: string };
+    const params = {} as { stdout?: string; stderr?: string };
 
     if (streamConfig.stdout) {
       params.stdout = "1";
@@ -108,10 +105,9 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     });
     es.onerror = (e) => {
       console.error(`Unexpected error for eventsource container-id:${containerId}. Clearing logs and reconnecting.`);
-      clearMessage();
+      clearMessages();
     };
     es.onmessage = (e) => {
-      lastEventId = e.lastEventId;
       if (e.data) {
         buffer.push(parseMessage(e.data));
         flushBuffer();
