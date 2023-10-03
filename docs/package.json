@@ -4,11 +4,11 @@
   "name": "docs",
   "devDependencies": {
     "@netlify/functions": "^2.1.0",
-    "@unocss/preset-typography": "^0.56.4",
-    "@unocss/reset": "^0.56.4",
-    "@unocss/transformer-directives": "^0.56.4",
+    "@unocss/preset-typography": "^0.56.5",
+    "@unocss/reset": "^0.56.5",
+    "@unocss/transformer-directives": "^0.56.5",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.56.4"
+    "unocss": "^0.56.5"
   }
 }
