@@ -144,12 +144,14 @@
 }
 
 .VPHomeHero .name {
-  @apply font-playfair font-light text-7xl;
+  @apply text-7xl font-light;
+  font-family: "Playfair Display", serif;
 }
 
 .VPNavBarTitle .title {
-  @apply font-playfair font-light text-3xl;
+  @apply text-3xl font-light;
   color: var(--bar-title-color);
+  font-family: "Playfair Display", serif;
 }
 
 .VPHero .container .image {
