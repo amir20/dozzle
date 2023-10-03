@@ -30,6 +30,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
+  let containerId = container.value.id;
 
   function flushNow() {
     if (messages.length > config.maxLogs) {
@@ -57,21 +58,30 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
   let es: EventSource | null = null;
-  let lastEventId = "";
+
+  function close() {
+    if (es) {
+      es.close();
+      console.debug(`EventSource closed for ${containerId}`);
+      es = null;
+    }
+  }
+
+  function clearMessages() {
+    flushBuffer.cancel();
+    messages = [];
+    buffer = [];
+    console.debug(`Clearing messages for ${containerId}`);
+  }
 
   function connect({ clear } = { clear: true }) {
-    es?.close();
+    close();
 
     if (clear) {
-      flushBuffer.cancel();
-      messages = [];
-      buffer = [];
-      lastEventId = "";
+      clearMessages();
     }
 
-    const params = {
-      lastEventId,
-    } as { lastEventId: string; stdout?: string; stderr?: string };
+    const params = {} as { stdout?: string; stderr?: string };
 
     if (streamConfig.stdout) {
       params.stdout = "1";
@@ -79,23 +89,25 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     if (streamConfig.stderr) {
       params.stderr = "1";
     }
+    containerId = container.value.id;
+
+    console.debug(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
-      `${config.base}/api/logs/stream/${container.value.host}/${container.value.id}?${new URLSearchParams(
-        params,
-      ).toString()}`,
+      `${config.base}/api/logs/stream/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
     );
     es.addEventListener("container-stopped", () => {
-      es?.close();
-      es = null;
+      close();
       buffer.push(new DockerEventLogEntry("Container stopped", new Date(), "container-stopped"));
 
       flushBuffer();
       flushBuffer.flush();
     });
-    es.addEventListener("error", (e) => console.error("EventSource failed: " + JSON.stringify(e)));
+    es.onerror = (e) => {
+      console.error(`Unexpected error for eventsource container-id:${containerId}. Clearing logs and reconnecting.`);
+      clearMessages();
+    };
     es.onmessage = (e) => {
-      lastEventId = e.lastEventId;
       if (e.data) {
         buffer.push(parseMessage(e.data));
         flushBuffer();
@@ -126,9 +138,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
 
     const logs = await (
       await fetch(
-        `${config.base}/api/logs/${container.value.host}/${container.value.id}?${new URLSearchParams(
-          params,
-        ).toString()}`,
+        `${config.base}/api/logs/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
       )
     ).text();
     if (logs) {
@@ -152,11 +162,7 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     },
   );
 
-  onUnmounted(() => {
-    if (es) {
-      es.close();
-    }
-  });
+  onUnmounted(() => close());
 
   watch(
     () => container.value.id,

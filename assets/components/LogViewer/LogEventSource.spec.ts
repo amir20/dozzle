@@ -88,7 +88,7 @@ describe("<LogEventSource />", () => {
     });
   }
 
-  const sourceUrl = "/api/logs/stream/localhost/abc?lastEventId=&stdout=1&stderr=1";
+  const sourceUrl = "/api/logs/stream/localhost/abc?stdout=1&stderr=1";
 
   test("renders correctly", async () => {
     const wrapper = createLogEventSource();
