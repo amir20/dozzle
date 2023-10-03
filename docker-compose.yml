@@ -61,7 +61,7 @@ services:
 
   playwright:
     container_name: playwright
-    image: mcr.microsoft.com/playwright:v1.38.0-jammy
+    image: mcr.microsoft.com/playwright:v1.38.1-jammy
     working_dir: /app
     volumes:
       - .:/app
