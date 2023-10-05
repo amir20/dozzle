@@ -65,6 +65,7 @@ export default defineConfig({
         items: [
           { text: "Authentication", link: "/guide/authentication" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
+          { text: "Hostname", link: "/guide/hostname" },
           { text: "Remote Hosts", link: "/guide/remote-hosts" },
           { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
           { text: "Logging Files on Disk", link: "/guide/log-files-on-disk" },

@@ -79,3 +79,7 @@ services:
 ```
 
 :::
+
+## Changing localhost label
+
+`localhost` is a special connection and uses different configuration than `--remote-host`. Changing the label for localhost can be done using the `--hostname` or `DOZZLE_HOSTNAME` env variable. See [hostname](/guide/hostname) page for examples on how to use this flag.
