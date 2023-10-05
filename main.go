@@ -73,7 +73,7 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter)
+	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter, args.Hostname)
 
 	if len(clients) == 0 {
 		log.Fatal("Could not connect to any Docker Engines")
@@ -132,10 +132,14 @@ func doStartEvent(arg args) {
 
 func createClients(args args,
 	localClientFactory func(map[string][]string) (*docker.Client, error),
-	remoteClientFactory func(map[string][]string, docker.Host) (*docker.Client, error)) map[string]web.DockerClient {
+	remoteClientFactory func(map[string][]string, docker.Host) (*docker.Client, error),
+	hostname string) map[string]web.DockerClient {
 	clients := make(map[string]web.DockerClient)
 
 	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
+		if hostname != "" {
+			localClient.Host().Name = hostname
+		}
 		clients[localClient.Host().ID] = localClient
 	}
 
