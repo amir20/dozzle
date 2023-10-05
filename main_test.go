@@ -77,7 +77,7 @@ func Test_valid_remote(t *testing.T) {
 		RemoteHost: []string{"tcp://test:2375"},
 	}
 
-	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory)
+	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory, "")
 
 	assert.Equal(t, 1, len(clients))
 	assert.Contains(t, clients, "test")
@@ -106,7 +106,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 		RemoteHost: []string{"tcp://test:2375"},
 	}
 
-	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory)
+	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory, "")
 
 	assert.Equal(t, 2, len(clients))
 	assert.Contains(t, clients, "test")
@@ -133,7 +133,7 @@ func Test_no_clients(t *testing.T) {
 
 	args := args{}
 
-	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory)
+	clients := createClients(args, fakeLocalClientFactory, fakeRemoteClientFactory, "")
 
 	assert.Equal(t, 0, len(clients))
 	local.AssertExpectations(t)
