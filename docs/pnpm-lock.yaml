@@ -6,8 +6,8 @@ settings:
 
 devDependencies:
   '@netlify/functions':
-    specifier: ^2.1.0
-    version: 2.1.0
+    specifier: ^2.2.0
+    version: 2.2.0
   '@unocss/preset-typography':
     specifier: ^0.56.5
     version: 0.56.5
@@ -293,11 +293,11 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@netlify/functions@2.1.0:
-    resolution: {integrity: sha512-QWuyj1Q6z6Cqcq3qCcOB75nxjYOxlNmv/d9/nnX4asSRQcWhM/ehXl/KDL6Sl9aufMRe6uQY10s6i9zCDNMRjg==}
+  /@netlify/functions@2.2.0:
+    resolution: {integrity: sha512-Taq7Q3JzdnOtWVtY37dHBSiLiYKMGskOqi05WsqsqhR5K7z9F1ibVjmR5flui8zSEo/E1/pYIVKw9/r9cUs4Aw==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      '@netlify/serverless-functions-api': 1.7.3
+      '@netlify/serverless-functions-api': 1.8.0
       is-promise: 4.0.0
     dev: true
 
@@ -306,8 +306,8 @@ packages:
     engines: {node: ^14.16.0 || >=16.0.0}
     dev: true
 
-  /@netlify/serverless-functions-api@1.7.3:
-    resolution: {integrity: sha512-n6/7cJlSWvvbBlUOEAbkGyEld80S6KbG/ldQI9OhLfe1lTatgKmrTNIgqVNpaWpUdTgP2OHWFjmFBzkxxBWs5w==}
+  /@netlify/serverless-functions-api@1.8.0:
+    resolution: {integrity: sha512-+dsowkoEA+LF4wS9kKafToHNSace7MxD2q3pgBik3N8UjAXBZo7J9t/E7rpkcm5w2ZXklvrDM815bOrzfDE5Jg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
       '@netlify/node-cookies': 0.1.0
