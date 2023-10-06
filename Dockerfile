@@ -22,7 +22,7 @@ COPY public ./public
 # Build assets
 RUN pnpm build
 
-FROM --platform=$BUILDPLATFORM golang:1.21.1-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.21.2-alpine AS builder
 
 RUN apk add --no-cache ca-certificates && mkdir /dozzle
 
