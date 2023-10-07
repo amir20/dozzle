@@ -76,6 +76,12 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
+    es.onopen = () => {
+      if (containers.value.length > 0) {
+        containers.value = [];
+      }
+    };
+
     watchOnce(containers, () => (ready.value = true));
   }
 
