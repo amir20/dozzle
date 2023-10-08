@@ -27,7 +27,7 @@ services:
 
 :::
 
-Dozzle will be available at [http://localhost:8080/foobar/](http://localhost:8080/foobar/). This option rewrites all assets to `/foobar/{file.path}` and automatically redirects `/foobar` to `/foobar/`.
+Dozzle will be available at `http://localhost:8080/foobar/`. This option rewrites all assets to `/foobar/{file.path}` and automatically redirects `/foobar` to `/foobar/`.
 
 ## Example with proxy
 
