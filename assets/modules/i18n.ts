@@ -7,9 +7,15 @@ const messages = Object.fromEntries(
     return [key.slice(14, yaml ? -5 : -4), value.default];
   }),
 );
+
+const userLang = navigator.language;
+const shortLang = userLang.slice(0, 2);
+
+const locale = messages.hasOwnProperty(userLang) ? userLang : shortLang;
+
 const i18n = createI18n({
   legacy: false,
-  locale: navigator.language.slice(0, 2),
+  locale: locale,
   fallbackLocale: "en",
   messages,
 });
