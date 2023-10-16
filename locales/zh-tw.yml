@@ -1,0 +1,58 @@
+toolbar:
+  clear: 清除
+  download: 下載
+  search: 查詢
+  show: 僅顯示 {std}
+  show-all: 顯示全部資料流
+label:
+  containers: 容器
+  total-containers: 總容器數
+  running: 運行中
+  total-cpu-usage: 總 CPU 使用率
+  total-mem-usage: 總記憶體使用率
+  dozzle-version: Dozzle 版本
+  all: 全部
+  host: 主機
+  password: 密碼
+  username: 使用者名稱
+  container-name: 容器名稱
+  status: 狀態
+  created: 建立時間
+  avg-cpu: 平均 CPU (%)
+  avg-mem: 平均記憶體 (%)
+tooltip:
+  search: 查詢容器 (⌘ + k, ⌃k)
+  pin-column: 固定此列
+error:
+  page-not-found: 此頁面不存在。
+  invalid-auth: 使用者名稱和密碼不正確。
+  logs-skipped: 略過 {total} 筆記錄
+  container-not-found: 找不到容器。
+title:
+  page-not-found: 頁面不存在
+  login: 需要身份驗證
+  dashboard: 1 個容器 | {count} 個容器
+  settings: 設定
+button:
+  logout: 登出
+  login: 登入
+  settings: 設定
+placeholder:
+  search-containers: 查詢容器 (⌘ + k, ⌃k)
+settings:
+  display: 顯示
+  small-scrollbars: 使用較小的捲軸
+  show-timesamps: 顯示時間戳記
+  soft-wrap: 自動換行
+  12-24-format: >-
+    預設情況下，Dozzle 會使用您瀏覽器的區域設定來格式化時間。您可以強制使用 12 或 24 小時制。
+  font-size: 日誌的字型大小
+  color-scheme: 顏色配置
+  options: 選項
+  show-stopped-containers: 顯示已停止的容器
+  about: 關於
+  search: 以 Dozzle 進行查詢
+  using-version: 您正在使用 Dozzle {version}。
+  update-available: >-
+    有新版本可用！請更新至 <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
+  show-std: 顯示 stdout 和 stderr 標籤
