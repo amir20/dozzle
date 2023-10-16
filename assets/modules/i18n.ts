@@ -1,15 +1,9 @@
 import { type App } from "vue";
 import { createI18n } from "vue-i18n";
 
-const messages = Object.fromEntries(
-  Object.entries(import.meta.glob<{ default: any }>("../../locales/*.yml", { eager: true })).map(([key, value]) => {
-    return [key.slice(14, -4), value.default];
-  }),
-);
+import messages from "@intlify/unplugin-vue-i18n/messages";
 
-const userLang = navigator.language;
-const shortLang = userLang.slice(0, 2);
-const locale = messages.hasOwnProperty(userLang) ? userLang : shortLang;
+const locale = messages?.hasOwnProperty(navigator.language) ? navigator.language : navigator.language.slice(0, 2);
 
 const i18n = createI18n({
   legacy: false,
@@ -17,6 +11,7 @@ const i18n = createI18n({
   fallbackLocale: "en",
   messages,
 });
+
 export const install = (app: App) => {
   app.use(i18n);
 };

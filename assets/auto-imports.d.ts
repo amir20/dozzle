@@ -61,6 +61,7 @@ declare global {
   const hourStyle: typeof import('./composables/settings')['hourStyle']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
+  const injectLocal: typeof import('@vueuse/core')['injectLocal']
   const isDefined: typeof import('@vueuse/core')['isDefined']
   const isMobile: typeof import('./composables/media')['isMobile']
   const isObject: typeof import('./utils/index')['isObject']
@@ -105,6 +106,7 @@ declare global {
   const pinnedContainers: typeof import('./composables/storage')['pinnedContainers']
   const provide: typeof import('vue')['provide']
   const provideContainerContext: typeof import('./composables/containerContext')['provideContainerContext']
+  const provideLocal: typeof import('@vueuse/core')['provideLocal']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
   const reactive: typeof import('vue')['reactive']
@@ -420,6 +422,7 @@ declare module 'vue' {
     readonly hourStyle: UnwrapRef<typeof import('./composables/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isMobile: UnwrapRef<typeof import('./composables/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
@@ -461,6 +464,7 @@ declare module 'vue' {
     readonly pinnedContainers: UnwrapRef<typeof import('./composables/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composables/containerContext')['provideContainerContext']>
+    readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -757,6 +761,7 @@ declare module '@vue/runtime-core' {
     readonly hourStyle: UnwrapRef<typeof import('./composables/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isMobile: UnwrapRef<typeof import('./composables/media')['isMobile']>
     readonly isObject: UnwrapRef<typeof import('./utils/index')['isObject']>
@@ -798,6 +803,7 @@ declare module '@vue/runtime-core' {
     readonly pinnedContainers: UnwrapRef<typeof import('./composables/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composables/containerContext')['provideContainerContext']>
+    readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
