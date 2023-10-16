@@ -125,7 +125,8 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 			return "", streamType, err
 		}
 		if n != 8 {
-			return "", streamType, ErrBadHeader
+			message, _ := reader.ReadString('\n')
+			return message, streamType, ErrBadHeader
 		}
 
 		switch header[0] {
@@ -134,7 +135,8 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		case 2:
 			streamType = STDERR
 		default:
-			return "", streamType, ErrBadHeader
+			message, _ := reader.ReadString('\n')
+			return message, streamType, ErrBadHeader
 		}
 
 		count := binary.BigEndian.Uint32(header[4:])
