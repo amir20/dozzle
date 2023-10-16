@@ -71,8 +71,10 @@ export function useLogStream() {
 
   watchEffect(() => {
     close();
-
-    clearMessages();
+    if (containerId != container.value.id) {
+      clearMessages();
+    }
+    containerId = container.value.id;
 
     const params = {} as { stdout?: string; stderr?: string };
 
@@ -82,9 +84,6 @@ export function useLogStream() {
     if (streamConfig.stderr) {
       params.stderr = "1";
     }
-
-    containerId = container.value.id;
-
     console.debug(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
@@ -103,7 +102,7 @@ export function useLogStream() {
         flushBuffer();
       }
     };
-    es.onopen = () => clearMessages();
+    es.onerror = () => clearMessages();
   });
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
@@ -142,16 +141,15 @@ export function useLogStream() {
     afterLoading();
   }
 
-  // watch(
-  //   () => container.value.state,
-  //   (newValue, oldValue) => {
-  //     console.log("LogEventSource: container changed", newValue, oldValue);
-  //     if (newValue == "running" && newValue != oldValue) {
-  //       buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
-  //       connect({ clear: false });
-  //     }
-  //   },
-  // );
+  watch(
+    () => container.value.state,
+    (newValue, oldValue) => {
+      console.log("LogEventSource: container changed", newValue, oldValue);
+      if (newValue == "running" && newValue != oldValue) {
+        buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
+      }
+    },
+  );
 
   onUnmounted(() => close());
 
