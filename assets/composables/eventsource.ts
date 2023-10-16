@@ -97,9 +97,6 @@ export function useLogStream() {
       flushBuffer();
       flushBuffer.flush();
     });
-    es.onerror = (e) => {
-      console.error(`Unexpected error for eventsource container-id:${containerId}. Clearing logs and reconnecting.`);
-    };
     es.onmessage = (e) => {
       if (e.data) {
         buffer.push(parseMessage(e.data));
