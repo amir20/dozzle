@@ -134,7 +134,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		case 2:
 			streamType = STDERR
 		default:
-			log.Warnf("unknown stream type %d", header[0])
+			return "", streamType, ErrBadHeader
 		}
 
 		count := binary.BigEndian.Uint32(header[4:])
