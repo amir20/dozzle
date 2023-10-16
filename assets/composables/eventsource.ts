@@ -104,7 +104,7 @@ export function useLogStream() {
         flushBuffer();
       }
     };
-    es.onerror = (e) => clearMessages();
+    es.onerror = () => clearMessages();
   }
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
