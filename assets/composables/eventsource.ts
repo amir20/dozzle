@@ -76,14 +76,10 @@ export function useLogStream() {
       clearMessages();
     }
 
-    const params = {} as { stdout?: string; stderr?: string };
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
 
-    if (streamConfig.stdout) {
-      params.stdout = "1";
-    }
-    if (streamConfig.stderr) {
-      params.stderr = "1";
-    }
     containerId = container.value.id;
 
     console.debug(`Connecting to ${containerId} with params`, params);
@@ -116,17 +112,9 @@ export function useLogStream() {
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
 
-    const params = {
-      from: from.toISOString(),
-      to: to.toISOString(),
-    } as { from: string; to: string; stdout?: string; stderr?: string };
-
-    if (streamConfig.stdout) {
-      params.stdout = "1";
-    }
-    if (streamConfig.stderr) {
-      params.stderr = "1";
-    }
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), { from: from.toISOString(), to: to.toISOString() });
 
     const logs = await (
       await fetch(
