@@ -6,8 +6,7 @@
 <script lang="ts" setup>
 const loadingMore = defineEmit<[value: boolean]>();
 
-const { container, streamConfig } = useContainerContext();
-const { messages, loadOlderLogs } = useLogStream(container, streamConfig);
+const { messages, loadOlderLogs } = useLogStream();
 
 const beforeLoading = () => loadingMore(true);
 const afterLoading = () => loadingMore(false);

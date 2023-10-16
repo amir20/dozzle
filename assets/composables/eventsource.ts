@@ -9,7 +9,6 @@ import {
   DockerEventLogEntry,
   SkippedLogsEntry,
 } from "@/models/LogEntry";
-import { Container } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data, (key, value) => {
@@ -21,12 +20,8 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-type LogStreamConfig = {
-  stdout: boolean;
-  stderr: boolean;
-};
-
-export function useLogStream(container: Ref<Container>, streamConfig: LogStreamConfig) {
+export function useLogStream() {
+  const { container, streamConfig } = useContainerContext();
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
@@ -74,12 +69,12 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     console.debug(`Clearing messages for ${containerId}`);
   }
 
-  function connect({ clear } = { clear: true }) {
+  watchEffect(() => {
     close();
-
-    if (clear) {
+    if (containerId != container.value.id) {
       clearMessages();
     }
+    containerId = container.value.id;
 
     const params = {} as { stdout?: string; stderr?: string };
 
@@ -89,8 +84,6 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
     if (streamConfig.stderr) {
       params.stderr = "1";
     }
-    containerId = container.value.id;
-
     console.debug(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
@@ -103,17 +96,14 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       flushBuffer();
       flushBuffer.flush();
     });
-    es.onerror = (e) => {
-      console.error(`Unexpected error for eventsource container-id:${containerId}. Clearing logs and reconnecting.`);
-      clearMessages();
-    };
     es.onmessage = (e) => {
       if (e.data) {
         buffer.push(parseMessage(e.data));
         flushBuffer();
       }
     };
-  }
+    es.onerror = () => clearMessages();
+  });
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
     if (messages.length < 300) return;
@@ -157,20 +147,11 @@ export function useLogStream(container: Ref<Container>, streamConfig: LogStreamC
       console.log("LogEventSource: container changed", newValue, oldValue);
       if (newValue == "running" && newValue != oldValue) {
         buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
-        connect({ clear: false });
       }
     },
   );
 
   onUnmounted(() => close());
-
-  watch(
-    () => container.value.id,
-    () => connect(),
-    { immediate: true },
-  );
-
-  watch(streamConfig, () => connect());
 
   return { ...$$({ messages }), loadOlderLogs };
 }

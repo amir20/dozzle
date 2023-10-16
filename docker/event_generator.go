@@ -31,7 +31,7 @@ var bufPool = sync.Pool{
 	},
 }
 
-var BadHeaderErr = fmt.Errorf("dozzle/docker: unable to read header")
+var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
 
 func NewEventGenerator(reader io.Reader, tty bool) *EventGenerator {
 	generator := &EventGenerator{
@@ -83,11 +83,12 @@ func (g *EventGenerator) consumeReader() {
 		}
 
 		if readerError != nil {
-			if readerError != BadHeaderErr {
+			log.Debugf("reader error: %v", readerError)
+			if readerError != ErrBadHeader {
 				g.Errors <- readerError
+				close(g.buffer)
+				break
 			}
-			close(g.buffer)
-			break
 		}
 	}
 	g.wg.Done()
@@ -124,7 +125,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 			return "", streamType, err
 		}
 		if n != 8 {
-			return "", streamType, BadHeaderErr
+			return "", streamType, ErrBadHeader
 		}
 
 		switch header[0] {
@@ -133,7 +134,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		case 2:
 			streamType = STDERR
 		default:
-			log.Warnf("unknown stream type %d", header[0])
+			return "", streamType, ErrBadHeader
 		}
 
 		count := binary.BigEndian.Uint32(header[4:])
