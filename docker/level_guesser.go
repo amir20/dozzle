@@ -22,6 +22,10 @@ func guessLogLevel(logEvent *LogEvent) string {
 				return level
 			}
 
+			if strings.Contains(value, "["+strings.ToLower(level)+"]") {
+				return level
+			}
+
 			if strings.Contains(value, " "+strings.ToUpper(level)+" ") {
 				return level
 			}
