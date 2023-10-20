@@ -83,8 +83,8 @@ func (g *EventGenerator) consumeReader() {
 		}
 
 		if readerError != nil {
-			log.Debugf("reader error: %v", readerError)
 			if readerError != ErrBadHeader {
+				log.Debugf("reader error: %v", readerError)
 				g.Errors <- readerError
 				close(g.buffer)
 				break
@@ -120,11 +120,12 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		}
 		return message, streamType, nil
 	} else {
-		n, err := reader.Read(header)
+		n, err := io.ReadFull(reader, header)
 		if err != nil {
 			return "", streamType, err
 		}
 		if n != 8 {
+			log.Warnf("unable to read header: %v", header)
 			message, _ := reader.ReadString('\n')
 			return message, streamType, ErrBadHeader
 		}
@@ -135,8 +136,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		case 2:
 			streamType = STDERR
 		default:
-			message, _ := reader.ReadString('\n')
-			return message, streamType, ErrBadHeader
+			log.Warnf("unknown stream type: %v", header[0])
 		}
 
 		count := binary.BigEndian.Uint32(header[4:])
