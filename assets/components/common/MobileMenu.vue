@@ -9,7 +9,7 @@
 
       <div class="ml-auto flex items-center gap-2">
         <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
-          <mdi:light-magnify class="h-5 w-5" />
+          <mdi:magnify class="h-5 w-5" />
         </a>
         <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
           <input type="checkbox" v-model="show" />
@@ -30,10 +30,10 @@
             v-if="config.hosts.length > 1"
           />
           <router-link :to="{ name: 'settings' }" class="btn btn-outline btn-sm">
-            <mdi:light-cog /> {{ $t("button.settings") }}
+            <mdi:cog /> {{ $t("button.settings") }}
           </router-link>
           <a class="btn btn-outline btn-sm" :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured">
-            <mdi:light-logout /> {{ $t("button.logout") }}
+            <mdi:logout /> {{ $t("button.logout") }}
           </a>
         </div>
 

@@ -18,7 +18,7 @@
       </li>
       <li>
         <a @click.prevent="showSearch = true">
-          <mdi:light-magnify /> {{ $t("toolbar.search") }}
+          <mdi:magnify /> {{ $t("toolbar.search") }}
           <key-shortcut char="f"></key-shortcut>
         </a>
       </li>

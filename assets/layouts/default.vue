@@ -30,8 +30,8 @@
       v-if="!isMobile"
     >
       <input type="checkbox" v-model="collapseNav" />
-      <mdi:light-chevron-right class="swap-on text-secondary" />
-      <mdi:light-chevron-left class="swap-off" />
+      <mdi:chevron-right class="swap-on text-secondary" />
+      <mdi:chevron-left class="swap-off" />
     </label>
   </div>
   <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm" @close="open = false">

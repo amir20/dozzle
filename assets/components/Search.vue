@@ -5,7 +5,7 @@
     v-if="search"
   >
     <div class="input input-primary flex h-auto items-center">
-      <mdi:light-magnify />
+      <mdi:magnify />
       <input
         class="input flex-1"
         type="text"
