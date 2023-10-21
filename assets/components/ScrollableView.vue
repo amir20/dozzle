@@ -25,7 +25,7 @@
           @click="scrollToBottom()"
           v-show="paused"
         >
-          <mdi:light-chevron-double-down />
+          <mdi:chevron-double-down />
         </button>
       </transition>
     </div>

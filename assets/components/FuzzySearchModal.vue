@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown dropdown-open w-full">
     <div class="input input-primary flex h-auto items-center">
-      <mdi:light-magnify class="flex h-8 w-8" />
+      <mdi:magnify class="flex h-8 w-8" />
       <input
         tabindex="0"
         class="input input-ghost input-lg flex-1 px-1"

@@ -19,10 +19,10 @@
         data-testid="settings"
         class="btn btn-circle btn-sm"
       >
-        <mdi:light-cog />
+        <mdi:cog />
       </router-link>
       <a :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured" class="btn btn-circle btn-sm">
-        <mdi:light-logout />
+        <mdi:logout />
       </a>
     </div>
     <a
@@ -30,7 +30,7 @@
       @click="$emit('search')"
       :title="$t('tooltip.search')"
     >
-      <mdi:light-magnify />
+      <mdi:magnify />
       Search
       <key-shortcut char="k"></key-shortcut>
     </a>
