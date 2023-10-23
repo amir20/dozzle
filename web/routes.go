@@ -2,8 +2,6 @@ package web
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"io"
 	"io/fs"
 	"time"
@@ -11,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/amir20/dozzle/auth"
 	"github.com/amir20/dozzle/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/go-chi/chi/v5"
@@ -59,53 +58,6 @@ func CreateServer(clients map[string]DockerClient, content fs.FS, config Config)
 
 var fileServer http.Handler
 
-type contextKey string
-
-const remoteUser contextKey = "remoteUser"
-
-type User struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Avatar   string `json:"avatar,omitempty"`
-}
-
-func hashEmail(email string) string {
-	email = strings.TrimSpace(email)
-	email = strings.ToLower(email)
-	hash := md5.Sum([]byte(email))
-
-	return hex.EncodeToString(hash[:])
-}
-
-func NewUser(username, email, name string) *User {
-	avatar := ""
-	if email != "" {
-		avatar = "https://gravatar.com/avatar/" + hashEmail(email)
-	}
-	return &User{
-		Username: username,
-		Email:    email,
-		Name:     name,
-		Avatar:   avatar,
-	}
-}
-
-func forwardProxyAuthorizationRequired(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Remote-Email") == "" {
-			log.Error("Unable to find remote email. Please check your proxy configuration. Expecting header 'Remote-Email'")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		user := NewUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
-
-		ctx := context.WithValue(r.Context(), remoteUser, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
 func createRouter(h *handler) *chi.Mux {
 	initializeAuth(h)
 
@@ -119,7 +71,7 @@ func createRouter(h *handler) *chi.Mux {
 	r.Route(base, func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			if h.config.AuthProvider == "forward-proxy" {
-				r.Use(forwardProxyAuthorizationRequired)
+				r.Use(auth.ForwardProxyAuthorizationRequired)
 			}
 			r.Group(func(r chi.Router) {
 				r.Use(authorizationRequired)

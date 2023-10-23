@@ -11,6 +11,7 @@ import (
 	"path"
 
 	"github.com/amir20/dozzle/analytics"
+	"github.com/amir20/dozzle/auth"
 	"github.com/amir20/dozzle/docker"
 
 	log "github.com/sirupsen/logrus"
@@ -99,7 +100,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if h.config.AuthProvider == "forward-proxy" {
-		user := req.Context().Value(remoteUser).(*User)
+		user := req.Context().Value(auth.RemoteUser).(*auth.User)
 		config["user"] = user
 	}
 
