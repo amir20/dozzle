@@ -81,7 +81,7 @@ func hashEmail(email string) string {
 func NewUser(username, email, name string) *User {
 	avatar := ""
 	if email != "" {
-		avatar = "https://www.gravatar.com/avatar/" + hashEmail(email)
+		avatar = "https://gravatar.com/avatar/" + hashEmail(email)
 	}
 	return &User{
 		Username: username,
