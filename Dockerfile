@@ -39,6 +39,7 @@ COPY --from=node /build/dist ./dist
 COPY analytics ./analytics
 COPY healthcheck ./healthcheck
 COPY docker ./docker
+COPY auth ./auth
 COPY web ./web
 COPY main.go ./
 
