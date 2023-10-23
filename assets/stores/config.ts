@@ -8,6 +8,12 @@ interface Config {
   maxLogs: number;
   hostname: string;
   hosts: { name: string; id: string }[];
+  user?: {
+    username: string;
+    email: string;
+    name: string;
+    avatar: string;
+  };
 }
 
 const pageConfig = JSON.parse(text);
