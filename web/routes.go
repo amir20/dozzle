@@ -122,9 +122,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Use(forwardProxyAuthorizationRequired)
 			}
 			r.Group(func(r chi.Router) {
-				if h.config.AuthProvider == "simple" {
-					r.Use(authorizationRequired)
-				}
+				r.Use(authorizationRequired)
 				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
