@@ -50,6 +50,7 @@ type args struct {
 	Filter               map[string][]string `arg:"-"`
 	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
 	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
+	AuthProvider         string              `arg:"env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use. Currently only forward proxy is supported."`
 }
 
 type HealthcheckCmd struct {
@@ -69,6 +70,10 @@ func main() {
 		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if args.AuthProvider != "none" && args.AuthProvider != "forward-proxy" && args.AuthProvider != "simple" {
+		log.Fatalf("Invalid auth provider %s", args.AuthProvider)
 	}
 
 	log.Infof("Dozzle version %s", version)
@@ -168,14 +173,15 @@ func createClients(args args,
 func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 	config := web.Config{
-		Addr:        args.Addr,
-		Base:        args.Base,
-		Version:     version,
-		Username:    args.Username,
-		Password:    args.Password,
-		Hostname:    args.Hostname,
-		NoAnalytics: args.NoAnalytics,
-		Dev:         dev,
+		Addr:         args.Addr,
+		Base:         args.Base,
+		Version:      version,
+		Username:     args.Username,
+		Password:     args.Password,
+		Hostname:     args.Hostname,
+		NoAnalytics:  args.NoAnalytics,
+		Dev:          dev,
+		AuthProvider: args.AuthProvider,
 	}
 
 	assets, err := fs.Sub(content, "dist")

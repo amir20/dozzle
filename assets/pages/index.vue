@@ -1,5 +1,13 @@
 <template>
   <div class="flex flex-col gap-16 px-4 pt-8 md:px-8">
+    <section v-if="config.user">
+      <div class="flex items-center gap-4">
+        <div class="ml-auto">
+          {{ config.user?.email }}
+        </div>
+        <img class="h-10 w-10 rounded-full p-1 ring-2 ring-base-content/50" :src="config.user.avatar" />
+      </div>
+    </section>
     <section>
       <div class="stats grid bg-base-lighter shadow">
         <div class="stat">
