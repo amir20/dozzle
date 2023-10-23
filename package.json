@@ -96,7 +96,7 @@
   "simple-git-hooks": "^2.9.0",
   "ts-node": "^10.9.1",
   "typescript": "^5.2.2",
-  "vitepress": "1.0.0-rc.22",
+  "vitepress": "1.0.0-rc.23",
   "vitest": "^0.34.6",
   "vue-tsc": "^1.8.19"
  },
