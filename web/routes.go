@@ -94,6 +94,7 @@ func NewUser(username, email, name string) *User {
 func forwardProxyAuthorizationRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Remote-Email") == "" {
+			log.Error("Unable to find remote email. Please check your proxy configuration. Expecting header 'Remote-Email'")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
