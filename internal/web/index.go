@@ -13,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/profile"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -99,9 +100,14 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"hosts":               hosts,
 	}
 
-	if h.config.AuthProvider == "forward-proxy" {
-		user := req.Context().Value(auth.RemoteUser).(*auth.User)
+	if h.config.AuthProvider == FORWARD_PROXY {
+		user := auth.RemoteUserFromContext(req.Context())
 		config["user"] = user
+		if settings, err := profile.LoadUserSettings(user); err == nil {
+			config["settings"] = settings
+		} else {
+			config["settings"] = struct{}{}
+		}
 	}
 
 	data := map[string]interface{}{

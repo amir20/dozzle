@@ -4,7 +4,7 @@ import { createTestingPinia } from "@pinia/testing";
 import EventSource, { sources } from "eventsourcemock";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
-import { settings } from "@/composables/settings";
+import { settings } from "@/stores/settings";
 import { useSearchFilter } from "@/composables/search";
 import { vi, describe, expect, beforeEach, test, afterEach } from "vitest";
 import { computed, nextTick } from "vue";

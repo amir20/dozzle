@@ -12,14 +12,14 @@ declare global {
   const $ref: typeof import('vue/macros')['$ref']
   const $shallowRef: typeof import('vue/macros')['$shallowRef']
   const $toRef: typeof import('vue/macros')['$toRef']
-  const DEFAULT_SETTINGS: typeof import('./composables/settings')['DEFAULT_SETTINGS']
+  const DEFAULT_SETTINGS: typeof import('./stores/settings')['DEFAULT_SETTINGS']
   const EffectScope: typeof import('vue')['EffectScope']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const arrayEquals: typeof import('./utils/index')['arrayEquals']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
-  const automaticRedirect: typeof import('./composables/settings')['automaticRedirect']
-  const collapseNav: typeof import('./composables/settings')['collapseNav']
+  const automaticRedirect: typeof import('./stores/settings')['automaticRedirect']
+  const collapseNav: typeof import('./stores/settings')['collapseNav']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -58,7 +58,7 @@ declare global {
   const getDeep: typeof import('./utils/index')['getDeep']
   const globalShowPopup: typeof import('./composables/popup')['globalShowPopup']
   const h: typeof import('vue')['h']
-  const hourStyle: typeof import('./composables/settings')['hourStyle']
+  const hourStyle: typeof import('./stores/settings')['hourStyle']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
@@ -69,7 +69,7 @@ declare global {
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
-  const lightTheme: typeof import('./composables/settings')['lightTheme']
+  const lightTheme: typeof import('./stores/settings')['lightTheme']
   const logicAnd: typeof import('@vueuse/math')['logicAnd']
   const logicNot: typeof import('@vueuse/math')['logicNot']
   const logicOr: typeof import('@vueuse/math')['logicOr']
@@ -80,7 +80,7 @@ declare global {
   const mapStores: typeof import('pinia')['mapStores']
   const mapWritableState: typeof import('pinia')['mapWritableState']
   const markRaw: typeof import('vue')['markRaw']
-  const menuWidth: typeof import('./composables/settings')['menuWidth']
+  const menuWidth: typeof import('./stores/settings')['menuWidth']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
   const onBeforeMount: typeof import('vue')['onBeforeMount']
@@ -123,21 +123,21 @@ declare global {
   const resolveComponent: typeof import('vue')['resolveComponent']
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
-  const search: typeof import('./composables/settings')['search']
+  const search: typeof import('./stores/settings')['search']
   const sessionHost: typeof import('./composables/storage')['sessionHost']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const setTitle: typeof import('./composables/title')['setTitle']
-  const settings: typeof import('./composables/settings')['settings']
+  const settings: typeof import('./stores/settings')['settings']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
-  const showAllContainers: typeof import('./composables/settings')['showAllContainers']
-  const showStd: typeof import('./composables/settings')['showStd']
-  const showTimestamp: typeof import('./composables/settings')['showTimestamp']
-  const size: typeof import('./composables/settings')['size']
-  const smallerScrollbars: typeof import('./composables/settings')['smallerScrollbars']
-  const softWrap: typeof import('./composables/settings')['softWrap']
+  const showAllContainers: typeof import('./stores/settings')['showAllContainers']
+  const showStd: typeof import('./stores/settings')['showStd']
+  const showTimestamp: typeof import('./stores/settings')['showTimestamp']
+  const size: typeof import('./stores/settings')['size']
+  const smallerScrollbars: typeof import('./stores/settings')['smallerScrollbars']
+  const softWrap: typeof import('./stores/settings')['softWrap']
   const storeToRefs: typeof import('pinia')['storeToRefs']
   const stripVersion: typeof import('./utils/index')['stripVersion']
   const syncRef: typeof import('@vueuse/core')['syncRef']
@@ -358,6 +358,7 @@ declare global {
   const watchTriggerable: typeof import('@vueuse/core')['watchTriggerable']
   const watchWithFilter: typeof import('@vueuse/core')['watchWithFilter']
   const whenever: typeof import('@vueuse/core')['whenever']
+  const withBase: typeof import('./stores/config')['withBase']
 }
 // for type re-export
 declare global {
@@ -375,14 +376,14 @@ declare module 'vue' {
     readonly $ref: UnwrapRef<typeof import('vue/macros')['$ref']>
     readonly $shallowRef: UnwrapRef<typeof import('vue/macros')['$shallowRef']>
     readonly $toRef: UnwrapRef<typeof import('vue/macros')['$toRef']>
-    readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./composables/settings')['DEFAULT_SETTINGS']>
+    readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
-    readonly automaticRedirect: UnwrapRef<typeof import('./composables/settings')['automaticRedirect']>
-    readonly collapseNav: UnwrapRef<typeof import('./composables/settings')['collapseNav']>
+    readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
+    readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -419,7 +420,7 @@ declare module 'vue' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composables/popup')['globalShowPopup']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
-    readonly hourStyle: UnwrapRef<typeof import('./composables/settings')['hourStyle']>
+    readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
@@ -430,7 +431,7 @@ declare module 'vue' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
-    readonly lightTheme: UnwrapRef<typeof import('./composables/settings')['lightTheme']>
+    readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
@@ -438,7 +439,7 @@ declare module 'vue' {
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
-    readonly menuWidth: UnwrapRef<typeof import('./composables/settings')['menuWidth']>
+    readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -481,21 +482,21 @@ declare module 'vue' {
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
-    readonly search: UnwrapRef<typeof import('./composables/settings')['search']>
+    readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
     readonly sessionHost: UnwrapRef<typeof import('./composables/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composables/title')['setTitle']>
-    readonly settings: UnwrapRef<typeof import('./composables/settings')['settings']>
+    readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly showAllContainers: UnwrapRef<typeof import('./composables/settings')['showAllContainers']>
-    readonly showStd: UnwrapRef<typeof import('./composables/settings')['showStd']>
-    readonly showTimestamp: UnwrapRef<typeof import('./composables/settings')['showTimestamp']>
-    readonly size: UnwrapRef<typeof import('./composables/settings')['size']>
-    readonly smallerScrollbars: UnwrapRef<typeof import('./composables/settings')['smallerScrollbars']>
-    readonly softWrap: UnwrapRef<typeof import('./composables/settings')['softWrap']>
+    readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
+    readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
+    readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
+    readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
+    readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
@@ -703,6 +704,7 @@ declare module 'vue' {
     readonly watchTriggerable: UnwrapRef<typeof import('@vueuse/core')['watchTriggerable']>
     readonly watchWithFilter: UnwrapRef<typeof import('@vueuse/core')['watchWithFilter']>
     readonly whenever: UnwrapRef<typeof import('@vueuse/core')['whenever']>
+    readonly withBase: UnwrapRef<typeof import('./stores/config')['withBase']>
   }
 }
 declare module '@vue/runtime-core' {
@@ -714,14 +716,14 @@ declare module '@vue/runtime-core' {
     readonly $ref: UnwrapRef<typeof import('vue/macros')['$ref']>
     readonly $shallowRef: UnwrapRef<typeof import('vue/macros')['$shallowRef']>
     readonly $toRef: UnwrapRef<typeof import('vue/macros')['$toRef']>
-    readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./composables/settings')['DEFAULT_SETTINGS']>
+    readonly DEFAULT_SETTINGS: UnwrapRef<typeof import('./stores/settings')['DEFAULT_SETTINGS']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly arrayEquals: UnwrapRef<typeof import('./utils/index')['arrayEquals']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
-    readonly automaticRedirect: UnwrapRef<typeof import('./composables/settings')['automaticRedirect']>
-    readonly collapseNav: UnwrapRef<typeof import('./composables/settings')['collapseNav']>
+    readonly automaticRedirect: UnwrapRef<typeof import('./stores/settings')['automaticRedirect']>
+    readonly collapseNav: UnwrapRef<typeof import('./stores/settings')['collapseNav']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -758,7 +760,7 @@ declare module '@vue/runtime-core' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composables/popup')['globalShowPopup']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
-    readonly hourStyle: UnwrapRef<typeof import('./composables/settings')['hourStyle']>
+    readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly injectLocal: UnwrapRef<typeof import('@vueuse/core')['injectLocal']>
@@ -769,7 +771,7 @@ declare module '@vue/runtime-core' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
-    readonly lightTheme: UnwrapRef<typeof import('./composables/settings')['lightTheme']>
+    readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
@@ -777,7 +779,7 @@ declare module '@vue/runtime-core' {
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
-    readonly menuWidth: UnwrapRef<typeof import('./composables/settings')['menuWidth']>
+    readonly menuWidth: UnwrapRef<typeof import('./stores/settings')['menuWidth']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -820,21 +822,21 @@ declare module '@vue/runtime-core' {
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
-    readonly search: UnwrapRef<typeof import('./composables/settings')['search']>
+    readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
     readonly sessionHost: UnwrapRef<typeof import('./composables/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly setTitle: UnwrapRef<typeof import('./composables/title')['setTitle']>
-    readonly settings: UnwrapRef<typeof import('./composables/settings')['settings']>
+    readonly settings: UnwrapRef<typeof import('./stores/settings')['settings']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly showAllContainers: UnwrapRef<typeof import('./composables/settings')['showAllContainers']>
-    readonly showStd: UnwrapRef<typeof import('./composables/settings')['showStd']>
-    readonly showTimestamp: UnwrapRef<typeof import('./composables/settings')['showTimestamp']>
-    readonly size: UnwrapRef<typeof import('./composables/settings')['size']>
-    readonly smallerScrollbars: UnwrapRef<typeof import('./composables/settings')['smallerScrollbars']>
-    readonly softWrap: UnwrapRef<typeof import('./composables/settings')['softWrap']>
+    readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
+    readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
+    readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
+    readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
+    readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
@@ -1042,5 +1044,6 @@ declare module '@vue/runtime-core' {
     readonly watchTriggerable: UnwrapRef<typeof import('@vueuse/core')['watchTriggerable']>
     readonly watchWithFilter: UnwrapRef<typeof import('@vueuse/core')['watchWithFilter']>
     readonly whenever: UnwrapRef<typeof import('@vueuse/core')['whenever']>
+    readonly withBase: UnwrapRef<typeof import('./stores/config')['withBase']>
   }
 }

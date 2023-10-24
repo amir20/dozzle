@@ -65,7 +65,7 @@
 <script lang="ts" setup>
 // @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
-import { collapseNav } from "@/composables/settings";
+import { collapseNav } from "@/stores/settings";
 const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
