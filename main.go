@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
-	"github.com/amir20/dozzle/docker"
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
-	"github.com/amir20/dozzle/web"
+	"github.com/amir20/dozzle/internal/web"
 
 	log "github.com/sirupsen/logrus"
 )
