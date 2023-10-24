@@ -17,7 +17,7 @@ func init() {
 	}
 
 	for _, level := range LOG_LEVELS {
-		LOG_LEVEL_BRACKET[level] = regexp.MustCompile("(?i)^\\[ ?" + level + " ?\\]")
+		LOG_LEVEL_BRACKET[level] = regexp.MustCompile("(?i)\\[ ?" + level + " ?\\]")
 	}
 }
 
