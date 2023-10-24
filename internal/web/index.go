@@ -10,9 +10,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/amir20/dozzle/analytics"
-	"github.com/amir20/dozzle/auth"
-	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/docker"
 
 	log "github.com/sirupsen/logrus"
 )

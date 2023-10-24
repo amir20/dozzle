@@ -12,7 +12,7 @@ import (
 
 	"time"
 
-	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
