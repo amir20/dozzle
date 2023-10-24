@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/stretchr/testify/assert"
