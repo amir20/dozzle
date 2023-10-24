@@ -36,11 +36,7 @@ RUN go mod download
 COPY --from=node /build/dist ./dist
 
 # Copy all other files
-COPY analytics ./analytics
-COPY healthcheck ./healthcheck
-COPY docker ./docker
-COPY auth ./auth
-COPY web ./web
+COPY internal ./internal
 COPY main.go ./
 
 # Args
