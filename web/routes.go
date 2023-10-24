@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/amir20/dozzle/auth"
 	"github.com/amir20/dozzle/docker"
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/docker/docker/api/types"
 	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"

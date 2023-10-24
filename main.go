@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
-	"github.com/amir20/dozzle/analytics"
 	"github.com/amir20/dozzle/docker"
-	"github.com/amir20/dozzle/healthcheck"
+	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/amir20/dozzle/web"
 
 	log "github.com/sirupsen/logrus"
