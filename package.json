@@ -29,7 +29,7 @@
  "dependencies": {
   "@iconify-json/carbon": "^1.1.21",
   "@iconify-json/cil": "^1.1.5",
-  "@iconify-json/mdi": "^1.1.54",
+  "@iconify-json/mdi": "^1.1.55",
   "@iconify-json/mdi-light": "^1.1.7",
   "@iconify-json/octicon": "^1.1.49",
   "@iconify-json/ph": "^1.1.6",
@@ -56,7 +56,7 @@
   "postcss": "^8.4.31",
   "postcss-mixins": "^9.0.4",
   "splitpanes": "^3.1.5",
-  "tailwindcss": "^3.3.3",
+  "tailwindcss": "^3.3.5",
   "unplugin-auto-import": "^0.16.6",
   "unplugin-icons": "^0.17.1",
   "unplugin-vue-components": "^0.25.2",
@@ -64,7 +64,7 @@
   "vite": "4.5.0",
   "vite-plugin-pages": "^0.31.0",
   "vite-plugin-vue-layouts": "^0.8.0",
-  "vue": "^3.3.6",
+  "vue": "^3.3.7",
   "vue-i18n": "^9.5.0",
   "vue-router": "^4.2.5"
  },
@@ -79,10 +79,10 @@
   "@types/d3-shape": "^3.1.4",
   "@types/d3-transition": "^3.0.6",
   "@types/lodash.debounce": "^4.0.8",
-  "@types/node": "^20.8.7",
+  "@types/node": "^20.8.9",
   "@types/semver": "^7.5.4",
   "@vitejs/plugin-vue": "4.4.0",
-  "@vue/compiler-sfc": "^3.3.6",
+  "@vue/compiler-sfc": "^3.3.7",
   "@vue/test-utils": "^2.4.1",
   "bumpp": "^9.2.0",
   "c8": "^8.0.1",
@@ -96,9 +96,9 @@
   "simple-git-hooks": "^2.9.0",
   "ts-node": "^10.9.1",
   "typescript": "^5.2.2",
-  "vitepress": "1.0.0-rc.23",
+  "vitepress": "1.0.0-rc.24",
   "vitest": "^0.34.6",
-  "vue-tsc": "^1.8.19"
+  "vue-tsc": "^1.8.21"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
