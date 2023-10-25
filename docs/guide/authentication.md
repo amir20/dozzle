@@ -4,7 +4,7 @@ title: Authentication
 
 # Setting Up Authentication
 
-Dozzle support two models for authentication. If you have already setup authentication behind a proxy then Dozzle can work out of the box by reading forwarded headers. If you do not currently have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag.
+Dozzle support two models of authentication. If you have already setup authentication behind a proxy then Dozzle can work out of the box by reading forwarded headers. If you do not currently have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag.
 
 ## Forward Proxy
 
@@ -124,7 +124,6 @@ services:
 ```
 
 ```yaml [configuration.yml]
----
 ###############################################################
 #                   Authelia configuration                    #
 ###############################################################
