@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type contextKey string
@@ -42,15 +44,13 @@ func newUser(username, email, name string) *User {
 
 func ForwardProxyAuthorizationRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// if r.Header.Get("Remote-Email") == "" {
-		// 	log.Error("Unable to find remote email. Please check your proxy configuration. Expecting header 'Remote-Email'")
-		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		// 	return
-		// }
+		if r.Header.Get("Remote-Email") == "" {
+			log.Error("Unable to find remote email. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-		// user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
-
-		user := newUser("admin", "test@mail.com", "admin")
+		user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
 
 		ctx := context.WithValue(r.Context(), remoteUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
