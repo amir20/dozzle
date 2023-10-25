@@ -46,6 +46,10 @@ func ForwardProxyAuthorizationRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Remote-Email") == "" {
 			log.Error("Unable to find remote email. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name")
+			log.Debug("Dumping all headers")
+			for k, v := range r.Header {
+				log.Debugf("%s: %s", k, v)
+			}
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
