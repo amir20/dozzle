@@ -8,7 +8,7 @@ export const install = (app: App) => {
   const routes = setupLayouts(pages);
 
   const router = createRouter({
-    history: createWebHistory(`${config.base}/`),
+    history: createWebHistory(withBase("/")),
     routes,
   });
 

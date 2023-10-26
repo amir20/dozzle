@@ -49,14 +49,14 @@ let password = $ref("");
 let form: HTMLFormElement | undefined = $ref();
 
 async function onLogin() {
-  const response = await fetch(`${config.base}/api/validateCredentials`, {
+  const response = await fetch(withBase("/api/validateCredentials"), {
     body: new FormData(form),
     method: "post",
   });
 
   if (response.status == 200) {
     error = false;
-    window.location.href = `${config.base}/`;
+    window.location.href = withBase("/");
   } else {
     error = true;
   }

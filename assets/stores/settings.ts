@@ -28,11 +28,10 @@ export const DEFAULT_SETTINGS: Settings = {
   softWrap: true,
   collapseNav: false,
   automaticRedirect: true,
-  ...config.settings,
 };
 
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
-settings.value = { ...DEFAULT_SETTINGS, ...settings.value };
+settings.value = { ...DEFAULT_SETTINGS, ...settings.value, ...config.serverSettings };
 
 watch(settings, (value) => {
   fetch(withBase("/api/profile/settings"), {

@@ -86,9 +86,9 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 		config["user"] = user
 		if settings, err := profile.LoadUserSettings(user); err == nil {
-			config["settings"] = settings
+			config["serverSettings"] = settings
 		} else {
-			config["settings"] = struct{}{}
+			config["serverSettings"] = struct{}{}
 		}
 	}
 
