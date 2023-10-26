@@ -22,39 +22,12 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	_, err := h.content.Open(req.URL.Path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
-		if !h.config.NoAnalytics {
-			go func() {
-				host, _ := os.Hostname()
-
-				var client DockerClient
-				for _, v := range h.clients {
-					client = v
-					break
-				}
-
-				if containers, err := client.ListContainers(); err == nil {
-					totalContainers := len(containers)
-					runningContainers := 0
-					for _, container := range containers {
-						if container.State == "running" {
-							runningContainers++
-						}
-					}
-
-					re := analytics.RequestEvent{
-						ClientId:          host,
-						TotalContainers:   totalContainers,
-						RunningContainers: runningContainers,
-					}
-					analytics.SendRequestEvent(re)
-				}
-			}()
-		}
 	} else {
 		if !isAuthorized(req) && req.URL.Path != "login" {
 			http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
 			return
 		}
+		go h.sendRequestEvent()
 		h.executeTemplate(w, req)
 	}
 }
@@ -102,6 +75,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 
 	if h.config.AuthProvider == FORWARD_PROXY {
 		user := auth.RemoteUserFromContext(req.Context())
+		if user == nil {
+			log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
+			log.Debugf("Dumping all headers for url /%s", req.URL.String())
+			for k, v := range req.Header {
+				log.Debugf("%s: %s", k, v)
+			}
+			http.Error(w, "Unauthorized user", http.StatusUnauthorized)
+			return
+		}
 		config["user"] = user
 		if settings, err := profile.LoadUserSettings(user); err == nil {
 			config["settings"] = settings
@@ -144,5 +126,33 @@ func (h *handler) readManifest() map[string]interface{} {
 		}
 		return manifest
 	}
+}
 
+func (h *handler) sendRequestEvent() {
+	if !h.config.NoAnalytics {
+		host, _ := os.Hostname()
+
+		var client DockerClient
+		for _, v := range h.clients {
+			client = v
+			break
+		}
+
+		if containers, err := client.ListContainers(); err == nil {
+			totalContainers := len(containers)
+			runningContainers := 0
+			for _, container := range containers {
+				if container.State == "running" {
+					runningContainers++
+				}
+			}
+
+			re := analytics.RequestEvent{
+				ClientId:          host,
+				TotalContainers:   totalContainers,
+				RunningContainers: runningContainers,
+			}
+			analytics.SendRequestEvent(re)
+		}
+	}
 }
