@@ -1,6 +1,6 @@
 [build]
 publish = "docs/.vitepress/dist"
-command = "pnpm docs:build && pnpm store prune"
+command = "pnpm docs:build"
 
 [functions]
 directory = "docs/functions"
