@@ -50,7 +50,7 @@
   "daisyui": "^3.9.3",
   "date-fns": "^2.30.0",
   "entities": "^4.5.0",
-  "fuse.js": "^6.6.2",
+  "fuse.js": "^7.0.0",
   "lodash.debounce": "^4.0.8",
   "pinia": "^2.1.7",
   "postcss": "^8.4.31",
