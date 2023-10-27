@@ -12,13 +12,6 @@ type contextKey string
 
 const remoteUser contextKey = "remoteUser"
 
-type User struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Avatar   string `json:"avatar,omitempty"`
-}
-
 func hashEmail(email string) string {
 	email = strings.TrimSpace(email)
 	email = strings.ToLower(email)
