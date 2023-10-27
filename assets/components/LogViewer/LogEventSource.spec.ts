@@ -14,6 +14,7 @@ import { containerContext } from "@/composables/containerContext";
 vi.mock("@/stores/config", () => ({
   __esModule: true,
   default: { base: "", hosts: [{ name: "localhost", id: "localhost" }] },
+  withBase: (path: string) => path,
 }));
 
 /**
