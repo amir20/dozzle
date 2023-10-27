@@ -85,7 +85,7 @@ export function useLogStream() {
     console.debug(`Connecting to ${containerId} with params`, params);
 
     es = new EventSource(
-      `${config.base}/api/logs/stream/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
+      withBase(`/api/logs/stream/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`),
     );
     es.addEventListener("container-stopped", () => {
       close();
@@ -118,7 +118,7 @@ export function useLogStream() {
 
     const logs = await (
       await fetch(
-        `${config.base}/api/logs/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`,
+        withBase(`/api/logs/${container.value.host}/${containerId}?${new URLSearchParams(params).toString()}`),
       )
     ).text();
     if (logs) {

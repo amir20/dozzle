@@ -6,13 +6,11 @@ import (
 	"encoding/hex"
 	"net/http"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type contextKey string
 
-const RemoteUser contextKey = "remoteUser"
+const remoteUser contextKey = "remoteUser"
 
 type User struct {
 	Username string `json:"username"`
@@ -44,15 +42,21 @@ func newUser(username, email, name string) *User {
 
 func ForwardProxyAuthorizationRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Remote-Email") == "" {
-			log.Error("Unable to find remote email. Please check your proxy configuration. Expecting header 'Remote-Email'")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+		if r.Header.Get("Remote-Email") != "" {
+			user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
+			ctx := context.WithValue(r.Context(), remoteUser, user)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		} else {
+			next.ServeHTTP(w, r)
 		}
 
-		user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
-
-		ctx := context.WithValue(r.Context(), RemoteUser, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func RemoteUserFromContext(ctx context.Context) *User {
+	user, ok := ctx.Value(remoteUser).(*User)
+	if !ok {
+		return nil
+	}
+	return user
 }

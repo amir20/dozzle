@@ -65,6 +65,9 @@ export default defineConfig(() => ({
     }),
   ],
   server: {
+    watch: {
+      ignored: ["**/data/**"],
+    },
     proxy: {
       "/api": {
         target: {

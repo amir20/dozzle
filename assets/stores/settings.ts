@@ -1,7 +1,7 @@
 import { toRefs } from "@vueuse/core";
 const DOZZLE_SETTINGS_KEY = "DOZZLE_SETTINGS";
 
-export const DEFAULT_SETTINGS: {
+export type Settings = {
   search: boolean;
   size: "small" | "medium" | "large";
   menuWidth: number;
@@ -14,7 +14,8 @@ export const DEFAULT_SETTINGS: {
   softWrap: boolean;
   collapseNav: boolean;
   automaticRedirect: boolean;
-} = {
+};
+export const DEFAULT_SETTINGS: Settings = {
   search: true,
   size: "medium",
   menuWidth: 15,
@@ -30,7 +31,14 @@ export const DEFAULT_SETTINGS: {
 };
 
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
-settings.value = { ...DEFAULT_SETTINGS, ...settings.value };
+settings.value = { ...DEFAULT_SETTINGS, ...settings.value, ...config.serverSettings };
+
+watch(settings, (value) => {
+  fetch(withBase("/api/profile/settings"), {
+    method: "PUT",
+    body: JSON.stringify(value),
+  });
+});
 
 export const {
   collapseNav,

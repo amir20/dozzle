@@ -16,6 +16,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type AuthProvider string
+
+const (
+	SIMPLE        AuthProvider = "simple"
+	FORWARD_PROXY AuthProvider = "forward-proxy"
+)
+
 // Config is a struct for configuring the web service
 type Config struct {
 	Base         string
@@ -26,7 +33,7 @@ type Config struct {
 	Hostname     string
 	NoAnalytics  bool
 	Dev          bool
-	AuthProvider string
+	AuthProvider AuthProvider
 }
 
 type handler struct {
@@ -70,7 +77,7 @@ func createRouter(h *handler) *chi.Mux {
 
 	r.Route(base, func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			if h.config.AuthProvider == "forward-proxy" {
+			if h.config.AuthProvider == FORWARD_PROXY {
 				r.Use(auth.ForwardProxyAuthorizationRequired)
 			}
 			r.Group(func(r chi.Router) {
@@ -81,6 +88,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/events/stream", h.streamEvents)
 				r.Get("/logout", h.clearSession)
 				r.Get("/version", h.version)
+				r.Put("/api/profile/settings", h.saveSettings)
 			})
 
 			defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))

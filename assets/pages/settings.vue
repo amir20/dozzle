@@ -100,7 +100,7 @@ import {
   size,
   softWrap,
   automaticRedirect,
-} from "@/composables/settings";
+} from "@/stores/settings";
 
 const { t } = useI18n();
 

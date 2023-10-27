@@ -1,4 +1,5 @@
 certs
+data
 dist
 node_modules
 .cache
