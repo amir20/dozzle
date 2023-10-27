@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"syscall"
@@ -180,7 +181,10 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	} else if args.AuthProvider == "simple" {
 		provider = web.SIMPLE
 
-		path := "./data/users.yml"
+		path, err := filepath.Abs("./data/users.yml")
+		if err != nil {
+			log.Fatalf("Could not find absolute path to users.yml file: %s", err)
+		}
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			log.Fatalf("Could not find users.yml file at %s", path)
 		}
@@ -190,7 +194,8 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 			log.Fatalf("Could not read users.yml file at %s: %s", path, err)
 		}
 
-		log.Infof("Loaded %d users from %s", len(*users), path)
+		user := users.FindByPassword("admin", "password")
+		log.Infof("Found user %s", user.Username)
 	}
 
 	config := web.Config{
