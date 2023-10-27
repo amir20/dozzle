@@ -6,8 +6,6 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -51,8 +49,6 @@ func (u *UserDatabase) FindByPassword(username, password string) *User {
 	if user == nil {
 		return nil
 	}
-
-	log.Infof("Password %s with %s", user.Password, sha256sum(password))
 
 	if user.Password != sha256sum(password) {
 		return nil

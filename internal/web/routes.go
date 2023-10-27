@@ -34,6 +34,7 @@ type Config struct {
 	NoAnalytics  bool
 	Dev          bool
 	AuthProvider AuthProvider
+	UserDatabase UserDatabase
 }
 
 type handler struct {
@@ -52,6 +53,10 @@ type DockerClient interface {
 	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() *docker.Host
+}
+
+type UserDatabase interface {
+	FindByPassword(string, string) *auth.User
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
