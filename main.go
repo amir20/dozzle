@@ -176,9 +176,10 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider
-	var users *auth.UserDatabase
+	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
 		provider = web.FORWARD_PROXY
+		authorizer = auth.NewForwardProxyAuth()
 	} else if args.AuthProvider == "simple" {
 		provider = web.SIMPLE
 
@@ -190,10 +191,11 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 			log.Fatalf("Could not find users.yml file at %s", path)
 		}
 
-		users, err = auth.ReadUsersFromFile(path)
+		users, err := auth.ReadUsersFromFile(path)
 		if err != nil {
 			log.Fatalf("Could not read users.yml file at %s: %s", path, err)
 		}
+		authorizer = auth.NewSimpleAuth(users)
 	}
 
 	config := web.Config{
@@ -206,7 +208,7 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 		NoAnalytics:  args.NoAnalytics,
 		Dev:          dev,
 		AuthProvider: provider,
-		UserDatabase: users,
+		Authorizer:   authorizer,
 	}
 
 	assets, err := fs.Sub(content, "dist")

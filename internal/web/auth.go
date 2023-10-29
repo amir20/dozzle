@@ -101,6 +101,27 @@ func (h *handler) validateCredentials(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 }
 
+func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
+	user := r.PostFormValue("username")
+	pass := r.PostFormValue("password")
+
+	if token, err := h.config.Authorizer.CreateToken(user, pass); err == nil {
+		// store cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    token,
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+		})
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(http.StatusText(http.StatusOK)))
+	} else {
+		log.Errorf("Error while creating token: %v", err)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+	}
+
+}
+
 func (h *handler) clearSession(w http.ResponseWriter, r *http.Request) {
 	if !secured {
 		log.Panic("Validating credentials with secured=false should not happen")

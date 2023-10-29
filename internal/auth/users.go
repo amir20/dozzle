@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"os"
 
+	"github.com/go-chi/jwtauth/v5"
 	"gopkg.in/yaml.v3"
 )
 
@@ -14,6 +16,19 @@ type User struct {
 	Name     string `json:"name" yaml:"name"`
 	Avatar   string `json:"avatar,omitempty"`
 	Password string `yaml:"password,omitempty"`
+}
+
+func newUser(username, email, name string) *User {
+	avatar := ""
+	if email != "" {
+		avatar = "https://gravatar.com/avatar/" + hashEmail(email)
+	}
+	return &User{
+		Username: username,
+		Email:    email,
+		Name:     name,
+		Avatar:   avatar,
+	}
 }
 
 type UserDatabase struct {
@@ -57,7 +72,26 @@ func (u *UserDatabase) FindByPassword(username, password string) *User {
 }
 
 func sha256sum(s string) string {
-	h := sha256.New()
-	h.Write([]byte(s))
-	return hex.EncodeToString(h.Sum(nil))
+	bytes := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(bytes[:])
+}
+
+func UserFromContext(ctx context.Context) *User {
+	_, claims, err := jwtauth.FromContext(ctx)
+
+	if err != nil {
+		user, ok := ctx.Value(remoteUser).(*User)
+		if !ok {
+			return nil
+		}
+		return user
+	} else {
+		username, ok := claims["username"].(string)
+		if !ok {
+			return nil
+		}
+		email := claims["email"].(string)
+		name := claims["name"].(string)
+		return newUser(username, email, name)
+	}
 }

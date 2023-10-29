@@ -74,7 +74,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if h.config.AuthProvider == FORWARD_PROXY {
-		user := auth.RemoteUserFromContext(req.Context())
+		user := auth.UserFromContext(req.Context())
 		if user == nil {
 			log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
 			log.Debugf("Dumping all headers for url /%s", req.URL.String())

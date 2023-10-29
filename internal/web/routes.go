@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/go-chi/chi/v5"
@@ -34,7 +33,7 @@ type Config struct {
 	NoAnalytics  bool
 	Dev          bool
 	AuthProvider AuthProvider
-	UserDatabase UserDatabase
+	Authorizer   Authorizer
 }
 
 type handler struct {
@@ -55,8 +54,9 @@ type DockerClient interface {
 	Host() *docker.Host
 }
 
-type UserDatabase interface {
-	FindByPassword(string, string) *auth.User
+type Authorizer interface {
+	AuthMiddleware(http.Handler) http.Handler
+	CreateToken(string, string) (string, error)
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
@@ -81,10 +81,10 @@ func createRouter(h *handler) *chi.Mux {
 	}
 
 	r.Route(base, func(r chi.Router) {
+		if h.config.Authorizer != nil {
+			r.Use(h.config.Authorizer.AuthMiddleware)
+		}
 		r.Group(func(r chi.Router) {
-			if h.config.AuthProvider == FORWARD_PROXY {
-				r.Use(auth.ForwardProxyAuthorizationRequired)
-			}
 			r.Group(func(r chi.Router) {
 				r.Use(authorizationRequired)
 				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
@@ -101,6 +101,10 @@ func createRouter(h *handler) *chi.Mux {
 				defaultHandler.ServeHTTP(w, req)
 			})
 		})
+
+		if h.config.AuthProvider == SIMPLE {
+			r.Post("/api/token", h.createToken)
+		}
 
 		r.Post("/api/validateCredentials", h.validateCredentials)
 		r.Get("/healthcheck", h.healthcheck)
