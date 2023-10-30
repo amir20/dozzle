@@ -92,7 +92,7 @@ func Test_createRoutes_foobar_file(t *testing.T) {
 func Test_createRoutes_version(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
-	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Version: "dev"})
+	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Version: "dev", AuthProvider: NONE})
 	req, err := http.NewRequest("GET", "/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
@@ -181,7 +181,7 @@ func Test_createRoutes_username_password_valid_session(t *testing.T) {
 	mockedClient := new(MockedClient)
 	mockedClient.On("FindContainer", "123").Return(docker.Container{ID: "123"}, nil)
 	mockedClient.On("ContainerLogs", mock.Anything, "123", "", docker.STDALL).Return(io.NopCloser(strings.NewReader("test data")), io.EOF)
-	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password"})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", Username: "amir", Password: "password", AuthProvider: NONE})
 
 	// Get cookie first
 	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/123?stdout=1&stderr=1", nil)

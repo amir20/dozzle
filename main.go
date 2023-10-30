@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"syscall"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/amir20/dozzle/internal/web"
@@ -173,11 +175,27 @@ func createClients(args args,
 func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
-	var provider web.AuthProvider
+	var provider web.AuthProvider = web.NONE
+	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
 		provider = web.FORWARD_PROXY
+		authorizer = auth.NewForwardProxyAuth()
 	} else if args.AuthProvider == "simple" {
 		provider = web.SIMPLE
+
+		path, err := filepath.Abs("./data/users.yml")
+		if err != nil {
+			log.Fatalf("Could not find absolute path to users.yml file: %s", err)
+		}
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			log.Fatalf("Could not find users.yml file at %s", path)
+		}
+
+		users, err := auth.ReadUsersFromFile(path)
+		if err != nil {
+			log.Fatalf("Could not read users.yml file at %s: %s", path, err)
+		}
+		authorizer = auth.NewSimpleAuth(users)
 	}
 
 	config := web.Config{
@@ -190,6 +208,7 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 		NoAnalytics:  args.NoAnalytics,
 		Dev:          dev,
 		AuthProvider: provider,
+		Authorizer:   authorizer,
 	}
 
 	assets, err := fs.Sub(content, "dist")

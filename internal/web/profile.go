@@ -16,7 +16,7 @@ func (h *handler) saveSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := auth.RemoteUserFromContext(r.Context())
+	user := auth.UserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unable to find user", http.StatusInternalServerError)
 		return

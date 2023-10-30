@@ -19,6 +19,7 @@ import (
 type AuthProvider string
 
 const (
+	NONE          AuthProvider = "none"
 	SIMPLE        AuthProvider = "simple"
 	FORWARD_PROXY AuthProvider = "forward-proxy"
 )
@@ -34,6 +35,7 @@ type Config struct {
 	NoAnalytics  bool
 	Dev          bool
 	AuthProvider AuthProvider
+	Authorizer   Authorizer
 }
 
 type handler struct {
@@ -52,6 +54,11 @@ type DockerClient interface {
 	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() *docker.Host
+}
+
+type Authorizer interface {
+	AuthMiddleware(http.Handler) http.Handler
+	CreateToken(string, string) (string, error)
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
@@ -76,19 +83,22 @@ func createRouter(h *handler) *chi.Mux {
 	}
 
 	r.Route(base, func(r chi.Router) {
+		if h.config.Authorizer != nil {
+			r.Use(h.config.Authorizer.AuthMiddleware)
+		}
 		r.Group(func(r chi.Router) {
-			if h.config.AuthProvider == FORWARD_PROXY {
-				r.Use(auth.ForwardProxyAuthorizationRequired)
-			}
 			r.Group(func(r chi.Router) {
-				r.Use(authorizationRequired)
+				if h.config.AuthProvider != NONE {
+					r.Use(auth.RequireAuthentication)
+				}
+				r.Use(authorizationRequired) // TODO remove this
 				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
-				r.Get("/logout", h.clearSession)
-				r.Get("/version", h.version)
 				r.Put("/api/profile/settings", h.saveSettings)
+				r.Get("/logout", h.clearSession) // TODO remove this
+				r.Get("/version", h.version)
 			})
 
 			defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
@@ -97,7 +107,12 @@ func createRouter(h *handler) *chi.Mux {
 			})
 		})
 
-		r.Post("/api/validateCredentials", h.validateCredentials)
+		if h.config.AuthProvider == SIMPLE {
+			r.Post("/api/token", h.createToken)
+			r.Delete("/api/token", h.deleteToken)
+		}
+
+		r.Post("/api/validateCredentials", h.validateCredentials) // TODO remove this
 		r.Get("/healthcheck", h.healthcheck)
 	})
 

@@ -80,5 +80,5 @@ func createHandler(client DockerClient, content fs.FS, config Config) *chi.Mux {
 }
 
 func createDefaultHandler(client DockerClient) *chi.Mux {
-	return createHandler(client, nil, Config{Base: "/"})
+	return createHandler(client, nil, Config{Base: "/", AuthProvider: NONE})
 }
