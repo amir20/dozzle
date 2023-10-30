@@ -105,6 +105,7 @@ func createRouter(h *handler) *chi.Mux {
 
 		if h.config.AuthProvider == SIMPLE {
 			r.Post("/api/token", h.createToken)
+			r.Delete("/api/token", h.deleteToken)
 		}
 
 		r.Post("/api/validateCredentials", h.validateCredentials)
