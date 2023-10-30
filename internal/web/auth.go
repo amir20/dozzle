@@ -106,7 +106,6 @@ func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
 	pass := r.PostFormValue("password")
 
 	if token, err := h.config.Authorizer.CreateToken(user, pass); err == nil {
-		// store cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "jwt",
 			Value:    token,

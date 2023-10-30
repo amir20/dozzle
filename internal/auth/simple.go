@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -35,7 +36,7 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 		return "", ErrInvalidCredentials
 	}
 
-	_, tokenString, err := a.tokenAuth.Encode(map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name})
+	_, tokenString, err := a.tokenAuth.Encode(map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name, "timestamp": time.Now()})
 	if err != nil {
 		return "", err
 	}
