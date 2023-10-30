@@ -82,25 +82,22 @@ func sha256sum(s string) string {
 }
 
 func UserFromContext(ctx context.Context) *User {
-	_, claims, err := jwtauth.FromContext(ctx)
-
-	if err != nil {
-		user, ok := ctx.Value(remoteUser).(*User)
-		if !ok {
-			return nil
-		}
+	if user, ok := ctx.Value(remoteUser).(*User); ok {
 		return user
 	} else {
-		username, ok := claims["username"].(string)
-		if !ok {
-			return nil
+		if _, claims, err := jwtauth.FromContext(ctx); err == nil {
+			username, ok := claims["username"].(string)
+			if !ok {
+				return nil
+			}
+			if username == "" {
+				return nil
+			}
+			email := claims["email"].(string)
+			name := claims["name"].(string)
+			return newUser(username, email, name)
 		}
-		if username == "" {
-			return nil
-		}
-		email := claims["email"].(string)
-		name := claims["name"].(string)
-		return newUser(username, email, name)
+		return nil
 	}
 }
 

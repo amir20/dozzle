@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"log"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type contextKey string

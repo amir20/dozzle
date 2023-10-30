@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col gap-16 px-4 pt-8 md:px-8">
     <section v-if="config.user">
-      <div class="flex items-center gap-4">
-        <div class="ml-auto" v-if="config.authProvider === 'simple'">
+      <div class="flex items-center justify-end gap-4">
+        <div v-if="config.authProvider === 'simple'">
           <button @click.prevent="logout()" class="link-primary">{{ $t("button.logout") }}</button>
         </div>
         <div>
