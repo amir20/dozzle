@@ -16,7 +16,7 @@ type User struct {
 	Email    string `json:"email" yaml:"email"`
 	Name     string `json:"name" yaml:"name"`
 	Avatar   string `json:"avatar,omitempty"`
-	Password string `yaml:"password,omitempty"`
+	Password string `json:"-" yaml:"password"`
 }
 
 func newUser(username, email, name string) *User {
@@ -46,6 +46,10 @@ func ReadUsersFromFile(path string) (*UserDatabase, error) {
 
 	if err := yaml.NewDecoder(file).Decode(&users); err != nil {
 		return &users, err
+	}
+
+	for username, user := range users.Users {
+		user.Username = username
 	}
 
 	return &users, nil
@@ -89,6 +93,9 @@ func UserFromContext(ctx context.Context) *User {
 	} else {
 		username, ok := claims["username"].(string)
 		if !ok {
+			return nil
+		}
+		if username == "" {
 			return nil
 		}
 		email := claims["email"].(string)
