@@ -51,9 +51,9 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		log.Panic(err)
 	}
 
-	path := ""
+	base := ""
 	if h.config.Base != "/" {
-		path = h.config.Base
+		base = h.config.Base
 	}
 
 	hosts := make([]*docker.Host, 0, len(h.clients))
@@ -65,38 +65,41 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	})
 
 	config := map[string]interface{}{
-		"base":                path,
+		"base":                base,
 		"version":             h.config.Version,
 		"authorizationNeeded": h.isAuthorizationNeeded(req),
 		"secured":             secured,
 		"hostname":            h.config.Hostname,
 		"hosts":               hosts,
+		"authProvider":        h.config.AuthProvider,
 	}
 
-	if h.config.AuthProvider == FORWARD_PROXY {
-		user := auth.UserFromContext(req.Context())
-		if user == nil {
-			log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
-			log.Debugf("Dumping all headers for url /%s", req.URL.String())
-			for k, v := range req.Header {
-				log.Debugf("%s: %s", k, v)
-			}
-			http.Error(w, "Unauthorized user", http.StatusUnauthorized)
-			return
-		}
-		config["user"] = user
+	user := auth.UserFromContext(req.Context())
+	if user != nil {
 		if settings, err := profile.LoadUserSettings(user); err == nil {
 			config["serverSettings"] = settings
 		} else {
 			config["serverSettings"] = struct{}{}
 		}
+		config["user"] = user
+	} else if h.config.AuthProvider == FORWARD_PROXY {
+		log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
+		log.Debugf("Dumping all headers for url /%s", req.URL.String())
+		for k, v := range req.Header {
+			log.Debugf("%s: %s", k, v)
+		}
+		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
+		return
+	} else if h.config.AuthProvider == SIMPLE && req.URL.Path != "login" {
+		http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
+		return
 	}
 
 	data := map[string]interface{}{
 		"Config":   config,
 		"Dev":      h.config.Dev,
 		"Manifest": h.readManifest(),
-		"Base":     path,
+		"Base":     base,
 	}
 
 	err = tmpl.Execute(w, data)

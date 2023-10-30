@@ -10,6 +10,7 @@ interface Config {
   maxLogs: number;
   hostname: string;
   hosts: { name: string; id: string }[];
+  authProvider: "simple" | "none" | "forward-proxy";
   user?: {
     username: string;
     email: string;

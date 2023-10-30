@@ -18,6 +18,7 @@ import (
 type AuthProvider string
 
 const (
+	NONE          AuthProvider = "none"
 	SIMPLE        AuthProvider = "simple"
 	FORWARD_PROXY AuthProvider = "forward-proxy"
 )

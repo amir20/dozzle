@@ -110,8 +110,10 @@ func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
 			Name:     "jwt",
 			Value:    token,
 			HttpOnly: true,
+			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
 		})
+		log.Infof("Token created for user %s", user)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(http.StatusText(http.StatusOK)))
 	} else {

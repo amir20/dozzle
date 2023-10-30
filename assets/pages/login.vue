@@ -49,9 +49,10 @@ let password = $ref("");
 let form: HTMLFormElement | undefined = $ref();
 
 async function onLogin() {
-  const response = await fetch(withBase("/api/validateCredentials"), {
+  const url = config.authProvider === "simple" ? "/api/token" : "/api/validateCredentials";
+  const response = await fetch(withBase(url), {
     body: new FormData(form),
-    method: "post",
+    method: "POST",
   });
 
   if (response.status == 200) {

@@ -175,7 +175,7 @@ func createClients(args args,
 func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
-	var provider web.AuthProvider
+	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
 		provider = web.FORWARD_PROXY
