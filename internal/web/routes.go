@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/docker/docker/api/types"
 	"github.com/go-chi/chi/v5"
@@ -87,14 +88,17 @@ func createRouter(h *handler) *chi.Mux {
 		}
 		r.Group(func(r chi.Router) {
 			r.Group(func(r chi.Router) {
-				r.Use(authorizationRequired)
+				if h.config.AuthProvider != NONE {
+					r.Use(auth.RequireAuthentication)
+				}
+				r.Use(authorizationRequired) // TODO remove this
 				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
-				r.Get("/logout", h.clearSession)
-				r.Get("/version", h.version)
 				r.Put("/api/profile/settings", h.saveSettings)
+				r.Get("/logout", h.clearSession) // TODO remove this
+				r.Get("/version", h.version)
 			})
 
 			defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
@@ -108,7 +112,7 @@ func createRouter(h *handler) *chi.Mux {
 			r.Delete("/api/token", h.deleteToken)
 		}
 
-		r.Post("/api/validateCredentials", h.validateCredentials)
+		r.Post("/api/validateCredentials", h.validateCredentials) // TODO remove this
 		r.Get("/healthcheck", h.healthcheck)
 	})
 

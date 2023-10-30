@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"net/http"
 	"os"
 
 	"github.com/go-chi/jwtauth/v5"
@@ -94,4 +95,15 @@ func UserFromContext(ctx context.Context) *User {
 		name := claims["name"].(string)
 		return newUser(username, email, name)
 	}
+}
+
+func RequireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := UserFromContext(r.Context())
+		if user != nil {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		}
+	})
 }

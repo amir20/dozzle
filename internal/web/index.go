@@ -91,6 +91,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
 		return
 	} else if h.config.AuthProvider == SIMPLE && req.URL.Path != "login" {
+		log.Debugf("Redirecting to login page for url /%s", req.URL.String())
 		http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
 		return
 	}
