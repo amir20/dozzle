@@ -6,7 +6,7 @@
           <button @click.prevent="logout()" class="link-primary">{{ $t("button.logout") }}</button>
         </div>
         <div>
-          {{ config.user.name ?? config.user.email }}
+          {{ config.user.name ? config.user.name : config.user.email }}
         </div>
         <img class="h-10 w-10 rounded-full p-1 ring-2 ring-base-content/50" :src="config.user.avatar" />
       </div>
