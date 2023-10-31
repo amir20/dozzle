@@ -288,6 +288,7 @@ func parseArgs() args {
 	}
 
 	if args.Username != "" || args.Password != "" {
+		log.Warn("Using --username and --password is being deprecated and removed in v6.x. Use --auth-provider instead. See https://dozzle.dev/guide/authentication#file-based-user-management for more information.")
 		if args.Username == "" || args.Password == "" {
 			log.Fatalf("Username AND password are required for authentication")
 		}
