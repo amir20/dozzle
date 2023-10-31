@@ -224,7 +224,7 @@ Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate toke
 ## Single Username/Password
 
 ::: danger
-`--username` and `--passowrd` flags will be removed in v6.x in favor of `--auth-provider`.
+`--username` and `--password` flags will be removed in v6.x in favor of `--auth-provider`.
 :::
 
 Dozzle supports a very simple authentication out of the box with just username and password. You should deploy using SSL to keep the credentials safe. See configuration to use `--username` and `--password`. You can also use docker secrets `--usernamefile` and `--passwordfile`.
