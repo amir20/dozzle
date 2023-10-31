@@ -4,7 +4,9 @@ title: Authentication
 
 # Setting Up Authentication
 
-Dozzle support two models of authentication. If you have already setup authentication behind a proxy then Dozzle can work out of the box by reading forwarded headers. If you do not currently have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag.
+Dozzle support two configurations for authentication. In the first configuration, you bring your own authentication method by protecting Dozzle through a proxy. Dozzle can read appropriate headers out of the box.
+
+If you do not have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag. In both of these configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
 
 ## Forward Proxy
 
@@ -178,14 +180,51 @@ Valid SSL keys are required because Authelia only supports SSL.
 
 ## File Based User Management
 
-::: info
-More details coming soon.
+Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`. The content of the file looks like
+
+```yml
+users:
+  admin:
+    name: "Admin"
+    # Just sha-256 which can be computed with echo -n password | shasum -a 256
+    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    email: me@email.net
+```
+
+Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional.
+
+The password is hashed using `sha256` which can be generated with `echo -n "secret-password" | shasum -a 256` or `echo -n "secret-password" | sha256sum` on linux.
+
+You will need to mount this file for Dozzle to find it. Here is an example:
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple
+```
+
+```yaml [docker-compose.yml]
+version: "3"
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+```
+
 :::
+
+Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
 
 ## Single Username/Password
 
 ::: danger
-This authentication method will be removed in v6.x in favor of a file based solution currently in development.
+`--username` and `--passowrd` flags will be removed in v6.x in favor of `--auth-provider`.
 :::
 
 Dozzle supports a very simple authentication out of the box with just username and password. You should deploy using SSL to keep the credentials safe. See configuration to use `--username` and `--password`. You can also use docker secrets `--usernamefile` and `--passwordfile`.
