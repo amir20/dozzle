@@ -51,7 +51,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/ld+json; charset=UTF-8")
+	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
 
 	from, _ := time.Parse(time.RFC3339, r.URL.Query().Get("from"))
 	to, _ := time.Parse(time.RFC3339, r.URL.Query().Get("to"))
