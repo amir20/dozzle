@@ -7,10 +7,8 @@ import (
 	"sort"
 
 	"net/http"
-	"os"
 	"path"
 
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/profile"
@@ -27,35 +25,15 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
 			return
 		}
-		go h.sendRequestEvent()
 		h.executeTemplate(w, req)
 	}
 }
 
 func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
-	file, err := h.content.Open("index.html")
-	if err != nil {
-		log.Panic(err)
-	}
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		log.Panic(err)
-	}
-	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
-		"marshal": func(v interface{}) template.JS {
-			a, _ := json.Marshal(v)
-			return template.JS(a)
-		},
-	}).Parse(string(bytes))
-	if err != nil {
-		log.Panic(err)
-	}
-
 	base := ""
 	if h.config.Base != "/" {
 		base = h.config.Base
 	}
-
 	hosts := make([]*docker.Host, 0, len(h.clients))
 	for _, v := range h.clients {
 		hosts = append(hosts, v.Host())
@@ -102,6 +80,23 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"Manifest": h.readManifest(),
 		"Base":     base,
 	}
+	file, err := h.content.Open("index.html")
+	if err != nil {
+		log.Panic(err)
+	}
+	bytes, err := io.ReadAll(file)
+	if err != nil {
+		log.Panic(err)
+	}
+	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
+		"marshal": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+	}).Parse(string(bytes))
+	if err != nil {
+		log.Panic(err)
+	}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
@@ -129,34 +124,5 @@ func (h *handler) readManifest() map[string]interface{} {
 			log.Fatalf("Could not parse manifest.json: %v", err)
 		}
 		return manifest
-	}
-}
-
-func (h *handler) sendRequestEvent() {
-	if !h.config.NoAnalytics {
-		host, _ := os.Hostname()
-
-		var client DockerClient
-		for _, v := range h.clients {
-			client = v
-			break
-		}
-
-		if containers, err := client.ListContainers(); err == nil {
-			totalContainers := len(containers)
-			runningContainers := 0
-			for _, container := range containers {
-				if container.State == "running" {
-					runningContainers++
-				}
-			}
-
-			re := analytics.RequestEvent{
-				ClientId:          host,
-				TotalContainers:   totalContainers,
-				RunningContainers: runningContainers,
-			}
-			analytics.SendRequestEvent(re)
-		}
 	}
 }
