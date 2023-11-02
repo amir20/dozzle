@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import DaisyUI from "daisyui";
+import Typography from "@tailwindcss/typography";
 
 export default {
   content: ["./assets/**/*.{vue,js,ts}", "./public/index.html"],
@@ -26,7 +27,7 @@ export default {
       },
     },
   },
-  plugins: [DaisyUI],
+  plugins: [DaisyUI, Typography],
   daisyui: {
     themes: [],
     base: false,
