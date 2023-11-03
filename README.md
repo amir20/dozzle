@@ -77,6 +77,33 @@ Or to use compose:
 
 You need to make sure appropriate certs are provided in `/certs/167.99.1.1/{ca,cert,key}.pem` and `/certs/167.99.1.2/{ca,cert,key}.pem` for both hosts to work.
 
+### Installation on podman
+
+As podman is not working with deamon, also doesn't use remote socket for communitation by default, however you can enable it and let dozzle to connect.
+
+Verify first if your podman installation has enabled remote socket:
+
+  ```
+  podman info
+  ```
+
+When you get under the key remotesocket output like this, its already enabled:
+
+```
+  remoteSocket:
+    exists: true
+    path: /run/user/1000/podman/podman.sock
+```
+
+If it's not enabled please follow [this tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md) how to enable it 
+
+Once you have the podman remote socket you can run dozzle on podman
+
+```
+podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 amir20/dozzle:latest
+```
+
+
 ### Adding health check
 
 Dozzle doesn't enable healthcheck by default as it adds extra CPU usage. `healthcheck` can be enabled manually.
