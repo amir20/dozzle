@@ -16,6 +16,11 @@ export function isObject(value: any): value is Record<string, any> {
 }
 
 export function flattenJSON(obj: Record<string, any>, path: string[] = []) {
+  if (!obj) {
+    console.warn("flattenJSON: obj is null for path: ", path.join("."));
+    console.trace();
+    return {};
+  }
   const result: Record<string, any> = {};
   Object.keys(obj).forEach((key) => {
     const value = obj[key];

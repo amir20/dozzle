@@ -24,6 +24,7 @@ export default defineConfig(() => ({
     modulePreload: {
       polyfill: false,
     },
+    sourcemap: true,
   },
   plugins: [
     VueMacros({
