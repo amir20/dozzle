@@ -1,5 +1,5 @@
 <template>
-  <article class="prose p-8 lg:prose-xl" v-html="content"></article>
+  <article class="prose p-8" v-html="content"></article>
 </template>
 
 <script lang="ts" setup>
