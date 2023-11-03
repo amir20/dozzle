@@ -15,17 +15,15 @@ https://user-images.githubusercontent.com/260667/227634771-9ebbe381-16a8-465a-b2
 - Search logs using regex 🔦
 - Small memory footprint 🏎
 - Split screen for viewing multiple logs
-- Download logs easy
+- Download logs easily
 - Live stats with memory and CPU usage
-- Authentication with username and password 🚨
+- Multi-user authentication with support for proxy forward authorization 🚨
 
-Dozzle should work for most. It has been tested with hundreds of containers. However, it doesn't support offline searching. Products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited for full search capabilities.
-
-Dozzle doesn't cost any money and aims to focus on real-time debugging.
+Dozzle has been tested with hundreds of containers. However, it doesn't support offline searching. Products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited for full search capabilities.
 
 ## Getting Started
 
-Dozzle is a very small Docker container (4 MB compressed). Pull the latest release with:
+Dozzle is a small container (4 MB compressed). Pull the latest release with:
 
     $ docker pull amir20/dozzle:latest
 
