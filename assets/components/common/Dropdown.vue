@@ -7,7 +7,7 @@
       <slot>
         <li v-for="item in options">
           <a @click="modelValue = item.value">
-            <mdi-light:check class="w-4" v-if="modelValue == item.value" />
+            <mdi:check class="w-4" v-if="modelValue == item.value" />
             <div v-else class="w-4"></div>
             {{ item.label }}
           </a>
