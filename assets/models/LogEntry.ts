@@ -144,21 +144,21 @@ export class SkippedLogsEntry extends LogEntry<string> {
 }
 
 export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
-  if (typeof event.m === "string") {
+  if (isObject(event.m)) {
+    return new ComplexLogEntry(
+      event.m,
+      event.id,
+      new Date(event.ts),
+      event.l,
+      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
+    );
+  } else {
     return new SimpleLogEntry(
       event.m,
       event.id,
       new Date(event.ts),
       event.l,
       event.p,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
-    );
-  } else {
-    return new ComplexLogEntry(
-      event.m,
-      event.id,
-      new Date(event.ts),
-      event.l,
       event.s === "unknown" ? "stderr" : event.s ?? "stderr",
     );
   }
