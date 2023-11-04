@@ -30,6 +30,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/jwtauth/v5 v5.1.1
 	github.com/yuin/goldmark v1.6.0
+	github.com/yuin/goldmark-meta v1.1.0
 )
 
 require (
@@ -49,7 +50,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	github.com/yuin/goldmark-meta v1.1.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
