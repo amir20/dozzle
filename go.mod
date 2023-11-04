@@ -29,6 +29,7 @@ require (
 require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/jwtauth/v5 v5.1.1
+	github.com/yuin/goldmark v1.6.0
 )
 
 require (
@@ -48,12 +49,13 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	github.com/yuin/goldmark v1.6.0 // indirect
+	github.com/yuin/goldmark-meta v1.1.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	golang.org/x/tools v0.12.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gotest.tools/v3 v3.0.3 // indirect
 )
 

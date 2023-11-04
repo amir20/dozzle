@@ -1,21 +1,25 @@
 package web
 
 import (
+	"encoding/json"
 	"net/http"
-	"os"
 
+	"github.com/amir20/dozzle/internal/content"
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
-	"github.com/yuin/goldmark"
 )
 
 func (h *handler) staticContent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/html")
-	data, err := os.ReadFile("data/content/help.md")
+	id := chi.URLParam(r, "id")
+	content, err := content.Read(id)
 	if err != nil {
-		log.Fatalf("Error reading help.md: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Warnf("error reading content: %v", err)
+		return
 	}
 
-	if err := goldmark.Convert(data, w); err != nil {
-		panic(err)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(content); err != nil {
+		log.Errorf("json encoding error while streaming %v", err.Error())
 	}
 }

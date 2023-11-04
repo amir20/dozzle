@@ -97,7 +97,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
 				r.Put("/api/profile/settings", h.saveSettings)
-				r.Get("/api/content", h.staticContent)
+				r.Get("/api/content/{id}", h.staticContent)
 				r.Get("/logout", h.clearSession) // TODO remove this
 				r.Get("/version", h.version)
 			})

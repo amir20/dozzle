@@ -118,4 +118,8 @@
     --nc: var(--pc);
     @apply active;
   }
+
+  .link-primary {
+    @apply underline-offset-4 hover:underline;
+  }
 }

@@ -18,6 +18,7 @@ interface Config {
     avatar: string;
   };
   serverSettings?: Settings;
+  pages?: { id: string; title: string }[];
 }
 
 const pageConfig = JSON.parse(text);
