@@ -1,5 +1,12 @@
 <template>
-  <article class="prose p-8" v-html="data.content"></article>
+  <div class="flex flex-col gap-8 p-8">
+    <section>
+      <links />
+    </section>
+    <section>
+      <article class="prose" v-html="data.content"></article>
+    </section>
+  </div>
 </template>
 
 <script lang="ts" setup>
