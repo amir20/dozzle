@@ -33,12 +33,14 @@ export const DEFAULT_SETTINGS: Settings = {
 export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
 settings.value = { ...DEFAULT_SETTINGS, ...settings.value, ...config.serverSettings };
 
-watch(settings, (value) => {
-  fetch(withBase("/api/profile/settings"), {
-    method: "PUT",
-    body: JSON.stringify(value),
+if (config.user) {
+  watch(settings, (value) => {
+    fetch(withBase("/api/profile/settings"), {
+      method: "PUT",
+      body: JSON.stringify(value),
+    });
   });
-});
+}
 
 export const {
   collapseNav,
