@@ -59,6 +59,8 @@ declare module 'vue' {
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']
     'Octicon:download24': typeof import('~icons/octicon/download24')['default']
     'Octicon:trash24': typeof import('~icons/octicon/trash24')['default']
+    PageWithLink: typeof import('./components/PageWithLink.vue')['default']
+    PageWithLinks: typeof import('./components/PageWithLinks.vue')['default']
     'Ph:command': typeof import('~icons/ph/command')['default']
     'Ph:computerTower': typeof import('~icons/ph/computer-tower')['default']
     'Ph:controlBold': typeof import('~icons/ph/control-bold')['default']

@@ -1,18 +1,15 @@
 <template>
-  <div class="flex flex-col gap-8 p-8">
+  <page-with-links>
     <section>
-      <links />
+      <article class="prose" v-html="data.content" v-if="data"></article>
     </section>
-    <section>
-      <article class="prose" v-html="data!.content"></article>
-    </section>
-  </div>
+  </page-with-links>
 </template>
 
 <script lang="ts" setup>
 const { id } = defineProps<{ id: string }>();
 
-const { data } = await useFetch(() => withBase("/api/content/" + id), {
+const { data } = useFetch(() => withBase("/api/content/" + id), {
   refetch: true,
 })
   .get()
