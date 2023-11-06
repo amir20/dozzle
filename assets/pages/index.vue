@@ -1,15 +1,7 @@
 <template>
-  <div class="flex flex-col gap-16 px-4 pt-8 md:px-8">
-    <section v-if="config.user">
-      <div class="flex items-center justify-end gap-4">
-        <div v-if="config.authProvider === 'simple'">
-          <button @click.prevent="logout()" class="link-primary">{{ $t("button.logout") }}</button>
-        </div>
-        <div>
-          {{ config.user.name ? config.user.name : config.user.email }}
-        </div>
-        <img class="h-10 w-10 rounded-full p-1 ring-2 ring-base-content/50" :src="config.user.avatar" />
-      </div>
+  <div class="flex flex-col gap-16 p-8">
+    <section>
+      <links />
     </section>
     <section>
       <div class="stats grid bg-base-lighter shadow">
@@ -76,14 +68,6 @@ watchEffect(() => {
     setTitle(t("title.dashboard", { count: runningContainers.length }));
   }
 });
-
-async function logout() {
-  await fetch(withBase("/api/token"), {
-    method: "DELETE",
-  });
-
-  location.reload();
-}
 </script>
 <style lang="postcss" scoped>
 :deep(tr td) {

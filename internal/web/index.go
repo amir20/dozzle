@@ -10,6 +10,7 @@ import (
 	"path"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/content"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/profile"
 
@@ -52,6 +53,16 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"authProvider":        h.config.AuthProvider,
 	}
 
+	pages, err := content.ReadAll()
+	if err != nil {
+		log.Errorf("error reading content: %v", err)
+	} else if len(pages) > 0 {
+		for _, page := range pages {
+			page.Content = ""
+		}
+		config["pages"] = pages
+	}
+
 	user := auth.UserFromContext(req.Context())
 	if user != nil {
 		if settings, err := profile.LoadUserSettings(user); err == nil {
@@ -90,8 +101,13 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
 		"marshal": func(v interface{}) template.JS {
-			a, _ := json.Marshal(v)
-			return template.JS(a)
+			var p []byte
+			if h.config.Dev {
+				p, _ = json.MarshalIndent(v, "", "  ")
+			} else {
+				p, _ = json.Marshal(v)
+			}
+			return template.JS(p)
 		},
 	}).Parse(string(bytes))
 	if err != nil {
