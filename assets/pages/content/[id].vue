@@ -4,7 +4,7 @@
       <links />
     </section>
     <section>
-      <article class="prose" v-html="data.content"></article>
+      <article class="prose" v-html="data!.content"></article>
     </section>
   </div>
 </template>
