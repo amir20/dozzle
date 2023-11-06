@@ -1,8 +1,5 @@
 <template>
-  <div class="flex flex-col gap-16 p-8">
-    <section>
-      <links />
-    </section>
+  <page-with-links class="gap-16">
     <section>
       <div class="stats grid bg-base-lighter shadow">
         <div class="stat">
@@ -28,7 +25,7 @@
     <section>
       <container-table :containers="runningContainers"></container-table>
     </section>
-  </div>
+  </page-with-links>
 </template>
 
 <script lang="ts" setup>

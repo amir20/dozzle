@@ -1,8 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 p-8">
-    <section>
-      <links />
-    </section>
+  <page-with-links>
     <section>
       <div class="has-underline">
         <h2>{{ $t("settings.about") }}</h2>
@@ -88,7 +85,7 @@
         <toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</toggle>
       </div>
     </section>
-  </div>
+  </page-with-links>
 </template>
 
 <script lang="ts" setup>

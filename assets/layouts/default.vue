@@ -8,9 +8,7 @@
       <pane min-size="10">
         <splitpanes>
           <pane class="router-view min-h-screen">
-            <Suspense>
-              <router-view></router-view>
-            </Suspense>
+            <router-view></router-view>
           </pane>
           <template v-if="!isMobile">
             <pane v-for="other in activeContainers" :key="other.id">
