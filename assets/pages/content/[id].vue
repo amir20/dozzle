@@ -11,12 +11,11 @@
 
 <script lang="ts" setup>
 const { id } = defineProps<{ id: string }>();
-const data = ref({ title: "", content: "" });
 
-onBeforeMount(async () => {
-  data.value = await (await fetch(withBase("/api/content/" + id))).json();
-
-  setTitle(data.value.title);
-});
+const { data } = await useFetch(() => withBase("/api/content/" + id), {
+  refetch: true,
+})
+  .get()
+  .json<{ title: string; content: string }>();
 </script>
 <style lang="postcss" scoped></style>
