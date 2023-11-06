@@ -65,7 +65,7 @@
   "vite-plugin-pages": "^0.31.0",
   "vite-plugin-vue-layouts": "^0.8.0",
   "vue": "^3.3.7",
-  "vue-i18n": "^9.6.4",
+  "vue-i18n": "^9.6.5",
   "vue-router": "^4.2.5"
  },
  "devDependencies": {
@@ -96,7 +96,7 @@
   "simple-git-hooks": "^2.9.0",
   "ts-node": "^10.9.1",
   "typescript": "^5.2.2",
-  "vitepress": "1.0.0-rc.24",
+  "vitepress": "1.0.0-rc.25",
   "vitest": "^0.34.6",
   "vue-tsc": "^1.8.22"
  },
