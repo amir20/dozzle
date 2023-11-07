@@ -16,7 +16,13 @@
       <template #trigger>
         <mdi:announcement class="h-6 w-6 -rotate-12" />
       </template>
-      <template #content> test </template>
+      <template #content>
+        <ul>
+          <li v-for="release in releases">
+            {{ release.name }}
+          </li>
+        </ul>
+      </template>
     </icon-dropdown>
 
     <icon-dropdown class="dropdown-end" v-if="config.user">
@@ -49,4 +55,6 @@ async function logout() {
 
   location.reload();
 }
+
+const { hasUpdate, releases } = useReleases();
 </script>

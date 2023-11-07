@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { globalShowPopup } from "@/composables/popup";
+import { globalShowPopup } from "@/composable/popup";
 
 let glopbalShow = globalShowPopup();
 let show = ref(glopbalShow.value);

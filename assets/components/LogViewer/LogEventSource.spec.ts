@@ -5,11 +5,11 @@ import EventSource, { sources } from "eventsourcemock";
 import LogEventSource from "./LogEventSource.vue";
 import LogViewer from "./LogViewer.vue";
 import { settings } from "@/stores/settings";
-import { useSearchFilter } from "@/composables/search";
+import { useSearchFilter } from "@/composable/search";
 import { vi, describe, expect, beforeEach, test, afterEach } from "vitest";
 import { computed, nextTick } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { containerContext } from "@/composables/containerContext";
+import { containerContext } from "@/composable/containerContext";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,

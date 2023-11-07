@@ -26,7 +26,7 @@ type Release struct {
 }
 
 func FetchReleases() ([]Release, error) {
-	response, err := http.Get("https://api.github.com/repos/amir20/dozzle/releases")
+	response, err := http.Get("https://api.github.com/repos/amir20/dozzle/releases?per_page=5")
 	if err != nil {
 		return nil, err
 	}

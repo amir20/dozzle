@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 const { base, secured } = config;
-import { sessionHost } from "@/composables/storage";
+import { sessionHost } from "@/composable/storage";
 const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers } = storeToRefs(store);
