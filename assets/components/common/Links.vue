@@ -15,6 +15,7 @@
     <icon-dropdown class="dropdown-end">
       <template #trigger>
         <mdi:announcement class="h-6 w-6 -rotate-12" />
+        <span class="absolute right-px top-0 h-2 w-2 rounded-full bg-red" v-if="hasUpdate"></span>
       </template>
       <template #content>
         <ul>
