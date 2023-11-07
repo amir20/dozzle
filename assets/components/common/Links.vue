@@ -18,9 +18,13 @@
         <span class="absolute right-px top-0 h-2 w-2 rounded-full bg-red" v-if="hasUpdate"></span>
       </template>
       <template #content>
-        <ul>
+        <ul class="space-y-4 p-2">
           <li v-for="release in releases">
-            {{ release.name }}
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold">{{ release.name }}</h3>
+              <tag class="bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">Latest</tag>
+            </div>
+            <div class="text-sm">Released <distance-time :date="new Date(release.createdAt)" /></div>
           </li>
         </ul>
       </template>
@@ -57,5 +61,5 @@ async function logout() {
   location.reload();
 }
 
-const { hasUpdate, releases } = useReleases();
+const { hasUpdate, releases, latest } = useReleases();
 </script>

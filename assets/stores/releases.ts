@@ -1,6 +1,6 @@
 const { data: releases } = useFetch(withBase("/api/releases"))
   .get()
-  .json<{ name: string; mentionsCount: number; createdAt: Date; body: string; tag: string }[]>();
+  .json<{ name: string; mentionsCount: number; createdAt: string; body: string; tag: string }[]>();
 
 const hasUpdate = computed(() => {
   if (!releases.value?.length) return false;
