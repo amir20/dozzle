@@ -3,7 +3,7 @@
     <summary class="btn btn-primary flex-nowrap" v-bind="$attrs">
       <slot name="trigger"> {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down /></slot>
     </summary>
-    <ul class="menu dropdown-content rounded-box z-50 w-52 bg-base p-2 shadow">
+    <ul class="menu dropdown-content rounded-box z-50 mt-1 w-52 border border-base-content/20 bg-base p-2 shadow">
       <slot>
         <li v-for="item in options">
           <a @click="modelValue = item.value">
