@@ -43,7 +43,7 @@ func init() {
 	data_path = path
 }
 
-func SaveUserSettings(user *auth.User, settings *Settings) error {
+func SaveUserSettings(user auth.User, settings Settings) error {
 	path := filepath.Join(data_path, user.Username)
 
 	// Create user directory if it doesn't exist
@@ -76,24 +76,24 @@ func SaveUserSettings(user *auth.User, settings *Settings) error {
 	return f.Sync()
 }
 
-func LoadUserSettings(user *auth.User) (*Settings, error) {
+func LoadUserSettings(user auth.User) (Settings, error) {
 	path := filepath.Join(data_path, user.Username)
 	settings_path := filepath.Join(path, "settings.json")
 
 	if _, err := os.Stat(settings_path); os.IsNotExist(err) {
-		return &Settings{}, errors.New("Settings file does not exist")
+		return Settings{}, errors.New("Settings file does not exist")
 	}
 
 	f, err := os.Open(settings_path)
 	if err != nil {
-		return nil, err
+		return Settings{}, err
 	}
 	defer f.Close()
 
 	var settings Settings
 	if err := json.NewDecoder(f).Decode(&settings); err != nil {
-		return nil, err
+		return Settings{}, err
 	}
 
-	return &settings, nil
+	return settings, nil
 }

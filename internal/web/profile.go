@@ -22,7 +22,7 @@ func (h *handler) saveSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := profile.SaveUserSettings(user, &settings); err != nil {
+	if err := profile.SaveUserSettings(*user, settings); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Errorf("Unable to save user settings: %s", err)
 		return

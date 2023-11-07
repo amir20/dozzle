@@ -20,12 +20,12 @@ type User struct {
 	Password string `json:"-" yaml:"password"`
 }
 
-func newUser(username, email, name string) *User {
+func newUser(username, email, name string) User {
 	avatar := ""
 	if email != "" {
 		avatar = fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(email), name)
 	}
-	return &User{
+	return User{
 		Username: username,
 		Email:    email,
 		Name:     name,
@@ -37,23 +37,23 @@ type UserDatabase struct {
 	Users map[string]*User `yaml:"users"`
 }
 
-func ReadUsersFromFile(path string) (*UserDatabase, error) {
+func ReadUsersFromFile(path string) (UserDatabase, error) {
 	users := UserDatabase{}
 	file, err := os.Open(path)
 	if err != nil {
-		return &users, err
+		return users, err
 	}
 	defer file.Close()
 
 	if err := yaml.NewDecoder(file).Decode(&users); err != nil {
-		return &users, err
+		return users, err
 	}
 
 	for username, user := range users.Users {
 		user.Username = username
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 func (u *UserDatabase) Find(username string) *User {
@@ -96,7 +96,8 @@ func UserFromContext(ctx context.Context) *User {
 			}
 			email := claims["email"].(string)
 			name := claims["name"].(string)
-			return newUser(username, email, name)
+			user := newUser(username, email, name)
+			return &user
 		}
 		return nil
 	}

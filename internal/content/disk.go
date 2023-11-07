@@ -18,8 +18,8 @@ type Page struct {
 	Content string `json:"content,omitempty"`
 }
 
-func ReadAll() ([]*Page, error) {
-	var pages []*Page
+func ReadAll() ([]Page, error) {
+	var pages []Page
 	files, err := filepath.Glob("data/content/*.md")
 	if err != nil {
 		return nil, fmt.Errorf("error reading /data/content/*.md: %w", err)
@@ -38,10 +38,10 @@ func ReadAll() ([]*Page, error) {
 	return pages, nil
 }
 
-func Read(id string) (*Page, error) {
+func Read(id string) (Page, error) {
 	data, err := os.ReadFile("data/content/" + id + ".md")
 	if err != nil {
-		return nil, fmt.Errorf("error reading /data/content/%s.md: %w", id, err)
+		return Page{}, fmt.Errorf("error reading /data/content/%s.md: %w", id, err)
 	}
 
 	markdown := goldmark.New(
@@ -50,11 +50,11 @@ func Read(id string) (*Page, error) {
 	context := parser.NewContext()
 	var buf bytes.Buffer
 	if err := markdown.Convert(data, &buf, parser.WithContext(context)); err != nil {
-		return nil, fmt.Errorf("error converting markdown: %w", err)
+		return Page{}, fmt.Errorf("error converting markdown: %w", err)
 	}
 
 	metaData := meta.Get(context)
-	page := &Page{
+	page := Page{
 		Content: buf.String(),
 		Id:      id,
 		Title:   id,
