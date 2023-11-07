@@ -12,8 +12,6 @@
       </router-link>
     </template>
     <template v-if="config.user">
-      <div v-if="config.authProvider === 'simple'"></div>
-
       <div class="dropdown dropdown-end">
         <label tabindex="0" class="btn btn-circle btn-sm">
           <img class="h-10 w-10 max-w-none rounded-full p-1 ring-2 ring-base-content/50" :src="config.user.avatar" />
@@ -31,7 +29,7 @@
             </div>
           </div>
           <ul class="menu mt-4 p-0">
-            <li>
+            <li v-if="config.authProvider === 'simple'">
               <button @click.prevent="logout()" class="text-primary">{{ $t("button.logout") }}</button>
             </li>
           </ul>
