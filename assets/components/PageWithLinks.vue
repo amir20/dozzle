@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 px-4 py-8 md:px-8">
+  <div class="flex flex-col gap-8 px-4 py-4 md:px-8">
     <section>
       <links />
     </section>
