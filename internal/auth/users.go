@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -22,7 +23,7 @@ type User struct {
 func newUser(username, email, name string) *User {
 	avatar := ""
 	if email != "" {
-		avatar = "https://gravatar.com/avatar/" + hashEmail(email)
+		avatar = fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(email), name)
 	}
 	return &User{
 		Username: username,
