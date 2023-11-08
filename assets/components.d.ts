@@ -29,6 +29,7 @@ declare module 'vue' {
     DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     Dropdown: typeof import('./components/common/Dropdown.vue')['default']
+    DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     'Ic:sharpFindInPage': typeof import('~icons/ic/sharp-find-in-page')['default']

@@ -22,7 +22,7 @@
     <transition name="fade">
       <div v-show="show">
         <div class="mt-4 flex items-center justify-center gap-2">
-          <dropdown
+          <dropdown-menu
             v-model="sessionHost"
             :options="hosts"
             defaultLabel="Hosts"

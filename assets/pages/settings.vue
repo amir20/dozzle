@@ -34,7 +34,7 @@
       </div>
 
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="hourStyle"
           :options="[
             { label: 'Auto', value: 'auto' },
@@ -45,7 +45,7 @@
         {{ $t("settings.12-24-format") }}
       </div>
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="size"
           :options="[
             { label: 'Small', value: 'small' },
@@ -56,7 +56,7 @@
         {{ $t("settings.font-size") }}
       </div>
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="lightTheme"
           :options="[
             { label: 'Auto', value: 'auto' },
