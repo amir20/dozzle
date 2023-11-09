@@ -15,6 +15,7 @@ type githubRelease struct {
 	TagName       string    `json:"tag_name"`
 	Body          string    `json:"body"`
 	CreatedAt     time.Time `json:"created_at"`
+	HtmlUrl       string    `json:"html_url"`
 }
 
 type Release struct {
@@ -23,10 +24,13 @@ type Release struct {
 	Tag           string    `json:"tag"`
 	Body          string    `json:"body"`
 	CreatedAt     time.Time `json:"createdAt"`
+	HtmlUrl       string    `json:"htmlUrl"`
+	Latest        bool      `json:"latest"`
+	Current       bool      `json:"current"`
 }
 
-func FetchReleases() ([]Release, error) {
-	response, err := http.Get("https://api.github.com/repos/amir20/dozzle/releases?per_page=5")
+func Fetch(currentVersion string) ([]Release, error) {
+	response, err := http.Get("https://api.github.com/repos/amir20/dozzle/releases?per_page=12")
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +51,16 @@ func FetchReleases() ([]Release, error) {
 			Tag:           githubRelease.TagName,
 			Body:          buffer.String(),
 			CreatedAt:     githubRelease.CreatedAt,
+			HtmlUrl:       githubRelease.HtmlUrl,
+			Current:       githubRelease.TagName == currentVersion,
 		})
+		if githubRelease.TagName == currentVersion {
+			break
+		}
+	}
+
+	if len(releases) > 0 {
+		releases[0].Latest = true
 	}
 
 	return releases, nil

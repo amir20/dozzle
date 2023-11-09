@@ -9,7 +9,7 @@ import (
 )
 
 func (h *handler) releases(w http.ResponseWriter, r *http.Request) {
-	releases, err := releases.FetchReleases()
+	releases, err := releases.Fetch(h.config.Version)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

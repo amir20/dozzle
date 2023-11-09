@@ -6,10 +6,10 @@
       </div>
 
       <div>
-        <span v-html="$t('settings.using-version', { version: currentVersion })"></span>
+        <span v-html="$t('settings.using-version', { version: config.version })"></span>
         <div
           v-if="hasUpdate"
-          v-html="$t('settings.update-available', { nextVersion: nextRelease.name, href: nextRelease.html_url })"
+          v-html="$t('settings.update-available', { nextVersion: latest?.name, href: latest?.htmlUrl })"
         ></div>
       </div>
     </section>
@@ -105,30 +105,7 @@ import {
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
-
-const currentVersion = config.version;
-let nextRelease = $ref({ html_url: "", name: "" });
-let hasUpdate = $ref(false);
-
-async function fetchNextRelease() {
-  if (!["dev", "master"].includes(currentVersion)) {
-    const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
-    if (response.ok) {
-      const release = await response.json();
-      hasUpdate =
-        release.tag_name.slice(1).localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0;
-      nextRelease = release;
-    }
-  } else {
-    hasUpdate = true;
-    nextRelease = {
-      html_url: "",
-      name: "master",
-    };
-  }
-}
-
-fetchNextRelease();
+const { latest, hasUpdate, current } = useReleases();
 </script>
 <style lang="postcss" scoped>
 .has-underline {
