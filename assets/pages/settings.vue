@@ -90,22 +90,22 @@
 
 <script lang="ts" setup>
 import {
-  search,
-  lightTheme,
-  smallerScrollbars,
-  showTimestamp,
-  showStd,
-  hourStyle,
-  showAllContainers,
-  size,
-  softWrap,
   automaticRedirect,
+  hourStyle,
+  lightTheme,
+  search,
+  showAllContainers,
+  showStd,
+  showTimestamp,
+  size,
+  smallerScrollbars,
+  softWrap,
 } from "@/stores/settings";
 
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
-const { latest, hasUpdate, current } = useReleases();
+const { latest, hasUpdate } = useReleases();
 </script>
 <style lang="postcss" scoped>
 .has-underline {
