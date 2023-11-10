@@ -3,7 +3,6 @@
   "type": "module",
   "name": "docs",
   "devDependencies": {
-    "@netlify/functions": "^2.3.0",
     "@unocss/preset-typography": "^0.57.2",
     "@unocss/reset": "^0.57.2",
     "@unocss/transformer-directives": "^0.57.2",
