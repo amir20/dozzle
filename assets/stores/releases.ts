@@ -6,8 +6,10 @@ const { data: releases } = useFetch(withBase("/api/releases")).get().json<
     body: string;
     tag: string;
     htmlUrl: string;
-    current: boolean;
     latest: boolean;
+    features: number;
+    bugFixes: number;
+    breaking: number;
   }[]
 >();
 
@@ -18,12 +20,9 @@ const hasUpdate = computed(() => {
 
 const latest = computed(() => releases.value?.find((release) => release.latest));
 
-const current = computed(() => releases.value?.find((release) => release.current));
-
 export function useReleases() {
   return {
     hasUpdate,
-    current,
     latest,
     releases,
   };

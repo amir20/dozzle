@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -27,7 +28,6 @@ type Release struct {
 	CreatedAt     time.Time `json:"createdAt"`
 	HtmlUrl       string    `json:"htmlUrl"`
 	Latest        bool      `json:"latest"`
-	Current       bool      `json:"current"`
 	Features      int       `json:"features"`
 	BugFixes      int       `json:"bugFixes"`
 	Breaking      int       `json:"breaking"`
@@ -49,24 +49,37 @@ func Fetch(currentVersion string) ([]Release, error) {
 	for _, githubRelease := range githubReleases {
 		var buffer bytes.Buffer
 		goldmark.Convert([]byte(githubRelease.Body), &buffer)
+		html := buffer.String()
 
-		doc, _ := goquery.NewDocumentFromReader(&buffer)
-
-		doc.Find("h2").Each(func(i int, s *goquery.Selection) {
-		})
-
-		releases = append(releases, Release{
-			Name:          githubRelease.Name,
-			MentionsCount: githubRelease.MentionsCount,
-			Tag:           githubRelease.TagName,
-			Body:          buffer.String(),
-			CreatedAt:     githubRelease.CreatedAt,
-			HtmlUrl:       githubRelease.HtmlUrl,
-			Current:       githubRelease.TagName == currentVersion,
-		})
 		if githubRelease.TagName == currentVersion {
 			break
 		}
+
+		release := Release{
+			Name:          githubRelease.Name,
+			MentionsCount: githubRelease.MentionsCount,
+			Tag:           githubRelease.TagName,
+			Body:          html,
+			CreatedAt:     githubRelease.CreatedAt,
+			HtmlUrl:       githubRelease.HtmlUrl,
+		}
+
+		doc, _ := goquery.NewDocumentFromReader(&buffer)
+		doc.Find("h3").Each(func(i int, s *goquery.Selection) {
+			if strings.Contains(s.Text(), "Features") {
+				release.Features = s.Next().Find("li").Length()
+			}
+
+			if strings.Contains(s.Text(), "Bug Fixes") {
+				release.BugFixes = s.Next().Find("li").Length()
+			}
+
+			if strings.Contains(s.Text(), "Breaking Changes") {
+				release.Breaking = s.Next().Find("li").Length()
+			}
+		})
+
+		releases = append(releases, release)
 	}
 
 	if len(releases) > 0 {
