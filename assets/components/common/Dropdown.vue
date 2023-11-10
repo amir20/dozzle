@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown">
-    <label tabindex="0" class="btn btn-circle btn-sm" @mousedown="checkAndCloseDropDown($event)">
+    <label tabindex="0" class="btn btn-circle btn-sm" @mousedown="checkAndCloseDropDown($event)" @blur="closed()">
       <slot name="trigger"></slot>
     </label>
     <div
@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+const closed = defineEmit();
 function checkAndCloseDropDown(e: MouseEvent) {
   const target = e.currentTarget as HTMLElement;
   if (target?.matches(":focus")) {

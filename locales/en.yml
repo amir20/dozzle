@@ -86,3 +86,5 @@ releases:
   breaking: one breaking change | {count} breaking changes
   three_parts: "{first}, {second} and {third}"
   two_parts: "{first} with {second}"
+  latest: Latest
+  no_releases: You have the latest version

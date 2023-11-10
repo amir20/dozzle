@@ -62,7 +62,6 @@ func Fetch(currentVersion string) ([]Release, error) {
 			Body:          html,
 			CreatedAt:     githubRelease.CreatedAt,
 			HtmlUrl:       githubRelease.HtmlUrl,
-			Breaking:      10,
 		}
 
 		doc, _ := goquery.NewDocumentFromReader(&buffer)

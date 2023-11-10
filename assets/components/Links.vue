@@ -12,10 +12,13 @@
       </router-link>
     </template>
 
-    <dropdown class="dropdown-end">
+    <dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
       <template #trigger>
         <mdi:announcement class="h-6 w-6 -rotate-12" />
-        <span class="absolute right-px top-0 h-2 w-2 rounded-full bg-red" v-if="hasUpdate"></span>
+        <span
+          class="absolute right-px top-0 h-2 w-2 rounded-full bg-red"
+          v-if="hasUpdate && latestTag != latest?.tag"
+        ></span>
       </template>
       <template #content>
         <div class="w-72">
@@ -55,5 +58,6 @@ async function logout() {
   location.reload();
 }
 
-const { hasUpdate } = useReleases();
+const { hasUpdate, latest } = useReleases();
+const latestTag = useStorage("DOZZLE_LATEST_TAG", config.version);
 </script>

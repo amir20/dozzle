@@ -1,18 +1,23 @@
 <template>
   <ul class="space-y-4 p-2">
-    <li v-for="release in releases">
+    <li v-for="release in releases" v-if="releases?.length">
       <div class="flex items-baseline gap-1">
         <carbon:warning class="h-4.25 w-4.25 self-center stroke-orange" v-if="release.breaking > 0" />
         <a :href="release.htmlUrl" class="link-primary text-lg font-bold" target="_blank" rel="noreferrer noopener">
           {{ release.name }}
         </a>
-
-        <span class="text-xs"><distance-time :date="new Date(release.createdAt)" /></span>
-        <tag class="ml-auto bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">Latest</tag>
+        <span class="ml-1 text-xs"><distance-time :date="new Date(release.createdAt)" /></span>
+        <tag class="ml-auto bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
+          {{ $t("releases.latest") }}
+        </tag>
       </div>
-
       <div class="text-sm text-base-content/80">
-        {{ message(release) }}
+        {{ summary(release) }}
+      </div>
+    </li>
+    <li v-else>
+      <div class="text-sm text-base-content/80">
+        {{ $t("releases.no_releases") }}
       </div>
     </li>
   </ul>
@@ -22,7 +27,7 @@
 const { releases, latest } = useReleases();
 const { t } = useI18n();
 
-function message(release: { features: number; bugFixes: number; breaking: number }) {
+function summary(release: { features: number; bugFixes: number; breaking: number }) {
   if (release.features > 0 && release.bugFixes > 0 && release.breaking > 0) {
     return t("releases.three_parts", {
       first: t("releases.breaking", { count: release.breaking }),
