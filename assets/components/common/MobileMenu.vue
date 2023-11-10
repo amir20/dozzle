@@ -22,7 +22,7 @@
     <transition name="fade">
       <div v-show="show">
         <div class="mt-4 flex items-center justify-center gap-2">
-          <dropdown
+          <dropdown-menu
             v-model="sessionHost"
             :options="hosts"
             defaultLabel="Hosts"
@@ -57,7 +57,7 @@
 
 <script lang="ts" setup>
 const { base, secured } = config;
-import { sessionHost } from "@/composables/storage";
+import { sessionHost } from "@/composable/storage";
 const store = useContainerStore();
 const route = useRoute();
 const { visibleContainers } = storeToRefs(store);

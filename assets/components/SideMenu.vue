@@ -63,7 +63,7 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import { sessionHost } from "@/composables/storage";
+import { sessionHost } from "@/composable/storage";
 
 const { t } = useI18n();
 

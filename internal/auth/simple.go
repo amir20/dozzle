@@ -10,13 +10,13 @@ import (
 )
 
 type simpleAuthContext struct {
-	UserDatabase *UserDatabase
+	UserDatabase UserDatabase
 	tokenAuth    *jwtauth.JWTAuth
 }
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
-func NewSimpleAuth(userDatabase *UserDatabase) *simpleAuthContext {
+func NewSimpleAuth(userDatabase UserDatabase) *simpleAuthContext {
 	h := sha256.New()
 	for _, user := range userDatabase.Users {
 		h.Write([]byte(user.Password))

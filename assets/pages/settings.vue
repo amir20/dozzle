@@ -6,10 +6,10 @@
       </div>
 
       <div>
-        <span v-html="$t('settings.using-version', { version: currentVersion })"></span>
+        <span v-html="$t('settings.using-version', { version: config.version })"></span>
         <div
           v-if="hasUpdate"
-          v-html="$t('settings.update-available', { nextVersion: nextRelease.name, href: nextRelease.html_url })"
+          v-html="$t('settings.update-available', { nextVersion: latest?.name, href: latest?.htmlUrl })"
         ></div>
       </div>
     </section>
@@ -34,7 +34,7 @@
       </div>
 
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="hourStyle"
           :options="[
             { label: 'Auto', value: 'auto' },
@@ -45,7 +45,7 @@
         {{ $t("settings.12-24-format") }}
       </div>
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="size"
           :options="[
             { label: 'Small', value: 'small' },
@@ -56,7 +56,7 @@
         {{ $t("settings.font-size") }}
       </div>
       <div class="flex items-center gap-6">
-        <dropdown
+        <dropdown-menu
           v-model="lightTheme"
           :options="[
             { label: 'Auto', value: 'auto' },
@@ -90,45 +90,22 @@
 
 <script lang="ts" setup>
 import {
-  search,
-  lightTheme,
-  smallerScrollbars,
-  showTimestamp,
-  showStd,
-  hourStyle,
-  showAllContainers,
-  size,
-  softWrap,
   automaticRedirect,
+  hourStyle,
+  lightTheme,
+  search,
+  showAllContainers,
+  showStd,
+  showTimestamp,
+  size,
+  smallerScrollbars,
+  softWrap,
 } from "@/stores/settings";
 
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
-
-const currentVersion = config.version;
-let nextRelease = $ref({ html_url: "", name: "" });
-let hasUpdate = $ref(false);
-
-async function fetchNextRelease() {
-  if (!["dev", "master"].includes(currentVersion)) {
-    const response = await fetch("https://api.github.com/repos/amir20/dozzle/releases/latest");
-    if (response.ok) {
-      const release = await response.json();
-      hasUpdate =
-        release.tag_name.slice(1).localeCompare(currentVersion, undefined, { numeric: true, sensitivity: "base" }) > 0;
-      nextRelease = release;
-    }
-  } else {
-    hasUpdate = true;
-    nextRelease = {
-      html_url: "",
-      name: "master",
-    };
-  }
-}
-
-fetchNextRelease();
+const { latest, hasUpdate } = useReleases();
 </script>
 <style lang="postcss" scoped>
 .has-underline {
