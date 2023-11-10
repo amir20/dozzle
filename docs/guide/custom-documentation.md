@@ -5,7 +5,7 @@ title: Customizing Help Content
 # Documentation and Content
 
 ::: tip Note
-This feature was introduced in version `v3.1.x`
+This feature was introduced in version `v5.1.x`
 :::
 Dozzle can be used by many users from different levels. Some teams what a central place to explain how to use Dozzle and what each of their containers do. Dozzle supports markdown content by reading `/data/content/*.md` files. Multiple files are supported. Each file will create a link at the top of Dozzle. Here is an example of what `/data/content/help.md` might look like:
 
