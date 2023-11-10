@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/yuin/goldmark"
 )
 
@@ -27,6 +28,9 @@ type Release struct {
 	HtmlUrl       string    `json:"htmlUrl"`
 	Latest        bool      `json:"latest"`
 	Current       bool      `json:"current"`
+	Features      int       `json:"features"`
+	BugFixes      int       `json:"bugFixes"`
+	Breaking      int       `json:"breaking"`
 }
 
 func Fetch(currentVersion string) ([]Release, error) {
@@ -45,6 +49,12 @@ func Fetch(currentVersion string) ([]Release, error) {
 	for _, githubRelease := range githubReleases {
 		var buffer bytes.Buffer
 		goldmark.Convert([]byte(githubRelease.Body), &buffer)
+
+		doc, _ := goquery.NewDocumentFromReader(&buffer)
+
+		doc.Find("h2").Each(func(i int, s *goquery.Selection) {
+		})
+
 		releases = append(releases, Release{
 			Name:          githubRelease.Name,
 			MentionsCount: githubRelease.MentionsCount,

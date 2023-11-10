@@ -34,7 +34,6 @@ declare module 'vue' {
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     'Ic:sharpFindInPage': typeof import('~icons/ic/sharp-find-in-page')['default']
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
-    IconDropdown: typeof import('./components/common/IconDropdown.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     Links: typeof import('./components/common/Links.vue')['default']
