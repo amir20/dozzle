@@ -89,7 +89,7 @@ Dozzle collects anonymous user configurations using Google Analytics. Why? Dozzl
 
 If you do not want to be tracked at all, see the `--no-analytics` flag below.
 
-#### Environment variables and configuration
+## Environment variables and configuration
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or environment variables. The table below outlines all supported options and their respective env vars.
 
@@ -106,6 +106,16 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 | `--passwordfile` | `DOZZLE_PASSWORD_FILE` | `""`    |
 | `--no-analytics` | `DOZZLE_NO_ANALYTICS`  | false   |
 | `--remote-host`  | `DOZZLE_REMOTE_HOST`   |         |
+
+## Support
+
+There are many ways you can support Dozzle:
+
+- Use it, write about it or start it! If you love Dozzle, drop me a line and tell me what you love.
+- Blog about Dozzle to spread the word. If you are good at writing send PRs to improve the documentation at [dozzle.dev](https://dozzle.dev/)
+- Sponsor my work at https://www.buymeacoffee.com/amirraminfar
+
+<a href="https://www.buymeacoffee.com/amirraminfar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## License
 
