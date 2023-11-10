@@ -111,7 +111,7 @@ Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can 
 
 There are many ways you can support Dozzle:
 
-- Use it, write about it or start it! If you love Dozzle, drop me a line and tell me what you love.
+- Use it! Write about it! Star it! If you love Dozzle, drop me a line and tell me what you love.
 - Blog about Dozzle to spread the word. If you are good at writing send PRs to improve the documentation at [dozzle.dev](https://dozzle.dev/)
 - Sponsor my work at https://www.buymeacoffee.com/amirraminfar
 
