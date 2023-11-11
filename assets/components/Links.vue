@@ -29,7 +29,7 @@
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
-        <img class="h-7 w-7 max-w-none rounded-full p-px ring-1 ring-base-content/60" :src="config.user.avatar" />
+        <img class="h-6 w-6 max-w-none rounded-full p-px ring-1 ring-base-content/60" :src="config.user.avatar" />
       </template>
       <template #content>
         <div class="p-2">
@@ -42,7 +42,7 @@
         </div>
         <ul class="menu mt-4 p-0">
           <li v-if="config.authProvider === 'simple'">
-            <button @click.prevent="logout()" class="text-primary">{{ $t("button.logout") }}</button>
+            <button @click.prevent="logout()" class="p-2 text-primary">{{ $t("button.logout") }}</button>
           </li>
         </ul>
       </template>
