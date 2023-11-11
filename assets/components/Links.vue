@@ -29,7 +29,7 @@
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
-        <img class="h-8 w-8 max-w-none rounded-full p-1 ring-2 ring-base-content/50" :src="config.user.avatar" />
+        <img class="h-6 w-6 max-w-none rounded-full" :src="config.user.avatar" />
       </template>
       <template #content>
         <div class="p-2">

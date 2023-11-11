@@ -50,7 +50,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"secured":             secured,
 		"hostname":            h.config.Hostname,
 		"hosts":               hosts,
-		"authProvider":        h.config.AuthProvider,
+		"authProvider":        h.config.Authorization.Provider,
 	}
 
 	pages, err := content.ReadAll()
@@ -71,7 +71,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			config["serverSettings"] = struct{}{}
 		}
 		config["user"] = user
-	} else if h.config.AuthProvider == FORWARD_PROXY {
+	} else if h.config.Authorization.Provider == FORWARD_PROXY {
 		log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
 		log.Debugf("Dumping all headers for url /%s", req.URL.String())
 		for k, v := range req.Header {
@@ -79,7 +79,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
 		return
-	} else if h.config.AuthProvider == SIMPLE && req.URL.Path != "login" {
+	} else if h.config.Authorization.Provider == SIMPLE && req.URL.Path != "login" {
 		log.Debugf("Redirecting to login page for url /%s", req.URL.String())
 		http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
 		return
