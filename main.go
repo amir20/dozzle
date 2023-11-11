@@ -199,16 +199,18 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	}
 
 	config := web.Config{
-		Addr:         args.Addr,
-		Base:         args.Base,
-		Version:      version,
-		Username:     args.Username,
-		Password:     args.Password,
-		Hostname:     args.Hostname,
-		NoAnalytics:  args.NoAnalytics,
-		Dev:          dev,
-		AuthProvider: provider,
-		Authorizer:   authorizer,
+		Addr:        args.Addr,
+		Base:        args.Base,
+		Version:     version,
+		Username:    args.Username,
+		Password:    args.Password,
+		Hostname:    args.Hostname,
+		NoAnalytics: args.NoAnalytics,
+		Dev:         dev,
+		Authorization: web.Authorization{
+			Provider:   provider,
+			Authorizer: authorizer,
+		},
 	}
 
 	assets, err := fs.Sub(content, "dist")

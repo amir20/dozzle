@@ -105,7 +105,7 @@ func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
 	user := r.PostFormValue("username")
 	pass := r.PostFormValue("password")
 
-	if token, err := h.config.Authorizer.CreateToken(user, pass); err == nil {
+	if token, err := h.config.Authorization.Authorizer.CreateToken(user, pass); err == nil {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "jwt",
 			Value:    token,

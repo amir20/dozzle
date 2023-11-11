@@ -26,16 +26,25 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base         string
-	Addr         string
-	Version      string
-	Username     string
-	Password     string
-	Hostname     string
-	NoAnalytics  bool
-	Dev          bool
-	AuthProvider AuthProvider
-	Authorizer   Authorizer
+	Base          string
+	Addr          string
+	Version       string
+	Username      string
+	Password      string
+	Hostname      string
+	NoAnalytics   bool
+	Dev           bool
+	Authorization Authorization
+}
+
+type Authorization struct {
+	Provider   AuthProvider
+	Authorizer Authorizer
+}
+
+type Authorizer interface {
+	AuthMiddleware(http.Handler) http.Handler
+	CreateToken(string, string) (string, error)
 }
 
 type handler struct {
@@ -54,11 +63,6 @@ type DockerClient interface {
 	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() *docker.Host
-}
-
-type Authorizer interface {
-	AuthMiddleware(http.Handler) http.Handler
-	CreateToken(string, string) (string, error)
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
@@ -82,13 +86,17 @@ func createRouter(h *handler) *chi.Mux {
 		r.Use(cspHeaders)
 	}
 
+	if h.config.Authorization.Provider != NONE && h.config.Authorization.Authorizer == nil {
+		log.Panic("Authorization provider is set but no authorizer is provided")
+	}
+
 	r.Route(base, func(r chi.Router) {
-		if h.config.Authorizer != nil {
-			r.Use(h.config.Authorizer.AuthMiddleware)
+		if h.config.Authorization.Provider != NONE {
+			r.Use(h.config.Authorization.Authorizer.AuthMiddleware)
 		}
 		r.Group(func(r chi.Router) {
 			r.Group(func(r chi.Router) {
-				if h.config.AuthProvider != NONE {
+				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
 				r.Use(authorizationRequired) // TODO remove this
@@ -109,7 +117,7 @@ func createRouter(h *handler) *chi.Mux {
 			})
 		})
 
-		if h.config.AuthProvider == SIMPLE {
+		if h.config.Authorization.Provider == SIMPLE {
 			r.Post("/api/token", h.createToken)
 			r.Delete("/api/token", h.deleteToken)
 		}
