@@ -185,7 +185,7 @@ Dozzle supports multi-user authentication by setting `--auth-provider` to `simpl
 ```yml
 users:
   admin:
-    name: "Admin"
+    name: "admin"
     # Just sha-256 which can be computed with echo -n password | shasum -a 256
     password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
     email: me@email.net
