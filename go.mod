@@ -27,6 +27,7 @@ require (
 )
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/jwtauth/v5 v5.1.1
 	github.com/yuin/goldmark v1.6.0
@@ -34,7 +35,6 @@ require (
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.1 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -61,4 +61,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-go 1.21
+go 1.21.4
