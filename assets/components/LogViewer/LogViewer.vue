@@ -7,7 +7,7 @@
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
     >
       <a
-        class="jump-context tooltip-primary tooltip tooltip-right"
+        class="jump-context tooltip tooltip-right tooltip-primary"
         v-if="isSearching()"
         data-tip="Jump to Context"
         @click="handleJumpLineSelected($event, item)"
@@ -78,7 +78,7 @@ watch(
     }
 
     .jump-context {
-      @apply mr-2 flex items-center font-sans text-secondary hover:text-secondary-focus;
+      @apply mr-2 flex items-center font-sans text-secondary;
     }
   }
 

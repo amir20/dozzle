@@ -7,7 +7,7 @@
     <div class="input input-primary flex h-auto items-center">
       <mdi:magnify />
       <input
-        class="input flex-1"
+        class="input input-ghost flex-1"
         type="text"
         placeholder="Find / RegEx"
         ref="input"
