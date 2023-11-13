@@ -1,25 +1,21 @@
 @import "splitpanes/dist/splitpanes.css";
 
 @define-mixin light {
-  --base-lighter-color: 0 0% 100%;
-  --base-color: 0 0% 97%;
-  --base-darker-color: 0 0% 90%;
-  --base-content-color: 0 0% 21%;
+  --base-lighter-color: 100% 0 0;
+  --base-color: 97% 0 0;
+  --base-darker-color: 90% 0 0;
+  --base-content-color: 33% 0 0;
   --primary-color: 76.96% 0.143 176.65;
-  --primary-focus-color: 171 100% 31%;
-  --secondary-color: 34 95% 53%;
-  --secondary-focus-color: 34 95% 43%;
+  --secondary-color: 76.04% 0.168 64.07;
 }
 
 @define-mixin dark {
-  --base-lighter-color: 0 0% 14%;
-  --base-color: 0 0% 7%;
-  --base-darker-color: 0 0% 4%;
-  --base-content-color: 0 0% 86%;
+  --base-lighter-color: 25% 0 0;
+  --base-color: 18% 0 0;
+  --base-darker-color: 11% 0 0;
+  --base-content-color: 89.23% 0 0;
   --primary-color: 76.96% 0.143 176.65;
-  --primary-focus-color: 171 100% 31%;
-  --secondary-color: 44 100% 77%;
-  --secondary-focus-color: 44 100% 67%;
+  --secondary-color: 91.36% 0.11098 90.1243;
 }
 
 @tailwind base;
@@ -29,19 +25,17 @@
 @layer base {
   :root {
     --p: var(--primary-color);
-    --pf: var(--primary-focus-color);
-    --pc: 0 0% 100%;
+    --pc: 89.23% 0;
     --s: var(--secondary-color);
-    --sf: var(--secondary-focus-color);
-    --sc: 0 0% 4%;
+    --sc: 14.57% 0 0;
     --b1: var(--base-lighter-color);
     --b2: var(--base-color);
     --b3: var(--base-darker-color);
     --bc: var(--base-content-color);
-    --in: 207 90% 54%;
-    --inc: 207 90% 94%;
-    --er: 4 90% 58%;
-    --erc: 4 90% 98%;
+    --in: 65% 0.171 249.5;
+    --inc: 99% 0.171 249.5;
+    --er: 64% 0.218 28.85;
+    --erc: 99% 0.218 28.85;
   }
   html[data-theme="dark"] {
     @mixin dark;
@@ -94,7 +88,10 @@
 
 @layer components {
   .input {
-    @apply focus:outline-none;
+    @apply !outline-none;
+    &.input-ghost {
+      @apply focus:border-transparent;
+    }
   }
 
   .btn {

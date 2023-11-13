@@ -20,8 +20,8 @@
     <div class="mr-16 text-right">
       <transition name="fade">
         <button
-          class="fixed bottom-8 rounded bg-primary p-3 text-primary-content shadow transition-colors hover:bg-primary-focus"
-          :class="hasMore ? 'animate-bounce-fast bg-secondary text-secondary-content hover:bg-secondary-focus' : ''"
+          class="btn btn-primary fixed bottom-8 rounded p-3 text-primary-content shadow transition-colors"
+          :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="paused"
         >
