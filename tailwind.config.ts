@@ -20,7 +20,7 @@ export default {
         "base-lighter": "hsl(var(--base-lighter-color) / <alpha-value>)",
         "base-content": "hsl(var(--base-content-color) / <alpha-value>)",
 
-        primary: "hsl(var(--primary-color) / <alpha-value>)",
+        primary: "oklch(var(--primary-color) / <alpha-value>)",
         "primary-focus": "hsl(var(--primary-focus-color) / <alpha-value>)",
         secondary: "hsl(var(--secondary-color) / <alpha-value>)",
         "secondary-focus": "hsl(var(--secondary-focus-color) / <alpha-value>)",
