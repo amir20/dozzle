@@ -25,12 +25,12 @@
       </pane>
     </splitpanes>
     <label
-      class="btn btn-circle swap swap-rotate fixed bottom-8 left-4"
-      :class="{ '!-left-3': collapseNav }"
+      class="btn btn-circle swap btn-neutral swap-rotate fixed -left-12 bottom-4 w-16 transition-all hover:-left-4"
+      :class="{ '!-left-6': collapseNav }"
       v-if="!isMobile"
     >
       <input type="checkbox" v-model="collapseNav" />
-      <mdi:chevron-right class="swap-on text-secondary" />
+      <mdi:chevron-right class="swap-on" />
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
