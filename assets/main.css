@@ -36,6 +36,7 @@
     --inc: 99% 0.171 249.5;
     --er: 64% 0.218 28.85;
     --erc: 99% 0.218 28.85;
+    --n: var(--base-lighter-color);
   }
   html[data-theme="dark"] {
     @mixin dark;
