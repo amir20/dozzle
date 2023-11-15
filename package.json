@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.10.4",
+ "packageManager": "pnpm@8.10.5",
  "repository": {
   "type": "git",
   "url": "git+https://github.com/amir20/dozzle.git"
@@ -48,7 +48,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.0.4",
+  "daisyui": "^4.0.7",
   "date-fns": "^2.30.0",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -84,7 +84,7 @@
   "@types/semver": "^7.5.5",
   "@vitejs/plugin-vue": "4.4.1",
   "@vue/compiler-sfc": "^3.3.8",
-  "@vue/test-utils": "^2.4.1",
+  "@vue/test-utils": "^2.4.2",
   "bumpp": "^9.2.0",
   "c8": "^8.0.1",
   "concurrently": "^8.2.2",
