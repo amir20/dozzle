@@ -14,7 +14,7 @@ COPY package.json ./
 RUN pnpm install --offline --ignore-scripts --no-optional
 
 # Copy assets and translations to build
-COPY .* *.config.ts *.config.js ./
+COPY .* *.config.ts *.config.js *.config.cts ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
