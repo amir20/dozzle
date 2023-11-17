@@ -247,7 +247,7 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 		if err == nil {
 			_, err := dockerClient.ListContainers()
 			if err != nil {
-				log.Warnf("Could not connect to local Docker Engine: %s", err)
+				log.Debugf("Could not connect to local Docker Engine: %s", err)
 			} else {
 				log.Debugf("Connected to local Docker Engine")
 				return dockerClient
