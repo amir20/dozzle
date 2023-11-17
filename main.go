@@ -240,29 +240,6 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	return web.CreateServer(clients, assets, config)
 }
 
-func getAllFilenames(fs *embed.FS, path string) (out []string, err error) {
-	if len(path) == 0 {
-		path = "."
-	}
-	entries, err := fs.ReadDir(path)
-	if err != nil {
-		return nil, err
-	}
-	for _, entry := range entries {
-		fp := filepath.Join(path, entry.Name())
-		if entry.IsDir() {
-			res, err := getAllFilenames(fs, fp)
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, res...)
-			continue
-		}
-		out = append(out, fp)
-	}
-	return
-}
-
 func createLocalClient(args args, localClientFactory func(map[string][]string) (*docker.Client, error)) *docker.Client {
 	for i := 1; ; i++ {
 		dockerClient, err := localClientFactory(args.Filter)
