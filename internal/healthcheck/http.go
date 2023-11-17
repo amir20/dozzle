@@ -2,10 +2,11 @@ package healthcheck
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func HttpRequest(addr string, base string) error {

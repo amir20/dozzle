@@ -72,6 +72,7 @@ func main() {
 		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 			log.Fatal(err)
 		}
+		return
 	}
 
 	if args.AuthProvider != "none" && args.AuthProvider != "forward-proxy" && args.AuthProvider != "simple" {
