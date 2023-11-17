@@ -3,4 +3,3 @@ components.d.ts
 docs/.vitepress/cache
 docs/.vitepress/dist
 dist
-public/index.html
