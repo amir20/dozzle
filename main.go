@@ -62,7 +62,7 @@ func (args) Version() string {
 	return version
 }
 
-//go:embed dist
+//go:embed all:dist
 var content embed.FS
 
 func main() {
@@ -229,8 +229,8 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	}
 
 	if !dev {
-		if _, err := assets.Open("manifest.json"); err != nil {
-			log.Fatal("manifest.json not found")
+		if _, err := assets.Open(".vite/manifest.json"); err != nil {
+			log.Fatal(".vite/manifest.json not found")
 		}
 		if _, err := assets.Open("index.html"); err != nil {
 			log.Fatal("index.html not found")

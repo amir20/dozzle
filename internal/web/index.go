@@ -125,19 +125,19 @@ func (h *handler) readManifest() map[string]interface{} {
 	if h.config.Dev {
 		return map[string]interface{}{}
 	} else {
-		file, err := h.content.Open("manifest.json")
+		file, err := h.content.Open(".vite/manifest.json")
 		if err != nil {
 			// this should only happen during test. In production, the file is embedded in the binary and checked in main.go
 			return map[string]interface{}{}
 		}
 		bytes, err := io.ReadAll(file)
 		if err != nil {
-			log.Fatalf("Could not read manifest.json: %v", err)
+			log.Fatalf("Could not read .vite/manifest.json: %v", err)
 		}
 		var manifest map[string]interface{}
 		err = json.Unmarshal(bytes, &manifest)
 		if err != nil {
-			log.Fatalf("Could not parse manifest.json: %v", err)
+			log.Fatalf("Could not parse .vite/manifest.json: %v", err)
 		}
 		return manifest
 	}

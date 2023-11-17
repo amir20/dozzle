@@ -15,9 +15,9 @@
     {{- if .Dev}}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
     <script type="module" src="http://localhost:5173/assets/main.ts"></script>
-    {{- else }} {{ $js := index .Manifest "assets/main.ts" "file" }} {{ $css := index .Manifest "assets/main.css" "file"
+    {{- else }} {{ $js := index .Manifest "assets/main.ts" "file" }} {{ $css := index .Manifest "assets/main.ts" "css"
     }}
-    <link rel="stylesheet" href="{{ .Base }}/{{ $css }}" />
+    <link rel="stylesheet" href="{{ .Base }}/{{ index $css 0}}" />
     <script type="module" src="{{ .Base }}/{{ $js }}"></script>
     {{- end }}
     <meta name="description" content="Dozzle is a log viewer for Docker" />
