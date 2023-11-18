@@ -69,8 +69,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^4.3.1
-    version: 4.3.1(postcss@8.4.31)
+    specifier: ^4.4.2
+    version: 4.4.2(postcss@8.4.31)
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
@@ -212,8 +212,8 @@ devDependencies:
     specifier: ^5.2.2
     version: 5.2.2
   vitepress:
-    specifier: 1.0.0-rc.26
-    version: 1.0.0-rc.26(@algolia/client-search@4.20.0)(@types/node@20.9.1)(fuse.js@7.0.0)(postcss@8.4.31)(search-insights@2.10.0)(typescript@5.2.2)
+    specifier: 1.0.0-rc.27
+    version: 1.0.0-rc.27(@algolia/client-search@4.20.0)(@types/node@20.9.1)(fuse.js@7.0.0)(postcss@8.4.31)(search-insights@2.10.0)(typescript@5.2.2)
   vitest:
     specifier: ^0.34.6
     version: 0.34.6(jsdom@22.1.0)
@@ -2382,8 +2382,8 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
-  /daisyui@4.3.1(postcss@8.4.31):
-    resolution: {integrity: sha512-dCi91VD+57lkoBd10CjdW4wPOeOPYvvzQbxti6xmyQbDMbCeCXwNq2KdoU798I4OsCcD5B+n7yVG7HAgYW+cvw==}
+  /daisyui@4.4.2(postcss@8.4.31):
+    resolution: {integrity: sha512-Ecg5loskj9dkaAnTSK5Xn5jb24TqDlQIg/NJ025jCkw2S/zw12btjvLgY2Sv5Ws1DFVoVBRs3XYXyojZG7zVnw==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
@@ -4909,8 +4909,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitepress@1.0.0-rc.26(@algolia/client-search@4.20.0)(@types/node@20.9.1)(fuse.js@7.0.0)(postcss@8.4.31)(search-insights@2.10.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-bAeph87NheD7bM/+E1AsJx8N6bGnP+5k0gZmtXbSgKAzNSFZBgAPcl7CoWzETST5pPpH/ZGRPhWSefcBX9Yfjg==}
+  /vitepress@1.0.0-rc.27(@algolia/client-search@4.20.0)(@types/node@20.9.1)(fuse.js@7.0.0)(postcss@8.4.31)(search-insights@2.10.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-1qs1a5qPQxNOJN451HmNtKewxSIOk52qv1EdWtsO6V6kvrNxF2FFR3Inhj0W56Jcs8AKIdzKDKHNYIJhcyz3AA==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4.3.2
