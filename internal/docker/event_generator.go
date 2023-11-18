@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"io"
@@ -164,7 +165,12 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			if json.Valid([]byte(message)) {
 				var data map[string]interface{}
 				if err := json.Unmarshal([]byte(message), &data); err != nil {
-					log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
+					var jsonErr *json.UnmarshalTypeError
+					if errors.As(err, &jsonErr) {
+						if jsonErr.Value == "string" {
+							log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
+						}
+					}
 				} else {
 					logEvent.Message = data
 				}

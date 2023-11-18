@@ -117,6 +117,15 @@ func Test_createEvent(t *testing.T) {
 				Message: "{\"key\"}",
 			},
 		},
+		{
+			name: "invalid json message",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z 123",
+			},
+			want: &LogEvent{
+				Message: "123",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
