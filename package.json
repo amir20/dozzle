@@ -49,7 +49,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.3.1",
+  "daisyui": "^4.4.2",
   "date-fns": "^2.30.0",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -98,7 +98,7 @@
   "simple-git-hooks": "^2.9.0",
   "ts-node": "^10.9.1",
   "typescript": "^5.2.2",
-  "vitepress": "1.0.0-rc.26",
+  "vitepress": "1.0.0-rc.27",
   "vitest": "^0.34.6",
   "vue-tsc": "^1.8.22"
  },
