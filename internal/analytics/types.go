@@ -16,3 +16,16 @@ type RequestEvent struct {
 	TotalContainers   int    `json:"totalContainers"`
 	RunningContainers int    `json:"runningContainers"`
 }
+
+type BeaconEvent struct {
+	Version           string `json:"version"`
+	Browser           string `json:"browser"`
+	AuthProvider      string `json:"authProvider"`
+	FilterLength      int    `json:"filterLength"`
+	RemoteHostLength  int    `json:"remoteHostLength"`
+	HasDocumentation  bool   `json:"hasDocumentation"`
+	HasCustomAddress  bool   `json:"hasCustomAddress"`
+	HasCustomBase     bool   `json:"hasCustomBase"`
+	HasHostname       bool   `json:"hasHostname"`
+	RunningContainers int    `json:"runningContainers"`
+}

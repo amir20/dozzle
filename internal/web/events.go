@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/content"
 	"github.com/amir20/dozzle/internal/docker"
 
 	log "github.com/sirupsen/logrus"
@@ -30,6 +32,18 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
+
+	pages, _ := content.ReadAll()
+	b := analytics.BeaconEvent{
+		Version:          h.config.Version,
+		Browser:          r.Header.Get("User-Agent"),
+		AuthProvider:     string(h.config.Authorization.Provider),
+		HasHostname:      h.config.Hostname != "",
+		HasCustomBase:    h.config.Base != "",
+		HasCustomAddress: h.config.Addr != "",
+		RemoteHostLength: len(h.clients),
+		HasDocumentation: len(pages) > 0,
+	}
 
 	{
 		wg := sync.WaitGroup{}
@@ -69,7 +83,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			log.Errorf("error writing containers to event stream: %v", err)
 		}
 
+		b.RunningContainers = len(allContainers)
 		f.Flush()
+	}
+
+	if !h.config.NoAnalytics {
+		go func() {
+			if err := analytics.SendBeacon(b); err != nil {
+				log.Debugf("error sending beacon: %v", err)
+			}
+		}()
 	}
 
 	for {
