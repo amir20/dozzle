@@ -16,7 +16,7 @@ func SendBeacon(e BeaconEvent) error {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:4000/data", bytes.NewBuffer(jsonValue))
+	req, err := http.NewRequest("POST", "https://b.dozzle.dev/event", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return err
 	}
