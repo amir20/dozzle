@@ -5,11 +5,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+
 	"net/http"
 	"os"
 
 	"github.com/go-chi/jwtauth/v5"
 	"gopkg.in/yaml.v3"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -68,12 +71,20 @@ func (u *UserDatabase) FindByPassword(username, password string) *User {
 	user := u.Find(username)
 
 	if user == nil {
+		log.Infof("User %s not found", username)
 		return nil
 	}
 
+	log.Infof("User %s found", username)
+
 	if user.Password != sha256sum(password) {
+		log.Infof("Password for user %s is incorrect", username)
+		log.Infof("%s == %s", user.Password, sha256sum(password))
 		return nil
 	}
+
+	log.Infof("Password for user %s is correct", username)
+
 	return user
 }
 
