@@ -39,9 +39,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		Browser:          r.Header.Get("User-Agent"),
 		AuthProvider:     string(h.config.Authorization.Provider),
 		HasHostname:      h.config.Hostname != "",
-		HasCustomBase:    h.config.Base != "",
-		HasCustomAddress: h.config.Addr != "",
-		RemoteHostLength: len(h.clients),
+		HasCustomBase:    h.config.Base != "/",
+		HasCustomAddress: h.config.Addr != ":8080",
+		Clients:          len(h.clients),
 		HasDocumentation: len(pages) > 0,
 	}
 
