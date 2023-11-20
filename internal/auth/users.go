@@ -60,6 +60,9 @@ func ReadUsersFromFile(path string) (UserDatabase, error) {
 }
 
 func (u *UserDatabase) Find(username string) *User {
+
+	log.Infof("All users: %v", u.Users)
+
 	user, ok := u.Users[username]
 	if !ok {
 		return nil
