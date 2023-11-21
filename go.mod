@@ -29,7 +29,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-chi/jwtauth/v5 v5.1.1
+	github.com/go-chi/jwtauth/v5 v5.2.0
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-meta v1.1.0
 )
@@ -48,7 +48,7 @@ require (
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
 	github.com/lestrrat-go/iter v1.0.2 // indirect
-	github.com/lestrrat-go/jwx/v2 v2.0.16 // indirect
+	github.com/lestrrat-go/jwx/v2 v2.0.17 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
