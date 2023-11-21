@@ -32,5 +32,18 @@ onKeyStroke("f", (e) => {
   }
 });
 
+onMounted(() => {
+  onKeyStroke(
+    "f",
+    (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.stopPropagation();
+        resetSearch();
+      }
+    },
+    { target: input.value },
+  );
+});
+
 onUnmounted(() => resetSearch());
 </script>
