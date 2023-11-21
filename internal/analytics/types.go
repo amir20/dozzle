@@ -22,7 +22,7 @@ type BeaconEvent struct {
 	Browser           string `json:"browser"`
 	AuthProvider      string `json:"authProvider"`
 	FilterLength      int    `json:"filterLength"`
-	RemoteHostLength  int    `json:"remoteHostLength"`
+	Clients           int    `json:"clients"`
 	HasDocumentation  bool   `json:"hasDocumentation"`
 	HasCustomAddress  bool   `json:"hasCustomAddress"`
 	HasCustomBase     bool   `json:"hasCustomBase"`
