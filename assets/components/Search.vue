@@ -1,23 +1,20 @@
 <template>
-  <div
-    class="fixed -right-px -top-px z-10 flex w-96 items-center gap-4 rounded-bl border border-secondary/20 bg-base-darker p-4 shadow"
-    v-show="showSearch"
-    v-if="search"
-  >
-    <div class="input input-primary flex h-auto items-center">
-      <mdi:magnify />
-      <input
-        class="input input-ghost flex-1"
-        type="text"
-        placeholder="Find / RegEx"
-        ref="input"
-        v-model="searchFilter"
-        @keyup.esc="resetSearch()"
-      />
+  <transition name="slide">
+    <div class="fixed right-px top-12 z-10 flex items-center p-4" v-show="showSearch" v-if="search">
+      <div class="input input-primary flex h-auto items-center !shadow-lg">
+        <mdi:magnify />
+        <input
+          class="input input-ghost w-72 flex-1"
+          type="text"
+          placeholder="Find / RegEx"
+          ref="input"
+          v-model="searchFilter"
+          @keyup.esc="resetSearch()"
+        />
+        <a class="btn btn-circle btn-xs" @click="resetSearch()"> <mdi:close /></a>
+      </div>
     </div>
-
-    <a class="btn btn-circle btn-xs" @click="resetSearch()"> <mdi:close /></a>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts" setup>
@@ -34,3 +31,16 @@ onKeyStroke("f", (e) => {
 
 onUnmounted(() => resetSearch());
 </script>
+
+<style lang="postcss" scoped>
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateY(-150px);
+  opacity: 0;
+}
+</style>
