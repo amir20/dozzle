@@ -45,7 +45,7 @@ Here is the Docker Compose file:
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
         ports:
-          - 8080:8080
+          - 8888:8080
 
 For advanced options like [authentication](https://dozzle.dev/guide/authentication), [remote hosts](https://dozzle.dev/guide/remote-hosts) or common [questions](https://dozzle.dev/guide/faq) see documentation at [dozzle.dev](https://dozzle.dev/guide/getting-started).
 
@@ -76,7 +76,7 @@ If it's not enabled please follow [this tutorial](https://github.com/containers/
 Once you have the podman remote socket you can run Dozzle on podman.
 
 ```
-podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 amir20/dozzle:latest
+podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8888:8080 amir20/dozzle:latest
 ```
 
 ## Security
