@@ -6,8 +6,8 @@ toolbar:
   show-all: Zeige alle Streams
 label:
   containers: Container
-  total-containers: Gesamt Container
-  running: Laufend
+  total-containers: Gesamte Container
+  running: Laufende
   total-cpu-usage: Gesamte CPU Auslastung
   total-mem-usage: Gesamte Speicher Auslastung
   dozzle-version: Dozzle Version
@@ -18,8 +18,9 @@ label:
   container-name: Container Name
   status: Status
   created: Erstellt
-  avg-cpu: Avg CPU (%)
-  avg-mem: Avg MEM (%)
+  avg-cpu: Avg. CPU (%)
+  avg-mem: Avg. MEM (%)
+  pinned: Angepinnt
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
@@ -31,23 +32,23 @@ error:
   events-stream:
     title: Unerwarteter Fehler
     message: >-
-      Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfen Sie
-      Ihre Netzwerkeinstellungen. Wenn Sie einen Reverse-Proxy verwenden,
-      stellen Sie bitte sicher, dass er ordnungsgemäß konfiguriert ist.
+      Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfe
+      Deine Netzwerkeinstellungen. Wenn Du einen Reverse-Proxy verwendest,
+      stelle bitte sicher, dass er ordnungsgemäß konfiguriert ist.
   events-timeout:
     title: Etwas stimmt nicht
     message: >-
-      Dozzle UI hat beim Verbinden mit der API ein Timeout. Bitte überprüfen Sie
-      die Netzwerkverbindung und versuchen Sie es erneut.
+      Dozzle UI hat beim Verbinden mit der API ein Timeout. Bitte überprüfe
+      die Netzwerkverbindung und versuche es erneut.
 alert:
   redirected:
     title: Zu neuem Container umgeleitet
-    message: Dozzle hat Sie automatisch zu neuem Container {containerId} umgeleitet.
+    message: Dozzle hat dich automatisch zu dem Container {containerId} umgeleitet.
   similar-container-found:
     title: Ähnlicher Container gefunden
     message: >-
       Dozzle hat einen ähnlichen Container {containerId} gefunden, der auf dem
-      gleichen Host ausgeführt wird. Möchten Sie zu ihm wechseln?
+      gleichen Host ausgeführt wird. Möchtest Du zu ihm wechseln?
 title:
   page-not-found: Seite nicht gefunden
   login: Authentifizierung erforderlich
@@ -66,7 +67,7 @@ settings:
   soft-wrap: Zeilenumbruch
   12-24-format: >-
     Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
-    Zeit anzuzeigen. Sie können die Zeit auf 12 oder 24 Stunden umstellen.
+    Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
   font-size: Schriftgröße für Logs
   color-scheme: Farbschema
   options: Optionen
@@ -78,3 +79,11 @@ settings:
     Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
   automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
+releases:
+  features: Ein neues Feature | {count} Features
+  bugFixes: Ein Bug Fix | {count} Fixes
+  breaking: Ein Breaking Change | {count} Breaking Changes
+  three_parts: "{first}, {second} und {third}"
+  two_parts: "{first} und {second}"
+  latest: Latest
+  no_releases: Du hast die aktuellste Version
