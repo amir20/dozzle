@@ -8,7 +8,7 @@ if (config.hosts.length === 1 && !sessionHost.value) {
 }
 
 export function persistentVisibleKeys(container: Ref<Container>) {
-  return computed(() => useStorage(container.value.storageKey, []));
+  return computed(() => useStorage(container.value.storageKey, [], undefined, { listenToStorageChanges: false }));
 }
 
 const DOZZLE_PINNED_CONTAINERS = "DOZZLE_PINNED_CONTAINERS";
