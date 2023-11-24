@@ -15,7 +15,7 @@
       >
         <ic:sharp-find-in-page />
       </a>
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys.value" />
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
     </li>
   </ul>
 </template>
@@ -32,7 +32,7 @@ const props = defineProps<{
 
 const { container } = useContainerContext();
 
-let visibleKeys = persistentVisibleKeys(container);
+const visibleKeys = persistentVisibleKeys(container);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
