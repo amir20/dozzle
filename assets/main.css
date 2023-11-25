@@ -6,7 +6,7 @@
   --base-darker-color: 90% 0 0;
   --base-content-color: 33% 0 0;
   --primary-color: 79.96% 0.143 176.65;
-  --secondary-color: 76.04% 0.168 64.07;
+  --secondary-color: 82.67% 0.15380739746702807 77.82;
 }
 
 @define-mixin dark {
