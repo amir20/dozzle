@@ -25,12 +25,12 @@
 <script lang="ts" setup>
 const { container } = useContainerContext();
 const pinned = computed({
-  get: () => pinnedContainers.value.has(container.value.storageKey),
+  get: () => pinnedContainers.value.has(container.value.name),
   set: (value) => {
     if (value) {
-      pinnedContainers.value.add(container.value.storageKey);
+      pinnedContainers.value.add(container.value.name);
     } else {
-      pinnedContainers.value.delete(container.value.storageKey);
+      pinnedContainers.value.delete(container.value.name);
     }
   },
 });

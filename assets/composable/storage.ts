@@ -18,5 +18,4 @@ export function persistentVisibleKeys(container: Ref<Container>) {
   });
 }
 
-const DOZZLE_PINNED_CONTAINERS = "DOZZLE_PINNED_CONTAINERS";
-export const pinnedContainers = useStorage(DOZZLE_PINNED_CONTAINERS, new Set<string>());
+export const pinnedContainers = usePersistedStorage("pinned", new Set<string>());

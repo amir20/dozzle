@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	PROFILE_FILENAME = "profile.json"
+	profileFilename = "profile.json"
 )
 
 var missingProfileErr = errors.New("Profile file does not exist")
@@ -36,7 +36,7 @@ type Settings struct {
 
 type Profile struct {
 	Settings Settings `json:"settings,omitempty"`
-	Starred  []string `json:"starred,omitempty"`
+	Pinned   []string `json:"pinned,omitempty"`
 }
 
 var dataPath string
@@ -57,21 +57,22 @@ func init() {
 	dataPath = path
 }
 
-func SaveUserProfile(user auth.User, reader io.Reader) error {
+func UpdateFromReader(user auth.User, reader io.Reader) error {
 	mux.Lock()
 	defer mux.Unlock()
-	var existingProfile Profile
-	existingProfile, err := LoadUserProfile(user)
+	existingProfile, err := Load(user)
 	if err != nil && err != missingProfileErr {
 		return err
 	}
 
-	// Write the new settings to the existing profile
 	if err := json.NewDecoder(reader).Decode(&existingProfile); err != nil {
 		return err
 	}
 
-	// Create directory if it doesn't exist
+	return Save(user, existingProfile)
+}
+
+func Save(user auth.User, profile Profile) error {
 	path := filepath.Join(dataPath, user.Username)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
@@ -79,8 +80,8 @@ func SaveUserProfile(user auth.User, reader io.Reader) error {
 		}
 	}
 
-	filePath := filepath.Join(path, PROFILE_FILENAME)
-	data, err := json.MarshalIndent(existingProfile, "", "  ")
+	filePath := filepath.Join(path, profileFilename)
+	data, err := json.MarshalIndent(profile, "", "  ")
 
 	if err != nil {
 		return err
@@ -101,9 +102,9 @@ func SaveUserProfile(user auth.User, reader io.Reader) error {
 	return f.Sync()
 }
 
-func LoadUserProfile(user auth.User) (Profile, error) {
+func Load(user auth.User) (Profile, error) {
 	path := filepath.Join(dataPath, user.Username)
-	profilePath := filepath.Join(path, PROFILE_FILENAME)
+	profilePath := filepath.Join(path, profileFilename)
 
 	if _, err := os.Stat(profilePath); os.IsNotExist(err) {
 		return Profile{}, missingProfileErr
