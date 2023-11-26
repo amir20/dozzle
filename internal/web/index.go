@@ -65,7 +65,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 
 	user := auth.UserFromContext(req.Context())
 	if user != nil {
-		if settings, err := profile.LoadUserSettings(*user); err == nil {
+		if settings, err := profile.LoadUserProfile(*user); err == nil {
 			config["serverSettings"] = settings
 		} else {
 			config["serverSettings"] = struct{}{}

@@ -3,6 +3,8 @@ package profile
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"sync"
 
 	"os"
 	"path/filepath"
@@ -10,6 +12,12 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	log "github.com/sirupsen/logrus"
 )
+
+const (
+	PROFILE_FILENAME = "profile.json"
+)
+
+var missingProfileErr = errors.New("Profile file does not exist")
 
 type Settings struct {
 	Search            bool    `json:"search"`
@@ -26,7 +34,13 @@ type Settings struct {
 	HourStyle         string  `json:"hourStyle,omitempty"`
 }
 
-var data_path string
+type Profile struct {
+	Settings Settings `json:"settings,omitempty"`
+	Starred  []string `json:"starred,omitempty"`
+}
+
+var dataPath string
+var mux = &sync.Mutex{}
 
 func init() {
 	path, err := filepath.Abs("./data")
@@ -40,28 +54,39 @@ func init() {
 			return
 		}
 	}
-	data_path = path
+	dataPath = path
 }
 
-func SaveUserSettings(user auth.User, settings Settings) error {
-	path := filepath.Join(data_path, user.Username)
+func SaveUserProfile(user auth.User, reader io.Reader) error {
+	mux.Lock()
+	defer mux.Unlock()
+	var existingProfile Profile
+	existingProfile, err := LoadUserProfile(user)
+	if err != nil && err != missingProfileErr {
+		return err
+	}
 
-	// Create user directory if it doesn't exist
+	// Write the new settings to the existing profile
+	if err := json.NewDecoder(reader).Decode(&existingProfile); err != nil {
+		return err
+	}
+
+	// Create directory if it doesn't exist
+	path := filepath.Join(dataPath, user.Username)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
 			return err
 		}
 	}
 
-	settings_path := filepath.Join(path, "settings.json")
-
-	data, err := json.MarshalIndent(settings, "", " ")
+	filePath := filepath.Join(path, PROFILE_FILENAME)
+	data, err := json.MarshalIndent(existingProfile, "", "  ")
 
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(settings_path)
+	f, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -76,24 +101,24 @@ func SaveUserSettings(user auth.User, settings Settings) error {
 	return f.Sync()
 }
 
-func LoadUserSettings(user auth.User) (Settings, error) {
-	path := filepath.Join(data_path, user.Username)
-	settings_path := filepath.Join(path, "settings.json")
+func LoadUserProfile(user auth.User) (Profile, error) {
+	path := filepath.Join(dataPath, user.Username)
+	profilePath := filepath.Join(path, PROFILE_FILENAME)
 
-	if _, err := os.Stat(settings_path); os.IsNotExist(err) {
-		return Settings{}, errors.New("Settings file does not exist")
+	if _, err := os.Stat(profilePath); os.IsNotExist(err) {
+		return Profile{}, missingProfileErr
 	}
 
-	f, err := os.Open(settings_path)
+	f, err := os.Open(profilePath)
 	if err != nil {
-		return Settings{}, err
+		return Profile{}, err
 	}
 	defer f.Close()
 
-	var settings Settings
-	if err := json.NewDecoder(f).Decode(&settings); err != nil {
-		return Settings{}, err
+	var profile Profile
+	if err := json.NewDecoder(f).Decode(&profile); err != nil {
+		return Profile{}, err
 	}
 
-	return settings, nil
+	return profile, nil
 }

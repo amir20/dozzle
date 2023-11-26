@@ -37,7 +37,7 @@ if (config.user) {
   watch(settings, (value) => {
     fetch(withBase("/api/profile/settings"), {
       method: "PUT",
-      body: JSON.stringify(value),
+      body: JSON.stringify({ settings: value }),
     });
   });
 }
