@@ -24,6 +24,7 @@ export interface Config {
 export interface Profile {
   settings?: Settings;
   pinned?: string[];
+  visibleKeys?: { [key: string]: string[][] };
 }
 
 const pageConfig = JSON.parse(text);

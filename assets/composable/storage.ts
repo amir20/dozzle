@@ -8,7 +8,7 @@ if (config.hosts.length === 1 && !sessionHost.value) {
 }
 
 export function persistentVisibleKeys(container: Ref<Container>) {
-  const storage = useStorage<{ [key: string]: string[][] }>("DOZZLE_VISIBLE_KEYS", {});
+  const storage = usePersistedStorage<{ [key: string]: string[][] }>("visibleKeys", {});
   return computed(() => {
     if (!(container.value.storageKey in storage.value)) {
       storage.value[container.value.storageKey] = [];
