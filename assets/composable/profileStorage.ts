@@ -1,12 +1,11 @@
 import { Profile } from "@/stores/config";
 
-export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue: Profile[K]) {
+export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue: NonNullable<Profile[K]>) {
   const storageKey = "DOZZLE_" + key.toUpperCase();
-  const storage = useStorage(storageKey, defaultValue) as Ref<NonNullable<Profile[K]>>;
-
-  if (defaultValue instanceof Object && !(defaultValue instanceof Array) && !(defaultValue instanceof Set)) {
-    storage.value = { ...defaultValue, ...storage.value };
-  }
+  const storage = useStorage<NonNullable<Profile[K]>>(storageKey, defaultValue, undefined, {
+    writeDefaults: false,
+    mergeDefaults: true,
+  });
 
   if (config.profile?.[key]) {
     if (storage.value instanceof Set && config.profile[key] instanceof Array) {
