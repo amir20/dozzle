@@ -25,6 +25,7 @@ export interface Profile {
   settings?: Settings;
   pinned?: Set<string>;
   visibleKeys?: { [key: string]: string[][] };
+  releaseSeen?: string;
 }
 
 const pageConfig = JSON.parse(text);

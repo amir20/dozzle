@@ -13,7 +13,7 @@ export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue:
     } else if (config.profile[key] instanceof Array) {
       storage.value = config.profile[key] as NonNullable<Profile[K]>;
     } else if (config.profile[key] instanceof Object) {
-      storage.value = { ...storage.value, ...config.profile[key] };
+      Object.assign(storage.value, config.profile[key]);
     } else {
       storage.value = config.profile[key] as NonNullable<Profile[K]>;
     }

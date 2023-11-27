@@ -59,5 +59,5 @@ async function logout() {
 }
 
 const { hasUpdate, latest } = useReleases();
-const latestTag = useStorage("DOZZLE_LATEST_TAG", config.version);
+const latestTag = useProfileStorage("releaseSeen", config.version);
 </script>
