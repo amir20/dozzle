@@ -93,7 +93,7 @@ const sortedContainers = computed(() =>
 const groupedContainers = computed(() =>
   sortedContainers.value.reduce(
     (acc, item) => {
-      if (debouncedIds.value.has(item.storageKey)) {
+      if (debouncedIds.value.has(item.name)) {
         acc.pinned.push(item);
       } else {
         acc.unpinned.push(item);

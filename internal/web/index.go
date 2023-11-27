@@ -65,10 +65,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 
 	user := auth.UserFromContext(req.Context())
 	if user != nil {
-		if settings, err := profile.LoadUserSettings(*user); err == nil {
-			config["serverSettings"] = settings
+		if profile, err := profile.Load(*user); err == nil {
+			config["profile"] = profile
 		} else {
-			config["serverSettings"] = struct{}{}
+			config["profile"] = struct{}{}
 		}
 		config["user"] = user
 	} else if h.config.Authorization.Provider == FORWARD_PROXY {

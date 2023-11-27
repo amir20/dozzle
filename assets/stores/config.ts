@@ -2,7 +2,7 @@ import { type Settings } from "@/stores/settings";
 
 const text = document.querySelector("script#config__json")?.textContent || "{}";
 
-interface Config {
+export interface Config {
   version: string;
   base: string;
   authorizationNeeded: boolean;
@@ -17,8 +17,15 @@ interface Config {
     name: string;
     avatar: string;
   };
-  serverSettings?: Settings;
+  profile?: Profile;
   pages?: { id: string; title: string }[];
+}
+
+export interface Profile {
+  settings?: Settings;
+  pinned?: Set<string>;
+  visibleKeys?: { [key: string]: string[][] };
+  releaseSeen?: string;
 }
 
 const pageConfig = JSON.parse(text);

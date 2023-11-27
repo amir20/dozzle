@@ -7,16 +7,18 @@ if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
 }
 
-export function persistentVisibleKeys(container: Ref<Container>) {
-  const storage = useStorage<{ [key: string]: string[][] }>("DOZZLE_VISIBLE_KEYS", {});
+export function persistentVisibleKeys(container: Ref<Container>): Ref<string[][]> {
+  const storage = useProfileStorage("visibleKeys", {});
   return computed(() => {
     if (!(container.value.storageKey in storage.value)) {
-      storage.value[container.value.storageKey] = [];
+      // Returning a temporary ref here to avoid writing an empty array to storage
+      const visibleKeys = ref<string[][]>([]);
+      watchOnce(visibleKeys, () => (storage.value[container.value.storageKey] = visibleKeys.value), { deep: true });
+      return visibleKeys.value;
     }
 
     return storage.value[container.value.storageKey];
   });
 }
 
-const DOZZLE_PINNED_CONTAINERS = "DOZZLE_PINNED_CONTAINERS";
-export const pinnedContainers = useStorage(DOZZLE_PINNED_CONTAINERS, new Set<string>());
+export const pinnedContainers = useProfileStorage("pinned", new Set<string>());

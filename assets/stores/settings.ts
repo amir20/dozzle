@@ -1,5 +1,4 @@
 import { toRefs } from "@vueuse/core";
-const DOZZLE_SETTINGS_KEY = "DOZZLE_SETTINGS";
 
 export type Settings = {
   search: boolean;
@@ -30,17 +29,7 @@ export const DEFAULT_SETTINGS: Settings = {
   automaticRedirect: true,
 };
 
-export const settings = useStorage(DOZZLE_SETTINGS_KEY, DEFAULT_SETTINGS);
-settings.value = { ...DEFAULT_SETTINGS, ...settings.value, ...config.serverSettings };
-
-if (config.user) {
-  watch(settings, (value) => {
-    fetch(withBase("/api/profile/settings"), {
-      method: "PUT",
-      body: JSON.stringify(value),
-    });
-  });
-}
+export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
 
 export const {
   collapseNav,
