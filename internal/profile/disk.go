@@ -35,7 +35,7 @@ type Settings struct {
 }
 
 type Profile struct {
-	Settings    Settings              `json:"settings,omitempty"`
+	Settings    *Settings             `json:"settings,omitempty"`
 	Pinned      []string              `json:"pinned,omitempty"`
 	VisibleKeys map[string][][]string `json:"visibleKeys,omitempty"`
 }

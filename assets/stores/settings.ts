@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS: Settings = {
   automaticRedirect: true,
 };
 
-export const settings = usePersistedStorage<Settings>("settings", DEFAULT_SETTINGS);
+export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
 
 export const {
   collapseNav,

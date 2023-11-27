@@ -8,7 +8,7 @@ if (config.hosts.length === 1 && !sessionHost.value) {
 }
 
 export function persistentVisibleKeys(container: Ref<Container>) {
-  const storage = usePersistedStorage<{ [key: string]: string[][] }>("visibleKeys", {});
+  const storage = useProfileStorage("visibleKeys", {});
   return computed(() => {
     if (!(container.value.storageKey in storage.value)) {
       storage.value[container.value.storageKey] = [];
@@ -18,4 +18,4 @@ export function persistentVisibleKeys(container: Ref<Container>) {
   });
 }
 
-export const pinnedContainers = usePersistedStorage("pinned", new Set<string>());
+export const pinnedContainers = useProfileStorage("pinned", new Set<string>());

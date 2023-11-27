@@ -23,7 +23,7 @@ export interface Config {
 
 export interface Profile {
   settings?: Settings;
-  pinned?: string[];
+  pinned?: Set<string>;
   visibleKeys?: { [key: string]: string[][] };
 }
 
