@@ -1,5 +1,4 @@
 import { Profile } from "@/stores/config";
-import { as } from "vitest/dist/reporters-5f784f42";
 
 export function usePersistedStorage<T>(key: keyof Profile, defaultValue: T) {
   const storageKey = "DOZZLE_" + key.toUpperCase();
