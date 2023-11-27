@@ -57,8 +57,8 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Errorf("error reading content: %v", err)
 	} else if len(pages) > 0 {
-		for _, page := range pages {
-			page.Content = ""
+		for i, _ := range pages {
+			pages[i].Content = ""
 		}
 		config["pages"] = pages
 	}
