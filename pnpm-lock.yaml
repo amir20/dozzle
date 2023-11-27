@@ -69,8 +69,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^4.4.7
-    version: 4.4.7(postcss@8.4.31)
+    specifier: ^4.4.9
+    version: 4.4.9(postcss@8.4.31)
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
@@ -114,8 +114,8 @@ dependencies:
     specifier: 5.0.2
     version: 5.0.2(@types/node@20.10.0)
   vite-plugin-pages:
-    specifier: ^0.31.0
-    version: 0.31.0(@vue/compiler-sfc@3.3.9)(vite@5.0.2)
+    specifier: ^0.32.0
+    version: 0.32.0(@vue/compiler-sfc@3.3.9)(vite@5.0.2)
   vite-plugin-vue-layouts:
     specifier: ^0.8.0
     version: 0.8.0(vite@5.0.2)(vue-router@4.2.5)(vue@3.3.9)
@@ -1056,8 +1056,8 @@ packages:
       '@types/d3-selection': 3.0.10
     dev: true
 
-  /@types/debug@4.1.10:
-    resolution: {integrity: sha512-tOSCru6s732pofZ+sMv9o4o3Zc+Sa8l3bxd/tweTQudFn06vAzb13ZX46Zi6m6EJ+RUbRTHvgQJ1gBtSgkaUYA==}
+  /@types/debug@4.1.12:
+    resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
     dependencies:
       '@types/ms': 0.7.33
     dev: false
@@ -2376,8 +2376,8 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
-  /daisyui@4.4.7(postcss@8.4.31):
-    resolution: {integrity: sha512-E+jAcaCiXmBgLePaGjH2aEoyp5kthkEO7S0db8JoWNxZ/4q5x6sgdR/+mCphKVXMJMOihGIL0Y8psqFIMxCdBg==}
+  /daisyui@4.4.9(postcss@8.4.31):
+    resolution: {integrity: sha512-Wqk1f3rQbiDSMfzC/ZufQQi139dY4mCMZJ/hmYIIGpCi0MFndU0wJ575tEGzi2YrCZOagsWhbOeWE7DD/B5pVw==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
@@ -2428,8 +2428,9 @@ packages:
       type-detect: 4.0.8
     dev: true
 
-  /deep-equal@2.2.2:
-    resolution: {integrity: sha512-xjVyBf0w5vH0I42jdAZzOKVldmPgSulmiyPRywoyq7HXC9qdgo17kxJE+rdnif5Tz6+pIrpJI8dCpMNLIGkUiA==}
+  /deep-equal@2.2.3:
+    resolution: {integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==}
+    engines: {node: '>= 0.4'}
     dependencies:
       array-buffer-byte-length: 1.0.0
       call-bind: 1.0.5
@@ -3976,7 +3977,7 @@ packages:
       lilconfig: 2.1.0
       postcss: 8.4.31
       ts-node: 10.9.1(@types/node@20.10.0)(typescript@5.3.2)
-      yaml: 2.3.3
+      yaml: 2.3.4
     dev: false
 
   /postcss-mixins@9.0.4(postcss@8.4.31):
@@ -5035,26 +5036,26 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-pages@0.31.0(@vue/compiler-sfc@3.3.9)(vite@5.0.2):
-    resolution: {integrity: sha512-fw3onBfVTXQI7rOzAbSZhmfwvk50+3qNnGZpERjmD93c8nEjrGLyd53eFXYMxcJV4KA1vzi4qIHt2+6tS4dEMw==}
+  /vite-plugin-pages@0.32.0(@vue/compiler-sfc@3.3.9)(vite@5.0.2):
+    resolution: {integrity: sha512-OxS3n0zUo5wsfgNCAuw2FiG/KD1ipgQV+2Flst4RyeI2iPv+m0YueVq+nx41k5NOWJj/zhqEas6I0b7HXveXjA==}
     peerDependencies:
       '@vue/compiler-sfc': ^2.7.0 || ^3.0.0
-      vite: ^2.0.0 || ^3.0.0-0 || ^4.0.0
+      vite: ^2.0.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
     dependencies:
-      '@types/debug': 4.1.10
+      '@types/debug': 4.1.12
       '@vue/compiler-sfc': 3.3.9
       debug: 4.3.4
-      deep-equal: 2.2.2
+      deep-equal: 2.2.3
       extract-comments: 1.1.0
-      fast-glob: 3.3.1
+      fast-glob: 3.3.2
       json5: 2.2.3
-      local-pkg: 0.4.3
+      local-pkg: 0.5.0
       picocolors: 1.0.0
       vite: 5.0.2(@types/node@20.10.0)
-      yaml: 2.3.3
+      yaml: 2.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5458,18 +5459,12 @@ packages:
     dependencies:
       eslint-visitor-keys: 3.4.3
       lodash: 4.17.21
-      yaml: 2.3.3
-    dev: false
-
-  /yaml@2.3.3:
-    resolution: {integrity: sha512-zw0VAJxgeZ6+++/su5AFoqBbZbrEakwu+X0M5HmcwUiBL7AzcuPKjj5we4xfQLp78LkEMpD0cOnUhmgOVy3KdQ==}
-    engines: {node: '>= 14'}
+      yaml: 2.3.4
     dev: false
 
   /yaml@2.3.4:
     resolution: {integrity: sha512-8aAvwVUSHpfEqTQ4w/KMlf3HcRdt50E5ODIQJBw1fQ5RL34xabzxtUlzTXVqc4rkZsPbvrXKWnABCD7kWSmocA==}
     engines: {node: '>= 14'}
-    dev: true
 
   /yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
