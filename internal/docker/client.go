@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
@@ -49,6 +50,7 @@ type DockerCLI interface {
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
 	Ping(ctx context.Context) (types.Ping, error)
+	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
 }
 
 type Client struct {
@@ -143,6 +145,10 @@ func (d *Client) FindContainer(id string) (Container, error) {
 	}
 
 	return container, nil
+}
+
+func (d *Client) RestartContainer(id string) error {
+	return d.cli.ContainerRestart(context.Background(), id, container.StopOptions{})
 }
 
 func (d *Client) ListContainers() ([]Container, error) {

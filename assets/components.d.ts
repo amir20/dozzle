@@ -12,6 +12,7 @@ declare module 'vue' {
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:information': typeof import('~icons/carbon/information')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
+    'Carbon:restart': typeof import('~icons/carbon/restart')['default']
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
     'Carbon:warning': typeof import('~icons/carbon/warning')['default']
