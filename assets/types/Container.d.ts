@@ -19,3 +19,4 @@ export type ContainerJson = {
 
 export type ContainerState = "created" | "running" | "exited" | "dead" | "paused" | "restarting";
 export type ContainerHealth = "healthy" | "unhealthy" | "starting";
+export type ContainerActions = "start" | "stop" | "restart";

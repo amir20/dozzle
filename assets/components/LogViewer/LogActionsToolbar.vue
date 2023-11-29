@@ -4,7 +4,7 @@
       <carbon:circle-solid class="w-2.5 text-red" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="w-2.5 text-blue" v-if="streamConfig.stdout" />
     </label>
-    <ul tabindex="0" class="menu dropdown-content rounded-box z-50 w-52 bg-base p-1 shadow">
+    <ul tabindex="0" class="menu dropdown-content z-50 w-52 rounded-box bg-base p-1 shadow">
       <li>
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
@@ -65,17 +65,83 @@
           {{ $t("toolbar.show", { std: "STDERR" }) }}
         </a>
       </li>
+      <li class="line"></li>
+      <ul v-show="enableActions">
+        <li>
+          <button
+            @click="() => actionHandler('stop')"
+            :disabled="actionStates['stop-action']"
+            v-if="container.state == 'running'"
+          >
+            <carbon:stop-filled-alt /> Stop
+          </button>
+          <button
+            @click="() => actionHandler('start')"
+            :disabled="actionStates['start-action']"
+            v-if="container.state != 'running'"
+          >
+            <carbon:play /> Start
+          </button>
+        </li>
+        <li>
+          <button @click="() => actionHandler('restart')" :disabled="actionStates['restart-action']">
+            <carbon:restart
+              :class="{
+                'animate-spin': actionStates['restart-action'],
+                'text-secondary': actionStates['restart-action'],
+              }"
+            />
+            Restart
+          </button>
+        </li>
+      </ul>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { ContainerActions } from "@/types/Container";
+
 const { showSearch } = useSearchFilter();
-const { base } = config;
+const { base, enableActions } = config;
+const { showToast } = useToast();
 
 const clear = defineEmit();
 
 const { container, streamConfig } = useContainerContext();
+
+const actionStates = reactive({
+  "stop-action": false,
+  "restart-action": false,
+  "start-action": false,
+});
+
+async function actionHandler(action: ContainerActions) {
+  const actionUrl = `/api/actions/${action}/${container.value.id}`;
+  const errorToast = (message?: string) =>
+    showToast(
+      {
+        type: "error",
+        message: message ?? "Something went wrong",
+        title: "Action failed",
+      },
+      { expire: 5000 },
+    );
+
+  actionStates[`${action}-action`] = true;
+
+  await fetch(withBase(actionUrl))
+    .then((res) => {
+      if (res.status === 404) {
+        errorToast("Container not found");
+      } else if (res.status === 500) {
+        errorToast();
+      }
+    })
+    .catch((e) => errorToast(e.message));
+
+  actionStates[`${action}-action`] = false;
+}
 </script>
 
 <style scoped lang="postcss">

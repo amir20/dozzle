@@ -51,6 +51,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"hostname":            h.config.Hostname,
 		"hosts":               hosts,
 		"authProvider":        h.config.Authorization.Provider,
+		"enableActions":       h.config.EnableActions,
 	}
 
 	pages, err := content.ReadAll()

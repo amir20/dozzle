@@ -35,6 +35,7 @@ type Config struct {
 	NoAnalytics   bool
 	Dev           bool
 	Authorization Authorization
+	EnableActions bool
 }
 
 type Authorization struct {
@@ -64,6 +65,7 @@ type DockerClient interface {
 	Ping(context.Context) (types.Ping, error)
 	Host() *docker.Host
 	RestartContainer(id string) error
+	ContainerActions(action string, id string) error
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
@@ -105,7 +107,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
-				r.Get("/api/actions/restart/{id}", h.restartContainer)
+				r.Get("/api/actions/{action}/{id}", h.containerActions)
 				r.Get("/api/releases", h.releases)
 				r.Patch("/api/profile", h.updateProfile)
 				r.Get("/api/content/{id}", h.staticContent)

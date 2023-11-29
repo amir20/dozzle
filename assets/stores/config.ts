@@ -11,6 +11,7 @@ export interface Config {
   hostname: string;
   hosts: { name: string; id: string }[];
   authProvider: "simple" | "none" | "forward-proxy";
+  enableActions: boolean;
   user?: {
     username: string;
     email: string;
