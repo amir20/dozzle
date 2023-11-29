@@ -19,9 +19,6 @@
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
-    <button @click="restart_container" class="btn btn-sm">
-      <carbon:restart :class="{ 'animate-spin': restarting, 'text-secondary': restarting }" />
-    </button>
   </div>
 </template>
 
@@ -37,15 +34,4 @@ const pinned = computed({
     }
   },
 });
-
-const restarting = ref(false);
-
-async function restart_container() {
-  restarting.value = true;
-  await fetch("/api/actions/restart/" + container.value.id).catch((e) => {
-    // TODO: handle error
-    console.error(e);
-  });
-  restarting.value = false;
-}
 </script>
