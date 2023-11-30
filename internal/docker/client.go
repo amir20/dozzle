@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
@@ -49,6 +50,9 @@ type DockerCLI interface {
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
 	Ping(ctx context.Context) (types.Ping, error)
+	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
+	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
 }
 
 type Client struct {
@@ -143,6 +147,19 @@ func (d *Client) FindContainer(id string) (Container, error) {
 	}
 
 	return container, nil
+}
+
+func (d *Client) ContainerActions(action string, id string) error {
+	switch action {
+	case "start":
+		return d.cli.ContainerStart(context.Background(), id, types.ContainerStartOptions{})
+	case "stop":
+		return d.cli.ContainerStop(context.Background(), id, container.StopOptions{})
+	case "restart":
+		return d.cli.ContainerRestart(context.Background(), id, container.StopOptions{})
+	default:
+		return fmt.Errorf("unknown action: %s", action)
+	}
 }
 
 func (d *Client) ListContainers() ([]Container, error) {

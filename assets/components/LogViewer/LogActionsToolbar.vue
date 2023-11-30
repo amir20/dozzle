@@ -4,7 +4,7 @@
       <carbon:circle-solid class="w-2.5 text-red" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="w-2.5 text-blue" v-if="streamConfig.stdout" />
     </label>
-    <ul tabindex="0" class="menu dropdown-content rounded-box z-50 w-52 bg-base p-1 shadow">
+    <ul tabindex="0" class="menu dropdown-content z-50 w-52 rounded-box bg-base p-1 shadow">
       <li>
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
@@ -65,17 +65,57 @@
           {{ $t("toolbar.show", { std: "STDERR" }) }}
         </a>
       </li>
+
+      <!-- Container Actions (Enabled via config) -->
+      <template v-if="enableActions">
+        <li class="line"></li>
+        <li>
+          <button
+            @click="stop()"
+            :disabled="actionStates.stop || actionStates.restart"
+            v-if="container.state == 'running'"
+          >
+            <carbon:stop-filled-alt /> {{ $t("toolbar.stop") }}
+          </button>
+
+          <button
+            @click="start()"
+            :disabled="actionStates.start || actionStates.restart"
+            v-if="container.state != 'running'"
+          >
+            <carbon:play /> {{ $t("toolbar.start") }}
+          </button>
+        </li>
+        <li>
+          <button @click="restart()" :disabled="disableRestart">
+            <carbon:restart
+              :class="{
+                'animate-spin': actionStates.restart,
+                'text-secondary': actionStates.restart,
+              }"
+            />
+            {{ $t("toolbar.restart") }}
+          </button>
+        </li>
+      </template>
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
 const { showSearch } = useSearchFilter();
-const { base } = config;
+const { base, enableActions } = config;
 
 const clear = defineEmit();
 
 const { container, streamConfig } = useContainerContext();
+
+// container context is provided in the parent component: <LogContainer>
+const { actionStates, start, stop, restart } = useContainerActions();
+
+const disableRestart = computed(() => {
+  return actionStates.stop || actionStates.start || actionStates.restart;
+});
 </script>
 
 <style scoped lang="postcss">
