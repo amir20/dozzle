@@ -113,7 +113,7 @@ const { container, streamConfig } = useContainerContext();
 const { actionStates, start, stop, restart } = useContainerActions();
 
 const disableRestart = computed(() => {
-  return actionStates.stop || actionStates.start;
+  return actionStates.stop || actionStates.start || actionStates.restart;
 });
 </script>
 
