@@ -18,14 +18,22 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	if client == nil {
 		log.Errorf("no client found for host %v", r.URL)
 		w.WriteHeader(http.StatusBadRequest)
-	} else if _, err := client.FindContainer(id); err != nil {
+		return
+	}
+
+	container, err := client.FindContainer(id)
+	if err != nil {
 		log.Errorf("unable to find container id: %s", id)
 		w.WriteHeader(http.StatusNotFound)
-	} else if client.ContainerActions(action, id) != nil {
+		return
+	}
+
+	if client.ContainerActions(action, container.ID) != nil {
 		log.Errorf("error while trying to perform action: %s", action)
 		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		log.Infof("container action performed: %s; container id: %s", action, id)
-		w.WriteHeader(http.StatusOK)
+		return
 	}
+
+	log.Infof("container action performed: %s; container id: %s", action, id)
+	w.WriteHeader(http.StatusOK)
 }

@@ -70,7 +70,7 @@
       <ul v-show="enableActions">
         <li>
           <button
-            @click="start"
+            @click="stop"
             :disabled="actionStates.stop || actionStates.restart"
             v-if="container.state == 'running'"
           >
@@ -78,7 +78,7 @@
           </button>
 
           <button
-            @click="stop"
+            @click="start"
             :disabled="actionStates.start || actionStates.restart"
             v-if="container.state != 'running'"
           >
