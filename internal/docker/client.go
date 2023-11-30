@@ -149,10 +149,6 @@ func (d *Client) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *Client) RestartContainer(id string) error {
-	return d.cli.ContainerRestart(context.Background(), id, container.StopOptions{})
-}
-
 func (d *Client) ContainerActions(action string, id string) error {
 	switch action {
 	case "start":
