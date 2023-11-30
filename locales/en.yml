@@ -4,6 +4,9 @@ toolbar:
   search: Search
   show: Show only {std}
   show-all: Show all streams
+  stop: Stop
+  start: Start
+  restart: Restart
 label:
   containers: Containers
   total-containers: Total Containers
