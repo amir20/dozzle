@@ -23,13 +23,15 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 
 	container, err := client.FindContainer(id)
 	if err != nil {
-		log.Errorf("unable to find container id: %s", id)
+		log.Error(err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	if client.ContainerActions(action, container.ID) != nil {
-		log.Errorf("error while trying to perform action: %s", action)
+	err = client.ContainerActions(action, container.ID)
+	if err != nil {
+		log.Debugf("error while trying to perform action: %s", action)
+		log.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
