@@ -106,7 +106,9 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
-				r.Post("/api/actions/{action}/{host}/{id}", h.containerActions)
+				if h.config.EnableActions {
+					r.Post("/api/actions/{action}/{host}/{id}", h.containerActions)
+				}
 				r.Get("/api/releases", h.releases)
 				r.Patch("/api/profile", h.updateProfile)
 				r.Get("/api/content/{id}", h.staticContent)
