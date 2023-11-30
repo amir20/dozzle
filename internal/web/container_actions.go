@@ -30,8 +30,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 
 	err = client.ContainerActions(action, container.ID)
 	if err != nil {
-		log.Debugf("error while trying to perform action: %s", action)
-		log.Error(err)
+		log.Errorf("error while trying to perform action: %s", action)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

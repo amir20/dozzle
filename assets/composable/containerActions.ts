@@ -1,11 +1,6 @@
 type ContainerActions = "start" | "stop" | "restart";
 export const useContainerActions = () => {
-  const context = inject(containerContext);
-  if (!context) {
-    throw new Error("No container context provided");
-  }
-
-  const container = computed(() => context.container.value);
+  const { container } = useContainerContext();
   const { showToast } = useToast();
 
   const actionStates = reactive({
@@ -16,26 +11,29 @@ export const useContainerActions = () => {
 
   async function actionHandler(action: ContainerActions) {
     const actionUrl = `/api/actions/${action}/${container.value.host}/${container.value.id}`;
+
     const errors = {
       404: "container not found",
       500: "unable to complete action",
       400: "invalid action",
     } as Record<number, string>;
-    const defaultError = "something went wrong";
 
-    actionStates[`${action}`] = true;
+    const defaultError = "something went wrong";
+    const toastTitle = "Action Failed";
+
+    actionStates[action] = true;
 
     try {
-      await fetch(withBase(actionUrl), { method: "POST" }).then((response) => {
-        if (!response.ok) {
-          showToast({ type: "error", message: errors[response.status] ?? defaultError, title: "Action failed" });
-        }
-      });
+      const response = await fetch(withBase(actionUrl), { method: "POST" });
+      if (!response.ok) {
+        const message = errors[response.status] ?? defaultError;
+        showToast({ type: "error", message, title: toastTitle });
+      }
     } catch (error) {
-      showToast({ type: "error", message: defaultError, title: "Container action failed!" });
+      showToast({ type: "error", message: defaultError, title: toastTitle });
     }
 
-    actionStates[`${action}`] = false;
+    actionStates[action] = false;
   }
 
   return {

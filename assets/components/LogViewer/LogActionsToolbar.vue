@@ -65,12 +65,13 @@
           {{ $t("toolbar.show", { std: "STDERR" }) }}
         </a>
       </li>
-      <li class="line"></li>
+
       <!-- Container Actions (Enabled via config) -->
-      <ul v-show="enableActions">
+      <template v-if="enableActions">
+        <li class="line"></li>
         <li>
           <button
-            @click="stop"
+            @click="stop()"
             :disabled="actionStates.stop || actionStates.restart"
             v-if="container.state == 'running'"
           >
@@ -78,7 +79,7 @@
           </button>
 
           <button
-            @click="start"
+            @click="start()"
             :disabled="actionStates.start || actionStates.restart"
             v-if="container.state != 'running'"
           >
@@ -86,7 +87,7 @@
           </button>
         </li>
         <li>
-          <button @click="restart" :disabled="disableRestart">
+          <button @click="restart()" :disabled="disableRestart">
             <carbon:restart
               :class="{
                 'animate-spin': actionStates.restart,
@@ -96,7 +97,7 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
-      </ul>
+      </template>
     </ul>
   </div>
 </template>
