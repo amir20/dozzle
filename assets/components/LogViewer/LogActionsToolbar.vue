@@ -66,32 +66,34 @@
         </a>
       </li>
       <li class="line"></li>
+      <!-- Container Actions (Enabled via config) -->
       <ul v-show="enableActions">
         <li>
           <button
-            @click="() => actionHandler('stop')"
-            :disabled="actionStates['stop-action']"
+            @click="start"
+            :disabled="actionStates.stop || actionStates.restart"
             v-if="container.state == 'running'"
           >
-            <carbon:stop-filled-alt /> Stop
+            <carbon:stop-filled-alt /> {{ $t("toolbar.stop") }}
           </button>
+
           <button
-            @click="() => actionHandler('start')"
-            :disabled="actionStates['start-action']"
+            @click="stop"
+            :disabled="actionStates.start || actionStates.restart"
             v-if="container.state != 'running'"
           >
-            <carbon:play /> Start
+            <carbon:play /> {{ $t("toolbar.start") }}
           </button>
         </li>
         <li>
-          <button @click="() => actionHandler('restart')" :disabled="actionStates['restart-action']">
+          <button @click="restart" :disabled="disableRestart">
             <carbon:restart
               :class="{
-                'animate-spin': actionStates['restart-action'],
-                'text-secondary': actionStates['restart-action'],
+                'animate-spin': actionStates.restart,
+                'text-secondary': actionStates.restart,
               }"
             />
-            Restart
+            {{ $t("toolbar.restart") }}
           </button>
         </li>
       </ul>
@@ -100,48 +102,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ContainerActions } from "@/types/Container";
-
 const { showSearch } = useSearchFilter();
 const { base, enableActions } = config;
-const { showToast } = useToast();
 
 const clear = defineEmit();
 
 const { container, streamConfig } = useContainerContext();
 
-const actionStates = reactive({
-  "stop-action": false,
-  "restart-action": false,
-  "start-action": false,
+// container context is provided in the parent component: <LogContainer>
+const { actionStates, start, stop, restart } = useContainerActions();
+
+const disableRestart = computed(() => {
+  return actionStates.stop || actionStates.start;
 });
-
-async function actionHandler(action: ContainerActions) {
-  const actionUrl = `/api/actions/${action}/${container.value.id}`;
-  const errorToast = (message?: string) =>
-    showToast(
-      {
-        type: "error",
-        message: message ?? "Something went wrong",
-        title: "Action failed",
-      },
-      { expire: 5000 },
-    );
-
-  actionStates[`${action}-action`] = true;
-
-  await fetch(withBase(actionUrl))
-    .then((res) => {
-      if (res.status === 404) {
-        errorToast("Container not found");
-      } else if (res.status === 500) {
-        errorToast();
-      }
-    })
-    .catch((e) => errorToast(e.message));
-
-  actionStates[`${action}-action`] = false;
-}
 </script>
 
 <style scoped lang="postcss">
