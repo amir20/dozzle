@@ -35,6 +35,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	pages, _ := content.ReadAll()
 	b := analytics.BeaconEvent{
+		Name:             "events",
 		Version:          h.config.Version,
 		Browser:          r.Header.Get("User-Agent"),
 		AuthProvider:     string(h.config.Authorization.Provider),
@@ -43,6 +44,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		HasCustomAddress: h.config.Addr != ":8080",
 		Clients:          len(h.clients),
 		HasDocumentation: len(pages) > 0,
+		HasActions:       h.config.EnableActions,
 	}
 
 	{

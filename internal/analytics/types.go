@@ -18,6 +18,7 @@ type RequestEvent struct {
 }
 
 type BeaconEvent struct {
+	Name              string `json:"name"`
 	Version           string `json:"version"`
 	Browser           string `json:"browser"`
 	AuthProvider      string `json:"authProvider"`
@@ -28,4 +29,5 @@ type BeaconEvent struct {
 	HasCustomBase     bool   `json:"hasCustomBase"`
 	HasHostname       bool   `json:"hasHostname"`
 	RunningContainers int    `json:"runningContainers"`
+	HasActions        bool   `json:"hasActions"`
 }
