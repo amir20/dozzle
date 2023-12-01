@@ -117,24 +117,13 @@ func doStartEvent(arg args) {
 		log.Debug("Analytics disabled.")
 		return
 	}
-	host, err := os.Hostname()
-	if err != nil {
-		log.Debug(err)
-		return
+
+	event := analytics.BeaconEvent{
+		Name:    "start",
+		Version: version,
 	}
 
-	event := analytics.StartEvent{
-		ClientId:         host,
-		Version:          version,
-		FilterLength:     len(arg.Filter),
-		CustomAddress:    arg.Addr != ":8080",
-		CustomBase:       arg.Base != "/",
-		RemoteHostLength: len(arg.RemoteHost),
-		Protected:        arg.Username != "",
-		HasHostname:      arg.Hostname != "",
-	}
-
-	if err := analytics.SendStartEvent(event); err != nil {
+	if err := analytics.SendBeacon(event); err != nil {
 		log.Debug(err)
 	}
 }
