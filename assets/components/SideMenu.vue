@@ -36,6 +36,7 @@
               <div class="truncate">
                 {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
               </div>
+              <container-health :health="item.health"></container-health>
               <span
                 class="pin"
                 @click.stop.prevent="store.appendActiveContainer(item)"
@@ -44,8 +45,6 @@
               >
                 <cil:columns />
               </span>
-
-              <container-health :health="item.health"></container-health>
             </router-link>
             <template #content>
               <container-popup :container="item"></container-popup>
@@ -145,7 +144,7 @@ const activeContainersById = computed(() =>
   @apply text-[0.95rem];
 }
 .containers a {
-  @apply auto-cols-[auto_max-content];
+  @apply auto-cols-[auto_max-content_max-content];
   .pin {
     display: none;
 
