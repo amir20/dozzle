@@ -13,7 +13,7 @@ This feature is **disabled** by default, which can be enabled by setting environ
 ::: code-group
 
 ```sh
-docker run -e DOZZLE_ENABLE_ACTIONS=true --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle
+docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle --enable-actions
 ```
 
 ```yaml [docker-compose.yml]
