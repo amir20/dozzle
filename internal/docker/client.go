@@ -149,7 +149,9 @@ func (d *Client) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *Client) ContainerActions(action string, id string) error {
+func (d *Client) ContainerActions(action string, actionContainer Container) error {
+	id := actionContainer.ID
+
 	switch action {
 	case "start":
 		return d.cli.ContainerStart(context.Background(), id, types.ContainerStartOptions{})
