@@ -149,16 +149,14 @@ func (d *Client) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *Client) ContainerActions(action string, actionContainer Container) error {
-	id := actionContainer.ID
-
+func (d *Client) ContainerActions(action string, containerID string) error {
 	switch action {
 	case "start":
-		return d.cli.ContainerStart(context.Background(), id, types.ContainerStartOptions{})
+		return d.cli.ContainerStart(context.Background(), containerID, types.ContainerStartOptions{})
 	case "stop":
-		return d.cli.ContainerStop(context.Background(), id, container.StopOptions{})
+		return d.cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
 	case "restart":
-		return d.cli.ContainerRestart(context.Background(), id, container.StopOptions{})
+		return d.cli.ContainerRestart(context.Background(), containerID, container.StopOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}

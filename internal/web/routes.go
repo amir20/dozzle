@@ -64,7 +64,7 @@ type DockerClient interface {
 	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() *docker.Host
-	ContainerActions(action string, actionContainer docker.Container) error
+	ContainerActions(action string, containerID string) error
 }
 
 func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
