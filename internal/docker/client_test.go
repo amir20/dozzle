@@ -273,7 +273,7 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 
 	actions := []string{"start", "stop", "restart"}
 	for _, action := range actions {
-		err := client.ContainerActions(action, container)
+		err := client.ContainerActions(action, container.ID)
 		require.NoError(t, err, "error should not be thrown")
 		assert.Equal(t, err, nil)
 	}
@@ -306,7 +306,7 @@ func Test_dockerClient_ContainerActions_error(t *testing.T) {
 
 	actions := []string{"start", "stop", "restart"}
 	for _, action := range actions {
-		err := client.ContainerActions(action, container)
+		err := client.ContainerActions(action, container.ID)
 		require.Error(t, err, "error should be thrown")
 		assert.Error(t, err, "error should have been returned")
 	}
