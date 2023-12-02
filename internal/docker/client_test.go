@@ -254,12 +254,11 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 	proxy := new(mockedProxy)
 	client := &Client{proxy, filters.NewArgs(), &Host{ID: "localhost"}}
 	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
-
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
-	proxy.On("ContainerStart", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	proxy.On("ContainerStop", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	proxy.On("ContainerRestart", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
+	proxy.On("ContainerStop", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
+	proxy.On("ContainerRestart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
 
 	container, err := client.FindContainer("abcdefghijkl")
 	require.NoError(t, err, "error should not be thrown")
