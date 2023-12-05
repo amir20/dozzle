@@ -20,7 +20,7 @@
     </div>
 
     <transition name="fade">
-      <div v-show="show">
+      <div v-show="show" class="h-[calc(100vh-60px)] overflow-auto">
         <div class="mt-4 flex items-center justify-center gap-2">
           <dropdown-menu
             v-model="sessionHost"
@@ -39,7 +39,7 @@
 
         <ul class="menu">
           <li class="menu-title">{{ $t("label.containers") }}</li>
-          <li v-for="item in sortedContainers" :key="item.id">
+          <li v-for="item in sortedContainers" :key="item.id" :class="item.state">
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
               active-class="active-primary"
@@ -85,6 +85,10 @@ const sortedContainers = computed(() =>
 const hosts = computed(() => config.hosts.map(({ id, name }) => ({ value: id, label: name })));
 </script>
 <style scoped lang="postcss">
+li.exited {
+  @apply opacity-50;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;
