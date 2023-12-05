@@ -20,7 +20,7 @@
     </div>
 
     <transition name="fade">
-      <div v-show="show" id="side-container">
+      <div v-show="show" class="h-[calc(100vh-60px)] overflow-auto">
         <div class="mt-4 flex items-center justify-center gap-2">
           <dropdown-menu
             v-model="sessionHost"
@@ -85,11 +85,6 @@ const sortedContainers = computed(() =>
 const hosts = computed(() => config.hosts.map(({ id, name }) => ({ value: id, label: name })));
 </script>
 <style scoped lang="postcss">
-#side-container {
-  height: calc(100vh - 60px);
-  overflow: auto;
-}
-
 li.exited {
   @apply opacity-50;
 }
