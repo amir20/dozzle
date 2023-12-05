@@ -25,6 +25,11 @@ func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
 	return args.Get(0).(docker.Container), args.Error(1)
 }
 
+func (m *MockedClient) ContainerActions(action string, containerID string) error {
+	args := m.Called(action, containerID)
+	return args.Error(0)
+}
+
 func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	args := m.Called()
 	return args.Get(0).([]docker.Container), args.Error(1)
