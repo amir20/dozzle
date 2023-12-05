@@ -99,7 +99,7 @@
   "ts-node": "^10.9.1",
   "typescript": "^5.3.2",
   "vitepress": "1.0.0-rc.31",
-  "vitest": "^0.34.6",
+  "vitest": "^1.0.1",
   "vue-tsc": "^1.8.25"
  },
  "lint-staged": {
