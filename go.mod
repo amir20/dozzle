@@ -29,7 +29,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-chi/jwtauth/v5 v5.2.0
+	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-meta v1.1.0
 )
@@ -62,4 +62,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-go 1.21.4
+go 1.21.5
