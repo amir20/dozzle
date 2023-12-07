@@ -36,7 +36,7 @@ type Settings struct {
 
 type Profile struct {
 	Settings    *Settings             `json:"settings,omitempty"`
-	Pinned      []string              `json:"pinned,omitempty"`
+	Pinned      []string              `json:"pinned"`
 	VisibleKeys map[string][][]string `json:"visibleKeys,omitempty"`
 	ReleaseSeen string                `json:"releaseSeen,omitempty"`
 }
@@ -121,6 +121,10 @@ func Load(user auth.User) (Profile, error) {
 	var profile Profile
 	if err := json.NewDecoder(f).Decode(&profile); err != nil {
 		return Profile{}, err
+	}
+
+	if profile.Pinned == nil {
+		profile.Pinned = []string{}
 	}
 
 	return profile, nil
