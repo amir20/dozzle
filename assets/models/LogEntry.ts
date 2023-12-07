@@ -51,6 +51,10 @@ export class SimpleLogEntry extends LogEntry<string> {
   getComponent(): Component {
     return SimpleLogItem;
   }
+
+  copyLogMessageToClipBoard(): void {
+    navigator.clipboard.writeText(this.message);
+  }
 }
 
 export class ComplexLogEntry extends LogEntry<JSONObject> {
@@ -91,6 +95,10 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
 
   static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<string[][]>): ComplexLogEntry {
     return new ComplexLogEntry(event._message, event.id, event.date, event.level, event.std, visibleKeys);
+  }
+
+  copyLogMessageToClipBoard(): void {
+    navigator.clipboard.writeText(JSON.stringify(this.message, null, 2));
   }
 }
 

@@ -5,6 +5,7 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
+      @click="() => (isHovering = true)"
     >
       <a
         class="jump-context tooltip tooltip-right tooltip-primary"
@@ -15,7 +16,7 @@
       >
         <ic:sharp-find-in-page />
       </a>
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" :is-hovering="true" />
     </li>
   </ul>
 </template>
@@ -40,6 +41,7 @@ const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 const { messages } = toRefs(props);
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
+const isHovering = ref(false);
 
 let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
 
