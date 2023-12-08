@@ -1,7 +1,11 @@
 <template>
-  <div class="flex min-w-[0.98rem] items-start justify-end hover:cursor-pointer" title="Copy Log">
+  <div
+    class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
+    v-if="message.trim() != ''"
+    title="Copy Log"
+  >
     <span
-      class="hidden rounded px-1.5 py-[0.15rem] hover:bg-slate-700 hover:text-secondary group-hover/entry:block"
+      class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"
       @click="copyLogMessageToClipBoard()"
     >
       <carbon:copy-file />
