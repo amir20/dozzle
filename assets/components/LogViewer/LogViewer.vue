@@ -6,7 +6,6 @@
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
-      @click="() => (isHovering = true)"
     >
       <a
         class="jump-context tooltip tooltip-right tooltip-primary"
@@ -42,7 +41,6 @@ const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
 const { messages } = toRefs(props);
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
-const isHovering = ref(false);
 
 let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
 
