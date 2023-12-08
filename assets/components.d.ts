@@ -31,6 +31,7 @@ declare module 'vue' {
     ContainerStat: typeof import('./components/LogViewer/ContainerStat.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/LogViewer/ContainerTitle.vue')['default']
+    CopyLogMessage: typeof import('./components/LogViewer/CopyLogMessage.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
