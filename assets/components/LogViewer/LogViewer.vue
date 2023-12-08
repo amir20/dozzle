@@ -5,6 +5,7 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
+      class="group/entry"
       @click="() => (isHovering = true)"
     >
       <a
@@ -16,7 +17,7 @@
       >
         <ic:sharp-find-in-page />
       </a>
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" :is-hovering="true" />
+      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
     </li>
   </ul>
 </template>

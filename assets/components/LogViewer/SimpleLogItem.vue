@@ -1,19 +1,14 @@
 <template>
-  <div
-    class="flex items-start gap-x-2 hover:cursor-pointer"
-    @mouseover="isHovering = true"
-    @mouseleave="isHovering = false"
-  >
+  <div class="flex w-full items-start gap-x-2">
     <log-std :std="logEntry.std" v-if="showStd" />
     <log-date :date="logEntry.date" v-if="showTimestamp" />
     <log-level class="flex" :level="logEntry.level" :position="logEntry.position" />
-    <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap" v-html="colorize(logEntry.message)"></div>
-    <div
-      v-show="isHovering"
-      class="rounded px-1 py-1 hover:bg-slate-700 hover:text-secondary"
-      @click="logEntry.copyLogMessageToClipBoard()"
-    >
-      <carbon:copy-file />
+    <div class="flex w-full justify-between">
+      <div
+        class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"
+        v-html="colorize(logEntry.message)"
+      ></div>
+      <copy-log-message :message="logEntry.message" />
     </div>
   </div>
 </template>
@@ -28,5 +23,4 @@ defineProps<{
 
 const { markSearch } = useSearchFilter();
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
-const isHovering = ref(false);
 </script>
