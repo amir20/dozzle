@@ -91,3 +91,8 @@ releases:
   two_parts: "{first} with {second}"
   latest: Latest
   no_releases: You have the latest version
+toasts:
+  copied:
+    title: Copied
+    message: Log copied to clipboard
+
