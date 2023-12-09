@@ -22,7 +22,10 @@
       </ul>
       <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
     </div>
-    <copy-log-message :message="JSON.stringify(logEntry.message)" />
+    <copy-log-message
+      class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
+      :message="JSON.stringify(logEntry.message)"
+    />
   </div>
 </template>
 <script lang="ts" setup>

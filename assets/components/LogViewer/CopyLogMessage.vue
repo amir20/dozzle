@@ -1,11 +1,11 @@
 <template>
   <div
-    class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
+    class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
     v-if="isSupported && message.trim() != ''"
-    title="Copy Log"
+    :title="t('copy_log.title')"
   >
     <span
-      class="duration-250 rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-100 hover:bg-slate-700 group-hover/entry:opacity-100"
+      class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"
       @click="copyLogMessageToClipBoard()"
     >
       <carbon:copy-file />
@@ -22,18 +22,18 @@ const { showToast } = useToast();
 const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
 
-function copyLogMessageToClipBoard() {
-  copy(message).then(() => {
-    if (copied.value) {
-      showToast(
-        {
-          title: t("toasts.copied.title"),
-          message: t("toasts.copied.message"),
-          type: "info",
-        },
-        { expire: 2000 },
-      );
-    }
-  });
+async function copyLogMessageToClipBoard() {
+  await copy(message);
+
+  if (copied.value) {
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  }
 }
 </script>

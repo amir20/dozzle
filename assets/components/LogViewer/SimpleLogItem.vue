@@ -4,7 +4,10 @@
     <log-date :date="logEntry.date" v-if="showTimestamp" />
     <log-level class="flex" :level="logEntry.level" :position="logEntry.position" />
     <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap" v-html="colorize(logEntry.message)"></div>
-    <copy-log-message :message="logEntry.message" />
+    <copy-log-message
+      class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
+      :message="logEntry.message"
+    />
   </div>
 </template>
 <script lang="ts" setup>
