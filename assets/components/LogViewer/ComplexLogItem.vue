@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex gap-x-2">
+  <div class="relative flex w-full gap-x-2">
     <div v-if="showStd">
       <log-std :std="logEntry.std"></log-std>
     </div>
