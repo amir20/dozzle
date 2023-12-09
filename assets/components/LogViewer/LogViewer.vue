@@ -5,6 +5,7 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
+      class="group/entry"
     >
       <a
         class="jump-context tooltip tooltip-right tooltip-primary"

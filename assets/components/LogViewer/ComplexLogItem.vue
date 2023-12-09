@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-x-2">
+  <div class="relative flex gap-x-2">
     <div v-if="showStd">
       <log-std :std="logEntry.std"></log-std>
     </div>
@@ -22,6 +22,10 @@
       </ul>
       <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
     </div>
+    <copy-log-message
+      class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
+      :message="JSON.stringify(logEntry.message)"
+    />
   </div>
 </template>
 <script lang="ts" setup>
@@ -45,6 +49,7 @@ const validValues = computed(() => {
 .text-light {
   @apply text-base-content/70;
 }
+
 .fields {
   &:hover {
     &::after {
