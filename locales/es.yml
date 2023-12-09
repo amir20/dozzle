@@ -80,8 +80,8 @@ releases:
   features: Características
   bugFixes: Correcciones de errores
   breaking: Cambios importantes
-  three_parts: {features}, {bugFixes} y {breaking}
-  two_parts: {features} y {bugFixes}
+  three_parts: "{features}, {bugFixes} y {breaking}"
+  two_parts: "{features} y {bugFixes}"
   latest: Último
   no_releases: No hay lanzamientos
 copy_log:
