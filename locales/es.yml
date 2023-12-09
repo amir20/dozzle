@@ -76,3 +76,17 @@ settings:
     <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
+releases:
+  features: Características
+  bugFixes: Correcciones de errores
+  breaking: Cambios importantes
+  three_parts: {features}, {bugFixes} y {breaking}
+  two_parts: {features} y {bugFixes}
+  latest: Último
+  no_releases: No hay lanzamientos
+copy_log:
+  title: Copiar registro
+toasts:
+  copied:
+    title: Copiado
+    message: Registro copiado al portapapeles
