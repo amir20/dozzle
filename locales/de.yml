@@ -87,3 +87,9 @@ releases:
   two_parts: "{first} und {second}"
   latest: Latest
   no_releases: Du hast die aktuellste Version
+copy_log:
+  title: Log kopieren
+toasts:
+  copied:
+    title: Kopiert
+    message: Log in Zwischenablage kopiert
