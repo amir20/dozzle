@@ -11,7 +11,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -28,7 +28,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -45,7 +45,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -62,7 +62,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"><span style="color:#000">black<span style="color:#AAA">white</span></span></div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -80,7 +80,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
@@ -97,7 +97,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="absolute -right-1 flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="Copy Log"><span class="rounded bg-slate-800/60 px-1.5 py-1 text-primary opacity-0 transition-opacity delay-500 duration-1000 hover:bg-slate-700 group-hover/entry:opacity-100"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em"><path fill="currentColor" d="m27.4 14.7l-6.1-6.1C21 8.2 20.5 8 20 8h-8c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V16.1c0-.5-.2-1-.6-1.4zM20 10l5.9 6H20v-6zm-8 18V10h6v6c0 1.1.9 2 2 2h6v10H12z"></path><path fill="currentColor" d="M6 18H4V4c0-1.1.9-2 2-2h14v2H6v14z"></path></svg></span></div>
+      <!--v-if-->
     </div>
   </li>
 </ul>"
