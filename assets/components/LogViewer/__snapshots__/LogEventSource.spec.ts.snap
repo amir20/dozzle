@@ -10,7 +10,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
       <!--v-if-->
     </div>
   </li>
@@ -27,7 +27,7 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
       <!--v-if-->
     </div>
   </li>
@@ -44,7 +44,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
       <!--v-if-->
     </div>
   </li>
@@ -61,7 +61,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"><span style="color:#000">black<span style="color:#AAA">white</span></span></div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><span style="color:#000">black<span style="color:#AAA">white</span></span></div>
       <!--v-if-->
     </div>
   </li>
@@ -79,7 +79,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
       <!--v-if-->
     </div>
   </li>
@@ -96,7 +96,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
       <!--v-if-->
     </div>
   </li>
