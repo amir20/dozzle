@@ -5,7 +5,6 @@
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
-      @jump-context="console.log('jump context event triggered')"
       class="group/entry"
     >
       <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />

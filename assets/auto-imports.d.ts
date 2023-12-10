@@ -103,7 +103,6 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideContainerContext: typeof import('./composable/containerContext')['provideContainerContext']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
-  const provideLogSearchContext: typeof import('./composable/logSearchContext')['provideLogSearchContext']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
   const reactive: typeof import('vue')['reactive']
