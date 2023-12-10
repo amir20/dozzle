@@ -91,10 +91,10 @@ releases:
   two_parts: "{first} with {second}"
   latest: Latest
   no_releases: You have the latest version
-copy_log:
-  title: Copy log
+log_actions:
+  copy_log: Copy log
+  jump_to_context: Jump to context
 toasts:
   copied:
     title: Copied
     message: Log copied to clipboard
-

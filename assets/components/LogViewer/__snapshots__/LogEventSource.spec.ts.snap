@@ -3,7 +3,6 @@
 exports[`<LogEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <!--v-if-->
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -11,7 +10,10 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <!--v-if-->
+      </div>
     </div>
   </li>
 </ul>"
@@ -20,7 +22,6 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 1
 exports[`<LogEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <!--v-if-->
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -28,7 +29,10 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <!--v-if-->
+      </div>
     </div>
   </li>
 </ul>"
@@ -37,7 +41,6 @@ exports[`<LogEventSource /> > render html correctly > should render dates with 2
 exports[`<LogEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <!--v-if-->
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -45,7 +48,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <!--v-if-->
+      </div>
     </div>
   </li>
 </ul>"
@@ -54,7 +60,6 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
 exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <!--v-if-->
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -62,7 +67,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><span style="color:#000">black<span style="color:#AAA">white</span></span></div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <!--v-if-->
+      </div>
     </div>
   </li>
 </ul>"
@@ -70,9 +78,7 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
 
 exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
-  <li data-v-2e92daca="" data-key="2" class="group/entry"><a data-v-2e92daca="" class="jump-context tooltip tooltip-right tooltip-primary" data-tip="Jump to Context" href="#2"><svg data-v-2e92daca="" viewBox="0 0 24 24" width="1.2em" height="1.2em">
-        <path fill="currentColor" d="M20 19.59V8l-6-6H4v20l15.57-.02l-4.81-4.81c-.8.52-1.74.83-2.76.83c-2.76 0-5-2.24-5-5s2.24-5 5-5s5 2.24 5 5c0 1.02-.31 1.96-.83 2.75L20 19.59zM9 13c0 1.66 1.34 3 3 3s3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3z"></path>
-      </svg></a>
+  <li data-v-2e92daca="" data-key="2" class="group/entry">
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -80,7 +86,12 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <div class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="copy_log.title"><a class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700" href="#2"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em">
+              <path fill="currentColor" d="m30 28.586l-4.688-4.688a8.028 8.028 0 1 0-1.415 1.414L28.586 30zM19 25a6 6 0 1 1 6-6a6.007 6.007 0 0 1-6 6zM2 12h8v2H2zM2 2h16v2H2zm0 5h16v2H2z"></path>
+            </svg></a></div>
+      </div>
     </div>
   </li>
 </ul>"
@@ -89,7 +100,6 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
 exports[`<LogEventSource /> > render html correctly > should render messages with html entities 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <!--v-if-->
     <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
@@ -97,7 +107,10 @@ exports[`<LogEventSource /> > render html correctly > should render messages wit
       </div>
       <div data-v-e625cddd="" class="mt-1.5 h-2.5 w-2.5 flex-none rounded-lg flex"></div>
       <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <!--v-if-->
+      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+        <!--v-if-->
+        <!--v-if-->
+      </div>
     </div>
   </li>
 </ul>"

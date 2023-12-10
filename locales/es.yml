@@ -84,8 +84,8 @@ releases:
   two_parts: "{features} y {bugFixes}"
   latest: Último
   no_releases: No hay lanzamientos
-copy_log:
-  title: Copiar registro
+log_actions:
+  copy_log: Copiar registro
 toasts:
   copied:
     title: Copiado
