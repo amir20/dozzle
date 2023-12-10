@@ -74,5 +74,5 @@ settings:
     新版本可用！更新到 <a href="{href}" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
-copy_log:
-  title: 复制日志
+log_actions:
+  copy_log: 复制日志

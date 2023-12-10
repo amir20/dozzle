@@ -7,15 +7,6 @@
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
     >
-      <a
-        class="jump-context tooltip tooltip-right tooltip-primary"
-        v-if="isSearching()"
-        data-tip="Jump to Context"
-        @click="handleJumpLineSelected($event, item)"
-        :href="`#${item.id}`"
-      >
-        <ic:sharp-find-in-page />
-      </a>
       <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
     </li>
   </ul>
@@ -36,19 +27,13 @@ const { container } = useContainerContext();
 const visibleKeys = persistentVisibleKeys(container);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
-const { filteredMessages, resetSearch, isSearching } = useSearchFilter();
+const { filteredMessages } = useSearchFilter();
 
 const { messages } = toRefs(props);
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);
 
-let lastSelectedItem: LogEntry<string | JSONObject> | undefined = $ref(undefined);
-
-function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
-  lastSelectedItem = item;
-  resetSearch();
-}
-
+const { lastSelectedItem } = useLogSearchContext();
 const routeHash = useRouteHash();
 watch(
   routeHash,
