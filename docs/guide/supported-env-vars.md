@@ -9,14 +9,15 @@ Configurations can be done with flags or environment variables. The table below 
 | Flag               | Env Variable            | Default |
 | ------------------ | ----------------------- | ------- |
 | `--addr`           | `DOZZLE_ADDR`           | `:8080` |
+| `--auth-provider`  | `DOZZLE_AUTH_PROVIDER`  | false |
 | `--base`           | `DOZZLE_BASE`           | `/`     |
+| `--enable-actions` | `DOZZLE_ENABLE_ACTIONS` | false   |
+| `--filter`         | `DOZZLE_FILTER`         | `""`    |
 | `--hostname`       | `DOZZLE_HOSTNAME`       | `""`    |
 | `--level`          | `DOZZLE_LEVEL`          | `info`  |
-| `--filter`         | `DOZZLE_FILTER`         | `""`    |
-| `--username`       | `DOZZLE_USERNAME`       | `""`    |
-| `--password`       | `DOZZLE_PASSWORD`       | `""`    |
-| `--usernamefile`   | `DOZZLE_USERNAME_FILE`  | `""`    |
-| `--passwordfile`   | `DOZZLE_PASSWORD_FILE`  | `""`    |
 | `--no-analytics`   | `DOZZLE_NO_ANALYTICS`   | false   |
+| `--password`       | `DOZZLE_PASSWORD`       | `""`    |
+| `--passwordfile`   | `DOZZLE_PASSWORD_FILE`  | `""`    |
 | `--remote-host`    | `DOZZLE_REMOTE_HOST`    | `""`    |
-| `--enable-actions` | `DOZZLE_ENABLE_ACTIONS` | false   |
+| `--username`       | `DOZZLE_USERNAME`       | `""`    |
+| `--usernamefile`   | `DOZZLE_USERNAME_FILE`  | `""`    |
