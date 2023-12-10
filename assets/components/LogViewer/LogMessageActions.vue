@@ -57,9 +57,4 @@ async function copyLogMessageToClipBoard() {
     );
   }
 }
-
-// function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
-//   lastSelectedItem = item;
-//   resetSearch();
-// }
 </script>
