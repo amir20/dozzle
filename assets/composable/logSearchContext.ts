@@ -5,10 +5,7 @@ export const useLogSearchContext = () => {
   const { resetSearch } = useSearchFilter();
 
   function handleJumpLineSelected(e: Event, item: LogEntry<string | JSONObject>) {
-    console.log("handleJumpLineSelected", item);
-
     lastSelectedItem.value = item;
-    console.log("lastSelectedItem", toRaw(lastSelectedItem));
     resetSearch();
   }
 
