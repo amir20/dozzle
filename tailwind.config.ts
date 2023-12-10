@@ -3,6 +3,9 @@ import DaisyUI from "daisyui";
 import Typography from "@tailwindcss/typography";
 
 export default {
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: ["./assets/**/*.{vue,js,ts}", "./public/index.html"],
   theme: {
     extend: {
