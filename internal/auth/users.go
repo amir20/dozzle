@@ -92,7 +92,7 @@ func (u *UserDatabase) readFileIfChanged() error {
 			return err
 		}
 		u.Users = users.Users
-		u.LastRead = users.LastRead
+		u.LastRead = time.Now()
 	}
 
 	return nil
