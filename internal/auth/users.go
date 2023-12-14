@@ -23,8 +23,10 @@ type User struct {
 }
 
 func newUser(username, email, name string) User {
-	avatar := fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(email), name)
-
+	avatar := ""
+	if email != "" {
+		avatar = fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(email), name)
+	}
 	return User{
 		Username: username,
 		Email:    email,
@@ -78,9 +80,6 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 }
 
 func (u *UserDatabase) readFileIfChanged() error {
-	if u.Path == "" {
-		return nil
-	}
 	info, err := os.Stat(u.Path)
 	if err != nil {
 		return err
