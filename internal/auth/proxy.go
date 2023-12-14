@@ -14,7 +14,7 @@ type contextKey string
 
 const remoteUser contextKey = "remoteUser"
 
-type proxyAuthAuth struct {
+type proxyAuthContext struct {
 }
 
 func hashEmail(email string) string {
@@ -25,11 +25,11 @@ func hashEmail(email string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func NewForwardProxyAuth() *proxyAuthAuth {
-	return &proxyAuthAuth{}
+func NewForwardProxyAuth() *proxyAuthContext {
+	return &proxyAuthContext{}
 }
 
-func (p *proxyAuthAuth) AuthMiddleware(next http.Handler) http.Handler {
+func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Remote-Email") != "" {
 			user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
@@ -41,7 +41,7 @@ func (p *proxyAuthAuth) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (p *proxyAuthAuth) CreateToken(username, password string) (string, error) {
+func (p *proxyAuthContext) CreateToken(username, password string) (string, error) {
 	log.Fatalf("CreateToken not implemented for proxy auth")
 	return "", nil
 }

@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/jwtauth/v5"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -34,10 +36,24 @@ func newUser(username, email, name string) User {
 }
 
 type UserDatabase struct {
-	Users map[string]*User `yaml:"users"`
+	Users    map[string]*User `yaml:"users"`
+	LastRead time.Time        `yaml:"-"`
+	Path     string           `yaml:"-"`
 }
 
 func ReadUsersFromFile(path string) (UserDatabase, error) {
+	users, err := decodeUsersFromFile(path)
+	if err != nil {
+		return users, err
+	}
+
+	users.LastRead = time.Now()
+	users.Path = path
+
+	return users, nil
+}
+
+func decodeUsersFromFile(path string) (UserDatabase, error) {
 	users := UserDatabase{}
 	file, err := os.Open(path)
 	if err != nil {
@@ -51,12 +67,42 @@ func ReadUsersFromFile(path string) (UserDatabase, error) {
 
 	for username, user := range users.Users {
 		user.Username = username
+		if user.Password == "" {
+			log.Fatalf("User %s has no password", username)
+		}
+
+		if user.Name == "" {
+			user.Name = username
+		}
 	}
 
 	return users, nil
 }
 
+func (u *UserDatabase) readFileIfChanged() error {
+	info, err := os.Stat(u.Path)
+	if err != nil {
+		return err
+	}
+
+	if info.ModTime().After(u.LastRead) {
+		log.Infof("Found changes to %s. Updating users...", u.Path)
+		users, err := decodeUsersFromFile(u.Path)
+		if err != nil {
+			return err
+		}
+		u.Users = users.Users
+		u.LastRead = users.LastRead
+	}
+
+	return nil
+}
+
 func (u *UserDatabase) Find(username string) *User {
+	if err := u.readFileIfChanged(); err != nil {
+		log.Errorf("Error reading users file: %s", err)
+		return nil
+	}
 	user, ok := u.Users[username]
 	if !ok {
 		return nil
