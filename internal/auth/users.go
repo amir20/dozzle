@@ -104,7 +104,6 @@ func (u *UserDatabase) readFileIfChanged() error {
 func (u *UserDatabase) Find(username string) *User {
 	if err := u.readFileIfChanged(); err != nil {
 		log.Errorf("Error reading users file: %s", err)
-		return nil
 	}
 	user, ok := u.Users[username]
 	if !ok {
