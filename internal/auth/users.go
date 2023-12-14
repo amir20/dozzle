@@ -80,6 +80,9 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 }
 
 func (u *UserDatabase) readFileIfChanged() error {
+	if u.Path == "" {
+		return nil
+	}
 	info, err := os.Stat(u.Path)
 	if err != nil {
 		return err
