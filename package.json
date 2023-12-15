@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.12.0",
+ "packageManager": "pnpm@8.12.1",
  "type": "module",
  "repository": {
   "type": "git",
@@ -35,7 +35,7 @@
   "@iconify-json/mdi-light": "^1.1.10",
   "@iconify-json/octicon": "^1.1.52",
   "@iconify-json/ph": "^1.1.9",
-  "@intlify/unplugin-vue-i18n": "^1.5.0",
+  "@intlify/unplugin-vue-i18n": "^1.6.0",
   "@tailwindcss/typography": "^0.5.10",
   "@vueuse/components": "^10.7.0",
   "@vueuse/core": "^10.7.0",
@@ -50,7 +50,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.4.19",
+  "daisyui": "^4.4.20",
   "date-fns": "^2.30.0",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -63,8 +63,8 @@
   "unplugin-auto-import": "^0.17.2",
   "unplugin-icons": "^0.18.1",
   "unplugin-vue-components": "^0.26.0",
-  "unplugin-vue-macros": "^2.7.0",
-  "vite": "5.0.7",
+  "unplugin-vue-macros": "^2.7.3",
+  "vite": "5.0.10",
   "vite-plugin-pages": "^0.32.0",
   "vite-plugin-vue-layouts": "^0.9.1",
   "vue": "^3.3.11",
