@@ -46,5 +46,9 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer response.Body.Close()
+
+	w.Header().Set("Content-Type", response.Header.Get("Content-Type"))
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+
 	io.Copy(w, response.Body)
 }
