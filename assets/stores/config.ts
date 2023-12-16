@@ -16,7 +16,6 @@ export interface Config {
     username: string;
     email: string;
     name: string;
-    avatar: string;
   };
   profile?: Profile;
   pages?: { id: string; title: string }[];

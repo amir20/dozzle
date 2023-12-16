@@ -110,6 +110,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Post("/api/actions/{action}/{host}/{id}", h.containerActions)
 				}
 				r.Get("/api/releases", h.releases)
+				r.Get("/api/profile/avatar", h.avatar)
 				r.Patch("/api/profile", h.updateProfile)
 				r.Get("/api/content/{id}", h.staticContent)
 				r.Get("/logout", h.clearSession) // TODO remove this

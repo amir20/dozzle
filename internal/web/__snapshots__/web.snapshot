@@ -1,7 +1,7 @@
 /* snapshot: Test_createRoutes_foobar */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 
 foo page
@@ -9,7 +9,7 @@ foo page
 /* snapshot: Test_createRoutes_index */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 
 index page
@@ -17,7 +17,7 @@ index page
 /* snapshot: Test_createRoutes_redirect */
 HTTP/1.1 301 Moved Permanently
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 Location: /foobar/
 
@@ -26,7 +26,7 @@ Location: /foobar/
 /* snapshot: Test_createRoutes_redirect_with_auth */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 Location: /foobar/login
 
@@ -35,7 +35,7 @@ Location: /foobar/login
 /* snapshot: Test_createRoutes_simple_redirect */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 Location: /login
 
@@ -44,7 +44,7 @@ Location: /login
 /* snapshot: Test_createRoutes_username_password */
 HTTP/1.1 307 Temporary Redirect
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/html; charset=utf-8
 Location: /login
 
@@ -53,7 +53,7 @@ Location: /login
 /* snapshot: Test_createRoutes_username_password_invalid */
 HTTP/1.1 401 Unauthorized
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -65,7 +65,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -75,7 +75,7 @@ data: end of stream
 /* snapshot: Test_createRoutes_version */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/html
 
 <pre>dev</pre>
@@ -83,7 +83,7 @@ Content-Type: text/html
 /* snapshot: Test_handler_between_dates */
 HTTP/1.1 200 OK
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: application/x-jsonl; charset=UTF-8
 
 {"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout"}
@@ -110,7 +110,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -123,7 +123,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -141,7 +141,7 @@ data: {"actorId":"1234","name":"start","host":"localhost"}
 /* snapshot: Test_handler_streamLogs_error_finding_container */
 HTTP/1.1 404 Not Found
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -153,7 +153,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 X-Accel-Buffering: no
 X-Content-Type-Options: nosniff
@@ -163,7 +163,7 @@ test error
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
 Connection: close
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
 
@@ -175,7 +175,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -190,7 +190,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
@@ -203,7 +203,7 @@ Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
-Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' gravatar.com data:; manifest-src 'self'; connect-src 'self' api.github.com;
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 

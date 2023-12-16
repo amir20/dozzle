@@ -29,7 +29,10 @@
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
-        <img class="h-6 w-6 max-w-none rounded-full p-px ring-1 ring-base-content/60" :src="config.user.avatar" />
+        <img
+          class="h-6 w-6 max-w-none rounded-full p-px ring-1 ring-base-content/60"
+          :src="withBase('/api/profile/avatar')"
+        />
       </template>
       <template #content>
         <div class="p-2">

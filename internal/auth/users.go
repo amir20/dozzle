@@ -18,18 +18,18 @@ type User struct {
 	Username string `json:"username"`
 	Email    string `json:"email" yaml:"email"`
 	Name     string `json:"name" yaml:"name"`
-	Avatar   string `json:"avatar,omitempty"`
 	Password string `json:"-" yaml:"password"`
 }
 
-func newUser(username, email, name string) User {
-	avatar := fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(email), name)
+func (u User) AvatarURL() string {
+	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), u.Name)
+}
 
+func newUser(username, email, name string) User {
 	return User{
 		Username: username,
 		Email:    email,
 		Name:     name,
-		Avatar:   avatar,
 	}
 }
 
