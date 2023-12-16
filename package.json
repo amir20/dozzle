@@ -66,8 +66,8 @@
   "unplugin-vue-macros": "^2.7.3",
   "vite": "5.0.10",
   "vite-plugin-pages": "^0.32.0",
-  "vite-plugin-vue-layouts": "^0.9.1",
-  "vue": "^3.3.11",
+  "vite-plugin-vue-layouts": "^0.10.0",
+  "vue": "^3.3.12",
   "vue-i18n": "^9.8.0",
   "vue-router": "^4.2.5"
  },
@@ -84,7 +84,7 @@
   "@types/node": "^20.10.4",
   "@types/semver": "^7.5.6",
   "@vitejs/plugin-vue": "4.5.2",
-  "@vue/compiler-sfc": "^3.3.11",
+  "@vue/compiler-sfc": "^3.3.12",
   "@vue/test-utils": "^2.4.3",
   "bumpp": "^9.2.1",
   "c8": "^8.0.1",
@@ -98,7 +98,7 @@
   "simple-git-hooks": "^2.9.0",
   "ts-node": "^10.9.2",
   "typescript": "^5.3.3",
-  "vitepress": "1.0.0-rc.31",
+  "vitepress": "1.0.0-rc.32",
   "vitest": "^1.0.4",
   "vue-tsc": "^1.8.25"
  },
