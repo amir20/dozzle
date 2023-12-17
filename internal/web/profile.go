@@ -39,6 +39,7 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debugf("Fetching avatar from %s", url)
 	response, err := http.Get(url)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -47,8 +48,11 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 
 	defer response.Body.Close()
 
-	w.Header().Set("Content-Type", response.Header.Get("Content-Type"))
-	w.Header().Set("Cache-Control", "public, max-age=86400")
+	if response.StatusCode != http.StatusOK {
+		log.Errorf("Received status code %d from %s", response.StatusCode, url)
+		return
+	}
 
+	w.Header().Set("Content-Type", response.Header.Get("Content-Type"))
 	io.Copy(w, response.Body)
 }
