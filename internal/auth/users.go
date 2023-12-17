@@ -23,7 +23,11 @@ type User struct {
 }
 
 func (u User) AvatarURL() string {
-	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), url.QueryEscape(u.Name))
+	name := u.Name
+	if name == "" {
+		name = u.Username
+	}
+	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), url.QueryEscape(name))
 }
 
 func newUser(username, email, name string) User {
