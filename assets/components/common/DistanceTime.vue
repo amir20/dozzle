@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import formatDistanceToNowStrict from "date-fns/formatDistanceToNowStrict";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { formatDistanceToNowStrict } from "date-fns/formatDistanceToNowStrict";
 
 const {
   date,
