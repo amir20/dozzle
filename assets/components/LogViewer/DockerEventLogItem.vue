@@ -5,7 +5,7 @@
       class="alert alert-info mt-8 w-auto text-[1rem] md:mx-auto md:w-1/2"
       v-if="nextContainer && logEntry.event === 'container-stopped'"
     >
-      <carbon:information class="h-6 w-6 shrink-0 stroke-current" />
+      <carbon:information class="size-6 shrink-0 stroke-current" />
       <div>
         <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
         {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}

@@ -9,7 +9,7 @@
 
       <div class="ml-auto flex items-center gap-2">
         <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
-          <mdi:magnify class="h-5 w-5" />
+          <mdi:magnify class="size-5" />
         </a>
         <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
           <input type="checkbox" v-model="show" />

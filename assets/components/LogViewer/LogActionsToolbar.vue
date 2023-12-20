@@ -30,7 +30,7 @@
             streamConfig.stderr = true;
           "
         >
-          <div class="flex h-4 w-4 gap-0.5">
+          <div class="flex size-4 gap-0.5">
             <template v-if="streamConfig.stderr && streamConfig.stdout">
               <carbon:circle-solid class="w-2 text-red" />
               <carbon:circle-solid class="w-2 text-blue" />
@@ -46,7 +46,7 @@
             streamConfig.stderr = false;
           "
         >
-          <div class="flex h-4 w-4 flex-col gap-1">
+          <div class="flex size-4 flex-col gap-1">
             <carbon:circle-solid class="w-2 text-blue" v-if="!streamConfig.stderr && streamConfig.stdout" />
           </div>
           {{ $t("toolbar.show", { std: "STDOUT" }) }}
@@ -59,7 +59,7 @@
             streamConfig.stderr = true;
           "
         >
-          <div class="flex h-4 w-4 flex-col gap-1">
+          <div class="flex size-4 flex-col gap-1">
             <carbon:circle-solid class="w-2 text-red" v-if="streamConfig.stderr && !streamConfig.stdout" />
           </div>
           {{ $t("toolbar.show", { std: "STDERR" }) }}
