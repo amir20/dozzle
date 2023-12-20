@@ -1,7 +1,7 @@
 <template>
   <scrollable-view :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="ml-4 mr-2 flex items-center gap-2">
+      <div class="mx-2 flex items-center gap-2 md:ml-4">
         <container-title @close="$emit('close')" />
         <container-stat class="ml-auto" />
 
