@@ -1,5 +1,5 @@
 <template>
-  <div class="hero min-h-screen">
+  <div class="hero min-h-dvh">
     <div class="hero-content">
       <router-view></router-view>
     </div>
