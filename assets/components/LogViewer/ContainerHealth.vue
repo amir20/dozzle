@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-flex h-4 w-4" :health="health" v-if="health" :title="health">
+  <div class="inline-flex size-4" :health="health" v-if="health" :title="health">
     <cil:check-circle v-if="health == 'healthy'" />
     <cil:x-circle v-else-if="health == 'unhealthy'" />
     <cil:circle v-else />

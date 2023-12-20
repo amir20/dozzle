@@ -14,9 +14,9 @@
 
     <dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
       <template #trigger>
-        <mdi:announcement class="h-6 w-6 -rotate-12" />
+        <mdi:announcement class="size-6 -rotate-12" />
         <span
-          class="absolute right-px top-0 h-2 w-2 rounded-full bg-red"
+          class="absolute right-px top-0 size-2 rounded-full bg-red"
           v-if="hasUpdate && latestTag != latest?.tag"
         ></span>
       </template>
@@ -30,7 +30,7 @@
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
         <img
-          class="h-6 w-6 max-w-none rounded-full p-px ring-1 ring-base-content/60"
+          class="size-6 max-w-none rounded-full p-px ring-1 ring-base-content/60"
           :src="withBase('/api/profile/avatar')"
         />
       </template>

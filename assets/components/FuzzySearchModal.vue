@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown dropdown-open w-full">
     <div class="input input-primary flex h-auto items-center">
-      <mdi:magnify class="flex h-8 w-8" />
+      <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
         class="input input-ghost input-lg flex-1 px-1"
@@ -15,7 +15,7 @@
       />
       <mdi:keyboard-esc class="flex" />
     </div>
-    <ul tabindex="0" class="menu dropdown-content rounded-box !relative mt-2 w-full bg-base-lighter p-2">
+    <ul tabindex="0" class="menu dropdown-content !relative mt-2 w-full rounded-box bg-base-lighter p-2">
       <li v-for="(item, index) in data">
         <a
           class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"

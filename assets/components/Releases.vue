@@ -2,7 +2,7 @@
   <ul class="space-y-4 p-2">
     <li v-for="release in releases" v-if="releases?.length">
       <div class="flex items-baseline gap-1">
-        <carbon:warning class="h-4.25 w-4.25 self-center stroke-orange" v-if="release.breaking > 0" />
+        <carbon:warning class="self-center stroke-orange" v-if="release.breaking > 0" />
         <a :href="release.htmlUrl" class="link-primary text-lg font-bold" target="_blank" rel="noreferrer noopener">
           {{ release.name }}
         </a>
