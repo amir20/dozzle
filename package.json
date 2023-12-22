@@ -51,7 +51,7 @@
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
   "daisyui": "^4.4.23",
-  "date-fns": "^3.0.5",
+  "date-fns": "^3.0.6",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
   "lodash.debounce": "^4.0.8",
@@ -63,7 +63,7 @@
   "unplugin-auto-import": "^0.17.2",
   "unplugin-icons": "^0.18.1",
   "unplugin-vue-components": "^0.26.0",
-  "unplugin-vue-macros": "^2.7.5",
+  "unplugin-vue-macros": "^2.7.6",
   "vite": "5.0.10",
   "vite-plugin-pages": "^0.32.0",
   "vite-plugin-vue-layouts": "^0.10.0",
@@ -100,7 +100,7 @@
   "typescript": "^5.3.3",
   "vitepress": "1.0.0-rc.32",
   "vitest": "^1.1.0",
-  "vue-tsc": "^1.8.25"
+  "vue-tsc": "^1.8.26"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
