@@ -9,7 +9,7 @@
     ></div>
     <log-message-actions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
-      :message="logEntry.message"
+      :message="decodeXML(stripAnsi(logEntry.message))"
       :log-entry="logEntry"
     />
   </div>
@@ -17,6 +17,8 @@
 <script lang="ts" setup>
 import { SimpleLogEntry } from "@/models/LogEntry";
 import AnsiConvertor from "ansi-to-html";
+import stripAnsi from "strip-ansi";
+import { decodeXML } from "entities";
 
 const ansiConvertor = new AnsiConvertor({ escapeXML: false, fg: "var(--text-color)" });
 defineProps<{
