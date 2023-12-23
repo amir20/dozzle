@@ -15,8 +15,8 @@
  "license": "ISC",
  "author": "Amir Raminfar <findamir@gmail.com>",
  "scripts": {
-  "watch:frontend": "vite --open http://localhost:3100/",
-  "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
+  "watch:frontend": "vite --open http://localhost:4000/",
+  "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:4000 reflex -c .reflex",
   "dev": "concurrently --kill-others \"npm:watch:*\"",
   "build": "vite build",
   "preview": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
@@ -59,6 +59,7 @@
   "postcss": "^8.4.32",
   "postcss-mixins": "^9.0.4",
   "splitpanes": "^3.1.5",
+  "strip-ansi": "^7.1.0",
   "tailwindcss": "^3.4.0",
   "unplugin-auto-import": "^0.17.2",
   "unplugin-icons": "^0.18.1",
