@@ -72,8 +72,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^4.4.23
-    version: 4.4.23(postcss@8.4.32)
+    specifier: ^4.4.24
+    version: 4.4.24(postcss@8.4.32)
   date-fns:
     specifier: ^3.0.6
     version: 3.0.6
@@ -2416,8 +2416,8 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
-  /daisyui@4.4.23(postcss@8.4.32):
-    resolution: {integrity: sha512-IFQRGoGoAke8chxPcDqQJFldVVd51JL7b4mRA3LqsLexW/6xicZzz9X3GXdGdnYsu8QPxZN4uzQZ5fwRNYXOSg==}
+  /daisyui@4.4.24(postcss@8.4.32):
+    resolution: {integrity: sha512-u/B3484J08V7N0rIYymnC+SyxOjlYQL+2vyhHWV+/KC+VaUcbEF2Z3H06eCPgdTiZ0J+ml44aH7wBhIymPFQ+g==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
