@@ -194,7 +194,7 @@ users:
 
 Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional.
 
-The password is hashed using `sha256` which can be generated with `echo -n "secret-password" | shasum -a 256` or `echo -n "secret-password" | sha256sum` on linux.
+The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
 
 You will need to mount this file for Dozzle to find it. Here is an example:
 
