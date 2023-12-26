@@ -170,8 +170,8 @@ devDependencies:
     specifier: ^7.5.6
     version: 7.5.6
   '@vitejs/plugin-vue':
-    specifier: 4.6.0
-    version: 4.6.0(vite@5.0.10)(vue@3.3.13)
+    specifier: 5.0.0
+    version: 5.0.0(vite@5.0.10)(vue@3.3.13)
   '@vue/compiler-sfc':
     specifier: ^3.3.13
     version: 3.3.13
@@ -1176,11 +1176,11 @@ packages:
   /@types/web-bluetooth@0.0.20:
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
 
-  /@vitejs/plugin-vue@4.6.0(vite@5.0.10)(vue@3.3.13):
-    resolution: {integrity: sha512-XHuyFdAikWRmHuAd89FOyUGIjrBU5KlxJtyi2hVeR9ySGFxQwE0bl5xAQju/ArMq5azdBivY4d+D2yPKwoYWUg==}
-    engines: {node: ^14.18.0 || >=16.0.0}
+  /@vitejs/plugin-vue@5.0.0(vite@5.0.10)(vue@3.3.13):
+    resolution: {integrity: sha512-7x5e8X4J1Wi4NxudGjJBd2OFerAi/0nzF80ojCzvfj347WVr0YSn82C8BSsgwSHzlk9Kw5xnZfj0/7RLnNwP5w==}
+    engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      vite: ^4.0.0 || ^5.0.0
+      vite: ^5.0.0
       vue: ^3.2.25
     dependencies:
       vite: 5.0.10(@types/node@20.10.5)
