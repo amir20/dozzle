@@ -45,16 +45,8 @@ dependencies:
     specifier: ^10.7.1
     version: 10.7.1(vue@3.3.13)
   '@vueuse/router':
-<<<<<<< HEAD
     specifier: ^10.7.1
     version: 10.7.1(vue-router@4.2.5)(vue@3.3.13)
-  ansi-to-html:
-    specifier: ^0.7.2
-    version: 0.7.2
-=======
-    specifier: ^10.7.0
-    version: 10.7.0(vue-router@4.2.5)(vue@3.3.13)
->>>>>>> 8dd70aff (removes javascript ansi colors)
   autoprefixer:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.32)
