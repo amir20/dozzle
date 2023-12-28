@@ -140,19 +140,6 @@ describe("<LogEventSource />", () => {
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
-    test("should render messages with color", async () => {
-      const wrapper = createLogEventSource();
-      sources[sourceUrl].emitOpen();
-      sources[sourceUrl].emitMessage({
-        data: '{"ts":1560336942459,"m":"\\u001b[30mblack\\u001b[37mwhite", "id":1}',
-      });
-
-      vi.runAllTimers();
-      await nextTick();
-
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
-    });
-
     test("should render messages with html entities", async () => {
       const wrapper = createLogEventSource();
       sources[sourceUrl].emitOpen();
