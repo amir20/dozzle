@@ -1,5 +1,17 @@
 <template>
   <div class="flex items-center justify-end gap-4">
+    <template v-if="config.pages">
+      <router-link
+        :to="{ name: 'content-id', params: { id: page.id } }"
+        :title="page.title"
+        v-for="page in config.pages"
+        :key="page.id"
+        class="link-primary"
+      >
+        {{ page.title }}
+      </router-link>
+    </template>
+
     <dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
       <template #trigger>
         <mdi:announcement class="size-6 -rotate-12" />
