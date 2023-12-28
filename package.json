@@ -1,6 +1,6 @@
 {
  "name": "dozzle",
- "version": "5.7.3",
+ "version": "5.8.0",
  "description": "Realtime log viewer for docker containers.",
  "homepage": "https://github.com/amir20/dozzle#readme",
  "bugs": {
