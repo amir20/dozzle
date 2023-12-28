@@ -70,8 +70,8 @@ watchEffect(() => {
 if (config.secured) {
   showToast({
     title: "Deprecation Warning",
-    message: "The secured option is deprecated and will be removed in a future version.",
-    type: "error",
+    message: `The secured option is deprecated and will be removed in a future versions. See <a href="https://github.com/amir20/dozzle/issues/2630" target="_blank">this issue</a> for more information.`,
+    type: "warning",
   });
 }
 </script>
