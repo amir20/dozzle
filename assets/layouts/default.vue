@@ -47,7 +47,10 @@
       class="alert max-w-xl"
       v-for="toast in toasts"
       :key="toast.id"
-      :class="{ 'alert-error': toast.type === 'error', 'alert-info': toast.type === 'info' }"
+      :class="{
+        'alert-error': toast.type === 'error',
+        'alert-info': toast.type === 'info',
+      }"
     >
       <carbon:information class="size-6 shrink-0 stroke-current" v-if="toast.type === 'info'" />
       <carbon:warning class="size-6 shrink-0 stroke-current" v-else-if="toast.type === 'error'" />
