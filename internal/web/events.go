@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/amir20/dozzle/internal/analytics"
-	"github.com/amir20/dozzle/internal/content"
 	"github.com/amir20/dozzle/internal/docker"
 
 	log "github.com/sirupsen/logrus"
@@ -33,7 +32,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
 
-	pages, _ := content.ReadAll()
 	b := analytics.BeaconEvent{
 		Name:             "events",
 		Version:          h.config.Version,
@@ -43,7 +41,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		HasCustomBase:    h.config.Base != "/",
 		HasCustomAddress: h.config.Addr != ":8080",
 		Clients:          len(h.clients),
-		HasDocumentation: len(pages) > 0,
 		HasActions:       h.config.EnableActions,
 	}
 

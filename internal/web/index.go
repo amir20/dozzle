@@ -10,7 +10,6 @@ import (
 	"path"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/content"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/profile"
 
@@ -52,16 +51,6 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		"hosts":               hosts,
 		"authProvider":        h.config.Authorization.Provider,
 		"enableActions":       h.config.EnableActions,
-	}
-
-	pages, err := content.ReadAll()
-	if err != nil {
-		log.Errorf("error reading content: %v", err)
-	} else if len(pages) > 0 {
-		for i, _ := range pages {
-			pages[i].Content = ""
-		}
-		config["pages"] = pages
 	}
 
 	user := auth.UserFromContext(req.Context())
