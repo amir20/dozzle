@@ -21,10 +21,6 @@ func (h *handler) index(w http.ResponseWriter, req *http.Request) {
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
 		fileServer.ServeHTTP(w, req)
 	} else {
-		if !isAuthorized(req) && req.URL.Path != "login" {
-			http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
-			return
-		}
 		h.executeTemplate(w, req)
 	}
 }
@@ -43,14 +39,12 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	})
 
 	config := map[string]interface{}{
-		"base":                base,
-		"version":             h.config.Version,
-		"authorizationNeeded": h.isAuthorizationNeeded(req),
-		"secured":             secured,
-		"hostname":            h.config.Hostname,
-		"hosts":               hosts,
-		"authProvider":        h.config.Authorization.Provider,
-		"enableActions":       h.config.EnableActions,
+		"base":          base,
+		"version":       h.config.Version,
+		"hostname":      h.config.Hostname,
+		"hosts":         hosts,
+		"authProvider":  h.config.Authorization.Provider,
+		"enableActions": h.config.EnableActions,
 	}
 
 	user := auth.UserFromContext(req.Context())

@@ -29,8 +29,6 @@ type Config struct {
 	Base          string
 	Addr          string
 	Version       string
-	Username      string
-	Password      string
 	Hostname      string
 	NoAnalytics   bool
 	Dev           bool
@@ -79,8 +77,6 @@ func CreateServer(clients map[string]DockerClient, content fs.FS, config Config)
 var fileServer http.Handler
 
 func createRouter(h *handler) *chi.Mux {
-	initializeAuth(h)
-
 	base := h.config.Base
 	r := chi.NewRouter()
 
@@ -101,7 +97,6 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
-				r.Use(authorizationRequired) // TODO remove this
 				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
 				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
 				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
@@ -112,7 +107,6 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/releases", h.releases)
 				r.Get("/api/profile/avatar", h.avatar)
 				r.Patch("/api/profile", h.updateProfile)
-				r.Get("/logout", h.clearSession) // TODO remove this
 				r.Get("/version", h.version)
 			})
 
@@ -127,7 +121,6 @@ func createRouter(h *handler) *chi.Mux {
 			r.Delete("/api/token", h.deleteToken)
 		}
 
-		r.Post("/api/validateCredentials", h.validateCredentials) // TODO remove this
 		r.Get("/healthcheck", h.healthcheck)
 	})
 

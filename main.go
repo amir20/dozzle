@@ -44,8 +44,6 @@ type args struct {
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
-	UsernameFile         *DockerSecret       `arg:"env:DOZZLE_USERNAME_FILE" help:"sets the secret path read username for auth."`
-	PasswordFile         *DockerSecret       `arg:"env:DOZZLE_PASSWORD_FILE" help:"sets the secret path read password for auth"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -193,8 +191,6 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 		Addr:        args.Addr,
 		Base:        args.Base,
 		Version:     version,
-		Username:    args.Username,
-		Password:    args.Password,
 		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
 		Dev:         dev,
@@ -274,19 +270,8 @@ func parseArgs() args {
 		args.Filter[key] = append(args.Filter[key], val)
 	}
 
-	if args.Username == "" && args.UsernameFile != nil {
-		args.Username = args.UsernameFile.Value
-	}
-
-	if args.Password == "" && args.PasswordFile != nil {
-		args.Password = args.PasswordFile.Value
-	}
-
 	if args.Username != "" || args.Password != "" {
-		log.Warn("Using --username and --password is being deprecated and removed in v6.x. Use --auth-provider instead. See https://dozzle.dev/guide/authentication#file-based-user-management for more information.")
-		if args.Username == "" || args.Password == "" {
-			log.Fatalf("Username AND password are required for authentication")
-		}
+		log.Fatal("Using --username and --password is removed  v6.x. See https://github.com/amir20/dozzle/issues/2630 for details.")
 	}
 	return args
 }

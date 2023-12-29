@@ -10,7 +10,6 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gorilla/sessions v1.2.2
 	github.com/magiconair/properties v1.8.7
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
@@ -42,7 +41,6 @@ require (
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect
-	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
