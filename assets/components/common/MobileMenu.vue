@@ -32,9 +32,6 @@
           <router-link :to="{ name: 'settings' }" class="btn btn-outline btn-sm">
             <mdi:cog /> {{ $t("button.settings") }}
           </router-link>
-          <a class="btn btn-outline btn-sm" :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured">
-            <mdi:logout /> {{ $t("button.logout") }}
-          </a>
         </div>
 
         <ul class="menu">
@@ -56,7 +53,6 @@
 </template>
 
 <script lang="ts" setup>
-const { base, secured } = config;
 import { sessionHost } from "@/composable/storage";
 const store = useContainerStore();
 const route = useRoute();

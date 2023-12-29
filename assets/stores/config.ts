@@ -5,8 +5,6 @@ const text = document.querySelector("script#config__json")?.textContent || "{}";
 export interface Config {
   version: string;
   base: string;
-  authorizationNeeded: boolean;
-  secured: boolean;
   maxLogs: number;
   hostname: string;
   hosts: { name: string; id: string }[];
