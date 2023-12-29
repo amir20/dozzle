@@ -69,5 +69,4 @@ services:
     depends_on:
       - dozzle
       - custom_base
-      - auth
       - remote
