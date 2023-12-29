@@ -12,19 +12,6 @@ services:
       - 8080:8080
     build:
       context: .
-  auth:
-    container_name: auth
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - DOZZLE_FILTER=name=auth
-      - DOZZLE_USERNAME=foo
-      - DOZZLE_PASSWORD=bar
-      - DOZZLE_NO_ANALYTICS=1
-    ports:
-      - 9090:8080
-    build:
-      context: .
   simple-auth:
     container_name: simple-auth
     volumes:
