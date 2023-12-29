@@ -25,6 +25,16 @@ services:
       - 9090:8080
     build:
       context: .
+  simple-auth:
+    container_name: simple-auth
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./e2e/data:/data
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+      - DOZZLE_NO_ANALYTICS=1
+    build:
+      context: .
   dozzle:
     container_name: dozzle
     volumes:
