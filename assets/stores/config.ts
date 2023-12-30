@@ -18,7 +18,6 @@ export interface Config {
     name: string;
   };
   profile?: Profile;
-  pages?: { id: string; title: string }[];
 }
 
 export interface Profile {
