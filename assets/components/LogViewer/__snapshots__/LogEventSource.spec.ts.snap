@@ -57,25 +57,6 @@ exports[`<LogEventSource /> > render html correctly > should render messages 1`]
 </ul>"
 `;
 
-exports[`<LogEventSource /> > render html correctly > should render messages with color 1`] = `
-"<ul data-v-2e92daca="" class="events group py-4 medium">
-  <li data-v-2e92daca="" data-key="1" class="group/entry">
-    <div data-v-2e92daca="" class="relative flex w-full items-start gap-x-2" visible-keys="">
-      <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" size="small">
-        <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
-      </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><span style="color:#000">black<span style="color:#AAA">white</span></span></div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
-        <!--v-if-->
-        <!--v-if-->
-      </div>
-    </div>
-  </li>
-</ul>"
-`;
-
 exports[`<LogEventSource /> > render html correctly > should render messages with filter 1`] = `
 "<ul data-v-2e92daca="" class="events group py-4 medium">
   <li data-v-2e92daca="" data-key="2" class="group/entry">
