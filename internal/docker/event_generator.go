@@ -79,6 +79,9 @@ func (g *EventGenerator) consumeReader() {
 		message, streamType, readerError := readEvent(g.reader, g.tty)
 		if message != "" {
 			logEvent := createEvent(message, streamType)
+			if _, ok := logEvent.Message.(string); ok {
+				logEvent.Message = stripANSI(logEvent.Message.(string))
+			}
 			logEvent.Level = guessLogLevel(logEvent)
 			g.buffer <- logEvent
 		}
