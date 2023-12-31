@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!authorizationNeeded">
+  <div>
     <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
       <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
@@ -71,7 +71,6 @@
 // @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
-const { authorizationNeeded } = config;
 
 const containerStore = useContainerStore();
 const { activeContainers } = storeToRefs(containerStore);

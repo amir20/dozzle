@@ -21,9 +21,6 @@
       >
         <mdi:cog />
       </router-link>
-      <a :href="`${base}/logout`" :title="$t('button.logout')" v-if="secured" class="btn btn-circle btn-sm">
-        <mdi:logout />
-      </a>
     </div>
     <a
       class="input input-sm mt-4 inline-flex cursor-pointer items-center gap-2 font-light hover:border-primary"
@@ -40,5 +37,5 @@
 </template>
 
 <script lang="ts" setup>
-const { base, secured, hostname } = config;
+const { hostname } = config;
 </script>
