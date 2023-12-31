@@ -299,7 +299,6 @@ func configureLogger(level string) {
 	}
 
 	log.SetFormatter(&log.TextFormatter{
-		DisableTimestamp:       true,
 		DisableLevelTruncation: true,
 	})
 
