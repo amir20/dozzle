@@ -44,6 +44,9 @@ type args struct {
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
 	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
 	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
+	AuthHeaderUser       string              `arg:"env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
+	AuthHeaderEmail      string              `arg:"env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
+	AuthHeaderName       string              `arg:"env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
@@ -168,7 +171,7 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
 		provider = web.FORWARD_PROXY
-		authorizer = auth.NewForwardProxyAuth()
+		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName)
 	} else if args.AuthProvider == "simple" {
 		provider = web.SIMPLE
 

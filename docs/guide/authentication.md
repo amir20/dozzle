@@ -178,6 +178,39 @@ notifier:
 
 Valid SSL keys are required because Authelia only supports SSL.
 
+### Setting up Dozzle with Cloudflare Zero Trust
+
+Cloudflare Zero Trust is a service for authenticated access to selfhosted
+software. This section defines how Dozzle can be setup to use Cloudflare Zero
+Trust for authentication.
+
+::: code-group
+
+```yaml [docker-compose.yml]
+version: "3.3"
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    networks:
+      - net
+    environment:
+      DOZZLE_AUTH_PROVIDER: forward-proxy
+	  DOZZLE_AUTH_HEADER_USER: Cf-Access-Authenticated-User-Email
+	  DOZZLE_AUTH_HEADER_EMAIL: Cf-Access-Authenticated-User-Email
+	  DOZZLE_AUTH_HEADER_NAME: Cf-Access-Authenticated-User-Email
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    expose:
+      - 8080
+    restart: unless-stopped
+```
+
+After running the Dozzle container, configure the Application in Cloudflare Zero
+Trust dashboard by following the
+[guide](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/)
+here.
+
 ## File Based User Management
 
 Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`. The content of the file looks like
