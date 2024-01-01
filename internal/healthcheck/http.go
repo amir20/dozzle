@@ -14,7 +14,7 @@ func HttpRequest(addr string, base string) error {
 		addr = "localhost" + addr
 	}
 
-	url := fmt.Sprintf("http://%s%s/healthcheck", addr, base)
+	url := "http://" + strings.Replace(fmt.Sprintf("%s%s/healthcheck", addr, base), "//", "/", 1)
 	log.Info("Checking health of " + url)
 	resp, err := http.Get(url)
 
