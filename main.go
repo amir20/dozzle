@@ -274,7 +274,7 @@ func parseArgs() args {
 	}
 
 	if args.Username != "" || args.Password != "" {
-		log.Fatal("Using --username and --password is removed  v6.x. See https://github.com/amir20/dozzle/issues/2630 for details.")
+		log.Fatal("Using --username and --password is removed on v6.x. See https://github.com/amir20/dozzle/issues/2630 for details.")
 	}
 	return args
 }
