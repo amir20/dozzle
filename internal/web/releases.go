@@ -17,7 +17,9 @@ func (h *handler) releases(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", "max-age=3600")
 	w.Header().Set("Content-Type", "application/json")
+
 	if err := json.NewEncoder(w).Encode(releases); err != nil {
 		log.Errorf("json encoding error while streaming %v", err.Error())
 	}
