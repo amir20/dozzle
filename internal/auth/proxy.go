@@ -15,6 +15,9 @@ type contextKey string
 const remoteUser contextKey = "remoteUser"
 
 type proxyAuthContext struct {
+	headerUser  string
+	headerEmail string
+	headerName  string
 }
 
 func hashEmail(email string) string {
@@ -25,14 +28,18 @@ func hashEmail(email string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func NewForwardProxyAuth() *proxyAuthContext {
-	return &proxyAuthContext{}
+func NewForwardProxyAuth(user, email, name string) *proxyAuthContext {
+	return &proxyAuthContext{
+		headerUser:  user,
+		headerEmail: email,
+		headerName:  name,
+	}
 }
 
 func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Remote-User") != "" {
-			user := newUser(r.Header.Get("Remote-User"), r.Header.Get("Remote-Email"), r.Header.Get("Remote-Name"))
+		if r.Header.Get(p.headerUser) != "" {
+			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName))
 			ctx := context.WithValue(r.Context(), remoteUser, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
