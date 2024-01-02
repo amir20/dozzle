@@ -184,8 +184,6 @@ Cloudflare Zero Trust is a service for authenticated access to selfhosted
 software. This section defines how Dozzle can be setup to use Cloudflare Zero
 Trust for authentication.
 
-::: code-group
-
 ```yaml [docker-compose.yml]
 version: "3.3"
 
@@ -196,9 +194,9 @@ services:
       - net
     environment:
       DOZZLE_AUTH_PROVIDER: forward-proxy
-	  DOZZLE_AUTH_HEADER_USER: Cf-Access-Authenticated-User-Email
-	  DOZZLE_AUTH_HEADER_EMAIL: Cf-Access-Authenticated-User-Email
-	  DOZZLE_AUTH_HEADER_NAME: Cf-Access-Authenticated-User-Email
+      DOZZLE_AUTH_HEADER_USER: Cf-Access-Authenticated-User-Email
+      DOZZLE_AUTH_HEADER_EMAIL: Cf-Access-Authenticated-User-Email
+      DOZZLE_AUTH_HEADER_NAME: Cf-Access-Authenticated-User-Email
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     expose:
@@ -213,9 +211,11 @@ here.
 
 ## File Based User Management
 
-Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`. The content of the file looks like
+Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
 
-```yml
+The content of the file looks like:
+
+```yaml
 users:
   # "admin" here is username
   admin:
@@ -249,6 +249,16 @@ services:
       - 8080:8080
     environment:
       DOZZLE_AUTH_PROVIDER: simple
+```
+
+```yaml [users.yml]
+users:
+  # "admin" here is username
+  admin:
+    name: "Admin"
+    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
+    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    email: me@email.net
 ```
 
 :::
