@@ -8,6 +8,62 @@ Dozzle support two configurations for authentication. In the first configuration
 
 If you do not have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag. In both of these configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
 
+## File Based User Management
+
+Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
+
+The content of the file looks like:
+
+```yaml
+users:
+  # "admin" here is username
+  admin:
+    name: "Admin"
+    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
+    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    email: me@email.net
+```
+
+Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional.
+
+The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
+
+You will need to mount this file for Dozzle to find it. Here is an example:
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple
+```
+
+```yaml [docker-compose.yml]
+version: "3"
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+```
+
+```yaml [users.yml]
+users:
+  # "admin" here is username
+  admin:
+    name: "Admin"
+    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
+    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    email: me@email.net
+```
+
+:::
+
+Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
+
 ## Forward Proxy
 
 Dozzle can be configured to read proxy headers by setting `--auth-provider` to `forward-proxy`.
@@ -208,59 +264,3 @@ After running the Dozzle container, configure the Application in Cloudflare Zero
 Trust dashboard by following the
 [guide](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/)
 here.
-
-## File Based User Management
-
-Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
-
-The content of the file looks like:
-
-```yaml
-users:
-  # "admin" here is username
-  admin:
-    name: "Admin"
-    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
-    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-    email: me@email.net
-```
-
-Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional.
-
-The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
-
-You will need to mount this file for Dozzle to find it. Here is an example:
-
-::: code-group
-
-```sh [cli]
-$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple
-```
-
-```yaml [docker-compose.yml]
-version: "3"
-services:
-  dozzle:
-    image: amir20/dozzle:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /path/to/dozzle/data:/data
-    ports:
-      - 8080:8080
-    environment:
-      DOZZLE_AUTH_PROVIDER: simple
-```
-
-```yaml [users.yml]
-users:
-  # "admin" here is username
-  admin:
-    name: "Admin"
-    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
-    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-    email: me@email.net
-```
-
-:::
-
-Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
