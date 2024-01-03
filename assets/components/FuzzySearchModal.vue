@@ -70,12 +70,6 @@ const list = computed(() => {
   });
 });
 
-watchEffect(() => {
-  list.value.forEach((element) => {
-    console.log(element);
-  });
-});
-
 const { results } = useFuse(query, list, {
   fuseOptions: {
     keys: ["name", "host", "labels"],
