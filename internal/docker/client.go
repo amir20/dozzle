@@ -190,6 +190,7 @@ func (d *Client) ListContainers() ([]Container, error) {
 			Status:  c.Status,
 			Host:    d.host.ID,
 			Health:  findBetweenParentheses(c.Status),
+			Labels:  c.Labels,
 		}
 		containers = append(containers, container)
 	}
