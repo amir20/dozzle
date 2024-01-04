@@ -16,7 +16,7 @@
       <mdi:keyboard-esc class="flex" />
     </div>
     <ul tabindex="0" class="menu dropdown-content !relative mt-2 w-full rounded-box bg-base-lighter p-2">
-      <li v-for="(item, index) in data">
+      <li v-for="({ item }, index) in data">
         <a
           class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
           @click.prevent="selected(item)"
@@ -30,7 +30,7 @@
             <template v-if="config.hosts.length > 1">
               <span class="font-light">{{ item.host }}</span> /
             </template>
-            {{ item.name }}
+            <span v-html="item.matchedName"></span>
           </div>
           <distance-time :date="item.created" class="text-xs font-light" />
           <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
@@ -79,6 +79,7 @@ const { results } = useFuse(query, list, {
     includeScore: true,
     useExtendedSearch: true,
     threshold: 0.3,
+    includeMatches: true,
   },
   resultLimit,
   matchAllWhenSearchEmpty: true,
@@ -86,7 +87,7 @@ const { results } = useFuse(query, list, {
 
 const data = computed(() => {
   return results.value
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       if (a.score === b.score) {
         if (a.item.state === "running" && b.item.state !== "running") {
           return -1;
@@ -99,7 +100,25 @@ const data = computed(() => {
         return 0;
       }
     })
-    .map(({ item }) => item)
+    .map((i) => {
+      const matches = (i.matches as [{ key: string; indices: [number, number][] }])?.find(
+        (match) => match.key === "name",
+      )?.indices;
+
+      i.item.matchedName = i.item.name;
+      if (matches) {
+        matches
+          .toSorted((a, b) => a[0] - b[0])
+          .toReversed()
+          .forEach(([start, end]) => {
+            i.item.matchedName =
+              i.item.matchedName.slice(0, start) +
+              `<mark>${i.item.matchedName.slice(start, end + 1)}</mark>` +
+              i.item.matchedName.slice(end + 1);
+          });
+      }
+      return i;
+    })
     .slice(0, resultLimit);
 });
 
@@ -121,4 +140,8 @@ function addColumn(container: { id: string }) {
 }
 </script>
 
-<style scoped lang="postcss"></style>
+<style scoped lang="postcss">
+:deep(mark) {
+  @apply bg-transparent text-inherit underline underline-offset-2;
+}
+</style>
