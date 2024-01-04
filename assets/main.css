@@ -74,7 +74,7 @@
     @apply text-lg;
   }
 
-  mark {
+  .events mark {
     @apply inline-block rounded-sm bg-secondary;
     animation: pops 200ms ease-out;
   }
