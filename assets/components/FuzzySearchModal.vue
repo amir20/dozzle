@@ -58,22 +58,24 @@ const store = useContainerStore();
 const { containers } = storeToRefs(store);
 
 const list = computed(() => {
-  return containers.value.map(({ id, created, name, state, hostLabel: host }) => {
+  return containers.value.map(({ id, created, name, state, labels, hostLabel: host }) => {
     return {
       id,
       created,
       name,
       state,
       host,
+      labels: Object.entries(labels).map(([_, value]) => value),
     };
   });
 });
 
 const { results } = useFuse(query, list, {
   fuseOptions: {
-    keys: ["name", "host"],
+    keys: ["name", "host", "labels"],
     includeScore: true,
     useExtendedSearch: true,
+    threshold: 0.3,
   },
   resultLimit,
   matchAllWhenSearchEmpty: true,
