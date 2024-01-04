@@ -27,9 +27,12 @@
             <octicon:container-24 />
           </div>
           <div class="truncate">
-            <span class="font-light">{{ item.host }}</span> / {{ item.name }}
+            <template v-if="config.hosts.length > 1">
+              <span class="font-light">{{ item.host }}</span> /
+            </template>
+            {{ item.name }}
           </div>
-          <distance-time :date="item.created" class="ml-auto text-xs font-light" />
+          <distance-time :date="item.created" class="text-xs font-light" />
           <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
             <ic:sharp-keyboard-return v-if="index === selectedIndex" />
             <cil:columns v-else />
