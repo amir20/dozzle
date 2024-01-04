@@ -75,6 +75,7 @@ const { results } = useFuse(query, list, {
     keys: ["name", "host", "labels"],
     includeScore: true,
     useExtendedSearch: true,
+    threshold: 0.3,
   },
   resultLimit,
   matchAllWhenSearchEmpty: true,
