@@ -9,7 +9,6 @@ import { createI18n } from "vue-i18n";
 
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
-import { beforeEach } from "node:test";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -47,14 +46,13 @@ function createFuzzySearchModal() {
 describe("<FuzzySearchModal />", () => {
   test("shows all", async () => {
     const wrapper = createFuzzySearchModal();
-    expect(wrapper.vm.data.length).toBe(3);
+    expect(wrapper.findAll("li").length).toBe(3);
   });
 
   test("search for foo", async () => {
     const wrapper = createFuzzySearchModal();
-    wrapper.vm.query = "foo";
-    await nextTick();
-    expect(wrapper.vm.data.length).toBe(1);
+    await wrapper.find("input").setValue("foo");
+    expect(wrapper.findAll("li").length).toBe(1);
     expect(wrapper.find("ul [data-name]").html()).toMatchInlineSnapshot(
       `"<span data-v-dc2e8c61="" data-name=""><mark>foo</mark> bar</span>"`,
     );
