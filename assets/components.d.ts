@@ -60,7 +60,6 @@ declare module 'vue' {
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
-    'Mdi:logout': typeof import('~icons/mdi/logout')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']

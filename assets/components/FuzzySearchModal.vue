@@ -16,24 +16,28 @@
       <mdi:keyboard-esc class="flex" />
     </div>
     <ul tabindex="0" class="menu dropdown-content !relative mt-2 w-full rounded-box bg-base-lighter p-2">
-      <li v-for="({ item }, index) in data">
+      <li v-for="(result, index) in data">
         <a
           class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
-          @click.prevent="selected(item)"
+          @click.prevent="selected(result.item)"
           @mouseenter="selectedIndex = index"
           :class="index === selectedIndex ? 'focus' : ''"
         >
-          <div :class="{ 'text-primary': item.state === 'running' }">
+          <div :class="{ 'text-primary': result.item.state === 'running' }">
             <octicon:container-24 />
           </div>
           <div class="truncate">
             <template v-if="config.hosts.length > 1">
-              <span class="font-light">{{ item.host }}</span> /
+              <span class="font-light">{{ result.item.host }}</span> /
             </template>
-            <span v-html="item.matchedName"></span>
+            <span data-name v-html="matchedName(result)"></span>
           </div>
-          <distance-time :date="item.created" class="text-xs font-light" />
-          <a @click.stop.prevent="addColumn(item)" :title="$t('tooltip.pin-column')" class="hover:text-secondary">
+          <distance-time :date="result.item.created" class="text-xs font-light" />
+          <a
+            @click.stop.prevent="addColumn(result.item)"
+            :title="$t('tooltip.pin-column')"
+            class="hover:text-secondary"
+          >
             <ic:sharp-keyboard-return v-if="index === selectedIndex" />
             <cil:columns v-else />
           </a>
@@ -45,8 +49,9 @@
 
 <script lang="ts" setup>
 import { useFuse } from "@vueuse/integrations/useFuse";
+import { type FuseResultMatch } from "fuse.js";
 
-const { maxResults: resultLimit = 5 } = defineProps<{
+const { maxResults = 5 } = defineProps<{
   maxResults?: number;
 }>();
 
@@ -81,7 +86,7 @@ const { results } = useFuse(query, list, {
     threshold: 0.3,
     includeMatches: true,
   },
-  resultLimit,
+  resultLimit: 10,
   matchAllWhenSearchEmpty: true,
 });
 
@@ -100,26 +105,7 @@ const data = computed(() => {
         return 0;
       }
     })
-    .map((i) => {
-      const matches = (i.matches as [{ key: string; indices: [number, number][] }])?.find(
-        (match) => match.key === "name",
-      )?.indices;
-
-      i.item.matchedName = i.item.name;
-      if (matches) {
-        matches
-          .toSorted((a, b) => a[0] - b[0])
-          .toReversed()
-          .forEach(([start, end]) => {
-            i.item.matchedName =
-              i.item.matchedName.slice(0, start) +
-              `<mark>${i.item.matchedName.slice(start, end + 1)}</mark>` +
-              i.item.matchedName.slice(end + 1);
-          });
-      }
-      return i;
-    })
-    .slice(0, resultLimit);
+    .slice(0, maxResults);
 });
 
 watch(query, (data) => {
@@ -137,6 +123,24 @@ function selected({ id }: { id: string }) {
 function addColumn(container: { id: string }) {
   store.appendActiveContainer(container);
   close();
+}
+
+function matchedName({ item, matches = [] }: { item: { name: string }; matches?: FuseResultMatch[] }) {
+  const matched = matches.find((match) => match.key === "name");
+  if (matched) {
+    const { indices } = matched;
+    const result = [];
+    let lastIndex = 0;
+    for (const [start, end] of indices) {
+      result.push(item.name.slice(lastIndex, start));
+      result.push(`<mark>${item.name.slice(start, end + 1)}</mark>`);
+      lastIndex = end + 1;
+    }
+    result.push(item.name.slice(lastIndex));
+    return result.join("");
+  } else {
+    return item.name;
+  }
 }
 </script>
 
