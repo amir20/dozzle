@@ -8,7 +8,7 @@
         ref="input"
         @keyup.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keyup.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
-        @keyup.enter.exact="selected(data[selectedIndex])"
+        @keyup.enter.exact="selected(data[selectedIndex].item)"
         @keyup.alt.enter="addColumn(data[selectedIndex])"
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
