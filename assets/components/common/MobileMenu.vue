@@ -29,9 +29,6 @@
             class="btn-sm"
             v-if="config.hosts.length > 1"
           />
-          <router-link :to="{ name: 'settings' }" class="btn btn-outline btn-sm">
-            <mdi:cog /> {{ $t("button.settings") }}
-          </router-link>
         </div>
 
         <ul class="menu">

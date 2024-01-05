@@ -12,16 +12,6 @@
       </small>
     </h1>
 
-    <div class="flex gap-4">
-      <router-link
-        :to="{ name: 'settings' }"
-        :aria-label="$t('title.settings')"
-        data-testid="settings"
-        class="btn btn-circle btn-sm"
-      >
-        <mdi:cog />
-      </router-link>
-    </div>
     <a
       class="input input-sm mt-4 inline-flex cursor-pointer items-center gap-2 font-light hover:border-primary"
       @click="$emit('search')"
