@@ -4,11 +4,15 @@ import { mount } from "@vue/test-utils";
 import FuzzySearchModal from "./FuzzySearchModal.vue";
 
 import { Container } from "@/models/Container";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { router } from "@/modules/router";
 
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
+
+vi.mock("vue-router");
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -28,8 +32,8 @@ function createFuzzySearchModal() {
             container: {
               containers: [
                 new Container("123", new Date(), "image", "test", "command", "host", {}, "status", "running"),
-                new Container("123", new Date(), "image", "foo bar", "command", "host", {}, "status", "running"),
-                new Container("123", new Date(), "image", "baz", "command", "host", {}, "status", "exited"),
+                new Container("345", new Date(), "image", "foo bar", "command", "host", {}, "status", "running"),
+                new Container("567", new Date(), "image", "baz", "command", "host", {}, "status", "exited"),
               ],
             },
           },
@@ -44,6 +48,14 @@ function createFuzzySearchModal() {
  * @vitest-environment jsdom
  */
 describe("<FuzzySearchModal />", () => {
+  vi.mocked(useRouter).mockReturnValue({
+    ...router,
+    push: vi.fn(),
+  });
+
+  beforeEach(() => {
+    vi.mocked(useRouter().push).mockReset();
+  });
   test("shows all", async () => {
     const wrapper = createFuzzySearchModal();
     expect(wrapper.findAll("li").length).toBe(3);
@@ -56,5 +68,12 @@ describe("<FuzzySearchModal />", () => {
     expect(wrapper.find("ul [data-name]").html()).toMatchInlineSnapshot(
       `"<span data-v-dc2e8c61="" data-name=""><mark>foo</mark> bar</span>"`,
     );
+  });
+
+  test("choose baz", async () => {
+    const wrapper = createFuzzySearchModal();
+    await wrapper.find("input").setValue("baz");
+    await wrapper.find("input").trigger("keyup.enter");
+    expect(useRouter().push).toHaveBeenCalledWith({ name: "container-id", params: { id: "567" } });
   });
 });
