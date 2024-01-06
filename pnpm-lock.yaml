@@ -31,7 +31,7 @@ dependencies:
     version: 2.0.0(vue-i18n@9.8.0)
   '@tailwindcss/typography':
     specifier: ^0.5.10
-    version: 0.5.10(tailwindcss@3.4.0)
+    version: 0.5.10(tailwindcss@3.4.1)
   '@vueuse/components':
     specifier: ^10.7.1
     version: 10.7.1(vue@3.4.5)
@@ -96,8 +96,8 @@ dependencies:
     specifier: ^3.1.5
     version: 3.1.5
   tailwindcss:
-    specifier: ^3.4.0
-    version: 3.4.0(ts-node@10.9.2)
+    specifier: ^3.4.1
+    version: 3.4.1(ts-node@10.9.2)
   unplugin-auto-import:
     specifier: ^0.17.3
     version: 0.17.3(@vueuse/core@10.7.1)
@@ -197,8 +197,8 @@ devDependencies:
     specifier: ^3.1.1
     version: 3.1.1
   prettier-plugin-tailwindcss:
-    specifier: ^0.5.10
-    version: 0.5.10(prettier@3.1.1)
+    specifier: ^0.5.11
+    version: 0.5.11(prettier@3.1.1)
   simple-git-hooks:
     specifier: ^2.9.0
     version: 2.9.0
@@ -1014,7 +1014,7 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
 
-  /@tailwindcss/typography@0.5.10(tailwindcss@3.4.0):
+  /@tailwindcss/typography@0.5.10(tailwindcss@3.4.1):
     resolution: {integrity: sha512-Pe8BuPJQJd3FfRnm6H0ulKIGoMEQS+Vq01R6M5aCrFB/ccR/shT+0kXLjouGC1gFLm9hopTFN+DMP0pfwRWzPw==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
@@ -1023,7 +1023,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.4.0(ts-node@10.9.2)
+      tailwindcss: 3.4.1(ts-node@10.9.2)
     dev: false
 
   /@tsconfig/node10@1.0.9:
@@ -4001,8 +4001,8 @@ packages:
     resolution: {integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==}
     dev: true
 
-  /prettier-plugin-tailwindcss@0.5.10(prettier@3.1.1):
-    resolution: {integrity: sha512-9UGSejqFxGG6brYjFfTYlJ8zs4L/lvZg1AngFfaC5Fs1otSskASv5IWKmjPu5MlABQUtTKtMArKyYr/hWpXSUg==}
+  /prettier-plugin-tailwindcss@0.5.11(prettier@3.1.1):
+    resolution: {integrity: sha512-AvI/DNyMctyyxGOjyePgi/gqj5hJYClZ1avtQvLlqMT3uDZkRbi4HhGUpok3DRzv9z7Lti85Kdj3s3/1CeNI0w==}
     engines: {node: '>=14.21.3'}
     peerDependencies:
       '@ianvs/prettier-plugin-sort-imports': '*'
@@ -4487,8 +4487,8 @@ packages:
   /tabbable@6.2.0:
     resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
 
-  /tailwindcss@3.4.0(ts-node@10.9.2):
-    resolution: {integrity: sha512-VigzymniH77knD1dryXbyxR+ePHihHociZbXnLZHUyzf2MMs2ZVqlUrZ3FvpXP8pno9JzmILt1sZPD19M3IxtA==}
+  /tailwindcss@3.4.1(ts-node@10.9.2):
+    resolution: {integrity: sha512-qAYmXRfk3ENzuPBakNK0SRrUDipP8NQnEY6772uDhflcQz5EhRdD7JNZxyrFHVQNCwULPBn6FNPp9brpO7ctcA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
