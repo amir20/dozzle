@@ -15,6 +15,15 @@
       </template>
     </dropdown>
 
+    <router-link
+      :to="{ name: 'settings' }"
+      :aria-label="$t('title.settings')"
+      data-testid="settings"
+      class="btn btn-circle btn-sm"
+    >
+      <mdi:cog />
+    </router-link>
+
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
         <img
