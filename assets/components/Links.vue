@@ -21,7 +21,7 @@
       data-testid="settings"
       class="btn btn-circle btn-sm"
     >
-      <mdi:cog />
+      <mdi:cog class="size-6" />
     </router-link>
 
     <dropdown class="dropdown-end" v-if="config.user">
