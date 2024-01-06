@@ -3,13 +3,12 @@ import { createRouter, createWebHistory } from "vue-router";
 import pages from "~pages";
 import { setupLayouts } from "virtual:generated-layouts";
 
+const routes = setupLayouts(pages);
+export const router = createRouter({
+  history: createWebHistory(withBase("/")),
+  routes,
+});
+
 export const install = (app: App) => {
-  const routes = setupLayouts(pages);
-
-  const router = createRouter({
-    history: createWebHistory(withBase("/")),
-    routes,
-  });
-
   app.use(router);
 };
