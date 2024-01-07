@@ -19,8 +19,8 @@
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <section class="grid grid-cols-2">
-        <div class="flex flex-col items-start gap-4">
+      <section class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col items-start gap-4 text-balance">
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
           <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
@@ -63,7 +63,12 @@
             {{ $t("settings.color-scheme") }}
           </div>
         </div>
-        <log-viewer :messages="fakeMessages" :visible-keys="[]" :last-selected-item="undefined" />
+        <log-viewer
+          :messages="fakeMessages"
+          :visible-keys="[]"
+          :last-selected-item="undefined"
+          class="rounded border border-base-content/50 shadow"
+        />
       </section>
     </section>
 
