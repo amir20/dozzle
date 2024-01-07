@@ -74,6 +74,10 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 			log.Fatalf("User %s has no password", username)
 		}
 
+		if len(user.Password) != 64 {
+			log.Fatalf("User %s has an invalid password hash", username)
+		}
+
 		if user.Name == "" {
 			user.Name = username
 		}
