@@ -14,59 +14,59 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <div>
-        <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
-      </div>
-      <div>
-        <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
-      </div>
-      <div>
-        <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
-      </div>
+      <section class="grid grid-cols-2">
+        <div class="flex flex-col items-start gap-4">
+          <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
-      <div>
-        <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
-      </div>
+          <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
 
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="hourStyle"
-          :options="[
-            { label: 'Auto', value: 'auto' },
-            { label: '12', value: '12' },
-            { label: '24', value: '24' },
-          ]"
-        />
-        {{ $t("settings.12-24-format") }}
-      </div>
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="size"
-          :options="[
-            { label: 'Small', value: 'small' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'Large', value: 'large' },
-          ]"
-        />
-        {{ $t("settings.font-size") }}
-      </div>
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="lightTheme"
-          :options="[
-            { label: 'Auto', value: 'auto' },
-            { label: 'Dark', value: 'dark' },
-            { label: 'Light', value: 'light' },
-          ]"
-        />
-        {{ $t("settings.color-scheme") }}
-      </div>
+          <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
+
+          <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
+
+          <div class="flex items-center gap-6">
+            <dropdown-menu
+              v-model="hourStyle"
+              :options="[
+                { label: 'Auto', value: 'auto' },
+                { label: '12', value: '12' },
+                { label: '24', value: '24' },
+              ]"
+            />
+            {{ $t("settings.12-24-format") }}
+          </div>
+          <div class="flex items-center gap-6">
+            <dropdown-menu
+              v-model="size"
+              :options="[
+                { label: 'Small', value: 'small' },
+                { label: 'Medium', value: 'medium' },
+                { label: 'Large', value: 'large' },
+              ]"
+            />
+            {{ $t("settings.font-size") }}
+          </div>
+          <div class="flex items-center gap-6">
+            <dropdown-menu
+              v-model="lightTheme"
+              :options="[
+                { label: 'Auto', value: 'auto' },
+                { label: 'Dark', value: 'dark' },
+                { label: 'Light', value: 'light' },
+              ]"
+            />
+            {{ $t("settings.color-scheme") }}
+          </div>
+        </div>
+        <log-viewer :messages="fakeMessages" :visible-keys="[]" :last-selected-item="undefined" />
+      </section>
     </section>
+
     <section class="flex flex-col gap-2">
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
@@ -89,6 +89,7 @@
 </template>
 
 <script lang="ts" setup>
+import { SimpleLogEntry } from "@/models/LogEntry";
 import {
   automaticRedirect,
   hourStyle,
@@ -106,6 +107,11 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
+
+const fakeMessages = [
+  new SimpleLogEntry("This is a test message", 1, new Date(), "info", undefined, "stdout"),
+  new SimpleLogEntry("This is a test error", 1, new Date(), "error", undefined, "stdout"),
+];
 </script>
 <style lang="postcss" scoped>
 .has-underline {

@@ -1,6 +1,6 @@
 <template>
   <log-event-source ref="source" #default="{ messages }" @loading-more="loadingMore($event)">
-    <log-viewer :messages="messages"></log-viewer>
+    <container-log-viewer :messages="messages" />
   </log-event-source>
 </template>
 
