@@ -42,7 +42,6 @@ declare module 'vue' {
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     LabeledInput: typeof import('./components/common/LabeledInput.vue')['default']
-    LabelInput: typeof import('~icons/la/bel-input')['default']
     Links: typeof import('./components/Links.vue')['default']
     LogActionsToolbar: typeof import('./components/LogViewer/LogActionsToolbar.vue')['default']
     LogContainer: typeof import('./components/LogViewer/LogContainer.vue')['default']
