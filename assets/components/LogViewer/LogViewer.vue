@@ -1,7 +1,7 @@
 <template>
   <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true }">
     <li
-      v-for="item in filtered"
+      v-for="item in messages"
       :key="item.id"
       :data-key="item.id"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
@@ -14,36 +14,14 @@
 
 <script lang="ts" setup>
 import { toRaw } from "vue";
-import { useRouteHash } from "@vueuse/router";
 
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const props = defineProps<{
+defineProps<{
   messages: LogEntry<string | JSONObject>[];
+  visibleKeys: string[][];
+  lastSelectedItem: LogEntry<string | JSONObject> | undefined;
 }>();
-
-const { container } = useContainerContext();
-
-const visibleKeys = persistentVisibleKeys(container);
-
-const { filteredPayload } = useVisibleFilter(visibleKeys);
-const { filteredMessages } = useSearchFilter();
-
-const { messages } = toRefs(props);
-const visible = filteredPayload(messages);
-const filtered = filteredMessages(visible);
-
-const { lastSelectedItem } = useLogSearchContext();
-const routeHash = useRouteHash();
-watch(
-  routeHash,
-  (hash) => {
-    if (hash) {
-      document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
-    }
-  },
-  { immediate: true, flush: "post" },
-);
 </script>
 <style scoped lang="postcss">
 .events {

@@ -14,66 +14,85 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-4">
+    <section class="flex flex-col">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <div>
-        <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
-      </div>
-      <div>
-        <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
-      </div>
-      <div>
-        <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
-      </div>
+      <section class="grid-cols-2 gap-4 md:grid">
+        <div class="flex flex-col gap-2 text-balance md:pr-8">
+          <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
-      <div>
-        <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
-      </div>
+          <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
 
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="hourStyle"
-          :options="[
-            { label: 'Auto', value: 'auto' },
-            { label: '12', value: '12' },
-            { label: '24', value: '24' },
-          ]"
+          <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
+
+          <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
+
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.12-24-format") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="hourStyle"
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: '12', value: '12' },
+                  { label: '24', value: '24' },
+                ]"
+              />
+            </template>
+          </labeled-input>
+
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.font-size") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="size"
+                :options="[
+                  { label: 'Small', value: 'small' },
+                  { label: 'Medium', value: 'medium' },
+                  { label: 'Large', value: 'large' },
+                ]"
+              />
+            </template>
+          </labeled-input>
+
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.color-scheme") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="lightTheme"
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: 'Dark', value: 'dark' },
+                  { label: 'Light', value: 'light' },
+                ]"
+              />
+            </template>
+          </labeled-input>
+        </div>
+        <log-viewer
+          :messages="fakeMessages"
+          :visible-keys="keys"
+          :last-selected-item="undefined"
+          class="mobile-hidden overflow-hidden rounded-lg border border-base-content/50 shadow"
         />
-        {{ $t("settings.12-24-format") }}
-      </div>
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="size"
-          :options="[
-            { label: 'Small', value: 'small' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'Large', value: 'large' },
-          ]"
-        />
-        {{ $t("settings.font-size") }}
-      </div>
-      <div class="flex items-center gap-6">
-        <dropdown-menu
-          v-model="lightTheme"
-          :options="[
-            { label: 'Auto', value: 'auto' },
-            { label: 'Dark', value: 'dark' },
-            { label: 'Light', value: 'light' },
-          ]"
-        />
-        {{ $t("settings.color-scheme") }}
-      </div>
+      </section>
     </section>
+
     <section class="flex flex-col gap-2">
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
       <div>
         <toggle v-model="search">
-          <div>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></div>
+          {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
         </toggle>
       </div>
 
@@ -89,6 +108,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
+
 import {
   automaticRedirect,
   hourStyle,
@@ -106,6 +127,30 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
+
+const keys = ref<string[][]>([]);
+
+const fakeMessages = [
+  new SimpleLogEntry("This is a preview of the logs", 1, new Date(), "info", undefined, "stdout"),
+  new SimpleLogEntry("A warning log looks like this", 2, new Date(), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", 3, new Date(), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", 4, new Date(), "error", "middle", "stderr"),
+  new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
+  new ComplexLogEntry(
+    {
+      message: "This is a complex log entry",
+      context: {
+        key: "value",
+        key2: "value2",
+      },
+    },
+    6,
+    new Date(),
+    "info",
+    "stdout",
+    keys,
+  ),
+];
 </script>
 <style lang="postcss" scoped>
 .has-underline {

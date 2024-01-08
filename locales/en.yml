@@ -68,9 +68,7 @@ settings:
   small-scrollbars: Use smaller scrollbars
   show-timesamps: Show timestamps
   soft-wrap: Soft wrap lines
-  12-24-format: >-
-    By default, Dozzle will use your browser's locale to format time. You can
-    force to 12 or 24 hour style.
+  12-24-format: Time format
   font-size: Font size to use for logs
   color-scheme: Color scheme
   options: Options

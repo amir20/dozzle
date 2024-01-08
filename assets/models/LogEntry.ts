@@ -9,11 +9,12 @@ export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue
 export type JSONObject = { [x: string]: JSONValue };
 export type Position = "start" | "end" | "middle" | undefined;
 export type Std = "stdout" | "stderr";
+export type Level = "debug" | "info" | "warn" | "error" | "fatal" | "trace" | "unknown";
 export interface LogEvent {
   readonly m: string | JSONObject;
   readonly ts: number;
   readonly id: number;
-  readonly l: string;
+  readonly l: Level;
   readonly p: Position;
   readonly s: "stdout" | "stderr" | "unknown";
 }
@@ -25,7 +26,7 @@ export abstract class LogEntry<T extends string | JSONObject> {
     public readonly id: number,
     public readonly date: Date,
     public readonly std: Std,
-    public readonly level?: string,
+    public readonly level?: Level,
   ) {
     this._message = message;
   }
@@ -42,7 +43,7 @@ export class SimpleLogEntry extends LogEntry<string> {
     message: string,
     id: number,
     date: Date,
-    public readonly level: string,
+    public readonly level: Level,
     public readonly position: Position,
     public readonly std: Std,
   ) {
@@ -60,7 +61,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     message: JSONObject,
     id: number,
     date: Date,
-    public readonly level: string,
+    public readonly level: Level,
     public readonly std: Std,
     visibleKeys?: Ref<string[][]>,
   ) {
