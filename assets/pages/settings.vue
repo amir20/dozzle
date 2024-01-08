@@ -67,7 +67,7 @@
           :messages="fakeMessages"
           :visible-keys="keys"
           :last-selected-item="undefined"
-          class="mobile-hidden rounded border border-base-content/50 shadow"
+          class="mobile-hidden rounded-lg border border-base-content/50 shadow"
         />
       </section>
     </section>
