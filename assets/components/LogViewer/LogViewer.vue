@@ -17,7 +17,7 @@ import { toRaw } from "vue";
 
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const props = defineProps<{
+defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: string[][];
   lastSelectedItem: LogEntry<string | JSONObject> | undefined;
