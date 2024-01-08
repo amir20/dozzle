@@ -20,7 +20,7 @@
       </div>
 
       <section class="grid-cols-2 gap-4 md:grid">
-        <div class="flex flex-col gap-2 text-balance pr-8">
+        <div class="flex flex-col gap-2 text-balance md:pr-8">
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
           <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
@@ -29,45 +29,59 @@
 
           <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
 
-          <div class="flex items-center gap-6">
-            <dropdown-menu
-              v-model="hourStyle"
-              :options="[
-                { label: 'Auto', value: 'auto' },
-                { label: '12', value: '12' },
-                { label: '24', value: '24' },
-              ]"
-            />
-            {{ $t("settings.12-24-format") }}
-          </div>
-          <div class="flex items-center gap-6">
-            <dropdown-menu
-              v-model="size"
-              :options="[
-                { label: 'Small', value: 'small' },
-                { label: 'Medium', value: 'medium' },
-                { label: 'Large', value: 'large' },
-              ]"
-            />
-            {{ $t("settings.font-size") }}
-          </div>
-          <div class="flex items-center gap-6">
-            <dropdown-menu
-              v-model="lightTheme"
-              :options="[
-                { label: 'Auto', value: 'auto' },
-                { label: 'Dark', value: 'dark' },
-                { label: 'Light', value: 'light' },
-              ]"
-            />
-            {{ $t("settings.color-scheme") }}
-          </div>
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.12-24-format") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="hourStyle"
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: '12', value: '12' },
+                  { label: '24', value: '24' },
+                ]"
+              />
+            </template>
+          </labeled-input>
+
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.font-size") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="size"
+                :options="[
+                  { label: 'Small', value: 'small' },
+                  { label: 'Medium', value: 'medium' },
+                  { label: 'Large', value: 'large' },
+                ]"
+              />
+            </template>
+          </labeled-input>
+
+          <labeled-input>
+            <template #label>
+              {{ $t("settings.color-scheme") }}
+            </template>
+            <template #input>
+              <dropdown-menu
+                v-model="lightTheme"
+                :options="[
+                  { label: 'Auto', value: 'auto' },
+                  { label: 'Dark', value: 'dark' },
+                  { label: 'Light', value: 'light' },
+                ]"
+              />
+            </template>
+          </labeled-input>
         </div>
         <log-viewer
           :messages="fakeMessages"
           :visible-keys="keys"
           :last-selected-item="undefined"
-          class="mobile-hidden rounded-lg border border-base-content/50 shadow"
+          class="mobile-hidden overflow-hidden rounded-lg border border-base-content/50 shadow"
         />
       </section>
     </section>

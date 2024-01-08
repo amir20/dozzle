@@ -1,8 +1,12 @@
 <template>
-  <label class="label cursor-pointer gap-4">
-    <div class="label-text"><slot /></div>
-    <input type="checkbox" class="toggle toggle-primary" v-model="modelValue" />
-  </label>
+  <labeled-input>
+    <template #label>
+      <slot />
+    </template>
+    <template #input>
+      <input type="checkbox" class="toggle toggle-primary" v-model="modelValue" />
+    </template>
+  </labeled-input>
 </template>
 
 <script lang="ts" setup>
