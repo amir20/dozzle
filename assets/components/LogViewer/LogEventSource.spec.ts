@@ -10,7 +10,7 @@ import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
 import LogEventSource from "./LogEventSource.vue";
-import LogViewer from "./LogViewer.vue";
+import ContainerLogViewer from "./ContainerLogViewer.vue";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -71,7 +71,7 @@ describe("<LogEventSource />", () => {
       global: {
         plugins: [router, createTestingPinia({ createSpy: vi.fn }), createI18n({})],
         components: {
-          LogViewer,
+          ContainerLogViewer,
         },
         provide: {
           [containerContext as symbol]: {
@@ -83,7 +83,7 @@ describe("<LogEventSource />", () => {
       },
       slots: {
         default: `
-        <template #scoped="params"><log-viewer :messages="params.messages"></log-viewer></template>
+        <template #scoped="params"><container-log-viewer :messages="params.messages" /></template>
         `,
       },
       props: {},
