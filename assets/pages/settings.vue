@@ -151,7 +151,7 @@ const fakeMessages = [
   new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
   new ComplexLogEntry(
     {
-      message: "This is a complex log entry",
+      message: "This is a complex log entry as json",
       context: {
         key: "value",
         key2: "value2",
@@ -162,6 +162,14 @@ const fakeMessages = [
     "info",
     "stdout",
     keys,
+  ),
+  new SimpleLogEntry(
+    "This is a very very long message which would wrap by default. Disabeling soft wraps would disable this.",
+    7,
+    new Date(),
+    "debug",
+    undefined,
+    "stderr",
   ),
 ];
 </script>
