@@ -19,7 +19,7 @@
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <section class="grid grid-cols-2 gap-4">
+      <section class="grid-cols-2 gap-4 md:grid">
         <div class="flex flex-col items-start gap-4 text-balance">
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
@@ -67,7 +67,7 @@
           :messages="fakeMessages"
           :visible-keys="[]"
           :last-selected-item="undefined"
-          class="rounded border border-base-content/50 shadow"
+          class="mobile-hidden rounded border border-base-content/50 shadow"
         />
       </section>
     </section>
@@ -114,8 +114,11 @@ setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
 
 const fakeMessages = [
-  new SimpleLogEntry("This is a test message", 1, new Date(), "info", undefined, "stdout"),
-  new SimpleLogEntry("This is a test error", 1, new Date(), "error", undefined, "stdout"),
+  new SimpleLogEntry("This is a preview of the logs", 1, new Date(), "info", undefined, "stdout"),
+  new SimpleLogEntry("A warning log looks like this", 1, new Date(), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", 1, new Date(), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", 1, new Date(), "error", "middle", "stderr"),
+  new SimpleLogEntry("and finally third line.", 1, new Date(), "error", "end", "stderr"),
 ];
 </script>
 <style lang="postcss" scoped>
