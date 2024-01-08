@@ -65,7 +65,7 @@
         </div>
         <log-viewer
           :messages="fakeMessages"
-          :visible-keys="[]"
+          :visible-keys="keys"
           :last-selected-item="undefined"
           class="mobile-hidden rounded border border-base-content/50 shadow"
         />
@@ -94,7 +94,8 @@
 </template>
 
 <script lang="ts" setup>
-import { SimpleLogEntry } from "@/models/LogEntry";
+import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
+
 import {
   automaticRedirect,
   hourStyle,
@@ -113,12 +114,28 @@ const { t } = useI18n();
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
 
+const keys = ref<string[][]>([]);
+
 const fakeMessages = [
   new SimpleLogEntry("This is a preview of the logs", 1, new Date(), "info", undefined, "stdout"),
-  new SimpleLogEntry("A warning log looks like this", 1, new Date(), "warn", undefined, "stdout"),
-  new SimpleLogEntry("This is a multi line error message", 1, new Date(), "error", "start", "stderr"),
-  new SimpleLogEntry("with a second line", 1, new Date(), "error", "middle", "stderr"),
-  new SimpleLogEntry("and finally third line.", 1, new Date(), "error", "end", "stderr"),
+  new SimpleLogEntry("A warning log looks like this", 2, new Date(), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", 3, new Date(), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", 4, new Date(), "error", "middle", "stderr"),
+  new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
+  new ComplexLogEntry(
+    {
+      message: "This is a complex log entry",
+      context: {
+        key: "value",
+        key2: "value2",
+      },
+    },
+    6,
+    new Date(),
+    "info",
+    "stdout",
+    keys,
+  ),
 ];
 </script>
 <style lang="postcss" scoped>
