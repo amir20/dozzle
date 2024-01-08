@@ -20,7 +20,7 @@
       </div>
 
       <section class="grid-cols-2 gap-4 md:grid">
-        <div class="flex flex-col items-start gap-4 text-balance">
+        <div class="flex flex-col gap-2 text-balance pr-8">
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
           <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
@@ -78,7 +78,7 @@
       </div>
       <div>
         <toggle v-model="search">
-          <div>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></div>
+          {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
         </toggle>
       </div>
 

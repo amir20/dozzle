@@ -1,7 +1,7 @@
 <template>
-  <label class="label inline-flex cursor-pointer gap-4 font-normal">
+  <label class="label cursor-pointer gap-4">
+    <div class="label-text"><slot /></div>
     <input type="checkbox" class="toggle toggle-primary" v-model="modelValue" />
-    <slot />
   </label>
 </template>
 
