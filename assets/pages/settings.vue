@@ -164,7 +164,7 @@ const fakeMessages = [
     keys,
   ),
   new SimpleLogEntry(
-    "This is a very very long message which would wrap by default. Disabeling soft wraps would disable this.",
+    "This is a very very long message which would wrap by default. Disabling soft wraps would disable this.",
     7,
     new Date(),
     "debug",
