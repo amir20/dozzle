@@ -31,17 +31,29 @@
 
           <labeled-input>
             <template #label>
-              {{ $t("settings.12-24-format") }}
+              {{ $t("settings.datetime-format") }}
             </template>
             <template #input>
-              <dropdown-menu
-                v-model="hourStyle"
-                :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: '12', value: '12' },
-                  { label: '24', value: '24' },
-                ]"
-              />
+              <div class="flex gap-2">
+                <dropdown-menu
+                  v-model="dateLocale"
+                  :options="[
+                    { label: 'Auto', value: 'auto' },
+                    { label: 'MM/DD/YYYY', value: 'en-US' },
+                    { label: 'DD/MM/YYYY', value: 'en-GB' },
+                    { label: 'DD.MM.YYYY', value: 'de-DE' },
+                    { label: 'YYYY-MM-DD', value: 'en-CA' },
+                  ]"
+                />
+                <dropdown-menu
+                  v-model="hourStyle"
+                  :options="[
+                    { label: 'Auto', value: 'auto' },
+                    { label: '12', value: '12' },
+                    { label: '24', value: '24' },
+                  ]"
+                />
+              </div>
             </template>
           </labeled-input>
 
@@ -113,6 +125,7 @@ import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
 import {
   automaticRedirect,
   hourStyle,
+  dateLocale,
   lightTheme,
   search,
   showAllContainers,

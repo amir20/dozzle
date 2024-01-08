@@ -68,7 +68,7 @@ settings:
   small-scrollbars: Use smaller scrollbars
   show-timesamps: Show timestamps
   soft-wrap: Soft wrap lines
-  12-24-format: Time format
+  datetime-format: Override date and time format
   font-size: Font size to use for logs
   color-scheme: Color scheme
   options: Options

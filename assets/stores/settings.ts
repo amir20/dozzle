@@ -10,6 +10,7 @@ export type Settings = {
   showAllContainers: boolean;
   lightTheme: "auto" | "dark" | "light";
   hourStyle: "auto" | "24" | "12";
+  dateLocale: "auto" | "en-US" | "en-GB" | "de-DE" | "en-CA";
   softWrap: boolean;
   collapseNav: boolean;
   automaticRedirect: boolean;
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showAllContainers: false,
   lightTheme: "auto",
   hourStyle: "auto",
+  dateLocale: "auto",
   softWrap: true,
   collapseNav: false,
   automaticRedirect: true,
@@ -35,6 +37,7 @@ export const {
   collapseNav,
   softWrap,
   hourStyle,
+  dateLocale,
   lightTheme,
   showAllContainers,
   showTimestamp,
