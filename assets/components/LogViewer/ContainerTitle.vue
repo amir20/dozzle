@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-1 items-center gap-1.5 truncate md:gap-2">
+  <div class="flex flex-1 items-center gap-1.5 truncate @container md:gap-2">
     <label class="swap swap-rotate">
       <input type="checkbox" v-model="pinned" />
       <carbon:star-filled class="swap-on text-secondary" />
@@ -18,7 +18,9 @@
       </div>
     </div>
     <container-health :health="container.health" v-if="container.health"></container-health>
-    <tag class="mobile-hidden font-mono" size="small">{{ container.image.replace(/@sha.*/, "") }}</tag>
+    <tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+      {{ container.image.replace(/@sha.*/, "") }}
+    </tag>
   </div>
 </template>
 
