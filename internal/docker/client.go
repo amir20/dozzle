@@ -223,20 +223,29 @@ func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- Con
 				log.Errorf("decoder for stats api returned an unknown error %v", err)
 			}
 
-			ncpus := uint8(v.CPUStats.OnlineCPUs)
-			if ncpus == 0 {
-				ncpus = uint8(len(v.CPUStats.CPUUsage.PercpuUsage))
+			var cpuPercent, memPercent, memUsage int64
+			daemonOSType := response.OSType
+
+			if daemonOSType != "windows" {
+				ncpus := uint8(v.CPUStats.OnlineCPUs)
+				if ncpus == 0 {
+					ncpus = uint8(len(v.CPUStats.CPUUsage.PercpuUsage))
+				}
+
+				var (
+					cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
+					systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
+				)
+				cpuPercent = int64((cpuDelta / systemDelta) * float64(ncpus) * 100)
+				memUsage = int64(calculateMemUsageUnixNoCache(v.MemoryStats))
+				memPercent = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
+			} else {
+				cpuPercent = int64(calculateCPUPercentWindows(v))
+				memUsage = int64(v.MemoryStats.PrivateWorkingSet)
+				memPercent = int64(float64(memUsage) / float64(v.MemoryStats.PrivateWorkingSet) * 100)
 			}
 
-			var (
-				cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
-				systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
-				cpuPercent  = int64((cpuDelta / systemDelta) * float64(ncpus) * 100)
-				memUsage    = int64(calculateMemUsageUnixNoCache(v.MemoryStats))
-				memPercent  = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
-			)
-
-			log.Tracef("containerId = %s, cpuPercent = %d, memPercent = %d, memUsage = %d", id, cpuPercent, memPercent, memUsage)
+			log.Tracef("containerId = %s, cpuPercent = %d, memPercent = %d, memUsage = %d, daemonOSType = %s", id, cpuPercent, memPercent, memUsage, daemonOSType)
 
 			if cpuPercent > 0 || memUsage > 0 {
 				select {
