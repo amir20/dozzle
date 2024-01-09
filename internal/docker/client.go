@@ -223,31 +223,29 @@ func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- Con
 				log.Errorf("decoder for stats api returned an unknown error %v", err)
 			}
 
-			var cpuPercent, memPercent, memUsage int64
+			var (
+				memPercent, cpuPercent float64
+				mem, memLimit          float64
+				previousCPU            uint64
+				previousSystem         uint64
+			)
 			daemonOSType := response.OSType
 
 			if daemonOSType != "windows" {
-				ncpus := uint8(v.CPUStats.OnlineCPUs)
-				if ncpus == 0 {
-					ncpus = uint8(len(v.CPUStats.CPUUsage.PercpuUsage))
-				}
-
-				var (
-					cpuDelta    = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(v.PreCPUStats.CPUUsage.TotalUsage)
-					systemDelta = float64(v.CPUStats.SystemUsage) - float64(v.PreCPUStats.SystemUsage)
-				)
-				cpuPercent = int64((cpuDelta / systemDelta) * float64(ncpus) * 100)
-				memUsage = int64(calculateMemUsageUnixNoCache(v.MemoryStats))
-				memPercent = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
+				previousCPU = v.PreCPUStats.CPUUsage.TotalUsage
+				previousSystem = v.PreCPUStats.SystemUsage
+				cpuPercent = calculateCPUPercentUnix(previousCPU, previousSystem, v)
+				mem = calculateMemUsageUnixNoCache(v.MemoryStats)
+				memLimit = float64(v.MemoryStats.Limit)
+				memPercent = calculateMemPercentUnixNoCache(memLimit, mem)
 			} else {
-				cpuPercent = int64(calculateCPUPercentWindows(v))
-				memUsage = int64(v.MemoryStats.PrivateWorkingSet)
-				memPercent = int64(float64(memUsage) / float64(v.MemoryStats.PrivateWorkingSet) * 100)
+				cpuPercent = calculateCPUPercentWindows(v)
+				mem = float64(v.MemoryStats.PrivateWorkingSet)
 			}
 
-			log.Tracef("containerId = %s, cpuPercent = %d, memPercent = %d, memUsage = %d, daemonOSType = %s", id, cpuPercent, memPercent, memUsage, daemonOSType)
+			log.Tracef("containerId = %s, cpuPercent = %f, memPercent = %f, memUsage = %f, daemonOSType = %s", id, cpuPercent, memPercent, mem, daemonOSType)
 
-			if cpuPercent > 0 || memUsage > 0 {
+			if cpuPercent > 0 || mem > 0 {
 				select {
 				case <-ctx.Done():
 					return
@@ -255,7 +253,7 @@ func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- Con
 					ID:            id,
 					CPUPercent:    cpuPercent,
 					MemoryPercent: memPercent,
-					MemoryUsage:   memUsage,
+					MemoryUsage:   mem,
 				}:
 				}
 			}

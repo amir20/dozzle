@@ -23,10 +23,10 @@ type Container struct {
 
 // ContainerStat represent stats instant for a container
 type ContainerStat struct {
-	ID            string `json:"id"`
-	CPUPercent    int64  `json:"cpu"`
-	MemoryPercent int64  `json:"memory"`
-	MemoryUsage   int64  `json:"memoryUsage"`
+	ID            string  `json:"id"`
+	CPUPercent    float64 `json:"cpu"`
+	MemoryPercent float64 `json:"memory"`
+	MemoryUsage   float64 `json:"memoryUsage"`
 }
 
 // ContainerEvent represents events that are triggered

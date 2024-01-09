@@ -31,3 +31,31 @@ func calculateCPUPercentWindows(v *types.StatsJSON) float64 {
 	}
 	return 0.00
 }
+
+func calculateMemPercentUnixNoCache(limit float64, usedNoCache float64) float64 {
+	// MemoryStats.Limit will never be 0 unless the container is not running and we haven't
+	// got any data from cgroup
+	if limit != 0 {
+		return usedNoCache / limit * 100.0
+	}
+	return 0
+}
+
+func calculateCPUPercentUnix(previousCPU, previousSystem uint64, v *types.StatsJSON) float64 {
+	var (
+		cpuPercent = 0.0
+		// calculate the change for the cpu usage of the container in between readings
+		cpuDelta = float64(v.CPUStats.CPUUsage.TotalUsage) - float64(previousCPU)
+		// calculate the change for the entire system between readings
+		systemDelta = float64(v.CPUStats.SystemUsage) - float64(previousSystem)
+		onlineCPUs  = float64(v.CPUStats.OnlineCPUs)
+	)
+
+	if onlineCPUs == 0.0 {
+		onlineCPUs = float64(len(v.CPUStats.CPUUsage.PercpuUsage))
+	}
+	if systemDelta > 0.0 && cpuDelta > 0.0 {
+		cpuPercent = (cpuDelta / systemDelta) * onlineCPUs * 100.0
+	}
+	return cpuPercent
+}
