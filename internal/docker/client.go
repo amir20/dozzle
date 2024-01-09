@@ -236,6 +236,8 @@ func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- Con
 				memPercent  = int64(float64(memUsage) / float64(v.MemoryStats.Limit) * 100)
 			)
 
+			log.Tracef("containerId = %s, cpuPercent = %d, memPercent = %d, memUsage = %d", id, cpuPercent, memPercent, memUsage)
+
 			if cpuPercent > 0 || memUsage > 0 {
 				select {
 				case <-ctx.Done():
