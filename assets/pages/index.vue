@@ -7,7 +7,7 @@
           <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
         </div>
         <div class="stat">
-          <div class="stat-value">{{ totalCpu }}%</div>
+          <div class="stat-value">{{ totalCpu.toFixed(0) }}%</div>
           <div class="stat-title">{{ $t("label.total-cpu-usage") }}</div>
         </div>
         <div class="stat">
