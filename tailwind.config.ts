@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import DaisyUI from "daisyui";
 import Typography from "@tailwindcss/typography";
+import Container from "@tailwindcss/container-queries";
 
 export default {
   future: {
@@ -27,7 +28,7 @@ export default {
       },
     },
   },
-  plugins: [DaisyUI, Typography],
+  plugins: [DaisyUI, Typography, Container],
   daisyui: {
     themes: [],
     base: false,

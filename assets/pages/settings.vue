@@ -14,13 +14,13 @@
       </div>
     </section>
 
-    <section class="flex flex-col">
+    <section class="flex flex-col @container">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>
       </div>
 
-      <section class="grid-cols-2 gap-4 md:grid">
-        <div class="flex flex-col gap-2 text-balance md:pr-8">
+      <section class="grid-cols-2 gap-4 @3xl:grid">
+        <div class="flex flex-col gap-2 text-balance @3xl:pr-8">
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
           <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
@@ -93,7 +93,7 @@
           :messages="fakeMessages"
           :visible-keys="keys"
           :last-selected-item="undefined"
-          class="mobile-hidden overflow-hidden rounded-lg border border-base-content/50 shadow"
+          class="hidden overflow-hidden rounded-lg border border-base-content/50 shadow @3xl:block"
         />
       </section>
     </section>
