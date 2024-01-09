@@ -31,6 +31,7 @@
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
               active-class="active-primary"
+              @click.alt.stop.prevent="store.appendActiveContainer(item)"
               :title="item.name"
             >
               <div class="truncate">
