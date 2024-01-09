@@ -1,9 +1,9 @@
 <template>
   <div class="relative hover:text-secondary" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
-    <div class="mobile-hidden flex overflow-hidden rounded-sm border border-primary px-px pb-px pt-1">
+    <div class="hidden overflow-hidden rounded-sm border border-primary px-px pb-px pt-1 md:flex">
       <stat-sparkline :data="data" @selected-point="onSelectedPoint"></stat-sparkline>
     </div>
-    <div class="inline-flex gap-1 rounded bg-base p-px text-xs lg:absolute lg:-left-0.5 lg:-top-2">
+    <div class="inline-flex gap-1 rounded bg-base p-px text-xs md:absolute md:-left-0.5 md:-top-2">
       <div class="font-light uppercase">{{ label }}</div>
       <div class="select-none font-bold">
         {{ mouseOver ? selectedPoint?.value ?? selectedPoint?.y ?? statValue : statValue }}
