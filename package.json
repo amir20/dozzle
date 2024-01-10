@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.14.0",
+ "packageManager": "pnpm@8.14.1",
  "type": "module",
  "repository": {
   "type": "git",
@@ -34,7 +34,7 @@
   "@iconify-json/mdi": "^1.1.64",
   "@iconify-json/mdi-light": "^1.1.10",
   "@iconify-json/octicon": "^1.1.52",
-  "@iconify-json/ph": "^1.1.9",
+  "@iconify-json/ph": "^1.1.10",
   "@intlify/unplugin-vue-i18n": "^2.0.0",
   "@tailwindcss/container-queries": "^0.1.1",
   "@tailwindcss/typography": "^0.5.10",
@@ -67,7 +67,7 @@
   "vite": "5.0.11",
   "vite-plugin-pages": "^0.32.0",
   "vite-plugin-vue-layouts": "^0.11.0",
-  "vue": "^3.4.7",
+  "vue": "^3.4.8",
   "vue-i18n": "^9.9.0",
   "vue-router": "^4.2.5"
  },
@@ -83,8 +83,8 @@
   "@types/lodash.debounce": "^4.0.9",
   "@types/node": "^20.10.8",
   "@types/semver": "^7.5.6",
-  "@vitejs/plugin-vue": "5.0.2",
-  "@vue/compiler-sfc": "^3.4.7",
+  "@vitejs/plugin-vue": "5.0.3",
+  "@vue/compiler-sfc": "^3.4.8",
   "@vue/test-utils": "^2.4.3",
   "bumpp": "^9.2.1",
   "c8": "^9.0.0",
