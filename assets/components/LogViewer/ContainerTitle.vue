@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-1 items-center gap-1.5 truncate @container md:gap-2">
-    <label class="swap swap-rotate">
+  <div class="flex flex-1 gap-1.5 truncate @container md:gap-2">
+    <label class="swap swap-rotate size-4">
       <input type="checkbox" v-model="pinned" />
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
