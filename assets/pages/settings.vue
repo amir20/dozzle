@@ -142,12 +142,17 @@ setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
 
 const keys = ref<string[][]>([]);
+const hoursAgo = (hours: number) => {
+  const date = new Date();
+  date.setHours(date.getHours() - hours);
+  return date;
+};
 
 const fakeMessages = [
-  new SimpleLogEntry("This is a preview of the logs", 1, new Date(), "info", undefined, "stdout"),
-  new SimpleLogEntry("A warning log looks like this", 2, new Date(), "warn", undefined, "stdout"),
-  new SimpleLogEntry("This is a multi line error message", 3, new Date(), "error", "start", "stderr"),
-  new SimpleLogEntry("with a second line", 4, new Date(), "error", "middle", "stderr"),
+  new SimpleLogEntry("This is a preview of the logs", 1, hoursAgo(16), "info", undefined, "stdout"),
+  new SimpleLogEntry("A warning log looks like this", 2, hoursAgo(12), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", 3, hoursAgo(7), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", 4, hoursAgo(2), "error", "middle", "stderr"),
   new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
   new ComplexLogEntry(
     {
@@ -164,7 +169,7 @@ const fakeMessages = [
     keys,
   ),
   new SimpleLogEntry(
-    "This is a very very long message which would wrap by default. Disabling soft wraps would disable this.",
+    "This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
     7,
     new Date(),
     "debug",
