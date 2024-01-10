@@ -1,6 +1,6 @@
 <template>
   <transition name="slide">
-    <div class="fixed right-px top-12 z-10 flex items-center p-4" v-show="showSearch" v-if="search">
+    <div class="fixed right-4 top-2 z-10 flex items-center" v-show="showSearch" v-if="search">
       <div class="input input-primary flex h-auto items-center !shadow-lg">
         <mdi:magnify />
         <input
