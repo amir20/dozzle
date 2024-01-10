@@ -14,14 +14,23 @@ const dateOverride = computed(() => (dateLocale.value === "auto" ? undefined : d
 const dateFormatter = computed(
   () => new Intl.DateTimeFormat(dateOverride.value, { day: "2-digit", month: "2-digit", year: "numeric" }),
 );
-const use12Hour = computed(() => ({ auto: undefined, "12": true, "24": false })[hourStyle.value]);
+const hourCycle = computed(() => {
+  switch (hourStyle.value) {
+    case "auto":
+      return undefined;
+    case "12":
+      return "h12";
+    case "24":
+      return "h23";
+  }
+});
 const timeFormatter = computed(
   () =>
     new Intl.DateTimeFormat(undefined, {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: use12Hour.value,
+      hourCycle: hourCycle.value,
     }),
 );
 
