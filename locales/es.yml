@@ -4,6 +4,9 @@ toolbar:
   search: Buscar
   show: Mostrar sólo {std}
   show-all: Mostrar todos los flujos
+  stop: Detener
+  start: Iniciar
+  restart: Reiniciar
 label:
   containers: Contenedores
   total-containers: Contenedores Totales
@@ -20,6 +23,7 @@ label:
   created: Creado
   avg-cpu: Promedio de CPU (%)
   avg-mem: Promedio de MEM (%)
+  pinned: Fijado
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna
@@ -61,6 +65,7 @@ settings:
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
   show-timesamps: Mostrar marcas de tiempo
   soft-wrap: Líneas de texto con ajuste suave
+  datetime-format: Sobrescribir el formato de fecha y hora
   12-24-format: >-
     Por defecto, Dozzle utilizará la configuración regional de tu navegador para formatear la hora. Usted puede
     forzar el estilo de 12 o 24 horas.
@@ -86,6 +91,7 @@ releases:
   no_releases: No hay lanzamientos
 log_actions:
   copy_log: Copiar registro
+  jump_to_context: Ir al contexto
 toasts:
   copied:
     title: Copiado
