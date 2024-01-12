@@ -3,7 +3,7 @@ services:
   custom_base:
     container_name: custom_base
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - DOZZLE_FILTER=name=custom_base
       - DOZZLE_BASE=/foobarbase
@@ -15,7 +15,7 @@ services:
   simple-auth:
     container_name: simple-auth
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./e2e/data:/data
     environment:
       - DOZZLE_AUTH_PROVIDER=simple
@@ -25,7 +25,7 @@ services:
   dozzle:
     container_name: dozzle
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - DOZZLE_FILTER=name=dozzle
       - DOZZLE_NO_ANALYTICS=1
@@ -50,7 +50,7 @@ services:
     container_name: proxy
     image: tecnativa/docker-socket-proxy
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - CONTAINERS=1
     ports:
