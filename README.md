@@ -31,7 +31,7 @@ Dozzle is a small container (4 MB compressed). Pull the latest release with:
 
 The simplest way to use dozzle is to run the docker container. Also, mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
-    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest
+    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock:ro -p 8888:8080 amir20/dozzle:latest
 
 Dozzle will be available at [http://localhost:8888/](http://localhost:8888/).
 
@@ -43,7 +43,7 @@ Here is the Docker Compose file:
         container_name: dozzle
         image: amir20/dozzle:latest
         volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
+          - /var/run/docker.sock:/var/run/docker.sock:ro
         ports:
           - 8888:8080
 
@@ -76,7 +76,7 @@ If it's not enabled please follow [this tutorial](https://github.com/containers/
 Once you have the podman remote socket you can run Dozzle on podman.
 
 ```
-podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8888:8080 amir20/dozzle:latest
+podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro -d -p 8888:8080 amir20/dozzle:latest
 ```
 
 ## Security
