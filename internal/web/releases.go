@@ -22,7 +22,7 @@ func (h *handler) releases(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Warnf("error reading releases: %v", err)
+		log.Debugf("error reading releases: %v", err)
 		return
 	}
 
