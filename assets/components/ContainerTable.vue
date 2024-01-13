@@ -95,10 +95,11 @@ const fields = {
   },
 };
 
-const { containers, perPage = 15 } = defineProps<{
+const { containers, perPage = 1000 } = defineProps<{
   containers: Container[];
   perPage?: number;
 }>();
+
 type keys = keyof typeof fields;
 
 const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CONTAINERS_SORT", {
