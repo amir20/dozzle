@@ -1,5 +1,14 @@
 !
 <template>
+  <div class="text-right">
+    Show per page
+    <dropdown-menu
+      class="dropdown-left"
+      v-model="perPage"
+      :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
+      v-if="containers.length > 0"
+    />
+  </div>
   <table class="table table-lg bg-base">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
@@ -95,11 +104,13 @@ const fields = {
   },
 };
 
-const { containers, perPage = 15 } = defineProps<{
+const { containers } = defineProps<{
   containers: Container[];
-  perPage?: number;
 }>();
 type keys = keyof typeof fields;
+
+const perPage = ref(15);
+const pageSizes = [15, 30, 50, 100];
 
 const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CONTAINERS_SORT", {
   column: "created",
@@ -115,12 +126,12 @@ const sortedContainers = computedWithControl(
   },
 );
 
-const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage));
+const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage.value));
 const isPaginated = computed(() => totalPages.value > 1);
 const currentPage = ref(1);
 const paginated = computed(() => {
-  const start = (currentPage.value - 1) * perPage;
-  const end = start + perPage;
+  const start = (currentPage.value - 1) * perPage.value;
+  const end = start + perPage.value;
 
   return sortedContainers.value.slice(start, end);
 });

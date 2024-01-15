@@ -1,9 +1,9 @@
 <template>
   <details class="dropdown" ref="details" v-on-click-outside="close">
     <summary class="btn btn-primary flex-nowrap" v-bind="$attrs">
-      <slot name="trigger"> {{ values[modelValue] ?? defaultLabel }} <carbon:caret-down /></slot>
+      <slot name="trigger"> {{ label }} <carbon:caret-down /></slot>
     </summary>
-    <ul class="menu dropdown-content rounded-box z-50 mt-1 w-52 border border-base-content/20 bg-base p-2 shadow">
+    <ul class="menu dropdown-content z-50 mt-1 w-52 rounded-box border border-base-content/20 bg-base p-2 shadow">
       <slot>
         <li v-for="item in options">
           <a @click="modelValue = item.value">
@@ -17,27 +17,18 @@
   </details>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 import { vOnClickOutside } from "@vueuse/components";
 type DropdownItem = {
   label: string;
-  value: string;
+  value: T;
 };
 const { options = [], defaultLabel = "" } = defineProps<{ options?: DropdownItem[]; defaultLabel?: string }>();
 const { modelValue } = defineModels<{
-  modelValue: string;
+  modelValue: T;
 }>();
 
-const values = computed(() =>
-  options.reduce(
-    (acc, curr) => {
-      acc[curr.value] = curr.label;
-      return acc;
-    },
-    {} as Record<string, string>,
-  ),
-);
-
+const label = computed(() => options.find((item) => item.value === modelValue.value)?.label ?? defaultLabel);
 const details = ref<HTMLElement | null>(null);
 const close = () => details.value?.removeAttribute("open");
 watch(modelValue, () => close());
