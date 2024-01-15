@@ -109,7 +109,7 @@ const { containers } = defineProps<{
 }>();
 type keys = keyof typeof fields;
 
-const perPage = ref(15);
+const perPage = useStorage("DOZZLE_TABLE_PAGE_SIZE", 15);
 const pageSizes = [15, 30, 50, 100];
 
 const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CONTAINERS_SORT", {
