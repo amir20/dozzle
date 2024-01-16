@@ -192,7 +192,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 					}
 					data[string(key)] = string(value)
 				}
-				if allValid {
+				if allValid && len(data) > 0 {
 					logEvent.Message = data
 				}
 			}
