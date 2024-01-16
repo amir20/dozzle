@@ -181,6 +181,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			} else {
 				decoder := logfmt.NewDecoder(strings.NewReader(message))
 				data := make(map[string]string)
+				decoder.ScanRecord()
 				for decoder.ScanKeyval() {
 					key := decoder.Key()
 					value := decoder.Value()
