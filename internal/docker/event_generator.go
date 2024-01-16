@@ -13,8 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-logfmt/logfmt"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -177,17 +175,6 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						}
 					}
 				} else {
-					logEvent.Message = data
-				}
-			} else {
-				decoder := logfmt.NewDecoder(strings.NewReader(message))
-				if decoder.ScanRecord() {
-					data := make(map[string]string)
-					for decoder.ScanKeyval() {
-						key := decoder.Key()
-						value := decoder.Value()
-						data[string(key)] = string(value)
-					}
 					logEvent.Message = data
 				}
 			}
