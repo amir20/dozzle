@@ -185,7 +185,9 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				for decoder.ScanKeyval() {
 					key := decoder.Key()
 					value := decoder.Value()
-					data[string(key)] = string(value)
+					if len(value) > 0 {
+						data[string(key)] = string(value)
+					}
 				}
 				if len(data) > 0 {
 					logEvent.Message = data
