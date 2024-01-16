@@ -45,6 +45,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 		if level, ok := value["level"].(string); ok {
 			return level
 		}
+
+	case map[string]string:
+		if level, ok := value["level"]; ok {
+			return level
+		}
 	}
 
 	return ""

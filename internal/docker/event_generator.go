@@ -182,14 +182,17 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				decoder := logfmt.NewDecoder(strings.NewReader(message))
 				data := make(map[string]string)
 				decoder.ScanRecord()
+				allValid := true
 				for decoder.ScanKeyval() {
 					key := decoder.Key()
 					value := decoder.Value()
-					if len(value) > 0 {
-						data[string(key)] = string(value)
+					if len(value) == 0 {
+						allValid = false
+						break
 					}
+					data[string(key)] = string(value)
 				}
-				if len(data) > 0 {
+				if allValid {
 					logEvent.Message = data
 				}
 			}
