@@ -5,7 +5,7 @@
     </label>
     <div
       tabindex="0"
-      class="min-w-52 dropdown-content rounded-box z-50 mt-1 border border-base-content/20 bg-base p-2 shadow"
+      class="dropdown-content z-50 mt-1 min-w-52 rounded-box border border-base-content/20 bg-base p-2 shadow"
     >
       <slot name="content"></slot>
     </div>

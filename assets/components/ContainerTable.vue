@@ -3,7 +3,7 @@
   <div class="text-right">
     Show per page
     <dropdown-menu
-      class="dropdown-left"
+      class="dropdown-left btn-xs md:btn-sm"
       v-model="perPage"
       :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
       v-if="containers.length > 0"
