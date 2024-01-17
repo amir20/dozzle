@@ -20,14 +20,11 @@
       <transition-group tag="ul" name="list" class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
         <li
           v-for="item in menuItems"
-          :key="item.id"
-          :class="isLabel(item) ? 'menu-title' : item.state"
-          :data-testid="item.id"
+          :key="isContainer(item) ? item.id : item.keyLabel"
+          :class="isContainer(item) ? item.state : 'menu-title'"
+          :data-testid="isContainer(item) ? item.id : null"
         >
-          <template v-if="isLabel(item)">
-            {{ item.label }}
-          </template>
-          <popup v-else>
+          <popup v-if="isContainer(item)">
             <router-link
               :to="{ name: 'container-id', params: { id: item.id } }"
               active-class="active-primary"
@@ -51,6 +48,9 @@
               <container-popup :container="item"></container-popup>
             </template>
           </popup>
+          <template v-else>
+            {{ $t(item.keyLabel) }}
+          </template>
         </li>
       </transition-group>
     </transition>
@@ -64,8 +64,6 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
-
-const { t } = useI18n();
 
 const store = useContainerStore();
 
@@ -104,15 +102,13 @@ const groupedContainers = computed(() =>
   ),
 );
 
-type MenuLabel = { label: string; id: string; state: string };
-const pinnedLabel = { label: t("label.pinned"), id: "pinned", state: "label" } as MenuLabel;
-const allLabel = { label: t("label.containers"), id: "containers", state: "label" } as MenuLabel;
-
-function isLabel(item: Container | MenuLabel): item is MenuLabel {
-  return (item as MenuLabel).label !== undefined;
+function isContainer(item: any): item is Container {
+  return item.hasOwnProperty("image");
 }
 
 const menuItems = computed(() => {
+  const pinnedLabel = { keyLabel: "label.pinned" };
+  const allLabel = { keyLabel: "label.containers" };
   if (groupedContainers.value.pinned.length > 0) {
     return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
   } else {
