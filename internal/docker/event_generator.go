@@ -178,8 +178,12 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				} else {
 					logEvent.Message = data
 				}
-			} else {
-				decoder := logfmt.NewDecoder(strings.NewReader(message))
+			} else if strings.Contains(message, "=") {
+				buffer := bufPool.Get().(*bytes.Buffer)
+				buffer.Reset()
+				defer bufPool.Put(buffer)
+				buffer.WriteString(message)
+				decoder := logfmt.NewDecoder(buffer)
 				data := make(map[string]string)
 				decoder.ScanRecord()
 				allValid := true
