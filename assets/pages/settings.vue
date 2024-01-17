@@ -130,7 +130,6 @@
 
 <script lang="ts" setup>
 import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
-import i18n from "@/modules/i18n";
 
 import {
   automaticRedirect,
