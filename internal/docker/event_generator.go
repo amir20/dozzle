@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-logfmt/logfmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -175,6 +176,27 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						}
 					}
 				} else {
+					logEvent.Message = data
+				}
+			} else if strings.Contains(message, "=") {
+				buffer := bufPool.Get().(*bytes.Buffer)
+				buffer.Reset()
+				defer bufPool.Put(buffer)
+				buffer.WriteString(message)
+				decoder := logfmt.NewDecoder(buffer)
+				data := make(map[string]string)
+				decoder.ScanRecord()
+				allValid := true
+				for decoder.ScanKeyval() {
+					key := decoder.Key()
+					value := decoder.Value()
+					if len(value) == 0 {
+						allValid = false
+						break
+					}
+					data[string(key)] = string(value)
+				}
+				if allValid && len(data) > 0 {
 					logEvent.Message = data
 				}
 			}
