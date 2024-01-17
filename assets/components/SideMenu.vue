@@ -22,7 +22,7 @@
           v-for="item in menuItems"
           :key="isContainer(item) ? item.id : item.keyLabel"
           :class="isContainer(item) ? item.state : 'menu-title'"
-          :data-testid="isContainer(item) ? item.id : null"
+          :data-testid="isContainer(item) ? null : item.keyLabel"
         >
           <popup v-if="isContainer(item)">
             <router-link
