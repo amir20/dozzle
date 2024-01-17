@@ -23,9 +23,14 @@ type DropdownItem = {
   label: string;
   value: T;
 };
-const { options = [], defaultLabel = "" } = defineProps<{ options?: DropdownItem[]; defaultLabel?: string }>();
+
 const { modelValue } = defineModels<{
   modelValue: T;
+}>();
+
+const { options = [], defaultLabel = "" } = defineProps<{
+  options?: DropdownItem[];
+  defaultLabel?: string;
 }>();
 
 const label = computed(() => options.find((item) => item.value === modelValue.value)?.label ?? defaultLabel);
