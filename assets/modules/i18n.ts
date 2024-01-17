@@ -15,7 +15,7 @@ const i18n = createI18n({
   messages,
 });
 
-syncRefs(locale, i18n.global.locale);
+syncRefs(locale, i18n.global.locale, { immediate: false });
 
 export const install = (app: App) => app.use(i18n);
 export default i18n;
