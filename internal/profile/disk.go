@@ -33,6 +33,7 @@ type Settings struct {
 	LightTheme        string  `json:"lightTheme,omitempty"`
 	HourStyle         string  `json:"hourStyle,omitempty"`
 	DateLocale        string  `json:"dateLocale,omitempty"`
+	Locale            string  `json:"locale"`
 }
 
 type Profile struct {
