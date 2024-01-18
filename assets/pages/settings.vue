@@ -21,6 +21,8 @@
 
       <section class="grid-cols-2 gap-4 @3xl:grid">
         <div class="flex flex-col gap-2 text-balance @3xl:pr-8">
+          <toggle v-model="compact"> {{ $t("settings.compact") }} </toggle>
+
           <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
 
           <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
@@ -133,6 +135,7 @@ import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
 
 import {
   automaticRedirect,
+  compact,
   hourStyle,
   dateLocale,
   lightTheme,

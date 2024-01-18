@@ -3,6 +3,7 @@ import { toRefs } from "@vueuse/core";
 export type Settings = {
   search: boolean;
   size: "small" | "medium" | "large";
+  compact: boolean;
   menuWidth: number;
   smallerScrollbars: boolean;
   showTimestamp: boolean;
@@ -18,6 +19,7 @@ export type Settings = {
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
+  compact: false,
   size: "medium",
   menuWidth: 15,
   smallerScrollbars: false,
@@ -37,6 +39,7 @@ export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
 
 export const {
   collapseNav,
+  compact,
   softWrap,
   hourStyle,
   dateLocale,

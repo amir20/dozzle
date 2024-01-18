@@ -30,6 +30,7 @@ type Settings struct {
 	CollapseNav       bool    `json:"collapseNav"`
 	AutomaticRedirect bool    `json:"automaticRedirect"`
 	Size              string  `json:"size,omitempty"`
+	Compact           bool    `json:"compact"`
 	LightTheme        string  `json:"lightTheme,omitempty"`
 	HourStyle         string  `json:"hourStyle,omitempty"`
 	DateLocale        string  `json:"dateLocale,omitempty"`

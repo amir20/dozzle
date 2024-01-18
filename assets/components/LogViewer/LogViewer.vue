@@ -1,5 +1,5 @@
 <template>
-  <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true }">
+  <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
     <li
       v-for="item in messages"
       :key="item.id"
@@ -56,6 +56,12 @@ defineProps<{
 
   &.large {
     @apply text-lg;
+  }
+
+  &.compact {
+    > li {
+      @apply py-0;
+    }
   }
 }
 </style>
