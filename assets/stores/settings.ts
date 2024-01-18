@@ -14,7 +14,7 @@ export type Settings = {
   softWrap: boolean;
   collapseNav: boolean;
   automaticRedirect: boolean;
-  locale: string | undefined;
+  locale: string;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -30,7 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   softWrap: true,
   collapseNav: false,
   automaticRedirect: true,
-  locale: undefined,
+  locale: "",
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
