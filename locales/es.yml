@@ -81,6 +81,7 @@ settings:
     <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
+  compact: Modo compacto
 releases:
   features: Características
   bugFixes: Correcciones de errores

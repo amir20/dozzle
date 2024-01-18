@@ -82,6 +82,7 @@ settings:
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Show stdout and stderr labels
   automatic-redirect: Automatically redirect to new containers with the same name
+  compact: Enable compact mode for logs
 releases:
   features: one new feature | {count} features
   bugFixes: one bug fix | {count} fixes
