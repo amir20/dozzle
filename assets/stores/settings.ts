@@ -14,6 +14,7 @@ export type Settings = {
   softWrap: boolean;
   collapseNav: boolean;
   automaticRedirect: boolean;
+  locale: string | undefined;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -29,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   softWrap: true,
   collapseNav: false,
   automaticRedirect: true,
+  locale: undefined,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -46,5 +48,6 @@ export const {
   menuWidth,
   size,
   search,
+  locale,
   automaticRedirect,
 } = toRefs(settings);

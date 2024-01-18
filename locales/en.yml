@@ -65,6 +65,7 @@ placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
 settings:
   display: Display
+  locale: Override language
   small-scrollbars: Use smaller scrollbars
   show-timesamps: Show timestamps
   soft-wrap: Soft wrap lines

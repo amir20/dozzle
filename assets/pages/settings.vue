@@ -31,6 +31,15 @@
 
           <labeled-input>
             <template #label>
+              {{ $t("settings.locale") }}
+            </template>
+            <template #input>
+              <dropdown-menu v-model="locale" :options="availableLocales.map((l) => ({ label: l, value: l }))" />
+            </template>
+          </labeled-input>
+
+          <labeled-input>
+            <template #label>
               {{ $t("settings.datetime-format") }}
             </template>
             <template #input>
@@ -134,9 +143,10 @@ import {
   size,
   smallerScrollbars,
   softWrap,
+  locale,
 } from "@/stores/settings";
 
-const { t } = useI18n();
+const { t, availableLocales } = useI18n();
 
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
