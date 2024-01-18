@@ -34,7 +34,13 @@
               {{ $t("settings.locale") }}
             </template>
             <template #input>
-              <dropdown-menu v-model="locale" :options="availableLocales.map((l) => ({ label: l, value: l }))" />
+              <dropdown-menu
+                v-model="locale"
+                :options="[
+                  { label: 'Auto', value: '' },
+                  ...availableLocales.map((l) => ({ label: l.toLocaleUpperCase(), value: l })),
+                ]"
+              />
             </template>
           </labeled-input>
 

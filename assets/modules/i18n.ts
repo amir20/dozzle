@@ -10,12 +10,14 @@ const defaultLocale = messages?.hasOwnProperty(navigator.language)
 
 const i18n = createI18n({
   legacy: false,
-  locale: locale.value ?? defaultLocale,
+  locale: locale.value || defaultLocale,
   fallbackLocale: "en",
   messages,
 });
 
-syncRefs(locale, i18n.global.locale, { immediate: false });
+watch(locale, (value) => {
+  i18n.global.locale.value = value || defaultLocale;
+});
 
 export const install = (app: App) => app.use(i18n);
 export default i18n;

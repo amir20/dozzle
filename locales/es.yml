@@ -62,6 +62,7 @@ placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
 settings:
   display: Vista
+  locale: Sobrescribir idioma
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
   show-timesamps: Mostrar marcas de tiempo
   soft-wrap: Líneas de texto con ajuste suave
