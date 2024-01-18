@@ -57,3 +57,4 @@ settings:
   update-available: >-
     有新版本可用！請更新至 <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 顯示 stdout 和 stderr 標籤
+  compact: 緊湊模式

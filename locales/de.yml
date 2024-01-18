@@ -80,6 +80,7 @@ settings:
     Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels
   automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
+  compact: Aktiviere den kompakten Modus für Logs
 releases:
   features: Ein neues Feature | {count} Features
   bugFixes: Ein Bug Fix | {count} Fixes

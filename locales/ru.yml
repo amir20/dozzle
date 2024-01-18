@@ -75,3 +75,4 @@ settings:
     Доступна новая версия! Обновить до <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Показывать метки stdout и stderr
   automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
+  compact: Компактный режим
