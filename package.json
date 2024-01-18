@@ -67,7 +67,7 @@
   "vite": "5.0.11",
   "vite-plugin-pages": "^0.32.0",
   "vite-plugin-vue-layouts": "^0.11.0",
-  "vue": "^3.4.14",
+  "vue": "^3.4.15",
   "vue-i18n": "^9.9.0",
   "vue-router": "^4.2.5"
  },
@@ -84,7 +84,7 @@
   "@types/node": "^20.11.5",
   "@types/semver": "^7.5.6",
   "@vitejs/plugin-vue": "5.0.3",
-  "@vue/compiler-sfc": "^3.4.14",
+  "@vue/compiler-sfc": "^3.4.15",
   "@vue/test-utils": "^2.4.3",
   "bumpp": "^9.3.0",
   "c8": "^9.1.0",
