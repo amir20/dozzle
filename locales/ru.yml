@@ -58,6 +58,7 @@ placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
 settings:
   display: Вид
+  locale: Язык
   small-scrollbars: Уменьшенная полоса прокрутки
   show-timesamps: Показывать временные метки
   soft-wrap: Плавный перенос текста

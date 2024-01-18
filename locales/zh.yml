@@ -58,6 +58,7 @@ placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
 settings:
   display: 显示
+  locale: 覆盖语言
   small-scrollbars: 使用较小的滚动条
   show-timesamps: 显示时间戳
   soft-wrap: 断行

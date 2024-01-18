@@ -62,6 +62,7 @@ placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
 settings:
   display: Anzeige
+  locale: Sprache überschreiben
   small-scrollbars: Verwende kleinere Scrollbars
   show-timesamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch

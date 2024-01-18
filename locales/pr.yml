@@ -58,6 +58,7 @@ placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
 settings:
   display: Visão
+  locale: Localidade
   small-scrollbars: Usar barras de rolagem mais pequenas
   show-timesamps: Mostrar carimbos de tempo
   soft-wrap: Linhas de texto de embrulho suave

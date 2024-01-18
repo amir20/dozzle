@@ -41,6 +41,7 @@ placeholder:
   search-containers: 查詢容器 (⌘ + k, ⌃k)
 settings:
   display: 顯示
+  locale: 覆寫語言
   small-scrollbars: 使用較小的捲軸
   show-timesamps: 顯示時間戳記
   soft-wrap: 自動換行
