@@ -308,7 +308,7 @@ func (d *Client) Events(ctx context.Context, messages chan<- ContainerEvent) <-c
 				if message.Type == "container" && len(message.Actor.ID) > 0 {
 					messages <- ContainerEvent{
 						ActorID: message.Actor.ID[:12],
-						Name:    message.Action,
+						Name:    string(message.Action),
 						Host:    d.host.ID,
 					}
 				}
