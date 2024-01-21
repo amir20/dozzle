@@ -1,26 +1,20 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:21-alpine as node
-
-RUN corepack enable
+FROM --platform=$BUILDPLATFORM oven/bun:1-slim as bun
 
 WORKDIR /build
 
 # Install dependencies from lock file
-COPY pnpm-*.yaml ./
-RUN pnpm fetch --ignore-scripts --no-optional
-
-# Copy package.json and install dependencies
-COPY package.json ./
-RUN pnpm install --offline --ignore-scripts --no-optional
+COPY bun.lockb package.json ./
+RUN bun install --frozen-lockfile
 
 # Copy assets and translations to build
-COPY .* *.config.ts *.config.js *.config.cts ./
+COPY .* *.config.ts *.config.js *.config.cjs ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
 
 # Build assets
-RUN pnpm build
+RUN bun run build
 
 FROM --platform=$BUILDPLATFORM golang:1.21.6-alpine AS builder
 
@@ -33,7 +27,7 @@ COPY go.* ./
 RUN go mod download
 
 # Copy assets built with node
-COPY --from=node /build/dist ./dist
+COPY --from=bun /build/dist ./dist
 
 # Copy all other files
 COPY internal ./internal

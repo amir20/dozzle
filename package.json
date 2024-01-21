@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.14.1",
+ "packageManager": "bun@1.0.24",
  "type": "module",
  "repository": {
   "type": "git",
@@ -15,17 +15,17 @@
  "license": "ISC",
  "author": "Amir Raminfar <findamir@gmail.com>",
  "scripts": {
-  "watch:frontend": "vite --open http://localhost:3100/",
+  "watch:frontend": "bunx --bun vite --open http://localhost:3100/",
   "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
   "dev": "concurrently --kill-others \"npm:watch:*\"",
-  "build": "vite build",
+  "build": "bunx vite build",
   "preview": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
   "release": "bumpp",
   "test": "TZ=UTC vitest",
-  "typecheck": "vue-tsc --noEmit",
-  "docs:dev": "vitepress dev docs --open",
-  "docs:build": "vitepress build docs",
-  "docs:preview": "vitepress preview docs"
+  "typecheck": "bunx --bun vue-tsc --noEmit",
+  "docs:dev": "bunx --bun vitepress dev docs --open",
+  "docs:build": "bunx --bun vitepress build docs",
+  "docs:preview": "bunx --bun vitepress preview docs"
  },
  "dependencies": {
   "@iconify-json/carbon": "^1.1.27",
