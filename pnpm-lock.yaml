@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@iconify-json/carbon':
-    specifier: ^1.1.27
-    version: 1.1.27
+    specifier: ^1.1.28
+    version: 1.1.28
   '@iconify-json/cil':
     specifier: ^1.1.8
     version: 1.1.8
@@ -651,8 +651,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@iconify-json/carbon@1.1.27:
-    resolution: {integrity: sha512-tJVXv9+D9cjU5HcaY+8J0awv9AL/Mjo9MWR/fxHfHFPP/iokjPBEgq4jOBDGNe8W0k/BTrVI3zpgZjLoi6RNGg==}
+  /@iconify-json/carbon@1.1.28:
+    resolution: {integrity: sha512-tg+h0i+69JrIqUpQva2Mt611KdLMeCyibqS7lIqaMRXJgnalHtdqDcdZAKCSLb/hTbkJHyk0NCpQSYJ3f/v51w==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: false
