@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"io"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -156,6 +157,8 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 	}
 }
 
+var validLogFmtKey = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+
 func createEvent(message string, streamType StdType) *LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
@@ -190,13 +193,13 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				for decoder.ScanKeyval() {
 					key := decoder.Key()
 					value := decoder.Value()
-					if len(value) == 0 {
+					if validLogFmtKey.Match(key) == false {
 						allValid = false
 						break
 					}
 					data[string(key)] = string(value)
 				}
-				if allValid && len(data) > 0 {
+				if allValid && len(data) > 1 {
 					logEvent.Message = data
 				}
 			}
