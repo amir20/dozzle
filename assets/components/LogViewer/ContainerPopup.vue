@@ -7,7 +7,7 @@
   </div>
   <div>
     <span class="font-light capitalize"> Load </span>
-    <span class="font-semibold"> {{ container.stat.cpu }}% </span>
+    <span class="font-semibold"> {{ container.stat.cpu.toFixed(2) }}% </span>
   </div>
   <div>
     <span class="font-light capitalize"> MEM </span>
