@@ -4,7 +4,7 @@
     <transition name="fade">
       <div
         v-show="show && (delayedShow || glopbalShow)"
-        class="fixed z-50 rounded border border-secondary/50 bg-base-lighter p-4 shadow"
+        class="fixed z-50 rounded border border-base-content/20 bg-base-lighter p-4 shadow"
         ref="content"
       >
         <slot name="content"></slot>
