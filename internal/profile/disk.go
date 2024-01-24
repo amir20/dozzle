@@ -17,7 +17,7 @@ const (
 	profileFilename = "profile.json"
 )
 
-var missingProfileErr = errors.New("Profile file does not exist")
+var errMissingProfileErr = errors.New("Profile file does not exist")
 
 type Settings struct {
 	Search            bool    `json:"search"`
@@ -66,7 +66,7 @@ func UpdateFromReader(user auth.User, reader io.Reader) error {
 	mux.Lock()
 	defer mux.Unlock()
 	existingProfile, err := Load(user)
-	if err != nil && err != missingProfileErr {
+	if err != nil && err != errMissingProfileErr {
 		return err
 	}
 
@@ -112,7 +112,7 @@ func Load(user auth.User) (Profile, error) {
 	profilePath := filepath.Join(path, profileFilename)
 
 	if _, err := os.Stat(profilePath); os.IsNotExist(err) {
-		return Profile{}, missingProfileErr
+		return Profile{}, errMissingProfileErr
 	}
 
 	f, err := os.Open(profilePath)

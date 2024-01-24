@@ -35,5 +35,5 @@ func HttpRequest(addr string, base string) error {
 		return nil
 	}
 
-	return fmt.Errorf("Healthcheck failed with status code %d", resp.StatusCode)
+	return fmt.Errorf("healthcheck failed with status code %d", resp.StatusCode)
 }

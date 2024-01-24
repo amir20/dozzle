@@ -81,8 +81,7 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 
 func Test_createEvent(t *testing.T) {
 	type args struct {
-		message    string
-		streamType StdType
+		message string
 	}
 	tests := []struct {
 		name string

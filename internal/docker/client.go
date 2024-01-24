@@ -44,13 +44,13 @@ func (s StdType) String() string {
 }
 
 type DockerCLI interface {
-	ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error)
-	ContainerLogs(context.Context, string, types.ContainerLogsOptions) (io.ReadCloser, error)
+	ContainerList(context.Context, container.ListOptions) ([]types.Container, error)
+	ContainerLogs(context.Context, string, container.LogsOptions) (io.ReadCloser, error)
 	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
 	Ping(ctx context.Context) (types.Ping, error)
-	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
+	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
 	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
 }
@@ -152,7 +152,7 @@ func (d *Client) FindContainer(id string) (Container, error) {
 func (d *Client) ContainerActions(action string, containerID string) error {
 	switch action {
 	case "start":
-		return d.cli.ContainerStart(context.Background(), containerID, types.ContainerStartOptions{})
+		return d.cli.ContainerStart(context.Background(), containerID, container.StartOptions{})
 	case "stop":
 		return d.cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
 	case "restart":
@@ -163,7 +163,7 @@ func (d *Client) ContainerActions(action string, containerID string) error {
 }
 
 func (d *Client) ListContainers() ([]Container, error) {
-	containerListOptions := types.ContainerListOptions{
+	containerListOptions := container.ListOptions{
 		Filters: d.filters,
 		All:     true,
 	}
@@ -274,7 +274,7 @@ func (d *Client) ContainerLogs(ctx context.Context, id string, since string, std
 		}
 	}
 
-	options := types.ContainerLogsOptions{
+	options := container.LogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
 		Follow:     true,
@@ -320,7 +320,7 @@ func (d *Client) Events(ctx context.Context, messages chan<- ContainerEvent) <-c
 }
 
 func (d *Client) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
-	options := types.ContainerLogsOptions{
+	options := container.LogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
 		Timestamps: true,
