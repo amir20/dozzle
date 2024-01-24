@@ -58,10 +58,16 @@ jobs:
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Stactic checker
-        uses: dominikh/staticcheck-action@v1.3.0
       - name: Run Go Tests with Coverage
         run: make test SKIP_ASSET=1
+  staticchecker:
+    name: Static Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Stactic checker
+        uses: dominikh/staticcheck-action@v1.3.0
   int-test:
     name: Integration Tests
     timeout-minutes: 60
