@@ -64,10 +64,17 @@ jobs:
     name: Static Checker
     runs-on: ubuntu-latest
     steps:
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21.x
+          check-latest: true
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.0
+        with:
+          install-go: false
   int-test:
     name: Integration Tests
     timeout-minutes: 60
