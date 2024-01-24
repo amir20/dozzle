@@ -193,7 +193,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				for decoder.ScanKeyval() {
 					key := decoder.Key()
 					value := decoder.Value()
-					if validLogFmtKey.Match(key) == false {
+					if !validLogFmtKey.Match(key) {
 						allValid = false
 						break
 					}

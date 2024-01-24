@@ -85,16 +85,9 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	g := docker.NewEventGenerator(reader, container.Tty)
 	encoder := json.NewEncoder(w)
 
-loop:
-	for {
-		select {
-		case event, ok := <-g.Events:
-			if !ok {
-				break loop
-			}
-			if err := encoder.Encode(event); err != nil {
-				log.Errorf("json encoding error while streaming %v", err.Error())
-			}
+	for event := range g.Events {
+		if err := encoder.Encode(event); err != nil {
+			log.Errorf("json encoding error while streaming %v", err.Error())
 		}
 	}
 }

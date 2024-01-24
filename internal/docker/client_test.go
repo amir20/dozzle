@@ -22,7 +22,7 @@ type mockedProxy struct {
 	DockerCLI
 }
 
-func (m *mockedProxy) ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error) {
+func (m *mockedProxy) ContainerList(context.Context, container.ListOptions) ([]types.Container, error) {
 	args := m.Called()
 	containers, ok := args.Get(0).([]types.Container)
 	if !ok && args.Get(0) != nil {
@@ -32,7 +32,7 @@ func (m *mockedProxy) ContainerList(context.Context, types.ContainerListOptions)
 
 }
 
-func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options types.ContainerLogsOptions) (io.ReadCloser, error) {
+func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options container.LogsOptions) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, options)
 	reader, ok := args.Get(0).(io.ReadCloser)
 	if !ok && args.Get(0) != nil {
@@ -50,7 +50,7 @@ func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, st
 	return types.ContainerStats{}, nil
 }
 
-func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error {
+func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error {
 
 	args := m.Called(ctx, containerID, options)
 	err := args.Get(0)
@@ -158,7 +158,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	b = append(b, []byte(expected)...)
 
 	reader := io.NopCloser(bytes.NewReader(b))
-	options := types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true, Since: "since"}
+	options := container.LogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true, Since: "since"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
 	client := &Client{proxy, filters.NewArgs(), &Host{ID: "localhost"}}

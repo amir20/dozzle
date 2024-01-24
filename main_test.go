@@ -7,6 +7,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,7 +18,7 @@ type fakeCLI struct {
 	mock.Mock
 }
 
-func (f *fakeCLI) ContainerList(context.Context, types.ContainerListOptions) ([]types.Container, error) {
+func (f *fakeCLI) ContainerList(context.Context, container.ListOptions) ([]types.Container, error) {
 	args := f.Called()
 	return args.Get(0).([]types.Container), args.Error(1)
 }
