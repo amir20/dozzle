@@ -58,6 +58,8 @@ jobs:
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Stactic checker
+        uses: dominikh/staticcheck-action@v1.3.0
       - name: Run Go Tests with Coverage
         run: make test SKIP_ASSET=1
   int-test:
