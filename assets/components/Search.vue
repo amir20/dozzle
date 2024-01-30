@@ -1,6 +1,12 @@
 <template>
   <transition name="slide">
-    <div class="fixed right-4 top-2 z-10 flex items-center" v-show="showSearch" v-if="search">
+    <div
+      class="fixed z-10 flex w-full justify-end p-2"
+      v-show="showSearch"
+      v-if="search"
+      ref="container"
+      :style="style"
+    >
       <div class="input input-primary flex h-auto items-center !shadow-lg">
         <mdi:magnify />
         <input
@@ -19,7 +25,10 @@
 
 <script lang="ts" setup>
 const input = ref<HTMLInputElement>();
+const container = ref<HTMLDivElement>();
 const { searchFilter, showSearch, resetSearch } = useSearchFilter();
+
+const { style } = useDraggable(container);
 
 onKeyStroke("f", (e) => {
   if (e.ctrlKey || e.metaKey) {
