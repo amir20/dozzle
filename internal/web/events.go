@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 
@@ -59,9 +60,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					go func(client DockerClient) {
 						for _, c := range containers {
 							if c.State == "running" {
-								if err := client.ContainerStats(ctx, c.ID, stats); err != nil && !errors.Is(err, context.Canceled) {
-									log.Errorf("error while streaming container stats: %v", err)
-								}
+								go func(client DockerClient, id string) {
+									if err := client.ContainerStats(ctx, id, stats); err != nil {
+										if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
+											log.Errorf("unexpected error when streaming container stats: %v", err)
+										}
+									}
+								}(client, c.ID)
 							}
 						}
 					}(client)
@@ -112,10 +117,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-
-					if err := h.clients[event.Host].ContainerStats(ctx, event.ActorID, stats); err != nil && !errors.Is(err, context.Canceled) {
-						log.Errorf("error when streaming new container stats: %v", err)
-					}
+					go func(client DockerClient, id string) {
+						if err := client.ContainerStats(ctx, id, stats); err != nil {
+							if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
+								log.Errorf("unexpected error when streaming new container stats: %v", err)
+							}
+						}
+					}(h.clients[event.Host], event.ActorID)
 					containers, err := h.clients[event.Host].ListContainers()
 					if err != nil {
 						log.Errorf("error when listing containers: %v", err)

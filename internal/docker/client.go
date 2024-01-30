@@ -209,58 +209,50 @@ func (d *Client) ContainerStats(ctx context.Context, id string, stats chan<- Con
 		return err
 	}
 
-	go func() {
-		log.Debugf("starting to stream stats for: %s", id)
-		defer response.Body.Close()
-		decoder := json.NewDecoder(response.Body)
-		var v *types.StatsJSON
-		for {
-			if err := decoder.Decode(&v); err != nil {
-				if err == context.Canceled || err == io.EOF {
-					log.Debugf("stopping stats streaming for container %s", id)
-					return
-				}
-				log.Errorf("decoder for stats api returned an unknown error %v", err)
-			}
+	log.Debugf("starting to stream stats for: %s", id)
+	defer response.Body.Close()
+	decoder := json.NewDecoder(response.Body)
+	var v *types.StatsJSON
+	for {
+		if err := decoder.Decode(&v); err != nil {
+			return err
+		}
 
-			var (
-				memPercent, cpuPercent float64
-				mem, memLimit          float64
-				previousCPU            uint64
-				previousSystem         uint64
-			)
-			daemonOSType := response.OSType
+		var (
+			memPercent, cpuPercent float64
+			mem, memLimit          float64
+			previousCPU            uint64
+			previousSystem         uint64
+		)
+		daemonOSType := response.OSType
 
-			if daemonOSType != "windows" {
-				previousCPU = v.PreCPUStats.CPUUsage.TotalUsage
-				previousSystem = v.PreCPUStats.SystemUsage
-				cpuPercent = calculateCPUPercentUnix(previousCPU, previousSystem, v)
-				mem = calculateMemUsageUnixNoCache(v.MemoryStats)
-				memLimit = float64(v.MemoryStats.Limit)
-				memPercent = calculateMemPercentUnixNoCache(memLimit, mem)
-			} else {
-				cpuPercent = calculateCPUPercentWindows(v)
-				mem = float64(v.MemoryStats.PrivateWorkingSet)
-			}
+		if daemonOSType != "windows" {
+			previousCPU = v.PreCPUStats.CPUUsage.TotalUsage
+			previousSystem = v.PreCPUStats.SystemUsage
+			cpuPercent = calculateCPUPercentUnix(previousCPU, previousSystem, v)
+			mem = calculateMemUsageUnixNoCache(v.MemoryStats)
+			memLimit = float64(v.MemoryStats.Limit)
+			memPercent = calculateMemPercentUnixNoCache(memLimit, mem)
+		} else {
+			cpuPercent = calculateCPUPercentWindows(v)
+			mem = float64(v.MemoryStats.PrivateWorkingSet)
+		}
 
-			log.Tracef("containerId = %s, cpuPercent = %f, memPercent = %f, memUsage = %f, daemonOSType = %s", id, cpuPercent, memPercent, mem, daemonOSType)
+		log.Tracef("containerId = %s, cpuPercent = %f, memPercent = %f, memUsage = %f, daemonOSType = %s", id, cpuPercent, memPercent, mem, daemonOSType)
 
-			if cpuPercent > 0 || mem > 0 {
-				select {
-				case <-ctx.Done():
-					return
-				case stats <- ContainerStat{
-					ID:            id,
-					CPUPercent:    cpuPercent,
-					MemoryPercent: memPercent,
-					MemoryUsage:   mem,
-				}:
-				}
+		if cpuPercent > 0 || mem > 0 {
+			select {
+			case <-ctx.Done():
+				return nil
+			case stats <- ContainerStat{
+				ID:            id,
+				CPUPercent:    cpuPercent,
+				MemoryPercent: memPercent,
+				MemoryUsage:   mem,
+			}:
 			}
 		}
-	}()
-
-	return nil
+	}
 }
 
 func (d *Client) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
