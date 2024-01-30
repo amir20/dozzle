@@ -28,7 +28,7 @@ const input = ref<HTMLInputElement>();
 const container = ref<HTMLDivElement>();
 const { searchFilter, showSearch, resetSearch } = useSearchFilter();
 
-const { style } = useDraggable(container, {});
+const { style } = useDraggable(container);
 
 onKeyStroke("f", (e) => {
   if (e.ctrlKey || e.metaKey) {
