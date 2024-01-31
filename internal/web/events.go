@@ -1,13 +1,9 @@
 package web
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"sync"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
@@ -45,51 +41,24 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		HasActions:       h.config.EnableActions,
 	}
 
-	{
-		wg := sync.WaitGroup{}
-		wg.Add(len(h.clients))
-		results := make(chan []docker.Container, len(h.clients))
-
-		for _, client := range h.clients {
-			client.Events(ctx, events)
-
-			go func(client DockerClient) {
-				defer wg.Done()
-				if containers, err := client.ListContainers(); err == nil {
-					results <- containers
-					go func(client DockerClient) {
-						for _, c := range containers {
-							if c.State == "running" {
-								go func(client DockerClient, id string) {
-									if err := client.ContainerStats(ctx, id, stats); err != nil {
-										if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-											log.Errorf("unexpected error when streaming container stats: %v", err)
-										}
-									}
-								}(client, c.ID)
-							}
-						}
-					}(client)
-				} else {
-					log.Errorf("error while listing containers: %v", err)
-				}
-			}(client)
-		}
-		wg.Wait()
-		close(results)
-
-		allContainers := []docker.Container{}
-		for containers := range results {
-			allContainers = append(allContainers, containers...)
-		}
-
-		if err := sendContainersJSON(allContainers, w); err != nil {
-			log.Errorf("error writing containers to event stream: %v", err)
-		}
-
-		b.RunningContainers = len(allContainers)
-		f.Flush()
+	allContainers := make([]docker.Container, 0)
+	for _, store := range h.stores {
+		store.Client().Events(ctx, events)
+		allContainers = append(allContainers, store.List()...)
+		store.StatsCollector.Subscribe(stats)
 	}
+
+	defer func() {
+		for _, store := range h.stores {
+			store.StatsCollector.Unsubscribe(stats)
+		}
+	}()
+
+	if err := sendContainersJSON(allContainers, w); err != nil {
+		log.Errorf("error writing containers to event stream: %v", err)
+	}
+	b.RunningContainers = len(allContainers)
+	f.Flush()
 
 	if !h.config.NoAnalytics {
 		go func() {
@@ -115,29 +84,21 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			switch event.Name {
 			case "start", "die":
 				log.Debugf("triggering docker event: %v", event.Name)
-				if event.Name == "start" {
+				switch event.Name {
+				case "start":
 					log.Debugf("found new container with id: %v", event.ActorID)
-					go func(client DockerClient, id string) {
-						if err := client.ContainerStats(ctx, id, stats); err != nil {
-							if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-								log.Errorf("unexpected error when streaming new container stats: %v", err)
-							}
-						}
-					}(h.clients[event.Host], event.ActorID)
-					containers, err := h.clients[event.Host].ListContainers()
-					if err != nil {
-						log.Errorf("error when listing containers: %v", err)
-					}
+					containers := h.stores[event.Host].List()
 					if err := sendContainersJSON(containers, w); err != nil {
 						log.Errorf("error encoding containers to stream: %v", err)
 						return
 					}
-				}
 
-				bytes, _ := json.Marshal(event)
-				if _, err := fmt.Fprintf(w, "event: container-%s\ndata: %s\n\n", event.Name, string(bytes)); err != nil {
-					log.Errorf("error writing event to event stream: %v", err)
-					return
+				case "die":
+					bytes, _ := json.Marshal(event)
+					if _, err := fmt.Fprintf(w, "event: container-die\ndata: %s\n\n", string(bytes)); err != nil {
+						log.Errorf("error writing event to event stream: %v", err)
+						return
+					}
 				}
 
 				f.Flush()

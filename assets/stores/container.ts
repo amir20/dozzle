@@ -127,6 +127,7 @@ export const useContainerStore = defineStore("container", () => {
           c.labels,
           c.status,
           c.state,
+          c.stats,
           c.health,
         );
       }),

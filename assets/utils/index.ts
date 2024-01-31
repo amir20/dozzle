@@ -51,3 +51,27 @@ export function useExponentialMovingAverage<T extends Record<string, number>>(so
 
   return ema;
 }
+
+interface UseRefHistoryOptions<T> {
+  capacity: number;
+  deep?: boolean;
+  initial?: T[];
+}
+
+export function useRefHistory<T>(source: Ref<T>, options: UseRefHistoryOptions<T>) {
+  const { capacity, deep = true, initial = [] as T[] } = options;
+  const history = ref<T[]>(initial) as Ref<T[]>;
+
+  watch(
+    source,
+    (value) => {
+      history.value.push(value);
+      if (history.value.length > capacity) {
+        history.value.shift();
+      }
+    },
+    { deep },
+  );
+
+  return history;
+}

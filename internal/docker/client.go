@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
@@ -191,6 +192,7 @@ func (d *Client) ListContainers() ([]Container, error) {
 			Host:    d.host.ID,
 			Health:  findBetweenParentheses(c.Status),
 			Labels:  c.Labels,
+			Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
 		}
 		containers = append(containers, container)
 	}

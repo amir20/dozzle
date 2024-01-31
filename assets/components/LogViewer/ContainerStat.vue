@@ -11,11 +11,11 @@ const { container } = useContainerContext();
 const cpuData = computedWithControl(
   () => container.value.stat,
   () => {
-    const history = container.value.statHistory;
+    const history = container.value.statsHistory;
     const points: Point<unknown>[] = history.map((stat, i) => ({
       x: i,
-      y: Math.max(0, stat.snapshot.cpu),
-      value: Math.max(0, stat.snapshot.cpu).toFixed(2) + "%",
+      y: Math.max(0, stat.cpu),
+      value: Math.max(0, stat.cpu).toFixed(2) + "%",
     }));
     return points;
   },
@@ -24,11 +24,11 @@ const cpuData = computedWithControl(
 const memoryData = computedWithControl(
   () => container.value.stat,
   () => {
-    const history = container.value.statHistory;
+    const history = container.value.statsHistory;
     const points: Point<string>[] = history.map((stat, i) => ({
       x: i,
-      y: stat.snapshot.memory,
-      value: formatBytes(stat.snapshot.memoryUsage),
+      y: stat.memory,
+      value: formatBytes(stat.memoryUsage),
     }));
     return points;
   },
