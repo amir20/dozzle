@@ -44,13 +44,13 @@ type Authorizer interface {
 }
 
 type handler struct {
-	clients map[string]*docker.Client
+	clients map[string]docker.Client
 	stores  map[string]*docker.ContainerStore
 	content fs.FS
 	config  *Config
 }
 
-func CreateServer(clients map[string]*docker.Client, content fs.FS, config Config) *http.Server {
+func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
 	stores := make(map[string]*docker.ContainerStore)
 	for host, client := range clients {
 		stores[host] = docker.NewContainerStore(client)
@@ -127,7 +127,7 @@ func createRouter(h *handler) *chi.Mux {
 	return r
 }
 
-func (h *handler) clientFromRequest(r *http.Request) *docker.Client {
+func (h *handler) clientFromRequest(r *http.Request) docker.Client {
 	host := chi.URLParam(r, "host")
 
 	if host == "" {

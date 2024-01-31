@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -38,9 +39,22 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 			cancel()
 		}()
 	})
+	mockedClient.On("FindContainer", "1234").Return(docker.Container{
+		ID:    "1234",
+		Name:  "test",
+		Image: "test",
+		Stats: utils.NewRingBuffer[docker.ContainerStat](300), // 300 seconds of stats
+	}, nil)
 
-	handler := createDefaultHandler(mockedClient)
+	clients := map[string]docker.Client{
+		"localhost": mockedClient,
+	}
+
+	// This is needed so that the server is initialized for store
+	server := CreateServer(clients, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	handler := server.Handler
 	rr := httptest.NewRecorder()
+
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)

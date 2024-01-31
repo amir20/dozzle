@@ -6,11 +6,11 @@ import (
 
 type ContainerStore struct {
 	containers     map[string]Container
-	client         *Client
+	client         Client
 	StatsCollector *StatCollector
 }
 
-func NewContainerStore(client *Client) *ContainerStore {
+func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]Container),
 		client:         client,
@@ -36,7 +36,7 @@ func (s *ContainerStore) List() []Container {
 	return containers
 }
 
-func (s *ContainerStore) Client() *Client {
+func (s *ContainerStore) Client() Client {
 	return s.client
 }
 

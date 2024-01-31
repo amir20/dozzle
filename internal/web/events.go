@@ -26,9 +26,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	events := make(chan docker.ContainerEvent)
-	stats := make(chan docker.ContainerStat)
-
 	b := analytics.BeaconEvent{
 		Name:             "events",
 		Version:          h.config.Version,
@@ -42,6 +39,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	allContainers := make([]docker.Container, 0)
+	events := make(chan docker.ContainerEvent)
+	stats := make(chan docker.ContainerStat)
+
 	for _, store := range h.stores {
 		store.Client().Events(ctx, events)
 		allContainers = append(allContainers, store.List()...)
@@ -124,6 +124,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				// do nothing
 			}
 		case <-ctx.Done():
+			log.Debugf("context done, closing event stream")
 			return
 		}
 	}

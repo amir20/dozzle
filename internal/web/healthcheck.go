@@ -10,7 +10,7 @@ import (
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
-	var client *docker.Client
+	var client docker.Client
 	for _, v := range h.clients {
 		client = v
 		break

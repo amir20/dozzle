@@ -11,10 +11,10 @@ import (
 type StatCollector struct {
 	stream      chan ContainerStat
 	subscribers []chan ContainerStat
-	client      *Client
+	client      Client
 }
 
-func NewStatCollector(client *Client) *StatCollector {
+func NewStatCollector(client Client) *StatCollector {
 	return &StatCollector{
 		stream:      make(chan ContainerStat),
 		subscribers: []chan ContainerStat{},
@@ -40,7 +40,7 @@ func (sc *StatCollector) StartCollecting(ctx context.Context) {
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
-				go func(client *Client, id string) {
+				go func(client Client, id string) {
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 							log.Errorf("unexpected error when streaming container stats: %v", err)
@@ -58,7 +58,7 @@ func (sc *StatCollector) StartCollecting(ctx context.Context) {
 		sc.client.Events(ctx, events)
 		for event := range events {
 			if event.Name == "start" {
-				go func(client *Client, id string) {
+				go func(client Client, id string) {
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 							log.Errorf("unexpected error when streaming container stats: %v", err)
