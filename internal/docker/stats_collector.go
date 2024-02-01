@@ -8,25 +8,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type StatCollector struct {
+type StatsCollector struct {
 	stream      chan ContainerStat
 	subscribers []chan ContainerStat
 	client      Client
 }
 
-func NewStatCollector(client Client) *StatCollector {
-	return &StatCollector{
+func NewStatsCollector(client Client) *StatsCollector {
+	return &StatsCollector{
 		stream:      make(chan ContainerStat),
 		subscribers: []chan ContainerStat{},
 		client:      client,
 	}
 }
 
-func (c *StatCollector) Subscribe(stats chan ContainerStat) {
+func (c *StatsCollector) Subscribe(stats chan ContainerStat) {
 	c.subscribers = append(c.subscribers, stats)
 }
 
-func (c *StatCollector) Unsubscribe(subscriber chan ContainerStat) {
+func (c *StatsCollector) Unsubscribe(subscriber chan ContainerStat) {
 	for i, s := range c.subscribers {
 		if s == subscriber {
 			c.subscribers = append(c.subscribers[:i], c.subscribers[i+1:]...)
@@ -36,7 +36,7 @@ func (c *StatCollector) Unsubscribe(subscriber chan ContainerStat) {
 	}
 }
 
-func (sc *StatCollector) StartCollecting(ctx context.Context) {
+func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {

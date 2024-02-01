@@ -9,7 +9,7 @@ import (
 type ContainerStore struct {
 	containers     map[string]Container
 	client         Client
-	statsCollector *StatCollector
+	statsCollector *StatsCollector
 	subscribers    []chan ContainerEvent
 }
 
@@ -17,7 +17,7 @@ func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]Container),
 		client:         client,
-		statsCollector: NewStatCollector(client),
+		statsCollector: NewStatsCollector(client),
 	}
 
 	go s.init(context.Background())
