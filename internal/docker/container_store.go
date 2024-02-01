@@ -26,16 +26,12 @@ func NewContainerStore(client Client) *ContainerStore {
 	return s
 }
 
-func (s *ContainerStore) Get(id string) (Container, bool) {
-	container, ok := s.containers[id]
-	return *container, ok
-}
-
 func (s *ContainerStore) List() []Container {
 	containers := make([]Container, 0, len(s.containers))
 	for _, c := range s.containers {
 		containers = append(containers, *c)
 	}
+
 	return containers
 }
 
@@ -51,7 +47,6 @@ func (s *ContainerStore) Unsubscribe(toRemove chan ContainerEvent) {
 	for i, sub := range s.subscribers {
 		if sub == toRemove {
 			s.subscribers = append(s.subscribers[:i], s.subscribers[i+1:]...)
-			close(toRemove)
 			break
 		}
 	}
@@ -71,8 +66,9 @@ func (s *ContainerStore) init(ctx context.Context) {
 		log.Fatalf("error while listing containers: %v", err)
 	}
 
-	for _, c := range containers {
-		s.containers[c.ID] = &c
+	for i := 0; i < len(containers); i++ {
+		container := containers[i]
+		s.containers[container.ID] = &container
 	}
 
 	events := make(chan ContainerEvent)

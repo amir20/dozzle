@@ -117,7 +117,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				f.Flush()
-
 			}
 		case <-ctx.Done():
 			log.Debugf("context done, closing event stream")

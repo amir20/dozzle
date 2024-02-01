@@ -30,7 +30,6 @@ func (c *StatsCollector) Unsubscribe(subscriber chan ContainerStat) {
 	for i, s := range c.subscribers {
 		if s == subscriber {
 			c.subscribers = append(c.subscribers[:i], c.subscribers[i+1:]...)
-			close(s)
 			break
 		}
 	}
