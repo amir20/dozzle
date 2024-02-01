@@ -117,9 +117,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				f.Flush()
-			default:
-				log.Tracef("ignoring docker event: %v", event.Name)
-				// do nothing
+
 			}
 		case <-ctx.Done():
 			log.Debugf("context done, closing event stream")

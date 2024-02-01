@@ -100,6 +100,15 @@ func (s *ContainerStore) init(ctx context.Context) {
 					log.Debugf("container %s died", container.ID)
 					container.State = "exited"
 				}
+			case "health_status: healthy", "health_status: unhealthy":
+				healthy := "unhealthy"
+				if event.Name == "health_status: healthy" {
+					healthy = "healthy"
+				}
+				if container, ok := s.containers[event.ActorID]; ok {
+					log.Debugf("container %s is %s", container.ID, healthy)
+					container.Health = healthy
+				}
 			}
 
 			for _, sub := range s.subscribers {
