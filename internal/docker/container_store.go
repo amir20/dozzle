@@ -66,9 +66,9 @@ func (s *ContainerStore) init(ctx context.Context) {
 		log.Fatalf("error while listing containers: %v", err)
 	}
 
-	for i := 0; i < len(containers); i++ {
-		container := containers[i]
-		s.containers[container.ID] = &container
+	for _, c := range containers {
+		c := c // create a new variable to avoid capturing the loop variable
+		s.containers[c.ID] = &c
 	}
 
 	events := make(chan ContainerEvent)
