@@ -1,5 +1,5 @@
 import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Container";
-import { useExponentialMovingAverage, useRefHistory } from "@/utils";
+import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
 type Stat = Omit<ContainerStat, "id">;
@@ -37,7 +37,7 @@ export class Container {
     public health?: ContainerHealth,
   ) {
     this._stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
-    this._statsHistory = useRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
+    this._statsHistory = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
     this.movingAverageStat = useExponentialMovingAverage(this._stat, 0.2);
 
     const match = name.match(SWARM_ID_REGEX);
