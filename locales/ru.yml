@@ -6,6 +6,8 @@ toolbar:
   show-all: Показать все потоки
 label:
   containers: Контейнеры
+  running-containers: Запущенные контейнеры
+  all-containers: Все контейнеры
   total-containers: Всего Контейнеров
   running: Запущенные
   total-cpu-usage: Использование процессора

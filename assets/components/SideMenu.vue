@@ -108,7 +108,7 @@ function isContainer(item: any): item is Container {
 
 const menuItems = computed(() => {
   const pinnedLabel = { keyLabel: "label.pinned" };
-  const allLabel = { keyLabel: "label.containers" };
+  const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
   if (groupedContainers.value.pinned.length > 0) {
     return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
   } else {

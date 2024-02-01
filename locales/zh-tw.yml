@@ -6,6 +6,8 @@ toolbar:
   show-all: 顯示全部資料流
 label:
   containers: 容器
+  running-containers: 運行中的容器
+  all-containers: 所有容器
   total-containers: 總容器數
   running: 運行中
   total-cpu-usage: 總 CPU 使用率
