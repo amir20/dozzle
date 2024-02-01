@@ -7,7 +7,7 @@ import (
 )
 
 type ContainerStore struct {
-	containers     map[string]Container
+	containers     map[string]*Container
 	client         Client
 	statsCollector *StatsCollector
 	subscribers    []chan ContainerEvent
@@ -15,7 +15,7 @@ type ContainerStore struct {
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:     make(map[string]Container),
+		containers:     make(map[string]*Container),
 		client:         client,
 		statsCollector: NewStatsCollector(client),
 	}
@@ -28,13 +28,13 @@ func NewContainerStore(client Client) *ContainerStore {
 
 func (s *ContainerStore) Get(id string) (Container, bool) {
 	container, ok := s.containers[id]
-	return container, ok
+	return *container, ok
 }
 
 func (s *ContainerStore) List() []Container {
 	containers := make([]Container, 0, len(s.containers))
 	for _, c := range s.containers {
-		containers = append(containers, c)
+		containers = append(containers, *c)
 	}
 	return containers
 }
@@ -68,11 +68,11 @@ func (s *ContainerStore) UnsubscribeStats(toRemove chan ContainerStat) {
 func (s *ContainerStore) init(ctx context.Context) {
 	containers, err := s.client.ListContainers()
 	if err != nil {
-		return
+		log.Fatalf("error while listing containers: %v", err)
 	}
 
 	for _, c := range containers {
-		s.containers[c.ID] = c
+		s.containers[c.ID] = &c
 	}
 
 	events := make(chan ContainerEvent)
@@ -89,10 +89,17 @@ func (s *ContainerStore) init(ctx context.Context) {
 			switch event.Name {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
-					s.containers[container.ID] = container
+					s.containers[container.ID] = &container
 				}
 			case "destroy":
+				log.Debugf("container %s destroyed", event.ActorID)
 				delete(s.containers, event.ActorID)
+
+			case "die":
+				if container, ok := s.containers[event.ActorID]; ok {
+					log.Debugf("container %s died", container.ID)
+					container.State = "exited"
+				}
 			}
 
 			for _, sub := range s.subscribers {
