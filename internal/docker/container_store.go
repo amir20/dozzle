@@ -7,18 +7,19 @@ import (
 type ContainerStore struct {
 	containers     map[string]Container
 	client         Client
-	StatsCollector *StatCollector
+	statsCollector *StatCollector
+	subscribers    []chan ContainerEvent
 }
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]Container),
 		client:         client,
-		StatsCollector: NewStatCollector(client),
+		statsCollector: NewStatCollector(client),
 	}
 
 	go s.init(context.Background())
-	go s.StatsCollector.StartCollecting(context.Background())
+	go s.statsCollector.StartCollecting(context.Background())
 
 	return s
 }
@@ -40,6 +41,28 @@ func (s *ContainerStore) Client() Client {
 	return s.client
 }
 
+func (s *ContainerStore) Subscribe(events chan ContainerEvent) {
+	s.subscribers = append(s.subscribers, events)
+}
+
+func (s *ContainerStore) Unsubscribe(toRemove chan ContainerEvent) {
+	for i, sub := range s.subscribers {
+		if sub == toRemove {
+			s.subscribers = append(s.subscribers[:i], s.subscribers[i+1:]...)
+			close(toRemove)
+			break
+		}
+	}
+}
+
+func (s *ContainerStore) SubscribeStats(stats chan ContainerStat) {
+	s.statsCollector.Subscribe(stats)
+}
+
+func (s *ContainerStore) UnsubscribeStats(toRemove chan ContainerStat) {
+	s.statsCollector.Unsubscribe(toRemove)
+}
+
 func (s *ContainerStore) init(ctx context.Context) {
 	containers, err := s.client.ListContainers()
 	if err != nil {
@@ -54,8 +77,8 @@ func (s *ContainerStore) init(ctx context.Context) {
 	s.client.Events(ctx, events)
 
 	stats := make(chan ContainerStat)
-	s.StatsCollector.Subscribe(stats)
-	defer s.StatsCollector.Unsubscribe(stats)
+	s.statsCollector.Subscribe(stats)
+	defer s.statsCollector.Unsubscribe(stats)
 
 	for {
 		select {
@@ -68,10 +91,13 @@ func (s *ContainerStore) init(ctx context.Context) {
 			case "die":
 				delete(s.containers, event.ActorID)
 			}
+
+			for _, sub := range s.subscribers {
+				sub <- event
+			}
 		case stat := <-stats:
 			if container, ok := s.containers[stat.ID]; ok {
 				container.Stats.Push(stat)
-
 			}
 		case <-ctx.Done():
 			return

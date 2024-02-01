@@ -43,14 +43,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	stats := make(chan docker.ContainerStat)
 
 	for _, store := range h.stores {
-		store.Client().Events(ctx, events)
 		allContainers = append(allContainers, store.List()...)
-		store.StatsCollector.Subscribe(stats)
+		store.SubscribeStats(stats)
+		store.Subscribe(events)
 	}
 
 	defer func() {
 		for _, store := range h.stores {
-			store.StatsCollector.Unsubscribe(stats)
+			store.UnsubscribeStats(stats)
+			store.Unsubscribe(events)
 		}
 	}()
 
@@ -84,21 +85,19 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			switch event.Name {
 			case "start", "die":
 				log.Debugf("triggering docker event: %v", event.Name)
-				switch event.Name {
-				case "start":
+				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
 					containers := h.stores[event.Host].List()
 					if err := sendContainersJSON(containers, w); err != nil {
 						log.Errorf("error encoding containers to stream: %v", err)
 						return
 					}
+				}
 
-				case "die":
-					bytes, _ := json.Marshal(event)
-					if _, err := fmt.Fprintf(w, "event: container-die\ndata: %s\n\n", string(bytes)); err != nil {
-						log.Errorf("error writing event to event stream: %v", err)
-						return
-					}
+				bytes, _ := json.Marshal(event)
+				if _, err := fmt.Fprintf(w, "event: container-%s\ndata: %s\n\n", event.Name, string(bytes)); err != nil {
+					log.Errorf("error writing event to event stream: %v", err)
+					return
 				}
 
 				f.Flush()

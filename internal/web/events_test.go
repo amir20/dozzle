@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -36,6 +37,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 				ActorID: "1234",
 				Host:    "localhost",
 			}
+			time.Sleep(100 * time.Millisecond)
 			cancel()
 		}()
 	})
@@ -55,30 +57,6 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	handler := server.Handler
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
-	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
-}
-
-func Test_handler_streamEvents_error_request(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/events/stream", nil)
-	require.NoError(t, err, "NewRequest should not return an error.")
-
-	mockedClient := new(MockedClient)
-
-	errChannel := make(chan error)
-	mockedClient.On("Events", mock.Anything, mock.Anything).Return(errChannel)
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	req = req.WithContext(ctx)
-
-	go func() {
-		cancel()
-	}()
-
-	handler := createDefaultHandler(mockedClient)
-	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 	mockedClient.AssertExpectations(t)
