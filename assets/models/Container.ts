@@ -1,6 +1,5 @@
 import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Container";
-import type { UseThrottledRefHistoryReturn } from "@vueuse/core";
-import { useExponentialMovingAverage } from "@/utils";
+import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
 type Stat = Omit<ContainerStat, "id">;
@@ -19,7 +18,7 @@ const hosts = computed(() =>
 
 export class Container {
   private _stat: Ref<Stat>;
-  private readonly throttledStatHistory: UseThrottledRefHistoryReturn<Stat, Stat>;
+  private readonly _statsHistory: Ref<Stat[]>;
   public readonly swarmId: string | null = null;
   public readonly isSwarm: boolean = false;
   private readonly movingAverageStat: Ref<Stat>;
@@ -34,10 +33,11 @@ export class Container {
     public readonly labels = {} as Record<string, string>,
     public status: string,
     public state: ContainerState,
+    stats: Stat[],
     public health?: ContainerHealth,
   ) {
     this._stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
-    this.throttledStatHistory = useThrottledRefHistory(this._stat, { capacity: 300, deep: true, throttle: 1000 });
+    this._statsHistory = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
     this.movingAverageStat = useExponentialMovingAverage(this._stat, 0.2);
 
     const match = name.match(SWARM_ID_REGEX);
@@ -48,8 +48,8 @@ export class Container {
     }
   }
 
-  get statHistory() {
-    return unref(this.throttledStatHistory.history);
+  get statsHistory() {
+    return unref(this._statsHistory);
   }
 
   get movingAverage() {

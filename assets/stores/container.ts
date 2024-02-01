@@ -64,7 +64,7 @@ export const useContainerStore = defineStore("container", () => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
       const container = allContainersById.value[event.actorId];
       if (container) {
-        container.state = "dead";
+        container.state = "exited";
       }
     });
 
@@ -127,6 +127,7 @@ export const useContainerStore = defineStore("container", () => {
           c.labels,
           c.status,
           c.state,
+          c.stats,
           c.health,
         );
       }),

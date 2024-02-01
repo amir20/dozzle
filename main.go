@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"errors"
 	"io/fs"
 	"net/http"
 	"os"
@@ -120,12 +121,12 @@ func doStartEvent(arg args) {
 }
 
 func createClients(args args,
-	localClientFactory func(map[string][]string) (*docker.Client, error),
-	remoteClientFactory func(map[string][]string, docker.Host) (*docker.Client, error),
-	hostname string) map[string]web.DockerClient {
-	clients := make(map[string]web.DockerClient)
+	localClientFactory func(map[string][]string) (docker.Client, error),
+	remoteClientFactory func(map[string][]string, docker.Host) (docker.Client, error),
+	hostname string) map[string]docker.Client {
+	clients := make(map[string]docker.Client)
 
-	if localClient := createLocalClient(args, localClientFactory); localClient != nil {
+	if localClient, err := createLocalClient(args, localClientFactory); err == nil {
 		if hostname != "" {
 			localClient.Host().Name = hostname
 		}
@@ -154,7 +155,7 @@ func createClients(args args,
 	return clients
 }
 
-func createServer(args args, clients map[string]web.DockerClient) *http.Server {
+func createServer(args args, clients map[string]docker.Client) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE
@@ -221,7 +222,7 @@ func createServer(args args, clients map[string]web.DockerClient) *http.Server {
 	return web.CreateServer(clients, assets, config)
 }
 
-func createLocalClient(args args, localClientFactory func(map[string][]string) (*docker.Client, error)) *docker.Client {
+func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) (docker.Client, error) {
 	for i := 1; ; i++ {
 		dockerClient, err := localClientFactory(args.Filter)
 		if err == nil {
@@ -230,7 +231,7 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 				log.Debugf("Could not connect to local Docker Engine: %s", err)
 			} else {
 				log.Debugf("Connected to local Docker Engine")
-				return dockerClient
+				return dockerClient, nil
 			}
 		}
 		if args.WaitForDockerSeconds > 0 {
@@ -242,7 +243,7 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 			break
 		}
 	}
-	return nil
+	return nil, errors.New("could not connect to local Docker Engine")
 }
 
 func parseArgs() args {

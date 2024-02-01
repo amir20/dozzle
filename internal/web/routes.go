@@ -1,17 +1,14 @@
 package web
 
 import (
-	"context"
-	"io"
 	"io/fs"
-	"time"
 
 	"net/http"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/docker/docker/api/types"
+
 	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
@@ -47,30 +44,25 @@ type Authorizer interface {
 }
 
 type handler struct {
-	clients map[string]DockerClient
+	clients map[string]docker.Client
+	stores  map[string]*docker.ContainerStore
 	content fs.FS
 	config  *Config
 }
 
-// Client is a proxy around the docker client
-type DockerClient interface {
-	ListContainers() ([]docker.Container, error)
-	FindContainer(string) (docker.Container, error)
-	ContainerLogs(context.Context, string, string, docker.StdType) (io.ReadCloser, error)
-	Events(context.Context, chan<- docker.ContainerEvent) <-chan error
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, docker.StdType) (io.ReadCloser, error)
-	ContainerStats(context.Context, string, chan<- docker.ContainerStat) error
-	Ping(context.Context) (types.Ping, error)
-	Host() *docker.Host
-	ContainerActions(action string, containerID string) error
-}
+func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
+	stores := make(map[string]*docker.ContainerStore)
+	for host, client := range clients {
+		stores[host] = docker.NewContainerStore(client)
+	}
 
-func CreateServer(clients map[string]DockerClient, content fs.FS, config Config) *http.Server {
 	handler := &handler{
 		clients: clients,
 		content: content,
 		config:  &config,
+		stores:  stores,
 	}
+
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
 
@@ -135,7 +127,7 @@ func createRouter(h *handler) *chi.Mux {
 	return r
 }
 
-func (h *handler) clientFromRequest(r *http.Request) DockerClient {
+func (h *handler) clientFromRequest(r *http.Request) docker.Client {
 	host := chi.URLParam(r, "host")
 
 	if host == "" {
