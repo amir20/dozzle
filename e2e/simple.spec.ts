@@ -5,5 +5,5 @@ test("simple authentication", async ({ page }) => {
   await page.locator('input[name="username"]').fill("admin");
   await page.locator('input[name="password"]').fill("password");
   await page.locator('button[type="submit"]').click();
-  await expect(page.getByTestId("label.containers")).toHaveText("Containers");
+  await expect(page.getByTestId("label.running-containers")).toHaveText("Running Containers");
 });
