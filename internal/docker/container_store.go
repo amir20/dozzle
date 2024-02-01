@@ -2,6 +2,8 @@ package docker
 
 import (
 	"context"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type ContainerStore struct {
@@ -83,12 +85,13 @@ func (s *ContainerStore) init(ctx context.Context) {
 	for {
 		select {
 		case event := <-events:
+			log.Debugf("received event: %+v", event)
 			switch event.Name {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					s.containers[container.ID] = container
 				}
-			case "die":
+			case "destroy":
 				delete(s.containers, event.ActorID)
 			}
 

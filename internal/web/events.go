@@ -84,7 +84,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			}
 			switch event.Name {
 			case "start", "die":
-				log.Debugf("triggering docker event: %v", event.Name)
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
 					containers := h.stores[event.Host].List()
