@@ -9,6 +9,8 @@ toolbar:
   restart: Restart
 label:
   containers: Containers
+  running-containers: Running Containers
+  all-containers: All Containers
   total-containers: Total Containers
   running: Running
   total-cpu-usage: Total CPU Usage

@@ -6,6 +6,8 @@ toolbar:
   show-all: Zeige alle Streams
 label:
   containers: Container
+  running-containers: Laufende Container
+  all-containers: Alle Container
   total-containers: Gesamte Container
   running: Laufende
   total-cpu-usage: Gesamte CPU Auslastung
