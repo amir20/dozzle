@@ -12,6 +12,7 @@ type StatsCollector struct {
 	stream      chan ContainerStat
 	subscribers []chan ContainerStat
 	client      Client
+	cancelers   map[string]context.CancelFunc
 }
 
 func NewStatsCollector(client Client) *StatsCollector {
@@ -19,6 +20,7 @@ func NewStatsCollector(client Client) *StatsCollector {
 		stream:      make(chan ContainerStat),
 		subscribers: []chan ContainerStat{},
 		client:      client,
+		cancelers:   make(map[string]context.CancelFunc),
 	}
 }
 
@@ -40,6 +42,8 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		for _, c := range containers {
 			if c.State == "running" {
 				go func(client Client, id string) {
+					ctx, cancel := context.WithCancel(ctx)
+					sc.cancelers[id] = cancel
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 							log.Errorf("unexpected error when streaming container stats: %v", err)
@@ -56,7 +60,8 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		events := make(chan ContainerEvent)
 		sc.client.Events(ctx, events)
 		for event := range events {
-			if event.Name == "start" {
+			switch event.Name {
+			case "start":
 				go func(client Client, id string) {
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
@@ -64,6 +69,12 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 						}
 					}
 				}(sc.client, event.ActorID)
+
+			case "die":
+				if cancel, ok := sc.cancelers[event.ActorID]; ok {
+					cancel()
+					delete(sc.cancelers, event.ActorID)
+				}
 			}
 		}
 	}()
