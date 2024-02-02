@@ -8,7 +8,7 @@ import (
 )
 
 type ContainerStore struct {
-	containers     sync.Map
+	containers     map[string]*Container
 	client         Client
 	statsCollector *StatsCollector
 	subscribers    sync.Map
@@ -16,7 +16,7 @@ type ContainerStore struct {
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:     sync.Map{},
+		containers:     make(map[string]*Container),
 		client:         client,
 		subscribers:    sync.Map{},
 		statsCollector: NewStatsCollector(client),
@@ -29,11 +29,10 @@ func NewContainerStore(client Client) *ContainerStore {
 }
 
 func (s *ContainerStore) List() []Container {
-	containers := make([]Container, 0)
-	s.containers.Range(func(_, value any) bool {
-		containers = append(containers, value.(Container))
-		return true
-	})
+	containers := make([]Container, 0, len(s.containers))
+	for _, c := range s.containers {
+		containers = append(containers, *c)
+	}
 
 	return containers
 }
@@ -58,7 +57,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	for _, c := range containers {
 		c := c // create a new variable to avoid capturing the loop variable
-		s.containers.Store(c.ID, c)
+		s.containers[c.ID] = &c
 	}
 
 	events := make(chan ContainerEvent)
@@ -70,20 +69,19 @@ func (s *ContainerStore) init(ctx context.Context) {
 	for {
 		select {
 		case event := <-events:
-			log.Tracef("received event: %+v", event)
+			log.Debugf("received event: %+v", event)
 			switch event.Name {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
-					s.containers.Store(container.ID, container)
+					s.containers[container.ID] = &container
 				}
 			case "destroy":
 				log.Debugf("container %s destroyed", event.ActorID)
-				s.containers.Delete(event.ActorID)
+				delete(s.containers, event.ActorID)
 
 			case "die":
-				if value, ok := s.containers.Load(event.ActorID); ok {
-					container := value.(Container)
+				if container, ok := s.containers[event.ActorID]; ok {
 					log.Debugf("container %s died", container.ID)
 					container.State = "exited"
 				}
@@ -92,8 +90,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
 				}
-				if value, ok := s.containers.Load(event.ActorID); ok {
-					container := value.(Container)
+				if container, ok := s.containers[event.ActorID]; ok {
 					log.Debugf("container %s is %s", container.ID, healthy)
 					container.Health = healthy
 				}
@@ -108,9 +105,9 @@ func (s *ContainerStore) init(ctx context.Context) {
 			})
 
 		case stat := <-stats:
-			if container, ok := s.containers.Load(stat.ID); ok {
+			if container, ok := s.containers[stat.ID]; ok {
 				stat.ID = ""
-				container.(Container).Stats.Push(stat)
+				container.Stats.Push(stat)
 			}
 		case <-ctx.Done():
 			return

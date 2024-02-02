@@ -15,7 +15,7 @@ fake_assets:
 
 .PHONY: test
 test: fake_assets
-	go test -cover ./...
+	go test -cover -race ./...
 
 .PHONY: build
 build: dist
