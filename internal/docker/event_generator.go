@@ -90,7 +90,7 @@ func (g *EventGenerator) consumeReader() {
 
 		if readerError != nil {
 			if readerError != ErrBadHeader {
-				log.Debugf("reader error: %v", readerError)
+				log.Tracef("reader error: %v", readerError)
 				g.Errors <- readerError
 				close(g.buffer)
 				break
