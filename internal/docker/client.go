@@ -306,8 +306,14 @@ func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) <-
 			select {
 			case <-ctx.Done():
 				return
+			case err, ok := <-errors:
+				if !ok {
+					log.Errorf("docker events channel closed")
+				}
+				log.Warnf("error while listening to docker events: %v", err)
 			case message, ok := <-dockerMessages:
 				if !ok {
+					log.Errorf("docker events channel closed")
 					return
 				}
 
