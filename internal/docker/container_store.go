@@ -31,7 +31,7 @@ func NewContainerStore(client Client) *ContainerStore {
 func (s *ContainerStore) List() []Container {
 	containers := make([]Container, 0)
 	s.containers.Range(func(_, value any) bool {
-		containers = append(containers, *value.(*Container))
+		containers = append(containers, value.(Container))
 		return true
 	})
 
@@ -58,7 +58,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	for _, c := range containers {
 		c := c // create a new variable to avoid capturing the loop variable
-		s.containers.Store(c.ID, &c)
+		s.containers.Store(c.ID, c)
 	}
 
 	events := make(chan ContainerEvent)
@@ -82,18 +82,20 @@ func (s *ContainerStore) init(ctx context.Context) {
 				s.containers.Delete(event.ActorID)
 
 			case "die":
-				if container, ok := s.containers.Load(event.ActorID); ok {
-					log.Debugf("container %s died", container.(*Container).ID)
-					container.(*Container).State = "exited"
+				if value, ok := s.containers.Load(event.ActorID); ok {
+					container := value.(Container)
+					log.Debugf("container %s died", container.ID)
+					container.State = "exited"
 				}
 			case "health_status: healthy", "health_status: unhealthy":
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
 				}
-				if container, ok := s.containers.Load(event.ActorID); ok {
-					log.Debugf("container %s is %s", container.(*Container).ID, healthy)
-					container.(*Container).Health = healthy
+				if value, ok := s.containers.Load(event.ActorID); ok {
+					container := value.(Container)
+					log.Debugf("container %s is %s", container.ID, healthy)
+					container.Health = healthy
 				}
 			}
 			s.subscribers.Range(func(key, value any) bool {
@@ -108,7 +110,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 		case stat := <-stats:
 			if container, ok := s.containers.Load(stat.ID); ok {
 				stat.ID = ""
-				container.(*Container).Stats.Push(stat)
+				container.(Container).Stats.Push(stat)
 			}
 		case <-ctx.Done():
 			return
