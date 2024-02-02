@@ -94,15 +94,15 @@ const data = computed(() => {
   return results.value
     .toSorted((a, b) => {
       if (a.score === b.score) {
-        if (a.item.state === "running" && b.item.state !== "running") {
+        if (a.item.state === b.item.state) {
+          return b.item.created - a.item.created;
+        } else if (a.item.state === "running" && b.item.state !== "running") {
           return -1;
         } else {
           return 1;
         }
-      } else if (a.score && b.score) {
-        return a.score - b.score;
       } else {
-        return 0;
+        return a.score - b.score;
       }
     })
     .slice(0, maxResults);
