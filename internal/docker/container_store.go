@@ -10,13 +10,14 @@ type ContainerStore struct {
 	containers     map[string]*Container
 	client         Client
 	statsCollector *StatsCollector
-	subscribers    []chan ContainerEvent
+	subscribers    map[context.Context]chan ContainerEvent
 }
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]*Container),
 		client:         client,
+		subscribers:    make(map[context.Context]chan ContainerEvent),
 		statsCollector: NewStatsCollector(client),
 	}
 
@@ -39,25 +40,12 @@ func (s *ContainerStore) Client() Client {
 	return s.client
 }
 
-func (s *ContainerStore) Subscribe(events chan ContainerEvent) {
-	s.subscribers = append(s.subscribers, events)
+func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
+	s.subscribers[ctx] = events
 }
 
-func (s *ContainerStore) Unsubscribe(toRemove chan ContainerEvent) {
-	for i, sub := range s.subscribers {
-		if sub == toRemove {
-			s.subscribers = append(s.subscribers[:i], s.subscribers[i+1:]...)
-			break
-		}
-	}
-}
-
-func (s *ContainerStore) SubscribeStats(stats chan ContainerStat) {
-	s.statsCollector.Subscribe(stats)
-}
-
-func (s *ContainerStore) UnsubscribeStats(toRemove chan ContainerStat) {
-	s.statsCollector.Unsubscribe(toRemove)
+func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
+	s.statsCollector.Subscribe(ctx, stats)
 }
 
 func (s *ContainerStore) init(ctx context.Context) {
@@ -75,8 +63,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 	s.client.Events(ctx, events)
 
 	stats := make(chan ContainerStat)
-	s.statsCollector.Subscribe(stats)
-	defer s.statsCollector.Unsubscribe(stats)
+	s.statsCollector.Subscribe(ctx, stats)
 
 	for {
 		select {
@@ -107,8 +94,12 @@ func (s *ContainerStore) init(ctx context.Context) {
 				}
 			}
 
-			for _, sub := range s.subscribers {
-				sub <- event
+			for ctx, sub := range s.subscribers {
+				select {
+				case sub <- event:
+				case <-ctx.Done():
+					delete(s.subscribers, ctx)
+				}
 			}
 		case stat := <-stats:
 			if container, ok := s.containers[stat.ID]; ok {

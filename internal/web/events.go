@@ -44,18 +44,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	for _, store := range h.stores {
 		allContainers = append(allContainers, store.List()...)
-		store.SubscribeStats(stats)
-		store.Subscribe(events)
+		store.SubscribeStats(ctx, stats)
+		store.Subscribe(ctx, events)
 	}
-
-	defer func() {
-		for _, store := range h.stores {
-			close(events)
-			close(stats)
-			store.UnsubscribeStats(stats)
-			store.Unsubscribe(events)
-		}
-	}()
 
 	if err := sendContainersJSON(allContainers, w); err != nil {
 		log.Errorf("error writing containers to event stream: %v", err)

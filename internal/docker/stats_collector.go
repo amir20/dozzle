@@ -10,7 +10,7 @@ import (
 
 type StatsCollector struct {
 	stream      chan ContainerStat
-	subscribers []chan ContainerStat
+	subscribers map[context.Context]chan ContainerStat
 	client      Client
 	cancelers   map[string]context.CancelFunc
 }
@@ -18,23 +18,14 @@ type StatsCollector struct {
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan ContainerStat),
-		subscribers: []chan ContainerStat{},
+		subscribers: make(map[context.Context]chan ContainerStat),
 		client:      client,
 		cancelers:   make(map[string]context.CancelFunc),
 	}
 }
 
-func (c *StatsCollector) Subscribe(stats chan ContainerStat) {
-	c.subscribers = append(c.subscribers, stats)
-}
-
-func (c *StatsCollector) Unsubscribe(subscriber chan ContainerStat) {
-	for i, s := range c.subscribers {
-		if s == subscriber {
-			c.subscribers = append(c.subscribers[:i], c.subscribers[i+1:]...)
-			break
-		}
-	}
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat) {
+	c.subscribers[ctx] = stats
 }
 
 func (sc *StatsCollector) StartCollecting(ctx context.Context) {
@@ -84,8 +75,12 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case stat := <-sc.stream:
-			for _, subscriber := range sc.subscribers {
-				subscriber <- stat
+			for c, sub := range sc.subscribers {
+				select {
+				case sub <- stat:
+				case <-c.Done():
+					delete(sc.subscribers, c)
+				}
 			}
 		}
 	}
