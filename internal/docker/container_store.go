@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -10,14 +11,14 @@ type ContainerStore struct {
 	containers     map[string]*Container
 	client         Client
 	statsCollector *StatsCollector
-	subscribers    map[context.Context]chan ContainerEvent
+	subscribers    sync.Map
 }
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]*Container),
 		client:         client,
-		subscribers:    make(map[context.Context]chan ContainerEvent),
+		subscribers:    sync.Map{},
 		statsCollector: NewStatsCollector(client),
 	}
 
@@ -41,7 +42,7 @@ func (s *ContainerStore) Client() Client {
 }
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
-	s.subscribers[ctx] = events
+	s.subscribers.Store(ctx, events)
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
@@ -93,14 +94,15 @@ func (s *ContainerStore) init(ctx context.Context) {
 					container.Health = healthy
 				}
 			}
-
-			for ctx, sub := range s.subscribers {
+			s.subscribers.Range(func(key, value any) bool {
 				select {
-				case sub <- event:
-				case <-ctx.Done():
-					delete(s.subscribers, ctx)
+				case value.(chan ContainerEvent) <- event:
+				case <-key.(context.Context).Done():
+					s.subscribers.Delete(key)
 				}
-			}
+				return true
+			})
+
 		case stat := <-stats:
 			if container, ok := s.containers[stat.ID]; ok {
 				container.Stats.Push(stat)

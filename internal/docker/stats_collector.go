@@ -4,28 +4,29 @@ import (
 	"context"
 	"errors"
 	"io"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type StatsCollector struct {
 	stream      chan ContainerStat
-	subscribers map[context.Context]chan ContainerStat
+	subscribers sync.Map
 	client      Client
-	cancelers   map[string]context.CancelFunc
+	cancelers   sync.Map
 }
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan ContainerStat),
-		subscribers: make(map[context.Context]chan ContainerStat),
+		subscribers: sync.Map{},
 		client:      client,
-		cancelers:   make(map[string]context.CancelFunc),
+		cancelers:   sync.Map{},
 	}
 }
 
 func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat) {
-	c.subscribers[ctx] = stats
+	c.subscribers.Store(ctx, stats)
 }
 
 func (sc *StatsCollector) StartCollecting(ctx context.Context) {
@@ -34,7 +35,7 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 			if c.State == "running" {
 				go func(client Client, id string) {
 					ctx, cancel := context.WithCancel(ctx)
-					sc.cancelers[id] = cancel
+					sc.cancelers.Store(id, cancel)
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 							log.Errorf("unexpected error when streaming container stats: %v", err)
@@ -62,9 +63,8 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 				}(sc.client, event.ActorID)
 
 			case "die":
-				if cancel, ok := sc.cancelers[event.ActorID]; ok {
-					cancel()
-					delete(sc.cancelers, event.ActorID)
+				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
+					cancel.(context.CancelFunc)()
 				}
 			}
 		}
@@ -75,13 +75,14 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case stat := <-sc.stream:
-			for c, sub := range sc.subscribers {
+			sc.subscribers.Range(func(key, value interface{}) bool {
 				select {
-				case sub <- stat:
-				case <-c.Done():
-					delete(sc.subscribers, c)
+				case value.(chan ContainerStat) <- stat:
+				case <-key.(context.Context).Done():
+					sc.subscribers.Delete(key)
 				}
-			}
+				return true
+			})
 		}
 	}
 }
