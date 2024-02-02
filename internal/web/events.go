@@ -50,6 +50,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {
 		for _, store := range h.stores {
+			close(events)
+			close(stats)
 			store.UnsubscribeStats(stats)
 			store.Unsubscribe(events)
 		}
