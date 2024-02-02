@@ -2,22 +2,23 @@ package docker
 
 import (
 	"context"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type ContainerStore struct {
-	containers     map[string]*Container
+	containers     sync.Map
 	client         Client
 	statsCollector *StatsCollector
-	subscribers    map[context.Context]chan ContainerEvent
+	subscribers    sync.Map
 }
 
 func NewContainerStore(client Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:     make(map[string]*Container),
+		containers:     sync.Map{},
 		client:         client,
-		subscribers:    make(map[context.Context]chan ContainerEvent),
+		subscribers:    sync.Map{},
 		statsCollector: NewStatsCollector(client),
 	}
 
@@ -28,10 +29,11 @@ func NewContainerStore(client Client) *ContainerStore {
 }
 
 func (s *ContainerStore) List() []Container {
-	containers := make([]Container, 0, len(s.containers))
-	for _, c := range s.containers {
-		containers = append(containers, *c)
-	}
+	containers := make([]Container, 0)
+	s.containers.Range(func(_, value any) bool {
+		containers = append(containers, value.(Container))
+		return true
+	})
 
 	return containers
 }
@@ -41,7 +43,7 @@ func (s *ContainerStore) Client() Client {
 }
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
-	s.subscribers[ctx] = events
+	s.subscribers.Store(ctx, events)
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
@@ -56,7 +58,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	for _, c := range containers {
 		c := c // create a new variable to avoid capturing the loop variable
-		s.containers[c.ID] = &c
+		s.containers.Store(c.ID, c)
 	}
 
 	events := make(chan ContainerEvent)
@@ -72,14 +74,16 @@ func (s *ContainerStore) init(ctx context.Context) {
 			switch event.Name {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
-					s.containers[container.ID] = &container
+					log.Debugf("container %s started", container.ID)
+					s.containers.Store(container.ID, container)
 				}
 			case "destroy":
 				log.Debugf("container %s destroyed", event.ActorID)
-				delete(s.containers, event.ActorID)
+				s.containers.Delete(event.ActorID)
 
 			case "die":
-				if container, ok := s.containers[event.ActorID]; ok {
+				if value, ok := s.containers.Load(event.ActorID); ok {
+					container := value.(Container)
 					log.Debugf("container %s died", container.ID)
 					container.State = "exited"
 				}
@@ -88,22 +92,25 @@ func (s *ContainerStore) init(ctx context.Context) {
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
 				}
-				if container, ok := s.containers[event.ActorID]; ok {
+				if value, ok := s.containers.Load(event.ActorID); ok {
+					container := value.(Container)
 					log.Debugf("container %s is %s", container.ID, healthy)
 					container.Health = healthy
 				}
 			}
-
-			for ctx, sub := range s.subscribers {
+			s.subscribers.Range(func(key, value any) bool {
 				select {
-				case sub <- event:
-				case <-ctx.Done():
-					delete(s.subscribers, ctx)
+				case value.(chan ContainerEvent) <- event:
+				case <-key.(context.Context).Done():
+					s.subscribers.Delete(key)
 				}
-			}
+				return true
+			})
+
 		case stat := <-stats:
-			if container, ok := s.containers[stat.ID]; ok {
-				container.Stats.Push(stat)
+			if container, ok := s.containers.Load(stat.ID); ok {
+				stat.ID = ""
+				container.(Container).Stats.Push(stat)
 			}
 		case <-ctx.Done():
 			return
