@@ -43,7 +43,7 @@ error:
   events-timeout:
     title: Something is not right
     message: >-
-      Dozzle UI timeed out while connecting to API. Please check network
+      Dozzle UI timed out while connecting to API. Please check network
       connection and try again.
 alert:
   redirected:
@@ -53,7 +53,7 @@ alert:
     title: Similar container found
     message: >-
       Dozzle found a similar container {containerId} that is running on the same
-      host. Do you want to switch to it?
+      host and will automatically switch to it unless you click 'Cancel'.
 title:
   page-not-found: Page not found
   login: Authentication Required
