@@ -42,7 +42,7 @@ func TestContainerStore_List(t *testing.T) {
 			Name: "test",
 		},
 	}, nil)
-
+	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(make(chan error))
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
@@ -80,7 +80,6 @@ func TestContainerStore_die(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
-
 	store := NewContainerStore(ctx, client)
 
 	// Wait until we get the event
