@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +22,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	mockedClient := new(MockedClient)
 	errChannel := make(chan error)
 
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
+	mockedClient.On("ListContainers").Return([]docker.Container{}, nil).Twice()
 	mockedClient.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(errChannel).Run(func(args mock.Arguments) {
 		messages := args.Get(1).(chan<- docker.ContainerEvent)
 		go func() {
@@ -37,7 +36,6 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 				ActorID: "1234",
 				Host:    "localhost",
 			}
-			time.Sleep(100 * time.Millisecond)
 			cancel()
 		}()
 	})
@@ -46,7 +44,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		Name:  "test",
 		Image: "test",
 		Stats: utils.NewRingBuffer[docker.ContainerStat](300), // 300 seconds of stats
-	}, nil)
+	}, nil).Once()
 
 	clients := map[string]docker.Client{
 		"localhost": mockedClient,
