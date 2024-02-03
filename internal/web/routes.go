@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"io/fs"
 
 	"net/http"
@@ -53,7 +54,7 @@ type handler struct {
 func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
 	stores := make(map[string]*docker.ContainerStore)
 	for host, client := range clients {
-		stores[host] = docker.NewContainerStore(client)
+		stores[host] = docker.NewContainerStore(context.Background(), client)
 	}
 
 	handler := &handler{
