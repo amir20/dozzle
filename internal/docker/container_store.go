@@ -14,7 +14,7 @@ type ContainerStore struct {
 	subscribers    sync.Map
 }
 
-func NewContainerStore(client Client) *ContainerStore {
+func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:     make(map[string]*Container),
 		client:         client,
@@ -22,8 +22,18 @@ func NewContainerStore(client Client) *ContainerStore {
 		statsCollector: NewStatsCollector(client),
 	}
 
-	go s.init(context.Background())
-	go s.statsCollector.StartCollecting(context.Background())
+	containers, err := s.client.ListContainers()
+	if err != nil {
+		log.Fatalf("error while listing containers: %v", err)
+	}
+
+	for _, c := range containers {
+		c := c // create a new variable to avoid capturing the loop variable
+		s.containers[c.ID] = &c
+	}
+
+	go s.init(ctx)
+	go s.statsCollector.StartCollecting(ctx)
 
 	return s
 }
@@ -50,16 +60,6 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan Containe
 }
 
 func (s *ContainerStore) init(ctx context.Context) {
-	containers, err := s.client.ListContainers()
-	if err != nil {
-		log.Fatalf("error while listing containers: %v", err)
-	}
-
-	for _, c := range containers {
-		c := c // create a new variable to avoid capturing the loop variable
-		s.containers[c.ID] = &c
-	}
-
 	events := make(chan ContainerEvent)
 	s.client.Events(ctx, events)
 
