@@ -55,6 +55,8 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 			switch event.Name {
 			case "start":
 				go func(client Client, id string) {
+					ctx, cancel := context.WithCancel(ctx)
+					sc.cancelers.Store(id, cancel)
 					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
 						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 							log.Errorf("unexpected error when streaming container stats: %v", err)
