@@ -2,23 +2,23 @@ package docker
 
 import (
 	"context"
-	"sync"
 
+	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
 )
 
 type ContainerStore struct {
-	containers     map[string]*Container
+	containers     *xsync.MapOf[string, *Container]
+	subscribers    *xsync.MapOf[context.Context, chan ContainerEvent]
 	client         Client
 	statsCollector *StatsCollector
-	subscribers    sync.Map
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:     make(map[string]*Container),
+		containers:     xsync.NewMapOf[string, *Container](),
 		client:         client,
-		subscribers:    sync.Map{},
+		subscribers:    xsync.NewMapOf[context.Context, chan ContainerEvent](),
 		statsCollector: NewStatsCollector(client),
 	}
 
@@ -29,7 +29,7 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 
 	for _, c := range containers {
 		c := c // create a new variable to avoid capturing the loop variable
-		s.containers[c.ID] = &c
+		s.containers.Store(c.ID, &c)
 	}
 
 	go s.init(ctx)
@@ -39,10 +39,11 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 }
 
 func (s *ContainerStore) List() []Container {
-	containers := make([]Container, 0, len(s.containers))
-	for _, c := range s.containers {
+	containers := make([]Container, 0)
+	s.containers.Range(func(_ string, c *Container) bool {
 		containers = append(containers, *c)
-	}
+		return true
+	})
 
 	return containers
 }
@@ -74,14 +75,14 @@ func (s *ContainerStore) init(ctx context.Context) {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
-					s.containers[container.ID] = &container
+					s.containers.Store(container.ID, &container)
 				}
 			case "destroy":
 				log.Debugf("container %s destroyed", event.ActorID)
-				delete(s.containers, event.ActorID)
+				s.containers.Delete(event.ActorID)
 
 			case "die":
-				if container, ok := s.containers[event.ActorID]; ok {
+				if container, ok := s.containers.Load(event.ActorID); ok {
 					log.Debugf("container %s died", container.ID)
 					container.State = "exited"
 				}
@@ -90,22 +91,22 @@ func (s *ContainerStore) init(ctx context.Context) {
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
 				}
-				if container, ok := s.containers[event.ActorID]; ok {
+				if container, ok := s.containers.Load(event.ActorID); ok {
 					log.Debugf("container %s is %s", container.ID, healthy)
 					container.Health = healthy
 				}
 			}
-			s.subscribers.Range(func(key, value any) bool {
+			s.subscribers.Range(func(c context.Context, events chan ContainerEvent) bool {
 				select {
-				case value.(chan ContainerEvent) <- event:
-				case <-key.(context.Context).Done():
-					s.subscribers.Delete(key)
+				case events <- event:
+				case <-c.Done():
+					s.subscribers.Delete(c)
 				}
 				return true
 			})
 
 		case stat := <-stats:
-			if container, ok := s.containers[stat.ID]; ok {
+			if container, ok := s.containers.Load(stat.ID); ok {
 				stat.ID = ""
 				container.Stats.Push(stat)
 			}
