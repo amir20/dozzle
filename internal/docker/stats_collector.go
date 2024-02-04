@@ -4,24 +4,24 @@ import (
 	"context"
 	"errors"
 	"io"
-	"sync"
 
+	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
 )
 
 type StatsCollector struct {
 	stream      chan ContainerStat
-	subscribers sync.Map
+	subscribers *xsync.MapOf[context.Context, chan ContainerStat]
 	client      Client
-	cancelers   sync.Map
+	cancelers   *xsync.MapOf[string, context.CancelFunc]
 }
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan ContainerStat),
-		subscribers: sync.Map{},
+		subscribers: xsync.NewMapOf[context.Context, chan ContainerStat](),
 		client:      client,
-		cancelers:   sync.Map{},
+		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
 	}
 }
 
@@ -64,7 +64,7 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 
 			case "die":
 				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
-					cancel.(context.CancelFunc)()
+					cancel()
 				}
 			}
 		}
@@ -75,11 +75,11 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(key, value interface{}) bool {
+			sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
 				select {
-				case value.(chan ContainerStat) <- stat:
-				case <-key.(context.Context).Done():
-					sc.subscribers.Delete(key)
+				case stats <- stat:
+				case <-c.Done():
+					sc.subscribers.Delete(c)
 				}
 				return true
 			})
