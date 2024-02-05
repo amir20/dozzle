@@ -42,23 +42,15 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 const mostRecentContainers = $computed(() => containers.value.toSorted((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
-let totalCpu = $ref(0);
-useIntervalFn(
-  () => {
-    totalCpu = runningContainers.reduce((acc, c) => acc + c.stat.cpu, 0);
-  },
-  1000,
-  { immediate: true },
-);
+let totalCpu = $ref(runningContainers.reduce((acc, c) => acc + c.stat.cpu, 0));
+useIntervalFn(() => {
+  totalCpu = runningContainers.reduce((acc, c) => acc + c.stat.cpu, 0);
+}, 1000);
 
-let totalMem = $ref(0);
-useIntervalFn(
-  () => {
-    totalMem = runningContainers.reduce((acc, c) => acc + c.stat.memoryUsage, 0);
-  },
-  1000,
-  { immediate: true },
-);
+let totalMem = $ref(runningContainers.reduce((acc, c) => acc + c.stat.memoryUsage, 0));
+useIntervalFn(() => {
+  totalMem = runningContainers.reduce((acc, c) => acc + c.stat.memoryUsage, 0);
+}, 1000);
 
 watchEffect(() => {
   if (ready.value) {

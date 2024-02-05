@@ -30,6 +30,9 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat
 }
 
 func (sc *StatsCollector) StartCollecting(ctx context.Context) {
+	events := make(chan ContainerEvent)
+	sc.client.Events(ctx, events)
+
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
@@ -49,8 +52,6 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 	}
 
 	go func() {
-		events := make(chan ContainerEvent)
-		sc.client.Events(ctx, events)
 		for event := range events {
 			switch event.Name {
 			case "start":
@@ -72,19 +73,21 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 		}
 	}()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
-				select {
-				case stats <- stat:
-				case <-c.Done():
-					sc.subscribers.Delete(c)
-				}
-				return true
-			})
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case stat := <-sc.stream:
+				sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
+					select {
+					case stats <- stat:
+					case <-c.Done():
+						sc.subscribers.Delete(c)
+					}
+					return true
+				})
+			}
 		}
-	}
+	}()
 }

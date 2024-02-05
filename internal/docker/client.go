@@ -301,7 +301,6 @@ func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) <-
 	dockerMessages, errors := d.cli.Events(ctx, types.EventsOptions{})
 
 	go func() {
-
 		for {
 			select {
 			case <-ctx.Done():
