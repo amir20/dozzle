@@ -67,6 +67,13 @@ func (s *ContainerStore) init(ctx context.Context) {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(ctx, stats)
 
+	if containers, err := s.client.ListContainers(); err == nil {
+		for _, c := range containers {
+			c := c // create a new variable to avoid capturing the loop variable
+			s.containers.LoadOrStore(c.ID, &c)
+		}
+	}
+
 	for {
 		select {
 		case event := <-events:
