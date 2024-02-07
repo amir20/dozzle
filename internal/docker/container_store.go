@@ -65,7 +65,6 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	if containers, err := s.client.ListContainers(); err == nil {
 		for _, c := range containers {
-			c := c // create a new variable to avoid capturing the loop variable
 			s.containers.Store(c.ID, &c)
 		}
 	} else {
