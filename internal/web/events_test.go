@@ -27,6 +27,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	mockedClient.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(errChannel).Run(func(args mock.Arguments) {
 		messages := args.Get(1).(chan<- docker.ContainerEvent)
 		go func() {
+			time.Sleep(50 * time.Millisecond)
 			messages <- docker.ContainerEvent{
 				Name:    "start",
 				ActorID: "1234",
@@ -37,7 +38,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 				ActorID: "1234",
 				Host:    "localhost",
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 			cancel()
 		}()
 	})
@@ -54,6 +55,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 
 	// This is needed so that the server is initialized for store
 	server := CreateServer(clients, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+
 	handler := server.Handler
 	rr := httptest.NewRecorder()
 
