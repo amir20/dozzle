@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"sync"
 
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
@@ -12,6 +13,7 @@ type ContainerStore struct {
 	subscribers    *xsync.MapOf[context.Context, chan ContainerEvent]
 	client         Client
 	statsCollector *StatsCollector
+	wg             sync.WaitGroup
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
@@ -20,17 +22,10 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 		client:         client,
 		subscribers:    xsync.NewMapOf[context.Context, chan ContainerEvent](),
 		statsCollector: NewStatsCollector(client),
+		wg:             sync.WaitGroup{},
 	}
 
-	containers, err := s.client.ListContainers()
-	if err != nil {
-		log.Fatalf("error while listing containers: %v", err)
-	}
-
-	for _, c := range containers {
-		c := c // create a new variable to avoid capturing the loop variable
-		s.containers.Store(c.ID, &c)
-	}
+	s.wg.Add(1)
 
 	go s.init(ctx)
 	go s.statsCollector.StartCollecting(ctx)
@@ -39,6 +34,7 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 }
 
 func (s *ContainerStore) List() []Container {
+	s.wg.Wait()
 	containers := make([]Container, 0)
 	s.containers.Range(func(_ string, c *Container) bool {
 		containers = append(containers, *c)
@@ -66,6 +62,16 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(ctx, stats)
+
+	if containers, err := s.client.ListContainers(); err == nil {
+		for _, c := range containers {
+			s.containers.Store(c.ID, &c)
+		}
+	} else {
+		log.Fatalf("error listing containers: %v", err)
+	}
+
+	s.wg.Done()
 
 	for {
 		select {
