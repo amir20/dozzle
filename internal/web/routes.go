@@ -11,7 +11,6 @@ import (
 	"github.com/amir20/dozzle/internal/docker"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -117,7 +116,7 @@ func createRouter(h *handler) *chi.Mux {
 
 		r.Get("/healthcheck", h.healthcheck)
 
-		r.Mount("/debug", middleware.Profiler())
+		// r.Mount("/debug", middleware.Profiler())
 	})
 
 	if base != "/" {

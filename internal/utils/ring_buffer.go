@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"encoding/json"
 	"sync"
+
+	"github.com/goccy/go-json"
 )
 
 type RingBuffer[T any] struct {
