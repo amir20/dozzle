@@ -1,10 +1,11 @@
 package web
 
 import (
-	"encoding/json"
 	"html/template"
 	"io"
 	"sort"
+
+	"github.com/goccy/go-json"
 
 	"net/http"
 	"path"
