@@ -44,9 +44,6 @@ dependencies:
   '@vueuse/integrations':
     specifier: ^10.7.2
     version: 10.7.2(focus-trap@7.5.4)(fuse.js@7.0.0)(vue@3.4.18)
-  '@vueuse/math':
-    specifier: ^10.7.2
-    version: 10.7.2(vue@3.4.18)
   '@vueuse/router':
     specifier: ^10.7.2
     version: 10.7.2(vue-router@4.2.5)(vue@3.4.18)
@@ -163,9 +160,6 @@ devDependencies:
   '@types/node':
     specifier: ^20.11.17
     version: 20.11.17
-  '@types/semver':
-    specifier: ^7.5.6
-    version: 7.5.6
   '@vitejs/plugin-vue':
     specifier: 5.0.4
     version: 5.0.4(vite@5.1.1)(vue@3.4.18)
@@ -1157,10 +1151,6 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
-  /@types/semver@7.5.6:
-    resolution: {integrity: sha512-dn1l8LaMea/IjDoHNd9J52uBbInB796CDffS6VdIxvqYCPSG0V0DzHp76GpaWnlhg88uYyPbXCDIowa86ybd5A==}
-    dev: true
-
   /@types/web-bluetooth@0.0.20:
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
 
@@ -1791,16 +1781,6 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
-
-  /@vueuse/math@10.7.2(vue@3.4.18):
-    resolution: {integrity: sha512-Z1h/kdW5f4c/v/QOpWFFaEx4UaIt7xQTxoDnxQAx1gHGHpGYTtBlQHm80zrRodCz0auyBZMkALkCgKinzGggXw==}
-    dependencies:
-      '@vueuse/shared': 10.7.2(vue@3.4.18)
-      vue-demi: 0.14.6(vue@3.4.18)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-    dev: false
 
   /@vueuse/metadata@10.7.2:
     resolution: {integrity: sha512-kCWPb4J2KGrwLtn1eJwaJD742u1k5h6v/St5wFe8Quih90+k2a0JP8BS4Zp34XUuJqS2AxFYMb1wjUL8HfhWsQ==}
