@@ -1,0 +1,99 @@
+toolbar:
+  clear: Pulisci
+  download: Scarica
+  search: Cerca
+  show: Mostra solo {std}
+  show-all: Mostra tutto
+  stop: Stop
+  start: Start
+  restart: Restart
+label:
+  containers: Container
+  running-containers: Container in esecuzione
+  all-containers: Tutti i Container
+  total-containers: Container Totali
+  running: In esecuzione
+  total-cpu-usage: Utilizzo Totale della CPU
+  total-mem-usage: Utilizzo Totale della Memoria
+  dozzle-version: Versione Dozzle
+  all: Tutto
+  host: Host
+  password: Password
+  username: Username
+  container-name: Nome Container
+  status: Stato
+  created: Creato
+  avg-cpu: CPU (%)
+  avg-mem: MEM (%)
+  pinned: Spuntato
+tooltip:
+  search: Ricerca container (⌘ + k, ⌃k)
+  pin-column: Blocca come colonna
+error:
+  page-not-found: Questa pagina non esiste
+  invalid-auth: Username o password non valide
+  logs-skipped: Saltato {total} registrazioni
+  container-not-found: Container non trovato
+  events-stream:
+    title: Errore inaspettato
+    message: >-
+      Dozzle UI non è stato in grado di connettersi alle API. Controlla la tua configurazione di rete.
+      Se stai utilizzando un reverse proxy, assicurati di averlo configurato correttamente.
+  events-timeout:
+    title: Qualcosa non è corretto
+    message: >-
+      Dozzle UI timed out durante la connessione alle API. Controlla la configurazione di rete e riprova.
+alert:
+  redirected:
+    title: Reindirizzamento ad un nuovo container
+    message: Dozzle automaticamente si è reindirizzato ad un nuovo container {containerId}.
+  similar-container-found:
+    title: Trovato un Container simile
+    message: >-
+      Dozzle ha trovato un Container soimile {containerId} in esecuzione sullo stesso Host and verrà automaticamente agganciato ad esso se non premi 'Cancel'.
+title:
+  page-not-found: Pagina non trovata
+  login: Autenticazione richiesta
+  dashboard: 1 container | {count} container
+  settings: Configurazione
+button:
+  logout: Logout
+  login: Login
+  settings: Configurazione
+placeholder:
+  search-containers: Ricerca container (⌘ + k, ⌃k)
+settings:
+  display: Visualizza
+  locale: Sovrascrivi Linguaggio
+  small-scrollbars: Usa una scrollbars più piccola
+  show-timesamps: Visualizza timestamp
+  soft-wrap: Linee morbide
+  datetime-format: Sovrascrivi data e formato dell'ora
+  font-size: Grandezza del Font da usare nei log
+  color-scheme: Schema colori
+  options: Opzioni
+  show-stopped-containers: Visualizza i container fermi
+  about: Circa
+  search: Abilita la ricerca attraverso Dozzle
+  using-version: Stai utilizzando Dozzle {version}.
+  update-available: >-
+    Nuova versione disponibile! Aggiorna a <a href="{href}" target="_blank"
+    rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Visualizza stdout e stderr
+  automatic-redirect: Automaticamente reindirizza al nuovo container con lo stesso nome
+  compact: Abilita il compact mode per i log
+releases:
+  features: nuova funzione | {count} funzioni
+  bugFixes: nuovo bug fix | {count} fix
+  breaking: nuovo breaking change | {count} breaking change
+  three_parts: "{first}, {second} e {third}"
+  two_parts: "{first} e {second}"
+  latest: Ultimo
+  no_releases: Stai utilizzando l'ultima versione
+log_actions:
+  copy_log: Copia log
+  jump_to_context: Vai a
+toasts:
+  copied:
+    title: Copiato
+    message: Log copiato nella clipboard
