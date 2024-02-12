@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@iconify-json/carbon':
-    specifier: ^1.1.29
-    version: 1.1.29
+    specifier: ^1.1.30
+    version: 1.1.30
   '@iconify-json/cil':
     specifier: ^1.1.8
     version: 1.1.8
@@ -69,8 +69,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^4.6.2
-    version: 4.6.2(postcss@8.4.35)
+    specifier: ^4.6.3
+    version: 4.6.3(postcss@8.4.35)
   date-fns:
     specifier: ^3.3.1
     version: 3.3.1
@@ -633,8 +633,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@iconify-json/carbon@1.1.29:
-    resolution: {integrity: sha512-zfyvX/kPItpBEU0fV0FhMW8Ln8PJX6is/L/GX7z9OOoVWEz1k8IlbK3KoBBH6ODZ8HHKG7HQ9FZ4nNl6RDe0Lw==}
+  /@iconify-json/carbon@1.1.30:
+    resolution: {integrity: sha512-tEvEmxCO0J0t0p2NT2IvJ+iiSNqqnabygSo/S8wkeh2Guhc4tQOgl9dxvDMpy6RqwtKRTKsaROPtnRfu/bl+Tg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: false
@@ -2387,8 +2387,8 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
-  /daisyui@4.6.2(postcss@8.4.35):
-    resolution: {integrity: sha512-LBIbI76wVVRCQt1Uis2Y2/PRdGfMkNMFsHOjfpav8n7SamwRwPOCiNUClIrnX2jerWW3mLZlzRMCnQfxmGEjow==}
+  /daisyui@4.6.3(postcss@8.4.35):
+    resolution: {integrity: sha512-0Y8G0EwO1aQlvhasDuUAYH35XCK/808dwYdkT4VqQ2kqtErcd/MFaHqK4CGhXwf6PWsWImmIpotFehWkUrlxnw==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
