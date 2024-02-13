@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.15.1",
+ "packageManager": "pnpm@8.15.2",
  "type": "module",
  "repository": {
   "type": "git",
@@ -49,7 +49,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.6.3",
+  "daisyui": "^4.7.0",
   "date-fns": "^3.3.1",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -66,7 +66,7 @@
   "vite": "5.1.1",
   "vite-plugin-pages": "^0.32.0",
   "vite-plugin-vue-layouts": "^0.11.0",
-  "vue": "^3.4.18",
+  "vue": "^3.4.19",
   "vue-i18n": "^9.9.1",
   "vue-router": "^4.2.5"
  },
@@ -82,7 +82,7 @@
   "@types/lodash.debounce": "^4.0.9",
   "@types/node": "^20.11.17",
   "@vitejs/plugin-vue": "5.0.4",
-  "@vue/compiler-sfc": "^3.4.18",
+  "@vue/compiler-sfc": "^3.4.19",
   "@vue/test-utils": "^2.4.4",
   "bumpp": "^9.3.0",
   "c8": "^9.1.0",
