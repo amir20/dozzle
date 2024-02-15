@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"io"
+	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
@@ -14,7 +17,14 @@ type StatsCollector struct {
 	subscribers *xsync.MapOf[context.Context, chan ContainerStat]
 	client      Client
 	cancelers   *xsync.MapOf[string, context.CancelFunc]
+	running     atomic.Bool
+	stopper     context.CancelFunc
+	timer       *time.Timer
+	mu          sync.Mutex
 }
+
+var minActiveContainers = 50
+var timeToStop = 12 * time.Hour
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
@@ -29,7 +39,37 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat
 	c.subscribers.Store(ctx, stats)
 }
 
-func (sc *StatsCollector) StartCollecting(ctx context.Context) {
+func (c *StatsCollector) IsRunning() bool {
+	return c.running.Load()
+}
+
+func (c *StatsCollector) Stop() {
+	if c.stopper != nil {
+		c.stopper()
+		c.stopper = nil
+	}
+}
+
+func (c *StatsCollector) scheduleForStopping() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.timer != nil {
+		c.timer.Stop()
+	}
+	c.timer = time.AfterFunc(timeToStop, func() {
+		if c.subscribers.Size() > minActiveContainers {
+			c.Stop()
+		}
+	})
+}
+
+func (sc *StatsCollector) Start(ctx context.Context) {
+	if !sc.running.CompareAndSwap(false, true) {
+		return
+	}
+	ctx, sc.stopper = context.WithCancel(ctx)
+	sc.scheduleForStopping()
+
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
@@ -75,6 +115,8 @@ func (sc *StatsCollector) StartCollecting(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			sc.running.Store(false)
+			log.Info("stopped collecting container stats")
 			return
 		case stat := <-sc.stream:
 			sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
