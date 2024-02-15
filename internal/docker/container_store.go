@@ -28,7 +28,7 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s.wg.Add(1)
 
 	go s.init(ctx)
-	go s.statsCollector.StartCollecting(ctx)
+	go s.statsCollector.Start(ctx)
 
 	return s
 }
@@ -49,6 +49,10 @@ func (s *ContainerStore) Client() Client {
 }
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
+	if !s.statsCollector.IsRunning() {
+		go s.statsCollector.Start(context.Background())
+	}
+
 	s.subscribers.Store(ctx, events)
 }
 
