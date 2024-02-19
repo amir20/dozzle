@@ -129,6 +129,7 @@ const sortedContainers = computedWithControl(
 const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage.value));
 const isPaginated = computed(() => totalPages.value > 1);
 const currentPage = ref(1);
+watch(perPage, () => (currentPage.value = 1));
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * perPage.value;
   const end = start + perPage.value;
