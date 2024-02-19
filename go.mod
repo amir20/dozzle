@@ -26,9 +26,10 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/go-chi/chi/v5 v5.0.11
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/go-logfmt/logfmt v0.6.0
+	github.com/goccy/go-json v0.10.2
 	github.com/puzpuzpuz/xsync/v3 v3.0.2
 	github.com/yuin/goldmark v1.7.0
 )
@@ -43,7 +44,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
