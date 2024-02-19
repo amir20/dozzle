@@ -334,8 +334,8 @@ func (d *_client) ContainerLogsBetweenDates(ctx context.Context, id string, from
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
 		Timestamps: true,
-		Since:      from.Format(time.RFC3339),
-		Until:      to.Format(time.RFC3339),
+		Since:      from.Format(time.RFC3339Nano),
+		Until:      to.Format(time.RFC3339Nano),
 	}
 
 	log.Debugf("fetching logs from Docker with option: %+v", options)
