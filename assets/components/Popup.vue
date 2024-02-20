@@ -40,7 +40,7 @@ const onMouseLeave = () => {
   glopbalShow.value = false;
 };
 
-const el = useCurrentElement();
+const el: Ref<HTMLElement> = useCurrentElement();
 useEventListener(() => el.value?.nextElementSibling, "mouseenter", onMouseEnter);
 useEventListener(() => el.value?.nextElementSibling, "mouseleave", onMouseLeave);
 </script>
