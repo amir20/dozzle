@@ -4,12 +4,12 @@
       <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
-        class="input input-ghost input-lg flex-1 px-1"
+        class="input input-lg input-ghost flex-1 px-1"
         ref="input"
-        @keyup.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
-        @keyup.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
-        @keyup.enter.exact="selected(data[selectedIndex].item)"
-        @keyup.alt.enter="addColumn(data[selectedIndex])"
+        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
+        @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
+        @keydown.enter.exact="selected(data[selectedIndex].item)"
+        @keydown.alt.enter="addColumn(data[selectedIndex])"
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
       />
@@ -147,5 +147,9 @@ function matchedName({ item, matches = [] }: { item: { name: string }; matches?:
 <style scoped lang="postcss">
 :deep(mark) {
   @apply bg-transparent text-inherit underline underline-offset-2;
+}
+
+.menu a {
+  @apply transition-none duration-0;
 }
 </style>
