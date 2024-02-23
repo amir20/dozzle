@@ -73,7 +73,7 @@ describe("<FuzzySearchModal />", () => {
   test("choose baz", async () => {
     const wrapper = createFuzzySearchModal();
     await wrapper.find("input").setValue("baz");
-    await wrapper.find("input").trigger("keyup.enter");
+    await wrapper.find("input").trigger("keydown.enter");
     expect(useRouter().push).toHaveBeenCalledWith({ name: "container-id", params: { id: "567" } });
   });
 });
