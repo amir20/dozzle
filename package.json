@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.15.3",
+ "packageManager": "pnpm@8.15.4",
  "type": "module",
  "repository": {
   "type": "git",
@@ -80,7 +80,7 @@
   "@types/d3-shape": "^3.1.6",
   "@types/d3-transition": "^3.0.8",
   "@types/lodash.debounce": "^4.0.9",
-  "@types/node": "^20.11.19",
+  "@types/node": "^20.11.20",
   "@vitejs/plugin-vue": "5.0.4",
   "@vue/compiler-sfc": "^3.4.19",
   "@vue/test-utils": "^2.4.4",
