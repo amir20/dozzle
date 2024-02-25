@@ -30,7 +30,7 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/go-logfmt/logfmt v0.6.0
 	github.com/goccy/go-json v0.10.2
-	github.com/puzpuzpuz/xsync/v3 v3.0.2
+	github.com/puzpuzpuz/xsync/v3 v3.1.0
 	github.com/yuin/goldmark v1.7.0
 )
 
