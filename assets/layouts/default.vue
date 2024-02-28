@@ -27,7 +27,7 @@
     <label
       class="btn btn-circle swap btn-neutral swap-rotate fixed -left-12 bottom-4 w-16 transition-all hover:-left-4"
       :class="{ '!-left-6': collapseNav }"
-      v-if="!isMobile"
+      v-if="!isMobile && !forceMenuHidden"
     >
       <input type="checkbox" v-model="collapseNav" />
       <mdi:chevron-right class="swap-on" />
