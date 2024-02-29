@@ -1,8 +1,8 @@
 <template>
   <div>
-    <mobile-menu v-if="isMobile" @search="showFuzzySearch"></mobile-menu>
+    <mobile-menu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></mobile-menu>
     <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav">
+      <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
         <side-panel @search="showFuzzySearch"></side-panel>
       </pane>
       <pane min-size="10">
@@ -27,7 +27,7 @@
     <label
       class="btn btn-circle swap btn-neutral swap-rotate fixed -left-12 bottom-4 w-16 transition-all hover:-left-4"
       :class="{ '!-left-6': collapseNav }"
-      v-if="!isMobile"
+      v-if="!isMobile && !forceMenuHidden"
     >
       <input type="checkbox" v-model="collapseNav" />
       <mdi:chevron-right class="swap-on" />
@@ -79,6 +79,8 @@ const { toasts, removeToast } = useToast();
 
 const modal = ref<HTMLDialogElement>();
 const open = ref(false);
+const searchParams = new URLSearchParams(window.location.search);
+const forceMenuHidden = ref(searchParams.has("hideMenu"));
 
 watch(open, () => {
   if (open.value) {
