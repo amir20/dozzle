@@ -90,8 +90,8 @@ dependencies:
     specifier: ^8.4.35
     version: 8.4.35
   postcss-mixins:
-    specifier: ^9.0.4
-    version: 9.0.4(postcss@8.4.35)
+    specifier: ^10.0.0
+    version: 10.0.0(postcss@8.4.35)
   splitpanes:
     specifier: ^3.1.5
     version: 3.1.5
@@ -2713,17 +2713,6 @@ packages:
       parse-code-context: 1.0.0
     dev: false
 
-  /fast-glob@3.3.1:
-    resolution: {integrity: sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==}
-    engines: {node: '>=8.6.0'}
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      '@nodelib/fs.walk': 1.2.8
-      glob-parent: 5.1.2
-      merge2: 1.4.1
-      micromatch: 4.0.5
-    dev: false
-
   /fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
     engines: {node: '>=8.6.0'}
@@ -3902,13 +3891,13 @@ packages:
       yaml: 2.3.4
     dev: false
 
-  /postcss-mixins@9.0.4(postcss@8.4.35):
-    resolution: {integrity: sha512-XVq5jwQJDRu5M1XGkdpgASqLk37OqkH4JCFDXl/Dn7janOJjCTEKL+36cnRVy7bMtoBzALfO7bV7nTIsFnUWLA==}
-    engines: {node: '>=14.0'}
+  /postcss-mixins@10.0.0(postcss@8.4.35):
+    resolution: {integrity: sha512-CHw+Q8Y7Jz67lqyXbVezvWUsXPVEdPEVLKFb0u8hSRKWzdHMIGwwkZDf17tgAmFOYyoM529WyctZ1sNuVjZ9DQ==}
+    engines: {node: ^18.0 || >= 20.0}
     peerDependencies:
       postcss: ^8.2.14
     dependencies:
-      fast-glob: 3.3.1
+      fast-glob: 3.3.2
       postcss: 8.4.35
       postcss-js: 4.0.1(postcss@8.4.35)
       postcss-simple-vars: 7.0.1(postcss@8.4.35)
