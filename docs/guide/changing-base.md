@@ -35,8 +35,6 @@ Here is an example with Nginx and proxy Dozzle with a different base:
 
 ```conf
 location ^~ /foobar/ {
-    include /config/nginx/proxy.conf;
-    include /config/nginx/resolver.conf;
     set $upstream_app dozzle;
     set $upstream_port 8080;
     set $upstream_proto http;
