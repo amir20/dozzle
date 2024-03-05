@@ -47,6 +47,7 @@ let error = $ref(false);
 let username = $ref("");
 let password = $ref("");
 let form: HTMLFormElement | undefined = $ref();
+const params = new URLSearchParams(window.location.search);
 
 async function onLogin() {
   const url = config.authProvider === "simple" ? "/api/token" : "/api/validateCredentials";
@@ -57,7 +58,11 @@ async function onLogin() {
 
   if (response.status == 200) {
     error = false;
-    window.location.href = withBase("/");
+    if (params.has("redirectUrl")) {
+      window.location.href = withBase(params.get("redirectUrl")!);
+    } else {
+      window.location.href = withBase("/");
+    }
   } else {
     error = true;
   }

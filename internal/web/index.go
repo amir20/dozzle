@@ -66,7 +66,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		return
 	} else if h.config.Authorization.Provider == SIMPLE && req.URL.Path != "login" {
 		log.Debugf("Redirecting to login page for url /%s", req.URL.String())
-		http.Redirect(w, req, path.Clean(h.config.Base+"/login"), http.StatusTemporaryRedirect)
+		http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
 		return
 	}
 
