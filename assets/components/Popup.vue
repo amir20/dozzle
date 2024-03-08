@@ -20,18 +20,19 @@ let glopbalShow = globalShowPopup();
 let show = ref(glopbalShow.value);
 let delayedShow = refDebounced(show, 1000);
 
-let content: HTMLElement | null = $ref(null);
+let content = ref<HTMLElement>();
 
 const onMouseEnter = (e: Event) => {
   show.value = true;
   glopbalShow.value = true;
-  if (e.target && content && e.target instanceof Element) {
+
+  if (content.value && e.target instanceof HTMLElement) {
     const { left, top, width } = e.target.getBoundingClientRect();
     const x = left + width + 10;
     const y = top;
 
-    content.style.left = `${x}px`;
-    content.style.top = `${y}px`;
+    content.value.style.left = `${x}px`;
+    content.value.style.top = `${y}px`;
   }
 };
 
