@@ -1,0 +1,101 @@
+toolbar:
+  clear: Effacer 
+  download: Téléchargement
+  search: Chercher
+  show: Montrer seulement {std}
+  show-all: Afficher tous les flux
+  stop: Stop
+  start: Démarrer
+  restart: Redémarrer
+label:
+  containers: Conteneurs
+  running-containers: Conteneurs en execution
+  all-containers: Tous les conteneurs
+  total-containers: Total des conteneurs
+  running: En execution
+  total-cpu-usage: Util. totale CPU
+  total-mem-usage: Util. totale Mem
+  dozzle-version: Version de Dozzle
+  all: Tout
+  host: Hôte
+  password: Mot de passe
+  username: Nom d'utilisateur
+  container-name: Nom du conteneur
+  status: Status
+  created: Créé
+  avg-cpu: Moyenne CPU (%)
+  avg-mem: Moyenne MEM (%)
+  pinned: Epinglé
+tooltip:
+  search: Recherche de conteneurs (⌘ + k, ⌃k)
+  pin-column: Epinglé en colonne
+error:
+  page-not-found: Cette page n'existe pas
+  invalid-auth: Nom d'utilisateur ou mot de passe non valides
+  logs-skipped: Entrées {total} ignorées
+  container-not-found: Conteneur non trouvé
+  events-stream:
+    title: Erreur inattendue
+    message: >-
+      L'interface utilisateur de Dozzle n'a pas pu se connecter à l'API. Veuillez vérifier les paramètres de votre réseau.
+      Si vous utilisez un proxy inversé, assurez-vous qu'il est configuré correctement.
+  events-timeout:
+    title: Quelque chose ne va pas
+    message: >-
+      La connexion de l'interface utilisateur de Dozzle à l'API a mis trop de temps. Veuillez vérifier la connexion
+      et réessayez.
+alert:
+  redirected:
+    title: Redirigé vers le nouveau conteneur
+    message: Dozzle vous a automatiquement redirigé vers le nouveau conteneur {containerId}.
+  similar-container-found:
+    title: Conteneur similaire trouvé
+    message: >-
+      Dozzle a trouvé un conteneur similaire {containerId} qui s'exécute sur le même hôte
+      et basculera automatiquement vers lui à moins que vous ne cliquiez sur "Annuler".
+title:
+  page-not-found: Page non trouvée
+  login: Authentification requise
+  dashboard: 1 conteneur | {count} conteneurs
+  settings: Paramètres
+button:
+  logout: Déconnexion
+  login: Connexion
+  settings: Paramètres
+placeholder:
+  search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
+settings:
+  display: Afficher
+  locale: Langue de remplacement
+  small-scrollbars: Utiliser des barres de défilement plus petites
+  show-timesamps: Afficher les horodatages
+  soft-wrap: Lignes d'enroulement souples
+  datetime-format: Remplacer le format de la date et de l'heure
+  font-size: Taille de police à utiliser pour les journaux
+  color-scheme: Schéma de couleurs
+  options: Options
+  show-stopped-containers: Afficher les conteneurs arrêtés
+  about: A propos de
+  search: Activer la recherche avec Dozzle en utilisant
+  using-version: Vous utilisez Dozzle {version}.
+  update-available: >-
+    Nouvelle version disponible! Mise à jour de <a href="{href}" target="_blank"
+    rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Afficher les étiquettes stdout et stderr
+  automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
+  compact: Activer le mode compact pour les journaux
+releases:
+  features: une nouvelle fonctionnalité | {count} fonctionnalités
+  bugFixes: correction d'un bug | {count} bugs
+  breaking: un changement radical | {count} changements radicaux
+  three_parts: "{first}, {second} et {third}"
+  two_parts: "{first} avec {second}"
+  latest: Plus récent
+  no_releases: Vous avez la dernière version
+log_actions:
+  copy_log: Copier le journal
+  jump_to_context: Aller au contexte
+toasts:
+  copied:
+    title: Copié
+    message: Journal copié dans le presse-papiers
