@@ -27,8 +27,8 @@ dependencies:
     specifier: ^1.1.11
     version: 1.1.11
   '@intlify/unplugin-vue-i18n':
-    specifier: ^3.0.0
-    version: 3.0.0(vue-i18n@9.10.1)
+    specifier: ^3.0.1
+    version: 3.0.1(vue-i18n@9.10.1)
   '@tailwindcss/container-queries':
     specifier: ^0.1.1
     version: 0.1.1(tailwindcss@3.4.1)
@@ -69,8 +69,8 @@ dependencies:
     specifier: ^3.0.1
     version: 3.0.1(d3-selection@3.0.0)
   daisyui:
-    specifier: ^4.7.2
-    version: 4.7.2(postcss@8.4.35)
+    specifier: ^4.7.3
+    version: 4.7.3(postcss@8.4.35)
   date-fns:
     specifier: ^3.3.1
     version: 3.3.1
@@ -739,8 +739,8 @@ packages:
     engines: {node: '>= 16'}
     dev: false
 
-  /@intlify/unplugin-vue-i18n@3.0.0(vue-i18n@9.10.1):
-    resolution: {integrity: sha512-xyZCWnwr3aPYtQsLBEc9gXy2DVc0qJoRPjc3ntSIsvVvERSmiRYw1w0VGiltuTveNleCBHhJ8/gJIxIVqj1olA==}
+  /@intlify/unplugin-vue-i18n@3.0.1(vue-i18n@9.10.1):
+    resolution: {integrity: sha512-q1zJhA/WpoLBzAAuKA5/AEp0e+bMOM10ll/HxT4g1VAw/9JhC4TTobP9KobKH90JMZ4U2daLFlYQfKNd29lpqw==}
     engines: {node: '>= 14.16'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -2373,8 +2373,8 @@ packages:
       d3-timer: 3.0.1
     dev: false
 
-  /daisyui@4.7.2(postcss@8.4.35):
-    resolution: {integrity: sha512-9UCss12Zmyk/22u+JbkVrHHxOzFOyY17HuqP5LeswI4hclbj6qbjJTovdj2zRy8cCH6/n6Wh0lTLjriGnyGh0g==}
+  /daisyui@4.7.3(postcss@8.4.35):
+    resolution: {integrity: sha512-R8jUpBMAUm4rSyxzGa9QqFdJTkzREtb1QahXdDoOfElGiF4VbSuu5bfqQoOro1kkSagPy+aTKu5WtSSXmH3u3g==}
     engines: {node: '>=16.9.0'}
     dependencies:
       css-selector-tokenizer: 0.8.0
