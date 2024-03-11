@@ -43,19 +43,19 @@ const scrollableContent = ref<HTMLElement>();
 
 provide("scrollingPaused", $$(paused));
 
-const mutationObserver = new MutationObserver((e) => {
+const mutationObserver = new MutationObserver(e => {
   if (!paused) {
     scrollToBottom();
   } else {
     const record = e[e.length - 1];
     const children = (record.target as HTMLElement).children;
-    if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
+    if (children[children.length - 1] === record.addedNodes[record.addedNodes.length - 1]) {
       hasMore = true;
     }
   }
 });
 
-const intersectionObserver = new IntersectionObserver((entries) => (paused = entries[0].intersectionRatio == 0), {
+const intersectionObserver = new IntersectionObserver(entries => (paused = entries[0].intersectionRatio === 0), {
   threshold: [0, 1],
   rootMargin: "80px 0px",
 });

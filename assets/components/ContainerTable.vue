@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { Container } from "@/models/Container";
+import type { Container } from "@/models/Container";
 import { toRefs } from "@vueuse/core";
 
 const fields = {

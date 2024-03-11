@@ -1,4 +1,4 @@
-import { Container } from "@/models/Container";
+import type { Container } from "@/models/Container";
 
 type ContainerContext = {
   container: Ref<Container>;

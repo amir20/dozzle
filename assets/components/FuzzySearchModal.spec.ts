@@ -4,10 +4,10 @@ import { mount } from "@vue/test-utils";
 import FuzzySearchModal from "./FuzzySearchModal.vue";
 
 import { Container } from "@/models/Container";
+import { router } from "@/modules/router";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { router } from "@/modules/router";
 
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";

@@ -1,4 +1,4 @@
-import { JSONObject, LogEntry } from "@/models/LogEntry";
+import type { JSONObject, LogEntry } from "@/models/LogEntry";
 
 const lastSelectedItem = ref<LogEntry<string | JSONObject> | undefined>(undefined);
 export const useLogSearchContext = () => {

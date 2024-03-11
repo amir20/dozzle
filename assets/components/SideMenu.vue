@@ -62,8 +62,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
+import type { Container } from "@/models/Container";
 
 const store = useContainerStore();
 
@@ -76,15 +76,15 @@ function setHost(host: string | null) {
 const debouncedIds = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
   visibleContainers.value
-    .filter((c) => c.host === sessionHost.value)
+    .filter(c => c.host === sessionHost.value)
     .sort((a, b) => {
       if (a.state === "running" && b.state !== "running") {
         return -1;
-      } else if (a.state !== "running" && b.state === "running") {
-        return 1;
-      } else {
-        return a.name.localeCompare(b.name);
       }
+      if (a.state !== "running" && b.state === "running") {
+        return 1;
+      }
+      return a.name.localeCompare(b.name);
     }),
 );
 
@@ -111,9 +111,8 @@ const menuItems = computed(() => {
   const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
   if (groupedContainers.value.pinned.length > 0) {
     return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
-  } else {
-    return [allLabel, ...groupedContainers.value.unpinned];
   }
+  return [allLabel, ...groupedContainers.value.unpinned];
 });
 
 const hosts = computed(() =>

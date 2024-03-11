@@ -1,0 +1,37 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.6.0/schema.json",
+  "files": {
+    "ignore": [
+      "auto-imports.d.ts",
+      "shims-vue.d.ts",
+      "components.d.ts",
+      "docs/.vitepress/cache",
+      "docs/.vitepress/dist",
+      "dist"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120,
+    "attributePosition": "auto"
+  },
+  "organizeImports": { "enabled": true },
+  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingComma": "all",
+      "semicolons": "always",
+      "arrowParentheses": "asNeeded",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto"
+    }
+  }
+}

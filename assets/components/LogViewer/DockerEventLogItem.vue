@@ -24,7 +24,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { DockerEventLogEntry } from "@/models/LogEntry";
+import type { DockerEventLogEntry } from "@/models/LogEntry";
 const router = useRouter();
 const { showToast } = useToast();
 const { t } = useI18n();
@@ -41,7 +41,7 @@ const nextContainer = computed(
   () =>
     containers.value
       .filter(
-        (c) =>
+        c =>
           c.host === container.value.host &&
           c.created > logEntry.date &&
           c.name === container.value.name &&

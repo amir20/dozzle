@@ -1,16 +1,16 @@
-import { Profile } from "@/stores/config";
+import type { Profile } from "@/stores/config";
 
 export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue: NonNullable<Profile[K]>) {
-  const storageKey = "DOZZLE_" + key.toUpperCase();
+  const storageKey = `DOZZLE_${key.toUpperCase()}`;
   const storage = useStorage<NonNullable<Profile[K]>>(storageKey, defaultValue, undefined, {
     writeDefaults: false,
     mergeDefaults: true,
   });
 
   if (config.profile?.[key]) {
-    if (storage.value instanceof Set && config.profile[key] instanceof Array) {
+    if (storage.value instanceof Set && Array.isArray(config.profile[key])) {
       storage.value = new Set([...(config.profile[key] as Iterable<any>)]) as unknown as NonNullable<Profile[K]>;
-    } else if (config.profile[key] instanceof Array) {
+    } else if (Array.isArray(config.profile[key])) {
       storage.value = config.profile[key] as NonNullable<Profile[K]>;
     } else if (config.profile[key] instanceof Object) {
       Object.assign(storage.value, config.profile[key]);
@@ -22,7 +22,7 @@ export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue:
   if (config.user) {
     watch(
       storage,
-      (value) => {
+      value => {
         fetch(withBase("/api/profile"), {
           method: "PATCH",
           body: JSON.stringify({ [key]: value }, (_, value) => (value instanceof Set ? [...value] : value)),

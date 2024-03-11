@@ -68,7 +68,7 @@ function hasField(field: string) {
 
 function fieldIndex(field: string) {
   const path = parentKey.concat(field);
-  return visibleKeys.findIndex((keys) => arrayEquals(toRaw(keys), toRaw(path)));
+  return visibleKeys.findIndex(keys => arrayEquals(toRaw(keys), toRaw(path)));
 }
 </script>
 

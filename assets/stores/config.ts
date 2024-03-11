@@ -1,4 +1,4 @@
-import { type Settings } from "@/stores/settings";
+import type { Settings } from "@/stores/settings";
 
 const text = document.querySelector("script#config__json")?.textContent || "{}";
 

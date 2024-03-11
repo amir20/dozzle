@@ -15,7 +15,7 @@ const cpuData = computedWithControl(
     const points: Point<unknown>[] = history.map((stat, i) => ({
       x: i,
       y: Math.max(0, stat.cpu),
-      value: Math.max(0, stat.cpu).toFixed(2) + "%",
+      value: `${Math.max(0, stat.cpu).toFixed(2)}%`,
     }));
     return points;
   },

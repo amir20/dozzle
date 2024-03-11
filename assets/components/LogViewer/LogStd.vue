@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Std } from "@/models/LogEntry";
+import type { Std } from "@/models/LogEntry";
 
 defineProps<{
   std: Std;

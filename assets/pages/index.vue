@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
+import type { Container } from "@/models/Container";
 
 const { t } = useI18n();
 const { version } = config;
@@ -40,7 +40,7 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 };
 
 const mostRecentContainers = $computed(() => containers.value.toSorted((a, b) => +b.created - +a.created));
-const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
+const runningContainers = $computed(() => mostRecentContainers.filter(c => c.state === "running"));
 
 let totalCpu = $ref(0);
 useIntervalFn(

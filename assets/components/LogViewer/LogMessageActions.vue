@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { LogEntry, JSONObject } from "@/models/LogEntry";
+import type { JSONObject, LogEntry } from "@/models/LogEntry";
 
 const { message, logEntry } = defineProps<{
   message: string;

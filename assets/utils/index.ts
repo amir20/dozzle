@@ -4,7 +4,7 @@ export function formatBytes(bytes: number, decimals = 2) {
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
 }
 
 export function getDeep(obj: Record<string, any>, path: string[]) {
@@ -17,7 +17,7 @@ export function isObject(value: any): value is Record<string, any> {
 
 export function flattenJSON(obj: Record<string, any>, path: string[] = []) {
   const result: Record<string, any> = {};
-  Object.keys(obj).forEach((key) => {
+  Object.keys(obj).forEach(key => {
     const value = obj[key];
     const newPath = path.concat(key);
     if (isObject(value)) {
@@ -38,10 +38,10 @@ export function stripVersion(label: string) {
   return name;
 }
 
-export function useExponentialMovingAverage<T extends Record<string, number>>(source: Ref<T>, alpha: number = 0.2) {
+export function useExponentialMovingAverage<T extends Record<string, number>>(source: Ref<T>, alpha = 0.2) {
   const ema = ref<T>(source.value) as Ref<T>;
 
-  watch(source, (value) => {
+  watch(source, value => {
     const newValue = {} as Record<string, number>;
     for (const key in value) {
       newValue[key] = alpha * value[key] + (1 - alpha) * ema.value[key];
@@ -64,7 +64,7 @@ export function useSimpleRefHistory<T>(source: Ref<T>, options: UseSimpleRefHist
 
   watch(
     source,
-    (value) => {
+    value => {
       history.value.push(value);
       if (history.value.length > capacity) {
         history.value.shift();

@@ -1,16 +1,16 @@
-import { createTestingPinia } from "@pinia/testing";
-import { mount } from "@vue/test-utils";
 import { containerContext } from "@/composable/containerContext";
 import { useSearchFilter } from "@/composable/search";
 import { settings } from "@/stores/settings";
+import { createTestingPinia } from "@pinia/testing";
+import { mount } from "@vue/test-utils";
 // @ts-ignore
 import EventSource, { sources } from "eventsourcemock";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
-import LogEventSource from "./LogEventSource.vue";
 import ContainerLogViewer from "./ContainerLogViewer.vue";
+import LogEventSource from "./LogEventSource.vue";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,

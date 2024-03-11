@@ -33,7 +33,7 @@ const { options = [], defaultLabel = "" } = defineProps<{
   defaultLabel?: string;
 }>();
 
-const label = computed(() => options.find((item) => item.value === modelValue.value)?.label ?? defaultLabel);
+const label = computed(() => options.find(item => item.value === modelValue.value)?.label ?? defaultLabel);
 const details = ref<HTMLElement | null>(null);
 const close = () => details.value?.removeAttribute("open");
 watch(modelValue, () => close());

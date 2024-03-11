@@ -9,7 +9,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { SkippedLogsEntry } from "@/models/LogEntry";
+import type { SkippedLogsEntry } from "@/models/LogEntry";
 
 defineProps<{
   logEntry: SkippedLogsEntry;

@@ -68,9 +68,9 @@
 </template>
 
 <script lang="ts" setup>
-// @ts-ignore - splitpanes types are not available
-import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
+// @ts-ignore - splitpanes types are not available
+import { Pane, Splitpanes } from "splitpanes";
 
 const containerStore = useContainerStore();
 const { activeContainers } = storeToRefs(containerStore);
@@ -90,7 +90,7 @@ watch(open, () => {
   }
 });
 
-onKeyStroke("k", (e) => {
+onKeyStroke("k", e => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showFuzzySearch();
     e.preventDefault();
@@ -102,7 +102,7 @@ function showFuzzySearch() {
 }
 
 function onResized(e: any) {
-  if (e.length == 2) {
+  if (e.length === 2) {
     menuWidth.value = e[0].size;
   }
 }

@@ -15,10 +15,10 @@ describe("Container", () => {
     ],
     ["bar.gb1cto7gaq68fp4refnsr5hep", "bar", ".gb1cto7gaq68fp4refnsr5hep"],
     ["baz", "baz", null],
-  ];
+  ] as [string, string, string][];
 
   test.each(names)("name %s should be %s and %s", (name, expectedName, expectedSwarmId) => {
-    const c = new Container("id", new Date(), "image", name!, "command", "host", {}, "status", "created", []);
+    const c = new Container("id", new Date(), "image", name, "command", "host", {}, "status", "created", []);
     expect(c.name).toBe(expectedName);
     expect(c.swarmId).toBe(expectedSwarmId);
   });

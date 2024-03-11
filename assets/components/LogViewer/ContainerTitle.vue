@@ -28,7 +28,7 @@
 const { container } = useContainerContext();
 const pinned = computed({
   get: () => pinnedContainers.value.has(container.value.name),
-  set: (value) => {
+  set: value => {
     if (value) {
       pinnedContainers.value.add(container.value.name);
     } else {

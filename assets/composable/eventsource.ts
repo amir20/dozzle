@@ -1,14 +1,14 @@
-import { type Ref } from "vue";
+import {
+  DockerEventLogEntry,
+  type JSONObject,
+  type LogEntry,
+  type LogEvent,
+  SkippedLogsEntry,
+  asLogEntry,
+} from "@/models/LogEntry";
 import { encodeXML } from "entities";
 import debounce from "lodash.debounce";
-import {
-  type LogEvent,
-  type JSONObject,
-  LogEntry,
-  asLogEntry,
-  DockerEventLogEntry,
-  SkippedLogsEntry,
-} from "@/models/LogEntry";
+import type { Ref } from "vue";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data, (key, value) => {
@@ -94,7 +94,7 @@ export function useLogStream() {
       flushBuffer();
       flushBuffer.flush();
     });
-    es.onmessage = (e) => {
+    es.onmessage = e => {
       if (e.data) {
         buffer.push(parseMessage(e.data));
         flushBuffer();
@@ -125,7 +125,7 @@ export function useLogStream() {
       const newMessages = logs
         .trim()
         .split("\n")
-        .map((line) => parseMessage(line));
+        .map(line => parseMessage(line));
       messages.unshift(...newMessages);
     }
     afterLoading();
@@ -135,7 +135,7 @@ export function useLogStream() {
     () => container.value.state,
     (newValue, oldValue) => {
       console.log("LogEventSource: container changed", newValue, oldValue);
-      if (newValue == "running" && newValue != oldValue) {
+      if (newValue === "running" && newValue !== oldValue) {
         buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
         connect({ clear: false });
       }

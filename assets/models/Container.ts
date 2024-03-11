@@ -1,6 +1,6 @@
 import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Container";
 import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
-import { Ref } from "vue";
+import type { Ref } from "vue";
 
 type Stat = Omit<ContainerStat, "id">;
 
@@ -30,7 +30,7 @@ export class Container {
     public readonly name: string,
     public readonly command: string,
     public readonly host: string,
-    public readonly labels = {} as Record<string, string>,
+    public readonly labels: Record<string, string>,
     public status: string,
     public state: ContainerState,
     stats: Stat[],

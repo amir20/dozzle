@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Container } from "@/models/Container";
+import type { Container } from "@/models/Container";
 
 const { container } = defineProps<{
   container: Container;

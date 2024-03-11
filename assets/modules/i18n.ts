@@ -1,6 +1,6 @@
-import { type App } from "vue";
-import { createI18n } from "vue-i18n";
 import { locale } from "@/stores/settings";
+import type { App } from "vue";
+import { createI18n } from "vue-i18n";
 
 import messages from "@intlify/unplugin-vue-i18n/messages";
 
@@ -15,7 +15,7 @@ const i18n = createI18n({
   messages,
 });
 
-watch(locale, (value) => {
+watch(locale, value => {
   i18n.global.locale.value = value || defaultLocale;
 });
 

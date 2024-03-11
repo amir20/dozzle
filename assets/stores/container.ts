@@ -1,8 +1,8 @@
-import { acceptHMRUpdate, defineStore } from "pinia";
-import { Ref, UnwrapNestedRefs } from "vue";
-import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
+import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
+import { acceptHMRUpdate, defineStore } from "pinia";
+import type { Ref, UnwrapNestedRefs } from "vue";
 
 const { showToast } = useToast();
 // @ts-ignore
@@ -29,13 +29,13 @@ export const useContainerStore = defineStore("container", () => {
     return containers.value.filter(filter);
   });
 
-  const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
+  const activeContainers = computed(() => activeContainerIds.value.map(id => allContainersById.value[id]));
 
   function connect() {
     es?.close();
     ready.value = false;
     es = new EventSource(withBase("/api/events/stream"));
-    es.addEventListener("error", (e) => {
+    es.addEventListener("error", e => {
       if (es?.readyState === EventSource.CLOSED) {
         showToast(
           {
@@ -52,7 +52,7 @@ export const useContainerStore = defineStore("container", () => {
     es.addEventListener("containers-changed", (e: Event) =>
       updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[]),
     );
-    es.addEventListener("container-stat", (e) => {
+    es.addEventListener("container-stat", e => {
       const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
       if (container) {
@@ -60,7 +60,7 @@ export const useContainerStore = defineStore("container", () => {
         container.updateStat(rest);
       }
     });
-    es.addEventListener("container-die", (e) => {
+    es.addEventListener("container-die", e => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
       const container = allContainersById.value[event.actorId];
       if (container) {
@@ -68,7 +68,7 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
-    es.addEventListener("container-health", (e) => {
+    es.addEventListener("container-health", e => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string; health: ContainerHealth };
       const container = allContainersById.value[event.actorId];
       if (container) {
@@ -87,7 +87,7 @@ export const useContainerStore = defineStore("container", () => {
 
   connect();
 
-  (async function () {
+  (async () => {
     try {
       await until(ready).toBe(true, { timeout: 8000, throwOnTimeout: true });
     } catch (e) {
@@ -104,10 +104,10 @@ export const useContainerStore = defineStore("container", () => {
   })();
 
   const updateContainers = (containersPayload: ContainerJson[]) => {
-    const existingContainers = containersPayload.filter((c) => allContainersById.value[c.id]);
-    const newContainers = containersPayload.filter((c) => !allContainersById.value[c.id]);
+    const existingContainers = containersPayload.filter(c => allContainersById.value[c.id]);
+    const newContainers = containersPayload.filter(c => !allContainersById.value[c.id]);
 
-    existingContainers.forEach((c) => {
+    existingContainers.forEach(c => {
       const existing = allContainersById.value[c.id];
       existing.status = c.status;
       existing.state = c.state;
@@ -116,7 +116,7 @@ export const useContainerStore = defineStore("container", () => {
 
     containers.value = [
       ...containers.value,
-      ...newContainers.map((c) => {
+      ...newContainers.map(c => {
         return new Container(
           c.id,
           new Date(c.created * 1000),

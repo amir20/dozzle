@@ -17,7 +17,7 @@ const showToast = (
   toast: Omit<Toast, "id" | "createdAt"> & { id?: string },
   { expire = -1, once = false }: ToastOptions = { expire: -1, once: false },
 ) => {
-  if (once && toasts.value.some((t) => t.id === toast.id)) {
+  if (once && toasts.value.some(t => t.id === toast.id)) {
     return;
   }
   toasts.value.push({
@@ -33,7 +33,7 @@ const showToast = (
 };
 
 const removeToast = (id: Toast["id"]) => {
-  toasts.value = toasts.value.filter((toast) => toast.id !== id);
+  toasts.value = toasts.value.filter(toast => toast.id !== id);
 };
 
 export const useToast = () => {

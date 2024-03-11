@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
 import { useFuse } from "@vueuse/integrations/useFuse";
-import { type FuseResultMatch } from "fuse.js";
+import type { FuseResultMatch } from "fuse.js";
 
 const { maxResults = 5 } = defineProps<{
   maxResults?: number;
@@ -96,19 +96,18 @@ const data = computed(() => {
       if (a.score === b.score) {
         if (a.item.state === b.item.state) {
           return b.item.created - a.item.created;
-        } else if (a.item.state === "running" && b.item.state !== "running") {
-          return -1;
-        } else {
-          return 1;
         }
-      } else {
-        return a.score - b.score;
+        if (a.item.state === "running" && b.item.state !== "running") {
+          return -1;
+        }
+        return 1;
       }
+      return a.score - b.score;
     })
     .slice(0, maxResults);
 });
 
-watch(query, (data) => {
+watch(query, data => {
   if (data.length > 0) {
     selectedIndex.value = 0;
   }
@@ -126,7 +125,7 @@ function addColumn(container: { id: string }) {
 }
 
 function matchedName({ item, matches = [] }: { item: { name: string }; matches?: FuseResultMatch[] }) {
-  const matched = matches.find((match) => match.key === "name");
+  const matched = matches.find(match => match.key === "name");
   if (matched) {
     const { indices } = matched;
     const result = [];
@@ -138,9 +137,8 @@ function matchedName({ item, matches = [] }: { item: { name: string }; matches?:
     }
     result.push(item.name.slice(lastIndex));
     return result.join("");
-  } else {
-    return item.name;
   }
+  return item.name;
 }
 </script>
 

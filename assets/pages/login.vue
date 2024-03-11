@@ -44,9 +44,9 @@ const { t } = useI18n();
 setTitle(t("title.login"));
 
 let error = $ref(false);
-let username = $ref("");
-let password = $ref("");
-let form: HTMLFormElement | undefined = $ref();
+const username = $ref("");
+const password = $ref("");
+const form: HTMLFormElement | undefined = $ref();
 const params = new URLSearchParams(window.location.search);
 
 async function onLogin() {
@@ -56,10 +56,10 @@ async function onLogin() {
     method: "POST",
   });
 
-  if (response.status == 200) {
+  if (response.status === 200) {
     error = false;
     if (params.has("redirectUrl")) {
-      window.location.href = withBase(params.get("redirectUrl")!);
+      window.location.href = withBase(params.get("redirectUrl") as string);
     } else {
       window.location.href = withBase("/");
     }

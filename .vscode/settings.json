@@ -2,5 +2,8 @@
   "i18n-ally.localesPaths": ["locales"],
   "i18n-ally.keystyle": "nested",
   "cSpell.words": ["healthcheck"],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit"
+  }
 }

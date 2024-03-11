@@ -15,7 +15,7 @@
 <script lang="ts" setup>
 import { toRaw } from "vue";
 
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import type { JSONObject, LogEntry } from "@/models/LogEntry";
 
 defineProps<{
   messages: LogEntry<string | JSONObject>[];

@@ -30,7 +30,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { type ComplexLogEntry } from "@/models/LogEntry";
+import type { ComplexLogEntry } from "@/models/LogEntry";
 
 const { markSearch } = useSearchFilter();
 

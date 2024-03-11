@@ -30,7 +30,7 @@ const { searchFilter, showSearch, resetSearch } = useSearchFilter();
 
 const { style } = useDraggable(container);
 
-onKeyStroke("f", (e) => {
+onKeyStroke("f", e => {
   if (e.ctrlKey || e.metaKey) {
     showSearch.value = true;
     nextTick(() => input.value?.focus() || input.value?.select());
@@ -41,7 +41,7 @@ onKeyStroke("f", (e) => {
 onMounted(() => {
   onKeyStroke(
     "f",
-    (e) => {
+    e => {
       if (e.ctrlKey || e.metaKey) {
         e.stopPropagation();
         resetSearch();

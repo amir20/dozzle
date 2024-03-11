@@ -18,7 +18,7 @@ const hasUpdate = computed(() => {
   return releases.value[0].tag !== config.version;
 });
 
-const latest = computed(() => releases.value?.find((release) => release.latest));
+const latest = computed(() => releases.value?.find(release => release.latest));
 
 export function useReleases() {
   return {

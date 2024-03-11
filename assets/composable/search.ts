@@ -1,6 +1,6 @@
-import { type Ref } from "vue";
-import { type LogEntry, type JSONObject, SimpleLogEntry, ComplexLogEntry } from "@/models/LogEntry";
+import { ComplexLogEntry, type JSONObject, type LogEntry, SimpleLogEntry } from "@/models/LogEntry";
 import { encodeXML } from "entities";
+import type { Ref } from "vue";
 
 const searchFilter = ref<string>("");
 const debouncedSearchFilter = useDebounce(searchFilter);
@@ -32,17 +32,18 @@ export function useSearchFilter() {
     return computed(() => {
       if (debouncedSearchFilter.value && showSearch.value) {
         try {
-          return messages.value.filter((d) => {
+          return messages.value.filter(d => {
             if (d instanceof SimpleLogEntry) {
               return regex.test(d.message);
-            } else if (d instanceof ComplexLogEntry) {
+            }
+            if (d instanceof ComplexLogEntry) {
               return matchRecord(d.message, regex);
             }
             return false;
           });
         } catch (e) {
           if (e instanceof SyntaxError) {
-            console.info(`Ignoring SyntaxError from search.`, e);
+            console.info("Ignoring SyntaxError from search.", e);
             return messages.value;
           }
           throw e;
@@ -60,10 +61,10 @@ export function useSearchFilter() {
       return log;
     }
     if (Array.isArray(log)) {
-      return log.map((d) => markSearch(d));
+      return log.map(d => markSearch(d));
     }
 
-    return log.toString().replace(regex, (match) => `<mark>${match}</mark>`);
+    return log.toString().replace(regex, match => `<mark>${match}</mark>`);
   }
 
   function resetSearch() {

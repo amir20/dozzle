@@ -63,15 +63,15 @@ watch(route, () => {
 
 const sortedContainers = computed(() =>
   visibleContainers.value
-    .filter((c) => c.host === sessionHost.value)
+    .filter(c => c.host === sessionHost.value)
     .sort((a, b) => {
       if (a.state === "running" && b.state !== "running") {
         return -1;
-      } else if (a.state !== "running" && b.state === "running") {
-        return 1;
-      } else {
-        return a.name.localeCompare(b.name);
       }
+      if (a.state !== "running" && b.state === "running") {
+        return 1;
+      }
+      return a.name.localeCompare(b.name);
     }),
 );
 

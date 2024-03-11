@@ -15,7 +15,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { SimpleLogEntry } from "@/models/LogEntry";
+import type { SimpleLogEntry } from "@/models/LogEntry";
 import { decodeXML } from "entities";
 
 defineProps<{

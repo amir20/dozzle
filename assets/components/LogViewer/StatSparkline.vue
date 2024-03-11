@@ -20,13 +20,13 @@ const selectedPoint = defineEmit<[value: Point<unknown>]>();
 const shape = d3
   .area<Point<unknown>>()
   .curve(d3.curveStep)
-  .x((d) => x(d.x))
+  .x(d => x(d.x))
   .y0(height)
-  .y1((d) => y(d.y));
+  .y1(d => y(d.y));
 
 const path = computed(() => {
-  x.domain(d3.extent(data, (d) => d.x) as [number, number]);
-  y.domain(d3.extent([...data, { y: 1 }], (d) => d.y) as [number, number]);
+  x.domain(d3.extent(data, d => d.x) as [number, number]);
+  y.domain(d3.extent([...data, { y: 1 }], d => d.y) as [number, number]);
 
   return shape(data) ?? "";
 });

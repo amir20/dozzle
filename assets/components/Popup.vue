@@ -16,11 +16,11 @@
 <script lang="ts" setup>
 import { globalShowPopup } from "@/composable/popup";
 
-let glopbalShow = globalShowPopup();
-let show = ref(glopbalShow.value);
-let delayedShow = refDebounced(show, 1000);
+const glopbalShow = globalShowPopup();
+const show = ref(glopbalShow.value);
+const delayedShow = refDebounced(show, 1000);
 
-let content = ref<HTMLElement>();
+const content = ref<HTMLElement>();
 
 const onMouseEnter = (e: Event) => {
   show.value = true;

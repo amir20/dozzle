@@ -5,7 +5,7 @@
 <script lang="ts" setup>
 import { useRouteHash } from "@vueuse/router";
 
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import type { JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -28,7 +28,7 @@ const { lastSelectedItem } = useLogSearchContext() as {
 const routeHash = useRouteHash();
 watch(
   routeHash,
-  (hash) => {
+  hash => {
     if (hash) {
       document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
     }

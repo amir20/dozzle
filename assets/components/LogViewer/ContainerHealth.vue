@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ContainerHealth } from "@/types/Container";
+import type { ContainerHealth } from "@/types/Container";
 
 defineProps<{
   health: ContainerHealth | undefined;

@@ -1,4 +1,4 @@
-import { Container } from "@/models/Container";
+import type { Container } from "@/models/Container";
 
 const DOZZLE_HOST = "DOZZLE_HOST";
 export const sessionHost = useSessionStorage<string | null>(DOZZLE_HOST, null);

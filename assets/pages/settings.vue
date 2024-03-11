@@ -142,9 +142,10 @@ import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
 import {
   automaticRedirect,
   compact,
-  hourStyle,
   dateLocale,
+  hourStyle,
   lightTheme,
+  locale,
   search,
   showAllContainers,
   showStd,
@@ -152,7 +153,6 @@ import {
   size,
   smallerScrollbars,
   softWrap,
-  locale,
 } from "@/stores/settings";
 
 const { t, availableLocales } = useI18n();

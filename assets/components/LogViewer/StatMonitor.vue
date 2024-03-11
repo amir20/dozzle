@@ -21,5 +21,5 @@ function onSelectedPoint(point: Point<unknown>) {
   selectedPoint = point;
 }
 
-let mouseOver = $ref(false);
+const mouseOver = $ref(false);
 </script>

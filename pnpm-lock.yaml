@@ -127,6 +127,9 @@ dependencies:
     version: 4.3.0(vue@3.4.21)
 
 devDependencies:
+  '@biomejs/biome':
+    specifier: ^1.6.0
+    version: 1.6.0
   '@pinia/testing':
     specifier: ^0.1.3
     version: 0.1.3(pinia@2.1.7)(vue@3.4.21)
@@ -404,6 +407,94 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@biomejs/biome@1.6.0:
+    resolution: {integrity: sha512-hvP8K1+CV8qc9eNdXtPwzScVxFSHB448CPKSqX6+8IW8G7bbhBVKGC80BowExJN5+vu+kzsj4xkWa780MAOlJw==}
+    engines: {node: '>=14.*'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@biomejs/cli-darwin-arm64': 1.6.0
+      '@biomejs/cli-darwin-x64': 1.6.0
+      '@biomejs/cli-linux-arm64': 1.6.0
+      '@biomejs/cli-linux-arm64-musl': 1.6.0
+      '@biomejs/cli-linux-x64': 1.6.0
+      '@biomejs/cli-linux-x64-musl': 1.6.0
+      '@biomejs/cli-win32-arm64': 1.6.0
+      '@biomejs/cli-win32-x64': 1.6.0
+    dev: true
+
+  /@biomejs/cli-darwin-arm64@1.6.0:
+    resolution: {integrity: sha512-K1Fjqye5pt+Ua+seC7V/2bFjfnqOaEOcQbBQSiiefB/VPNOb6lA5NFIfJ1PskTA3JrMXE1k7iqKQn56qrKFS6A==}
+    engines: {node: '>=14.*'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-darwin-x64@1.6.0:
+    resolution: {integrity: sha512-CjEALu6vN9RbcfhaBDoj481mesUIsUjxgQn+/kiMCea+Paypqslhez1I7OwRBJnkzz+Pa+PXdABd7S30eyy6+Q==}
+    engines: {node: '>=14.*'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-arm64-musl@1.6.0:
+    resolution: {integrity: sha512-prww6AUuJ+IO/GziN3WjtGM/DNOVuPFxqWrK97wKTZygEDdA+o1qHUN2HeCkSyk084xnzbMSbls5xscAKAn43A==}
+    engines: {node: '>=14.*'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-arm64@1.6.0:
+    resolution: {integrity: sha512-32LVrC7dAgQT39YZ0ieO/VzzpAflozs9mW5K0oKNef7S4ocCdk89E98eXApxOdei0JTf3vfseDCl1AUIp6MwJw==}
+    engines: {node: '>=14.*'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-x64-musl@1.6.0:
+    resolution: {integrity: sha512-NwitWeUKCy8G/rr+rgHPYirnrsOjJEJBWODdaRzweeFNcJjvO6de6AmNdSJzsewzLEaxjOWyoXU03MdzbGz/6Q==}
+    engines: {node: '>=14.*'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-x64@1.6.0:
+    resolution: {integrity: sha512-b6mWu9Cu4w5B3K46wq9SlxKEZEEL6II/6HFNAuZ4YL8mOeQ0FTMU+wNMJFKkmkSE2zvim3xwW3PknmbLKbe3Mg==}
+    engines: {node: '>=14.*'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-win32-arm64@1.6.0:
+    resolution: {integrity: sha512-DlNOL6mG+76iZS1gL/UiuMme7jnt+auzo2+u0aUq6UXYsb75juchwlnVLy2UV5CQjVBRB8+RM+KVoXRZ8NlBjQ==}
+    engines: {node: '>=14.*'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-win32-x64@1.6.0:
+    resolution: {integrity: sha512-sXBcXIOGuG8/XcHqmnkhLIs0oy6Dp+TkH4Alr4WH/P8mNsp5GcStI/ZwbEiEoxA0P3Fi+oUppQ6srxaY2rSCHg==}
+    engines: {node: '>=14.*'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import LogViewerWithSource from "./LogViewerWithSource.vue";
+import type LogViewerWithSource from "./LogViewerWithSource.vue";
 
 const {
   id,
@@ -44,7 +44,7 @@ function onClearClicked() {
   viewer.value?.clear();
 }
 
-onKeyStroke("k", (e) => {
+onKeyStroke("k", e => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
     onClearClicked();
     e.preventDefault();

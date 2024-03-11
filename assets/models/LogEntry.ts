@@ -1,9 +1,9 @@
-import { Component, ComputedRef, Ref } from "vue";
-import { flattenJSON, getDeep } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
-import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
 import DockerEventLogItem from "@/components/LogViewer/DockerEventLogItem.vue";
+import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
+import { flattenJSON, getDeep } from "@/utils";
+import type { Component, ComputedRef, Ref } from "vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -70,9 +70,8 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
       this.filteredMessage = computed(() => {
         if (!visibleKeys.value.length) {
           return flattenJSON(message);
-        } else {
-          return visibleKeys.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
         }
+        return visibleKeys.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
       });
     } else {
       this.filteredMessage = computed(() => flattenJSON(message));
@@ -153,14 +152,13 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       event.l,
       event.s === "unknown" ? "stderr" : event.s ?? "stderr",
     );
-  } else {
-    return new SimpleLogEntry(
-      event.m,
-      event.id,
-      new Date(event.ts),
-      event.l,
-      event.p,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
-    );
   }
+  return new SimpleLogEntry(
+    event.m,
+    event.id,
+    new Date(event.ts),
+    event.l,
+    event.p,
+    event.s === "unknown" ? "stderr" : event.s ?? "stderr",
+  );
 }

@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import LogEventSource from "./LogEventSource.vue";
+import type LogEventSource from "./LogEventSource.vue";
 
 const loadingMore = defineEmit<[value: boolean]>();
 const source = $ref<InstanceType<typeof LogEventSource>>();
