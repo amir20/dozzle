@@ -90,8 +90,6 @@
   "eventsourcemock": "^2.0.0",
   "jsdom": "^24.0.0",
   "lint-staged": "^15.2.2",
-  "prettier": "^3.2.5",
-  "prettier-plugin-tailwindcss": "^0.5.12",
   "simple-git-hooks": "^2.10.0",
   "ts-node": "^10.9.2",
   "typescript": "^5.4.2",
