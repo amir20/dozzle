@@ -89,9 +89,6 @@ dependencies:
   postcss:
     specifier: ^8.4.35
     version: 8.4.35
-  postcss-mixins:
-    specifier: ^10.0.0
-    version: 10.0.0(postcss@8.4.35)
   splitpanes:
     specifier: ^3.1.5
     version: 3.1.5
@@ -3875,19 +3872,6 @@ packages:
       yaml: 2.3.4
     dev: false
 
-  /postcss-mixins@10.0.0(postcss@8.4.35):
-    resolution: {integrity: sha512-CHw+Q8Y7Jz67lqyXbVezvWUsXPVEdPEVLKFb0u8hSRKWzdHMIGwwkZDf17tgAmFOYyoM529WyctZ1sNuVjZ9DQ==}
-    engines: {node: ^18.0 || >= 20.0}
-    peerDependencies:
-      postcss: ^8.2.14
-    dependencies:
-      fast-glob: 3.3.2
-      postcss: 8.4.35
-      postcss-js: 4.0.1(postcss@8.4.35)
-      postcss-simple-vars: 7.0.1(postcss@8.4.35)
-      sugarss: 4.0.1(postcss@8.4.35)
-    dev: false
-
   /postcss-nested@6.0.1(postcss@8.4.35):
     resolution: {integrity: sha512-mEp4xPMi5bSWiMbsgoPfcP74lsWLHkQbZc3sY+jWYd65CUwXrUaTp0fmNpa01ZcETKlIgUdFN/MpS2xZtqL9dQ==}
     engines: {node: '>=12.0'}
@@ -3912,15 +3896,6 @@ packages:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
-    dev: false
-
-  /postcss-simple-vars@7.0.1(postcss@8.4.35):
-    resolution: {integrity: sha512-5GLLXaS8qmzHMOjVxqkk1TZPf1jMqesiI7qLhnlyERalG0sMbHIbJqrcnrpmZdKCLglHnRHoEBB61RtGTsj++A==}
-    engines: {node: '>=14.0'}
-    peerDependencies:
-      postcss: ^8.2.1
-    dependencies:
-      postcss: 8.4.35
     dev: false
 
   /postcss-value-parser@4.2.0:
@@ -4384,15 +4359,6 @@ packages:
       mz: 2.7.0
       pirates: 4.0.6
       ts-interface-checker: 0.1.13
-    dev: false
-
-  /sugarss@4.0.1(postcss@8.4.35):
-    resolution: {integrity: sha512-WCjS5NfuVJjkQzK10s8WOBY+hhDxxNt/N6ZaGwxFZ+wN3/lKKFSaaKUNecULcTTvE4urLcKaZFQD8vO0mOZujw==}
-    engines: {node: '>=12.0'}
-    peerDependencies:
-      postcss: ^8.3.3
-    dependencies:
-      postcss: 8.4.35
     dev: false
 
   /supports-color@7.2.0:
