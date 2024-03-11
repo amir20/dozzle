@@ -1,23 +1,5 @@
 @import "splitpanes/dist/splitpanes.css";
 
-@define-mixin light {
-  --base-lighter-color: 100% 0 0;
-  --base-color: 97% 0 0;
-  --base-darker-color: 90% 0 0;
-  --base-content-color: 33% 0 0;
-  --primary-color: 79.96% 0.143 176.65;
-  --secondary-color: 82.67% 0.15380739746702807 77.82;
-}
-
-@define-mixin dark {
-  --base-lighter-color: 25% 0 0;
-  --base-color: 18% 0 0;
-  --base-darker-color: 11% 0 0;
-  --base-content-color: 89.23% 0 0;
-  --primary-color: 70.96% 0.143 176.65;
-  --secondary-color: 91.36% 0.11098 90.1243;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -41,21 +23,23 @@
     --n: var(--base-lighter-color);
   }
   html[data-theme="dark"] {
-    @mixin dark;
+    --base-lighter-color: 25% 0 0;
+    --base-color: 18% 0 0;
+    --base-darker-color: 11% 0 0;
+    --base-content-color: 89.23% 0 0;
+    --primary-color: 70.96% 0.143 176.65;
+    --secondary-color: 91.36% 0.11098 90.1243;
   }
-  @media (prefers-color-scheme: dark) {
-    html {
-      @mixin dark;
-    }
-  }
+
   html[data-theme="light"] {
-    @mixin light;
+    --base-lighter-color: 100% 0 0;
+    --base-color: 97% 0 0;
+    --base-darker-color: 90% 0 0;
+    --base-content-color: 33% 0 0;
+    --primary-color: 79.96% 0.143 176.65;
+    --secondary-color: 82.67% 0.15380739746702807 77.82;
   }
-  @media (prefers-color-scheme: light) {
-    html {
-      @mixin light;
-    }
-  }
+
   @media screen and (max-device-width: 480px) {
     body {
       -webkit-text-size-adjust: 100%;
