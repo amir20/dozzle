@@ -20,7 +20,7 @@ import { decodeXML } from "entities";
 import AnsiConvertor from "ansi-to-html";
 import stripAnsi from "strip-ansi";
 
-const ansiConvertor = new AnsiConvertor({ escapeXML: false, fg: "var(--text-color)" });
+const ansiConvertor = new AnsiConvertor({ escapeXML: false, fg: "var(--base-content-color)" });
 
 defineProps<{
   logEntry: SimpleLogEntry;
