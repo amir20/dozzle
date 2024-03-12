@@ -23,6 +23,7 @@ func init() {
 func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
+		value = stripANSI(value)
 		for _, level := range LOG_LEVELS {
 			if LOG_LEVELS_PLAIN[level].MatchString(value) {
 				return level
