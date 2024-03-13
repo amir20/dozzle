@@ -25,7 +25,7 @@ function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
 export function useSearchFilter() {
   const regex = $computed(() => {
     const isSmartCase = debouncedSearchFilter.value === debouncedSearchFilter.value.toLowerCase();
-    return new RegExp(encodeXML(debouncedSearchFilter.value), isSmartCase ? "i" : undefined);
+    return new RegExp(encodeXML(debouncedSearchFilter.value), isSmartCase ? "ig" : "g");
   });
 
   function filteredMessages(messages: Ref<LogEntry<string | JSONObject>[]>) {
