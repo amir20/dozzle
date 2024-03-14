@@ -9,7 +9,7 @@
     ></div>
     <log-message-actions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
-      :message="decodeXML(stripAnsi(logEntry.message))"
+      :message="() => decodeXML(stripAnsi(logEntry.message))"
       :log-entry="logEntry"
     />
   </div>

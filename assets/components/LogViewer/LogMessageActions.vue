@@ -2,7 +2,7 @@
   <div class="flex gap-2">
     <div
       class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
-      v-if="isSupported && message.trim() != ''"
+      v-if="isSupported"
       :title="t('log_actions.copy_log')"
     >
       <span
@@ -32,7 +32,7 @@
 import { LogEntry, JSONObject } from "@/models/LogEntry";
 
 const { message, logEntry } = defineProps<{
-  message: string;
+  message: () => string;
   logEntry: LogEntry<string | JSONObject>;
 }>();
 
@@ -44,7 +44,7 @@ const { isSearching } = useSearchFilter();
 const { handleJumpLineSelected } = useLogSearchContext();
 
 async function copyLogMessageToClipBoard() {
-  await copy(message);
+  await copy(message());
 
   if (copied.value) {
     showToast(
