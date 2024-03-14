@@ -3,7 +3,10 @@ package web
 import (
 	"html/template"
 	"io"
+	"mime"
+	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/goccy/go-json"
 
@@ -18,9 +21,22 @@ import (
 )
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
-	_, err := h.content.Open(req.URL.Path)
+	path := req.URL.Path
+	_, err := h.content.Open(path)
 	if err == nil && req.URL.Path != "" && req.URL.Path != "/" {
-		fileServer.ServeHTTP(w, req)
+		w.Header().Set("Cache-Control", "max-age=31536000, immutable")
+		// if brotli is enabled, then just send over the compressed file
+		if strings.Contains(req.Header.Get("Accept-Encoding"), "br") {
+			w.Header().Set("Content-Encoding", "br")
+			w.Header().Set("Content-Type", mime.TypeByExtension(filepath.Ext(path)))
+			file, err := h.content.Open(path + ".br")
+			if err != nil {
+				log.Panic(err)
+			}
+			io.Copy(w, file)
+		} else {
+			fileServer.ServeHTTP(w, req)
+		}
 	} else {
 		h.executeTemplate(w, req)
 	}
