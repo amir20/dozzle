@@ -23,7 +23,7 @@ type StatsCollector struct {
 	mu          sync.Mutex
 }
 
-var minActiveContainers = 50
+var minActiveContainers = 10
 var timeToStop = 12 * time.Hour
 
 func NewStatsCollector(client Client) *StatsCollector {
