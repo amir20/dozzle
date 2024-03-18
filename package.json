@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.15.4",
+ "packageManager": "pnpm@8.15.5",
  "type": "module",
  "repository": {
   "type": "git",
@@ -56,7 +56,7 @@
   "fuse.js": "^7.0.0",
   "lodash.debounce": "^4.0.8",
   "pinia": "^2.1.7",
-  "postcss": "^8.4.35",
+  "postcss": "^8.4.36",
   "splitpanes": "^3.1.5",
   "strip-ansi": "^7.1.0",
   "tailwindcss": "^3.4.1",
@@ -94,7 +94,7 @@
   "lint-staged": "^15.2.2",
   "prettier": "^3.2.5",
   "prettier-plugin-tailwindcss": "^0.5.12",
-  "simple-git-hooks": "^2.10.0",
+  "simple-git-hooks": "^2.11.0",
   "ts-node": "^10.9.2",
   "typescript": "^5.4.2",
   "vitepress": "1.0.0-rc.45",
