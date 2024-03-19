@@ -49,6 +49,8 @@ func (c *StatsCollector) forceStop() {
 }
 
 func (c *StatsCollector) Stop() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.timer = time.AfterFunc(timeToStop, func() {
 		c.forceStop()
 	})
