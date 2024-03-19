@@ -23,8 +23,7 @@ type StatsCollector struct {
 	mu          sync.Mutex
 }
 
-var minActiveContainers = 10
-var timeToStop = 12 * time.Hour
+var timeToStop = 6 * time.Hour
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
@@ -39,36 +38,40 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat
 	c.subscribers.Store(ctx, stats)
 }
 
-func (c *StatsCollector) IsRunning() bool {
-	return c.running.Load()
-}
-
-func (c *StatsCollector) Stop() {
+func (c *StatsCollector) forceStop() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.stopper != nil {
 		c.stopper()
 		c.stopper = nil
+		log.Debug("stopping container stats collector due to inactivity")
 	}
 }
 
-func (c *StatsCollector) scheduleForStopping() {
+func (c *StatsCollector) Stop() {
+	c.timer = time.AfterFunc(timeToStop, func() {
+		c.forceStop()
+	})
+}
+
+func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.timer != nil {
 		c.timer.Stop()
 	}
-	c.timer = time.AfterFunc(timeToStop, func() {
-		if c.subscribers.Size() > minActiveContainers {
-			c.Stop()
-		}
-	})
+	c.timer = nil
 }
 
 func (sc *StatsCollector) Start(ctx context.Context) {
+	sc.reset()
 	if !sc.running.CompareAndSwap(false, true) {
 		return
 	}
+
+	sc.mu.Lock()
 	ctx, sc.stopper = context.WithCancel(ctx)
-	sc.scheduleForStopping()
+	sc.mu.Unlock()
 
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {

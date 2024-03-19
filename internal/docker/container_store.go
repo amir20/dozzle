@@ -49,11 +49,13 @@ func (s *ContainerStore) Client() Client {
 }
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
-	if !s.statsCollector.IsRunning() {
-		go s.statsCollector.Start(context.Background())
-	}
-
+	go s.statsCollector.Start(context.Background())
 	s.subscribers.Store(ctx, events)
+}
+
+func (s *ContainerStore) Unsubscribe(ctx context.Context) {
+	s.subscribers.Delete(ctx)
+	s.statsCollector.Stop()
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
