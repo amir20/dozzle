@@ -156,7 +156,8 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 	}
 }
 
-var validLogFmtKey = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+var validLogFmtMessage = regexp.MustCompile(`([a-zA-Z0-9_.-]+)=(?:(?:"(.*)")|(?:(?:([^\s]+)[\s])))`)
+var validLogFmtKey = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
 
 func createEvent(message string, streamType StdType) *LogEvent {
 	h := fnv.New32a()
@@ -180,7 +181,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				} else {
 					logEvent.Message = data
 				}
-			} else if strings.Contains(message, "=") {
+			} else if validLogFmtMessage.MatchString(message) {
 				buffer := bufPool.Get().(*bytes.Buffer)
 				buffer.Reset()
 				defer bufPool.Put(buffer)
