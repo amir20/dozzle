@@ -28,7 +28,6 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s.wg.Add(1)
 
 	go s.init(ctx)
-	go s.statsCollector.Start(ctx)
 
 	return s
 }
@@ -49,7 +48,15 @@ func (s *ContainerStore) Client() Client {
 }
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
-	go s.statsCollector.Start(context.Background())
+	go func() {
+		if s.statsCollector.Start(context.Background()) {
+			log.Debug("clearing container stats as stats collector has been stopped")
+			s.containers.Range(func(_ string, c *Container) bool {
+				c.Stats.Clear()
+				return true
+			})
+		}
+	}()
 	s.subscribers.Store(ctx, events)
 }
 

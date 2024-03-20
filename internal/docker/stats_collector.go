@@ -13,14 +13,14 @@ import (
 )
 
 type StatsCollector struct {
-	stream      chan ContainerStat
-	subscribers *xsync.MapOf[context.Context, chan ContainerStat]
-	client      Client
-	cancelers   *xsync.MapOf[string, context.CancelFunc]
-	running     atomic.Bool
-	stopper     context.CancelFunc
-	timer       *time.Timer
-	mu          sync.Mutex
+	stream       chan ContainerStat
+	subscribers  *xsync.MapOf[context.Context, chan ContainerStat]
+	client       Client
+	cancelers    *xsync.MapOf[string, context.CancelFunc]
+	stopper      context.CancelFunc
+	timer        *time.Timer
+	mu           sync.Mutex
+	totalStarted atomic.Int32
 }
 
 var timeToStop = 6 * time.Hour
@@ -51,9 +51,12 @@ func (c *StatsCollector) forceStop() {
 func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.timer = time.AfterFunc(timeToStop, func() {
-		c.forceStop()
-	})
+	if c.totalStarted.Add(-1) == 0 {
+		log.Debug("scheduled to stop container stats collector")
+		c.timer = time.AfterFunc(timeToStop, func() {
+			c.forceStop()
+		})
+	}
 }
 
 func (c *StatsCollector) reset() {
@@ -65,12 +68,12 @@ func (c *StatsCollector) reset() {
 	c.timer = nil
 }
 
-func (sc *StatsCollector) Start(ctx context.Context) {
+// Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
+func (sc *StatsCollector) Start(ctx context.Context) bool {
 	sc.reset()
-	if !sc.running.CompareAndSwap(false, true) {
-		return
+	if sc.totalStarted.Add(1) > 1 {
+		return false
 	}
-
 	sc.mu.Lock()
 	ctx, sc.stopper = context.WithCancel(ctx)
 	sc.mu.Unlock()
@@ -120,9 +123,8 @@ func (sc *StatsCollector) Start(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			sc.running.Store(false)
 			log.Info("stopped collecting container stats")
-			return
+			return true
 		case stat := <-sc.stream:
 			sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
 				select {
