@@ -23,7 +23,7 @@ type StatsCollector struct {
 	totalStarted atomic.Int32
 }
 
-var timeToStop = 10 * time.Second
+var timeToStop = 6 * time.Hour
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
