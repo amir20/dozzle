@@ -23,7 +23,7 @@ type StatsCollector struct {
 	totalStarted atomic.Int32
 }
 
-var timeToStop = 6 * time.Hour
+var timeToStop = 10 * time.Second
 
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
@@ -62,34 +62,44 @@ func (c *StatsCollector) Stop() {
 func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	log.Debug("resetting timer for container stats collector")
 	if c.timer != nil {
 		c.timer.Stop()
 	}
 	c.timer = nil
 }
 
+func streamStats(parent context.Context, sc *StatsCollector, id string) {
+	ctx, cancel := context.WithCancel(parent)
+	sc.cancelers.Store(id, cancel)
+	log.Debugf("starting to stream stats for: %s", id)
+	if err := sc.client.ContainerStats(ctx, id, sc.stream); err != nil {
+		log.Debugf("stopping to stream stats for: %s", id)
+		if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
+			log.Errorf("unexpected error when streaming container stats: %v", err)
+		}
+	}
+}
+
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
-func (sc *StatsCollector) Start(ctx context.Context) bool {
+func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
-	if sc.totalStarted.Add(1) > 1 {
+	sc.totalStarted.Add(1)
+
+	var ctx context.Context
+
+	sc.mu.Lock()
+	if sc.stopper != nil {
+		sc.mu.Unlock()
 		return false
 	}
-	sc.mu.Lock()
-	ctx, sc.stopper = context.WithCancel(ctx)
+	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
 	if containers, err := sc.client.ListContainers(); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
-				go func(client Client, id string) {
-					ctx, cancel := context.WithCancel(ctx)
-					sc.cancelers.Store(id, cancel)
-					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
-						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-							log.Errorf("unexpected error when streaming container stats: %v", err)
-						}
-					}
-				}(sc.client, c.ID)
+				go streamStats(ctx, sc, c.ID)
 			}
 		}
 	} else {
@@ -102,15 +112,7 @@ func (sc *StatsCollector) Start(ctx context.Context) bool {
 		for event := range events {
 			switch event.Name {
 			case "start":
-				go func(client Client, id string) {
-					ctx, cancel := context.WithCancel(ctx)
-					sc.cancelers.Store(id, cancel)
-					if err := client.ContainerStats(ctx, id, sc.stream); err != nil {
-						if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-							log.Errorf("unexpected error when streaming container stats: %v", err)
-						}
-					}
-				}(sc.client, event.ActorID)
+				go streamStats(ctx, sc, event.ActorID)
 
 			case "die":
 				if cancel, ok := sc.cancelers.LoadAndDelete(event.ActorID); ok {
