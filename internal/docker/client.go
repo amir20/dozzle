@@ -224,7 +224,6 @@ func (d *_client) ContainerStats(ctx context.Context, id string, stats chan<- Co
 		return err
 	}
 
-	log.Debugf("starting to stream stats for: %s", id)
 	defer response.Body.Close()
 	decoder := json.NewDecoder(response.Body)
 	var v *types.StatsJSON
