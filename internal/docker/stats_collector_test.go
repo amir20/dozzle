@@ -46,4 +46,9 @@ func TestSubscribe(t *testing.T) {
 	assert.True(t, ok, "canceler should be stored")
 
 	assert.False(t, collector.Start(ctx), "second start should return false")
+	assert.Equal(t, int32(2), collector.totalStarted.Load(), "total started should be 2")
+
+	collector.Stop()
+
+	assert.Equal(t, int32(1), collector.totalStarted.Load(), "total started should be 1")
 }
