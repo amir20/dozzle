@@ -111,8 +111,8 @@ dependencies:
     specifier: ^0.26.0
     version: 0.26.0(vue@3.4.21)
   unplugin-vue-macros:
-    specifier: ^2.7.12
-    version: 2.7.12(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21)
+    specifier: ^2.7.13
+    version: 2.7.13(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21)
   vite:
     specifier: 5.2.6
     version: 5.2.6(@types/node@20.11.30)
@@ -1479,8 +1479,8 @@ packages:
       - vue
     dev: false
 
-  /@vue-macros/jsx-directive@0.8.10(vue@3.4.21):
-    resolution: {integrity: sha512-I5wYb/9CxMocmxpQjMb43sC2wp47NONdY3p8RstQFoYVjmP9ZvIineaZZFXaiX5fmZn5m6IasR/F8/xR1lN4kw==}
+  /@vue-macros/jsx-directive@0.8.11(vue@3.4.21):
+    resolution: {integrity: sha512-oLOE1XVrA3EYgQT2n6SXfG9wv22PGhqJEkIyIDJhc4/KsfFjDAebykyGgEFen9qbwzDXXU/cxBxbd8CwJBTgVA==}
     engines: {node: '>=16.14.0'}
     dependencies:
       '@vue-macros/common': 1.10.1(vue@3.4.21)
@@ -4919,8 +4919,8 @@ packages:
       - vue
     dev: false
 
-  /unplugin-vue-macros@2.7.12(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21):
-    resolution: {integrity: sha512-9rQbmJLi/VRnp4e0+xzO2PYqYQOuljJdpd+6xvC2GWE4wtwAi9VjMqMc89xJ4pTA9uVI3rG4xNKd3bgT0FHEhQ==}
+  /unplugin-vue-macros@2.7.13(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21):
+    resolution: {integrity: sha512-YlRA+wT+3rKnYyQBtaGkPQjutN/n3G6oLM0CGnjVZaAzE0OEwN0g1heiqc9Z/NSQ+oHMVLZaFwNaShluY9XrDQ==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -4941,7 +4941,7 @@ packages:
       '@vue-macros/export-props': 0.4.2(vue@3.4.21)
       '@vue-macros/export-render': 0.2.2(vue@3.4.21)
       '@vue-macros/hoist-static': 1.5.2(vue@3.4.21)
-      '@vue-macros/jsx-directive': 0.8.10(vue@3.4.21)
+      '@vue-macros/jsx-directive': 0.8.11(vue@3.4.21)
       '@vue-macros/named-template': 0.4.2(vue@3.4.21)
       '@vue-macros/reactivity-transform': 0.4.3(vue@3.4.21)
       '@vue-macros/setup-block': 0.3.2(vue@3.4.21)
@@ -4977,7 +4977,7 @@ packages:
     resolution: {integrity: sha512-0QkvG13z6RD+1L1FoibQqnvTwVBXvS4XSPwAyinVgoOCl2jAgwzdUKmEj05o4Lt8xwQI85Hb6mSyYkcAGwZPew==}
     dependencies:
       acorn: 8.11.3
-      chokidar: 3.5.3
+      chokidar: 3.6.0
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.1
     dev: false
