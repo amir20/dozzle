@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestSubscribe(t *testing.T) {
+func startedCollector(ctx context.Context) *StatsCollector {
 	client := new(mockedClient)
 	client.On("ListContainers").Return([]Container{
 		{
@@ -27,22 +27,23 @@ func TestSubscribe(t *testing.T) {
 			}
 		})
 
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-
 	collector := NewStatsCollector(client)
 	stats := make(chan ContainerStat)
 
 	collector.Subscribe(ctx, stats)
 
-	_, ok := collector.subscribers.Load(ctx)
-	assert.True(t, ok)
-
 	go collector.Start(ctx)
 
 	<-stats
 
-	_, ok = collector.cancelers.Load("1234")
+	return collector
+}
+func TestCancelers(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	collector := startedCollector(ctx)
+
+	_, ok := collector.cancelers.Load("1234")
 	assert.True(t, ok, "canceler should be stored")
 
 	assert.False(t, collector.Start(ctx), "second start should return false")
@@ -51,4 +52,24 @@ func TestSubscribe(t *testing.T) {
 	collector.Stop()
 
 	assert.Equal(t, int32(1), collector.totalStarted.Load(), "total started should be 1")
+}
+
+func TestSecondStart(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	collector := startedCollector(ctx)
+
+	assert.False(t, collector.Start(ctx), "second start should return false")
+	assert.Equal(t, int32(2), collector.totalStarted.Load(), "total started should be 2")
+
+	collector.Stop()
+	assert.Equal(t, int32(1), collector.totalStarted.Load(), "total started should be 1")
+}
+
+func TestStop(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+	collector := startedCollector(ctx)
+	collector.Stop()
+	assert.Equal(t, int32(0), collector.totalStarted.Load(), "total started should be 1")
 }
