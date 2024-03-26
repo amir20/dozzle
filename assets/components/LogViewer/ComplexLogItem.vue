@@ -1,5 +1,10 @@
 <template>
-  <div class="relative flex w-full gap-x-2">
+  <div class="group/item relative flex w-full gap-x-2" @click="expandToggle()">
+    <label class="swap swap-rotate invisible absolute -left-4 top-0.5 size-4 group-hover/item:visible">
+      <input type="checkbox" v-model="expanded" @click="expandToggle()" />
+      <material-symbols:expand-all-rounded class="swap-off text-secondary" />
+      <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
+    </label>
     <div v-if="showStd">
       <log-std :std="logEntry.std"></log-std>
     </div>
@@ -10,12 +15,7 @@
       <log-level :level="logEntry.level"></log-level>
     </div>
     <div>
-      <label class="swap swap-flip absolute size-4">
-        <input type="checkbox" v-model="expanded" />
-        <material-symbols:expand-all-rounded class="swap-off text-secondary" />
-        <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
-      </label>
-      <ul class="fields cursor-pointer space-x-4" :class="{ expanded }" @click="expandToggle()">
+      <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
         <li v-for="(value, name) in validValues">
           <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
