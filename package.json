@@ -35,7 +35,7 @@
   "@iconify-json/mdi-light": "^1.1.10",
   "@iconify-json/octicon": "^1.1.52",
   "@iconify-json/ph": "^1.1.11",
-  "@intlify/unplugin-vue-i18n": "^3.0.1",
+  "@intlify/unplugin-vue-i18n": "^4.0.0",
   "@tailwindcss/container-queries": "^0.1.1",
   "@tailwindcss/typography": "^0.5.10",
   "@vueuse/components": "^10.9.0",
