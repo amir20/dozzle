@@ -31,10 +31,10 @@ dependencies:
     version: 4.0.0(vue-i18n@9.10.2)
   '@tailwindcss/container-queries':
     specifier: ^0.1.1
-    version: 0.1.1(tailwindcss@3.4.2)
+    version: 0.1.1(tailwindcss@3.4.3)
   '@tailwindcss/typography':
     specifier: ^0.5.12
-    version: 0.5.12(tailwindcss@3.4.2)
+    version: 0.5.12(tailwindcss@3.4.3)
   '@vueuse/components':
     specifier: ^10.9.0
     version: 10.9.0(vue@3.4.21)
@@ -99,8 +99,8 @@ dependencies:
     specifier: ^7.1.0
     version: 7.1.0
   tailwindcss:
-    specifier: ^3.4.2
-    version: 3.4.2(ts-node@10.9.2)
+    specifier: ^3.4.3
+    version: 3.4.3(ts-node@10.9.2)
   unplugin-auto-import:
     specifier: ^0.17.5
     version: 0.17.5(@vueuse/core@10.9.0)
@@ -111,8 +111,8 @@ dependencies:
     specifier: ^0.26.0
     version: 0.26.0(vue@3.4.21)
   unplugin-vue-macros:
-    specifier: ^2.7.13
-    version: 2.7.13(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21)
+    specifier: ^2.8.0
+    version: 2.8.0(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21)
   vite:
     specifier: 5.2.6
     version: 5.2.6(@types/node@20.11.30)
@@ -1046,15 +1046,15 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
 
-  /@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.2):
+  /@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.3):
     resolution: {integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==}
     peerDependencies:
       tailwindcss: '>=3.2.0'
     dependencies:
-      tailwindcss: 3.4.2(ts-node@10.9.2)
+      tailwindcss: 3.4.3(ts-node@10.9.2)
     dev: false
 
-  /@tailwindcss/typography@0.5.12(tailwindcss@3.4.2):
+  /@tailwindcss/typography@0.5.12(tailwindcss@3.4.3):
     resolution: {integrity: sha512-CNwpBpconcP7ppxmuq3qvaCxiRWnbhANpY/ruH4L5qs2GCiVDJXde/pjj2HWPV1+Q4G9+V/etrwUYopdcjAlyg==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
@@ -1063,7 +1063,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.4.2(ts-node@10.9.2)
+      tailwindcss: 3.4.3(ts-node@10.9.2)
     dev: false
 
   /@tsconfig/node10@1.0.9:
@@ -4562,8 +4562,8 @@ packages:
   /tabbable@6.2.0:
     resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
 
-  /tailwindcss@3.4.2(ts-node@10.9.2):
-    resolution: {integrity: sha512-1kIzVecynNKMhhX8mPTOwTkkVHupUTMbEvk4n1ByxdM8sQTJ8fE41Y4TdORG6GmiVXHhfZ/++0hiIFJFwfadsA==}
+  /tailwindcss@3.4.3(ts-node@10.9.2):
+    resolution: {integrity: sha512-U7sxQk/n397Bmx4JHbJx/iSOOv5G+II3f1kpLpY2QeUv5DcPdcTsYLlusZfq1NthHS1c1cZoyFmmkex1rzke0A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
@@ -4802,8 +4802,8 @@ packages:
       - rollup
     dev: false
 
-  /unplugin-combine@0.8.1(vite@5.2.6):
-    resolution: {integrity: sha512-m2OSmXXRwCPZx8Ct8eF8WbjgTo8bydim2W1ofu2hDabGdr2pgDAoFjOP1J4MOIwa0OByqk1JX8IGlSdeE6uxVQ==}
+  /unplugin-combine@0.9.0(vite@5.2.6):
+    resolution: {integrity: sha512-1bXgHXIhw/bNEFCwNnYRlOOcamsBNQObSWBuy3FcDcnMoFLIi4ZaMsi/L0cNxltfYBTS+QvGSZ1F+LgQ0vbcLg==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       esbuild: '>=0.13'
@@ -4898,8 +4898,8 @@ packages:
       - vue
     dev: false
 
-  /unplugin-vue-macros@2.7.13(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21):
-    resolution: {integrity: sha512-YlRA+wT+3rKnYyQBtaGkPQjutN/n3G6oLM0CGnjVZaAzE0OEwN0g1heiqc9Z/NSQ+oHMVLZaFwNaShluY9XrDQ==}
+  /unplugin-vue-macros@2.8.0(@vueuse/core@10.9.0)(typescript@5.4.3)(vite@5.2.6)(vue@3.4.21):
+    resolution: {integrity: sha512-FtqQ2s2TYHt6AvFFgIn5LKv4PoHJhe0se9XT4S5wG5RLA9MKOlaq8tvNt8gYQ9+dsIP8e4fULI1/N2ZC/cGe4A==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -4930,7 +4930,7 @@ packages:
       '@vue-macros/short-emits': 1.5.2(vue@3.4.21)
       '@vue-macros/short-vmodel': 1.4.2(vue@3.4.21)
       unplugin: 1.10.0
-      unplugin-combine: 0.8.1(vite@5.2.6)
+      unplugin-combine: 0.9.0(vite@5.2.6)
       unplugin-vue-define-options: 1.4.2(vue@3.4.21)
       vue: 3.4.21(typescript@5.4.3)
     transitivePeerDependencies:
