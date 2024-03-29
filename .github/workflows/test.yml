@@ -61,7 +61,7 @@ jobs:
       - name: Run Go Tests with Coverage
         run: make test SKIP_ASSET=1
       - name: Stactic checker
-        uses: dominikh/staticcheck-action@v1.3.0
+        uses: dominikh/staticcheck-action@v1.3.1
         with:
           install-go: false
   int-test:
