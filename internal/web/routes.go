@@ -90,12 +90,12 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
-				r.Get("/api/logs/stream/{host}/{id}", h.streamLogs)
-				r.Get("/api/logs/download/{host}/{id}", h.downloadLogs)
-				r.Get("/api/logs/{host}/{id}", h.fetchLogsBetweenDates)
+				r.Get("/api/hosts/{host}/containers/{id}/logs/stream", h.streamLogs)
+				r.Get("/api/hosts/{host}/containers/{id}/logs/download", h.downloadLogs)
+				r.Get("/api/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
 				r.Get("/api/events/stream", h.streamEvents)
 				if h.config.EnableActions {
-					r.Post("/api/actions/{action}/{host}/{id}", h.containerActions)
+					r.Post("/api/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 				}
 				r.Get("/api/releases", h.releases)
 				r.Get("/api/profile/avatar", h.avatar)

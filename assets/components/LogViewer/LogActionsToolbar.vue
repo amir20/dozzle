@@ -12,7 +12,7 @@
         </a>
       </li>
       <li>
-        <a :href="`${base}/api/logs/download/${container.host}/${container.id}`" download>
+        <a :href="`${base}/api/hosts/${container.host}/containers/${container.id}/logs/download`" download>
           <octicon:download-24 /> {{ $t("toolbar.download") }}
         </a>
       </li>
