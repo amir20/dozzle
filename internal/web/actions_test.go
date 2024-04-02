@@ -34,58 +34,58 @@ func Test_handler_containerActions_stop(t *testing.T) {
 	mockedClient := get_mocked_client()
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("POST", "/api/actions/stop/localhost/123", nil)
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/stop", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, 200)
+	assert.Equal(t, 200, rr.Code)
 }
 
 func Test_handler_containerActions_restart(t *testing.T) {
 	mockedClient := get_mocked_client()
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("POST", "/api/actions/restart/localhost/123", nil)
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/restart", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, 200)
+	assert.Equal(t, 200, rr.Code)
 }
 
 func Test_handler_containerActions_unknown_action(t *testing.T) {
 	mockedClient := get_mocked_client()
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("POST", "/api/actions/something-else/localhost/123", nil)
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/something-else", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, 500)
+	assert.Equal(t, 500, rr.Code)
 }
 
 func Test_handler_containerActions_unknown_container(t *testing.T) {
 	mockedClient := get_mocked_client()
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("POST", "/api/actions/start/localhost/456", nil)
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/456/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, 404)
+	assert.Equal(t, 404, rr.Code)
 }
 
 func Test_handler_containerActions_start(t *testing.T) {
 	mockedClient := get_mocked_client()
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("POST", "/api/actions/start/localhost/123", nil)
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, rr.Code, 200)
+	assert.Equal(t, 200, rr.Code)
 }

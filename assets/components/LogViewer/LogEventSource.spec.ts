@@ -90,7 +90,7 @@ describe("<LogEventSource />", () => {
     });
   }
 
-  const sourceUrl = "/api/logs/stream/localhost/abc?stdout=1&stderr=1";
+  const sourceUrl = "/api/hosts/localhost/containers/abc/logs/stream?stdout=1&stderr=1";
 
   test("renders correctly", async () => {
     const wrapper = createLogEventSource();

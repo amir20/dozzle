@@ -20,7 +20,7 @@ import (
 
 func Test_handler_streamLogs_happy(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -44,7 +44,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -68,7 +68,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -89,7 +89,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -109,7 +109,7 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 
 func Test_handler_streamLogs_error_reading(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -130,7 +130,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 func Test_handler_streamLogs_error_std(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/stream/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 
 	require.NoError(t, err, "NewRequest should not return an error.")
 
@@ -143,10 +143,9 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
-// for /api/logs
 func Test_handler_between_dates(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/logs/localhost/"+id, nil)
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
