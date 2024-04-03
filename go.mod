@@ -31,7 +31,7 @@ require (
 	github.com/go-logfmt/logfmt v0.6.0
 	github.com/goccy/go-json v0.10.2
 	github.com/puzpuzpuz/xsync/v3 v3.1.0
-	github.com/yuin/goldmark v1.7.0
+	github.com/yuin/goldmark v1.7.1
 )
 
 require (
@@ -68,4 +68,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-go 1.22.1
+go 1.22.2
