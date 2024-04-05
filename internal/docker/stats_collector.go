@@ -21,6 +21,8 @@ type StatsCollector struct {
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
+	events       chan ContainerEvent
+	connected    atomic.Bool
 }
 
 var timeToStop = 6 * time.Hour
@@ -31,6 +33,7 @@ func NewStatsCollector(client Client) *StatsCollector {
 		subscribers: xsync.NewMapOf[context.Context, chan ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
+		events:      make(chan ContainerEvent),
 	}
 }
 
@@ -83,6 +86,15 @@ func streamStats(parent context.Context, sc *StatsCollector, id string) {
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
+	if sc.connected.CompareAndSwap(false, true) {
+		go func() {
+			log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
+			sc.client.Events(context.Background(), sc.events)
+			sc.connected.Store(false)
+			log.Errorf("unexpectedly disconnected from docker events %s", sc.client.Host())
+		}()
+	}
+
 	sc.reset()
 	sc.totalStarted.Add(1)
 
@@ -107,9 +119,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	}
 
 	go func() {
-		events := make(chan ContainerEvent)
-		sc.client.Events(ctx, events)
-		for event := range events {
+		for event := range sc.events {
 			switch event.Name {
 			case "start":
 				go streamStats(ctx, sc, event.ActorID)

@@ -61,7 +61,7 @@ type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
-	Events(context.Context, chan<- ContainerEvent) <-chan error
+	Events(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
@@ -297,35 +297,27 @@ func (d *_client) ContainerLogs(ctx context.Context, id string, since string, st
 	return reader, nil
 }
 
-func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) <-chan error {
-	dockerMessages, errors := d.cli.Events(ctx, types.EventsOptions{})
+func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) error {
+	dockerMessages, err := d.cli.Events(ctx, types.EventsOptions{})
 
-	go func() {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case err := <-err:
+			return err
 
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case err := <-errors:
-				log.Fatalf("error while listening to docker events: %v. Exiting...", err)
-			case message, ok := <-dockerMessages:
-				if !ok {
-					log.Errorf("docker events channel closed")
-					return
-				}
-
-				if message.Type == "container" && len(message.Actor.ID) > 0 {
-					messages <- ContainerEvent{
-						ActorID: message.Actor.ID[:12],
-						Name:    string(message.Action),
-						Host:    d.host.ID,
-					}
+		case message := <-dockerMessages:
+			if message.Type == "container" && len(message.Actor.ID) > 0 {
+				messages <- ContainerEvent{
+					ActorID: message.Actor.ID[:12],
+					Name:    string(message.Action),
+					Host:    d.host.ID,
 				}
 			}
 		}
-	}()
+	}
 
-	return errors
 }
 
 func (d *_client) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {

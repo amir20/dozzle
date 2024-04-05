@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
@@ -14,6 +15,8 @@ type ContainerStore struct {
 	client         Client
 	statsCollector *StatsCollector
 	wg             sync.WaitGroup
+	connected      atomic.Bool
+	events         chan ContainerEvent
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
@@ -23,6 +26,7 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 		subscribers:    xsync.NewMapOf[context.Context, chan ContainerEvent](),
 		statsCollector: NewStatsCollector(client),
 		wg:             sync.WaitGroup{},
+		events:         make(chan ContainerEvent),
 	}
 
 	s.wg.Add(1)
@@ -57,6 +61,15 @@ func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEve
 			})
 		}
 	}()
+
+	if s.connected.CompareAndSwap(false, true) {
+		go func() {
+			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
+			s.client.Events(context.Background(), s.events)
+			log.Errorf("unexpectedly disconnected from docker events %s", s.client.Host())
+			s.connected.Store(false)
+		}()
+	}
 	s.subscribers.Store(ctx, events)
 }
 
@@ -70,8 +83,6 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan Containe
 }
 
 func (s *ContainerStore) init(ctx context.Context) {
-	events := make(chan ContainerEvent)
-	s.client.Events(ctx, events)
 
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(ctx, stats)
@@ -88,7 +99,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	for {
 		select {
-		case event := <-events:
+		case event := <-s.events:
 			log.Tracef("received event: %+v", event)
 			switch event.Name {
 			case "start":
