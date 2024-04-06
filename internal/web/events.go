@@ -44,7 +44,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	stats := make(chan docker.ContainerStat)
 
 	for _, store := range h.stores {
-		allContainers = append(allContainers, store.List()...)
+		if containers, err := store.List(); err == nil {
+			allContainers = append(allContainers, containers...)
+		} else {
+			log.Errorf("error listing containers: %v", err)
+
+			if _, err := fmt.Fprintf(w, "event: host-unavailable\ndata: %s\n\n", store.Client().Host().ID); err != nil {
+				log.Errorf("error writing event to event stream: %v", err)
+			}
+		}
 		store.SubscribeStats(ctx, stats)
 		store.Subscribe(ctx, events)
 	}
@@ -86,10 +94,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			case "start", "die":
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-					containers := h.stores[event.Host].List()
-					if err := sendContainersJSON(containers, w); err != nil {
-						log.Errorf("error encoding containers to stream: %v", err)
-						return
+					if containers, err := h.stores[event.Host].List(); err == nil {
+						if err := sendContainersJSON(containers, w); err != nil {
+							log.Errorf("error encoding containers to stream: %v", err)
+							return
+						}
 					}
 				}
 

@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"sync/atomic"
 
@@ -36,15 +37,34 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	return s
 }
 
-func (s *ContainerStore) List() []Container {
+func (s *ContainerStore) List() ([]Container, error) {
 	s.wg.Wait()
+	if s.connected.CompareAndSwap(false, true) {
+		go func() {
+			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
+			err := s.client.Events(context.Background(), s.events)
+			if !errors.Is(err, context.Canceled) {
+				log.Errorf("docker store unexpectedly disconnected from docker events %s", s.client.Host())
+			}
+			s.connected.Store(false)
+		}()
+
+		if containers, err := s.client.ListContainers(); err == nil {
+			s.containers.Clear()
+			for _, c := range containers {
+				s.containers.Store(c.ID, &c)
+			}
+		} else {
+			return nil, err
+		}
+	}
 	containers := make([]Container, 0)
 	s.containers.Range(func(_ string, c *Container) bool {
 		containers = append(containers, *c)
 		return true
 	})
 
-	return containers
+	return containers, nil
 }
 
 func (s *ContainerStore) Client() Client {
@@ -62,14 +82,6 @@ func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEve
 		}
 	}()
 
-	if s.connected.CompareAndSwap(false, true) {
-		go func() {
-			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
-			s.client.Events(context.Background(), s.events)
-			log.Errorf("unexpectedly disconnected from docker events %s", s.client.Host())
-			s.connected.Store(false)
-		}()
-	}
 	s.subscribers.Store(ctx, events)
 }
 
@@ -86,14 +98,6 @@ func (s *ContainerStore) init(ctx context.Context) {
 
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(ctx, stats)
-
-	if containers, err := s.client.ListContainers(); err == nil {
-		for _, c := range containers {
-			s.containers.Store(c.ID, &c)
-		}
-	} else {
-		log.Fatalf("error listing containers: %v", err)
-	}
 
 	s.wg.Done()
 

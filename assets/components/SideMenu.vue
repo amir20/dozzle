@@ -10,10 +10,11 @@
     </div>
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu p-0" v-if="!sessionHost">
-        <li v-for="host in config.hosts">
-          <a @click.prevent="setHost(host.id)">
+        <li v-for="host in hosts">
+          <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
             <ph:computer-tower />
             {{ host.name }}
+            <span class="badge badge-error badge-xs" v-if="!host.available"></span>
           </a>
         </li>
       </ul>
@@ -68,6 +69,7 @@ import { sessionHost } from "@/composable/storage";
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
+const { hosts } = useHosts();
 
 function setHost(host: string | null) {
   sessionHost.value = host;
@@ -115,16 +117,6 @@ const menuItems = computed(() => {
     return [allLabel, ...groupedContainers.value.unpinned];
   }
 });
-
-const hosts = computed(() =>
-  config.hosts.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, { name: string; id: string }>,
-  ),
-);
 
 const activeContainersById = computed(() =>
   activeContainers.value.reduce(

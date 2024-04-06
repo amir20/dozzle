@@ -21,8 +21,6 @@ type StatsCollector struct {
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
-	events       chan ContainerEvent
-	connected    atomic.Bool
 }
 
 var timeToStop = 6 * time.Hour
@@ -33,7 +31,6 @@ func NewStatsCollector(client Client) *StatsCollector {
 		subscribers: xsync.NewMapOf[context.Context, chan ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
-		events:      make(chan ContainerEvent),
 	}
 }
 
@@ -47,7 +44,7 @@ func (c *StatsCollector) forceStop() {
 	if c.stopper != nil {
 		c.stopper()
 		c.stopper = nil
-		log.Debug("stopping container stats collector due to inactivity")
+		log.Debug("stopping container stats collector")
 	}
 }
 
@@ -55,7 +52,7 @@ func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
-		log.Debug("scheduled to stop container stats collector")
+		log.Debugf("scheduled to stop container stats collector %s", c.client.Host())
 		c.timer = time.AfterFunc(timeToStop, func() {
 			c.forceStop()
 		})
@@ -65,7 +62,7 @@ func (c *StatsCollector) Stop() {
 func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	log.Debug("resetting timer for container stats collector")
+	log.Debugf("resetting timer for container stats collector %s", c.client.Host())
 	if c.timer != nil {
 		c.timer.Stop()
 	}
@@ -86,20 +83,10 @@ func streamStats(parent context.Context, sc *StatsCollector, id string) {
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
 func (sc *StatsCollector) Start(parentCtx context.Context) bool {
-	if sc.connected.CompareAndSwap(false, true) {
-		go func() {
-			log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
-			sc.client.Events(context.Background(), sc.events)
-			sc.connected.Store(false)
-			log.Errorf("unexpectedly disconnected from docker events %s", sc.client.Host())
-		}()
-	}
-
 	sc.reset()
 	sc.totalStarted.Add(1)
 
 	var ctx context.Context
-
 	sc.mu.Lock()
 	if sc.stopper != nil {
 		sc.mu.Unlock()
@@ -118,8 +105,19 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 		log.Errorf("error while listing containers: %v", err)
 	}
 
+	events := make(chan ContainerEvent)
+
 	go func() {
-		for event := range sc.events {
+		log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
+		err := sc.client.Events(context.Background(), events)
+		if !errors.Is(err, context.Canceled) {
+			log.Errorf("stats collector unexpectedly disconnected from docker events %s", sc.client.Host())
+		}
+		sc.forceStop()
+	}()
+
+	go func() {
+		for event := range events {
 			switch event.Name {
 			case "start":
 				go streamStats(ctx, sc, event.ActorID)
