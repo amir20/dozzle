@@ -48,7 +48,10 @@ func TestContainerStore_List(t *testing.T) {
 			Name: "test",
 		},
 	}, nil)
-	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		ctx := args.Get(0).(context.Context)
+		<-ctx.Done()
+	})
 	client.On("Host").Return(&Host{
 		ID: "localhost",
 	})

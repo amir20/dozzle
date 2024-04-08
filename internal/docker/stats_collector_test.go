@@ -17,7 +17,12 @@ func startedCollector(ctx context.Context) *StatsCollector {
 			State: "running",
 		},
 	}, nil)
-	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).
+		Return(nil).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(context.Context)
+			<-ctx.Done()
+		})
 	client.On("ContainerStats", mock.Anything, mock.Anything, mock.AnythingOfType("chan<- docker.ContainerStat")).
 		Return(nil).
 		Run(func(args mock.Arguments) {

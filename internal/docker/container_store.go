@@ -45,7 +45,7 @@ func (s *ContainerStore) checkConnectivity() error {
 			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
 			err := s.client.Events(s.ctx, s.events)
 			if !errors.Is(err, context.Canceled) {
-				log.Errorf("docker store unexpectedly disconnected from docker events %s", s.client.Host())
+				log.Errorf("docker store unexpectedly disconnected from docker events from %s with %v", s.client.Host(), err)
 			}
 			s.connected.Store(false)
 		}()
