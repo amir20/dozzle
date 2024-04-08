@@ -17,7 +17,7 @@ func startedCollector(ctx context.Context) *StatsCollector {
 			State: "running",
 		},
 	}, nil)
-	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(make(chan error))
+	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
 	client.On("ContainerStats", mock.Anything, mock.Anything, mock.AnythingOfType("chan<- docker.ContainerStat")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
@@ -26,6 +26,9 @@ func startedCollector(ctx context.Context) *StatsCollector {
 				ID: "1234",
 			}
 		})
+	client.On("Host").Return(&Host{
+		ID: "localhost",
+	})
 
 	collector := NewStatsCollector(client)
 	stats := make(chan ContainerStat)

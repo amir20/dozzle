@@ -18,6 +18,7 @@ type ContainerStore struct {
 	wg             sync.WaitGroup
 	connected      atomic.Bool
 	events         chan ContainerEvent
+	ctx            context.Context
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
@@ -28,35 +29,45 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 		statsCollector: NewStatsCollector(client),
 		wg:             sync.WaitGroup{},
 		events:         make(chan ContainerEvent),
+		ctx:            ctx,
 	}
 
 	s.wg.Add(1)
 
-	go s.init(ctx)
+	go s.init()
 
 	return s
 }
 
-func (s *ContainerStore) List() ([]Container, error) {
-	s.wg.Wait()
+func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
 		go func() {
 			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
-			err := s.client.Events(context.Background(), s.events)
+			err := s.client.Events(s.ctx, s.events)
 			if !errors.Is(err, context.Canceled) {
 				log.Errorf("docker store unexpectedly disconnected from docker events %s", s.client.Host())
 			}
 			s.connected.Store(false)
 		}()
 
-		if containers, err := s.client.ListContainers(); err == nil {
+		if containers, err := s.client.ListContainers(); err != nil {
+			return nil
+		} else {
 			s.containers.Clear()
 			for _, c := range containers {
 				s.containers.Store(c.ID, &c)
 			}
-		} else {
-			return nil, err
 		}
+	}
+
+	return nil
+}
+
+func (s *ContainerStore) List() ([]Container, error) {
+	s.wg.Wait()
+
+	if err := s.checkConnectivity(); err != nil {
+		return nil, err
 	}
 	containers := make([]Container, 0)
 	s.containers.Range(func(_ string, c *Container) bool {
@@ -73,7 +84,7 @@ func (s *ContainerStore) Client() Client {
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
 	go func() {
-		if s.statsCollector.Start(context.Background()) {
+		if s.statsCollector.Start(s.ctx) {
 			log.Debug("clearing container stats as stats collector has been stopped")
 			s.containers.Range(func(_ string, c *Container) bool {
 				c.Stats.Clear()
@@ -94,10 +105,11 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan Containe
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
-func (s *ContainerStore) init(ctx context.Context) {
-
+func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
-	s.statsCollector.Subscribe(ctx, stats)
+	s.statsCollector.Subscribe(s.ctx, stats)
+
+	s.checkConnectivity()
 
 	s.wg.Done()
 
@@ -144,7 +156,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 				stat.ID = ""
 				container.Stats.Push(stat)
 			}
-		case <-ctx.Done():
+		case <-s.ctx.Done():
 			return
 		}
 	}
