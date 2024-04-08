@@ -51,7 +51,7 @@ func (s *ContainerStore) checkConnectivity() error {
 		}()
 
 		if containers, err := s.client.ListContainers(); err != nil {
-			return nil
+			return err
 		} else {
 			s.containers.Clear()
 			for _, c := range containers {

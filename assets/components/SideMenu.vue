@@ -14,7 +14,7 @@
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
             <ph:computer-tower />
             {{ host.name }}
-            <span class="badge badge-error badge-xs" v-if="!host.available"></span>
+            <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
           </a>
         </li>
       </ul>
