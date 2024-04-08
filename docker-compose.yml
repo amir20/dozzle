@@ -56,9 +56,10 @@ services:
       - CONTAINERS=1
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "2375"]
-      interval: 30s
+      interval: 5s
       retries: 5
       start_period: 5s
+      start_interval: 5s
     ports:
       - 2375:2375
 
