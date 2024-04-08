@@ -5,6 +5,7 @@ import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 
 const { showToast } = useToast();
+const { markHostAvailable } = useHosts();
 // @ts-ignore
 const { t } = i18n.global;
 
@@ -66,6 +67,11 @@ export const useContainerStore = defineStore("container", () => {
       if (container) {
         container.state = "exited";
       }
+    });
+
+    es.addEventListener("host-unavailable", (e) => {
+      const hostId = (e as MessageEvent).data;
+      markHostAvailable(hostId, false);
     });
 
     es.addEventListener("container-health", (e) => {

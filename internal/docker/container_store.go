@@ -2,7 +2,9 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"sync"
+	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
@@ -14,6 +16,9 @@ type ContainerStore struct {
 	client         Client
 	statsCollector *StatsCollector
 	wg             sync.WaitGroup
+	connected      atomic.Bool
+	events         chan ContainerEvent
+	ctx            context.Context
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
@@ -23,24 +28,54 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 		subscribers:    xsync.NewMapOf[context.Context, chan ContainerEvent](),
 		statsCollector: NewStatsCollector(client),
 		wg:             sync.WaitGroup{},
+		events:         make(chan ContainerEvent),
+		ctx:            ctx,
 	}
 
 	s.wg.Add(1)
 
-	go s.init(ctx)
+	go s.init()
 
 	return s
 }
 
-func (s *ContainerStore) List() []Container {
+func (s *ContainerStore) checkConnectivity() error {
+	if s.connected.CompareAndSwap(false, true) {
+		go func() {
+			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
+			err := s.client.Events(s.ctx, s.events)
+			if !errors.Is(err, context.Canceled) {
+				log.Errorf("docker store unexpectedly disconnected from docker events from %s with %v", s.client.Host(), err)
+			}
+			s.connected.Store(false)
+		}()
+
+		if containers, err := s.client.ListContainers(); err != nil {
+			return err
+		} else {
+			s.containers.Clear()
+			for _, c := range containers {
+				s.containers.Store(c.ID, &c)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *ContainerStore) List() ([]Container, error) {
 	s.wg.Wait()
+
+	if err := s.checkConnectivity(); err != nil {
+		return nil, err
+	}
 	containers := make([]Container, 0)
 	s.containers.Range(func(_ string, c *Container) bool {
 		containers = append(containers, *c)
 		return true
 	})
 
-	return containers
+	return containers, nil
 }
 
 func (s *ContainerStore) Client() Client {
@@ -49,7 +84,7 @@ func (s *ContainerStore) Client() Client {
 
 func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
 	go func() {
-		if s.statsCollector.Start(context.Background()) {
+		if s.statsCollector.Start(s.ctx) {
 			log.Debug("clearing container stats as stats collector has been stopped")
 			s.containers.Range(func(_ string, c *Container) bool {
 				c.Stats.Clear()
@@ -57,6 +92,7 @@ func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEve
 			})
 		}
 	}()
+
 	s.subscribers.Store(ctx, events)
 }
 
@@ -69,26 +105,17 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan Containe
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
-func (s *ContainerStore) init(ctx context.Context) {
-	events := make(chan ContainerEvent)
-	s.client.Events(ctx, events)
-
+func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
-	s.statsCollector.Subscribe(ctx, stats)
+	s.statsCollector.Subscribe(s.ctx, stats)
 
-	if containers, err := s.client.ListContainers(); err == nil {
-		for _, c := range containers {
-			s.containers.Store(c.ID, &c)
-		}
-	} else {
-		log.Fatalf("error listing containers: %v", err)
-	}
+	s.checkConnectivity()
 
 	s.wg.Done()
 
 	for {
 		select {
-		case event := <-events:
+		case event := <-s.events:
 			log.Tracef("received event: %+v", event)
 			switch event.Name {
 			case "start":
@@ -129,7 +156,7 @@ func (s *ContainerStore) init(ctx context.Context) {
 				stat.ID = ""
 				container.Stats.Push(stat)
 			}
-		case <-ctx.Done():
+		case <-s.ctx.Done():
 			return
 		}
 	}

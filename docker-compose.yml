@@ -44,7 +44,8 @@ services:
     build:
       context: .
     depends_on:
-      - proxy
+      proxy:
+        condition: service_healthy
 
   proxy:
     container_name: proxy
@@ -53,6 +54,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - CONTAINERS=1
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "2375"]
+      interval: 30s
+      retries: 5
+      start_period: 5s
     ports:
       - 2375:2375
 

@@ -40,9 +40,9 @@ func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since strin
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) Events(ctx context.Context, events chan<- docker.ContainerEvent) <-chan error {
+func (m *MockedClient) Events(ctx context.Context, events chan<- docker.ContainerEvent) error {
 	args := m.Called(ctx, events)
-	return args.Get(0).(chan error)
+	return args.Error(0)
 }
 
 func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.ContainerStat) error {

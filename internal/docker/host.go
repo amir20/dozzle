@@ -19,6 +19,10 @@ type Host struct {
 	ValidCerts bool     `json:"-"`
 }
 
+func (h *Host) String() string {
+	return h.ID
+}
+
 func ParseConnection(connection string) (Host, error) {
 	parts := strings.Split(connection, "|")
 	if len(parts) > 2 {
