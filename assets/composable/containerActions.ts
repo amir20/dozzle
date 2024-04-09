@@ -10,7 +10,7 @@ export const useContainerActions = () => {
   });
 
   async function actionHandler(action: ContainerActions) {
-    const actionUrl = `/api/actions/${action}/${container.value.host}/${container.value.id}`;
+    const actionUrl = `/api/hosts/${container.value.host}/containers/${container.value.id}/actions/${action}`;
 
     const errors = {
       404: "container not found",
