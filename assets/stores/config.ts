@@ -29,6 +29,8 @@ const pageConfig = JSON.parse(text);
 
 const config: Config = {
   maxLogs: 600,
+  version: "v0.0.0",
+  hosts: [],
   ...pageConfig,
 };
 
