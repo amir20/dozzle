@@ -52,15 +52,19 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	})
 
 	config := map[string]interface{}{
-		"base":          base,
-		"version":       h.config.Version,
-		"hostname":      h.config.Hostname,
-		"hosts":         hosts,
-		"authProvider":  h.config.Authorization.Provider,
-		"enableActions": h.config.EnableActions,
+		"base": base,
 	}
 
 	user := auth.UserFromContext(req.Context())
+
+	if h.config.Authorization.Provider == NONE || user != nil {
+		config["authProvider"] = h.config.Authorization.Provider
+		config["version"] = h.config.Version
+		config["hostname"] = h.config.Hostname
+		config["hosts"] = hosts
+		config["enableActions"] = h.config.EnableActions
+	}
+
 	if user != nil {
 		if profile, err := profile.Load(*user); err == nil {
 			config["profile"] = profile
