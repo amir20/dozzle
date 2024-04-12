@@ -8,6 +8,7 @@
         </li>
       </ul>
     </div>
+
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu p-0" v-if="!sessionHost">
         <li v-for="host in hosts">
@@ -18,42 +19,43 @@
           </a>
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
-        <li
-          v-for="item in menuItems"
-          :key="isContainer(item) ? item.id : item.keyLabel"
-          :class="isContainer(item) ? item.state : 'menu-title'"
-          :data-testid="isContainer(item) ? null : item.keyLabel"
-        >
-          <popup v-if="isContainer(item)">
-            <router-link
-              :to="{ name: 'container-id', params: { id: item.id } }"
-              active-class="active-primary"
-              @click.alt.stop.prevent="store.appendActiveContainer(item)"
-              :title="item.name"
-            >
-              <div class="truncate">
-                {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
-              </div>
-              <container-health :health="item.health"></container-health>
-              <span
-                class="pin"
-                @click.stop.prevent="store.appendActiveContainer(item)"
-                v-show="!activeContainersById[item.id]"
-                :title="$t('tooltip.pin-column')"
-              >
-                <cil:columns />
-              </span>
-            </router-link>
-            <template #content>
-              <container-popup :container="item"></container-popup>
-            </template>
-          </popup>
-          <template v-else>
-            {{ item.keyLabel.startsWith("label.") ? $t(item.keyLabel) : item.keyLabel }}
-          </template>
+      <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
+        <li v-for="{ label, containers } in menuItems">
+          <details open>
+            <summary class="font-light text-base-content/80">
+              {{ label.startsWith("label.") ? $t(label) : label }}
+            </summary>
+            <ul>
+              <li v-for="item in containers">
+                <popup>
+                  <router-link
+                    :to="{ name: 'container-id', params: { id: item.id } }"
+                    active-class="active-primary"
+                    @click.alt.stop.prevent="store.appendActiveContainer(item)"
+                    :title="item.name"
+                  >
+                    <div class="truncate">
+                      {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
+                    </div>
+                    <container-health :health="item.health"></container-health>
+                    <span
+                      class="pin"
+                      @click.stop.prevent="store.appendActiveContainer(item)"
+                      v-show="!activeContainersById[item.id]"
+                      :title="$t('tooltip.pin-column')"
+                    >
+                      <cil:columns />
+                    </span>
+                  </router-link>
+                  <template #content>
+                    <container-popup :container="item"></container-popup>
+                  </template>
+                </popup>
+              </li>
+            </ul>
+          </details>
         </li>
-      </transition-group>
+      </ul>
     </transition>
   </div>
   <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
@@ -75,7 +77,7 @@ function setHost(host: string | null) {
   sessionHost.value = host;
 }
 
-const debouncedPinnedIds = debouncedRef(pinnedContainers, 200);
+const debouncedPinnedContainers = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
   visibleContainers.value
     .filter((c) => c.host === sessionHost.value)
@@ -90,24 +92,16 @@ const sortedContainers = computed(() =>
     }),
 );
 
-// const groupedContainers = computed(() =>
-//   sortedContainers.value.reduce(
-//     (acc, item) => {
-//       if (debouncedPinnedIds.value.has(item.name)) {
-//         acc.pinned.push(item);
-//       } else {
-//         acc.unpinned.push(item);
-//       }
-//       console.log(item.labels["com.docker.stack.namespace"]);
-//       return acc;
-//     },
-//     { pinned: [] as Container[], unpinned: [] as Container[] },
-//   ),
-// );
-
 const groupedContainers = computed(() =>
   sortedContainers.value.reduce(
     (acc, item) => {
+      if (debouncedPinnedContainers.value) {
+        if (debouncedPinnedContainers.value.has(item.name)) {
+          acc["pinned"] ||= [];
+          acc["pinned"].push(item);
+          return acc;
+        }
+      }
       const namespace = item.labels["com.docker.stack.namespace"] as string | undefined;
       if (namespace) {
         if (!acc[namespace]) {
@@ -124,21 +118,21 @@ const groupedContainers = computed(() =>
   ),
 );
 
-function isContainer(item: any): item is Container {
-  return item.hasOwnProperty("image");
-}
-
 const menuItems = computed(() => {
   const items = [];
-  for (const [key, value] of Object.entries(groupedContainers.value)) {
-    if (key) {
-      items.push({ keyLabel: key });
-    } else {
-      const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
-      items.push(allLabel);
-    }
-    items.push(...value);
+  if (groupedContainers.value["pinned"]) {
+    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"] });
   }
+  for (const [key, value] of Object.entries(groupedContainers.value)) {
+    if (key !== "pinned" && key !== "") {
+      items.push({ label: key, containers: value });
+    }
+  }
+  if (groupedContainers.value[""]) {
+    const label = showAllContainers.value ? "label.all-containers" : "label.running-containers";
+    items.push({ label, containers: groupedContainers.value[""] });
+  }
+
   return items;
 });
 
