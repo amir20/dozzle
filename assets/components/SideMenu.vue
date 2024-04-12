@@ -50,7 +50,7 @@
             </template>
           </popup>
           <template v-else>
-            {{ $t(item.keyLabel) }}
+            {{ item.keyLabel.startsWith("label.") ? $t(item.keyLabel) : item.keyLabel }}
           </template>
         </li>
       </transition-group>
@@ -75,7 +75,7 @@ function setHost(host: string | null) {
   sessionHost.value = host;
 }
 
-const debouncedIds = debouncedRef(pinnedContainers, 200);
+const debouncedPinnedIds = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
   visibleContainers.value
     .filter((c) => c.host === sessionHost.value)
@@ -90,17 +90,37 @@ const sortedContainers = computed(() =>
     }),
 );
 
+// const groupedContainers = computed(() =>
+//   sortedContainers.value.reduce(
+//     (acc, item) => {
+//       if (debouncedPinnedIds.value.has(item.name)) {
+//         acc.pinned.push(item);
+//       } else {
+//         acc.unpinned.push(item);
+//       }
+//       console.log(item.labels["com.docker.stack.namespace"]);
+//       return acc;
+//     },
+//     { pinned: [] as Container[], unpinned: [] as Container[] },
+//   ),
+// );
+
 const groupedContainers = computed(() =>
   sortedContainers.value.reduce(
     (acc, item) => {
-      if (debouncedIds.value.has(item.name)) {
-        acc.pinned.push(item);
+      const namespace = item.labels["com.docker.stack.namespace"] as string | undefined;
+      if (namespace) {
+        if (!acc[namespace]) {
+          acc[namespace] = [];
+        }
+        acc[namespace].push(item);
       } else {
-        acc.unpinned.push(item);
+        acc[""] ||= [];
+        acc[""].push(item);
       }
       return acc;
     },
-    { pinned: [] as Container[], unpinned: [] as Container[] },
+    {} as Record<string, Container[]>,
   ),
 );
 
@@ -109,13 +129,17 @@ function isContainer(item: any): item is Container {
 }
 
 const menuItems = computed(() => {
-  const pinnedLabel = { keyLabel: "label.pinned" };
-  const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
-  if (groupedContainers.value.pinned.length > 0) {
-    return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
-  } else {
-    return [allLabel, ...groupedContainers.value.unpinned];
+  const items = [];
+  for (const [key, value] of Object.entries(groupedContainers.value)) {
+    if (key) {
+      items.push({ keyLabel: key });
+    } else {
+      const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
+      items.push(allLabel);
+    }
+    items.push(...value);
   }
+  return items;
 });
 
 const activeContainersById = computed(() =>
