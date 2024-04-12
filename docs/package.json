@@ -3,11 +3,11 @@
   "type": "module",
   "name": "docs",
   "devDependencies": {
-    "@unocss/preset-typography": "^0.59.1",
-    "@unocss/reset": "^0.59.1",
-    "@unocss/transformer-directives": "^0.59.1",
+    "@unocss/preset-typography": "^0.59.2",
+    "@unocss/reset": "^0.59.2",
+    "@unocss/transformer-directives": "^0.59.2",
     "dozzle": "workspace:*",
     "sitemap": "^7.1.1",
-    "unocss": "^0.59.1"
+    "unocss": "^0.59.2"
   }
 }
