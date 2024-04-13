@@ -22,7 +22,7 @@
       <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
         <li v-for="{ label, containers, icon } in menuItems">
           <details open>
-            <summary class="font-light text-base-content/80">
+            <summary class="font-light text-base-content/80" :data-testid="label">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
             </summary>
