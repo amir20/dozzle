@@ -110,7 +110,7 @@ const groupedContainers = computed(() =>
           return acc;
         }
       }
-      const namespace = item.labels["com.docker.stack.namespace"] as string | undefined;
+      const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
       if (namespace) {
         if (!acc[namespace]) {
           acc[namespace] = [];
