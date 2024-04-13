@@ -20,9 +20,10 @@
         </li>
       </ul>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
-        <li v-for="{ label, containers } in menuItems">
+        <li v-for="{ label, containers, icon } in menuItems">
           <details open>
             <summary class="font-light text-base-content/80">
+              <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
             </summary>
             <ul>
@@ -67,6 +68,10 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
+
+import PinIcon from "~icons/ph/map-pin-simple";
+import Stack from "~icons/ph/stack";
+import Containers from "~icons/octicon/container-24";
 
 const store = useContainerStore();
 
@@ -121,16 +126,16 @@ const groupedContainers = computed(() =>
 const menuItems = computed(() => {
   const items = [];
   if (groupedContainers.value["pinned"]) {
-    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"] });
+    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"], icon: PinIcon });
   }
   for (const [key, value] of Object.entries(groupedContainers.value)) {
     if (key !== "pinned" && key !== "") {
-      items.push({ label: key, containers: value });
+      items.push({ label: key, containers: value, icon: Stack });
     }
   }
   if (groupedContainers.value[""]) {
     const label = showAllContainers.value ? "label.all-containers" : "label.running-containers";
-    items.push({ label, containers: groupedContainers.value[""] });
+    items.push({ label, containers: groupedContainers.value[""], icon: Containers });
   }
 
   return items;
