@@ -69,8 +69,11 @@
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
 
-import PinIcon from "~icons/ph/map-pin-simple";
+// @ts-ignore
+import Pin from "~icons/ph/map-pin-simple";
+// @ts-ignore
 import Stack from "~icons/ph/stack";
+// @ts-ignore
 import Containers from "~icons/octicon/container-24";
 
 const store = useContainerStore();
@@ -126,7 +129,7 @@ const groupedContainers = computed(() =>
 const menuItems = computed(() => {
   const items = [];
   if (groupedContainers.value["pinned"]) {
-    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"], icon: PinIcon });
+    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"], icon: Pin });
   }
   for (const [key, value] of Object.entries(groupedContainers.value)) {
     if (key !== "pinned" && key !== "") {
