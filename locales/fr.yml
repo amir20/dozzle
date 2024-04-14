@@ -1,5 +1,5 @@
 toolbar:
-  clear: Effacer 
+  clear: Effacer
   download: Téléchargement
   search: Chercher
   show: Montrer seulement {std}
@@ -64,6 +64,7 @@ button:
   settings: Paramètres
 placeholder:
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
+  search: Recherche
 settings:
   display: Afficher
   locale: Langue de remplacement

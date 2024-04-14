@@ -16,7 +16,7 @@
     </div>
     <div>
       <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
-        <li v-for="(value, name) in validValues">
+        <li v-for="(value, name) in validValues" :key="name">
           <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
             <span class="font-bold" v-html="markSearch(JSON.stringify(value))"> </span>

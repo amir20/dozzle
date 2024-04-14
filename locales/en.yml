@@ -65,6 +65,7 @@ button:
   settings: Settings
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
+  search: Search
 settings:
   display: Display
   locale: Override language

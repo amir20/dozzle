@@ -11,7 +11,7 @@
 
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu p-0" v-if="!sessionHost">
-        <li v-for="host in hosts">
+        <li v-for="host in hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
             <ph:computer-tower />
             {{ host.name }}
@@ -20,14 +20,14 @@
         </li>
       </ul>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
-        <li v-for="{ label, containers, icon } in menuItems">
+        <li v-for="{ label, containers, icon } in menuItems" :key="label">
           <details open>
-            <summary class="font-light text-base-content/80" :data-testid="label">
+            <summary class="font-light text-base-content/80">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
             </summary>
             <ul>
-              <li v-for="item in containers" :class="item.state">
+              <li v-for="item in containers" :class="item.state" :key="item.id">
                 <popup>
                   <router-link
                     :to="{ name: 'container-id', params: { id: item.id } }"
