@@ -27,7 +27,7 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
             </summary>
             <ul>
-              <li v-for="item in containers">
+              <li v-for="item in containers" :class="item.state">
                 <popup>
                   <router-link
                     :to="{ name: 'container-id', params: { id: item.id } }"
@@ -100,45 +100,36 @@ const sortedContainers = computed(() =>
     }),
 );
 
-const groupedContainers = computed(() =>
-  sortedContainers.value.reduce(
-    (acc, item) => {
-      if (debouncedPinnedContainers.value) {
-        if (debouncedPinnedContainers.value.has(item.name)) {
-          acc["pinned"] ||= [];
-          acc["pinned"].push(item);
-          return acc;
-        }
-      }
-      const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
-      if (namespace) {
-        if (!acc[namespace]) {
-          acc[namespace] = [];
-        }
-        acc[namespace].push(item);
-      } else {
-        acc[""] ||= [];
-        acc[""].push(item);
-      }
-      return acc;
-    },
-    {} as Record<string, Container[]>,
-  ),
-);
-
 const menuItems = computed(() => {
-  const items = [];
-  if (groupedContainers.value["pinned"]) {
-    items.push({ label: "label.pinned", containers: groupedContainers.value["pinned"], icon: Pin });
-  }
-  for (const [key, value] of Object.entries(groupedContainers.value)) {
-    if (key !== "pinned" && key !== "") {
-      items.push({ label: key, containers: value, icon: Stack });
+  const namespaced: Record<string, Container[]> = {};
+  const pinned = [];
+  const singular = [];
+
+  for (const item of sortedContainers.value) {
+    const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
+    if (debouncedPinnedContainers.value.has(item.name)) {
+      pinned.push(item);
+    } else if (namespace) {
+      namespaced[namespace] ||= [];
+      namespaced[namespace].push(item);
+    } else {
+      singular.push(item);
     }
   }
-  if (groupedContainers.value[""]) {
-    const label = showAllContainers.value ? "label.all-containers" : "label.running-containers";
-    items.push({ label, containers: groupedContainers.value[""], icon: Containers });
+
+  const items = [];
+  if (pinned.length) {
+    items.push({ label: "label.pinned", containers: pinned, icon: Pin });
+  }
+  for (const [label, containers] of Object.entries(namespaced).sort(([a], [b]) => a.localeCompare(b))) {
+    items.push({ label, containers, icon: Stack });
+  }
+  if (singular.length) {
+    items.push({
+      label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
+      containers: singular,
+      icon: Containers,
+    });
   }
 
   return items;
