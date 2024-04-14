@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@8.15.6",
+ "packageManager": "pnpm@8.15.7",
  "type": "module",
  "repository": {
   "type": "git",
@@ -69,13 +69,13 @@
   "vite-plugin-pages": "^0.32.1",
   "vite-plugin-vue-layouts": "^0.11.0",
   "vue": "^3.4.21",
-  "vue-i18n": "^9.12.0",
+  "vue-i18n": "^9.12.1",
   "vue-router": "^4.3.0"
  },
  "devDependencies": {
   "@iconify-json/material-symbols": "^1.1.78",
   "@pinia/testing": "^0.1.3",
-  "@playwright/test": "^1.43.0",
+  "@playwright/test": "^1.43.1",
   "@types/d3-array": "^3.2.1",
   "@types/d3-ease": "^3.0.2",
   "@types/d3-scale": "^4.0.8",
