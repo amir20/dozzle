@@ -58,6 +58,7 @@ button:
   settings: 设置
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
+  search: 搜索
 settings:
   display: 显示
   locale: 覆盖语言

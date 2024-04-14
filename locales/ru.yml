@@ -58,6 +58,7 @@ button:
   settings: Настройки
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
+  search: Поиск
 settings:
   display: Вид
   locale: Язык

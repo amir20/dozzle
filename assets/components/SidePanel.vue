@@ -12,15 +12,16 @@
       </small>
     </h1>
 
-    <a
+    <button
       class="input input-sm mt-4 inline-flex cursor-pointer items-center gap-2 font-light hover:border-primary"
       @click="$emit('search')"
       :title="$t('tooltip.search')"
+      data-testid="search"
     >
       <mdi:magnify />
-      Search
-      <key-shortcut char="k"></key-shortcut>
-    </a>
+      {{ $t("placeholder.search") }}
+      <key-shortcut char="k" class="text-base-content/70"></key-shortcut>
+    </button>
 
     <side-menu class="mt-4"></side-menu>
   </aside>

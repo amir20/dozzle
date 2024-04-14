@@ -62,6 +62,7 @@ button:
   settings: Einstellungen
 placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
+  search: Suche
 settings:
   display: Anzeige
   locale: Sprache überschreiben

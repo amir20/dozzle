@@ -62,6 +62,7 @@ button:
   settings: Configurazione
 placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
+  search: Cerca
 settings:
   display: Visualizza
   locale: Sovrascrivi Linguaggio

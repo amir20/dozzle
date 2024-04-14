@@ -1,6 +1,6 @@
 <template>
   <ul v-if="expanded" ref="root" class="ml-8">
-    <li v-for="(value, name) in fields">
+    <li v-for="(value, name) in fields" :key="name">
       <template v-if="isObject(value)">
         <span class="text-light">{{ name }}=</span>
         <field-list

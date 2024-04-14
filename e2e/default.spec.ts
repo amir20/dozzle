@@ -34,6 +34,6 @@ test.describe("es locale", () => {
   test.use({ locale: "es" });
 
   test("translated text", async ({ page }) => {
-    await expect(page.getByTestId("label.running-containers")).toHaveText("Contenedores en ejecución");
+    await expect(page.getByTestId("search")).toContainText("Buscar");
   });
 });

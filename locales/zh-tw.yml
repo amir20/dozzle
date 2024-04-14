@@ -41,6 +41,7 @@ button:
   settings: 設定
 placeholder:
   search-containers: 查詢容器 (⌘ + k, ⌃k)
+  search: 查詢
 settings:
   display: 顯示
   locale: 覆寫語言

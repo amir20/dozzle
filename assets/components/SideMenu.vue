@@ -8,9 +8,10 @@
         </li>
       </ul>
     </div>
+
     <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
       <ul class="menu p-0" v-if="!sessionHost">
-        <li v-for="host in hosts">
+        <li v-for="host in hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
             <ph:computer-tower />
             {{ host.name }}
@@ -18,42 +19,44 @@
           </a>
         </li>
       </ul>
-      <transition-group tag="ul" name="list" class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
-        <li
-          v-for="item in menuItems"
-          :key="isContainer(item) ? item.id : item.keyLabel"
-          :class="isContainer(item) ? item.state : 'menu-title'"
-          :data-testid="isContainer(item) ? null : item.keyLabel"
-        >
-          <popup v-if="isContainer(item)">
-            <router-link
-              :to="{ name: 'container-id', params: { id: item.id } }"
-              active-class="active-primary"
-              @click.alt.stop.prevent="store.appendActiveContainer(item)"
-              :title="item.name"
-            >
-              <div class="truncate">
-                {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
-              </div>
-              <container-health :health="item.health"></container-health>
-              <span
-                class="pin"
-                @click.stop.prevent="store.appendActiveContainer(item)"
-                v-show="!activeContainersById[item.id]"
-                :title="$t('tooltip.pin-column')"
-              >
-                <cil:columns />
-              </span>
-            </router-link>
-            <template #content>
-              <container-popup :container="item"></container-popup>
-            </template>
-          </popup>
-          <template v-else>
-            {{ $t(item.keyLabel) }}
-          </template>
+      <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
+        <li v-for="{ label, containers, icon } in menuItems" :key="label">
+          <details open>
+            <summary class="font-light text-base-content/80">
+              <component :is="icon" />
+              {{ label.startsWith("label.") ? $t(label) : label }}
+            </summary>
+            <ul>
+              <li v-for="item in containers" :class="item.state" :key="item.id">
+                <popup>
+                  <router-link
+                    :to="{ name: 'container-id', params: { id: item.id } }"
+                    active-class="active-primary"
+                    @click.alt.stop.prevent="store.appendActiveContainer(item)"
+                    :title="item.name"
+                  >
+                    <div class="truncate">
+                      {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
+                    </div>
+                    <container-health :health="item.health"></container-health>
+                    <span
+                      class="pin"
+                      @click.stop.prevent="store.appendActiveContainer(item)"
+                      v-show="!activeContainersById[item.id]"
+                      :title="$t('tooltip.pin-column')"
+                    >
+                      <cil:columns />
+                    </span>
+                  </router-link>
+                  <template #content>
+                    <container-popup :container="item"></container-popup>
+                  </template>
+                </popup>
+              </li>
+            </ul>
+          </details>
         </li>
-      </transition-group>
+      </ul>
     </transition>
   </div>
   <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
@@ -66,6 +69,13 @@
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
 
+// @ts-ignore
+import Pin from "~icons/ph/map-pin-simple";
+// @ts-ignore
+import Stack from "~icons/ph/stack";
+// @ts-ignore
+import Containers from "~icons/octicon/container-24";
+
 const store = useContainerStore();
 
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
@@ -75,7 +85,7 @@ function setHost(host: string | null) {
   sessionHost.value = host;
 }
 
-const debouncedIds = debouncedRef(pinnedContainers, 200);
+const debouncedPinnedContainers = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
   visibleContainers.value
     .filter((c) => c.host === sessionHost.value)
@@ -90,32 +100,39 @@ const sortedContainers = computed(() =>
     }),
 );
 
-const groupedContainers = computed(() =>
-  sortedContainers.value.reduce(
-    (acc, item) => {
-      if (debouncedIds.value.has(item.name)) {
-        acc.pinned.push(item);
-      } else {
-        acc.unpinned.push(item);
-      }
-      return acc;
-    },
-    { pinned: [] as Container[], unpinned: [] as Container[] },
-  ),
-);
-
-function isContainer(item: any): item is Container {
-  return item.hasOwnProperty("image");
-}
-
 const menuItems = computed(() => {
-  const pinnedLabel = { keyLabel: "label.pinned" };
-  const allLabel = { keyLabel: showAllContainers.value ? "label.all-containers" : "label.running-containers" };
-  if (groupedContainers.value.pinned.length > 0) {
-    return [pinnedLabel, ...groupedContainers.value.pinned, allLabel, ...groupedContainers.value.unpinned];
-  } else {
-    return [allLabel, ...groupedContainers.value.unpinned];
+  const namespaced: Record<string, Container[]> = {};
+  const pinned = [];
+  const singular = [];
+
+  for (const item of sortedContainers.value) {
+    const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
+    if (debouncedPinnedContainers.value.has(item.name)) {
+      pinned.push(item);
+    } else if (namespace) {
+      namespaced[namespace] ||= [];
+      namespaced[namespace].push(item);
+    } else {
+      singular.push(item);
+    }
   }
+
+  const items = [];
+  if (pinned.length) {
+    items.push({ label: "label.pinned", containers: pinned, icon: Pin });
+  }
+  for (const [label, containers] of Object.entries(namespaced).sort(([a], [b]) => a.localeCompare(b))) {
+    items.push({ label, containers, icon: Stack });
+  }
+  if (singular.length) {
+    items.push({
+      label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
+      containers: singular,
+      icon: Containers,
+    });
+  }
+
+  return items;
 });
 
 const activeContainersById = computed(() =>

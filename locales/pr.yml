@@ -58,6 +58,7 @@ button:
   settings: Configurações
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
+  search: Pesquisa
 settings:
   display: Visão
   locale: Localidade
