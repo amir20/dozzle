@@ -39,15 +39,15 @@ const { container } = useContainerContext();
 
 const nextContainer = computed(
   () =>
-    containers.value
-      .filter(
+    [
+      ...containers.value.filter(
         (c) =>
           c.host === container.value.host &&
           c.created > logEntry.date &&
           c.name === container.value.name &&
           c.state === "running",
-      )
-      .toSorted((a, b) => +a.created - +b.created)[0],
+      ),
+    ].sort((a, b) => +a.created - +b.created)[0],
 );
 
 function redirectNow() {
