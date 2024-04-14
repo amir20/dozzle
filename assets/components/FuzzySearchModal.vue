@@ -91,8 +91,8 @@ const { results } = useFuse(query, list, {
 });
 
 const data = computed(() => {
-  return results.value
-    .toSorted((a, b) => {
+  return [...results.value]
+    .sort((a, b) => {
       if (a.score === b.score) {
         if (a.item.state === b.item.state) {
           return b.item.created - a.item.created;
