@@ -21,7 +21,7 @@
       </ul>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
-          <details open>
+          <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="font-light text-base-content/80">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
@@ -81,9 +81,17 @@ const store = useContainerStore();
 const { activeContainers, visibleContainers, ready } = storeToRefs(store);
 const { hosts } = useHosts();
 
-function setHost(host: string | null) {
-  sessionHost.value = host;
-}
+const setHost = (host: string | null) => (sessionHost.value = host);
+
+const collapsedGroups = useProfileStorage("collapsedGroups", new Set<string>());
+const updateCollapsedGroups = (event: Event, label: string) => {
+  const details = event.target as HTMLDetailsElement;
+  if (details.open) {
+    collapsedGroups.value.delete(label);
+  } else {
+    collapsedGroups.value.add(label);
+  }
+};
 
 const debouncedPinnedContainers = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
