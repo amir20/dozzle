@@ -95,18 +95,18 @@ const updateCollapsedGroups = (event: Event, label: string) => {
 
 const debouncedPinnedContainers = debouncedRef(pinnedContainers, 200);
 const sortedContainers = computed(() =>
-  visibleContainers.value
-    .filter((c) => c.host === sessionHost.value)
-    .sort((a, b) => {
-      if (a.state === "running" && b.state !== "running") {
-        return -1;
-      } else if (a.state !== "running" && b.state === "running") {
-        return 1;
-      } else {
-        return a.name.localeCompare(b.name);
-      }
-    }),
+  visibleContainers.value.filter((c) => c.host === sessionHost.value).sort(sorter),
 );
+
+const sorter = (a: Container, b: Container) => {
+  if (a.state === "running" && b.state !== "running") {
+    return -1;
+  } else if (a.state !== "running" && b.state === "running") {
+    return 1;
+  } else {
+    return a.name.localeCompare(b.name);
+  }
+};
 
 const menuItems = computed(() => {
   const namespaced: Record<string, Container[]> = {};
@@ -130,8 +130,15 @@ const menuItems = computed(() => {
     items.push({ label: "label.pinned", containers: pinned, icon: Pin });
   }
   for (const [label, containers] of Object.entries(namespaced).sort(([a], [b]) => a.localeCompare(b))) {
-    items.push({ label, containers, icon: Stack });
+    if (containers.length > 1) {
+      items.push({ label, containers, icon: Stack });
+    } else {
+      singular.push(containers[0]);
+    }
   }
+
+  singular.sort(sorter);
+
   if (singular.length) {
     items.push({
       label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
