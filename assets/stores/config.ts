@@ -23,6 +23,7 @@ export interface Profile {
   pinned?: Set<string>;
   visibleKeys?: { [key: string]: string[][] };
   releaseSeen?: string;
+  collapsedGroups?: Set<string>;
 }
 
 const pageConfig = JSON.parse(text);
