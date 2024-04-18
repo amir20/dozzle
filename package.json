@@ -65,12 +65,12 @@
   "unplugin-vue-components": "^0.26.0",
   "unplugin-vue-macros": "^2.9.1",
   "vite": "5.2.9",
-  "vite-plugin-compression2": "^1.0.0",
+  "vite-plugin-compression2": "^1.1.0",
   "vite-plugin-pages": "^0.32.1",
   "vite-plugin-vue-layouts": "^0.11.0",
   "vue": "^3.4.23",
   "vue-i18n": "^9.13.0",
-  "vue-router": "^4.3.1"
+  "vue-router": "^4.3.2"
  },
  "devDependencies": {
   "@iconify-json/material-symbols": "^1.1.78",
@@ -98,7 +98,7 @@
   "simple-git-hooks": "^2.11.1",
   "ts-node": "^10.9.2",
   "typescript": "^5.4.5",
-  "vitepress": "1.1.0",
+  "vitepress": "1.1.1",
   "vitest": "^1.5.0",
   "vue-tsc": "^2.0.13"
  },
