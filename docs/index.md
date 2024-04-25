@@ -6,7 +6,7 @@ title: Home
 
 hero:
   name: "Dozzle"
-  tagline: A lightweight, web-based Docker log viewer that provides real-time monitoring and easy troubleshooting.
+  tagline: Real-time logging and monitoring for Docker in the browser
   actions:
     - theme: brand
       text: Get Started
