@@ -42,6 +42,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	allContainers := make([]docker.Container, 0)
 	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
+	hasSwarm := false
 
 	for _, store := range h.stores {
 		if containers, err := store.List(); err == nil {
@@ -55,6 +56,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		}
 		store.SubscribeStats(ctx, stats)
 		store.Subscribe(ctx, events)
+
+		if store.Client().IsSwarmMode() {
+			hasSwarm = true
+		}
 	}
 
 	defer func() {
@@ -67,6 +72,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("error writing containers to event stream: %v", err)
 	}
 	b.RunningContainers = len(allContainers)
+	b.IsSwarmMode = hasSwarm
+
 	f.Flush()
 
 	if !h.config.NoAnalytics {
