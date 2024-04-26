@@ -29,7 +29,7 @@ func Test_valid_localhost(t *testing.T) {
 	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}), nil
+		}, false), nil
 	}
 
 	args := args{}
@@ -46,7 +46,7 @@ func Test_invalid_localhost(t *testing.T) {
 	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}), nil
+		}, false), nil
 	}
 
 	args := args{}
@@ -63,7 +63,7 @@ func Test_valid_remote(t *testing.T) {
 	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}), nil
+		}, false), nil
 	}
 
 	remote := new(fakeCLI)
@@ -71,7 +71,7 @@ func Test_valid_remote(t *testing.T) {
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		return docker.NewClient(remote, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}), nil
+		}, false), nil
 	}
 
 	args := args{
@@ -93,7 +93,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}), nil
+		}, false), nil
 	}
 
 	remote := new(fakeCLI)
@@ -101,7 +101,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		return docker.NewClient(remote, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}), nil
+		}, false), nil
 	}
 	args := args{
 		RemoteHost: []string{"tcp://test:2375"},
@@ -123,13 +123,13 @@ func Test_no_clients(t *testing.T) {
 
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}), nil
+		}, false), nil
 	}
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		client := new(fakeCLI)
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}), nil
+		}, false), nil
 	}
 
 	args := args{}

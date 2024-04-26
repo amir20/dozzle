@@ -59,6 +59,10 @@ func (m *MockedClient) Host() *docker.Host {
 	return args.Get(0).(*docker.Host)
 }
 
+func (m *MockedClient) IsSwarmMode() bool {
+	return false
+}
+
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
