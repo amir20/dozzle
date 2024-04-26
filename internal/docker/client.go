@@ -18,6 +18,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 
 	log "github.com/sirupsen/logrus"
@@ -67,16 +68,18 @@ type Client interface {
 	Ping(context.Context) (types.Ping, error)
 	Host() *Host
 	ContainerActions(action string, containerID string) error
+	IsSwarmMode() bool
 }
 
-type _client struct {
-	cli     DockerCLI
-	filters filters.Args
-	host    *Host
+type httpClient struct {
+	cli       DockerCLI
+	filters   filters.Args
+	host      *Host
+	SwarmMode bool
 }
 
-func NewClient(cli DockerCLI, filters filters.Args, host *Host) Client {
-	return &_client{cli, filters, host}
+func NewClient(cli DockerCLI, filters filters.Args, host *Host, swarm bool) Client {
+	return &httpClient{cli, filters, host, swarm}
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
@@ -96,7 +99,10 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}), nil
+	info, _ := cli.Info(context.Background())
+	swarm := info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
+
+	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}, swarm), nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
@@ -132,10 +138,13 @@ func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error)
 		return nil, err
 	}
 
-	return NewClient(cli, filterArgs, &host), nil
+	info, _ := cli.Info(context.Background())
+	swarm := info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
+
+	return NewClient(cli, filterArgs, &host, swarm), nil
 }
 
-func (d *_client) FindContainer(id string) (Container, error) {
+func (d *httpClient) FindContainer(id string) (Container, error) {
 	var container Container
 	containers, err := d.ListContainers()
 	if err != nil {
@@ -163,7 +172,7 @@ func (d *_client) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *_client) ContainerActions(action string, containerID string) error {
+func (d *httpClient) ContainerActions(action string, containerID string) error {
 	switch action {
 	case "start":
 		return d.cli.ContainerStart(context.Background(), containerID, container.StartOptions{})
@@ -176,7 +185,7 @@ func (d *_client) ContainerActions(action string, containerID string) error {
 	}
 }
 
-func (d *_client) ListContainers() ([]Container, error) {
+func (d *httpClient) ListContainers() ([]Container, error) {
 	containerListOptions := container.ListOptions{
 		Filters: d.filters,
 		All:     true,
@@ -217,7 +226,7 @@ func (d *_client) ListContainers() ([]Container, error) {
 	return containers, nil
 }
 
-func (d *_client) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
+func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -252,8 +261,6 @@ func (d *_client) ContainerStats(ctx context.Context, id string, stats chan<- Co
 			mem = float64(v.MemoryStats.PrivateWorkingSet)
 		}
 
-		log.Tracef("containerId = %s, cpuPercent = %f, memPercent = %f, memUsage = %f, daemonOSType = %s", id, cpuPercent, memPercent, mem, daemonOSType)
-
 		if cpuPercent > 0 || mem > 0 {
 			select {
 			case <-ctx.Done():
@@ -269,7 +276,7 @@ func (d *_client) ContainerStats(ctx context.Context, id string, stats chan<- Co
 	}
 }
 
-func (d *_client) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
 	if since != "" {
@@ -297,7 +304,7 @@ func (d *_client) ContainerLogs(ctx context.Context, id string, since string, st
 	return reader, nil
 }
 
-func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) error {
+func (d *httpClient) Events(ctx context.Context, messages chan<- ContainerEvent) error {
 	dockerMessages, err := d.cli.Events(ctx, types.EventsOptions{})
 
 	for {
@@ -320,7 +327,7 @@ func (d *_client) Events(ctx context.Context, messages chan<- ContainerEvent) er
 
 }
 
-func (d *_client) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
 	options := container.LogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
@@ -339,12 +346,16 @@ func (d *_client) ContainerLogsBetweenDates(ctx context.Context, id string, from
 	return reader, nil
 }
 
-func (d *_client) Ping(ctx context.Context) (types.Ping, error) {
+func (d *httpClient) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
 }
 
-func (d *_client) Host() *Host {
+func (d *httpClient) Host() *Host {
 	return d.host
+}
+
+func (d *httpClient) IsSwarmMode() bool {
+	return d.SwarmMode
 }
 
 var PARENTHESIS_RE = regexp.MustCompile(`\(([a-zA-Z]+)\)`)
