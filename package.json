@@ -37,7 +37,7 @@
   "@iconify-json/ph": "^1.1.12",
   "@intlify/unplugin-vue-i18n": "^4.0.0",
   "@tailwindcss/container-queries": "^0.1.1",
-  "@tailwindcss/typography": "^0.5.12",
+  "@tailwindcss/typography": "^0.5.13",
   "@vueuse/components": "^10.9.0",
   "@vueuse/core": "^10.9.0",
   "@vueuse/integrations": "^10.9.0",
@@ -98,7 +98,7 @@
   "simple-git-hooks": "^2.11.1",
   "ts-node": "^10.9.2",
   "typescript": "^5.4.5",
-  "vitepress": "1.1.3",
+  "vitepress": "1.1.4",
   "vitest": "^1.5.2",
   "vue-tsc": "^2.0.14"
  },
