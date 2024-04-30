@@ -102,7 +102,7 @@
 
 <script lang="ts" setup>
 const { showSearch } = useSearchFilter();
-const { base, enableActions } = config;
+const { enableActions } = config;
 
 const clear = defineEmit();
 
