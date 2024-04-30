@@ -12,9 +12,7 @@
         </a>
       </li>
       <li>
-        <a :href="`${base}/api/hosts/${container.host}/containers/${container.id}/logs/download`" download>
-          <octicon:download-24 /> {{ $t("toolbar.download") }}
-        </a>
+        <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
       <li>
         <a @click.prevent="showSearch = true">
@@ -112,6 +110,18 @@ const { container, streamConfig } = useContainerContext();
 
 // container context is provided in the parent component: <LogContainer>
 const { actionStates, start, stop, restart } = useContainerActions();
+
+const downloadParams = computed(() => {
+  return Object.entries(streamConfig)
+    .filter(([, value]) => value)
+    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+});
+
+const downloadUrl = computed(() => {
+  return withBase(
+    `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
+  );
+});
 
 const disableRestart = computed(() => {
   return actionStates.stop || actionStates.start || actionStates.restart;
