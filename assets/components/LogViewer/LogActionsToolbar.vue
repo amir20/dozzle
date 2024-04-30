@@ -111,17 +111,17 @@ const { container, streamConfig } = useContainerContext();
 // container context is provided in the parent component: <LogContainer>
 const { actionStates, start, stop, restart } = useContainerActions();
 
-const downloadParams = computed(() => {
-  return Object.entries(streamConfig)
+const downloadParams = computed(() =>
+  Object.entries(streamConfig)
     .filter(([, value]) => value)
-    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
-});
+    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {}),
+);
 
-const downloadUrl = computed(() => {
-  return withBase(
+const downloadUrl = computed(() =>
+  withBase(
     `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
-  );
-});
+  ),
+);
 
 const disableRestart = computed(() => {
   return actionStates.stop || actionStates.start || actionStates.restart;
