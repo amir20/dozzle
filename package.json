@@ -50,7 +50,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.10.2",
+  "daisyui": "^4.10.3",
   "date-fns": "^3.6.0",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -61,8 +61,8 @@
   "strip-ansi": "^7.1.0",
   "tailwindcss": "^3.4.3",
   "unplugin-auto-import": "^0.17.5",
-  "unplugin-icons": "^0.18.5",
-  "unplugin-vue-components": "^0.26.0",
+  "unplugin-icons": "^0.19.0",
+  "unplugin-vue-components": "^0.27.0",
   "unplugin-vue-macros": "^2.9.1",
   "vite": "5.2.10",
   "vite-plugin-compression2": "^1.1.0",
@@ -83,7 +83,7 @@
   "@types/d3-shape": "^3.1.6",
   "@types/d3-transition": "^3.0.8",
   "@types/lodash.debounce": "^4.0.9",
-  "@types/node": "^20.12.7",
+  "@types/node": "^20.12.8",
   "@vitejs/plugin-vue": "5.0.4",
   "@vue/compiler-sfc": "^3.4.26",
   "@vue/test-utils": "^2.4.5",
@@ -99,8 +99,8 @@
   "ts-node": "^10.9.2",
   "typescript": "^5.4.5",
   "vitepress": "1.1.4",
-  "vitest": "^1.5.2",
-  "vue-tsc": "^2.0.14"
+  "vitest": "^1.5.3",
+  "vue-tsc": "^2.0.16"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
