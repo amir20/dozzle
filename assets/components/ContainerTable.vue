@@ -116,13 +116,10 @@ const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CO
   direction: -1,
 });
 const { column: sortField, direction } = toRefs(storage);
+const counter = useInterval(10000);
 const sortedContainers = computedWithControl(
-  () => [containers.length, sortField.value, direction.value],
-  () => {
-    return containers.sort((a, b) => {
-      return fields[sortField.value].sortFunc(a, b);
-    });
-  },
+  () => [containers.length, sortField.value, direction.value, counter.value],
+  () => containers.sort((a, b) => fields[sortField.value].sortFunc(a, b)),
 );
 
 const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage.value));
