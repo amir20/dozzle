@@ -50,7 +50,7 @@
   "d3-selection": "^3.0.0",
   "d3-shape": "^3.2.0",
   "d3-transition": "^3.0.1",
-  "daisyui": "^4.10.3",
+  "daisyui": "^4.10.5",
   "date-fns": "^3.6.0",
   "entities": "^4.5.0",
   "fuse.js": "^7.0.0",
@@ -99,7 +99,7 @@
   "ts-node": "^10.9.2",
   "typescript": "^5.4.5",
   "vitepress": "1.1.4",
-  "vitest": "^1.5.3",
+  "vitest": "^1.6.0",
   "vue-tsc": "^2.0.16"
  },
  "lint-staged": {
