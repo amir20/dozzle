@@ -3,7 +3,7 @@
     <section>
       <div class="stats grid bg-base-lighter shadow">
         <div class="stat">
-          <div class="stat-value">{{ runningContainers.length }} / {{ containers.length }}</div>
+          <div class="stat-value">{{ runningContainers.length }} / {{ hostContainers.length }}</div>
           <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
         </div>
         <div class="stat">
@@ -39,7 +39,11 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
   ready: Ref<boolean>;
 };
 
-const mostRecentContainers = $computed(() => [...containers.value].sort((a, b) => +b.created - +a.created));
+const hostContainers = $computed(() =>
+  containers.value.filter((c) => sessionHost.value === null || c.host === sessionHost.value),
+);
+
+const mostRecentContainers = $computed(() => [...hostContainers].sort((a, b) => +b.created - +a.created));
 const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
 
 let totalCpu = $ref(0);
