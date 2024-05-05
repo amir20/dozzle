@@ -7,17 +7,36 @@
           <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
         </div>
         <div class="stat">
-          <div class="stat-value">{{ totalCpu.toFixed(0) }}%</div>
+          <div class="stat-figure">
+            <div
+              class="radial-progress"
+              :style="`--value: ${Math.floor(totalCpu) / 2}; --thickness: 0.25em`"
+              role="progressbar"
+            >
+              {{ totalCpu.toFixed(0) }}%
+            </div>
+          </div>
+          <div class="stat-value">8 CPUs</div>
           <div class="stat-title">{{ $t("label.total-cpu-usage") }}</div>
         </div>
         <div class="stat">
+          <div class="stat-figure">
+            <div
+              class="radial-progress"
+              :style="`--value: ${Math.floor(totalMem) / 20000000}; --thickness: 0.25em`"
+              role="progressbar"
+            >
+              {{ totalMem.toFixed(0) }}%
+            </div>
+          </div>
           <div class="stat-value">{{ formatBytes(totalMem) }}</div>
           <div class="stat-title">{{ $t("label.total-mem-usage") }}</div>
         </div>
 
         <div class="stat">
-          <div class="stat-value">{{ version }}</div>
-          <div class="stat-title">{{ $t("label.dozzle-version") }}</div>
+          <div class="stat-value">{{ Object.keys(hosts).length }}</div>
+          <div class="stat-title">{{ $t("label.hosts") }}</div>
+          <div class="stat-desc text-secondary">Showing only localhost</div>
         </div>
       </div>
     </section>
@@ -32,7 +51,8 @@
 import { Container } from "@/models/Container";
 
 const { t } = useI18n();
-const { version } = config;
+const { hosts } = useHosts();
+
 const containerStore = useContainerStore();
 const { containers, ready } = storeToRefs(containerStore) as unknown as {
   containers: Ref<Container[]>;
@@ -49,7 +69,7 @@ const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.s
 let totalCpu = $ref(0);
 useIntervalFn(
   () => {
-    totalCpu = runningContainers.reduce((acc, c) => acc + c.stat.cpu, 0);
+    totalCpu = runningContainers.reduce((acc, c) => acc + c.movingAverage.cpu, 0);
   },
   1000,
   { immediate: true },
@@ -58,7 +78,7 @@ useIntervalFn(
 let totalMem = $ref(0);
 useIntervalFn(
   () => {
-    totalMem = runningContainers.reduce((acc, c) => acc + c.stat.memoryUsage, 0);
+    totalMem = runningContainers.reduce((acc, c) => acc + c.movingAverage.memoryUsage, 0);
   },
   1000,
   { immediate: true },

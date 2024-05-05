@@ -26,6 +26,11 @@ label:
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
   pinned: Pinned
+  per-page: Rows per page
+  showing-all-hosts: Showing all hosts
+  showing-only-one-host: Showing only {host}
+  hosts: Hosts
+
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

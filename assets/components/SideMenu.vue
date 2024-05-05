@@ -20,6 +20,7 @@
         </li>
       </ul>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
+        <li>Docker Client v2.7.1</li>
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="font-light text-base-content/80">

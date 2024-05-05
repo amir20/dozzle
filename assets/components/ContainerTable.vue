@@ -1,7 +1,7 @@
 !
 <template>
-  <div class="text-right" v-if="containers.length > pageSizes[0]">
-    Show per page
+  <div class="text-right" v-show="containers.length > pageSizes[0]">
+    {{ $t("label.per-page") }}
     <dropdown-menu
       class="dropdown-left btn-xs md:btn-sm"
       v-model="perPage"
@@ -50,14 +50,14 @@
   </table>
   <div class="p-4 text-center">
     <nav class="join" v-if="isPaginated">
-      <button
+      <input
+        class="btn btn-square join-item"
+        type="radio"
+        v-model="currentPage"
+        :aria-label="`${i}`"
+        :value="i"
         v-for="i in totalPages"
-        class="btn join-item"
-        :class="{ 'btn-primary': i === currentPage }"
-        @click="currentPage = i"
-      >
-        {{ i }}
-      </button>
+      />
     </nav>
   </div>
 </template>
