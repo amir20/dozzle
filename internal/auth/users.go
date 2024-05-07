@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -16,7 +17,7 @@ import (
 )
 
 type User struct {
-	Username string `json:"username"`
+	Username string `json:"username" yaml:"-"`
 	Email    string `json:"email" yaml:"email"`
 	Name     string `json:"name" yaml:"name"`
 	Password string `json:"-" yaml:"password"`
@@ -54,6 +55,24 @@ func ReadUsersFromFile(path string) (UserDatabase, error) {
 	users.Path = path
 
 	return users, nil
+}
+
+func GenerateUsers(user User, hashPassword bool) *bytes.Buffer {
+	buffer := &bytes.Buffer{}
+
+	if hashPassword {
+		user.Password = sha256sum(user.Password)
+	}
+
+	users := UserDatabase{
+		Users: map[string]*User{
+			user.Username: &user,
+		},
+	}
+
+	yaml.NewEncoder(buffer).Encode(users)
+
+	return buffer
 }
 
 func decodeUsersFromFile(path string) (UserDatabase, error) {
