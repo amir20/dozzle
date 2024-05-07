@@ -43,12 +43,19 @@ type args struct {
 	EnableActions        bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
-	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
 	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+
+	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
+	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 }
 
 type HealthcheckCmd struct {
+}
+
+type GenerateCmd struct {
+	Username string `arg:"positional"`
+	Password string `arg:"positional"`
 }
 
 func (args) Version() string {
@@ -59,12 +66,23 @@ func (args) Version() string {
 var content embed.FS
 
 func main() {
-	args := parseArgs()
+	args, subcommand := parseArgs()
 	validateEnvVars()
-	if args.Healthcheck != nil {
-		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-			log.Fatal(err)
+	if subcommand != nil {
+		switch subcommand.(type) {
+		case *HealthcheckCmd:
+			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
+				log.Fatal(err)
+			}
+
+		case *GenerateCmd:
+			if args.Generate.Username == "" || args.Generate.Password == "" {
+				log.Fatal("Username and password are required")
+			}
+
+			log.Printf("%+v", args.Generate)
 		}
+
 		os.Exit(0)
 	}
 
@@ -257,7 +275,7 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 	return nil, errors.New("could not connect to local Docker Engine")
 }
 
-func parseArgs() args {
+func parseArgs() (args, interface{}) {
 	var args args
 	parser := arg.MustParse(&args)
 
@@ -278,7 +296,8 @@ func parseArgs() args {
 	if args.Username != "" || args.Password != "" {
 		log.Fatal("Using --username and --password is removed on v6.x. See https://github.com/amir20/dozzle/issues/2630 for details.")
 	}
-	return args
+
+	return args, parser.Subcommand()
 }
 
 func configureLogger(level string) {
