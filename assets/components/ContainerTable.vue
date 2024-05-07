@@ -40,14 +40,10 @@
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </td>
         <td v-if="isVisible('cpu')">
-          <bar-chart :value="container.movingAverage.cpu / 100">
-            {{ (container.movingAverage.cpu / 100).toLocaleString(undefined, { style: "percent" }) }}
-          </bar-chart>
+          <progress class="progress progress-primary" :value="container.movingAverage.cpu" max="100"></progress>
         </td>
         <td v-if="isVisible('mem')">
-          <bar-chart :value="container.movingAverage.memory / 100">
-            {{ (container.movingAverage.memory / 100).toLocaleString(undefined, { style: "percent" }) }}
-          </bar-chart>
+          <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
         </td>
       </tr>
     </tbody>
