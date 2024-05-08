@@ -83,7 +83,7 @@ func main() {
 	}
 
 	srv := createServer(args, clients)
-	go doStartEvent(args)
+	go doStartEvent(args, clients)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -104,7 +104,7 @@ func main() {
 	log.Debug("shutdown complete")
 }
 
-func doStartEvent(arg args) {
+func doStartEvent(arg args, clients map[string]docker.Client) {
 	if arg.NoAnalytics {
 		log.Debug("Analytics disabled.")
 		return
@@ -113,6 +113,17 @@ func doStartEvent(arg args) {
 	event := analytics.BeaconEvent{
 		Name:    "start",
 		Version: version,
+	}
+
+	if client, ok := clients["localhost"]; ok {
+		event.ServerID = client.SystemInfo().ID
+		event.ServerVersion = client.SystemInfo().ServerVersion
+	} else {
+		for _, client := range clients {
+			event.ServerID = client.SystemInfo().ID
+			event.ServerVersion = client.SystemInfo().ServerVersion
+			break
+		}
 	}
 
 	if err := analytics.SendBeacon(event); err != nil {

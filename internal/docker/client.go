@@ -19,6 +19,7 @@ import (
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
+	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/client"
 
 	log "github.com/sirupsen/logrus"
@@ -56,6 +57,7 @@ type DockerCLI interface {
 	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
 	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
+	Info(ctx context.Context) (system.Info, error)
 }
 
 type Client interface {
@@ -69,17 +71,33 @@ type Client interface {
 	Host() *Host
 	ContainerActions(action string, containerID string) error
 	IsSwarmMode() bool
+	SystemInfo() system.Info
 }
 
 type httpClient struct {
-	cli       DockerCLI
-	filters   filters.Args
-	host      *Host
-	SwarmMode bool
+	cli     DockerCLI
+	filters filters.Args
+	host    *Host
+	info    system.Info
 }
 
-func NewClient(cli DockerCLI, filters filters.Args, host *Host, swarm bool) Client {
-	return &httpClient{cli, filters, host, swarm}
+func NewClient(cli DockerCLI, filters filters.Args, host *Host) Client {
+	client := &httpClient{
+		cli:     cli,
+		filters: filters,
+		host:    host,
+	}
+
+	var err error
+	client.info, err = cli.Info(context.Background())
+	if err != nil {
+		log.Errorf("unable to get docker info: %v", err)
+	}
+
+	host.NCPU = client.info.NCPU
+	host.MemTotal = client.info.MemTotal
+
+	return client
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
@@ -99,10 +117,7 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	info, _ := cli.Info(context.Background())
-	swarm := info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
-
-	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}, swarm), nil
+	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}), nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
@@ -138,10 +153,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error)
 		return nil, err
 	}
 
-	info, _ := cli.Info(context.Background())
-	swarm := info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
-
-	return NewClient(cli, filterArgs, &host, swarm), nil
+	return NewClient(cli, filterArgs, &host), nil
 }
 
 func (d *httpClient) FindContainer(id string) (Container, error) {
@@ -355,7 +367,11 @@ func (d *httpClient) Host() *Host {
 }
 
 func (d *httpClient) IsSwarmMode() bool {
-	return d.SwarmMode
+	return d.info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
+}
+
+func (d *httpClient) SystemInfo() system.Info {
+	return d.info
 }
 
 var PARENTHESIS_RE = regexp.MustCompile(`\(([a-zA-Z]+)\)`)
