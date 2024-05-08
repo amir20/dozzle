@@ -17,6 +17,8 @@ type Host struct {
 	CACertPath string   `json:"-"`
 	KeyPath    string   `json:"-"`
 	ValidCerts bool     `json:"-"`
+	NCPU       int      `json:"nCPU"`
+	MemTotal   int64    `json:"memTotal"`
 }
 
 func (h *Host) String() string {

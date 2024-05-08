@@ -94,6 +94,9 @@ func NewClient(cli DockerCLI, filters filters.Args, host *Host) Client {
 		log.Errorf("unable to get docker info: %v", err)
 	}
 
+	host.NCPU = client.info.NCPU
+	host.MemTotal = client.info.MemTotal
+
 	return client
 }
 

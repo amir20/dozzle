@@ -11,7 +11,7 @@ import (
 )
 
 func SendBeacon(e BeaconEvent) error {
-	log.Debugf("sending beacon: %+v", e)
+	log.Tracef("sending beacon: %+v", e)
 	jsonValue, err := json.Marshal(e)
 	if err != nil {
 		return err
