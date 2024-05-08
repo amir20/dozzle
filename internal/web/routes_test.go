@@ -8,6 +8,7 @@ import (
 	"io/fs"
 
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/docker/docker/api/types/system"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/stretchr/testify/mock"
@@ -61,6 +62,10 @@ func (m *MockedClient) Host() *docker.Host {
 
 func (m *MockedClient) IsSwarmMode() bool {
 	return false
+}
+
+func (m *MockedClient) SystemInfo() system.Info {
+	return system.Info{ID: "123"}
 }
 
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {

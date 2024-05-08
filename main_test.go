@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/system"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,13 +24,17 @@ func (f *fakeCLI) ContainerList(context.Context, container.ListOptions) ([]types
 	return args.Get(0).([]types.Container), args.Error(1)
 }
 
+func (f *fakeCLI) Info(context.Context) (system.Info, error) {
+	return system.Info{}, nil
+}
+
 func Test_valid_localhost(t *testing.T) {
 	client := new(fakeCLI)
 	client.On("ContainerList").Return([]types.Container{}, nil)
 	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}, false), nil
+		}), nil
 	}
 
 	args := args{}
@@ -46,7 +51,7 @@ func Test_invalid_localhost(t *testing.T) {
 	fakeClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}, false), nil
+		}), nil
 	}
 
 	args := args{}
@@ -63,7 +68,7 @@ func Test_valid_remote(t *testing.T) {
 	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}, false), nil
+		}), nil
 	}
 
 	remote := new(fakeCLI)
@@ -71,7 +76,7 @@ func Test_valid_remote(t *testing.T) {
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		return docker.NewClient(remote, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}, false), nil
+		}), nil
 	}
 
 	args := args{
@@ -93,7 +98,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 	fakeLocalClientFactory := func(filter map[string][]string) (docker.Client, error) {
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}, false), nil
+		}), nil
 	}
 
 	remote := new(fakeCLI)
@@ -101,7 +106,7 @@ func Test_valid_remote_and_local(t *testing.T) {
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		return docker.NewClient(remote, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}, false), nil
+		}), nil
 	}
 	args := args{
 		RemoteHost: []string{"tcp://test:2375"},
@@ -123,13 +128,13 @@ func Test_no_clients(t *testing.T) {
 
 		return docker.NewClient(local, filters.NewArgs(), &docker.Host{
 			ID: "localhost",
-		}, false), nil
+		}), nil
 	}
 	fakeRemoteClientFactory := func(filter map[string][]string, host docker.Host) (docker.Client, error) {
 		client := new(fakeCLI)
 		return docker.NewClient(client, filters.NewArgs(), &docker.Host{
 			ID: "test",
-		}, false), nil
+		}), nil
 	}
 
 	args := args{}
