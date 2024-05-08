@@ -1,6 +1,8 @@
-type Host = {
+export type Host = {
   name: string;
   id: string;
+  nCPU: number;
+  memTotal: number;
   available: boolean;
 };
 const hosts = computed(() =>

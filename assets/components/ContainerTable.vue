@@ -40,7 +40,11 @@
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </td>
         <td v-if="isVisible('cpu')">
-          <progress class="progress progress-primary" :value="container.movingAverage.cpu" max="100"></progress>
+          <progress
+            class="progress progress-primary"
+            :value="container.movingAverage.cpu"
+            :max="100 * hosts[container.host].nCPU"
+          ></progress>
         </td>
         <td v-if="isVisible('mem')">
           <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
@@ -65,6 +69,8 @@
 <script setup lang="ts">
 import { Container } from "@/models/Container";
 import { toRefs } from "@vueuse/core";
+
+const { hosts } = useHosts();
 
 const fields = {
   name: {
