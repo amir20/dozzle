@@ -2,7 +2,7 @@
   <page-with-links class="gap-16">
     <section>
       <ul class="flex flex-row flex-wrap gap-4">
-        <li v-for="host in hostSummaries" class="card w-1/3 bg-base-lighter">
+        <li v-for="host in hostSummaries" class="card min-w-[30rem] flex-1 bg-base-lighter">
           <div class="4 card-body flex-row justify-between">
             <div>
               <div class="card-title">{{ host.name }}</div>
