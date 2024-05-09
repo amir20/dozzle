@@ -1,13 +1,40 @@
 !
 <template>
-  <div class="text-right" v-show="containers.length > pageSizes[0]">
-    {{ $t("label.per-page") }}
-    <dropdown-menu
-      class="dropdown-left btn-xs md:btn-sm"
-      v-model="perPage"
-      :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
-    />
+  <div class="flex flex-row">
+    <div v-if="Object.keys(hosts).length > 1">
+      <div role="tablist" class="tabs-boxed tabs">
+        <input
+          type="radio"
+          name="host"
+          role="tab"
+          class="tab !rounded"
+          aria-label="Show All"
+          v-model="selectedHost"
+          :value="null"
+        />
+        <input
+          type="radio"
+          name="host"
+          role="tab"
+          class="tab !rounded"
+          :aria-label="host.name"
+          v-for="host in hosts"
+          :value="host.id"
+          :key="host.id"
+          v-model="selectedHost"
+        />
+      </div>
+    </div>
+    <div class="text-right" v-show="containers.length > pageSizes[0]">
+      {{ $t("label.per-page") }}
+      <dropdown-menu
+        class="dropdown-left btn-xs md:btn-sm"
+        v-model="perPage"
+        :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
+      />
+    </div>
   </div>
+
   <table class="table table-lg bg-base">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
@@ -71,6 +98,7 @@ import { Container } from "@/models/Container";
 import { toRefs } from "@vueuse/core";
 
 const { hosts } = useHosts();
+const selectedHost = ref(null);
 
 const fields = {
   name: {
@@ -119,9 +147,12 @@ const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CO
 });
 const { column: sortField, direction } = toRefs(storage);
 const counter = useInterval(10000);
+const filteredContainers = computed(() =>
+  containers.filter((c) => selectedHost.value === null || c.host === selectedHost.value),
+);
 const sortedContainers = computedWithControl(
-  () => [containers.length, sortField.value, direction.value, counter.value],
-  () => containers.sort((a, b) => fields[sortField.value].sortFunc(a, b)),
+  () => [filteredContainers.value.length, sortField.value, direction.value, counter.value],
+  () => filteredContainers.value.sort((a, b) => fields[sortField.value].sortFunc(a, b)),
 );
 
 const totalPages = computed(() => Math.ceil(sortedContainers.value.length / perPage.value));

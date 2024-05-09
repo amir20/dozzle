@@ -31,46 +31,6 @@
         </li>
       </ul>
     </section>
-    <!-- <section>
-      <div class="stats grid bg-base-lighter shadow">
-        <div class="stat">
-          <div class="stat-value">{{ runningContainers.length }} / {{ hostContainers.length }}</div>
-          <div class="stat-title">{{ $t("label.running") }} / {{ $t("label.total-containers") }}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-figure">
-            <div
-              class="radial-progress"
-              :style="`--value: ${Math.floor(totalCpu) / 2}; --thickness: 0.25em`"
-              role="progressbar"
-            >
-              {{ totalCpu.toFixed(0) }}%
-            </div>
-          </div>
-          <div class="stat-value">8 CPUs</div>
-          <div class="stat-title">{{ $t("label.total-cpu-usage") }}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-figure">
-            <div
-              class="radial-progress"
-              :style="`--value: ${Math.floor(totalMem) / 20000000}; --thickness: 0.25em`"
-              role="progressbar"
-            >
-              {{ totalMem.toFixed(0) }}%
-            </div>
-          </div>
-          <div class="stat-value">{{ formatBytes(totalMem) }}</div>
-          <div class="stat-title">{{ $t("label.total-mem-usage") }}</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-value">{{ Object.keys(hosts).length }}</div>
-          <div class="stat-title">{{ $t("label.hosts") }}</div>
-          <div class="stat-desc text-secondary">Showing only localhost</div>
-        </div>
-      </div>
-    </section> -->
 
     <section>
       <container-table :containers="runningContainers"></container-table>
@@ -100,7 +60,6 @@ type HostSummary = {
 };
 
 const hostSummaries = computed(() => {
-  console.log("hostSummaries");
   const summaries: Record<string, HostSummary> = {};
   for (const container of containers.value) {
     if (!summaries[container.host]) {
@@ -121,12 +80,7 @@ const hostSummaries = computed(() => {
   return Object.values(summaries).sort((a, b) => a.name.localeCompare(b.name));
 });
 
-const hostContainers = $computed(() =>
-  containers.value.filter((c) => sessionHost.value === null || c.host === sessionHost.value),
-);
-
-const mostRecentContainers = $computed(() => [...hostContainers].sort((a, b) => +b.created - +a.created));
-const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.state === "running"));
+const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
 
 useIntervalFn(
   () => {
@@ -145,7 +99,7 @@ useIntervalFn(
 
 watchEffect(() => {
   if (ready.value) {
-    setTitle(t("title.dashboard", { count: runningContainers.length }));
+    setTitle(t("title.dashboard", { count: runningContainers.value.length }));
   }
 });
 </script>
