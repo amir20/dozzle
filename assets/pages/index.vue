@@ -3,7 +3,7 @@
     <section>
       <ul class="flex flex-row flex-wrap gap-4">
         <li v-for="host in hostSummaries" class="card w-1/3 bg-base-lighter">
-          <div class="card-body flex-row gap-4">
+          <div class="4 card-body flex-row justify-between">
             <div>
               <div class="card-title">{{ host.name }}</div>
               <div class="text-sm">{{ host.containers.length }} containers</div>
@@ -11,19 +11,21 @@
               <div class="text-sm">{{ formatBytes(host.memTotal) }}</div>
             </div>
 
-            <div
-              class="radial-progress text-primary"
-              :style="`--value: ${Math.floor((host.avgTotalCPU / (host.nCPU * 100)) * 100)}; --thickness: 0.25em`"
-              role="progressbar"
-            >
-              {{ host.avgTotalCPU.toFixed(0) }}%
-            </div>
-            <div
-              class="radial-progress text-primary"
-              :style="`--value: ${(host.avgTotalMem / host.memTotal) * 100}; --thickness: 0.25em`"
-              role="progressbar"
-            >
-              {{ ((host.avgTotalMem / host.memTotal) * 100).toFixed(0) }}%
+            <div class="flex flex-row gap-8">
+              <div
+                class="radial-progress text-primary"
+                :style="`--value: ${Math.floor((host.totalCPU / (host.nCPU * 100)) * 100)}; --thickness: 0.25em`"
+                role="progressbar"
+              >
+                {{ host.totalCPU.toFixed(0) }}%
+              </div>
+              <div
+                class="radial-progress text-primary"
+                :style="`--value: ${(host.totalMem / host.memTotal) * 100}; --thickness: 0.25em`"
+                role="progressbar"
+              >
+                {{ formatBytes(host.totalMem, 1) }}
+              </div>
             </div>
           </div>
         </li>
@@ -91,8 +93,8 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 type HostSummary = {
   name: string;
   containers: Container[];
-  avgTotalCPU: number;
-  avgTotalMem: number;
+  totalCPU: number;
+  totalMem: number;
   nCPU: number;
   memTotal: number;
 };
@@ -106,8 +108,8 @@ const hostSummaries = computed(() => {
       summaries[container.host] = reactive({
         name: host.name,
         containers: [],
-        avgTotalCPU: 0,
-        avgTotalMem: 0,
+        totalCPU: 0,
+        totalMem: 0,
         nCPU: host.nCPU,
         memTotal: host.memTotal,
       });
@@ -129,11 +131,11 @@ const runningContainers = $computed(() => mostRecentContainers.filter((c) => c.s
 useIntervalFn(
   () => {
     for (const summary of hostSummaries.value) {
-      summary.avgTotalCPU = 0;
-      summary.avgTotalMem = 0;
+      summary.totalCPU = 0;
+      summary.totalMem = 0;
       for (const container of summary.containers) {
-        summary.avgTotalCPU += container.movingAverage.cpu;
-        summary.avgTotalMem += container.movingAverage.memoryUsage;
+        summary.totalCPU += container.stat.cpu;
+        summary.totalMem += container.stat.memoryUsage;
       }
     }
   },
