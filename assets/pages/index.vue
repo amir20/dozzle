@@ -1,5 +1,5 @@
 <template>
-  <page-with-links class="gap-16">
+  <page-with-links>
     <section>
       <host-list :containers="runningContainers" />
     </section>

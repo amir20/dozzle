@@ -74,6 +74,8 @@ declare module 'vue' {
     'Ph:command': typeof import('~icons/ph/command')['default']
     'Ph:computerTower': typeof import('~icons/ph/computer-tower')['default']
     'Ph:controlBold': typeof import('~icons/ph/control-bold')['default']
+    'Ph:cpu': typeof import('~icons/ph/cpu')['default']
+    'Ph:memory': typeof import('~icons/ph/memory')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     Releases: typeof import('./components/Releases.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

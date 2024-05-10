@@ -1,12 +1,14 @@
 <template>
   <ul class="grid grid-cols-[repeat(auto-fill,minmax(480px,1fr))] gap-4">
     <li v-for="host in hostSummaries" class="card bg-base-lighter">
-      <div class="4 card-body flex-row justify-between">
-        <div>
-          <div class="card-title">{{ host.name }}</div>
-          <div class="text-sm">{{ host.containers.length }} containers</div>
-          <div class="text-sm">{{ host.nCPU }} CPUs</div>
-          <div class="text-sm">{{ formatBytes(host.memTotal) }}</div>
+      <div class="card-body grid auto-cols-auto grid-flow-col justify-between">
+        <div class="overflow-hidden">
+          <div class="truncate text-xl font-semibold">{{ host.name }}</div>
+          <ul class="flex flex-row gap-3 text-sm">
+            <li><ph:cpu class="inline-block" /> {{ host.nCPU }} CPUs</li>
+            <li><ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }} total</li>
+          </ul>
+          <div><octicon:container-24 class="inline-block" /> {{ host.containers.length }} containers</div>
         </div>
 
         <div class="flex flex-row gap-8">

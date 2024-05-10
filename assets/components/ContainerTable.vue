@@ -2,7 +2,7 @@
 <template>
   <div class="flex flex-row">
     <div v-if="Object.keys(hosts).length > 1" class="flex-1">
-      <div role="tablist" class="tabs-boxed tabs block">
+      <div role="tablist" class="tabs-boxed tabs block" v-if="Object.keys(hosts).length < 4">
         <input
           type="radio"
           name="host"
@@ -24,6 +24,15 @@
           v-model="selectedHost"
         />
       </div>
+      <dropdown-menu
+        class="btn-sm"
+        v-model="selectedHost"
+        :options="[
+          { label: 'Show All', value: null },
+          ...Object.values(hosts).map((host) => ({ label: host.name, value: host.id })),
+        ]"
+        v-else
+      />
     </div>
     <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
       {{ $t("label.per-page") }}
