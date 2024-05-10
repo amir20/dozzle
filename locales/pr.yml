@@ -5,7 +5,7 @@ toolbar:
   show: Mostrar apenas {std}
   show-all: Mostrar todos os fluxos
 label:
-  containers: Sem contentores | 1 contentor | {count} contentores
+  containers: Contentores
   running-containers: Contentores em execução
   all-containers: Todos os contentores
   total-containers: Contentores Totais

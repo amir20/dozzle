@@ -8,7 +8,8 @@ toolbar:
   start: Start
   restart: Restart
 label:
-  containers: No containers | 1 container | {count} containers
+  containers: Containers
+  container: No containers | 1 container | {count} containers
   running-containers: Running Containers
   all-containers: All Containers
   host: Host

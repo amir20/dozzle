@@ -8,7 +8,7 @@ toolbar:
   start: Iniciar
   restart: Reiniciar
 label:
-  containers: Sin contenedores | 1 contenedor | {count} contenedores
+  containers: Contenedores
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
   total-containers: Contenedores Totales

@@ -8,7 +8,7 @@ toolbar:
   start: Başlat
   restart: Yeniden Başlat
 label:
-  containers: Konteyner Yok | 1 Konteyner | {count} Konteyner
+  containers: Konteynerlar
   running-containers: Çalışan Konteynerlar
   all-containers: Tüm Konteynerlar
   total-containers: Toplam Konteyner
