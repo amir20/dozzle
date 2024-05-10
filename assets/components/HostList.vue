@@ -1,14 +1,19 @@
 <template>
-  <ul class="grid grid-cols-[repeat(auto-fill,minmax(480px,1fr))] gap-4">
+  <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
     <li v-for="host in hostSummaries" class="card bg-base-lighter">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between">
         <div class="overflow-hidden">
           <div class="truncate text-xl font-semibold">{{ host.name }}</div>
-          <ul class="flex flex-row gap-3 text-sm">
-            <li><ph:cpu class="inline-block" /> {{ host.nCPU }} CPUs</li>
-            <li><ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }} total</li>
+          <ul class="flex flex-row gap-4 text-sm md:gap-3">
+            <li><ph:cpu class="inline-block" /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
+            <li>
+              <ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }}
+              <span class="mobile-hidden">total</span>
+            </li>
           </ul>
-          <div><octicon:container-24 class="inline-block" /> {{ host.containers.length }} containers</div>
+          <div class="text-sm">
+            <octicon:container-24 class="inline-block" /> {{ host.containers.length }} containers
+          </div>
         </div>
 
         <div class="flex flex-row gap-8">
