@@ -9,10 +9,7 @@ test("has right title", async ({ page }) => {
 });
 
 test("has dashboard text", async ({ page }) => {
-  await expect(page.getByText("Total Containers")).toBeVisible();
-  await expect(page.getByText("Total CPU Usage")).toBeVisible();
-  await expect(page.getByText("Total Mem Usage")).toBeVisible();
-  await expect(page.getByText("Dozzle Version")).toBeVisible();
+  await expect(page.getByText("container name")).toBeVisible();
 });
 
 test("click on settings button", async ({ page }) => {
