@@ -1,8 +1,8 @@
 !
 <template>
   <div class="flex flex-row">
-    <div v-if="Object.keys(hosts).length > 1">
-      <div role="tablist" class="tabs-boxed tabs">
+    <div v-if="Object.keys(hosts).length > 1" class="flex-1">
+      <div role="tablist" class="tabs-boxed tabs block">
         <input
           type="radio"
           name="host"
@@ -25,7 +25,7 @@
         />
       </div>
     </div>
-    <div class="text-right" v-show="containers.length > pageSizes[0]">
+    <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
       {{ $t("label.per-page") }}
       <dropdown-menu
         class="dropdown-left btn-xs md:btn-sm"
