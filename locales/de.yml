@@ -5,7 +5,7 @@ toolbar:
   show: Zeige nur {std}
   show-all: Zeige alle Streams
 label:
-  containers: Container
+  containers: Keine Container | 1 Container | {count} Container
   running-containers: Laufende Container
   all-containers: Alle Container
   total-containers: Gesamte Container

@@ -12,7 +12,7 @@
             </li>
           </ul>
           <div class="text-sm">
-            <octicon:container-24 class="inline-block" /> {{ host.containers.length }} containers
+            <octicon:container-24 class="inline-block" /> {{ $t("label.containers", host.containers.length) }}
           </div>
         </div>
 

@@ -5,7 +5,7 @@ toolbar:
   show: Показать только {std}
   show-all: Показать все потоки
 label:
-  containers: Контейнеры
+  containers: Нет контейнеров | 1 контейнер | {count} контейнеров
   running-containers: Запущенные контейнеры
   all-containers: Все контейнеры
   total-containers: Всего Контейнеров

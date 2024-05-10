@@ -8,15 +8,9 @@ toolbar:
   start: Start
   restart: Restart
 label:
-  containers: Containers
+  containers: No containers | 1 container | {count} containers
   running-containers: Running Containers
   all-containers: All Containers
-  total-containers: Total Containers
-  running: Running
-  total-cpu-usage: Total CPU Usage
-  total-mem-usage: Total Mem Usage
-  dozzle-version: Dozzle Version
-  all: All
   host: Host
   password: Password
   username: Username
@@ -27,9 +21,6 @@ label:
   avg-mem: Avg. MEM (%)
   pinned: Pinned
   per-page: Rows per page
-  showing-all-hosts: Showing all hosts
-  showing-only-one-host: Showing only {host}
-  hosts: Hosts
 
 tooltip:
   search: Search containers (⌘ + k, ⌃k)

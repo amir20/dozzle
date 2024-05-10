@@ -8,7 +8,7 @@ toolbar:
   start: Start
   restart: Restart
 label:
-  containers: Container
+  containers: Nessun Container | 1 Container | {count} Container
   running-containers: Container in esecuzione
   all-containers: Tutti i Container
   total-containers: Container Totali

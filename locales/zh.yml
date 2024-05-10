@@ -5,7 +5,7 @@ toolbar:
   show: 显示 {std}
   show-all: 显示全部
 label:
-  containers: 容器
+  containers: 无容器 | 1 个容器 | {count} 个容器
   running-containers: 运行中的容器
   all-containers: 所有容器
   total-containers: 所有容器
