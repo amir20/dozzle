@@ -17,7 +17,7 @@
         </div>
         <div class="form-control">
           <label class="label">
-            <span class="label-text">Password</span>
+            <span class="label-text">{{ $t("label.password") }}</span>
           </label>
           <input
             class="input input-bordered"
