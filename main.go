@@ -33,8 +33,6 @@ type args struct {
 	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
 	Hostname             string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
 	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
-	Username             string              `arg:"env:DOZZLE_USERNAME" help:"sets the username for auth."`
-	Password             string              `arg:"env:DOZZLE_PASSWORD" help:"sets password for auth"`
 	AuthProvider         string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use. Currently only forward-proxy is supported."`
 	AuthHeaderUser       string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
 	AuthHeaderEmail      string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
@@ -43,12 +41,21 @@ type args struct {
 	EnableActions        bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
-	Healthcheck          *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running."`
 	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+
+	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
+	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 }
 
 type HealthcheckCmd struct {
+}
+
+type GenerateCmd struct {
+	Username string `arg:"positional"`
+	Password string `arg:"--password, -p" help:"sets the password for the user"`
+	Name     string `arg:"--name, -n" help:"sets the display name for the user"`
+	Email    string `arg:"--email, -e" help:"sets the email for the user"`
 }
 
 func (args) Version() string {
@@ -59,12 +66,32 @@ func (args) Version() string {
 var content embed.FS
 
 func main() {
-	args := parseArgs()
+	args, subcommand := parseArgs()
 	validateEnvVars()
-	if args.Healthcheck != nil {
-		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-			log.Fatal(err)
+	if subcommand != nil {
+		switch subcommand.(type) {
+		case *HealthcheckCmd:
+			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
+				log.Fatal(err)
+			}
+
+		case *GenerateCmd:
+			if args.Generate.Username == "" || args.Generate.Password == "" {
+				log.Fatal("Username and password are required")
+			}
+
+			buffer := auth.GenerateUsers(auth.User{
+				Username: args.Generate.Username,
+				Password: args.Generate.Password,
+				Name:     args.Generate.Name,
+				Email:    args.Generate.Email,
+			}, true)
+
+			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
+				log.Fatal(err)
+			}
 		}
+
 		os.Exit(0)
 	}
 
@@ -257,7 +284,7 @@ func createLocalClient(args args, localClientFactory func(map[string][]string) (
 	return nil, errors.New("could not connect to local Docker Engine")
 }
 
-func parseArgs() args {
+func parseArgs() (args, interface{}) {
 	var args args
 	parser := arg.MustParse(&args)
 
@@ -275,10 +302,7 @@ func parseArgs() args {
 		args.Filter[key] = append(args.Filter[key], val)
 	}
 
-	if args.Username != "" || args.Password != "" {
-		log.Fatal("Using --username and --password is removed on v6.x. See https://github.com/amir20/dozzle/issues/2630 for details.")
-	}
-	return args
+	return args, parser.Subcommand()
 }
 
 func configureLogger(level string) {

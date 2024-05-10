@@ -24,9 +24,10 @@ users:
     email: me@email.net
 ```
 
-Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional.
+> [!TIP]
+> This file can be generated with `docker run amir20/dozzle generate` with v6.6.x. See [below](#generating-users-yml) for more details.
 
-The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
+Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
 
 You will need to mount this file for Dozzle to find it. Here is an example:
 
@@ -63,6 +64,16 @@ users:
 :::
 
 Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
+
+### Generating users.yml
+
+Starting with version `v6.6.x`, Dozzle has a builtin `generate` sub-command which can be used to create a `users.yml`.
+
+```sh
+docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
+```
+
+In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
 
 ## Forward Proxy
 
