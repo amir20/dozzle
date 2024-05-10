@@ -38,6 +38,7 @@ declare module 'vue' {
     DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
+    HostList: typeof import('./components/HostList.vue')['default']
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
