@@ -2,11 +2,12 @@ package docker
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	
+	log "github.com/sirupsen/logrus"
 )
 
 type Host struct {
@@ -49,6 +50,8 @@ func ParseConnection(connection string) (Host, error) {
 	host := remoteUrl.Hostname()
 	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
 		basePath = filepath.Join(basePath, host)
+	} else {
+		log.Debugf("Remote host certificate path does not exist %s, falling back to default: %s", filepath.Join(basePath, host), basePath)
 	}
 
 	cacertPath := filepath.Join(basePath, "ca.pem")
