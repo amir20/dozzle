@@ -8,7 +8,9 @@ Dozzle supports connecting to multiple remote hosts via `tcp://` using TLS and n
 
 ## Connecting to remote hosts
 
-Remote hosts can be configured with `--remote-host` or `DOZZLE_REMOTE_HOST`. All certs must be mounted to `/certs` directory. The `/cert` directory expects to have `/certs/{ca,cert,key}.pem` or `/certs/{host}/{ca,cert,key}.pem` in case of multiple hosts.
+Remote hosts can be configured with `--remote-host` or `DOZZLE_REMOTE_HOST`. All certs must be mounted to `/certs` directory. The `/certs` directory expects to have `/certs/{ca,cert,key}.pem` or `/certs/{host}/{ca,cert,key}.pem` in case of multiple hosts.
+
+Note the `{host}` value referred to here is the IP or FQDN configured and not the [optional label](#adding-labels-to-hosts). 
 
 Multiple `--remote-host` flags can be used to specify multiple hosts. However, using `DOZZLE_REMOTE_HOST` the value should be comma separated.
 
