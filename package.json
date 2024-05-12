@@ -100,7 +100,7 @@
   "typescript": "^5.4.5",
   "vitepress": "1.1.4",
   "vitest": "^1.6.0",
-  "vue-tsc": "^2.0.17"
+  "vue-tsc": "^2.0.16"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
