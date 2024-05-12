@@ -2,11 +2,12 @@ package docker
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	
+	log "github.com/sirupsen/logrus"
 )
 
 type Host struct {
