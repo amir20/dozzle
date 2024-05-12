@@ -1,7 +1,7 @@
 <template>
   <page-with-links>
     <section>
-      <host-list :containers="runningContainers" />
+      <host-list />
     </section>
 
     <section>
