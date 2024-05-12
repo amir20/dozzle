@@ -1,5 +1,5 @@
 toolbar:
-  clear: Effacer
+  clear: Effacer 
   download: Téléchargement
   search: Chercher
   show: Montrer seulement {std}
@@ -9,14 +9,9 @@ toolbar:
   restart: Redémarrer
 label:
   containers: Conteneurs
+  container: No containers | 1 container | {count} containers
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
-  total-containers: Total des conteneurs
-  running: En execution
-  total-cpu-usage: Util. totale CPU
-  total-mem-usage: Util. totale Mem
-  dozzle-version: Version de Dozzle
-  all: Tout
   host: Hôte
   password: Mot de passe
   username: Nom d'utilisateur
@@ -26,6 +21,8 @@ label:
   avg-cpu: Moyenne CPU (%)
   avg-mem: Moyenne MEM (%)
   pinned: Epinglé
+  per-page: Colonnes par page
+
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
