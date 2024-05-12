@@ -76,14 +76,20 @@
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </td>
         <td v-if="isVisible('cpu')">
-          <progress
-            class="progress progress-primary"
-            :value="container.movingAverage.cpu"
-            :max="100 * hosts[container.host].nCPU"
-          ></progress>
+          <div class="flex flex-row items-center gap-1">
+            <progress
+              class="progress progress-primary"
+              :value="Math.min(container.movingAverage.cpu, 100)"
+              :max="100"
+            ></progress>
+            <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+          </div>
         </td>
         <td v-if="isVisible('mem')">
-          <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
+          <div class="flex flex-row items-center gap-1">
+            <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
+            <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+          </div>
         </td>
       </tr>
     </tbody>
