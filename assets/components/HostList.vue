@@ -1,6 +1,6 @@
 <template>
   <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
-    <li v-for="host in hostSummaries" class="card bg-base-lighter">
+    <li v-for="host in hosts" class="card bg-base-lighter">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between">
         <div class="overflow-hidden">
           <div class="truncate text-xl font-semibold">{{ host.name }}</div>
@@ -12,24 +12,24 @@
             </li>
           </ul>
           <div class="text-sm">
-            <octicon:container-24 class="inline-block" /> {{ $t("label.container", host.containers.length) }}
+            <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}
           </div>
         </div>
 
         <div class="flex flex-row gap-8">
           <div
             class="radial-progress text-primary"
-            :style="`--value: ${Math.floor((host.totalCPU / (host.nCPU * 100)) * 100)}; --thickness: 0.25em`"
+            :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)}; --thickness: 0.25em`"
             role="progressbar"
           >
-            {{ host.totalCPU.toFixed(0) }}%
+            {{ weightedStats[host.id].weighted.totalCPU.toFixed(0) }}%
           </div>
           <div
             class="radial-progress text-primary"
-            :style="`--value: ${(host.totalMem / host.memTotal) * 100}; --thickness: 0.25em`"
+            :style="`--value: ${(weightedStats[host.id].weighted.totalMem / host.memTotal) * 100}; --thickness: 0.25em`"
             role="progressbar"
           >
-            {{ formatBytes(host.totalMem, 1) }}
+            {{ formatBytes(weightedStats[host.id].weighted.totalMem, 1) }}
           </div>
         </div>
       </div>
@@ -40,50 +40,46 @@
 <script setup lang="ts">
 import { Container } from "@/models/Container";
 
-const { containers } = defineProps<{
-  containers: Container[];
-}>();
-
-const { hosts } = useHosts();
-type HostSummary = {
-  name: string;
-  containers: Container[];
-  totalCPU: number;
-  totalMem: number;
-  nCPU: number;
-  memTotal: number;
+const containerStore = useContainerStore();
+const { containers } = storeToRefs(containerStore) as unknown as {
+  containers: Ref<Container[]>;
 };
 
-const hostSummaries = computed(() => {
-  const summaries: Record<string, HostSummary> = {};
-  for (const container of containers) {
-    if (!summaries[container.host]) {
-      const host = hosts.value[container.host];
-      summaries[container.host] = reactive({
-        name: host.name,
-        containers: [],
-        totalCPU: 0,
-        totalMem: 0,
-        nCPU: host.nCPU,
-        memTotal: host.memTotal,
-      });
-    }
-    const summary = summaries[container.host];
-    summary.containers.push(container);
-  }
+const runningContainers = computed(() => containers.value.filter((container) => container.state === "running"));
 
-  return Object.values(summaries).sort((a, b) => a.name.localeCompare(b.name));
+const { hosts } = useHosts();
+const hostContainers = computed(() => {
+  const results: Record<string, Container[]> = {};
+  for (const container of runningContainers.value) {
+    if (!results[container.host]) {
+      results[container.host] = [];
+    }
+    results[container.host].push(container);
+  }
+  return results;
 });
+
+type TotalStat = {
+  totalCPU: number;
+  totalMem: number;
+};
+
+const weightedStats: Record<string, { mostRecent: TotalStat; weighted: TotalStat }> = {};
+
+for (const host of Object.values(hosts.value)) {
+  const mostRecent = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
+  weightedStats[host.id] = reactive({ mostRecent, weighted: useExponentialMovingAverage(mostRecent) });
+}
 
 useIntervalFn(
   () => {
-    for (const summary of hostSummaries.value) {
-      summary.totalCPU = 0;
-      summary.totalMem = 0;
-      for (const container of summary.containers) {
-        summary.totalCPU += container.stat.cpu;
-        summary.totalMem += container.stat.memoryUsage;
+    for (const [host, containers] of Object.entries(hostContainers.value)) {
+      const stat = { totalCPU: 0, totalMem: 0 };
+      for (const container of containers) {
+        stat.totalCPU += container.stat.cpu;
+        stat.totalMem += container.stat.memoryUsage;
       }
+      weightedStats[host].mostRecent = stat;
     }
   },
   1000,
