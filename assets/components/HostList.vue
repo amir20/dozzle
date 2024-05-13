@@ -16,7 +16,7 @@
           </div>
         </div>
 
-        <div class="flex flex-row gap-4 md:gap-8" v-if="ready">
+        <div class="flex flex-row gap-4 md:gap-8" v-if="weightedStats[host.id]">
           <div
             class="radial-progress text-sm text-primary [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
             :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)};  `"
@@ -41,9 +41,8 @@
 import { Container } from "@/models/Container";
 
 const containerStore = useContainerStore();
-const { containers, ready } = storeToRefs(containerStore) as unknown as {
+const { containers } = storeToRefs(containerStore) as unknown as {
   containers: Ref<Container[]>;
-  ready: Ref<boolean>;
 };
 
 const runningContainers = computed(() => containers.value.filter((container) => container.state === "running"));
@@ -64,10 +63,8 @@ type TotalStat = {
   totalCPU: number;
   totalMem: number;
 };
-
 const weightedStats: Record<string, { mostRecent: TotalStat; weighted: TotalStat }> = {};
-
-watchOnce(hostContainers, (value) => {
+const initWeightedStats = () => {
   for (const [host, containers] of Object.entries(hostContainers.value)) {
     const mostRecent = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
     for (const container of containers) {
@@ -76,7 +73,10 @@ watchOnce(hostContainers, (value) => {
     }
     weightedStats[host] = reactive({ mostRecent, weighted: useExponentialMovingAverage(mostRecent) });
   }
-});
+};
+
+watchOnce(hostContainers, initWeightedStats);
+initWeightedStats();
 
 useIntervalFn(
   () => {
