@@ -1,0 +1,98 @@
+toolbar:
+  clear: Wyczyść
+  download: Pobierz
+  search: Szukaj
+  show: Pokaż tylko {std}
+  show-all: Pokaż wszystko
+  stop: Stop
+  start: Start
+  restart: Restart
+label:
+  containers: Kontenery
+  container: Brak kontenerów | 1 kontener | {count} kontenerów
+  running-containers: Działające kontenery
+  all-containers: Wszystkie kontenery
+  host: Host
+  password: Hasło
+  username: Nazwa użytkownika
+  container-name: Nazwa kontenera
+  status: Status
+  created: Utworzony
+  avg-cpu: Średnie zużycie CPU (%)
+  avg-mem: Średnie zużycie pamięci (%)
+  pinned: Przypięte
+  per-page: Wierszy na strone
+
+tooltip:
+  search: Przeszukaj kontenery (⌘ + k, ⌃k)
+  pin-column: Przypnij jako kolumna
+error:
+  page-not-found: Ta strona nie istnieje
+  invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
+  logs-skipped: Pominiętych wpisów {total} 
+  container-not-found: Kontener nie został znaleziony
+  events-stream:
+    title: Niespodziewany błąd
+    message: >-
+      Dozzle nie był wstanie połączyć się z API. Sprawdź ustawienia sieciowe.
+      Jeżeli korzysasz z reverse proxy, upewnij się że jest poprawnie skonfigurowane. 
+  events-timeout:
+    title: Coś jest nie tak
+    message: >-
+      Przekroczono limit czasu w trakcie połączenia do API. Sprawdź ustawienia sieciowe.  
+alert:
+  redirected:
+    title: Przekierowywanie do nowego kontenera
+    message: Dozzle automatycznie przekierował do nowego kontenera {containerId}.
+  similar-container-found:
+    title: Podobny kontener został znaleziony
+    message: >-
+      Dozzle znalazł podobny kontener {containerId} który działa na tym samym 
+      hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
+title:
+  page-not-found: Strona nie została znaleziona
+  login: Wymagane uwierzytelnienie
+  dashboard: 1 kontener | {count} kontenerów
+  settings: Ustawienia
+button:
+  logout: Wyloguj się 
+  login: Zaloguj się
+  settings: Ustawienia
+placeholder:
+  search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
+  search: Szukaj
+settings:
+  display: Wyświetlanie
+  locale: Nadpisz język
+  small-scrollbars: Użyj mniejszych suwaków
+  show-timesamps: Pokaż date i godzinę
+  soft-wrap: Zwijaj linie
+  datetime-format: Nadpisz format daty i godziny
+  font-size: Rozmiar czcionki używany dla logów
+  color-scheme: Motyw
+  options: Opcje
+  show-stopped-containers: Pokaż zatrzymane kontenery
+  about: Informacje
+  search: Włącz szukanie z dozzle
+  using-version: Używasz dozzle w wersji {version}.
+  update-available: >-
+    Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank"
+    rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Pokaż etykiety dla stdout i stderr
+  automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
+  compact: Włącz tryb kompaktowy dla logów
+releases:
+  features: jedna nowa funkcjonalność | {count} funkcjonalności
+  bugFixes: jeden naprawiony błąd | {count} poprawki
+  breaking: jedna duża zmiana | {count} dużych zmian
+  three_parts: "{first}, {second} i {third}"
+  two_parts: "{first} oraz {second}"
+  latest: Najnowsza
+  no_releases: Masz najnowszą wersję
+log_actions:
+  copy_log: Skopiuj logi
+  jump_to_context: Przeskocz do kontekstu
+toasts:
+  copied:
+    title: Skopiowany
+    message: Log skopiowany do schowka
