@@ -1,10 +1,10 @@
 <template>
   <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
     <li v-for="host in hosts" class="card bg-base-lighter">
-      <div class="card-body grid auto-cols-auto grid-flow-col justify-between">
+      <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="overflow-hidden">
           <div class="truncate text-xl font-semibold">{{ host.name }}</div>
-          <ul class="flex flex-row gap-4 text-sm md:gap-3">
+          <ul class="flex flex-row gap-2 text-sm md:gap-4">
             <li><ph:cpu class="inline-block" /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
             <li>
               <ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }}
@@ -16,17 +16,17 @@
           </div>
         </div>
 
-        <div class="flex flex-row gap-8">
+        <div class="flex flex-row gap-4 md:gap-8" v-if="ready">
           <div
-            class="radial-progress text-primary"
-            :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)}; --thickness: 0.25em`"
+            class="radial-progress text-sm text-primary [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
+            :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)};  `"
             role="progressbar"
           >
             {{ weightedStats[host.id].weighted.totalCPU.toFixed(0) }}%
           </div>
           <div
-            class="radial-progress text-primary"
-            :style="`--value: ${(weightedStats[host.id].weighted.totalMem / host.memTotal) * 100}; --thickness: 0.25em`"
+            class="radial-progress text-sm text-primary [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
+            :style="`--value: ${(weightedStats[host.id].weighted.totalMem / host.memTotal) * 100};`"
             role="progressbar"
           >
             {{ formatBytes(weightedStats[host.id].weighted.totalMem, 1) }}
@@ -41,8 +41,9 @@
 import { Container } from "@/models/Container";
 
 const containerStore = useContainerStore();
-const { containers } = storeToRefs(containerStore) as unknown as {
+const { containers, ready } = storeToRefs(containerStore) as unknown as {
   containers: Ref<Container[]>;
+  ready: Ref<boolean>;
 };
 
 const runningContainers = computed(() => containers.value.filter((container) => container.state === "running"));
@@ -66,10 +67,16 @@ type TotalStat = {
 
 const weightedStats: Record<string, { mostRecent: TotalStat; weighted: TotalStat }> = {};
 
-for (const host of Object.values(hosts.value)) {
-  const mostRecent = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
-  weightedStats[host.id] = reactive({ mostRecent, weighted: useExponentialMovingAverage(mostRecent) });
-}
+watchOnce(hostContainers, (value) => {
+  for (const [host, containers] of Object.entries(hostContainers.value)) {
+    const mostRecent = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
+    for (const container of containers) {
+      mostRecent.value.totalCPU += container.stat.cpu;
+      mostRecent.value.totalMem += container.stat.memoryUsage;
+    }
+    weightedStats[host] = reactive({ mostRecent, weighted: useExponentialMovingAverage(mostRecent) });
+  }
+});
 
 useIntervalFn(
   () => {
