@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -11,6 +12,7 @@ type Cache[T any] struct {
 	Timestamp time.Time
 	Duration  time.Duration
 	Data      T
+	mu        sync.Mutex
 }
 
 func New[T any](f func() (T, error), duration time.Duration) *Cache[T] {
@@ -21,6 +23,8 @@ func New[T any](f func() (T, error), duration time.Duration) *Cache[T] {
 }
 
 func (c *Cache[T]) GetWithHit() (T, error, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	hit := true
 	if c.Timestamp.IsZero() || time.Since(c.Timestamp) > c.Duration {
 		hit = false
