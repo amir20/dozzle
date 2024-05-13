@@ -37,7 +37,7 @@ export const useContainerStore = defineStore("container", () => {
     ready.value = false;
     es = new EventSource(withBase("/api/events/stream"));
     es.addEventListener("error", (e) => {
-      if (es?.readyState === EventSource.CLOSED) {
+      if (es?.readyState === EventSource.CONNECTING) {
         showToast(
           {
             id: "events-stream",
