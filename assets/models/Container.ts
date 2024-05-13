@@ -36,7 +36,7 @@ export class Container {
     stats: Stat[],
     public health?: ContainerHealth,
   ) {
-    this._stat = ref({ cpu: 0, memory: 0, memoryUsage: 0 });
+    this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));
     this._statsHistory = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
     this.movingAverageStat = useExponentialMovingAverage(this._stat, 0.2);
 
