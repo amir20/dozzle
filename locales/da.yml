@@ -1,0 +1,99 @@
+toolbar:
+  clear: Ryd
+  download: Download
+  search: Søg
+  show: Vis kun {std}
+  show-all: Vis alle streams
+  stop: Stop
+  start: Start
+  restart: Genstart
+label:
+  containers: Containere
+  container: Ingen containere | 1 container | {count} containere
+  running-containers: Kørende Containere
+  all-containers: Alle Containere
+  host: Vært
+  password: Kodeord
+  username: Brugernavn
+  container-name: Container Navn
+  status: Status
+  created: Lavet
+  avg-cpu: Gns. CPU (%)
+  avg-mem: Gns. MEM (%)
+  pinned: Fastgjort
+  per-page: Rækker per side
+
+tooltip:
+  search: Søg containere (⌘ + k, ⌃k)
+  pin-column: Fastgør som kolonne
+error:
+  page-not-found: Denne side eksisterer ikke
+  invalid-auth: Brugernavn eller kodeord er ikke gyldig
+  logs-skipped: Sprang over {total} indtastninger
+  container-not-found: Container ikke fundet
+  events-stream:
+    title: Uventet fejl
+    message: >-
+      Dozzle UI kunne ikke forbinde til API. Tjek venligst dine netværks indstillinger.
+      Hvis du bruger en reverse proxy, vær sikker på at den er konfigureret korrekt.
+  events-timeout:
+    title: Der er noget galt
+    message: >-
+      Dozzle UI timed ud inden der blev forbundet til API. Tjek venligst din
+      internet forbindelse og prøv igen.
+alert:
+  redirected:
+    title: Omdirigeret til ny container
+    message: Dozzle omdirigerede dig automatisk til en ny container {containerId}.
+  similar-container-found:
+    title: Lignende container fundet
+    message: >-
+      Dozzle fandt en lignende container {containerId} som kører på den samme
+      host og vil automatisk skifte til den, med mindre du trykker 'Cancel'.
+title:
+  page-not-found: Side ikke fundet
+  login: Godkendelse Krævet
+  dashboard: 1 container | {count} containere
+  settings: Indstillinger
+button:
+  logout: Logout
+  login: Login
+  settings: Indstillinger
+placeholder:
+  search-containers: Søg containere (⌘ + k, ⌃k)
+  search: Søg
+settings:
+  display: Visning
+  locale: Overskriv sprog
+  small-scrollbars: Brug mindre scrollbarer
+  show-timesamps: Vis tids stempler
+  soft-wrap: Blødt bræk på linjer
+  datetime-format: Overskriv dato og tids format
+  font-size: Tekststørrelse at bruge til logs
+  color-scheme: Farve skema
+  options: Muligheder
+  show-stopped-containers: Vis stoppet containere
+  about: Omkring
+  search: Aktiver søgning med Dozzle ved brug af
+  using-version: Du bruger Dozzle {version}.
+  update-available: >-
+    Ny version er tilgængelig! Opdater til <a href="{href}" target="_blank"
+    rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Vis stdout og stderr mærker
+  automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
+  compact: Slå kompakt tilstand til for logs
+releases:
+  features: en ny feature | {count} features
+  bugFixes: en fejlrettelse | {count} rettelser
+  breaking: en ødelæggende ændring | {count} ødelæggende ændringer
+  three_parts: "{first}, {second} og {third}"
+  two_parts: "{first} med {second}"
+  latest: Nyeste
+  no_releases: Du har den nyeste version
+log_actions:
+  copy_log: Kopier log
+  jump_to_context: Hop til kontekst
+toasts:
+  copied:
+    title: Kopieret
+    message: Log kopieret til clipboard
