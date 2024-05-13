@@ -4,7 +4,7 @@ import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Cont
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 
-const { showToast } = useToast();
+const { showToast, removeToast } = useToast();
 const { markHostAvailable } = useHosts();
 // @ts-ignore
 const { t } = i18n.global;
@@ -83,6 +83,7 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.onopen = () => {
+      removeToast("events-stream");
       if (containers.value.length > 0) {
         containers.value = [];
       }
