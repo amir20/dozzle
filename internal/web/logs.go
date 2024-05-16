@@ -224,7 +224,7 @@ loop:
 }
 
 func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
+	stack := chi.URLParam(r, "stack")
 
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
@@ -255,7 +255,7 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, container := range list {
-			if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == name || container.Labels["com.docker.compose.project"] == name) {
+			if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack || container.Labels["com.docker.compose.project"] == stack) {
 				containers = append(containers, container)
 			}
 		}

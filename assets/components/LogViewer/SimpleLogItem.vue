@@ -1,9 +1,7 @@
 <template>
   <div class="relative flex w-full items-start gap-x-2">
     <LogStd :std="logEntry.std" v-if="showStd" />
-    <Tag size="small" v-if="showContainerName">
-      {{ containerNames[logEntry.containerID] }}
-    </Tag>
+    <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
     <LogDate :date="logEntry.date" v-if="showTimestamp" />
     <LogLevel class="flex" :level="logEntry.level" :position="logEntry.position" />
     <div
@@ -22,9 +20,6 @@ import { SimpleLogEntry } from "@/models/LogEntry";
 import { decodeXML } from "entities";
 import AnsiConvertor from "ansi-to-html";
 import stripAnsi from "strip-ansi";
-
-const containerStore = useContainerStore();
-const { containerNames } = storeToRefs(containerStore);
 
 const ansiConvertor = new AnsiConvertor({
   escapeXML: false,

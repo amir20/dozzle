@@ -6,9 +6,7 @@
       <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
     </label>
     <div v-if="showContainerName">
-      <Tag size="small">
-        {{ containerNames[logEntry.containerID] }}
-      </Tag>
+      <ContainerName :id="logEntry.containerID" />
     </div>
     <div v-if="showStd">
       <LogStd :std="logEntry.std" />
@@ -49,9 +47,6 @@ const { logEntry, showContainerName = false } = defineProps<{
   visibleKeys: string[][];
   showContainerName?: boolean;
 }>();
-
-const containerStore = useContainerStore();
-const { containerNames } = storeToRefs(containerStore);
 
 const [expanded, expandToggle] = useToggle();
 

@@ -29,6 +29,7 @@ declare module 'vue' {
     ContainerEventSource: typeof import('./components/ContainerViewer/ContainerEventSource.vue')['default']
     ContainerHealth: typeof import('./components/ContainerViewer/ContainerHealth.vue')['default']
     ContainerLog: typeof import('./components/ContainerViewer/ContainerLog.vue')['default']
+    ContainerName: typeof import('./components/LogViewer/ContainerName.vue')['default']
     ContainerPopup: typeof import('./components/ContainerPopup.vue')['default']
     ContainerStat: typeof import('./components/ContainerViewer/ContainerStat.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
