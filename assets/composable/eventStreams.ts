@@ -123,13 +123,13 @@ function useLogStream(url: Ref<string>) {
   watch(url, () => connect(), { immediate: true });
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
-    if (messages.length < 300) return;
+    // if (messages.length < 300) return;
 
-    beforeLoading();
-    const to = messages[0].date;
-    const last = messages[299].date;
-    const delta = to.getTime() - last.getTime();
-    const from = new Date(to.getTime() + delta);
+    // beforeLoading();
+    // const to = messages[0].date;
+    // const last = messages[299].date;
+    // const delta = to.getTime() - last.getTime();
+    // const from = new Date(to.getTime() + delta);
 
     // const params = Object.entries(streamConfig)
     //   .filter(([, value]) => value)
@@ -150,7 +150,7 @@ function useLogStream(url: Ref<string>) {
     //     .map((line) => parseMessage(line));
     //   messages.unshift(...newMessages);
     // }
-    afterLoading();
+    // afterLoading();
   }
 
   // watch(

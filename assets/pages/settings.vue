@@ -106,10 +106,11 @@
             </template>
           </labeled-input>
         </div>
-        <log-viewer
+        <LogList
           :messages="fakeMessages"
           :visible-keys="keys"
           :last-selected-item="undefined"
+          :show-container-name="false"
           class="hidden overflow-hidden rounded-lg border border-base-content/50 shadow @3xl:block"
         />
       </section>
@@ -168,11 +169,11 @@ const hoursAgo = (hours: number) => {
 };
 
 const fakeMessages = [
-  new SimpleLogEntry("This is a preview of the logs", 1, hoursAgo(16), "info", undefined, "stdout"),
-  new SimpleLogEntry("A warning log looks like this", 2, hoursAgo(12), "warn", undefined, "stdout"),
-  new SimpleLogEntry("This is a multi line error message", 3, hoursAgo(7), "error", "start", "stderr"),
-  new SimpleLogEntry("with a second line", 4, hoursAgo(2), "error", "middle", "stderr"),
-  new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
+  new SimpleLogEntry("This is a preview of the logs", "123", 1, hoursAgo(16), "info", undefined, "stdout"),
+  new SimpleLogEntry("A warning log looks like this", "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", "123", 3, hoursAgo(7), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", "123", 4, hoursAgo(2), "error", "middle", "stderr"),
+  new SimpleLogEntry("and finally third line.", "123", 5, new Date(), "error", "end", "stderr"),
   new ComplexLogEntry(
     {
       message: "This is a complex log entry as json",
@@ -181,6 +182,7 @@ const fakeMessages = [
         key2: "value2",
       },
     },
+    "123",
     6,
     new Date(),
     "info",
@@ -189,6 +191,7 @@ const fakeMessages = [
   ),
   new SimpleLogEntry(
     "This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+    "123",
     7,
     new Date(),
     "debug",
