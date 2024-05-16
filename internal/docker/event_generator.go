@@ -20,13 +20,14 @@ import (
 )
 
 type EventGenerator struct {
-	Events chan *LogEvent
-	Errors chan error
-	reader *bufio.Reader
-	next   *LogEvent
-	buffer chan *LogEvent
-	tty    bool
-	wg     sync.WaitGroup
+	Events      chan *LogEvent
+	Errors      chan error
+	reader      *bufio.Reader
+	next        *LogEvent
+	buffer      chan *LogEvent
+	tty         bool
+	wg          sync.WaitGroup
+	containerID string
 }
 
 var bufPool = sync.Pool{
@@ -37,13 +38,14 @@ var bufPool = sync.Pool{
 
 var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
 
-func NewEventGenerator(reader io.Reader, tty bool) *EventGenerator {
+func NewEventGenerator(reader io.Reader, container Container) *EventGenerator {
 	generator := &EventGenerator{
-		reader: bufio.NewReader(reader),
-		buffer: make(chan *LogEvent, 100),
-		Errors: make(chan error, 1),
-		Events: make(chan *LogEvent),
-		tty:    tty,
+		reader:      bufio.NewReader(reader),
+		buffer:      make(chan *LogEvent, 100),
+		Errors:      make(chan error, 1),
+		Events:      make(chan *LogEvent),
+		tty:         container.Tty,
+		containerID: container.ID,
 	}
 	generator.wg.Add(2)
 	go generator.consumeReader()
@@ -82,7 +84,7 @@ func (g *EventGenerator) consumeReader() {
 		message, streamType, readerError := readEvent(g.reader, g.tty)
 		if message != "" {
 			logEvent := createEvent(message, streamType)
-
+			logEvent.ContainerID = g.containerID
 			logEvent.Level = guessLogLevel(logEvent)
 			g.buffer <- logEvent
 		}

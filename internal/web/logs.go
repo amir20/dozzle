@@ -107,7 +107,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	g := docker.NewEventGenerator(reader, container.Tty)
+	g := docker.NewEventGenerator(reader, container)
 	encoder := json.NewEncoder(w)
 
 	for event := range g.Events {
@@ -117,7 +117,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
+func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	var stdTypes docker.StdType
@@ -170,7 +170,7 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	g := docker.NewEventGenerator(reader, container.Tty)
+	g := docker.NewEventGenerator(reader, container)
 
 loop:
 	for {
@@ -209,6 +209,134 @@ loop:
 		}
 	default:
 	}
+
+	if log.IsLevelEnabled(log.DebugLevel) {
+		var m runtime.MemStats
+		runtime.ReadMemStats(&m)
+		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+		log.WithFields(log.Fields{
+			"allocated":      humanize.Bytes(m.Alloc),
+			"totalAllocated": humanize.Bytes(m.TotalAlloc),
+			"system":         humanize.Bytes(m.Sys),
+			"routines":       runtime.NumGoroutine(),
+		}).Debug("runtime mem stats")
+	}
+}
+
+func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
+	name := chi.URLParam(r, "name")
+
+	var stdTypes docker.StdType
+	if r.URL.Query().Has("stdout") {
+		stdTypes |= docker.STDOUT
+	}
+	if r.URL.Query().Has("stderr") {
+		stdTypes |= docker.STDERR
+	}
+
+	if stdTypes == 0 {
+		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
+		return
+	}
+
+	f, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+
+	containers := make([]docker.Container, 0)
+
+	for _, store := range h.stores {
+		list, err := store.List()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		for _, container := range list {
+			if container.Labels["com.docker.stack.namespace"] == name || container.Labels["com.docker.compose.project"] == name {
+				containers = append(containers, container)
+			}
+		}
+	}
+
+	if len(containers) == 0 {
+		http.Error(w, "No containers found for stack", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-transform")
+	w.Header().Add("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("X-Accel-Buffering", "no")
+
+	lastEventId := r.Header.Get("Last-Event-ID")
+	if len(r.URL.Query().Get("lastEventId")) > 0 {
+		lastEventId = r.URL.Query().Get("lastEventId")
+	}
+
+	events := make(chan *docker.LogEvent)
+
+	for _, container := range containers {
+		reader, err := h.clients[container.Host].ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes)
+		if err != nil {
+			log.Errorf("error while streaming %v", err.Error())
+		}
+
+		g := docker.NewEventGenerator(reader, container)
+
+		go func() {
+			for event := range g.Events {
+				events <- event
+			}
+		}()
+
+		// TODO handle errors
+
+	}
+
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+loop:
+	for {
+		select {
+		case event, ok := <-events:
+			if !ok {
+				// log.WithFields(log.Fields{"id": id}).Debug("stream closed")
+				break loop
+			}
+			if buf, err := json.Marshal(event); err != nil {
+				log.Errorf("json encoding error while streaming %v", err.Error())
+			} else {
+				fmt.Fprintf(w, "data: %s\n", buf)
+			}
+			if event.Timestamp > 0 {
+				fmt.Fprintf(w, "id: %d\n", event.Timestamp)
+			}
+			fmt.Fprintf(w, "\n")
+			f.Flush()
+		case <-ticker.C:
+			fmt.Fprintf(w, ":ping \n\n")
+			f.Flush()
+		}
+	}
+
+	// select {
+	// case err := <-g.Errors:
+	// 	if err != nil {
+	// 		if err == io.EOF {
+	// 			// log.Debugf("container stopped: %v", container.ID)
+	// 			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+	// 			f.Flush()
+	// 		} else if err != context.Canceled {
+	// 			log.Errorf("unknown error while streaming %v", err.Error())
+	// 		}
+	// 	}
+	// default:
+	// }
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		var m runtime.MemStats

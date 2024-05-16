@@ -26,6 +26,14 @@
             <summary class="font-light text-base-content/80">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
+
+              <router-link
+                :to="{ name: 'stack-name', params: { name: label } }"
+                class="btn btn-info btn-xs"
+                v-if="!label.startsWith('label.')"
+              >
+                all
+              </router-link>
             </summary>
             <ul>
               <li v-for="item in containers" :class="item.state" :key="item.id">

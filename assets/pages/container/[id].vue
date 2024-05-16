@@ -16,7 +16,6 @@
 </template>
 
 <script lang="ts" setup>
-import search from "@/components/Search.vue";
 const store = useContainerStore();
 const { id } = defineProps<{ id: string }>();
 
