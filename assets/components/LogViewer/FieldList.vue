@@ -3,12 +3,7 @@
     <li v-for="(value, name) in fields" :key="name">
       <template v-if="isObject(value)">
         <span class="text-light">{{ name }}=</span>
-        <field-list
-          :fields="value"
-          :parent-key="parentKey.concat(name)"
-          :visible-keys="visibleKeys"
-          expanded
-        ></field-list>
+        <FieldList :fields="value" :parent-key="parentKey.concat(name)" :visible-keys="visibleKeys" expanded />
       </template>
       <template v-else-if="Array.isArray(value)">
         <a @click.stop="toggleField(name)" class="link-primary mr-2 cursor-pointer">

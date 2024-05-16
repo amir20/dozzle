@@ -11,13 +11,13 @@
       </Tag>
     </div>
     <div v-if="showStd">
-      <LogStd :std="logEntry.std"></LogStd>
+      <LogStd :std="logEntry.std" />
     </div>
     <div v-if="showTimestamp">
-      <LogDate :date="logEntry.date"></LogDate>
+      <LogDate :date="logEntry.date" />
     </div>
     <div class="flex">
-      <LogLevel :level="logEntry.level"></LogLevel>
+      <LogLevel :level="logEntry.level" />
     </div>
     <div>
       <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
@@ -30,7 +30,7 @@
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
-      <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+      <FieldList :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys" />
     </div>
     <LogMessageActions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"

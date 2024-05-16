@@ -8,7 +8,7 @@
       <li>
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
-          <key-shortcut char="k" :modifiers="['shift', 'meta']"></key-shortcut>
+          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
       <li>
@@ -17,7 +17,7 @@
       <li>
         <a @click.prevent="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
-          <key-shortcut char="f"></key-shortcut>
+          <KeyShortcut char="f" />
         </a>
       </li>
       <li class="line"></li>

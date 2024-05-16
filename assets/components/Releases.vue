@@ -7,9 +7,9 @@
           {{ release.name }}
         </a>
         <span class="ml-1 text-xs"><distance-time :date="new Date(release.createdAt)" /></span>
-        <tag class="ml-auto bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
+        <Tag class="ml-auto bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
           {{ $t("releases.latest") }}
-        </tag>
+        </Tag>
       </div>
       <div class="text-sm text-base-content/80">
         {{ summary(release) }}

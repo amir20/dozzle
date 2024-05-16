@@ -2,7 +2,7 @@
   <div>
     <span class="font-light capitalize"> RUNNING </span>
     <span class="font-semibold">
-      <distance-time :date="container.created" strict :suffix="false"></distance-time>
+      <DistanceTime :date="container.created" strict :suffix="false" />
     </span>
   </div>
   <div>

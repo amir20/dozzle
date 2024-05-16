@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-end gap-4">
-    <dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
+    <Dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
       <template #trigger>
         <mdi:announcement class="size-6 -rotate-12" />
         <span
@@ -10,10 +10,10 @@
       </template>
       <template #content>
         <div class="w-72">
-          <releases />
+          <Releases />
         </div>
       </template>
-    </dropdown>
+    </Dropdown>
 
     <router-link
       :to="{ name: 'settings' }"

@@ -32,7 +32,7 @@
             </template>
             <span data-name v-html="matchedName(result)"></span>
           </div>
-          <distance-time :date="result.item.created" class="text-xs font-light" />
+          <DistanceTime :date="result.item.created" class="text-xs font-light" />
           <a
             @click.stop.prevent="addColumn(result.item)"
             :title="$t('tooltip.pin-column')"
