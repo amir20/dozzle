@@ -1,13 +1,13 @@
 <template>
-  <page-with-links>
+  <PageWithLinks>
     <section>
-      <host-list />
+      <HostList />
     </section>
 
     <section>
-      <container-table :containers="runningContainers"></container-table>
+      <ContainerTable :containers="runningContainers"></ContainerTable>
     </section>
-  </page-with-links>
+  </PageWithLinks>
 </template>
 
 <script lang="ts" setup>

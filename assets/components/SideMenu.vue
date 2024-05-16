@@ -47,7 +47,7 @@
                     <div class="truncate">
                       {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
                     </div>
-                    <container-health :health="item.health"></container-health>
+                    <ContainerHealth :health="item.health" />
                     <span
                       class="pin"
                       @click.stop.prevent="store.appendActiveContainer(item)"
@@ -58,7 +58,7 @@
                     </span>
                   </router-link>
                   <template #content>
-                    <container-popup :container="item"></container-popup>
+                    <ContainerPopup :container="item" />
                   </template>
                 </popup>
               </li>

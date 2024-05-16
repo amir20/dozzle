@@ -102,6 +102,7 @@ declare global {
   const onUpdated: typeof import('vue')['onUpdated']
   const pausableWatch: typeof import('@vueuse/core')['pausableWatch']
   const persistentVisibleKeys: typeof import('./composable/storage')['persistentVisibleKeys']
+  const persistentVisibleKeysForContainer: typeof import('./composable/storage')['persistentVisibleKeysForContainer']
   const pinnedContainers: typeof import('./composable/storage')['pinnedContainers']
   const provide: typeof import('vue')['provide']
   const provideContainerContext: typeof import('./composable/containerContext')['provideContainerContext']
@@ -191,6 +192,7 @@ declare global {
   const useConfirmDialog: typeof import('@vueuse/core')['useConfirmDialog']
   const useContainerActions: typeof import('./composable/containerActions')['useContainerActions']
   const useContainerContext: typeof import('./composable/containerContext')['useContainerContext']
+  const useContainerContextLogStream: typeof import('./composable/eventStreams')['useContainerContextLogStream']
   const useContainerStore: typeof import('./stores/container')['useContainerStore']
   const useCounter: typeof import('@vueuse/core')['useCounter']
   const useCssModule: typeof import('vue')['useCssModule']
@@ -299,6 +301,7 @@ declare global {
   const useSpeechRecognition: typeof import('@vueuse/core')['useSpeechRecognition']
   const useSpeechSynthesis: typeof import('@vueuse/core')['useSpeechSynthesis']
   const useStackContext: typeof import('./composable/stackContext')['useStackContext']
+  const useStackContextLogStream: typeof import('./composable/eventStreams')['useStackContextLogStream']
   const useStackStore: typeof import('./stores/stack')['useStackStore']
   const useStepper: typeof import('@vueuse/core')['useStepper']
   const useStorage: typeof import('@vueuse/core')['useStorage']
@@ -463,7 +466,7 @@ declare module 'vue' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
-    readonly persistentVisibleKeys: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeys']>
+    readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
@@ -553,6 +556,7 @@ declare module 'vue' {
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>
     readonly useContainerContext: UnwrapRef<typeof import('./composable/containerContext')['useContainerContext']>
+    readonly useContainerContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerContextLogStream']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
@@ -661,6 +665,7 @@ declare module 'vue' {
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
+    readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
     readonly useStackStore: UnwrapRef<typeof import('./stores/stack')['useStackStore']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
@@ -818,7 +823,7 @@ declare module '@vue/runtime-core' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
-    readonly persistentVisibleKeys: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeys']>
+    readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
@@ -908,6 +913,7 @@ declare module '@vue/runtime-core' {
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>
     readonly useContainerContext: UnwrapRef<typeof import('./composable/containerContext')['useContainerContext']>
+    readonly useContainerContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerContextLogStream']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
@@ -1016,6 +1022,7 @@ declare module '@vue/runtime-core' {
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
+    readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
     readonly useStackStore: UnwrapRef<typeof import('./stores/stack')['useStackStore']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>

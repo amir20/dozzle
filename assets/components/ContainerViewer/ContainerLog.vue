@@ -1,24 +1,24 @@
 <template>
-  <scrollable-view :scrollable="scrollable" v-if="container">
+  <ScrollableView :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
       <div class="mx-2 flex items-center gap-2 md:ml-4">
-        <container-title />
-        <container-stat class="ml-auto" />
+        <ContainerTitle />
+        <ContainerStat class="ml-auto" />
 
-        <log-actions-toolbar @clear="onClearClicked()" class="mobile-hidden" />
+        <ContainerActionsToolbar @clear="onClearClicked()" class="mobile-hidden" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
           <mdi:close />
         </a>
       </div>
     </template>
     <template #default="{ setLoading }">
-      <log-viewer-with-source ref="viewer" @loading-more="setLoading($event)" />
+      <ContainerViewerWithSource ref="viewer" @loading-more="setLoading($event)" />
     </template>
-  </scrollable-view>
+  </ScrollableView>
 </template>
 
 <script lang="ts" setup>
-import LogViewerWithSource from "./LogViewerWithSource.vue";
+import LogViewerWithSource from "@/components/LogViewer/LogViewerWithSource.vue";
 
 const {
   id,

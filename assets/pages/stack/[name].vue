@@ -1,6 +1,6 @@
 <template>
-  <search></search>
-  <log-stack :name="name"></log-stack>
+  <Search />
+  <StackLog :name="name" />
 </template>
 
 <script lang="ts" setup>

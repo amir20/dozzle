@@ -12,13 +12,13 @@
           </pane>
           <template v-if="!isMobile">
             <pane v-for="other in activeContainers" :key="other.id">
-              <log-container
+              <ContainerLog
                 :id="other.id"
                 show-title
                 scrollable
                 closable
                 @close="containerStore.removeActiveContainer(other)"
-              ></log-container>
+              />
             </pane>
           </template>
         </splitpanes>

@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
-import LogEventSource from "./LogEventSource.vue";
+import ContainerEventSource from "./ContainerEventSource.vue";
 import ContainerLogViewer from "./ContainerLogViewer.vue";
 
 vi.mock("@/stores/config", () => ({
@@ -67,7 +67,7 @@ describe("<LogEventSource />", () => {
       ],
     });
 
-    return mount(LogEventSource, {
+    return mount(ContainerEventSource, {
       global: {
         plugins: [router, createTestingPinia({ createSpy: vi.fn }), createI18n({})],
         components: {

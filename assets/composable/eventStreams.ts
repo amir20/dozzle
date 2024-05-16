@@ -20,12 +20,38 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-export function useLogStream() {
+export function useContainerContextLogStream() {
   const { container, streamConfig } = useContainerContext();
+
+  const url = computed(() => {
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    return withBase(
+      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}`,
+    );
+  });
+
+  return useLogStream(url);
+}
+
+export function useStackContextLogStream() {
+  const { stack, streamConfig } = useStackContext();
+
+  const url = computed(() => {
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    return withBase(`/api/stacks/${stack.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
+  });
+
+  return useLogStream(url);
+}
+
+function useLogStream(url: Ref<string>) {
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
-  let containerId = container.value.id;
 
   function flushNow() {
     if (messages.length > config.maxLogs) {
@@ -57,7 +83,6 @@ export function useLogStream() {
   function close() {
     if (es) {
       es.close();
-      console.debug(`EventSource closed for ${containerId}`);
       es = null;
     }
   }
@@ -66,7 +91,7 @@ export function useLogStream() {
     flushBuffer.cancel();
     messages = [];
     buffer = [];
-    console.debug(`Clearing messages for ${containerId}`);
+    // console.debug(`Clearing messages for ${containerId}`);
   }
 
   function connect({ clear } = { clear: true }) {
@@ -76,19 +101,8 @@ export function useLogStream() {
       clearMessages();
     }
 
-    const params = Object.entries(streamConfig)
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    es = new EventSource(url.value);
 
-    containerId = container.value.id;
-
-    console.debug(`Connecting to ${containerId} with params`, params);
-
-    es = new EventSource(
-      withBase(
-        `/api/hosts/${container.value.host}/containers/${containerId}/logs/stream?${new URLSearchParams(params).toString()}`,
-      ),
-    );
     es.addEventListener("container-stopped", () => {
       close();
       buffer.push(new DockerEventLogEntry("Container stopped", new Date(), "container-stopped"));
@@ -105,6 +119,8 @@ export function useLogStream() {
     es.onerror = () => clearMessages();
   }
 
+  watch(url, () => connect(), { immediate: true });
+
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
     if (messages.length < 300) return;
 
@@ -114,47 +130,48 @@ export function useLogStream() {
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
 
-    const params = Object.entries(streamConfig)
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), { from: from.toISOString(), to: to.toISOString() });
+    // const params = Object.entries(streamConfig)
+    //   .filter(([, value]) => value)
+    //   .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), { from: from.toISOString(), to: to.toISOString() });
 
-    const logs = await (
-      await fetch(
-        withBase(
-          `/api/hosts/${container.value.host}/containers/${containerId}/logs?${new URLSearchParams(params).toString()}`,
-        ),
-      )
-    ).text();
-    if (logs) {
-      const newMessages = logs
-        .trim()
-        .split("\n")
-        .map((line) => parseMessage(line));
-      messages.unshift(...newMessages);
-    }
+    throw new Error("Not implemented");
+    // const logs = await (
+    //   await fetch(
+    //     withBase(
+    //       `/api/hosts/${container.value.host}/containers/${containerId}/logs?${new URLSearchParams(params).toString()}`,
+    //     ),
+    //   )
+    // ).text();
+    // if (logs) {
+    //   const newMessages = logs
+    //     .trim()
+    //     .split("\n")
+    //     .map((line) => parseMessage(line));
+    //   messages.unshift(...newMessages);
+    // }
     afterLoading();
   }
 
-  watch(
-    () => container.value.state,
-    (newValue, oldValue) => {
-      console.log("LogEventSource: container changed", newValue, oldValue);
-      if (newValue == "running" && newValue != oldValue) {
-        buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
-        connect({ clear: false });
-      }
-    },
-  );
+  // watch(
+  //   () => container.value.state,
+  //   (newValue, oldValue) => {
+  //     console.log("LogEventSource: container changed", newValue, oldValue);
+  //     if (newValue == "running" && newValue != oldValue) {
+  //       buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
+  //       connect({ clear: false });
+  //     }
+  //   },
+  // );
 
-  onUnmounted(() => close());
+  onScopeDispose(() => close());
 
-  watch(
-    () => container.value.id,
-    () => connect(),
-    { immediate: true },
-  );
+  // watch(
+  //   () => container.value.id,
+  //   () => connect(),
+  //   { immediate: true },
+  // );
 
-  watch(streamConfig, () => connect());
+  // watch(streamConfig, () => connect());
 
   return { ...$$({ messages }), loadOlderLogs };
 }

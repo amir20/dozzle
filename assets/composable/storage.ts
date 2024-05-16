@@ -7,7 +7,7 @@ if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
 }
 
-export function persistentVisibleKeys(container: Ref<Container>): Ref<string[][]> {
+export function persistentVisibleKeysForContainer(container: Ref<Container>): Ref<string[][]> {
   const storage = useProfileStorage("visibleKeys", {});
   return computed(() => {
     if (!(container.value.storageKey in storage.value)) {

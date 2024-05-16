@@ -1,5 +1,5 @@
 <template>
-  <page-with-links>
+  <PageWithLinks>
     <div class="hero min-h-screen bg-base-200">
       <div class="hero-content text-center">
         <div class="max-w-md">
@@ -7,7 +7,7 @@
         </div>
       </div>
     </div>
-  </page-with-links>
+  </PageWithLinks>
 </template>
 
 <script lang="ts" setup>

@@ -1,5 +1,5 @@
 <template>
-  <page-with-links>
+  <PageWithLinks>
     <section>
       <div class="has-underline">
         <h2>{{ $t("settings.about") }}</h2>
@@ -133,7 +133,7 @@
         <toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</toggle>
       </div>
     </section>
-  </page-with-links>
+  </PageWithLinks>
 </template>
 
 <script lang="ts" setup>
