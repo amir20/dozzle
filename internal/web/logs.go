@@ -255,7 +255,7 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, container := range list {
-			if container.Labels["com.docker.stack.namespace"] == name || container.Labels["com.docker.compose.project"] == name {
+			if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == name || container.Labels["com.docker.compose.project"] == name) {
 				containers = append(containers, container)
 			}
 		}

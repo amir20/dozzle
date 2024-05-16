@@ -7,7 +7,12 @@
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
     >
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
+      <component
+        :is="item.getComponent()"
+        :log-entry="item"
+        :visible-keys="visibleKeys"
+        :show-container-name="showContainerName"
+      />
     </li>
   </ul>
 </template>
@@ -21,6 +26,7 @@ defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: string[][];
   lastSelectedItem: LogEntry<string | JSONObject> | undefined;
+  showContainerName: boolean;
 }>();
 </script>
 <style scoped lang="postcss">

@@ -146,6 +146,16 @@ export const useContainerStore = defineStore("container", () => {
   const removeActiveContainer = ({ id }: { id: string }) =>
     activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
 
+  const containerNames = computed(() =>
+    containers.value.reduce(
+      (acc, container) => {
+        acc[container.id] = container.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    ),
+  );
+
   return {
     containers,
     activeContainerIds,
@@ -155,6 +165,7 @@ export const useContainerStore = defineStore("container", () => {
     currentContainer,
     appendActiveContainer,
     removeActiveContainer,
+    containerNames,
     ready,
   };
 });

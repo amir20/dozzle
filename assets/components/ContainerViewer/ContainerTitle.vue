@@ -17,10 +17,10 @@
         {{ container.swarmId }}
       </div>
     </div>
-    <container-health :health="container.health" v-if="container.health"></container-health>
-    <tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+    <ContainerHealth :health="container.health" v-if="container.health" />
+    <Tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
       {{ container.image.replace(/@sha.*/, "") }}
-    </tag>
+    </Tag>
   </div>
 </template>
 

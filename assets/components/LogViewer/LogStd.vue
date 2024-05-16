@@ -1,7 +1,7 @@
 <template>
-  <tag size="small" :std="std">
+  <Tag size="small" :std="std">
     {{ std }}
-  </tag>
+  </Tag>
 </template>
 
 <script lang="ts" setup>

@@ -1,5 +1,10 @@
 <template>
-  <LogList :messages="filtered" :last-selected-item="lastSelectedItem" :visible-keys="visibleKeys" />
+  <LogList
+    :messages="filtered"
+    :last-selected-item="lastSelectedItem"
+    :visible-keys="visibleKeys"
+    :show-container-name="showContainerName"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -10,6 +15,7 @@ import { type JSONObject, LogEntry } from "@/models/LogEntry";
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: string[][];
+  showContainerName: boolean;
 }>();
 
 const { messages, visibleKeys } = toRefs(props);

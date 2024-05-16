@@ -5,14 +5,19 @@
       <material-symbols:expand-all-rounded class="swap-off text-secondary" />
       <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
     </label>
+    <div v-if="showContainerName">
+      <Tag size="small">
+        {{ containerNames[logEntry.containerID] }}
+      </Tag>
+    </div>
     <div v-if="showStd">
-      <log-std :std="logEntry.std"></log-std>
+      <LogStd :std="logEntry.std"></LogStd>
     </div>
     <div v-if="showTimestamp">
-      <log-date :date="logEntry.date"></log-date>
+      <LogDate :date="logEntry.date"></LogDate>
     </div>
     <div class="flex">
-      <log-level :level="logEntry.level"></log-level>
+      <LogLevel :level="logEntry.level"></LogLevel>
     </div>
     <div>
       <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
@@ -39,10 +44,14 @@ import { type ComplexLogEntry } from "@/models/LogEntry";
 
 const { markSearch } = useSearchFilter();
 
-const { logEntry } = defineProps<{
+const { logEntry, showContainerName = false } = defineProps<{
   logEntry: ComplexLogEntry;
   visibleKeys: string[][];
+  showContainerName?: boolean;
 }>();
+
+const containerStore = useContainerStore();
+const { containerNames } = storeToRefs(containerStore);
 
 const [expanded, expandToggle] = useToggle();
 

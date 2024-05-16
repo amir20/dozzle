@@ -1,6 +1,6 @@
 <template>
   <StackEventSource ref="source" #default="{ messages }" @loading-more="loadingMore($event)">
-    <LogViewer :messages="messages" :visible-keys="visibleKeys" />
+    <LogViewer :messages="messages" :visible-keys="visibleKeys" :show-container-name="true" />
   </StackEventSource>
 </template>
 
