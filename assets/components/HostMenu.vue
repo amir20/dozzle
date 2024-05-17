@@ -1,16 +1,16 @@
 <template>
-  <div v-if="ready" data-testid="side-menu">
-    <div class="breadcrumbs">
-      <ul>
-        <li><a @click.prevent="setHost(null)" class="link-primary">Hosts</a></li>
-        <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
-          {{ hosts[sessionHost].name }}
-        </li>
-      </ul>
-    </div>
+  <div class="breadcrumbs">
+    <ul>
+      <li><a @click.prevent="setHost(null)" class="link-primary">Hosts</a></li>
+      <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
+        {{ hosts[sessionHost].name }}
+      </li>
+    </ul>
+  </div>
 
-    <transition :name="sessionHost ? 'slide-left' : 'slide-right'" mode="out-in">
-      <ul class="menu p-0" v-if="!sessionHost">
+  <SlideTransition :slide-right="!!sessionHost">
+    <template #left>
+      <ul class="menu p-0">
         <li v-for="host in hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
             <ph:computer-tower />
@@ -19,13 +19,23 @@
           </a>
         </li>
       </ul>
-      <ul class="containers menu p-0 [&_li.menu-title]:px-0" v-else>
+    </template>
+    <template #right>
+      <ul class="containers menu p-0 [&_li.menu-title]:px-0">
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
-          <!-- @vue-ignore see https://github.com/vuejs/core/pull/10938#pullrequestreview-2062827140 -->
+          <!-- @vue-ignore -->
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="font-light text-base-content/80">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
+
+              <router-link
+                :to="{ name: 'stack-name', params: { name: label } }"
+                class="btn btn-info btn-xs"
+                v-if="!label.startsWith('label.')"
+              >
+                all
+              </router-link>
             </summary>
             <ul>
               <li v-for="item in containers" :class="item.state" :key="item.id">
@@ -39,7 +49,7 @@
                     <div class="truncate">
                       {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
                     </div>
-                    <container-health :health="item.health"></container-health>
+                    <ContainerHealth :health="item.health" />
                     <span
                       class="pin"
                       @click.stop.prevent="store.appendActiveContainer(item)"
@@ -50,7 +60,7 @@
                     </span>
                   </router-link>
                   <template #content>
-                    <container-popup :container="item"></container-popup>
+                    <ContainerPopup :container="item" />
                   </template>
                 </popup>
               </li>
@@ -58,12 +68,8 @@
           </details>
         </li>
       </ul>
-    </transition>
-  </div>
-  <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
-    <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50" v-for="_ in 9"></div>
-    <span class="sr-only">Loading...</span>
-  </div>
+    </template>
+  </SlideTransition>
 </template>
 
 <script lang="ts" setup>
@@ -79,7 +85,7 @@ import Containers from "~icons/octicon/container-24";
 
 const store = useContainerStore();
 
-const { activeContainers, visibleContainers, ready } = storeToRefs(store);
+const { activeContainers, visibleContainers } = storeToRefs(store);
 const { hosts } = useHosts();
 
 const setHost = (host: string | null) => (sessionHost.value = host);
@@ -183,48 +189,5 @@ const activeContainersById = computed(() =>
 }
 li.exited {
   @apply opacity-50;
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: all 0.1s ease-out;
-}
-
-.slide-left-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.slide-right-enter-from {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.slide-left-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.slide-right-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.19s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.list-leave-active {
-  position: absolute;
 }
 </style>
