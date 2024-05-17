@@ -1,12 +1,12 @@
 <template>
-  <labeled-input>
+  <LabeledInput>
     <template #label>
       <slot />
     </template>
     <template #input>
       <input type="checkbox" class="toggle toggle-primary" v-model="modelValue" />
     </template>
-  </labeled-input>
+  </LabeledInput>
 </template>
 
 <script lang="ts" setup>

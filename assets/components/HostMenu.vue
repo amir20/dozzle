@@ -23,7 +23,10 @@
     <template #right>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0">
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
+<<<<<<< HEAD
           <!-- @vue-ignore -->
+=======
+>>>>>>> 50c968a6 (parses services)
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="font-light text-base-content/80">
               <component :is="icon" />

@@ -21,17 +21,17 @@
 
       <section class="grid-cols-2 gap-4 @3xl:grid">
         <div class="flex flex-col gap-2 text-balance @3xl:pr-8">
-          <toggle v-model="compact"> {{ $t("settings.compact") }} </toggle>
+          <Toggle v-model="compact"> {{ $t("settings.compact") }} </Toggle>
 
-          <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
+          <Toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </Toggle>
 
-          <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
+          <Toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</Toggle>
 
-          <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
+          <Toggle v-model="showStd">{{ $t("settings.show-std") }}</Toggle>
 
-          <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
+          <Toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</Toggle>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.locale") }}
             </template>
@@ -44,9 +44,9 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.datetime-format") }}
             </template>
@@ -72,9 +72,9 @@
                 />
               </div>
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.font-size") }}
             </template>
@@ -88,9 +88,9 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.color-scheme") }}
             </template>
@@ -104,7 +104,7 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
         </div>
         <LogList
           :messages="fakeMessages"

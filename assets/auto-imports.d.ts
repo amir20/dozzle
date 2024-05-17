@@ -302,12 +302,13 @@ declare global {
   const useSpeechSynthesis: typeof import('@vueuse/core')['useSpeechSynthesis']
   const useStackContext: typeof import('./composable/stackContext')['useStackContext']
   const useStackContextLogStream: typeof import('./composable/eventStreams')['useStackContextLogStream']
-  const useStackStore: typeof import('./stores/stack')['useStackStore']
+  const useStackStore: typeof import('./stores/swarm')['useStackStore']
   const useStepper: typeof import('@vueuse/core')['useStepper']
   const useStorage: typeof import('@vueuse/core')['useStorage']
   const useStorageAsync: typeof import('@vueuse/core')['useStorageAsync']
   const useStyleTag: typeof import('@vueuse/core')['useStyleTag']
   const useSupported: typeof import('@vueuse/core')['useSupported']
+  const useSwarmStore: typeof import('./stores/swarm')['useSwarmStore']
   const useSwipe: typeof import('@vueuse/core')['useSwipe']
   const useTemplateRefsList: typeof import('@vueuse/core')['useTemplateRefsList']
   const useTextDirection: typeof import('@vueuse/core')['useTextDirection']
@@ -665,12 +666,12 @@ declare module 'vue' {
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
     readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
-    readonly useStackStore: UnwrapRef<typeof import('./stores/stack')['useStackStore']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
     readonly useStyleTag: UnwrapRef<typeof import('@vueuse/core')['useStyleTag']>
     readonly useSupported: UnwrapRef<typeof import('@vueuse/core')['useSupported']>
+    readonly useSwarmStore: UnwrapRef<typeof import('./stores/swarm')['useSwarmStore']>
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>
@@ -1021,12 +1022,12 @@ declare module '@vue/runtime-core' {
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
     readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
     readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
-    readonly useStackStore: UnwrapRef<typeof import('./stores/stack')['useStackStore']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
     readonly useStyleTag: UnwrapRef<typeof import('@vueuse/core')['useStyleTag']>
     readonly useSupported: UnwrapRef<typeof import('@vueuse/core')['useSupported']>
+    readonly useSwarmStore: UnwrapRef<typeof import('./stores/swarm')['useSwarmStore']>
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>

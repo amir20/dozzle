@@ -31,9 +31,9 @@ const { name, scrollable = false } = defineProps<{
 
 const visibleKeys = ref<string[][]>([]);
 
-const store = useStackStore();
-const { stacks } = storeToRefs(store);
-const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", []));
+const store = useSwarmStore();
+const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
+const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
 
 provideStackContext(stack);
 
