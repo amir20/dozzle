@@ -156,7 +156,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 		lastEventId = r.URL.Query().Get("lastEventId")
 	}
 
-	reader, err := h.clientFromRequest(r).ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes)
+	reader, err := h.clientFromRequest(r).ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes, 300)
 	if err != nil {
 		if err == io.EOF {
 			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
@@ -280,18 +280,21 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	events := make(chan *docker.LogEvent)
 
 	for _, container := range containers {
-		reader, err := h.clients[container.Host].ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes)
+		reader, err := h.clients[container.Host].ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes, 25)
 		if err != nil {
 			log.Errorf("error while streaming %v", err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
-		g := docker.NewEventGenerator(reader, container)
-
-		go func() {
+		go func(container docker.Container) {
+			log.Debugf("starting event generator for container %v", container.ID)
+			g := docker.NewEventGenerator(reader, container)
 			for event := range g.Events {
 				events <- event
 			}
-		}()
+			log.Debugf("event generator for container %v closed", container.ID)
+		}(container)
 
 		// TODO handle errors
 
