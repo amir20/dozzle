@@ -1,15 +1,17 @@
 <template>
-  <ContainerEventSource ref="source" #default="{ messages }" @loading-more="loadingMore($event)">
+  <EventSource ref="source" #default="{ messages }" @loading-more="loadingMore($event)" :stream-source="streamSource">
     <LogViewer :messages="messages" :visible-keys="visibleKeys" :show-container-name="false" />
-  </ContainerEventSource>
+  </EventSource>
 </template>
 
 <script lang="ts" setup>
 import LogEventSource from "@/components/ContainerViewer/LogEventSource.vue";
+import { LogStreamSource } from "@/composable/eventStreams";
 
-const { container } = useContainerContext();
-
-const visibleKeys = persistentVisibleKeysForContainer(container);
+const { streamSource, visibleKeys } = defineProps<{
+  streamSource: () => LogStreamSource;
+  visibleKeys: string[][];
+}>();
 
 const loadingMore = defineEmit<[value: boolean]>();
 

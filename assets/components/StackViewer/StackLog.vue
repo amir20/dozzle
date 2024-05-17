@@ -1,5 +1,5 @@
 <template>
-  <ScrollableView v-if="stack.name">
+  <ScrollableView :scrollable="scrollable" v-if="stack.name">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 gap-1.5 truncate @container md:gap-2">
@@ -10,7 +10,12 @@
       </div>
     </template>
     <template #default="{ setLoading }">
-      <StackViewerWithSource ref="viewer" @loading-more="setLoading($event)" />
+      <ViewerWithSource
+        ref="viewer"
+        @loading-more="setLoading($event)"
+        :stream-source="useStackContextLogStream"
+        :visible-keys="visibleKeys"
+      />
     </template>
   </ScrollableView>
 </template>
@@ -19,9 +24,12 @@
 import { Stack } from "@/models/Stack";
 import StackViewerWithSource from "./StackViewerWithSource.vue";
 
-const { name } = defineProps<{
+const { name, scrollable = false } = defineProps<{
+  scrollable?: boolean;
   name: string;
 }>();
+
+const visibleKeys = ref<string[][]>([]);
 
 const store = useStackStore();
 const { stacks } = storeToRefs(store);

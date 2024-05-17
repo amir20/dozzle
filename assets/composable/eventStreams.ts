@@ -20,7 +20,7 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-export function useContainerContextLogStream() {
+export function useContainerContextLogStream(): LogStreamSource {
   const { container, streamConfig } = useContainerContext();
 
   const url = computed(() => {
@@ -35,7 +35,7 @@ export function useContainerContextLogStream() {
   return useLogStream(url);
 }
 
-export function useStackContextLogStream() {
+export function useStackContextLogStream(): LogStreamSource {
   const { stack, streamConfig } = useStackContext();
 
   const url = computed(() => {
@@ -47,6 +47,8 @@ export function useStackContextLogStream() {
 
   return useLogStream(url);
 }
+
+export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>) {
   let messages: LogEntry<string | JSONObject>[] = $ref([]);

@@ -34,12 +34,13 @@ declare module 'vue' {
     ContainerStat: typeof import('./components/ContainerViewer/ContainerStat.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
-    ContainerViewerWithSource: typeof import('./components/ContainerViewer/ContainerViewerWithSource.vue')['default']
+    ContainerViewerWithSource: typeof import('./components/LogViewer/ContainerViewerWithSource.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     DockerEventLogItem: typeof import('./components/LogViewer/DockerEventLogItem.vue')['default']
     Dropdown: typeof import('./components/common/Dropdown.vue')['default']
     DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
+    EventSource: typeof import('./components/LogViewer/EventSource.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     HostList: typeof import('./components/HostList.vue')['default']
@@ -96,6 +97,7 @@ declare module 'vue' {
     Tag: typeof import('./components/common/Tag.vue')['default']
     TimedButton: typeof import('./components/common/TimedButton.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
+    ViewerWithSource: typeof import('./components/LogViewer/ViewerWithSource.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }

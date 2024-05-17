@@ -12,7 +12,12 @@
       </div>
     </template>
     <template #default="{ setLoading }">
-      <ContainerViewerWithSource ref="viewer" @loading-more="setLoading($event)" />
+      <ViewerWithSource
+        ref="viewer"
+        @loading-more="setLoading($event)"
+        :stream-source="useContainerContextLogStream"
+        :visible-keys="visibleKeys"
+      />
     </template>
   </ScrollableView>
 </template>
@@ -36,13 +41,13 @@ const close = defineEmit();
 
 const store = useContainerStore();
 const container = store.currentContainer($$(id));
+
+const visibleKeys = persistentVisibleKeysForContainer(container);
 provideContainerContext(container);
 
 const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
 
-function onClearClicked() {
-  viewer.value?.clear();
-}
+const onClearClicked = () => viewer.value?.clear();
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
