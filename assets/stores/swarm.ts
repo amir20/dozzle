@@ -7,8 +7,6 @@ export const useSwarmStore = defineStore("stack", () => {
   const containerStore = useContainerStore();
   const { containers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 
-  const services = ref<Service[]>([]);
-
   const stacks = computed(() => {
     const runningContainers = containers.value.filter((container) => container.state === "running");
     const namespaced: Record<string, Container[]> = {};
@@ -41,6 +39,23 @@ export const useSwarmStore = defineStore("stack", () => {
       newStacks.push(new Stack(name, containers, newServices));
     }
     return newStacks;
+  });
+
+  const services = computed(() => {
+    const services: Record<string, Container[]> = {};
+
+    for (const container of containers.value) {
+      const service = container.labels["com.docker.swarm.service.name"];
+      const namespace =
+        container.labels["com.docker.stack.namespace"] ?? container.labels["com.docker.compose.project"];
+
+      if (service === undefined) continue;
+      if (namespace) continue; // skip containers that already have a stack
+      services[service] ||= [];
+      services[service].push(container);
+    }
+
+    return Object.entries(services).map(([name, containers]) => new Service(name, containers));
   });
 
   return {
