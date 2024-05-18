@@ -5,7 +5,11 @@ export class Stack {
     public readonly name: string,
     public readonly containers: Container[],
     public readonly services: Service[],
-  ) {}
+  ) {
+    for (const service of services) {
+      service.stack = this;
+    }
+  }
 }
 
 export class Service {
