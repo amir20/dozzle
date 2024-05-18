@@ -15,6 +15,7 @@
         @loading-more="setLoading($event)"
         :stream-source="useStackContextLogStream"
         :visible-keys="visibleKeys"
+        :show-container-name="true"
       />
     </template>
   </ScrollableView>
