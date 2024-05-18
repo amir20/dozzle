@@ -1,10 +1,10 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="stack.name">
+  <ScrollableView :scrollable="scrollable" v-if="service.name">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 gap-1.5 truncate @container md:gap-2">
           <div class="inline-flex font-mono text-sm">
-            <div class="font-semibold">{{ stack.name }}</div>
+            <div class="font-semibold">{{ service.name }}</div>
           </div>
         </div>
       </div>
@@ -13,7 +13,7 @@
       <ViewerWithSource
         ref="viewer"
         @loading-more="setLoading($event)"
-        :stream-source="useStackContextLogStream"
+        :stream-source="useServiceContextLogStream"
         :visible-keys="visibleKeys"
         :show-container-name="true"
       />
@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Stack } from "@/models/Stack";
+import { Service } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
 
 const { name, scrollable = false } = defineProps<{
@@ -33,10 +33,10 @@ const { name, scrollable = false } = defineProps<{
 const visibleKeys = ref<string[][]>([]);
 
 const store = useSwarmStore();
-const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
-const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
+const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
+const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
 
-provideStackContext(stack);
+provideServiceContext(service);
 
 const viewer = ref<InstanceType<typeof ViewerWithSource>>();
 

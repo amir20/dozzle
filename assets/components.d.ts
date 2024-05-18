@@ -85,6 +85,7 @@ declare module 'vue' {
     ScrollableView: typeof import('./components/ScrollableView.vue')['default']
     ScrollProgress: typeof import('./components/ScrollProgress.vue')['default']
     Search: typeof import('./components/Search.vue')['default']
+    ServiceLog: typeof import('./components/ServiceViewer/ServiceLog.vue')['default']
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SidePanel: typeof import('./components/SidePanel.vue')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']

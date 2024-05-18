@@ -48,6 +48,19 @@ export function useStackContextLogStream(): LogStreamSource {
   return useLogStream(url);
 }
 
+export function useServiceContextLogStream(): LogStreamSource {
+  const { service, streamConfig } = useServiceContext();
+
+  const url = computed(() => {
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    return withBase(`/api/services/${service.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
+  });
+
+  return useLogStream(url);
+}
+
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>) {

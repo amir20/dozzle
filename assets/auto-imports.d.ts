@@ -107,6 +107,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideContainerContext: typeof import('./composable/containerContext')['provideContainerContext']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
+  const provideServiceContext: typeof import('./composable/serviceContext')['provideServiceContext']
   const provideStackContext: typeof import('./composable/stackContext')['provideStackContext']
   const reactify: typeof import('@vueuse/core')['reactify']
   const reactifyObject: typeof import('@vueuse/core')['reactifyObject']
@@ -125,6 +126,7 @@ declare global {
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const search: typeof import('./stores/settings')['search']
+  const serviceContext: typeof import('./composable/serviceContext')['serviceContext']
   const sessionHost: typeof import('./composable/storage')['sessionHost']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
@@ -293,6 +295,8 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core')['useScrollLock']
   const useSearchFilter: typeof import('./composable/search')['useSearchFilter']
   const useSeoMeta: typeof import('@vueuse/head')['useSeoMeta']
+  const useServiceContext: typeof import('./composable/serviceContext')['useServiceContext']
+  const useServiceContextLogStream: typeof import('./composable/eventStreams')['useServiceContextLogStream']
   const useSessionStorage: typeof import('@vueuse/core')['useSessionStorage']
   const useShare: typeof import('@vueuse/core')['useShare']
   const useSimpleRefHistory: typeof import('./utils/index')['useSimpleRefHistory']
@@ -472,6 +476,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['provideServiceContext']>
     readonly provideStackContext: UnwrapRef<typeof import('./composable/stackContext')['provideStackContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
@@ -490,6 +495,7 @@ declare module 'vue' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
+    readonly serviceContext: UnwrapRef<typeof import('./composable/serviceContext')['serviceContext']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -657,6 +663,8 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/search')['useSearchFilter']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
+    readonly useServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['useServiceContext']>
+    readonly useServiceContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceContextLogStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
@@ -828,6 +836,7 @@ declare module '@vue/runtime-core' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['provideServiceContext']>
     readonly provideStackContext: UnwrapRef<typeof import('./composable/stackContext')['provideStackContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
@@ -846,6 +855,7 @@ declare module '@vue/runtime-core' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
+    readonly serviceContext: UnwrapRef<typeof import('./composable/serviceContext')['serviceContext']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -1013,6 +1023,8 @@ declare module '@vue/runtime-core' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/search')['useSearchFilter']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
+    readonly useServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['useServiceContext']>
+    readonly useServiceContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceContextLogStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>

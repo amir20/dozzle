@@ -8,7 +8,11 @@
         </summary>
         <ul>
           <li v-for="service in services" :key="service.name">
-            {{ service.name }}
+            <router-link :to="{ name: 'service-name', params: { name: service.name } }" active-class="active-primary">
+              <div class="truncate">
+                {{ service.name }}
+              </div>
+            </router-link>
           </li>
         </ul>
       </details>

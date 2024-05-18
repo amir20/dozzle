@@ -13,4 +13,6 @@ export class Service {
     public readonly name: string,
     public readonly containers: Container[],
   ) {}
+
+  stack?: Stack;
 }

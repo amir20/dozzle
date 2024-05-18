@@ -129,9 +129,37 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	streamLogsForContainers(w, r, h.clients, containers)
 }
 
+func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
+	service := chi.URLParam(r, "service")
+	containers := make(chan docker.Container, 10)
+
+	go func() {
+		for _, store := range h.stores {
+			list, err := store.List()
+			if err != nil {
+				log.Errorf("error while listing containers %v", err.Error())
+				return
+			}
+
+			for _, container := range list {
+				if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
 func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	stack := chi.URLParam(r, "stack")
-	containers := make(chan docker.Container)
+	containers := make(chan docker.Container, 10)
 
 	go func() {
 		for _, store := range h.stores {

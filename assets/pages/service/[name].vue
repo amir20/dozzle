@@ -10,13 +10,13 @@ const containerStore = useContainerStore();
 const { activeContainers, ready } = storeToRefs(containerStore);
 
 const stackStore = useSwarmStore();
-const { stacks } = storeToRefs(stackStore);
-const stack = computed(() => stacks.value.find((s) => s.name === name));
+const { services } = storeToRefs(stackStore);
+const service = computed(() => services.value.find((s) => s.name === name));
 
 watchEffect(() => {
   if (ready.value) {
-    if (stack.value?.name) {
-      setTitle(stack.value.name);
+    if (service.value?.name) {
+      setTitle(service.value.name);
     } else {
       setTitle("Not Found");
     }

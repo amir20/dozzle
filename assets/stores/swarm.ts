@@ -3,7 +3,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { Container } from "@/models/Container";
 import { Service, Stack } from "@/models/Stack";
 
-export const useSwarmStore = defineStore("stack", () => {
+export const useSwarmStore = defineStore("swarm", () => {
   const containerStore = useContainerStore();
   const { containers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 
@@ -36,7 +36,11 @@ export const useSwarmStore = defineStore("stack", () => {
         newServices.push(new Service(name, containers));
       }
 
-      newStacks.push(new Stack(name, containers, newServices));
+      const stack = new Stack(name, containers, newServices);
+      for (const service of newServices) {
+        service.stack = stack;
+      }
+      newStacks.push(stack);
     }
     return newStacks;
   });
@@ -55,7 +59,11 @@ export const useSwarmStore = defineStore("stack", () => {
       services[service].push(container);
     }
 
-    return Object.entries(services).map(([name, containers]) => new Service(name, containers));
+    const serviceWithStack = stacks.value.flatMap((stack) => stack.services);
+
+    const servicesWithoutStack = Object.entries(services).map(([name, containers]) => new Service(name, containers));
+
+    return [...serviceWithStack, ...servicesWithoutStack];
   });
 
   return {
