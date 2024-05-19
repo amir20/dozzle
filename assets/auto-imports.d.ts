@@ -196,6 +196,7 @@ declare global {
   const useContainerContext: typeof import('./composable/containerContext')['useContainerContext']
   const useContainerContextLogStream: typeof import('./composable/eventStreams')['useContainerContextLogStream']
   const useContainerStore: typeof import('./stores/container')['useContainerStore']
+  const useContainerStream: typeof import('./composable/eventStreams')['useContainerStream']
   const useCounter: typeof import('@vueuse/core')['useCounter']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVar: typeof import('@vueuse/core')['useCssVar']
@@ -297,6 +298,7 @@ declare global {
   const useSeoMeta: typeof import('@vueuse/head')['useSeoMeta']
   const useServiceContext: typeof import('./composable/serviceContext')['useServiceContext']
   const useServiceContextLogStream: typeof import('./composable/eventStreams')['useServiceContextLogStream']
+  const useServiceStream: typeof import('./composable/eventStreams')['useServiceStream']
   const useSessionStorage: typeof import('@vueuse/core')['useSessionStorage']
   const useShare: typeof import('@vueuse/core')['useShare']
   const useSimpleRefHistory: typeof import('./utils/index')['useSimpleRefHistory']
@@ -307,6 +309,7 @@ declare global {
   const useStackContext: typeof import('./composable/stackContext')['useStackContext']
   const useStackContextLogStream: typeof import('./composable/eventStreams')['useStackContextLogStream']
   const useStackStore: typeof import('./stores/swarm')['useStackStore']
+  const useStackStream: typeof import('./composable/eventStreams')['useStackStream']
   const useStepper: typeof import('@vueuse/core')['useStepper']
   const useStorage: typeof import('@vueuse/core')['useStorage']
   const useStorageAsync: typeof import('@vueuse/core')['useStorageAsync']
@@ -476,8 +479,6 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
-    readonly provideServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['provideServiceContext']>
-    readonly provideStackContext: UnwrapRef<typeof import('./composable/stackContext')['provideStackContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -495,7 +496,6 @@ declare module 'vue' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
-    readonly serviceContext: UnwrapRef<typeof import('./composable/serviceContext')['serviceContext']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -510,7 +510,6 @@ declare module 'vue' {
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
     readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
     readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
-    readonly stackContext: UnwrapRef<typeof import('./composable/stackContext')['stackContext']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
@@ -563,8 +562,8 @@ declare module 'vue' {
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>
     readonly useContainerContext: UnwrapRef<typeof import('./composable/containerContext')['useContainerContext']>
-    readonly useContainerContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerContextLogStream']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
+    readonly useContainerStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerStream']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
@@ -663,8 +662,7 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/search')['useSearchFilter']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
-    readonly useServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['useServiceContext']>
-    readonly useServiceContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceContextLogStream']>
+    readonly useServiceStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
@@ -672,8 +670,7 @@ declare module 'vue' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
-    readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
-    readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
+    readonly useStackStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackStream']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>
@@ -836,8 +833,6 @@ declare module '@vue/runtime-core' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
-    readonly provideServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['provideServiceContext']>
-    readonly provideStackContext: UnwrapRef<typeof import('./composable/stackContext')['provideStackContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -855,7 +850,6 @@ declare module '@vue/runtime-core' {
     readonly resolveRef: UnwrapRef<typeof import('@vueuse/core')['resolveRef']>
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
-    readonly serviceContext: UnwrapRef<typeof import('./composable/serviceContext')['serviceContext']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -870,7 +864,6 @@ declare module '@vue/runtime-core' {
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
     readonly smallerScrollbars: UnwrapRef<typeof import('./stores/settings')['smallerScrollbars']>
     readonly softWrap: UnwrapRef<typeof import('./stores/settings')['softWrap']>
-    readonly stackContext: UnwrapRef<typeof import('./composable/stackContext')['stackContext']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
     readonly stripVersion: UnwrapRef<typeof import('./utils/index')['stripVersion']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
@@ -923,8 +916,8 @@ declare module '@vue/runtime-core' {
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>
     readonly useContainerContext: UnwrapRef<typeof import('./composable/containerContext')['useContainerContext']>
-    readonly useContainerContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerContextLogStream']>
     readonly useContainerStore: UnwrapRef<typeof import('./stores/container')['useContainerStore']>
+    readonly useContainerStream: UnwrapRef<typeof import('./composable/eventStreams')['useContainerStream']>
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
@@ -1023,8 +1016,7 @@ declare module '@vue/runtime-core' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSearchFilter: UnwrapRef<typeof import('./composable/search')['useSearchFilter']>
     readonly useSeoMeta: UnwrapRef<typeof import('@vueuse/head')['useSeoMeta']>
-    readonly useServiceContext: UnwrapRef<typeof import('./composable/serviceContext')['useServiceContext']>
-    readonly useServiceContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceContextLogStream']>
+    readonly useServiceStream: UnwrapRef<typeof import('./composable/eventStreams')['useServiceStream']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
     readonly useSimpleRefHistory: UnwrapRef<typeof import('./utils/index')['useSimpleRefHistory']>
@@ -1032,8 +1024,7 @@ declare module '@vue/runtime-core' {
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>
     readonly useSpeechSynthesis: UnwrapRef<typeof import('@vueuse/core')['useSpeechSynthesis']>
-    readonly useStackContext: UnwrapRef<typeof import('./composable/stackContext')['useStackContext']>
-    readonly useStackContextLogStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackContextLogStream']>
+    readonly useStackStream: UnwrapRef<typeof import('./composable/eventStreams')['useStackStream']>
     readonly useStepper: UnwrapRef<typeof import('@vueuse/core')['useStepper']>
     readonly useStorage: UnwrapRef<typeof import('@vueuse/core')['useStorage']>
     readonly useStorageAsync: UnwrapRef<typeof import('@vueuse/core')['useStorageAsync']>

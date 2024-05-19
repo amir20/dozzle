@@ -7,14 +7,15 @@
             <div class="font-semibold">{{ service.name }}</div>
           </div>
         </div>
-        <ServiceStat class="ml-auto" :containers="service.containers" />
+        <MultiContainerStat class="ml-auto" :containers="service.containers" />
       </div>
     </template>
     <template #default="{ setLoading }">
       <ViewerWithSource
         ref="viewer"
         @loading-more="setLoading($event)"
-        :stream-source="useServiceContextLogStream"
+        :stream-source="useServiceStream"
+        :entity="service"
         :visible-keys="visibleKeys"
         :show-container-name="true"
       />
@@ -25,6 +26,7 @@
 <script lang="ts" setup>
 import { Service } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   scrollable?: boolean;
@@ -37,17 +39,7 @@ const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
 
-watch(
-  service.value.containers,
-  () => {
-    console.log("service.value.containers", service.value.containers);
-  },
-  { deep: false },
-);
-
-provideServiceContext(service);
-
-const viewer = ref<InstanceType<typeof ViewerWithSource>>();
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
 const onClearClicked = () => viewer.value?.clear();
 

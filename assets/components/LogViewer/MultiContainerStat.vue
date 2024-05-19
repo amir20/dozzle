@@ -13,17 +13,15 @@ const { containers } = defineProps<{
   containers: Container[];
 }>();
 
-const { service } = useServiceContext();
-
 const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0 });
 let history = useSimpleRefHistory(totalStat, { capacity: 300 });
 
 watch(
-  () => service.value.containers,
+  () => containers,
   () => {
     const initial: Stat[] = [];
     for (let i = 1; i <= 300; i++) {
-      const stat = service.value.containers.reduce(
+      const stat = containers.reduce(
         (acc, { statsHistory }) => {
           const item = statsHistory.at(-i);
           if (!item) {

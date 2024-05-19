@@ -7,13 +7,15 @@
             <div class="font-semibold">{{ stack.name }}</div>
           </div>
         </div>
+        <MultiContainerStat class="ml-auto" :containers="stack.containers" />
       </div>
     </template>
     <template #default="{ setLoading }">
       <ViewerWithSource
         ref="viewer"
         @loading-more="setLoading($event)"
-        :stream-source="useStackContextLogStream"
+        :stream-source="useStackStream"
+        :entity="stack"
         :visible-keys="visibleKeys"
         :show-container-name="true"
       />
@@ -24,6 +26,7 @@
 <script lang="ts" setup>
 import { Stack } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   scrollable?: boolean;
@@ -36,9 +39,7 @@ const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
 const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
 
-provideStackContext(stack);
-
-const viewer = ref<InstanceType<typeof ViewerWithSource>>();
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
 const onClearClicked = () => viewer.value?.clear();
 

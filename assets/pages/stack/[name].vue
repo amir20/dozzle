@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <ServiceLog :name="name" :scrollable="activeContainers.length > 0" />
+  <StackLog :name="name" :scrollable="activeContainers.length > 0" />
 </template>
 
 <script lang="ts" setup>

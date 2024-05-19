@@ -9,6 +9,8 @@ import {
   DockerEventLogEntry,
   SkippedLogsEntry,
 } from "@/models/LogEntry";
+import { Service, Stack } from "@/models/Stack";
+import { Container } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data, (key, value) => {
@@ -20,8 +22,11 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-export function useContainerContextLogStream(): LogStreamSource {
-  const { container, streamConfig } = useContainerContext();
+export function useContainerStream(container: Ref<Container>): LogStreamSource {
+  const streamConfig = reactive({
+    stdout: true,
+    stderr: true,
+  });
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)
@@ -35,8 +40,11 @@ export function useContainerContextLogStream(): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useStackContextLogStream(): LogStreamSource {
-  const { stack, streamConfig } = useStackContext();
+export function useStackStream(stack: Ref<Stack>): LogStreamSource {
+  const streamConfig = reactive({
+    stdout: true,
+    stderr: true,
+  });
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)
@@ -48,8 +56,11 @@ export function useStackContextLogStream(): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useServiceContextLogStream(): LogStreamSource {
-  const { service, streamConfig } = useServiceContext();
+export function useServiceStream(service: Ref<Service>): LogStreamSource {
+  const streamConfig = reactive({
+    stdout: true,
+    stderr: true,
+  });
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)

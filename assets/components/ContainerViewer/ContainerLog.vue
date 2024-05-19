@@ -3,7 +3,7 @@
     <template #header v-if="showTitle">
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <ContainerTitle />
-        <ContainerStat class="ml-auto" />
+        <MultiContainerStat class="ml-auto" :containers="[container]" />
 
         <ContainerActionsToolbar @clear="onClearClicked()" class="mobile-hidden" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
@@ -15,7 +15,8 @@
       <ViewerWithSource
         ref="viewer"
         @loading-more="setLoading($event)"
-        :stream-source="useContainerContextLogStream"
+        :stream-source="useContainerStream"
+        :entity="container"
         :visible-keys="visibleKeys"
         :show-container-name="false"
       />
@@ -24,7 +25,8 @@
 </template>
 
 <script lang="ts" setup>
-import LogViewerWithSource from "@/components/LogViewer/LogViewerWithSource.vue";
+import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const {
   id,
@@ -46,7 +48,7 @@ const container = store.currentContainer($$(id));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 provideContainerContext(container);
 
-const viewer = ref<InstanceType<typeof LogViewerWithSource>>();
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
 const onClearClicked = () => viewer.value?.clear();
 

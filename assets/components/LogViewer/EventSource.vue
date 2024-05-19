@@ -3,16 +3,19 @@
   <slot :messages="messages"></slot>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/eventStreams";
 
 const loadingMore = defineEmit<[value: boolean]>();
 
-const { streamSource } = defineProps<{
-  streamSource: () => LogStreamSource;
+const props = defineProps<{
+  streamSource: (t: Ref<T>) => LogStreamSource;
+  entity: T;
 }>();
 
-const { messages, loadOlderLogs } = streamSource();
+const { entity, streamSource } = toRefs(props);
+
+const { messages, loadOlderLogs } = streamSource.value(entity);
 
 const beforeLoading = () => loadingMore(true);
 const afterLoading = () => loadingMore(false);
