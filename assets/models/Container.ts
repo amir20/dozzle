@@ -2,7 +2,7 @@ import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Con
 import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
-type Stat = Omit<ContainerStat, "id">;
+export type Stat = Omit<ContainerStat, "id">;
 
 const SWARM_ID_REGEX = /(\.[a-z0-9]{25})+$/i;
 

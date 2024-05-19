@@ -7,6 +7,7 @@
             <div class="font-semibold">{{ service.name }}</div>
           </div>
         </div>
+        <ServiceStat class="ml-auto" :containers="service.containers" />
       </div>
     </template>
     <template #default="{ setLoading }">
@@ -35,6 +36,14 @@ const visibleKeys = ref<string[][]>([]);
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
+
+watch(
+  service.value.containers,
+  () => {
+    console.log("service.value.containers", service.value.containers);
+  },
+  { deep: false },
+);
 
 provideServiceContext(service);
 
