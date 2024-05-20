@@ -10,6 +10,7 @@ toolbar:
 label:
   containers: Containers
   container: No containers | 1 container | {count} containers
+  serivce: No services | 1 service | {count} services
   running-containers: Running Containers
   all-containers: All Containers
   host: Host

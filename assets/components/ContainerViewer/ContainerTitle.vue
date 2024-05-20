@@ -25,14 +25,16 @@
 </template>
 
 <script lang="ts" setup>
-const { container } = useContainerContext();
+import { Container } from "@/models/Container";
+
+const { container } = defineProps<{ container: Container }>();
 const pinned = computed({
-  get: () => pinnedContainers.value.has(container.value.name),
+  get: () => pinnedContainers.value.has(container.name),
   set: (value) => {
     if (value) {
-      pinnedContainers.value.add(container.value.name);
+      pinnedContainers.value.add(container.name);
     } else {
-      pinnedContainers.value.delete(container.value.name);
+      pinnedContainers.value.delete(container.name);
     }
   },
 });

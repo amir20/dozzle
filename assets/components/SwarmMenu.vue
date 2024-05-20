@@ -1,5 +1,5 @@
 <template>
-  <ul class="containers menu p-0 [&_li.menu-title]:px-0">
+  <ul class="menu p-0 text-[0.95rem]">
     <li v-for="{ name, services } in stacks" :key="name">
       <details open>
         <summary class="font-light text-base-content/80">
@@ -9,6 +9,7 @@
         <ul>
           <li v-for="service in services" :key="service.name">
             <router-link :to="{ name: 'service-name', params: { name: service.name } }" active-class="active-primary">
+              <ph:stack-simple />
               <div class="truncate">
                 {{ service.name }}
               </div>
@@ -25,27 +26,4 @@ const store = useSwarmStore();
 
 const { stacks } = storeToRefs(store);
 </script>
-<style scoped lang="postcss">
-.menu {
-  @apply text-[0.95rem];
-}
-.containers a {
-  @apply auto-cols-[auto_max-content_max-content];
-  .pin {
-    display: none;
-
-    &:hover {
-      @apply text-secondary;
-    }
-  }
-
-  &:hover {
-    .pin {
-      display: inline-block;
-    }
-  }
-}
-li.exited {
-  @apply opacity-50;
-}
-</style>
+<style scoped lang="postcss"></style>

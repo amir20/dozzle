@@ -11,6 +11,7 @@ import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
 import { default as Component } from "./EventSource.vue";
 import LogViewer from "@/components/LogViewer/LogViewer.vue";
+import { Container } from "@/models/Container";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -67,17 +68,13 @@ describe("<ContainerEventSource />", () => {
       ],
     });
 
-    return mount(Component, {
+    return mount(Component<Container>, {
       global: {
         plugins: [router, createTestingPinia({ createSpy: vi.fn }), createI18n({})],
         components: {
           LogViewer,
         },
         provide: {
-          [containerContext as symbol]: {
-            container: computed(() => ({ id: "abc", image: "test:v123", host: "localhost" })),
-            streamConfig: reactive({ stdout: true, stderr: true }),
-          },
           scrollingPaused: computed(() => false),
         },
       },
@@ -87,7 +84,8 @@ describe("<ContainerEventSource />", () => {
         `,
       },
       props: {
-        streamSource: useContainerContextLogStream,
+        streamSource: useContainerStream,
+        entity: new Container("abc", new Date(), "image", "name", "command", "localhost", {}, "status", "created", []),
       },
     });
   }

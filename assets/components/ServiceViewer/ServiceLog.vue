@@ -6,6 +6,9 @@
           <div class="inline-flex font-mono text-sm">
             <div class="font-semibold">{{ service.name }}</div>
           </div>
+          <Tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+            {{ $t("label.container", service.containers.length) }}
+          </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
       </div>
