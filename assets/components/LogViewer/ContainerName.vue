@@ -12,7 +12,24 @@ const { id } = defineProps<{
   id: string;
 }>();
 
-const colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#FF00FF", "#FF007F"];
+const colors = [
+  "#FF0000",
+  "#FF7F00",
+  "#FFFF00",
+  "#00FF00",
+  "#00FFFF",
+  "#0000FF",
+  "#FF00FF",
+  "#FF007F",
+  "#32CD32",
+  "#40E0D0",
+  "#800080",
+  "#FFD700",
+  "#FF4040",
+  "#4B0082",
+  "#008080",
+  "#E6E6FA",
+];
 
 const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 </script>
