@@ -122,7 +122,7 @@ function selected({ id }: { id: string }) {
   close();
 }
 function addColumn(container: { id: string }) {
-  pinnedStore.appendActiveContainer(container);
+  pinnedStore.pinContainer(container);
   close();
 }
 
