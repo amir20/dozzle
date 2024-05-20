@@ -1,6 +1,6 @@
 <template>
   <div v-if="ready" data-testid="side-menu">
-    <Toggle v-model="showSwarm"> <div class="text-lg">Swam Mode</div> </Toggle>
+    <Toggle v-model="showSwarm" v-if="services.length > 0"> <div class="text-lg">Swam Mode</div> </Toggle>
 
     <SlideTransition :slide-right="showSwarm">
       <template #left>
@@ -18,8 +18,11 @@
 </template>
 
 <script lang="ts" setup>
-const store = useContainerStore();
-const { ready } = storeToRefs(store);
+const containerStore = useContainerStore();
+const { ready } = storeToRefs(containerStore);
+
+const swarmStore = useSwarmStore();
+const { services } = storeToRefs(swarmStore);
 
 const showSwarm = ref(false);
 </script>
