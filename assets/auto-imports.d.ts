@@ -58,6 +58,8 @@ declare global {
   const getDeep: typeof import('./utils/index')['getDeep']
   const globalShowPopup: typeof import('./composable/popup')['globalShowPopup']
   const h: typeof import('vue')['h']
+  const hash: typeof import('./utils/index')['hash']
+  const hashCode: typeof import('./utils/index')['hashCode']
   const hourStyle: typeof import('./stores/settings')['hourStyle']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
@@ -432,6 +434,7 @@ declare module 'vue' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composable/popup')['globalShowPopup']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -786,6 +789,7 @@ declare module '@vue/runtime-core' {
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composable/popup')['globalShowPopup']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
