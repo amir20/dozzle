@@ -63,7 +63,7 @@ const selectedIndex = ref(0);
 
 const router = useRouter();
 const containerStore = useContainerStore();
-const pinnedStore = usePinnedStore();
+const pinnedStore = usePinnedLogsStore();
 const { containers } = storeToRefs(containerStore);
 
 const list = computed(() => {
