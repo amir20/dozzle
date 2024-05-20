@@ -23,10 +23,7 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
 }
 
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
-  const streamConfig = reactive({
-    stdout: true,
-    stderr: true,
-  });
+  const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)
@@ -37,14 +34,20 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
     );
   });
 
-  return useLogStream(url);
+  const loadMoreUrl = computed(() => {
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    return withBase(
+      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs?${new URLSearchParams(params).toString()}`,
+    );
+  });
+
+  return useLogStream(url, loadMoreUrl);
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
-  const streamConfig = reactive({
-    stdout: true,
-    stderr: true,
-  });
+  const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)
@@ -57,10 +60,7 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
 }
 
 export function useServiceStream(service: Ref<Service>): LogStreamSource {
-  const streamConfig = reactive({
-    stdout: true,
-    stderr: true,
-  });
+  const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
     const params = Object.entries(streamConfig)
@@ -74,7 +74,7 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
-function useLogStream(url: Ref<string>) {
+function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   let messages: LogEntry<string | JSONObject>[] = $ref([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
@@ -117,7 +117,6 @@ function useLogStream(url: Ref<string>) {
     flushBuffer.cancel();
     messages = [];
     buffer = [];
-    // console.debug(`Clearing messages for ${containerId}`);
   }
 
   function connect({ clear } = { clear: true }) {
@@ -149,36 +148,30 @@ function useLogStream(url: Ref<string>) {
   watch(url, () => connect(), { immediate: true });
 
   async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
-    // if (messages.length < 300) return;
+    if (!loadMoreUrl) return;
+    beforeLoading();
 
-    // beforeLoading();
-    // const to = messages[0].date;
-    // const last = messages[299].date;
-    // const delta = to.getTime() - last.getTime();
-    // const from = new Date(to.getTime() + delta);
+    const to = messages[0].date;
+    const last = messages[messages.length - 1].date;
+    const delta = to.getTime() - last.getTime();
+    const from = new Date(to.getTime() + delta);
 
-    // const params = Object.entries(streamConfig)
-    //   .filter(([, value]) => value)
-    //   .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), { from: from.toISOString(), to: to.toISOString() });
-
-    throw new Error("Not implemented");
-    // const logs = await (
-    //   await fetch(
-    //     withBase(
-    //       `/api/hosts/${container.value.host}/containers/${containerId}/logs?${new URLSearchParams(params).toString()}`,
-    //     ),
-    //   )
-    // ).text();
-    // if (logs) {
-    //   const newMessages = logs
-    //     .trim()
-    //     .split("\n")
-    //     .map((line) => parseMessage(line));
-    //   messages.unshift(...newMessages);
-    // }
-    // afterLoading();
+    const logs = await (
+      await fetch(
+        `${loadMoreUrl.value}${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
+      )
+    ).text();
+    if (logs) {
+      const newMessages = logs
+        .trim()
+        .split("\n")
+        .map((line) => parseMessage(line));
+      messages.unshift(...newMessages);
+    }
+    afterLoading();
   }
 
+  // TODO this is a hack to connect the event source when the container is started
   // watch(
   //   () => container.value.state,
   //   (newValue, oldValue) => {
@@ -191,14 +184,6 @@ function useLogStream(url: Ref<string>) {
   // );
 
   onScopeDispose(() => close());
-
-  // watch(
-  //   () => container.value.id,
-  //   () => connect(),
-  //   { immediate: true },
-  // );
-
-  // watch(streamConfig, () => connect());
 
   return { ...$$({ messages }), loadOlderLogs };
 }

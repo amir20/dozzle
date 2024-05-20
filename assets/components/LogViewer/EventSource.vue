@@ -1,5 +1,5 @@
 <template>
-  <InfiniteLoader :onLoadMore="fetchMore" :enabled="messages.length > 100"></InfiniteLoader>
+  <InfiniteLoader :onLoadMore="fetchMore" :enabled="messages.length > 50"></InfiniteLoader>
   <slot :messages="messages"></slot>
 </template>
 

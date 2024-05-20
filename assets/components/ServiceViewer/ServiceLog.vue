@@ -38,6 +38,8 @@ const { name, scrollable = false } = defineProps<{
 
 const visibleKeys = ref<string[][]>([]);
 
+provideLoggingContext();
+
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));

@@ -106,7 +106,8 @@ const { enableActions } = config;
 
 const clear = defineEmit();
 
-const { container, streamConfig } = useContainerContext();
+const { container } = useContainerContext();
+const { streamConfig } = useLoggingContext();
 
 // container context is provided in the parent component: <LogContainer>
 const { actionStates, start, stop, restart } = useContainerActions();

@@ -239,7 +239,7 @@ loop:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
 		case container := <-containers:
-			reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 25)
+			reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 100)
 			if err != nil {
 				log.Debugf("error while streaming logs %v", err.Error())
 				return

@@ -73,6 +73,8 @@ declare global {
   const isRef: typeof import('vue')['isRef']
   const lightTheme: typeof import('./stores/settings')['lightTheme']
   const locale: typeof import('./stores/settings')['locale']
+  const logContext: typeof import('./composable/logContext')['logContext']
+  const logContextKey: typeof import('./composable/logContext')['logContextKey']
   const logSearchContext: typeof import('./composable/logSearchContext')['logSearchContext']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const mapActions: typeof import('pinia')['mapActions']
@@ -109,6 +111,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideContainerContext: typeof import('./composable/containerContext')['provideContainerContext']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
+  const provideLoggingContext: typeof import('./composable/logContext')['provideLoggingContext']
   const provideServiceContext: typeof import('./composable/serviceContext')['provideServiceContext']
   const provideStackContext: typeof import('./composable/stackContext')['provideStackContext']
   const reactify: typeof import('@vueuse/core')['reactify']
@@ -253,6 +256,7 @@ declare global {
   const useLocalStorage: typeof import('@vueuse/core')['useLocalStorage']
   const useLogSearchContext: typeof import('./composable/logSearchContext')['useLogSearchContext']
   const useLogStream: typeof import('./composable/stackEventStream')['useLogStream']
+  const useLoggingContext: typeof import('./composable/logContext')['useLoggingContext']
   const useMagicKeys: typeof import('@vueuse/core')['useMagicKeys']
   const useManualRefHistory: typeof import('@vueuse/core')['useManualRefHistory']
   const useMediaControls: typeof import('@vueuse/core')['useMediaControls']
@@ -486,6 +490,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logContext')['provideLoggingContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -624,6 +629,7 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
+    readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
     readonly useMediaControls: UnwrapRef<typeof import('@vueuse/core')['useMediaControls']>
@@ -842,6 +848,7 @@ declare module '@vue/runtime-core' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContainerContext: UnwrapRef<typeof import('./composable/containerContext')['provideContainerContext']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logContext')['provideLoggingContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
     readonly reactifyObject: UnwrapRef<typeof import('@vueuse/core')['reactifyObject']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
@@ -980,6 +987,7 @@ declare module '@vue/runtime-core' {
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
+    readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
     readonly useMediaControls: UnwrapRef<typeof import('@vueuse/core')['useMediaControls']>

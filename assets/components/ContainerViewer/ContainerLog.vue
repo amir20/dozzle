@@ -48,6 +48,8 @@ const container = store.currentContainer($$(id));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 provideContainerContext(container);
 
+provideLoggingContext();
+
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
 const onClearClicked = () => viewer.value?.clear();
