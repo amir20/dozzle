@@ -62,8 +62,9 @@ const input = ref<HTMLInputElement>();
 const selectedIndex = ref(0);
 
 const router = useRouter();
-const store = useContainerStore();
-const { containers } = storeToRefs(store);
+const containerStore = useContainerStore();
+const pinnedStore = usePinnedStore();
+const { containers } = storeToRefs(containerStore);
 
 const list = computed(() => {
   return containers.value.map(({ id, created, name, state, labels, hostLabel: host }) => {
@@ -121,7 +122,7 @@ function selected({ id }: { id: string }) {
   close();
 }
 function addColumn(container: { id: string }) {
-  store.appendActiveContainer(container);
+  pinnedStore.appendActiveContainer(container);
   close();
 }
 

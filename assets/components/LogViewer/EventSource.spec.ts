@@ -1,6 +1,5 @@
 import { createTestingPinia } from "@pinia/testing";
 import { mount } from "@vue/test-utils";
-import { containerContext } from "@/composable/containerContext";
 import { useSearchFilter } from "@/composable/search";
 import { settings } from "@/stores/settings";
 // @ts-ignore

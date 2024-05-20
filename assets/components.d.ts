@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
@@ -30,7 +29,6 @@ declare module 'vue' {
     ContainerLog: typeof import('./components/ContainerViewer/ContainerLog.vue')['default']
     ContainerName: typeof import('./components/LogViewer/ContainerName.vue')['default']
     ContainerPopup: typeof import('./components/ContainerPopup.vue')['default']
-    ContainerStat: typeof import('./components/ContainerViewer/ContainerStat.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
@@ -79,7 +77,6 @@ declare module 'vue' {
     'Ph:cpu': typeof import('~icons/ph/cpu')['default']
     'Ph:memory': typeof import('~icons/ph/memory')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
-    'Ph:stack0simple': typeof import('~icons/ph/stack0simple')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     Releases: typeof import('./components/Releases.vue')['default']

@@ -1,13 +1,16 @@
 <template>
   <Search />
-  <ServiceLog :name="name" :scrollable="activeContainers.length > 0" />
+  <ServiceLog :name="name" :scrollable="pinnedLogs.length > 0" />
 </template>
 
 <script lang="ts" setup>
 const { name } = defineProps<{ name: string }>();
 
 const containerStore = useContainerStore();
-const { activeContainers, ready } = storeToRefs(containerStore);
+const { ready } = storeToRefs(containerStore);
+
+const pinnedLogsStore = usePinnedLogsStore();
+const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const stackStore = useSwarmStore();
 const { services } = storeToRefs(stackStore);

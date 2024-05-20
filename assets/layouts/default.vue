@@ -11,13 +11,13 @@
             <router-view></router-view>
           </pane>
           <template v-if="!isMobile">
-            <pane v-for="other in activeContainers" :key="other.id">
+            <pane v-for="other in pinnedLogs" :key="other.id">
               <ContainerLog
                 :id="other.id"
                 show-title
                 scrollable
                 closable
-                @close="containerStore.removeActiveContainer(other)"
+                @close="pinnedLogsStore.unPinContainer(other)"
               />
             </pane>
           </template>
@@ -72,8 +72,8 @@
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 
-const containerStore = useContainerStore();
-const { activeContainers } = storeToRefs(containerStore);
+const pinnedLogsStore = usePinnedLogsStore();
+const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const { toasts, removeToast } = useToast();
 

@@ -11,7 +11,7 @@ const { t } = i18n.global;
 
 export const useContainerStore = defineStore("container", () => {
   const containers: Ref<Container[]> = ref([]);
-  const activeContainerIds: Ref<string[]> = ref([]);
+
   let es: EventSource | null = null;
   const ready = ref(false);
 
@@ -29,8 +29,6 @@ export const useContainerStore = defineStore("container", () => {
     const filter = showAllContainers.value ? () => true : (c: Container) => c.state === "running";
     return containers.value.filter(filter);
   });
-
-  const activeContainers = computed(() => activeContainerIds.value.map((id) => allContainersById.value[id]));
 
   function connect() {
     es?.close();
@@ -142,9 +140,6 @@ export const useContainerStore = defineStore("container", () => {
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
-  const appendActiveContainer = ({ id }: { id: string }) => activeContainerIds.value.push(id);
-  const removeActiveContainer = ({ id }: { id: string }) =>
-    activeContainerIds.value.splice(activeContainerIds.value.indexOf(id), 1);
 
   const containerNames = computed(() =>
     containers.value.reduce(
@@ -158,13 +153,9 @@ export const useContainerStore = defineStore("container", () => {
 
   return {
     containers,
-    activeContainerIds,
     allContainersById,
     visibleContainers,
-    activeContainers,
     currentContainer,
-    appendActiveContainer,
-    removeActiveContainer,
     containerNames,
     ready,
   };
