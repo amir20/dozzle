@@ -1,5 +1,5 @@
 <template>
-  <Tag size="small" class="random-color !block w-40 truncate">
+  <Tag size="small" class="random-color !block w-40 truncate text-center">
     {{ containerNames[id] }}
   </Tag>
 </template>
