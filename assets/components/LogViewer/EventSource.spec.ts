@@ -75,6 +75,10 @@ describe("<ContainerEventSource />", () => {
         },
         provide: {
           scrollingPaused: computed(() => false),
+          [loggingContextKey as symbol]: {
+            containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
+            streamConfig: reactive({ stdout: true, stderr: true }),
+          },
         },
       },
       slots: {
