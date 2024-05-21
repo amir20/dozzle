@@ -112,8 +112,7 @@ const { streamConfig } = useLoggingContext();
 
 const { container } = defineProps<{ container: Container }>();
 
-// container context is provided in the parent component: <LogContainer>
-const { actionStates, start, stop, restart } = useContainerActions();
+const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 const downloadParams = computed(() =>
   Object.entries(streamConfig)

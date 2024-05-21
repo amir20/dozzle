@@ -259,7 +259,6 @@ loop:
 			go func(container docker.Container) {
 				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 100)
 				if err != nil {
-					log.Debugf("error while streaming logs %v", err.Error())
 					return
 				}
 				g := docker.NewEventGenerator(reader, container)
@@ -274,6 +273,7 @@ loop:
 					case err := <-g.Errors:
 						if err != nil {
 							if err == io.EOF {
+								log.WithError(err).Debugf("stream closed for container %v", container.Name)
 								events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
 							} else if err != r.Context().Err() {
 								log.Errorf("unknown error while streaming %v", err.Error())

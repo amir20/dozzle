@@ -149,10 +149,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     es = new EventSource(url.value);
 
-    es.addEventListener("container-stopped", () => {
-      // TODO container id
-      close();
-      buffer.push(new DockerEventLogEntry("Container stopped", "123", new Date(), "container-stopped"));
+    es.addEventListener("container-stopped", (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
+      buffer.push(new DockerEventLogEntry("Container stopped", event.actorId, new Date(), "container-stopped"));
 
       flushBuffer();
       flushBuffer.flush();

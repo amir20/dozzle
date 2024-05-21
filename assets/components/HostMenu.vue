@@ -30,7 +30,7 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
 
               <router-link
-                :to="{ name: 'stack-name', params: { name: label } }"
+                :to="{ name: 'merged', query: { id: containers.map(({ id }) => id) } }"
                 class="btn btn-info btn-xs"
                 v-if="!label.startsWith('label.')"
               >
