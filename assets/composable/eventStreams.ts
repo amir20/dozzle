@@ -158,7 +158,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     const logs = await (
       await fetch(
-        `${loadMoreUrl.value}${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
+        `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
       )
     ).text();
     if (logs) {
