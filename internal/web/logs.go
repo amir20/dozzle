@@ -129,6 +129,26 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	streamLogsForContainers(w, r, h.clients, containers)
 }
 
+func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
+	if !r.URL.Query().Has("id") {
+		http.Error(w, "ids query parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	containers := make(chan docker.Container, len(r.URL.Query()["id"]))
+
+	for _, id := range r.URL.Query()["id"] {
+		container, err := h.clientFromRequest(r).FindContainer(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		containers <- container
+	}
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
 func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 	service := chi.URLParam(r, "service")
 	containers := make(chan docker.Container, 10)
@@ -212,7 +232,8 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	events := make(chan *docker.LogEvent)
+	logs := make(chan *docker.LogEvent)
+	events := make(chan *docker.ContainerEvent)
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -220,11 +241,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map
 loop:
 	for {
 		select {
-		case event, ok := <-events:
-			if !ok {
-				// log.WithFields(log.Fields{"id": id}).Debug("stream closed")
-				break loop
-			}
+		case event := <-logs:
 			if buf, err := json.Marshal(event); err != nil {
 				log.Errorf("json encoding error while streaming %v", err.Error())
 			} else {
@@ -239,18 +256,42 @@ loop:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
 		case container := <-containers:
-			reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 100)
-			if err != nil {
-				log.Debugf("error while streaming logs %v", err.Error())
-				return
-			}
 			go func(container docker.Container) {
-				g := docker.NewEventGenerator(reader, container)
-				for event := range g.Events {
-					events <- event
+				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 100)
+				if err != nil {
+					log.Debugf("error while streaming logs %v", err.Error())
+					return
 				}
-				log.Debugf("event generator for container %v closed", container.ID)
+				g := docker.NewEventGenerator(reader, container)
+				for {
+					select {
+					case event, ok := <-g.Events:
+						if !ok {
+							log.Debugf("stream closed for container %v", container.ID)
+							return
+						}
+						logs <- event
+					case err := <-g.Errors:
+						if err != nil {
+							if err == io.EOF {
+								events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+							} else if err != r.Context().Err() {
+								log.Errorf("unknown error while streaming %v", err.Error())
+							}
+							return
+						}
+					}
+				}
 			}(container)
+
+		case event := <-events:
+			log.Debugf("received container event %v", event)
+			if buf, err := json.Marshal(event); err != nil {
+				log.Errorf("json encoding error while streaming %v", err.Error())
+			} else {
+				fmt.Fprintf(w, "event: container-stopped\ndata: %s\n\n", buf)
+				f.Flush()
+			}
 
 		case <-r.Context().Done():
 			log.Debugf("context cancelled")
@@ -258,25 +299,9 @@ loop:
 		}
 	}
 
-	// TODO: handle errors
-	// select {
-	// case err := <-g.Errors:
-	// 	if err != nil {
-	// 		if err == io.EOF {
-	// 			// log.Debugf("container stopped: %v", container.ID)
-	// 			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-	// 			f.Flush()
-	// 		} else if err != context.Canceled {
-	// 			log.Errorf("unknown error while streaming %v", err.Error())
-	// 		}
-	// 	}
-	// default:
-	// }
-
 	if log.IsLevelEnabled(log.DebugLevel) {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
 		log.WithFields(log.Fields{
 			"allocated":      humanize.Bytes(m.Alloc),
 			"totalAllocated": humanize.Bytes(m.TotalAlloc),

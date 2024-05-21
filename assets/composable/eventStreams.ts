@@ -59,6 +59,23 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   return useLogStream(url);
 }
 
+export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
+  const { streamConfig } = useLoggingContext();
+
+  const url = computed(() => {
+    const params = [
+      ...Object.entries(streamConfig).map(([key, value]) => [key, value ? "1" : "0"]),
+      ...containers.value.map((c) => ["id", c.id]),
+    ];
+
+    return withBase(
+      `/api/hosts/${containers.value[0].host}/logs/mergedStream?${new URLSearchParams(params).toString()}`,
+    );
+  });
+
+  return useLogStream(url);
+}
+
 export function useServiceStream(service: Ref<Service>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 

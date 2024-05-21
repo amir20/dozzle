@@ -66,6 +66,7 @@ declare module 'vue' {
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
+    MultiContainerLog: typeof import('./components/MultiContainerViewer/MultiContainerLog.vue')['default']
     MultiContainerStat: typeof import('./components/LogViewer/MultiContainerStat.vue')['default']
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']
     'Octicon:download24': typeof import('~icons/octicon/download24')['default']

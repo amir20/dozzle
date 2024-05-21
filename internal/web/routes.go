@@ -93,6 +93,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
 				r.Get("/api/hosts/{host}/containers/{id}/logs/download", h.downloadLogs)
 				r.Get("/api/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
+				r.Get("/api/hosts/{host}/logs/mergedStream", h.streamLogsMerged)
 				r.Get("/api/stacks/{stack}/logs/stream", h.streamStackLogs)
 				r.Get("/api/services/{service}/logs/stream", h.streamServiceLogs)
 				r.Get("/api/events/stream", h.streamEvents)
