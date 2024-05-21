@@ -99,6 +99,10 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         messages = messages.slice(-config.maxLogs);
       }
     } else {
+      if (messages.length == 0) {
+        // sort the buffer the very first time because of multiple logs in parallel
+        buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
+      }
       messages.push(...buffer);
       buffer = [];
     }
