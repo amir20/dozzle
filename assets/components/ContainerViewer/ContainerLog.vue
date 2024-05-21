@@ -5,7 +5,7 @@
         <ContainerTitle :container="container" />
         <MultiContainerStat class="ml-auto" :containers="[container]" />
 
-        <ContainerActionsToolbar @clear="onClearClicked()" class="mobile-hidden" />
+        <ContainerActionsToolbar @clear="viewer?.clear()" class="mobile-hidden" :container="container" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
           <mdi:close />
         </a>
@@ -44,20 +44,11 @@ const close = defineEmit();
 
 const store = useContainerStore();
 const container = store.currentContainer($$(id));
-
 const visibleKeys = persistentVisibleKeysForContainer(container);
-provideContainerContext(container);
-
-provideLoggingContext();
 
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
-const onClearClicked = () => viewer.value?.clear();
+provideContainerContext(container); // TODO remove
 
-onKeyStroke("k", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    onClearClicked();
-    e.preventDefault();
-  }
-});
+provideLoggingContext(toRef(() => [container.value]));
 </script>

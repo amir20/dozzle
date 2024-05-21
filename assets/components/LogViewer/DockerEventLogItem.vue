@@ -11,7 +11,12 @@
         {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
       </div>
       <div>
-        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
+        <TimedButton
+          v-if="automaticRedirect && containers.length == 1"
+          class="btn-primary btn-sm"
+          @finished="redirectNow()"
+          >Cancel</TimedButton
+        >
         <router-link
           :to="{ name: 'container-id', params: { id: nextContainer.id } }"
           class="btn btn-primary btn-sm"
@@ -33,18 +38,16 @@ const { logEntry } = defineProps<{
   logEntry: DockerEventLogEntry;
 }>();
 
-const store = useContainerStore();
-const { containers } = storeToRefs(store);
-const { container } = useContainerContext();
+const { containers } = useLoggingContext();
 
 const nextContainer = computed(
   () =>
     [
       ...containers.value.filter(
         (c) =>
-          c.host === container.value.host &&
+          c.host === containers.value[0].host &&
           c.created > logEntry.date &&
-          c.name === container.value.name &&
+          c.name === containers.value[0].name &&
           c.state === "running",
       ),
     ].sort((a, b) => +a.created - +b.created)[0],

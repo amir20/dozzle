@@ -41,11 +41,10 @@ const { name, scrollable = false } = defineProps<{
 
 const visibleKeys = ref<string[][]>([]);
 
-provideLoggingContext();
-
 const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
 const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
+provideLoggingContext(toRef(() => stack.value.containers));
 
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 

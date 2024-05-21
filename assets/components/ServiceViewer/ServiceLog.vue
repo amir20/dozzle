@@ -38,20 +38,9 @@ const { name, scrollable = false } = defineProps<{
 
 const visibleKeys = ref<string[][]>([]);
 
-provideLoggingContext();
-
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
 
-const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
-
-const onClearClicked = () => viewer.value?.clear();
-
-onKeyStroke("k", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    onClearClicked();
-    e.preventDefault();
-  }
-});
+provideLoggingContext(toRef(() => service.value.containers));
 </script>

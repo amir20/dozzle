@@ -40,7 +40,7 @@ const containers = computed(() => ids.map((id) => allContainersById.value[id]));
 
 const visibleKeys = ref<string[][]>([]);
 
-provideLoggingContext();
+provideLoggingContext(containers);
 
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 

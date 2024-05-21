@@ -101,13 +101,16 @@
 </template>
 
 <script lang="ts" setup>
+import { Container } from "@/models/Container";
+
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
 
 const clear = defineEmit();
 
-const { container } = useContainerContext();
 const { streamConfig } = useLoggingContext();
+
+const { container } = defineProps<{ container: Container }>();
 
 // container context is provided in the parent component: <LogContainer>
 const { actionStates, start, stop, restart } = useContainerActions();
@@ -120,7 +123,7 @@ const downloadParams = computed(() =>
 
 const downloadUrl = computed(() =>
   withBase(
-    `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
+    `/api/hosts/${container.host}/containers/${container.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
   ),
 );
 

@@ -28,4 +28,11 @@ const source = $ref<InstanceType<typeof LogEventSource>>();
 defineExpose({
   clear: () => source?.clear(),
 });
+
+onKeyStroke("k", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    source?.clear();
+    e.preventDefault();
+  }
+});
 </script>
