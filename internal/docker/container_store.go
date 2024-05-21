@@ -129,12 +129,13 @@ func (s *ContainerStore) init() {
 
 			case "die":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
-					if !loaded {
-						return nil, false
+					if loaded {
+						log.Debugf("container %s died", c.ID)
+						c.State = "exited"
+						return c, false
+					} else {
+						return c, true
 					}
-					log.Debugf("container %s died", c.ID)
-					c.State = "exited"
-					return c, false
 				})
 			case "health_status: healthy", "health_status: unhealthy":
 				healthy := "unhealthy"
@@ -143,12 +144,13 @@ func (s *ContainerStore) init() {
 				}
 
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
-					if !loaded {
-						return nil, false
+					if loaded {
+						log.Debugf("health status for container %s is %s", c.ID, healthy)
+						c.Health = healthy
+						return c, false
+					} else {
+						return c, true
 					}
-					log.Debugf("container %s is %s", c.ID, healthy)
-					c.Health = healthy
-					return c, false
 				})
 			}
 			s.subscribers.Range(func(c context.Context, events chan ContainerEvent) bool {
