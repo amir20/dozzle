@@ -128,19 +128,30 @@ func (s *ContainerStore) init() {
 				s.containers.Delete(event.ActorID)
 
 			case "die":
-				if container, ok := s.containers.Load(event.ActorID); ok {
-					log.Debugf("container %s died", container.ID)
-					container.State = "exited"
-				}
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+					if loaded {
+						log.Debugf("container %s died", c.ID)
+						c.State = "exited"
+						return c, false
+					} else {
+						return c, true
+					}
+				})
 			case "health_status: healthy", "health_status: unhealthy":
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
 				}
-				if container, ok := s.containers.Load(event.ActorID); ok {
-					log.Debugf("container %s is %s", container.ID, healthy)
-					container.Health = healthy
-				}
+
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+					if loaded {
+						log.Debugf("health status for container %s is %s", c.ID, healthy)
+						c.Health = healthy
+						return c, false
+					} else {
+						return c, true
+					}
+				})
 			}
 			s.subscribers.Range(func(c context.Context, events chan ContainerEvent) bool {
 				select {
