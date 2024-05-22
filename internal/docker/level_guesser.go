@@ -3,6 +3,9 @@ package docker
 import (
 	"regexp"
 	"strings"
+
+	"github.com/iancoleman/orderedmap"
+	log "github.com/sirupsen/logrus"
 )
 
 var keyValueRegex = regexp.MustCompile(`level=(\w+)`)
@@ -42,6 +45,13 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return matches[1]
 		}
 
+	case *orderedmap.OrderedMap:
+		if level, ok := value.Get("level"); ok {
+			if level, ok := level.(string); ok {
+				return strings.ToLower(level)
+			}
+		}
+
 	case map[string]interface{}:
 		if level, ok := value["level"].(string); ok {
 			return strings.ToLower(level)
@@ -51,6 +61,9 @@ func guessLogLevel(logEvent *LogEvent) string {
 		if level, ok := value["level"]; ok {
 			return strings.ToLower(level)
 		}
+
+	default:
+		log.Debugf("unknown type to guess level: %T", value)
 	}
 
 	return ""

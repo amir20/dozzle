@@ -2,9 +2,15 @@ package docker
 
 import (
 	"testing"
+
+	"github.com/iancoleman/orderedmap"
 )
 
 func TestGuessLogLevel(t *testing.T) {
+	ordereddata := orderedmap.New()
+	ordereddata.Set("key", "value")
+	ordereddata.Set("level", "info")
+
 	tests := []struct {
 		input    any
 		expected string
@@ -29,6 +35,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{map[string]interface{}{"level": "INFO"}, "info"},
 		{map[string]string{"level": "info"}, "info"},
 		{map[string]string{"level": "INFO"}, "info"},
+		{ordereddata, "info"},
 	}
 
 	for _, test := range tests {
