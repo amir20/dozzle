@@ -96,6 +96,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/api/hosts/{host}/logs/mergedStream", h.streamLogsMerged)
 				r.Get("/api/stacks/{stack}/logs/stream", h.streamStackLogs)
 				r.Get("/api/services/{service}/logs/stream", h.streamServiceLogs)
+				r.Get("/api/groups/{group}/logs/stream", h.streamGroupedLogs)
 				r.Get("/api/events/stream", h.streamEvents)
 				if h.config.EnableActions {
 					r.Post("/api/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)

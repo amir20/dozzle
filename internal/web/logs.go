@@ -2,6 +2,7 @@ package web
 
 import (
 	"compress/gzip"
+	"context"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -116,6 +117,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (h *handler) newContainers(ctx context.Context) chan docker.Container {
+	containers := make(chan docker.Container)
+	for _, store := range h.stores {
+		store.SubscribeNewContainers(ctx, containers)
+	}
+
+	return containers
+}
+
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	container, err := h.clientFromRequest(r).FindContainer(id)
@@ -171,6 +181,69 @@ func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+
+		}
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamServiceLogs")
+				return
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
+	group := chi.URLParam(r, "group")
+	containers := make(chan docker.Container, 10)
+
+	go func() {
+		for _, store := range h.stores {
+			list, err := store.List()
+			if err != nil {
+				log.Errorf("error while listing containers %v", err.Error())
+				return
+			}
+
+			for _, container := range list {
+				if container.State == "running" && (container.Group == group) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			}
+		}
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Group == group) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamServiceLogs")
+				return
+			}
 		}
 	}()
 
@@ -190,7 +263,7 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 			}
 
 			for _, container := range list {
-				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack || container.Labels["com.docker.compose.project"] == stack) {
+				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
 					select {
 					case containers <- container:
 					case <-r.Context().Done():
@@ -200,7 +273,23 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamStackLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamStackLogs")
+				return
+			}
+		}
 	}()
 
 	streamLogsForContainers(w, r, h.clients, containers)

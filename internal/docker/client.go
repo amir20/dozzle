@@ -213,6 +213,10 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 		if len(c.Names) > 0 {
 			name = strings.TrimPrefix(c.Names[0], "/")
 		}
+		group := c.Labels["com.docker.compose.project"]
+		if c.Labels["dev.dozzle.group"] != "" {
+			group = c.Labels["dev.dozzle.group"]
+		}
 		container := Container{
 			ID:      c.ID[:12],
 			Names:   c.Names,
@@ -227,6 +231,7 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 			Health:  findBetweenParentheses(c.Status),
 			Labels:  c.Labels,
 			Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
+			Group:   group,
 		}
 		containers = append(containers, container)
 	}

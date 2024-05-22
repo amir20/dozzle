@@ -11,25 +11,27 @@ import (
 )
 
 type ContainerStore struct {
-	containers     *xsync.MapOf[string, *Container]
-	subscribers    *xsync.MapOf[context.Context, chan ContainerEvent]
-	client         Client
-	statsCollector *StatsCollector
-	wg             sync.WaitGroup
-	connected      atomic.Bool
-	events         chan ContainerEvent
-	ctx            context.Context
+	containers              *xsync.MapOf[string, *Container]
+	subscribers             *xsync.MapOf[context.Context, chan ContainerEvent]
+	newContainerSubscribers *xsync.MapOf[context.Context, chan Container]
+	client                  Client
+	statsCollector          *StatsCollector
+	wg                      sync.WaitGroup
+	connected               atomic.Bool
+	events                  chan ContainerEvent
+	ctx                     context.Context
 }
 
 func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:     xsync.NewMapOf[string, *Container](),
-		client:         client,
-		subscribers:    xsync.NewMapOf[context.Context, chan ContainerEvent](),
-		statsCollector: NewStatsCollector(client),
-		wg:             sync.WaitGroup{},
-		events:         make(chan ContainerEvent),
-		ctx:            ctx,
+		containers:              xsync.NewMapOf[string, *Container](),
+		client:                  client,
+		subscribers:             xsync.NewMapOf[context.Context, chan ContainerEvent](),
+		newContainerSubscribers: xsync.NewMapOf[context.Context, chan Container](),
+		statsCollector:          NewStatsCollector(client),
+		wg:                      sync.WaitGroup{},
+		events:                  make(chan ContainerEvent),
+		ctx:                     ctx,
 	}
 
 	s.wg.Add(1)
@@ -105,6 +107,10 @@ func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan Containe
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
+func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan Container) {
+	s.newContainerSubscribers.Store(ctx, containers)
+}
+
 func (s *ContainerStore) init() {
 	stats := make(chan ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
@@ -122,6 +128,14 @@ func (s *ContainerStore) init() {
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
 					s.containers.Store(container.ID, &container)
+					s.newContainerSubscribers.Range(func(c context.Context, containers chan Container) bool {
+						select {
+						case containers <- container:
+						case <-c.Done():
+							s.newContainerSubscribers.Delete(c)
+						}
+						return true
+					})
 				}
 			case "destroy":
 				log.Debugf("container %s destroyed", event.ActorID)

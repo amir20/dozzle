@@ -43,7 +43,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		}
 		store.SubscribeStats(ctx, stats)
 		store.Subscribe(ctx, events)
-
 	}
 
 	defer func() {
