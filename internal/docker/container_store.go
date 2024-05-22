@@ -73,7 +73,7 @@ func (s *ContainerStore) List() ([]Container, error) {
 	}
 	containers := make([]Container, 0)
 	s.containers.Range(func(_ string, c *Container) bool {
-		containers = append(containers, *c) // TODO race condition here
+		containers = append(containers, *c)
 		return true
 	})
 

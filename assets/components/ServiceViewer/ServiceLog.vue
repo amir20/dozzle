@@ -29,7 +29,6 @@
 <script lang="ts" setup>
 import { Service } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
-import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   scrollable?: boolean;

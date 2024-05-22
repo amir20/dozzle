@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 import { Stack } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
-import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   scrollable?: boolean;
@@ -45,15 +44,4 @@ const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
 const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
 provideLoggingContext(toRef(() => stack.value.containers));
-
-const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
-
-const onClearClicked = () => viewer.value?.clear();
-
-onKeyStroke("k", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    onClearClicked();
-    e.preventDefault();
-  }
-});
 </script>
