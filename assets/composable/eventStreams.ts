@@ -10,7 +10,7 @@ import {
   SkippedLogsEntry,
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
-import { Container } from "@/models/Container";
+import { Container, GroupedContainers } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data, (key, value) => {
@@ -54,6 +54,19 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(`/api/stacks/${stack.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
+  });
+
+  return useLogStream(url);
+}
+
+export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
+  const { streamConfig } = useLoggingContext();
+
+  const url = computed(() => {
+    const params = Object.entries(streamConfig)
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+    return withBase(`/api/groups/${group.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
   });
 
   return useLogStream(url);

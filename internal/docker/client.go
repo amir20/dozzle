@@ -213,10 +213,18 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 		if len(c.Names) > 0 {
 			name = strings.TrimPrefix(c.Names[0], "/")
 		}
-		group := c.Labels["com.docker.compose.project"]
+
+		group := c.Labels["com.docker.stack.namespace"]
+
+		if group == "" {
+			group = c.Labels["com.docker.compose.project"]
+		}
+
+		// priority to dev.dozzle.group
 		if c.Labels["dev.dozzle.group"] != "" {
 			group = c.Labels["dev.dozzle.group"]
 		}
+
 		container := Container{
 			ID:      c.ID[:12],
 			Names:   c.Names,

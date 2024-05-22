@@ -30,11 +30,11 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
 
               <router-link
-                :to="{ name: 'merged', query: { id: containers.map(({ id }) => id) } }"
-                class="btn btn-info btn-xs"
+                :to="{ name: 'group-name', params: { name: label } }"
+                class="btn btn-outline btn-primary btn-xs"
                 v-if="!label.startsWith('label.')"
               >
-                all
+                merged
               </router-link>
             </summary>
             <ul>
@@ -123,7 +123,7 @@ const menuItems = computed(() => {
   const singular = [];
 
   for (const item of sortedContainers.value) {
-    const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
+    const namespace = item.group;
     if (debouncedPinnedContainers.value.has(item.name)) {
       pinned.push(item);
     } else if (namespace) {

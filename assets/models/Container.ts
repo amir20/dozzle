@@ -16,6 +16,13 @@ const hosts = computed(() =>
   ),
 );
 
+export class GroupedContainers {
+  constructor(
+    public readonly name: string,
+    public readonly containers: Container[],
+  ) {}
+}
+
 export class Container {
   private _stat: Ref<Stat>;
   private readonly _statsHistory: Ref<Stat[]>;
@@ -34,6 +41,7 @@ export class Container {
     public status: string,
     public state: ContainerState,
     stats: Stat[],
+    public readonly group?: string,
     public health?: ContainerHealth,
   ) {
     this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));

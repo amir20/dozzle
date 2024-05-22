@@ -39,6 +39,7 @@ declare module 'vue' {
     EventSource: typeof import('./components/LogViewer/EventSource.vue')['default']
     FieldList: typeof import('./components/LogViewer/FieldList.vue')['default']
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
+    GroupedLog: typeof import('./components/GroupedViewer/GroupedLog.vue')['default']
     HostList: typeof import('./components/HostList.vue')['default']
     HostMenu: typeof import('./components/HostMenu.vue')['default']
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
