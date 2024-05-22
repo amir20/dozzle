@@ -6,7 +6,7 @@ import (
 
 func TestGuessLogLevel(t *testing.T) {
 	tests := []struct {
-		input    string
+		input    any
 		expected string
 	}{
 		{"ERROR: Something went wrong", "error"},
@@ -25,6 +25,10 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[foo] [ ERROR] Something went wrong", "error"},
 		{"123 ERROR Something went wrong", "error"},
 		{"123 Something went wrong", ""},
+		{map[string]interface{}{"level": "info"}, "info"},
+		{map[string]interface{}{"level": "INFO"}, "info"},
+		{map[string]string{"level": "info"}, "info"},
+		{map[string]string{"level": "INFO"}, "info"},
 	}
 
 	for _, test := range tests {
