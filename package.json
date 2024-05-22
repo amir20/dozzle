@@ -92,7 +92,7 @@
   "concurrently": "^8.2.2",
   "eventsourcemock": "^2.0.0",
   "jsdom": "^24.0.0",
-  "lint-staged": "^15.2.2",
+  "lint-staged": "^15.2.4",
   "prettier": "^3.2.5",
   "prettier-plugin-tailwindcss": "^0.5.14",
   "simple-git-hooks": "^2.11.1",
