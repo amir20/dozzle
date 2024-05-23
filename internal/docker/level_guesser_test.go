@@ -3,11 +3,11 @@ package docker
 import (
 	"testing"
 
-	"github.com/iancoleman/orderedmap"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestGuessLogLevel(t *testing.T) {
-	ordereddata := orderedmap.New()
+	ordereddata := orderedmap.New[string, any]()
 	ordereddata.Set("key", "value")
 	ordereddata.Set("level", "info")
 

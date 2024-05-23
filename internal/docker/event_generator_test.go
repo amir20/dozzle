@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iancoleman/orderedmap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestEventGenerator_Events_tty(t *testing.T) {
@@ -81,8 +81,9 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 }
 
 func Test_createEvent(t *testing.T) {
-	data := orderedmap.New()
-	data.Set("key", "value")
+	data := orderedmap.New[string, any]()
+	data.Set("xyz", "value")
+	data.Set("abc", "value2")
 	type args struct {
 		message string
 	}
@@ -102,7 +103,7 @@ func Test_createEvent(t *testing.T) {
 		}, {
 			name: "simple json message",
 			args: args{
-				message: "2020-05-13T18:55:37.772853839Z {\"key\": \"value\"}",
+				message: "2020-05-13T18:55:37.772853839Z {\"xyz\": \"value\", \"abc\": \"value2\"}",
 			},
 			want: &LogEvent{
 				Message: data,
