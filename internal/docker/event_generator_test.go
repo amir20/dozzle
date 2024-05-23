@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iancoleman/orderedmap"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -80,6 +81,8 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 }
 
 func Test_createEvent(t *testing.T) {
+	data := orderedmap.New()
+	data.Set("key", "value")
 	type args struct {
 		message string
 	}
@@ -102,9 +105,7 @@ func Test_createEvent(t *testing.T) {
 				message: "2020-05-13T18:55:37.772853839Z {\"key\": \"value\"}",
 			},
 			want: &LogEvent{
-				Message: map[string]interface{}{
-					"key": "value",
-				},
+				Message: data,
 			},
 		},
 		{
