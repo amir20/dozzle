@@ -41,10 +41,10 @@ services:
 If you are in a private network then you can use [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) which expose `docker.sock` file without the need of TLS. Dozzle will never try to write to Docker but it will need access to list APIs. The following command will start a proxy with minimal access.
 
 ```sh
-docker container run --privileged -e CONTAINERS=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
+docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
 ```
 
-Note that `CONTAINERS=1` is required to list running containers. `EVENTS` is also needed but it is enabled by default.
+> [!INFO] > `CONTAINERS=1` is required to list running containers. `EVENTS` is also needed but it is enabled by default. `INFO=1` is optional but it will provide more information on host meta data.
 
 Running Dozzle without any certs should work. Here is an example:
 

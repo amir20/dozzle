@@ -67,7 +67,7 @@ Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate toke
 
 ### Generating users.yml
 
-Starting with version `v6.6.x`, Dozzle has a builtin `generate` sub-command which can be used to create a `users.yml`.
+Starting with version `v6.6.x`, Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
