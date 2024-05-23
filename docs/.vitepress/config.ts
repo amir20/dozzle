@@ -64,6 +64,7 @@ export default defineConfig({
         text: "Advanced Configuration",
         items: [
           { text: "Authentication", link: "/guide/authentication" },
+          { text: "Swarm Mode", link: "/guide/swarm-mode" },
           { text: "Changing Base", link: "/guide/changing-base" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
           { text: "Hostname", link: "/guide/hostname" },

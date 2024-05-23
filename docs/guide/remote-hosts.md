@@ -10,7 +10,7 @@ Dozzle supports connecting to multiple remote hosts via `tcp://` using TLS and n
 
 Remote hosts can be configured with `--remote-host` or `DOZZLE_REMOTE_HOST`. All certs must be mounted to `/certs` directory. The `/certs` directory expects to have `/certs/{ca,cert,key}.pem` or `/certs/{host}/{ca,cert,key}.pem` in case of multiple hosts.
 
-Note the `{host}` value referred to here is the IP or FQDN configured and not the [optional label](#adding-labels-to-hosts). 
+Note the `{host}` value referred to here is the IP or FQDN configured and not the [optional label](#adding-labels-to-hosts).
 
 Multiple `--remote-host` flags can be used to specify multiple hosts. However, using `DOZZLE_REMOTE_HOST` the value should be comma separated.
 
@@ -52,9 +52,8 @@ Running Dozzle without any certs should work. Here is an example:
 docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle --remote-host tcp://123.1.1.1:2375
 ```
 
-::: warning
-Exposing `docker.sock` publicly is not safe. Only use a proxy for an internal network where all clients are trusted.
-:::
+> [!WARNING]
+> Docker Socket Proxy is not recommended for production use. It is only for private networks.
 
 ## Adding labels to hosts
 
