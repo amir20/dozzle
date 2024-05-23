@@ -34,12 +34,12 @@ const { name, scrollable = false } = defineProps<{
 
 const containerStore = useContainerStore();
 
-const { ready, grouped } = storeToRefs(containerStore) as unknown as {
-  ready: Ref<boolean>;
-  grouped: Ref<GroupedContainers[]>;
-};
+const { ready } = storeToRefs(containerStore);
 
-const group = computed(() => grouped.value.find((g) => g.name === name) ?? new GroupedContainers("", []));
+const swarmStore = useSwarmStore();
+const { customGroups } = storeToRefs(swarmStore);
+
+const group = computed(() => customGroups.value.find((g) => g.name === name) ?? new GroupedContainers("", []));
 
 const visibleKeys = ref<string[][]>([]);
 provideLoggingContext(toRef(() => group.value.containers));
