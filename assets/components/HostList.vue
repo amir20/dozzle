@@ -3,7 +3,9 @@
     <li v-for="host in hosts" class="card bg-base-lighter">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="overflow-hidden">
-          <div class="truncate text-xl font-semibold">{{ host.name }}</div>
+          <div class="truncate text-xl font-semibold">
+            {{ host.name }} <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+          </div>
           <ul class="flex flex-row gap-2 text-sm md:gap-4">
             <li><ph:cpu class="inline-block" /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
             <li>
