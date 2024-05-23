@@ -23,7 +23,9 @@ label:
   avg-mem: Avg. MEM (%)
   pinned: Pinned
   per-page: Rows per page
-
+  swarm-mode: Swam Mode
+  services: Services
+  custom-groups: Custom Groups
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

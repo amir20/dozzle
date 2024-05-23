@@ -1,7 +1,7 @@
 <template>
   <div v-if="ready" data-testid="side-menu">
     <Toggle v-model="showSwarm" v-if="services.length > 0 || customGroups.length > 0">
-      <div class="text-lg font-light">Swam Mode</div>
+      <div class="text-lg font-light">{{ $t("label.swarm-mode") }}</div>
     </Toggle>
 
     <SlideTransition :slide-right="showSwarm">

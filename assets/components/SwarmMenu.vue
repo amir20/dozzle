@@ -32,7 +32,7 @@
       <details open>
         <summary class="font-light text-base-content/80">
           <ph:circles-four />
-          Services
+          {{ $t("label.services") }}
         </summary>
         <ul>
           <li v-for="service in serivcesWithoutStacks" :key="service.name">
@@ -51,7 +51,7 @@
       <details open>
         <summary class="font-light text-base-content/80">
           <ph:bounding-box-fill />
-          Custom Groups
+          {{ $t("label.custom-groups") }}
         </summary>
         <ul>
           <li v-for="group in customGroups" :key="group.name">
