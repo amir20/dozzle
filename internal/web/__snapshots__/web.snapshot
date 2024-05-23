@@ -86,8 +86,8 @@ Connection: close
 Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: application/x-jsonl; charset=UTF-8
 
-{"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout"}
-{"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr"}
+{"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
+{"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
 
 /* snapshot: Test_handler_download_logs */
 INFO Testing logs...
@@ -148,17 +148,14 @@ X-Content-Type-Options: nosniff
 error finding container
 
 /* snapshot: Test_handler_streamLogs_error_reading */
-HTTP/1.1 500 Internal Server Error
+HTTP/1.1 200 OK
 Connection: close
 Cache-Control: no-transform
 Cache-Control: no-cache
 Connection: keep-alive
 Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/event-stream
 X-Accel-Buffering: no
-X-Content-Type-Options: nosniff
-
-test error
 
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
@@ -179,10 +176,10 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout"}
+data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
 
 event: container-stopped
-data: end of stream
+data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 HTTP/1.1 200 OK
@@ -194,9 +191,6 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-event: container-stopped
-data: end of stream
-
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 HTTP/1.1 200 OK
 Connection: close
@@ -207,8 +201,8 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout"}
+data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
 id: 1589396137772
 
 event: container-stopped
-data: end of stream
+data: {"actorId":"123456","name":"container-stopped","host":"localhost"}

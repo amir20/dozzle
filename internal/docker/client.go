@@ -63,7 +63,7 @@ type DockerCLI interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, string, StdType, int) (io.ReadCloser, error)
+	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
 	Events(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
@@ -301,7 +301,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 	}
 }
 
-func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType, tail int) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
 	if since != "" {
@@ -316,7 +316,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string,
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
 		Follow:     true,
-		Tail:       strconv.Itoa(tail),
+		Tail:       strconv.Itoa(100),
 		Timestamps: true,
 		Since:      since,
 	}

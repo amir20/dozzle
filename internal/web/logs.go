@@ -346,30 +346,26 @@ loop:
 			f.Flush()
 		case container := <-containers:
 			go func(container docker.Container) {
-				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes, 100)
+				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes)
 				if err != nil {
 					return
 				}
 				g := docker.NewEventGenerator(reader, container)
-				for {
-					select {
-					case event, ok := <-g.Events:
-						if !ok {
-							log.Debugf("stream closed for container %v", container.ID)
-							return
-						}
-						logs <- event
-					case err := <-g.Errors:
-						if err != nil {
-							if err == io.EOF {
-								log.WithError(err).Debugf("stream closed for container %v", container.Name)
-								events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
-							} else if err != r.Context().Err() {
-								log.Errorf("unknown error while streaming %v", err.Error())
-							}
-							return
+				for event := range g.Events {
+					logs <- event
+				}
+				select {
+				case err := <-g.Errors:
+					if err != nil {
+						if err == io.EOF {
+							log.WithError(err).Debugf("stream closed for container %v", container.Name)
+							events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+						} else if err != r.Context().Err() {
+							log.Errorf("unknown error while streaming %v", err.Error())
 						}
 					}
+				default:
+					// do nothing
 				}
 			}(container)
 

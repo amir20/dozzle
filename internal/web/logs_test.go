@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
 	"io"
@@ -19,8 +20,11 @@ import (
 )
 
 func Test_handler_streamLogs_happy(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -32,8 +36,14 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	data := makeMessage("INFO Testing logs...", docker.STDOUT)
 
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false, Host: "localhost"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -44,7 +54,8 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -56,8 +67,14 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", docker.STDOUT)
 
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Host: "localhost"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, "", docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -68,7 +85,8 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -77,8 +95,14 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Host: "localhost"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -89,7 +113,8 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -98,7 +123,13 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container"))
+	mockedClient.On("FindContainer", id).Return(docker.Container{}, errors.New("error finding container")).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -108,8 +139,10 @@ func Test_handler_streamLogs_error_finding_container(t *testing.T) {
 }
 
 func Test_handler_streamLogs_error_reading(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
@@ -118,8 +151,14 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error"))
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Host: "localhost"}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, "", docker.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error")).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(50 * time.Millisecond)
+				cancel()
+			}()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -135,6 +174,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Host: "localhost"}, nil)
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
