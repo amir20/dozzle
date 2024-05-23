@@ -6,21 +6,17 @@
 <script lang="ts" setup>
 const { name } = defineProps<{ name: string }>();
 
-const containerStore = useContainerStore();
-const { ready, grouped } = storeToRefs(containerStore);
+const swarmStore = useSwarmStore();
+const { customGroups } = storeToRefs(swarmStore);
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
-const group = computed(() => grouped.value.find((g) => g.name === name));
+const group = computed(() => customGroups.value.find((g) => g.name === name));
 
 watchEffect(() => {
-  if (ready.value) {
-    if (group.value?.name) {
-      setTitle(group.value.name + " group");
-    } else {
-      setTitle("Not Found");
-    }
+  if (group.value?.name) {
+    setTitle(group.value.name + " group");
   }
 });
 </script>
