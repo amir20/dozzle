@@ -30,7 +30,11 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
 
               <router-link
-                :to="{ name: 'merged', query: { id: containers.map(({ id }) => id) } }"
+                :to="{
+                  name: 'merged-name',
+                  query: { id: containers.map(({ id }) => id) },
+                  params: { name: label.replace('label.', '') },
+                }"
                 class="btn btn-square btn-outline btn-primary btn-xs"
                 active-class="btn-active"
                 title="Merge all containers into one view"
