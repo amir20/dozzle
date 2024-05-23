@@ -30,11 +30,12 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
 
               <router-link
-                :to="{ name: 'stack-name', params: { name: label } }"
-                class="btn btn-info btn-xs"
-                v-if="!label.startsWith('label.')"
+                :to="{ name: 'merged', query: { id: containers.map(({ id }) => id) } }"
+                class="btn btn-square btn-outline btn-primary btn-xs"
+                active-class="btn-active"
+                title="Merge all containers into one view"
               >
-                all
+                <ph:arrows-merge />
               </router-link>
             </summary>
             <ul>
@@ -43,7 +44,7 @@
                   <router-link
                     :to="{ name: 'container-id', params: { id: item.id } }"
                     active-class="active-primary"
-                    @click.alt.stop.prevent="store.appendActiveContainer(item)"
+                    @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
                   >
                     <div class="truncate">
@@ -52,8 +53,8 @@
                     <ContainerHealth :health="item.health" />
                     <span
                       class="pin"
-                      @click.stop.prevent="store.appendActiveContainer(item)"
-                      v-show="!activeContainersById[item.id]"
+                      @click.stop.prevent="pinnedStore.pinContainer(item)"
+                      v-show="!pinnedStore.isPinned(item)"
                       :title="$t('tooltip.pin-column')"
                     >
                       <cil:columns />
@@ -83,9 +84,11 @@ import Stack from "~icons/ph/stack";
 // @ts-ignore
 import Containers from "~icons/octicon/container-24";
 
-const store = useContainerStore();
+const containerStore = useContainerStore();
+const { visibleContainers } = storeToRefs(containerStore);
 
-const { activeContainers, visibleContainers } = storeToRefs(store);
+const pinnedStore = usePinnedLogsStore();
+
 const { hosts } = useHosts();
 
 const setHost = (host: string | null) => (sessionHost.value = host);
@@ -121,7 +124,7 @@ const menuItems = computed(() => {
   const singular = [];
 
   for (const item of sortedContainers.value) {
-    const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
+    const namespace = item.group;
     if (debouncedPinnedContainers.value.has(item.name)) {
       pinned.push(item);
     } else if (namespace) {
@@ -156,16 +159,6 @@ const menuItems = computed(() => {
 
   return items;
 });
-
-const activeContainersById = computed(() =>
-  activeContainers.value.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, Container>,
-  ),
-);
 </script>
 <style scoped lang="postcss">
 .menu {

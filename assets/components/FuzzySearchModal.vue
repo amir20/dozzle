@@ -32,7 +32,7 @@
             </template>
             <span data-name v-html="matchedName(result)"></span>
           </div>
-          <distance-time :date="result.item.created" class="text-xs font-light" />
+          <DistanceTime :date="result.item.created" class="text-xs font-light" />
           <a
             @click.stop.prevent="addColumn(result.item)"
             :title="$t('tooltip.pin-column')"
@@ -62,8 +62,9 @@ const input = ref<HTMLInputElement>();
 const selectedIndex = ref(0);
 
 const router = useRouter();
-const store = useContainerStore();
-const { containers } = storeToRefs(store);
+const containerStore = useContainerStore();
+const pinnedStore = usePinnedLogsStore();
+const { containers } = storeToRefs(containerStore);
 
 const list = computed(() => {
   return containers.value.map(({ id, created, name, state, labels, hostLabel: host }) => {
@@ -121,7 +122,7 @@ function selected({ id }: { id: string }) {
   close();
 }
 function addColumn(container: { id: string }) {
-  store.appendActiveContainer(container);
+  pinnedStore.pinContainer(container);
   close();
 }
 

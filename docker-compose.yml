@@ -1,4 +1,3 @@
-version: "3.4"
 services:
   custom_base:
     container_name: custom_base

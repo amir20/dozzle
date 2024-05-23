@@ -27,15 +27,17 @@ const { indeterminate = false, autoHide = false } = defineProps<{
 
 const scrollProgress = ref(0);
 const root = ref<HTMLElement>();
-const store = useContainerStore();
-const { activeContainers } = storeToRefs(store);
+
+const pinnedLogsStore = usePinnedLogsStore();
+const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+
 const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
 const { y: scrollY } = useScroll(scrollElement as Ref<HTMLElement | Document>, { throttle: 100 });
 const show = autoResetRef(false, 2000);
 
 onMounted(() => {
   watch(
-    activeContainers,
+    pinnedLogs,
     () => {
       scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
     },

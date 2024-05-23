@@ -5,14 +5,17 @@
       <material-symbols:expand-all-rounded class="swap-off text-secondary" />
       <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
     </label>
+    <div v-if="showContainerName">
+      <ContainerName :id="logEntry.containerID" />
+    </div>
     <div v-if="showStd">
-      <log-std :std="logEntry.std"></log-std>
+      <LogStd :std="logEntry.std" />
     </div>
     <div v-if="showTimestamp">
-      <log-date :date="logEntry.date"></log-date>
+      <LogDate :date="logEntry.date" />
     </div>
     <div class="flex">
-      <log-level :level="logEntry.level"></log-level>
+      <LogLevel :level="logEntry.level" />
     </div>
     <div>
       <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
@@ -25,9 +28,9 @@
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
-      <field-list :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys"></field-list>
+      <FieldList :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys" />
     </div>
-    <log-message-actions
+    <LogMessageActions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
       :message="() => JSON.stringify(logEntry.message)"
       :log-entry="logEntry"
@@ -39,9 +42,10 @@ import { type ComplexLogEntry } from "@/models/LogEntry";
 
 const { markSearch } = useSearchFilter();
 
-const { logEntry } = defineProps<{
+const { logEntry, showContainerName = false } = defineProps<{
   logEntry: ComplexLogEntry;
   visibleKeys: string[][];
+  showContainerName?: boolean;
 }>();
 
 const [expanded, expandToggle] = useToggle();

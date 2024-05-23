@@ -1,6 +1,7 @@
+import { Container } from "@/models/Container";
+
 type ContainerActions = "start" | "stop" | "restart";
-export const useContainerActions = () => {
-  const { container } = useContainerContext();
+export const useContainerActions = (container: Ref<Container>) => {
   const { showToast } = useToast();
 
   const actionStates = reactive({

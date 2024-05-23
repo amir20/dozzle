@@ -1,6 +1,5 @@
 import { createTestingPinia } from "@pinia/testing";
 import { mount } from "@vue/test-utils";
-import { containerContext } from "@/composable/containerContext";
 import { useSearchFilter } from "@/composable/search";
 import { settings } from "@/stores/settings";
 // @ts-ignore
@@ -9,8 +8,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 import { createRouter, createWebHistory } from "vue-router";
-import LogEventSource from "./LogEventSource.vue";
-import ContainerLogViewer from "./ContainerLogViewer.vue";
+import { default as Component } from "./EventSource.vue";
+import LogViewer from "@/components/LogViewer/LogViewer.vue";
+import { Container } from "@/models/Container";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -21,7 +21,7 @@ vi.mock("@/stores/config", () => ({
 /**
  * @vitest-environment jsdom
  */
-describe("<LogEventSource />", () => {
+describe("<ContainerEventSource />", () => {
   const search = useSearchFilter();
 
   beforeEach(() => {
@@ -67,26 +67,29 @@ describe("<LogEventSource />", () => {
       ],
     });
 
-    return mount(LogEventSource, {
+    return mount(Component<Container>, {
       global: {
         plugins: [router, createTestingPinia({ createSpy: vi.fn }), createI18n({})],
         components: {
-          ContainerLogViewer,
+          LogViewer,
         },
         provide: {
-          [containerContext as symbol]: {
-            container: computed(() => ({ id: "abc", image: "test:v123", host: "localhost" })),
+          scrollingPaused: computed(() => false),
+          [loggingContextKey as symbol]: {
+            containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
             streamConfig: reactive({ stdout: true, stderr: true }),
           },
-          scrollingPaused: computed(() => false),
         },
       },
       slots: {
         default: `
-        <template #scoped="params"><container-log-viewer :messages="params.messages" /></template>
+        <template #scoped="params"><LogViewer :messages="params.messages" :show-container-name="false" :visible-keys="[]" /></template>
         `,
       },
-      props: {},
+      props: {
+        streamSource: useContainerStream,
+        entity: new Container("abc", new Date(), "image", "name", "command", "localhost", {}, "status", "created", []),
+      },
     });
   }
 

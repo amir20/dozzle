@@ -107,7 +107,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	g := docker.NewEventGenerator(reader, container.Tty)
+	g := docker.NewEventGenerator(reader, container)
 	encoder := json.NewEncoder(w)
 
 	for event := range g.Events {
@@ -117,9 +117,206 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+func (h *handler) newContainers(ctx context.Context) chan docker.Container {
+	containers := make(chan docker.Container)
+	for _, store := range h.stores {
+		store.SubscribeNewContainers(ctx, containers)
+	}
 
+	return containers
+}
+
+func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	container, err := h.clientFromRequest(r).FindContainer(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	containers := make(chan docker.Container, 1)
+	containers <- container
+
+	go func() {
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.ID == id {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamContainerLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamContainerLogs")
+				return
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
+	if !r.URL.Query().Has("id") {
+		http.Error(w, "ids query parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	containers := make(chan docker.Container, len(r.URL.Query()["id"]))
+
+	for _, id := range r.URL.Query()["id"] {
+		container, err := h.clientFromRequest(r).FindContainer(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		containers <- container
+	}
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
+	service := chi.URLParam(r, "service")
+	containers := make(chan docker.Container, 10)
+
+	go func() {
+		for _, store := range h.stores {
+			list, err := store.List()
+			if err != nil {
+				log.Errorf("error while listing containers %v", err.Error())
+				return
+			}
+
+			for _, container := range list {
+				if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			}
+
+		}
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamServiceLogs")
+				return
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
+	group := chi.URLParam(r, "group")
+	containers := make(chan docker.Container, 10)
+
+	go func() {
+		for _, store := range h.stores {
+			list, err := store.List()
+			if err != nil {
+				log.Errorf("error while listing containers %v", err.Error())
+				return
+			}
+
+			for _, container := range list {
+				if container.State == "running" && (container.Group == group) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			}
+		}
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Group == group) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamServiceLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamServiceLogs")
+				return
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
+	stack := chi.URLParam(r, "stack")
+	containers := make(chan docker.Container, 10)
+
+	go func() {
+		for _, store := range h.stores {
+			list, err := store.List()
+			if err != nil {
+				log.Errorf("error while listing containers %v", err.Error())
+				return
+			}
+
+			for _, container := range list {
+				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamStackLogs")
+						return
+					}
+				}
+			}
+		}
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamStackLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamStackLogs")
+				return
+			}
+		}
+	}()
+
+	streamLogsForContainers(w, r, h.clients, containers)
+}
+
+func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map[string]docker.Client, containers chan docker.Container) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= docker.STDOUT
@@ -139,47 +336,22 @@ func (h *handler) streamLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	container, err := h.clientFromRequest(r).FindContainer(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-transform")
 	w.Header().Add("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
-	lastEventId := r.Header.Get("Last-Event-ID")
-	if len(r.URL.Query().Get("lastEventId")) > 0 {
-		lastEventId = r.URL.Query().Get("lastEventId")
-	}
-
-	reader, err := h.clientFromRequest(r).ContainerLogs(r.Context(), container.ID, lastEventId, stdTypes)
-	if err != nil {
-		if err == io.EOF {
-			fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
-			f.Flush()
-		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		return
-	}
+	logs := make(chan *docker.LogEvent)
+	events := make(chan *docker.ContainerEvent)
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	g := docker.NewEventGenerator(reader, container.Tty)
-
 loop:
 	for {
 		select {
-		case event, ok := <-g.Events:
-			if !ok {
-				log.WithFields(log.Fields{"id": id}).Debug("stream closed")
-				break loop
-			}
+		case event := <-logs:
 			if buf, err := json.Marshal(event); err != nil {
 				log.Errorf("json encoding error while streaming %v", err.Error())
 			} else {
@@ -193,27 +365,49 @@ loop:
 		case <-ticker.C:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
-		}
-	}
+		case container := <-containers:
+			go func(container docker.Container) {
+				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes)
+				if err != nil {
+					return
+				}
+				g := docker.NewEventGenerator(reader, container)
+				for event := range g.Events {
+					logs <- event
+				}
+				select {
+				case err := <-g.Errors:
+					if err != nil {
+						if err == io.EOF {
+							log.WithError(err).Debugf("stream closed for container %v", container.Name)
+							events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+						} else if err != r.Context().Err() {
+							log.Errorf("unknown error while streaming %v", err.Error())
+						}
+					}
+				default:
+					// do nothing
+				}
+			}(container)
 
-	select {
-	case err := <-g.Errors:
-		if err != nil {
-			if err == io.EOF {
-				log.Debugf("container stopped: %v", container.ID)
-				fmt.Fprintf(w, "event: container-stopped\ndata: end of stream\n\n")
+		case event := <-events:
+			log.Debugf("received container event %v", event)
+			if buf, err := json.Marshal(event); err != nil {
+				log.Errorf("json encoding error while streaming %v", err.Error())
+			} else {
+				fmt.Fprintf(w, "event: container-stopped\ndata: %s\n\n", buf)
 				f.Flush()
-			} else if err != context.Canceled {
-				log.Errorf("unknown error while streaming %v", err.Error())
 			}
+
+		case <-r.Context().Done():
+			log.Debugf("context cancelled")
+			break loop
 		}
-	default:
 	}
 
 	if log.IsLevelEnabled(log.DebugLevel) {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		// For info on each, see: https://golang.org/pkg/runtime/#MemStats
 		log.WithFields(log.Fields{
 			"allocated":      humanize.Bytes(m.Alloc),
 			"totalAllocated": humanize.Bytes(m.TotalAlloc),

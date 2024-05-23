@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] text-sm" :size="size">
+  <div class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em]" :size="size">
     <slot></slot>
   </div>
 </template>

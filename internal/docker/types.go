@@ -22,6 +22,7 @@ type Container struct {
 	Tty     bool                             `json:"-"`
 	Labels  map[string]string                `json:"labels,omitempty"`
 	Stats   *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	Group   string                           `json:"group,omitempty"`
 }
 
 // ContainerStat represent stats instant for a container
@@ -48,12 +49,13 @@ const (
 )
 
 type LogEvent struct {
-	Message   any         `json:"m,omitempty"`
-	Timestamp int64       `json:"ts"`
-	Id        uint32      `json:"id,omitempty"`
-	Level     string      `json:"l,omitempty"`
-	Position  LogPosition `json:"p,omitempty"`
-	Stream    string      `json:"s,omitempty"`
+	Message     any         `json:"m,omitempty"`
+	Timestamp   int64       `json:"ts"`
+	Id          uint32      `json:"id,omitempty"`
+	Level       string      `json:"l,omitempty"`
+	Position    LogPosition `json:"p,omitempty"`
+	Stream      string      `json:"s,omitempty"`
+	ContainerID string      `json:"c,omitempty"`
 }
 
 func (l *LogEvent) HasLevel() bool {

@@ -8,7 +8,7 @@
       <li>
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
-          <key-shortcut char="k" :modifiers="['shift', 'meta']"></key-shortcut>
+          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
       <li>
@@ -17,7 +17,7 @@
       <li>
         <a @click.prevent="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
-          <key-shortcut char="f"></key-shortcut>
+          <KeyShortcut char="f" />
         </a>
       </li>
       <li class="line"></li>
@@ -101,15 +101,18 @@
 </template>
 
 <script lang="ts" setup>
+import { Container } from "@/models/Container";
+
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
 
 const clear = defineEmit();
 
-const { container, streamConfig } = useContainerContext();
+const { streamConfig } = useLoggingContext();
 
-// container context is provided in the parent component: <LogContainer>
-const { actionStates, start, stop, restart } = useContainerActions();
+const { container } = defineProps<{ container: Container }>();
+
+const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 const downloadParams = computed(() =>
   Object.entries(streamConfig)
@@ -119,7 +122,7 @@ const downloadParams = computed(() =>
 
 const downloadUrl = computed(() =>
   withBase(
-    `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
+    `/api/hosts/${container.host}/containers/${container.id}/logs/download?${new URLSearchParams(downloadParams.value).toString()}`,
   ),
 );
 

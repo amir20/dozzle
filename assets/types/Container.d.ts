@@ -17,6 +17,7 @@ export type ContainerJson = {
   readonly labels: Record<string, string>;
   readonly stats: ContainerStat[];
   readonly health?: ContainerHealth;
+  readonly group?: string;
 };
 
 export type ContainerState = "created" | "running" | "exited" | "dead" | "paused" | "restarting";

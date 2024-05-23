@@ -17,22 +17,24 @@
         {{ container.swarmId }}
       </div>
     </div>
-    <container-health :health="container.health" v-if="container.health"></container-health>
-    <tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+    <ContainerHealth :health="container.health" v-if="container.health" />
+    <Tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
       {{ container.image.replace(/@sha.*/, "") }}
-    </tag>
+    </Tag>
   </div>
 </template>
 
 <script lang="ts" setup>
-const { container } = useContainerContext();
+import { Container } from "@/models/Container";
+
+const { container } = defineProps<{ container: Container }>();
 const pinned = computed({
-  get: () => pinnedContainers.value.has(container.value.name),
+  get: () => pinnedContainers.value.has(container.name),
   set: (value) => {
     if (value) {
-      pinnedContainers.value.add(container.value.name);
+      pinnedContainers.value.add(container.name);
     } else {
-      pinnedContainers.value.delete(container.value.name);
+      pinnedContainers.value.delete(container.name);
     }
   },
 });

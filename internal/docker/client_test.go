@@ -149,7 +149,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 	b = append(b, []byte(expected)...)
 
 	reader := io.NopCloser(bytes.NewReader(b))
-	options := container.LogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "300", Timestamps: true, Since: "since"}
+	options := container.LogsOptions{ShowStdout: true, ShowStderr: true, Follow: true, Tail: "100", Timestamps: true, Since: "since"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
 	client := &httpClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}, system.Info{}}

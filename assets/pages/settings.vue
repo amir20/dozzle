@@ -1,5 +1,5 @@
 <template>
-  <page-with-links>
+  <PageWithLinks>
     <section>
       <div class="has-underline">
         <h2>{{ $t("settings.about") }}</h2>
@@ -21,17 +21,17 @@
 
       <section class="grid-cols-2 gap-4 @3xl:grid">
         <div class="flex flex-col gap-2 text-balance @3xl:pr-8">
-          <toggle v-model="compact"> {{ $t("settings.compact") }} </toggle>
+          <Toggle v-model="compact"> {{ $t("settings.compact") }} </Toggle>
 
-          <toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </toggle>
+          <Toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </Toggle>
 
-          <toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</toggle>
+          <Toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</Toggle>
 
-          <toggle v-model="showStd">{{ $t("settings.show-std") }}</toggle>
+          <Toggle v-model="showStd">{{ $t("settings.show-std") }}</Toggle>
 
-          <toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</toggle>
+          <Toggle v-model="softWrap">{{ $t("settings.soft-wrap") }}</Toggle>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.locale") }}
             </template>
@@ -44,9 +44,9 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.datetime-format") }}
             </template>
@@ -72,9 +72,9 @@
                 />
               </div>
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.font-size") }}
             </template>
@@ -88,9 +88,9 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
 
-          <labeled-input>
+          <LabeledInput>
             <template #label>
               {{ $t("settings.color-scheme") }}
             </template>
@@ -104,12 +104,13 @@
                 ]"
               />
             </template>
-          </labeled-input>
+          </LabeledInput>
         </div>
-        <log-viewer
+        <LogList
           :messages="fakeMessages"
           :visible-keys="keys"
           :last-selected-item="undefined"
+          :show-container-name="false"
           class="hidden overflow-hidden rounded-lg border border-base-content/50 shadow @3xl:block"
         />
       </section>
@@ -133,7 +134,7 @@
         <toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</toggle>
       </div>
     </section>
-  </page-with-links>
+  </PageWithLinks>
 </template>
 
 <script lang="ts" setup>
@@ -168,11 +169,11 @@ const hoursAgo = (hours: number) => {
 };
 
 const fakeMessages = [
-  new SimpleLogEntry("This is a preview of the logs", 1, hoursAgo(16), "info", undefined, "stdout"),
-  new SimpleLogEntry("A warning log looks like this", 2, hoursAgo(12), "warn", undefined, "stdout"),
-  new SimpleLogEntry("This is a multi line error message", 3, hoursAgo(7), "error", "start", "stderr"),
-  new SimpleLogEntry("with a second line", 4, hoursAgo(2), "error", "middle", "stderr"),
-  new SimpleLogEntry("and finally third line.", 5, new Date(), "error", "end", "stderr"),
+  new SimpleLogEntry("This is a preview of the logs", "123", 1, hoursAgo(16), "info", undefined, "stdout"),
+  new SimpleLogEntry("A warning log looks like this", "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
+  new SimpleLogEntry("This is a multi line error message", "123", 3, hoursAgo(7), "error", "start", "stderr"),
+  new SimpleLogEntry("with a second line", "123", 4, hoursAgo(2), "error", "middle", "stderr"),
+  new SimpleLogEntry("and finally third line.", "123", 5, new Date(), "error", "end", "stderr"),
   new ComplexLogEntry(
     {
       message: "This is a complex log entry as json",
@@ -181,6 +182,7 @@ const fakeMessages = [
         key2: "value2",
       },
     },
+    "123",
     6,
     new Date(),
     "info",
@@ -189,6 +191,7 @@ const fakeMessages = [
   ),
   new SimpleLogEntry(
     "This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+    "123",
     7,
     new Date(),
     "debug",

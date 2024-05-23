@@ -2,7 +2,7 @@ import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Con
 import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
-type Stat = Omit<ContainerStat, "id">;
+export type Stat = Omit<ContainerStat, "id">;
 
 const SWARM_ID_REGEX = /(\.[a-z0-9]{25})+$/i;
 
@@ -15,6 +15,13 @@ const hosts = computed(() =>
     {} as Record<string, { name: string; id: string }>,
   ),
 );
+
+export class GroupedContainers {
+  constructor(
+    public readonly name: string,
+    public readonly containers: Container[],
+  ) {}
+}
 
 export class Container {
   private _stat: Ref<Stat>;
@@ -34,6 +41,7 @@ export class Container {
     public status: string,
     public state: ContainerState,
     stats: Stat[],
+    public readonly group?: string,
     public health?: ContainerHealth,
   ) {
     this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));
@@ -66,6 +74,14 @@ export class Container {
 
   get storageKey() {
     return `${stripVersion(this.image)}:${this.command}`;
+  }
+
+  get namespace() {
+    return this.labels["com.docker.stack.namespace"] || this.labels["com.docker.compose.project"];
+  }
+
+  get customGroup() {
+    return this.group;
   }
 
   public updateStat(stat: Stat) {

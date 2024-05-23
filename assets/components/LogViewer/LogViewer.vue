@@ -1,67 +1,43 @@
 <template>
-  <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
-    <li
-      v-for="item in messages"
-      :key="item.id"
-      :data-key="item.id"
-      :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
-      class="group/entry"
-    >
-      <component :is="item.getComponent()" :log-entry="item" :visible-keys="visibleKeys" />
-    </li>
-  </ul>
+  <LogList
+    :messages="filtered"
+    :last-selected-item="lastSelectedItem"
+    :visible-keys="visibleKeys"
+    :show-container-name="showContainerName"
+  />
 </template>
 
 <script lang="ts" setup>
-import { toRaw } from "vue";
+import { useRouteHash } from "@vueuse/router";
 
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-defineProps<{
+const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: string[][];
-  lastSelectedItem: LogEntry<string | JSONObject> | undefined;
+  showContainerName: boolean;
 }>();
+
+const { messages, visibleKeys } = toRefs(props);
+
+const { filteredPayload } = useVisibleFilter(visibleKeys);
+const { filteredMessages } = useSearchFilter();
+
+const visible = filteredPayload(messages);
+const filtered = filteredMessages(visible);
+
+const { lastSelectedItem } = useLogSearchContext() as {
+  lastSelectedItem: Ref<LogEntry<string | JSONObject> | undefined>;
+};
+const routeHash = useRouteHash();
+watch(
+  routeHash,
+  (hash) => {
+    if (hash) {
+      document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
+    }
+  },
+  { immediate: true, flush: "post" },
+);
 </script>
-<style scoped lang="postcss">
-.events {
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    SF Mono,
-    Consolas,
-    Liberation Mono,
-    monaco,
-    Menlo,
-    monospace;
-
-  > li {
-    @apply flex break-words px-2 py-1 last:snap-end odd:bg-gray-400/[0.07] md:px-4;
-    &:last-child {
-      scroll-margin-block-end: 5rem;
-    }
-
-    .jump-context {
-      @apply mr-2 flex items-center font-sans text-secondary;
-    }
-  }
-
-  &.small {
-    @apply text-[0.7em];
-  }
-
-  &.medium {
-    @apply text-[0.8em];
-  }
-
-  &.large {
-    @apply text-lg;
-  }
-
-  &.compact {
-    > li {
-      @apply py-0;
-    }
-  }
-}
-</style>
+<style scoped lang="postcss"></style>
