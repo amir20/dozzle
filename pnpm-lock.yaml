@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@iconify-json/carbon':
-        specifier: ^1.1.33
-        version: 1.1.33
+        specifier: ^1.1.34
+        version: 1.1.34
       '@iconify-json/cil':
         specifier: ^1.1.8
         version: 1.1.8
@@ -120,8 +120,8 @@ importers:
         specifier: 5.2.11
         version: 5.2.11(@types/node@20.12.12)
       vite-plugin-compression2:
-        specifier: ^1.1.0
-        version: 1.1.0(rollup@4.17.2)
+        specifier: ^1.1.1
+        version: 1.1.1(rollup@4.17.2)
       vite-plugin-pages:
         specifier: ^0.32.1
         version: 0.32.1(@vue/compiler-sfc@3.4.27)(vite@5.2.11(@types/node@20.12.12))
@@ -145,8 +145,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3(pinia@2.1.7(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5)))(vue@3.4.27(typescript@5.4.5))
       '@playwright/test':
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       '@types/d3-array':
         specifier: ^3.2.1
         version: 3.2.1
@@ -667,8 +667,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@iconify-json/carbon@1.1.33':
-    resolution: {integrity: sha512-TsjyOqhqMhIEdUnteGPMoKvbY1SIsM8A4sASHIg+YiKoDGWqlwD/g4pLXoAoVj3NL3E1hRxoTIY1oqpndXIxvg==}
+  '@iconify-json/carbon@1.1.34':
+    resolution: {integrity: sha512-azvhc5HP+CilSrzSEfP4MezsG5n4tj+vIJLADhqCbFM1BOAmyDe/K1lTL9GLDluybsCvSqb15+6AIRb1jtKhpQ==}
 
   '@iconify-json/cil@1.1.8':
     resolution: {integrity: sha512-Fg///8GadSwAKu8fV2hAWEUDE1RNlu9BqWtZrtu10/lq517tunsaGrojOTW8bhkMrLshTQPgWKWg0kPBEK4h5w==}
@@ -809,8 +809,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.44.0':
-    resolution: {integrity: sha512-rNX5lbNidamSUorBhB4XZ9SQTjAqfe5M+p37Z8ic0jPFBMo5iCtQz1kRWkEMg+rYOKSlVycpQmpqjSFq7LXOfg==}
+  '@playwright/test@1.44.1':
+    resolution: {integrity: sha512-1hZ4TNvD5z9VuhNJ/walIjvMVvYkZKf71axoF/uiAqpntQJXpG64dlXhoDXE3OczPuTuvjf/M5KWFg5VAVUS3Q==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -2079,6 +2079,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2611,13 +2612,13 @@ packages:
   pkg-types@1.0.3:
     resolution: {integrity: sha512-nN7pYi0AQqJnoLPC9eHFQ8AcyaixBUOwvqc5TDnIKCMEE6I0y8P7OKA7fPexsXGCGxQDl/cmrLAp26LhcwxZ4A==}
 
-  playwright-core@1.44.0:
-    resolution: {integrity: sha512-ZTbkNpFfYcGWohvTTl+xewITm7EOuqIqex0c7dNZ+aXsbrLj0qI8XlGKfPpipjm0Wny/4Lt4CJsWJk1stVS5qQ==}
+  playwright-core@1.44.1:
+    resolution: {integrity: sha512-wh0JWtYTrhv1+OSsLPgFzGzt67Y7BE/ZS3jEqgGBlp2ppp1ZDj8c+9IARNW4dwf1poq5MgHreEM2KV/GuR4cFA==}
     engines: {node: '>=16'}
     hasBin: true
 
-  playwright@1.44.0:
-    resolution: {integrity: sha512-F9b3GUCLQ3Nffrfb6dunPOkE5Mh68tR7zN32L4jCk4FjQamgesGay7/dAAe1WaMEGV04DkdJfcJzjoCKygUaRQ==}
+  playwright@1.44.1:
+    resolution: {integrity: sha512-qr/0UJ5CFAtloI3avF95Y0L1xQo6r3LQArLIg/z/PoGJ6xa+EwzrwO5lpNr/09STxdHuUoP2mvuELJS+hLdtgg==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -3212,8 +3213,8 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  vite-plugin-compression2@1.1.0:
-    resolution: {integrity: sha512-LShCFOH2zHs3OMzPesayvkxsVOh6tAmV1FzrUpSLJ3F9HErQqsOaKpKHGzicuNDf01InvuGfwY5x1R5t2EMNAg==}
+  vite-plugin-compression2@1.1.1:
+    resolution: {integrity: sha512-LPo78ranFHUNl0OYL36uOpg3Lz2QHLP/0Ps9lgSYZ8UPZWgLaR5buWql0bzhO+DnMEiB1A8A8/hQzsMK83RZCg==}
 
   vite-plugin-pages@0.32.1:
     resolution: {integrity: sha512-4oPlIbb+J+zpJGfT2xI/27xqY+qTkRc3MBgWKfbW6IWM3CTcSyybuL9kRMCFRdBHfmgkF28qDs7fqVf/HjH1Xw==}
@@ -3810,7 +3811,7 @@ snapshots:
   '@esbuild/win32-x64@0.21.2':
     optional: true
 
-  '@iconify-json/carbon@1.1.33':
+  '@iconify-json/carbon@1.1.34':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -3980,9 +3981,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.44.0':
+  '@playwright/test@1.44.1':
     dependencies:
-      playwright: 1.44.0
+      playwright: 1.44.1
 
   '@polka/url@1.0.0-next.25': {}
 
@@ -5902,11 +5903,11 @@ snapshots:
       mlly: 1.6.1
       pathe: 1.1.2
 
-  playwright-core@1.44.0: {}
+  playwright-core@1.44.1: {}
 
-  playwright@1.44.0:
+  playwright@1.44.1:
     dependencies:
-      playwright-core: 1.44.0
+      playwright-core: 1.44.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -6571,7 +6572,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-compression2@1.1.0(rollup@4.17.2):
+  vite-plugin-compression2@1.1.1(rollup@4.17.2):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       gunzip-maybe: 1.4.2

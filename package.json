@@ -28,7 +28,7 @@
   "docs:preview": "vitepress preview docs"
  },
  "dependencies": {
-  "@iconify-json/carbon": "^1.1.33",
+  "@iconify-json/carbon": "^1.1.34",
   "@iconify-json/cil": "^1.1.8",
   "@iconify-json/ic": "^1.1.17",
   "@iconify-json/mdi": "^1.1.66",
@@ -65,7 +65,7 @@
   "unplugin-vue-components": "^0.27.0",
   "unplugin-vue-macros": "^2.9.2",
   "vite": "5.2.11",
-  "vite-plugin-compression2": "^1.1.0",
+  "vite-plugin-compression2": "^1.1.1",
   "vite-plugin-pages": "^0.32.1",
   "vite-plugin-vue-layouts": "^0.11.0",
   "vue": "^3.4.27",
@@ -75,7 +75,7 @@
  "devDependencies": {
   "@iconify-json/material-symbols": "^1.1.80",
   "@pinia/testing": "^0.1.3",
-  "@playwright/test": "^1.44.0",
+  "@playwright/test": "^1.44.1",
   "@types/d3-array": "^3.2.1",
   "@types/d3-ease": "^3.0.2",
   "@types/d3-scale": "^4.0.8",
