@@ -15,7 +15,7 @@ import (
 
 	"github.com/goccy/go-json"
 
-	"github.com/iancoleman/orderedmap"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"github.com/go-logfmt/logfmt"
 	log "github.com/sirupsen/logrus"
@@ -172,7 +172,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			message = strings.TrimSuffix(message[index+1:], "\n")
 			logEvent.Message = message
 			if json.Valid([]byte(message)) {
-				data := orderedmap.New()
+				data := orderedmap.New[string, any]()
 				if err := json.Unmarshal([]byte(message), &data); err != nil {
 					var jsonErr *json.UnmarshalTypeError
 					if errors.As(err, &jsonErr) {

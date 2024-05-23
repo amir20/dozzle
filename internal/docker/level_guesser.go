@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/iancoleman/orderedmap"
 	log "github.com/sirupsen/logrus"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 var keyValueRegex = regexp.MustCompile(`level=(\w+)`)
@@ -45,7 +45,7 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return matches[1]
 		}
 
-	case *orderedmap.OrderedMap:
+	case *orderedmap.OrderedMap[string, any]:
 		if level, ok := value.Get("level"); ok {
 			if level, ok := level.(string); ok {
 				return strings.ToLower(level)
