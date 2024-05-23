@@ -76,6 +76,14 @@ export class Container {
     return `${stripVersion(this.image)}:${this.command}`;
   }
 
+  get namespace() {
+    return this.labels["com.docker.stack.namespace"] || this.labels["com.docker.compose.project"];
+  }
+
+  get customGroup() {
+    return this.group;
+  }
+
   public updateStat(stat: Stat) {
     if (isRef(this._stat)) {
       this._stat.value = stat;

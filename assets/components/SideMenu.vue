@@ -1,6 +1,8 @@
 <template>
   <div v-if="ready" data-testid="side-menu">
-    <Toggle v-model="showSwarm" v-if="services.length > 0"> <div class="text-lg">Swam Mode</div> </Toggle>
+    <Toggle v-model="showSwarm" v-if="services.length > 0 || customGroups.length > 0">
+      <div class="text-lg font-light">Swam Mode</div>
+    </Toggle>
 
     <SlideTransition :slide-right="showSwarm">
       <template #left>
@@ -22,8 +24,8 @@ const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
 const swarmStore = useSwarmStore();
-const { services } = storeToRefs(swarmStore);
+const { services, customGroups } = storeToRefs(swarmStore);
 
-const showSwarm = ref(false);
+const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
 </script>
 <style scoped lang="postcss"></style>

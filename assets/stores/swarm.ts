@@ -1,17 +1,18 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
-import { Container } from "@/models/Container";
+import { Container, GroupedContainers } from "@/models/Container";
 import { Service, Stack } from "@/models/Stack";
 
 export const useSwarmStore = defineStore("swarm", () => {
   const containerStore = useContainerStore();
   const { containers } = storeToRefs(containerStore) as unknown as { containers: Ref<Container[]> };
 
+  const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
+
   const stacks = computed(() => {
-    const runningContainers = containers.value.filter((container) => container.state === "running");
     const namespaced: Record<string, Container[]> = {};
-    for (const item of runningContainers) {
-      const namespace = item.labels["com.docker.stack.namespace"] ?? item.labels["com.docker.compose.project"];
+    for (const item of runningContainers.value) {
+      const namespace = item.namespace;
       if (namespace === undefined) continue;
       namespaced[namespace] ||= [];
       namespaced[namespace].push(item);
@@ -44,10 +45,9 @@ export const useSwarmStore = defineStore("swarm", () => {
   const services = computed(() => {
     const services: Record<string, Container[]> = {};
 
-    for (const container of containers.value) {
+    for (const container of runningContainers.value) {
       const service = container.labels["com.docker.swarm.service.name"];
-      const namespace =
-        container.labels["com.docker.stack.namespace"] ?? container.labels["com.docker.compose.project"];
+      const namespace = container.namespace;
 
       if (service === undefined) continue;
       if (namespace) continue; // skip containers that already have a stack
@@ -62,9 +62,23 @@ export const useSwarmStore = defineStore("swarm", () => {
     return [...serviceWithStack, ...servicesWithoutStack];
   });
 
+  const customGroups = computed(() => {
+    const grouped: Record<string, Container[]> = {};
+
+    for (const container of runningContainers.value) {
+      const group = container.customGroup;
+      if (group === undefined) continue;
+      grouped[group] ||= [];
+      grouped[group].push(container);
+    }
+
+    return Object.entries(grouped).map(([name, containers]) => new GroupedContainers(name, containers));
+  });
+
   return {
     stacks,
     services,
+    customGroups,
   };
 });
 

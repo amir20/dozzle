@@ -136,6 +136,27 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 
 	containers := make(chan docker.Container, 1)
 	containers <- container
+
+	go func() {
+		newContainers := h.newContainers(r.Context())
+		for {
+			select {
+			case container := <-newContainers:
+				if container.ID == id {
+					select {
+					case containers <- container:
+					case <-r.Context().Done():
+						log.Debugf("closing container channel streamContainerLogs")
+						return
+					}
+				}
+			case <-r.Context().Done():
+				log.Debugf("closing container channel streamContainerLogs")
+				return
+			}
+		}
+	}()
+
 	streamLogsForContainers(w, r, h.clients, containers)
 }
 

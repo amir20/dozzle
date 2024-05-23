@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
-import { Container, GroupedContainers } from "@/models/Container";
+import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
 
 const { showToast, removeToast } = useToast();
@@ -23,24 +23,6 @@ export const useContainerStore = defineStore("container", () => {
       },
       {} as Record<string, Container>,
     ),
-  );
-
-  const grouped = computed(() =>
-    Object.entries(
-      visibleContainers.value.reduce(
-        (acc, container) => {
-          const group = container.group ?? "default";
-
-          if (!acc[group]) {
-            acc[group] = [];
-          }
-          acc[group].push(container);
-
-          return acc;
-        },
-        {} as Record<string, Container[]>,
-      ),
-    ).map(([name, containers]) => new GroupedContainers(name, containers)),
   );
 
   const visibleContainers = computed(() => {
@@ -175,7 +157,6 @@ export const useContainerStore = defineStore("container", () => {
     allContainersById,
     visibleContainers,
     currentContainer,
-    grouped,
     containerNames,
     ready,
   };

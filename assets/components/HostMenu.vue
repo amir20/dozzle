@@ -30,11 +30,12 @@
               {{ label.startsWith("label.") ? $t(label) : label }}
 
               <router-link
-                :to="{ name: 'group-name', params: { name: label } }"
-                class="btn btn-outline btn-primary btn-xs"
-                v-if="!label.startsWith('label.')"
+                :to="{ name: 'merged', query: { id: containers.map(({ id }) => id) } }"
+                class="btn btn-square btn-outline btn-primary btn-xs"
+                active-class="btn-active"
+                title="Merge all containers into one view"
               >
-                merged
+                <ph:arrows-merge />
               </router-link>
             </summary>
             <ul>

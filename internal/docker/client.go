@@ -214,13 +214,7 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 			name = strings.TrimPrefix(c.Names[0], "/")
 		}
 
-		group := c.Labels["com.docker.stack.namespace"]
-
-		if group == "" {
-			group = c.Labels["com.docker.compose.project"]
-		}
-
-		// priority to dev.dozzle.group
+		group := ""
 		if c.Labels["dev.dozzle.group"] != "" {
 			group = c.Labels["dev.dozzle.group"]
 		}
