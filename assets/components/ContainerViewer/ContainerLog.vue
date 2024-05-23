@@ -48,7 +48,5 @@ const visibleKeys = persistentVisibleKeysForContainer(container);
 
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
-provideContainerContext(container); // TODO remove
-
 provideLoggingContext(toRef(() => [container.value]));
 </script>
