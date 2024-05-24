@@ -7,7 +7,7 @@
   </div>
   <div
     class="alert alert-info mt-8 w-auto text-[1rem] md:mx-auto md:w-1/2"
-    v-if="nextContainer && logEntry.event === 'container-stopped'"
+    v-if="nextContainer && logEntry.event === 'container-stopped' && containers.length == 1"
   >
     <carbon:information class="size-6 shrink-0 stroke-current" />
     <div>
@@ -15,12 +15,7 @@
       {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
     </div>
     <div>
-      <TimedButton
-        v-if="automaticRedirect && containers.length == 1"
-        class="btn-primary btn-sm"
-        @finished="redirectNow()"
-        >Cancel</TimedButton
-      >
+      <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
       <router-link
         :to="{ name: 'container-id', params: { id: nextContainer.id } }"
         class="btn btn-primary btn-sm"
