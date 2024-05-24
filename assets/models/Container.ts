@@ -4,8 +4,6 @@ import { Ref } from "vue";
 
 export type Stat = Omit<ContainerStat, "id">;
 
-const SWARM_ID_REGEX = /(\.[a-z0-9]{25})+$/i;
-
 const hosts = computed(() =>
   config.hosts.reduce(
     (acc, item) => {
