@@ -8,9 +8,6 @@ Dozzle added "Swarm Mode" in version 7 which supports Docker [stacks](https://do
 
 Dozzle swarm mode is automatically enabled when services or customer groups are found. If you are not using services, you can still take advantage of Dozzle's grouping feature by adding a label to your containers.
 
-> [!IMPORTANT]
-> Version 7 is not released yet but you can try it by using the `master` tag with `amir20/dozzle:master`.
-
 ## Custom Groups
 
 Custom groups are created by adding a label to your container. The label is `dev.dozzle.group` and the value is the name of the group. All containers with the same group name will be joined together in the UI. For example, if you have a group named `myapp`, all containers with the label `dozzle.group=myapp` will be joined together.
