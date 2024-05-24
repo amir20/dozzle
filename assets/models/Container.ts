@@ -26,15 +26,14 @@ export class GroupedContainers {
 export class Container {
   private _stat: Ref<Stat>;
   private readonly _statsHistory: Ref<Stat[]>;
-  public readonly swarmId: string | null = null;
-  public readonly isSwarm: boolean = false;
   private readonly movingAverageStat: Ref<Stat>;
+  private readonly _name: string;
 
   constructor(
     public readonly id: string,
     public readonly created: Date,
     public readonly image: string,
-    public readonly name: string,
+    name: string,
     public readonly command: string,
     public readonly host: string,
     public readonly labels = {} as Record<string, string>,
@@ -48,12 +47,7 @@ export class Container {
     this._statsHistory = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
     this.movingAverageStat = useExponentialMovingAverage(this._stat, 0.2);
 
-    const match = name.match(SWARM_ID_REGEX);
-    if (match) {
-      this.swarmId = match[0];
-      this.name = name.replace(`${this.swarmId}`, "");
-      this.isSwarm = true;
-    }
+    this._name = name;
   }
 
   get statsHistory() {
@@ -82,6 +76,20 @@ export class Container {
 
   get customGroup() {
     return this.group;
+  }
+
+  get name() {
+    return this.isSwarm
+      ? this.labels["com.docker.swarm.task.name"].replace(`.${this.labels["com.docker.swarm.task.id"]}`, "")
+      : this._name;
+  }
+
+  get swarmId() {
+    return this.labels["com.docker.swarm.service.id"];
+  }
+
+  get isSwarm() {
+    return Boolean(this.labels["com.docker.swarm.service.id"]);
   }
 
   public updateStat(stat: Stat) {

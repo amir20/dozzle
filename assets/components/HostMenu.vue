@@ -52,7 +52,7 @@
                     :title="item.name"
                   >
                     <div class="truncate">
-                      {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">{{ item.swarmId }}</span>
+                      {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">.{{ item.swarmId }}</span>
                     </div>
                     <ContainerHealth :health="item.health" />
                     <span
