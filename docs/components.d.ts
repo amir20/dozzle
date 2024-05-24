@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BrowserWindow: typeof import('./.vitepress/theme/components/BrowserWindow.vue')['default']
+    BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
