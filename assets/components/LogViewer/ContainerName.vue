@@ -12,8 +12,6 @@ const { id } = defineProps<{
   id: string;
 }>();
 
-const { containers } = useLoggingContext();
-
 const colors = [
   "#4B0082",
   "#FF00FF",
@@ -32,10 +30,7 @@ const colors = [
   "#FF4040",
 ] as const;
 
-const color = computed(() => {
-  const index = containers.value.findIndex((container) => container.id === id);
-  return colors[index % colors.length];
-});
+const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 </script>
 
 <style lang="postcss" scoped>

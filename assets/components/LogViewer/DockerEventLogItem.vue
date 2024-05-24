@@ -1,33 +1,30 @@
 <template>
-  <div class="relative flex w-full items-start gap-x-2">
-    <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
-    <LogDate :date="logEntry.date" v-if="showTimestamp" />
-    <LogLevel class="flex" />
-    <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
-  </div>
-  <div
-    class="alert alert-info mt-8 w-auto text-[1rem] md:mx-auto md:w-1/2"
-    v-if="nextContainer && logEntry.event === 'container-stopped'"
-  >
-    <carbon:information class="size-6 shrink-0 stroke-current" />
-    <div>
-      <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
-      {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
+  <div class="flex w-full flex-col">
+    <div class="relative flex items-start gap-x-2">
+      <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
+      <LogDate :date="logEntry.date" v-if="showTimestamp" />
+      <LogLevel class="flex" />
+      <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
     </div>
-    <div>
-      <TimedButton
-        v-if="automaticRedirect && containers.length == 1"
-        class="btn-primary btn-sm"
-        @finished="redirectNow()"
-        >Cancel</TimedButton
-      >
-      <router-link
-        :to="{ name: 'container-id', params: { id: nextContainer.id } }"
-        class="btn btn-primary btn-sm"
-        v-else
-      >
-        Redirect
-      </router-link>
+    <div
+      class="alert alert-info mt-8 w-auto flex-none font-sans text-[1rem] md:mx-auto md:w-1/2"
+      v-if="nextContainer && logEntry.event === 'container-stopped'"
+    >
+      <carbon:information class="size-6 shrink-0 stroke-current" />
+      <div>
+        <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
+        {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
+      </div>
+      <div>
+        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
+        <router-link
+          :to="{ name: 'container-id', params: { id: nextContainer.id } }"
+          class="btn btn-primary btn-sm"
+          v-else
+        >
+          Redirect
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -44,29 +41,34 @@ const { logEntry } = defineProps<{
 
 const { containers } = useLoggingContext();
 
-const nextContainer = computed(
-  () =>
-    [
-      ...containers.value.filter(
-        (c) =>
-          c.host === containers.value[0].host &&
-          c.created > logEntry.date &&
-          c.name === containers.value[0].name &&
-          c.state === "running",
-      ),
-    ].sort((a, b) => +a.created - +b.created)[0],
+const store = useContainerStore();
+
+const { containers: allContainers } = storeToRefs(store);
+
+const nextContainer = computed(() =>
+  containers.value.length === 1 && logEntry.event === "container-stopped"
+    ? [
+        ...allContainers.value.filter(
+          (c) =>
+            c.host === containers.value[0].host &&
+            c.created > logEntry.date &&
+            c.name === containers.value[0].name &&
+            c.state === "running",
+        ),
+      ].sort((a, b) => +a.created - +b.created)[0]
+    : null,
 );
 
 function redirectNow() {
   showToast(
     {
       title: t("alert.redirected.title"),
-      message: t("alert.redirected.message", { containerId: nextContainer.value.id }),
+      message: t("alert.redirected.message", { containerId: nextContainer.value?.id }),
       type: "info",
     },
     { expire: 5000 },
   );
-  router.push({ name: "container-id", params: { id: nextContainer.value.id } });
+  router.push({ name: "container-id", params: { id: nextContainer.value?.id } });
 }
 </script>
 
