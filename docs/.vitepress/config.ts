@@ -83,6 +83,13 @@ export default defineConfig({
           { text: "Debugging", link: "/guide/debugging" },
         ],
       },
+      {
+        text: "About",
+        items: [
+          { text: "Team", link: "/team" },
+          { text: "Support", link: "/support" },
+        ],
+      },
     ],
 
     footer: {
