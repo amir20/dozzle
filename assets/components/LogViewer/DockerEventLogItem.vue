@@ -6,10 +6,7 @@
       <LogLevel class="flex" />
       <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
     </div>
-    <div
-      class="alert alert-info mt-8 w-auto flex-none font-sans text-[1rem] md:mx-auto md:w-1/2"
-      v-if="nextContainer && logEntry.event === 'container-stopped'"
-    >
+    <div class="alert alert-info mt-8 w-auto flex-none font-sans text-[1rem] md:mx-auto md:w-1/2" v-if="followEligible">
       <carbon:information class="size-6 shrink-0 stroke-current" />
       <div>
         <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
@@ -45,18 +42,25 @@ const store = useContainerStore();
 
 const { containers: allContainers } = storeToRefs(store);
 
-const nextContainer = computed(() =>
-  containers.value.length === 1 && logEntry.event === "container-stopped"
-    ? [
-        ...allContainers.value.filter(
-          (c) =>
-            c.host === containers.value[0].host &&
-            c.created > logEntry.date &&
-            c.name === containers.value[0].name &&
-            c.state === "running",
-        ),
-      ].sort((a, b) => +a.created - +b.created)[0]
-    : null,
+const nextContainer = computed(
+  () =>
+    [
+      ...allContainers.value.filter(
+        (c) =>
+          c.host === containers.value[0].host &&
+          c.created > logEntry.date &&
+          c.name === containers.value[0].name &&
+          c.state === "running",
+      ),
+    ].sort((a, b) => +a.created - +b.created)[0],
+);
+
+const followEligible = computed(
+  () =>
+    router.currentRoute.value.name === "container-id" &&
+    logEntry.event === "container-stopped" &&
+    containers.value.length === 1 &&
+    nextContainer.value !== undefined,
 );
 
 function redirectNow() {
