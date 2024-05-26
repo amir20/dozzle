@@ -1,5 +1,9 @@
 <template>
-  <ul class="events group py-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
+  <ul
+    class="events group py-4"
+    :class="{ 'disable-wrap': !softWrap, [size]: true, compact }"
+    v-if="messages.length > 0"
+  >
     <li
       v-for="item in messages"
       :key="item.id"
@@ -15,6 +19,9 @@
       />
     </li>
   </ul>
+  <div v-else class="m-4 text-center">
+    <span class="loading loading-ring loading-md text-primary"></span>
+  </div>
 </template>
 
 <script lang="ts" setup>
