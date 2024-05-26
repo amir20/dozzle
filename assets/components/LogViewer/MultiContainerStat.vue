@@ -14,7 +14,7 @@ const { containers } = defineProps<{
 }>();
 
 const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0 });
-let history = useSimpleRefHistory(totalStat, { capacity: 300 });
+const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
 watch(
   () => containers,
@@ -37,8 +37,7 @@ watch(
       );
       initial.push(stat);
     }
-
-    history = useSimpleRefHistory(totalStat, { capacity: 300, initial: initial.reverse() });
+    reset({ initial });
   },
   { immediate: true },
 );
@@ -71,8 +70,4 @@ const memoryData = computed(() =>
     value: formatBytes(stat.memoryUsage),
   })),
 );
-
-// watch(memoryData, () => {
-//   console.log(memoryData.value);
-// });
 </script>
