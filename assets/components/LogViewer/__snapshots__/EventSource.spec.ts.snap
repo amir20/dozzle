@@ -102,9 +102,9 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 </ul>"
 `;
 
-exports[`<ContainerEventSource /> > renders correctly 1`] = `
+exports[`<ContainerEventSource /> > renders loading correctly 1`] = `
 "<div class="flex min-h-[1px] justify-center"><span class="loading loading-bars loading-md mt-4 text-primary" style="display: none;"></span></div>
-<ul data-v-cf9ff940="" class="events group py-4 medium"></ul>"
+<div data-v-cf9ff940="" class="m-4 text-center"><span data-v-cf9ff940="" class="loading loading-ring loading-md text-primary"></span></div>"
 `;
 
 exports[`<ContainerEventSource /> > should parse messages 1`] = `

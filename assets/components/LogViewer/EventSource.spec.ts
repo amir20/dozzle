@@ -95,7 +95,7 @@ describe("<ContainerEventSource />", () => {
 
   const sourceUrl = "/api/hosts/localhost/containers/abc/logs/stream?stdout=1&stderr=1";
 
-  test("renders correctly", async () => {
+  test("renders loading correctly", async () => {
     const wrapper = createLogEventSource();
     expect(wrapper.html()).toMatchSnapshot();
   });
