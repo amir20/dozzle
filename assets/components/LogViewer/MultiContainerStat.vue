@@ -37,7 +37,7 @@ watch(
       );
       initial.push(stat);
     }
-    reset({ initial });
+    reset({ initial: initial.reverse() });
   },
   { immediate: true },
 );
