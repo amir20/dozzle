@@ -42,7 +42,8 @@ export class Container {
     public health?: ContainerHealth,
   ) {
     this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));
-    this._statsHistory = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
+    const { history } = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
+    this._statsHistory = history;
     this.movingAverageStat = useExponentialMovingAverage(this._stat, 0.2);
 
     this._name = name;

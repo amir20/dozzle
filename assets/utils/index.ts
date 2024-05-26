@@ -73,7 +73,11 @@ export function useSimpleRefHistory<T>(source: Ref<T>, options: UseSimpleRefHist
     { deep },
   );
 
-  return history;
+  const reset = ({ initial = [] }: Pick<UseSimpleRefHistoryOptions<T>, "initial">) => {
+    history.value = initial;
+  };
+
+  return { history, reset };
 }
 
 export function hashCode(str: string) {
