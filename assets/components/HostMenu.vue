@@ -50,13 +50,14 @@
                     active-class="active-primary"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
+                    class="group auto-cols-[auto_max-content_max-content]"
                   >
                     <div class="truncate">
                       {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">.{{ item.swarmId }}</span>
                     </div>
                     <ContainerHealth :health="item.health" />
                     <span
-                      class="pin"
+                      class="hidden hover:text-secondary group-hover:inline-block"
                       @click.stop.prevent="pinnedStore.pinContainer(item)"
                       v-show="!pinnedStore.isPinned(item)"
                       :title="$t('tooltip.pin-column')"
@@ -168,22 +169,7 @@ const menuItems = computed(() => {
 .menu {
   @apply text-[0.95rem];
 }
-.containers a {
-  @apply auto-cols-[auto_max-content_max-content];
-  .pin {
-    display: none;
 
-    &:hover {
-      @apply text-secondary;
-    }
-  }
-
-  &:hover {
-    .pin {
-      display: inline-block;
-    }
-  }
-}
 li.exited {
   @apply opacity-50;
 }

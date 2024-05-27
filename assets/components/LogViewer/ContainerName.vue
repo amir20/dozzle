@@ -1,7 +1,7 @@
 <template>
-  <div class="relative block w-40 overflow-hidden rounded px-1.5 text-center text-sm text-white">
-    <div class="random-color absolute inset-0 brightness-75"></div>
-    <div class="direction-rtl relative truncate">{{ containerNames[id] }}</div>
+  <div class="grid w-40 overflow-hidden rounded text-center text-sm text-white">
+    <div class="random-color col-start-1 row-start-1 brightness-75"></div>
+    <div class="direction-rtl col-start-1 row-start-1 truncate px-2 brightness-100">{{ containerNames[id] }}</div>
   </div>
 </template>
 <script lang="ts" setup>

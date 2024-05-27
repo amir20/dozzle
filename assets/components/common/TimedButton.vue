@@ -1,7 +1,7 @@
 <template>
   <button class="btn relative overflow-hidden" @click="cancel()">
     <div class="absolute inset-0 origin-left bg-white/30" ref="progress"></div>
-    <div class="z-10">
+    <div>
       <slot></slot>
     </div>
   </button>
@@ -13,9 +13,13 @@ const finished = defineEmit();
 const cancelled = defineEmit();
 let animation: Animation | undefined;
 
+const { duration = 4000 } = defineProps<{
+  duration?: number;
+}>();
+
 onMounted(async () => {
   animation = progress.value?.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
-    duration: 4000,
+    duration: duration,
     easing: "linear",
     fill: "forwards",
   });
