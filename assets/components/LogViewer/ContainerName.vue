@@ -4,14 +4,7 @@
     <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ containerNames[id] }}</div>
   </div>
 </template>
-<script lang="ts" setup>
-const containerStore = useContainerStore();
-const { containerNames } = storeToRefs(containerStore);
-
-const { id } = defineProps<{
-  id: string;
-}>();
-
+<script lang="ts">
 const colors = [
   "#4B0082",
   "#FF00FF",
@@ -29,6 +22,14 @@ const colors = [
   "#FFD700",
   "#FF4040",
 ] as const;
+</script>
+<script lang="ts" setup>
+const containerStore = useContainerStore();
+const { containerNames } = storeToRefs(containerStore);
+
+const { id } = defineProps<{
+  id: string;
+}>();
 
 const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 </script>
