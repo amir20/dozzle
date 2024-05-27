@@ -44,7 +44,7 @@
             </summary>
             <ul>
               <li v-for="item in containers" :class="item.state" :key="item.id">
-                <popup>
+                <Popup>
                   <router-link
                     :to="{ name: 'container-id', params: { id: item.id } }"
                     active-class="active-primary"
@@ -68,7 +68,7 @@
                   <template #content>
                     <ContainerPopup :container="item" />
                   </template>
-                </popup>
+                </Popup>
               </li>
             </ul>
           </details>
