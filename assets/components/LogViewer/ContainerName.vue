@@ -1,7 +1,7 @@
 <template>
   <div class="grid w-40 overflow-hidden rounded text-center text-sm text-white">
     <div class="random-color col-start-1 row-start-1 brightness-75"></div>
-    <div class="direction-rtl col-start-1 row-start-1 truncate px-2 brightness-100">{{ containerNames[id] }}</div>
+    <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ containerNames[id] }}</div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -36,9 +36,5 @@ const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 <style lang="postcss" scoped>
 .random-color {
   background-color: v-bind(color);
-}
-
-.direction-rtl {
-  direction: rtl;
 }
 </style>
