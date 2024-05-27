@@ -1,17 +1,10 @@
 <template>
-  <div class="relative block w-40 overflow-hidden rounded px-1.5 text-center text-sm text-white">
-    <div class="random-color absolute inset-0 brightness-75"></div>
-    <div class="direction-rtl relative truncate">{{ containerNames[id] }}</div>
+  <div class="grid w-40 overflow-hidden rounded text-center text-sm text-white">
+    <div class="random-color col-start-1 row-start-1 brightness-75"></div>
+    <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ containerNames[id] }}</div>
   </div>
 </template>
-<script lang="ts" setup>
-const containerStore = useContainerStore();
-const { containerNames } = storeToRefs(containerStore);
-
-const { id } = defineProps<{
-  id: string;
-}>();
-
+<script lang="ts">
 const colors = [
   "#4B0082",
   "#FF00FF",
@@ -29,6 +22,14 @@ const colors = [
   "#FFD700",
   "#FF4040",
 ] as const;
+</script>
+<script lang="ts" setup>
+const containerStore = useContainerStore();
+const { containerNames } = storeToRefs(containerStore);
+
+const { id } = defineProps<{
+  id: string;
+}>();
 
 const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 </script>
@@ -36,9 +37,5 @@ const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
 <style lang="postcss" scoped>
 .random-color {
   background-color: v-bind(color);
-}
-
-.direction-rtl {
-  direction: rtl;
 }
 </style>
