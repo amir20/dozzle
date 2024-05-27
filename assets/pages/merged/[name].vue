@@ -12,7 +12,7 @@ const route = useRoute();
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
-const ids = route.query.id as string[];
+const ids = toRef(() => route.query.id as string[]);
 
 watchEffect(() => {
   if (ready.value) {
