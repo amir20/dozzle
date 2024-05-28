@@ -23,7 +23,7 @@ label:
   avg-mem: Avg. MEM (%)
   pinned: Pinned
   per-page: Rows per page
-  swarm-mode: Swam Mode
+  swarm-mode: Swarm Mode
   services: Services
   custom-groups: Custom Groups
 tooltip:
