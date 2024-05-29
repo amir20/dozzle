@@ -12,7 +12,7 @@
       <LogStd :std="logEntry.std" />
     </div>
     <div v-if="showTimestamp">
-      <LogDate :date="logEntry.date" />
+      <LogDate :date="logEntry.date" class="select-none" />
     </div>
     <div class="flex">
       <LogLevel :level="logEntry.level" />

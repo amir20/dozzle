@@ -2,7 +2,7 @@
   <div class="relative flex w-full items-start gap-x-2">
     <LogStd :std="logEntry.std" v-if="showStd" />
     <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
-    <LogDate :date="logEntry.date" v-if="showTimestamp" />
+    <LogDate :date="logEntry.date" v-if="showTimestamp" class="select-none" />
     <LogLevel class="flex" :level="logEntry.level" :position="logEntry.position" />
     <div
       class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"
