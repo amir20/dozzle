@@ -180,28 +180,36 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(url, () => connect(), { immediate: true });
 
-  async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
+  async function loadOlderLogs() {
     if (!loadMoreUrl) return;
-    beforeLoading();
 
     const to = messages[0].date;
-    const last = messages[messages.length - 1].date;
+    const last = messages[Math.min(messages.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
 
-    const logs = await (
-      await fetch(
-        `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
-      )
-    ).text();
-    if (logs) {
-      const newMessages = logs
-        .trim()
-        .split("\n")
-        .map((line) => parseMessage(line));
-      messages.unshift(...newMessages);
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    try {
+      const cancelController = watchOnce(url, () => abortController.abort("stream changed"));
+      const logs = await (
+        await fetch(
+          `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
+          { signal },
+        )
+      ).text();
+      cancelController();
+      if (logs) {
+        const newMessages = logs
+          .trim()
+          .split("\n")
+          .map((line) => parseMessage(line));
+        messages.unshift(...newMessages);
+      }
+    } catch (e) {
+      console.error("Error loading older logs", e);
     }
-    afterLoading();
   }
 
   // TODO this is a hack to connect the event source when the container is started
