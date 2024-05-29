@@ -2,5 +2,6 @@
   "i18n-ally.localesPaths": ["locales"],
   "i18n-ally.keystyle": "nested",
   "cSpell.words": ["healthcheck"],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "i18n-ally.extract.autoDetect": true
 }
