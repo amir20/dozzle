@@ -8,14 +8,12 @@ import { LogStreamSource } from "@/composable/eventStreams";
 
 const loadingMore = defineEmit<[value: boolean]>();
 
-const props = defineProps<{
+const { entity, streamSource } = $defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   entity: T;
 }>();
 
-const { entity, streamSource } = toRefs(props);
-
-const { messages, loadOlderLogs } = streamSource.value(entity);
+const { messages, loadOlderLogs } = streamSource($$(entity));
 
 const beforeLoading = () => loadingMore(true);
 const afterLoading = () => loadingMore(false);
@@ -24,5 +22,9 @@ defineExpose({
   clear: () => (messages.value = []),
 });
 
-const fetchMore = () => loadOlderLogs({ beforeLoading, afterLoading });
+const fetchMore = async () => {
+  beforeLoading();
+  await loadOlderLogs();
+  afterLoading();
+};
 </script>

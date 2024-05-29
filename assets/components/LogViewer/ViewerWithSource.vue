@@ -4,7 +4,7 @@
     #default="{ messages }"
     @loading-more="loadingMore($event)"
     :stream-source="streamSource"
-    :entity="props.entity"
+    :entity="entity"
   >
     <LogViewer :messages="messages" :visible-keys="visibleKeys" :show-container-name="showContainerName" />
   </EventSource>
@@ -14,7 +14,7 @@
 import LogEventSource from "@/components/ContainerViewer/LogEventSource.vue";
 import { LogStreamSource } from "@/composable/eventStreams";
 
-const props = defineProps<{
+const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   visibleKeys: string[][];
   showContainerName: boolean;

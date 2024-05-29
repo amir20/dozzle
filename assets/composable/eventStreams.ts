@@ -180,7 +180,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(url, () => connect(), { immediate: true });
 
-  async function loadOlderLogs({ beforeLoading, afterLoading } = { beforeLoading: () => {}, afterLoading: () => {} }) {
+  async function loadOlderLogs() {
     if (!loadMoreUrl) return;
 
     const to = messages[0].date;
@@ -192,7 +192,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const signal = abortController.signal;
 
     try {
-      beforeLoading();
       const cancelController = watchOnce(url, () => abortController.abort("stream changed"));
       const logs = await (
         await fetch(
@@ -210,8 +209,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       }
     } catch (e) {
       console.error("Error loading older logs", e);
-    } finally {
-      afterLoading();
     }
   }
 
