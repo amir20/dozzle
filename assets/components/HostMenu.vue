@@ -1,7 +1,9 @@
 <template>
   <div class="breadcrumbs">
     <ul>
-      <li><a @click.prevent="setHost(null)" class="link-primary">Hosts</a></li>
+      <li>
+        <a @click.prevent="setHost(null)" class="link-primary">{{ $t("label.hosts") }}</a>
+      </li>
       <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
         {{ hosts[sessionHost].name }}
       </li>
@@ -37,7 +39,7 @@
                 }"
                 class="btn btn-square btn-outline btn-primary btn-xs"
                 active-class="btn-active"
-                title="Merge all containers into one view"
+                :title="$t('tooltip.merge-containers')"
               >
                 <ph:arrows-merge />
               </router-link>

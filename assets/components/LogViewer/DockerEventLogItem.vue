@@ -13,13 +13,15 @@
         {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
       </div>
       <div>
-        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">Cancel</TimedButton>
+        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">{{
+          $t("button.cancel")
+        }}</TimedButton>
         <router-link
           :to="{ name: 'container-id', params: { id: nextContainer.id } }"
           class="btn btn-primary btn-sm"
           v-else
         >
-          Redirect
+          {{ $t("button.redirect") }}
         </router-link>
       </div>
     </div>

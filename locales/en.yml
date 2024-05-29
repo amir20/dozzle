@@ -14,6 +14,7 @@ label:
   running-containers: Running Containers
   all-containers: All Containers
   host: Host
+  hosts: Hosts
   password: Password
   username: Username
   container-name: Container Name
@@ -29,6 +30,8 @@ label:
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
+  merge-services: Merge all services into one view
+  merge-containers: Merge all containers into one view
 error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
@@ -63,6 +66,8 @@ button:
   logout: Logout
   login: Login
   settings: Settings
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search

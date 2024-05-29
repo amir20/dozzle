@@ -10,7 +10,7 @@
             :to="{ name: 'stack-name', params: { name } }"
             class="btn btn-square btn-outline btn-primary btn-xs"
             active-class="btn-active"
-            title="Merge all services into one view"
+            :title="$t('tooltip.merge-services')"
           >
             <ph:arrows-merge />
           </router-link>
