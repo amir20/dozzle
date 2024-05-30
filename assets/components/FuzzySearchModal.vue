@@ -185,6 +185,7 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
     const result = [];
     let lastIndex = 0;
     for (const [start, end] of indices) {
+      if (lastIndex > start) continue;
       result.push(item.name.slice(lastIndex, start));
       result.push(`<mark>${item.name.slice(start, end + 1)}</mark>`);
       lastIndex = end + 1;
