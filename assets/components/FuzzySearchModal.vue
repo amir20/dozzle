@@ -24,14 +24,23 @@
           :class="index === selectedIndex ? 'focus' : ''"
         >
           <div :class="{ 'text-primary': result.item.state === 'running' }">
-            <octicon:container-24 />
+            <template v-if="result.item.type === 'container'">
+              <octicon:container-24 />
+            </template>
+            <template v-else-if="result.item.type === 'service'">
+              <ph:stack-simple />
+            </template>
+            <template v-else-if="result.item.type === 'stack'">
+              <ph:stack />
+            </template>
           </div>
           <div class="truncate">
-            <template v-if="config.hosts.length > 1">
+            <template v-if="config.hosts.length > 1 && result.item.host">
               <span class="font-light">{{ result.item.host }}</span> /
             </template>
             <span data-name v-html="matchedName(result)"></span>
           </div>
+
           <DistanceTime :date="result.item.created" class="text-xs font-light" />
           <a
             @click.stop.prevent="addColumn(result.item)"
@@ -48,8 +57,9 @@
 </template>
 
 <script lang="ts" setup>
+import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
-import { type FuseResultMatch } from "fuse.js";
+import { type FuseResult } from "fuse.js";
 
 const { maxResults = 5 } = defineProps<{
   maxResults?: number;
@@ -64,24 +74,60 @@ const selectedIndex = ref(0);
 const router = useRouter();
 const containerStore = useContainerStore();
 const pinnedStore = usePinnedLogsStore();
-const { containers } = storeToRefs(containerStore);
+const { visibleContainers } = storeToRefs(containerStore);
+
+const swarmStore = useSwarmStore();
+const { stacks, services } = storeToRefs(swarmStore);
+
+type Item = {
+  id: string;
+  created: Date;
+  name: string;
+  state?: ContainerState;
+  host?: string;
+  type: "container" | "service" | "stack";
+};
 
 const list = computed(() => {
-  return containers.value.map(({ id, created, name, state, labels, hostLabel: host }) => {
-    return {
-      id,
-      created,
-      name,
-      state,
-      host,
-      labels: Object.entries(labels).map(([_, value]) => value),
-    };
-  });
+  const items: Item[] = [];
+
+  for (const container of visibleContainers.value) {
+    items.push({
+      id: container.id,
+      created: container.created,
+      name: container.name,
+      state: container.state,
+      host: container.hostLabel,
+      type: "container",
+    });
+  }
+
+  for (const service of services.value) {
+    items.push({
+      id: service.name,
+      created: service.updatedAt,
+      name: service.name,
+      state: "running",
+      type: "service",
+    });
+  }
+
+  for (const stack of stacks.value) {
+    items.push({
+      id: stack.name,
+      created: stack.updatedAt,
+      name: stack.name,
+      state: "running",
+      type: "stack",
+    });
+  }
+
+  return items;
 });
 
 const { results } = useFuse(query, list, {
   fuseOptions: {
-    keys: ["name", "host", "labels"],
+    keys: ["name", "host"],
     includeScore: true,
     useExtendedSearch: true,
     threshold: 0.3,
@@ -93,17 +139,17 @@ const { results } = useFuse(query, list, {
 
 const data = computed(() => {
   return [...results.value]
-    .sort((a, b) => {
+    .sort((a: FuseResult<Item>, b: FuseResult<Item>) => {
       if (a.score === b.score) {
         if (a.item.state === b.item.state) {
-          return b.item.created - a.item.created;
+          return b.item.created.getTime() - a.item.created.getTime();
         } else if (a.item.state === "running" && b.item.state !== "running") {
           return -1;
         } else {
           return 1;
         }
       } else {
-        return a.score - b.score;
+        return (a.score ?? 0) - (b.score ?? 0);
       }
     })
     .slice(0, maxResults);
@@ -115,10 +161,16 @@ watch(query, (data) => {
   }
 });
 
-onMounted(() => input.value?.focus());
+useFocus(input, { initialValue: true });
 
-function selected({ id }: { id: string }) {
-  router.push({ name: "container-id", params: { id } });
+function selected(item: Item) {
+  if (item.type === "container") {
+    router.push({ name: "container-id", params: { id: item.id } });
+  } else if (item.type === "service") {
+    router.push({ name: "service-name", params: { name: item.id } });
+  } else if (item.type === "stack") {
+    router.push({ name: "stack-name", params: { name: item.id } });
+  }
   close();
 }
 function addColumn(container: { id: string }) {
@@ -126,7 +178,7 @@ function addColumn(container: { id: string }) {
   close();
 }
 
-function matchedName({ item, matches = [] }: { item: { name: string }; matches?: FuseResultMatch[] }) {
+function matchedName({ item, matches = [] }: FuseResult<Item>) {
   const matched = matches.find((match) => match.key === "name");
   if (matched) {
     const { indices } = matched;

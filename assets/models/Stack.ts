@@ -10,6 +10,10 @@ export class Stack {
       service.stack = this;
     }
   }
+
+  get updatedAt() {
+    return this.containers.map((c) => c.created).reduce((acc, date) => (date > acc ? date : acc), new Date(0));
+  }
 }
 
 export class Service {
@@ -19,4 +23,8 @@ export class Service {
   ) {}
 
   stack?: Stack;
+
+  get updatedAt() {
+    return this.containers.map((c) => c.created).reduce((acc, date) => (date > acc ? date : acc), new Date(0));
+  }
 }

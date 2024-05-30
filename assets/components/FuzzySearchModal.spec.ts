@@ -33,7 +33,7 @@ function createFuzzySearchModal() {
               containers: [
                 new Container("123", new Date(), "image", "test", "command", "host", {}, "status", "running", []),
                 new Container("345", new Date(), "image", "foo bar", "command", "host", {}, "status", "running", []),
-                new Container("567", new Date(), "image", "baz", "command", "host", {}, "status", "exited", []),
+                new Container("567", new Date(), "image", "baz", "command", "host", {}, "status", "running", []),
               ],
             },
           },
@@ -56,7 +56,8 @@ describe("<FuzzySearchModal />", () => {
   beforeEach(() => {
     vi.mocked(useRouter().push).mockReset();
   });
-  test("shows all", async () => {
+
+  test("shows running all", async () => {
     const wrapper = createFuzzySearchModal();
     expect(wrapper.findAll("li").length).toBe(3);
   });
