@@ -192,15 +192,16 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const signal = abortController.signal;
 
     try {
-      const cancelController = watchOnce(url, () => abortController.abort("stream changed"));
+      const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const logs = await (
         await fetch(
           `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
           { signal },
         )
       ).text();
-      cancelController();
-      if (logs) {
+      stopWatcher();
+
+      if (logs && signal.aborted === false) {
         const newMessages = logs
           .trim()
           .split("\n")
