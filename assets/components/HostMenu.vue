@@ -90,7 +90,7 @@ import Pin from "~icons/ph/map-pin-simple";
 import Stack from "~icons/ph/stack";
 // @ts-ignore
 import Containers from "~icons/octicon/container-24";
-import { RouteLocationNormalized, RouteLocationNormalizedLoaded } from "vue-router";
+import { RouteLocationNormalizedLoaded } from "vue-router";
 
 const containerStore = useContainerStore();
 const { visibleContainers } = storeToRefs(containerStore);
