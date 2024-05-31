@@ -152,11 +152,14 @@ export const useContainerStore = defineStore("container", () => {
     ),
   );
 
+  const findContainerById = (id: string) => allContainersById.value[id];
+
   return {
     containers,
     allContainersById,
     visibleContainers,
     currentContainer,
+    findContainerById,
     containerNames,
     ready,
   };
