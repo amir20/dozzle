@@ -43,7 +43,8 @@ defineProps<{
 }
 
 [data-level="error"],
-[data-level="fatal"] {
+[data-level="fatal"],
+[data-level="severe"] {
   @apply bg-red;
 }
 

@@ -9,7 +9,7 @@ import (
 )
 
 var keyValueRegex = regexp.MustCompile(`level=(\w+)`)
-var logLevels = []string{"error", "warn", "warning", "info", "debug", "trace", "fatal"}
+var logLevels = []string{"error", "warn", "warning", "info", "debug", "trace", "fatal", "severe"}
 var plainLevels = map[string]*regexp.Regexp{}
 var bracketLevels = map[string]*regexp.Regexp{}
 
