@@ -1,4 +1,4 @@
-import { defineConfig, presetAttributify, presetIcons, presetUno, presetWebFonts } from "unocss";
+import { defineConfig, presetIcons, presetUno, presetWebFonts } from "unocss";
 
 import { presetTypography } from "@unocss/preset-typography";
 import transformerDirectives from "@unocss/transformer-directives";
@@ -8,7 +8,6 @@ export default defineConfig({
   transformers: [transformerDirectives()],
   presets: [
     presetUno(),
-    presetAttributify(),
     presetTypography(),
     presetIcons({
       scale: 1.2,
