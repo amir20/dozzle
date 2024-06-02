@@ -27,18 +27,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <browser-window drop-shadow-md>
-    <video muted loop autoplay playsinline poster="../media/poster.png" v-if="isDark">
-      <source src="../media/dozzle-dark.webm" type="video/webm" />
+  <div
+    class="border-rounded-md border-light-100 dark:border-dark-50 overflow-hidden border border-solid bg-[#eee] drop-shadow-md dark:bg-[#222]"
+  >
+    <video muted loop autoplay playsinline poster="../media/poster-dark.png" v-if="isDark">
       <source src="../media/dozzle-dark.mp4" type="video/mp4" />
-      <img src="../media/poster.png" alt="" />
+      <img src="../media/poster-dark.png" alt="" />
     </video>
-    <video muted loop autoplay playsinline poster="../media/poster.png" v-else>
-      <source src="../media/dozzle-light.webm" type="video/webm" />
+    <video muted loop autoplay playsinline poster="../media/poster-light.png" v-else>
       <source src="../media/dozzle-light.mp4" type="video/mp4" />
-      <img src="../media/poster.png" alt="" />
+      <img src="../media/poster-light.png" alt="" />
     </video>
-  </browser-window>
+  </div>
 </template>
 
 <style scoped></style>
