@@ -1,7 +1,7 @@
 {
   "i18n-ally.localesPaths": ["locales"],
   "i18n-ally.keystyle": "nested",
-  "cSpell.words": ["healthcheck"],
+  "cSpell.words": ["healthcheck", "orderedmap"],
   "editor.formatOnSave": true,
   "i18n-ally.extract.autoDetect": true
 }
