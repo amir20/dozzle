@@ -7,10 +7,6 @@ import (
 )
 
 func TestGuessLogLevel(t *testing.T) {
-	ordereddata := orderedmap.New[string, any]()
-	ordereddata.Set("key", "value")
-	ordereddata.Set("level", "info")
-
 	tests := []struct {
 		input    any
 		expected string
@@ -35,7 +31,18 @@ func TestGuessLogLevel(t *testing.T) {
 		{map[string]interface{}{"level": "INFO"}, "info"},
 		{map[string]string{"level": "info"}, "info"},
 		{map[string]string{"level": "INFO"}, "info"},
-		{ordereddata, "info"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, string]{Key: "level", Value: "info"},
+			),
+		), "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, any]{Key: "level", Value: "info"},
+			),
+		), "info"},
 	}
 
 	for _, test := range tests {
