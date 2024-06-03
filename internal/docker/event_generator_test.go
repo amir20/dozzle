@@ -127,7 +127,17 @@ func Test_createEvent(t *testing.T) {
 				Message: "123",
 			},
 		},
+		{
+			name: "invalid logfmt message",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z sample text with=equal sign",
+			},
+			want: &LogEvent{
+				Message: "sample text with=equal sign",
+			},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := createEvent(tt.args.message, STDOUT); !reflect.DeepEqual(got.Message, tt.want.Message) {

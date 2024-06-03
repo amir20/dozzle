@@ -28,7 +28,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/jwtauth/v5 v5.3.1
-	github.com/go-logfmt/logfmt v0.6.0
 	github.com/goccy/go-json v0.10.3
 	github.com/puzpuzpuz/xsync/v3 v3.1.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8

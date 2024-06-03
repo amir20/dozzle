@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"hash/fnv"
 	"io"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +16,6 @@ import (
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
-	"github.com/go-logfmt/logfmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -160,9 +158,6 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 	}
 }
 
-var validLogFmtMessage = regexp.MustCompile(`([a-zA-Z0-9_.-]+)=(?:(?:"(.*)")|(?:(?:([^\s]+)[\s])))`)
-var validLogFmtKey = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
-
 func createEvent(message string, streamType StdType) *LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
@@ -185,27 +180,8 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				} else {
 					logEvent.Message = data
 				}
-			} else if validLogFmtMessage.MatchString(message) {
-				buffer := bufPool.Get().(*bytes.Buffer)
-				buffer.Reset()
-				defer bufPool.Put(buffer)
-				buffer.WriteString(message)
-				decoder := logfmt.NewDecoder(buffer)
-				data := make(map[string]string)
-				decoder.ScanRecord()
-				allValid := true
-				for decoder.ScanKeyval() {
-					key := decoder.Key()
-					value := decoder.Value()
-					if !validLogFmtKey.Match(key) {
-						allValid = false
-						break
-					}
-					data[string(key)] = string(value)
-				}
-				if allValid && len(data) > 1 {
-					logEvent.Message = data
-				}
+			} else if data, err := ParseLogFmt(message); err == nil {
+				logEvent.Message = data
 			}
 		}
 	}
