@@ -46,6 +46,9 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 
 	case *orderedmap.OrderedMap[string, any]:
+		if value == nil {
+			return ""
+		}
 		if level, ok := value.Get("level"); ok {
 			if level, ok := level.(string); ok {
 				return strings.ToLower(level)
@@ -53,6 +56,9 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 
 	case *orderedmap.OrderedMap[string, string]:
+		if value == nil {
+			return ""
+		}
 		if level, ok := value.Get("level"); ok {
 			return strings.ToLower(level)
 		}

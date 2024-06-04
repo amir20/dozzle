@@ -178,8 +178,13 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						}
 					}
 				} else {
-					logEvent.Message = data
+					if data == nil {
+						logEvent.Message = ""
+					} else {
+						logEvent.Message = data
+					}
 				}
+
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
 			}

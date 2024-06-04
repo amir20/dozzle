@@ -136,6 +136,15 @@ func Test_createEvent(t *testing.T) {
 				Message: "sample text with=equal sign",
 			},
 		},
+		{
+			name: "null message",
+			args: args{
+				message: "2020-05-13T18:55:37.772853839Z null",
+			},
+			want: &LogEvent{
+				Message: "",
+			},
+		},
 	}
 
 	for _, tt := range tests {
