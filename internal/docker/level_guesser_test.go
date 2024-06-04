@@ -1,12 +1,14 @@
 package docker
 
 import (
+	"encoding/json"
 	"testing"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func TestGuessLogLevel(t *testing.T) {
+	var nilOrderedMap *orderedmap.OrderedMap[string, any]
 	tests := []struct {
 		input    any
 		expected string
@@ -43,15 +45,17 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, any]{Key: "level", Value: "info"},
 			),
 		), "info"},
+		{nilOrderedMap, ""},
+		{nil, ""},
 	}
 
 	for _, test := range tests {
-		logEvent := &LogEvent{
-			Message: test.input,
-		}
-		if level := guessLogLevel(logEvent); level != test.expected {
-			t.Errorf("guessLogLevel(%s) = %s, want %s", test.input, level, test.expected)
-		}
+		name, _ := json.Marshal(test.input)
+		t.Run(string(name), func(t *testing.T) {
+			actual := guessLogLevel(&LogEvent{Message: test.input})
+			if actual != test.expected {
+				t.Errorf("Expected %s, got %s", test.expected, actual)
+			}
+		})
 	}
-
 }
