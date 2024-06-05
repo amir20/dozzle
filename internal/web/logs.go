@@ -343,10 +343,12 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map
 	w.Header().Set("X-Accel-Buffering", "no")
 
 	logs := make(chan *docker.LogEvent)
-	events := make(chan *docker.ContainerEvent)
+	events := make(chan *docker.ContainerEvent, 1)
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
+
+	started := time.Now()
 
 loop:
 	for {
@@ -366,8 +368,11 @@ loop:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
 		case container := <-containers:
+			if container.StartedAt != nil && container.StartedAt.After(started) {
+				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
+			}
 			go func(container docker.Container) {
-				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, "", stdTypes)
+				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, container.StartedAt, stdTypes)
 				if err != nil {
 					return
 				}
@@ -395,7 +400,7 @@ loop:
 			if buf, err := json.Marshal(event); err != nil {
 				log.Errorf("json encoding error while streaming %v", err.Error())
 			} else {
-				fmt.Fprintf(w, "event: container-stopped\ndata: %s\n\n", buf)
+				fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", buf)
 				f.Flush()
 			}
 

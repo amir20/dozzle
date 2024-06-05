@@ -6,7 +6,7 @@ import {
   type JSONObject,
   LogEntry,
   asLogEntry,
-  DockerEventLogEntry,
+  ContainerEventLogEntry,
   SkippedLogsEntry,
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
@@ -162,9 +162,15 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     es = new EventSource(url.value);
 
-    es.addEventListener("container-stopped", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
-      buffer.push(new DockerEventLogEntry("Container stopped", event.actorId, new Date(), "container-stopped"));
+    es.addEventListener("container-event", (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
+      const containerEvent = new ContainerEventLogEntry(
+        event.name == "container-started" ? "Container started" : "Container stopped",
+        event.actorId,
+        new Date(),
+        event.name as "container-stopped" | "container-started",
+      );
+      buffer.push(containerEvent);
 
       flushBuffer();
       flushBuffer.flush();

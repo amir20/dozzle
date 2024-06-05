@@ -124,7 +124,7 @@ export const useContainerStore = defineStore("container", () => {
       ...newContainers.map((c) => {
         return new Container(
           c.id,
-          new Date(c.created * 1000),
+          new Date(c.created),
           c.image,
           c.name,
           c.command,
