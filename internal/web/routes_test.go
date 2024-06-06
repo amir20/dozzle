@@ -36,7 +36,7 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since string, stdType docker.StdType) (io.ReadCloser, error) {
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since *time.Time, stdType docker.StdType) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, since, stdType)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
