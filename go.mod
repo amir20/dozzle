@@ -4,7 +4,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/alexflint/go-arg v1.5.0
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
-	github.com/docker/docker v26.1.3+incompatible
+	github.com/docker/docker v26.1.4+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1
