@@ -198,7 +198,8 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 
-	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
+	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{State: state}, Config: &container.Config{Tty: false}}
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 
 	client := &httpClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}, system.Info{}}
@@ -246,7 +247,10 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 
 	proxy := new(mockedProxy)
 	client := &httpClient{proxy, filters.NewArgs(), &Host{ID: "localhost"}, system.Info{}}
-	json := types.ContainerJSON{Config: &container.Config{Tty: false}}
+
+	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{State: state}, Config: &container.Config{Tty: false}}
+
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
