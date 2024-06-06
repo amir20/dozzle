@@ -2,7 +2,7 @@ import { Component, ComputedRef, Ref } from "vue";
 import { flattenJSON, getDeep } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
-import DockerEventLogItem from "@/components/LogViewer/DockerEventLogItem.vue";
+import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
@@ -107,7 +107,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
   }
 }
 
-export class DockerEventLogEntry extends LogEntry<string> {
+export class ContainerEventLogEntry extends LogEntry<string> {
   constructor(
     message: string,
     containerID: string,
@@ -117,7 +117,7 @@ export class DockerEventLogEntry extends LogEntry<string> {
     super(message, containerID, date.getTime(), date, "stderr", "info");
   }
   getComponent(): Component {
-    return DockerEventLogItem;
+    return ContainerEventLogItem;
   }
 }
 

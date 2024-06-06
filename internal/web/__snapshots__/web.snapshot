@@ -132,7 +132,7 @@ data: []
 
 
 event: containers-changed
-data: [{"id":"1234","names":null,"name":"test","image":"test","imageId":"","command":"","created":0,"state":"","status":"","stats":[]}]
+data: [{"id":"1234","names":null,"name":"test","image":"test","imageId":"","command":"","created":"0001-01-01T00:00:00Z","state":"","status":"","stats":[]}]
 
 
 event: container-start
@@ -178,7 +178,7 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
 
-event: container-stopped
+event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
@@ -204,5 +204,5 @@ X-Accel-Buffering: no
 data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
 id: 1589396137772
 
-event: container-stopped
+event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}

@@ -63,7 +63,7 @@ type DockerCLI interface {
 type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
-	ContainerLogs(context.Context, string, string, StdType) (io.ReadCloser, error)
+	ContainerLogs(context.Context, string, *time.Time, StdType) (io.ReadCloser, error)
 	Events(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
@@ -177,6 +177,10 @@ func (d *httpClient) FindContainer(id string) (Container, error) {
 
 	if json, err := d.cli.ContainerInspect(context.Background(), container.ID); err == nil {
 		container.Tty = json.Config.Tty
+		if startedAt, err := time.Parse(time.RFC3339Nano, json.State.StartedAt); err == nil {
+			utc := startedAt.UTC()
+			container.StartedAt = &utc
+		}
 	} else {
 		return container, err
 	}
@@ -226,7 +230,7 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 			Image:   c.Image,
 			ImageID: c.ImageID,
 			Command: c.Command,
-			Created: c.Created,
+			Created: time.Unix(c.Created, 0),
 			State:   c.State,
 			Status:  c.Status,
 			Host:    d.host.ID,
@@ -295,15 +299,12 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 	}
 }
 
-func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string, stdType StdType) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogs(ctx context.Context, id string, since *time.Time, stdType StdType) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
-	if since != "" {
-		if millis, err := strconv.ParseInt(since, 10, 64); err == nil {
-			since = time.UnixMicro(millis).Add(time.Millisecond).Format(time.RFC3339Nano)
-		} else {
-			log.WithError(err).Debug("unable to parse since")
-		}
+	sinceQuery := ""
+	if since != nil {
+		sinceQuery = since.Add(time.Millisecond).Format(time.RFC3339Nano)
 	}
 
 	options := container.LogsOptions{
@@ -312,7 +313,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since string,
 		Follow:     true,
 		Tail:       strconv.Itoa(100),
 		Timestamps: true,
-		Since:      since,
+		Since:      sinceQuery,
 	}
 
 	reader, err := d.cli.ContainerLogs(ctx, id, options)

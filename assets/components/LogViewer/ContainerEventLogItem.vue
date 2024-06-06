@@ -28,13 +28,13 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { DockerEventLogEntry } from "@/models/LogEntry";
+import { ContainerEventLogEntry } from "@/models/LogEntry";
 const router = useRouter();
 const { showToast } = useToast();
 const { t } = useI18n();
 
 const { logEntry } = defineProps<{
-  logEntry: DockerEventLogEntry;
+  logEntry: ContainerEventLogEntry;
   showContainerName?: boolean;
 }>();
 
