@@ -94,14 +94,14 @@
   "jsdom": "^24.1.0",
   "lint-staged": "^15.2.5",
   "prettier": "^3.3.1",
-  "prettier-plugin-tailwindcss": "^0.6.1",
+  "prettier-plugin-tailwindcss": "^0.6.2",
   "simple-git-hooks": "^2.11.1",
   "ts-node": "^10.9.2",
   "typescript": "^5.4.5",
   "vitepress": "1.2.3",
   "vitest": "^1.6.0",
-  "vue-component-type-helpers": "^2.0.19",
-  "vue-tsc": "^2.0.19"
+  "vue-component-type-helpers": "^2.0.21",
+  "vue-tsc": "^2.0.21"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
