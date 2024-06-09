@@ -44,7 +44,7 @@ If you are in a private network then you can use [Docker Socket Proxy](https://g
 docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
 ```
 
-> [!INFO]
+> [!TIP]
 > Using `CONTAINERS=1` is required to list running containers. `EVENTS` is also needed but it is enabled by default. `INFO=1` is optional but it will provide more information on host meta data.
 
 Running Dozzle without any certs should work. Here is an example:
