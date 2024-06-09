@@ -8,6 +8,8 @@ title: FAQ
 
 Dozzle uses Server Sent Events (SSE) which connects to a server using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer. Since version `1.23.0`, Dozzle sends the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those cases, you need to explicitly disable any buffering.
 
+### Disabling buffering in nginx
+
 Below is an example with nginx and using `proxy_pass` to disable buffering:
 
 ```
@@ -25,6 +27,31 @@ server {
         proxy_cache                 off;
     }
 }
+```
+
+### Disabling compression in traefik
+
+Traefik reverse proxy can be configures via middlewares to support compression. If implemented, the usual configuration looks like this:
+```
+http:
+  middlewares:
+    middlewares-compress:
+      compress: {}
+```
+
+With this setup, you may find that certain containers do not show logs in dozzle anymore if you open dozzle via traefik (e.g. dozzle.mydomain.com). 
+You will also note that the same dozzle instance does show the logs when accessed directly (e.g. localhost:8080).
+
+Containers where this has been observed (non-exhaustive list) are: dozzle, homepage, glances, filebrowser.
+
+To re-enable the logs to flow, exclude `text/event-stream` from the compression middleware:
+```
+http:
+  middlewares:
+    middlewares-compress:
+      compress: 
+        excludedContentTypes:
+          - text/event-stream
 ```
 
 ## We have tools that uses Dozzle when a new container is created. How can I get a direct link to a container by name?
