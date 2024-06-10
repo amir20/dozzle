@@ -61,7 +61,7 @@ import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
 
-const { maxResults = 5 } = defineProps<{
+const { maxResults = 10 } = defineProps<{
   maxResults?: number;
 }>();
 
