@@ -6,7 +6,7 @@
  "bugs": {
   "url": "https://github.com/amir20/dozzle/issues"
  },
- "packageManager": "pnpm@9.2.0",
+ "packageManager": "pnpm@9.3.0",
  "type": "module",
  "repository": {
   "type": "git",
@@ -70,7 +70,7 @@
   "vite-plugin-vue-layouts": "^0.11.0",
   "vue": "^3.4.27",
   "vue-i18n": "^9.13.1",
-  "vue-router": "^4.3.2"
+  "vue-router": "^4.3.3"
  },
  "devDependencies": {
   "@iconify-json/material-symbols": "^1.1.82",
