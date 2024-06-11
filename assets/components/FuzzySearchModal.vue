@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown dropdown-open w-full">
-    <div class="input input-primary sticky flex h-auto items-center">
+    <div class="input input-primary flex h-auto items-center">
       <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
@@ -134,7 +134,6 @@ const { results } = useFuse(query, list, {
     threshold: 0.3,
     includeMatches: true,
   },
-  // matchAllWhenSearchEmpty: true,
 });
 
 const data = computed(() => {
