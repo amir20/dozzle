@@ -335,7 +335,7 @@ func (d *httpClient) Events(ctx context.Context, messages chan<- ContainerEvent)
 			return err
 
 		case message := <-dockerMessages:
-			if message.Type == "container" && len(message.Actor.ID) > 0 {
+			if message.Type == events.ContainerEventType && len(message.Actor.ID) > 0 {
 				messages <- ContainerEvent{
 					ActorID: message.Actor.ID[:12],
 					Name:    string(message.Action),
