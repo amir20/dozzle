@@ -57,9 +57,9 @@ describe("<FuzzySearchModal />", () => {
     vi.mocked(useRouter().push).mockReset();
   });
 
-  test("shows running all", async () => {
+  test("shows none initially", async () => {
     const wrapper = createFuzzySearchModal();
-    expect(wrapper.findAll("li").length).toBe(3);
+    expect(wrapper.findAll("li").length).toBe(0);
   });
 
   test("search for foo", async () => {

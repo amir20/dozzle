@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown dropdown-open w-full">
-    <div class="input input-primary flex h-auto items-center">
+    <div class="input input-primary sticky flex h-auto items-center">
       <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
@@ -15,44 +15,49 @@
       />
       <mdi:keyboard-esc class="flex" />
     </div>
-    <ul tabindex="0" class="menu dropdown-content !relative mt-2 w-full rounded-box bg-base-lighter p-2">
-      <li v-for="(result, index) in data">
-        <a
-          class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
-          @click.prevent="selected(result.item)"
-          @mouseenter="selectedIndex = index"
-          :class="index === selectedIndex ? 'focus' : ''"
-        >
-          <div :class="{ 'text-primary': result.item.state === 'running' }">
-            <template v-if="result.item.type === 'container'">
-              <octicon:container-24 />
-            </template>
-            <template v-else-if="result.item.type === 'service'">
-              <ph:stack-simple />
-            </template>
-            <template v-else-if="result.item.type === 'stack'">
-              <ph:stack />
-            </template>
-          </div>
-          <div class="truncate">
-            <template v-if="config.hosts.length > 1 && result.item.host">
-              <span class="font-light">{{ result.item.host }}</span> /
-            </template>
-            <span data-name v-html="matchedName(result)"></span>
-          </div>
-
-          <DistanceTime :date="result.item.created" class="text-xs font-light" />
+    <div
+      class="dropdown-content !relative mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md bg-base-lighter p-2"
+      v-if="results.length"
+    >
+      <ul tabindex="0" class="menu">
+        <li v-for="(result, index) in data">
           <a
-            @click.stop.prevent="addColumn(result.item)"
-            :title="$t('tooltip.pin-column')"
-            class="hover:text-secondary"
+            class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
+            @click.prevent="selected(result.item)"
+            @mouseenter="selectedIndex = index"
+            :class="index === selectedIndex ? 'focus' : ''"
           >
-            <ic:sharp-keyboard-return v-if="index === selectedIndex" />
-            <cil:columns v-else />
+            <div :class="{ 'text-primary': result.item.state === 'running' }">
+              <template v-if="result.item.type === 'container'">
+                <octicon:container-24 />
+              </template>
+              <template v-else-if="result.item.type === 'service'">
+                <ph:stack-simple />
+              </template>
+              <template v-else-if="result.item.type === 'stack'">
+                <ph:stack />
+              </template>
+            </div>
+            <div class="truncate">
+              <template v-if="config.hosts.length > 1 && result.item.host">
+                <span class="font-light">{{ result.item.host }}</span> /
+              </template>
+              <span data-name v-html="matchedName(result)"></span>
+            </div>
+
+            <DistanceTime :date="result.item.created" class="text-xs font-light" />
+            <a
+              @click.stop.prevent="addColumn(result.item)"
+              :title="$t('tooltip.pin-column')"
+              class="hover:text-secondary"
+            >
+              <ic:sharp-keyboard-return v-if="index === selectedIndex" />
+              <cil:columns v-else />
+            </a>
           </a>
-        </a>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -60,10 +65,6 @@
 import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
-
-const { maxResults = 10 } = defineProps<{
-  maxResults?: number;
-}>();
 
 const close = defineEmit();
 
@@ -133,26 +134,23 @@ const { results } = useFuse(query, list, {
     threshold: 0.3,
     includeMatches: true,
   },
-  resultLimit: 10,
-  matchAllWhenSearchEmpty: true,
+  // matchAllWhenSearchEmpty: true,
 });
 
 const data = computed(() => {
-  return [...results.value]
-    .sort((a: FuseResult<Item>, b: FuseResult<Item>) => {
-      if (a.score === b.score) {
-        if (a.item.state === b.item.state) {
-          return b.item.created.getTime() - a.item.created.getTime();
-        } else if (a.item.state === "running" && b.item.state !== "running") {
-          return -1;
-        } else {
-          return 1;
-        }
+  return [...results.value].sort((a: FuseResult<Item>, b: FuseResult<Item>) => {
+    if (a.score === b.score) {
+      if (a.item.state === b.item.state) {
+        return b.item.created.getTime() - a.item.created.getTime();
+      } else if (a.item.state === "running" && b.item.state !== "running") {
+        return -1;
       } else {
-        return (a.score ?? 0) - (b.score ?? 0);
+        return 1;
       }
-    })
-    .slice(0, maxResults);
+    } else {
+      return (a.score ?? 0) - (b.score ?? 0);
+    }
+  });
 });
 
 watch(query, (data) => {
