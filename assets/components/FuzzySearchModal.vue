@@ -159,7 +159,6 @@ watch(query, (data) => {
 });
 
 watch(selectedIndex, () => {
-  console.log("scrolling");
   listItems.value?.[selectedIndex.value].scrollIntoView({ block: "end" });
 });
 
