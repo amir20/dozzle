@@ -20,7 +20,7 @@
       v-if="results.length"
     >
       <ul tabindex="0" class="menu">
-        <li v-for="(result, index) in data">
+        <li v-for="(result, index) in data" ref="listItems">
           <a
             class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
             @click.prevent="selected(result.item)"
@@ -70,6 +70,7 @@ const close = defineEmit();
 
 const query = ref("");
 const input = ref<HTMLInputElement>();
+const listItems = ref<HTMLInputElement[]>();
 const selectedIndex = ref(0);
 
 const router = useRouter();
@@ -158,6 +159,8 @@ watch(query, (data) => {
   }
 });
 
+watch(selectedIndex, () => listItems.value?.[selectedIndex.value].scrollIntoView({ behavior: "smooth", block: "end" }));
+
 useFocus(input, { initialValue: true });
 
 function selected(item: Item) {
@@ -198,9 +201,5 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
 <style scoped lang="postcss">
 :deep(mark) {
   @apply bg-transparent text-inherit underline underline-offset-2;
-}
-
-.menu a {
-  @apply transition-none duration-0;
 }
 </style>
