@@ -16,7 +16,7 @@
       <mdi:keyboard-esc class="flex" />
     </div>
     <div
-      class="dropdown-content !relative mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md bg-base-lighter p-2"
+      class="dropdown-content !relative mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent bg-base-lighter px-2"
       v-if="results.length"
     >
       <ul tabindex="0" class="menu">
@@ -24,7 +24,6 @@
           <a
             class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
             @click.prevent="selected(result.item)"
-            @mouseenter="selectedIndex = index"
             :class="index === selectedIndex ? 'focus' : ''"
           >
             <div :class="{ 'text-primary': result.item.state === 'running' }">
@@ -159,7 +158,9 @@ watch(query, (data) => {
   }
 });
 
-watch(selectedIndex, () => listItems.value?.[selectedIndex.value].scrollIntoView({ behavior: "smooth", block: "end" }));
+watch(selectedIndex, () => {
+  listItems.value?.[selectedIndex.value].scrollIntoView({ block: "end" });
+});
 
 useFocus(input, { initialValue: true });
 
