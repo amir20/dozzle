@@ -14,7 +14,7 @@
         class="mobile-hidden max-w-[1.5em] truncate transition-[max-width] hover:max-w-[400px]"
         v-if="container.isSwarm"
       >
-        {{ container.swarmId }}
+        .{{ container.swarmId }}
       </div>
     </div>
     <ContainerHealth :health="container.health" v-if="container.health" />
