@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useMutationObserver } from "@vueuse/core";
 import { onMounted, onUnmounted, ref } from "vue";
-import { data } from "../../starCounter.data.ts";
 
 const isDark = ref(false);
 onMounted(() => {
@@ -25,8 +24,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.documentElement.classList.remove("home");
 });
-
-console.log(data.stars);
 </script>
 
 <template>

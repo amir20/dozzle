@@ -5,6 +5,7 @@ import "uno.css";
 import "./style.css";
 import HeroVideo from "./components/HeroVideo.vue";
 import BuyMeCoffee from "./components/BuyMeCoffee.vue";
+import Actions from "./components/Actions.vue";
 
 export default {
   ...Theme,
@@ -12,6 +13,7 @@ export default {
     return h(Theme.Layout, null, {
       "home-hero-image": () => h(HeroVideo),
       "sidebar-nav-after": () => h(BuyMeCoffee),
+      "home-hero-actions-after": () => h(Actions),
     });
   },
   enhanceApp({ app, router, siteData }) {},
