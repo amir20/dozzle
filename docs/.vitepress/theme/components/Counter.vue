@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { LargeNumberLike } from "crypto";
-import { toRefs } from "vue";
 import { onMounted, ref } from "vue";
 
 const { start, end, duration } = defineProps<{
@@ -18,7 +16,7 @@ onMounted(() => {
 function animateCounter(start: number, end: number, duration: number) {
   let startTimestamp: number | undefined = undefined;
 
-  const step = (timestamp: LargeNumberLike) => {
+  const step = (timestamp: number) => {
     if (!startTimestamp) startTimestamp = timestamp;
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
 
