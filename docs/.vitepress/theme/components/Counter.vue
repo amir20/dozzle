@@ -10,10 +10,6 @@ const { start, end, duration } = defineProps<{
 const text = ref(0);
 
 onMounted(() => {
-  animateCounter(start, end, duration);
-});
-
-function animateCounter(start: number, end: number, duration: number) {
   let startTimestamp: number | undefined = undefined;
 
   const step = (timestamp: number) => {
@@ -25,8 +21,9 @@ function animateCounter(start: number, end: number, duration: number) {
       requestAnimationFrame(step);
     }
   };
+
   requestAnimationFrame(step);
-}
+});
 </script>
 
 <template>
