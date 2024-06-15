@@ -12,7 +12,7 @@ import Counter from "./Counter.vue";
       </div>
     </div>
 
-    <div class="stat">
+    <div class="stat !border-l-0">
       <div class="stat-title">Docker Pulls</div>
       <div class="stat-value">
         <Counter :start="0" :end="data.pulls" :duration="1000" :formatter="(value) => (value / 1e6).toFixed(0) + 'M'" />
