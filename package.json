@@ -73,7 +73,6 @@
   "vue-router": "^4.3.3"
  },
  "devDependencies": {
-  "@iconify-json/grommet-icons": "^1.1.11",
   "@iconify-json/material-symbols": "^1.1.82",
   "@pinia/testing": "^0.1.3",
   "@playwright/test": "^1.44.1",
