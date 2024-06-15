@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
-const { start, end, duration } = defineProps<{
+const defaultFormatter = (value: number) => {
+  return value.toLocaleString();
+};
+
+const {
+  start,
+  end,
+  duration,
+  formatter = defaultFormatter,
+} = defineProps<{
   start: number;
   end: number;
   duration: number;
+  formatter?: (value: number) => string;
 }>();
 
 const text = ref(0);
@@ -24,10 +34,10 @@ onMounted(() => {
 
   requestAnimationFrame(step);
 });
+
+const formmated = computed(() => formatter(text.value));
 </script>
 
 <template>
-  <span class="counter">
-    {{ text }}
-  </span>
+  {{ formmated }}
 </template>

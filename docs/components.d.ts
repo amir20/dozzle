@@ -13,5 +13,7 @@ declare module 'vue' {
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Sstats: typeof import('./.vitepress/theme/components/Sstats.vue')['default']
+    Stats: typeof import('./.vitepress/theme/components/Stats.vue')['default']
   }
 }

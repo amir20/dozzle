@@ -18,8 +18,8 @@ hero:
 features:
   - title: Real-time Logging & Monitoring
     details: Captures real-time Docker container logs, enabling quick and efficient issue diagnosis.
-  - title: Easy Installation and Use
-    details: Offers a quick, simple setup and minimal configuration, making it user-friendly for those unfamiliar with Docker.
+  - title: Docker Swarm Support
+    details: Supports Docker services, allowing you to monitor logs from multiple nodes in a single interface.
   - title: Multi-host Support
     details: UI support connecting to multiple remote hosts with a simple drop down to choose between different hosts.
   - title: No Database Required

@@ -28,7 +28,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="border-rounded-md border-light-100 dark:border-dark-50 overflow-hidden border border-solid bg-[#eee] drop-shadow-md dark:bg-[#222]"
+    class="overflow-hidden rounded-md border border-solid border-gray-400 bg-[#eee] text-[red] drop-shadow-md dark:border-gray-950 dark:bg-[#222]"
   >
     <video muted loop autoplay playsinline poster="../media/poster-dark.png" v-if="isDark">
       <source src="../media/dozzle-dark.mp4" type="video/mp4" />
