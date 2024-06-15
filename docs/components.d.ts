@@ -7,13 +7,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Actions: typeof import('./.vitepress/theme/components/Actions.vue')['default']
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Sstats: typeof import('./.vitepress/theme/components/Sstats.vue')['default']
     Stats: typeof import('./.vitepress/theme/components/Stats.vue')['default']
   }
 }
