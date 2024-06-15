@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /**
  * Customize default theme styling by overriding CSS variables:
  * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
@@ -145,13 +149,13 @@
 
 .VPHomeHero .name {
   @apply text-7xl font-light;
-  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display Variable", serif;
 }
 
 .VPNavBarTitle .title {
   @apply text-3xl font-light;
   color: var(--bar-title-color);
-  font-family: "Playfair Display", serif;
+  font-family: "Playfair Display Variable", serif;
 }
 
 .VPHero .container .image {

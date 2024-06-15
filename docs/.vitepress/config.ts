@@ -1,13 +1,8 @@
 import { createRequire } from "module";
 import { defineConfig } from "vitepress";
-import { createWriteStream } from "node:fs";
-import { resolve } from "node:path";
-import { SitemapStream, streamToPromise } from "sitemap";
 
 const require = createRequire(import.meta.url);
 const pkg = require("dozzle/package.json");
-
-const links = [] as { url: string; lastmod?: number }[];
 
 export default defineConfig({
   lang: "en-US",
