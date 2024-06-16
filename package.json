@@ -68,7 +68,7 @@
   "vite-plugin-compression2": "^1.1.1",
   "vite-plugin-pages": "^0.32.2",
   "vite-plugin-vue-layouts": "^0.11.0",
-  "vue": "^3.4.28",
+  "vue": "^3.4.29",
   "vue-i18n": "^9.13.1",
   "vue-router": "^4.3.3"
  },
@@ -85,7 +85,7 @@
   "@types/lodash.debounce": "^4.0.9",
   "@types/node": "^20.14.2",
   "@vitejs/plugin-vue": "5.0.5",
-  "@vue/compiler-sfc": "^3.4.28",
+  "@vue/compiler-sfc": "^3.4.29",
   "@vue/test-utils": "^2.4.6",
   "bumpp": "^9.4.1",
   "c8": "^10.1.2",
