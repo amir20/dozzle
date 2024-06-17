@@ -7,7 +7,7 @@
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const route = useRoute();
+const route = useRoute("/merged/[name]");
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
