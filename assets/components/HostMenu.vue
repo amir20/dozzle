@@ -33,7 +33,7 @@
 
               <router-link
                 :to="{
-                  name: 'merged-name',
+                  name: '/merged/[name]',
                   query: { id: containers.map(({ id }) => id) },
                   params: { name: label.replace('label.', '') },
                 }"
@@ -48,7 +48,7 @@
               <li v-for="item in containers" :class="item.state" :key="item.id">
                 <Popup>
                   <router-link
-                    :to="{ name: 'container-id', params: { id: item.id } }"
+                    :to="{ name: '/container/[id]', params: { id: item.id } }"
                     active-class="active-primary"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"

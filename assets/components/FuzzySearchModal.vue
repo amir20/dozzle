@@ -166,11 +166,11 @@ useFocus(input, { initialValue: true });
 
 function selected(item: Item) {
   if (item.type === "container") {
-    router.push({ name: "container-id", params: { id: item.id } });
+    router.push({ name: "/container/[id]", params: { id: item.id } });
   } else if (item.type === "service") {
-    router.push({ name: "service-name", params: { name: item.id } });
+    router.push({ name: "/service/[name]", params: { name: item.id } });
   } else if (item.type === "stack") {
-    router.push({ name: "stack-name", params: { name: item.id } });
+    router.push({ name: "/stack/[name]", params: { name: item.id } });
   }
   close();
 }

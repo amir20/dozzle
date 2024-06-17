@@ -11,10 +11,11 @@
 </template>
 
 <script lang="ts" setup>
-const { id } = defineProps<{ id: string }>();
+const route = useRoute("/container/[id]");
+const id = toRef(() => route.params.id);
 
 const containerStore = useContainerStore();
-const currentContainer = containerStore.currentContainer($$(id));
+const currentContainer = containerStore.currentContainer(id);
 const { ready } = storeToRefs(containerStore);
 
 const pinnedLogsStore = usePinnedLogsStore();

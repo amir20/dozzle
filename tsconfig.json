@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "incremental": false,
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "strictNullChecks": true,
@@ -20,12 +20,11 @@
     "types": [
       "vitest",
       "vite/client",
-      "vite-plugin-pages/client",
       "vite-plugin-vue-layouts/client",
-      "unplugin-vue-macros/macros-global"
+      "unplugin-vue-macros/macros-global",
+      "unplugin-vue-router/client"
     ]
   },
-  "include": ["assets/**/*.ts", "assets/**/*.d.ts", "assets/**/*.vue"],
 
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "e2e"]
 }

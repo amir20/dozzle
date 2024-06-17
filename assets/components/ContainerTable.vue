@@ -66,7 +66,7 @@
     <tbody>
       <tr v-for="container in paginated" :key="container.id">
         <td v-if="isVisible('name')">
-          <router-link :to="{ name: 'container-id', params: { id: container.id } }" :title="container.name">
+          <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
           </router-link>
         </td>

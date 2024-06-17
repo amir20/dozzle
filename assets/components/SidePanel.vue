@@ -1,7 +1,7 @@
 <template>
   <aside class="fixed h-screen w-[inherit] overflow-auto p-3" data-testid="navigation">
     <h1>
-      <router-link :to="{ name: 'index' }">
+      <router-link :to="{ name: '/' }">
         <svg class="h-14 w-28 fill-secondary">
           <use href="#logo"></use>
         </svg>

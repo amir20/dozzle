@@ -16,7 +16,7 @@
     </Dropdown>
 
     <router-link
-      :to="{ name: 'settings' }"
+      :to="{ name: '/settings' }"
       :aria-label="$t('title.settings')"
       data-testid="settings"
       class="btn btn-circle btn-sm"
