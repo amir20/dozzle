@@ -38,6 +38,7 @@ export default defineConfig(() => ({
         src: "./assets/pages",
       },
       dts: "./assets/typed-router.d.ts",
+      importMode: "sync",
     }),
     Icons({
       autoInstall: true,
