@@ -4,7 +4,7 @@ import Counter from "./Counter.vue";
 </script>
 
 <template>
-  <div class="stats mt-10 shadow">
+  <div class="stats mt-10">
     <div class="stat w-40">
       <div class="stat-title">Github Stars</div>
       <div class="stat-value">
