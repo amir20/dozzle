@@ -17,7 +17,7 @@
           $t("button.cancel")
         }}</TimedButton>
         <router-link
-          :to="{ name: 'container-id', params: { id: nextContainer.id } }"
+          :to="{ name: '/container/[id]', params: { id: nextContainer.id } }"
           class="btn btn-primary btn-sm"
           v-else
         >
@@ -59,7 +59,7 @@ const nextContainer = computed(
 
 const followEligible = computed(
   () =>
-    router.currentRoute.value.name === "container-id" &&
+    router.currentRoute.value.name === "/container/[id]" &&
     logEntry.event === "container-stopped" &&
     containers.value.length === 1 &&
     nextContainer.value !== undefined,
@@ -74,7 +74,7 @@ function redirectNow() {
     },
     { expire: 5000 },
   );
-  router.push({ name: "container-id", params: { id: nextContainer.value?.id } });
+  router.push({ name: "/container/[id]", params: { id: nextContainer.value?.id } });
 }
 </script>
 

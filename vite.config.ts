@@ -6,10 +6,11 @@ import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
-import Pages from "vite-plugin-pages";
+import VueRouter from "unplugin-vue-router/vite";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import { compression } from "vite-plugin-compression2";
+import { VueRouterAutoImports } from "unplugin-vue-router";
 
 export default defineConfig(() => ({
   resolve: {
@@ -32,13 +33,17 @@ export default defineConfig(() => ({
         vue: Vue(),
       },
     }),
+    VueRouter({
+      routesFolder: {
+        src: "./assets/pages",
+      },
+      dts: "./assets/typed-router.d.ts",
+      importMode: "sync",
+    }),
     Icons({
       autoInstall: true,
     }),
-    Pages({
-      dirs: "assets/pages",
-      importMode: "sync",
-    }),
+
     Layouts({
       layoutsDirs: "assets/layouts",
     }),
@@ -53,7 +58,7 @@ export default defineConfig(() => ({
       dts: "assets/components.d.ts",
     }),
     AutoImport({
-      imports: ["vue", "vue-router", "vue-i18n", "vue/macros", "pinia", "@vueuse/head", "@vueuse/core"],
+      imports: ["vue", VueRouterAutoImports, "vue-i18n", "vue/macros", "pinia", "@vueuse/head", "@vueuse/core"],
       dts: "assets/auto-imports.d.ts",
       dirs: ["assets/composable", "assets/stores", "assets/utils"],
       vueTemplate: true,

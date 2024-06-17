@@ -7,7 +7,7 @@
           {{ name }}
 
           <router-link
-            :to="{ name: 'stack-name', params: { name } }"
+            :to="{ name: '/stack/[name]', params: { name } }"
             class="btn btn-square btn-outline btn-primary btn-xs"
             active-class="btn-active"
             :title="$t('tooltip.merge-services')"
@@ -17,7 +17,10 @@
         </summary>
         <ul>
           <li v-for="service in services" :key="service.name">
-            <router-link :to="{ name: 'service-name', params: { name: service.name } }" active-class="active-primary">
+            <router-link
+              :to="{ name: '/service/[name]', params: { name: service.name } }"
+              active-class="active-primary"
+            >
               <ph:stack-simple />
               <div class="truncate">
                 {{ service.name }}
@@ -36,7 +39,10 @@
         </summary>
         <ul>
           <li v-for="service in serivcesWithoutStacks" :key="service.name">
-            <router-link :to="{ name: 'service-name', params: { name: service.name } }" active-class="active-primary">
+            <router-link
+              :to="{ name: '/service/[name]', params: { name: service.name } }"
+              active-class="active-primary"
+            >
               <ph:stack-simple />
               <div class="truncate">
                 {{ service.name }}
@@ -55,7 +61,7 @@
         </summary>
         <ul>
           <li v-for="group in customGroups" :key="group.name">
-            <router-link :to="{ name: 'group-name', params: { name: group.name } }" active-class="active-primary">
+            <router-link :to="{ name: '/group/[name]', params: { name: group.name } }" active-class="active-primary">
               <ph:stack-simple />
               <div class="truncate">
                 {{ group.name }}

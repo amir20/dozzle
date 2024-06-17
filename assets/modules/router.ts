@@ -1,12 +1,11 @@
 import { type App } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import pages from "~pages";
+import { routes } from "vue-router/auto-routes";
 import { setupLayouts } from "virtual:generated-layouts";
 
-const routes = setupLayouts(pages);
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
-  routes,
+  routes: setupLayouts(routes),
 });
 
 export const install = (app: App) => {

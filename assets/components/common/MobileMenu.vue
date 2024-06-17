@@ -1,7 +1,7 @@
 <template>
   <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
     <div class="flex items-center">
-      <router-link :to="{ name: 'index' }">
+      <router-link :to="{ name: '/' }">
         <svg class="h-14 w-28 fill-secondary">
           <use href="#logo"></use>
         </svg>
@@ -35,7 +35,7 @@
           <li class="menu-title">{{ $t("label.containers") }}</li>
           <li v-for="item in sortedContainers" :key="item.id" :class="item.state">
             <router-link
-              :to="{ name: 'container-id', params: { id: item.id } }"
+              :to="{ name: '/container/[id]', params: { id: item.id } }"
               active-class="active-primary"
               class="truncate"
               :title="item.name"
