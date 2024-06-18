@@ -1,6 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from "vue";
 import Theme from "vitepress/theme";
+import "@fontsource-variable/playfair-display";
 import "./style.css";
 import HeroVideo from "./components/HeroVideo.vue";
 import BuyMeCoffee from "./components/BuyMeCoffee.vue";
