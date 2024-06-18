@@ -1,11 +1,11 @@
 {
- "private": true,
- "type": "module",
- "name": "docs",
- "devDependencies": {
-  "dozzle": "workspace:*"
- },
- "dependencies": {
-  "vite-plugin-webfont-dl": "^3.9.4"
- }
+  "private": true,
+  "type": "module",
+  "name": "docs",
+  "devDependencies": {
+    "dozzle": "workspace:*"
+  },
+  "dependencies": {
+    "@fontsource-variable/playfair-display": "^5.0.25"
+  }
 }
