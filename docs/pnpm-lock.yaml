@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@fontsource-variable/playfair-display':
-        specifier: ^5.0.25
-        version: 5.0.25
       vite-plugin-webfont-dl:
         specifier: ^3.9.4
         version: 3.9.4(vite@5.3.1)
@@ -158,9 +155,6 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
-
-  '@fontsource-variable/playfair-display@5.0.25':
-    resolution: {integrity: sha512-q8tzLiURtXycJQ27YoppTNCEe0W2ZRXIeZ25nH9KoM6fsbWYZAm9ItY0aRoL/jn/GllsEcTSm8H2UKa7l4AxDw==}
 
   '@rollup/rollup-android-arm-eabi@4.18.0':
     resolution: {integrity: sha512-Tya6xypR10giZV1XzxmH5wr25VcZSncG0pZIjfePT0OVBvqNEurzValetGNarVrGiq66EBVAFn15iYX4w6FKgQ==}
@@ -479,8 +473,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.21.5':
     optional: true
-
-  '@fontsource-variable/playfair-display@5.0.25': {}
 
   '@rollup/rollup-android-arm-eabi@4.18.0':
     optional: true
