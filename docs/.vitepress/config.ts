@@ -27,6 +27,9 @@ export default defineConfig({
     ],
   ],
   themeConfig: {
+    search: {
+      provider: "local",
+    },
     editLink: {
       pattern: "https://github.com/amir20/dozzle/edit/master/docs/:path",
     },
