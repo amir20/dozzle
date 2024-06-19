@@ -26,7 +26,7 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/chi/v5 v5.0.13
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/goccy/go-json v0.10.3
 	github.com/puzpuzpuz/xsync/v3 v3.1.0
