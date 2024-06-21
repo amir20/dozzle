@@ -157,6 +157,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error)
 }
 
 func (d *httpClient) FindContainer(id string) (Container, error) {
+	log.Debugf("finding container with id: %s", id)
 	var container Container
 	containers, err := d.ListContainers()
 	if err != nil {
