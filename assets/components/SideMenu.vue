@@ -32,7 +32,7 @@ const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
 onBeforeRouteLeave((to) => {
   if (to.meta.swarmMode) {
     showSwarm.value = true;
-  } else {
+  } else if (to.meta.containerMode) {
     showSwarm.value = false;
   }
 });

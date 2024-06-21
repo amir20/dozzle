@@ -31,3 +31,7 @@ watchEffect(() => {
   }
 });
 </script>
+<route lang="yaml">
+meta:
+  containerMode: true
+</route>

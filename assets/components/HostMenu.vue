@@ -170,18 +170,14 @@ const menuItems = computed(() => {
 
 const route = useRoute("/container/[id]");
 
-const updateHostForContainerRoute = (to: RouteLocationNormalizedLoaded) => {
-  if (to.name === "/container/[id]") {
-    const container = containerStore.findContainerById(to.params.id as string);
+watchEffect(() => {
+  if (route.name === "/container/[id]") {
+    const container = containerStore.findContainerById(route.params.id);
     if (container) {
       setHost(container.host);
     }
   }
-};
-
-updateHostForContainerRoute(route);
-
-onBeforeRouteUpdate((to) => updateHostForContainerRoute(to));
+});
 </script>
 <style scoped lang="postcss">
 .menu {
