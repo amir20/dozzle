@@ -19,6 +19,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/amir20/dozzle/internal/rpc"
 	"github.com/amir20/dozzle/internal/web"
 
 	log "github.com/sirupsen/logrus"
@@ -46,9 +47,13 @@ type args struct {
 
 	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
+	Agent       *AgentCmd       `arg:"subcommand:agent" help:"starts the agent"`
 }
 
 type HealthcheckCmd struct {
+}
+
+type AgentCmd struct {
 }
 
 type GenerateCmd struct {
@@ -71,6 +76,12 @@ func main() {
 	validateEnvVars()
 	if subcommand != nil {
 		switch subcommand.(type) {
+		case *AgentCmd:
+			client, err := docker.NewClientWithFilters(map[string][]string{})
+			if err != nil {
+				log.Fatal(err)
+			}
+			rpc.RunAgentServer(client)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)
