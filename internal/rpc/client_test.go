@@ -18,7 +18,7 @@ func TestNewClient(t *testing.T) {
 func TestFindContainer(t *testing.T) {
 	client := NewClient()
 	container, err := client.FindContainer("57dbe50682eb")
-	assert.Nil(t, err, "Error should be nil")
+	assert.Nil(t, err, "Error should be nil. Got: %v", err)
 	assert.NotNil(t, container, "Container should not be nil")
 	assert.Equal(t, "57dbe50682eb", container.ID, "Container ID should be 57dbe50682eb")
 }
