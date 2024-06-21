@@ -2,14 +2,17 @@ package rpc
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"io"
+	"os"
 	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/rpc/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 type rpcClient struct {
@@ -17,10 +20,35 @@ type rpcClient struct {
 }
 
 func NewClient() *rpcClient {
-	conn, err := grpc.NewClient("localhost:7007", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	pwd := "/Users/araminfar/Workspace/dozzle/"
+	cert, err := tls.LoadX509KeyPair(pwd+"shared_cert.pem", pwd+"shared_key.pem")
+	if err != nil {
+		log.Fatalf("failed to load client certificate: %v", err)
+	}
+
+	// Load the CA certificate from disk
+	caCert, err := os.ReadFile(pwd + "shared_cert.pem")
+	if err != nil {
+		log.Fatalf("failed to read CA certificate: %v", err)
+	}
+	caCertPool := x509.NewCertPool()
+	if !caCertPool.AppendCertsFromPEM(caCert) {
+		log.Fatalf("failed to add CA certificate to pool")
+	}
+
+	// Create the TLS configuration
+	tlsConfig := &tls.Config{
+		Certificates:       []tls.Certificate{cert},
+		RootCAs:            caCertPool,
+		InsecureSkipVerify: true, // Set to true if the server's hostname does not match the certificate
+	}
+
+	// Create the gRPC transport credentials
+	creds := credentials.NewTLS(tlsConfig)
+
+	conn, err := grpc.NewClient("localhost:7007", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect to server: %v", err)
-
 	}
 
 	client := pb.NewStreamServiceClient(conn)
