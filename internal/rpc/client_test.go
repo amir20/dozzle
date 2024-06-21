@@ -1,8 +1,12 @@
 package rpc
 
 import (
+	"context"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
+
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,10 +23,17 @@ func TestFindContainer(t *testing.T) {
 	assert.Equal(t, "57dbe50682eb", container.ID, "Container ID should be 57dbe50682eb")
 }
 
-
-
 func TestStreamLogs(t *testing.T) {
 	client := NewClient()
-	_, err := client.ContainerLogs("57dbe50682eb", nil, "stdout")
+	events := make(chan docker.LogEvent)
+	go func() {
+		for event := range events {
+			assert.NotNil(t, event, "Event should not be nil")
+			log.Printf("Event: %+v", event)
+		}
+	}()
+
+	err := client.ContainerLogs(context.Background(), "57dbe50682eb", nil, docker.STDALL, events)
 	assert.Nil(t, err, "Error should be nil")
+
 }
