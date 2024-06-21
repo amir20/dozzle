@@ -7,8 +7,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/rpc/pb"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/system"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -18,7 +16,7 @@ type rpcClient struct {
 	client pb.StreamServiceClient
 }
 
-func NewClient() docker.Client {
+func NewClient() *rpcClient {
 	conn, err := grpc.NewClient("localhost:7007", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to server: %v", err)
@@ -29,8 +27,44 @@ func NewClient() docker.Client {
 	return &rpcClient{client: client}
 }
 
-func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since *time.Time, std docker.StdType) (io.ReadCloser, error) {
-	return nil, nil
+func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since *time.Time, std docker.StdType, events chan<- docker.LogEvent) error {
+	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{ContainerId: containerID})
+
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("cannot receive %v", err)
+		}
+
+		// unpack message from any type
+
+		m, err := resp.Event.Message.UnmarshalNew()
+		if err != nil {
+			log.Fatalf("cannot unpack message %v", err)
+		}
+
+		var message any
+		switch m := m.(type) {
+		case *pb.SimpleMessage:
+			message = m.Message
+		default:
+			log.Fatalf("unknown type %T", m)
+		}
+
+		events <- docker.LogEvent{
+			Id:          resp.Event.Id,
+			ContainerID: resp.Event.ContainerId,
+			Message:     message,
+			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
+		}
+	}
 }
 
 func (c *rpcClient) FindContainer(containerID string) (docker.Container, error) {
@@ -55,40 +89,4 @@ func (c *rpcClient) FindContainer(containerID string) (docker.Container, error) 
 		Tty:     response.Container.Tty,
 		Stats:   nil,
 	}, nil
-}
-
-func (c *rpcClient) ListContainers() ([]docker.Container, error) {
-	return nil, nil
-}
-
-func (c *rpcClient) Events(ctx context.Context, events chan<- docker.ContainerEvent) error {
-	return nil
-}
-
-func (c *rpcClient) Host() *docker.Host {
-	return nil
-}
-
-func (c *rpcClient) ContainerLogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (io.ReadCloser, error) {
-	return nil, nil
-}
-
-func (c *rpcClient) ContainerStats(ctx context.Context, containerID string, stats chan<- docker.ContainerStat) error {
-	return nil
-}
-
-func (c *rpcClient) Ping(ctx context.Context) (types.Ping, error) {
-	return types.Ping{}, nil
-}
-
-func (c *rpcClient) ContainerActions(action string, containerID string) error {
-	return nil
-}
-
-func (c *rpcClient) IsSwarmMode() bool {
-	return false
-}
-
-func (c *rpcClient) SystemInfo() system.Info {
-	return system.Info{}
 }
