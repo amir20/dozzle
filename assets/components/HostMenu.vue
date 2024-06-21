@@ -168,10 +168,10 @@ const menuItems = computed(() => {
   return items;
 });
 
-const route = useRoute();
+const route = useRoute("/container/[id]");
 
 const updateHostForContainerRoute = (to: RouteLocationNormalizedLoaded) => {
-  if (to.name === "container-id") {
+  if (to.name === "/container/[id]") {
     const container = containerStore.findContainerById(to.params.id as string);
     if (container) {
       setHost(container.host);
