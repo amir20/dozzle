@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "internal/rpc/protos";
+
+package protobuf;
+
+import "types.proto";
+import "google/protobuf/timestamp.proto";
+
+service StreamService {
+  rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}
+  rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
+  rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
+  rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
+  rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
+}
+
+message ListContainersRequest {}
+
+message ListContainersResponse { repeated Container containers = 1; }
+
+message FindContainerRequest { string containerId = 1; }
+
+message FindContainerResponse { Container container = 1; }
+
+message StreamLogsRequest {
+  string id = 1;
+  google.protobuf.Timestamp since = 2;
+}
+
+message StreamLogsResponse { LogEvent event = 1; }
+
+message StreamEventsRequest {}
+
+message StreamEventsResponse { ContainerEvent event = 1; }
+
+message StreamStatsRequest {}
+
+message StreamStatsResponse { ContainerStat stats = 1; }

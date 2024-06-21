@@ -1,0 +1,44 @@
+syntax = "proto3";
+option go_package = "internal/rpc/protos";
+
+package protobuf;
+
+import "google/protobuf/timestamp.proto";
+
+message Container {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string status = 4;
+  string state = 5;
+  string ImageId = 6;
+  google.protobuf.Timestamp created = 7;
+  google.protobuf.Timestamp started = 8;
+  string health = 9;
+  string host = 10;
+  bool tty = 11;
+  map<string, string> labels = 12;
+  repeated ContainerStat stats = 13;
+  string group = 14;
+}
+
+message ContainerStat {
+  string id = 1;
+  float cpuPercent = 2;
+  float memoryUsage = 3;
+  float memoryPercent = 4;
+}
+
+message LogEvent {
+  string id = 1;
+  string containerId = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message ContainerEvent {
+  string id = 1;
+  string actorId = 2;
+  string name = 3;
+  string host = 4;
+}
