@@ -70,7 +70,7 @@
   "vitepress": "1.2.3",
   "vite-plugin-compression2": "^1.1.1",
   "vite-plugin-vue-layouts": "^0.11.0",
-  "vue": "^3.4.29",
+  "vue": "^3.4.30",
   "vue-i18n": "^9.13.1",
   "vue-router": "^4.4.0"
  },
@@ -84,9 +84,9 @@
   "@types/d3-shape": "^3.1.6",
   "@types/d3-transition": "^3.0.8",
   "@types/lodash.debounce": "^4.0.9",
-  "@types/node": "^20.14.7",
+  "@types/node": "^20.14.8",
   "@vitejs/plugin-vue": "5.0.5",
-  "@vue/compiler-sfc": "^3.4.29",
+  "@vue/compiler-sfc": "^3.4.30",
   "@vue/test-utils": "^2.4.6",
   "bumpp": "^9.4.1",
   "c8": "^10.1.2",
@@ -100,8 +100,8 @@
   "ts-node": "^10.9.2",
   "typescript": "^5.5.2",
   "vitest": "^1.6.0",
-  "vue-component-type-helpers": "^2.0.21",
-  "vue-tsc": "^2.0.21"
+  "vue-component-type-helpers": "^2.0.22",
+  "vue-tsc": "^2.0.22"
  },
  "lint-staged": {
   "*.{js,vue,css,ts,html,md}": [
