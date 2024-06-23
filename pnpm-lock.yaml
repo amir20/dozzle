@@ -78,8 +78,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       daisyui:
-        specifier: ^4.12.2
-        version: 4.12.2(postcss@8.4.38)
+        specifier: ^4.12.6
+        version: 4.12.6(postcss@8.4.38)
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -1465,8 +1465,8 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
 
-  daisyui@4.12.2:
-    resolution: {integrity: sha512-ed3EFwPRLN+9+/MYPRB1pYjk6plRCBMobfBdSeB3voAS81KdL2pCKtbwJfUUpDdOnJ0F8T6oRdVX02P6UCD0Hg==}
+  daisyui@4.12.6:
+    resolution: {integrity: sha512-Tz/rvi2ws7+7uh51JgGpsRqnASwI13t6Sz53ePaGkhLzhr4SQI4wwNxSypE8lj/d4gl/+lbHK1phIKUo+d2YNw==}
     engines: {node: '>=16.9.0'}
 
   data-urls@5.0.0:
@@ -4405,7 +4405,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-timer: 3.0.1
 
-  daisyui@4.12.2(postcss@8.4.38):
+  daisyui@4.12.6(postcss@8.4.38):
     dependencies:
       css-selector-tokenizer: 0.8.0
       culori: 3.3.0
