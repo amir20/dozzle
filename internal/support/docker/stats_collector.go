@@ -15,7 +15,7 @@ import (
 
 type StatsCollector struct {
 	stream       chan docker.ContainerStat
-	subscribers  *xsync.MapOf[context.Context, chan docker.ContainerStat]
+	subscribers  *xsync.MapOf[context.Context, chan<- docker.ContainerStat]
 	client       docker.Client
 	cancelers    *xsync.MapOf[string, context.CancelFunc]
 	stopper      context.CancelFunc
@@ -29,14 +29,18 @@ var timeToStop = 6 * time.Hour
 func NewStatsCollector(client docker.Client) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan docker.ContainerStat),
-		subscribers: xsync.NewMapOf[context.Context, chan docker.ContainerStat](),
+		subscribers: xsync.NewMapOf[context.Context, chan<- docker.ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
 	}
 }
 
-func (c *StatsCollector) Subscribe(ctx context.Context, stats chan docker.ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- docker.ContainerStat) {
 	c.subscribers.Store(ctx, stats)
+}
+
+func (c *StatsCollector) Unsubscribe(ctx context.Context) {
+	c.subscribers.Delete(ctx)
 }
 
 func (c *StatsCollector) forceStop() {
@@ -137,7 +141,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			log.Info("stopped collecting container stats")
 			return true
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan docker.ContainerStat) bool {
+			sc.subscribers.Range(func(c context.Context, stats chan<- docker.ContainerStat) bool {
 				select {
 				case stats <- stat:
 				case <-c.Done():

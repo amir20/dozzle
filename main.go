@@ -94,7 +94,7 @@ func main() {
 			log.Infof("Error: %v", err)
 
 		case *AgentCmd:
-			client, err := docker.NewClientWithFilters(map[string][]string{})
+			client, err := docker.NewClientWithFilters(map[string][]string{}, "")
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -188,15 +188,12 @@ func doStartEvent(arg args, clients map[string]docker.Client) {
 }
 
 func createClients(args args,
-	localClientFactory func(map[string][]string) (docker.Client, error),
+	localClientFactory func(map[string][]string, string) (docker.Client, error),
 	remoteClientFactory func(map[string][]string, docker.Host) (docker.Client, error),
 	hostname string) map[string]docker.Client {
 	clients := make(map[string]docker.Client)
 
 	if localClient, err := createLocalClient(args, localClientFactory); err == nil {
-		if hostname != "" {
-			localClient.Host().Name = hostname
-		}
 		clients[localClient.Host().ID] = localClient
 	}
 
@@ -289,9 +286,9 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 	return web.CreateServer(clients, assets, config)
 }
 
-func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) (docker.Client, error) {
+func createLocalClient(args args, localClientFactory func(map[string][]string, string) (docker.Client, error)) (docker.Client, error) {
 	for i := 1; ; i++ {
-		dockerClient, err := localClientFactory(args.Filter)
+		dockerClient, err := localClientFactory(args.Filter, args.Hostname)
 		if err == nil {
 			_, err := dockerClient.ListContainers()
 			if err != nil {

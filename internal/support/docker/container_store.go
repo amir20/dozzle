@@ -13,7 +13,7 @@ import (
 
 type ContainerStore struct {
 	containers              *xsync.MapOf[string, *docker.Container]
-	subscribers             *xsync.MapOf[context.Context, chan docker.ContainerEvent]
+	subscribers             *xsync.MapOf[context.Context, chan<- docker.ContainerEvent]
 	newContainerSubscribers *xsync.MapOf[context.Context, chan docker.Container]
 	client                  docker.Client
 	statsCollector          *StatsCollector
@@ -27,7 +27,7 @@ func NewContainerStore(ctx context.Context, client docker.Client) *ContainerStor
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *docker.Container](),
 		client:                  client,
-		subscribers:             xsync.NewMapOf[context.Context, chan docker.ContainerEvent](),
+		subscribers:             xsync.NewMapOf[context.Context, chan<- docker.ContainerEvent](),
 		newContainerSubscribers: xsync.NewMapOf[context.Context, chan docker.Container](),
 		statsCollector:          NewStatsCollector(client),
 		wg:                      sync.WaitGroup{},
@@ -85,7 +85,7 @@ func (s *ContainerStore) Client() docker.Client {
 	return s.client
 }
 
-func (s *ContainerStore) Subscribe(ctx context.Context, events chan docker.ContainerEvent) {
+func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
 			log.Debug("clearing container stats as stats collector has been stopped")
@@ -99,13 +99,17 @@ func (s *ContainerStore) Subscribe(ctx context.Context, events chan docker.Conta
 	s.subscribers.Store(ctx, events)
 }
 
-func (s *ContainerStore) Unsubscribe(ctx context.Context) {
+func (s *ContainerStore) UnsubscribeEvents(ctx context.Context) {
 	s.subscribers.Delete(ctx)
 	s.statsCollector.Stop()
 }
 
-func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan docker.ContainerStat) {
+func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {
 	s.statsCollector.Subscribe(ctx, stats)
+}
+
+func (s *ContainerStore) UnsubscribeStats(ctx context.Context) {
+	s.statsCollector.Unsubscribe(ctx)
 }
 
 func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan docker.Container) {
@@ -168,7 +172,7 @@ func (s *ContainerStore) init() {
 					}
 				})
 			}
-			s.subscribers.Range(func(c context.Context, events chan docker.ContainerEvent) bool {
+			s.subscribers.Range(func(c context.Context, events chan<- docker.ContainerEvent) bool {
 				select {
 				case events <- event:
 				case <-c.Done():

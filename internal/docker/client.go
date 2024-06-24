@@ -68,7 +68,7 @@ type Client interface {
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
-	Host() *Host
+	Host() Host
 	ContainerActions(action string, containerID string) error
 	IsSwarmMode() bool
 	SystemInfo() system.Info
@@ -77,11 +77,11 @@ type Client interface {
 type httpClient struct {
 	cli     DockerCLI
 	filters filters.Args
-	host    *Host
+	host    Host
 	info    system.Info
 }
 
-func NewClient(cli DockerCLI, filters filters.Args, host *Host) Client {
+func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 	client := &httpClient{
 		cli:     cli,
 		filters: filters,
@@ -101,7 +101,7 @@ func NewClient(cli DockerCLI, filters filters.Args, host *Host) Client {
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f map[string][]string) (Client, error) {
+func NewClientWithFilters(f map[string][]string, hostname string) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -117,7 +117,12 @@ func NewClientWithFilters(f map[string][]string) (Client, error) {
 		return nil, err
 	}
 
-	return NewClient(cli, filterArgs, &Host{Name: "localhost", ID: "localhost"}), nil
+	if hostname == "" {
+		hostname = "localhost"
+
+	}
+
+	return NewClient(cli, filterArgs, Host{Name: hostname, ID: "localhost"}), nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
@@ -153,7 +158,7 @@ func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error)
 		return nil, err
 	}
 
-	return NewClient(cli, filterArgs, &host), nil
+	return NewClient(cli, filterArgs, host), nil
 }
 
 func (d *httpClient) FindContainer(id string) (Container, error) {
@@ -367,7 +372,7 @@ func (d *httpClient) Ping(ctx context.Context) (types.Ping, error) {
 	return d.cli.Ping(ctx)
 }
 
-func (d *httpClient) Host() *Host {
+func (d *httpClient) Host() Host {
 	return d.host
 }
 

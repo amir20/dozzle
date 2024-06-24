@@ -43,7 +43,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if h.config.Base != "/" {
 		base = h.config.Base
 	}
-	hosts := make([]*docker.Host, 0, len(h.clients))
+	hosts := make([]docker.Host, 0, len(h.clients))
 	for _, v := range h.clients {
 		hosts = append(hosts, v.Host())
 	}
