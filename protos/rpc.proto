@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "internal/rpc/pb";
+option go_package = "internal/agent/pb";
 
 package protobuf;
 
@@ -25,6 +25,7 @@ message FindContainerResponse { Container container = 1; }
 message StreamLogsRequest {
   string containerId = 1;
   google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp until = 3;
 }
 
 message StreamLogsResponse { LogEvent event = 1; }
