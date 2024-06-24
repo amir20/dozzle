@@ -1,4 +1,4 @@
-package docker
+package docker_support
 
 import (
 	"context"
@@ -6,31 +6,32 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
 )
 
 type ContainerStore struct {
-	containers              *xsync.MapOf[string, *Container]
-	subscribers             *xsync.MapOf[context.Context, chan ContainerEvent]
-	newContainerSubscribers *xsync.MapOf[context.Context, chan Container]
-	client                  Client
+	containers              *xsync.MapOf[string, *docker.Container]
+	subscribers             *xsync.MapOf[context.Context, chan docker.ContainerEvent]
+	newContainerSubscribers *xsync.MapOf[context.Context, chan docker.Container]
+	client                  docker.Client
 	statsCollector          *StatsCollector
 	wg                      sync.WaitGroup
 	connected               atomic.Bool
-	events                  chan ContainerEvent
+	events                  chan docker.ContainerEvent
 	ctx                     context.Context
 }
 
-func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
+func NewContainerStore(ctx context.Context, client docker.Client) *ContainerStore {
 	s := &ContainerStore{
-		containers:              xsync.NewMapOf[string, *Container](),
+		containers:              xsync.NewMapOf[string, *docker.Container](),
 		client:                  client,
-		subscribers:             xsync.NewMapOf[context.Context, chan ContainerEvent](),
-		newContainerSubscribers: xsync.NewMapOf[context.Context, chan Container](),
+		subscribers:             xsync.NewMapOf[context.Context, chan docker.ContainerEvent](),
+		newContainerSubscribers: xsync.NewMapOf[context.Context, chan docker.Container](),
 		statsCollector:          NewStatsCollector(client),
 		wg:                      sync.WaitGroup{},
-		events:                  make(chan ContainerEvent),
+		events:                  make(chan docker.ContainerEvent),
 		ctx:                     ctx,
 	}
 
@@ -65,14 +66,14 @@ func (s *ContainerStore) checkConnectivity() error {
 	return nil
 }
 
-func (s *ContainerStore) List() ([]Container, error) {
+func (s *ContainerStore) ListContainers() ([]docker.Container, error) {
 	s.wg.Wait()
 
 	if err := s.checkConnectivity(); err != nil {
 		return nil, err
 	}
-	containers := make([]Container, 0)
-	s.containers.Range(func(_ string, c *Container) bool {
+	containers := make([]docker.Container, 0)
+	s.containers.Range(func(_ string, c *docker.Container) bool {
 		containers = append(containers, *c)
 		return true
 	})
@@ -80,15 +81,15 @@ func (s *ContainerStore) List() ([]Container, error) {
 	return containers, nil
 }
 
-func (s *ContainerStore) Client() Client {
+func (s *ContainerStore) Client() docker.Client {
 	return s.client
 }
 
-func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
+func (s *ContainerStore) Subscribe(ctx context.Context, events chan docker.ContainerEvent) {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
 			log.Debug("clearing container stats as stats collector has been stopped")
-			s.containers.Range(func(_ string, c *Container) bool {
+			s.containers.Range(func(_ string, c *docker.Container) bool {
 				c.Stats.Clear()
 				return true
 			})
@@ -103,16 +104,16 @@ func (s *ContainerStore) Unsubscribe(ctx context.Context) {
 	s.statsCollector.Stop()
 }
 
-func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
+func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan docker.ContainerStat) {
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
-func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan Container) {
+func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan docker.Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
 }
 
 func (s *ContainerStore) init() {
-	stats := make(chan ContainerStat)
+	stats := make(chan docker.ContainerStat)
 	s.statsCollector.Subscribe(s.ctx, stats)
 
 	s.checkConnectivity()
@@ -128,7 +129,7 @@ func (s *ContainerStore) init() {
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
 					s.containers.Store(container.ID, &container)
-					s.newContainerSubscribers.Range(func(c context.Context, containers chan Container) bool {
+					s.newContainerSubscribers.Range(func(c context.Context, containers chan docker.Container) bool {
 						select {
 						case containers <- container:
 						case <-c.Done():
@@ -142,7 +143,7 @@ func (s *ContainerStore) init() {
 				s.containers.Delete(event.ActorID)
 
 			case "die":
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				s.containers.Compute(event.ActorID, func(c *docker.Container, loaded bool) (*docker.Container, bool) {
 					if loaded {
 						log.Debugf("container %s died", c.ID)
 						c.State = "exited"
@@ -157,7 +158,7 @@ func (s *ContainerStore) init() {
 					healthy = "healthy"
 				}
 
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				s.containers.Compute(event.ActorID, func(c *docker.Container, loaded bool) (*docker.Container, bool) {
 					if loaded {
 						log.Debugf("health status for container %s is %s", c.ID, healthy)
 						c.Health = healthy
@@ -167,7 +168,7 @@ func (s *ContainerStore) init() {
 					}
 				})
 			}
-			s.subscribers.Range(func(c context.Context, events chan ContainerEvent) bool {
+			s.subscribers.Range(func(c context.Context, events chan docker.ContainerEvent) bool {
 				select {
 				case events <- event:
 				case <-c.Done():

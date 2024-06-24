@@ -13,15 +13,18 @@ type ClientService interface {
 	StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
 	FindContainer(id string) (docker.Container, error)
+	ListContainers() ([]docker.Container, error)
 }
 
 type dockerClientService struct {
 	client docker.Client
+	store  *ContainerStore
 }
 
 func NewDockerClientService(client docker.Client) ClientService {
 	return &dockerClientService{
 		client: client,
+		store:  NewContainerStore(context.Background(), client),
 	}
 }
 
@@ -60,4 +63,8 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 
 func (d *dockerClientService) FindContainer(id string) (docker.Container, error) {
 	return d.client.FindContainer(id)
+}
+
+func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
+	return d.store.ListContainers()
 }

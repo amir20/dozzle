@@ -27,12 +27,14 @@ func (a *agentService) RawLogReader(ctx context.Context, container docker.Contai
 
 func (a *agentService) StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
 	events := make(chan *docker.LogEvent)
-
 	go a.client.StreamContainerLogs(ctx, container.ID, from, to, stdTypes, events)
-
 	return events, nil
 }
 
 func (a *agentService) StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error {
 	return a.client.StreamContainerLogs(ctx, container.ID, from, time.Now().Add(24*time.Hour), stdTypes, events)
+}
+
+func (a *agentService) ListContainers() ([]docker.Container, error) {
+	return a.client.ListContainers()
 }

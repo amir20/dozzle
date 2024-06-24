@@ -187,7 +187,7 @@ func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		for _, store := range h.stores {
-			list, err := store.List()
+			list, err := store.ListContainers()
 			if err != nil {
 				log.Errorf("error while listing containers %v", err.Error())
 				return
@@ -233,7 +233,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		for _, store := range h.stores {
-			list, err := store.List()
+			list, err := store.ListContainers()
 			if err != nil {
 				log.Errorf("error while listing containers %v", err.Error())
 				return
@@ -278,7 +278,7 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		for _, store := range h.stores {
-			list, err := store.List()
+			list, err := store.ListContainers()
 			if err != nil {
 				log.Errorf("error while listing containers %v", err.Error())
 				return

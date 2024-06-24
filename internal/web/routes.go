@@ -47,17 +47,17 @@ type Authorizer interface {
 
 type handler struct {
 	clients          map[string]docker.Client
-	stores           map[string]*docker.ContainerStore
+	stores           map[string]*docker_support.ContainerStore
 	content          fs.FS
 	config           *Config
 	multiHostService docker_support.MultiHostService
 }
 
 func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
-	stores := make(map[string]*docker.ContainerStore)
+	stores := make(map[string]*docker_support.ContainerStore)
 	services := make(map[string]docker_support.ClientService)
 	for host, client := range clients {
-		stores[host] = docker.NewContainerStore(context.Background(), client)
+		stores[host] = docker_support.NewContainerStore(context.Background(), client)
 		services[host] = docker_support.NewDockerClientService(client)
 	}
 
