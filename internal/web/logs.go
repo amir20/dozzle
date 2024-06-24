@@ -96,22 +96,19 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	container, err := h.clientFromRequest(r).FindContainer(id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	reader, err := h.clientFromRequest(r).ContainerLogsBetweenDates(r.Context(), container.ID, from, to, stdTypes)
+	events, err := containerService.StreamLogsBetweenDates(r.Context(), from, to, stdTypes)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Errorf("error while streaming logs %v", err.Error())
 	}
 
-	g := docker.NewEventGenerator(reader, container)
 	encoder := json.NewEncoder(w)
-
-	for event := range g.Events {
+	for event := range events {
 		if err := encoder.Encode(event); err != nil {
 			log.Errorf("json encoding error while streaming %v", err.Error())
 		}
