@@ -21,8 +21,8 @@ func (a *agentService) FindContainer(id string) (docker.Container, error) {
 	return a.client.FindContainer(id)
 }
 
-func (a *agentService) RawLogReader(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
-	return nil, nil
+func (a *agentService) RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
+	return a.client.StreamRawBytes(ctx, container.ID, from, to, stdTypes)
 }
 
 func (a *agentService) StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {

@@ -6,4 +6,4 @@ dist
 .git
 e2e
 docs
-internal/rpc/protos/
+internal/agent/pb/

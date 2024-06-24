@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,7 +22,7 @@ type Host struct {
 	MemTotal   int64    `json:"memTotal"`
 }
 
-func (h *Host) String() string {
+func (h Host) String() string {
 	return h.ID
 }
 

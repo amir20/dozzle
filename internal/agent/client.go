@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"io"
 	"os"
 	"time"
 
@@ -60,6 +61,7 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
 		Until:       timestamppb.New(until),
+		StreamTypes: int32(std),
 	})
 
 	if err != nil {
@@ -92,6 +94,35 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
 		}
 	}
+}
+
+func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (io.ReadCloser, error) {
+	out, err := c.client.StreamRawBytes(context.Background(), &pb.StreamRawBytesRequest{
+		ContainerId: containerID,
+		Since:       timestamppb.New(since),
+		Until:       timestamppb.New(until),
+		StreamTypes: int32(std),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	r, w := io.Pipe()
+
+	go func() {
+		defer w.Close()
+		for {
+			resp, err := out.Recv()
+			if err != nil {
+				return
+			}
+
+			w.Write(resp.Data)
+		}
+	}()
+
+	return r, nil
 }
 
 func (c *Client) FindContainer(containerID string) (docker.Container, error) {
