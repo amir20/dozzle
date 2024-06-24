@@ -117,3 +117,31 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 		Stats:   nil,
 	}, nil
 }
+
+func (c *Client) ListContainers() ([]docker.Container, error) {
+	response, err := c.client.ListContainers(context.Background(), &pb.ListContainersRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	containers := make([]docker.Container, 0)
+	for _, container := range response.Containers {
+		containers = append(containers, docker.Container{
+			ID:      container.Id,
+			Name:    container.Name,
+			Image:   container.Image,
+			Labels:  container.Labels,
+			Group:   container.Group,
+			ImageID: container.ImageId,
+			Created: container.Created.AsTime(),
+			State:   container.State,
+			Status:  container.Status,
+			Health:  container.Health,
+			Host:    container.Host,
+			Tty:     container.Tty,
+			Stats:   nil, // TODO: convert stats
+		})
+	}
+
+	return containers, nil
+}

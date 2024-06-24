@@ -32,7 +32,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	stats := make(chan docker.ContainerStat)
 
 	for _, store := range h.stores {
-		if containers, err := store.List(); err == nil {
+		if containers, err := store.ListContainers(); err == nil {
 			allContainers = append(allContainers, containers...)
 		} else {
 			log.Errorf("error listing containers: %v", err)
@@ -76,7 +76,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			case "start", "die":
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
-					if containers, err := h.stores[event.Host].List(); err == nil {
+					if containers, err := h.stores[event.Host].ListContainers(); err == nil {
 						if err := sendContainersJSON(containers, w); err != nil {
 							log.Errorf("error encoding containers to stream: %v", err)
 							return
