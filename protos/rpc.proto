@@ -10,6 +10,8 @@ service StreamService {
   rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}
   rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
   rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
+  rpc StreamRawBytes(StreamRawBytesRequest)
+      returns (stream StreamRawBytesResponse) {}
   rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
   rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
 }
@@ -26,9 +28,19 @@ message StreamLogsRequest {
   string containerId = 1;
   google.protobuf.Timestamp since = 2;
   google.protobuf.Timestamp until = 3;
+  int32 streamTypes = 4;
 }
 
 message StreamLogsResponse { LogEvent event = 1; }
+
+message StreamRawBytesRequest {
+  string containerId = 1;
+  google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp until = 3;
+  int32 streamTypes = 4;
+}
+
+message StreamRawBytesResponse { bytes data = 1; }
 
 message StreamEventsRequest {}
 

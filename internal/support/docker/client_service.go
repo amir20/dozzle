@@ -9,7 +9,7 @@ import (
 )
 
 type ClientService interface {
-	RawLogReader(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
+	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 	StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
 	FindContainer(id string) (docker.Container, error)
@@ -33,7 +33,7 @@ func NewDockerClientService(client docker.Client) ClientService {
 	}
 }
 
-func (d *dockerClientService) RawLogReader(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
+func (d *dockerClientService) RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
 	return d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 

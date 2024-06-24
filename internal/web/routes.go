@@ -153,3 +153,13 @@ func (h *handler) clientFromRequest(r *http.Request) docker.Client {
 	log.Fatalf("No client found for host %v and url %v", host, r.URL)
 	return nil
 }
+
+func hostKey(r *http.Request) string {
+	host := chi.URLParam(r, "host")
+
+	if host == "" {
+		log.Fatalf("No host found for url %v", r.URL)
+	}
+
+	return host
+}

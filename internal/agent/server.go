@@ -79,6 +79,34 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_Strea
 
 }
 
+func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamService_StreamRawBytesServer) error {
+	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
+
+	if err != nil {
+		return err
+	}
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := reader.Read(buf)
+		if err != nil {
+			return err
+		}
+
+		if n == 0 {
+			break
+		}
+
+		if err := out.Send(&pb.StreamRawBytesResponse{
+			Data: buf[:n],
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.StreamService_StreamEventsServer) error {
 	return nil
 }

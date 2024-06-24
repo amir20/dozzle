@@ -24,7 +24,11 @@ RUN pnpm build
 
 FROM --platform=$BUILDPLATFORM golang:1.22.5-alpine AS builder
 
-RUN apk add --no-cache ca-certificates && mkdir /dozzle
+# install gRPC dependencies
+RUN apk add --no-cache ca-certificates protoc protobuf-dev\
+  && mkdir /dozzle \
+  && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+  && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /dozzle
 
@@ -32,16 +36,19 @@ WORKDIR /dozzle
 COPY go.* ./
 RUN go mod download
 
-# Copy assets built with node
-COPY --from=node /build/dist ./dist
-
 # Copy all other files
 COPY internal ./internal
 COPY main.go ./
+COPY protos ./protos
+
+# Copy assets built with node
+COPY --from=node /build/dist ./dist
 
 # Args
 ARG TAG=dev
 ARG TARGETOS TARGETARCH
+
+RUN go generate
 
 # Build binary
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
