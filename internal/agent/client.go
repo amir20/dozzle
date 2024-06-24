@@ -1,33 +1,33 @@
-package rpc
+package agent
 
 import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"io"
 	"os"
 	"time"
 
+	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/amir20/dozzle/internal/rpc/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type rpcClient struct {
+type Client struct {
 	client pb.StreamServiceClient
 }
 
-func NewClient() *rpcClient {
-	pwd := "/Users/araminfar/Workspace/dozzle/"
-	cert, err := tls.LoadX509KeyPair(pwd+"shared_cert.pem", pwd+"shared_key.pem")
+func NewClient() *Client {
+
+	cert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load client certificate: %v", err)
 	}
 
 	// Load the CA certificate from disk
-	caCert, err := os.ReadFile(pwd + "shared_cert.pem")
+	caCert, err := os.ReadFile("shared_cert.pem")
 	if err != nil {
 		log.Fatalf("failed to read CA certificate: %v", err)
 	}
@@ -52,11 +52,15 @@ func NewClient() *rpcClient {
 	}
 
 	client := pb.NewStreamServiceClient(conn)
-	return &rpcClient{client: client}
+	return &Client{client: client}
 }
 
-func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since *time.Time, std docker.StdType, events chan<- docker.LogEvent) error {
-	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{ContainerId: containerID})
+func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
+	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{
+		ContainerId: containerID,
+		Since:       timestamppb.New(since),
+		Until:       timestamppb.New(until),
+	})
 
 	if err != nil {
 		return err
@@ -64,14 +68,9 @@ func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since
 
 	for {
 		resp, err := stream.Recv()
-		if err == io.EOF {
-			return nil
-		}
 		if err != nil {
-			log.Fatalf("cannot receive %v", err)
+			return err
 		}
-
-		// unpack message from any type
 
 		m, err := resp.Event.Message.UnmarshalNew()
 		if err != nil {
@@ -86,7 +85,7 @@ func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since
 			log.Fatalf("unknown type %T", m)
 		}
 
-		events <- docker.LogEvent{
+		events <- &docker.LogEvent{
 			Id:          resp.Event.Id,
 			ContainerID: resp.Event.ContainerId,
 			Message:     message,
@@ -95,7 +94,7 @@ func (c *rpcClient) ContainerLogs(ctx context.Context, containerID string, since
 	}
 }
 
-func (c *rpcClient) FindContainer(containerID string) (docker.Container, error) {
+func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 	response, err := c.client.FindContainer(context.Background(), &pb.FindContainerRequest{ContainerId: containerID})
 	if err != nil {
 		return docker.Container{}, err

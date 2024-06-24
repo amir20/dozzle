@@ -1,4 +1,4 @@
-package rpc
+package agent
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/amir20/dozzle/internal/rpc/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -27,10 +27,9 @@ func NewServer(client docker.Client) pb.StreamServiceServer {
 }
 
 func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_StreamLogsServer) error {
-	var since *time.Time
+	since := time.Time{}
 	if in.Since != nil {
-		time := in.Since.AsTime()
-		since = &time
+		since = in.Since.AsTime()
 	}
 
 	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.STDALL)
@@ -71,6 +70,8 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_Strea
 					ContainerId: event.ContainerID,
 				},
 			})
+		case e := <-g.Errors:
+			return e
 		case <-out.Context().Done():
 			return nil
 		}
@@ -117,7 +118,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 	return nil, nil
 }
 
-func RunAgentServer(client docker.Client) {
+func RunServer(client docker.Client) {
 	serverCert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load server key pair: %v", err)

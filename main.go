@@ -15,11 +15,12 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
+	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
-	"github.com/amir20/dozzle/internal/rpc"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
 
 	log "github.com/sirupsen/logrus"
@@ -48,12 +49,16 @@ type args struct {
 	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent       *AgentCmd       `arg:"subcommand:agent" help:"starts the agent"`
+	Test        *TestCmd        `arg:"subcommand:test" help:"runs tests"`
 }
 
 type HealthcheckCmd struct {
 }
 
 type AgentCmd struct {
+}
+
+type TestCmd struct {
 }
 
 type GenerateCmd struct {
@@ -76,12 +81,24 @@ func main() {
 	validateEnvVars()
 	if subcommand != nil {
 		switch subcommand.(type) {
+		case *TestCmd:
+			client := agent.NewClient()
+			service := docker_support.NewAgentService(client)
+			events := make(chan *docker.LogEvent)
+			go func() {
+				for event := range events {
+					log.Infof("Event: %+v", event)
+				}
+			}()
+			err := service.StreamLogs(context.Background(), docker.Container{ID: "a4e3be6758e3"}, time.Now(), docker.STDALL, events)
+			log.Infof("Error: %v", err)
+
 		case *AgentCmd:
 			client, err := docker.NewClientWithFilters(map[string][]string{})
 			if err != nil {
 				log.Fatal(err)
 			}
-			rpc.RunAgentServer(client)
+			agent.RunServer(client)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)

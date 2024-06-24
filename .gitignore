@@ -12,6 +12,6 @@ coverage.out
 /test-results/
 /playwright-report/
 /playwright/.cache/
-/internal/rpc/pb/
+/internal/agent/pb/
 *.pem
 *.csr

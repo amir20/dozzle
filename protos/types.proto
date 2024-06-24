@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "internal/rpc/pb";
+option go_package = "internal/agent/pb";
 
 package protobuf;
 

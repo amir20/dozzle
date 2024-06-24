@@ -9,6 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
@@ -45,23 +46,27 @@ type Authorizer interface {
 }
 
 type handler struct {
-	clients map[string]docker.Client
-	stores  map[string]*docker.ContainerStore
-	content fs.FS
-	config  *Config
+	clients          map[string]docker.Client
+	stores           map[string]*docker.ContainerStore
+	content          fs.FS
+	config           *Config
+	multiHostService docker_support.MultiHostService
 }
 
 func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
 	stores := make(map[string]*docker.ContainerStore)
+	services := make(map[string]docker_support.ClientService)
 	for host, client := range clients {
 		stores[host] = docker.NewContainerStore(context.Background(), client)
+		services[host] = docker_support.NewDockerClientService(client)
 	}
 
 	handler := &handler{
-		clients: clients,
-		content: content,
-		config:  &config,
-		stores:  stores,
+		clients:          clients,
+		content:          content,
+		config:           &config,
+		stores:           stores,
+		multiHostService: docker_support.NewMultiHostService(services),
 	}
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}

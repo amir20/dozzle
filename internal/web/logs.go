@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
@@ -157,7 +158,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	streamLogsForContainers(w, r, h.clients, containers)
+	streamLogsForContainers(w, r, h.clients, containers, h.multiHostService)
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
@@ -177,7 +178,7 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 		containers <- container
 	}
 
-	streamLogsForContainers(w, r, h.clients, containers)
+	streamLogsForContainers(w, r, h.clients, containers, h.multiHostService)
 }
 
 func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
@@ -223,7 +224,7 @@ func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	streamLogsForContainers(w, r, h.clients, containers)
+	streamLogsForContainers(w, r, h.clients, containers, h.multiHostService)
 }
 
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
@@ -268,7 +269,7 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	streamLogsForContainers(w, r, h.clients, containers)
+	streamLogsForContainers(w, r, h.clients, containers, h.multiHostService)
 }
 
 func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
@@ -313,10 +314,10 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	streamLogsForContainers(w, r, h.clients, containers)
+	streamLogsForContainers(w, r, h.clients, containers, h.multiHostService)
 }
 
-func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map[string]docker.Client, containers chan docker.Container) {
+func streamLogsForContainers(w http.ResponseWriter, r *http.Request, clients map[string]docker.Client, containers chan docker.Container, multiHostClient docker_support.MultiHostService) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= docker.STDOUT
@@ -372,26 +373,23 @@ loop:
 				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
 			}
 			go func(container docker.Container) {
-				reader, err := clients[container.Host].ContainerLogs(r.Context(), container.ID, container.StartedAt, stdTypes)
+				start := time.Time{}
+				if container.StartedAt != nil {
+					start = *container.StartedAt
+				}
+				containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 				if err != nil {
+					log.Errorf("error while finding container %v", err.Error())
 					return
 				}
-				g := docker.NewEventGenerator(reader, container)
-				for event := range g.Events {
-					logs <- event
-				}
-				select {
-				case err := <-g.Errors:
-					if err != nil {
-						if err == io.EOF {
-							log.WithError(err).Debugf("stream closed for container %v", container.Name)
-							events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
-						} else if err != r.Context().Err() {
-							log.Errorf("unknown error while streaming %v", err.Error())
-						}
+				err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
+				if err != nil {
+					if err == io.EOF {
+						log.WithError(err).Debugf("stream closed for container %v", container.Name)
+						events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+					} else if err != r.Context().Err() {
+						log.Errorf("unknown error while streaming %v", err.Error())
 					}
-				default:
-					// do nothing
 				}
 			}(container)
 
