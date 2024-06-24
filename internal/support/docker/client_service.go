@@ -14,6 +14,11 @@ type ClientService interface {
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
 	FindContainer(id string) (docker.Container, error)
 	ListContainers() ([]docker.Container, error)
+	Host() docker.Host
+	SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat)
+	UnsubscribeStats(ctx context.Context)
+	SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent)
+	UnsubscribeEvents(ctx context.Context)
 }
 
 type dockerClientService struct {
@@ -67,4 +72,24 @@ func (d *dockerClientService) FindContainer(id string) (docker.Container, error)
 
 func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
 	return d.store.ListContainers()
+}
+
+func (d *dockerClientService) Host() docker.Host {
+	return d.client.Host()
+}
+
+func (d *dockerClientService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {
+	d.store.SubscribeStats(ctx, stats)
+}
+
+func (d *dockerClientService) UnsubscribeStats(ctx context.Context) {
+	d.store.UnsubscribeStats(ctx)
+}
+
+func (d *dockerClientService) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
+	d.store.SubscribeEvents(ctx, events)
+}
+
+func (d *dockerClientService) UnsubscribeEvents(ctx context.Context) {
+	d.store.UnsubscribeEvents(ctx)
 }

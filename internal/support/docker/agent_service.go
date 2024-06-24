@@ -38,3 +38,23 @@ func (a *agentService) StreamLogs(ctx context.Context, container docker.Containe
 func (a *agentService) ListContainers() ([]docker.Container, error) {
 	return a.client.ListContainers()
 }
+
+func (a *agentService) Host() docker.Host {
+	return docker.Host{} // TODO
+}
+
+func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {
+
+}
+
+func (a *agentService) UnsubscribeStats(ctx context.Context) {
+
+}
+
+func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
+
+}
+
+func (a *agentService) UnsubscribeEvents(ctx context.Context) {
+
+}
