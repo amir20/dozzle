@@ -13,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -113,9 +114,11 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 		defer w.Close()
 		for {
 			resp, err := out.Recv()
-			if err != nil {
-				log.Errorf("failed to receive response: %v", err)
+			status, ok := status.FromError(err)
+			if status.Message() == "EOF" || ok {
 				return
+			} else {
+				log.Errorf("cannot unpack message %v", err)
 			}
 
 			w.Write(resp.Data)
