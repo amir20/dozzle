@@ -143,7 +143,6 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamServi
 			break
 		}
 
-		log.Debugf("sending %d bytes", n)
 		if err := out.Send(&pb.StreamRawBytesResponse{
 			Data: buf[:n],
 		}); err != nil {

@@ -23,7 +23,6 @@ import (
 	"github.com/amir20/dozzle/internal/healthcheck"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
-	"google.golang.org/grpc/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -101,8 +100,6 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			status.FromError()
 
 			io.Copy(os.Stdout, reader)
 
