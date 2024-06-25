@@ -48,3 +48,16 @@ message ContainerEvent {
   string name = 3;
   string host = 4;
 }
+
+message Host {
+  string id = 1;
+  string name = 2;
+  string nodeAddress = 3;
+  bool swarm = 4;
+  map<string, string> labels = 5;
+  string operatingSystem = 6;
+  string osVersion = 7;
+  string osType = 8;
+  uint32 cpuCores = 9;
+  uint32 memory = 10;
+}

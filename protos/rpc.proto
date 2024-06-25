@@ -6,7 +6,7 @@ package protobuf;
 import "types.proto";
 import "google/protobuf/timestamp.proto";
 
-service StreamService {
+service AgentService {
   rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}
   rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
   rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
@@ -16,6 +16,7 @@ service StreamService {
       returns (stream StreamRawBytesResponse) {}
   rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
   rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
+  rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
 }
 
 message ListContainersRequest {}
@@ -59,3 +60,7 @@ message StreamEventsResponse { ContainerEvent event = 1; }
 message StreamStatsRequest {}
 
 message StreamStatsResponse { ContainerStat stats = 1; }
+
+message HostInfoRequest {}
+
+message HostInfoResponse { Host host = 1; }

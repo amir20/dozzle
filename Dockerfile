@@ -48,6 +48,7 @@ COPY --from=node /build/dist ./dist
 ARG TAG=dev
 ARG TARGETOS TARGETARCH
 
+# Generate protos
 RUN go generate
 
 # Build binary

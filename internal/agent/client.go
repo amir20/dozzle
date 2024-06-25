@@ -19,11 +19,11 @@ import (
 )
 
 type Client struct {
-	client pb.StreamServiceClient
+	client pb.AgentServiceClient
 	host   docker.Host
 }
 
-func NewClient(endPoint string) *Client {
+func NewClient(endPoint string) (*Client, error) {
 	cert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load client certificate: %v", err)
@@ -54,8 +54,22 @@ func NewClient(endPoint string) *Client {
 		log.Fatalf("failed to connect to server: %v", err)
 	}
 
-	client := pb.NewStreamServiceClient(conn)
-	return &Client{client: client, host: docker.Host{ID: endPoint, Name: endPoint}}
+	client := pb.NewAgentServiceClient(conn)
+	info, err := client.HostInfo(context.Background(), &pb.HostInfoRequest{})
+	if err != nil {
+
+		return nil, err
+	}
+
+	return &Client{
+		client: client,
+		host: docker.Host{
+			ID:       info.Host.Id,
+			Name:     info.Host.Name,
+			NCPU:     int(info.Host.CpuCores),
+			MemTotal: int64(info.Host.Memory),
+		},
+	}, nil
 }
 
 func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
