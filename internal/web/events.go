@@ -31,7 +31,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	allContainers, errors := h.multiHostService.ListAllContainers()
 
 	for _, err := range errors {
-		log.Errorf("error listing containers: %v", err)
+		log.Warnf("error listing containers: %v", err)
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
 			if _, err := fmt.Fprintf(w, "event: host-unavailable\ndata: %s\n\n", hostNotAvailableError.Host.ID); err != nil {
 				log.Errorf("error writing event to event stream: %v", err)
