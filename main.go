@@ -16,7 +16,6 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/amir20/dozzle/internal/agent"
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
@@ -105,7 +104,7 @@ func main() {
 			io.Copy(os.Stdout, reader)
 
 		case *AgentCmd:
-			client, err := docker.NewClientWithFilters(map[string][]string{}, "")
+			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -171,37 +170,44 @@ func main() {
 	log.Debug("shutdown complete")
 }
 
-func doStartEvent(arg args, clients map[string]docker.Client) {
-	if arg.NoAnalytics {
-		log.Debug("Analytics disabled.")
-		return
-	}
+// func doStartEvent(arg args, clients map[string]docker.Client) {
+// 	if arg.NoAnalytics {
+// 		log.Debug("Analytics disabled.")
+// 		return
+// 	}
 
-	event := analytics.BeaconEvent{
-		Name:    "start",
-		Version: version,
-	}
+// 	event := analytics.BeaconEvent{
+// 		Name:    "start",
+// 		Version: version,
+// 	}
 
-	if client, ok := clients["localhost"]; ok {
-		event.ServerID = client.SystemInfo().ID
-		event.ServerVersion = client.SystemInfo().ServerVersion
-	} else {
-		for _, client := range clients {
-			event.ServerID = client.SystemInfo().ID
-			event.ServerVersion = client.SystemInfo().ServerVersion
-			break
-		}
-	}
+// 	if client, ok := clients["localhost"]; ok {
+// 		event.ServerID = client.SystemInfo().ID
+// 		event.ServerVersion = client.SystemInfo().ServerVersion
+// 	} else {
+// 		for _, client := range clients {
+// 			event.ServerID = client.SystemInfo().ID
+// 			event.ServerVersion = client.SystemInfo().ServerVersion
+// 			break
+// 		}
+// 	}
 
-	if err := analytics.SendBeacon(event); err != nil {
-		log.Debug(err)
-	}
-}
+// 	if err := analytics.SendBeacon(event); err != nil {
+// 		log.Debug(err)
+// 	}
+// }
 
 func createServices(args args) map[string]docker_support.ClientService {
 	clients := make(map[string]docker_support.ClientService)
-	if localClient, err := createLocalClient(args); err == nil {
-		clients[localClient.Host().ID] = docker_support.NewDockerClientService(localClient)
+	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+	if err == nil {
+		_, err := localClient.ListContainers()
+		if err != nil {
+			log.Debugf("Could not connect to local Docker Engine: %s", err)
+		} else {
+			log.Debugf("Connected to local Docker Engine")
+			clients[localClient.Host().ID] = docker_support.NewDockerClientService(localClient)
+		}
 	}
 
 	for _, remoteHost := range args.RemoteHost {
@@ -211,7 +217,7 @@ func createServices(args args) map[string]docker_support.ClientService {
 		}
 		log.Debugf("Creating remote client for %s with %+v", host.Name, host)
 		log.Infof("Creating client for %s with %s", host.Name, host.URL.String())
-		if client, err := docker.NewClientWithTlsAndFilter(args.Filter, host); err == nil {
+		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
 			if _, err := client.ListContainers(); err == nil {
 				log.Debugf("Connected to local Docker Engine")
 				clients[client.Host().ID] = docker_support.NewDockerClientService(client)
@@ -300,20 +306,6 @@ func createServer(args args, clients map[string]docker_support.ClientService) *h
 	}
 
 	return web.CreateServer(docker_support.NewMultiHostService(clients), assets, config)
-}
-
-func createLocalClient(args args) (docker.Client, error) {
-	dockerClient, err := docker.NewClientWithFilters(args.Filter, args.Hostname)
-	if err == nil {
-		_, err := dockerClient.ListContainers()
-		if err != nil {
-			log.Debugf("Could not connect to local Docker Engine: %s", err)
-		} else {
-			log.Debugf("Connected to local Docker Engine")
-			return dockerClient, nil
-		}
-	}
-	return nil, err
 }
 
 func parseArgs() (args, interface{}) {

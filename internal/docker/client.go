@@ -88,20 +88,22 @@ func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 		host:    host,
 	}
 
-	var err error
-	client.info, err = cli.Info(context.Background())
-	if err != nil {
-		log.Errorf("unable to get docker info: %v", err)
-	}
+	if host.MemTotal == 0 || host.NCPU == 0 {
+		var err error
+		client.info, err = cli.Info(context.Background())
+		if err != nil {
+			log.Errorf("unable to get docker info: %v", err)
+		}
 
-	host.NCPU = client.info.NCPU
-	host.MemTotal = client.info.MemTotal
+		host.NCPU = client.info.NCPU
+		host.MemTotal = client.info.MemTotal
+	}
 
 	return client
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewClientWithFilters(f map[string][]string, hostname string) (Client, error) {
+func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {
@@ -136,7 +138,7 @@ func NewClientWithFilters(f map[string][]string, hostname string) (Client, error
 	return NewClient(cli, filterArgs, host), nil
 }
 
-func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
+func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 	filterArgs := filters.NewArgs()
 	for key, values := range f {
 		for _, value := range values {

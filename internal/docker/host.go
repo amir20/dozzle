@@ -20,6 +20,7 @@ type Host struct {
 	ValidCerts bool     `json:"-"`
 	NCPU       int      `json:"nCPU"`
 	MemTotal   int64    `json:"memTotal"`
+	Inactive   bool     `json:"inactive"`
 }
 
 func (h Host) String() string {
