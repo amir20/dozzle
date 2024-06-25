@@ -29,6 +29,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	allContainers, errors := h.multiHostService.ListAllContainers()
+
 	for _, err := range errors {
 		log.Errorf("error listing containers: %v", err)
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
@@ -49,7 +50,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	f.Flush()
 
-	go sendBeaconEvent(h, r, len(allContainers))
+	//  go sendBeaconEvent(h, r, len(allContainers)) TODO fix this
 
 	for {
 		select {
@@ -117,27 +118,27 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		HasHostname:       h.config.Hostname != "",
 		HasCustomBase:     h.config.Base != "/",
 		HasCustomAddress:  h.config.Addr != ":8080",
-		Clients:           len(h.clients),
+		Clients:           h.multiHostService.TotalHosts(),
 		HasActions:        h.config.EnableActions,
 		RunningContainers: runningContainers,
 	}
 
 	// TODO remove this
-	for _, store := range h.stores {
-		if store.Client().IsSwarmMode() {
-			b.IsSwarmMode = true
-			break
-		}
-	}
+	// for _, store := range h.stores {
+	// 	if store.Client().IsSwarmMode() {
+	// 		b.IsSwarmMode = true
+	// 		break
+	// 	}
+	// }
 
-	if client, ok := h.clients["localhost"]; ok {
-		b.ServerID = client.SystemInfo().ID
-	} else {
-		for _, client := range h.clients {
-			b.ServerID = client.SystemInfo().ID
-			break
-		}
-	}
+	// if client, ok := h.clients["localhost"]; ok {
+	// 	b.ServerID = client.SystemInfo().ID
+	// } else {
+	// 	for _, client := range h.clients {
+	// 		b.ServerID = client.SystemInfo().ID
+	// 		break
+	// 	}
+	// }
 
 	if !h.config.NoAnalytics {
 		if err := analytics.SendBeacon(b); err != nil {

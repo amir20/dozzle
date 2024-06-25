@@ -23,13 +23,13 @@ type ClientService interface {
 
 type dockerClientService struct {
 	client docker.Client
-	store  *ContainerStore
+	store  *docker.ContainerStore
 }
 
 func NewDockerClientService(client docker.Client) ClientService {
 	return &dockerClientService{
 		client: client,
-		store:  NewContainerStore(context.Background(), client),
+		store:  docker.NewContainerStore(context.Background(), client),
 	}
 }
 

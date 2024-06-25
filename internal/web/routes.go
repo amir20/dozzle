@@ -1,14 +1,12 @@
 package web
 
 import (
-	"context"
 	"io/fs"
 
 	"net/http"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
@@ -46,27 +44,18 @@ type Authorizer interface {
 }
 
 type handler struct {
-	clients          map[string]docker.Client
-	stores           map[string]*docker_support.ContainerStore
 	content          fs.FS
 	config           *Config
 	multiHostService docker_support.MultiHostService
 }
 
-func CreateServer(clients map[string]docker.Client, content fs.FS, config Config) *http.Server {
-	stores := make(map[string]*docker_support.ContainerStore)
-	services := make(map[string]docker_support.ClientService)
-	for host, client := range clients {
-		stores[host] = docker_support.NewContainerStore(context.Background(), client)
-		services[host] = docker_support.NewDockerClientService(client)
-	}
+type MultiHostService = docker_support.MultiHostService
 
+func CreateServer(multiHostService MultiHostService, content fs.FS, config Config) *http.Server {
 	handler := &handler{
-		clients:          clients,
 		content:          content,
 		config:           &config,
-		stores:           stores,
-		multiHostService: docker_support.NewMultiHostService(services),
+		multiHostService: multiHostService,
 	}
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
@@ -137,21 +126,6 @@ func createRouter(h *handler) *chi.Mux {
 	fileServer = http.FileServer(http.FS(h.content))
 
 	return r
-}
-
-func (h *handler) clientFromRequest(r *http.Request) docker.Client {
-	host := chi.URLParam(r, "host")
-
-	if host == "" {
-		log.Fatalf("No host found for url %v", r.URL)
-	}
-
-	if client, ok := h.clients[host]; ok {
-		return client
-	}
-
-	log.Fatalf("No client found for host %v and url %v", host, r.URL)
-	return nil
 }
 
 func hostKey(r *http.Request) string {
