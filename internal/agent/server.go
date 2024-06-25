@@ -21,10 +21,12 @@ import (
 type server struct {
 	client docker.Client
 	store  *docker.ContainerStore
+
 	pb.UnimplementedStreamServiceServer
 }
 
 func NewServer(client docker.Client) pb.StreamServiceServer {
+
 	return &server{
 		client: client,
 		store:  docker.NewContainerStore(context.Background(), client),

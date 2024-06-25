@@ -117,12 +117,23 @@ func NewClientWithFilters(f map[string][]string, hostname string) (Client, error
 		return nil, err
 	}
 
-	if hostname == "" {
-		hostname = "localhost"
-
+	info, err := cli.Info(context.Background())
+	if err != nil {
+		return nil, err
 	}
 
-	return NewClient(cli, filterArgs, Host{Name: hostname, ID: "localhost"}), nil
+	host := Host{
+		ID:       info.ID,
+		Name:     info.Name,
+		MemTotal: info.MemTotal,
+		NCPU:     info.NCPU,
+	}
+
+	if hostname != "" {
+		host.Name = hostname
+	}
+
+	return NewClient(cli, filterArgs, host), nil
 }
 
 func NewClientWithTlsAndFilter(f map[string][]string, host Host) (Client, error) {
