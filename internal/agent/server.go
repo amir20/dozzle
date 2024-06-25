@@ -22,18 +22,17 @@ type server struct {
 	client docker.Client
 	store  *docker.ContainerStore
 
-	pb.UnimplementedStreamServiceServer
+	pb.UnimplementedAgentServiceServer
 }
 
-func NewServer(client docker.Client) pb.StreamServiceServer {
-
+func NewServer(client docker.Client) pb.AgentServiceServer {
 	return &server{
 		client: client,
 		store:  docker.NewContainerStore(context.Background(), client),
 	}
 }
 
-func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_StreamLogsServer) error {
+func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_StreamLogsServer) error {
 	since := time.Time{}
 	if in.Since != nil {
 		since = in.Since.AsTime()
@@ -85,7 +84,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_Strea
 	}
 }
 
-func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.StreamService_LogsBetweenDatesServer) error {
+func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {
 	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
 	if err != nil {
 		return err
@@ -132,7 +131,7 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.StreamS
 	}
 }
 
-func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamService_StreamRawBytesServer) error {
+func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentService_StreamRawBytesServer) error {
 	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
 
 	if err != nil {
@@ -160,11 +159,11 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamServi
 	return nil
 }
 
-func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.StreamService_StreamEventsServer) error {
+func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_StreamEventsServer) error {
 	return nil
 }
 
-func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.StreamService_StreamStatsServer) error {
+func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_StreamStatsServer) error {
 	return nil
 }
 
@@ -241,6 +240,18 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 	}, nil
 }
 
+func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.HostInfoResponse, error) {
+	host := s.client.Host()
+	return &pb.HostInfoResponse{
+		Host: &pb.Host{
+			Id:       host.ID,
+			Name:     host.Name,
+			CpuCores: uint32(host.NCPU),
+			Memory:   uint32(host.MemTotal),
+		},
+	}, nil
+}
+
 func RunServer(client docker.Client) {
 	serverCert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
 	if err != nil {
@@ -268,7 +279,7 @@ func RunServer(client docker.Client) {
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterStreamServiceServer(grpcServer, NewServer(client))
+	pb.RegisterAgentServiceServer(grpcServer, NewServer(client))
 	listener, err := net.Listen("tcp", "localhost:7007")
 
 	if err != nil {

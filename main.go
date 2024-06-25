@@ -82,7 +82,10 @@ func main() {
 	if subcommand != nil {
 		switch subcommand.(type) {
 		case *TestCmd:
-			client := agent.NewClient("localhost:7007")
+			client, err := agent.NewClient("localhost:7007")
+			if err != nil {
+				log.Fatal(err)
+			}
 			service := docker_support.NewAgentService(client)
 			events := make(chan *docker.LogEvent)
 			go func() {
@@ -221,7 +224,11 @@ func createServices(args args) map[string]docker_support.ClientService {
 	}
 
 	for _, remoteAgent := range args.RemoteAgents {
-		client := agent.NewClient(remoteAgent)
+		client, err := agent.NewClient(remoteAgent)
+		if err != nil {
+			log.Warnf("Could not connect to remote agent %s: %s", remoteAgent, err)
+			continue
+		}
 		clients[client.Host().ID] = docker_support.NewAgentService(client)
 	}
 
