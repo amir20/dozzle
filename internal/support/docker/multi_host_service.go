@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/docker"
+	log "github.com/sirupsen/logrus"
 )
 
 // host unavailability error
@@ -23,6 +24,8 @@ type MultiHostService interface {
 	ListContainersForHost(host string) ([]docker.Container, error)
 	SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat)
 	UnsubscribeEventsAndStats(ctx context.Context)
+	TotalHosts() int
+	Hosts() []docker.Host
 }
 
 type multiHostService struct {
@@ -68,6 +71,7 @@ func (m *multiHostService) ListAllContainers() ([]docker.Container, []error) {
 	for _, client := range m.clients {
 		list, err := client.ListContainers()
 		if err != nil {
+			log.Debugf("error listing containers for host %s: %v", client.Host().ID, err)
 			errors = append(errors, &HostUnavailableError{Host: client.Host(), Err: err})
 			continue
 		}
@@ -90,4 +94,17 @@ func (m *multiHostService) UnsubscribeEventsAndStats(ctx context.Context) {
 		client.UnsubscribeEvents(ctx)
 		client.UnsubscribeStats(ctx)
 	}
+}
+
+func (m *multiHostService) TotalHosts() int {
+	return len(m.clients)
+}
+
+func (m *multiHostService) Hosts() []docker.Host {
+	hosts := make([]docker.Host, 0, len(m.clients))
+	for _, client := range m.clients {
+		hosts = append(hosts, client.Host())
+	}
+
+	return hosts
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
+
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -19,11 +20,15 @@ import (
 
 type server struct {
 	client docker.Client
+	store  *docker.ContainerStore
 	pb.UnimplementedStreamServiceServer
 }
 
 func NewServer(client docker.Client) pb.StreamServiceServer {
-	return &server{client: client}
+	return &server{
+		client: client,
+		store:  docker.NewContainerStore(context.Background(), client),
+	}
 }
 
 func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_StreamLogsServer) error {
@@ -185,11 +190,53 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 			Started: timestamppb.New(*container.StartedAt),
 		},
 	}, nil
-
 }
 
 func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersRequest) (*pb.ListContainersResponse, error) {
-	return nil, nil
+	containers, err := s.store.ListContainers()
+	if err != nil {
+		return nil, err
+	}
+
+	var pbContainers []*pb.Container
+
+	for _, container := range containers {
+		var pbStats []*pb.ContainerStat
+		for _, stat := range container.Stats.Data() {
+			pbStats = append(pbStats, &pb.ContainerStat{
+				Id:            stat.ID,
+				CpuPercent:    stat.CPUPercent,
+				MemoryPercent: stat.MemoryPercent,
+				MemoryUsage:   stat.MemoryUsage,
+			})
+		}
+
+		var startedAt *timestamppb.Timestamp
+		if container.StartedAt != nil {
+			startedAt = timestamppb.New(*container.StartedAt)
+		}
+
+		pbContainers = append(pbContainers, &pb.Container{
+			Id:      container.ID,
+			Name:    container.Name,
+			Image:   container.Image,
+			ImageId: container.ImageID,
+			Created: timestamppb.New(container.Created),
+			State:   container.State,
+			Status:  container.Status,
+			Health:  container.Health,
+			Host:    container.Host,
+			Tty:     container.Tty,
+			Labels:  container.Labels,
+			Group:   container.Group,
+			Started: startedAt,
+			Stats:   pbStats,
+		})
+	}
+
+	return &pb.ListContainersResponse{
+		Containers: pbContainers,
+	}, nil
 }
 
 func RunServer(client docker.Client) {
@@ -219,7 +266,7 @@ func RunServer(client docker.Client) {
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterStreamServiceServer(grpcServer, &server{client: client})
+	pb.RegisterStreamServiceServer(grpcServer, NewServer(client))
 	listener, err := net.Listen("tcp", "localhost:7007")
 
 	if err != nil {

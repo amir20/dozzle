@@ -26,9 +26,9 @@ message Container {
 
 message ContainerStat {
   string id = 1;
-  float cpuPercent = 2;
-  float memoryUsage = 3;
-  float memoryPercent = 4;
+  double cpuPercent = 2;
+  double memoryUsage = 3;
+  double memoryPercent = 4;
 }
 
 message LogEvent {

@@ -40,7 +40,7 @@ func (a *agentService) ListContainers() ([]docker.Container, error) {
 }
 
 func (a *agentService) Host() docker.Host {
-	return docker.Host{} // TODO
+	return a.client.Host()
 }
 
 func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {

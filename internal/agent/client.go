@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -19,10 +20,10 @@ import (
 
 type Client struct {
 	client pb.StreamServiceClient
+	host   docker.Host
 }
 
-func NewClient() *Client {
-
+func NewClient(endPoint string) *Client {
 	cert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load client certificate: %v", err)
@@ -48,13 +49,13 @@ func NewClient() *Client {
 	// Create the gRPC transport credentials
 	creds := credentials.NewTLS(tlsConfig)
 
-	conn, err := grpc.NewClient("localhost:7007", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.NewClient(endPoint, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect to server: %v", err)
 	}
 
 	client := pb.NewStreamServiceClient(conn)
-	return &Client{client: client}
+	return &Client{client: client, host: docker.Host{ID: endPoint, Name: endPoint}}
 }
 
 func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
@@ -173,9 +174,13 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 			Health:  container.Health,
 			Host:    container.Host,
 			Tty:     container.Tty,
-			Stats:   nil, // TODO: convert stats
+			Stats:   utils.NewRingBuffer[docker.ContainerStat](300),
 		})
 	}
 
 	return containers, nil
+}
+
+func (c *Client) Host() docker.Host {
+	return c.host
 }

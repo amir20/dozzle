@@ -1,4 +1,4 @@
-package docker_support
+package docker
 
 import (
 	"context"
@@ -8,15 +8,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/amir20/dozzle/internal/docker"
 	"github.com/puzpuzpuz/xsync/v3"
 	log "github.com/sirupsen/logrus"
 )
 
 type StatsCollector struct {
-	stream       chan docker.ContainerStat
-	subscribers  *xsync.MapOf[context.Context, chan<- docker.ContainerStat]
-	client       docker.Client
+	stream       chan ContainerStat
+	subscribers  *xsync.MapOf[context.Context, chan<- ContainerStat]
+	client       Client
 	cancelers    *xsync.MapOf[string, context.CancelFunc]
 	stopper      context.CancelFunc
 	timer        *time.Timer
@@ -26,16 +25,16 @@ type StatsCollector struct {
 
 var timeToStop = 6 * time.Hour
 
-func NewStatsCollector(client docker.Client) *StatsCollector {
+func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
-		stream:      make(chan docker.ContainerStat),
-		subscribers: xsync.NewMapOf[context.Context, chan<- docker.ContainerStat](),
+		stream:      make(chan ContainerStat),
+		subscribers: xsync.NewMapOf[context.Context, chan<- ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
 	}
 }
 
-func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- docker.ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- ContainerStat) {
 	c.subscribers.Store(ctx, stats)
 }
 
@@ -110,7 +109,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 		log.Errorf("error while listing containers: %v", err)
 	}
 
-	events := make(chan docker.ContainerEvent)
+	events := make(chan ContainerEvent)
 
 	go func() {
 		log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
@@ -141,7 +140,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			log.Info("stopped collecting container stats")
 			return true
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan<- docker.ContainerStat) bool {
+			sc.subscribers.Range(func(c context.Context, stats chan<- ContainerStat) bool {
 				select {
 				case stats <- stat:
 				case <-c.Done():
