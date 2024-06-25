@@ -76,7 +76,53 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.StreamService_Strea
 			return nil
 		}
 	}
+}
 
+func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.StreamService_LogsBetweenDatesServer) error {
+	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
+	if err != nil {
+		return err
+	}
+
+	container, err := s.client.FindContainer(in.ContainerId)
+	if err != nil {
+		return err
+	}
+
+	g := docker.NewEventGenerator(reader, container)
+
+	for {
+		select {
+		case event := <-g.Events:
+			var message *anypb.Any
+			switch event.Message.(type) {
+			case string:
+				message, err =
+					anypb.New(&pb.SimpleMessage{
+						Message: event.Message.(string),
+					})
+				if err != nil {
+					log.Errorf("failed to create anypb: %v", err)
+					continue
+				}
+			default:
+				log.Errorf("unknown message type: %T", event.Message)
+			}
+
+			out.Send(&pb.LogsBetweenDatesResponse{
+				Event: &pb.LogEvent{
+					Message:     message,
+					Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
+					Id:          event.Id,
+					ContainerId: event.ContainerID,
+				},
+			})
+		case e := <-g.Errors:
+			return e
+		case <-out.Context().Done():
+			return nil
+		}
+	}
 }
 
 func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamService_StreamRawBytesServer) error {
@@ -97,6 +143,7 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.StreamServi
 			break
 		}
 
+		log.Debugf("sending %d bytes", n)
 		if err := out.Send(&pb.StreamRawBytesResponse{
 			Data: buf[:n],
 		}); err != nil {

@@ -60,7 +60,6 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
-		Until:       timestamppb.New(until),
 		StreamTypes: int32(std),
 	})
 
@@ -115,6 +114,7 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 		for {
 			resp, err := out.Recv()
 			if err != nil {
+				log.Errorf("failed to receive response: %v", err)
 				return
 			}
 

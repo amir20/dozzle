@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"errors"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -22,6 +23,7 @@ import (
 	"github.com/amir20/dozzle/internal/healthcheck"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
+	"google.golang.org/grpc/status"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -44,12 +46,13 @@ type args struct {
 	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter               map[string][]string `arg:"-"`
 	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
+	RemoteAgents         []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 
 	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent       *AgentCmd       `arg:"subcommand:agent" help:"starts the agent"`
-	Test        *TestCmd        `arg:"subcommand:test" help:"runs tests"`
+	Test        *TestCmd        `arg:"subcommand:test" help:"runs tests"` // TODO remove this
 }
 
 type HealthcheckCmd struct {
@@ -90,8 +93,18 @@ func main() {
 					log.Infof("Event: %+v", event)
 				}
 			}()
-			err := service.StreamLogs(context.Background(), docker.Container{ID: "a4e3be6758e3"}, time.Now(), docker.STDALL, events)
-			log.Infof("Error: %v", err)
+			// err := service.StreamLogs(context.Background(), docker.Container{ID: "57dbe50682eb"}, time.Now(), docker.STDALL, events)
+			// log.Infof("Error: %v", err)
+
+			reader, err := service.RawLogs(context.Background(), docker.Container{ID: "57dbe50682eb"}, time.Time{}, time.Now(), docker.STDALL)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			status.FromError()
+
+			io.Copy(os.Stdout, reader)
 
 		case *AgentCmd:
 			client, err := docker.NewClientWithFilters(map[string][]string{}, "")
