@@ -13,8 +13,9 @@ jobs:
     if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'amir20/dozzle') }}
     steps:
       - name: Writing certs to file
-        run: echo "${{ secrets.TTL_KEY }}" > shared_key.pem
-        run: echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
+        run:  |
+          echo "${{ secrets.TTL_KEY }}" > shared_key.pem
+          echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
