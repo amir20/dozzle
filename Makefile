@@ -32,3 +32,9 @@ dev:
 .PHONY: int
 int:
 	docker compose up --build --force-recreate --exit-code-from playwright
+
+
+.PHONY: push
+push:
+	@docker build -t amir20/dozzle:agent .
+	@docker push amir20/dozzle:agent

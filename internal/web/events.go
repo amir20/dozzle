@@ -118,7 +118,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		HasHostname:       h.config.Hostname != "",
 		HasCustomBase:     h.config.Base != "/",
 		HasCustomAddress:  h.config.Addr != ":8080",
-		Clients:           h.multiHostService.TotalHosts(),
+		Clients:           h.multiHostService.TotalClients(),
 		HasActions:        h.config.EnableActions,
 		RunningContainers: runningContainers,
 	}

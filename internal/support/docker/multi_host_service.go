@@ -2,8 +2,12 @@ package docker_support
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net"
+	"time"
 
+	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,7 +28,7 @@ type MultiHostService interface {
 	ListContainersForHost(host string) ([]docker.Container, error)
 	SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat)
 	UnsubscribeEventsAndStats(ctx context.Context)
-	TotalHosts() int
+	TotalClients() int
 	Hosts() []docker.Host
 }
 
@@ -32,10 +36,56 @@ type multiHostService struct {
 	clients map[string]ClientService
 }
 
-func NewMultiHostService(clients map[string]ClientService) MultiHostService {
-	return &multiHostService{
-		clients: clients,
+func NewMultiHostService(clients []ClientService) MultiHostService {
+	m := &multiHostService{
+		clients: make(map[string]ClientService),
 	}
+
+	for _, client := range clients {
+		if _, ok := m.clients[client.Host().ID]; ok {
+			log.Warnf("duplicate host %s found, skipping", client.Host().ID)
+			continue
+		}
+		m.clients[client.Host().ID] = client
+	}
+
+	return m
+}
+
+func NewSwarmService(localClient ClientService, certificates tls.Certificate) MultiHostService {
+	m := &multiHostService{
+		clients: make(map[string]ClientService),
+	}
+
+	m.clients[localClient.Host().ID] = localClient
+
+	go func() {
+		log.Debugf("waiting for swarm services to be available")
+		time.Sleep(5 * time.Second)
+		ips, err := net.LookupIP("tasks.dozzle")
+		if err != nil {
+			log.Fatalf("error looking up swarm services: %v", err)
+		}
+
+		log.Debugf("found %d swarm services", len(ips))
+
+		for _, ip := range ips {
+
+			client, err := agent.NewClient(ip.String()+":7007", certificates)
+			log.Debugf("connected to %s", ip)
+
+			if err != nil {
+				log.Warnf("error creating client for %s: %v", ip, err)
+				continue
+			}
+			service := NewAgentService(client)
+			if service.Host().ID != localClient.Host().ID {
+				m.clients[service.Host().ID] = service
+			}
+		}
+	}()
+
+	return m
 }
 
 func (m *multiHostService) FindContainer(host string, id string) (ContainerService, error) {
@@ -96,7 +146,7 @@ func (m *multiHostService) UnsubscribeEventsAndStats(ctx context.Context) {
 	}
 }
 
-func (m *multiHostService) TotalHosts() int {
+func (m *multiHostService) TotalClients() int {
 	return len(m.clients)
 }
 

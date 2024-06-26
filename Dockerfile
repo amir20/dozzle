@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:22.4.0-alpine as node
+FROM --platform=$BUILDPLATFORM node:22.4.0-alpine AS node
 
 RUN corepack enable
 
@@ -26,9 +26,9 @@ FROM --platform=$BUILDPLATFORM golang:1.22.5-alpine AS builder
 
 # install gRPC dependencies
 RUN apk add --no-cache ca-certificates protoc protobuf-dev\
-  && mkdir /dozzle \
-  && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-  && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+    && mkdir /dozzle \
+    && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+    && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /dozzle
 
@@ -40,6 +40,7 @@ RUN go mod download
 COPY internal ./internal
 COPY main.go ./
 COPY protos ./protos
+COPY shared_key.pem shared_cert.pem ./
 
 # Copy assets built with node
 COPY --from=node /build/dist ./dist
