@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net"
-	"os"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
@@ -252,25 +251,17 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 	}, nil
 }
 
-func RunServer(client docker.Client) {
-	serverCert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
-	if err != nil {
-		log.Fatalf("failed to load server key pair: %v", err)
-	}
-
-	// Load the CA certificate
-	caCert, err := os.ReadFile("shared_cert.pem")
-	if err != nil {
-		log.Fatalf("failed to read CA certificate: %v", err)
-	}
+func RunServer(client docker.Client, certificates tls.Certificate) {
 	caCertPool := x509.NewCertPool()
-	if !caCertPool.AppendCertsFromPEM(caCert) {
-		log.Fatalf("failed to add CA certificate to pool")
+	c, err := x509.ParseCertificate(certificates.Certificate[0])
+	if err != nil {
+		log.Fatalf("failed to parse certificate: %v", err)
 	}
+	caCertPool.AddCert(c)
 
 	// Create the TLS configuration
 	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{serverCert},
+		Certificates: []tls.Certificate{certificates},
 		ClientCAs:    caCertPool,
 		ClientAuth:   tls.RequireAndVerifyClientCert, // Require client certificates
 	}
@@ -280,12 +271,12 @@ func RunServer(client docker.Client) {
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterAgentServiceServer(grpcServer, NewServer(client))
-	listener, err := net.Listen("tcp", "localhost:7007")
+	listener, err := net.Listen("tcp", ":7007")
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Infof("server listening on %s", listener.Addr().String())
+	log.Infof("gRPC server listening on %s", listener.Addr().String())
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

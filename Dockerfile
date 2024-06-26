@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:22.3.0-alpine as node
+FROM --platform=$BUILDPLATFORM node:22.3.0-alpine AS node
 
 RUN corepack enable
 
@@ -40,6 +40,7 @@ RUN go mod download
 COPY internal ./internal
 COPY main.go ./
 COPY protos ./protos
+COPY shared_key.pem shared_cert.pem ./
 
 # Copy assets built with node
 COPY --from=node /build/dist ./dist

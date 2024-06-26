@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io"
-	"os"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
@@ -23,25 +22,17 @@ type Client struct {
 	host   docker.Host
 }
 
-func NewClient(endPoint string) (*Client, error) {
-	cert, err := tls.LoadX509KeyPair("shared_cert.pem", "shared_key.pem")
-	if err != nil {
-		log.Fatalf("failed to load client certificate: %v", err)
-	}
-
-	// Load the CA certificate from disk
-	caCert, err := os.ReadFile("shared_cert.pem")
-	if err != nil {
-		log.Fatalf("failed to read CA certificate: %v", err)
-	}
+func NewClient(endPoint string, certificates tls.Certificate) (*Client, error) {
 	caCertPool := x509.NewCertPool()
-	if !caCertPool.AppendCertsFromPEM(caCert) {
-		log.Fatalf("failed to add CA certificate to pool")
+	c, err := x509.ParseCertificate(certificates.Certificate[0])
+	if err != nil {
+		log.Fatalf("failed to parse certificate: %v", err)
 	}
+	caCertPool.AddCert(c)
+	
 
-	// Create the TLS configuration
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{cert},
+		Certificates:       []tls.Certificate{certificates},
 		RootCAs:            caCertPool,
 		InsecureSkipVerify: true, // Set to true if the server's hostname does not match the certificate
 	}
@@ -57,7 +48,6 @@ func NewClient(endPoint string) (*Client, error) {
 	client := pb.NewAgentServiceClient(conn)
 	info, err := client.HostInfo(context.Background(), &pb.HostInfoRequest{})
 	if err != nil {
-
 		return nil, err
 	}
 

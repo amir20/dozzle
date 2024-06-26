@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"embed"
 	"io"
 	"io/fs"
@@ -44,6 +45,7 @@ type args struct {
 	RemoteHost      []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgents    []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
 
 	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
@@ -74,6 +76,9 @@ func (args) Version() string {
 //go:embed all:dist
 var content embed.FS
 
+//go:embed shared_cert.pem shared_key.pem
+var certs embed.FS
+
 //go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
 func main() {
 	args, subcommand := parseArgs()
@@ -81,7 +86,12 @@ func main() {
 	if subcommand != nil {
 		switch subcommand.(type) {
 		case *TestCmd:
-			client, err := agent.NewClient("localhost:7007")
+			certs, err := readCertificates()
+			if err != nil {
+				log.Fatalf("Could not read certificates: %v", err)
+			}
+
+			client, err := agent.NewClient("localhost:7007", certs)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -108,7 +118,12 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			agent.RunServer(client)
+			certs, err := readCertificates()
+			if err != nil {
+				log.Fatalf("Could not read certificates: %v", err)
+			}
+
+			agent.RunServer(client, certs)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)
@@ -140,15 +155,32 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	clients := createServices(args)
+	var multiHostService docker_support.MultiHostService
+	if args.Mode == "server" {
+		multiHostService = createMultiHostService(args)
+		if multiHostService.TotalClients() == 0 {
+			log.Fatal("Could not connect to any Docker Engines")
+		} else {
+			log.Infof("Connected to %d Docker Engine(s)", multiHostService.TotalClients())
+		}
+	} else if args.Mode == "swarm" {
+		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+		if err != nil {
+			log.Fatalf("Could not connect to local Docker Engine: %s", err)
+		}
+		certs, err := readCertificates()
+		if err != nil {
+			log.Fatalf("Could not read certificates: %v", err)
+		}
+		multiHostService = docker_support.NewSwarmService(docker_support.NewDockerClientService(localClient), certs)
+		log.Infof("Connected to local Docker Engine")
 
-	if len(clients) == 0 {
-		log.Fatal("Could not connect to any Docker Engines")
+		go agent.RunServer(localClient, certs)
 	} else {
-		log.Infof("Connected to %d Docker Engine(s)", len(clients))
+		log.Fatalf("Invalid mode %s", args.Mode)
 	}
 
-	srv := createServer(args, clients)
+	srv := createServer(args, multiHostService)
 	// go doStartEvent(args, clients)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
@@ -168,6 +200,20 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Debug("shutdown complete")
+}
+
+func readCertificates() (tls.Certificate, error) {
+	cert, err := certs.ReadFile("shared_cert.pem")
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	key, err := certs.ReadFile("shared_key.pem")
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	return tls.X509KeyPair(cert, key)
 }
 
 // func doStartEvent(arg args, clients map[string]docker.Client) {
@@ -197,8 +243,8 @@ func main() {
 // 	}
 // }
 
-func createServices(args args) map[string]docker_support.ClientService {
-	clients := make(map[string]docker_support.ClientService)
+func createMultiHostService(args args) docker_support.MultiHostService {
+	var clients []docker_support.ClientService
 	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 	if err == nil {
 		_, err := localClient.ListContainers()
@@ -206,7 +252,7 @@ func createServices(args args) map[string]docker_support.ClientService {
 			log.Debugf("Could not connect to local Docker Engine: %s", err)
 		} else {
 			log.Debugf("Connected to local Docker Engine")
-			clients[localClient.Host().ID] = docker_support.NewDockerClientService(localClient)
+			clients = append(clients, docker_support.NewDockerClientService(localClient))
 		}
 	}
 
@@ -220,7 +266,7 @@ func createServices(args args) map[string]docker_support.ClientService {
 		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
 			if _, err := client.ListContainers(); err == nil {
 				log.Debugf("Connected to local Docker Engine")
-				clients[client.Host().ID] = docker_support.NewDockerClientService(client)
+				clients = append(clients, docker_support.NewDockerClientService(client))
 			} else {
 				log.Warnf("Could not connect to remote host %s: %s", host.ID, err)
 			}
@@ -228,20 +274,23 @@ func createServices(args args) map[string]docker_support.ClientService {
 			log.Warnf("Could not create client for %s: %s", host.ID, err)
 		}
 	}
-
+	certs, err := readCertificates()
+	if err != nil {
+		log.Fatalf("Could not read certificates: %v", err)
+	}
 	for _, remoteAgent := range args.RemoteAgents {
-		client, err := agent.NewClient(remoteAgent)
+		client, err := agent.NewClient(remoteAgent, certs)
 		if err != nil {
 			log.Warnf("Could not connect to remote agent %s: %s", remoteAgent, err)
 			continue
 		}
-		clients[client.Host().ID] = docker_support.NewAgentService(client)
+		clients = append(clients, docker_support.NewAgentService(client))
 	}
 
-	return clients
+	return docker_support.NewMultiHostService(clients)
 }
 
-func createServer(args args, clients map[string]docker_support.ClientService) *http.Server {
+func createServer(args args, multiHostService docker_support.MultiHostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE
@@ -305,7 +354,7 @@ func createServer(args args, clients map[string]docker_support.ClientService) *h
 		}
 	}
 
-	return web.CreateServer(docker_support.NewMultiHostService(clients), assets, config)
+	return web.CreateServer(multiHostService, assets, config)
 }
 
 func parseArgs() (args, interface{}) {
