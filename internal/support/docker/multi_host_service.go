@@ -67,6 +67,7 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 		}
 
 		found := 0
+		replaced := 0
 		for _, ip := range ips {
 			client, err := agent.NewClient(ip.String()+":7007", certificates)
 			if err != nil {
@@ -82,11 +83,15 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 				log.Debugf("swarm service %s already exists with different endpoint %s", service.Host().ID, service.Host().Endpoint)
 				delete(m.clients, existing.Host().ID)
 				m.clients[service.Host().ID] = service
+				replaced++
 			}
 		}
 
 		if found > 0 {
 			log.Infof("found %d new dozzle replicas", found)
+		}
+		if replaced > 0 {
+			log.Infof("replaced %d dozzle replicas", replaced)
 		}
 	}
 
