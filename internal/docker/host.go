@@ -20,7 +20,7 @@ type Host struct {
 	ValidCerts bool     `json:"-"`
 	NCPU       int      `json:"nCPU"`
 	MemTotal   int64    `json:"memTotal"`
-	Inactive   bool     `json:"inactive"`
+	Endpoint   string   `json:"endpoint"`
 }
 
 func (h Host) String() string {
@@ -73,6 +73,7 @@ func ParseConnection(connection string) (Host, error) {
 		CACertPath: cacertPath,
 		KeyPath:    keyPath,
 		ValidCerts: hasCerts,
+		Endpoint:   remoteUrl.String(),
 	}, nil
 
 }

@@ -172,7 +172,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Could not read certificates: %v", err)
 		}
-		multiHostService = docker_support.NewSwarmService(docker_support.NewDockerClientService(localClient), certs)
+		multiHostService = docker_support.NewSwarmService(localClient, certs)
 		log.Infof("Connected to local Docker Engine")
 
 		go agent.RunServer(localClient, certs)

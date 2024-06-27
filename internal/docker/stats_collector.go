@@ -113,7 +113,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 
 	go func() {
 		log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
-		err := sc.client.Events(context.Background(), events)
+		err := sc.client.ContainerEvents(context.Background(), events)
 		if !errors.Is(err, context.Canceled) {
 			log.Errorf("stats collector unexpectedly disconnected from docker events from %s with %v", sc.client.Host(), err)
 		}

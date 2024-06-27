@@ -64,7 +64,7 @@ type Client interface {
 	ListContainers() ([]Container, error)
 	FindContainer(string) (Container, error)
 	ContainerLogs(context.Context, string, time.Time, StdType) (io.ReadCloser, error)
-	Events(context.Context, chan<- ContainerEvent) error
+	ContainerEvents(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
@@ -129,6 +129,7 @@ func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
 		Name:     info.Name,
 		MemTotal: info.MemTotal,
 		NCPU:     info.NCPU,
+		Endpoint: "local",
 	}
 
 	if hostname != "" {
@@ -339,7 +340,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Ti
 	return reader, nil
 }
 
-func (d *httpClient) Events(ctx context.Context, messages chan<- ContainerEvent) error {
+func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- ContainerEvent) error {
 	dockerMessages, err := d.cli.Events(ctx, events.ListOptions{})
 
 	for {
@@ -359,7 +360,6 @@ func (d *httpClient) Events(ctx context.Context, messages chan<- ContainerEvent)
 			}
 		}
 	}
-
 }
 
 func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
