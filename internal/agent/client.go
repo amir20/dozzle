@@ -29,8 +29,6 @@ func NewClient(endPoint string, certificates tls.Certificate) (*Client, error) {
 		log.Fatalf("failed to parse certificate: %v", err)
 	}
 	caCertPool.AddCert(c)
-	
-
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{certificates},
 		RootCAs:            caCertPool,

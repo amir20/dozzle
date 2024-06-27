@@ -61,7 +61,7 @@ func NewSwarmService(localClient ClientService, certificates tls.Certificate) Mu
 
 	go func() {
 		log.Debugf("waiting for swarm services to be available")
-		time.Sleep(5 * time.Second)
+		time.Sleep(4 * time.Second)
 		ips, err := net.LookupIP("tasks.dozzle")
 		if err != nil {
 			log.Fatalf("error looking up swarm services: %v", err)
@@ -70,7 +70,6 @@ func NewSwarmService(localClient ClientService, certificates tls.Certificate) Mu
 		log.Debugf("found %d swarm services", len(ips))
 
 		for _, ip := range ips {
-
 			client, err := agent.NewClient(ip.String()+":7007", certificates)
 			log.Debugf("connected to %s", ip)
 
