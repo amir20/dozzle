@@ -52,35 +52,52 @@ func NewMultiHostService(clients []ClientService) MultiHostService {
 	return m
 }
 
-func NewSwarmService(localClient ClientService, certificates tls.Certificate) MultiHostService {
+func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHostService {
 	m := &multiHostService{
 		clients: make(map[string]ClientService),
 	}
 
+	localClient := NewDockerClientService(client)
 	m.clients[localClient.Host().ID] = localClient
 
-	go func() {
-		log.Debugf("waiting for swarm services to be available")
-		time.Sleep(4 * time.Second)
+	discover := func() {
 		ips, err := net.LookupIP("tasks.dozzle")
 		if err != nil {
 			log.Fatalf("error looking up swarm services: %v", err)
 		}
 
-		log.Debugf("found %d swarm services", len(ips))
-
+		found := 0
 		for _, ip := range ips {
 			client, err := agent.NewClient(ip.String()+":7007", certificates)
-			log.Debugf("connected to %s", ip)
-
 			if err != nil {
 				log.Warnf("error creating client for %s: %v", ip, err)
 				continue
 			}
 			service := NewAgentService(client)
-			if service.Host().ID != localClient.Host().ID {
+			if existing, ok := m.clients[service.Host().ID]; !ok {
+				log.Debugf("adding swarm service %s", service.Host().ID)
+				m.clients[service.Host().ID] = service
+				found++
+			} else if existing.Host().Endpoint != service.Host().Endpoint {
+				log.Debugf("swarm service %s already exists with different endpoint %s", service.Host().ID, service.Host().Endpoint)
+				delete(m.clients, existing.Host().ID)
 				m.clients[service.Host().ID] = service
 			}
+		}
+
+		if found > 0 {
+			log.Infof("found %d new dozzle replicas", found)
+		}
+	}
+
+	go func() {
+		time.Sleep(5 * time.Second)
+		discover()
+
+		for {
+			time.Sleep(30 * time.Second)
+			log.Debugf("discovering swarm services")
+			discover()
 		}
 	}()
 

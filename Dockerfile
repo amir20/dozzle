@@ -59,7 +59,6 @@ RUN mkdir /data
 
 FROM scratch
 
-ENV PATH=/bin
 COPY --from=builder /data /data
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
