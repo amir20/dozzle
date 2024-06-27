@@ -7,6 +7,7 @@ services:
       - DOZZLE_FILTER=name=custom_base
       - DOZZLE_BASE=/foobarbase
       - DOZZLE_NO_ANALYTICS=1
+      - DOZZLE_HOSTNAME=custom name
     ports:
       - 8080:8080
     build:
@@ -28,6 +29,7 @@ services:
     environment:
       - DOZZLE_FILTER=name=dozzle
       - DOZZLE_NO_ANALYTICS=1
+      - DOZZLE_HOSTNAME=localhost
     ports:
       - 7070:8080
     build:
@@ -35,7 +37,7 @@ services:
   remote:
     container_name: remote
     environment:
-      - DOZZLE_REMOTE_HOST=tcp://proxy:2375
+      - DOZZLE_REMOTE_HOST=tcp://proxy:2375|remote-host
       - DOZZLE_FILTER=name=dozzle
       - DOZZLE_NO_ANALYTICS=1
     ports:
