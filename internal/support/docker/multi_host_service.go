@@ -74,13 +74,18 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 				log.Warnf("error creating client for %s: %v", ip, err)
 				continue
 			}
+
+			if client.Host().ID == localClient.Host().ID {
+				continue
+			}
+
 			service := NewAgentService(client)
 			if existing, ok := m.clients[service.Host().ID]; !ok {
 				log.Debugf("adding swarm service %s", service.Host().ID)
 				m.clients[service.Host().ID] = service
 				found++
 			} else if existing.Host().Endpoint != service.Host().Endpoint {
-				log.Debugf("swarm service %s already exists with different endpoint %s", service.Host().ID, service.Host().Endpoint)
+				log.Debugf("swarm service %s already exists with different endpoint %s and old value %s", service.Host().ID, service.Host().Endpoint, existing.Host().Endpoint)
 				delete(m.clients, existing.Host().ID)
 				m.clients[service.Host().ID] = service
 				replaced++
@@ -101,7 +106,7 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 
 		for {
 			time.Sleep(30 * time.Second)
-			log.Debugf("discovering swarm services")
+			log.Tracef("discovering swarm services")
 			discover()
 		}
 	}()

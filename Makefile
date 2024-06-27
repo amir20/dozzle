@@ -43,6 +43,6 @@ shared_cert.pem:
 
 
 .PHONY: push
-push:
+push: shared_key.pem shared_cert.pem
 	@docker build -t amir20/dozzle:agent .
 	@docker push amir20/dozzle:agent

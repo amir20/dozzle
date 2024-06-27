@@ -40,7 +40,7 @@ message LogEvent {
 
 message SimpleMessage { string message = 1; }
 
-message ComplexMessage { google.protobuf.Struct message = 1; }
+message ComplexMessage { bytes data = 1; }
 
 message ContainerEvent {
   string id = 1;

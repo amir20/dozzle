@@ -1,14 +1,17 @@
 package agent
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"net"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -52,28 +55,8 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 	for {
 		select {
 		case event := <-g.Events:
-			var message *anypb.Any
-			switch event.Message.(type) {
-			case string:
-				message, err =
-					anypb.New(&pb.SimpleMessage{
-						Message: event.Message.(string),
-					})
-				if err != nil {
-					log.Errorf("failed to create anypb: %v", err)
-					continue
-				}
-			default:
-				log.Errorf("unknown message type: %T", event.Message)
-			}
-
 			out.Send(&pb.StreamLogsResponse{
-				Event: &pb.LogEvent{
-					Message:     message,
-					Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
-					Id:          event.Id,
-					ContainerId: event.ContainerID,
-				},
+				Event: logEventToPb(event),
 			})
 		case e := <-g.Errors:
 			return e
@@ -81,6 +64,41 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 			return nil
 		}
 	}
+}
+
+func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
+	var message *anypb.Any
+	switch data := event.Message.(type) {
+	case string:
+		message, _ = anypb.New(&pb.SimpleMessage{
+			Message: data,
+		})
+
+	case *orderedmap.OrderedMap[string, any]:
+		message, _ = anypb.New(&pb.ComplexMessage{
+			Data: orderedMapToJSONBytes(data),
+		})
+	case *orderedmap.OrderedMap[string, string]:
+		message, _ = anypb.New(&pb.ComplexMessage{
+			Data: orderedMapToJSONBytes(data),
+		})
+
+	default:
+		log.Fatalf("agent server: unknown type %T", event.Message)
+	}
+
+	return &pb.LogEvent{
+		Message:     message,
+		Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
+		Id:          event.Id,
+		ContainerId: event.ContainerID,
+	}
+}
+
+func orderedMapToJSONBytes[T any](data *orderedmap.OrderedMap[string, T]) []byte {
+	bytes := bytes.Buffer{}
+	json.NewEncoder(&bytes).Encode(data)
+	return bytes.Bytes()
 }
 
 func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {
@@ -99,28 +117,8 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 	for {
 		select {
 		case event := <-g.Events:
-			var message *anypb.Any
-			switch event.Message.(type) {
-			case string:
-				message, err =
-					anypb.New(&pb.SimpleMessage{
-						Message: event.Message.(string),
-					})
-				if err != nil {
-					log.Errorf("failed to create anypb: %v", err)
-					continue
-				}
-			default:
-				log.Errorf("unknown message type: %T", event.Message)
-			}
-
 			out.Send(&pb.LogsBetweenDatesResponse{
-				Event: &pb.LogEvent{
-					Message:     message,
-					Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
-					Id:          event.Id,
-					ContainerId: event.ContainerID,
-				},
+				Event: logEventToPb(event),
 			})
 		case e := <-g.Errors:
 			return e

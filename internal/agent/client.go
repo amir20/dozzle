@@ -1,9 +1,11 @@
 package agent
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"io"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/utils"
 	log "github.com/sirupsen/logrus"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
@@ -88,8 +91,11 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 		switch m := m.(type) {
 		case *pb.SimpleMessage:
 			message = m.Message
+
+		case *pb.ComplexMessage:
+			message = jsonBytesToOrderedMap(m.Data)
 		default:
-			log.Fatalf("unknown type %T", m)
+			log.Fatalf("agent client: unknown type %T", m)
 		}
 
 		events <- &docker.LogEvent{
@@ -99,6 +105,13 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
 		}
 	}
+}
+
+func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
+	var data *orderedmap.OrderedMap[string, any]
+	reader := bytes.NewReader(b)
+	json.NewDecoder(reader).Decode(&data)
+	return data
 }
 
 func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (io.ReadCloser, error) {
