@@ -50,9 +50,9 @@ func (s StdType) String() string {
 type DockerCLI interface {
 	ContainerList(context.Context, container.ListOptions) ([]types.Container, error)
 	ContainerLogs(context.Context, string, container.LogsOptions) (io.ReadCloser, error)
-	Events(context.Context, types.EventsOptions) (<-chan events.Message, <-chan error)
+	Events(context.Context, events.ListOptions) (<-chan events.Message, <-chan error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
-	ContainerStats(ctx context.Context, containerID string, stream bool) (types.ContainerStats, error)
+	ContainerStats(ctx context.Context, containerID string, stream bool) (container.StatsResponseReader, error)
 	Ping(ctx context.Context) (types.Ping, error)
 	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
@@ -258,7 +258,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 
 	defer response.Body.Close()
 	decoder := json.NewDecoder(response.Body)
-	var v *types.StatsJSON
+	var v *container.StatsResponse
 	for {
 		if err := decoder.Decode(&v); err != nil {
 			return err
@@ -325,7 +325,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since *time.T
 }
 
 func (d *httpClient) Events(ctx context.Context, messages chan<- ContainerEvent) error {
-	dockerMessages, err := d.cli.Events(ctx, types.EventsOptions{})
+	dockerMessages, err := d.cli.Events(ctx, events.ListOptions{})
 
 	for {
 		select {

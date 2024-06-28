@@ -1,14 +1,15 @@
 package docker
 
 import (
-	"github.com/docker/docker/api/types"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/docker/docker/api/types/container"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_calculateMemUsageUnixNoCache(t *testing.T) {
 	type args struct {
-		mem types.MemoryStats
+		mem container.MemoryStats
 	}
 	tests := []struct {
 		name string
@@ -18,7 +19,7 @@ func Test_calculateMemUsageUnixNoCache(t *testing.T) {
 		{
 			name: "with cgroup v1",
 			args: args{
-				mem: types.MemoryStats{
+				mem: container.MemoryStats{
 					Usage: 100,
 					Stats: map[string]uint64{
 						"total_inactive_file": 1,
@@ -30,7 +31,7 @@ func Test_calculateMemUsageUnixNoCache(t *testing.T) {
 		{
 			name: "with cgroup v2",
 			args: args{
-				mem: types.MemoryStats{
+				mem: container.MemoryStats{
 					Usage: 100,
 					Stats: map[string]uint64{
 						"inactive_file": 2,
@@ -42,7 +43,7 @@ func Test_calculateMemUsageUnixNoCache(t *testing.T) {
 		{
 			name: "without cgroup",
 			args: args{
-				mem: types.MemoryStats{
+				mem: container.MemoryStats{
 					Usage: 100,
 				},
 			},
