@@ -1,0 +1,1 @@
+-r '\.(go)$' -R 'node_modules' -G '\*\_test.go' -s -- go run -race main.go --level debug agent

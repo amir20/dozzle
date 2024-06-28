@@ -4,13 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"embed"
-	"io"
 	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"syscall"
 	"time"
@@ -20,6 +18,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
 
@@ -46,20 +45,16 @@ type args struct {
 	RemoteAgents    []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
-
-	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
-	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
-	Agent       *AgentCmd       `arg:"subcommand:agent" help:"starts the agent"`
-	Test        *TestCmd        `arg:"subcommand:test" help:"runs tests"` // TODO remove this
+	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
+	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
+	Agent           *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 }
 
 type HealthcheckCmd struct {
 }
 
 type AgentCmd struct {
-}
-
-type TestCmd struct {
+	Addr string `arg:"env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
 }
 
 type GenerateCmd struct {
@@ -81,38 +76,10 @@ var certs embed.FS
 
 //go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
 func main() {
+	cli.ValidateEnvVars(args{}, AgentCmd{})
 	args, subcommand := parseArgs()
-	validateEnvVars()
 	if subcommand != nil {
 		switch subcommand.(type) {
-		case *TestCmd:
-			certs, err := readCertificates()
-			if err != nil {
-				log.Fatalf("Could not read certificates: %v", err)
-			}
-
-			client, err := agent.NewClient("localhost:7007", certs)
-			if err != nil {
-				log.Fatal(err)
-			}
-			service := docker_support.NewAgentService(client)
-			events := make(chan *docker.LogEvent)
-			go func() {
-				for event := range events {
-					log.Infof("Event: %+v", event)
-				}
-			}()
-			// err := service.StreamLogs(context.Background(), docker.Container{ID: "57dbe50682eb"}, time.Now(), docker.STDALL, events)
-			// log.Infof("Error: %v", err)
-
-			reader, err := service.RawLogs(context.Background(), docker.Container{ID: "57dbe50682eb"}, time.Time{}, time.Now(), docker.STDALL)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			io.Copy(os.Stdout, reader)
-
 		case *AgentCmd:
 			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
 			if err != nil {
@@ -123,7 +90,7 @@ func main() {
 				log.Fatalf("Could not read certificates: %v", err)
 			}
 
-			agent.RunServer(client, certs)
+			agent.RunServer(client, certs, args.Agent.Addr)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)
@@ -175,7 +142,7 @@ func main() {
 		multiHostService = docker_support.NewSwarmService(localClient, certs)
 		log.Infof("Connected to local Docker Engine")
 
-		go agent.RunServer(localClient, certs)
+		go agent.RunServer(localClient, certs, ":7007")
 	} else {
 		log.Fatalf("Invalid mode %s", args.Mode)
 	}
@@ -245,27 +212,16 @@ func readCertificates() (tls.Certificate, error) {
 
 func createMultiHostService(args args) docker_support.MultiHostService {
 	var clients []docker_support.ClientService
-	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
-	if err == nil {
-		_, err := localClient.ListContainers()
-		if err != nil {
-			log.Debugf("Could not connect to local Docker Engine: %s", err)
-		} else {
-			log.Debugf("Connected to local Docker Engine")
-			clients = append(clients, docker_support.NewDockerClientService(localClient))
-		}
-	}
-
 	for _, remoteHost := range args.RemoteHost {
 		host, err := docker.ParseConnection(remoteHost)
 		if err != nil {
 			log.Fatalf("Could not parse remote host %s: %s", remoteHost, err)
 		}
-		log.Debugf("Creating remote client for %s with %+v", host.Name, host)
+		log.Debugf("creating remote client for %s with %+v", host.Name, host)
 		log.Infof("Creating client for %s with %s", host.Name, host.URL.String())
 		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
 			if _, err := client.ListContainers(); err == nil {
-				log.Debugf("Connected to local Docker Engine")
+				log.Debugf("connected to local Docker Engine")
 				clients = append(clients, docker_support.NewDockerClientService(client))
 			} else {
 				log.Warnf("Could not connect to remote host %s: %s", host.ID, err)
@@ -285,6 +241,17 @@ func createMultiHostService(args args) docker_support.MultiHostService {
 			continue
 		}
 		clients = append(clients, docker_support.NewAgentService(client))
+	}
+
+	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+	if err == nil {
+		_, err := localClient.ListContainers()
+		if err != nil {
+			log.Debugf("could not connect to local Docker Engine: %s", err)
+		} else {
+			log.Debugf("connected to local Docker Engine")
+			clients = append(clients, docker_support.NewDockerClientService(localClient))
+		}
 	}
 
 	return docker_support.NewMultiHostService(clients)
@@ -388,25 +355,4 @@ func configureLogger(level string) {
 	log.SetFormatter(&log.TextFormatter{
 		DisableLevelTruncation: true,
 	})
-
-}
-
-func validateEnvVars() {
-	argsType := reflect.TypeOf(args{})
-	expectedEnvs := make(map[string]bool)
-	for i := 0; i < argsType.NumField(); i++ {
-		field := argsType.Field(i)
-		for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
-			if strings.HasPrefix(tag, "env:") {
-				expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
-			}
-		}
-	}
-
-	for _, env := range os.Environ() {
-		actual := strings.Split(env, "=")[0]
-		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
-			log.Warnf("Unexpected environment variable %s", actual)
-		}
-	}
 }

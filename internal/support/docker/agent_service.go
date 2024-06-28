@@ -7,14 +7,21 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/puzpuzpuz/xsync/v3"
 )
 
 type agentService struct {
-	client *agent.Client
+	client            *agent.Client
+	statsSubscribers  *xsync.MapOf[context.Context, context.CancelFunc]
+	eventsSubscribers *xsync.MapOf[context.Context, context.CancelFunc]
 }
 
 func NewAgentService(client *agent.Client) ClientService {
-	return &agentService{client: client}
+	return &agentService{
+		client:            client,
+		statsSubscribers:  xsync.NewMapOf[context.Context, context.CancelFunc](),
+		eventsSubscribers: xsync.NewMapOf[context.Context, context.CancelFunc](),
+	}
 }
 
 func (a *agentService) FindContainer(id string) (docker.Container, error) {
@@ -44,17 +51,25 @@ func (a *agentService) Host() docker.Host {
 }
 
 func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {
-
+	context, cancel := context.WithCancel(ctx)
+	go a.client.StreamStats(context, stats)
+	a.statsSubscribers.Store(ctx, cancel)
 }
 
 func (a *agentService) UnsubscribeStats(ctx context.Context) {
-
+	if cancel, ok := a.statsSubscribers.LoadAndDelete(ctx); ok {
+		cancel()
+	}
 }
 
 func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
-
+	context, cancel := context.WithCancel(ctx)
+	go a.client.StreamEvents(context, events)
+	a.eventsSubscribers.Store(ctx, cancel)
 }
 
 func (a *agentService) UnsubscribeEvents(ctx context.Context) {
-
+	if cancel, ok := a.eventsSubscribers.LoadAndDelete(ctx); ok {
+		cancel()
+	}
 }

@@ -367,7 +367,7 @@ loop:
 					if err == io.EOF {
 						log.WithError(err).Debugf("stream closed for container %v", container.Name)
 						events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
-					} else if err != r.Context().Err() {
+					} else if err != context.Canceled {
 						log.Errorf("unknown error while streaming %v", err.Error())
 					}
 				}
