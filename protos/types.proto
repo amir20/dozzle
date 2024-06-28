@@ -42,10 +42,9 @@ message SimpleMessage { string message = 1; }
 message ComplexMessage { bytes data = 1; }
 
 message ContainerEvent {
-  string id = 1;
-  string actorId = 2;
-  string name = 3;
-  string host = 4;
+  string actorId = 1;
+  string name = 2;
+  string host = 3;
 }
 
 message Host {

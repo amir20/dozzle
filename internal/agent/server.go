@@ -169,7 +169,6 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 					ActorId: event.ActorID,
 					Name:    event.Name,
 					Host:    event.Host,
-					// TODO remove ID from ContainerEvent
 				},
 			})
 		case <-out.Context().Done():

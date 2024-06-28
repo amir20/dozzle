@@ -219,18 +219,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   }
 
-  // TODO this is a hack to connect the event source when the container is started
-  // watch(
-  //   () => container.value.state,
-  //   (newValue, oldValue) => {
-  //     console.log("LogEventSource: container changed", newValue, oldValue);
-  //     if (newValue == "running" && newValue != oldValue) {
-  //       buffer.push(new DockerEventLogEntry("Container started", new Date(), "container-started"));
-  //       connect({ clear: false });
-  //     }
-  //   },
-  // );
-
   onScopeDispose(() => close());
 
   return { ...$$({ messages }), loadOlderLogs };
