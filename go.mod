@@ -2,7 +2,7 @@ module github.com/amir20/dozzle
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/alexflint/go-arg v1.5.0
+	github.com/alexflint/go-arg v1.5.1
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
 	github.com/docker/docker v26.1.4+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
@@ -26,12 +26,12 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/go-chi/chi/v5 v5.0.14
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/goccy/go-json v0.10.3
 	github.com/puzpuzpuz/xsync/v3 v3.2.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.7.3
+	github.com/yuin/goldmark v1.7.4
 )
 
 require (
