@@ -122,7 +122,7 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	var multiHostService docker_support.MultiHostService
+	var multiHostService *docker_support.MultiHostService
 	if args.Mode == "server" {
 		multiHostService = createMultiHostService(args)
 		if multiHostService.TotalClients() == 0 {
@@ -210,7 +210,7 @@ func readCertificates() (tls.Certificate, error) {
 // 	}
 // }
 
-func createMultiHostService(args args) docker_support.MultiHostService {
+func createMultiHostService(args args) *docker_support.MultiHostService {
 	var clients []docker_support.ClientService
 	for _, remoteHost := range args.RemoteHost {
 		host, err := docker.ParseConnection(remoteHost)
@@ -257,7 +257,7 @@ func createMultiHostService(args args) docker_support.MultiHostService {
 	return docker_support.NewMultiHostService(clients)
 }
 
-func createServer(args args, multiHostService docker_support.MultiHostService) *http.Server {
+func createServer(args args, multiHostService *docker_support.MultiHostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE

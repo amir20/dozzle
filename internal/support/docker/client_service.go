@@ -19,6 +19,7 @@ type ClientService interface {
 	UnsubscribeStats(ctx context.Context)
 	SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent)
 	UnsubscribeEvents(ctx context.Context)
+	SubscribeNewContainers(ctx context.Context, containers chan<- docker.Container)
 }
 
 type dockerClientService struct {
@@ -92,4 +93,8 @@ func (d *dockerClientService) SubscribeEvents(ctx context.Context, events chan<-
 
 func (d *dockerClientService) UnsubscribeEvents(ctx context.Context) {
 	d.store.UnsubscribeEvents(ctx)
+}
+
+func (d *dockerClientService) SubscribeNewContainers(ctx context.Context, containers chan<- docker.Container) {
+	d.store.SubscribeNewContainers(ctx, containers)
 }

@@ -65,7 +65,6 @@ func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, op
 }
 
 func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error {
-
 	args := m.Called(ctx, containerID, options)
 	err := args.Get(0)
 

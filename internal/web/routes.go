@@ -46,12 +46,12 @@ type Authorizer interface {
 type handler struct {
 	content          fs.FS
 	config           *Config
-	multiHostService docker_support.MultiHostService
+	multiHostService *docker_support.MultiHostService
 }
 
 type MultiHostService = docker_support.MultiHostService
 
-func CreateServer(multiHostService MultiHostService, content fs.FS, config Config) *http.Server {
+func CreateServer(multiHostService *MultiHostService, content fs.FS, config Config) *http.Server {
 	handler := &handler{
 		content:          content,
 		config:           &config,

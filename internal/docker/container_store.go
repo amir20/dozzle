@@ -13,7 +13,7 @@ import (
 type ContainerStore struct {
 	containers              *xsync.MapOf[string, *Container]
 	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
-	newContainerSubscribers *xsync.MapOf[context.Context, chan Container]
+	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          *StatsCollector
 	wg                      sync.WaitGroup
@@ -27,7 +27,7 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
 		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
-		newContainerSubscribers: xsync.NewMapOf[context.Context, chan Container](),
+		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
 		statsCollector:          NewStatsCollector(client),
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
@@ -111,7 +111,7 @@ func (s *ContainerStore) UnsubscribeStats(ctx context.Context) {
 	s.statsCollector.Unsubscribe(ctx)
 }
 
-func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan Container) {
+func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
 }
 
@@ -132,7 +132,7 @@ func (s *ContainerStore) init() {
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
 					s.containers.Store(container.ID, &container)
-					s.newContainerSubscribers.Range(func(c context.Context, containers chan Container) bool {
+					s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 						select {
 						case containers <- container:
 						case <-c.Done():
