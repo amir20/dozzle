@@ -79,6 +79,7 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
+			// TODO: handle error properly
 			return err
 		}
 
@@ -105,13 +106,6 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
 		}
 	}
-}
-
-func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
-	var data *orderedmap.OrderedMap[string, any]
-	reader := bytes.NewReader(b)
-	json.NewDecoder(reader).Decode(&data)
-	return data
 }
 
 func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (io.ReadCloser, error) {
@@ -144,6 +138,47 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 	}()
 
 	return r, nil
+}
+
+func (c *Client) StreamStats(ctx context.Context, stats chan<- docker.ContainerStat) error {
+	stream, err := c.client.StreamStats(ctx, &pb.StreamStatsRequest{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+
+		stats <- docker.ContainerStat{
+			CPUPercent:    resp.Stat.CpuPercent,
+			MemoryPercent: resp.Stat.MemoryPercent,
+			MemoryUsage:   resp.Stat.MemoryUsage,
+			ID:            resp.Stat.Id,
+		}
+	}
+}
+
+func (c *Client) StreamEvents(ctx context.Context, events chan<- docker.ContainerEvent) error {
+	stream, err := c.client.StreamEvents(ctx, &pb.StreamEventsRequest{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+
+		events <- docker.ContainerEvent{
+			ActorID: resp.Event.ActorId,
+			Name:    resp.Event.Name,
+			Host:    resp.Event.Host,
+		}
+	}
 }
 
 func (c *Client) FindContainer(containerID string) (docker.Container, error) {
@@ -200,4 +235,11 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 
 func (c *Client) Host() docker.Host {
 	return c.host
+}
+
+func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
+	var data *orderedmap.OrderedMap[string, any]
+	reader := bytes.NewReader(b)
+	json.NewDecoder(reader).Decode(&data)
+	return data
 }

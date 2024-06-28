@@ -50,16 +50,13 @@ message StreamRawBytesRequest {
   google.protobuf.Timestamp until = 3;
   int32 streamTypes = 4;
 }
-
 message StreamRawBytesResponse { bytes data = 1; }
 
 message StreamEventsRequest {}
-
 message StreamEventsResponse { ContainerEvent event = 1; }
 
 message StreamStatsRequest {}
-
-message StreamStatsResponse { ContainerStat stats = 1; }
+message StreamStatsResponse { ContainerStat stat = 1; }
 
 message HostInfoRequest {}
 

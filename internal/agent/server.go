@@ -157,11 +157,47 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentServic
 }
 
 func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_StreamEventsServer) error {
-	return nil
+	events := make(chan docker.ContainerEvent)
+
+	s.store.SubscribeEvents(out.Context(), events)
+
+	for {
+		select {
+		case event := <-events:
+			out.Send(&pb.StreamEventsResponse{
+				Event: &pb.ContainerEvent{
+					ActorId: event.ActorID,
+					Name:    event.Name,
+					Host:    event.Host,
+					// TODO remove ID from ContainerEvent
+				},
+			})
+		case <-out.Context().Done():
+			return nil
+		}
+	}
 }
 
 func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_StreamStatsServer) error {
-	return nil
+	stats := make(chan docker.ContainerStat)
+
+	s.store.SubscribeStats(out.Context(), stats)
+
+	for {
+		select {
+		case stat := <-stats:
+			out.Send(&pb.StreamStatsResponse{
+				Stat: &pb.ContainerStat{
+					Id:            stat.ID,
+					CpuPercent:    stat.CPUPercent,
+					MemoryPercent: stat.MemoryPercent,
+					MemoryUsage:   stat.MemoryUsage,
+				},
+			})
+		case <-out.Context().Done():
+			return nil
+		}
+	}
 }
 
 func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest) (*pb.FindContainerResponse, error) {
@@ -249,7 +285,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 	}, nil
 }
 
-func RunServer(client docker.Client, certificates tls.Certificate) {
+func RunServer(client docker.Client, certificates tls.Certificate, address string) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -269,7 +305,7 @@ func RunServer(client docker.Client, certificates tls.Certificate) {
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterAgentServiceServer(grpcServer, NewServer(client))
-	listener, err := net.Listen("tcp", ":7007")
+	listener, err := net.Listen("tcp", address)
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
