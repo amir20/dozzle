@@ -114,7 +114,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *handler) newContainers(ctx context.Context) chan docker.Container {
+func (h *handler) newContainers(ctx context.Context) <-chan docker.Container {
 	containers := make(chan docker.Container)
 	// TODO this should be a context aware function
 
@@ -297,7 +297,7 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	streamLogsForContainers(w, r, containers, h.multiHostService)
 }
 
-func streamLogsForContainers(w http.ResponseWriter, r *http.Request, containers chan docker.Container, multiHostClient MultiHostService) {
+func streamLogsForContainers(w http.ResponseWriter, r *http.Request, containers chan docker.Container, multiHostClient *MultiHostService) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= docker.STDOUT

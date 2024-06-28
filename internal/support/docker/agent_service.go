@@ -73,3 +73,7 @@ func (a *agentService) UnsubscribeEvents(ctx context.Context) {
 		cancel()
 	}
 }
+
+func (a *agentService) SubscribeNewContainers(ctx context.Context, containers chan<- docker.Container) {
+
+}

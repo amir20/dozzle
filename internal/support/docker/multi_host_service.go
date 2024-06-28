@@ -5,14 +5,14 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/cenkalti/backoff/v4"
 )
 
-// host unavailability error
 type HostUnavailableError struct {
 	Host docker.Host
 	Err  error
@@ -22,22 +22,12 @@ func (h *HostUnavailableError) Error() string {
 	return fmt.Sprintf("host %s unavailable: %v", h.Host.ID, h.Err)
 }
 
-type MultiHostService interface {
-	FindContainer(host string, id string) (ContainerService, error)
-	ListAllContainers() ([]docker.Container, []error)
-	ListContainersForHost(host string) ([]docker.Container, error)
-	SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat)
-	UnsubscribeEventsAndStats(ctx context.Context)
-	TotalClients() int
-	Hosts() []docker.Host
-}
-
-type multiHostService struct {
+type MultiHostService struct {
 	clients map[string]ClientService
 }
 
-func NewMultiHostService(clients []ClientService) MultiHostService {
-	m := &multiHostService{
+func NewMultiHostService(clients []ClientService) *MultiHostService {
+	m := &MultiHostService{
 		clients: make(map[string]ClientService),
 	}
 
@@ -52,8 +42,8 @@ func NewMultiHostService(clients []ClientService) MultiHostService {
 	return m
 }
 
-func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHostService {
-	m := &multiHostService{
+func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiHostService {
+	m := &MultiHostService{
 		clients: make(map[string]ClientService),
 	}
 
@@ -101,11 +91,10 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 	}
 
 	go func() {
-		time.Sleep(5 * time.Second)
-		discover()
-
-		for {
-			time.Sleep(30 * time.Second)
+		ticker := backoff.NewTicker(backoff.NewExponentialBackOff(
+			backoff.WithMaxElapsedTime(0)),
+		)
+		for range ticker.C {
 			log.Tracef("discovering swarm services")
 			discover()
 		}
@@ -114,7 +103,7 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) MultiHo
 	return m
 }
 
-func (m *multiHostService) FindContainer(host string, id string) (ContainerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string) (ContainerService, error) {
 	client, ok := m.clients[host]
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -131,7 +120,7 @@ func (m *multiHostService) FindContainer(host string, id string) (ContainerServi
 	}, nil
 }
 
-func (m *multiHostService) ListContainersForHost(host string) ([]docker.Container, error) {
+func (m *MultiHostService) ListContainersForHost(host string) ([]docker.Container, error) {
 	client, ok := m.clients[host]
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -140,7 +129,7 @@ func (m *multiHostService) ListContainersForHost(host string) ([]docker.Containe
 	return client.ListContainers()
 }
 
-func (m *multiHostService) ListAllContainers() ([]docker.Container, []error) {
+func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 	var containers []docker.Container
 	var errors []error
 
@@ -158,25 +147,25 @@ func (m *multiHostService) ListAllContainers() ([]docker.Container, []error) {
 	return containers, errors
 }
 
-func (m *multiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat) {
+func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat) {
 	for _, client := range m.clients {
 		client.SubscribeEvents(ctx, events)
 		client.SubscribeStats(ctx, stats)
 	}
 }
 
-func (m *multiHostService) UnsubscribeEventsAndStats(ctx context.Context) {
+func (m *MultiHostService) UnsubscribeEventsAndStats(ctx context.Context) {
 	for _, client := range m.clients {
 		client.UnsubscribeEvents(ctx)
 		client.UnsubscribeStats(ctx)
 	}
 }
 
-func (m *multiHostService) TotalClients() int {
+func (m *MultiHostService) TotalClients() int {
 	return len(m.clients)
 }
 
-func (m *multiHostService) Hosts() []docker.Host {
+func (m *MultiHostService) Hosts() []docker.Host {
 	hosts := make([]docker.Host, 0, len(m.clients))
 	for _, client := range m.clients {
 		hosts = append(hosts, client.Host())
