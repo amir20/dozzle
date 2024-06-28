@@ -213,6 +213,16 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 
 	containers := make([]docker.Container, 0)
 	for _, container := range response.Containers {
+		var stats []docker.ContainerStat
+		for _, stat := range container.Stats {
+			stats = append(stats, docker.ContainerStat{
+				ID:            stat.Id,
+				CPUPercent:    stat.CpuPercent,
+				MemoryPercent: stat.MemoryPercent,
+				MemoryUsage:   stat.MemoryUsage,
+			})
+		}
+
 		containers = append(containers, docker.Container{
 			ID:      container.Id,
 			Name:    container.Name,
@@ -226,7 +236,7 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 			Health:  container.Health,
 			Host:    container.Host,
 			Tty:     container.Tty,
-			Stats:   utils.NewRingBuffer[docker.ContainerStat](300),
+			Stats:   utils.RingBufferFrom(300, stats),
 		})
 	}
 

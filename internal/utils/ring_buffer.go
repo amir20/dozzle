@@ -20,6 +20,20 @@ func NewRingBuffer[T any](size int) *RingBuffer[T] {
 	}
 }
 
+func RingBufferFrom[T any](size int, data []T) *RingBuffer[T] {
+	if len(data) == 0 {
+		return NewRingBuffer[T](size)
+	}
+	if len(data) > size {
+		data = data[len(data)-size:]
+	}
+	return &RingBuffer[T]{
+		Size:  size,
+		data:  data,
+		start: 0,
+	}
+}
+
 func (r *RingBuffer[T]) Push(data T) {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
