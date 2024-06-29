@@ -113,6 +113,8 @@ func (s *ContainerStore) UnsubscribeStats(ctx context.Context) {
 
 func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
+	<-ctx.Done()
+	s.newContainerSubscribers.Delete(ctx)
 }
 
 func (s *ContainerStore) init() {
@@ -136,7 +138,6 @@ func (s *ContainerStore) init() {
 						select {
 						case containers <- container:
 						case <-c.Done():
-							s.newContainerSubscribers.Delete(c)
 						}
 						return true
 					})

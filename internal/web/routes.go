@@ -50,6 +50,7 @@ type handler struct {
 }
 
 type MultiHostService = docker_support.MultiHostService
+type ContainerFilter = docker_support.ContainerFilter
 
 func CreateServer(multiHostService *MultiHostService, content fs.FS, config Config) *http.Server {
 	handler := &handler{

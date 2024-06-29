@@ -13,6 +13,8 @@ import (
 	"github.com/cenkalti/backoff/v4"
 )
 
+type ContainerFilter = func(*docker.Container) bool
+
 type HostUnavailableError struct {
 	Host docker.Host
 	Err  error
@@ -147,6 +149,17 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 	return containers, errors
 }
 
+func (m *MultiHostService) ListAllContainersFiltered(filter ContainerFilter) ([]docker.Container, []error) {
+	containers, err := m.ListAllContainers()
+	filtered := make([]docker.Container, 0, len(containers))
+	for _, container := range containers {
+		if filter(&container) {
+			filtered = append(filtered, container)
+		}
+	}
+	return filtered, err
+}
+
 func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat) {
 	for _, client := range m.clients {
 		client.SubscribeEvents(ctx, events)
@@ -172,4 +185,21 @@ func (m *MultiHostService) Hosts() []docker.Host {
 	}
 
 	return hosts
+}
+
+func (m *MultiHostService) StreamContainersStarted(ctx context.Context, containers chan<- docker.Container, filter ContainerFilter) {
+	newContainers := make(chan docker.Container)
+	for _, client := range m.clients {
+		go client.StreamContainersStarted(ctx, newContainers)
+	}
+
+	for container := range newContainers {
+		if filter(&container) {
+			select {
+			case containers <- container:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}
 }

@@ -114,45 +114,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *handler) newContainers(ctx context.Context) <-chan docker.Container {
-	containers := make(chan docker.Container)
-	// TODO this should be a context aware function
-
-	return containers
-}
-
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
 
-	containers := make(chan docker.Container, 1)
-	containers <- containerService.Container()
-
-	go func() {
-		newContainers := h.newContainers(r.Context())
-		for {
-			select {
-			case container := <-newContainers:
-				if container.ID == id {
-					select {
-					case containers <- container:
-					case <-r.Context().Done():
-						log.Debugf("closing container channel streamContainerLogs")
-						return
-					}
-				}
-			case <-r.Context().Done():
-				log.Debugf("closing container channel streamContainerLogs")
-				return
-			}
-		}
-	}()
-
-	streamLogsForContainers(w, r, containers, h.multiHostService)
+	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+		return container.State == "running" && container.ID == id && container.Host == hostKey(r)
+	})
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
@@ -161,143 +128,40 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	containers := make(chan docker.Container, len(r.URL.Query()["id"]))
-
+	ids := make(map[string]bool)
 	for _, id := range r.URL.Query()["id"] {
-		containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		containers <- containerService.Container()
+		ids[id] = true
 	}
 
-	streamLogsForContainers(w, r, containers, h.multiHostService)
+	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+		return container.State == "running" && ids[container.ID] == true && container.Host == hostKey(r)
+	})
 }
 
 func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 	service := chi.URLParam(r, "service")
-	containers := make(chan docker.Container, 10)
-	go func() {
-		list, errors := h.multiHostService.ListAllContainers()
-		if len(errors) > 0 {
-			log.Warnf("error while listing containers %v", errors)
-		}
-		for _, container := range list {
-			if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
-				select {
-				case containers <- container:
-				case <-r.Context().Done():
-					log.Debugf("closing container channel streamServiceLogs")
-					return
-				}
-			}
-		}
-		newContainers := h.newContainers(r.Context())
-		for {
-			select {
-			case container := <-newContainers:
-				if container.State == "running" && (container.Labels["com.docker.swarm.service.name"] == service) {
-					select {
-					case containers <- container:
-					case <-r.Context().Done():
-						log.Debugf("closing container channel streamServiceLogs")
-						return
-					}
-				}
-			case <-r.Context().Done():
-				log.Debugf("closing container channel streamServiceLogs")
-				return
-			}
-		}
-	}()
-
-	streamLogsForContainers(w, r, containers, h.multiHostService)
+	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+		return container.State == "running" && container.Labels["com.docker.swarm.service.name"] == service
+	})
 }
 
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 	group := chi.URLParam(r, "group")
-	containers := make(chan docker.Container, 10)
 
-	go func() {
-		list, errors := h.multiHostService.ListAllContainers()
-		if len(errors) > 0 {
-			log.Warnf("error while listing containers %v", errors)
-		}
-		for _, container := range list {
-			if container.State == "running" && (container.Group == group) {
-				select {
-				case containers <- container:
-				case <-r.Context().Done():
-					log.Debugf("closing container channel streamServiceLogs")
-					return
-				}
-			}
-		}
-		newContainers := h.newContainers(r.Context())
-		for {
-			select {
-			case container := <-newContainers:
-				if container.State == "running" && (container.Group == group) {
-					select {
-					case containers <- container:
-					case <-r.Context().Done():
-						log.Debugf("closing container channel streamServiceLogs")
-						return
-					}
-				}
-			case <-r.Context().Done():
-				log.Debugf("closing container channel streamServiceLogs")
-				return
-			}
-		}
-	}()
-
-	streamLogsForContainers(w, r, containers, h.multiHostService)
+	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+		return container.State == "running" && container.Group == group
+	})
 }
 
 func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	stack := chi.URLParam(r, "stack")
-	containers := make(chan docker.Container, 10)
 
-	go func() {
-		list, errors := h.multiHostService.ListAllContainers()
-		if len(errors) > 0 {
-			log.Warnf("error while listing containers %v", errors)
-		}
-		for _, container := range list {
-			if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
-				select {
-				case containers <- container:
-				case <-r.Context().Done():
-					log.Debugf("closing container channel streamStackLogs")
-					return
-				}
-			}
-		}
-		newContainers := h.newContainers(r.Context())
-		for {
-			select {
-			case container := <-newContainers:
-				if container.State == "running" && (container.Labels["com.docker.stack.namespace"] == stack) {
-					select {
-					case containers <- container:
-					case <-r.Context().Done():
-						log.Debugf("closing container channel streamStackLogs")
-						return
-					}
-				}
-			case <-r.Context().Done():
-				log.Debugf("closing container channel streamStackLogs")
-				return
-			}
-		}
-	}()
-
-	streamLogsForContainers(w, r, containers, h.multiHostService)
+	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+		return container.State == "running" && container.Labels["com.docker.stack.namespace"] == stack
+	})
 }
 
-func streamLogsForContainers(w http.ResponseWriter, r *http.Request, containers chan docker.Container, multiHostClient *MultiHostService) {
+func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostClient *MultiHostService, filter ContainerFilter) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= docker.STDOUT
@@ -328,8 +192,38 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, containers 
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
+	existingContainers, errors := multiHostClient.ListAllContainersFiltered(filter)
+	if len(errors) > 0 {
+		log.Warnf("error while listing containers %v", errors)
+	}
 
-	started := time.Now()
+	streamLogs := func(container docker.Container) {
+		start := time.Time{}
+		if container.StartedAt != nil {
+			start = *container.StartedAt
+		}
+		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+		if err != nil {
+			log.Errorf("error while finding container %v", err.Error())
+			return
+		}
+		err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
+		if err != nil {
+			if err == io.EOF {
+				log.WithError(err).Debugf("stream closed for container %v", container.Name)
+				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+			} else if err != context.Canceled {
+				log.Errorf("unknown error while streaming %v", err.Error())
+			}
+		}
+	}
+
+	for _, container := range existingContainers {
+		go streamLogs(container)
+	}
+
+	newContainers := make(chan docker.Container)
+	go multiHostClient.StreamContainersStarted(r.Context(), newContainers, filter)
 
 loop:
 	for {
@@ -348,30 +242,9 @@ loop:
 		case <-ticker.C:
 			fmt.Fprintf(w, ":ping \n\n")
 			f.Flush()
-		case container := <-containers:
-			if container.StartedAt != nil && container.StartedAt.After(started) {
-				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
-			}
-			go func(container docker.Container) {
-				start := time.Time{}
-				if container.StartedAt != nil {
-					start = *container.StartedAt
-				}
-				containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
-				if err != nil {
-					log.Errorf("error while finding container %v", err.Error())
-					return
-				}
-				err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
-				if err != nil {
-					if err == io.EOF {
-						log.WithError(err).Debugf("stream closed for container %v", container.Name)
-						events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
-					} else if err != context.Canceled {
-						log.Errorf("unknown error while streaming %v", err.Error())
-					}
-				}
-			}(container)
+		case container := <-newContainers:
+			events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
+			go streamLogs(container)
 
 		case event := <-events:
 			log.Debugf("received container event %v", event)

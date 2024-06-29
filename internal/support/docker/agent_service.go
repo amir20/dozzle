@@ -74,6 +74,6 @@ func (a *agentService) UnsubscribeEvents(ctx context.Context) {
 	}
 }
 
-func (a *agentService) SubscribeNewContainers(ctx context.Context, containers chan<- docker.Container) {
-
+func (d *agentService) StreamContainersStarted(ctx context.Context, containers chan<- docker.Container) {
+	d.client.StreamNewContainers(ctx, containers)
 }
