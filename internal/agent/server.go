@@ -66,41 +66,6 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 	}
 }
 
-func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
-	var message *anypb.Any
-	switch data := event.Message.(type) {
-	case string:
-		message, _ = anypb.New(&pb.SimpleMessage{
-			Message: data,
-		})
-
-	case *orderedmap.OrderedMap[string, any]:
-		message, _ = anypb.New(&pb.ComplexMessage{
-			Data: orderedMapToJSONBytes(data),
-		})
-	case *orderedmap.OrderedMap[string, string]:
-		message, _ = anypb.New(&pb.ComplexMessage{
-			Data: orderedMapToJSONBytes(data),
-		})
-
-	default:
-		log.Fatalf("agent server: unknown type %T", event.Message)
-	}
-
-	return &pb.LogEvent{
-		Message:     message,
-		Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
-		Id:          event.Id,
-		ContainerId: event.ContainerID,
-	}
-}
-
-func orderedMapToJSONBytes[T any](data *orderedmap.OrderedMap[string, T]) []byte {
-	bytes := bytes.Buffer{}
-	json.NewEncoder(&bytes).Encode(data)
-	return bytes.Bytes()
-}
-
 func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {
 	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
 	if err != nil {
@@ -284,6 +249,37 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 	}, nil
 }
 
+func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, out pb.AgentService_StreamContainerStartedServer) error {
+	containers := make(chan docker.Container)
+
+	s.store.SubscribeNewContainers(out.Context(), containers)
+
+	for {
+		select {
+		case container := <-containers:
+			out.Send(&pb.StreamContainerStartedResponse{
+				Container: &pb.Container{
+					Id:      container.ID,
+					Name:    container.Name,
+					Image:   container.Image,
+					ImageId: container.ImageID,
+					Created: timestamppb.New(container.Created),
+					State:   container.State,
+					Status:  container.Status,
+					Health:  container.Health,
+					Host:    container.Host,
+					Tty:     container.Tty,
+					Labels:  container.Labels,
+					Group:   container.Group,
+					Started: timestamppb.New(*container.StartedAt),
+				},
+			})
+		case <-out.Context().Done():
+			return nil
+		}
+	}
+}
+
 func RunServer(client docker.Client, certificates tls.Certificate, address string) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
@@ -313,4 +309,39 @@ func RunServer(client docker.Client, certificates tls.Certificate, address strin
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
+	var message *anypb.Any
+	switch data := event.Message.(type) {
+	case string:
+		message, _ = anypb.New(&pb.SimpleMessage{
+			Message: data,
+		})
+
+	case *orderedmap.OrderedMap[string, any]:
+		message, _ = anypb.New(&pb.ComplexMessage{
+			Data: orderedMapToJSONBytes(data),
+		})
+	case *orderedmap.OrderedMap[string, string]:
+		message, _ = anypb.New(&pb.ComplexMessage{
+			Data: orderedMapToJSONBytes(data),
+		})
+
+	default:
+		log.Fatalf("agent server: unknown type %T", event.Message)
+	}
+
+	return &pb.LogEvent{
+		Message:     message,
+		Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
+		Id:          event.Id,
+		ContainerId: event.ContainerID,
+	}
+}
+
+func orderedMapToJSONBytes[T any](data *orderedmap.OrderedMap[string, T]) []byte {
+	bytes := bytes.Buffer{}
+	json.NewEncoder(&bytes).Encode(data)
+	return bytes.Bytes()
 }

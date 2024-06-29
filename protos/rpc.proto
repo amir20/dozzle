@@ -16,6 +16,8 @@ service AgentService {
       returns (stream StreamRawBytesResponse) {}
   rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
   rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
+  rpc StreamContainerStarted(StreamContainerStartedRequest)
+      returns (stream StreamContainerStartedResponse) {}
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
 }
 
@@ -61,3 +63,6 @@ message StreamStatsResponse { ContainerStat stat = 1; }
 message HostInfoRequest {}
 
 message HostInfoResponse { Host host = 1; }
+
+message StreamContainerStartedRequest {}
+message StreamContainerStartedResponse { Container container = 1; }

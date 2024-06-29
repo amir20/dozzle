@@ -181,6 +181,38 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- docker.Containe
 	}
 }
 
+func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- docker.Container) error {
+	stream, err := c.client.StreamContainerStarted(ctx, &pb.StreamContainerStartedRequest{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+
+		started := resp.Container.Started.AsTime()
+
+		containers <- docker.Container{
+			ID:        resp.Container.Id,
+			Name:      resp.Container.Name,
+			Image:     resp.Container.Image,
+			Labels:    resp.Container.Labels,
+			Group:     resp.Container.Group,
+			ImageID:   resp.Container.ImageId,
+			Created:   resp.Container.Created.AsTime(),
+			State:     resp.Container.State,
+			Status:    resp.Container.Status,
+			Health:    resp.Container.Health,
+			Host:      resp.Container.Host,
+			Tty:       resp.Container.Tty,
+			StartedAt: &started,
+		}
+	}
+}
+
 func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 	response, err := c.client.FindContainer(context.Background(), &pb.FindContainerRequest{ContainerId: containerID})
 	if err != nil {
