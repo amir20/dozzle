@@ -116,25 +116,23 @@ func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- Cont
 	}()
 
 	s.subscribers.Store(ctx, events)
-}
-
-func (s *ContainerStore) UnsubscribeEvents(ctx context.Context) {
-	s.subscribers.Delete(ctx)
-	s.statsCollector.Stop()
+	go func() {
+		<-ctx.Done()
+		s.subscribers.Delete(ctx)
+		s.statsCollector.Stop()
+	}()
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
-func (s *ContainerStore) UnsubscribeStats(ctx context.Context) {
-	s.statsCollector.Unsubscribe(ctx)
-}
-
 func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
-	<-ctx.Done()
-	s.newContainerSubscribers.Delete(ctx)
+	go func() {
+		<-ctx.Done()
+		s.newContainerSubscribers.Delete(ctx)
+	}()
 }
 
 func (s *ContainerStore) init() {

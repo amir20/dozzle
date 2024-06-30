@@ -36,10 +36,10 @@ func NewStatsCollector(client Client) *StatsCollector {
 
 func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- ContainerStat) {
 	c.subscribers.Store(ctx, stats)
-}
-
-func (c *StatsCollector) Unsubscribe(ctx context.Context) {
-	c.subscribers.Delete(ctx)
+	go func() {
+		<-ctx.Done()
+		c.subscribers.Delete(ctx)
+	}()
 }
 
 func (c *StatsCollector) forceStop() {

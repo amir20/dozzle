@@ -224,7 +224,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	}
 
 	newContainers := make(chan docker.Container)
-	go multiHostClient.StreamContainersStarted(r.Context(), newContainers, filter)
+	multiHostClient.StreamContainersStarted(r.Context(), newContainers, filter)
 
 loop:
 	for {

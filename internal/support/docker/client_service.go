@@ -13,12 +13,11 @@ type ClientService interface {
 	ListContainers() ([]docker.Container, error)
 	Host() docker.Host
 	SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat)
-	UnsubscribeStats(ctx context.Context)
 	SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent)
-	UnsubscribeEvents(ctx context.Context)
+	SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container)
 
 	// Blocking streaming functions that should be used in a goroutine
-	StreamContainersStarted(ctx context.Context, containers chan<- docker.Container)
+
 	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 	StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
@@ -94,18 +93,10 @@ func (d *dockerClientService) SubscribeStats(ctx context.Context, stats chan<- d
 	d.store.SubscribeStats(ctx, stats)
 }
 
-func (d *dockerClientService) UnsubscribeStats(ctx context.Context) {
-	d.store.UnsubscribeStats(ctx)
-}
-
 func (d *dockerClientService) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
 	d.store.SubscribeEvents(ctx, events)
 }
 
-func (d *dockerClientService) UnsubscribeEvents(ctx context.Context) {
-	d.store.UnsubscribeEvents(ctx)
-}
-
-func (d *dockerClientService) StreamContainersStarted(ctx context.Context, containers chan<- docker.Container) {
+func (d *dockerClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container) {
 	d.store.SubscribeNewContainers(ctx, containers)
 }
