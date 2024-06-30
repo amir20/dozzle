@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
+	log "github.com/sirupsen/logrus"
 )
 
 type ClientService interface {
@@ -70,7 +71,17 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 }
 
 func (d *dockerClientService) FindContainer(id string) (docker.Container, error) {
-	return d.client.FindContainer(id)
+	container, err := d.store.FindContainer(id)
+	if err != nil {
+		if err == docker.ErrContainerNotFound {
+			log.Warnf("container %s not found in store, fetching from docker", id)
+			return d.client.FindContainer(id)
+		} else {
+			return docker.Container{}, err
+		}
+	}
+
+	return container, nil
 }
 
 func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
