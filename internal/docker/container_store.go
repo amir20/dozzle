@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
+	lop "github.com/samber/lo/parallel"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -58,10 +59,10 @@ func (s *ContainerStore) checkConnectivity() error {
 			return err
 		} else {
 			s.containers.Clear()
-			for _, c := range containers {
+			lop.ForEach(containers, func(c Container, _ int) {
 				container, _ := s.client.FindContainer(c.ID)
 				s.containers.Store(c.ID, &container)
-			}
+			})
 		}
 	}
 
