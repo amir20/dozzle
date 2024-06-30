@@ -3,6 +3,7 @@ package web
 import (
 	"compress/gzip"
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -192,9 +193,9 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
-	existingContainers, errors := multiHostClient.ListAllContainersFiltered(filter)
-	if len(errors) > 0 {
-		log.Warnf("error while listing containers %v", errors)
+	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
+	if len(errs) > 0 {
+		log.Warnf("error while listing containers %v", errs)
 	}
 
 	streamLogs := func(container docker.Container) {
@@ -209,10 +210,10 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		}
 		err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				log.WithError(err).Debugf("stream closed for container %v", container.Name)
 				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
-			} else if err != context.Canceled {
+			} else if !errors.Is(err, context.Canceled) {
 				log.Errorf("unknown error while streaming %v", err.Error())
 			}
 		}

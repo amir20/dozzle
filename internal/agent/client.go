@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -65,6 +67,27 @@ func NewClient(endpoint string, certificates tls.Certificate) (*Client, error) {
 	}, nil
 }
 
+func rpcErrToErr(err error) error {
+	status, ok := status.FromError(err)
+	if ok {
+		return nil
+	}
+
+	if status.Message() == "EOF" {
+		return io.EOF
+	}
+
+	switch status.Code() {
+	case codes.Canceled:
+		return fmt.Errorf("canceled: %v with %w", status.Message(), context.Canceled)
+	case codes.DeadlineExceeded:
+		return fmt.Errorf("deadline exceeded: %v with %w", status.Message(), context.DeadlineExceeded)
+	default:
+		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
+	}
+
+}
+
 func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
 	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{
 		ContainerId: containerID,
@@ -79,8 +102,7 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			// TODO: handle error properly
-			return err
+			return rpcErrToErr(err)
 		}
 
 		m, err := resp.Event.Message.UnmarshalNew()
@@ -126,11 +148,13 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 		defer w.Close()
 		for {
 			resp, err := out.Recv()
-			status, ok := status.FromError(err)
-			if status.Message() == "EOF" || ok {
-				return
-			} else {
-				log.Errorf("cannot unpack message %v", err)
+			err = rpcErrToErr(err)
+			if err != nil {
+				if err == io.EOF || err == context.Canceled {
+					return
+				} else {
+					log.Warnf("error while streaming raw bytes %v", err)
+				}
 			}
 
 			w.Write(resp.Data)
@@ -149,7 +173,7 @@ func (c *Client) StreamStats(ctx context.Context, stats chan<- docker.ContainerS
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			return err
+			return rpcErrToErr(err)
 		}
 
 		stats <- docker.ContainerStat{
@@ -170,7 +194,7 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- docker.Containe
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			return err
+			return rpcErrToErr(err)
 		}
 
 		events <- docker.ContainerEvent{
@@ -190,7 +214,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
-			return err
+			return rpcErrToErr(err)
 		}
 
 		started := resp.Container.Started.AsTime()
