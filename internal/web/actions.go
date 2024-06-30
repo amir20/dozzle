@@ -20,6 +20,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO fix
 	// err = client.ContainerActions(action, container.ID)
 	// if err != nil {
 	// 	log.Errorf("error while trying to perform action: %s", action)

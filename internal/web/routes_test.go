@@ -8,6 +8,7 @@ import (
 	"io/fs"
 
 	"github.com/amir20/dozzle/internal/docker"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/docker/docker/api/types/system"
 	"github.com/go-chi/chi/v5"
 
@@ -36,7 +37,7 @@ func (m *MockedClient) ListContainers() ([]docker.Container, error) {
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since *time.Time, stdType docker.StdType) (io.ReadCloser, error) {
+func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType docker.StdType) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, since, stdType)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
@@ -55,9 +56,9 @@ func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string,
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) Host() *docker.Host {
+func (m *MockedClient) Host() docker.Host {
 	args := m.Called()
-	return args.Get(0).(*docker.Host)
+	return args.Get(0).(docker.Host)
 }
 
 func (m *MockedClient) IsSwarmMode() bool {
@@ -72,7 +73,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
-		client.(*MockedClient).On("Host").Return(&docker.Host{
+		client.(*MockedClient).On("Host").Return(docker.Host{
 			ID: "localhost",
 		})
 	}
@@ -83,13 +84,11 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	clients := map[string]docker.Client{
-		"localhost": client,
-	}
+	multiHostService := docker_support.NewMultiHostService([]docker_support.ClientService{docker_support.NewDockerClientService(client)})
 	return createRouter(&handler{
-		clients: clients,
-		content: content,
-		config:  &config,
+		multiHostService: multiHostService,
+		content:          content,
+		config:           &config,
 	})
 }
 

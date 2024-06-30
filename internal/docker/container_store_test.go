@@ -34,9 +34,9 @@ func (m *mockedClient) ContainerStats(ctx context.Context, id string, stats chan
 	return args.Error(0)
 }
 
-func (m *mockedClient) Host() *Host {
+func (m *mockedClient) Host() Host {
 	args := m.Called()
-	return args.Get(0).(*Host)
+	return args.Get(0).(Host)
 }
 
 func TestContainerStore_List(t *testing.T) {
@@ -59,7 +59,7 @@ func TestContainerStore_List(t *testing.T) {
 	t.Cleanup(cancel)
 
 	store := NewContainerStore(ctx, client)
-	containers, _ := store.List()
+	containers, _ := store.ListContainers()
 
 	assert.Equal(t, containers[0].ID, "1234")
 }
@@ -98,9 +98,9 @@ func TestContainerStore_die(t *testing.T) {
 
 	// Wait until we get the event
 	events := make(chan ContainerEvent)
-	store.Subscribe(ctx, events)
+	store.SubscribeEvents(ctx, events)
 	<-events
 
-	containers, _ := store.List()
+	containers, _ := store.ListContainers()
 	assert.Equal(t, containers[0].State, "exited")
 }
