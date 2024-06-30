@@ -210,11 +210,11 @@ func (d *httpClient) FindContainer(id string) (Container, error) {
 
 func (d *httpClient) ContainerActions(action ContainerAction, containerID string) error {
 	switch action {
-	case START:
+	case Start:
 		return d.cli.ContainerStart(context.Background(), containerID, container.StartOptions{})
-	case STOP:
+	case Stop:
 		return d.cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
-	case RESTART:
+	case Restart:
 		return d.cli.ContainerRestart(context.Background(), containerID, container.StopOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)

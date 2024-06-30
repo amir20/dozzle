@@ -45,17 +45,17 @@ type ContainerEvent struct {
 type LogPosition string
 
 const (
-	BEGINNING LogPosition = "start"
-	MIDDLE    LogPosition = "middle"
-	END       LogPosition = "end"
+	Beginning LogPosition = "start"
+	Middle    LogPosition = "middle"
+	End       LogPosition = "end"
 )
 
 type ContainerAction string
 
 const (
-	START   ContainerAction = "start"
-	STOP    ContainerAction = "stop"
-	RESTART ContainerAction = "restart"
+	Start   ContainerAction = "start"
+	Stop    ContainerAction = "stop"
+	Restart ContainerAction = "restart"
 )
 
 type LogEvent struct {
