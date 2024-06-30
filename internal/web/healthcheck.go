@@ -12,7 +12,7 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
 	var client docker.Client
 
-	// TODO fix 
+	// TODO fix
 	// for _, v := range h.clients {
 	// 	client = v
 	// 	break

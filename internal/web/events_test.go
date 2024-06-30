@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/docker"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
@@ -51,12 +52,11 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		ID: "localhost",
 	})
 
-	clients := map[string]docker.Client{
-		"localhost": mockedClient,
-	}
-
 	// This is needed so that the server is initialized for store
-	server := CreateServer(clients, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	multiHostService := docker_support.NewMultiHostService(
+		[]docker_support.ClientService{docker_support.NewDockerClientService(mockedClient)},
+	)
+	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 
 	handler := server.Handler
 	rr := httptest.NewRecorder()

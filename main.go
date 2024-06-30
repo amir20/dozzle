@@ -183,6 +183,7 @@ func readCertificates() (tls.Certificate, error) {
 	return tls.X509KeyPair(cert, key)
 }
 
+// TODO fix this
 // func doStartEvent(arg args, clients map[string]docker.Client) {
 // 	if arg.NoAnalytics {
 // 		log.Debug("Analytics disabled.")
