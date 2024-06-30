@@ -15,9 +15,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
@@ -45,7 +48,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		return err
 	}
 
-	container, err := s.client.FindContainer(in.ContainerId)
+	container, err := s.store.FindContainer(in.ContainerId)
 	if err != nil {
 		return err
 	}
@@ -165,9 +168,9 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 }
 
 func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest) (*pb.FindContainerResponse, error) {
-	container, err := s.client.FindContainer(in.ContainerId)
+	container, err := s.store.FindContainer(in.ContainerId)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	return &pb.FindContainerResponse{
@@ -252,7 +255,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, out pb.AgentService_StreamContainerStartedServer) error {
 	containers := make(chan docker.Container)
 
-	s.store.SubscribeNewContainers(out.Context(), containers)
+	go s.store.SubscribeNewContainers(out.Context(), containers)
 
 	for {
 		select {
@@ -337,6 +340,9 @@ func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
 		Timestamp:   timestamppb.New(time.Unix(event.Timestamp, 0)),
 		Id:          event.Id,
 		ContainerId: event.ContainerID,
+		Level:       event.Level,
+		Stream:      event.Stream,
+		Position:    string(event.Position),
 	}
 }
 

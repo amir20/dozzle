@@ -96,6 +96,7 @@ func (s *ContainerStore) FindContainer(id string) (Container, error) {
 		}
 	}
 
+	log.Warnf("container %s not found in store", id)
 	return Container{}, ErrContainerNotFound
 }
 

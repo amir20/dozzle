@@ -39,7 +39,7 @@ func (a *agentService) StreamLogsBetweenDates(ctx context.Context, container doc
 }
 
 func (a *agentService) StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error {
-	return a.client.StreamContainerLogs(ctx, container.ID, from, time.Now().Add(24*time.Hour), stdTypes, events)
+	return a.client.StreamContainerLogs(ctx, container.ID, from, time.Now().Add(48*time.Hour), stdTypes, events)
 }
 
 func (a *agentService) ListContainers() ([]docker.Container, error) {

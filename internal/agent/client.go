@@ -69,12 +69,12 @@ func NewClient(endpoint string, certificates tls.Certificate) (*Client, error) {
 
 func rpcErrToErr(err error) error {
 	status, ok := status.FromError(err)
-	if ok {
-		return nil
+	if !ok {
+		return err
 	}
 
-	if status.Message() == "EOF" {
-		return io.EOF
+	if status.Code() == codes.Unknown && status.Message() == "EOF" {
+		return fmt.Errorf("found EOF while streaming logs: %w", io.EOF)
 	}
 
 	switch status.Code() {
@@ -82,6 +82,8 @@ func rpcErrToErr(err error) error {
 		return fmt.Errorf("canceled: %v with %w", status.Message(), context.Canceled)
 	case codes.DeadlineExceeded:
 		return fmt.Errorf("deadline exceeded: %v with %w", status.Message(), context.DeadlineExceeded)
+	case codes.Unknown:
+		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
 	default:
 		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
 	}
@@ -126,6 +128,9 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 			ContainerID: resp.Event.ContainerId,
 			Message:     message,
 			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
+			Position:    docker.LogPosition(resp.Event.Position),
+			Level:       resp.Event.Level,
+			Stream:      resp.Event.Stream,
 		}
 	}
 }

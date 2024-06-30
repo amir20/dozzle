@@ -35,6 +35,9 @@ message LogEvent {
   string containerId = 2;
   google.protobuf.Any message = 3;
   google.protobuf.Timestamp timestamp = 4;
+  string level = 5;
+  string stream = 6;
+  string position = 7;
 }
 
 message SimpleMessage { string message = 1; }
