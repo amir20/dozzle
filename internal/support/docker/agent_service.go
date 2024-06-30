@@ -56,3 +56,7 @@ func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- docker
 func (d *agentService) SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container) {
 	go d.client.StreamNewContainers(ctx, containers)
 }
+
+func (a *agentService) ContainerAction(container docker.Container, action docker.ContainerAction) error {
+	panic("not implemented")
+}

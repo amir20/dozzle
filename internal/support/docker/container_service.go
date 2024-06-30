@@ -12,6 +12,7 @@ type ContainerService interface {
 	RawLogs(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 	StreamLogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
+	Action(action docker.ContainerAction) error
 	Container() docker.Container
 }
 
@@ -34,4 +35,8 @@ func (c *containerService) StreamLogs(ctx context.Context, from time.Time, stdTy
 
 func (c *containerService) Container() docker.Container {
 	return c.container
+}
+
+func (c *containerService) Action(action docker.ContainerAction) error {
+	return c.clientService.ContainerAction(c.container, action)
 }

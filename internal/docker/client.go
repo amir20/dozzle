@@ -69,7 +69,7 @@ type Client interface {
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() Host
-	ContainerActions(action string, containerID string) error
+	ContainerActions(action ContainerAction, containerID string) error
 	IsSwarmMode() bool
 	SystemInfo() system.Info
 }
@@ -208,13 +208,13 @@ func (d *httpClient) FindContainer(id string) (Container, error) {
 	return container, nil
 }
 
-func (d *httpClient) ContainerActions(action string, containerID string) error {
+func (d *httpClient) ContainerActions(action ContainerAction, containerID string) error {
 	switch action {
-	case "start":
+	case START:
 		return d.cli.ContainerStart(context.Background(), containerID, container.StartOptions{})
-	case "stop":
+	case STOP:
 		return d.cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
-	case "restart":
+	case RESTART:
 		return d.cli.ContainerRestart(context.Background(), containerID, container.StopOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)

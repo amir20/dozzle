@@ -27,8 +27,13 @@ func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
 	return args.Get(0).(docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerActions(action string, containerID string) error {
+func (m *MockedClient) ContainerActions(action docker.ContainerAction, containerID string) error {
 	args := m.Called(action, containerID)
+	return args.Error(0)
+}
+
+func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker.ContainerEvent) error {
+	args := m.Called(ctx, events)
 	return args.Error(0)
 }
 
