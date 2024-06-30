@@ -57,7 +57,8 @@ func (s *ContainerStore) checkConnectivity() error {
 		} else {
 			s.containers.Clear()
 			for _, c := range containers {
-				s.containers.Store(c.ID, &c)
+				container, _ := s.client.FindContainer(c.ID)
+				s.containers.Store(c.ID, &container)
 			}
 		}
 	}
