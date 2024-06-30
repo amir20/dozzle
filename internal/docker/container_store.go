@@ -41,6 +41,8 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	return s
 }
 
+var ErrContainerNotFound = errors.New("container not found")
+
 func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
 		go func() {
@@ -79,6 +81,21 @@ func (s *ContainerStore) ListContainers() ([]Container, error) {
 	})
 
 	return containers, nil
+}
+
+func (s *ContainerStore) FindContainer(id string) (Container, error) {
+	list, err := s.ListContainers()
+	if err != nil {
+		return Container{}, err
+	}
+
+	for _, c := range list {
+		if c.ID == id {
+			return c, nil
+		}
+	}
+
+	return Container{}, ErrContainerNotFound
 }
 
 func (s *ContainerStore) Client() Client {
