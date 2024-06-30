@@ -52,7 +52,7 @@ func TestContainerStore_List(t *testing.T) {
 		ctx := args.Get(0).(context.Context)
 		<-ctx.Done()
 	})
-	client.On("Host").Return(&Host{
+	client.On("Host").Return(Host{
 		ID: "localhost",
 	})
 	ctx, cancel := context.WithCancel(context.Background())
@@ -86,7 +86,7 @@ func TestContainerStore_die(t *testing.T) {
 			}
 			<-ctx.Done()
 		})
-	client.On("Host").Return(&Host{
+	client.On("Host").Return(Host{
 		ID: "localhost",
 	})
 

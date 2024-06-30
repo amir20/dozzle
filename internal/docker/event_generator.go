@@ -197,7 +197,7 @@ func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
 	currentLevel := guessLogLevel(currentEvent)
 	if nextEvent != nil {
 		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "" && !nextEvent.HasLevel() {
-			currentEvent.Position = START
+			currentEvent.Position = BEGINNING
 			nextEvent.Position = MIDDLE
 		}
 
@@ -211,7 +211,7 @@ func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
 			nextEvent.Position = MIDDLE
 		}
 		// Set next item level to current item level
-		if currentEvent.Position == START || currentEvent.Position == MIDDLE {
+		if currentEvent.Position == BEGINNING || currentEvent.Position == MIDDLE {
 			nextEvent.Level = currentEvent.Level
 		}
 	} else if currentEvent.Position == MIDDLE {

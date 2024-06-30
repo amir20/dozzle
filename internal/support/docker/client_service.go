@@ -12,12 +12,14 @@ type ClientService interface {
 	FindContainer(id string) (docker.Container, error)
 	ListContainers() ([]docker.Container, error)
 	Host() docker.Host
+	ContainerAction(container docker.Container, action docker.ContainerAction) error
+
+	// Subscriptions
 	SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat)
 	SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent)
 	SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container)
 
 	// Blocking streaming functions that should be used in a goroutine
-
 	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 	StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
@@ -79,6 +81,10 @@ func (d *dockerClientService) FindContainer(id string) (docker.Container, error)
 	}
 
 	return container, nil
+}
+
+func (d *dockerClientService) ContainerAction(container docker.Container, action docker.ContainerAction) error {
+	return d.client.ContainerActions(action, container.ID)
 }
 
 func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
