@@ -42,7 +42,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	stats := make(chan docker.ContainerStat)
 
 	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
-	defer h.multiHostService.UnsubscribeEventsAndStats(ctx)
 
 	if err := sendContainersJSON(allContainers, w); err != nil {
 		log.Errorf("error writing containers to event stream: %v", err)

@@ -167,13 +167,6 @@ func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events c
 	}
 }
 
-func (m *MultiHostService) UnsubscribeEventsAndStats(ctx context.Context) {
-	for _, client := range m.clients {
-		client.UnsubscribeEvents(ctx)
-		client.UnsubscribeStats(ctx)
-	}
-}
-
 func (m *MultiHostService) TotalClients() int {
 	return len(m.clients)
 }
@@ -190,16 +183,18 @@ func (m *MultiHostService) Hosts() []docker.Host {
 func (m *MultiHostService) StreamContainersStarted(ctx context.Context, containers chan<- docker.Container, filter ContainerFilter) {
 	newContainers := make(chan docker.Container)
 	for _, client := range m.clients {
-		go client.StreamContainersStarted(ctx, newContainers)
+		client.SubscribeContainersStarted(ctx, newContainers)
 	}
 
-	for container := range newContainers {
-		if filter(&container) {
-			select {
-			case containers <- container:
-			case <-ctx.Done():
-				return
+	go func() {
+		for container := range newContainers {
+			if filter(&container) {
+				select {
+				case containers <- container:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
-	}
+	}()
 }
