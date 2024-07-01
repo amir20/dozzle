@@ -159,6 +159,7 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 					return
 				} else {
 					log.Warnf("error while streaming raw bytes %v", err)
+					return
 				}
 			}
 
