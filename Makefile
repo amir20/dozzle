@@ -1,4 +1,7 @@
+PROTO_DIR := protos
 GEN_DIR := internal/agent/pb
+PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
+GEN_FILES := $(patsubst $(PROTO_DIR)/%.proto,$(GEN_DIR)/%.pb.go,$(PROTO_FILES))
 
 .PHONY: clean
 clean:
@@ -18,11 +21,11 @@ fake_assets:
 	@echo "assets build was skipped" > dist/index.html
 
 .PHONY: test
-test: fake_assets shared_key.pem shared_cert.pem $(GEN_DIR)/%.pb.go
+test: fake_assets shared_key.pem shared_cert.pem $(GEN_FILES)
 	go test -cover -race ./...
 
 .PHONY: build
-build: dist shared_key.pem shared_cert.pem $(GEN_DIR)/%.pb.go
+build: dist shared_key.pem shared_cert.pem $(GEN_FILES)
 	CGO_ENABLED=0 go build -ldflags "-s -w"
 
 .PHONY: docker
@@ -45,7 +48,7 @@ shared_cert.pem:
 	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 365
 	@rm shared_request.csr
 
-$(GEN_DIR)/%.pb.go: $(wildcard $(protos)/*.proto)
+$(GEN_DIR)/%.pb.go: $(PROTO_DIR)/%.proto
 	@go generate
 
 .PHONY: push
