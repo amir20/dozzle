@@ -167,20 +167,7 @@ func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events c
 	}
 }
 
-func (m *MultiHostService) TotalClients() int {
-	return len(m.clients)
-}
-
-func (m *MultiHostService) Hosts() []docker.Host {
-	hosts := make([]docker.Host, 0, len(m.clients))
-	for _, client := range m.clients {
-		hosts = append(hosts, client.Host())
-	}
-
-	return hosts
-}
-
-func (m *MultiHostService) StreamContainersStarted(ctx context.Context, containers chan<- docker.Container, filter ContainerFilter) {
+func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container, filter ContainerFilter) {
 	newContainers := make(chan docker.Container)
 	for _, client := range m.clients {
 		client.SubscribeContainersStarted(ctx, newContainers)
@@ -197,4 +184,17 @@ func (m *MultiHostService) StreamContainersStarted(ctx context.Context, containe
 			}
 		}
 	}()
+}
+
+func (m *MultiHostService) TotalClients() int {
+	return len(m.clients)
+}
+
+func (m *MultiHostService) Hosts() []docker.Host {
+	hosts := make([]docker.Host, 0, len(m.clients))
+	for _, client := range m.clients {
+		hosts = append(hosts, client.Host())
+	}
+
+	return hosts
 }
