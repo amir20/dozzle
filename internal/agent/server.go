@@ -43,7 +43,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.STDALL)
+	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.STDALL) // TODO: add support for stream types
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 			Name:    container.Name,
 			Image:   container.Image,
 			ImageId: container.ImageID,
-			// Command:   container.Command,
+			// TODO Command:   container.Command, : add command
 			Created: timestamppb.New(container.Created),
 			State:   container.State,
 			Status:  container.Status,

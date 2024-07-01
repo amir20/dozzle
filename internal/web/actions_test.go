@@ -64,7 +64,7 @@ func Test_handler_containerActions_unknown_action(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	assert.Equal(t, 500, rr.Code)
+	assert.Equal(t, 400, rr.Code)
 }
 
 func Test_handler_containerActions_unknown_container(t *testing.T) {

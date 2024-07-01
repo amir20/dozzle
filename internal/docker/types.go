@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -57,6 +58,16 @@ const (
 	Stop    ContainerAction = "stop"
 	Restart ContainerAction = "restart"
 )
+
+func ParseContainerAction(input string) (ContainerAction, error) {
+	action := ContainerAction(input)
+	switch action {
+	case Start, Stop, Restart:
+		return action, nil
+	default:
+		return "", fmt.Errorf("unknown action: %s", input)
+	}
+}
 
 type LogEvent struct {
 	Message     any         `json:"m,omitempty"`

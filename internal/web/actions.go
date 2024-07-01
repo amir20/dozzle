@@ -21,9 +21,14 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
+	parsedAction, err := docker.ParseContainerAction(action)
+	if err != nil {
+		log.Errorf("error while trying to parse action: %s", action)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	if err := containerService.Action(docker.ContainerAction(action)); err != nil {
+	if err := containerService.Action(parsedAction); err != nil {
 		log.Errorf("error while trying to perform action: %s", action)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
