@@ -43,7 +43,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.STDALL) // TODO: add support for stream types
+	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.StdType(in.StreamTypes))
 	if err != nil {
 		return err
 	}
