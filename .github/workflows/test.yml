@@ -58,6 +58,12 @@ jobs:
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      - name: Install gRPC and Go
+        run: |
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
       - name: Run Go Tests with Coverage
         run: make test
       - name: Stactic checker

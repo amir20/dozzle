@@ -47,11 +47,6 @@ func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since time.
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) Events(ctx context.Context, events chan<- docker.ContainerEvent) error {
-	args := m.Called(ctx, events)
-	return args.Error(0)
-}
-
 func (m *MockedClient) ContainerStats(context.Context, string, chan<- docker.ContainerStat) error {
 	return nil
 }
@@ -81,6 +76,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		client.(*MockedClient).On("Host").Return(docker.Host{
 			ID: "localhost",
 		})
+		client.(*MockedClient).On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
 	}
 
 	if content == nil {

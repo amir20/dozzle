@@ -22,7 +22,7 @@ fake_assets:
 
 .PHONY: test
 test: fake_assets shared_key.pem shared_cert.pem $(GEN_FILES)
-	go test -cover -race ./...
+	go test -cover -race -timeout 5s ./...
 
 .PHONY: build
 build: dist shared_key.pem shared_cert.pem $(GEN_FILES)

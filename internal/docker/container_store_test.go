@@ -24,7 +24,7 @@ func (m *mockedClient) FindContainer(id string) (Container, error) {
 	return args.Get(0).(Container), args.Error(1)
 }
 
-func (m *mockedClient) Events(ctx context.Context, events chan<- ContainerEvent) error {
+func (m *mockedClient) ContainerEvents(ctx context.Context, events chan<- ContainerEvent) error {
 	args := m.Called(ctx, events)
 	return args.Error(0)
 }
@@ -48,13 +48,21 @@ func TestContainerStore_List(t *testing.T) {
 			Name: "test",
 		},
 	}, nil)
-	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		ctx := args.Get(0).(context.Context)
 		<-ctx.Done()
 	})
 	client.On("Host").Return(Host{
 		ID: "localhost",
 	})
+
+	client.On("FindContainer", "1234").Return(Container{
+		ID:    "1234",
+		Name:  "test",
+		Image: "test",
+		Stats: utils.NewRingBuffer[ContainerStat](300),
+	}, nil)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
@@ -75,7 +83,7 @@ func TestContainerStore_die(t *testing.T) {
 		},
 	}, nil)
 
-	client.On("Events", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			ctx := args.Get(0).(context.Context)
 			events := args.Get(1).(chan<- ContainerEvent)
@@ -91,6 +99,13 @@ func TestContainerStore_die(t *testing.T) {
 	})
 
 	client.On("ContainerStats", mock.Anything, "1234", mock.AnythingOfType("chan<- docker.ContainerStat")).Return(nil)
+
+	client.On("FindContainer", "1234").Return(Container{
+		ID:    "1234",
+		Name:  "test",
+		Image: "test",
+		Stats: utils.NewRingBuffer[ContainerStat](300),
+	}, nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)

@@ -119,7 +119,7 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
-		return container.State == "running" && container.ID == id && container.Host == hostKey(r)
+		return container.ID == id && container.Host == hostKey(r)
 	})
 }
 
@@ -135,7 +135,7 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 	}
 
 	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
-		return container.State == "running" && ids[container.ID] == true && container.Host == hostKey(r)
+		return ids[container.ID] && container.Host == hostKey(r)
 	})
 }
 
