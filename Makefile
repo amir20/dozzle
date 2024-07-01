@@ -52,6 +52,6 @@ $(GEN_DIR)/%.pb.go: $(PROTO_DIR)/%.proto
 	@go generate
 
 .PHONY: push
-push: shared_key.pem shared_cert.pem
-	@docker build -t amir20/dozzle:agent .
+push: docker
+	@docker tag amir20/dozzle:latest amir20/dozzle:agent
 	@docker push amir20/dozzle:agent
