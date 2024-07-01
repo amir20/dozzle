@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
+	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -24,14 +25,16 @@ func Test_handler_download_logs(t *testing.T) {
 
 	data := makeMessage("INFO Testing logs...", docker.STDOUT)
 
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil) // TODO why is this beng called twice
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil).Once()
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, docker.STDOUT).Return(io.NopCloser(bytes.NewReader(data)), nil)
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		time.Sleep(1 * time.Second)
+	})
 	mockedClient.On("ListContainers").Return([]docker.Container{
-		docker.Container{ID: id, Name: "test"},
+		{ID: id, Name: "test"},
 	}, nil)
 
 	handler := createDefaultHandler(mockedClient)
