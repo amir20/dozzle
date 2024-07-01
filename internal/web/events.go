@@ -6,7 +6,6 @@ import (
 
 	"github.com/goccy/go-json"
 
-	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
@@ -108,44 +107,44 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
-	b := analytics.BeaconEvent{
-		Name:              "events",
-		Version:           h.config.Version,
-		Browser:           r.Header.Get("User-Agent"),
-		AuthProvider:      string(h.config.Authorization.Provider),
-		HasHostname:       h.config.Hostname != "",
-		HasCustomBase:     h.config.Base != "/",
-		HasCustomAddress:  h.config.Addr != ":8080",
-		Clients:           h.multiHostService.TotalClients(),
-		HasActions:        h.config.EnableActions,
-		RunningContainers: runningContainers,
-	}
+// func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
+// 	b := analytics.BeaconEvent{
+// 		Name:              "events",
+// 		Version:           h.config.Version,
+// 		Browser:           r.Header.Get("User-Agent"),
+// 		AuthProvider:      string(h.config.Authorization.Provider),
+// 		HasHostname:       h.config.Hostname != "",
+// 		HasCustomBase:     h.config.Base != "/",
+// 		HasCustomAddress:  h.config.Addr != ":8080",
+// 		Clients:           h.multiHostService.TotalClients(),
+// 		HasActions:        h.config.EnableActions,
+// 		RunningContainers: runningContainers,
+// 	}
 
-	// TODO remove this
-	// for _, store := range h.stores {
-	// 	if store.Client().IsSwarmMode() {
-	// 		b.IsSwarmMode = true
-	// 		break
-	// 	}
-	// }
+// 	// TODO remove this
+// 	// for _, store := range h.stores {
+// 	// 	if store.Client().IsSwarmMode() {
+// 	// 		b.IsSwarmMode = true
+// 	// 		break
+// 	// 	}
+// 	// }
 
-	// if client, ok := h.clients["localhost"]; ok {
-	// 	b.ServerID = client.SystemInfo().ID
-	// } else {
-	// 	for _, client := range h.clients {
-	// 		b.ServerID = client.SystemInfo().ID
-	// 		break
-	// 	}
-	// }
+// 	// if client, ok := h.clients["localhost"]; ok {
+// 	// 	b.ServerID = client.SystemInfo().ID
+// 	// } else {
+// 	// 	for _, client := range h.clients {
+// 	// 		b.ServerID = client.SystemInfo().ID
+// 	// 		break
+// 	// 	}
+// 	// }
 
-	if !h.config.NoAnalytics {
-		if err := analytics.SendBeacon(b); err != nil {
-			log.Debugf("error sending beacon: %v", err)
-		}
-	}
+// 	if !h.config.NoAnalytics {
+// 		if err := analytics.SendBeacon(b); err != nil {
+// 			log.Debugf("error sending beacon: %v", err)
+// 		}
+// 	}
 
-}
+// }
 
 func sendContainersJSON(containers []docker.Container, w http.ResponseWriter) error {
 	if _, err := fmt.Fprint(w, "event: containers-changed\ndata: "); err != nil {
