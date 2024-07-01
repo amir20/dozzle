@@ -248,7 +248,15 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 		return docker.Container{}, err
 	}
 
-	// TODO: convert response to docker.Container
+	var stats []docker.ContainerStat
+	for _, stat := range response.Container.Stats {
+		stats = append(stats, docker.ContainerStat{
+			ID:            stat.Id,
+			CPUPercent:    stat.CpuPercent,
+			MemoryPercent: stat.MemoryPercent,
+			MemoryUsage:   stat.MemoryUsage,
+		})
+	}
 	return docker.Container{
 		ID:      response.Container.Id,
 		Name:    response.Container.Name,
@@ -262,7 +270,7 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 		Health:  response.Container.Health,
 		Host:    response.Container.Host,
 		Tty:     response.Container.Tty,
-		Stats:   nil,
+		Stats:   utils.RingBufferFrom(300, stats),
 	}, nil
 }
 
