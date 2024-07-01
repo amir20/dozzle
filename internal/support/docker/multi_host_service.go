@@ -132,7 +132,7 @@ func (m *MultiHostService) ListContainersForHost(host string) ([]docker.Containe
 }
 
 func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
-	var containers []docker.Container
+	containers := make([]docker.Container, 0)
 	var errors []error
 
 	for _, client := range m.clients {
