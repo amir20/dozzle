@@ -1,7 +1,11 @@
+GEN_DIR := internal/agent/pb
+
 .PHONY: clean
 clean:
 	@rm -rf dist
 	@go clean -i
+	@rm -f shared_key.pem shared_cert.pem
+	@rm -f $(GEN_DIR)/*.pb.go
 
 .PHONY: dist
 dist:
@@ -14,11 +18,11 @@ fake_assets:
 	@echo "assets build was skipped" > dist/index.html
 
 .PHONY: test
-test: fake_assets
+test: fake_assets shared_key.pem shared_cert.pem $(GEN_DIR)/%.pb.go
 	go test -cover -race ./...
 
 .PHONY: build
-build: dist
+build: dist shared_key.pem shared_cert.pem $(GEN_DIR)/%.pb.go
 	CGO_ENABLED=0 go build -ldflags "-s -w"
 
 .PHONY: docker
@@ -41,6 +45,8 @@ shared_cert.pem:
 	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 365
 	@rm shared_request.csr
 
+$(GEN_DIR)/%.pb.go: $(wildcard $(protos)/*.proto)
+	@go generate
 
 .PHONY: push
 push: shared_key.pem shared_cert.pem
