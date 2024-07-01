@@ -59,7 +59,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run Go Tests with Coverage
-        run: make test SKIP_ASSET=1
+        run: make test
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.1
         with:
@@ -86,7 +86,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Writing certs to file
-        run:  |
+        run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
           echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build
