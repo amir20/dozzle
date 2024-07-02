@@ -13,6 +13,8 @@ type ClientService interface {
 	ListContainers() ([]docker.Container, error)
 	Host() docker.Host
 	ContainerAction(container docker.Container, action docker.ContainerAction) error
+	LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
+	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 
 	// Subscriptions
 	SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat)
@@ -20,8 +22,6 @@ type ClientService interface {
 	SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container)
 
 	// Blocking streaming functions that should be used in a goroutine
-	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
-	StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
 }
 
@@ -41,7 +41,7 @@ func (d *dockerClientService) RawLogs(ctx context.Context, container docker.Cont
 	return d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
-func (d *dockerClientService) StreamLogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
+func (d *dockerClientService) LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
 	reader, err := d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err

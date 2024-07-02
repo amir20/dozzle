@@ -90,7 +90,27 @@ func rpcErrToErr(err error) error {
 
 }
 
-func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
+func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (<-chan *docker.LogEvent, error) {
+	stream, err := c.client.LogsBetweenDates(ctx, &pb.LogsBetweenDatesRequest{
+		ContainerId: containerID,
+		Since:       timestamppb.New(since),
+		Until:       timestamppb.New(until),
+		StreamTypes: int32(std),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	events := make(chan *docker.LogEvent)
+
+	log.Debugf("LogsBetweenDates %v and %v", since, until)
+	go sendLogs(stream, events, true)
+
+	return events, nil
+}
+
+func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, std docker.StdType, events chan<- *docker.LogEvent) error {
 	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
@@ -101,6 +121,13 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 		return err
 	}
 
+	return sendLogs(stream, events, false)
+}
+
+func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.LogEvent, closable bool) error {
+	if closable {
+		defer close(events)
+	}
 	for {
 		resp, err := stream.Recv()
 		if err != nil {

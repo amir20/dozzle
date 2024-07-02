@@ -102,7 +102,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	events, err := containerService.StreamLogsBetweenDates(r.Context(), from, to, stdTypes)
+	events, err := containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
 	if err != nil {
 		log.Errorf("error while streaming logs %v", err.Error())
 	}
