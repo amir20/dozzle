@@ -2,23 +2,24 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"embed"
-	"errors"
 	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/alexflint/go-arg"
-	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/amir20/dozzle/internal/support/cli"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
 
 	log "github.com/sirupsen/logrus"
@@ -29,26 +30,31 @@ var (
 )
 
 type args struct {
-	Addr                 string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
-	Base                 string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
-	Hostname             string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
-	Level                string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
-	AuthProvider         string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use. Currently only forward-proxy is supported."`
-	AuthHeaderUser       string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
-	AuthHeaderEmail      string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
-	AuthHeaderName       string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
-	WaitForDockerSeconds int                 `arg:"--wait-for-docker-seconds,env:DOZZLE_WAIT_FOR_DOCKER_SECONDS" help:"wait for docker to be available for at most this many seconds before starting the server."`
-	EnableActions        bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
-	FilterStrings        []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
-	Filter               map[string][]string `arg:"-"`
-	RemoteHost           []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
-	NoAnalytics          bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
-
-	Healthcheck *HealthcheckCmd `arg:"subcommand:healthcheck" help:"checks if the server is running"`
-	Generate    *GenerateCmd    `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
+	Addr            string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`
+	Base            string              `arg:"env:DOZZLE_BASE" default:"/" help:"sets the base for http router."`
+	Hostname        string              `arg:"env:DOZZLE_HOSTNAME" help:"sets the hostname for display. This is useful with multiple Dozzle instances."`
+	Level           string              `arg:"env:DOZZLE_LEVEL" default:"info" help:"set Dozzle log level. Use debug for more logging."`
+	AuthProvider    string              `arg:"--auth-provider,env:DOZZLE_AUTH_PROVIDER" default:"none" help:"sets the auth provider to use. Currently only forward-proxy is supported."`
+	AuthHeaderUser  string              `arg:"--auth-header-user,env:DOZZLE_AUTH_HEADER_USER" default:"Remote-User" help:"sets the HTTP Header to use for username in Forward Proxy configuration."`
+	AuthHeaderEmail string              `arg:"--auth-header-email,env:DOZZLE_AUTH_HEADER_EMAIL" default:"Remote-Email" help:"sets the HTTP Header to use for email in Forward Proxy configuration."`
+	AuthHeaderName  string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
+	EnableActions   bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
+	FilterStrings   []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
+	Filter          map[string][]string `arg:"-"`
+	RemoteHost      []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
+	RemoteAgents    []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
+	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
+	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
+	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
+	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
+	Agent           *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 }
 
 type HealthcheckCmd struct {
+}
+
+type AgentCmd struct {
+	Addr string `arg:"env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
 }
 
 type GenerateCmd struct {
@@ -65,11 +71,26 @@ func (args) Version() string {
 //go:embed all:dist
 var content embed.FS
 
+//go:embed shared_cert.pem shared_key.pem
+var certs embed.FS
+
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
 func main() {
+	cli.ValidateEnvVars(args{}, AgentCmd{})
 	args, subcommand := parseArgs()
-	validateEnvVars()
 	if subcommand != nil {
 		switch subcommand.(type) {
+		case *AgentCmd:
+			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
+			if err != nil {
+				log.Fatal(err)
+			}
+			certs, err := readCertificates()
+			if err != nil {
+				log.Fatalf("Could not read certificates: %v", err)
+			}
+
+			agent.RunServer(client, certs, args.Agent.Addr)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)
@@ -101,16 +122,33 @@ func main() {
 
 	log.Infof("Dozzle version %s", version)
 
-	clients := createClients(args, docker.NewClientWithFilters, docker.NewClientWithTlsAndFilter, args.Hostname)
+	var multiHostService *docker_support.MultiHostService
+	if args.Mode == "server" {
+		multiHostService = createMultiHostService(args)
+		if multiHostService.TotalClients() == 0 {
+			log.Fatal("Could not connect to any Docker Engines")
+		} else {
+			log.Infof("Connected to %d Docker Engine(s)", multiHostService.TotalClients())
+		}
+	} else if args.Mode == "swarm" {
+		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+		if err != nil {
+			log.Fatalf("Could not connect to local Docker Engine: %s", err)
+		}
+		certs, err := readCertificates()
+		if err != nil {
+			log.Fatalf("Could not read certificates: %v", err)
+		}
+		multiHostService = docker_support.NewSwarmService(localClient, certs)
+		log.Infof("Connected to local Docker Engine")
 
-	if len(clients) == 0 {
-		log.Fatal("Could not connect to any Docker Engines")
+		go agent.RunServer(localClient, certs, ":7007")
 	} else {
-		log.Infof("Connected to %d Docker Engine(s)", len(clients))
+		log.Fatalf("Invalid mode %s", args.Mode)
 	}
 
-	srv := createServer(args, clients)
-	go doStartEvent(args, clients)
+	srv := createServer(args, multiHostService)
+	// go doStartEvent(args, clients)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -131,57 +169,61 @@ func main() {
 	log.Debug("shutdown complete")
 }
 
-func doStartEvent(arg args, clients map[string]docker.Client) {
-	if arg.NoAnalytics {
-		log.Debug("Analytics disabled.")
-		return
+func readCertificates() (tls.Certificate, error) {
+	cert, err := certs.ReadFile("shared_cert.pem")
+	if err != nil {
+		return tls.Certificate{}, err
 	}
 
-	event := analytics.BeaconEvent{
-		Name:    "start",
-		Version: version,
+	key, err := certs.ReadFile("shared_key.pem")
+	if err != nil {
+		return tls.Certificate{}, err
 	}
 
-	if client, ok := clients["localhost"]; ok {
-		event.ServerID = client.SystemInfo().ID
-		event.ServerVersion = client.SystemInfo().ServerVersion
-	} else {
-		for _, client := range clients {
-			event.ServerID = client.SystemInfo().ID
-			event.ServerVersion = client.SystemInfo().ServerVersion
-			break
-		}
-	}
-
-	if err := analytics.SendBeacon(event); err != nil {
-		log.Debug(err)
-	}
+	return tls.X509KeyPair(cert, key)
 }
 
-func createClients(args args,
-	localClientFactory func(map[string][]string) (docker.Client, error),
-	remoteClientFactory func(map[string][]string, docker.Host) (docker.Client, error),
-	hostname string) map[string]docker.Client {
-	clients := make(map[string]docker.Client)
+// TODO fix this
+// func doStartEvent(arg args, clients map[string]docker.Client) {
+// 	if arg.NoAnalytics {
+// 		log.Debug("Analytics disabled.")
+// 		return
+// 	}
 
-	if localClient, err := createLocalClient(args, localClientFactory); err == nil {
-		if hostname != "" {
-			localClient.Host().Name = hostname
-		}
-		clients[localClient.Host().ID] = localClient
-	}
+// 	event := analytics.BeaconEvent{
+// 		Name:    "start",
+// 		Version: version,
+// 	}
 
+// 	if client, ok := clients["localhost"]; ok {
+// 		event.ServerID = client.SystemInfo().ID
+// 		event.ServerVersion = client.SystemInfo().ServerVersion
+// 	} else {
+// 		for _, client := range clients {
+// 			event.ServerID = client.SystemInfo().ID
+// 			event.ServerVersion = client.SystemInfo().ServerVersion
+// 			break
+// 		}
+// 	}
+
+// 	if err := analytics.SendBeacon(event); err != nil {
+// 		log.Debug(err)
+// 	}
+// }
+
+func createMultiHostService(args args) *docker_support.MultiHostService {
+	var clients []docker_support.ClientService
 	for _, remoteHost := range args.RemoteHost {
 		host, err := docker.ParseConnection(remoteHost)
 		if err != nil {
 			log.Fatalf("Could not parse remote host %s: %s", remoteHost, err)
 		}
-		log.Debugf("Creating remote client for %s with %+v", host.Name, host)
+		log.Debugf("creating remote client for %s with %+v", host.Name, host)
 		log.Infof("Creating client for %s with %s", host.Name, host.URL.String())
-		if client, err := remoteClientFactory(args.Filter, host); err == nil {
+		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
 			if _, err := client.ListContainers(); err == nil {
-				log.Debugf("Connected to local Docker Engine")
-				clients[client.Host().ID] = client
+				log.Debugf("connected to local Docker Engine")
+				clients = append(clients, docker_support.NewDockerClientService(client))
 			} else {
 				log.Warnf("Could not connect to remote host %s: %s", host.ID, err)
 			}
@@ -189,11 +231,34 @@ func createClients(args args,
 			log.Warnf("Could not create client for %s: %s", host.ID, err)
 		}
 	}
+	certs, err := readCertificates()
+	if err != nil {
+		log.Fatalf("Could not read certificates: %v", err)
+	}
+	for _, remoteAgent := range args.RemoteAgents {
+		client, err := agent.NewClient(remoteAgent, certs)
+		if err != nil {
+			log.Warnf("Could not connect to remote agent %s: %s", remoteAgent, err)
+			continue
+		}
+		clients = append(clients, docker_support.NewAgentService(client))
+	}
 
-	return clients
+	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+	if err == nil {
+		_, err := localClient.ListContainers()
+		if err != nil {
+			log.Debugf("could not connect to local Docker Engine: %s", err)
+		} else {
+			log.Debugf("connected to local Docker Engine")
+			clients = append(clients, docker_support.NewDockerClientService(localClient))
+		}
+	}
+
+	return docker_support.NewMultiHostService(clients)
 }
 
-func createServer(args args, clients map[string]docker.Client) *http.Server {
+func createServer(args args, multiHostService *docker_support.MultiHostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE
@@ -257,31 +322,7 @@ func createServer(args args, clients map[string]docker.Client) *http.Server {
 		}
 	}
 
-	return web.CreateServer(clients, assets, config)
-}
-
-func createLocalClient(args args, localClientFactory func(map[string][]string) (docker.Client, error)) (docker.Client, error) {
-	for i := 1; ; i++ {
-		dockerClient, err := localClientFactory(args.Filter)
-		if err == nil {
-			_, err := dockerClient.ListContainers()
-			if err != nil {
-				log.Debugf("Could not connect to local Docker Engine: %s", err)
-			} else {
-				log.Debugf("Connected to local Docker Engine")
-				return dockerClient, nil
-			}
-		}
-		if args.WaitForDockerSeconds > 0 {
-			log.Infof("Waiting for Docker Engine (attempt %d): %s", i, err)
-			time.Sleep(5 * time.Second)
-			args.WaitForDockerSeconds -= 5
-		} else {
-			log.Debugf("Local Docker Engine not found")
-			break
-		}
-	}
-	return nil, errors.New("could not connect to local Docker Engine")
+	return web.CreateServer(multiHostService, assets, config)
 }
 
 func parseArgs() (args, interface{}) {
@@ -315,25 +356,4 @@ func configureLogger(level string) {
 	log.SetFormatter(&log.TextFormatter{
 		DisableLevelTruncation: true,
 	})
-
-}
-
-func validateEnvVars() {
-	argsType := reflect.TypeOf(args{})
-	expectedEnvs := make(map[string]bool)
-	for i := 0; i < argsType.NumField(); i++ {
-		field := argsType.Field(i)
-		for _, tag := range strings.Split(field.Tag.Get("arg"), ",") {
-			if strings.HasPrefix(tag, "env:") {
-				expectedEnvs[strings.TrimPrefix(tag, "env:")] = true
-			}
-		}
-	}
-
-	for _, env := range os.Environ() {
-		actual := strings.Split(env, "=")[0]
-		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
-			log.Warnf("Unexpected environment variable %s", actual)
-		}
-	}
 }

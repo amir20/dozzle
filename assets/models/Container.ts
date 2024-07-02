@@ -79,12 +79,14 @@ export class Container {
 
   get name() {
     return this.isSwarm
-      ? this.labels["com.docker.swarm.task.name"].replace(`.${this.labels["com.docker.swarm.task.id"]}`, "")
+      ? this.labels["com.docker.swarm.task.name"]
+          .replace(`.${this.labels["com.docker.swarm.task.id"]}`, "")
+          .replace(`.${this.labels["com.docker.swarm.node.id"]}`, "")
       : this._name;
   }
 
   get swarmId() {
-    return this.labels["com.docker.swarm.service.id"];
+    return this.labels["com.docker.swarm.task.name"].replace(this.name + ".", "");
   }
 
   get isSwarm() {

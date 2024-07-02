@@ -7,13 +7,14 @@ import (
 	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
+	lop "github.com/samber/lo/parallel"
 	log "github.com/sirupsen/logrus"
 )
 
 type ContainerStore struct {
 	containers              *xsync.MapOf[string, *Container]
-	subscribers             *xsync.MapOf[context.Context, chan ContainerEvent]
-	newContainerSubscribers *xsync.MapOf[context.Context, chan Container]
+	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
+	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          *StatsCollector
 	wg                      sync.WaitGroup
@@ -26,8 +27,8 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
-		subscribers:             xsync.NewMapOf[context.Context, chan ContainerEvent](),
-		newContainerSubscribers: xsync.NewMapOf[context.Context, chan Container](),
+		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
+		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
 		statsCollector:          NewStatsCollector(client),
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
@@ -41,11 +42,13 @@ func NewContainerStore(ctx context.Context, client Client) *ContainerStore {
 	return s
 }
 
+var ErrContainerNotFound = errors.New("container not found")
+
 func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
 		go func() {
 			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
-			err := s.client.Events(s.ctx, s.events)
+			err := s.client.ContainerEvents(s.ctx, s.events)
 			if !errors.Is(err, context.Canceled) {
 				log.Errorf("docker store unexpectedly disconnected from docker events from %s with %v", s.client.Host(), err)
 			}
@@ -56,16 +59,17 @@ func (s *ContainerStore) checkConnectivity() error {
 			return err
 		} else {
 			s.containers.Clear()
-			for _, c := range containers {
-				s.containers.Store(c.ID, &c)
-			}
+			lop.ForEach(containers, func(c Container, _ int) {
+				container, _ := s.client.FindContainer(c.ID)
+				s.containers.Store(c.ID, &container)
+			})
 		}
 	}
 
 	return nil
 }
 
-func (s *ContainerStore) List() ([]Container, error) {
+func (s *ContainerStore) ListContainers() ([]Container, error) {
 	s.wg.Wait()
 
 	if err := s.checkConnectivity(); err != nil {
@@ -80,11 +84,27 @@ func (s *ContainerStore) List() ([]Container, error) {
 	return containers, nil
 }
 
+func (s *ContainerStore) FindContainer(id string) (Container, error) {
+	list, err := s.ListContainers()
+	if err != nil {
+		return Container{}, err
+	}
+
+	for _, c := range list {
+		if c.ID == id {
+			return c, nil
+		}
+	}
+
+	log.Warnf("container %s not found in store", id)
+	return Container{}, ErrContainerNotFound
+}
+
 func (s *ContainerStore) Client() Client {
 	return s.client
 }
 
-func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEvent) {
+func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
 			log.Debug("clearing container stats as stats collector has been stopped")
@@ -96,19 +116,23 @@ func (s *ContainerStore) Subscribe(ctx context.Context, events chan ContainerEve
 	}()
 
 	s.subscribers.Store(ctx, events)
+	go func() {
+		<-ctx.Done()
+		s.subscribers.Delete(ctx)
+		s.statsCollector.Stop()
+	}()
 }
 
-func (s *ContainerStore) Unsubscribe(ctx context.Context) {
-	s.subscribers.Delete(ctx)
-	s.statsCollector.Stop()
-}
-
-func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan ContainerStat) {
+func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
 	s.statsCollector.Subscribe(ctx, stats)
 }
 
-func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan Container) {
+func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {
 	s.newContainerSubscribers.Store(ctx, containers)
+	go func() {
+		<-ctx.Done()
+		s.newContainerSubscribers.Delete(ctx)
+	}()
 }
 
 func (s *ContainerStore) init() {
@@ -128,11 +152,10 @@ func (s *ContainerStore) init() {
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
 					log.Debugf("container %s started", container.ID)
 					s.containers.Store(container.ID, &container)
-					s.newContainerSubscribers.Range(func(c context.Context, containers chan Container) bool {
+					s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 						select {
 						case containers <- container:
 						case <-c.Done():
-							s.newContainerSubscribers.Delete(c)
 						}
 						return true
 					})
@@ -167,7 +190,7 @@ func (s *ContainerStore) init() {
 					}
 				})
 			}
-			s.subscribers.Range(func(c context.Context, events chan ContainerEvent) bool {
+			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
 				select {
 				case events <- event:
 				case <-c.Done():

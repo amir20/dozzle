@@ -1,0 +1,66 @@
+syntax = "proto3";
+option go_package = "internal/agent/pb";
+
+package protobuf;
+
+import "types.proto";
+import "google/protobuf/timestamp.proto";
+
+service AgentService {
+  rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}
+  rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
+  rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
+  rpc LogsBetweenDates(LogsBetweenDatesRequest)
+      returns (stream StreamLogsResponse) {}
+  rpc StreamRawBytes(StreamRawBytesRequest)
+      returns (stream StreamRawBytesResponse) {}
+  rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
+  rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
+  rpc StreamContainerStarted(StreamContainerStartedRequest)
+      returns (stream StreamContainerStartedResponse) {}
+  rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
+}
+
+message ListContainersRequest {}
+
+message ListContainersResponse { repeated Container containers = 1; }
+
+message FindContainerRequest { string containerId = 1; }
+
+message FindContainerResponse { Container container = 1; }
+
+message StreamLogsRequest {
+  string containerId = 1;
+  google.protobuf.Timestamp since = 2;
+  int32 streamTypes = 3;
+}
+
+message StreamLogsResponse { LogEvent event = 1; }
+
+message LogsBetweenDatesRequest {
+  string containerId = 1;
+  google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp until = 3;
+  int32 streamTypes = 4;
+}
+
+message StreamRawBytesRequest {
+  string containerId = 1;
+  google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp until = 3;
+  int32 streamTypes = 4;
+}
+message StreamRawBytesResponse { bytes data = 1; }
+
+message StreamEventsRequest {}
+message StreamEventsResponse { ContainerEvent event = 1; }
+
+message StreamStatsRequest {}
+message StreamStatsResponse { ContainerStat stat = 1; }
+
+message HostInfoRequest {}
+
+message HostInfoResponse { Host host = 1; }
+
+message StreamContainerStartedRequest {}
+message StreamContainerStartedResponse { Container container = 1; }

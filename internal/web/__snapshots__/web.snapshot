@@ -176,8 +176,6 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
-data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
-
 event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
 
@@ -191,6 +189,9 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+event: container-event
+data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
+
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 HTTP/1.1 200 OK
 Connection: close
@@ -200,9 +201,6 @@ Connection: keep-alive
 Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
-
-data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
-id: 1589396137772
 
 event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
