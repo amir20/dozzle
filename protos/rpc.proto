@@ -11,7 +11,7 @@ service AgentService {
   rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
   rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
   rpc LogsBetweenDates(LogsBetweenDatesRequest)
-      returns (stream LogsBetweenDatesResponse) {}
+      returns (stream StreamLogsResponse) {}
   rpc StreamRawBytes(StreamRawBytesRequest)
       returns (stream StreamRawBytesResponse) {}
   rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
@@ -43,8 +43,6 @@ message LogsBetweenDatesRequest {
   google.protobuf.Timestamp until = 3;
   int32 streamTypes = 4;
 }
-
-message LogsBetweenDatesResponse { LogEvent event = 1; }
 
 message StreamRawBytesRequest {
   string containerId = 1;

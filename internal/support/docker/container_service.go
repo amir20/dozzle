@@ -10,7 +10,7 @@ import (
 
 type ContainerService interface {
 	RawLogs(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
-	StreamLogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
+	LogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	StreamLogs(ctx context.Context, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error
 	Action(action docker.ContainerAction) error
 	Container() docker.Container
@@ -25,8 +25,8 @@ func (c *containerService) RawLogs(ctx context.Context, from time.Time, to time.
 	return c.clientService.RawLogs(ctx, c.container, from, to, stdTypes)
 }
 
-func (c *containerService) StreamLogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
-	return c.clientService.StreamLogsBetweenDates(ctx, c.container, from, to, stdTypes)
+func (c *containerService) LogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
+	return c.clientService.LogsBetweenDates(ctx, c.container, from, to, stdTypes)
 }
 
 func (c *containerService) StreamLogs(ctx context.Context, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error {
