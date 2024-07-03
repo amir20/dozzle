@@ -21,16 +21,18 @@ fake_assets:
 	@echo "assets build was skipped" > dist/index.html
 
 .PHONY: test
-test: fake_assets shared_key.pem shared_cert.pem $(GEN_FILES)
+test: fake_assets generate
 	go test -cover -race -count 1 -timeout 5s ./...
 
 .PHONY: build
-build: dist shared_key.pem shared_cert.pem $(GEN_FILES)
+build: dist generate
 	CGO_ENABLED=0 go build -ldflags "-s -w"
 
 .PHONY: docker
 docker: shared_key.pem shared_cert.pem
 	@docker build -t amir20/dozzle .
+
+generate: shared_key.pem shared_cert.pem $(GEN_FILES)
 
 .PHONY: dev
 dev:

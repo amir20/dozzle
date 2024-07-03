@@ -105,7 +105,10 @@ func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since
 	events := make(chan *docker.LogEvent)
 
 	log.Debugf("LogsBetweenDates %v and %v", since, until)
-	go sendLogs(stream, events, true)
+	go func() {
+		sendLogs(stream, events)
+		close(events)
+	}()
 
 	return events, nil
 }
@@ -121,13 +124,10 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 		return err
 	}
 
-	return sendLogs(stream, events, false)
+	return sendLogs(stream, events)
 }
 
-func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.LogEvent, closable bool) error {
-	if closable {
-		defer close(events)
-	}
+func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.LogEvent) error {
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
@@ -266,6 +266,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 			Host:      resp.Container.Host,
 			Tty:       resp.Container.Tty,
 			StartedAt: &started,
+			Command:   resp.Container.Command,
 		}
 	}
 }
@@ -277,6 +278,7 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 	}
 
 	var stats []docker.ContainerStat
+
 	for _, stat := range response.Container.Stats {
 		stats = append(stats, docker.ContainerStat{
 			ID:            stat.Id,
@@ -285,20 +287,29 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 			MemoryUsage:   stat.MemoryUsage,
 		})
 	}
+
+	var startedAt *time.Time
+	if response.Container.Started != nil {
+		started := response.Container.Started.AsTime()
+		startedAt = &started
+	}
+
 	return docker.Container{
-		ID:      response.Container.Id,
-		Name:    response.Container.Name,
-		Image:   response.Container.Image,
-		Labels:  response.Container.Labels,
-		Group:   response.Container.Group,
-		ImageID: response.Container.ImageId,
-		Created: response.Container.Created.AsTime(),
-		State:   response.Container.State,
-		Status:  response.Container.Status,
-		Health:  response.Container.Health,
-		Host:    response.Container.Host,
-		Tty:     response.Container.Tty,
-		Stats:   utils.RingBufferFrom(300, stats),
+		ID:        response.Container.Id,
+		Name:      response.Container.Name,
+		Image:     response.Container.Image,
+		Labels:    response.Container.Labels,
+		Group:     response.Container.Group,
+		ImageID:   response.Container.ImageId,
+		Created:   response.Container.Created.AsTime(),
+		State:     response.Container.State,
+		Status:    response.Container.Status,
+		Health:    response.Container.Health,
+		Host:      response.Container.Host,
+		Tty:       response.Container.Tty,
+		Command:   response.Container.Command,
+		Stats:     utils.RingBufferFrom(300, stats),
+		StartedAt: startedAt,
 	}, nil
 }
 
@@ -320,20 +331,28 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 			})
 		}
 
+		var startedAt *time.Time
+		if container.Started != nil {
+			started := container.Started.AsTime()
+			startedAt = &started
+		}
+
 		containers = append(containers, docker.Container{
-			ID:      container.Id,
-			Name:    container.Name,
-			Image:   container.Image,
-			Labels:  container.Labels,
-			Group:   container.Group,
-			ImageID: container.ImageId,
-			Created: container.Created.AsTime(),
-			State:   container.State,
-			Status:  container.Status,
-			Health:  container.Health,
-			Host:    container.Host,
-			Tty:     container.Tty,
-			Stats:   utils.RingBufferFrom(300, stats),
+			ID:        container.Id,
+			Name:      container.Name,
+			Image:     container.Image,
+			Labels:    container.Labels,
+			Group:     container.Group,
+			ImageID:   container.ImageId,
+			Created:   container.Created.AsTime(),
+			State:     container.State,
+			Status:    container.Status,
+			Health:    container.Health,
+			Host:      container.Host,
+			Tty:       container.Tty,
+			Stats:     utils.RingBufferFrom(300, stats),
+			Command:   container.Command,
+			StartedAt: startedAt,
 		})
 	}
 

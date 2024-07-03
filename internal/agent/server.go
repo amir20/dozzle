@@ -179,7 +179,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 			Name:    container.Name,
 			Image:   container.Image,
 			ImageId: container.ImageID,
-			// TODO Command:   container.Command, : add command
+			Command: container.Command,
 			Created: timestamppb.New(container.Created),
 			State:   container.State,
 			Status:  container.Status,
@@ -232,6 +232,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 			Group:   container.Group,
 			Started: startedAt,
 			Stats:   pbStats,
+			Command: container.Command,
 		})
 	}
 
