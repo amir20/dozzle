@@ -284,7 +284,7 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	}
 }
 
-func RunServer(client docker.Client, certificates tls.Certificate, address string) {
+func RunServer(client docker.Client, certificates tls.Certificate, listener net.Listener) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -304,7 +304,6 @@ func RunServer(client docker.Client, certificates tls.Certificate, address strin
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterAgentServiceServer(grpcServer, NewServer(client))
-	listener, err := net.Listen("tcp", address)
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"embed"
 	"io/fs"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -90,7 +91,12 @@ func main() {
 				log.Fatalf("Could not read certificates: %v", err)
 			}
 
-			agent.RunServer(client, certs, args.Agent.Addr)
+			listener, err := net.Listen("tcp", args.Agent.Addr)
+			if err != nil {
+				log.Fatalf("failed to listen: %v", err)
+			}
+
+			agent.RunServer(client, certs, listener)
 		case *HealthcheckCmd:
 			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
 				log.Fatal(err)
@@ -142,7 +148,11 @@ func main() {
 		multiHostService = docker_support.NewSwarmService(localClient, certs)
 		log.Infof("Connected to local Docker Engine")
 
-		go agent.RunServer(localClient, certs, ":7007")
+		listener, err := net.Listen("tcp", ":7007")
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		go agent.RunServer(localClient, certs, listener)
 	} else {
 		log.Fatalf("Invalid mode %s", args.Mode)
 	}

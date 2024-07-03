@@ -27,7 +27,7 @@ type Client struct {
 	host   docker.Host
 }
 
-func NewClient(endpoint string, certificates tls.Certificate) (*Client, error) {
+func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -43,7 +43,8 @@ func NewClient(endpoint string, certificates tls.Certificate) (*Client, error) {
 	// Create the gRPC transport credentials
 	creds := credentials.NewTLS(tlsConfig)
 
-	conn, err := grpc.NewClient(endpoint, grpc.WithTransportCredentials(creds))
+	opts = append(opts, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		log.Fatalf("failed to connect to server: %v", err)
 	}
@@ -104,7 +105,6 @@ func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since
 
 	events := make(chan *docker.LogEvent)
 
-	log.Debugf("LogsBetweenDates %v and %v", since, until)
 	go func() {
 		sendLogs(stream, events)
 		close(events)
