@@ -198,13 +198,3 @@ func (m *MultiHostService) Hosts() []docker.Host {
 
 	return hosts
 }
-
-func (m *MultiHostService) LocalClient() ClientService {
-	for _, client := range m.clients {
-		if client.Host().Endpoint == "local" {
-			return client
-		}
-	}
-
-	return nil
-}
