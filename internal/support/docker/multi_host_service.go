@@ -105,7 +105,7 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiH
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string) (ContainerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string) (*containerService, error) {
 	client, ok := m.clients[host]
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -118,7 +118,7 @@ func (m *MultiHostService) FindContainer(host string, id string) (ContainerServi
 
 	return &containerService{
 		clientService: client,
-		container:     container,
+		Container:     container,
 	}, nil
 }
 
