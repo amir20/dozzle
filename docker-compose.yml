@@ -47,7 +47,34 @@ services:
     depends_on:
       proxy:
         condition: service_healthy
-
+  dozzle-with-agent:
+    environment:
+      - DOZZLE_REMOTE_AGENT=agent:7007
+      - DOZZLE_NO_ANALYTICS=1
+      - DOZZLE_LEVEL=debug
+    ports:
+      - 8082:8080
+    build:
+      context: .
+    depends_on:
+      agent:
+        condition: service_healthy
+  agent:
+    container_name: agent
+    command: agent
+    environment:
+      - DOZZLE_FILTER=name=dozzle
+      - DOZZLE_NO_ANALYTICS=1
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      start_interval: 5s
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    build:
+      context: .
   proxy:
     container_name: proxy
     image: tecnativa/docker-socket-proxy

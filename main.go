@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"embed"
+	"io"
 	"io/fs"
+
 	"net"
 	"net/http"
 	"os"
@@ -84,9 +85,9 @@ func main() {
 		case *AgentCmd:
 			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Could not create docker client: %v", err)
 			}
-			certs, err := readCertificates()
+			certs, err := cli.ReadCertificates(certs)
 			if err != nil {
 				log.Fatalf("Could not read certificates: %v", err)
 			}
@@ -95,11 +96,42 @@ func main() {
 			if err != nil {
 				log.Fatalf("failed to listen: %v", err)
 			}
-
+			tempFile, err := os.CreateTemp("/", "agent-*.addr")
+			if err != nil {
+				log.Fatalf("failed to create temp file: %v", err)
+			}
+			defer os.Remove(tempFile.Name())
+			io.WriteString(tempFile, listener.Addr().String())
 			agent.RunServer(client, certs, listener)
 		case *HealthcheckCmd:
-			if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-				log.Fatal(err)
+			files, err := os.ReadDir(".")
+			if err != nil {
+				log.Fatalf("Failed to read directory: %v", err)
+			}
+
+			agentAddress := ""
+			for _, file := range files {
+				if match, _ := filepath.Match("agent-*.addr", file.Name()); match {
+					data, err := os.ReadFile(file.Name())
+					if err != nil {
+						log.Fatalf("Failed to read file: %v", err)
+					}
+					agentAddress = string(data)
+					break
+				}
+			}
+			if agentAddress == "" {
+				if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
+					log.Fatalf("Failed to make request: %v", err)
+				}
+			} else {
+				certs, err := cli.ReadCertificates(certs)
+				if err != nil {
+					log.Fatalf("Could not read certificates: %v", err)
+				}
+				if err := healthcheck.RPCRequest(agentAddress, certs); err != nil {
+					log.Fatalf("Failed to make request: %v", err)
+				}
 			}
 
 		case *GenerateCmd:
@@ -115,7 +147,7 @@ func main() {
 			}, true)
 
 			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
-				log.Fatal(err)
+				log.Fatalf("Failed to write to stdout: %v", err)
 			}
 		}
 
@@ -141,7 +173,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Could not connect to local Docker Engine: %s", err)
 		}
-		certs, err := readCertificates()
+		certs, err := cli.ReadCertificates(certs)
 		if err != nil {
 			log.Fatalf("Could not read certificates: %v", err)
 		}
@@ -177,20 +209,6 @@ func main() {
 	log.Debug("shutdown complete")
 }
 
-func readCertificates() (tls.Certificate, error) {
-	cert, err := certs.ReadFile("shared_cert.pem")
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-
-	key, err := certs.ReadFile("shared_key.pem")
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-
-	return tls.X509KeyPair(cert, key)
-}
-
 func createMultiHostService(args args) *docker_support.MultiHostService {
 	var clients []docker_support.ClientService
 	for _, remoteHost := range args.RemoteHost {
@@ -211,7 +229,7 @@ func createMultiHostService(args args) *docker_support.MultiHostService {
 			log.Warnf("Could not create client for %s: %s", host.ID, err)
 		}
 	}
-	certs, err := readCertificates()
+	certs, err := cli.ReadCertificates(certs)
 	if err != nil {
 		log.Fatalf("Could not read certificates: %v", err)
 	}
@@ -315,7 +333,7 @@ func parseArgs() (args, interface{}) {
 	var args args
 	parser := arg.MustParse(&args)
 
-	configureLogger(args.Level)
+	cli.ConfigureLogger(args.Level)
 
 	args.Filter = make(map[string][]string)
 
@@ -330,16 +348,4 @@ func parseArgs() (args, interface{}) {
 	}
 
 	return args, parser.Subcommand()
-}
-
-func configureLogger(level string) {
-	if l, err := log.ParseLevel(level); err == nil {
-		log.SetLevel(l)
-	} else {
-		panic(err)
-	}
-
-	log.SetFormatter(&log.TextFormatter{
-		DisableLevelTruncation: true,
-	})
 }
