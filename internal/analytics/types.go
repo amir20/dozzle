@@ -15,4 +15,7 @@ type BeaconEvent struct {
 	IsSwarmMode       bool   `json:"isSwarmMode"`
 	ServerVersion     string `json:"serverVersion"`
 	ServerID          string `json:"serverID"`
+	Mode              string `json:"mode"`
+	RemoteAgents      int    `json:"remoteAgents"`
+	RemoteClients     int    `json:"remoteClients"`
 }

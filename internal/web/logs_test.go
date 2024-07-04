@@ -52,7 +52,9 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient.On("ListContainers").Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		time.Sleep(50 * time.Millisecond)
+	})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -89,10 +91,14 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
+
 	mockedClient.On("ListContainers").Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+		time.Sleep(50 * time.Millisecond)
+	})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -223,7 +229,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			time.Sleep(50 * time.Millisecond)
-		})
+		}).Maybe()
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()

@@ -58,20 +58,14 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 	}
 
 	g := docker.NewEventGenerator(reader, container)
-	for {
-		select {
-		case event := <-g.Events:
-			events <- event
-		case <-ctx.Done():
-			return nil
-		case e := <-g.Errors:
-			select {
-			case event := <-g.Events: // Drain the events channel
-				events <- event
-			default:
-			}
-			return e
-		}
+	for event := range g.Events {
+		events <- event
+	}
+	select {
+	case e := <-g.Errors:
+		return e
+	default:
+		return nil
 	}
 }
 

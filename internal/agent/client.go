@@ -88,7 +88,6 @@ func rpcErrToErr(err error) error {
 	default:
 		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
 	}
-
 }
 
 func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std docker.StdType) (<-chan *docker.LogEvent, error) {

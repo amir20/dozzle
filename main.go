@@ -43,7 +43,7 @@ type args struct {
 	FilterStrings   []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter          map[string][]string `arg:"-"`
 	RemoteHost      []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
-	RemoteAgents    []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
+	RemoteAgent     []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
 	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
@@ -158,7 +158,6 @@ func main() {
 	}
 
 	srv := createServer(args, multiHostService)
-	// go doStartEvent(args, clients)
 	go func() {
 		log.Infof("Accepting connections on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -193,34 +192,6 @@ func readCertificates() (tls.Certificate, error) {
 	return tls.X509KeyPair(cert, key)
 }
 
-// TODO fix this
-// func doStartEvent(arg args, clients map[string]docker.Client) {
-// 	if arg.NoAnalytics {
-// 		log.Debug("Analytics disabled.")
-// 		return
-// 	}
-
-// 	event := analytics.BeaconEvent{
-// 		Name:    "start",
-// 		Version: version,
-// 	}
-
-// 	if client, ok := clients["localhost"]; ok {
-// 		event.ServerID = client.SystemInfo().ID
-// 		event.ServerVersion = client.SystemInfo().ServerVersion
-// 	} else {
-// 		for _, client := range clients {
-// 			event.ServerID = client.SystemInfo().ID
-// 			event.ServerVersion = client.SystemInfo().ServerVersion
-// 			break
-// 		}
-// 	}
-
-// 	if err := analytics.SendBeacon(event); err != nil {
-// 		log.Debug(err)
-// 	}
-// }
-
 func createMultiHostService(args args) *docker_support.MultiHostService {
 	var clients []docker_support.ClientService
 	for _, remoteHost := range args.RemoteHost {
@@ -245,7 +216,7 @@ func createMultiHostService(args args) *docker_support.MultiHostService {
 	if err != nil {
 		log.Fatalf("Could not read certificates: %v", err)
 	}
-	for _, remoteAgent := range args.RemoteAgents {
+	for _, remoteAgent := range args.RemoteAgent {
 		client, err := agent.NewClient(remoteAgent, certs)
 		if err != nil {
 			log.Warnf("Could not connect to remote agent %s: %s", remoteAgent, err)
@@ -259,8 +230,14 @@ func createMultiHostService(args args) *docker_support.MultiHostService {
 		_, err := localClient.ListContainers()
 		if err != nil {
 			log.Debugf("could not connect to local Docker Engine: %s", err)
+			if !args.NoAnalytics {
+				go cli.StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, nil)
+			}
 		} else {
 			log.Debugf("connected to local Docker Engine")
+			if !args.NoAnalytics {
+				go cli.StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, localClient)
+			}
 			clients = append(clients, docker_support.NewDockerClientService(localClient))
 		}
 	}
