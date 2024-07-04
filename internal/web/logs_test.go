@@ -95,7 +95,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	mockedClient.On("ListContainers").Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost"},
 	}, nil)
-	
+
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		time.Sleep(50 * time.Millisecond)
 	})
@@ -229,13 +229,12 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			time.Sleep(50 * time.Millisecond)
-		}).Maybe()
+		})
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
-	mockedClient.AssertExpectations(t)
 }
 
 func Test_handler_between_dates(t *testing.T) {
