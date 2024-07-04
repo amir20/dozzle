@@ -48,6 +48,7 @@ services:
       proxy:
         condition: service_healthy
   dozzle-with-agent:
+    container_name: with-agent
     environment:
       - DOZZLE_REMOTE_AGENT=agent:7007
       - DOZZLE_NO_ANALYTICS=1

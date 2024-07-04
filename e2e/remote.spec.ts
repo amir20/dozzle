@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://remote:8080/");
+  await page.goto("http://dozzle-with-agent:8080/");
 });
 
 test("has right title", async ({ page }) => {
