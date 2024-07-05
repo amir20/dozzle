@@ -28,7 +28,7 @@ services:
 ```
 
 ```yaml [dozzle-stack.yml]
-# Run with docker stack deploy -c dozzle-stack.yml dozzle
+# Run with docker stack deploy -c dozzle-stack.yml <name>
 services:
   dozzle:
     image: amir20/dozzle:latest
