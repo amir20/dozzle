@@ -62,6 +62,7 @@ export default defineConfig({
         text: "Advanced Configuration",
         items: [
           { text: "Authentication", link: "/guide/authentication" },
+          { text: "Agent Mode", link: "/guide/agent" },
           { text: "Swarm Mode", link: "/guide/swarm-mode" },
           { text: "Changing Base", link: "/guide/changing-base" },
           { text: "Healthcheck", link: "/guide/healthcheck" },

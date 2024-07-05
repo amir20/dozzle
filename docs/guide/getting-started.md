@@ -48,3 +48,5 @@ networks:
 ```
 
 :::
+
+See [swarm mode](/guide/swarm-mode) for more information on running Dozzle in Swarm.
