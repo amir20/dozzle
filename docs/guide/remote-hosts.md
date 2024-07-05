@@ -9,7 +9,7 @@ Dozzle supports connecting to remote Docker hosts. This is useful when running D
 However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.
 
 > [!WARNING]
-> Remote hosts will soon be deprecated in favor of agents. Agents provide a more secure way to connect to remote hosts. See the [agent](/guide/agent) page for more information. If you want keep using remote hosts then follow this discussion on [GitHub](/github.com/amir20/dozzle/issues/xxx).
+> Remote hosts will soon be deprecated in favor of agents. Agents provide a more secure way to connect to remote hosts. See the [agent](/guide/agent) page for more information. If you want keep using remote hosts then follow this discussion on [GitHub](https://github.com/amir20/dozzle/issues/3066).
 
 ## Connecting to remote hosts with TLS
 
