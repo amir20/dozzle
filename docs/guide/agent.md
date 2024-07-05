@@ -13,7 +13,7 @@ To create a Dozzle agent, you need to run Dozzle with the `agent` subcommand. He
 ::: code-group
 
 ```sh
-docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:agent agent
+docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent
 ```
 
 ```yaml [docker-compose.yml]
