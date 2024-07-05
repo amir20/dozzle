@@ -25,7 +25,8 @@ func (h *HostUnavailableError) Error() string {
 }
 
 type MultiHostService struct {
-	clients map[string]ClientService
+	clients   map[string]ClientService
+	SwarmMode bool
 }
 
 func NewMultiHostService(clients []ClientService) *MultiHostService {
@@ -46,7 +47,8 @@ func NewMultiHostService(clients []ClientService) *MultiHostService {
 
 func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiHostService {
 	m := &MultiHostService{
-		clients: make(map[string]ClientService),
+		clients:   make(map[string]ClientService),
+		SwarmMode: true,
 	}
 
 	localClient := NewDockerClientService(client)
@@ -197,4 +199,17 @@ func (m *MultiHostService) Hosts() []docker.Host {
 	}
 
 	return hosts
+}
+
+func (m *MultiHostService) LocalHost() (docker.Host, error) {
+	host := docker.Host{}
+
+	for _, host := range m.Hosts() {
+		if host.Endpoint == "local" {
+
+			return host, nil
+		}
+	}
+
+	return host, fmt.Errorf("local host not found")
 }
