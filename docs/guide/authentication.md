@@ -65,7 +65,7 @@ users:
 
 Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
 
-### Generating users.yml
+## Generating users.yml <Badge type="tip" text="v6.6.x" />
 
 Starting with version `v6.6.x`, Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
 

@@ -2,7 +2,7 @@
 title: Agent Mode
 ---
 
-# Agent Mode
+# Agent Mode <Badge type="tip" text="Beta" />
 
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instance. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 

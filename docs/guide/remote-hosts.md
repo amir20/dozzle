@@ -2,7 +2,7 @@
 title: Remote Host Setup
 ---
 
-# Remote Host Setup
+# Remote Host Setup <Badge type="warning" text="Deprecated" />
 
 Dozzle supports connecting to remote Docker hosts. This is useful when running Dozzle in a container and you want to monitor a different Docker host.
 
