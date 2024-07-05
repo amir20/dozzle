@@ -58,6 +58,10 @@ jobs:
         run: pnpm install
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Writing certs to file
+        run: |
+          echo "${{ secrets.TTL_KEY }}" > shared_key.pem
+          echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build
         uses: docker/bake-action@v5
         with:
@@ -90,10 +94,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Writing certs to file
+        run: |
+          echo "${{ secrets.TTL_KEY }}" > shared_key.pem
+          echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build and push
         uses: docker/build-push-action@v6.3.0
         with:
           push: true
+          context: .
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
           build-args: TAG=${{ steps.meta.outputs.version }}

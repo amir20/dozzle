@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,10 +20,11 @@ type Host struct {
 	ValidCerts bool     `json:"-"`
 	NCPU       int      `json:"nCPU"`
 	MemTotal   int64    `json:"memTotal"`
+	Endpoint   string   `json:"endpoint"`
 }
 
-func (h *Host) String() string {
-	return h.ID
+func (h Host) String() string {
+	return fmt.Sprintf("ID: %s, Endpoint: %s", h.ID, h.Endpoint)
 }
 
 func ParseConnection(connection string) (Host, error) {
@@ -72,6 +73,7 @@ func ParseConnection(connection string) (Host, error) {
 		CACertPath: cacertPath,
 		KeyPath:    keyPath,
 		ValidCerts: hasCerts,
+		Endpoint:   remoteUrl.String(),
 	}, nil
 
 }

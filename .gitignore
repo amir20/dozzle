@@ -12,3 +12,5 @@ coverage.out
 /test-results/
 /playwright-report/
 /playwright/.cache/
+*.pem
+*.csr

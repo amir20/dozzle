@@ -191,6 +191,9 @@ Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; i
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+event: container-event
+data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
+
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 HTTP/1.1 200 OK
 Connection: close

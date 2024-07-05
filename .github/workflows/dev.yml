@@ -24,9 +24,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Writing certs to file
+        run: |
+          echo "${{ secrets.TTL_KEY }}" > shared_key.pem
+          echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build and push
         uses: docker/build-push-action@v6.3.0
         with:
+          context: .
           push: true
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}

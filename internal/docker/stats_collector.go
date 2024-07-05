@@ -14,7 +14,7 @@ import (
 
 type StatsCollector struct {
 	stream       chan ContainerStat
-	subscribers  *xsync.MapOf[context.Context, chan ContainerStat]
+	subscribers  *xsync.MapOf[context.Context, chan<- ContainerStat]
 	client       Client
 	cancelers    *xsync.MapOf[string, context.CancelFunc]
 	stopper      context.CancelFunc
@@ -28,14 +28,18 @@ var timeToStop = 6 * time.Hour
 func NewStatsCollector(client Client) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan ContainerStat),
-		subscribers: xsync.NewMapOf[context.Context, chan ContainerStat](),
+		subscribers: xsync.NewMapOf[context.Context, chan<- ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
 	}
 }
 
-func (c *StatsCollector) Subscribe(ctx context.Context, stats chan ContainerStat) {
+func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- ContainerStat) {
 	c.subscribers.Store(ctx, stats)
+	go func() {
+		<-ctx.Done()
+		c.subscribers.Delete(ctx)
+	}()
 }
 
 func (c *StatsCollector) forceStop() {
@@ -109,7 +113,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 
 	go func() {
 		log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
-		err := sc.client.Events(context.Background(), events)
+		err := sc.client.ContainerEvents(context.Background(), events)
 		if !errors.Is(err, context.Canceled) {
 			log.Errorf("stats collector unexpectedly disconnected from docker events from %s with %v", sc.client.Host(), err)
 		}
@@ -136,7 +140,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			log.Info("stopped collecting container stats")
 			return true
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan ContainerStat) bool {
+			sc.subscribers.Range(func(c context.Context, stats chan<- ContainerStat) bool {
 				select {
 				case stats <- stat:
 				case <-c.Done():

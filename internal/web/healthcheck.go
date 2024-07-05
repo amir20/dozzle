@@ -1,25 +1,19 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/amir20/dozzle/internal/docker"
 	log "github.com/sirupsen/logrus"
 )
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace("Executing healthcheck request")
-	var client docker.Client
-	for _, v := range h.clients {
-		client = v
-		break
-	}
 
-	if ping, err := client.Ping(r.Context()); err != nil {
-		log.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	_, errors := h.multiHostService.ListAllContainers()
+	if len(errors) > 0 {
+		log.Error(errors)
+		http.Error(w, "Error listing containers", http.StatusInternalServerError)
 	} else {
-		fmt.Fprintf(w, "OK API Version %v", ping.APIVersion)
+		http.Error(w, "OK", http.StatusOK)
 	}
 }

@@ -1,0 +1,65 @@
+syntax = "proto3";
+option go_package = "internal/agent/pb";
+
+package protobuf;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+message Container {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string status = 4;
+  string state = 5;
+  string ImageId = 6;
+  google.protobuf.Timestamp created = 7;
+  google.protobuf.Timestamp started = 8;
+  string health = 9;
+  string host = 10;
+  bool tty = 11;
+  map<string, string> labels = 12;
+  repeated ContainerStat stats = 13;
+  string group = 14;
+  string command = 15;
+}
+
+message ContainerStat {
+  string id = 1;
+  double cpuPercent = 2;
+  double memoryUsage = 3;
+  double memoryPercent = 4;
+}
+
+message LogEvent {
+  uint32 id = 1;
+  string containerId = 2;
+  google.protobuf.Any message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  string level = 5;
+  string stream = 6;
+  string position = 7;
+}
+
+message SimpleMessage { string message = 1; }
+
+message ComplexMessage { bytes data = 1; }
+
+message ContainerEvent {
+  string actorId = 1;
+  string name = 2;
+  string host = 3;
+}
+
+message Host {
+  string id = 1;
+  string name = 2;
+  string nodeAddress = 3;
+  bool swarm = 4;
+  map<string, string> labels = 5;
+  string operatingSystem = 6;
+  string osVersion = 7;
+  string osType = 8;
+  uint32 cpuCores = 9;
+  uint32 memory = 10;
+}

@@ -2,11 +2,16 @@
 title: Remote Host Setup
 ---
 
-# Remote Host Setup
+# Remote Host Setup <Badge type="warning" text="Deprecated" />
 
-Dozzle supports connecting to multiple remote hosts via `tcp://` using TLS and non-secured connections. Dozzle will need to have appropriate certs mounted to use secured connection. `ssh://` is not supported because Dozzle docker image does not ship with any ssh clients.
+Dozzle supports connecting to remote Docker hosts. This is useful when running Dozzle in a container and you want to monitor a different Docker host.
 
-## Connecting to remote hosts
+However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.
+
+> [!WARNING]
+> Remote hosts will soon be deprecated in favor of agents. Agents provide a more secure way to connect to remote hosts. See the [agent](/guide/agent) page for more information. If you want keep using remote hosts then follow this discussion on [GitHub](/github.com/amir20/dozzle/issues/xxx).
+
+## Connecting to remote hosts with TLS
 
 Remote hosts can be configured with `--remote-host` or `DOZZLE_REMOTE_HOST`. All certs must be mounted to `/certs` directory. The `/certs` directory expects to have `/certs/{ca,cert,key}.pem` or `/certs/{host}/{ca,cert,key}.pem` in case of multiple hosts.
 

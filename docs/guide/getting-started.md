@@ -4,28 +4,49 @@ title: Getting Started
 
 # Getting Started
 
-This section will help you to setup Dozzle locally. Dozzle can also be used to connect to remote hosts via `tcp://` and tls. See remote host if you want to connect to other hosts.
+Dozzle supports multiple ways to run the application. You can run it using Docker CLI, Docker Compose, or in Swarm. The following sections will guide you through the process of setting up Dozzle.
 
-## Using Docker CLI
+## Running with Docker <Badge type="tip" text="Updated" />
 
-The easiest way to setup Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`.
+The easiest way to setup Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
+
+::: code-group
 
 ```sh
-docker run --detach --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle
 ```
 
-## Using Docker Compose
-
-Docker compose makes it easier to configure Dozzle as part of an existing configuration.
-
-```yaml
-version: "3"
+```yaml [docker-compose.yml]
+# Run with docker compose up -d
 services:
   dozzle:
-    container_name: dozzle
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - 9999:8080
+      - 8080:8080
 ```
+
+```yaml [dozzle-stack.yml]
+# Run with docker stack deploy -c dozzle-stack.yml <name>
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_MODE=swarm
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080
+    networks:
+      - dozzle
+    deploy:
+      mode: global
+networks:
+  dozzle:
+    driver: overlay
+```
+
+:::
+
+See [swarm mode](/guide/swarm-mode) for more information on running Dozzle in Swarm.
