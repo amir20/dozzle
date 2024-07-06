@@ -53,7 +53,7 @@ ARG TARGETOS TARGETARCH
 RUN go generate
 
 # Build binary
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$TAG"  -o dozzle
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X cli.version=$TAG"  -o dozzle
 
 RUN mkdir /data
 
