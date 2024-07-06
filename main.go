@@ -36,7 +36,6 @@ func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
 	if subcommand != nil {
-
 		switch subcommand.(type) {
 		case *cli.AgentCmd:
 			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
