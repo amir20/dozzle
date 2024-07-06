@@ -18,4 +18,5 @@ type BeaconEvent struct {
 	Mode              string `json:"mode"`
 	RemoteAgents      int    `json:"remoteAgents"`
 	RemoteClients     int    `json:"remoteClients"`
+	SubCommand        string `json:"subCommand"`
 }

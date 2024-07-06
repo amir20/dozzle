@@ -36,6 +36,7 @@ func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
 	if subcommand != nil {
+
 		switch subcommand.(type) {
 		case *cli.AgentCmd:
 			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
@@ -57,8 +58,10 @@ func main() {
 			}
 			defer os.Remove(tempFile.Name())
 			io.WriteString(tempFile, listener.Addr().String())
+			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, client, "agent")
 			agent.RunServer(client, certs, listener)
 		case *cli.HealthcheckCmd:
+			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, nil, "healthcheck")
 			files, err := os.ReadDir(".")
 			if err != nil {
 				log.Fatalf("Failed to read directory: %v", err)
@@ -90,6 +93,7 @@ func main() {
 			}
 
 		case *cli.GenerateCmd:
+			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, nil, "generate")
 			if args.Generate.Username == "" || args.Generate.Password == "" {
 				log.Fatal("Username and password are required")
 			}

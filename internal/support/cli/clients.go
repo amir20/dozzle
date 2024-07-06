@@ -48,12 +48,12 @@ func CreateMultiHostService(embededCerts embed.FS, args Args) *docker_support.Mu
 		if err != nil {
 			log.Debugf("could not connect to local Docker Engine: %s", err)
 			if !args.NoAnalytics {
-				go StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, nil)
+				go StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, nil, "")
 			}
 		} else {
 			log.Debugf("connected to local Docker Engine")
 			if !args.NoAnalytics {
-				go StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, localClient)
+				go StartEvent(version, args.Mode, args.RemoteAgent, args.RemoteHost, localClient, "")
 			}
 			clients = append(clients, docker_support.NewDockerClientService(localClient))
 		}
