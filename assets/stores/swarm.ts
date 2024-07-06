@@ -37,6 +37,8 @@ export const useSwarmStore = defineStore("swarm", () => {
         newServices.push(new Service(name, containers));
       }
 
+      if (newServices.length === 0) continue;
+
       newStacks.push(new Stack(name, containers, newServices));
     }
     return newStacks;
