@@ -6,6 +6,9 @@ title: Agent Mode
 
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instance. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
+> [!NOTE] Using Docker Swarm?
+> If you are using Docker Swarm Mode, you don't need to use agent mode. Dozzle will automatically discover services and custom groups in Swarm Mode. See [Swarm Mode](/guide/swarm-mode) for more information.
+
 ## How to create an agent?
 
 To create a Dozzle agent, you need to run Dozzle with the `agent` subcommand. Here is an example:
