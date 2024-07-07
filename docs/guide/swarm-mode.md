@@ -37,25 +37,37 @@ networks:
 
 Note that the `DOZZLE_MODE` environment variable is set to `swarm`. This tells Dozzle to automatically discover other Dozzle instances in the swarm. The `overlay` network is used to create the mesh network between the different Dozzle instances.
 
-## Custom Groups
+## Setting up simple authentication in Swarm Mode
 
-Custom groups are created by adding a label to your container. The label is `dev.dozzle.group` and the value is the name of the group. All containers with the same group name will be joined together in the UI. For example, if you have a group named `myapp`, all containers with the label `dozzle.group=myapp` will be joined together.
+To setup simple authentication, you can use Docker secrets to store `users.yml` file. Here is an example using Docker Stack:
 
-Here is an example using Docker Compose or Docker CLI:
-
-::: code-group
-
-```sh
-docker run --label dev.dozzle.group=myapp hello-world
-```
-
-```yaml [docker-compose.yml]
-version: "3"
+```yml
 services:
   dozzle:
-    image: hello-world
-    labels:
-      - dev.dozzle.group=myapp
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_LEVEL=debug
+      - DOZZLE_MODE=swarm
+      - DOZZLE_AUTH_PROVIDER=simple
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: users
+        target: /data/users.yml
+
+    ports:
+      - "8080:8080"
+    networks:
+      - dozzle
+    deploy:
+      mode: global
+
+networks:
+  dozzle:
+    driver: overlay
+secrets:
+  users:
+    file: users.yml
 ```
 
-:::
+In this example, `users.yml` file is stored in a Docker secret. It is the same as the [simple authentication](/guide/authentication#generating-users-yml) example.
