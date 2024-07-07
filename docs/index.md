@@ -16,6 +16,9 @@ hero:
       link: https://github.com/amir20/dozzle
 
 features:
+  - title: Self Hosted
+    details: Dozzle is a self-hosted application that runs in your own infrastructure, ensuring your logs remain private and secure.
+    icon: 🏠
   - title: Real-time Logging & Monitoring
     details: Captures real-time Docker container logs, enabling quick and efficient issue diagnosis.
     icon: 🚀
@@ -32,4 +35,17 @@ features:
   - title: No Database Required
     details: Streams logs directly from Docker, remaining lightweight without extra overhead or complexity.
     icon: 📦
+  - title: Secured Agents
+    details: Connect to remote hosts securely with agents, providing a more secure way to connect to remote hosts.
+    icon: 🔒
+    link: /guide/agent
+    linkText: Learn More
+  - title: Easy to Use
+    details: Simple to set up and use, with a clean and intuitive interface that requires no additional configuration.
+    icon: 🎨
+  - title: Sponsored by Docker OSS
+    details: Dozzle is open source and free to use, with the source code available on GitHub.
+    icon: 📜
+    link: https://hub.docker.com/r/amir20/dozzle
+    linkText: Docker Hub
 ---
