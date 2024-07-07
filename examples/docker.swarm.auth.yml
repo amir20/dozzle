@@ -1,0 +1,25 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_LEVEL=debug
+      - DOZZLE_MODE=swarm
+      - DOZZLE_AUTH_PROVIDER=simple
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: users
+        target: /data/users.yml
+    ports:
+      - "8080:8080"
+    networks:
+      - dozzle
+    deploy:
+      mode: global
+
+networks:
+  dozzle:
+    driver: overlay
+secrets:
+  users:
+    file: users.yml
