@@ -20,7 +20,7 @@
     "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex.server",
     "dev": "concurrently --kill-others \"npm:watch:*\"",
     "build": "vite build",
-    "preview": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex",
+    "preview": "LIVE_FS=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex.server",
     "release": "bumpp",
     "test": "TZ=UTC vitest",
     "typecheck": "vue-tsc --noEmit",
