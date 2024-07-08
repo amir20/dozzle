@@ -3,6 +3,7 @@ package docker
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ type EventGenerator struct {
 	tty         bool
 	wg          sync.WaitGroup
 	containerID string
+	ctx         context.Context
 }
 
 var bufPool = sync.Pool{
@@ -38,7 +40,7 @@ var bufPool = sync.Pool{
 
 var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
 
-func NewEventGenerator(reader io.Reader, container Container) *EventGenerator {
+func NewEventGenerator(ctx context.Context, reader io.Reader, container Container) *EventGenerator {
 	generator := &EventGenerator{
 		reader:      bufio.NewReader(reader),
 		buffer:      make(chan *LogEvent, 100),
@@ -46,6 +48,7 @@ func NewEventGenerator(reader io.Reader, container Container) *EventGenerator {
 		Events:      make(chan *LogEvent),
 		tty:         container.Tty,
 		containerID: container.ID,
+		ctx:         ctx,
 	}
 	generator.wg.Add(2)
 	go generator.consumeReader()
@@ -64,18 +67,22 @@ func (g *EventGenerator) processBuffer() {
 		} else {
 			event, ok := <-g.buffer
 			if !ok {
-				close(g.Events)
 				break
 			}
-
 			current = event
 			next = g.peek()
 		}
 
 		checkPosition(current, next)
 
-		g.Events <- current
+		select {
+		case g.Events <- current:
+		case <-g.ctx.Done():
+		}
 	}
+
+	close(g.Events)
+
 	g.wg.Done()
 }
 
