@@ -174,6 +174,10 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 	for _, client := range m.clients {
 		client.SubscribeContainersStarted(ctx, newContainers)
 	}
+	go func() {
+		<-ctx.Done()
+		close(newContainers)
+	}()
 
 	go func() {
 		for container := range newContainers {
