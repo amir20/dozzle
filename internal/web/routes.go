@@ -10,6 +10,7 @@ import (
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -125,7 +126,7 @@ func createRouter(h *handler) *chi.Mux {
 
 	fileServer = http.FileServer(http.FS(h.content))
 
-	// r.Mount("/debug", middleware.Profiler())
+	r.Mount("/debug", middleware.Profiler())
 
 	return r
 }
