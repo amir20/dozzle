@@ -115,7 +115,6 @@ func createRouter(h *handler) *chi.Mux {
 
 		r.Get("/healthcheck", h.healthcheck)
 
-		// r.Mount("/debug", middleware.Profiler())
 	})
 
 	if base != "/" {
@@ -125,6 +124,8 @@ func createRouter(h *handler) *chi.Mux {
 	}
 
 	fileServer = http.FileServer(http.FS(h.content))
+
+	// r.Mount("/debug", middleware.Profiler())
 
 	return r
 }

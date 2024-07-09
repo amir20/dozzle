@@ -47,7 +47,7 @@ func (d *dockerClientService) LogsBetweenDates(ctx context.Context, container do
 		return nil, err
 	}
 
-	g := docker.NewEventGenerator(reader, container)
+	g := docker.NewEventGenerator(ctx, reader, container)
 	return g.Events, nil
 }
 
@@ -57,10 +57,11 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 		return err
 	}
 
-	g := docker.NewEventGenerator(reader, container)
+	g := docker.NewEventGenerator(ctx, reader, container)
 	for event := range g.Events {
 		events <- event
 	}
+
 	select {
 	case e := <-g.Errors:
 		return e
