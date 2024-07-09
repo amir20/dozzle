@@ -45,14 +45,14 @@ func NewMultiHostService(clients []ClientService) *MultiHostService {
 	return m
 }
 
-func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiHostService {
+func NewSwarmService(localClient docker.Client, certificates tls.Certificate) *MultiHostService {
 	m := &MultiHostService{
 		clients:   make(map[string]ClientService),
 		SwarmMode: true,
 	}
 
-	localClient := NewDockerClientService(client)
-	m.clients[localClient.Host().ID] = localClient
+	localService := NewDockerClientService(localClient)
+	m.clients[localClient.Host().ID] = localService
 
 	discover := func() {
 		ips, err := net.LookupIP("tasks.dozzle")
@@ -63,17 +63,18 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiH
 		found := 0
 		replaced := 0
 		for _, ip := range ips {
-			client, err := agent.NewClient(ip.String()+":7007", certificates)
+			clientAgent, err := agent.NewClient(ip.String()+":7007", certificates)
 			if err != nil {
 				log.Warnf("error creating client for %s: %v", ip, err)
 				continue
 			}
 
-			if client.Host().ID == localClient.Host().ID {
+			if clientAgent.Host().ID == localClient.Host().ID {
+				closeAgent(clientAgent)
 				continue
 			}
 
-			service := NewAgentService(client)
+			service := NewAgentService(clientAgent)
 			if existing, ok := m.clients[service.Host().ID]; !ok {
 				log.Debugf("adding swarm service %s", service.Host().ID)
 				m.clients[service.Host().ID] = service
@@ -83,6 +84,11 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiH
 				delete(m.clients, existing.Host().ID)
 				m.clients[service.Host().ID] = service
 				replaced++
+				if existingAgent, ok := existing.(*agentService); ok {
+					closeAgent(existingAgent.client)
+				}
+			} else {
+				closeAgent(clientAgent)
 			}
 		}
 
@@ -105,6 +111,13 @@ func NewSwarmService(client docker.Client, certificates tls.Certificate) *MultiH
 	}()
 
 	return m
+}
+
+func closeAgent(agent *agent.Client) {
+	log.Debugf("closing agent %s", agent.Host().ID)
+	if err := agent.Close(); err != nil {
+		log.Warnf("error closing agent: %v", err)
+	}
 }
 
 func (m *MultiHostService) FindContainer(host string, id string) (*containerService, error) {

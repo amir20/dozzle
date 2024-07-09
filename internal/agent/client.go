@@ -25,6 +25,7 @@ import (
 type Client struct {
 	client pb.AgentServiceClient
 	host   docker.Host
+	conn   *grpc.ClientConn
 }
 
 func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
@@ -46,17 +47,19 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	opts = append(opts, grpc.WithTransportCredentials(creds))
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
-		log.Fatalf("failed to connect to server: %v", err)
+		return nil, err
 	}
 
 	client := pb.NewAgentServiceClient(conn)
 	info, err := client.HostInfo(context.Background(), &pb.HostInfoRequest{})
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 
 	return &Client{
 		client: client,
+		conn:   conn,
 
 		host: docker.Host{
 			ID:       info.Host.Id,
@@ -360,6 +363,10 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 
 func (c *Client) Host() docker.Host {
 	return c.host
+}
+
+func (c *Client) Close() error {
+	return c.conn.Close()
 }
 
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
