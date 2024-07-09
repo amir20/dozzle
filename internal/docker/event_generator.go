@@ -59,6 +59,7 @@ func NewEventGenerator(ctx context.Context, reader io.Reader, container Containe
 func (g *EventGenerator) processBuffer() {
 	var current, next *LogEvent
 
+loop:
 	for {
 		if g.next != nil {
 			current = g.next
@@ -67,7 +68,7 @@ func (g *EventGenerator) processBuffer() {
 		} else {
 			event, ok := <-g.buffer
 			if !ok {
-				break
+				break loop
 			}
 			current = event
 			next = g.peek()
@@ -78,6 +79,7 @@ func (g *EventGenerator) processBuffer() {
 		select {
 		case g.Events <- current:
 		case <-g.ctx.Done():
+			break loop
 		}
 	}
 
