@@ -37,6 +37,9 @@ networks:
 
 Note that the `DOZZLE_MODE` environment variable is set to `swarm`. This tells Dozzle to automatically discover other Dozzle instances in the swarm. The `overlay` network is used to create the mesh network between the different Dozzle instances.
 
+> [!NOTE]
+> Due to implementation details, the name for the service must be exactly `dozzle`. This is because Dozzle uses the service name to discover other Dozzle instances in the swarm. In the future, it would make sense to query the Docker API for all services with the current container ID.
+
 ## Setting up simple authentication in Swarm Mode
 
 To setup simple authentication, you can use Docker secrets to store `users.yml` file. Here is an example using Docker Stack:
