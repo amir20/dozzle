@@ -1,0 +1,12 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_LEVEL=debug
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "7007:7007"
+    deploy:
+      mode: global
