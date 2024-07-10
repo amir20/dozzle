@@ -91,14 +91,8 @@ jobs:
         run: pnpm install
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-      - name: Install gRPC and Go
-        run: |
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
       - name: Generate certs
-        run: make generate
+        run: make shared_key.pem shared_cert.pem
       - name: Build
         uses: docker/bake-action@v5
         with:
