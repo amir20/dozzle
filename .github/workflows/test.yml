@@ -91,10 +91,8 @@ jobs:
         run: pnpm install
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Writing certs to file
-        run: |
-          echo "${{ secrets.TTL_KEY }}" > shared_key.pem
-          echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
+      - name: Generate certs
+        run: make generate
       - name: Build
         uses: docker/bake-action@v5
         with:
