@@ -26,10 +26,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: amir20/dozzle
-      - name: Log metadata outputs
-        run: |
-          echo "Version: ${{ steps.meta.outputs.version }}"
-          echo "Tags: ${{ steps.meta.outputs.tags }}"
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
