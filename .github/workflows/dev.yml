@@ -12,11 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !github.event.repository.fork && !github.event.pull_request.head.repo.fork && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'amir20/dozzle') }}
     steps:
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: amir20/dozzle
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
       - name: Login to DockerHub
@@ -26,6 +21,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: amir20/dozzle
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem

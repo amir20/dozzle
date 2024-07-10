@@ -26,11 +26,11 @@ test: fake_assets generate
 
 .PHONY: build
 build: dist generate
-	CGO_ENABLED=0 go build -ldflags "-s -w"
+	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
 
 .PHONY: docker
 docker: shared_key.pem shared_cert.pem
-	@docker build -t amir20/dozzle .
+	@docker build  --build-arg TAG=local -t amir20/dozzle .
 
 generate: shared_key.pem shared_cert.pem $(GEN_FILES)
 
