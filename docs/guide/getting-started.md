@@ -13,7 +13,7 @@ The easiest way to setup Dozzle is to use the CLI and mount `docker.sock` file. 
 ::: code-group
 
 ```sh
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
 ```
 
 ```yaml [docker-compose.yml]
