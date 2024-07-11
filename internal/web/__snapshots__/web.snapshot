@@ -135,7 +135,7 @@ event: containers-changed
 data: [{"id":"1234","names":null,"name":"test","image":"test","imageId":"","command":"","created":"0001-01-01T00:00:00Z","state":"","status":"","stats":[]}]
 
 
-event: container-start
+event: container-event
 data: {"actorId":"1234","name":"start","host":"localhost"}
 
 /* snapshot: Test_handler_streamLogs_error_finding_container */
