@@ -5,8 +5,8 @@
     <LogDate :date="logEntry.date" v-if="showTimestamp" class="select-none" />
     <LogLevel class="flex" :level="logEntry.level" :position="logEntry.position" />
     <div
-      class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"
-      v-html="colorize(logEntry.message)"
+      class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"
+      v-html="linkify(colorize(logEntry.message))"
     ></div>
     <LogMessageActions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
@@ -34,4 +34,12 @@ const { showContainerName = false } = defineProps<{
 
 const { markSearch } = useSearchFilter();
 const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
+const urlPattern = /(https?:\/\/[^\s]+)/g;
+const linkify = (text: string) =>
+  text.replace(urlPattern, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 </script>
+<style scoped lang="postcss">
+.log-wrapper > :deep(a) {
+  @apply text-primary underline-offset-4 hover:underline;
+}
+</style>
