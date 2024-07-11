@@ -87,17 +87,18 @@ func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 		filters: filters,
 		host:    host,
 	}
+	var err error
+	client.info, err = cli.Info(context.Background())
+	if err != nil {
+		log.Errorf("unable to get docker info: %v", err)
+	}
 
 	if host.MemTotal == 0 || host.NCPU == 0 {
-		var err error
-		client.info, err = cli.Info(context.Background())
-		if err != nil {
-			log.Errorf("unable to get docker info: %v", err)
-		}
-
 		host.NCPU = client.info.NCPU
 		host.MemTotal = client.info.MemTotal
 	}
+
+	log.Debugf("Creating a client with host: %+v", host)
 
 	return client
 }
@@ -124,8 +125,13 @@ func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
 		return nil, err
 	}
 
+	id := info.ID
+	if info.Swarm.NodeID != "" {
+		id = info.Swarm.NodeID
+	}
+
 	host := Host{
-		ID:       info.ID,
+		ID:       id,
 		Name:     info.Name,
 		MemTotal: info.MemTotal,
 		NCPU:     info.NCPU,
