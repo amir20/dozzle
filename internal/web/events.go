@@ -109,6 +109,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
+	if h.config.NoAnalytics {
+		return
+	}
 	b := analytics.BeaconEvent{
 		AuthProvider:      string(h.config.Authorization.Provider),
 		Browser:           r.Header.Get("User-Agent"),
@@ -131,10 +134,8 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		b.Mode = "swarm"
 	}
 
-	if !h.config.NoAnalytics {
-		if err := analytics.SendBeacon(b); err != nil {
-			log.Debugf("error sending beacon: %v", err)
-		}
+	if err := analytics.SendBeacon(b); err != nil {
+		log.Debugf("error sending beacon: %v", err)
 	}
 }
 
