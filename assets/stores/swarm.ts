@@ -39,9 +39,15 @@ export const useSwarmStore = defineStore("swarm", () => {
 
       if (newServices.length === 0) continue;
 
-      newStacks.push(new Stack(name, containers, newServices));
+      newStacks.push(
+        new Stack(
+          name,
+          containers,
+          newServices.sort((a, b) => a.name.localeCompare(b.name)),
+        ),
+      );
     }
-    return newStacks;
+    return newStacks.sort((a, b) => a.name.localeCompare(b.name));
   });
 
   const services = computed(() => {
@@ -61,7 +67,7 @@ export const useSwarmStore = defineStore("swarm", () => {
 
     const servicesWithoutStack = Object.entries(services).map(([name, containers]) => new Service(name, containers));
 
-    return [...serviceWithStack, ...servicesWithoutStack];
+    return [...serviceWithStack, ...servicesWithoutStack].sort((a, b) => a.name.localeCompare(b.name));
   });
 
   const customGroups = computed(() => {
