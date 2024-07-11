@@ -114,7 +114,7 @@ func NewSwarmService(localClient docker.Client, certificates tls.Certificate) *M
 }
 
 func closeAgent(agent *agent.Client) {
-	log.Debugf("closing agent %s", agent.Host().ID)
+	log.Tracef("closing agent %s", agent.Host())
 	if err := agent.Close(); err != nil {
 		log.Warnf("error closing agent: %v", err)
 	}
