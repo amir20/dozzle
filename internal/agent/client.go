@@ -47,14 +47,14 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	opts = append(opts, grpc.WithTransportCredentials(creds))
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to %s: %w", endpoint, err)
 	}
 
 	client := pb.NewAgentServiceClient(conn)
 	info, err := client.HostInfo(context.Background(), &pb.HostInfoRequest{})
 	if err != nil {
 		conn.Close()
-		return nil, err
+		return nil, fmt.Errorf("failed to get host info: %w", err)
 	}
 
 	return &Client{
