@@ -35,7 +35,7 @@ docker: shared_key.pem shared_cert.pem
 generate: shared_key.pem shared_cert.pem $(GEN_FILES)
 
 .PHONY: dev
-dev:
+dev: shared_key.pem shared_cert.pem
 	pnpm dev
 
 .PHONY: int
