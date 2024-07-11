@@ -65,7 +65,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			switch event.Name {
-			case "start", "die":
+			case "start", "die", "destroy":
 				if event.Name == "start" {
 					log.Debugf("found new container with id: %v", event.ActorID)
 					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
@@ -77,7 +77,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 				bytes, _ := json.Marshal(event)
-				if _, err := fmt.Fprintf(w, "event: container-%s\ndata: %s\n\n", event.Name, string(bytes)); err != nil {
+				if _, err := fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", string(bytes)); err != nil {
 					log.Errorf("error writing event to event stream: %v", err)
 					return
 				}

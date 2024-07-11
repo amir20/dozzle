@@ -59,11 +59,18 @@ export const useContainerStore = defineStore("container", () => {
         container.updateStat(rest);
       }
     });
-    es.addEventListener("container-die", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string };
-      const container = allContainersById.value[event.actorId];
-      if (container) {
-        container.state = "exited";
+    es.addEventListener("container-event", (e) => {
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
+      switch (event.name) {
+        case "die":
+          const container = allContainersById.value[event.actorId];
+          if (container) {
+            container.state = "exited";
+          }
+          break;
+        case "destroy":
+          containers.value = containers.value.filter((c) => c.id !== event.actorId);
+          break;
       }
     });
 
