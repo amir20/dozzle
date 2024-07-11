@@ -3,15 +3,15 @@
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="events group py-4 medium">
   <li data-v-cf9ff940="" data-key="1" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
+      <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-e625cddd="" data-v-a49e52d4="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
+      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
         <!--v-if-->
         <!--v-if-->
       </div>
@@ -23,15 +23,15 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="events group py-4 medium">
   <li data-v-cf9ff940="" data-key="1" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
+      <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
       </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-e625cddd="" data-v-a49e52d4="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
+      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
         <!--v-if-->
         <!--v-if-->
       </div>
@@ -43,15 +43,15 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="events group py-4 medium">
   <li data-v-cf9ff940="" data-key="1" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
+      <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-e625cddd="" data-v-a49e52d4="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
+      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
+      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
         <!--v-if-->
         <!--v-if-->
       </div>
@@ -63,15 +63,15 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 exports[`<ContainerEventSource /> > render html correctly > should render messages with filter 1`] = `
 "<ul data-v-cf9ff940="" class="events group py-4 medium">
   <li data-v-cf9ff940="" data-key="2" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
+      <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-e625cddd="" data-v-a49e52d4="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
+      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"><mark>test</mark> bar</div>
+      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
         <!--v-if-->
         <div class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer" title="log_actions.jump_to_context"><a class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700" href="#2"><svg viewBox="0 0 32 32" width="1.2em" height="1.2em">
               <path fill="currentColor" d="m30 28.586l-4.688-4.688a8.028 8.028 0 1 0-1.415 1.414L28.586 30zM19 25a6 6 0 1 1 6-6a6.007 6.007 0 0 1-6 6M2 12h8v2H2zM2 2h16v2H2zm0 5h16v2H2z"></path>
@@ -85,15 +85,15 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 exports[`<ContainerEventSource /> > render html correctly > should render messages with html entities 1`] = `
 "<ul data-v-cf9ff940="" class="events group py-4 medium">
   <li data-v-cf9ff940="" data-key="1" class="group/entry">
-    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
+      <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
         <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
-      <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
-      <div class="whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
-      <div class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-e625cddd="" data-v-a49e52d4="" class="mt-1.5 size-2.5 flex-none rounded-lg flex"></div>
+      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">&lt;test&gt;foo bar&lt;/test&gt;</div>
+      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
         <!--v-if-->
         <!--v-if-->
       </div>
