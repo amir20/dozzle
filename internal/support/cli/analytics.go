@@ -6,13 +6,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartEvent(version string, mode string, agents []string, remoteClients []string, client docker.Client, subCommand string) {
+func StartEvent(args Args, mode string, client docker.Client, subCommand string) {
+	if args.NoAnalytics {
+		return
+	}
 	event := analytics.BeaconEvent{
 		Name:          "start",
-		Version:       version,
+		Version:       args.Version(),
 		Mode:          mode,
-		RemoteAgents:  len(agents),
-		RemoteClients: len(remoteClients),
+		RemoteAgents:  len(args.RemoteAgent),
+		RemoteClients: len(args.RemoteHost),
 		SubCommand:    subCommand,
 	}
 

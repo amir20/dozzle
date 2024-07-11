@@ -57,10 +57,10 @@ func main() {
 			}
 			defer os.Remove(tempFile.Name())
 			io.WriteString(tempFile, listener.Addr().String())
-			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, client, "agent")
+			go cli.StartEvent(args, "", client, "agent")
 			agent.RunServer(client, certs, listener)
 		case *cli.HealthcheckCmd:
-			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, nil, "healthcheck")
+			go cli.StartEvent(args, "", nil, "healthcheck")
 			files, err := os.ReadDir(".")
 			if err != nil {
 				log.Fatalf("Failed to read directory: %v", err)
@@ -92,7 +92,7 @@ func main() {
 			}
 
 		case *cli.GenerateCmd:
-			go cli.StartEvent(args.Version(), "", args.RemoteAgent, args.RemoteHost, nil, "generate")
+			go cli.StartEvent(args, "", nil, "generate")
 			if args.Generate.Username == "" || args.Generate.Password == "" {
 				log.Fatal("Username and password are required")
 			}

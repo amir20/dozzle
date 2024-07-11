@@ -109,6 +109,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
+	if h.config.NoAnalytics {
+		return
+	}
 	b := analytics.BeaconEvent{
 		AuthProvider:      string(h.config.Authorization.Provider),
 		Browser:           r.Header.Get("User-Agent"),
