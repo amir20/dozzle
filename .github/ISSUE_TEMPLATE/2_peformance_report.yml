@@ -1,4 +1,4 @@
-name: Performance Issue
+name: 🚤 Performance Issue
 labels: ["performance"]
 description: |
   Use this template if you are seeing performance issues such as slow loading times or high CPU usage.
