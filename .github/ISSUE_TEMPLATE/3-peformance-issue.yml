@@ -1,0 +1,46 @@
+name: Bug Report
+labels: ["performance"]
+description: |
+  Use this template if you are seeing performance issues such as slow loading times or high CPU usage.
+body:
+  - type: checkboxes
+    attributes:
+      label: Check for existing issues
+      description: Check the backlog of issues to reduce the chances of creating duplicates; if an issue already exists, place a `+1` (👍) on it.
+      options:
+        - label: Completed
+          required: true
+  - type: dropdown
+    attributes:
+      label: How is Dozzle deployed?
+      description: Select the components that you are using.
+      options:
+        - Standalone Deployment
+        - Agents
+        - Remote Hosts
+        - Swarm Mode
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Dozzle version
+      description: Can be found in logs or settings page.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the performance issue you are seeing
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: How many containers, hosts, agents, etc. are you using?
+      description: Any details to reproduce the issue would be helpful.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Screenshots, videos, or logs
+      description: Drag issues into the text input below
+    validations:
+      required: false
