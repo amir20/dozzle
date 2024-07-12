@@ -32,6 +32,7 @@ server {
 ### Disabling compression in traefik
 
 Traefik reverse proxy can be configures via middlewares to support compression. If implemented, the usual configuration looks like this:
+
 ```
 http:
   middlewares:
@@ -39,17 +40,18 @@ http:
       compress: {}
 ```
 
-With this setup, you may find that certain containers do not show logs in dozzle anymore if you open dozzle via traefik (e.g. dozzle.mydomain.com). 
+With this setup, you may find that certain containers do not show logs in dozzle anymore if you open dozzle via traefik (e.g. dozzle.mydomain.com).
 You will also note that the same dozzle instance does show the logs when accessed directly (e.g. localhost:8080).
 
 Containers where this has been observed (non-exhaustive list) are: dozzle, homepage, glances, filebrowser.
 
 To re-enable the logs to flow, exclude `text/event-stream` from the compression middleware:
+
 ```
 http:
   middlewares:
     middlewares-compress:
-      compress: 
+      compress:
         excludedContentTypes:
           - text/event-stream
 ```
@@ -76,3 +78,15 @@ In this case, you'll need to add the following line to your `/boot/cmdline.txt` 
 ```
 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
 ```
+
+## I am seeing duplicate hosts error in the logs. How do I fix it?
+
+If you are seeing the following error in the logs, then you may have duplicate hosts in configred that with the same host ID.
+
+```
+time="2024-07-10T13:35:53Z" level=warning msg="duplicate host ID: *********, Endpoint: 1.1.1.1:7007 found, skipping"
+```
+
+Dozzle uses the Docker API to gather information about the hosts. Each host must have a unique ID. This ID is used to identify the host in the UI. In swarm mode, Dozzle uses the node ID from `docker systen info` to identify the host. If you are not using swarm mode, then Dozzle will use the system ID from `docker system info` as the host ID.
+
+Somettimes, VMs maybe restored from back ups, with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
