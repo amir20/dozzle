@@ -20,10 +20,11 @@ Configurations can be done with flags or environment variables. The table below 
 | `--filter`            | `DOZZLE_FILTER`            | `""`           |
 | `--no-analytics`      | `DOZZLE_NO_ANALYTICS`      | false          |
 | `--mode`              | `DOZZLE_MODE`              | `server`       |
-| `--remote-host` \*    | `DOZZLE_REMOTE_HOST`       |                |
-| `--remote-agent` \*   | `DOZZLE_REMOTE_AGENT`      |                |
+| `--remote-host`       | `DOZZLE_REMOTE_HOST`       |                |
+| `--remote-agent`      | `DOZZLE_REMOTE_AGENT`      |                |
 
-`*` These flags can be used multiple times. For example, `--remote-host tcp://167.99.1.1:2376 --remote-host tcp://167.99.1.2:2376` or comma separated `DOZZLE_REMOTE_HOST=tcp://167.99.1.1:2376,tcp://167.99.1.2:2376`
+> [!TIP] Repeated Flags
+> Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
 
 ## Generate users.yml
 
