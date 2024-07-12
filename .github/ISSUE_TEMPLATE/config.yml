@@ -1,1 +1,5 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Common Issues
+    url: https://dozzle.dev/guide/faq
+    about: Check the FAQ for common issues.
