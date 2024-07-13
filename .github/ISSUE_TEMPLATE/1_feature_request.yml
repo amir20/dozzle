@@ -10,7 +10,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Decribe how you would like to see this feature implemented
+      label: Describe how you would like to see this feature implemented
     validations:
       required: false
   - type: textarea
