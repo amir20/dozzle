@@ -82,25 +82,20 @@ type httpClient struct {
 }
 
 func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
-	client := &httpClient{
-		cli:     cli,
-		filters: filters,
-		host:    host,
-	}
-	var err error
-	client.info, err = cli.Info(context.Background())
+
+	info, err := cli.Info(context.Background())
 	if err != nil {
 		log.Errorf("unable to get docker info: %v", err)
 	}
 
-	if host.MemTotal == 0 || host.NCPU == 0 {
-		host.NCPU = client.info.NCPU
-		host.MemTotal = client.info.MemTotal
+	host.NCPU = info.NCPU
+	host.MemTotal = info.MemTotal
+
+	return &httpClient{
+		cli:     cli,
+		filters: filters,
+		host:    host,
 	}
-
-	log.Debugf("Creating a client with host: %+v", host)
-
-	return client
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters

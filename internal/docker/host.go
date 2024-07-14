@@ -24,7 +24,7 @@ type Host struct {
 }
 
 func (h Host) String() string {
-	return fmt.Sprintf("ID: %s, Endpoint: %s", h.ID, h.Endpoint)
+	return fmt.Sprintf("ID: %s, Endpoint: %s, nCPU: %d, memTotal: %d", h.ID, h.Endpoint, h.NCPU, h.MemTotal)
 }
 
 func ParseConnection(connection string) (Host, error) {

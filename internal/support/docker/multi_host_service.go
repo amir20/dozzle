@@ -38,6 +38,8 @@ func NewMultiHostService(clients []ClientService) *MultiHostService {
 		if _, ok := m.clients[client.Host().ID]; ok {
 			log.Warnf("duplicate host %s found, skipping", client.Host())
 			continue
+		} else {
+			log.Debugf("found a new host %s", client.Host())
 		}
 		m.clients[client.Host().ID] = client
 	}
