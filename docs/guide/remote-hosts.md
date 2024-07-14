@@ -88,7 +88,7 @@ services:
 :::
 
 > [!WARNING]
-> Dozzle uses the Docker API to gather information about the containers. Clients use Docker's system ID or node ID to identify the host. If you are using swarm mode, then the node ID is used. If you are seeing duplicate hosts error in the logs, then you may have duplicate hosts in configred that with the same host ID. To fix this, remove `/var/lib/docker/engine-id` file. See [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it) for more information.
+> Dozzle uses the Docker API to gather information about hosts. Each aget needs a unique host ID. They use Docker's system ID or node ID to identify the host. If you are using swarm, then the node ID is used. If you don't see all hosts, then you may have duplicate hosts configured that have the same host ID. To fix this, remove `/var/lib/docker/engine-id` file. See [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it) for more information.
 
 ## Changing localhost label
 
