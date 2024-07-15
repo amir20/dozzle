@@ -12,7 +12,7 @@ import {
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 
-function parseMessage(data: string): LogEntry {
+function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data, (key, value) => {
     if (typeof value === "string") {
       return encodeXML(value);
@@ -22,7 +22,7 @@ function parseMessage(data: string): LogEntry {
   return asLogEntry(e);
 }
 
-export function useContainerStream(container: Ref): LogStreamSource {
+export function useContainerStream(container: Ref<Container>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -46,7 +46,7 @@ export function useContainerStream(container: Ref): LogStreamSource {
   return useLogStream(url, loadMoreUrl);
 }
 
-export function useStackStream(stack: Ref): LogStreamSource {
+export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -59,7 +59,7 @@ export function useStackStream(stack: Ref): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useGroupedStream(group: Ref): LogStreamSource {
+export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -72,7 +72,7 @@ export function useGroupedStream(group: Ref): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useMergedStream(containers: Ref): LogStreamSource {
+export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -89,7 +89,7 @@ export function useMergedStream(containers: Ref): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useServiceStream(service: Ref): LogStreamSource {
+export function useServiceStream(service: Ref<Service>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -102,12 +102,12 @@ export function useServiceStream(service: Ref): LogStreamSource {
   return useLogStream(url);
 }
 
-export type LogStreamSource = ReturnType;
+export type LogStreamSource = ReturnType<typeof useLogStream>;
 
-function useLogStream(url: Ref, loadMoreUrl?: Ref) {
-  let messages: LogEntry[] = $ref([]);
-  let buffer: LogEntry[] = $ref([]);
-  const scrollingPaused = $ref(inject("scrollingPaused") as Ref);
+function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
+  let messages: LogEntry<string | JSONObject>[] = $ref([]);
+  let buffer: LogEntry<string | JSONObject>[] = $ref([]);
+  const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
     if (messages.length > config.maxLogs) {
@@ -115,11 +115,11 @@ function useLogStream(url: Ref, loadMoreUrl?: Ref) {
         console.log("Skipping ", buffer.length, " log items");
         if (messages.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.at(-1) as SkippedLogsEntry;
-          const lastItem = buffer.at(-1) as LogEntry;
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
           lastEvent.addSkippedEntries(buffer.length, lastItem);
         } else {
-          const firstItem = buffer.at(0) as LogEntry;
-          const lastItem = buffer.at(-1) as LogEntry;
+          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
+          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
           messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
         }
         buffer = [];
