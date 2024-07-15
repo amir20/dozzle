@@ -248,7 +248,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 			Id:       host.ID,
 			Name:     host.Name,
 			CpuCores: uint32(host.NCPU),
-			Memory:   uint32(host.MemTotal),
+			Memory:   uint64(host.MemTotal),
 		},
 	}, nil
 }
