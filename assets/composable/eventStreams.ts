@@ -12,7 +12,7 @@ import {
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 
-function parseMessage(data: string): LogEntry<string | JSONObject> {
+function parseMessage(data: string): LogEntry {
   const e = JSON.parse(data, (key, value) => {
     if (typeof value === "string") {
       return encodeXML(value);
@@ -22,7 +22,7 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
   return asLogEntry(e);
 }
 
-export function useContainerStream(container: Ref<Container>): LogStreamSource {
+export function useContainerStream(container: Ref): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -46,7 +46,7 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
   return useLogStream(url, loadMoreUrl);
 }
 
-export function useStackStream(stack: Ref<Stack>): LogStreamSource {
+export function useStackStream(stack: Ref): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -59,7 +59,7 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
+export function useGroupedStream(group: Ref): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -72,7 +72,7 @@ export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource
   return useLogStream(url);
 }
 
-export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
+export function useMergedStream(containers: Ref): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -89,7 +89,7 @@ export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
   return useLogStream(url);
 }
 
-export function useServiceStream(service: Ref<Service>): LogStreamSource {
+export function useServiceStream(service: Ref): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
@@ -102,12 +102,12 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
   return useLogStream(url);
 }
 
-export type LogStreamSource = ReturnType<typeof useLogStream>;
+export type LogStreamSource = ReturnType;
 
-function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
-  let messages: LogEntry<string | JSONObject>[] = $ref([]);
-  let buffer: LogEntry<string | JSONObject>[] = $ref([]);
-  const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
+function useLogStream(url: Ref, loadMoreUrl?: Ref) {
+  let messages: LogEntry[] = $ref([]);
+  let buffer: LogEntry[] = $ref([]);
+  const scrollingPaused = $ref(inject("scrollingPaused") as Ref);
 
   function flushNow() {
     if (messages.length > config.maxLogs) {
@@ -115,11 +115,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         console.log("Skipping ", buffer.length, " log items");
         if (messages.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.at(-1) as SkippedLogsEntry;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
+          const lastItem = buffer.at(-1) as LogEntry;
           lastEvent.addSkippedEntries(buffer.length, lastItem);
         } else {
-          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
+          const firstItem = buffer.at(0) as LogEntry;
+          const lastItem = buffer.at(-1) as LogEntry;
           messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
         }
         buffer = [];
@@ -186,8 +186,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(url, () => connect(), { immediate: true });
 
+  let fetchingInProgress = false;
+
   async function loadOlderLogs() {
     if (!loadMoreUrl) return;
+    if (fetchingInProgress) return;
 
     const to = messages[0].date;
     const last = messages[Math.min(messages.length - 1, 300)].date;
@@ -196,7 +199,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     const abortController = new AbortController();
     const signal = abortController.signal;
-
+    fetchingInProgress = true;
     try {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const logs = await (
@@ -216,6 +219,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       }
     } catch (e) {
       console.error("Error loading older logs", e);
+    } finally {
+      fetchingInProgress = false;
     }
   }
 
