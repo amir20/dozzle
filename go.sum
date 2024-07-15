@@ -104,6 +104,8 @@ github.com/puzpuzpuz/xsync/v3 v3.3.0 h1:vX9b3zg+gIivLYwoHav6CoI9PylvXqdfhr/nFyu8
 github.com/puzpuzpuz/xsync/v3 v3.3.0/go.mod h1:VjzYrABPabuM4KyBh1Ftq6u8nhwY5tBPKP9jpmh0nnA=
 github.com/puzpuzpuz/xsync/v3 v3.3.1 h1:vZPJk3OOfoaSjy3cdTX3BZxhDCUVp9SqdHnd+ilGlbQ=
 github.com/puzpuzpuz/xsync/v3 v3.3.1/go.mod h1:VjzYrABPabuM4KyBh1Ftq6u8nhwY5tBPKP9jpmh0nnA=
+github.com/puzpuzpuz/xsync/v3 v3.4.0 h1:DuVBAdXuGFHv8adVXjWWZ63pJq+NRXOWVXlKDBZ+mJ4=
+github.com/puzpuzpuz/xsync/v3 v3.4.0/go.mod h1:VjzYrABPabuM4KyBh1Ftq6u8nhwY5tBPKP9jpmh0nnA=
 github.com/samber/lo v1.43.0 h1:ts0VhPi8+ZQZFVLv/2Vkgt2Cds05FM2v3Enmv+YMBtg=
 github.com/samber/lo v1.43.0/go.mod h1:w7R6fO7h2lrnx/s0bWcZ55vXJI89p5UPM6+kyDL373E=
 github.com/samber/lo v1.44.0 h1:5il56KxRE+GHsm1IR+sZ/6J42NODigFiqCWpSc2dybA=
