@@ -61,5 +61,5 @@ message Host {
   string osVersion = 7;
   string osType = 8;
   uint32 cpuCores = 9;
-  uint32 memory = 10;
+  uint64 memory = 10;
 }
