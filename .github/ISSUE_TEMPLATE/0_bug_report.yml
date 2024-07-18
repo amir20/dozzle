@@ -33,6 +33,12 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: ✅ Command used to run Dozzle
+      description: Please provide the command used to run Dozzle. Provide docker-compose.yml if applicable.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: 🐛 Describe the bug / provide steps to reproduce it
       description: A clear and concise description of what the bug is.
     validations:

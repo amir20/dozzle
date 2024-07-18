@@ -29,13 +29,19 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: ✅ Command used to run Dozzle
+      description: Please provide the command used to run Dozzle. Provide docker-compose.yml if applicable.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: Describe the performance issue you are seeing
     validations:
       required: true
   - type: textarea
     attributes:
       label: How many containers, hosts, agents, etc. are you using?
-      description: Any details to reproduce the issue would be helpful.
+      description: Any details to reproduce the issue would be helpful. If related to volume of logs, please provide a guesstimate of how many logs are being generated.
     validations:
       required: true
   - type: textarea
