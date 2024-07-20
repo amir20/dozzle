@@ -61,16 +61,16 @@ export const useContainerStore = defineStore("container", () => {
     });
     es.addEventListener("container-event", (e) => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
-      switch (event.name) {
-        case "die":
-          const container = allContainersById.value[event.actorId];
-          if (container) {
+      const container = allContainersById.value[event.actorId];
+      if (container) {
+        switch (event.name) {
+          case "die":
             container.state = "exited";
-          }
-          break;
-        case "destroy":
-          containers.value = containers.value.filter((c) => c.id !== event.actorId);
-          break;
+            break;
+          case "destroy":
+            container.state = "deleted";
+            break;
+        }
       }
     });
 
