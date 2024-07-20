@@ -186,4 +186,8 @@ watchEffect(() => {
 li.exited {
   @apply opacity-50;
 }
+
+li.deleted {
+  @apply hidden;
+}
 </style>
