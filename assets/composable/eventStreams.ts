@@ -226,5 +226,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   onScopeDispose(() => close());
 
-  return { ...$$({ messages }), loadOlderLogs };
+  const isLoadingMore = () => fetchingInProgress;
+
+  return { ...$$({ messages }), loadOlderLogs, isLoadingMore };
 }
