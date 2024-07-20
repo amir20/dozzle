@@ -1,5 +1,5 @@
 <template>
-  <InfiniteLoader :onLoadMore="fetchMore" :enabled="messages.length > 50"></InfiniteLoader>
+  <InfiniteLoader :onLoadMore="fetchMore" :enabled="enabled && messages.length > 50" />
   <slot :messages="messages"></slot>
 </template>
 
@@ -13,18 +13,23 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs } = streamSource($$(entity));
+const { messages, loadOlderLogs, isLoadingMore } = streamSource($$(entity));
 
 const beforeLoading = () => loadingMore(true);
 const afterLoading = () => loadingMore(false);
+const enabled = ref(true);
 
 defineExpose({
   clear: () => (messages.value = []),
 });
 
 const fetchMore = async () => {
-  beforeLoading();
-  await loadOlderLogs();
-  afterLoading();
+  if (!isLoadingMore()) {
+    beforeLoading();
+    enabled.value = false;
+    await loadOlderLogs();
+    afterLoading();
+    enabled.value = true;
+  }
 };
 </script>

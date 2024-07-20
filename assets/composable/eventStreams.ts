@@ -186,8 +186,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(url, () => connect(), { immediate: true });
 
+  let fetchingInProgress = false;
+
   async function loadOlderLogs() {
     if (!loadMoreUrl) return;
+    if (fetchingInProgress) return;
 
     const to = messages[0].date;
     const last = messages[Math.min(messages.length - 1, 300)].date;
@@ -196,7 +199,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     const abortController = new AbortController();
     const signal = abortController.signal;
-
+    fetchingInProgress = true;
     try {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const logs = await (
@@ -216,10 +219,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       }
     } catch (e) {
       console.error("Error loading older logs", e);
+    } finally {
+      fetchingInProgress = false;
     }
   }
 
   onScopeDispose(() => close());
 
-  return { ...$$({ messages }), loadOlderLogs };
+  const isLoadingMore = () => fetchingInProgress;
+
+  return { ...$$({ messages }), loadOlderLogs, isLoadingMore };
 }

@@ -14,7 +14,6 @@ const isLoading = ref(false);
 const root = ref<HTMLElement>();
 
 const observer = new IntersectionObserver(async (entries) => {
-  // console.log(entries, entries[0].intersectionRatio);
   if (entries[0].intersectionRatio <= 0) return;
   if (onLoadMore && enabled) {
     const scrollingParent = root.value?.closest("[data-scrolling]") || document.documentElement;
