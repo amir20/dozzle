@@ -1,10 +1,15 @@
 package docker_support
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
+	"sync"
 
 	"github.com/amir20/dozzle/internal/agent"
+	"github.com/amir20/dozzle/internal/docker"
+	"github.com/puzpuzpuz/xsync/v3"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -12,6 +17,8 @@ type RetriableClientManager struct {
 	clients      map[string]ClientService
 	failedAgents []string
 	certs        tls.Certificate
+	mu           sync.RWMutex
+	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
 }
 
 func NewRetriableClientManager(clients []ClientService, agents []string, certs tls.Certificate) *RetriableClientManager {
@@ -44,16 +51,43 @@ func NewRetriableClientManager(clients []ClientService, agents []string, certs t
 		clients:      clientMap,
 		failedAgents: failed,
 		certs:        certs,
+		subscribers:  xsync.NewMapOf[context.Context, chan<- docker.Host](),
 	}
 }
 
+func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- docker.Host) {
+	m.subscribers.Store(ctx, channel)
+
+	go func() {
+		<-ctx.Done()
+		m.subscribers.Delete(ctx)
+	}()
+}
+
 func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
+	m.mu.Lock()
 	errors := make([]error, 0)
 	if len(m.failedAgents) > 0 {
 		newFailed := make([]string, 0)
 		for _, endpoint := range m.failedAgents {
 			if agent, err := agent.NewClient(endpoint, m.certs); err == nil {
 				m.clients[agent.Host().ID] = NewAgentService(agent)
+
+				m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
+					host := agent.Host()
+					host.Available = true
+
+					// We don't want to block the subscribers in event.go
+					go func() {
+						select {
+						case channel <- host:
+						case <-ctx.Done():
+						}
+					}()
+
+					return true
+				})
+
 			} else {
 				log.Warnf("error creating agent client for %s: %v", endpoint, err)
 				errors = append(errors, err)
@@ -63,10 +97,15 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 		m.failedAgents = newFailed
 	}
 
+	m.mu.Unlock()
+
 	return m.List(), errors
 }
 
 func (m *RetriableClientManager) List() []ClientService {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
 	clients := make([]ClientService, 0, len(m.clients))
 	for _, client := range m.clients {
 		clients = append(clients, client)
@@ -75,14 +114,18 @@ func (m *RetriableClientManager) List() []ClientService {
 }
 
 func (m *RetriableClientManager) Find(id string) (ClientService, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
 	client, ok := m.clients[id]
 	return client, ok
+}
+func (m *RetriableClientManager) FailedAgents() []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.failedAgents
 }
 
 func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
-}
-
-func (m *RetriableClientManager) FailedAgents() []string {
-	return m.failedAgents
 }

@@ -27,6 +27,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Accel-Buffering", "no")
 
 	ctx := r.Context()
+	events := make(chan docker.ContainerEvent)
+	stats := make(chan docker.ContainerStat)
+	availableHosts := make(chan docker.Host)
+
+	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
+	h.multiHostService.SubscribeAvailableHosts(ctx, availableHosts)
 
 	allContainers, errors := h.multiHostService.ListAllContainers()
 
@@ -39,10 +45,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	events := make(chan docker.ContainerEvent)
-	stats := make(chan docker.ContainerStat)
-
-	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
 
 	if err := sendContainersJSON(allContainers, w); err != nil {
 		log.Errorf("error writing containers to event stream: %v", err)
@@ -54,6 +56,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		select {
+		case host := <-availableHosts:
+			bytes, _ := json.Marshal(host)
+			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
+				log.Errorf("error writing event to event stream: %v", err)
+			}
+			f.Flush()
 		case stat := <-stats:
 			bytes, _ := json.Marshal(stat)
 			if _, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes)); err != nil {

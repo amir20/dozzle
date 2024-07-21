@@ -8,7 +8,7 @@ export type Host = {
   available: boolean;
 };
 
-const hosts = computed(() =>
+const hosts = ref(
   config.hosts.reduce(
     (acc, item) => {
       acc[item.id] = item;
@@ -17,7 +17,6 @@ const hosts = computed(() =>
     {} as Record<string, Host>,
   ),
 );
-
 const updateHost = (host: Host) => {
   delete hosts.value[host.endpoint];
   hosts.value[host.id] = host;
