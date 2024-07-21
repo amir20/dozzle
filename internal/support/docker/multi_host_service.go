@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	log "github.com/sirupsen/logrus"
 )
@@ -35,6 +34,8 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 	m := &MultiHostService{
 		manager: manager,
 	}
+
+	log.Debugf("created multi host service manager %s", manager)
 
 	return m
 }
@@ -107,12 +108,12 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 // 	return m
 // }
 
-func closeAgent(agent *agent.Client) {
-	log.Tracef("closing agent %s", agent.Host())
-	if err := agent.Close(); err != nil {
-		log.Warnf("error closing agent: %v", err)
-	}
-}
+// func closeAgent(agent *agent.Client) {
+// 	log.Tracef("closing agent %s", agent.Host())
+// 	if err := agent.Close(); err != nil {
+// 		log.Warnf("error closing agent: %v", err)
+// 	}
+// }
 
 func (m *MultiHostService) FindContainer(host string, id string) (*containerService, error) {
 	client, ok := m.manager.Find(host)
@@ -214,11 +215,10 @@ func (m *MultiHostService) Hosts() []docker.Host {
 }
 
 func (m *MultiHostService) LocalHost() (docker.Host, error) {
-	host := docker.Host{}
 	for _, host := range m.Hosts() {
 		if host.Endpoint == "local" {
 			return host, nil
 		}
 	}
-	return host, fmt.Errorf("local host not found")
+	return docker.Host{}, fmt.Errorf("local host not found")
 }
