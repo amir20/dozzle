@@ -1,27 +1,32 @@
 export type Host = {
-  name: string;
   id: string;
+  name: string;
   nCPU: number;
   memTotal: number;
+  type: string;
+  endpoint: string;
   available: boolean;
 };
+
 const hosts = computed(() =>
   config.hosts.reduce(
     (acc, item) => {
-      acc[item.id] = { ...item, available: true };
+      acc[item.id] = item;
       return acc;
     },
     {} as Record<string, Host>,
   ),
 );
 
-const markHostAvailable = (id: string, available: boolean) => {
-  hosts.value[id].available = available;
+const updateHost = (host: Host) => {
+  delete hosts.value[host.endpoint];
+  hosts.value[host.id] = host;
+  return host;
 };
 
 export function useHosts() {
   return {
     hosts,
-    markHostAvailable,
+    updateHost,
   };
 }

@@ -33,7 +33,8 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errors {
 		log.Warnf("error listing containers: %v", err)
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
-			if _, err := fmt.Fprintf(w, "event: host-unavailable\ndata: %s\n\n", hostNotAvailableError.Host.ID); err != nil {
+			bytes, _ := json.Marshal(hostNotAvailableError.Host)
+			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
 				log.Errorf("error writing event to event stream: %v", err)
 			}
 		}

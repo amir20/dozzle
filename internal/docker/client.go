@@ -130,6 +130,7 @@ func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
 		MemTotal: info.MemTotal,
 		NCPU:     info.NCPU,
 		Endpoint: "local",
+		Type:     "local",
 	}
 
 	if hostname != "" {
@@ -171,6 +172,8 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	host.Type = "remote"
 
 	return NewClient(cli, filterArgs, host), nil
 }

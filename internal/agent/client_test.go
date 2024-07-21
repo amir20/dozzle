@@ -130,7 +130,8 @@ func init() {
 		Stats: utils.NewRingBuffer[docker.ContainerStat](300),
 	}, nil)
 
-	go RunServer(client, certs, lis)
+	server := NewServer(client, certs)
+	go server.Serve(lis)
 }
 
 func bufDialer(ctx context.Context, address string) (net.Conn, error) {

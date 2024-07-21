@@ -82,3 +82,7 @@ func (m *RetriableClientManager) Find(id string) (ClientService, bool) {
 func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
 }
+
+func (m *RetriableClientManager) FailedAgents() []string {
+	return m.failedAgents
+}

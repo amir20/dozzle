@@ -67,6 +67,7 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 			NCPU:     int(info.Host.CpuCores),
 			MemTotal: int64(info.Host.Memory),
 			Endpoint: endpoint,
+			Type:     "agent",
 		},
 	}, nil
 }

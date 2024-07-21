@@ -23,6 +23,7 @@ type ClientManager interface {
 	Find(id string) (ClientService, bool)
 	List() []ClientService
 	RetryAndList() ([]ClientService, []error)
+	FailedAgents() []string
 }
 
 type MultiHostService struct {
@@ -149,7 +150,9 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 		list, err := client.ListContainers()
 		if err != nil {
 			log.Debugf("error listing containers for host %s: %v", client.Host().ID, err)
-			errors = append(errors, &HostUnavailableError{Host: client.Host(), Err: err})
+			host := client.Host()
+			host.Available = false
+			errors = append(errors, &HostUnavailableError{Host: host, Err: err})
 			continue
 		}
 
@@ -208,7 +211,19 @@ func (m *MultiHostService) Hosts() []docker.Host {
 	clients := m.manager.List()
 	hosts := make([]docker.Host, 0, len(clients))
 	for _, client := range clients {
-		hosts = append(hosts, client.Host())
+		host := client.Host()
+		host.Available = true
+		hosts = append(hosts, host)
+	}
+
+	for _, endpoint := range m.manager.FailedAgents() {
+		hosts = append(hosts, docker.Host{
+			ID:        endpoint,
+			Name:      endpoint,
+			Endpoint:  endpoint,
+			Available: false,
+			Type:      "agent",
+		})
 	}
 
 	return hosts
@@ -216,7 +231,7 @@ func (m *MultiHostService) Hosts() []docker.Host {
 
 func (m *MultiHostService) LocalHost() (docker.Host, error) {
 	for _, host := range m.Hosts() {
-		if host.Endpoint == "local" {
+		if host.Type == "local" {
 			return host, nil
 		}
 	}

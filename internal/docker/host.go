@@ -21,6 +21,8 @@ type Host struct {
 	NCPU       int      `json:"nCPU"`
 	MemTotal   int64    `json:"memTotal"`
 	Endpoint   string   `json:"endpoint"`
+	Type       string   `json:"type"`
+	Available  bool     `json:"available"`
 }
 
 func (h Host) String() string {
