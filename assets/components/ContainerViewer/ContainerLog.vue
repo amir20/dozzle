@@ -11,10 +11,9 @@
         </a>
       </div>
     </template>
-    <template #default="{ setLoading }">
+    <template #default>
       <ViewerWithSource
         ref="viewer"
-        @loading-more="setLoading($event)"
         :stream-source="useContainerStream"
         :entity="container"
         :visible-keys="visibleKeys"

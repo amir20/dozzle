@@ -1,11 +1,5 @@
 <template>
-  <EventSource
-    ref="source"
-    #default="{ messages }"
-    @loading-more="loadingMore($event)"
-    :stream-source="streamSource"
-    :entity="entity"
-  >
+  <EventSource ref="source" #default="{ messages }" :stream-source="streamSource" :entity="entity">
     <LogViewer :messages="messages" :visible-keys="visibleKeys" :show-container-name="showContainerName" />
   </EventSource>
 </template>
@@ -20,8 +14,6 @@ const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
   showContainerName: boolean;
   entity: T;
 }>();
-
-const loadingMore = defineEmit<[value: boolean]>();
 
 const source = $ref<InstanceType<typeof LogEventSource>>();
 

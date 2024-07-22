@@ -10,10 +10,9 @@
         <MultiContainerStat class="ml-auto" :containers="containers" />
       </div>
     </template>
-    <template #default="{ setLoading }">
+    <template #default>
       <ViewerWithSource
         ref="viewer"
-        @loading-more="setLoading($event)"
         :stream-source="useMergedStream"
         :entity="containers"
         :visible-keys="visibleKeys"

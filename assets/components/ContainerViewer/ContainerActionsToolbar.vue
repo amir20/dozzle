@@ -115,7 +115,7 @@ const { container } = defineProps<{ container: Container }>();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 const downloadParams = computed(() =>
-  Object.entries(streamConfig)
+  Object.entries(toValue(streamConfig))
     .filter(([, value]) => value)
     .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {}),
 );
