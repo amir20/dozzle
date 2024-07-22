@@ -16,10 +16,9 @@
         <MultiContainerStat class="ml-auto" :containers="stack.containers" />
       </div>
     </template>
-    <template #default="{ setLoading }">
+    <template #default>
       <ViewerWithSource
         ref="viewer"
-        @loading-more="setLoading($event)"
         :stream-source="useStackStream"
         :entity="stack"
         :visible-keys="visibleKeys"

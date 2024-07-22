@@ -2,16 +2,21 @@ import { Container } from "@/models/Container";
 
 type LogContext = {
   streamConfig: { stdout: boolean; stderr: boolean };
-  containers: Ref<Container[]>;
+  containers: Container[];
+  loadingMore: boolean;
 };
 
 export const loggingContextKey = Symbol("loggingContext") as InjectionKey<LogContext>;
 
 export const provideLoggingContext = (containers: Ref<Container[]>) => {
-  provide(loggingContextKey, {
-    streamConfig: reactive({ stdout: true, stderr: true }),
-    containers,
-  });
+  provide(
+    loggingContextKey,
+    reactive({
+      streamConfig: { stdout: true, stderr: true },
+      containers,
+      loadingMore: false,
+    }),
+  );
 };
 
 export const useLoggingContext = () => {
@@ -19,5 +24,5 @@ export const useLoggingContext = () => {
   if (!context) {
     throw new Error("No logging context provided");
   }
-  return context;
+  return toRefs(context);
 };

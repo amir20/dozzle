@@ -26,7 +26,7 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
-    const params = Object.entries(streamConfig)
+    const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(
@@ -35,7 +35,7 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
   });
 
   const loadMoreUrl = computed(() => {
-    const params = Object.entries(streamConfig)
+    const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(
@@ -50,7 +50,7 @@ export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
-    const params = Object.entries(streamConfig)
+    const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(`/api/stacks/${stack.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
@@ -63,7 +63,7 @@ export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
-    const params = Object.entries(streamConfig)
+    const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(`/api/groups/${group.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
@@ -77,7 +77,7 @@ export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
 
   const url = computed(() => {
     const params = [
-      ...Object.entries(streamConfig).map(([key, value]) => [key, value ? "1" : "0"]),
+      ...Object.entries(toValue(streamConfig)).map(([key, value]) => [key, value ? "1" : "0"]),
       ...containers.value.map((c) => ["id", c.id]),
     ];
 
@@ -93,7 +93,7 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
   const { streamConfig } = useLoggingContext();
 
   const url = computed(() => {
-    const params = Object.entries(streamConfig)
+    const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(`/api/services/${service.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);

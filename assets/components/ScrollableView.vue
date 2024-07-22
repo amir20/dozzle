@@ -8,12 +8,11 @@
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
       <div class="invisible mr-28 text-right md:visible" v-show="paused">
-        <ScrollProgress :indeterminate="loading" :auto-hide="!loading" class="!fixed top-16 z-10" />
+        <ScrollProgress :indeterminate="loadingMore" :auto-hide="!loadingMore" class="!fixed top-16 z-10" />
       </div>
       <div ref="scrollableContent">
-        <slot :setLoading="setLoading"></slot>
+        <slot></slot>
       </div>
-
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
@@ -37,11 +36,12 @@ const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
 let paused = $ref(false);
 let hasMore = $ref(false);
-let loading = $ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
 provide("scrollingPaused", $$(paused));
+
+const { loadingMore } = useLoggingContext();
 
 const mutationObserver = new MutationObserver((e) => {
   if (!paused) {
@@ -68,10 +68,6 @@ onMounted(() => {
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   scrollObserver.value?.scrollIntoView({ behavior });
   hasMore = false;
-}
-
-function setLoading(value: boolean) {
-  loading = value;
 }
 </script>
 <style scoped lang="postcss">
