@@ -62,12 +62,14 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 		conn:   conn,
 
 		host: docker.Host{
-			ID:       info.Host.Id,
-			Name:     info.Host.Name,
-			NCPU:     int(info.Host.CpuCores),
-			MemTotal: int64(info.Host.Memory),
-			Endpoint: endpoint,
-			Type:     "agent",
+			ID:            info.Host.Id,
+			Name:          info.Host.Name,
+			NCPU:          int(info.Host.CpuCores),
+			MemTotal:      int64(info.Host.Memory),
+			Endpoint:      endpoint,
+			Type:          "agent",
+			DockerVersion: info.Host.DockerVersion,
+			AgentVersion:  info.Host.AgentVersion,
 		},
 	}, nil
 }

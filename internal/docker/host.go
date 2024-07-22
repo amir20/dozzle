@@ -11,18 +11,20 @@ import (
 )
 
 type Host struct {
-	Name       string   `json:"name"`
-	ID         string   `json:"id"`
-	URL        *url.URL `json:"-"`
-	CertPath   string   `json:"-"`
-	CACertPath string   `json:"-"`
-	KeyPath    string   `json:"-"`
-	ValidCerts bool     `json:"-"`
-	NCPU       int      `json:"nCPU"`
-	MemTotal   int64    `json:"memTotal"`
-	Endpoint   string   `json:"endpoint"`
-	Type       string   `json:"type"`
-	Available  bool     `json:"available"`
+	Name          string   `json:"name"`
+	ID            string   `json:"id"`
+	URL           *url.URL `json:"-"`
+	CertPath      string   `json:"-"`
+	CACertPath    string   `json:"-"`
+	KeyPath       string   `json:"-"`
+	ValidCerts    bool     `json:"-"`
+	NCPU          int      `json:"nCPU"`
+	MemTotal      int64    `json:"memTotal"`
+	Endpoint      string   `json:"endpoint"`
+	DockerVersion string   `json:"dockerVersion"`
+	AgentVersion  string   `json:"agentVersion,omitempty"`
+	Type          string   `json:"type"`
+	Available     bool     `json:"available"`
 }
 
 func (h Host) String() string {

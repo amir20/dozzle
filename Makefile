@@ -55,5 +55,5 @@ $(GEN_DIR)/%.pb.go: $(PROTO_DIR)/%.proto
 
 .PHONY: push
 push: docker
-	@docker tag amir20/dozzle:latest amir20/dozzle:agent
-	@docker push amir20/dozzle:agent
+	@docker tag amir20/dozzle:latest amir20/dozzle:local-test
+	@docker push amir20/dozzle:local-test

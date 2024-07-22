@@ -4,14 +4,20 @@
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="overflow-hidden">
           <div class="truncate text-xl font-semibold">
-            {{ host.name }} <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+            {{ host.name }}
+
+            <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+            <span class="badge badge-success badge-xs p-1.5" v-else-if="host.type == 'agent'"
+              >Agent {{ host.agentVersion }}</span
+            >
           </div>
-          <ul class="flex flex-row gap-2 text-sm md:gap-4">
+          <ul class="flex flex-row gap-2 text-sm md:gap-3">
             <li><ph:cpu class="inline-block" /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
             <li>
               <ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }}
               <span class="mobile-hidden">total</span>
             </li>
+            <li><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
           </ul>
           <div class="text-sm">
             <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}

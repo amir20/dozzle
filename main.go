@@ -57,10 +57,11 @@ func main() {
 			}
 			io.WriteString(tempFile, listener.Addr().String())
 			go cli.StartEvent(args, "", client, "agent")
-			server := agent.NewServer(client, certs)
+			server := agent.NewServer(client, certs, args.Version())
 			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer stop()
 			go func() {
+				log.Infof("Dozzle agent version %s", args.Version())
 				log.Infof("Agent listening on %s", listener.Addr().String())
 				if err := server.Serve(listener); err != nil {
 					log.Fatalf("failed to serve: %v", err)
@@ -69,7 +70,7 @@ func main() {
 			<-ctx.Done()
 			stop()
 			log.Info("Shutting down agent")
-			server.GracefulStop()
+			server.Stop()
 			log.Debugf("deleting %s", tempFile.Name())
 			os.Remove(tempFile.Name())
 
@@ -156,7 +157,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		server := agent.NewServer(localClient, certs)
+		server := agent.NewServer(localClient, certs, args.Version())
 		go func() {
 			log.Infof("Agent listening on %s", listener.Addr().String())
 			if err := server.Serve(listener); err != nil {

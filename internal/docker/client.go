@@ -89,6 +89,7 @@ func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
+	host.DockerVersion = info.ServerVersion
 
 	return &httpClient{
 		cli:     cli,

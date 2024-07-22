@@ -62,4 +62,6 @@ message Host {
   string osType = 8;
   uint32 cpuCores = 9;
   uint64 memory = 10;
+  string agentVersion = 11;
+  string dockerVersion = 12;
 }
