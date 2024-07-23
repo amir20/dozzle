@@ -173,9 +173,11 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
+		log.Debug("Using forward proxy authentication")
 		provider = web.FORWARD_PROXY
 		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName)
 	} else if args.AuthProvider == "simple" {
+		log.Debug("Using simple authentication")
 		provider = web.SIMPLE
 
 		path, err := filepath.Abs("./data/users.yml")
@@ -186,11 +188,15 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 			log.Fatalf("Could not find users.yml file at %s", path)
 		}
 
-		users, err := auth.ReadUsersFromFile(path)
+		log.Debugf("Reading users from %s", path)
+
+		db, err := auth.ReadUsersFromFile(path)
 		if err != nil {
 			log.Fatalf("Could not read users.yml file at %s: %s", path, err)
 		}
-		authorizer = auth.NewSimpleAuth(users)
+
+		log.Debugf("Read %d users", len(db.Users))
+		authorizer = auth.NewSimpleAuth(db)
 	}
 
 	config := web.Config{
