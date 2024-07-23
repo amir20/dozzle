@@ -31,9 +31,9 @@ function createFuzzySearchModal() {
           initialState: {
             container: {
               containers: [
-                new Container("123", new Date(), "image", "test", "command", "host", {}, "status", "running", []),
-                new Container("345", new Date(), "image", "foo bar", "command", "host", {}, "status", "running", []),
-                new Container("567", new Date(), "image", "baz", "command", "host", {}, "status", "running", []),
+                new Container("123", new Date(), "image", "test", "command", "host", {}, "running", []),
+                new Container("345", new Date(), "image", "foo bar", "command", "host", {}, "running", []),
+                new Container("567", new Date(), "image", "baz", "command", "host", {}, "running", []),
               ],
             },
           },

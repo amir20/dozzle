@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	log "github.com/sirupsen/logrus"
 )
@@ -59,14 +60,24 @@ func (s *ContainerStore) checkConnectivity() error {
 			return err
 		} else {
 			s.containers.Clear()
-			lop.ForEach(containers, func(c Container, _ int) {
-				if c.State == "running" {
+
+			for _, c := range containers {
+				s.containers.Store(c.ID, &c)
+			}
+
+			running := lo.Filter(containers, func(item Container, index int) bool {
+				return item.State == "running"
+			})
+
+			chunks := lo.Chunk(running, 100)
+
+			for _, chunk := range chunks {
+
+				lop.ForEach(chunk, func(c Container, _ int) {
 					container, _ := s.client.FindContainer(c.ID)
 					s.containers.Store(c.ID, &container)
-				} else {
-					s.containers.Store(c.ID, &c)
-				}
-			})
+				})
+			}
 		}
 	}
 

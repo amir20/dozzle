@@ -121,7 +121,6 @@ export const useContainerStore = defineStore("container", () => {
 
     existingContainers.forEach((c) => {
       const existing = allContainersById.value[c.id];
-      existing.status = c.status;
       existing.state = c.state;
       existing.health = c.health;
     });
@@ -137,7 +136,6 @@ export const useContainerStore = defineStore("container", () => {
           c.command,
           c.host,
           c.labels,
-          c.status,
           c.state,
           c.stats,
           c.group,

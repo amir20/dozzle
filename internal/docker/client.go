@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -178,35 +177,12 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 
 func (d *httpClient) FindContainer(id string) (Container, error) {
 	log.Debugf("finding container with id: %s", id)
-	var container Container
-	containers, err := d.ListContainers()
-	if err != nil {
-		return container, err
-	}
-
-	found := false
-	for _, c := range containers {
-		if c.ID == id {
-			container = c
-			found = true
-			break
-		}
-	}
-	if !found {
-		return container, fmt.Errorf("unable to find container with id: %s", id)
-	}
-
-	if json, err := d.cli.ContainerInspect(context.Background(), container.ID); err == nil {
-		container.Tty = json.Config.Tty
-		if startedAt, err := time.Parse(time.RFC3339Nano, json.State.StartedAt); err == nil {
-			utc := startedAt.UTC()
-			container.StartedAt = &utc
-		}
+	if json, err := d.cli.ContainerInspect(context.Background(), id); err == nil {
+		return newContainerFromJSON(json, d.host.ID), nil
 	} else {
-		return container, err
+		return Container{}, err
 	}
 
-	return container, nil
 }
 
 func (d *httpClient) ContainerActions(action ContainerAction, containerID string) error {
@@ -223,6 +199,7 @@ func (d *httpClient) ContainerActions(action ContainerAction, containerID string
 }
 
 func (d *httpClient) ListContainers() ([]Container, error) {
+	log.Debugf("listing containers with filters: %v", d.filters)
 	containerListOptions := container.ListOptions{
 		Filters: d.filters,
 		All:     true,
@@ -234,33 +211,7 @@ func (d *httpClient) ListContainers() ([]Container, error) {
 
 	var containers = make([]Container, 0, len(list))
 	for _, c := range list {
-		name := "no name"
-		if len(c.Names) > 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-
-		group := ""
-		if c.Labels["dev.dozzle.group"] != "" {
-			group = c.Labels["dev.dozzle.group"]
-		}
-
-		container := Container{
-			ID:      c.ID[:12],
-			Names:   c.Names,
-			Name:    name,
-			Image:   c.Image,
-			ImageID: c.ImageID,
-			Command: c.Command,
-			Created: time.Unix(c.Created, 0),
-			State:   c.State,
-			Status:  c.Status,
-			Host:    d.host.ID,
-			Health:  findBetweenParentheses(c.Status),
-			Labels:  c.Labels,
-			Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
-			Group:   group,
-		}
-		containers = append(containers, container)
+		containers = append(containers, newContainer(c, d.host.ID))
 	}
 
 	sort.Slice(containers, func(i, j int) bool {
@@ -398,11 +349,69 @@ func (d *httpClient) SystemInfo() system.Info {
 	return d.info
 }
 
-var PARENTHESIS_RE = regexp.MustCompile(`\(([a-zA-Z]+)\)`)
-
-func findBetweenParentheses(s string) string {
-	if results := PARENTHESIS_RE.FindStringSubmatch(s); results != nil {
-		return results[1]
+func newContainer(c types.Container, host string) Container {
+	name := "no name"
+	if len(c.Names) > 0 {
+		name = strings.TrimPrefix(c.Names[0], "/")
 	}
-	return ""
+
+	group := ""
+	if c.Labels["dev.dozzle.group"] != "" {
+		group = c.Labels["dev.dozzle.group"]
+	}
+	return Container{
+		ID:      c.ID[:12],
+		Name:    name,
+		Image:   c.Image,
+		ImageID: c.ImageID,
+		Command: c.Command,
+		Created: time.Unix(c.Created, 0),
+		State:   c.State,
+		Host:    host,
+		Labels:  c.Labels,
+		Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
+		Group:   group,
+	}
+}
+
+func newContainerFromJSON(c types.ContainerJSON, host string) Container {
+	name := "no name"
+	if len(c.Name) > 0 {
+		name = strings.TrimPrefix(c.Name, "/")
+	}
+
+	group := ""
+	if c.Config.Labels["dev.dozzle.group"] != "" {
+		group = c.Config.Labels["dev.dozzle.group"]
+	}
+
+	container := Container{
+		ID:      c.ID[:12],
+		Name:    name,
+		Image:   c.Image,
+		ImageID: c.Image,
+		Command: strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
+		State:   c.State.Status,
+		Host:    host,
+		Labels:  c.Config.Labels,
+		Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
+		Group:   group,
+		Tty:     c.Config.Tty,
+	}
+
+	if startedAt, err := time.Parse(time.RFC3339Nano, c.State.StartedAt); err == nil {
+		utc := startedAt.UTC()
+		container.StartedAt = &utc
+	}
+
+	if createdAt, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {
+		utc := createdAt.UTC()
+		container.Created = utc
+	}
+
+	if c.State.Health != nil {
+		container.Health = strings.ToLower(c.State.Health.Status)
+	}
+
+	return container
 }
