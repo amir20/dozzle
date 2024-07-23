@@ -183,22 +183,10 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 }
 
 func Test_dockerClient_FindContainer_happy(t *testing.T) {
-	containers := []types.Container{
-		{
-			ID:    "abcdefghijklmnopqrst",
-			Names: []string{"/z_test_container"},
-		},
-		{
-			ID:    "1234567890_abcxyzdef",
-			Names: []string{"/a_test_container"},
-		},
-	}
-
 	proxy := new(mockedProxy)
-	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 
 	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{State: state}, Config: &container.Config{Tty: false}}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state}, Config: &container.Config{Tty: false}}
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 
 	client := &httpClient{proxy, filters.NewArgs(), Host{ID: "localhost"}, system.Info{}}
@@ -210,20 +198,10 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 
 	proxy.AssertExpectations(t)
 }
-func Test_dockerClient_FindContainer_error(t *testing.T) {
-	containers := []types.Container{
-		{
-			ID:    "abcdefghijklmnopqrst",
-			Names: []string{"/z_test_container"},
-		},
-		{
-			ID:    "1234567890_abcxyzdef",
-			Names: []string{"/a_test_container"},
-		},
-	}
 
+func Test_dockerClient_FindContainer_error(t *testing.T) {
 	proxy := new(mockedProxy)
-	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
+	proxy.On("ContainerInspect", mock.Anything, "not_valid").Return(types.ContainerJSON{}, errors.New("not found"))
 	client := &httpClient{proxy, filters.NewArgs(), Host{ID: "localhost"}, system.Info{}}
 
 	_, err := client.FindContainer("not_valid")
@@ -233,24 +211,12 @@ func Test_dockerClient_FindContainer_error(t *testing.T) {
 }
 
 func Test_dockerClient_ContainerActions_happy(t *testing.T) {
-	containers := []types.Container{
-		{
-			ID:    "abcdefghijklmnopqrst",
-			Names: []string{"/z_test_container"},
-		},
-		{
-			ID:    "1234567890_abcxyzdef",
-			Names: []string{"/a_test_container"},
-		},
-	}
-
 	proxy := new(mockedProxy)
 	client := &httpClient{proxy, filters.NewArgs(), Host{ID: "localhost"}, system.Info{}}
 
 	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{State: state}, Config: &container.Config{Tty: false}}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijkl", State: state}, Config: &container.Config{Tty: false}}
 
-	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
 	proxy.On("ContainerStop", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
@@ -272,21 +238,10 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 }
 
 func Test_dockerClient_ContainerActions_error(t *testing.T) {
-	containers := []types.Container{
-		{
-			ID:    "abcdefghijklmnopqrst",
-			Names: []string{"/z_test_container"},
-		},
-		{
-			ID:    "1234567890_abcxyzdef",
-			Names: []string{"/a_test_container"},
-		},
-	}
 
 	proxy := new(mockedProxy)
 	client := &httpClient{proxy, filters.NewArgs(), Host{ID: "localhost"}, system.Info{}}
-
-	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
+	proxy.On("ContainerInspect", mock.Anything, "random-id").Return(types.ContainerJSON{}, errors.New("not found"))
 	proxy.On("ContainerStart", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))
 	proxy.On("ContainerStop", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))
 	proxy.On("ContainerRestart", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))

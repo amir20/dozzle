@@ -34,7 +34,7 @@ func Test_handler_download_logs(t *testing.T) {
 		time.Sleep(1 * time.Second)
 	})
 	mockedClient.On("ListContainers").Return([]docker.Container{
-		{ID: id, Name: "test"},
+		{ID: id, Name: "test", State: "running"},
 	}, nil)
 
 	handler := createDefaultHandler(mockedClient)
