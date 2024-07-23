@@ -60,7 +60,7 @@ func (s *ContainerStore) checkConnectivity() error {
 		} else {
 			s.containers.Clear()
 			lop.ForEach(containers, func(c Container, _ int) {
-				if c.Status == "running" {
+				if c.State == "running" {
 					container, _ := s.client.FindContainer(c.ID)
 					s.containers.Store(c.ID, &container)
 				} else {
