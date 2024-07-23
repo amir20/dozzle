@@ -156,7 +156,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 		Follow:     true,
 		Tail:       "100",
 		Timestamps: true,
-		Since:      "2021-01-01T00:00:00.001Z"}
+		Since:      "2020-12-31T23:59:59.95Z"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
 	client := &httpClient{proxy, filters.NewArgs(), Host{ID: "localhost"}, system.Info{}}
