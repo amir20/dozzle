@@ -94,16 +94,19 @@ func init() {
 	client = &MockedClient{}
 	client.On("ListContainers").Return([]docker.Container{
 		{
-			ID:   "123456",
-			Name: "test",
-			Host: "localhost",
+			ID:    "123456",
+			Name:  "test",
+			Host:  "localhost",
+			State: "running",
 		},
 	}, nil)
+
 	client.On("Host").Return(docker.Host{
 		ID:       "localhost",
 		Endpoint: "local",
 		Name:     "local",
 	})
+
 	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		time.Sleep(5 * time.Second)
 	})
@@ -116,7 +119,6 @@ func init() {
 		ImageID:   "test",
 		StartedAt: &time.Time{},
 		State:     "running",
-		Status:    "running",
 		Health:    "healthy",
 		Group:     "test",
 		Command:   "test",
@@ -151,7 +153,6 @@ func TestFindContainer(t *testing.T) {
 		ImageID:   "test",
 		StartedAt: &time.Time{},
 		State:     "running",
-		Status:    "running",
 		Health:    "healthy",
 		Group:     "test",
 		Command:   "test",
@@ -181,7 +182,6 @@ func TestListContainers(t *testing.T) {
 			ImageID:   "test",
 			StartedAt: &time.Time{},
 			State:     "running",
-			Status:    "running",
 			Health:    "healthy",
 			Group:     "test",
 			Command:   "test",

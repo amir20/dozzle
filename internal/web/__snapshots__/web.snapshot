@@ -132,7 +132,7 @@ data: []
 
 
 event: containers-changed
-data: [{"id":"1234","names":null,"name":"test","image":"test","imageId":"","command":"","created":"0001-01-01T00:00:00Z","state":"","status":"","stats":[]}]
+data: []
 
 
 event: container-event

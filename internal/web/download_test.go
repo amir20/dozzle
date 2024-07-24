@@ -25,7 +25,7 @@ func Test_handler_download_logs(t *testing.T) {
 
 	data := makeMessage("INFO Testing logs...", docker.STDOUT)
 
-	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil).Once()
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id, Tty: false}, nil)
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, docker.STDOUT).Return(io.NopCloser(bytes.NewReader(data)), nil)
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
@@ -34,7 +34,7 @@ func Test_handler_download_logs(t *testing.T) {
 		time.Sleep(1 * time.Second)
 	})
 	mockedClient.On("ListContainers").Return([]docker.Container{
-		{ID: id, Name: "test"},
+		{ID: id, Name: "test", State: "running"},
 	}, nil)
 
 	handler := createDefaultHandler(mockedClient)

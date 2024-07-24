@@ -71,16 +71,7 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 }
 
 func (d *dockerClientService) FindContainer(id string) (docker.Container, error) {
-	container, err := d.store.FindContainer(id)
-	if err != nil {
-		if err == docker.ErrContainerNotFound {
-			return d.client.FindContainer(id)
-		} else {
-			return docker.Container{}, err
-		}
-	}
-
-	return container, nil
+	return d.store.FindContainer(id)
 }
 
 func (d *dockerClientService) ContainerAction(container docker.Container, action docker.ContainerAction) error {

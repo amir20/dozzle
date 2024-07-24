@@ -11,7 +11,6 @@ import (
 // Container represents an internal representation of docker containers
 type Container struct {
 	ID        string                           `json:"id"`
-	Names     []string                         `json:"names"`
 	Name      string                           `json:"name"`
 	Image     string                           `json:"image"`
 	ImageID   string                           `json:"imageId"`
@@ -19,7 +18,6 @@ type Container struct {
 	Created   time.Time                        `json:"created"`
 	StartedAt *time.Time                       `json:"startedAt,omitempty"`
 	State     string                           `json:"state"`
-	Status    string                           `json:"status"`
 	Health    string                           `json:"health,omitempty"`
 	Host      string                           `json:"host,omitempty"`
 	Tty       bool                             `json:"-"`

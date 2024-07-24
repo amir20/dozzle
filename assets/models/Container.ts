@@ -35,7 +35,6 @@ export class Container {
     public readonly command: string,
     public readonly host: string,
     public readonly labels = {} as Record<string, string>,
-    public status: string,
     public state: ContainerState,
     stats: Stat[],
     public readonly group?: string,
