@@ -99,6 +99,7 @@ func (s *ContainerStore) ListContainers() ([]Container, error) {
 }
 
 func (s *ContainerStore) FindContainer(id string) (Container, error) {
+	s.wg.Wait()
 	container, ok := s.containers.Load(id)
 
 	if ok {
