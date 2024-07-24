@@ -21,7 +21,7 @@ type RetriableClientManager struct {
 	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
 }
 
-func NewRetriableClientManager(clients []ClientService, agents []string, certs tls.Certificate) *RetriableClientManager {
+func NewRetriableClientManager(agents []string, certs tls.Certificate, clients ...ClientService) *RetriableClientManager {
 	log.Debugf("creating retriable client manager with %d clients and %d agents", len(clients), len(agents))
 
 	clientMap := make(map[string]ClientService)

@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/tls"
 	"time"
 
 	"io"
@@ -85,7 +86,8 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	multiHostService := docker_support.NewMultiHostService([]docker_support.ClientService{docker_support.NewDockerClientService(client)})
+	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(client))
+	multiHostService := docker_support.NewMultiHostService(manager)
 	return createRouter(&handler{
 		multiHostService: multiHostService,
 		content:          content,

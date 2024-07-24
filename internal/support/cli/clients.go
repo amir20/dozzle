@@ -51,6 +51,6 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		log.Fatalf("Could not read certificates: %v", err)
 	}
 
-	clientManager := docker_support.NewRetriableClientManager(clients, args.RemoteAgent, certs)
+	clientManager := docker_support.NewRetriableClientManager(args.RemoteAgent, certs, clients...)
 	return docker_support.NewMultiHostService(clientManager)
 }

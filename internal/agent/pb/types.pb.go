@@ -30,7 +30,7 @@ type Container struct {
 	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name    string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Image   string                 `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
-	Status  string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Status  string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // deprecated
 	State   string                 `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
 	ImageId string                 `protobuf:"bytes,6,opt,name=ImageId,proto3" json:"ImageId,omitempty"`
 	Created *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created,proto3" json:"created,omitempty"`

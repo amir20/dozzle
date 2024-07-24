@@ -130,7 +130,7 @@ func init() {
 		Stats: utils.NewRingBuffer[docker.ContainerStat](300),
 	}, nil)
 
-	server := NewServer(client, certs)
+	server := NewServer(client, certs, "test")
 	go server.Serve(lis)
 }
 
