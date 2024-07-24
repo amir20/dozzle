@@ -150,8 +150,8 @@ func main() {
 		if err != nil {
 			log.Fatalf("Could not read certificates: %v", err)
 		}
-		panic("Not implemented")
-		// multiHostService = docker_support.NewSwarmService(localClient, certs)
+		manager := docker_support.NewSwarmClientManager(localClient, certs)
+		multiHostService = docker_support.NewMultiHostService(manager)
 		log.Infof("Starting in Swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {

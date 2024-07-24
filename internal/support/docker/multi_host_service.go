@@ -42,60 +42,6 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 	return m
 }
 
-// func NewSwarmService(localClient docker.Client, certificates tls.Certificate) *MultiHostService {
-// 	discover := func() {
-// 		ips, err := net.LookupIP("tasks.dozzle")
-// 		if err != nil {
-// 			log.Fatalf("error looking up swarm services: %v", err)
-// 		}
-
-// 		found := 0
-// 		replaced := 0
-// 		for _, ip := range ips {
-// 			clientAgent, err := agent.NewClient(ip.String()+":7007", certificates)
-// 			if err != nil {
-// 				log.Warnf("error creating client for %s: %v", ip, err)
-// 				continue
-// 			}
-
-// 			if clientAgent.Host().ID == localClient.Host().ID {
-// 				closeAgent(clientAgent)
-// 				continue
-// 			}
-
-// 			service := NewAgentService(clientAgent)
-// 			if existing, ok := m.clients[service.Host().ID]; !ok {
-// 				log.Debugf("adding swarm service %s", service.Host().ID)
-// 				m.clients[service.Host().ID] = service
-// 				found++
-// 			} else if existing.Host().Endpoint != service.Host().Endpoint {
-// 				log.Debugf("swarm service %s already exists with different endpoint %s and old value %s", service.Host().ID, service.Host().Endpoint, existing.Host().Endpoint)
-// 				delete(m.clients, existing.Host().ID)
-// 				m.clients[service.Host().ID] = service
-// 				replaced++
-// 				if existingAgent, ok := existing.(*agentService); ok {
-// 					closeAgent(existingAgent.client)
-// 				}
-// 			} else {
-// 				closeAgent(clientAgent)
-// 			}
-// 		}
-
-// 		if found > 0 {
-// 			log.Infof("found %d new dozzle replicas", found)
-// 		}
-// 		if replaced > 0 {
-// 			log.Infof("replaced %d dozzle replicas", replaced)
-// 		}
-// 	}
-
-// func closeAgent(agent *agent.Client) {
-// 	log.Tracef("closing agent %s", agent.Host())
-// 	if err := agent.Close(); err != nil {
-// 		log.Warnf("error closing agent: %v", err)
-// 	}
-// }
-
 func (m *MultiHostService) FindContainer(host string, id string) (*containerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
