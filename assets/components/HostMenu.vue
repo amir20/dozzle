@@ -15,7 +15,9 @@
       <ul class="menu p-0">
         <li v-for="host in hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
-            <ph:computer-tower />
+            <mdi:satellite-variant v-if="host.type == 'agent'" />
+            <ph:globe-simple v-else-if="host.type == 'remote'" />
+            <ph:computer-tower v-else />
             {{ host.name }}
             <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
           </a>
@@ -25,7 +27,6 @@
     <template #right>
       <ul class="containers menu p-0 [&_li.menu-title]:px-0">
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
-          <!-- @vue-ignore -->
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="font-light text-base-content/80">
               <component :is="icon" />

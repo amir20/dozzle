@@ -3,7 +3,7 @@ export type Host = {
   name: string;
   nCPU: number;
   memTotal: number;
-  type: string;
+  type: "agent" | "local" | "remote";
   endpoint: string;
   available: boolean;
   dockerVersion: string;

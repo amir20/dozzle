@@ -2,26 +2,31 @@
   <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
     <li v-for="host in hosts" class="card bg-base-lighter">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
-        <div class="overflow-hidden">
+        <div class="flex flex-col gap-2 overflow-hidden">
           <div class="truncate text-xl font-semibold">
             {{ host.name }}
 
-            <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-            <span class="badge badge-success badge-xs p-1.5" v-else-if="host.type == 'agent'"
-              >Agent {{ host.agentVersion }}</span
-            >
+            <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
+              <carbon:warning />
+              offline
+            </span>
+            <span class="badge badge-success badge-xs gap-2 p-2" v-else-if="host.type == 'agent'" title="Dozzle Agent">
+              <mdi:satellite-variant /> {{ host.agentVersion }}
+            </span>
           </div>
           <ul class="flex flex-row gap-2 text-sm md:gap-3">
-            <li><ph:cpu class="inline-block" /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
-            <li>
-              <ph:memory class="inline-block" /> {{ formatBytes(host.memTotal) }}
+            <li class="flex items-center gap-1"><ph:cpu /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
+            <li class="flex items-center gap-1">
+              <ph:memory /> {{ formatBytes(host.memTotal) }}
               <span class="mobile-hidden">total</span>
             </li>
-            <li><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
           </ul>
-          <div class="text-sm">
-            <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}
-          </div>
+          <ul class="flex flex-row gap-2 text-sm md:gap-3">
+            <li class="flex items-center gap-1">
+              <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}
+            </li>
+            <li class="flex items-center gap-1"><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
+          </ul>
         </div>
 
         <div class="flex flex-row gap-4 md:gap-8" v-if="weightedStats[host.id]">
