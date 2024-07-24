@@ -120,12 +120,30 @@ func (m *RetriableClientManager) Find(id string) (ClientService, bool) {
 	client, ok := m.clients[id]
 	return client, ok
 }
-func (m *RetriableClientManager) FailedAgents() []string {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return m.failedAgents
-}
 
 func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
+}
+
+func (m *RetriableClientManager) Hosts() []docker.Host {
+	clients := m.List()
+
+	hosts := make([]docker.Host, 0, len(clients))
+	for _, client := range clients {
+		host := client.Host()
+		host.Available = true
+		hosts = append(hosts, host)
+	}
+
+	for _, endpoint := range m.failedAgents {
+		hosts = append(hosts, docker.Host{
+			ID:        endpoint,
+			Name:      endpoint,
+			Endpoint:  endpoint,
+			Available: false,
+			Type:      "agent",
+		})
+	}
+
+	return hosts
 }

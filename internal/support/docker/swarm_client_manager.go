@@ -40,8 +40,6 @@ func localIP() string {
 }
 
 func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *SwarmClientManager {
-	log.Debugf("creating swarm client manager with local client")
-
 	clientMap := make(map[string]ClientService)
 	localService := NewDockerClientService(localClient)
 	clientMap[localClient.Host().ID] = localService
@@ -81,6 +79,8 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		return client.Host().Endpoint
 	})
 
+	log.Debugf("tasks.dozzle = %v, localIP = %s, clients.endpoints = %v", ips, m.localIP, lo.Keys(endpoints))
+
 	for _, ip := range ips {
 		if ip.String() == m.localIP {
 			log.Debugf("skipping local ip %s", ip.String())
@@ -100,7 +100,7 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		}
 
 		if agent.Host().ID == m.localClient.Host().ID {
-			log.Debugf("skipping local client")
+			log.Debugf("skipping local client with ID %s", agent.Host().ID)
 			if err := agent.Close(); err != nil {
 				log.Warnf("error closing local client: %v", err)
 			}
@@ -110,6 +110,22 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		client := NewAgentService(agent)
 		m.clients[agent.Host().ID] = client
 		log.Infof("added client for %s", agent.Host().ID)
+
+		m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
+			host := agent.Host()
+			host.Available = true
+			host.Type = "swarm"
+
+			// We don't want to block the subscribers in event.go
+			go func() {
+				select {
+				case channel <- host:
+				case <-ctx.Done():
+				}
+			}()
+
+			return true
+		})
 	}
 
 	m.mu.Unlock()
@@ -132,8 +148,19 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 	return client, ok
 }
 
-func (m *SwarmClientManager) FailedAgents() []string {
-	return nil
+func (m *SwarmClientManager) Hosts() []docker.Host {
+	clients := m.List()
+
+	hosts := make([]docker.Host, 0, len(clients))
+
+	for _, client := range clients {
+		host := client.Host()
+		host.Available = true
+		host.Type = "swarm"
+		hosts = append(hosts, host)
+	}
+
+	return hosts
 }
 
 func (m *SwarmClientManager) String() string {

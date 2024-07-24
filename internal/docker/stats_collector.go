@@ -56,7 +56,7 @@ func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
-		log.Debugf("scheduled to stop container stats collector %s", c.client.Host())
+		log.Tracef("scheduled to stop container stats collector %s", c.client.Host())
 		c.timer = time.AfterFunc(timeToStop, func() {
 			c.forceStop()
 		})
@@ -66,7 +66,7 @@ func (c *StatsCollector) Stop() {
 func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	log.Debugf("resetting timer for container stats collector %s", c.client.Host())
+	log.Tracef("resetting timer for container stats collector %s", c.client.Host())
 	if c.timer != nil {
 		c.timer.Stop()
 	}

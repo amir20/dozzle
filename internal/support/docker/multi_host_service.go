@@ -23,8 +23,8 @@ type ClientManager interface {
 	Find(id string) (ClientService, bool)
 	List() []ClientService
 	RetryAndList() ([]ClientService, []error)
-	FailedAgents() []string
 	Subscribe(ctx context.Context, channel chan<- docker.Host)
+	Hosts() []docker.Host
 }
 
 type MultiHostService struct {
@@ -134,25 +134,7 @@ func (m *MultiHostService) TotalClients() int {
 }
 
 func (m *MultiHostService) Hosts() []docker.Host {
-	clients := m.manager.List()
-	hosts := make([]docker.Host, 0, len(clients))
-	for _, client := range clients {
-		host := client.Host()
-		host.Available = true
-		hosts = append(hosts, host)
-	}
-
-	for _, endpoint := range m.manager.FailedAgents() {
-		hosts = append(hosts, docker.Host{
-			ID:        endpoint,
-			Name:      endpoint,
-			Endpoint:  endpoint,
-			Available: false,
-			Type:      "agent",
-		})
-	}
-
-	return hosts
+	return m.manager.Hosts()
 }
 
 func (m *MultiHostService) LocalHost() (docker.Host, error) {

@@ -15,9 +15,7 @@
       <ul class="menu p-0">
         <li v-for="host in hosts" :key="host.id">
           <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
-            <mdi:satellite-variant v-if="host.type == 'agent'" />
-            <ph:globe-simple v-else-if="host.type == 'remote'" />
-            <ph:computer-tower v-else />
+            <HostIcon :type="host.type" />
             {{ host.name }}
             <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
           </a>
