@@ -43,14 +43,6 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 }
 
 // func NewSwarmService(localClient docker.Client, certificates tls.Certificate) *MultiHostService {
-// 	m := &MultiHostService{
-// 		clients:   make(map[string]ClientService),
-// 		SwarmMode: true,
-// 	}
-
-// 	localService := NewDockerClientService(localClient)
-// 	m.clients[localClient.Host().ID] = localService
-
 // 	discover := func() {
 // 		ips, err := net.LookupIP("tasks.dozzle")
 // 		if err != nil {
@@ -96,19 +88,6 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 // 			log.Infof("replaced %d dozzle replicas", replaced)
 // 		}
 // 	}
-
-// 	go func() {
-// 		ticker := backoff.NewTicker(backoff.NewExponentialBackOff(
-// 			backoff.WithMaxElapsedTime(0)),
-// 		)
-// 		for range ticker.C {
-// 			log.Tracef("discovering swarm services")
-// 			discover()
-// 		}
-// 	}()
-
-// 	return m
-// }
 
 // func closeAgent(agent *agent.Client) {
 // 	log.Tracef("closing agent %s", agent.Host())
