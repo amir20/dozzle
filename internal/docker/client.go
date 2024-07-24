@@ -323,7 +323,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType StdType) (io.ReadCloser, error) {
 	log.WithField("id", id).WithField("since", since).WithField("stdType", stdType).Debug("streaming logs for container")
 
-	sinceQuery := since.Add(time.Millisecond).Format(time.RFC3339Nano)
+	sinceQuery := since.Add(-50 * time.Millisecond).Format(time.RFC3339Nano)
 	options := container.LogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
