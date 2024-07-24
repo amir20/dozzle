@@ -3,15 +3,23 @@
     <li v-for="host in hosts" class="card bg-base-lighter">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="flex flex-col gap-2 overflow-hidden">
-          <div class="truncate text-xl font-semibold">
+          <div class="flex items-center gap-1 truncate text-xl font-semibold">
+            <mdi:satellite-variant v-if="host.type == 'agent'" />
+            <ph:globe-simple v-else-if="host.type == 'remote'" />
+            <ph:computer-tower v-else />
             {{ host.name }}
 
             <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
               <carbon:warning />
               offline
             </span>
-            <span class="badge badge-success badge-xs gap-2 p-2" v-else-if="host.type == 'agent'" title="Dozzle Agent">
-              <mdi:satellite-variant /> {{ host.agentVersion }}
+            <span
+              class="badge badge-success badge-xs gap-2 p-2"
+              :class="{ 'badge-warning': config.version != host.agentVersion }"
+              v-else-if="host.type == 'agent'"
+              title="Dozzle Agent"
+            >
+              {{ host.agentVersion }}
             </span>
           </div>
           <ul class="flex flex-row gap-2 text-sm md:gap-3">
