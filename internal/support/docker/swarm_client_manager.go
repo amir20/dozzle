@@ -20,23 +20,25 @@ type SwarmClientManager struct {
 	certs       tls.Certificate
 	mu          sync.RWMutex
 	subscribers *xsync.MapOf[context.Context, chan<- docker.Host]
-	localIP     string
 	localClient docker.Client
+	localIPs    []string
 }
 
-func localIP() string {
+func localIPs() []string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return ""
+		return []string{}
 	}
+
+	ips := make([]string, 0)
 	for _, address := range addrs {
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String()
+				ips = append(ips, ipnet.IP.String())
 			}
 		}
 	}
-	return ""
+	return ips
 }
 
 func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *SwarmClientManager {
@@ -49,7 +51,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		clients:     clientMap,
 		certs:       certs,
 		subscribers: xsync.NewMapOf[context.Context, chan<- docker.Host](),
-		localIP:     localIP(),
+		localIPs:    localIPs(),
 	}
 }
 
@@ -79,10 +81,10 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		return client.Host().Endpoint
 	})
 
-	log.Debugf("tasks.dozzle = %v, localIP = %s, clients.endpoints = %v", ips, m.localIP, lo.Keys(endpoints))
+	log.Debugf("tasks.dozzle = %v, localIP = %v, clients.endpoints = %v", ips, m.localIPs, lo.Keys(endpoints))
 
 	for _, ip := range ips {
-		if ip.String() == m.localIP {
+		if lo.Contains(m.localIPs, ip.String()) {
 			log.Debugf("skipping local ip %s", ip.String())
 			continue
 		}
