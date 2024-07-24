@@ -10,7 +10,7 @@ message Container {
   string id = 1;
   string name = 2;
   string image = 3;
-  string status = 4;
+  string status = 4; // deprecated
   string state = 5;
   string ImageId = 6;
   google.protobuf.Timestamp created = 7;

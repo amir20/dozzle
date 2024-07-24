@@ -175,6 +175,7 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 	return NewClient(cli, filterArgs, host), nil
 }
 
+// Finds a container by id, skipping the filters
 func (d *httpClient) FindContainer(id string) (Container, error) {
 	log.Debugf("finding container with id: %s", id)
 	if json, err := d.cli.ContainerInspect(context.Background(), id); err == nil {
