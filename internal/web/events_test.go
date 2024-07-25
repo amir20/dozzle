@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/tls"
 	"time"
 
 	"net/http"
@@ -53,9 +54,9 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	})
 
 	// This is needed so that the server is initialized for store
-	multiHostService := docker_support.NewMultiHostService(
-		[]docker_support.ClientService{docker_support.NewDockerClientService(mockedClient)},
-	)
+	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient))
+	multiHostService := docker_support.NewMultiHostService(manager)
+
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 
 	handler := server.Handler

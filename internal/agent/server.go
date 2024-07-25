@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
-	"net"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
@@ -24,16 +23,19 @@ import (
 )
 
 type server struct {
-	client docker.Client
-	store  *docker.ContainerStore
+	client  docker.Client
+	store   *docker.ContainerStore
+	version string
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func NewServer(client docker.Client) pb.AgentServiceServer {
+func newServer(client docker.Client, dozzleVersion string) pb.AgentServiceServer {
 	return &server{
-		client: client,
-		store:  docker.NewContainerStore(context.Background(), client),
+		client:  client,
+		version: dozzleVersion,
+
+		store: docker.NewContainerStore(context.Background(), client),
 	}
 }
 
@@ -243,10 +245,12 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 	host := s.client.Host()
 	return &pb.HostInfoResponse{
 		Host: &pb.Host{
-			Id:       host.ID,
-			Name:     host.Name,
-			CpuCores: uint32(host.NCPU),
-			Memory:   uint64(host.MemTotal),
+			Id:            host.ID,
+			Name:          host.Name,
+			CpuCores:      uint32(host.NCPU),
+			Memory:        uint64(host.MemTotal),
+			DockerVersion: host.DockerVersion,
+			AgentVersion:  s.version,
 		},
 	}, nil
 }
@@ -281,7 +285,7 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	}
 }
 
-func RunServer(client docker.Client, certificates tls.Certificate, listener net.Listener) {
+func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string) *grpc.Server {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -300,15 +304,9 @@ func RunServer(client docker.Client, certificates tls.Certificate, listener net.
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterAgentServiceServer(grpcServer, NewServer(client))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion))
 
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	log.Infof("gRPC server listening on %s", listener.Addr().String())
-	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	return grpcServer
 }
 
 func logEventToPb(event *docker.LogEvent) *pb.LogEvent {

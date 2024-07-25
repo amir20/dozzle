@@ -51,14 +51,29 @@ func main() {
 			if err != nil {
 				log.Fatalf("failed to listen: %v", err)
 			}
-			tempFile, err := os.CreateTemp("/", "agent-*.addr")
+			tempFile, err := os.CreateTemp("./", "agent-*.addr")
 			if err != nil {
 				log.Fatalf("failed to create temp file: %v", err)
 			}
-			defer os.Remove(tempFile.Name())
 			io.WriteString(tempFile, listener.Addr().String())
 			go cli.StartEvent(args, "", client, "agent")
-			agent.RunServer(client, certs, listener)
+			server := agent.NewServer(client, certs, args.Version())
+			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+			defer stop()
+			go func() {
+				log.Infof("Dozzle agent version %s", args.Version())
+				log.Infof("Agent listening on %s", listener.Addr().String())
+				if err := server.Serve(listener); err != nil {
+					log.Fatalf("failed to serve: %v", err)
+				}
+			}()
+			<-ctx.Done()
+			stop()
+			log.Info("Shutting down agent")
+			server.Stop()
+			log.Debugf("deleting %s", tempFile.Name())
+			os.Remove(tempFile.Name())
+
 		case *cli.HealthcheckCmd:
 			go cli.StartEvent(args, "", nil, "healthcheck")
 			files, err := os.ReadDir(".")
@@ -135,13 +150,20 @@ func main() {
 		if err != nil {
 			log.Fatalf("Could not read certificates: %v", err)
 		}
-		multiHostService = docker_support.NewSwarmService(localClient, certs)
+		manager := docker_support.NewSwarmClientManager(localClient, certs)
+		multiHostService = docker_support.NewMultiHostService(manager)
 		log.Infof("Starting in Swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		go agent.RunServer(localClient, certs, listener)
+		server := agent.NewServer(localClient, certs, args.Version())
+		go func() {
+			log.Infof("Agent listening on %s", listener.Addr().String())
+			if err := server.Serve(listener); err != nil {
+				log.Fatalf("failed to serve: %v", err)
+			}
+		}()
 	} else {
 		log.Fatalf("Invalid mode %s", args.Mode)
 	}
@@ -159,7 +181,7 @@ func main() {
 	<-ctx.Done()
 	stop()
 	log.Info("shutting down gracefully, press Ctrl+C again to force")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal(err)
