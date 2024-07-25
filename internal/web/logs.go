@@ -114,8 +114,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		buffer.Push(event)
 	}
 
-	log.Infof("Loaded %d items", len(buffer.Data()))
-
 	encoder := json.NewEncoder(w)
 	for _, event := range buffer.Data() {
 		if err := encoder.Encode(event); err != nil {
