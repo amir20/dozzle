@@ -97,7 +97,7 @@ Similar to Dozzle instance, you can change the agent's name by providing the `DO
 ::: code-group
 
 ```sh
-docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:agent agent --hostname my-special-name
+docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent --hostname my-special-name
 ```
 
 ```yaml [docker-compose.yml]
