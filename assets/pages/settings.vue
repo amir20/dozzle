@@ -156,7 +156,9 @@ import {
   locale,
 } from "@/stores/settings";
 
-const { t, availableLocales } = useI18n();
+import { availableLocales } from "@/modules/i18n";
+
+const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
