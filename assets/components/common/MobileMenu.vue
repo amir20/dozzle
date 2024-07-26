@@ -21,61 +21,19 @@
 
     <transition name="fade">
       <div v-show="show" class="h-[calc(100vh-60px)] overflow-auto">
-        <div class="mt-4 flex items-center justify-center gap-2">
-          <dropdown-menu
-            v-model="sessionHost"
-            :options="hosts"
-            defaultLabel="Hosts"
-            class="btn-sm"
-            v-if="config.hosts.length > 1"
-          />
-        </div>
-
-        <ul class="menu">
-          <li class="menu-title">{{ $t("label.containers") }}</li>
-          <li v-for="item in sortedContainers" :key="item.id" :class="item.state">
-            <router-link
-              :to="{ name: '/container/[id]', params: { id: item.id } }"
-              active-class="active-primary"
-              class="truncate"
-              :title="item.name"
-            >
-              {{ item.name }}
-            </router-link>
-          </li>
-        </ul>
+        <SideMenu />
       </div>
     </transition>
   </nav>
 </template>
 
 <script lang="ts" setup>
-import { sessionHost } from "@/composable/storage";
-const store = useContainerStore();
 const route = useRoute();
-const { visibleContainers } = storeToRefs(store);
 
 const show = ref(false);
-
 watch(route, () => {
   show.value = false;
 });
-
-const sortedContainers = computed(() =>
-  visibleContainers.value
-    .filter((c) => c.host === sessionHost.value)
-    .sort((a, b) => {
-      if (a.state === "running" && b.state !== "running") {
-        return -1;
-      } else if (a.state !== "running" && b.state === "running") {
-        return 1;
-      } else {
-        return a.name.localeCompare(b.name);
-      }
-    }),
-);
-
-const hosts = computed(() => config.hosts.map(({ id, name }) => ({ value: id, label: name })));
 </script>
 <style scoped lang="postcss">
 li.exited {
