@@ -20,14 +20,14 @@
               {{ host.agentVersion }}
             </span>
           </div>
-          <ul class="flex flex-row gap-2 text-sm md:gap-3">
+          <ul class="flex flex-row gap-x-2 text-sm md:gap-3">
             <li class="flex items-center gap-1"><ph:cpu /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
             <li class="flex items-center gap-1">
               <ph:memory /> {{ formatBytes(host.memTotal) }}
               <span class="mobile-hidden">total</span>
             </li>
           </ul>
-          <ul class="flex flex-row gap-2 text-sm md:gap-3">
+          <ul class="flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">
             <li class="flex items-center gap-1">
               <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}
             </li>
