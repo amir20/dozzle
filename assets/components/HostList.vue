@@ -4,7 +4,7 @@
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="flex flex-col gap-2 overflow-hidden">
           <div class="flex items-center gap-1 truncate text-xl font-semibold">
-            <HostIcon :type="host.type" />
+            <HostIcon :type="host.type" class="flex-none" />
             {{ host.name }}
 
             <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
