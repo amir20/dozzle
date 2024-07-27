@@ -17,10 +17,19 @@ function setI18nLanguage(lang: Locale) {
   return lang;
 }
 
+const i18n = createI18n({
+  legacy: false,
+  locale: "",
+  fallbackLocale: "en",
+  messages: {},
+});
+
 const loadedLanguages: string[] = [];
-async function loadLanguage(lang: string): Promise<Locale> {
-  if (i18n.global.locale.value === lang) return setI18nLanguage(lang);
-  if (loadedLanguages.includes(lang)) return setI18nLanguage(lang);
+async function loadLanguage(lang: string, setLang = true): Promise<Locale> {
+  if (setLang) {
+    if (i18n.global.locale.value === lang) return setI18nLanguage(lang);
+    if (loadedLanguages.includes(lang)) return setI18nLanguage(lang);
+  }
 
   const messages = await localesMap[lang]();
   i18n.global.setLocaleMessage(lang, messages.default);
@@ -28,19 +37,20 @@ async function loadLanguage(lang: string): Promise<Locale> {
   return setI18nLanguage(lang);
 }
 
-const i18n = createI18n({
-  legacy: false,
-  locale: "",
-  messages: {},
-});
+await loadLanguage("en", false); // load default language
 
-watchEffect(() => {
-  loadLanguage(
+const userLocale = computed(
+  () =>
     locale.value ||
-      [navigator.language, navigator.language.slice(0, 2)].find((l) => availableLocales.includes(l)) ||
-      "en",
-  );
-});
+    [navigator.language, navigator.language.slice(0, 2)].find((l) => availableLocales.includes(l)) ||
+    "en",
+);
+
+if (userLocale.value !== "en") {
+  await loadLanguage(userLocale.value);
+}
+
+watchEffect(() => loadLanguage(userLocale.value));
 
 export const install = (app: App) => app.use(i18n);
 export default i18n;

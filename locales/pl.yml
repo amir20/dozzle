@@ -13,6 +13,7 @@ label:
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   host: Host
+  hosts: Hosty
   password: Hasło
   username: Nazwa użytkownika
   container-name: Nazwa kontenera
@@ -29,17 +30,17 @@ tooltip:
 error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
-  logs-skipped: Pominiętych wpisów {total} 
+  logs-skipped: Pominiętych wpisów {total}
   container-not-found: Kontener nie został znaleziony
   events-stream:
     title: Niespodziewany błąd
     message: >-
       Dozzle nie był wstanie połączyć się z API. Sprawdź ustawienia sieciowe.
-      Jeżeli korzysasz z reverse proxy, upewnij się że jest poprawnie skonfigurowane. 
+      Jeżeli korzysasz z reverse proxy, upewnij się że jest poprawnie skonfigurowane.
   events-timeout:
     title: Coś jest nie tak
     message: >-
-      Przekroczono limit czasu w trakcie połączenia do API. Sprawdź ustawienia sieciowe.  
+      Przekroczono limit czasu w trakcie połączenia do API. Sprawdź ustawienia sieciowe.
 alert:
   redirected:
     title: Przekierowywanie do nowego kontenera
@@ -47,7 +48,7 @@ alert:
   similar-container-found:
     title: Podobny kontener został znaleziony
     message: >-
-      Dozzle znalazł podobny kontener {containerId} który działa na tym samym 
+      Dozzle znalazł podobny kontener {containerId} który działa na tym samym
       hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
 title:
   page-not-found: Strona nie została znaleziona
@@ -55,7 +56,7 @@ title:
   dashboard: 1 kontener | {count} kontenerów
   settings: Ustawienia
 button:
-  logout: Wyloguj się 
+  logout: Wyloguj się
   login: Zaloguj się
   settings: Ustawienia
 placeholder:

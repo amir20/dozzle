@@ -15,6 +15,7 @@ label:
   dozzle-version: Versão Dozzle
   all: Tudo
   host: Anfitrião
+  hosts: Anfitriões
   password: Senha
   username: Nome de usuário
   container-name: Nome do contentor
@@ -71,6 +72,7 @@ settings:
   font-size: Tamanho de letra a utilizar para os registos
   color-scheme: Esquema de cores
   options: Opções
+  datetime-format: Formato de data e hora
   show-stopped-containers: Mostrar contentores parados
   about: Acerca de
   search: Habilitar a pesquisa com Dozzle usando

@@ -18,6 +18,7 @@ label:
   dozzle-version: Dozzle Sürümü
   all: Tümü
   host: Sunucu
+  hosts: Sunucular
   password: Şifre
   username: Kullanıcı Adı
   container-name: Konteyner Adı
