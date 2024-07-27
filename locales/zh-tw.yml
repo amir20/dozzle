@@ -15,6 +15,7 @@ label:
   dozzle-version: Dozzle 版本
   all: 全部
   host: 主機
+  hosts: 主機
   password: 密碼
   username: 使用者名稱
   container-name: 容器名稱

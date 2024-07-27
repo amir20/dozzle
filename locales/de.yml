@@ -6,6 +6,7 @@ toolbar:
   show-all: Zeige alle Streams
 label:
   containers: Container
+  container: Keine Container | 1 Container | {count} Container
   running-containers: Laufende Container
   all-containers: Alle Container
   total-containers: Gesamte Container
@@ -15,6 +16,7 @@ label:
   dozzle-version: Dozzle Version
   all: Alle
   host: Host
+  hosts: Hosts
   password: Passwort
   username: Benutzername
   container-name: Container Name

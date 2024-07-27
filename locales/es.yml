@@ -9,6 +9,7 @@ toolbar:
   restart: Reiniciar
 label:
   containers: Contenedores
+  container: No contenedores | 1 contenedor | {count} contenedores
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
   total-containers: Contenedores Totales
@@ -18,6 +19,7 @@ label:
   dozzle-version: Versión de Dozzle
   all: Todo
   host: Host
+  hosts: Hosts
   password: Contraseña
   username: Nombre de usuario
   container-name: Nombre del contenedor

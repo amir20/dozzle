@@ -37,7 +37,7 @@ async function loadLanguage(lang: string, setLang = true): Promise<Locale> {
   return setI18nLanguage(lang);
 }
 
-loadLanguage("en", false); // load default language
+await loadLanguage("en", false); // load default language
 
 watchEffect(() => {
   loadLanguage(

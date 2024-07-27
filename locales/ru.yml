@@ -15,6 +15,7 @@ label:
   dozzle-version: Версия Dozzle
   all: Все
   host: Хост
+  hosts: Хосты
   password: Пароль
   username: Имя пользователя
   container-name: Имя контейнера

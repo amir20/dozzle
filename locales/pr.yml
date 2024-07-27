@@ -15,6 +15,7 @@ label:
   dozzle-version: Versão Dozzle
   all: Tudo
   host: Anfitrião
+  hosts: Anfitriões
   password: Senha
   username: Nome de usuário
   container-name: Nome do contentor
