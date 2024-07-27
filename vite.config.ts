@@ -26,6 +26,7 @@ export default defineConfig(() => ({
     modulePreload: {
       polyfill: false,
     },
+    target: "esnext",
   },
   plugins: [
     VueMacros({
