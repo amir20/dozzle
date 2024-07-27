@@ -39,13 +39,18 @@ async function loadLanguage(lang: string, setLang = true): Promise<Locale> {
 
 await loadLanguage("en", false); // load default language
 
-watchEffect(() => {
-  loadLanguage(
+const userLocale = computed(
+  () =>
     locale.value ||
-      [navigator.language, navigator.language.slice(0, 2)].find((l) => availableLocales.includes(l)) ||
-      "en",
-  );
-});
+    [navigator.language, navigator.language.slice(0, 2)].find((l) => availableLocales.includes(l)) ||
+    "en",
+);
+
+if (userLocale.value !== "en") {
+  await loadLanguage(userLocale.value);
+}
+
+watchEffect(() => loadLanguage(userLocale.value));
 
 export const install = (app: App) => app.use(i18n);
 export default i18n;

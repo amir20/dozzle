@@ -71,6 +71,7 @@ settings:
     默认情况下，Dozzle将使用您的浏览器区域设置来格式化时间。系统支持12或24小时制。
   font-size: 字体大小
   color-scheme: 颜色方案
+  datetime-format: 覆盖日期和时间格式
   options: 选项
   show-stopped-containers: 显示已停止的容器
   about: 关于

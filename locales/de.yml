@@ -28,6 +28,8 @@ label:
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
+  merge-services: Services zusammenführen
+  merge-containers: Container zusammenführen
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.
@@ -71,6 +73,7 @@ settings:
   small-scrollbars: Verwende kleinere Scrollbars
   show-timesamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
+  datetime-format: Datums- und Zeitformat
   12-24-format: >-
     Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
     Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
