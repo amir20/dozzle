@@ -51,7 +51,6 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	}
 
 	client := pb.NewAgentServiceClient(conn)
-	_, err = client.HostInfo(context.Background(), &pb.HostInfoRequest{})
 
 	return &Client{
 		client:   client,
