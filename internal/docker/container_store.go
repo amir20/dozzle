@@ -81,7 +81,7 @@ func (s *ContainerStore) checkConnectivity() error {
 				}
 				go func(c Container, i int) {
 					defer sem.Release(1)
-					if container, err := s.client.FindContainer(c.ID); err != nil {
+					if container, err := s.client.FindContainer(c.ID); err == nil {
 						s.containers.Store(c.ID, &container)
 					}
 				}(c, i)
