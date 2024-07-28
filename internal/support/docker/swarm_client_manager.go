@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -78,7 +79,8 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	clients := lo.Values(m.clients)
 	endpoints := lo.KeyBy(clients, func(client ClientService) string {
-		return client.Host().Endpoint
+		host, _ := client.Host()
+		return host.Endpoint
 	})
 
 	log.Debugf("tasks.dozzle = %v, localIP = %v, clients.endpoints = %v", ips, m.localIPs, lo.Keys(endpoints))
@@ -101,8 +103,18 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 			continue
 		}
 
-		if agent.Host().ID == m.localClient.Host().ID {
-			log.Debugf("skipping local client with ID %s", agent.Host().ID)
+		host, err := agent.Host()
+		if err != nil {
+			log.Warnf("error getting host data for agent %s: %v", ip, err)
+			errors = append(errors, err)
+			if err := agent.Close(); err != nil {
+				log.Warnf("error closing local client: %v", err)
+			}
+			continue
+		}
+
+		if host.ID == m.localClient.Host().ID {
+			log.Debugf("skipping local client with ID %s", host.ID)
 			if err := agent.Close(); err != nil {
 				log.Warnf("error closing local client: %v", err)
 			}
@@ -110,11 +122,10 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		}
 
 		client := NewAgentService(agent)
-		m.clients[agent.Host().ID] = client
-		log.Infof("added client for %s", agent.Host().ID)
+		m.clients[host.ID] = client
+		log.Infof("added client for %s", host.ID)
 
 		m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
-			host := agent.Host()
 			host.Available = true
 			host.Type = "swarm"
 
@@ -153,16 +164,18 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 func (m *SwarmClientManager) Hosts() []docker.Host {
 	clients := m.List()
 
-	hosts := make([]docker.Host, 0, len(clients))
-
-	for _, client := range clients {
-		host := client.Host()
-		host.Available = true
+	return lop.Map(clients, func(client ClientService, _ int) docker.Host {
+		host, err := client.Host()
+		if err != nil {
+			host.Available = false
+		} else {
+			host.Available = true
+		}
 		host.Type = "swarm"
-		hosts = append(hosts, host)
-	}
 
-	return hosts
+		return host
+	})
+
 }
 
 func (m *SwarmClientManager) String() string {

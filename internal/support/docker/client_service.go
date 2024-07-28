@@ -11,7 +11,7 @@ import (
 type ClientService interface {
 	FindContainer(id string) (docker.Container, error)
 	ListContainers() ([]docker.Container, error)
-	Host() docker.Host
+	Host() (docker.Host, error)
 	ContainerAction(container docker.Container, action docker.ContainerAction) error
 	LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
@@ -82,8 +82,8 @@ func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
 	return d.store.ListContainers()
 }
 
-func (d *dockerClientService) Host() docker.Host {
-	return d.client.Host()
+func (d *dockerClientService) Host() (docker.Host, error) {
+	return d.client.Host(), nil
 }
 
 func (d *dockerClientService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {

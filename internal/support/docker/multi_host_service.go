@@ -75,8 +75,8 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 	for _, client := range clients {
 		list, err := client.ListContainers()
 		if err != nil {
-			log.Debugf("error listing containers for host %s: %v", client.Host().ID, err)
-			host := client.Host()
+			host, _ := client.Host()
+			log.Debugf("error listing containers for host %s: %v", host.ID, err)
 			host.Available = false
 			errors = append(errors, &HostUnavailableError{Host: host, Err: err})
 			continue

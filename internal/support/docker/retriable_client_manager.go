@@ -9,6 +9,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/puzpuzpuz/xsync/v3"
+	lop "github.com/samber/lo/parallel"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -26,24 +27,39 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 
 	clientMap := make(map[string]ClientService)
 	for _, client := range clients {
-		if _, ok := clientMap[client.Host().ID]; ok {
-			log.Warnf("duplicate client found for host %s", client.Host().ID)
+		host, err := client.Host()
+		if err != nil {
+			log.Warnf("error fetching host info for client %s: %v", host.ID, err)
+			continue
+		}
+
+		if _, ok := clientMap[host.ID]; ok {
+			log.Warnf("duplicate client found for host %s", host.ID)
 		} else {
-			clientMap[client.Host().ID] = client
+			clientMap[host.ID] = client
 		}
 	}
 
 	failed := make([]string, 0)
 	for _, endpoint := range agents {
-		if agent, err := agent.NewClient(endpoint, certs); err == nil {
-			if _, ok := clientMap[agent.Host().ID]; ok {
-				log.Warnf("duplicate client found for host %s", agent.Host().ID)
-			} else {
-				clientMap[agent.Host().ID] = NewAgentService(agent)
-			}
-		} else {
+		agent, err := agent.NewClient(endpoint, certs)
+		if err != nil {
 			log.Warnf("error creating agent client for %s: %v", endpoint, err)
 			failed = append(failed, endpoint)
+			continue
+		}
+
+		host, err := agent.Host()
+		if err != nil {
+			log.Warnf("error fetching host info for agent %s: %v", endpoint, err)
+			failed = append(failed, endpoint)
+			continue
+		}
+
+		if _, ok := clientMap[host.ID]; ok {
+			log.Warnf("duplicate client found for host %s", host.ID)
+		} else {
+			clientMap[host.ID] = NewAgentService(agent)
 		}
 	}
 
@@ -70,29 +86,36 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 	if len(m.failedAgents) > 0 {
 		newFailed := make([]string, 0)
 		for _, endpoint := range m.failedAgents {
-			if agent, err := agent.NewClient(endpoint, m.certs); err == nil {
-				m.clients[agent.Host().ID] = NewAgentService(agent)
-
-				m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
-					host := agent.Host()
-					host.Available = true
-
-					// We don't want to block the subscribers in event.go
-					go func() {
-						select {
-						case channel <- host:
-						case <-ctx.Done():
-						}
-					}()
-
-					return true
-				})
-
-			} else {
+			agent, err := agent.NewClient(endpoint, m.certs)
+			if err != nil {
 				log.Warnf("error creating agent client for %s: %v", endpoint, err)
 				errors = append(errors, err)
 				newFailed = append(newFailed, endpoint)
+				continue
 			}
+
+			host, err := agent.Host()
+			if err != nil {
+				log.Warnf("error fetching host info for agent %s: %v", endpoint, err)
+				errors = append(errors, err)
+				newFailed = append(newFailed, endpoint)
+				continue
+			}
+
+			m.clients[host.ID] = NewAgentService(agent)
+			m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
+				host.Available = true
+
+				// We don't want to block the subscribers in event.go
+				go func() {
+					select {
+					case channel <- host:
+					case <-ctx.Done():
+					}
+				}()
+
+				return true
+			})
 		}
 		m.failedAgents = newFailed
 	}
@@ -128,12 +151,17 @@ func (m *RetriableClientManager) String() string {
 func (m *RetriableClientManager) Hosts() []docker.Host {
 	clients := m.List()
 
-	hosts := make([]docker.Host, 0, len(clients))
-	for _, client := range clients {
-		host := client.Host()
-		host.Available = true
-		hosts = append(hosts, host)
-	}
+	hosts := lop.Map(clients, func(client ClientService, _ int) docker.Host {
+		host, err := client.Host()
+		log.Debugf("host: %v, err: %v", host, err)
+		if err != nil {
+			host.Available = false
+		} else {
+			host.Available = true
+		}
+
+		return host
+	})
 
 	for _, endpoint := range m.failedAgents {
 		hosts = append(hosts, docker.Host{
