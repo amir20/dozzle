@@ -65,3 +65,9 @@ message Host {
   string agentVersion = 11;
   string dockerVersion = 12;
 }
+
+enum ContainerAction {
+  Start = 0;
+  Stop = 1;
+  Restart = 2;
+}

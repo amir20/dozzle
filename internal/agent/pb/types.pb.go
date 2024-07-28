@@ -22,6 +22,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ContainerAction int32
+
+const (
+	ContainerAction_Start   ContainerAction = 0
+	ContainerAction_Stop    ContainerAction = 1
+	ContainerAction_Restart ContainerAction = 2
+)
+
+// Enum value maps for ContainerAction.
+var (
+	ContainerAction_name = map[int32]string{
+		0: "Start",
+		1: "Stop",
+		2: "Restart",
+	}
+	ContainerAction_value = map[string]int32{
+		"Start":   0,
+		"Stop":    1,
+		"Restart": 2,
+	}
+)
+
+func (x ContainerAction) Enum() *ContainerAction {
+	p := new(ContainerAction)
+	*p = x
+	return p
+}
+
+func (x ContainerAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ContainerAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_types_proto_enumTypes[0].Descriptor()
+}
+
+func (ContainerAction) Type() protoreflect.EnumType {
+	return &file_types_proto_enumTypes[0]
+}
+
+func (x ContainerAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ContainerAction.Descriptor instead.
+func (ContainerAction) EnumDescriptor() ([]byte, []int) {
+	return file_types_proto_rawDescGZIP(), []int{0}
+}
+
 type Container struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -741,9 +790,12 @@ var file_types_proto_rawDesc = []byte{
 	0x65, 0x6c, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61,
 	0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
-	0x3a, 0x02, 0x38, 0x01, 0x42, 0x13, 0x5a, 0x11, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c,
-	0x2f, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x3a, 0x02, 0x38, 0x01, 0x2a, 0x33, 0x0a, 0x0f, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x69, 0x6e, 0x65,
+	0x72, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x09, 0x0a, 0x05, 0x53, 0x74, 0x61, 0x72, 0x74,
+	0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x53, 0x74, 0x6f, 0x70, 0x10, 0x01, 0x12, 0x0b, 0x0a, 0x07,
+	0x52, 0x65, 0x73, 0x74, 0x61, 0x72, 0x74, 0x10, 0x02, 0x42, 0x13, 0x5a, 0x11, 0x69, 0x6e, 0x74,
+	0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2f, 0x70, 0x62, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -758,28 +810,30 @@ func file_types_proto_rawDescGZIP() []byte {
 	return file_types_proto_rawDescData
 }
 
+var file_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_types_proto_goTypes = []any{
-	(*Container)(nil),             // 0: protobuf.Container
-	(*ContainerStat)(nil),         // 1: protobuf.ContainerStat
-	(*LogEvent)(nil),              // 2: protobuf.LogEvent
-	(*SimpleMessage)(nil),         // 3: protobuf.SimpleMessage
-	(*ComplexMessage)(nil),        // 4: protobuf.ComplexMessage
-	(*ContainerEvent)(nil),        // 5: protobuf.ContainerEvent
-	(*Host)(nil),                  // 6: protobuf.Host
-	nil,                           // 7: protobuf.Container.LabelsEntry
-	nil,                           // 8: protobuf.Host.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
-	(*anypb.Any)(nil),             // 10: google.protobuf.Any
+	(ContainerAction)(0),          // 0: protobuf.ContainerAction
+	(*Container)(nil),             // 1: protobuf.Container
+	(*ContainerStat)(nil),         // 2: protobuf.ContainerStat
+	(*LogEvent)(nil),              // 3: protobuf.LogEvent
+	(*SimpleMessage)(nil),         // 4: protobuf.SimpleMessage
+	(*ComplexMessage)(nil),        // 5: protobuf.ComplexMessage
+	(*ContainerEvent)(nil),        // 6: protobuf.ContainerEvent
+	(*Host)(nil),                  // 7: protobuf.Host
+	nil,                           // 8: protobuf.Container.LabelsEntry
+	nil,                           // 9: protobuf.Host.LabelsEntry
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(*anypb.Any)(nil),             // 11: google.protobuf.Any
 }
 var file_types_proto_depIdxs = []int32{
-	9,  // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
-	9,  // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
-	7,  // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
-	1,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
-	10, // 4: protobuf.LogEvent.message:type_name -> google.protobuf.Any
-	9,  // 5: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
-	8,  // 6: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
+	10, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
+	10, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
+	8,  // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
+	2,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
+	11, // 4: protobuf.LogEvent.message:type_name -> google.protobuf.Any
+	10, // 5: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
+	9,  // 6: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
 	7,  // [7:7] is the sub-list for method output_type
 	7,  // [7:7] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
@@ -883,13 +937,14 @@ func file_types_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_types_proto_rawDesc,
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_types_proto_goTypes,
 		DependencyIndexes: file_types_proto_depIdxs,
+		EnumInfos:         file_types_proto_enumTypes,
 		MessageInfos:      file_types_proto_msgTypes,
 	}.Build()
 	File_types_proto = out.File

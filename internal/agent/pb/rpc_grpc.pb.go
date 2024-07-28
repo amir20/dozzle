@@ -28,6 +28,7 @@ const (
 	AgentService_StreamStats_FullMethodName            = "/protobuf.AgentService/StreamStats"
 	AgentService_StreamContainerStarted_FullMethodName = "/protobuf.AgentService/StreamContainerStarted"
 	AgentService_HostInfo_FullMethodName               = "/protobuf.AgentService/HostInfo"
+	AgentService_ContainerAction_FullMethodName        = "/protobuf.AgentService/ContainerAction"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -43,6 +44,7 @@ type AgentServiceClient interface {
 	StreamStats(ctx context.Context, in *StreamStatsRequest, opts ...grpc.CallOption) (AgentService_StreamStatsClient, error)
 	StreamContainerStarted(ctx context.Context, in *StreamContainerStartedRequest, opts ...grpc.CallOption) (AgentService_StreamContainerStartedClient, error)
 	HostInfo(ctx context.Context, in *HostInfoRequest, opts ...grpc.CallOption) (*HostInfoResponse, error)
+	ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error)
 }
 
 type agentServiceClient struct {
@@ -281,6 +283,16 @@ func (c *agentServiceClient) HostInfo(ctx context.Context, in *HostInfoRequest, 
 	return out, nil
 }
 
+func (c *agentServiceClient) ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ContainerActionResponse)
+	err := c.cc.Invoke(ctx, AgentService_ContainerAction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility
@@ -294,6 +306,7 @@ type AgentServiceServer interface {
 	StreamStats(*StreamStatsRequest, AgentService_StreamStatsServer) error
 	StreamContainerStarted(*StreamContainerStartedRequest, AgentService_StreamContainerStartedServer) error
 	HostInfo(context.Context, *HostInfoRequest) (*HostInfoResponse, error)
+	ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -327,6 +340,9 @@ func (UnimplementedAgentServiceServer) StreamContainerStarted(*StreamContainerSt
 }
 func (UnimplementedAgentServiceServer) HostInfo(context.Context, *HostInfoRequest) (*HostInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HostInfo not implemented")
+}
+func (UnimplementedAgentServiceServer) ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ContainerAction not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 
@@ -521,6 +537,24 @@ func _AgentService_HostInfo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_ContainerAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ContainerActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).ContainerAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_ContainerAction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).ContainerAction(ctx, req.(*ContainerActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -539,6 +573,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HostInfo",
 			Handler:    _AgentService_HostInfo_Handler,
+		},
+		{
+			MethodName: "ContainerAction",
+			Handler:    _AgentService_ContainerAction_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
