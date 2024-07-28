@@ -36,8 +36,6 @@ const config: Config = {
   ...pageConfig,
 };
 
-config.version = config.version.replace(/^v/, "");
-
 export default Object.freeze(config);
 
 export const withBase = (path: string) => `${config.base}${path}`;
