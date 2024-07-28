@@ -11,6 +11,7 @@ import (
 
 type agentService struct {
 	client *agent.Client
+	host   docker.Host
 }
 
 func NewAgentService(client *agent.Client) ClientService {
@@ -39,8 +40,16 @@ func (a *agentService) ListContainers() ([]docker.Container, error) {
 	return a.client.ListContainers()
 }
 
-func (a *agentService) Host() docker.Host {
-	return a.client.Host()
+func (a *agentService) Host() (docker.Host, error) {
+	host, err := a.client.Host()
+	if err != nil {
+		host := a.host
+		host.Available = false
+		return host, err
+	}
+
+	a.host = host
+	return a.host, err
 }
 
 func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {

@@ -23,9 +23,9 @@ import (
 )
 
 type Client struct {
-	client pb.AgentServiceClient
-	host   docker.Host
-	conn   *grpc.ClientConn
+	client   pb.AgentServiceClient
+	conn     *grpc.ClientConn
+	endpoint string
 }
 
 func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
@@ -51,26 +51,11 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	}
 
 	client := pb.NewAgentServiceClient(conn)
-	info, err := client.HostInfo(context.Background(), &pb.HostInfoRequest{})
-	if err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("failed to get host info: %w", err)
-	}
 
 	return &Client{
-		client: client,
-		conn:   conn,
-
-		host: docker.Host{
-			ID:            info.Host.Id,
-			Name:          info.Host.Name,
-			NCPU:          int(info.Host.CpuCores),
-			MemTotal:      int64(info.Host.Memory),
-			Endpoint:      endpoint,
-			Type:          "agent",
-			DockerVersion: info.Host.DockerVersion,
-			AgentVersion:  info.Host.AgentVersion,
-		},
+		client:   client,
+		conn:     conn,
+		endpoint: endpoint,
 	}, nil
 }
 
@@ -361,8 +346,26 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 	return containers, nil
 }
 
-func (c *Client) Host() docker.Host {
-	return c.host
+func (c *Client) Host() (docker.Host, error) {
+	info, err := c.client.HostInfo(context.Background(), &pb.HostInfoRequest{})
+	if err != nil {
+		return docker.Host{
+			Endpoint:  c.endpoint,
+			Type:      "agent",
+			Available: false,
+		}, err
+	}
+
+	return docker.Host{
+		ID:            info.Host.Id,
+		Name:          info.Host.Name,
+		NCPU:          int(info.Host.CpuCores),
+		MemTotal:      int64(info.Host.Memory),
+		Endpoint:      c.endpoint,
+		Type:          "agent",
+		DockerVersion: info.Host.DockerVersion,
+		AgentVersion:  info.Host.AgentVersion,
+	}, nil
 }
 
 func (c *Client) Close() error {
