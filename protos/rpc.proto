@@ -19,6 +19,8 @@ service AgentService {
   rpc StreamContainerStarted(StreamContainerStartedRequest)
       returns (stream StreamContainerStartedResponse) {}
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
+  rpc ContainerAction(ContainerActionRequest)
+      returns (ContainerActionResponse) {}
 }
 
 message ListContainersRequest {}
@@ -64,3 +66,11 @@ message HostInfoResponse { Host host = 1; }
 
 message StreamContainerStartedRequest {}
 message StreamContainerStartedResponse { Container container = 1; }
+
+message ContainerActionRequest {
+  string containerId = 1;
+  ContainerAction action = 2;
+}
+
+message ContainerActionResponse {
+}

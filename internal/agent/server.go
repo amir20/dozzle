@@ -285,6 +285,31 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	}
 }
 
+func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (*pb.ContainerActionResponse, error) {
+	var action docker.ContainerAction
+	switch in.Action {
+	case pb.ContainerAction_Start:
+		action = docker.Start
+
+	case pb.ContainerAction_Stop:
+		action = docker.Stop
+
+	case pb.ContainerAction_Restart:
+		action = docker.Restart
+
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid action")
+	}
+
+	err := s.client.ContainerActions(action, in.ContainerId)
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.ContainerActionResponse{}, nil
+}
+
 func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string) *grpc.Server {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])

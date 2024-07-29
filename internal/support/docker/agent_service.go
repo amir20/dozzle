@@ -65,5 +65,5 @@ func (d *agentService) SubscribeContainersStarted(ctx context.Context, container
 }
 
 func (a *agentService) ContainerAction(container docker.Container, action docker.ContainerAction) error {
-	panic("not implemented")
+	return a.client.ContainerAction(container.ID, action)
 }

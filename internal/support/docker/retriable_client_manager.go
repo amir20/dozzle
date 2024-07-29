@@ -107,12 +107,12 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 				host.Available = true
 
 				// We don't want to block the subscribers in event.go
-				go func() {
+				go func(host docker.Host) {
 					select {
 					case channel <- host:
 					case <-ctx.Done():
 					}
-				}()
+				}(host)
 
 				return true
 			})
