@@ -368,6 +368,25 @@ func (c *Client) Host() (docker.Host, error) {
 	}, nil
 }
 
+func (c *Client) ContainerAction(containerId string, action docker.ContainerAction) error {
+	var containerAction pb.ContainerAction
+	switch action {
+	case docker.Start:
+		containerAction = pb.ContainerAction_Start
+
+	case docker.Stop:
+		containerAction = pb.ContainerAction_Stop
+
+	case docker.Restart:
+		containerAction = pb.ContainerAction_Restart
+
+	}
+
+	_, err := c.client.ContainerAction(context.Background(), &pb.ContainerActionRequest{ContainerId: containerId, Action: containerAction})
+
+	return err
+}
+
 func (c *Client) Close() error {
 	return c.conn.Close()
 }

@@ -286,19 +286,19 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 }
 
 func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (*pb.ContainerActionResponse, error) {
-	action := docker.ContainerAction("")
+	var action docker.ContainerAction
 	switch in.Action {
 	case pb.ContainerAction_Start:
 		action = docker.Start
-		break
 
 	case pb.ContainerAction_Stop:
 		action = docker.Stop
-		break
 
 	case pb.ContainerAction_Restart:
 		action = docker.Restart
-		break
+
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid action")
 	}
 
 	err := s.client.ContainerActions(action, in.ContainerId)
