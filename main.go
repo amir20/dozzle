@@ -158,6 +158,7 @@ func main() {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		server := agent.NewServer(localClient, certs, args.Version())
+		go cli.StartEvent(args, "swarm", localClient, "")
 		go func() {
 			log.Infof("Agent listening on %s", listener.Addr().String())
 			if err := server.Serve(listener); err != nil {
