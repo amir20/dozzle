@@ -1,6 +1,6 @@
 services:
   dozzle:
-    image: amir20/dozzle:local-test
+    image: amir20/dozzle:latest
     environment:
       - DOZZLE_LEVEL=debug
       - DOZZLE_MODE=swarm
