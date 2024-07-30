@@ -5,7 +5,9 @@
         <div class="flex flex-col gap-2 overflow-hidden">
           <div class="flex items-center gap-1 truncate text-xl font-semibold">
             <HostIcon :type="host.type" class="flex-none" />
-            {{ host.name }}
+            <div class="truncate">
+              {{ host.name }}
+            </div>
 
             <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
               <carbon:warning />
