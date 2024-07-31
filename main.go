@@ -135,12 +135,14 @@ func main() {
 
 	var multiHostService *docker_support.MultiHostService
 	if args.Mode == "server" {
-		multiHostService = cli.CreateMultiHostService(certs, args)
+		localClient, multiHostService := cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
 			log.Fatal("Could not connect to any Docker Engines")
 		} else {
 			log.Infof("Connected to %d Docker Engine(s)", multiHostService.TotalClients())
 		}
+		go cli.StartEvent(args, "server", localClient, "")
+
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 		if err != nil {

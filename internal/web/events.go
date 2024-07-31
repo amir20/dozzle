@@ -139,10 +139,6 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		b.ServerID = local.ID
 	}
 
-	if h.multiHostService.SwarmMode {
-		b.Mode = "swarm"
-	}
-
 	if err := analytics.SendBeacon(b); err != nil {
 		log.Debugf("error sending beacon: %v", err)
 	}

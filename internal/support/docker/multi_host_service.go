@@ -28,8 +28,7 @@ type ClientManager interface {
 }
 
 type MultiHostService struct {
-	manager   ClientManager
-	SwarmMode bool
+	manager ClientManager
 }
 
 func NewMultiHostService(manager ClientManager) *MultiHostService {
