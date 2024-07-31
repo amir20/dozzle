@@ -206,16 +206,12 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	}
 
 	streamLogs := func(container docker.Container) {
-		start := time.Time{}
-		if container.StartedAt != nil {
-			start = *container.StartedAt
-		}
 		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 		if err != nil {
 			log.Errorf("error while finding container %v", err.Error())
 			return
 		}
-		err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
+		err = containerService.StreamLogs(r.Context(), container.StartedAt, stdTypes, logs)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				log.WithError(err).Debugf("stream closed for container %v", container.Name)

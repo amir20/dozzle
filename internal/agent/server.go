@@ -189,7 +189,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 			Tty:     container.Tty,
 			Labels:  container.Labels,
 			Group:   container.Group,
-			Started: timestamppb.New(*container.StartedAt),
+			Started: timestamppb.New(container.StartedAt),
 		},
 	}, nil
 }
@@ -213,11 +213,6 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 			})
 		}
 
-		var startedAt *timestamppb.Timestamp
-		if container.StartedAt != nil {
-			startedAt = timestamppb.New(*container.StartedAt)
-		}
-
 		pbContainers = append(pbContainers, &pb.Container{
 			Id:      container.ID,
 			Name:    container.Name,
@@ -230,7 +225,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 			Tty:     container.Tty,
 			Labels:  container.Labels,
 			Group:   container.Group,
-			Started: startedAt,
+			Started: timestamppb.New(container.StartedAt),
 			Stats:   pbStats,
 			Command: container.Command,
 		})
@@ -276,7 +271,7 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 					Tty:     container.Tty,
 					Labels:  container.Labels,
 					Group:   container.Group,
-					Started: timestamppb.New(*container.StartedAt),
+					Started: timestamppb.New(container.StartedAt),
 				},
 			})
 		case <-out.Context().Done():
