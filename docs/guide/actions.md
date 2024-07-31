@@ -26,7 +26,7 @@ services:
     ports:
       - 8080:8080
     environment:
-      DOZZLE_ENABLE_ACTIONS: true
+      DOZZLE_ENABLE_ACTIONS=true
 ```
 
 :::
