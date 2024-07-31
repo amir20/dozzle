@@ -16,7 +16,7 @@ type Container struct {
 	ImageID   string                           `json:"imageId"`
 	Command   string                           `json:"command"`
 	Created   time.Time                        `json:"created"`
-	StartedAt *time.Time                       `json:"startedAt,omitempty"`
+	StartedAt time.Time                        `json:"startedAt,omitempty"`
 	State     string                           `json:"state"`
 	Health    string                           `json:"health,omitempty"`
 	Host      string                           `json:"host,omitempty"`

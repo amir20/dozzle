@@ -240,8 +240,6 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 			return rpcErrToErr(err)
 		}
 
-		started := resp.Container.Started.AsTime()
-
 		containers <- docker.Container{
 			ID:        resp.Container.Id,
 			Name:      resp.Container.Name,
@@ -254,7 +252,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 			Health:    resp.Container.Health,
 			Host:      resp.Container.Host,
 			Tty:       resp.Container.Tty,
-			StartedAt: &started,
+			StartedAt: resp.Container.Started.AsTime(),
 			Command:   resp.Container.Command,
 		}
 	}
@@ -277,12 +275,6 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 		})
 	}
 
-	var startedAt *time.Time
-	if response.Container.Started != nil {
-		started := response.Container.Started.AsTime()
-		startedAt = &started
-	}
-
 	return docker.Container{
 		ID:        response.Container.Id,
 		Name:      response.Container.Name,
@@ -296,8 +288,8 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 		Host:      response.Container.Host,
 		Tty:       response.Container.Tty,
 		Command:   response.Container.Command,
+		StartedAt: response.Container.Started.AsTime(),
 		Stats:     utils.RingBufferFrom(300, stats),
-		StartedAt: startedAt,
 	}, nil
 }
 
@@ -319,12 +311,6 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 			})
 		}
 
-		var startedAt *time.Time
-		if container.Started != nil {
-			started := container.Started.AsTime()
-			startedAt = &started
-		}
-
 		containers = append(containers, docker.Container{
 			ID:        container.Id,
 			Name:      container.Name,
@@ -337,9 +323,9 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 			Health:    container.Health,
 			Host:      container.Host,
 			Tty:       container.Tty,
-			Stats:     utils.RingBufferFrom(300, stats),
 			Command:   container.Command,
-			StartedAt: startedAt,
+			StartedAt: container.Started.AsTime(),
+			Stats:     utils.RingBufferFrom(300, stats),
 		})
 	}
 

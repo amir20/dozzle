@@ -405,13 +405,11 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 	}
 
 	if startedAt, err := time.Parse(time.RFC3339Nano, c.State.StartedAt); err == nil {
-		utc := startedAt.UTC()
-		container.StartedAt = &utc
+		container.StartedAt = startedAt.UTC()
 	}
 
 	if createdAt, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {
-		utc := createdAt.UTC()
-		container.Created = utc
+		container.Created = createdAt.UTC()
 	}
 
 	if c.State.Health != nil {
