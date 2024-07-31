@@ -18,7 +18,7 @@ func StartEvent(args Args, mode string, client docker.Client, subCommand string)
 		RemoteClients:    len(args.RemoteHost),
 		SubCommand:       subCommand,
 		HasActions:       args.EnableActions,
-		HasCustomAddress: args.Agent.Addr != ":8080",
+		HasCustomAddress: args.Addr != ":8080",
 		HasCustomBase:    args.Base != "/",
 		HasHostname:      args.Hostname != "",
 		FilterLength:     len(args.Filter),
