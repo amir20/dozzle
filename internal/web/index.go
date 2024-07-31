@@ -42,6 +42,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	if h.config.Base != "/" {
 		base = h.config.Base
 	}
+
 	hosts := h.multiHostService.Hosts()
 	sort.Slice(hosts, func(i, j int) bool {
 		return hosts[i].Name < hosts[j].Name

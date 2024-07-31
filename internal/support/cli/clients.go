@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.MultiHostService {
+func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *docker_support.MultiHostService) {
 	var clients []docker_support.ClientService
 	if len(args.RemoteHost) > 0 {
 		log.Warnf(`Remote host flag is deprecated and will be removed in future versions. Agents will replace remote hosts as a safer and performant option. See https://github.com/amir20/dozzle/issues/3066 for discussion.`)
@@ -38,10 +38,8 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		_, err := localClient.ListContainers()
 		if err != nil {
 			log.Debugf("could not connect to local Docker Engine: %s", err)
-			go StartEvent(args, args.Mode, nil, "")
 		} else {
 			log.Debugf("connected to local Docker Engine")
-			go StartEvent(args, args.Mode, localClient, "")
 			clients = append(clients, docker_support.NewDockerClientService(localClient))
 		}
 	}
@@ -52,5 +50,5 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 	}
 
 	clientManager := docker_support.NewRetriableClientManager(args.RemoteAgent, certs, clients...)
-	return docker_support.NewMultiHostService(clientManager)
+	return localClient, docker_support.NewMultiHostService(clientManager)
 }
