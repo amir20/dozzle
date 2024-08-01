@@ -33,6 +33,7 @@ func StartEvent(args Args, mode string, client docker.Client, subCommand string)
 		event.ServerID = "n/a"
 	}
 
+	log.Tracef("sending beacon event: %+v", event)
 	if err := analytics.SendBeacon(event); err != nil {
 		log.Debug(err)
 	}

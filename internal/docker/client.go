@@ -81,7 +81,6 @@ type httpClient struct {
 }
 
 func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
-
 	info, err := cli.Info(context.Background())
 	if err != nil {
 		log.Errorf("unable to get docker info: %v", err)
@@ -95,6 +94,7 @@ func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 		cli:     cli,
 		filters: filters,
 		host:    host,
+		info:    info,
 	}
 }
 
