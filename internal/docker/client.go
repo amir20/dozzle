@@ -368,7 +368,6 @@ func newContainer(c types.Container, host string) Container {
 		ID:      c.ID[:12],
 		Name:    name,
 		Image:   c.Image,
-		ImageID: c.ImageID,
 		Command: c.Command,
 		Created: time.Unix(c.Created, 0),
 		State:   c.State,
@@ -390,11 +389,12 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 		group = c.Config.Labels["dev.dozzle.group"]
 	}
 
+	log.Debugf("newContainerFromJSON: %s", c.Config.Image)
+
 	container := Container{
 		ID:      c.ID[:12],
 		Name:    name,
-		Image:   c.Image,
-		ImageID: c.Image,
+		Image:   c.Config.Image,
 		Command: strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
 		State:   c.State.Status,
 		Host:    host,
