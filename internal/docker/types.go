@@ -13,7 +13,6 @@ type Container struct {
 	ID        string                           `json:"id"`
 	Name      string                           `json:"name"`
 	Image     string                           `json:"image"`
-	ImageID   string                           `json:"imageId"`
 	Command   string                           `json:"command"`
 	Created   time.Time                        `json:"created"`
 	StartedAt time.Time                        `json:"startedAt,omitempty"`
