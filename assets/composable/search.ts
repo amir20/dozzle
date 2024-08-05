@@ -25,7 +25,7 @@ function matchRecord(record: Record<string, any>, regex: RegExp): boolean {
 export function useSearchFilter() {
   const regex = $computed(() => {
     const isSmartCase = debouncedSearchFilter.value === debouncedSearchFilter.value.toLowerCase();
-    return new RegExp(encodeXML(debouncedSearchFilter.value), isSmartCase ? "ig" : "g");
+    return new RegExp(encodeXML(debouncedSearchFilter.value), isSmartCase ? "i" : "");
   });
 
   function filteredMessages(messages: Ref<LogEntry<string | JSONObject>[]>) {
@@ -34,7 +34,9 @@ export function useSearchFilter() {
         try {
           return messages.value.filter((d) => {
             if (d instanceof SimpleLogEntry) {
-              return regex.test(d.message);
+              const match = regex.test(d.message);
+
+              return match;
             } else if (d instanceof ComplexLogEntry) {
               return matchRecord(d.message, regex);
             }
@@ -63,7 +65,8 @@ export function useSearchFilter() {
       return log.map((d) => markSearch(d));
     }
 
-    return log.toString().replace(regex, (match) => `<mark>${match}</mark>`);
+    const globalRegex = new RegExp(regex.source, regex.flags + "g");
+    return log.toString().replaceAll(globalRegex, (match) => `<mark>${match}</mark>`);
   }
 
   function resetSearch() {

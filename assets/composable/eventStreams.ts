@@ -192,6 +192,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     if (!loadMoreUrl) return;
     if (fetchingInProgress) return;
 
+    console.log("Loading older logs");
+
     const to = messages[0].date;
     const last = messages[Math.min(messages.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
