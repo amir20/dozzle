@@ -34,9 +34,7 @@ export function useSearchFilter() {
         try {
           return messages.value.filter((d) => {
             if (d instanceof SimpleLogEntry) {
-              const match = regex.test(d.message);
-
-              return match;
+              return regex.test(d.message);
             } else if (d instanceof ComplexLogEntry) {
               return matchRecord(d.message, regex);
             }
