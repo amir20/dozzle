@@ -15,7 +15,7 @@
   "license": "ISC",
   "author": "Amir Raminfar <findamir@gmail.com>",
   "scripts": {
-    "agent:dev": "DOZZLE_AGENT_ADDR=localhost:7007 reflex -c .reflex.agent",
+    "agent:dev": "DOZZLE_AGENT_ADDR=localhost:7007 DEV=true reflex -c .reflex.agent",
     "watch:frontend": "vite --open http://localhost:3100/",
     "watch:backend": "LIVE_FS=true DEV=true DOZZLE_ADDR=localhost:3100 reflex -c .reflex.server",
     "dev": "concurrently --kill-others \"npm:watch:*\"",

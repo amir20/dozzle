@@ -30,6 +30,7 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/goccy/go-json v0.10.3
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
+	github.com/rs/zerolog v1.33.0
 	github.com/samber/lo v1.47.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.7.4
@@ -59,6 +60,8 @@ require (
 	github.com/lestrrat-go/jwx/v2 v2.1.1 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

@@ -1,17 +1,22 @@
 package cli
 
 import (
-	log "github.com/sirupsen/logrus"
+	"os"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func ConfigureLogger(level string) {
-	if l, err := log.ParseLevel(level); err == nil {
-		log.SetLevel(l)
+	if level, err := zerolog.ParseLevel(level); err == nil {
+		zerolog.SetGlobalLevel(level)
 	} else {
 		panic(err)
 	}
 
-	log.SetFormatter(&log.TextFormatter{
-		DisableLevelTruncation: true,
-	})
+	_, dev := os.LookupEnv("DEV")
+
+	if dev {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
 }
