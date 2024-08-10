@@ -8,6 +8,7 @@
           </div>
         </div>
         <MultiContainerStat class="ml-auto" :containers="group.containers" />
+        <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>
@@ -25,6 +26,7 @@
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
 import { GroupedContainers } from "@/models/Container";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   name: string;
@@ -32,6 +34,7 @@ const { name, scrollable = false } = defineProps<{
 }>();
 
 const containerStore = useContainerStore();
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 
 const { ready } = storeToRefs(containerStore);
 

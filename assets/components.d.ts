@@ -71,6 +71,7 @@ declare module 'vue' {
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
+    MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']
     MultiContainerLog: typeof import('./components/MultiContainerViewer/MultiContainerLog.vue')['default']
     MultiContainerStat: typeof import('./components/LogViewer/MultiContainerStat.vue')['default']
     'Octicon:container24': typeof import('~icons/octicon/container24')['default']

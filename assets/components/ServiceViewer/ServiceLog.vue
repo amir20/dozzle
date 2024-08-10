@@ -11,6 +11,7 @@
           </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
+        <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>
@@ -28,6 +29,7 @@
 <script lang="ts" setup>
 import { Service } from "@/models/Stack";
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { name, scrollable = false } = defineProps<{
   scrollable?: boolean;
@@ -35,7 +37,7 @@ const { name, scrollable = false } = defineProps<{
 }>();
 
 const visibleKeys = ref<string[][]>([]);
-
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
