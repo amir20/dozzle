@@ -389,8 +389,6 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 		group = c.Config.Labels["dev.dozzle.group"]
 	}
 
-	log.Debugf("newContainerFromJSON: %s", c.Config.Image)
-
 	container := Container{
 		ID:      c.ID[:12],
 		Name:    name,
