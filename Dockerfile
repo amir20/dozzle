@@ -57,12 +57,11 @@ RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X 
 
 RUN mkdir /data
 
-FROM alpine
+FROM scratch
 
 COPY --from=builder /data /data
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /dozzle/dozzle /dozzle
-RUN apk add --no-cache bind-tools
 
 EXPOSE 8080
 
