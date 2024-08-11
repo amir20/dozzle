@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"os"
 	"sync"
 
 	"github.com/amir20/dozzle/internal/agent"
@@ -23,6 +24,7 @@ type SwarmClientManager struct {
 	subscribers *xsync.MapOf[context.Context, chan<- docker.Host]
 	localClient docker.Client
 	localIPs    []string
+	name        string
 }
 
 func localIPs() []string {
@@ -47,12 +49,27 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 	localService := NewDockerClientService(localClient)
 	clientMap[localClient.Host().ID] = localService
 
+	id, ok := os.LookupEnv("HOSTNAME")
+	if !ok {
+		log.Fatal("HOSTNAME environment variable not set when looking for swarm service name")
+	}
+
+	container, err := localClient.FindContainer(id)
+	if err != nil {
+		log.Fatalf("error finding container %s: %v", id, err)
+	}
+
+	serviceName := container.Labels["com.docker.swarm.service.name"]
+
+	log.Debugf("found swarm internal service name: %s", serviceName)
+
 	return &SwarmClientManager{
 		localClient: localClient,
 		clients:     clientMap,
 		certs:       certs,
 		subscribers: xsync.NewMapOf[context.Context, chan<- docker.Host](),
 		localIPs:    localIPs(),
+		name:        serviceName,
 	}
 }
 
@@ -67,13 +84,15 @@ func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- docke
 
 func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 	m.mu.Lock()
+
+	log.Debugf("looking up swarm services: tasks.%s", m.name)
+	ips, err := net.LookupIP(fmt.Sprintf("tasks.%s", m.name))
+
 	errors := make([]error, 0)
-
-	ips, err := net.LookupIP("tasks.dozzle")
-
 	if err != nil {
 		log.Fatalf("error looking up swarm services: %v", err)
 		errors = append(errors, err)
+		m.mu.Unlock()
 		return m.List(), errors
 	}
 
