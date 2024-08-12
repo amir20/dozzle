@@ -1,0 +1,19 @@
+services:
+  agent:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_LEVEL=debug
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: cert
+        target: /dozzle_cert.pem
+      - source: key
+        target: /dozzle_key.pem
+    ports:
+      - 7070:7070
+secrets:
+  cert:
+    file: ../shared_cert.pem
+  key:
+    file: ../shared_key.pem
