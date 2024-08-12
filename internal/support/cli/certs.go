@@ -9,7 +9,7 @@ import (
 
 func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
 	if pair, err := tls.LoadX509KeyPair("dozzle_cert.pem", "dozzle_key.pem"); err == nil {
-		log.Infof("using dozzle certificate and key at ./dozzle_cert.pem and ./dozzle_key.pem")
+		log.Infof("Found dozzle certificate and key at ./dozzle_cert.pem and ./dozzle_key.pem")
 		return pair, nil
 	}
 
