@@ -1,5 +1,5 @@
 services:
-  my-dozzle-service:
+  dozzle-service:
     image: amir20/dozzle:local-test
     environment:
       - DOZZLE_LEVEL=debug
