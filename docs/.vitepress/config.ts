@@ -65,6 +65,7 @@ export default defineConfig({
           { text: "Actions", link: "/guide/actions" },
           { text: "Agent Mode", link: "/guide/agent" },
           { text: "Changing Base", link: "/guide/changing-base" },
+          { text: "Container Names", link: "/guide/container-names" },
           { text: "Container Groups", link: "/guide/container-groups" },
           { text: "Data Analytics", link: "/guide/analytics" },
           { text: "Display Name", link: "/guide/hostname" },
