@@ -13,6 +13,6 @@ services:
       - 7070:7070
 secrets:
   cert:
-    file: ../shared_cert.pem
+    file: ./cert.pem
   key:
-    file: ../shared_key.pem
+    file: ./key.pem
