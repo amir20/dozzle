@@ -15,15 +15,17 @@ https://user-images.githubusercontent.com/260667/227634771-9ebbe381-16a8-465a-b2
 - Search logs using regex 🔦
 - Small memory footprint 🏎
 - Split screen for viewing multiple logs
-- Download logs easily
 - Live stats with memory and CPU usage
 - Multi-user authentication with support for proxy forward authorization 🚨
+- Swarm mode support 🐳
+- Agent mode for monitoring multiple Docker hosts 🕵️‍♂️
+- Dark mode 🌙
 
 Dozzle has been tested with hundreds of containers. However, it doesn't support offline searching. Products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited for full search capabilities.
 
 ## Getting Started
 
-Dozzle is a small container (4 MB compressed). Pull the latest release with:
+Dozzle is a small container (7 MB compressed). Pull the latest release with:
 
     $ docker pull amir20/dozzle:latest
 
@@ -31,9 +33,9 @@ Dozzle is a small container (4 MB compressed). Pull the latest release with:
 
 The simplest way to use dozzle is to run the docker container. Also, mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
-    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8888:8080 amir20/dozzle:latest
+    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
 
-Dozzle will be available at [http://localhost:8888/](http://localhost:8888/).
+Dozzle will be available at [http://localhost:8080/](http://localhost:8080/).
 
 Here is the Docker Compose file:
 
@@ -47,6 +49,22 @@ Here is the Docker Compose file:
           - 8888:8080
 
 For advanced options like [authentication](https://dozzle.dev/guide/authentication), [remote hosts](https://dozzle.dev/guide/remote-hosts) or common [questions](https://dozzle.dev/guide/faq) see documentation at [dozzle.dev](https://dozzle.dev/guide/getting-started).
+
+## Swarm Mode
+
+Dozzle works with Docker Swarm mode. You can run Dozzle as a global service with:
+
+    $ docker service create --name dozzle --env DOZZLE_MODE=swarm --mode global --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+
+See the [Swarm Mode](https://dozzle.dev/guide/swarm-mode) documentation for more details.
+
+## Agent Mode
+
+Dozzle can be used to monitor multiple Docker hosts. You can run Dozzle in agent mode with:
+
+    $ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent
+
+See the [Agent Mode](https://dozzle.dev/guide/agent-mode) documentation for more details.
 
 ## Technical Details
 
@@ -92,21 +110,22 @@ If you do not want to be tracked at all, see the `--no-analytics` flag below.
 
 Dozzle follows the [12-factor](https://12factor.net/) model. Configurations can use the CLI flags or environment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag                        | Env Variable                     | Default        |
-| --------------------------- | -------------------------------- | -------------- |
-| `--addr`                    | `DOZZLE_ADDR`                    | `:8080`        |
-| `--base`                    | `DOZZLE_BASE`                    | `/`            |
-| `--hostname`                | `DOZZLE_HOSTNAME`                | `""`           |
-| `--level`                   | `DOZZLE_LEVEL`                   | `info`         |
-| `--auth-provider`           | `DOZZLE_AUTH_PROVIDER`           | `none`         |
-| `--auth-header-user`        | `DOZZLE_AUTH_HEADER_USER`        | `Remote-User`  |
-| `--auth-header-email`       | `DOZZLE_AUTH_HEADER_EMAIL`       | `Remote-Email` |
-| `--auth-header-name`        | `DOZZLE_AUTH_HEADER_NAME`        | `Remote-Name`  |
-| `--enable-actions`          | `DOZZLE_ENABLE_ACTIONS`          | false          |
-| `--wait-for-docker-seconds` | `DOZZLE_WAIT_FOR_DOCKER_SECONDS` | 0              |
-| `--filter`                  | `DOZZLE_FILTER`                  | `""`           |
-| `--no-analytics`            | `DOZZLE_NO_ANALYTICS`            | false          |
-| `--remote-host`             | `DOZZLE_REMOTE_HOST`             |                |
+| Flag                  | Env Variable               | Default        |
+| --------------------- | -------------------------- | -------------- |
+| `--addr`              | `DOZZLE_ADDR`              | `:8080`        |
+| `--base`              | `DOZZLE_BASE`              | `/`            |
+| `--hostname`          | `DOZZLE_HOSTNAME`          | `""`           |
+| `--level`             | `DOZZLE_LEVEL`             | `info`         |
+| `--auth-provider`     | `DOZZLE_AUTH_PROVIDER`     | `none`         |
+| `--auth-header-user`  | `DOZZLE_AUTH_HEADER_USER`  | `Remote-User`  |
+| `--auth-header-email` | `DOZZLE_AUTH_HEADER_EMAIL` | `Remote-Email` |
+| `--auth-header-name`  | `DOZZLE_AUTH_HEADER_NAME`  | `Remote-Name`  |
+| `--enable-actions`    | `DOZZLE_ENABLE_ACTIONS`    | false          |
+| `--filter`            | `DOZZLE_FILTER`            | `""`           |
+| `--no-analytics`      | `DOZZLE_NO_ANALYTICS`      | false          |
+| `--mode`              | `DOZZLE_MODE`              | `server`       |
+| `--remote-host`       | `DOZZLE_REMOTE_HOST`       |                |
+| `--remote-agent`      | `DOZZLE_REMOTE_AGENT`      |                |
 
 ## Support
 
