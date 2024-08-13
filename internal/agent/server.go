@@ -6,13 +6,14 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
+
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -302,11 +303,11 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string) *grpc.Server {
+func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
-		log.Fatalf("failed to parse certificate: %v", err)
+		return nil, fmt.Errorf("failed to parse certificate: %w", err)
 	}
 	caCertPool.AddCert(c)
 
@@ -323,7 +324,7 @@ func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion))
 
-	return grpcServer
+	return grpcServer, nil
 }
 
 func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
@@ -344,7 +345,7 @@ func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
 		})
 
 	default:
-		log.Fatalf("agent server: unknown type %T", event.Message)
+		log.Fatal().Msgf("unknown message type: %T", data)
 	}
 
 	return &pb.LogEvent{

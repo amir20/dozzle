@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type contextKey string
@@ -49,6 +49,6 @@ func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 }
 
 func (p *proxyAuthContext) CreateToken(username, password string) (string, error) {
-	log.Fatalf("CreateToken not implemented for proxy auth")
+	log.Fatal().Msg("CreateToken not implemented in proxy auth")
 	return "", nil
 }

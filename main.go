@@ -56,7 +56,10 @@ func main() {
 			}
 			io.WriteString(tempFile, listener.Addr().String())
 			go cli.StartEvent(args, "", client, "agent")
-			server := agent.NewServer(client, certs, args.Version())
+			server, err := agent.NewServer(client, certs, args.Version())
+			if err != nil {
+				log.Fatal().Err(err).Msg("failed to create agent server")
+			}
 			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer stop()
 			go func() {
@@ -159,7 +162,10 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
-		server := agent.NewServer(localClient, certs, args.Version())
+		server, err := agent.NewServer(localClient, certs, args.Version())
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create agent")
+		}
 		go cli.StartEvent(args, "swarm", localClient, "")
 		go func() {
 			log.Info().Msgf("Dozzle agent version %s", args.Version())

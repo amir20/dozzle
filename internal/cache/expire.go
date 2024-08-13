@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type Cache[T any] struct {
@@ -36,11 +36,7 @@ func (c *Cache[T]) GetWithHit() (T, error, bool) {
 		}
 		c.Timestamp = time.Now()
 	}
-	if hit {
-		log.Debugf("Cache hit for %T", c.Data)
-	} else {
-		log.Debugf("Cache miss for %T", c.Data)
-	}
+	log.Debug().Bool("hit", hit).Interface("data", c.Data).Msg("Cache hit")
 	return c.Data, nil, hit
 }
 
