@@ -75,7 +75,6 @@ func main() {
 			os.Remove(tempFile.Name())
 
 		case *cli.HealthcheckCmd:
-			go cli.StartEvent(args, "", nil, "healthcheck")
 			files, err := os.ReadDir(".")
 			if err != nil {
 				log.Fatalf("Failed to read directory: %v", err)
