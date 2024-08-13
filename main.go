@@ -107,7 +107,7 @@ func main() {
 			}
 
 		case *cli.GenerateCmd:
-			go cli.StartEvent(args, "", nil, "generate")
+			cli.StartEvent(args, "", nil, "generate")
 			if args.Generate.Username == "" || args.Generate.Password == "" {
 				log.Fatal("Username and password are required")
 			}
