@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func ValidateEnvVars(types ...interface{}) {
@@ -26,7 +26,7 @@ func ValidateEnvVars(types ...interface{}) {
 	for _, env := range os.Environ() {
 		actual := strings.Split(env, "=")[0]
 		if strings.HasPrefix(actual, "DOZZLE_") && !expectedEnvs[actual] {
-			log.Warnf("Unexpected environment variable %s", actual)
+			log.Warn().Str("env", actual).Msg("Unexpected environment variable")
 		}
 	}
 }

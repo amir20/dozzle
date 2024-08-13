@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func StartEvent(args Args, mode string, client docker.Client, subCommand string) {
@@ -33,8 +33,8 @@ func StartEvent(args Args, mode string, client docker.Client, subCommand string)
 		event.ServerID = "n/a"
 	}
 
-	log.Tracef("sending beacon event: %+v", event)
+	log.Trace().Interface("event", event).Msg("Sending analytics event")
 	if err := analytics.SendBeacon(event); err != nil {
-		log.Debug(err)
+		log.Debug().Err(err).Msg("Failed to send analytics event")
 	}
 }
