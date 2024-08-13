@@ -137,8 +137,10 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.Log
 
 		case *pb.ComplexMessage:
 			message = jsonBytesToOrderedMap(m.Data)
+
 		default:
-			log.Error().Msgf("agent client: unknown message type: %T", m)
+			log.Error().Type("message", m).Msg("agent client: unknown message type")
+			continue
 		}
 
 		events <- &docker.LogEvent{

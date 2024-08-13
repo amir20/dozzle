@@ -345,7 +345,7 @@ func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
 		})
 
 	default:
-		log.Fatal().Msgf("unknown message type: %T", data)
+		log.Error().Type("message", event.Message).Msg("agent server: unknown message type")
 	}
 
 	return &pb.LogEvent{

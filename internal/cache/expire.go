@@ -36,7 +36,7 @@ func (c *Cache[T]) GetWithHit() (T, error, bool) {
 		}
 		c.Timestamp = time.Now()
 	}
-	log.Debug().Bool("hit", hit).Interface("data", c.Data).Msg("Cache hit")
+	log.Debug().Bool("hit", hit).Type("data", c.Data).Msg("Cache hit")
 	return c.Data, nil, hit
 }
 
