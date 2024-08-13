@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
@@ -19,11 +19,11 @@ func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
 		})
-		log.Infof("Token created for user %s", user)
+		log.Info().Str("user", user).Msg("Token created")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(http.StatusText(http.StatusOK)))
 	} else {
-		log.Errorf("Error while creating token: %v", err)
+		log.Error().Err(err).Msg("Failed to create token")
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 	}
 }

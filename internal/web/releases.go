@@ -7,7 +7,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/cache"
 	"github.com/amir20/dozzle/internal/releases"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 var cachedReleases *cache.Cache[[]releases.Release]
@@ -22,7 +22,7 @@ func (h *handler) releases(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Debugf("error reading releases: %v", err)
+		log.Debug().Err(err).Msg("error fetching releases")
 		return
 	}
 
@@ -32,6 +32,7 @@ func (h *handler) releases(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(releases); err != nil {
-		log.Errorf("json encoding error while streaming %v", err.Error())
+		log.Error().Err(err).Msg("error encoding releases")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

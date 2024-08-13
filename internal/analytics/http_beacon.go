@@ -33,7 +33,7 @@ func SendBeacon(e BeaconEvent) error {
 		if err != nil {
 			return err
 		}
-		log.Error().Str("response", string(dump)).Msg("google analytics returned non-2xx status code")
+		log.Debug().Str("response", string(dump)).Msg("google analytics returned non-2xx status code")
 		return fmt.Errorf("google analytics returned non-2xx status code: %v", response.Status)
 	}
 

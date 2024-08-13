@@ -21,7 +21,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,9 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	events, err := containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
 	if err != nil {
-		log.Errorf("error while streaming logs %v", err.Error())
+		log.Error().Err(err).Msg("error fetching logs")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	buffer := utils.NewRingBuffer[*docker.LogEvent](500)
@@ -117,7 +119,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	encoder := json.NewEncoder(w)
 	for _, event := range buffer.Data() {
 		if err := encoder.Encode(event); err != nil {
-			log.Errorf("json encoding error while streaming %v", err.Error())
+			log.Error().Err(err).Msg("error encoding log event")
+			return
 		}
 	}
 }
@@ -202,22 +205,22 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	defer ticker.Stop()
 	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
 	if len(errs) > 0 {
-		log.Warnf("error while listing containers %v", errs)
+		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
 
 	streamLogs := func(container docker.Container) {
 		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 		if err != nil {
-			log.Errorf("error while finding container %v", err.Error())
+			log.Error().Err(err).Msg("error while finding container")
 			return
 		}
 		err = containerService.StreamLogs(r.Context(), container.StartedAt, stdTypes, logs)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
-				log.WithError(err).Debugf("stream closed for container %v", container.Name)
+				log.Debug().Str("container", container.ID).Msg("streaming ended")
 				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
 			} else if !errors.Is(err, context.Canceled) {
-				log.Errorf("unknown error while streaming %v", err.Error())
+				log.Error().Err(err).Str("container", container.ID).Msg("unknown error while streaming logs")
 			}
 		}
 	}
@@ -234,7 +237,7 @@ loop:
 		select {
 		case event := <-logs:
 			if buf, err := json.Marshal(event); err != nil {
-				log.Errorf("json encoding error while streaming %v", err.Error())
+				log.Error().Err(err).Msg("error encoding log event")
 			} else {
 				fmt.Fprintf(w, "data: %s\n", buf)
 			}
@@ -251,28 +254,26 @@ loop:
 			go streamLogs(container)
 
 		case event := <-events:
-			log.Debugf("received container event %v", event)
+			log.Debug().Str("event", event.Name).Str("container", event.ActorID).Msg("received event")
 			if buf, err := json.Marshal(event); err != nil {
-				log.Errorf("json encoding error while streaming %v", err.Error())
+				log.Error().Err(err).Msg("error encoding container event")
 			} else {
 				fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", buf)
 				f.Flush()
 			}
 
 		case <-r.Context().Done():
-			log.Debugf("context cancelled")
 			break loop
 		}
 	}
 
-	if log.IsLevelEnabled(log.DebugLevel) {
+	if e := log.Debug(); e.Enabled() {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		log.WithFields(log.Fields{
-			"allocated":      humanize.Bytes(m.Alloc),
-			"totalAllocated": humanize.Bytes(m.TotalAlloc),
-			"system":         humanize.Bytes(m.Sys),
-			"routines":       runtime.NumGoroutine(),
-		}).Debug("runtime mem stats")
+		e.Str("allocated", humanize.Bytes(m.Alloc)).
+			Str("totalAllocated", humanize.Bytes(m.TotalAlloc)).
+			Str("system", humanize.Bytes(m.Sys)).
+			Int("routines", runtime.NumGoroutine()).
+			Msg("runtime mem stats")
 	}
 }

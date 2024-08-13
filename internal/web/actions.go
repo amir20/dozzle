@@ -5,35 +5,33 @@ import (
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/go-chi/chi/v5"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	action := chi.URLParam(r, "action")
 	id := chi.URLParam(r, "id")
 
-	log.Debugf("container action: %s, container id: %s", action, id)
-
 	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
-		log.Errorf("error while trying to find container: %v", err)
+		log.Error().Err(err).Msg("error while trying to find container")
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	parsedAction, err := docker.ParseContainerAction(action)
 	if err != nil {
-		log.Errorf("error while trying to parse action: %s", action)
+		log.Error().Err(err).Msg("error while trying to parse action")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := containerService.Action(parsedAction); err != nil {
-		log.Errorf("error while trying to perform action: %s", action)
+		log.Error().Err(err).Msg("error while trying to perform container action")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	log.Infof("container action performed: %s; container id: %s", action, id)
+	log.Info().Str("action", action).Str("container", containerService.Container.Name).Msg("container action performed")
 	http.Error(w, "", http.StatusNoContent)
 }
