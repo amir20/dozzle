@@ -356,7 +356,9 @@ func (d *httpClient) SystemInfo() system.Info {
 
 func newContainer(c types.Container, host string) Container {
 	name := "no name"
-	if len(c.Names) > 0 {
+	if c.Labels["dev.dozzle.name"] != "" {
+		name = c.Labels["dev.dozzle.name"]
+	} else if len(c.Names) > 0 {
 		name = strings.TrimPrefix(c.Names[0], "/")
 	}
 
@@ -380,7 +382,9 @@ func newContainer(c types.Container, host string) Container {
 
 func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 	name := "no name"
-	if len(c.Name) > 0 {
+	if c.Config.Labels["dev.dozzle.name"] != "" {
+		name = c.Config.Labels["dev.dozzle.name"]
+	} else if len(c.Name) > 0 {
 		name = strings.TrimPrefix(c.Name, "/")
 	}
 
