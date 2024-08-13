@@ -19,7 +19,6 @@ docker run --label dev.dozzle.name=hello hello-world
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: hello-world

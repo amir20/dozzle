@@ -21,7 +21,6 @@ docker run -v /var/log/system.log:/var/log/test.log alpine tail -f /var/log/test
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle-from-file:
     container_name: dozzle-from-file
@@ -31,7 +30,7 @@ services:
     command:
       - tail
       - -f
-      - /var/log/stream.log     
+      - /var/log/stream.log
     network_mode: none
     restart: unless-stopped
 ```

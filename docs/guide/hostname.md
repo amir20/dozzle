@@ -15,7 +15,6 @@ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir2
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest

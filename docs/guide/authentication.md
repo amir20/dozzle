@@ -38,7 +38,6 @@ $ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/dat
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest
@@ -86,7 +85,6 @@ $ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/do
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest
@@ -113,8 +111,6 @@ In this mode, Dozzle expects the following headers:
 ::: code-group
 
 ```yaml [docker-compose.yml]
-version: "3.3"
-
 networks:
   net:
     driver: bridge
@@ -252,8 +248,6 @@ software. This section defines how Dozzle can be setup to use Cloudflare Zero
 Trust for authentication.
 
 ```yaml [docker-compose.yml]
-version: "3.3"
-
 services:
   dozzle:
     image: amir20/dozzle:latest

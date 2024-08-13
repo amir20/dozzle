@@ -17,7 +17,6 @@ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir2
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest
@@ -25,8 +24,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 8080:8080
-    environment:
-      DOZZLE_ENABLE_ACTIONS=true
+    environment: DOZZLE_ENABLE_ACTIONS=true
 ```
 
 :::

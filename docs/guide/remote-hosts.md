@@ -26,7 +26,6 @@ $ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/certs:/cer
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest
@@ -72,7 +71,6 @@ docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir2
 ```
 
 ```yaml [docker-compose.yml]
-version: "3"
 services:
   dozzle:
     image: amir20/dozzle:latest

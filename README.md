@@ -37,7 +37,6 @@ Dozzle will be available at [http://localhost:8888/](http://localhost:8888/).
 
 Here is the Docker Compose file:
 
-    version: "3"
     services:
       dozzle:
         container_name: dozzle
