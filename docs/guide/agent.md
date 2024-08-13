@@ -2,7 +2,7 @@
 title: Agent Mode
 ---
 
-# Agent Mode <Badge type="tip" text="Beta" />
+# Agent Mode
 
 Dozzle can run in agent mode which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
@@ -116,3 +116,43 @@ services:
 :::
 
 This will change the agent's name to `my-special-name` and reflected on the UI when connecting to the agent.
+
+## Custom certificates
+
+By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed extenrally and an attacker knows exactly which port the agent is running on, then they can setup their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
+
+To provide custom certificates, you need to mount or use secrets to provide the certificates. Here is an example:
+
+```yml
+services:
+  agent:
+    image: amir20/dozzle:latest
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: cert
+        target: /dozzle_cert.pem
+      - source: key
+        target: /dozzle_key.pem
+    ports:
+      - 7070:7070
+secrets:
+  cert:
+    file: ./cert.pem
+  key:
+    file: ./key.pem
+```
+
+> [!TIP]
+> Docker secrets are preferred for providing certificates. The can be created using `docker secret create` command or as the example above using `docker-compose.yml`. The same certificates should be provided to the Dozzle instance connecting to the agent.
+
+This will mount the `cert.pem` and `key.pem` files to the agent. The agent will use these certificates for communication. The same certificates should be provided to the Dozzle instance connecting to the agent.
+
+To generate certificates, you can use the following command:
+
+```sh
+$ openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+$ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=San Francisco/O=My Company"
+$ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
+```
