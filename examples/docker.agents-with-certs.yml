@@ -1,0 +1,18 @@
+services:
+  agent:
+    image: amir20/dozzle:pr-3196
+    command: agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: cert
+        target: /dozzle_cert.pem
+      - source: key
+        target: /dozzle_key.pem
+    ports:
+      - 7070:7070
+secrets:
+  cert:
+    file: ./cert.pem
+  key:
+    file: ./key.pem
