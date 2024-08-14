@@ -151,7 +151,7 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 	log.Debug().Interface("filterArgs", filterArgs).Msg("Creating remote client")
 
 	if host.URL.Scheme != "tcp" {
-		return nil, fmt.Errorf("Invalid scheme: %s", host.URL.Scheme)
+		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
 
 	opts := []client.Opt{
