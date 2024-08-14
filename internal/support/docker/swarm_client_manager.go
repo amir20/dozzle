@@ -109,7 +109,7 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	for _, ip := range ips {
 		if lo.Contains(m.localIPs, ip.String()) {
-			log.Debug().Str("ip", ip.String()).Msg("skipping local IP")
+			log.Debug().Stringer("ip", ip).Msg("skipping local IP")
 			continue
 		}
 
@@ -120,32 +120,32 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 		agent, err := agent.NewClient(ip.String()+":7007", m.certs)
 		if err != nil {
-			log.Warn().Err(err).Str("ip", ip.String()).Msg("error creating agent client")
+			log.Warn().Err(err).Stringer("ip", ip).Msg("error creating agent client")
 			errors = append(errors, err)
 			continue
 		}
 
 		host, err := agent.Host()
 		if err != nil {
-			log.Warn().Err(err).Str("ip", ip.String()).Msg("error getting host from agent client")
+			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)
 			if err := agent.Close(); err != nil {
-				log.Warn().Err(err).Str("ip", ip.String()).Msg("error closing agent client")
+				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
 			}
 			continue
 		}
 
 		if host.ID == m.localClient.Host().ID {
-			log.Warn().Str("ip", ip.String()).Msg("skipping local client")
+			log.Debug().Stringer("ip", ip).Msg("skipping local client")
 			if err := agent.Close(); err != nil {
-				log.Warn().Err(err).Str("ip", ip.String()).Msg("error closing agent client")
+				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
 			}
 			continue
 		}
 
 		client := NewAgentService(agent)
 		m.clients[host.ID] = client
-		log.Info().Str("ip", ip.String()).Str("id", host.ID).Str("name", host.Name).Msg("added new client")
+		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
 		m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
 			host.Available = true
