@@ -16,7 +16,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/profile"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) index(w http.ResponseWriter, req *http.Request) {
@@ -70,15 +70,15 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 		config["user"] = user
 	} else if h.config.Authorization.Provider == FORWARD_PROXY {
-		log.Error("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
-		log.Debugf("Dumping all headers for url /%s", req.URL.String())
+		log.Error().Msg("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
+		log.Debug().Str("url", req.URL.String()).Msg("Dumping all headers for request")
 		for k, v := range req.Header {
-			log.Debugf("%s: %s", k, v)
+			log.Debug().Strs(k, v).Send()
 		}
 		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
 		return
 	} else if h.config.Authorization.Provider == SIMPLE && req.URL.Path != "login" {
-		log.Debugf("Redirecting to login page for url /%s", req.URL.String())
+		log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
 		http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
 		return
 	}
@@ -91,11 +91,11 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	}
 	file, err := h.content.Open("index.html")
 	if err != nil {
-		log.Panic(err)
+		log.Fatal().Err(err).Msg("Could not open index.html")
 	}
 	bytes, err := io.ReadAll(file)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal().Err(err).Msg("Could not read index.html")
 	}
 	tmpl, err := template.New("index.html").Funcs(template.FuncMap{
 		"marshal": func(v interface{}) template.JS {
@@ -109,13 +109,12 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		},
 	}).Parse(string(bytes))
 	if err != nil {
-		log.Panic(err)
+		log.Fatal().Err(err).Msg("Could not parse index.html")
 	}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
-		log.Panic(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatal().Err(err).Msg("Could not execute index.html")
 	}
 }
 
@@ -130,12 +129,12 @@ func (h *handler) readManifest() map[string]interface{} {
 		}
 		bytes, err := io.ReadAll(file)
 		if err != nil {
-			log.Fatalf("Could not read .vite/manifest.json: %v", err)
+			log.Fatal().Err(err).Msg("Could not read .vite/manifest.json")
 		}
 		var manifest map[string]interface{}
 		err = json.Unmarshal(bytes, &manifest)
 		if err != nil {
-			log.Fatalf("Could not parse .vite/manifest.json: %v", err)
+			log.Fatal().Err(err).Msg("Could not unmarshal .vite/manifest.json")
 		}
 		return manifest
 	}

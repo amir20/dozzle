@@ -17,7 +17,7 @@ import (
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type EventGenerator struct {
@@ -100,7 +100,6 @@ func (g *EventGenerator) consumeReader() {
 
 		if readerError != nil {
 			if readerError != ErrBadHeader {
-				log.Tracef("reader error: %v", readerError)
 				g.Errors <- readerError
 				close(g.buffer)
 				break
@@ -141,7 +140,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 			return "", streamType, err
 		}
 		if n != 8 {
-			log.Warnf("unable to read header: %v", header)
+			log.Warn().Bytes("header", header).Msg("short read")
 			message, _ := reader.ReadString('\n')
 			return message, streamType, ErrBadHeader
 		}
@@ -152,7 +151,7 @@ func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
 		case 2:
 			streamType = STDERR
 		default:
-			log.Warnf("unknown stream type: %v", header[0])
+			log.Warn().Bytes("header", header).Msg("unknown stream type")
 		}
 
 		count := binary.BigEndian.Uint32(header[4:])
@@ -183,7 +182,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 					var jsonErr *json.UnmarshalTypeError
 					if errors.As(err, &jsonErr) {
 						if jsonErr.Value == "string" {
-							log.Warnf("unable to parse json logs - error was \"%v\" while trying unmarshal \"%v\"", err.Error(), message)
+							log.Warn().Err(err).Str("value", jsonErr.Value).Msg("failed to unmarshal json")
 						}
 					}
 				} else {

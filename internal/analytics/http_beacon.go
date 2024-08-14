@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func SendBeacon(e BeaconEvent) error {
-	log.Tracef("sending beacon: %+v", e)
+	log.Trace().Interface("event", e).Msg("sending beacon")
 	jsonValue, err := json.Marshal(e)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func SendBeacon(e BeaconEvent) error {
 		if err != nil {
 			return err
 		}
-		log.Debugf("%v", string(dump))
+		log.Debug().Str("response", string(dump)).Msg("google analytics returned non-2xx status code")
 		return fmt.Errorf("google analytics returned non-2xx status code: %v", response.Status)
 	}
 

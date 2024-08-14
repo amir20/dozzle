@@ -3,17 +3,17 @@ package web
 import (
 	"net/http"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
-	log.Trace("Executing healthcheck request")
+	log.Trace().Msg("Healthcheck request received")
 
 	_, errors := h.multiHostService.ListAllContainers()
 	if len(errors) > 0 {
-		log.Error(errors)
+		log.Error().Err(errors[0]).Msg("Error listing containers")
 		http.Error(w, "Error listing containers", http.StatusInternalServerError)
 	} else {
-		http.Error(w, "OK", http.StatusOK)
+		w.WriteHeader(http.StatusOK)
 	}
 }

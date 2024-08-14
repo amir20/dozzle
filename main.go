@@ -21,8 +21,7 @@ import (
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 //go:embed all:dist
@@ -40,44 +39,48 @@ func main() {
 		case *cli.AgentCmd:
 			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
 			if err != nil {
-				log.Fatalf("Could not create docker client: %v", err)
+				log.Fatal().Err(err).Msg("Could not create docker client")
 			}
 			certs, err := cli.ReadCertificates(certs)
 			if err != nil {
-				log.Fatalf("Could not read certificates: %v", err)
+				log.Fatal().Err(err).Msg("Could not read certificates")
 			}
 
 			listener, err := net.Listen("tcp", args.Agent.Addr)
 			if err != nil {
-				log.Fatalf("failed to listen: %v", err)
+				log.Fatal().Err(err).Msg("failed to listen")
 			}
 			tempFile, err := os.CreateTemp("./", "agent-*.addr")
 			if err != nil {
-				log.Fatalf("failed to create temp file: %v", err)
+				log.Fatal().Err(err).Msg("failed to create temp file")
 			}
 			io.WriteString(tempFile, listener.Addr().String())
 			go cli.StartEvent(args, "", client, "agent")
-			server := agent.NewServer(client, certs, args.Version())
+			server, err := agent.NewServer(client, certs, args.Version())
+			if err != nil {
+				log.Fatal().Err(err).Msg("failed to create agent server")
+			}
 			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer stop()
 			go func() {
-				log.Infof("Dozzle agent version %s", args.Version())
-				log.Infof("Agent listening on %s", listener.Addr().String())
+				log.Info().Msgf("Dozzle agent version %s", args.Version())
+				log.Info().Msgf("Agent listening on %s", listener.Addr().String())
+
 				if err := server.Serve(listener); err != nil {
-					log.Fatalf("failed to serve: %v", err)
+					log.Error().Err(err).Msg("failed to serve")
 				}
 			}()
 			<-ctx.Done()
 			stop()
-			log.Info("Shutting down agent")
+			log.Info().Msg("Shutting down agent")
 			server.Stop()
-			log.Debugf("deleting %s", tempFile.Name())
+			log.Debug().Str("file", tempFile.Name()).Msg("Removing temp file")
 			os.Remove(tempFile.Name())
 
 		case *cli.HealthcheckCmd:
 			files, err := os.ReadDir(".")
 			if err != nil {
-				log.Fatalf("Failed to read directory: %v", err)
+				log.Fatal().Err(err).Msg("Failed to read directory")
 			}
 
 			agentAddress := ""
@@ -85,7 +88,7 @@ func main() {
 				if match, _ := filepath.Match("agent-*.addr", file.Name()); match {
 					data, err := os.ReadFile(file.Name())
 					if err != nil {
-						log.Fatalf("Failed to read file: %v", err)
+						log.Fatal().Err(err).Msg("Failed to read file")
 					}
 					agentAddress = string(data)
 					break
@@ -93,22 +96,22 @@ func main() {
 			}
 			if agentAddress == "" {
 				if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-					log.Fatalf("Failed to make request: %v", err)
+					log.Fatal().Err(err).Msg("Failed to make request")
 				}
 			} else {
 				certs, err := cli.ReadCertificates(certs)
 				if err != nil {
-					log.Fatalf("Could not read certificates: %v", err)
+					log.Fatal().Err(err).Msg("Could not read certificates")
 				}
 				if err := healthcheck.RPCRequest(agentAddress, certs); err != nil {
-					log.Fatalf("Failed to make request: %v", err)
+					log.Fatal().Err(err).Msg("Failed to make request")
 				}
 			}
 
 		case *cli.GenerateCmd:
 			cli.StartEvent(args, "", nil, "generate")
 			if args.Generate.Username == "" || args.Generate.Password == "" {
-				log.Fatal("Username and password are required")
+				log.Fatal().Msg("Username and password are required")
 			}
 
 			buffer := auth.GenerateUsers(auth.User{
@@ -119,7 +122,7 @@ func main() {
 			}, true)
 
 			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
-				log.Fatalf("Failed to write to stdout: %v", err)
+				log.Fatal().Err(err).Msg("Failed to write to stdout")
 			}
 		}
 
@@ -127,55 +130,58 @@ func main() {
 	}
 
 	if args.AuthProvider != "none" && args.AuthProvider != "forward-proxy" && args.AuthProvider != "simple" {
-		log.Fatalf("Invalid auth provider %s", args.AuthProvider)
+		log.Fatal().Str("provider", args.AuthProvider).Msg("Invalid auth provider")
 	}
 
-	log.Infof("Dozzle version %s", args.Version())
+	log.Info().Msgf("Dozzle version %s", args.Version())
 
 	var multiHostService *docker_support.MultiHostService
 	if args.Mode == "server" {
 		var localClient docker.Client
 		localClient, multiHostService = cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
-			log.Fatal("Could not connect to any Docker Engines")
+			log.Fatal().Msg("Could not connect to any Docker Engine")
 		} else {
-			log.Infof("Connected to %d Docker Engine(s)", multiHostService.TotalClients())
+			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
 		go cli.StartEvent(args, "server", localClient, "")
 
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 		if err != nil {
-			log.Fatalf("Could not connect to local Docker Engine: %s", err)
+			log.Fatal().Err(err).Msg("Could not create docker client")
 		}
 		certs, err := cli.ReadCertificates(certs)
 		if err != nil {
-			log.Fatalf("Could not read certificates: %v", err)
+			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
 		manager := docker_support.NewSwarmClientManager(localClient, certs)
 		multiHostService = docker_support.NewMultiHostService(manager)
-		log.Infof("Starting in Swarm mode")
+		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+			log.Fatal().Err(err).Msg("failed to listen")
 		}
-		server := agent.NewServer(localClient, certs, args.Version())
+		server, err := agent.NewServer(localClient, certs, args.Version())
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create agent")
+		}
 		go cli.StartEvent(args, "swarm", localClient, "")
 		go func() {
-			log.Infof("Agent listening on %s", listener.Addr().String())
+			log.Info().Msgf("Dozzle agent version %s", args.Version())
 			if err := server.Serve(listener); err != nil {
-				log.Fatalf("failed to serve: %v", err)
+				log.Error().Err(err).Msg("failed to serve")
 			}
 		}()
 	} else {
-		log.Fatalf("Invalid mode %s", args.Mode)
+		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
 	srv := createServer(args, multiHostService)
 	go func() {
-		log.Infof("Accepting connections on %s", srv.Addr)
+		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatal(err)
+			log.Fatal().Err(err).Msg("failed to listen")
 		}
 	}()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -183,13 +189,13 @@ func main() {
 
 	<-ctx.Done()
 	stop()
-	log.Info("shutting down gracefully, press Ctrl+C again to force")
+	log.Info().Msg("shutting down gracefully, press Ctrl+C again to force")
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("failed to shut down")
 	}
-	log.Debug("shutdown complete")
+	log.Debug().Msg("shut down complete")
 }
 
 func createServer(args cli.Args, multiHostService *docker_support.MultiHostService) *http.Server {
@@ -198,29 +204,29 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
-		log.Debug("Using forward proxy authentication")
+		log.Debug().Msg("Using forward proxy authentication")
 		provider = web.FORWARD_PROXY
 		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName)
 	} else if args.AuthProvider == "simple" {
-		log.Debug("Using simple authentication")
+		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
 
 		path, err := filepath.Abs("./data/users.yml")
 		if err != nil {
-			log.Fatalf("Could not find absolute path to users.yml file: %s", err)
+			log.Fatal().Err(err).Msg("Could not get absolute path")
 		}
 		if _, err := os.Stat(path); os.IsNotExist(err) {
-			log.Fatalf("Could not find users.yml file at %s", path)
+			log.Fatal().Msg("users.yml file does not exist")
 		}
 
-		log.Debugf("Reading users from %s", path)
+		log.Debug().Str("path", path).Msg("Reading users.yml file")
 
 		db, err := auth.ReadUsersFromFile(path)
 		if err != nil {
-			log.Fatalf("Could not read users.yml file at %s: %s", path, err)
+			log.Fatal().Err(err).Msg("Could not read users.yml file")
 		}
 
-		log.Debugf("Read %d users", len(db.Users))
+		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
 		authorizer = auth.NewSimpleAuth(db)
 	}
 
@@ -240,25 +246,25 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 
 	assets, err := fs.Sub(content, "dist")
 	if err != nil {
-		log.Fatalf("Could not open embedded dist folder: %v", err)
+		log.Fatal().Err(err).Msg("Could not get sub filesystem")
 	}
 
 	if _, ok := os.LookupEnv("LIVE_FS"); ok {
 		if dev {
-			log.Info("Using live filesystem at ./public")
+			log.Info().Msg("Using live filesystem at ./public")
 			assets = os.DirFS("./public")
 		} else {
-			log.Info("Using live filesystem at ./dist")
+			log.Info().Msg("Using live filesystem at ./dist")
 			assets = os.DirFS("./dist")
 		}
 	}
 
 	if !dev {
 		if _, err := assets.Open(".vite/manifest.json"); err != nil {
-			log.Fatal(".vite/manifest.json not found")
+			log.Fatal().Msg("manifest.json not found")
 		}
 		if _, err := assets.Open("index.html"); err != nil {
-			log.Fatal("index.html not found")
+			log.Fatal().Msg("index.html not found")
 		}
 	}
 

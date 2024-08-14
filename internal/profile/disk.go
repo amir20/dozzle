@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/amir20/dozzle/internal/auth"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -51,12 +51,12 @@ var mux = &sync.Mutex{}
 func init() {
 	path, err := filepath.Abs("./data")
 	if err != nil {
-		log.Fatalf("Unable to get absolute path for data directory: %s", err)
+		log.Fatal().Err(err).Msg("Unable to get absolute path")
 		return
 	}
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
-			log.Fatalf("Unable to create data directory: %s", err)
+			log.Fatal().Err(err).Msg("Unable to create data directory")
 			return
 		}
 	}
@@ -103,7 +103,7 @@ func Save(user auth.User, profile Profile) error {
 		return err
 	}
 
-	log.Debugf("Saved settings for user %s", user.Username)
+	log.Debug().Str("path", filePath).Msg("Profile saved")
 
 	return f.Sync()
 }

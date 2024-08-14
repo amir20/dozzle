@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type SwarmClientManager struct {
@@ -51,17 +51,17 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 
 	id, ok := os.LookupEnv("HOSTNAME")
 	if !ok {
-		log.Fatal("HOSTNAME environment variable not set when looking for swarm service name")
+		log.Fatal().Msg("HOSTNAME environment variable not set when looking for swarm service name")
 	}
 
 	container, err := localClient.FindContainer(id)
 	if err != nil {
-		log.Fatalf("error finding container %s: %v", id, err)
+		log.Fatal().Err(err).Msg("error finding own container when looking for swarm service name")
 	}
 
 	serviceName := container.Labels["com.docker.swarm.service.name"]
 
-	log.Debugf("found swarm internal service name: %s", serviceName)
+	log.Debug().Str("service", serviceName).Msg("found swarm service name")
 
 	return &SwarmClientManager{
 		localClient: localClient,
@@ -85,12 +85,11 @@ func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- docke
 func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 	m.mu.Lock()
 
-	log.Debugf("looking up swarm services: tasks.%s", m.name)
 	ips, err := net.LookupIP(fmt.Sprintf("tasks.%s", m.name))
 
 	errors := make([]error, 0)
 	if err != nil {
-		log.Fatalf("error looking up swarm services: %v", err)
+		log.Fatal().Err(err).Msg("error looking up swarm service tasks")
 		errors = append(errors, err)
 		m.mu.Unlock()
 		return m.List(), errors
@@ -102,47 +101,51 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		return host.Endpoint
 	})
 
-	log.Debugf("tasks.dozzle = %v, localIP = %v, clients.endpoints = %v", ips, m.localIPs, lo.Keys(endpoints))
+	ipStrings := lo.Map(ips, func(ip net.IP, _ int) string {
+		return ip.String()
+	})
+
+	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
 
 	for _, ip := range ips {
 		if lo.Contains(m.localIPs, ip.String()) {
-			log.Debugf("skipping local ip %s", ip.String())
+			log.Debug().Stringer("ip", ip).Msg("skipping local IP")
 			continue
 		}
 
 		if _, ok := endpoints[ip.String()+":7007"]; ok {
-			log.Debugf("skipping existing client for %s", ip.String())
+			log.Debug().Stringer("ip", ip).Msg("skipping existing client")
 			continue
 		}
 
 		agent, err := agent.NewClient(ip.String()+":7007", m.certs)
 		if err != nil {
-			log.Warnf("error creating client for %s: %v", ip, err)
+			log.Warn().Err(err).Stringer("ip", ip).Msg("error creating agent client")
 			errors = append(errors, err)
 			continue
 		}
 
 		host, err := agent.Host()
 		if err != nil {
-			log.Warnf("error getting host data for agent %s: %v", ip, err)
+			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)
 			if err := agent.Close(); err != nil {
-				log.Warnf("error closing local client: %v", err)
+				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
 			}
 			continue
 		}
 
 		if host.ID == m.localClient.Host().ID {
-			log.Debugf("skipping local client with ID %s", host.ID)
+			log.Debug().Stringer("ip", ip).Msg("skipping local client")
 			if err := agent.Close(); err != nil {
-				log.Warnf("error closing local client: %v", err)
+				log.Warn().Err(err).Stringer("ip", ip).Msg("error closing agent client")
 			}
 			continue
 		}
 
 		client := NewAgentService(agent)
 		m.clients[host.ID] = client
-		log.Infof("added client for %s", host.ID)
+		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
 		m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
 			host.Available = true

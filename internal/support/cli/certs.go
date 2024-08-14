@@ -5,17 +5,16 @@ import (
 	"embed"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
 	if pair, err := tls.LoadX509KeyPair("dozzle_cert.pem", "dozzle_key.pem"); err == nil {
-		log.Infof("Found dozzle certificate and key at ./dozzle_cert.pem and ./dozzle_key.pem")
+		log.Info().Msg("Loaded custom dozzle certificate and key")
 		return pair, nil
 	} else {
 		if !os.IsNotExist(err) {
-			log.Errorf("Failed to load dozzle certificate and key: %v", err)
-			log.Warnf("Falling back to shared certificate and key")
+			log.Fatal().Err(err).Msg("Failed to load custom dozzle certificate and key. Stopping...")
 		}
 	}
 

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/go-chi/jwtauth/v5"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )
 
@@ -90,11 +90,11 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 	for username, user := range users.Users {
 		user.Username = username
 		if user.Password == "" {
-			log.Fatalf("User %s has no password", username)
+			log.Fatal().Msgf("User %s has an empty password", username)
 		}
 
 		if len(user.Password) != 64 {
-			log.Fatalf("User %s has an invalid password hash", username)
+			log.Fatal().Str("password", user.Password).Msgf("User %s has an invalid password hash", username)
 		}
 
 		if user.Name == "" {
@@ -115,7 +115,7 @@ func (u *UserDatabase) readFileIfChanged() error {
 	}
 
 	if info.ModTime().After(u.LastRead) {
-		log.Infof("Found changes to %s. Updating users...", u.Path)
+		log.Info().Msg("Reloading user database")
 		users, err := decodeUsersFromFile(u.Path)
 		if err != nil {
 			return err
@@ -129,7 +129,8 @@ func (u *UserDatabase) readFileIfChanged() error {
 
 func (u *UserDatabase) Find(username string) *User {
 	if err := u.readFileIfChanged(); err != nil {
-		log.Errorf("Error reading users file: %s", err)
+		log.Error().Err(err).Msg("Failed to read user database")
+		return nil
 	}
 	user, ok := u.Users[username]
 	if !ok {

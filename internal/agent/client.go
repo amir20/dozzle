@@ -13,7 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -32,7 +32,7 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
-		log.Fatalf("failed to parse certificate: %v", err)
+		return nil, fmt.Errorf("failed to parse certificate: %w", err)
 	}
 	caCertPool.AddCert(c)
 	tlsConfig := &tls.Config{
@@ -126,7 +126,8 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.Log
 
 		m, err := resp.Event.Message.UnmarshalNew()
 		if err != nil {
-			log.Fatalf("cannot unpack message %v", err)
+			log.Error().Err(err).Msg("agent client: failed to unmarshal message")
+			continue
 		}
 
 		var message any
@@ -136,8 +137,10 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *docker.Log
 
 		case *pb.ComplexMessage:
 			message = jsonBytesToOrderedMap(m.Data)
+
 		default:
-			log.Fatalf("agent client: unknown type %T", m)
+			log.Error().Type("message", m).Msg("agent client: unknown message type")
+			continue
 		}
 
 		events <- &docker.LogEvent{
@@ -175,7 +178,7 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 				if err == io.EOF || err == context.Canceled {
 					return
 				} else {
-					log.Warnf("error while streaming raw bytes %v", err)
+					log.Error().Err(err).Msg("agent client: failed to receive raw bytes")
 					return
 				}
 			}

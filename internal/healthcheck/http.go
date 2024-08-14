@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func HttpRequest(addr string, base string) error {
@@ -23,7 +23,7 @@ func HttpRequest(addr string, base string) error {
 		url = "http://" + url
 	}
 
-	log.Info("Checking health of " + url)
+	log.Info().Str("url", url).Msg("performing healthcheck")
 	resp, err := http.Get(url)
 
 	if err != nil {

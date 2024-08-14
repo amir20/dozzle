@@ -9,8 +9,7 @@ import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
@@ -37,17 +36,18 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	allContainers, errors := h.multiHostService.ListAllContainers()
 
 	for _, err := range errors {
-		log.Warnf("error listing containers: %v", err)
+		log.Warn().Err(err).Msg("error listing containers")
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
 			bytes, _ := json.Marshal(hostNotAvailableError.Host)
 			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
-				log.Errorf("error writing event to event stream: %v", err)
+				log.Error().Err(err).Msg("error writing event to event stream")
 			}
 		}
 	}
 
 	if err := sendContainersJSON(allContainers, w); err != nil {
-		log.Errorf("error writing containers to event stream: %v", err)
+		log.Error().Err(err).Msg("error writing containers to event stream")
+		return
 	}
 
 	f.Flush()
@@ -59,13 +59,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		case host := <-availableHosts:
 			bytes, _ := json.Marshal(host)
 			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
-				log.Errorf("error writing event to event stream: %v", err)
+				log.Error().Err(err).Msg("error writing event to event stream")
 			}
 			f.Flush()
 		case stat := <-stats:
 			bytes, _ := json.Marshal(stat)
 			if _, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes)); err != nil {
-				log.Errorf("error writing stat to event stream: %v", err)
+				log.Error().Err(err).Msg("error writing event to event stream")
 				return
 			}
 			f.Flush()
@@ -76,10 +76,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			switch event.Name {
 			case "start", "die", "destroy":
 				if event.Name == "start" {
-					log.Debugf("found new container with id: %v", event.ActorID)
+					log.Debug().Str("container", event.ActorID).Msg("container started")
 					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
 						if err := sendContainersJSON(containers, w); err != nil {
-							log.Errorf("error encoding containers to stream: %v", err)
+							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
 						}
 					}
@@ -87,14 +87,14 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 				bytes, _ := json.Marshal(event)
 				if _, err := fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", string(bytes)); err != nil {
-					log.Errorf("error writing event to event stream: %v", err)
+					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
 
 				f.Flush()
 
 			case "health_status: healthy", "health_status: unhealthy":
-				log.Debugf("triggering docker health event: %v", event.Name)
+				log.Debug().Str("container", event.ActorID).Str("health", event.Name).Msg("container health status")
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
@@ -105,13 +105,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 				bytes, _ := json.Marshal(payload)
 				if _, err := fmt.Fprintf(w, "event: container-health\ndata: %s\n\n", string(bytes)); err != nil {
-					log.Errorf("error writing event to event stream: %v", err)
+					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
 				f.Flush()
 			}
 		case <-ctx.Done():
-			log.Debugf("context done, closing event stream")
 			return
 		}
 	}
@@ -140,7 +139,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	}
 
 	if err := analytics.SendBeacon(b); err != nil {
-		log.Debugf("error sending beacon: %v", err)
+		log.Debug().Err(err).Msg("error sending beacon")
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/profile"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) updateProfile(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +18,7 @@ func (h *handler) updateProfile(w http.ResponseWriter, r *http.Request) {
 
 	if err := profile.UpdateFromReader(*user, r.Body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Errorf("Unable to save user settings: %s", err)
+		log.Error().Err(err).Msg("Failed to update profile")
 		return
 	}
 
@@ -39,7 +39,7 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debugf("Fetching avatar from %s", url)
+	log.Trace().Str("url", url).Msg("Fetching avatar")
 	response, err := http.Get(url)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,7 +49,7 @@ func (h *handler) avatar(w http.ResponseWriter, r *http.Request) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		log.Errorf("Received status code %d from %s", response.StatusCode, url)
+		log.Error().Str("url", url).Int("status", response.StatusCode).Msg("Failed to fetch avatar")
 		return
 	}
 

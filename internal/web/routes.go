@@ -10,7 +10,7 @@ import (
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type AuthProvider string
@@ -73,7 +73,7 @@ func createRouter(h *handler) *chi.Mux {
 	}
 
 	if h.config.Authorization.Provider != NONE && h.config.Authorization.Authorizer == nil {
-		log.Panic("Authorization provider is set but no authorizer is provided")
+		log.Fatal().Msg("Authorization provider is set but no authorizer is provided")
 	}
 
 	r.Route(base, func(r chi.Router) {
@@ -134,7 +134,7 @@ func hostKey(r *http.Request) string {
 	host := chi.URLParam(r, "host")
 
 	if host == "" {
-		log.Fatalf("No host found for url %v", r.URL)
+		log.Fatal().Str("url", r.URL.String()).Msg("Host parameter not found in the URL path")
 	}
 
 	return host

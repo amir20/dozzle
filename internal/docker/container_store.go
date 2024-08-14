@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 
 	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/semaphore"
 )
 
@@ -51,10 +51,10 @@ var (
 func (s *ContainerStore) checkConnectivity() error {
 	if s.connected.CompareAndSwap(false, true) {
 		go func() {
-			log.Debugf("subscribing to docker events from container store %s", s.client.Host())
+			log.Debug().Str("host", s.client.Host().Name).Msg("docker store subscribing docker events")
 			err := s.client.ContainerEvents(s.ctx, s.events)
 			if !errors.Is(err, context.Canceled) {
-				log.Errorf("docker store unexpectedly disconnected from docker events from %s with %v", s.client.Host(), err)
+				log.Error().Err(err).Str("host", s.client.Host().Name).Msg("docker store unexpectedly disconnected from docker events")
 			}
 			s.connected.Store(false)
 		}()
@@ -76,7 +76,7 @@ func (s *ContainerStore) checkConnectivity() error {
 
 			for i, c := range running {
 				if err := sem.Acquire(s.ctx, 1); err != nil {
-					log.Errorf("failed to acquire semaphore: %v", err)
+					log.Error().Err(err).Msg("failed to acquire semaphore")
 					break
 				}
 				go func(c Container, i int) {
@@ -88,10 +88,10 @@ func (s *ContainerStore) checkConnectivity() error {
 			}
 
 			if err := sem.Acquire(s.ctx, maxFetchParallelism); err != nil {
-				log.Errorf("failed to acquire semaphore: %v", err)
+				log.Error().Err(err).Msg("failed to acquire semaphore")
 			}
 
-			log.Debugf("finished initializing container store with %d containers", len(containers))
+			log.Debug().Int("containers", len(containers)).Msg("finished initializing container store")
 		}
 	}
 
@@ -120,7 +120,7 @@ func (s *ContainerStore) FindContainer(id string) (Container, error) {
 	if ok {
 		return *container, nil
 	} else {
-		log.Warnf("container %s not found in store", id)
+		log.Warn().Str("id", id).Msg("container not found")
 		return Container{}, ErrContainerNotFound
 	}
 }
@@ -132,7 +132,6 @@ func (s *ContainerStore) Client() Client {
 func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- ContainerEvent) {
 	go func() {
 		if s.statsCollector.Start(s.ctx) {
-			log.Debug("clearing container stats as stats collector has been stopped")
 			s.containers.Range(func(_ string, c *Container) bool {
 				c.Stats.Clear()
 				return true
@@ -171,7 +170,7 @@ func (s *ContainerStore) init() {
 	for {
 		select {
 		case event := <-s.events:
-			log.Tracef("received event: %+v", event)
+			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "start":
 				if container, err := s.client.FindContainer(event.ActorID); err == nil {
@@ -183,7 +182,7 @@ func (s *ContainerStore) init() {
 					})
 
 					if valid {
-						log.Debugf("container %s started", container.ID)
+						log.Debug().Str("id", container.ID).Msg("container started")
 						s.containers.Store(container.ID, &container)
 						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 							select {
@@ -195,13 +194,13 @@ func (s *ContainerStore) init() {
 					}
 				}
 			case "destroy":
-				log.Debugf("container %s destroyed", event.ActorID)
+				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)
 
 			case "die":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
 					if loaded {
-						log.Debugf("container %s died", c.ID)
+						log.Debug().Str("id", c.ID).Msg("container died")
 						c.State = "exited"
 						return c, false
 					} else {
@@ -216,7 +215,7 @@ func (s *ContainerStore) init() {
 
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
 					if loaded {
-						log.Debugf("health status for container %s is %s", c.ID, healthy)
+						log.Debug().Str("id", c.ID).Str("health", healthy).Msg("container health status changed")
 						c.Health = healthy
 						return c, false
 					} else {
