@@ -22,7 +22,7 @@ COPY public ./public
 # Build assets
 RUN pnpm build
 
-FROM --platform=$BUILDPLATFORM golang:1.22.6-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23.0-alpine AS builder
 
 # install gRPC dependencies
 RUN apk add --no-cache ca-certificates protoc protobuf-dev\
