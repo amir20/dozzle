@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -74,7 +74,7 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 
 	default:
-		log.Debugf("unknown type to guess level: %T", value)
+		log.Debug().Type("type", value).Msg("unknown logEvent type")
 	}
 
 	return ""

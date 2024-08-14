@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type Host struct {
@@ -49,14 +49,14 @@ func ParseConnection(connection string) (Host, error) {
 
 	basePath, err := filepath.Abs("./certs")
 	if err != nil {
-		log.Fatalf("error converting certs path to absolute: %s", err)
+		return Host{}, err
 	}
 
 	host := remoteUrl.Hostname()
 	if _, err := os.Stat(filepath.Join(basePath, host)); !os.IsNotExist(err) {
 		basePath = filepath.Join(basePath, host)
 	} else {
-		log.Debugf("Remote host certificate path does not exist %s, falling back to default: %s", filepath.Join(basePath, host), basePath)
+		log.Debug().Msgf("Remote host certificate path does not exist %s, falling back to default: %s", filepath.Join(basePath, host), basePath
 	}
 
 	cacertPath := filepath.Join(basePath, "ca.pem")

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/puzpuzpuz/xsync/v3"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type StatsCollector struct {
@@ -48,7 +48,7 @@ func (c *StatsCollector) forceStop() {
 	if c.stopper != nil {
 		c.stopper()
 		c.stopper = nil
-		log.Debug("stopping container stats collector")
+		log.Debug().Str("host", c.client.Host().ID).Msg("stopped container stats collector")
 	}
 }
 
@@ -56,7 +56,6 @@ func (c *StatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
-		log.Tracef("scheduled to stop container stats collector %s", c.client.Host())
 		c.timer = time.AfterFunc(timeToStop, func() {
 			c.forceStop()
 		})
@@ -66,7 +65,6 @@ func (c *StatsCollector) Stop() {
 func (c *StatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	log.Tracef("resetting timer for container stats collector %s", c.client.Host())
 	if c.timer != nil {
 		c.timer.Stop()
 	}
@@ -76,11 +74,11 @@ func (c *StatsCollector) reset() {
 func streamStats(parent context.Context, sc *StatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
-	log.Debugf("starting to stream stats for: %s", id)
+	log.Debug().Str("container", id).Str("host", sc.client.Host().ID).Msg("starting to stream stats")
 	if err := sc.client.ContainerStats(ctx, id, sc.stream); err != nil {
-		log.Debugf("stopping to stream stats for: %s", id)
+		log.Debug().Str("container", id).Str("host", sc.client.Host().ID).Err(err).Msg("stopping to stream stats")
 		if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-			log.Errorf("unexpected error when streaming container stats: %v", err)
+			log.Error().Str("container", id).Str("host", sc.client.Host().ID).Err(err).Msg("unexpected error while streaming stats")
 		}
 	}
 }
@@ -106,16 +104,16 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			}
 		}
 	} else {
-		log.Errorf("error while listing containers: %v", err)
+		log.Error().Str("host", sc.client.Host().ID).Err(err).Msg("failed to list containers")
 	}
 
 	events := make(chan ContainerEvent)
 
 	go func() {
-		log.Debugf("subscribing to docker events from stats collector %s", sc.client.Host())
+		log.Debug().Str("host", sc.client.Host().ID).Msg("starting to listen to docker events")
 		err := sc.client.ContainerEvents(context.Background(), events)
 		if !errors.Is(err, context.Canceled) {
-			log.Errorf("stats collector unexpectedly disconnected from docker events from %s with %v", sc.client.Host(), err)
+			log.Error().Str("host", sc.client.Host().ID).Err(err).Msg("unexpected error while listening to docker events")
 		}
 		sc.forceStop()
 	}()
@@ -137,7 +135,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("stopped collecting container stats")
+			log.Info().Str("host", sc.client.Host().ID).Msg("stopped container stats collector")
 			return true
 		case stat := <-sc.stream:
 			sc.subscribers.Range(func(c context.Context, stats chan<- ContainerStat) bool {
