@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/docker"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type ContainerFilter = func(*docker.Container) bool
@@ -35,8 +35,6 @@ func NewMultiHostService(manager ClientManager) *MultiHostService {
 	m := &MultiHostService{
 		manager: manager,
 	}
-
-	log.Debugf("created multi host service manager %s", manager)
 
 	return m
 }
@@ -75,7 +73,7 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 		list, err := client.ListContainers()
 		if err != nil {
 			host, _ := client.Host()
-			log.Debugf("error listing containers for host %s: %v", host.ID, err)
+			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
 			host.Available = false
 			errors = append(errors, &HostUnavailableError{Host: host, Err: err})
 			continue
