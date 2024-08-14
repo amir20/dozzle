@@ -100,9 +100,12 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		host, _ := client.Host()
 		return host.Endpoint
 	})
-	// TODO - fix this
-	//log.Debugf("tasks.dozzle = %v, localIP = %v, clients.endpoints = %v", ips, m.localIPs, lo.Keys(endpoints))
-	// log.Debug().Stringers("ips", ips).Msg("found swarm service tasks")
+
+	ipStrings := lo.Map(ips, func(ip net.IP, _ int) string {
+		return ip.String()
+	})
+
+	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
 
 	for _, ip := range ips {
 		if lo.Contains(m.localIPs, ip.String()) {
