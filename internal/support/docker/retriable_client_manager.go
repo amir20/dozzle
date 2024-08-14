@@ -32,7 +32,7 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 		}
 
 		if _, ok := clientMap[host.ID]; ok {
-			log.Warn().Str("host", host.ID).Msg("duplicate client found")
+			log.Warn().Str("host", host.Name).Msg("duplicate client found")
 		} else {
 			clientMap[host.ID] = client
 		}
@@ -55,7 +55,7 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 		}
 
 		if _, ok := clientMap[host.ID]; ok {
-			log.Warn().Str("host", host.ID).Msg("duplicate agent found")
+			log.Warn().Str("host", host.Name).Str("id", host.ID).Msg("duplicate host with same ID found")
 		} else {
 			clientMap[host.ID] = NewAgentService(agent)
 		}

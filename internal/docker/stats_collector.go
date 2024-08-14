@@ -74,11 +74,11 @@ func (c *StatsCollector) reset() {
 func streamStats(parent context.Context, sc *StatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
-	log.Debug().Str("container", id).Str("host", sc.client.Host().ID).Msg("starting to stream stats")
+	log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("starting to stream stats")
 	if err := sc.client.ContainerStats(ctx, id, sc.stream); err != nil {
-		log.Debug().Str("container", id).Str("host", sc.client.Host().ID).Err(err).Msg("stopping to stream stats")
+		log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Err(err).Msg("stopping to stream stats")
 		if !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
-			log.Error().Str("container", id).Str("host", sc.client.Host().ID).Err(err).Msg("unexpected error while streaming stats")
+			log.Error().Str("container", id).Str("host", sc.client.Host().Name).Err(err).Msg("unexpected error while streaming stats")
 		}
 	}
 }
@@ -104,16 +104,16 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			}
 		}
 	} else {
-		log.Error().Str("host", sc.client.Host().ID).Err(err).Msg("failed to list containers")
+		log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("failed to list containers")
 	}
 
 	events := make(chan ContainerEvent)
 
 	go func() {
-		log.Debug().Str("host", sc.client.Host().ID).Msg("starting to listen to docker events")
+		log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
 		err := sc.client.ContainerEvents(context.Background(), events)
 		if !errors.Is(err, context.Canceled) {
-			log.Error().Str("host", sc.client.Host().ID).Err(err).Msg("unexpected error while listening to docker events")
+			log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("unexpected error while listening to docker events")
 		}
 		sc.forceStop()
 	}()
@@ -135,7 +135,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info().Str("host", sc.client.Host().ID).Msg("stopped container stats collector")
+			log.Info().Str("host", sc.client.Host().Name).Msg("stopped container stats collector")
 			return true
 		case stat := <-sc.stream:
 			sc.subscribers.Range(func(c context.Context, stats chan<- ContainerStat) bool {

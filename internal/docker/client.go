@@ -203,7 +203,7 @@ func (d *httpClient) ContainerActions(action ContainerAction, containerID string
 }
 
 func (d *httpClient) ListContainers() ([]Container, error) {
-	log.Debug().Interface("filter", d.filters).Msg("Listing containers")
+	log.Debug().Interface("filter", d.filters).Str("host", d.host.Name).Msg("Listing containers")
 	containerListOptions := container.ListOptions{
 		Filters: d.filters,
 		All:     true,
@@ -276,7 +276,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 }
 
 func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType StdType) (io.ReadCloser, error) {
-	log.Debug().Str("id", id).Time("since", since).Stringer("stdType", stdType).Msg("Streaming logs for container")
+	log.Debug().Str("id", id).Time("since", since).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Streaming logs for container")
 
 	sinceQuery := since.Add(-50 * time.Millisecond).Format(time.RFC3339Nano)
 	options := container.LogsOptions{
@@ -319,7 +319,7 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- Contai
 }
 
 func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
-	log.Debug().Str("id", id).Time("from", from).Time("to", to).Stringer("stdType", stdType).Msg("Fetching logs between dates for container")
+	log.Debug().Str("id", id).Time("from", from).Time("to", to).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Fetching logs between dates for container")
 	options := container.LogsOptions{
 		ShowStdout: stdType&STDOUT != 0,
 		ShowStderr: stdType&STDERR != 0,
