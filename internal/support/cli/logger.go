@@ -17,6 +17,6 @@ func ConfigureLogger(level string) {
 	_, dev := os.LookupEnv("DEV")
 
 	if dev {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, FieldsOrder: []string{"id", "from", "to", "since"}})
 	}
 }
