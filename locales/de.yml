@@ -3,18 +3,17 @@ toolbar:
   download: Herunterladen
   search: Suchen
   show: Zeige nur {std}
-  show-all: Zeige alle Streams
+  show-all: Zeige alle Streams  
+  stop: Stop
+  start: Start
+  restart: Neustarten
 label:
   containers: Container
   container: Keine Container | 1 Container | {count} Container
+  total-containers: Gesamte Container
+  serivce: Kein Service | 1 Service | {count} Service
   running-containers: Laufende Container
   all-containers: Alle Container
-  total-containers: Gesamte Container
-  running: Laufende
-  total-cpu-usage: Gesamte CPU Auslastung
-  total-mem-usage: Gesamte Speicher Auslastung
-  dozzle-version: Dozzle Version
-  all: Alle
   host: Host
   hosts: Hosts
   password: Passwort
@@ -25,6 +24,15 @@ label:
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
   pinned: Angepinnt
+  per-page: Zeilen pro Seite
+  swarm-mode: Swarm Modus
+  services: Service
+  running: Laufende
+  custom-groups: Benutzerdefinierte Gruppen
+  total-cpu-usage: Gesamte CPU Auslastung
+  total-mem-usage: Gesamte Speicher Auslastung
+  dozzle-version: Dozzle Version
+  all: Alle
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
@@ -64,6 +72,8 @@ button:
   logout: Ausloggen
   login: Anmeldung
   settings: Einstellungen
+  cancel: Abbruch
+  redirect: Umleiten
 placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
   search: Suche
@@ -74,9 +84,6 @@ settings:
   show-timesamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
   datetime-format: Datums- und Zeitformat
-  12-24-format: >-
-    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
-    Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
   font-size: Schriftgröße für Logs
   color-scheme: Farbschema
   options: Optionen
@@ -89,16 +96,20 @@ settings:
   show-std: Zeige stdout und stderr Labels
   automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
   compact: Aktiviere den kompakten Modus für Logs
+  12-24-format: >-
+    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
+    Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
 releases:
   features: Ein neues Feature | {count} Features
   bugFixes: Ein Bug Fix | {count} Fixes
   breaking: Ein Breaking Change | {count} Breaking Changes
   three_parts: "{first}, {second} und {third}"
   two_parts: "{first} und {second}"
-  latest: Latest
+  latest: Letzte
   no_releases: Du hast die aktuellste Version
 log_actions:
   copy_log: Log kopieren
+  jump_to_context: Zum Kontext springen
 toasts:
   copied:
     title: Kopiert
