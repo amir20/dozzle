@@ -93,8 +93,8 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8
       pinia:
-        specifier: ^2.2.1
-        version: 2.2.1(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4))
+        specifier: ^2.2.2
+        version: 2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4))
       postcss:
         specifier: ^8.4.41
         version: 8.4.41
@@ -120,8 +120,8 @@ importers:
         specifier: ^2.11.5
         version: 2.11.5(@vueuse/core@10.11.1(vue@3.4.38(typescript@5.5.4)))(esbuild@0.23.0)(rollup@4.20.0)(typescript@5.5.4)(vite@5.4.1(@types/node@22.3.0))(vue-tsc@2.0.29(typescript@5.5.4))(vue@3.4.38(typescript@5.5.4))
       unplugin-vue-router:
-        specifier: ^0.10.4
-        version: 0.10.4(rollup@4.20.0)(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
+        specifier: ^0.10.6
+        version: 0.10.6(rollup@4.20.0)(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
       vite:
         specifier: 5.4.1
         version: 5.4.1(@types/node@22.3.0)
@@ -146,7 +146,7 @@ importers:
     devDependencies:
       '@pinia/testing':
         specifier: ^0.1.5
-        version: 0.1.5(pinia@2.2.1(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
+        version: 0.1.5(pinia@2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
       '@playwright/test':
         specifier: ^1.46.0
         version: 1.46.0
@@ -1380,16 +1380,8 @@ packages:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
 
-  ast-kit@0.12.1:
-    resolution: {integrity: sha512-O+33g7x6irsESUcd47KdfWUrS2F6aGp9KeVJFGj0YjIznfXpBxVGjA0w+y/1OKqX4mFOfmZ9Xpf1ixPT4n9xxw==}
-    engines: {node: '>=16.14.0'}
-
   ast-kit@1.0.1:
     resolution: {integrity: sha512-XdXKlmX3YIrGKJS7d324CAbswH+C1klMCIRQ4VRy0+iPxGeP2scVOoYd09/V6uGjGAi/ZuEwBLzT7xBerSKNQg==}
-    engines: {node: '>=16.14.0'}
-
-  ast-walker-scope@0.6.1:
-    resolution: {integrity: sha512-0ZdQEsSfH3mX4BFbRCc3xOBjx5bDbm73+aAdQOHerPQNf8K0XFMAv79ucd2BpnSc4UMyvBDixiroT8yjm2Y6bw==}
     engines: {node: '>=16.14.0'}
 
   ast-walker-scope@0.6.2:
@@ -2397,8 +2389,8 @@ packages:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
 
-  pinia@2.2.1:
-    resolution: {integrity: sha512-ltEU3xwiz5ojVMizdP93AHi84Rtfz0+yKd8ud75hr9LVyWX2alxp7vLbY1kFm7MXFmHHr/9B08Xf8Jj6IHTEiQ==}
+  pinia@2.2.2:
+    resolution: {integrity: sha512-ja2XqFWZC36mupU4z1ZzxeTApV7DOw44cV4dhQ9sGwun+N89v/XP7+j7q6TanS1u1tdbK4r+1BUx7heMaIdagA==}
     peerDependencies:
       '@vue/composition-api': ^1.4.0
       typescript: '>=4.4.4'
@@ -2959,8 +2951,8 @@ packages:
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
 
-  unplugin-vue-router@0.10.4:
-    resolution: {integrity: sha512-PXnUnX/MPCI/YaxmfYxE1JVc/5n7QGLGWJtIB8aI1hsQA/A14T+39d+wHxDnWzFJd5VXsGusV3G/RREdocbYGQ==}
+  unplugin-vue-router@0.10.6:
+    resolution: {integrity: sha512-bJ9a/CtFKidhmne8PlTzUptimIFuzHegNODFxWNMOe372jzdRmZEDwvn8ylkI9aDehEI990dlIqZQKN/r0Ki1g==}
     peerDependencies:
       vue-router: ^4.4.0
     peerDependenciesMeta:
@@ -3726,9 +3718,9 @@ snapshots:
 
   '@one-ini/wasm@0.1.1': {}
 
-  '@pinia/testing@0.1.5(pinia@2.2.1(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))':
+  '@pinia/testing@0.1.5(pinia@2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))':
     dependencies:
-      pinia: 2.2.1(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4))
+      pinia: 2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4))
       vue-demi: 0.14.10(vue@3.4.38(typescript@5.5.4))
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -3999,7 +3991,7 @@ snapshots:
   '@vue-macros/define-models@1.2.9(@vueuse/core@10.11.1(vue@3.4.38(typescript@5.5.4)))(rollup@4.20.0)(vue@3.4.38(typescript@5.5.4))':
     dependencies:
       '@vue-macros/common': 1.12.2(rollup@4.20.0)(vue@3.4.38(typescript@5.5.4))
-      ast-walker-scope: 0.6.1
+      ast-walker-scope: 0.6.2
       unplugin: 1.12.1
     optionalDependencies:
       '@vueuse/core': 10.11.1(vue@3.4.38(typescript@5.5.4))
@@ -4432,20 +4424,10 @@ snapshots:
 
   assertion-error@2.0.1: {}
 
-  ast-kit@0.12.1:
-    dependencies:
-      '@babel/parser': 7.25.3
-      pathe: 1.1.2
-
   ast-kit@1.0.1:
     dependencies:
       '@babel/parser': 7.25.3
       pathe: 1.1.2
-
-  ast-walker-scope@0.6.1:
-    dependencies:
-      '@babel/parser': 7.25.3
-      ast-kit: 0.12.1
 
   ast-walker-scope@0.6.2:
     dependencies:
@@ -5452,7 +5434,7 @@ snapshots:
 
   pify@2.3.0: {}
 
-  pinia@2.2.1(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)):
+  pinia@2.2.2(typescript@5.5.4)(vue@3.4.38(typescript@5.5.4)):
     dependencies:
       '@vue/devtools-api': 6.6.3
       vue: 3.4.38(typescript@5.5.4)
@@ -5961,7 +5943,7 @@ snapshots:
   unplugin-vue-define-options@1.4.9(rollup@4.20.0)(vue@3.4.38(typescript@5.5.4)):
     dependencies:
       '@vue-macros/common': 1.12.2(rollup@4.20.0)(vue@3.4.38(typescript@5.5.4))
-      ast-walker-scope: 0.6.1
+      ast-walker-scope: 0.6.2
       unplugin: 1.12.1
     transitivePeerDependencies:
       - rollup
@@ -6013,7 +5995,7 @@ snapshots:
       - vue-tsc
       - webpack
 
-  unplugin-vue-router@0.10.4(rollup@4.20.0)(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4)):
+  unplugin-vue-router@0.10.6(rollup@4.20.0)(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4)):
     dependencies:
       '@babel/types': 7.25.2
       '@rollup/pluginutils': 5.1.0(rollup@4.20.0)
