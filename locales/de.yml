@@ -99,6 +99,15 @@ settings:
   12-24-format: >-
     Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
     Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
+  log:
+    preview: Dies ist eine Vorschau auf die Protokolle
+    warning: Ein Warnprotokoll sieht wie folgt aus
+    complex: Dies ist ein komplexer Protokolleintrag als json
+    simple: Dies ist eine sehr, sehr lange Nachricht, die standardmäßig umbrochen wird. Die Deaktivierung von Zeilenumbrüche würde dies unterbinden. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    multi-line-error: 
+      start-line: Dies ist eine mehrzeilige Fehlermeldung
+      middle-line: mit einer zweiten Zeile
+      end-line: und schließlich einer dritten Zeile.
 releases:
   features: Ein neues Feature | {count} Features
   bugFixes: Ein Bug Fix | {count} Fixes
