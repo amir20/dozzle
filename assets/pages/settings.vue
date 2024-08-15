@@ -171,14 +171,14 @@ const hoursAgo = (hours: number) => {
 };
 
 const fakeMessages = [
-  new SimpleLogEntry("This is a preview of the logs", "123", 1, hoursAgo(16), "info", undefined, "stdout"),
-  new SimpleLogEntry("A warning log looks like this", "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
-  new SimpleLogEntry("This is a multi line error message", "123", 3, hoursAgo(7), "error", "start", "stderr"),
-  new SimpleLogEntry("with a second line", "123", 4, hoursAgo(2), "error", "middle", "stderr"),
-  new SimpleLogEntry("and finally third line.", "123", 5, new Date(), "error", "end", "stderr"),
+  new SimpleLogEntry({{ $t("settings.log.preview") }}, "123", 1, hoursAgo(16), "info", undefined, "stdout"),
+  new SimpleLogEntry({{ $t("settings.log.warning") }}, "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
+  new SimpleLogEntry({{ $t("settings.log.multi-line-error.start-line") }}, "123", 3, hoursAgo(7), "error", "start", "stderr"),
+  new SimpleLogEntry({{ $t("settings.log.multi-line-error.middle-line") }}, "123", 4, hoursAgo(2), "error", "middle", "stderr"),
+  new SimpleLogEntry({{ $t("settings.log.multi-line-error.end-line") }}, "123", 5, new Date(), "error", "end", "stderr"),
   new ComplexLogEntry(
     {
-      message: "This is a complex log entry as json",
+      message: {{ $t("settings.log.complex") }},
       context: {
         key: "value",
         key2: "value2",
@@ -192,7 +192,7 @@ const fakeMessages = [
     keys,
   ),
   new SimpleLogEntry(
-    "This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+    {{ $t("settings.log.simple") }},
     "123",
     7,
     new Date(),

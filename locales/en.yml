@@ -91,6 +91,15 @@ settings:
   show-std: Show stdout and stderr labels
   automatic-redirect: Automatically redirect to new containers with the same name
   compact: Enable compact mode for logs
+  log:
+    preview: This is a preview of the logs
+    warning: A warning log looks like this
+    complex: This is a complex log entry as json
+    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    multi-line-error: 
+      start-line: This is a multi line error message
+      middle-line: with a second line
+      end-line: and finally third line.
 releases:
   features: one new feature | {count} features
   bugFixes: one bug fix | {count} fixes
