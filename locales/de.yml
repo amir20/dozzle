@@ -103,7 +103,7 @@ settings:
     preview: Dies ist eine Vorschau auf die Protokolle
     warning: Ein Warnprotokoll sieht wie folgt aus
     complex: Dies ist ein komplexer Protokolleintrag als json
-    simple: Dies ist eine sehr, sehr lange Nachricht, die standardmäßig umbrochen wird. Die Deaktivierung von Soft Wraps würde dies unterbinden. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    simple: Dies ist eine sehr, sehr lange Nachricht, die standardmäßig umbrochen wird. Die Deaktivierung von Zeilenumbrüche würde dies unterbinden. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
     multi-line-error: 
       start-line: Dies ist eine mehrzeilige Fehlermeldung
       middle-line: mit einer zweiten Zeile
