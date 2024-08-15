@@ -9,7 +9,7 @@
         @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
         @keydown.enter.exact="selected(data[selectedIndex].item)"
-        @keydown.alt.enter="addColumn(data[selectedIndex])"
+        @keydown.alt.enter="addColumn(data[selectedIndex].item)"
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
       />
