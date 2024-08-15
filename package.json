@@ -41,7 +41,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.14",
     "@vueuse/components": "^10.11.1",
-    "@vueuse/core": "^10.11.1",
+    "@vueuse/core": "^11.0.0",
     "@vueuse/integrations": "^10.11.1",
     "@vueuse/router": "^10.11.1",
     "ansi-to-html": "^0.7.2",
