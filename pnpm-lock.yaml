@@ -51,8 +51,8 @@ importers:
         specifier: ^10.11.1
         version: 10.11.1(focus-trap@7.5.4)(fuse.js@7.0.0)(vue@3.4.38(typescript@5.5.4))
       '@vueuse/router':
-        specifier: ^10.11.1
-        version: 10.11.1(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
+        specifier: ^11.0.0
+        version: 11.0.0(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
       ansi-to-html:
         specifier: ^0.7.2
         version: 0.7.2
@@ -1303,8 +1303,8 @@ packages:
   '@vueuse/metadata@11.0.0':
     resolution: {integrity: sha512-0TKsAVT0iUOAPWyc9N79xWYfovJVPATiOPVKByG6jmAYdDiwvMVm9xXJ5hp4I8nZDxpCcYlLq/Rg9w1Z/jrGcg==}
 
-  '@vueuse/router@10.11.1':
-    resolution: {integrity: sha512-tXtDofDwgmADrnLY2mK2LtHKV9CBehaNfT2ar00HZTJ00QxmCOjYp626WdGtQsUi4E64vTScV/s+yKTXhZfl1w==}
+  '@vueuse/router@11.0.0':
+    resolution: {integrity: sha512-l8RoCjdwLA0oP6EnB3m0sTcu5JC5xwx4qDXi+IqiIJEA+nYqxzdFOq19/EoBLYYWHAUPhhsMa/CdGW1nF7pi1Q==}
     peerDependencies:
       vue-router: '>=4.0.0-rc.1'
 
@@ -4360,9 +4360,9 @@ snapshots:
 
   '@vueuse/metadata@11.0.0': {}
 
-  '@vueuse/router@10.11.1(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))':
+  '@vueuse/router@11.0.0(vue-router@4.4.3(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))':
     dependencies:
-      '@vueuse/shared': 10.11.1(vue@3.4.38(typescript@5.5.4))
+      '@vueuse/shared': 11.0.0(vue@3.4.38(typescript@5.5.4))
       vue-demi: 0.14.10(vue@3.4.38(typescript@5.5.4))
       vue-router: 4.4.3(vue@3.4.38(typescript@5.5.4))
     transitivePeerDependencies:
