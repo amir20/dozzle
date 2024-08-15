@@ -43,7 +43,7 @@
     "@vueuse/components": "^11.0.0",
     "@vueuse/core": "^11.0.0",
     "@vueuse/integrations": "^10.11.1",
-    "@vueuse/router": "^10.11.1",
+    "@vueuse/router": "^11.0.0",
     "ansi-to-html": "^0.7.2",
     "autoprefixer": "^10.4.20",
     "d3-array": "^3.2.4",
