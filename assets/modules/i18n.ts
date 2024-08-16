@@ -17,7 +17,7 @@ function setI18nLanguage(lang: Locale) {
   return lang;
 }
 
-const i18n = createI18n({
+export const i18n = createI18n({
   legacy: false,
   locale: "",
   fallbackLocale: "en",

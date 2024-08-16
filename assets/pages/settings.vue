@@ -156,7 +156,7 @@ import {
   locale,
 } from "@/stores/settings";
 
-import { availableLocales } from "@/modules/i18n";
+import { availableLocales, i18n } from "@/modules/i18n";
 
 const { t } = useI18n();
 
@@ -164,43 +164,55 @@ setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
 
 const keys = ref<string[][]>([]);
+const now = new Date();
 const hoursAgo = (hours: number) => {
-  const date = new Date();
+  const date = new Date(now);
   date.setHours(date.getHours() - hours);
   return date;
 };
 
-const fakeMessages = [
-  new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", undefined, "stdout"),
-  new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
-  new SimpleLogEntry(t("settings.log.multi-line-error.start-line"), "123", 3, hoursAgo(7), "error", "start", "stderr"),
-  new SimpleLogEntry(t("settings.log.multi-line-error.middle-line"), "123", 4, hoursAgo(2), "error", "middle", "stderr"),
-  new SimpleLogEntry(t("settings.log.multi-line-error.end-line"), "123", 5, new Date(), "error", "end", "stderr"),
-  new ComplexLogEntry(
-    {
-      message: t("settings.log.complex"),
-      context: {
-        key: "value",
-        key2: "value2",
+const fakeMessages = computedWithControl(
+  () => i18n.global.locale.value,
+  () => [
+    new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", undefined, "stdout"),
+    new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
+    new SimpleLogEntry(
+      t("settings.log.multi-line-error.start-line"),
+      "123",
+      3,
+      hoursAgo(7),
+      "error",
+      "start",
+      "stderr",
+    ),
+    new SimpleLogEntry(
+      t("settings.log.multi-line-error.middle-line"),
+      "123",
+      4,
+      hoursAgo(2),
+      "error",
+      "middle",
+      "stderr",
+    ),
+    new SimpleLogEntry(t("settings.log.multi-line-error.end-line"), "123", 5, new Date(), "error", "end", "stderr"),
+    new ComplexLogEntry(
+      {
+        message: t("settings.log.complex"),
+        context: {
+          key: "value",
+          key2: "value2",
+        },
       },
-    },
-    "123",
-    6,
-    new Date(),
-    "info",
-    "stdout",
-    keys,
-  ),
-  new SimpleLogEntry(
-    t("settings.log.simple"),
-    "123",
-    7,
-    new Date(),
-    "debug",
-    undefined,
-    "stderr",
-  ),
-];
+      "123",
+      6,
+      new Date(),
+      "info",
+      "stdout",
+      keys,
+    ),
+    new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", undefined, "stderr"),
+  ],
+);
 </script>
 <style lang="postcss" scoped>
 .has-underline {
