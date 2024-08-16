@@ -24,9 +24,16 @@ label:
   created: 创建时间
   avg-cpu: 平均CPU (%)
   avg-mem: 平均MEM (%)
+  pinned: 固定
+  per-page: 每页行数
+  swarm-mode: 集群模式
+  services: 服务
+  custom-groups: 自定义组
 tooltip:
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列
+  merge-services: 合并所有服务到一个视图
+  merge-containers: 合并所有容器到一个视图
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。
@@ -58,6 +65,8 @@ button:
   logout: 退出
   login: 登录
   settings: 设置
+  cancel: 取消
+  redirect: 重定向
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索
@@ -82,5 +91,25 @@ settings:
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式
+releases:
+  features: 一个新功能 | {count} 个新功能
+  bugFixes: 一个错误修复 | {count} 个修复
+  breaking: 一个重大变更 | {count} 个重大变更
+  three_parts: "{first}, {second} 和 {third}"
+  two_parts: "{first} 与 {second}"
+  latest: 最新
+  no_releases: 您拥有最新版本
 log_actions:
   copy_log: 复制日志
+  warning: 警告日志看起来像这样
+  complex: 这是一个复杂的JSON格式日志
+  simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+  jump_to_context: 跳转到上下文
+  multi-line-error: 
+    start-line: 这是一个多行错误消息
+    middle-line: 带有第二行
+    end-line: 最后是第三行
+toasts:
+  copied:
+    title: 已复制
+    message: 日志已复制到剪贴板
