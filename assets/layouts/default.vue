@@ -42,6 +42,12 @@
       <button>close</button>
     </form>
   </dialog>
+  <dialog ref="panel" class="modal-right modal items-start backdrop:bg-none">
+    <div class="modal-box">
+      This is a test This is a test This is a test This is a test This is a test This is a testThis is a test
+      <div class="size-40 bg-red"></div>
+    </div>
+  </dialog>
   <div class="toast toast-end whitespace-normal">
     <div
       class="alert max-w-xl"
@@ -78,6 +84,7 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 const { toasts, removeToast } = useToast();
 
 const modal = ref<HTMLDialogElement>();
+const panel = ref<HTMLDialogElement>();
 const open = ref(false);
 const searchParams = new URLSearchParams(window.location.search);
 const forceMenuHidden = ref(searchParams.has("hideMenu"));
@@ -93,6 +100,13 @@ watch(open, () => {
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showFuzzySearch();
+    e.preventDefault();
+  }
+});
+
+onKeyStroke("o", (e) => {
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+    panel.value?.showModal();
     e.preventDefault();
   }
 });
@@ -117,5 +131,13 @@ function onResized(e: any) {
   .router-view {
     padding-top: 75px;
   }
+}
+
+.modal-right :where(.modal-box) {
+  @apply fixed right-0 h-lvh max-h-screen max-w-2xl translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
+}
+
+.modal-right[open] .modal-box {
+  @apply translate-x-0;
 }
 </style>
