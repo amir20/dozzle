@@ -4,8 +4,13 @@ toolbar:
   search: 查詢
   show: 僅顯示 {std}
   show-all: 顯示全部資料流
+  stop: 停止
+  start: 啟動
+  restart: 重新啟動
 label:
   containers: 容器
+  container: 無容器 | 1 個容器 | {count} 個容器
+  serivce: 無服務 | 1 個服務 | {count} 個服務
   running-containers: 運行中的容器
   all-containers: 所有容器
   total-containers: 總容器數
@@ -23,9 +28,16 @@ label:
   created: 建立時間
   avg-cpu: 平均 CPU (%)
   avg-mem: 平均記憶體 (%)
+  pinned: 已釘選
+  per-page: 每頁顯示行數
+  swarm-mode: Swarm 模式
+  services: 服務
+  custom-groups: 自訂群組
 tooltip:
   search: 查詢容器 (⌘ + k, ⌃k)
   pin-column: 固定此列
+  merge-services: 合併所有服務到一個視圖
+  merge-containers: 合併所有容器到一個視圖
 error:
   page-not-found: 此頁面不存在。
   invalid-auth: 使用者名稱和密碼不正確。
@@ -40,6 +52,8 @@ button:
   logout: 登出
   login: 登入
   settings: 設定
+  cancel: 取消
+  redirect: 重新導向
 placeholder:
   search-containers: 查詢容器 (⌘ + k, ⌃k)
   search: 查詢
@@ -62,3 +76,29 @@ settings:
     有新版本可用！請更新至 <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 顯示 stdout 和 stderr 標籤
   compact: 緊湊模式
+  automatic-redirect: 自動重新導向至相同名稱的新容器
+  compact: 啟用日誌的緊湊模式
+  log:
+    preview: 這是日誌的預覽
+    warning: 警告日誌看起來是這樣的
+    complex: 這是一個複雜的 JSON 格式日誌條目
+    simple: 這是一條非常非常長的訊息，默認情況下會自動換行。禁用自動換行會使其禁用。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    multi-line-error: 
+      start-line: 這是一條多行錯誤訊息
+      middle-line: 第二行訊息
+      end-line: 最後是第三行。
+releases:
+  features: 一個新功能 | {count} 個新功能
+  bugFixes: 一個錯誤修復 | {count} 個修復
+  breaking: 一個重大變更 | {count} 個重大變更
+  three_parts: "{first}、{second} 和 {third}"
+  two_parts: "{first} 與 {second}"
+  latest: 最新
+  no_releases: 您已經是最新版本
+log_actions:
+  copy_log: 複製日誌
+  jump_to_context: 跳轉至上下文
+toasts:
+  copied:
+    title: 已複製
+    message: 日誌已複製到剪貼簿
