@@ -39,6 +39,7 @@
 </template>
 <script lang="ts" setup>
 import { type ComplexLogEntry } from "@/models/LogEntry";
+import LogDetail from "@/components/LogViewer/LogDetail.vue";
 
 const { markSearch } = useSearchFilter();
 
@@ -52,6 +53,12 @@ const [expanded, expandToggle] = useToggle();
 
 const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
+});
+
+const showDrawer = inject("showDrawer") as (component: Component, attributes: Record<string, any>) => void;
+
+watch(expanded, () => {
+  showDrawer(LogDetail, { logEntry });
 });
 </script>
 

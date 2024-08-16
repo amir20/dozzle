@@ -1,5 +1,8 @@
 <template>
   <Search />
+  <SideDrawer ref="drawer">
+    <component :is="drawerSlot.component" v-bind="drawerSlot?.attributes" v-if="drawerSlot?.component" />
+  </SideDrawer>
   <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
   <div v-else-if="ready" class="hero min-h-screen bg-base-200">
     <div class="hero-content text-center">
@@ -11,6 +14,7 @@
 </template>
 
 <script lang="ts" setup>
+import SideDrawer from "@/components/common/SideDrawer.vue";
 const route = useRoute("/container/[id]");
 const id = toRef(() => route.params.id);
 
@@ -20,6 +24,14 @@ const { ready } = storeToRefs(containerStore);
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
+
+const drawer = ref<InstanceType<typeof SideDrawer>>();
+const drawerSlot = shallowRef<{ component: Component; attributes: Record<string, any> }>();
+
+provide("showDrawer", (component: Component, attributes: Record<string, any>) => {
+  drawerSlot.value = { component, attributes };
+  drawer.value?.open();
+});
 
 watchEffect(() => {
   if (ready.value) {
