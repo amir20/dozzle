@@ -91,15 +91,6 @@ settings:
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式
-log_actions:
-  copy_log: 复制日志
-  warning: 警告日志看起来像这样
-  complex: 这是一个复杂的JSON格式日志
-  simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-  multi-line-error: 
-  start-line: 这是一个多行错误消息
-  middle-line: 带有第二行
-  end-line: 最后是第三行
 releases:
   features: 一个新功能 | {count} 个新功能
   bugFixes: 一个错误修复 | {count} 个修复
@@ -110,6 +101,13 @@ releases:
   no_releases: 您拥有最新版本
 log_actions:
   copy_log: 复制日志
+  warning: 警告日志看起来像这样
+  complex: 这是一个复杂的JSON格式日志
+  simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+  multi-line-error: 
+  start-line: 这是一个多行错误消息
+  middle-line: 带有第二行
+  end-line: 最后是第三行
   jump_to_context: 跳转到上下文
 toasts:
   copied:
