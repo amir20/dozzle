@@ -1,7 +1,7 @@
 <template>
   <Search />
   <SideDrawer ref="drawer">
-    <LogDetails :entry="entry" />
+    <LogDetails :entry="entry" v-if="entry" />
   </SideDrawer>
   <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
   <div v-else-if="ready" class="hero min-h-screen bg-base-200">
@@ -12,7 +12,9 @@
     </div>
   </div>
 </template>
-
+<script lang="ts">
+export const showLogDetails = Symbol("showLogDetails") as InjectionKey<(l: LogEntry<string | JSONObject>) => void>;
+</script>
 <script lang="ts" setup>
 import SideDrawer from "@/components/common/SideDrawer.vue";
 import { JSONObject, LogEntry } from "@/models/LogEntry";
@@ -28,8 +30,6 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const drawer = ref<InstanceType<typeof SideDrawer>>();
 const entry = ref<LogEntry<string | JSONObject>>();
-
-export const showLogDetails = Symbol("showLogDetails") as InjectionKey<(l: LogEntry<string | JSONObject>) => void>;
 
 provide(showLogDetails, (logEntry: LogEntry<string | JSONObject>) => {
   entry.value = logEntry;

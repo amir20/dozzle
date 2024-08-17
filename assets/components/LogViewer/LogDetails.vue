@@ -1,6 +1,13 @@
-<template>This is log detail.</template>
+<template>
+  <FieldList
+    :fields="entry.unfilteredMessage"
+    :expanded="true"
+    :visible-keys="[]"
+    v-if="entry instanceof ComplexLogEntry"
+  />
+</template>
 
 <script setup lang="ts">
-import { JSONObject, LogEntry } from "@/models/LogEntry";
+import { JSONObject, LogEntry, ComplexLogEntry } from "@/models/LogEntry";
 const { entry } = defineProps<{ entry: LogEntry<string | JSONObject> }>();
 </script>

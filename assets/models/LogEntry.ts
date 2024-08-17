@@ -165,7 +165,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       event.id,
       new Date(event.ts),
       event.l,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
+      event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
     );
   } else {
     return new SimpleLogEntry(
@@ -175,7 +175,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       new Date(event.ts),
       event.l,
       event.p,
-      event.s === "unknown" ? "stderr" : event.s ?? "stderr",
+      event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
     );
   }
 }

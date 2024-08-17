@@ -7,22 +7,14 @@
 </template>
 <script setup lang="ts">
 const panel = ref<HTMLDialogElement>();
-const open = ref(false);
 onKeyStroke("o", (e) => {
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     panel.value?.showModal();
     e.preventDefault();
   }
 });
-watch(open, () => {
-  if (open.value) {
-    panel.value?.showModal();
-  } else {
-    panel.value?.close();
-  }
-});
 
-defineExpose({ open: () => (open.value = true) });
+defineExpose({ open: () => panel.value?.showModal() });
 </script>
 <style scoped lang="postcss">
 .modal-right :where(.modal-box) {
