@@ -1,7 +1,7 @@
 <template>
   <Search />
   <SideDrawer ref="drawer">
-    <component :is="drawerSlot.component" v-bind="drawerSlot?.attributes" v-if="drawerSlot?.component" />
+    <LogDetails :entry="entry" />
   </SideDrawer>
   <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
   <div v-else-if="ready" class="hero min-h-screen bg-base-200">
@@ -15,6 +15,7 @@
 
 <script lang="ts" setup>
 import SideDrawer from "@/components/common/SideDrawer.vue";
+import { JSONObject, LogEntry } from "@/models/LogEntry";
 const route = useRoute("/container/[id]");
 const id = toRef(() => route.params.id);
 
@@ -26,10 +27,12 @@ const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const drawer = ref<InstanceType<typeof SideDrawer>>();
-const drawerSlot = shallowRef<{ component: Component; attributes: Record<string, any> }>();
+const entry = ref<LogEntry<string | JSONObject>>();
 
-provide("showDrawer", (component: Component, attributes: Record<string, any>) => {
-  drawerSlot.value = { component, attributes };
+export const showLogDetails = Symbol("showLogDetails") as InjectionKey<(l: LogEntry<string | JSONObject>) => void>;
+
+provide(showLogDetails, (logEntry: LogEntry<string | JSONObject>) => {
+  entry.value = logEntry;
   drawer.value?.open();
 });
 
