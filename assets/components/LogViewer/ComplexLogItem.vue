@@ -54,12 +54,12 @@ const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
 });
 
-import { showLogDetails } from "@/pages/container/[id].vue";
+const showLogDetails = useLogDetails();
 
-const showDetails = inject(showLogDetails);
-
-watch(expanded, () => {
-  showDetails?.(logEntry);
+watch(expanded, (value) => {
+  if (value) {
+    showLogDetails(logEntry);
+  }
 });
 </script>
 

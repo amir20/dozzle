@@ -1,4 +1,7 @@
 <template>
+  <SideDrawer ref="drawer">
+    <LogDetails :entry="entry" v-if="entry" />
+  </SideDrawer>
   <LogList
     :messages="filtered"
     :last-selected-item="lastSelectedItem"
@@ -9,7 +12,7 @@
 
 <script lang="ts" setup>
 import { useRouteHash } from "@vueuse/router";
-
+import SideDrawer from "@/components/common/SideDrawer.vue";
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
@@ -22,6 +25,10 @@ const { messages, visibleKeys } = toRefs(props);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { filteredMessages } = useSearchFilter();
+
+const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof SideDrawer>>;
+
+const { entry } = provideLogDetails(drawer);
 
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);

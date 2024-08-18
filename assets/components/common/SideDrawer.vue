@@ -14,7 +14,11 @@ onKeyStroke("o", (e) => {
   }
 });
 
-defineExpose({ open: () => panel.value?.showModal() });
+defineExpose({
+  open: () => {
+    panel.value?.showModal();
+  },
+});
 </script>
 <style scoped lang="postcss">
 .modal-right :where(.modal-box) {

@@ -104,6 +104,7 @@ declare global {
   const persistentVisibleKeysForContainer: typeof import('./composable/storage')['persistentVisibleKeysForContainer']
   const pinnedContainers: typeof import('./composable/storage')['pinnedContainers']
   const provide: typeof import('vue')['provide']
+  const provideDetails: typeof import('./composable/showDetails')['provideDetails']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
   const provideLogDetails: typeof import('./composable/showLogDetails')['provideLogDetails']
   const provideLoggingContext: typeof import('./composable/logContext')['provideLoggingContext']
@@ -205,6 +206,7 @@ declare global {
   const useDebounce: typeof import('@vueuse/core')['useDebounce']
   const useDebounceFn: typeof import('@vueuse/core')['useDebounceFn']
   const useDebouncedRefHistory: typeof import('@vueuse/core')['useDebouncedRefHistory']
+  const useDetails: typeof import('./composable/showDetails')['useDetails']
   const useDeviceMotion: typeof import('@vueuse/core')['useDeviceMotion']
   const useDeviceOrientation: typeof import('@vueuse/core')['useDeviceOrientation']
   const useDevicePixelRatio: typeof import('@vueuse/core')['useDevicePixelRatio']
@@ -468,6 +470,7 @@ declare module 'vue' {
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['provideLogDetails']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logContext')['provideLoggingContext']>
     readonly provideScrollContext: UnwrapRef<typeof import('./composable/scrollContext')['provideScrollContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
@@ -497,6 +500,7 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['showLogDetails']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
@@ -607,6 +611,7 @@ declare module 'vue' {
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['useLogDetails']>
     readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
@@ -821,6 +826,7 @@ declare module '@vue/runtime-core' {
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
+    readonly provideLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['provideLogDetails']>
     readonly provideLoggingContext: UnwrapRef<typeof import('./composable/logContext')['provideLoggingContext']>
     readonly provideScrollContext: UnwrapRef<typeof import('./composable/scrollContext')['provideScrollContext']>
     readonly reactify: UnwrapRef<typeof import('@vueuse/core')['reactify']>
@@ -850,6 +856,7 @@ declare module '@vue/runtime-core' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['showLogDetails']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
@@ -960,6 +967,7 @@ declare module '@vue/runtime-core' {
     readonly useKeyModifier: UnwrapRef<typeof import('@vueuse/core')['useKeyModifier']>
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['useLogDetails']>
     readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
