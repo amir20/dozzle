@@ -7,12 +7,6 @@
 </template>
 <script setup lang="ts">
 const panel = ref<HTMLDialogElement>();
-onKeyStroke("o", (e) => {
-  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-    panel.value?.showModal();
-    e.preventDefault();
-  }
-});
 
 defineExpose({
   open: () => {
