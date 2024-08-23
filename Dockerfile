@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:22.6.0-alpine AS node
+FROM --platform=$BUILDPLATFORM node:22.7.0-alpine AS node
 
 RUN corepack enable
 
