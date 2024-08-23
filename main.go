@@ -108,6 +108,7 @@ func main() {
 		go cli.StartEvent(args, "server", localClient, "")
 	} else if args.Mode == "agent" {
 		cli.StartAgent(args, certs)
+		return
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 		if err != nil {
