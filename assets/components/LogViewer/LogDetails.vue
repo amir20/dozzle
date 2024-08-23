@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <h1>{{ container.name }} - {{ entry.level }}</h1>
+  </div>
   <table class="table" v-if="entry instanceof ComplexLogEntry">
     <thead>
       <tr>
@@ -8,7 +11,7 @@
       </tr>
     </thead>
     <tbody ref="sortable">
-      <tr v-for="{ name, value } in list" :key="name" class="hover">
+      <tr v-for="(value, name) in entry.message" :key="name" class="hover">
         <td>
           {{ name }}
         </td>
@@ -24,14 +27,26 @@
 </template>
 
 <script setup lang="ts">
-import { JSONObject, LogEntry, ComplexLogEntry } from "@/models/LogEntry";
-const { entry } = defineProps<{ entry: LogEntry<string | JSONObject> }>();
+import { ComplexLogEntry } from "@/models/LogEntry";
+const { entry } = $defineProps<{ entry: ComplexLogEntry }>();
 import { useSortable } from "@vueuse/integrations/useSortable";
+
+const { currentContainer } = useContainerStore();
 
 if (!(entry instanceof ComplexLogEntry)) {
   throw new Error("entry must be a ComplexLogEntry");
 }
 const sortable = ref<HTMLElement | null>(null);
-const list = ref(Object.entries(entry.unfilteredMessage).map(([name, value]) => ({ name, value })));
-useSortable(sortable, list);
+
+const container = currentContainer(toRef(() => entry.containerID));
+
+const visibleKeys = persistentVisibleKeysForContainer(container);
+
+const keys = ref(Object.keys(entry.message));
+
+watchEffect(() => {
+  console.log("keys", keys.value);
+});
+
+useSortable(sortable, keys);
 </script>

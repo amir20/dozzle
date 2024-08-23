@@ -87,7 +87,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
   }
 
   public get message(): JSONObject {
-    return this.filteredMessage.value;
+    return unref(this.filteredMessage);
   }
 
   public get unfilteredMessage(): JSONObject {
