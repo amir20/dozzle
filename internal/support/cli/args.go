@@ -23,7 +23,7 @@ type Args struct {
 	RemoteHost      []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgent     []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
-	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
+	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm, agent)"`
 	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent           *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`

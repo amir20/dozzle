@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"io"
 	"io/fs"
 
 	"net"
@@ -37,45 +36,7 @@ func main() {
 	if subcommand != nil {
 		switch subcommand.(type) {
 		case *cli.AgentCmd:
-			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not create docker client")
-			}
-			certs, err := cli.ReadCertificates(certs)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not read certificates")
-			}
-
-			listener, err := net.Listen("tcp", args.Agent.Addr)
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to listen")
-			}
-			tempFile, err := os.CreateTemp("./", "agent-*.addr")
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to create temp file")
-			}
-			io.WriteString(tempFile, listener.Addr().String())
-			go cli.StartEvent(args, "", client, "agent")
-			server, err := agent.NewServer(client, certs, args.Version())
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to create agent server")
-			}
-			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-			defer stop()
-			go func() {
-				log.Info().Msgf("Dozzle agent version %s", args.Version())
-				log.Info().Msgf("Agent listening on %s", listener.Addr().String())
-
-				if err := server.Serve(listener); err != nil {
-					log.Error().Err(err).Msg("failed to serve")
-				}
-			}()
-			<-ctx.Done()
-			stop()
-			log.Info().Msg("Shutting down agent")
-			server.Stop()
-			log.Debug().Str("file", tempFile.Name()).Msg("Removing temp file")
-			os.Remove(tempFile.Name())
+			cli.StartAgent(args, certs)
 
 		case *cli.HealthcheckCmd:
 			files, err := os.ReadDir(".")
@@ -145,7 +106,8 @@ func main() {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
 		go cli.StartEvent(args, "server", localClient, "")
-
+	} else if args.Mode == "agent" {
+		cli.StartAgent(args, certs)
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 		if err != nil {
