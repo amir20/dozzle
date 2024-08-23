@@ -4,14 +4,14 @@ import (
 	"context"
 	"embed"
 	"io/fs"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
@@ -97,9 +97,7 @@ func main() {
 	log.Info().Msgf("Dozzle version %s", args.Version())
 
 	var multiHostService *docker_support.MultiHostService
-
-	switch args.Mode {
-	case "server":
+	if args.Mode == "server" {
 		var localClient docker.Client
 		localClient, multiHostService = cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
@@ -108,28 +106,9 @@ func main() {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
 		go cli.StartEvent(args, "server", localClient, "")
-		srv := createServer(args, multiHostService)
-		go func() {
-			log.Info().Msgf("Accepting connections on %s", args.Addr)
-			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-				log.Fatal().Err(err).Msg("failed to listen")
-			}
-		}()
-		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-		defer stop()
-
-		<-ctx.Done()
-		stop()
-		log.Info().Msg("shutting down gracefully, press Ctrl+C again to force")
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-		defer cancel()
-		if err := srv.Shutdown(ctx); err != nil {
-			log.Error().Err(err).Msg("failed to shut down")
-		}
-		log.Debug().Msg("shut down complete")
-	case "agent":
+	} else if args.Mode == "agent" {
 		cli.StartAgent(args, certs)
-	case "swarm":
+	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
@@ -156,10 +135,29 @@ func main() {
 				log.Error().Err(err).Msg("failed to serve")
 			}
 		}()
-
-	default:
+	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
+
+	srv := createServer(args, multiHostService)
+	go func() {
+		log.Info().Msgf("Accepting connections on %s", args.Addr)
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatal().Err(err).Msg("failed to listen")
+		}
+	}()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	<-ctx.Done()
+	stop()
+	log.Info().Msg("shutting down gracefully, press Ctrl+C again to force")
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("failed to shut down")
+	}
+	log.Debug().Msg("shut down complete")
 }
 
 func createServer(args cli.Args, multiHostService *docker_support.MultiHostService) *http.Server {

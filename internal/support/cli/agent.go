@@ -24,7 +24,7 @@ func StartAgent(args Args, embedCerts embed.FS) {
 		log.Fatal().Err(err).Msg("Could not read certificates")
 	}
 
-	listener, err := net.Listen("tcp", ":7070")
+	listener, err := net.Listen("tcp", args.Agent.Addr)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to listen")
 	}
