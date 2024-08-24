@@ -105,35 +105,37 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
-  let messages: LogEntry<string | JSONObject>[] = $ref([]);
+  const messages: Ref<LogEntry<string | JSONObject>[]> = shallowRef([]);
   let buffer: LogEntry<string | JSONObject>[] = $ref([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
-    if (messages.length > config.maxLogs) {
+    if (messages.value.length + buffer.length > config.maxLogs) {
       if (scrollingPaused) {
         console.log("Skipping ", buffer.length, " log items");
-        if (messages.at(-1) instanceof SkippedLogsEntry) {
-          const lastEvent = messages.at(-1) as SkippedLogsEntry;
+        if (messages.value.at(-1) instanceof SkippedLogsEntry) {
+          const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
           const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
           lastEvent.addSkippedEntries(buffer.length, lastItem);
         } else {
           const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
           const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
-          messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
+
+          messages.value = [...messages.value, new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem)];
         }
         buffer = [];
       } else {
-        messages.push(...buffer);
+        messages.value = [...messages.value, ...buffer].slice(-config.maxLogs);
         buffer = [];
-        messages = messages.slice(-config.maxLogs);
+        console.log("Trimming logs to ", messages.value.length, " items");
       }
     } else {
-      if (messages.length == 0) {
+      if (messages.value.length == 0) {
+        console.log("Initial sort of logs");
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
       }
-      messages.push(...buffer);
+      messages.value = [...messages.value, ...buffer];
       buffer = [];
     }
   }
@@ -149,7 +151,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   function clearMessages() {
     flushBuffer.cancel();
-    messages = [];
+    messages.value = [];
     buffer = [];
   }
 
@@ -192,8 +194,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     if (!loadMoreUrl) return;
     if (fetchingInProgress) return;
 
-    const to = messages[0].date;
-    const last = messages[Math.min(messages.length - 1, 300)].date;
+    const to = messages.value[0].date;
+    const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
 
@@ -215,7 +217,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
           .trim()
           .split("\n")
           .map((line) => parseMessage(line));
-        messages.unshift(...newMessages);
+        messages.value = [...newMessages, ...messages.value];
       }
     } catch (e) {
       console.error("Error loading older logs", e);

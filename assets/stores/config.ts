@@ -30,7 +30,7 @@ export interface Profile {
 const pageConfig = JSON.parse(text);
 
 const config: Config = {
-  maxLogs: 600,
+  maxLogs: 400,
   version: "v0.0.0",
   hosts: [],
   ...pageConfig,
