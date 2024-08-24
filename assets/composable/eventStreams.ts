@@ -230,5 +230,5 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   const isLoadingMore = () => fetchingInProgress;
 
-  return { ...$$({ messages }), loadOlderLogs, isLoadingMore };
+  return { messages, loadOlderLogs, isLoadingMore };
 }
