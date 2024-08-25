@@ -74,7 +74,10 @@ describe("<ContainerEventSource />", () => {
           LogViewer,
         },
         provide: {
-          scrollingPaused: computed(() => false),
+          [scrollContextKey as symbol]: {
+            paused: computed(() => false),
+            loading: computed(() => false),
+          },
           [loggingContextKey as symbol]: {
             containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
             streamConfig: reactive({ stdout: true, stderr: true }),

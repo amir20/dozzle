@@ -3,7 +3,8 @@ type ScrollContext = {
   paused: boolean;
 };
 
-const scrollContextKey = Symbol("scrollContext") as InjectionKey<ScrollContext>;
+// export for testing
+export const scrollContextKey = Symbol("scrollContext") as InjectionKey<ScrollContext>;
 
 export const provideScrollContext = () => {
   const context = reactive({
