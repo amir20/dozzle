@@ -243,7 +243,7 @@ func Test_handler_between_dates(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
-	to, _ := time.Parse(time.RFC3339, "2018-01-01T010:00:00Z")
+	to, _ := time.Parse(time.RFC3339, "2018-01-01T10:00:00Z")
 
 	q := req.URL.Query()
 	q.Add("from", from.Format(time.RFC3339))
@@ -260,6 +260,51 @@ func Test_handler_between_dates(t *testing.T) {
 	data := append(first, second...)
 
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
+	mockedClient.On("Host").Return(docker.Host{
+		ID: "localhost",
+	})
+	mockedClient.On("ListContainers").Return([]docker.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
+	mockedClient.AssertExpectations(t)
+}
+
+func Test_handler_between_dates_with_fill(t *testing.T) {
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	from, _ := time.Parse(time.RFC3339, "2018-01-01T00:00:00Z")
+	to, _ := time.Parse(time.RFC3339, "2018-01-01T10:00:00Z")
+
+	q := req.URL.Query()
+	q.Add("from", from.Format(time.RFC3339))
+	q.Add("to", to.Format(time.RFC3339))
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	q.Add("fill", "true")
+
+	req.URL.RawQuery = q.Encode()
+
+	mockedClient := new(MockedClient)
+
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
+	data := append(first, second...)
+
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).
+		Return(io.NopCloser(bytes.NewReader([]byte{})), nil).
+		Once()
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, time.Date(2017, time.December, 31, 14, 0, 0, 0, time.UTC), to, docker.STDALL).
+		Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Once()
 	mockedClient.On("FindContainer", id).Return(docker.Container{ID: id}, nil)
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",

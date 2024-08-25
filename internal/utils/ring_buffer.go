@@ -45,6 +45,12 @@ func (r *RingBuffer[T]) Push(data T) {
 	}
 }
 
+func (r *RingBuffer[T]) Len() int {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+	return len(r.data)
+}
+
 func (r *RingBuffer[T]) Clear() {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()

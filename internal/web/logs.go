@@ -103,17 +103,32 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	events, err := containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
-	if err != nil {
-		log.Error().Err(err).Msg("error fetching logs")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	buffer := utils.NewRingBuffer[*docker.LogEvent](500)
+	delta := to.Sub(from)
 
-	for event := range events {
-		buffer.Push(event)
+	
+
+	for {
+		if buffer.Len() > 0 {
+			break
+		}
+		events, err := containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
+		if err != nil {
+			log.Error().Err(err).Msg("error fetching logs")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		for event := range events {
+			buffer.Push(event)
+		}
+
+		if !r.URL.Query().Has("fill") { // only auto fill if fill query parameter is set
+			break
+		}
+
+		from = from.Add(-delta)
+		log.Debug().Time("from", from).Time("to", to).Dur("delta", delta).Msg("fetching logs")
 	}
 
 	encoder := json.NewEncoder(w)
