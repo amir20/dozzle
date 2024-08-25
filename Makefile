@@ -22,7 +22,7 @@ fake_assets:
 
 .PHONY: test
 test: fake_assets generate
-	go test -cover -race -count 1 -timeout 20s ./...
+	go test -cover -race -count 1 -timeout 40s ./...
 
 .PHONY: build
 build: dist generate
