@@ -106,8 +106,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	buffer := utils.NewRingBuffer[*docker.LogEvent](500)
 	delta := to.Sub(from)
 
-	
-
 	for {
 		if buffer.Len() > 0 {
 			break
@@ -128,7 +126,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 
 		from = from.Add(-delta)
-		log.Debug().Time("from", from).Time("to", to).Dur("delta", delta).Msg("fetching logs")
 	}
 
 	encoder := json.NewEncoder(w)
