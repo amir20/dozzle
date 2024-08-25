@@ -204,7 +204,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const logs = await (
         await fetch(
-          `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString() }).toString()}`,
+          `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString(), fill: "1" }).toString()}`,
           { signal },
         )
       ).text();
