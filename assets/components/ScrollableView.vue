@@ -7,12 +7,19 @@
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
-      <div class="invisible mr-28 text-right md:visible" v-show="paused">
+      <div class="invisible mr-28 text-right md:visible" v-show="scrollContext.paused">
         <ScrollProgress :indeterminate="loadingMore" :auto-hide="!loadingMore" class="!fixed top-16 z-10" />
       </div>
       <div ref="scrollableContent">
         <slot></slot>
+        <div v-if="scrollContext.loading" class="m-4 text-center">
+          <span class="loading loading-ring loading-md text-primary"></span>
+        </div>
       </div>
+      <div
+        class="animate-background h-0.5 bg-gradient-to-br from-primary via-transparent to-primary blur-xs"
+        v-show="!scrollContext.paused && !scrollContext.loading"
+      ></div>
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
@@ -22,7 +29,7 @@
           class="btn btn-primary fixed bottom-8 rounded p-3 text-primary-content shadow transition-colors"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
-          v-show="paused"
+          v-show="scrollContext.paused"
         >
           <mdi:chevron-double-down />
         </button>
@@ -34,17 +41,16 @@
 <script lang="ts" setup>
 const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
-let paused = $ref(false);
 let hasMore = $ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
-provide("scrollingPaused", $$(paused));
+const scrollContext = provideScrollContext();
 
 const { loadingMore } = useLoggingContext();
 
 const mutationObserver = new MutationObserver((e) => {
-  if (!paused) {
+  if (!scrollContext.paused) {
     scrollToBottom();
   } else {
     const record = e[e.length - 1];
@@ -55,10 +61,13 @@ const mutationObserver = new MutationObserver((e) => {
   }
 });
 
-const intersectionObserver = new IntersectionObserver((entries) => (paused = entries[0].intersectionRatio == 0), {
-  threshold: [0, 1],
-  rootMargin: "80px 0px",
-});
+const intersectionObserver = new IntersectionObserver(
+  (entries) => (scrollContext.paused = entries[0].intersectionRatio == 0),
+  {
+    threshold: [0, 1],
+    rootMargin: "80px 0px",
+  },
+);
 
 onMounted(() => {
   mutationObserver.observe(scrollableContent.value!, { childList: true, subtree: true });
@@ -79,6 +88,21 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
 .fade-enter-from,
 .fade-leave-to {
   @apply opacity-0;
+}
+
+.animate-background {
+  background-size: 400% 400%;
+  animation: gradient-animation 4s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
 }
 </style>
 

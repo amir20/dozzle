@@ -6,7 +6,7 @@ type LogContext = {
   loadingMore: boolean;
 };
 
-export const loggingContextKey = Symbol("loggingContext") as InjectionKey<LogContext>;
+const loggingContextKey = Symbol("loggingContext") as InjectionKey<LogContext>;
 
 export const provideLoggingContext = (containers: Ref<Container[]>) => {
   provide(

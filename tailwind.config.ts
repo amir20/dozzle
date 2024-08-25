@@ -10,6 +10,9 @@ export default {
   content: ["./assets/**/*.{vue,js,ts}", "./public/index.html"],
   theme: {
     extend: {
+      blur: {
+        xs: "1px",
+      },
       animation: {
         "bounce-fast": "bounce 0.5s 2 both",
       },

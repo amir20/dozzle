@@ -19,22 +19,24 @@
       />
     </li>
   </ul>
-  <div v-else class="m-4 text-center">
-    <span class="loading loading-ring loading-md text-primary"></span>
-  </div>
 </template>
 
 <script lang="ts" setup>
 import { toRaw } from "vue";
-
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-defineProps<{
+const { loading } = useScrollContext();
+
+const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: string[][];
   lastSelectedItem: LogEntry<string | JSONObject> | undefined;
   showContainerName: boolean;
 }>();
+
+watchEffect(() => {
+  loading.value = messages.length === 0;
+});
 </script>
 <style scoped lang="postcss">
 .events {
