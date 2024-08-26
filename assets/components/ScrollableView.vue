@@ -49,7 +49,7 @@
 <script lang="ts" setup>
 const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
-let hasMore = ref(false);
+const hasMore = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
