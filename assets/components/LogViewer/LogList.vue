@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const { loading, progress } = useScrollContext();
+const { loading, progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -55,6 +55,7 @@ useIntersectionObserver(
           const date = new Date(parseInt(time));
           const diff = new Date().getTime() - container.created.getTime();
           progress.value = (date.getTime() - container.created.getTime()) / diff;
+          currentDate.value = date;
         }
       }
     }

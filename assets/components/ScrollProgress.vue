@@ -1,20 +1,18 @@
 <template>
   <transition name="fadeout">
-    <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
-      <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-        <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
-      </svg>
-      <div class="absolute inset-0 flex items-center justify-center font-light">
-        <template v-if="indeterminate">
-          <div class="text-4xl">&#8734;</div>
-        </template>
-        <template v-else>
+    <div class="pointer-events-none inline-block" ref="root" v-show="!autoHide || show">
+      <div class="relative">
+        <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
+          <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center font-light">
           <span class="text-4xl">
             {{ Math.ceil(progress * 100) }}
           </span>
           <span> % </span>
-        </template>
+        </div>
       </div>
+      <DistanceTime :date="date" class="whitespace-nowrap" />
     </div>
   </transition>
 </template>
@@ -24,12 +22,12 @@ const {
   indeterminate = false,
   autoHide = false,
   progress,
-  activeDate = new Date(),
+  date = new Date(),
 } = defineProps<{
   indeterminate?: boolean;
   autoHide?: boolean;
   progress: number;
-  activeDate?: Date;
+  date?: Date;
 }>();
 
 const show = autoResetRef(false, 2000);

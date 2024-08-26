@@ -2,6 +2,7 @@ type ScrollContext = {
   loading: boolean;
   paused: boolean;
   progress: number;
+  currentDate: Date;
 };
 
 // export for testing
@@ -24,5 +25,6 @@ function defauleValue() {
     loading: false,
     paused: false,
     progress: 1,
+    currentDate: new Date(),
   });
 }

@@ -12,6 +12,7 @@
           :indeterminate="loadingMore"
           :auto-hide="!loadingMore"
           :progress="scrollContext.progress"
+          :date="scrollContext.currentDate"
           class="!fixed top-16 z-10"
         />
       </div>
