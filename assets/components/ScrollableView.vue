@@ -59,7 +59,7 @@ const { loadingMore } = useLoggingContext();
 
 useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
   threshold: [0, 1],
-  rootMargin: "80px 0px",
+  rootMargin: "40px 0px",
 });
 
 useMutationObserver(

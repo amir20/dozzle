@@ -111,7 +111,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
-      if (scrollingPaused) {
+      if (scrollingPaused.value === true) {
         if (messages.value.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
           const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
