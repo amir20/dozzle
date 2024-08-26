@@ -126,6 +126,11 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 
 		from = from.Add(-delta)
+		delta = delta * 2
+
+		if from.Before(containerService.Container.Created) {
+			break
+		}
 	}
 
 	encoder := json.NewEncoder(w)
