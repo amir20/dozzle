@@ -7,18 +7,20 @@ type ScrollContext = {
 export const scrollContextKey = Symbol("scrollContext") as InjectionKey<ScrollContext>;
 
 export const provideScrollContext = () => {
-  const context = reactive({
-    loading: false,
-    paused: false,
-  });
+  const context = defauleValue();
   provide(scrollContextKey, context);
   return context;
 };
 
 export const useScrollContext = () => {
-  const context = inject(scrollContextKey);
-  if (!context) {
-    throw new Error("No scroll context provided");
-  }
+  const defaultValue = defauleValue();
+  const context = inject(scrollContextKey, defaultValue);
   return toRefs(context);
 };
+
+function defauleValue() {
+  return reactive({
+    loading: false,
+    paused: false,
+  });
+}

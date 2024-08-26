@@ -22,7 +22,6 @@
 </template>
 
 <script lang="ts" setup>
-import { toRaw } from "vue";
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const { loading } = useScrollContext();

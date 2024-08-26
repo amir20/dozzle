@@ -70,8 +70,13 @@ const intersectionObserver = new IntersectionObserver(
 );
 
 onMounted(() => {
-  mutationObserver.observe(scrollableContent.value!, { childList: true, subtree: true });
-  intersectionObserver.observe(scrollObserver.value!);
+  if (scrollableContent.value) mutationObserver.observe(scrollableContent.value, { childList: true, subtree: true });
+  if (scrollObserver.value) intersectionObserver.observe(scrollObserver.value);
+});
+
+onUnmounted(() => {
+  mutationObserver.disconnect();
+  intersectionObserver.disconnect();
 });
 
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
