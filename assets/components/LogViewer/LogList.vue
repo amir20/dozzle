@@ -1,6 +1,6 @@
 <template>
   <ul
-    class="events group py-4"
+    class="events group pt-4"
     :class="{ 'disable-wrap': !softWrap, [size]: true, compact }"
     v-if="messages.length > 0"
   >
