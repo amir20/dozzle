@@ -1,6 +1,7 @@
 type ScrollContext = {
   loading: boolean;
   paused: boolean;
+  progress: number;
 };
 
 // export for testing
@@ -22,5 +23,6 @@ function defauleValue() {
   return reactive({
     loading: false,
     paused: false,
+    progress: 1,
   });
 }

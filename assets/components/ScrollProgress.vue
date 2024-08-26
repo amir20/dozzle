@@ -8,9 +8,9 @@
         <template v-if="indeterminate">
           <div class="text-4xl">&#8734;</div>
         </template>
-        <template v-else-if="!isNaN(scrollProgress)">
+        <template v-else>
           <span class="text-4xl">
-            {{ Math.ceil(scrollProgress * 100) }}
+            {{ Math.ceil(progress * 100) }}
           </span>
           <span> % </span>
         </template>
@@ -20,41 +20,28 @@
 </template>
 
 <script lang="ts" setup>
-const { indeterminate = false, autoHide = false } = defineProps<{
+const {
+  indeterminate = false,
+  autoHide = false,
+  progress,
+  activeDate = new Date(),
+} = defineProps<{
   indeterminate?: boolean;
   autoHide?: boolean;
+  progress: number;
+  activeDate?: Date;
 }>();
 
-const scrollProgress = ref(0);
-const root = ref<HTMLElement>();
-
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
-
-const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
-const { y: scrollY } = useScroll(scrollElement as Ref<HTMLElement | Document>, { throttle: 100 });
 const show = autoResetRef(false, 2000);
 
-onMounted(() => {
-  watch(
-    pinnedLogs,
-    () => {
-      scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
-    },
-    { immediate: true, flush: "post" },
-  );
-});
-
-watchPostEffect(() => {
-  const parent =
-    scrollElement.value === document
-      ? (scrollElement.value as Document).documentElement
-      : (scrollElement.value as HTMLElement);
-  scrollProgress.value = Math.max(0, Math.min(1, scrollY.value / (parent.scrollHeight - parent.clientHeight)));
-  if (autoHide) {
-    show.value = true;
-  }
-});
+watch(
+  () => progress,
+  () => {
+    if (autoHide) {
+      show.value = true;
+    }
+  },
+);
 </script>
 <style scoped lang="postcss">
 svg {
@@ -72,7 +59,7 @@ svg {
     transition: stroke-dashoffset 250ms ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
-    stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
+    stroke-dashoffset: calc(276.32px - v-bind(progress) * 276.32px);
     stroke-dasharray: 276.32px 276.32px;
     stroke-linecap: round;
     stroke-width: 3;

@@ -1,14 +1,15 @@
 <template>
   <ul
-    ref="list"
     class="events group py-4"
     :class="{ 'disable-wrap': !softWrap, [size]: true, compact }"
     v-if="messages.length > 0"
   >
     <li
       v-for="item in messages"
+      ref="list"
       :key="item.id"
       :data-key="item.id"
+      :data-time="item.date.getTime()"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
     >
@@ -25,7 +26,7 @@
 <script lang="ts" setup>
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const { loading } = useScrollContext();
+const { loading, progress } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -37,53 +38,29 @@ const { messages } = defineProps<{
 watchEffect(() => {
   loading.value = messages.length === 0;
 });
-const list = ref<HTMLElement>();
 
-useMutationObserver(
+const { containers } = useLoggingContext();
+
+const list = ref<HTMLElement[]>([]);
+
+useIntersectionObserver(
   list,
-  (mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        const addedNodes = Array.from(mutation.addedNodes);
-        for (const node of addedNodes) {
-          if (node instanceof HTMLElement) {
-            observer.observe(node);
-          }
-        }
-
-        const removedNodes = Array.from(mutation.removedNodes);
-        for (const node of removedNodes) {
-          if (node instanceof HTMLElement) {
-            observer.unobserve(node);
-          }
-        }
-      }
-    }
-  },
-  {
-    childList: true,
-  },
-);
-
-watchOnce(
-  () => messages.length,
-  () =>
-    nextTick(() => {
-      if (list.value) {
-        Array.from(list.value.children).forEach((child) => observer.observe(child));
-      }
-    }),
-);
-const observer = new IntersectionObserver(
   (entries) => {
+    if (containers.value.length > 1) return;
+    const container = containers.value[0];
     for (const entry of entries) {
       if (entry.isIntersecting) {
-        console.log("intersecting", entry);
+        const time = entry.target.getAttribute("data-time");
+        if (time) {
+          const date = new Date(parseInt(time));
+          const diff = new Date().getTime() - container.created.getTime();
+          progress.value = (date.getTime() - container.created.getTime()) / diff;
+        }
       }
     }
   },
   {
-    rootMargin: "0px 0px -90% 0px",
+    rootMargin: "-10% 0px -10% 0px",
     threshold: 1,
   },
 );

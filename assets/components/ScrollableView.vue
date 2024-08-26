@@ -8,7 +8,12 @@
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
       <div class="invisible mr-28 text-right md:visible" v-show="scrollContext.paused">
-        <ScrollProgress :indeterminate="loadingMore" :auto-hide="!loadingMore" class="!fixed top-16 z-10" />
+        <ScrollProgress
+          :indeterminate="loadingMore"
+          :auto-hide="!loadingMore"
+          :progress="scrollContext.progress"
+          class="!fixed top-16 z-10"
+        />
       </div>
       <div ref="scrollableContent">
         <slot></slot>
