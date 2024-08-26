@@ -89,6 +89,15 @@ Content-Type: application/x-jsonl; charset=UTF-8
 {"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
 
+/* snapshot: Test_handler_between_dates_with_fill */
+HTTP/1.1 200 OK
+Connection: close
+Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+Content-Type: application/x-jsonl; charset=UTF-8
+
+{"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
+{"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
+
 /* snapshot: Test_handler_download_logs */
 INFO Testing logs...
 
