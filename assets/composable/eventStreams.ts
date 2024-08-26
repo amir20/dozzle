@@ -107,7 +107,7 @@ export type LogStreamSource = ReturnType<typeof useLogStream>;
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
-  const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
+  const { paused: scrollingPaused } = useScrollContext();
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
