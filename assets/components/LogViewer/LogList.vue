@@ -1,13 +1,15 @@
 <template>
   <ul
-    class="events group py-4"
+    class="events group pt-4"
     :class="{ 'disable-wrap': !softWrap, [size]: true, compact }"
     v-if="messages.length > 0"
   >
     <li
       v-for="item in messages"
+      ref="list"
       :key="item.id"
       :data-key="item.id"
+      :data-time="item.date.getTime()"
       :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
     >
@@ -24,7 +26,7 @@
 <script lang="ts" setup>
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const { loading } = useScrollContext();
+const { loading, progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -36,6 +38,33 @@ const { messages } = defineProps<{
 watchEffect(() => {
   loading.value = messages.length === 0;
 });
+
+const { containers } = useLoggingContext();
+
+const list = ref<HTMLElement[]>([]);
+
+useIntersectionObserver(
+  list,
+  (entries) => {
+    if (containers.value.length != 1) return;
+    const container = containers.value[0];
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const time = entry.target.getAttribute("data-time");
+        if (time) {
+          const date = new Date(parseInt(time));
+          const diff = new Date().getTime() - container.created.getTime();
+          progress.value = (date.getTime() - container.created.getTime()) / diff;
+          currentDate.value = date;
+        }
+      }
+    }
+  },
+  {
+    rootMargin: "-10% 0px -10% 0px",
+    threshold: 1,
+  },
+);
 </script>
 <style scoped lang="postcss">
 .events {

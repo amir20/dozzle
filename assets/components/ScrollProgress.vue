@@ -1,60 +1,45 @@
 <template>
   <transition name="fadeout">
-    <div class="pointer-events-none relative inline-block" ref="root" v-show="!autoHide || show">
-      <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-        <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
-      </svg>
-      <div class="absolute inset-0 flex items-center justify-center font-light">
-        <template v-if="indeterminate">
-          <div class="text-4xl">&#8734;</div>
-        </template>
-        <template v-else-if="!isNaN(scrollProgress)">
+    <div class="inline-flex flex-col items-end gap-2" ref="root" v-show="!autoHide || show">
+      <div class="relative inline-block">
+        <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
+          <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center font-light">
           <span class="text-4xl">
-            {{ Math.ceil(scrollProgress * 100) }}
+            {{ Math.ceil(progress * 100) }}
           </span>
           <span> % </span>
-        </template>
+        </div>
       </div>
+      <DistanceTime :date="date" class="whitespace-nowrap text-sm" />
     </div>
   </transition>
 </template>
 
 <script lang="ts" setup>
-const { indeterminate = false, autoHide = false } = defineProps<{
+const {
+  indeterminate = false,
+  autoHide = false,
+  progress,
+  date = new Date(),
+} = defineProps<{
   indeterminate?: boolean;
   autoHide?: boolean;
+  progress: number;
+  date?: Date;
 }>();
 
-const scrollProgress = ref(0);
-const root = ref<HTMLElement>();
-
-const pinnedLogsStore = usePinnedLogsStore();
-const { pinnedLogs } = storeToRefs(pinnedLogsStore);
-
-const scrollElement = ref<HTMLElement | Document>((root.value?.closest("[data-scrolling]") as HTMLElement) ?? document);
-const { y: scrollY } = useScroll(scrollElement as Ref<HTMLElement | Document>, { throttle: 100 });
 const show = autoResetRef(false, 2000);
 
-onMounted(() => {
-  watch(
-    pinnedLogs,
-    () => {
-      scrollElement.value = (root.value?.closest("[data-scrolling]") as HTMLElement) ?? document;
-    },
-    { immediate: true, flush: "post" },
-  );
-});
-
-watchPostEffect(() => {
-  const parent =
-    scrollElement.value === document
-      ? (scrollElement.value as Document).documentElement
-      : (scrollElement.value as HTMLElement);
-  scrollProgress.value = Math.max(0, Math.min(1, scrollY.value / (parent.scrollHeight - parent.clientHeight)));
-  if (autoHide) {
-    show.value = true;
-  }
-});
+watch(
+  () => progress,
+  () => {
+    if (autoHide) {
+      show.value = true;
+    }
+  },
+);
 </script>
 <style scoped lang="postcss">
 svg {
@@ -72,7 +57,7 @@ svg {
     transition: stroke-dashoffset 250ms ease-out;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
-    stroke-dashoffset: calc(276.32px - v-bind(scrollProgress) * 276.32px);
+    stroke-dashoffset: calc(276.32px - v-bind(progress) * 276.32px);
     stroke-dasharray: 276.32px 276.32px;
     stroke-linecap: round;
     stroke-width: 3;
