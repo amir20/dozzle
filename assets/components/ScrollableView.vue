@@ -25,7 +25,7 @@
         </div>
       </div>
       <div
-        class="animate-background h-0.5 bg-gradient-to-br from-primary via-transparent to-primary blur-xs"
+        class="animate-background h-1 bg-gradient-to-br from-primary via-transparent to-primary"
         v-show="!scrollContext.paused && !scrollContext.loading"
       ></div>
       <div ref="scrollObserver" class="h-px"></div>
@@ -34,7 +34,7 @@
     <div class="mr-16 text-right">
       <transition name="fade">
         <button
-          class="btn btn-primary fixed bottom-8 rounded p-3 text-primary-content shadow transition-colors"
+          class="transition-colorsblur-xs dark btn btn-primary fixed bottom-8 rounded p-3 text-primary-content shadow"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"
