@@ -1,4 +1,4 @@
-import { type Ref } from "vue";
+import { ShallowRef, type Ref } from "vue";
 import { encodeXML } from "entities";
 import debounce from "lodash.debounce";
 import {
@@ -105,36 +105,42 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
-  let messages: LogEntry<string | JSONObject>[] = $ref([]);
-  let buffer: LogEntry<string | JSONObject>[] = $ref([]);
+  const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
+  const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const scrollingPaused = $ref(inject("scrollingPaused") as Ref<boolean>);
 
   function flushNow() {
-    if (messages.length > config.maxLogs) {
+    if (messages.value.length + buffer.value.length > config.maxLogs) {
       if (scrollingPaused) {
-        console.log("Skipping ", buffer.length, " log items");
-        if (messages.at(-1) instanceof SkippedLogsEntry) {
-          const lastEvent = messages.at(-1) as SkippedLogsEntry;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
-          lastEvent.addSkippedEntries(buffer.length, lastItem);
+        if (messages.value.at(-1) instanceof SkippedLogsEntry) {
+          const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
+          const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
+          lastEvent.addSkippedEntries(buffer.value.length, lastItem);
         } else {
-          const firstItem = buffer.at(0) as LogEntry<string | JSONObject>;
-          const lastItem = buffer.at(-1) as LogEntry<string | JSONObject>;
-          messages.push(new SkippedLogsEntry(new Date(), buffer.length, firstItem, lastItem));
+          const firstItem = buffer.value.at(0) as LogEntry<string | JSONObject>;
+          const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
+
+          messages.value = [
+            ...messages.value,
+            new SkippedLogsEntry(new Date(), buffer.value.length, firstItem, lastItem),
+          ];
         }
-        buffer = [];
+        buffer.value = [];
       } else {
-        messages.push(...buffer);
-        buffer = [];
-        messages = messages.slice(-config.maxLogs);
+        if (buffer.value.length > config.maxLogs / 2) {
+          messages.value = buffer.value.slice(-config.maxLogs / 2);
+        } else {
+          messages.value = [...messages.value, ...buffer.value].slice(-config.maxLogs);
+        }
+        buffer.value = [];
       }
     } else {
-      if (messages.length == 0) {
+      if (messages.value.length == 0) {
         // sort the buffer the very first time because of multiple logs in parallel
-        buffer.sort((a, b) => a.date.getTime() - b.date.getTime());
+        buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
       }
-      messages.push(...buffer);
-      buffer = [];
+      messages.value = [...messages.value, ...buffer.value];
+      buffer.value = [];
     }
   }
   const flushBuffer = debounce(flushNow, 250, { maxWait: 1000 });
@@ -149,8 +155,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   function clearMessages() {
     flushBuffer.cancel();
-    messages = [];
-    buffer = [];
+    messages.value = [];
+    buffer.value = [];
   }
 
   function connect({ clear } = { clear: true }) {
@@ -170,14 +176,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         new Date(),
         event.name as "container-stopped" | "container-started",
       );
-      buffer.push(containerEvent);
 
-      flushBuffer();
+      buffer.value = [...buffer.value, containerEvent];
+
       flushBuffer.flush();
     });
     es.onmessage = (e) => {
       if (e.data) {
-        buffer.push(parseMessage(e.data));
+        buffer.value = [...buffer.value, parseMessage(e.data)];
         flushBuffer();
       }
     };
@@ -192,8 +198,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     if (!loadMoreUrl) return;
     if (fetchingInProgress) return;
 
-    const to = messages[0].date;
-    const last = messages[Math.min(messages.length - 1, 300)].date;
+    const to = messages.value[0].date;
+    const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
 
@@ -215,7 +221,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
           .trim()
           .split("\n")
           .map((line) => parseMessage(line));
-        messages.unshift(...newMessages);
+        messages.value = [...newMessages, ...messages.value];
       }
     } catch (e) {
       console.error("Error loading older logs", e);
@@ -228,5 +234,5 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   const isLoadingMore = () => fetchingInProgress;
 
-  return { ...$$({ messages }), loadOlderLogs, isLoadingMore };
+  return { messages, loadOlderLogs, isLoadingMore };
 }
