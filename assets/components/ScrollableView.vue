@@ -7,14 +7,16 @@
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
-      <div class="invisible mr-28 text-right md:visible" v-show="scrollContext.paused">
-        <ScrollProgress
-          :indeterminate="loadingMore"
-          :auto-hide="!loadingMore"
-          :progress="scrollContext.progress"
-          :date="scrollContext.currentDate"
-          class="!fixed top-16 z-10"
-        />
+      <div class="invisible relative md:visible" v-show="scrollContext.paused">
+        <div class="absolute right-44 top-4">
+          <ScrollProgress
+            :indeterminate="loadingMore"
+            :auto-hide="!loadingMore"
+            :progress="scrollContext.progress"
+            :date="scrollContext.currentDate"
+            class="!fixed z-10 min-w-40"
+          />
+        </div>
       </div>
       <div ref="scrollableContent">
         <slot></slot>
@@ -47,7 +49,7 @@
 <script lang="ts" setup>
 const { scrollable = false } = defineProps<{ scrollable?: boolean }>();
 
-let hasMore = $ref(false);
+let hasMore = ref(false);
 const scrollObserver = ref<HTMLElement>();
 const scrollableContent = ref<HTMLElement>();
 
@@ -55,39 +57,30 @@ const scrollContext = provideScrollContext();
 
 const { loadingMore } = useLoggingContext();
 
-const mutationObserver = new MutationObserver((e) => {
-  if (!scrollContext.paused) {
-    scrollToBottom();
-  } else {
-    const record = e[e.length - 1];
-    const children = (record.target as HTMLElement).children;
-    if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
-      hasMore = true;
+useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
+  threshold: [0, 1],
+  rootMargin: "80px 0px",
+});
+
+useMutationObserver(
+  scrollableContent,
+  (records) => {
+    if (!scrollContext.paused) {
+      scrollToBottom();
+    } else {
+      const record = records[records.length - 1];
+      const children = (record.target as HTMLElement).children;
+      if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
+        hasMore.value = true;
+      }
     }
-  }
-});
-
-const intersectionObserver = new IntersectionObserver(
-  (entries) => (scrollContext.paused = entries[0].intersectionRatio == 0),
-  {
-    threshold: [0, 1],
-    rootMargin: "80px 0px",
   },
+  { childList: true, subtree: true },
 );
-
-onMounted(() => {
-  if (scrollableContent.value) mutationObserver.observe(scrollableContent.value, { childList: true, subtree: true });
-  if (scrollObserver.value) intersectionObserver.observe(scrollObserver.value);
-});
-
-onUnmounted(() => {
-  mutationObserver.disconnect();
-  intersectionObserver.disconnect();
-});
 
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   scrollObserver.value?.scrollIntoView({ behavior });
-  hasMore = false;
+  hasMore.value = false;
 }
 </script>
 <style scoped lang="postcss">

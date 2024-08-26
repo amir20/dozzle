@@ -1,7 +1,7 @@
 <template>
   <transition name="fadeout">
-    <div class="pointer-events-none inline-flex flex-col gap-2" ref="root" v-show="!autoHide || show">
-      <div class="relative">
+    <div class="inline-flex flex-col items-end gap-2" ref="root" v-show="!autoHide || show">
+      <div class="relative inline-block">
         <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
           <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
         </svg>
