@@ -21,9 +21,14 @@ export const provideLoggingContext = (containers: Ref<Container[]>) => {
 };
 
 export const useLoggingContext = () => {
-  const context = inject(loggingContextKey);
-  if (!context) {
-    throw new Error("No logging context provided");
-  }
+  const context = inject(
+    loggingContextKey,
+    reactive({
+      streamConfig: { stdout: true, stderr: true },
+      containers: [],
+      loadingMore: false,
+    }),
+  );
+
   return toRefs(context);
 };

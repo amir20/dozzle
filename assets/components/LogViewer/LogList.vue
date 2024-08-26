@@ -46,7 +46,7 @@ const list = ref<HTMLElement[]>([]);
 useIntersectionObserver(
   list,
   (entries) => {
-    if (containers.value.length > 1) return;
+    if (containers.value.length != 1) return;
     const container = containers.value[0];
     for (const entry of entries) {
       if (entry.isIntersecting) {
