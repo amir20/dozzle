@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
-"<ul data-v-cf9ff940="" class="events group py-4 medium">
-  <li data-v-cf9ff940="" data-key="1" class="group/entry">
+"<ul data-v-cf9ff940="" class="events group pt-4 medium">
+  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
@@ -21,8 +21,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
-"<ul data-v-cf9ff940="" class="events group py-4 medium">
-  <li data-v-cf9ff940="" data-key="1" class="group/entry">
+"<ul data-v-cf9ff940="" class="events group pt-4 medium">
+  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
@@ -41,8 +41,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
-"<ul data-v-cf9ff940="" class="events group py-4 medium">
-  <li data-v-cf9ff940="" data-key="1" class="group/entry">
+"<ul data-v-cf9ff940="" class="events group pt-4 medium">
+  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
@@ -61,8 +61,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages with filter 1`] = `
-"<ul data-v-cf9ff940="" class="events group py-4 medium">
-  <li data-v-cf9ff940="" data-key="2" class="group/entry">
+"<ul data-v-cf9ff940="" class="events group pt-4 medium">
+  <li data-v-cf9ff940="" data-key="2" data-time="1560336942459" class="group/entry">
     <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
@@ -83,8 +83,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages with html entities 1`] = `
-"<ul data-v-cf9ff940="" class="events group py-4 medium">
-  <li data-v-cf9ff940="" data-key="1" class="group/entry">
+"<ul data-v-cf9ff940="" class="events group pt-4 medium">
+  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
       <!--v-if-->
       <!--v-if-->
