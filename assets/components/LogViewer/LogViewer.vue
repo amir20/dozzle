@@ -1,6 +1,6 @@
 <template>
   <SideDrawer ref="drawer">
-    <LogDetails :entry="entry" v-if="entry" />
+    <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
   </SideDrawer>
   <LogList :messages="filtered" :last-selected-item="lastSelectedItem" :show-container-name="showContainerName" />
 </template>
@@ -8,7 +8,7 @@
 <script lang="ts" setup>
 import { useRouteHash } from "@vueuse/router";
 import SideDrawer from "@/components/common/SideDrawer.vue";
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import { ComplexLogEntry, type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];

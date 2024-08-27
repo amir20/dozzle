@@ -41,18 +41,12 @@
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
-const { entry } = $defineProps<{ entry: ComplexLogEntry }>();
 import { useSortable } from "@vueuse/integrations/useSortable";
 
+const { entry } = defineProps<{ entry: ComplexLogEntry }>();
 const { currentContainer } = useContainerStore();
-
-if (!(entry instanceof ComplexLogEntry)) {
-  throw new Error("entry must be a ComplexLogEntry");
-}
 const list = ref<HTMLElement>();
-
 const container = currentContainer(toRef(() => entry.containerID));
-
 const visibleKeys = persistentVisibleKeysForContainer(container);
 
 function toggleField(key: string[]) {
@@ -61,7 +55,6 @@ function toggleField(key: string[]) {
   }
 
   const enabled = visibleKeys.value.get(key);
-
   visibleKeys.value.set(key, !enabled);
 }
 
