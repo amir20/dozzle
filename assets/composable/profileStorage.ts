@@ -1,11 +1,17 @@
 import { Profile } from "@/stores/config";
+import { Serializer } from "@vueuse/core";
 
 // TODO fix this with existing keys in Profile
-export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue: NonNullable<Profile[K]>) {
+export function useProfileStorage<K extends keyof Profile>(
+  key: K,
+  defaultValue: NonNullable<Profile[K]>,
+  serializer?: Serializer<NonNullable<Profile[K]>>,
+) {
   const storageKey = "DOZZLE_" + key.toUpperCase();
   const storage = useStorage<NonNullable<Profile[K]>>(storageKey, defaultValue, undefined, {
     writeDefaults: false,
     mergeDefaults: true,
+    serializer,
   });
 
   if (config.profile?.[key]) {

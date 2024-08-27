@@ -8,7 +8,6 @@ export function formatBytes(bytes: number, decimals = 2) {
 }
 
 export function getDeep(obj: Record<string, any>, path: string[]) {
-  console.log(obj, path);
   return path.reduce((acc, key) => acc?.[key], obj);
 }
 
