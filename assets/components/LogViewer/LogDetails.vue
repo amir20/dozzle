@@ -12,13 +12,11 @@
     </thead>
     <tbody ref="list">
       <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="hover">
-        <td class="font-mono">
+        <td class="cursor-move font-mono">
           {{ key.join(".") }}
         </td>
-        <td class="">
-          <code>
-            <span v-html="JSON.stringify(value)"></span>
-          </code>
+        <td>
+          <code v-html="JSON.stringify(value)"></code>
         </td>
         <td>
           <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
