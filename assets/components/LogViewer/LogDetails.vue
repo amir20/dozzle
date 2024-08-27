@@ -10,8 +10,8 @@
         <th>Show</th>
       </tr>
     </thead>
-    <tbody ref="sortable">
-      <tr v-for="(value, name) in entry.message" :key="name" class="hover">
+    <tbody ref="list">
+      <tr v-for="[name, value] in fields" :key="name" class="hover">
         <td>
           {{ name }}
         </td>
@@ -36,17 +36,27 @@ const { currentContainer } = useContainerStore();
 if (!(entry instanceof ComplexLogEntry)) {
   throw new Error("entry must be a ComplexLogEntry");
 }
-const sortable = ref<HTMLElement | null>(null);
+const list = ref<HTMLElement>();
 
 const container = currentContainer(toRef(() => entry.containerID));
 
 const visibleKeys = persistentVisibleKeysForContainer(container);
 
-const keys = ref(Object.keys(entry.message));
-
-watchEffect(() => {
-  console.log("keys", keys.value);
+const fields = computed({
+  get() {
+    const all = flattenJSON(entry.unfilteredMessage);
+    if (visibleKeys.value.length === 0) {
+      return Object.entries(all);
+    } else {
+      return Object.entries(entry.message);
+    }
+  },
+  set(value) {
+    const keys = value.map(([key]) => key);
+    console.log(keys);
+    visibleKeys.value = keys.map((key) => key.split("."));
+  },
 });
 
-useSortable(sortable, keys);
+useSortable(list, fields);
 </script>

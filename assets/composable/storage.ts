@@ -7,17 +7,16 @@ if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
 }
 
+const storage = useProfileStorage("visibleKeys", {});
 export function persistentVisibleKeysForContainer(container: Ref<Container>): Ref<string[][]> {
-  const storage = useProfileStorage("visibleKeys", {});
-  return computed(() => {
-    if (!(container.value.storageKey in storage.value)) {
-      // Returning a temporary ref here to avoid writing an empty array to storage
-      const visibleKeys = ref<string[][]>([]);
-      watchOnce(visibleKeys, () => (storage.value[container.value.storageKey] = visibleKeys.value), { deep: true });
-      return visibleKeys.value;
-    }
-
-    return storage.value[container.value.storageKey];
+  // Computed property to only store to storage when the value changes
+  return computed({
+    get: () => {
+      return storage.value[container.value.storageKey] || [];
+    },
+    set: (value: string[][]) => {
+      storage.value[container.value.storageKey] = value;
+    },
   });
 }
 

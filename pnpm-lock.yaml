@@ -175,8 +175,16 @@ importers:
         specifier: ^4.0.9
         version: 4.0.9
       '@types/node':
+<<<<<<< HEAD
         specifier: ^22.5.1
         version: 22.5.1
+=======
+        specifier: ^22.5.0
+        version: 22.5.0
+      '@types/sortablejs':
+        specifier: ^1.15.8
+        version: 1.15.8
+>>>>>>> 827b43ad (wip)
       '@vitejs/plugin-vue':
         specifier: 5.1.2
         version: 5.1.2(vite@5.4.2(@types/node@22.5.1))(vue@3.4.38(typescript@5.5.4))
@@ -978,6 +986,9 @@ packages:
 
   '@types/node@22.5.1':
     resolution: {integrity: sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==}
+
+  '@types/sortablejs@1.15.8':
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -3857,6 +3868,8 @@ snapshots:
   '@types/node@22.5.1':
     dependencies:
       undici-types: 6.19.6
+
+  '@types/sortablejs@1.15.8': {}
 
   '@types/unist@3.0.3': {}
 
