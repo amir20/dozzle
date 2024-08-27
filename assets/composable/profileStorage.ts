@@ -12,6 +12,9 @@ export function useProfileStorage<K extends keyof Profile>(
     writeDefaults: false,
     mergeDefaults: true,
     serializer,
+    onError: (e) => {
+      console.error(`Failed to read ${storageKey} from storage`, e);
+    },
   });
 
   if (config.profile?.[key]) {
