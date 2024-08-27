@@ -19,7 +19,7 @@
         ref="viewer"
         :stream-source="useServiceStream"
         :entity="service"
-        :visible-keys="visibleKeys"
+        :visible-keys="new Map<string[], boolean>()"
         :show-container-name="true"
       />
     </template>
@@ -36,7 +36,6 @@ const { name, scrollable = false } = defineProps<{
   name: string;
 }>();
 
-const visibleKeys = ref<string[][]>([]);
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };

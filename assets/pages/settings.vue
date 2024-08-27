@@ -108,7 +108,6 @@
         </div>
         <LogList
           :messages="fakeMessages"
-          :visible-keys="keys"
           :last-selected-item="undefined"
           :show-container-name="false"
           class="hidden overflow-hidden rounded-lg border border-base-content/50 shadow @3xl:block"
@@ -163,7 +162,6 @@ const { t } = useI18n();
 setTitle(t("title.settings"));
 const { latest, hasUpdate } = useReleases();
 
-const keys = ref<string[][]>([]);
 const now = new Date();
 const hoursAgo = (hours: number) => {
   const date = new Date(now);
@@ -208,7 +206,6 @@ const fakeMessages = computedWithControl(
       new Date(),
       "info",
       "stdout",
-      keys,
     ),
     new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", undefined, "stderr"),
   ],
