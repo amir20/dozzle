@@ -19,7 +19,7 @@ defineExpose({
 </script>
 <style scoped lang="postcss">
 .modal-right :where(.modal-box) {
-  @apply fixed right-0 h-lvh max-h-screen max-w-2xl translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
+  @apply fixed right-0 h-lvh max-h-screen max-w-3xl translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
 }
 
 .modal-right[open] .modal-box {

@@ -3,7 +3,7 @@
     <h1>{{ container.name }} - {{ entry.level }}</h1>
   </div>
   <table class="table" v-if="entry instanceof ComplexLogEntry">
-    <thead>
+    <thead class="text-lg">
       <tr>
         <th>Field</th>
         <th>Value</th>
@@ -11,12 +11,14 @@
       </tr>
     </thead>
     <tbody ref="list">
-      <tr v-for="{ key, value, enabled } in fields" :key="key.join('->')" class="hover">
-        <td>
-          {{ key.join("->") }}
+      <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="hover">
+        <td class="font-mono">
+          {{ key.join(".") }}
         </td>
-        <td>
-          {{ value }}
+        <td class="">
+          <code>
+            <span v-html="JSON.stringify(value)"></span>
+          </code>
         </td>
         <td>
           <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
@@ -25,6 +27,19 @@
     </tbody>
   </table>
 </template>
+<style lang="postcss">
+.font-mono {
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Consolas,
+    Liberation Mono,
+    monaco,
+    Menlo,
+    monospace;
+}
+</style>
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
@@ -43,12 +58,13 @@ const container = currentContainer(toRef(() => entry.containerID));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 
 function toggleField(key: string[]) {
-  const enabled = visibleKeys.value.get(key);
-  if (enabled === undefined) {
-    visibleKeys.value.set(key, true);
-  } else {
-    visibleKeys.value.set(key, !enabled);
+  if (visibleKeys.value.size === 0) {
+    visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
   }
+
+  const enabled = visibleKeys.value.get(key);
+
+  visibleKeys.value.set(key, !enabled);
 }
 
 const fields = computed({
