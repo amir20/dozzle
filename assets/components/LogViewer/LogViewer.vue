@@ -2,12 +2,7 @@
   <SideDrawer ref="drawer">
     <LogDetails :entry="entry" v-if="entry" />
   </SideDrawer>
-  <LogList
-    :messages="filtered"
-    :last-selected-item="lastSelectedItem"
-    :visible-keys="visibleKeys"
-    :show-container-name="showContainerName"
-  />
+  <LogList :messages="filtered" :last-selected-item="lastSelectedItem" :show-container-name="showContainerName" />
 </template>
 
 <script lang="ts" setup>
@@ -17,7 +12,7 @@ import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
-  visibleKeys: string[][];
+  visibleKeys: Map<string[], boolean>;
   showContainerName: boolean;
 }>();
 

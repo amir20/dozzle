@@ -67,15 +67,18 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     date: Date,
     public readonly level: Level,
     public readonly std: Std,
-    visibleKeys?: Ref<string[][]>,
+    visibleKeys?: Ref<Map<string[], boolean>>,
   ) {
     super(message, containerID, id, date, std, level);
     if (visibleKeys) {
       this.filteredMessage = computed(() => {
-        if (!visibleKeys.value.length) {
+        if (visibleKeys.value.size === 0) {
           return flattenJSON(message);
         } else {
-          return visibleKeys.value.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
+          const keys = Array.from(visibleKeys.value.entries())
+            .filter(([, value]) => value)
+            .map(([key]) => key);
+          return keys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
         }
       });
     } else {
@@ -94,7 +97,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     return this._message;
   }
 
-  static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<string[][]>): ComplexLogEntry {
+  static fromLogEvent(event: ComplexLogEntry, visibleKeys: Ref<Map<string[], boolean>>): ComplexLogEntry {
     return new ComplexLogEntry(
       event._message,
       event.containerID,

@@ -7,15 +7,15 @@ if (config.hosts.length === 1 && !sessionHost.value) {
   sessionHost.value = config.hosts[0].id;
 }
 
-const storage = useProfileStorage("visibleKeys", {});
-export function persistentVisibleKeysForContainer(container: Ref<Container>): Ref<string[][]> {
+const storage = useProfileStorage("visibleKeys", new Map<string, Map<string[], boolean>>());
+export function persistentVisibleKeysForContainer(container: Ref<Container>): Ref<Map<string[], boolean>> {
   // Computed property to only store to storage when the value changes
   return computed({
     get: () => {
-      return storage.value[container.value.storageKey] || [];
+      return storage.value.get(container.value.storageKey) || new Map<string[], boolean>();
     },
-    set: (value: string[][]) => {
-      storage.value[container.value.storageKey] = value;
+    set: (value: Map<string[], boolean>) => {
+      storage.value.set(container.value.storageKey, value);
     },
   });
 }

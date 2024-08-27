@@ -1,7 +1,7 @@
 import { ComplexLogEntry, type JSONObject, type LogEntry } from "@/models/LogEntry";
 import type { Ref } from "vue";
 
-export function useVisibleFilter(visibleKeys: Ref<string[][]>) {
+export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
   function filteredPayload(messages: Ref<LogEntry<string | JSONObject>[]>) {
     return computed(() => {
       return messages.value.map((d) => {

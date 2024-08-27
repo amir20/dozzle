@@ -17,16 +17,28 @@ export function isObject(value: any): value is Record<string, any> {
 }
 
 export function flattenJSON(obj: Record<string, any>, path: string[] = []) {
-  const result: Record<string, any> = {};
-  Object.keys(obj).forEach((key) => {
+  const map = flattenJSONToMap(obj);
+  const result = {} as Record<string, any>;
+  for (const [key, value] of map) {
+    result[key.join(".")] = value;
+  }
+  return result;
+}
+
+export function flattenJSONToMap(obj: Record<string, any>, path: string[] = []): Map<string[], any> {
+  const result = new Map<string[], any>();
+  for (const key of Object.keys(obj)) {
     const value = obj[key];
     const newPath = path.concat(key);
     if (isObject(value)) {
-      Object.assign(result, flattenJSON(value, newPath));
+      for (const [k, v] of flattenJSONToMap(value, newPath)) {
+        result.set(k, v);
+      }
     } else {
-      result[newPath.join(".")] = value;
+      result.set(newPath, value);
     }
-  });
+  }
+
   return result;
 }
 

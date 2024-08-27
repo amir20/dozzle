@@ -1,5 +1,6 @@
 import { Profile } from "@/stores/config";
 
+// TODO fix this with existing keys in Profile
 export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue: NonNullable<Profile[K]>) {
   const storageKey = "DOZZLE_" + key.toUpperCase();
   const storage = useStorage<NonNullable<Profile[K]>>(storageKey, defaultValue, undefined, {
@@ -12,6 +13,8 @@ export function useProfileStorage<K extends keyof Profile>(key: K, defaultValue:
       storage.value = new Set([...(config.profile[key] as Iterable<any>)]) as unknown as NonNullable<Profile[K]>;
     } else if (config.profile[key] instanceof Array) {
       storage.value = config.profile[key] as NonNullable<Profile[K]>;
+    } else if (storage.value instanceof Map && config.profile[key] instanceof Object) {
+      storage.value = new Map([...(config.profile[key] as Iterable<any>)]) as unknown as NonNullable<Profile[K]>;
     } else if (config.profile[key] instanceof Object) {
       Object.assign(storage.value, config.profile[key]);
     } else {

@@ -10,7 +10,7 @@ import { LogStreamSource } from "@/composable/eventStreams";
 
 const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
-  visibleKeys: string[][];
+  visibleKeys: Map<string[], boolean>;
   showContainerName: boolean;
   entity: T;
 }>();
