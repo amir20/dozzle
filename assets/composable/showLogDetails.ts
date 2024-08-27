@@ -17,9 +17,6 @@ export const provideLogDetails = (drawer: Ref<InstanceType<typeof SideDrawer>>) 
 };
 
 export const useLogDetails = () => {
-  const showDetails = inject(showLogDetails);
-  if (!showDetails) {
-    throw new Error("No showLogDetails provided");
-  }
+  const showDetails = inject(showLogDetails, () => {});
   return showDetails;
 };
