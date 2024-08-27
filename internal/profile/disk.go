@@ -68,7 +68,7 @@ func UpdateFromReader(user auth.User, reader io.Reader) error {
 	defer mux.Unlock()
 	existingProfile, err := Load(user)
 	if err != nil && err != errMissingProfileErr {
-		return err
+		log.Error().Err(err).Msg("Unable to load profile. Overwriting it.")
 	}
 
 	if err := json.NewDecoder(reader).Decode(&existingProfile); err != nil {
