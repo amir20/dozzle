@@ -61,10 +61,9 @@ function toggleField(key: string[]) {
 const fields = computed({
   get() {
     const fieldsWithValue: { key: string[]; value: any; enabled: boolean }[] = [];
+    const allFields = flattenJSONToMap(entry.unfilteredMessage);
     if (visibleKeys.value.size === 0) {
-      const map = flattenJSONToMap(entry.unfilteredMessage);
-
-      for (const [key, value] of map) {
+      for (const [key, value] of allFields) {
         fieldsWithValue.push({ key, value, enabled: true });
       }
     } else {
@@ -72,7 +71,14 @@ const fields = computed({
         const value = getDeep(entry.unfilteredMessage, key);
         fieldsWithValue.push({ key, value, enabled });
       }
+
+      for (const [key, value] of allFields) {
+        if ([...visibleKeys.value.keys()].findIndex((k) => arrayEquals(k, key)) === -1) {
+          fieldsWithValue.push({ key, value, enabled: false });
+        }
+      }
     }
+
     return fieldsWithValue;
   },
   set(value) {
