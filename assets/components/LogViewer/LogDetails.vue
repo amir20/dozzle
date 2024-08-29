@@ -25,14 +25,14 @@
       </div>
     </section>
     <table class="table table-fixed" v-if="entry instanceof ComplexLogEntry">
-      <caption class="caption-top">
-        You can drag and drop the fields to reorder them.
+      <caption class="caption-bottom">
+        Fields are sortable by dragging and dropping.
       </caption>
       <thead class="text-lg">
         <tr>
           <th class="w-60">Field</th>
           <th>Value</th>
-          <th class="w-20">Show</th>
+          <th class="w-20"><input type="checkbox" class="toggle toggle-primary" @change="toggleAll($event)" /></th>
         </tr>
       </thead>
       <tbody ref="list">
@@ -55,7 +55,6 @@
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
 import { useSortable } from "@vueuse/integrations/useSortable";
-import DistanceTime from "../common/DistanceTime.vue";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
 const { currentContainer } = useContainerStore();
@@ -71,6 +70,17 @@ function toggleField(key: string[]) {
 
   const enabled = visibleKeys.value.get(key);
   visibleKeys.value.set(key, !enabled);
+}
+
+function toggleAll(e: Event) {
+  if (visibleKeys.value.size === 0) {
+    visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
+  }
+
+  const enabled = e.target instanceof HTMLInputElement && e.target.checked;
+  for (const key of visibleKeys.value.keys()) {
+    visibleKeys.value.set(key, enabled);
+  }
 }
 
 const fields = computed({
