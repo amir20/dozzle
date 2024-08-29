@@ -1,5 +1,8 @@
 <template>
   <PageWithLinks>
+    <section class="text-right">
+      <Tag>{{ config.version }}</Tag>
+    </section>
     <section>
       <HostList />
     </section>
