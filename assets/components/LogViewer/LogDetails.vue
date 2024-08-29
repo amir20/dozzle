@@ -37,7 +37,7 @@
       </thead>
       <tbody ref="list">
         <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="hover">
-          <td class="cursor-move font-mono">
+          <td class="cursor-move break-all font-mono">
             {{ key.join(".") }}
           </td>
           <td class="truncate">
