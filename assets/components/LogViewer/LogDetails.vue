@@ -24,7 +24,7 @@
         <div class="truncate text-lg font-bold">{{ container.image }}</div>
       </div>
     </section>
-    <table class="table table-fixed" v-if="entry instanceof ComplexLogEntry">
+    <table class="table table-pin-rows table-fixed" v-if="entry instanceof ComplexLogEntry">
       <caption class="caption-bottom">
         Fields are sortable by dragging and dropping.
       </caption>
