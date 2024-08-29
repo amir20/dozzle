@@ -13,7 +13,12 @@
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
       />
-      <mdi:keyboard-esc class="flex" />
+      <form method="dialog">
+        <button class="swap swap-rotate hover:swap-active">
+          <mdi:keyboard-esc class="swap-off" />
+          <mdi:close class="swap-on" />
+        </button>
+      </form>
     </div>
     <div
       class="dropdown-content !relative mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent bg-base-lighter px-2"

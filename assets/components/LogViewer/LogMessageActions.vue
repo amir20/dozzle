@@ -7,7 +7,7 @@
     >
       <span
         class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"
-        @click="copyLogMessageToClipBoard()"
+        @click.prevent="copyLogMessageToClipBoard()"
       >
         <carbon:copy-file />
       </span>
@@ -19,7 +19,7 @@
     >
       <a
         class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"
-        @click="handleJumpLineSelected($event, logEntry)"
+        @click.prevent="handleJumpLineSelected($event, logEntry)"
         :href="`#${logEntry.id}`"
       >
         <carbon:search-locate />

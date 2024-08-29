@@ -32,25 +32,26 @@ defineProps<{
   margin-top: -0.4em;
   align-self: flex-start;
 }
-
+</style>
+<style lang="postcss">
 [data-level="debug"],
 [data-level="trace"] {
-  @apply bg-purple;
+  @apply !bg-purple;
 }
 
 [data-level="info"] {
-  @apply bg-green;
+  @apply !bg-green;
 }
 
 [data-level="error"],
 [data-level="severe"],
 [data-level="critical"],
 [data-level="fatal"] {
-  @apply bg-red;
+  @apply !bg-red;
 }
 
 [data-level="warn"],
 [data-level="warning"] {
-  @apply bg-orange;
+  @apply !bg-orange;
 }
 </style>

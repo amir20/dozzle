@@ -15,7 +15,7 @@
         ref="viewer"
         :stream-source="useMergedStream"
         :entity="containers"
-        :visible-keys="visibleKeys"
+        :visible-keys="new Map<string[], boolean>()"
         :show-container-name="true"
       />
     </template>
@@ -35,8 +35,5 @@ const containerStore = useContainerStore();
 const { allContainersById, ready } = storeToRefs(containerStore);
 
 const containers = computed(() => ids.map((id) => allContainersById.value[id]));
-
-const visibleKeys = ref<string[][]>([]);
-
 provideLoggingContext(containers);
 </script>

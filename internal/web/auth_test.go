@@ -27,6 +27,7 @@ func Test_createRoutes_index(t *testing.T) {
 	abide.AssertHTTPResponse(t, t.Name(), rr.Result())
 }
 
+
 func Test_createRoutes_redirect(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")

@@ -3,7 +3,7 @@
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="events group pt-4 medium">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2">
       <!--v-if-->
       <!--v-if-->
       <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
@@ -23,7 +23,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="events group pt-4 medium">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2">
       <!--v-if-->
       <!--v-if-->
       <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
@@ -43,7 +43,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="events group pt-4 medium">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2">
       <!--v-if-->
       <!--v-if-->
       <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
@@ -63,7 +63,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 exports[`<ContainerEventSource /> > render html correctly > should render messages with filter 1`] = `
 "<ul data-v-cf9ff940="" class="events group pt-4 medium">
   <li data-v-cf9ff940="" data-key="2" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2">
       <!--v-if-->
       <!--v-if-->
       <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
@@ -85,7 +85,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 exports[`<ContainerEventSource /> > render html correctly > should render messages with html entities 1`] = `
 "<ul data-v-cf9ff940="" class="events group pt-4 medium">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2" visible-keys="">
+    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2">
       <!--v-if-->
       <!--v-if-->
       <div data-v-961504e7="" data-v-a49e52d4="" class="inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] select-none" size="small">
@@ -104,6 +104,16 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 
 exports[`<ContainerEventSource /> > renders loading correctly 1`] = `
 "<div class="flex min-h-[1px] justify-center"><span class="loading loading-bars loading-md mt-4 text-primary" style="display: none;"></span></div>
+<dialog data-v-43493931="" class="modal-right modal items-start outline-none backdrop:bg-none">
+  <div data-v-43493931="" class="modal-box">
+    <form data-v-43493931="" method="dialog"><button data-v-43493931="" class="swap swap-rotate absolute right-4 top-4 hover:swap-active"><svg data-v-43493931="" viewBox="0 0 24 24" width="1.2em" height="1.2em" class="swap-off">
+          <path fill="currentColor" d="M1 7h6v2H3v2h4v2H3v2h4v2H1zm10 0h4v2h-4v2h2a2 2 0 0 1 2 2v2c0 1.11-.89 2-2 2H9v-2h4v-2h-2a2 2 0 0 1-2-2V9c0-1.1.9-2 2-2m8 0h2a2 2 0 0 1 2 2v1h-2V9h-2v6h2v-1h2v1c0 1.11-.89 2-2 2h-2a2 2 0 0 1-2-2V9c0-1.1.9-2 2-2"></path>
+        </svg><svg data-v-43493931="" viewBox="0 0 24 24" width="1.2em" height="1.2em" class="swap-on">
+          <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"></path>
+        </svg></button></form>
+  </div>
+  <form data-v-43493931="" method="dialog" class="modal-backdrop"><button data-v-43493931="">close</button></form>
+</dialog>
 <!--v-if-->"
 `;
 

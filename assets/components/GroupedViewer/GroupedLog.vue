@@ -16,7 +16,7 @@
         ref="viewer"
         :stream-source="useGroupedStream"
         :entity="group"
-        :visible-keys="visibleKeys"
+        :visible-keys="new Map<string[], boolean>()"
         :show-container-name="true"
       />
     </template>
@@ -43,6 +43,5 @@ const { customGroups } = storeToRefs(swarmStore);
 
 const group = computed(() => customGroups.value.find((g) => g.name === name) ?? new GroupedContainers("", []));
 
-const visibleKeys = ref<string[][]>([]);
 provideLoggingContext(toRef(() => group.value.containers));
 </script>

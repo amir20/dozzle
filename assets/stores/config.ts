@@ -22,7 +22,7 @@ export interface Config {
 export interface Profile {
   settings?: Settings;
   pinned?: Set<string>;
-  visibleKeys?: { [key: string]: string[][] };
+  visibleKeys?: Map<string, Map<string[], boolean>>;
   releaseSeen?: string;
   collapsedGroups?: Set<string>;
 }

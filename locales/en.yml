@@ -40,7 +40,7 @@ error:
   events-stream:
     title: Unexpected Error
     message: >-
-      Dozzle UI wasn't able to connect API. Please check your network settings.
+      Dozzle UI wasn't able to connect to API. Please check your network settings.
       If you are using a reverse proxy, please make sure it is configured
       properly.
   events-timeout:
@@ -95,8 +95,8 @@ settings:
     preview: This is a preview of the logs
     warning: A warning log looks like this
     complex: This is a complex log entry as json
-    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-    multi-line-error: 
+    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
       start-line: This is a multi line error message
       middle-line: with a second line
       end-line: and finally third line.

@@ -1,10 +1,5 @@
 <template>
-  <div class="group/item relative flex w-full gap-x-2" @click="expandToggle()">
-    <label class="swap swap-rotate invisible absolute -left-4 top-0.5 size-4 group-hover/item:visible">
-      <input type="checkbox" v-model="expanded" @click="expandToggle()" />
-      <material-symbols:expand-all-rounded class="swap-off text-secondary" />
-      <material-symbols:collapse-all-rounded class="swap-on text-secondary" />
-    </label>
+  <div class="group/item relative flex w-full gap-x-2 hover:bg-secondary/10" @click="showLogDetails(logEntry)">
     <div v-if="showContainerName">
       <ContainerName :id="logEntry.containerID" />
     </div>
@@ -18,7 +13,7 @@
       <LogLevel :level="logEntry.level" />
     </div>
     <div>
-      <ul class="fields cursor-pointer space-x-4" :class="{ expanded }">
+      <ul class="fields cursor-pointer space-x-4">
         <li v-for="(value, name) in validValues" :key="name">
           <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
@@ -28,7 +23,6 @@
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
-      <FieldList :fields="logEntry.unfilteredMessage" :expanded="expanded" :visible-keys="visibleKeys" />
     </div>
     <LogMessageActions
       class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
@@ -44,15 +38,14 @@ const { markSearch } = useSearchFilter();
 
 const { logEntry, showContainerName = false } = defineProps<{
   logEntry: ComplexLogEntry;
-  visibleKeys: string[][];
   showContainerName?: boolean;
 }>();
-
-const [expanded, expandToggle] = useToggle();
 
 const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
 });
+
+const showLogDetails = useLogDetails();
 </script>
 
 <style lang="postcss" scoped>

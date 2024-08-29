@@ -1,20 +1,18 @@
 <template>
-  <LogList
-    :messages="filtered"
-    :last-selected-item="lastSelectedItem"
-    :visible-keys="visibleKeys"
-    :show-container-name="showContainerName"
-  />
+  <SideDrawer ref="drawer">
+    <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
+  </SideDrawer>
+  <LogList :messages="filtered" :last-selected-item="lastSelectedItem" :show-container-name="showContainerName" />
 </template>
 
 <script lang="ts" setup>
 import { useRouteHash } from "@vueuse/router";
-
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import SideDrawer from "@/components/common/SideDrawer.vue";
+import { ComplexLogEntry, type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
-  visibleKeys: string[][];
+  visibleKeys: Map<string[], boolean>;
   showContainerName: boolean;
 }>();
 
@@ -22,6 +20,10 @@ const { messages, visibleKeys } = toRefs(props);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { filteredMessages } = useSearchFilter();
+
+const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof SideDrawer>>;
+
+const { entry } = provideLogDetails(drawer);
 
 const visible = filteredPayload(messages);
 const filtered = filteredMessages(visible);

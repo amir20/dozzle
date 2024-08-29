@@ -22,7 +22,7 @@
         ref="viewer"
         :stream-source="useStackStream"
         :entity="stack"
-        :visible-keys="visibleKeys"
+        :visible-keys="new Map<string[], boolean>()"
         :show-container-name="true"
       />
     </template>
@@ -38,7 +38,6 @@ const { name, scrollable = false } = defineProps<{
   name: string;
 }>();
 
-const visibleKeys = ref<string[][]>([]);
 const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
