@@ -15,7 +15,7 @@
       </div>
       <div>
         <div class="font-thin">Host</div>
-        <div class="ell text-lg font-bold">
+        <div class="text-lg font-bold">
           {{ hosts[container.host].name }}
         </div>
       </div>
