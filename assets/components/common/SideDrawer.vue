@@ -1,6 +1,12 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-none backdrop:bg-none">
     <div class="modal-box">
+      <form method="dialog">
+        <button class="swap swap-rotate absolute right-4 top-4 hover:swap-active">
+          <mdi:keyboard-esc class="swap-off" />
+          <mdi:close class="swap-on" />
+        </button>
+      </form>
       <slot></slot>
     </div>
     <form method="dialog" class="modal-backdrop">

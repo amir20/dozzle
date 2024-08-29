@@ -70,6 +70,7 @@ declare module 'vue' {
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
+    'Mdi:mdi:close': typeof import('~icons/mdi/mdi')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']
