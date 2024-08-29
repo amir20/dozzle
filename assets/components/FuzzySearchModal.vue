@@ -50,14 +50,14 @@
             </div>
 
             <DistanceTime :date="result.item.created" class="text-xs font-light" />
-            <a
+            <span
               @click.stop.prevent="addColumn(result.item)"
               :title="$t('tooltip.pin-column')"
               class="hover:text-secondary"
             >
               <ic:sharp-keyboard-return v-if="index === selectedIndex" />
-              <cil:columns v-else />
-            </a>
+              <cil:columns v-else-if="result.item.type === 'container'" />
+            </span>
           </a>
         </li>
       </ul>
