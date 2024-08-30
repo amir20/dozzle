@@ -102,7 +102,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5",
-    "vue-component-type-helpers": "^2.0.29",
+    "vue-component-type-helpers": "^2.1.2",
     "vue-tsc": "^2.0.29"
   },
   "lint-staged": {
