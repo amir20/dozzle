@@ -1,5 +1,6 @@
 <template>
   <div class="flex items-center justify-end gap-4">
+    <slot name="more-items"></slot>
     <Dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
       <template #trigger>
         <mdi:announcement class="size-6 -rotate-12" />
