@@ -33,7 +33,7 @@ const { showContainerName = false } = defineProps<{
 }>();
 
 const { markSearch } = useSearchFilter();
-const colorize = (value: string) => markSearch(ansiConvertor.toHtml(value));
+const colorize = (value: string) => value;
 const urlPattern = /(https?:\/\/[^\s]+)/g;
 const linkify = (text: string) =>
   text.replace(urlPattern, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);

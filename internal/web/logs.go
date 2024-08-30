@@ -4,9 +4,10 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
+	"regexp"
 	"strings"
 
-	"github.com/goccy/go-json"
+	"encoding/json"
 
 	"fmt"
 	"io"
@@ -106,6 +107,16 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	buffer := utils.NewRingBuffer[*docker.LogEvent](500)
 	delta := to.Sub(from)
 
+	var regex *regexp.Regexp
+
+	if r.URL.Query().Has("filter") {
+		regex, err = regexp.Compile(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
 	for {
 		if buffer.Len() > 0 {
 			break
@@ -118,7 +129,13 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 
 		for event := range events {
-			buffer.Push(event)
+			if regex != nil {
+				if regex.MatchString(event.Message.(string)) {
+					buffer.Push(event)
+				}
+			} else {
+				buffer.Push(event)
+			}
 		}
 
 		if !r.URL.Query().Has("fill") { // only auto fill if fill query parameter is set
@@ -249,17 +266,33 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	newContainers := make(chan docker.Container)
 	multiHostClient.SubscribeContainersStarted(r.Context(), newContainers, filter)
 
+	var regex *regexp.Regexp
+	if r.URL.Query().Has("filter") {
+		var err error
+		regex, err = regexp.Compile(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
 loop:
 	for {
 		select {
-		case event := <-logs:
-			if buf, err := json.Marshal(event); err != nil {
+		case logEvent := <-logs:
+			if regex != nil {
+				if !regex.MatchString(logEvent.Message.(string)) {
+					continue
+				}
+
+				logEvent.Message = regex.ReplaceAllString(logEvent.Message.(string), "<mark>$0</mark>")
+			}
+			if buf, err := json.Marshal(logEvent); err != nil {
 				log.Error().Err(err).Msg("error encoding log event")
 			} else {
 				fmt.Fprintf(w, "data: %s\n", buf)
 			}
-			if event.Timestamp > 0 {
-				fmt.Fprintf(w, "id: %d\n", event.Timestamp)
+			if logEvent.Timestamp > 0 {
+				fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
 			}
 			fmt.Fprintf(w, "\n")
 			f.Flush()

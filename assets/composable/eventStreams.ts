@@ -13,12 +13,7 @@ import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
-  const e = JSON.parse(data, (key, value) => {
-    if (typeof value === "string") {
-      return encodeXML(value);
-    }
-    return value;
-  }) as LogEvent;
+  const e = JSON.parse(data) as LogEvent;
   return asLogEntry(e);
 }
 
@@ -30,7 +25,7 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
       .filter(([, value]) => value)
       .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
     return withBase(
-      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}`,
+      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}&filter=ipsum`,
     );
   });
 
