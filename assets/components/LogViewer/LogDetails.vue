@@ -1,7 +1,7 @@
 <template>
   <header class="flex items-center gap-4">
     <Tag :data-level="entry.level" class="uppercase text-white" v-if="entry.level">{{ entry.level }}</Tag>
-    <h1 class="text-lg">
+    <h1 class="mobile-hidden text-lg">
       <DateTime :date="entry.date" />
     </h1>
     <h2 class="text-sm"><DistanceTime :date="entry.date" /> on {{ entry.std }}</h2>
@@ -31,7 +31,7 @@
       <thead class="text-lg">
         <tr>
           <th class="w-60">Field</th>
-          <th>Value</th>
+          <th class="mobile-hidden">Value</th>
           <th class="w-20"><input type="checkbox" class="toggle toggle-primary" @change="toggleAll($event)" /></th>
         </tr>
       </thead>
@@ -40,7 +40,7 @@
           <td class="cursor-move break-all font-mono">
             {{ key.join(".") }}
           </td>
-          <td class="truncate">
+          <td class="mobile-hidden truncate">
             <code v-html="JSON.stringify(value)"></code>
           </td>
           <td>
