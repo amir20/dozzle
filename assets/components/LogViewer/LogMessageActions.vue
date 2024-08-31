@@ -15,7 +15,7 @@
     <div
       class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
       :title="t('log_actions.jump_to_context')"
-      v-if="isSearching()"
+      v-if="isSearching"
     >
       <a
         class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"

@@ -108,7 +108,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	delta := to.Sub(from)
 
 	var regex *regexp.Regexp
-
 	if r.URL.Query().Has("filter") {
 		regex, err = regexp.Compile(r.URL.Query().Get("filter"))
 		if err != nil {
@@ -130,9 +129,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		for event := range events {
 			if regex != nil {
-				if regex.MatchString(event.Message.(string)) {
-					buffer.Push(event)
+				if !regex.MatchString(event.Message.(string)) {
+					continue
 				}
+
+				event.Message = regex.ReplaceAllString(event.Message.(string), "<mark>$0</mark>")
+				buffer.Push(event)
 			} else {
 				buffer.Push(event)
 			}

@@ -12,6 +12,8 @@ import {
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 
+const { isSearching, searchFilter } = useSearchFilter();
+
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
   return asLogEntry(e);
@@ -23,16 +25,26 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
   const url = computed(() => {
     const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
+
+    if (isSearching.value) {
+      params["filter"] = searchFilter.value;
+    }
+
     return withBase(
-      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}&filter=ipsum`,
+      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}`,
     );
   });
 
   const loadMoreUrl = computed(() => {
     const params = Object.entries(toValue(streamConfig))
       .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
+
+    if (isSearching.value) {
+      params["filter"] = searchFilter.value;
+    }
+
     return withBase(
       `/api/hosts/${container.value.host}/containers/${container.value.id}/logs?${new URLSearchParams(params).toString()}`,
     );

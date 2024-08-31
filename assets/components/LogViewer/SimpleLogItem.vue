@@ -32,7 +32,6 @@ const { showContainerName = false } = defineProps<{
   showContainerName?: boolean;
 }>();
 
-const { markSearch } = useSearchFilter();
 const colorize = (value: string) => value;
 const urlPattern = /(https?:\/\/[^\s]+)/g;
 const linkify = (text: string) =>
