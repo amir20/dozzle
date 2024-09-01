@@ -1,5 +1,5 @@
 import { ShallowRef, type Ref } from "vue";
-import { encodeXML } from "entities";
+
 import debounce from "lodash.debounce";
 import {
   type LogEvent,
@@ -12,7 +12,7 @@ import {
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 
-const { isSearching, searchFilter } = useSearchFilter();
+const { isSearching, debouncedSearchFilter } = useSearchFilter();
 
 function parseMessage(data: string): LogEntry<string | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
@@ -20,77 +20,31 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
 }
 
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
-  const { streamConfig } = useLoggingContext();
+  const url = computed(() =>
+    withBase(`/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`),
+  );
 
-  const url = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
-
-    if (isSearching.value) {
-      params["filter"] = searchFilter.value;
-    }
-
-    return withBase(
-      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream?${new URLSearchParams(params).toString()}`,
-    );
-  });
-
-  const loadMoreUrl = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
-
-    if (isSearching.value) {
-      params["filter"] = searchFilter.value;
-    }
-
-    return withBase(
-      `/api/hosts/${container.value.host}/containers/${container.value.id}/logs?${new URLSearchParams(params).toString()}`,
-    );
-  });
+  const loadMoreUrl = computed(() =>
+    withBase(`/api/hosts/${container.value.host}/containers/${container.value.id}/logs`),
+  );
 
   return useLogStream(url, loadMoreUrl);
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
-  const { streamConfig } = useLoggingContext();
-
-  const url = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
-    return withBase(`/api/stacks/${stack.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
-  });
-
+  const url = computed(() => withBase(`/api/stacks/${stack.value.name}/logs/stream`));
   return useLogStream(url);
 }
 
 export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
-  const { streamConfig } = useLoggingContext();
-
-  const url = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
-    return withBase(`/api/groups/${group.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
-  });
-
+  const url = computed(() => withBase(`/api/groups/${group.value.name}/logs/stream`));
   return useLogStream(url);
 }
 
 export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
-  const { streamConfig } = useLoggingContext();
-
   const url = computed(() => {
-    const params = [
-      ...Object.entries(toValue(streamConfig)).map(([key, value]) => [key, value ? "1" : "0"]),
-      ...containers.value.map((c) => ["id", c.id]),
-    ];
-
-    return withBase(
-      `/api/hosts/${containers.value[0].host}/logs/mergedStream?${new URLSearchParams(params).toString()}`,
-    );
+    const ids = containers.value.map((c) => ["id", c.id]).join(",");
+    return withBase(`/api/hosts/${containers.value[0].host}/logs/mergedStream/${ids}`);
   });
 
   return useLogStream(url);
@@ -166,15 +120,26 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     buffer.value = [];
   }
 
-  function connect({ clear } = { clear: true }) {
-    close();
+  const { streamConfig } = useLoggingContext();
 
-    if (clear) {
-      clearMessages();
+  const params = computed(() => {
+    const params = Object.entries(toValue(streamConfig))
+      .filter(([, value]) => value)
+      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
+
+    if (isSearching.value) {
+      params["filter"] = debouncedSearchFilter.value;
     }
 
-    es = new EventSource(url.value);
+    return params;
+  });
 
+  const urlWithParams = computed(() => withBase(`${url.value}?${new URLSearchParams(params.value).toString()}`));
+
+  function connect({ clear } = { clear: true }) {
+    close();
+    if (clear) clearMessages();
+    es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
       const containerEvent = new ContainerEventLogEntry(
@@ -197,7 +162,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     es.onerror = () => clearMessages();
   }
 
-  watch(url, () => connect(), { immediate: true });
+  watch(urlWithParams, () => connect(), { immediate: true });
 
   let fetchingInProgress = false;
 
@@ -215,11 +180,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     fetchingInProgress = true;
     try {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
+      const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), fill: "1" };
       const logs = await (
-        await fetch(
-          `${loadMoreUrl.value}&${new URLSearchParams({ from: from.toISOString(), to: to.toISOString(), fill: "1" }).toString()}`,
-          { signal },
-        )
+        await fetch(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`, { signal })
       ).text();
       stopWatcher();
 

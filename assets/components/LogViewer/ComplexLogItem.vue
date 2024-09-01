@@ -17,9 +17,9 @@
         <li v-for="(value, name) in validValues" :key="name">
           <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
-            <span class="font-bold" v-html="markSearch(JSON.stringify(value))"> </span>
+            <span class="font-bold" v-html="JSON.stringify(value)"> </span>
           </template>
-          <span class="font-bold" v-html="markSearch(value)" v-else></span>
+          <span class="font-bold" v-html="value" v-else></span>
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
@@ -33,8 +33,6 @@
 </template>
 <script lang="ts" setup>
 import { type ComplexLogEntry } from "@/models/LogEntry";
-
-const { markSearch } = useSearchFilter();
 
 const { logEntry, showContainerName = false } = defineProps<{
   logEntry: ComplexLogEntry;

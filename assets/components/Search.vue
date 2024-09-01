@@ -14,7 +14,7 @@
           type="text"
           placeholder="Find / RegEx"
           ref="input"
-          v-model="searchFilter"
+          v-model="searchQueryFilter"
           @keyup.esc="resetSearch()"
         />
         <a class="btn btn-circle btn-xs" @click="resetSearch()"> <mdi:close /></a>
@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 const input = ref<HTMLInputElement>();
 const container = ref<HTMLDivElement>();
-const { searchFilter, showSearch, resetSearch } = useSearchFilter();
+const { searchQueryFilter, showSearch, resetSearch } = useSearchFilter();
 
 const { style } = useDraggable(container);
 

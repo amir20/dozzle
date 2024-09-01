@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/support/search"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
@@ -129,12 +130,9 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		for event := range events {
 			if regex != nil {
-				if !regex.MatchString(event.Message.(string)) {
-					continue
+				if search.Search(regex, event) {
+					buffer.Push(event)
 				}
-
-				event.Message = regex.ReplaceAllString(event.Message.(string), "<mark>$0</mark>")
-				buffer.Push(event)
 			} else {
 				buffer.Push(event)
 			}
@@ -282,11 +280,9 @@ loop:
 		select {
 		case logEvent := <-logs:
 			if regex != nil {
-				if !regex.MatchString(logEvent.Message.(string)) {
+				if !search.Search(regex, logEvent) {
 					continue
 				}
-
-				logEvent.Message = regex.ReplaceAllString(logEvent.Message.(string), "<mark>$0</mark>")
 			}
 			if buf, err := json.Marshal(logEvent); err != nil {
 				log.Error().Err(err).Msg("error encoding log event")
