@@ -32,7 +32,7 @@ const { showContainerName = false } = defineProps<{
   showContainerName?: boolean;
 }>();
 
-const colorize = (value: string) => value;
+const colorize = (value: string) => ansiConvertor.toHtml(value);
 const urlPattern = /(https?:\/\/[^\s]+)/g;
 const linkify = (text: string) =>
   text.replace(urlPattern, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
