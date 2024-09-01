@@ -57,6 +57,7 @@ watchArray(
         stderr: streamConfig.value.stderr.toString(),
         stdout: streamConfig.value.stdout.toString(),
       },
+      replace: true,
     });
   },
   { deep: true },
