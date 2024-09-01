@@ -13,9 +13,8 @@ func Search(re *regexp.Regexp, logEvent *docker.LogEvent) bool {
 	case string:
 		if re.MatchString(value) {
 			logEvent.Message = re.ReplaceAllString(value, "<mark>$0</mark>")
+			return true
 		}
-
-		return true
 
 	case *orderedmap.OrderedMap[string, any]:
 		return searchMapAny(re, value)

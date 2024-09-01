@@ -23,6 +23,8 @@ const props = defineProps<{
 const { messages, visibleKeys } = toRefs(props);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
+const { debouncedSearchFilter } = useSearchFilter();
+const { streamConfig } = useLoggingContext();
 
 const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof SideDrawer>>;
 
@@ -42,6 +44,22 @@ watch(
     }
   },
   { immediate: true, flush: "post" },
+);
+
+const router = useRouter();
+
+watchArray(
+  [debouncedSearchFilter, streamConfig],
+  () => {
+    router.push({
+      query: {
+        search: debouncedSearchFilter.value,
+        stderr: streamConfig.value.stderr.toString(),
+        stdout: streamConfig.value.stdout.toString(),
+      },
+    });
+  },
+  { deep: true },
 );
 </script>
 <style scoped lang="postcss"></style>
