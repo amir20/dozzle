@@ -48,19 +48,24 @@ watch(
 
 const router = useRouter();
 
-watchArray(
-  [debouncedSearchFilter, streamConfig],
-  () => {
-    router.push({
-      query: {
-        search: debouncedSearchFilter.value,
-        stderr: streamConfig.value.stderr.toString(),
-        stdout: streamConfig.value.stdout.toString(),
-      },
-      replace: true,
-    });
-  },
-  { deep: true },
-);
+watchEffect(() => {
+  const query = {} as Record<string, string>;
+  if (debouncedSearchFilter.value !== "") {
+    query.search = debouncedSearchFilter.value;
+  }
+
+  if (!streamConfig.value.stderr) {
+    query.stderr = streamConfig.value.stderr.toString();
+  }
+
+  if (!streamConfig.value.stdout) {
+    query.stdout = streamConfig.value.stdout.toString();
+  }
+
+  router.push({
+    query,
+    replace: true,
+  });
+});
 </script>
 <style scoped lang="postcss"></style>
