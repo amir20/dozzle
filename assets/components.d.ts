@@ -14,7 +14,6 @@ declare module 'vue' {
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:play': typeof import('~icons/carbon/play')['default']
     'Carbon:restart': typeof import('~icons/carbon/restart')['default']
-    'Carbon:searchLocate': typeof import('~icons/carbon/search-locate')['default']
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
     'Carbon:stopFilledAlt': typeof import('~icons/carbon/stop-filled-alt')['default']
