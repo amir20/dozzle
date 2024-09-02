@@ -101,6 +101,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
       }
       messages.value = [...messages.value, ...buffer.value];
+      if (isSearching && messages.value.length < 90) {
+        loadOlderLogs();
+      }
       buffer.value = [];
     }
   }

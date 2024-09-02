@@ -31,7 +31,6 @@ func Search(re *regexp.Regexp, logEvent *docker.LogEvent) bool {
 	}
 
 	return false
-
 }
 
 func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, any]) bool {
