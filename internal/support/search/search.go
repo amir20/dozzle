@@ -43,6 +43,17 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 				orderedMap.Set(pair.Key, re.ReplaceAllString(value, "<mark>$0</mark>"))
 			}
 
+		case []any:
+			for i, v := range value {
+				switch v := v.(type) {
+				case string:
+					if re.MatchString(v) {
+						found = true
+						value[i] = re.ReplaceAllString(v, "<mark>$0</mark>")
+					}
+				}
+			}
+
 		case *orderedmap.OrderedMap[string, any]:
 			if searchMapAny(re, value) {
 				found = true
@@ -52,6 +63,9 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 			if searchMapString(re, value) {
 				found = true
 			}
+
+		default:
+			log.Debug().Type("type", value).Msg("unknown logEvent type inside searchMapAny")
 		}
 	}
 

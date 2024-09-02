@@ -58,7 +58,7 @@ export class SimpleLogEntry extends LogEntry<string> {
 }
 
 export class ComplexLogEntry extends LogEntry<JSONObject> {
-  private readonly filteredMessage: ComputedRef<JSONObject>;
+  private readonly filteredMessage: ComputedRef<Record<string, any>>;
 
   constructor(
     message: JSONObject,
@@ -89,7 +89,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     return ComplexLogItem;
   }
 
-  public get message(): JSONObject {
+  public get message(): Record<string, any> {
     return unref(this.filteredMessage);
   }
 
