@@ -2,11 +2,28 @@ package search
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
+
+func ParseRegex(search string) (*regexp.Regexp, error) {
+	flags := ""
+
+	if search == strings.ToLower(search) {
+		flags = "(?i)"
+	}
+	re, err := regexp.Compile(flags + search)
+
+	if err != nil {
+		log.Debug().Err(err).Str("search", search).Msg("failed to compile regex")
+		return nil, err
+	}
+
+	return re, nil
+}
 
 func Search(re *regexp.Regexp, logEvent *docker.LogEvent) bool {
 	switch value := logEvent.Message.(type) {
@@ -64,8 +81,47 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 				found = true
 			}
 
+		case map[string]interface{}:
+			if searchMap(re, value) {
+				found = true
+			}
+
 		default:
 			log.Debug().Type("type", value).Msg("unknown logEvent type inside searchMapAny")
+		}
+	}
+
+	return found
+}
+
+func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
+	found := false
+	for key, value := range data {
+		switch value := value.(type) {
+		case string:
+			if re.MatchString(value) {
+				data[key] = re.ReplaceAllString(value, "<mark>$0</mark>")
+				found = true
+			}
+
+		case []any:
+			for i, v := range value {
+				switch v := v.(type) {
+				case string:
+					if re.MatchString(v) {
+						found = true
+						value[i] = re.ReplaceAllString(v, "<mark>$0</mark>")
+					}
+				}
+			}
+
+		case map[string]interface{}:
+			if searchMap(re, value) {
+				found = true
+			}
+
+		default:
+			log.Debug().Type("type", value).Msg("unknown logEvent type inside searchMap")
 		}
 	}
 

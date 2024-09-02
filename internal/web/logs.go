@@ -110,7 +110,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
-		regex, err = regexp.Compile(r.URL.Query().Get("filter"))
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -269,7 +269,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
 		var err error
-		regex, err = regexp.Compile(r.URL.Query().Get("filter"))
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
