@@ -12,26 +12,13 @@
         <carbon:copy-file />
       </span>
     </div>
-    <div
-      class="flex min-w-[0.98rem] items-start justify-end align-bottom hover:cursor-pointer"
-      :title="t('log_actions.jump_to_context')"
-      v-if="isSearching"
-    >
-      <a
-        class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"
-        @click.prevent="handleJumpLineSelected($event, logEntry)"
-        :href="`#${logEntry.id}`"
-      >
-        <carbon:search-locate />
-      </a>
-    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { LogEntry, JSONObject } from "@/models/LogEntry";
 
-const { message, logEntry } = defineProps<{
+const { message } = defineProps<{
   message: () => string;
   logEntry: LogEntry<string | JSONObject>;
 }>();
@@ -39,9 +26,6 @@ const { message, logEntry } = defineProps<{
 const { showToast } = useToast();
 const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
-
-const { isSearching } = useSearchFilter();
-const { handleJumpLineSelected } = useLogSearchContext();
 
 async function copyLogMessageToClipBoard() {
   await copy(message());

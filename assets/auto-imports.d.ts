@@ -614,7 +614,6 @@ declare module 'vue' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['useLogDetails']>
-    readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
@@ -971,7 +970,6 @@ declare module '@vue/runtime-core' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useLogDetails: UnwrapRef<typeof import('./composable/showLogDetails')['useLogDetails']>
-    readonly useLogSearchContext: UnwrapRef<typeof import('./composable/logSearchContext')['useLogSearchContext']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>

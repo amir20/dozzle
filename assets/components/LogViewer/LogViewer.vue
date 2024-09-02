@@ -2,15 +2,10 @@
   <SideDrawer ref="drawer">
     <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
   </SideDrawer>
-  <LogList
-    :messages="visibleMessages"
-    :last-selected-item="lastSelectedItem"
-    :show-container-name="showContainerName"
-  />
+  <LogList :messages="visibleMessages" :show-container-name="showContainerName" />
 </template>
 
 <script lang="ts" setup>
-import { useRouteHash } from "@vueuse/router";
 import SideDrawer from "@/components/common/SideDrawer.vue";
 import { ComplexLogEntry, type JSONObject, LogEntry } from "@/models/LogEntry";
 
@@ -31,20 +26,6 @@ const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof
 const { entry } = provideLogDetails(drawer);
 
 const visibleMessages = filteredPayload(messages);
-
-const { lastSelectedItem } = useLogSearchContext() as {
-  lastSelectedItem: Ref<LogEntry<string | JSONObject> | undefined>;
-};
-const routeHash = useRouteHash();
-watch(
-  routeHash,
-  (hash) => {
-    if (hash) {
-      document.querySelector(`[data-key="${hash.substring(1)}"]`)?.scrollIntoView({ block: "center" });
-    }
-  },
-  { immediate: true, flush: "post" },
-);
 
 const router = useRouter();
 
