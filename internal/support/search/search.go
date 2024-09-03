@@ -1,6 +1,7 @@
 package search
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -86,6 +87,13 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 				found = true
 			}
 
+		case int, float64, bool:
+			formatted := fmt.Sprintf("%v", value)
+			if re.MatchString(formatted) {
+				orderedMap.Set(pair.Key, re.ReplaceAllString(formatted, "<mark>$0</mark>"))
+				found = true
+			}
+
 		default:
 			log.Debug().Type("type", value).Msg("unknown logEvent type inside searchMapAny")
 		}
@@ -120,6 +128,12 @@ func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
 				found = true
 			}
 
+		case int, float64, bool:
+			formatted := fmt.Sprintf("%v", value)
+			if re.MatchString(formatted) {
+				data[key] = re.ReplaceAllString(formatted, "<mark>$0</mark>")
+				found = true
+			}
 		default:
 			log.Debug().Type("type", value).Msg("unknown logEvent type inside searchMap")
 		}
