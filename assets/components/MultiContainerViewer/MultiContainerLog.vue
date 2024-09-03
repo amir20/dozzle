@@ -8,6 +8,7 @@
           </div>
         </div>
         <MultiContainerStat class="ml-auto" :containers="containers" />
+        <MultiContainerActionToolbar class="mobile-hidden" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>
@@ -24,6 +25,7 @@
 
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { ids = [], scrollable = false } = defineProps<{
   ids?: string[];
@@ -31,9 +33,9 @@ const { ids = [], scrollable = false } = defineProps<{
 }>();
 
 const containerStore = useContainerStore();
-
+const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const { allContainersById, ready } = storeToRefs(containerStore);
-
 const containers = computed(() => ids.map((id) => allContainersById.value[id]));
+
 provideLoggingContext(containers);
 </script>

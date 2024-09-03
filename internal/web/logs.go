@@ -168,13 +168,10 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
-	if !r.URL.Query().Has("id") {
-		http.Error(w, "ids query parameter is required", http.StatusBadRequest)
-		return
-	}
+	idsSplit := strings.Split(chi.URLParam(r, "ids"), ",")
 
 	ids := make(map[string]bool)
-	for _, id := range r.URL.Query()["id"] {
+	for _, id := range idsSplit {
 		ids[id] = true
 	}
 

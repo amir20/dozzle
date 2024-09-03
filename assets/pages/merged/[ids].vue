@@ -7,12 +7,12 @@
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 
-const route = useRoute("/merged/[name]");
+const route = useRoute("/merged/[ids]");
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
-const ids = toRef(() => route.query.id as string[]);
+const ids = toRef(() => route.params.ids.split(","));
 
 watchEffect(() => {
   if (ready.value) {
