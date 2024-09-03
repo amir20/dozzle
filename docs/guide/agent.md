@@ -156,3 +156,18 @@ $ openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
 $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=San Francisco/O=My Company"
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
+
+## Comparing agents with remote connection
+
+Agents are similar to remote connections, but they have some advantages. Generally, agents are preferred over remote connections due to performance and security reasons. Here is a comparison:
+
+| Feature     | Agent                      | Remote Connection               |
+| ----------- | -------------------------- | ------------------------------- |
+| Performance | Better with disturbed load | Worse on the UI                 |
+| Security    | Private SSL                | Insecure or Docker TLS          |
+| Ease of use | Easy out of the box        | Requires exposing Docker socket |
+| Permissions | Full access to Docker      | Can be controlled with a proxy  |
+| Reconnect   | Automatically reconnects   | Requires UI restart             |
+| Healthcheck | Built-in healthcheck       | No healthcheck                  |
+
+If you do plan to use remote connections, make sure to secure the connection using Docker TLS or a reverse proxy.
