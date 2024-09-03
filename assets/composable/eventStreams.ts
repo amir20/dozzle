@@ -96,12 +96,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         buffer.value = [];
       }
     } else {
+      let empty = false;
       if (messages.value.length == 0) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
+        empty = true;
       }
       messages.value = [...messages.value, ...buffer.value];
-      if (isSearching && messages.value.length < 90) {
+      if (isSearching && messages.value.length < 90 && empty) {
         loadOlderLogs();
       }
       buffer.value = [];
