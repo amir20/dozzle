@@ -23,7 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/container/[id]': RouteRecordInfo<'/container/[id]', '/container/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/group/[name]': RouteRecordInfo<'/group/[name]', '/group/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
-    '/merged/[name]': RouteRecordInfo<'/merged/[name]', '/merged/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
+    '/merged/[ids]': RouteRecordInfo<'/merged/[ids]', '/merged/:ids', { ids: ParamValue<true> }, { ids: ParamValue<false> }>,
     '/service/[name]': RouteRecordInfo<'/service/[name]', '/service/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/settings': RouteRecordInfo<'/settings', '/settings', Record<never, never>, Record<never, never>>,
     '/show': RouteRecordInfo<'/show', '/show', Record<never, never>, Record<never, never>>,

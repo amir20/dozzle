@@ -20,47 +20,30 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
 }
 
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
-  const url = computed(() =>
-    withBase(`/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`),
-  );
-
-  const loadMoreUrl = computed(() =>
-    withBase(`/api/hosts/${container.value.host}/containers/${container.value.id}/logs`),
-  );
-
+  const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`);
+  const loadMoreUrl = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs`);
   return useLogStream(url, loadMoreUrl);
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
-  const url = computed(() => withBase(`/api/stacks/${stack.value.name}/logs/stream`));
-  return useLogStream(url);
+  return useLogStream(computed(() => `/api/stacks/${stack.value.name}/logs/stream`));
 }
 
 export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
-  const url = computed(() => withBase(`/api/groups/${group.value.name}/logs/stream`));
-  return useLogStream(url);
+  return useLogStream(computed(() => `/api/groups/${group.value.name}/logs/stream`));
 }
 
 export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
   const url = computed(() => {
-    const ids = containers.value.map((c) => ["id", c.id]).join(",");
-    return withBase(`/api/hosts/${containers.value[0].host}/logs/mergedStream/${ids}`);
+    const ids = containers.value.map((c) => c.id).join(",");
+    return `/api/hosts/${containers.value[0].host}/logs/mergedStream/${ids}`;
   });
 
   return useLogStream(url);
 }
 
 export function useServiceStream(service: Ref<Service>): LogStreamSource {
-  const { streamConfig } = useLoggingContext();
-
-  const url = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {});
-    return withBase(`/api/services/${service.value.name}/logs/stream?${new URLSearchParams(params).toString()}`);
-  });
-
-  return useLogStream(url);
+  return useLogStream(computed(() => `/api/services/${service.value.name}/logs/stream`));
 }
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
@@ -187,7 +170,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), fill: "1" };
       const logs = await (
-        await fetch(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`, { signal })
+        await fetch(withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`), { signal })
       ).text();
       stopWatcher();
 

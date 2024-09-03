@@ -32,9 +32,8 @@
 
               <router-link
                 :to="{
-                  name: '/merged/[name]',
-                  query: { id: containers.map(({ id }) => id) },
-                  params: { name: label.replace('label.', '') },
+                  name: '/merged/[ids]',
+                  params: { ids: containers.map(({ id }) => id).join(',') },
                 }"
                 class="btn btn-square btn-outline btn-primary btn-xs"
                 active-class="btn-active"
