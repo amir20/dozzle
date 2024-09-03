@@ -2,14 +2,14 @@
 title: Remote Host Setup
 ---
 
-# Remote Host Setup <Badge type="warning" text="Deprecated" />
+# Remote Host Setup
 
 Dozzle supports connecting to remote Docker hosts. This is useful when running Dozzle in a container and you want to monitor a different Docker host.
 
 However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.
 
 > [!WARNING]
-> Remote hosts will soon be deprecated in favor of agents. Agents provide a more secure way to connect to remote hosts. See the [agent](/guide/agent) page for more information. If you want keep using remote hosts then follow this discussion on [GitHub](https://github.com/amir20/dozzle/issues/3066).
+> Remote hosts have been replaced with agents. Agents provide a more secure way to connect to remote hosts. Although remote hosts are still supported, it is recommended to use agents. See the [agent](/guide/agent) page for more information and examples. For comparison, see the [comparing agents with remote connections](/guide/agent#comparing-agents-with-remote-connection) section.
 
 ## Connecting to remote hosts with TLS
 

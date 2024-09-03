@@ -11,7 +11,7 @@ import (
 func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *docker_support.MultiHostService) {
 	var clients []docker_support.ClientService
 	if len(args.RemoteHost) > 0 {
-		log.Warn().Msg(`Remote host flag is deprecated and will be removed in future versions. Agents will replace remote hosts as a safer and performant option. See https://github.com/amir20/dozzle/issues/3066 for discussion.`)
+		log.Info().Msg(`Consider using Dozzle's remote agent to manage remote hosts. See https://dozzle.dev/guide/agent for more information`)
 	}
 
 	for _, remoteHost := range args.RemoteHost {
