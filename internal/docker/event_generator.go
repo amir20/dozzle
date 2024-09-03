@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"encoding/json"
+	"github.com/goccy/go-json"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 

@@ -3,7 +3,7 @@ package utils
 import (
 	"sync"
 
-	"encoding/json"
+	"github.com/goccy/go-json"
 )
 
 type RingBuffer[T any] struct {

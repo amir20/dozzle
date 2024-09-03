@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"encoding/json"
+	"github.com/goccy/go-json"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
