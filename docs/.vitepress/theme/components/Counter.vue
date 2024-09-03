@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
-const defaultFormatter = (value: number) => {
-  return value.toLocaleString();
-};
-
 const {
   start,
   end,
   duration,
-  formatter = defaultFormatter,
+  formatter = (value: number) => value.toLocaleString(),
 } = defineProps<{
   start: number;
   end: number;
