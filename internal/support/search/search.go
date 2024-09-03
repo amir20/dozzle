@@ -62,14 +62,8 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 			}
 
 		case []any:
-			for i, v := range value {
-				switch v := v.(type) {
-				case string:
-					if re.MatchString(v) {
-						found = true
-						value[i] = re.ReplaceAllString(v, "<mark>$0</mark>")
-					}
-				}
+			if searchArray(re, value) {
+				found = true
 			}
 
 		case *orderedmap.OrderedMap[string, any]:
@@ -113,14 +107,8 @@ func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
 			}
 
 		case []any:
-			for i, v := range value {
-				switch v := v.(type) {
-				case string:
-					if re.MatchString(v) {
-						found = true
-						value[i] = re.ReplaceAllString(v, "<mark>$0</mark>")
-					}
-				}
+			if searchArray(re, value) {
+				found = true
 			}
 
 		case map[string]interface{}:
@@ -150,5 +138,34 @@ func searchMapString(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string
 			found = true
 		}
 	}
+	return found
+}
+
+func searchArray(re *regexp.Regexp, data []any) bool {
+	found := false
+	for i, value := range data {
+		switch value := value.(type) {
+		case string:
+			if re.MatchString(value) {
+				data[i] = re.ReplaceAllString(value, "<mark>$0</mark>")
+				found = true
+			}
+		case int, float64, bool:
+			formatted := fmt.Sprintf("%v", value)
+			if re.MatchString(formatted) {
+				data[i] = re.ReplaceAllString(formatted, "<mark>$0</mark>")
+				found = true
+			}
+		case []any:
+			if searchArray(re, value) {
+				found = true
+			}
+		case map[string]interface{}:
+			if searchMap(re, value) {
+				found = true
+			}
+		}
+	}
+
 	return found
 }
