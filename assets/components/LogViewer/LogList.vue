@@ -10,7 +10,6 @@
       :key="item.id"
       :data-key="item.id"
       :data-time="item.date.getTime()"
-      :class="{ 'border border-secondary': toRaw(item) === toRaw(lastSelectedItem) }"
       class="group/entry"
     >
       <component :is="item.getComponent()" :log-entry="item" :show-container-name="showContainerName" />
@@ -25,7 +24,6 @@ const { loading, progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
-  lastSelectedItem: LogEntry<string | JSONObject> | undefined;
   showContainerName: boolean;
 }>();
 

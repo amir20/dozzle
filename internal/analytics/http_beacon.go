@@ -2,8 +2,8 @@ package analytics
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"net/http"
 	"net/http/httputil"
 

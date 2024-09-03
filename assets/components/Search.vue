@@ -7,14 +7,17 @@
       ref="container"
       :style="style"
     >
-      <div class="input input-primary flex h-auto items-center !shadow-lg">
+      <div
+        class="input input-primary flex h-auto items-center !shadow-lg"
+        :class="!isValidQuery ? 'input-warning' : ''"
+      >
         <mdi:magnify />
         <input
           class="input input-ghost w-72 flex-1"
           type="text"
           placeholder="Find / RegEx"
           ref="input"
-          v-model="searchFilter"
+          v-model="searchQueryFilter"
           @keyup.esc="resetSearch()"
         />
         <a class="btn btn-circle btn-xs" @click="resetSearch()"> <mdi:close /></a>
@@ -26,7 +29,7 @@
 <script lang="ts" setup>
 const input = ref<HTMLInputElement>();
 const container = ref<HTMLDivElement>();
-const { searchFilter, showSearch, resetSearch } = useSearchFilter();
+const { searchQueryFilter, showSearch, resetSearch, isValidQuery } = useSearchFilter();
 
 const { style } = useDraggable(container);
 

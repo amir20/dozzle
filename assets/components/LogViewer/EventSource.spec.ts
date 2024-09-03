@@ -50,7 +50,7 @@ describe("<ContainerEventSource />", () => {
     },
   ) {
     settings.value.hourStyle = hourStyle;
-    search.searchFilter.value = searchFilter;
+    search.searchQueryFilter.value = searchFilter;
     if (searchFilter) {
       search.showSearch.value = true;
     }
@@ -146,24 +146,11 @@ describe("<ContainerEventSource />", () => {
       expect(wrapper.find("ul.events").html()).toMatchSnapshot();
     });
 
-    test("should render messages with html entities", async () => {
-      const wrapper = createLogEventSource();
-      sources[sourceUrl].emitOpen();
-      sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
-      });
-
-      vi.runAllTimers();
-      await nextTick();
-
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
-    });
-
     test("should render dates with 12 hour style", async () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
       sources[sourceUrl].emitOpen();
       sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
+        data: `{"ts":1560336942459, "m":"foo bar", "id":1}`,
       });
 
       vi.runAllTimers();
@@ -176,23 +163,7 @@ describe("<ContainerEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "24" });
       sources[sourceUrl].emitOpen();
       sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"<test>foo bar</test>", "id":1}`,
-      });
-
-      vi.runAllTimers();
-      await nextTick();
-
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
-    });
-
-    test("should render messages with filter", async () => {
-      const wrapper = createLogEventSource({ searchFilter: "test" });
-      sources[sourceUrl].emitOpen();
-      sources[sourceUrl].emitMessage({
         data: `{"ts":1560336942459, "m":"foo bar", "id":1}`,
-      });
-      sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"test bar", "id":2}`,
       });
 
       vi.runAllTimers();

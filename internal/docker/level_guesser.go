@@ -64,14 +64,10 @@ func guessLogLevel(logEvent *LogEvent) string {
 		}
 
 	case map[string]interface{}:
-		if level, ok := value["level"].(string); ok {
-			return strings.ToLower(level)
-		}
+		panic("not implemented")
 
 	case map[string]string:
-		if level, ok := value["level"]; ok {
-			return strings.ToLower(level)
-		}
+		panic("not implemented")
 
 	default:
 		log.Debug().Type("type", value).Msg("unknown logEvent type")

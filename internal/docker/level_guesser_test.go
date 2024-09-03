@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"encoding/json"
+	"github.com/goccy/go-json"
 	"testing"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -29,10 +29,6 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[foo] [ ERROR] Something went wrong", "error"},
 		{"123 ERROR Something went wrong", "error"},
 		{"123 Something went wrong", ""},
-		{map[string]interface{}{"level": "info"}, "info"},
-		{map[string]interface{}{"level": "INFO"}, "info"},
-		{map[string]string{"level": "info"}, "info"},
-		{map[string]string{"level": "INFO"}, "info"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},

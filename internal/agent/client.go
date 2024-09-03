@@ -5,8 +5,8 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"fmt"
+	"github.com/goccy/go-json"
 	"io"
 	"time"
 
