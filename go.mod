@@ -27,6 +27,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/jwtauth/v5 v5.3.1
+	github.com/goccy/go-json v0.10.3
 	github.com/puzpuzpuz/xsync/v3 v3.4.0
 	github.com/rs/zerolog v1.33.0
 	github.com/samber/lo v1.47.0
@@ -50,7 +51,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
