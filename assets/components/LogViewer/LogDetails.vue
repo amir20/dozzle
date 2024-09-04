@@ -24,6 +24,13 @@
         <div class="truncate text-lg font-bold">{{ container.image }}</div>
       </div>
     </section>
+
+    <section>
+      <div class="font-thin">Full Log</div>
+      <div class="max-h-48 overflow-scroll rounded border border-base-lighter bg-base-darker p-2">
+        <code>{{ JSON.stringify(entry.unfilteredMessage, null, 2) }}</code>
+      </div>
+    </section>
     <table class="table table-pin-rows table-fixed" v-if="entry instanceof ComplexLogEntry">
       <caption class="caption-bottom">
         Fields are sortable by dragging and dropping.

@@ -1,5 +1,8 @@
 <template>
-  <div class="group/item relative flex w-full gap-x-2 hover:bg-secondary/10" @click="showLogDetails(logEntry)">
+  <div
+    class="group/item relative flex w-full cursor-pointer gap-x-2 hover:bg-secondary/10"
+    @click="showLogDetails(logEntry)"
+  >
     <div v-if="showContainerName">
       <ContainerName :id="logEntry.containerID" />
     </div>
@@ -13,7 +16,7 @@
       <LogLevel :level="logEntry.level" />
     </div>
     <div>
-      <ul class="fields cursor-pointer space-x-4">
+      <ul class="fields space-x-4">
         <li v-for="(value, name) in validValues" :key="name">
           <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
           <template v-else-if="Array.isArray(value)">
