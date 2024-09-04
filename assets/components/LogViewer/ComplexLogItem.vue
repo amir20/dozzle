@@ -27,11 +27,6 @@
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
     </div>
-    <LogMessageActions
-      class="duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100"
-      :message="() => JSON.stringify(logEntry.message)"
-      :log-entry="logEntry"
-    />
   </div>
 </template>
 <script lang="ts" setup>
