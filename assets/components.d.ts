@@ -61,6 +61,7 @@ declare module 'vue' {
     'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
     'Mdi:close': typeof import('~icons/mdi/close')['default']
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
+    'Mdi:contentCopy': typeof import('~icons/mdi/content-copy')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']

@@ -24,6 +24,22 @@
         <div class="truncate text-lg font-bold">{{ container.image }}</div>
       </div>
     </section>
+
+    <section class="flex flex-col gap-2">
+      <div class="flex gap-2 font-thin">
+        Raw JSON
+
+        <UseClipboard v-slot="{ copy, copied }" :source="JSON.stringify(entry.unfilteredMessage)">
+          <button class="swap swap-flip outline-none" @click="copy()" :class="{ 'hover:swap-active': copied }">
+            <mdi:check class="swap-on" />
+            <mdi:content-copy class="swap-off" />
+          </button>
+        </UseClipboard>
+      </div>
+      <div class="max-h-48 overflow-scroll rounded border border-base-lighter bg-base-darker p-2">
+        <pre v-html="syntaxHighlight(entry.unfilteredMessage)"></pre>
+      </div>
+    </section>
     <table class="table table-pin-rows table-fixed" v-if="entry instanceof ComplexLogEntry">
       <caption class="caption-bottom">
         Fields are sortable by dragging and dropping.
@@ -55,6 +71,7 @@
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
 import { useSortable } from "@vueuse/integrations/useSortable";
+import { UseClipboard } from "@vueuse/components";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
 const { currentContainer } = useContainerStore();
@@ -115,6 +132,28 @@ const fields = computed({
   },
 });
 
+function syntaxHighlight(json: any) {
+  json = JSON.stringify(json, null, 2);
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|\b\d+\b)/g,
+    function (match: string) {
+      var cls = "json-number";
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) {
+          cls = "json-key";
+        } else {
+          cls = "json-string";
+        }
+      } else if (/true|false/.test(match)) {
+        cls = "json-boolean";
+      } else if (/null/.test(match)) {
+        cls = "json-null";
+      }
+      return '<span class="' + cls + '">' + match + "</span>";
+    },
+  );
+}
+
 useSortable(list, fields);
 </script>
 <style lang="postcss" scoped>
@@ -128,5 +167,23 @@ useSortable(list, fields);
     monaco,
     Menlo,
     monospace;
+}
+
+pre {
+  :deep(.json-key) {
+    @apply text-blue;
+  }
+  :deep(.json-string) {
+    @apply text-green;
+  }
+  :deep(.json-number) {
+    @apply text-orange;
+  }
+  :deep(.json-boolean) {
+    @apply text-purple;
+  }
+  :deep(.json-null) {
+    @apply text-red;
+  }
 }
 </style>
