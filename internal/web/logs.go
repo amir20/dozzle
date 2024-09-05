@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -117,10 +118,27 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	minimum := 0
+	if r.URL.Query().Has("minimum") {
+		minimum, err = strconv.Atoi(r.URL.Query().Get("minimum"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if minimum < 0 || minimum > buffer.Size {
+			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
 	for {
-		if buffer.Len() > 0 {
+		if buffer.Len() > minimum {
 			break
 		}
+
+		buffer.Clear()
+
 		events, err := containerService.LogsBetweenDates(r.Context(), from, to, stdTypes)
 		if err != nil {
 			log.Error().Err(err).Msg("error fetching logs")
@@ -136,10 +154,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			} else {
 				buffer.Push(event)
 			}
-		}
-
-		if !r.URL.Query().Has("fill") { // only auto fill if fill query parameter is set
-			break
 		}
 
 		from = from.Add(-delta)
