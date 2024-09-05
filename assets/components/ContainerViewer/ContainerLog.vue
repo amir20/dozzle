@@ -26,6 +26,7 @@
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
 import { ComponentExposed } from "vue-component-type-helpers";
+import { useTemplateRef } from "vue";
 
 const {
   id,
@@ -42,10 +43,9 @@ const {
 const close = defineEmit();
 
 const store = useContainerStore();
-const container = store.currentContainer($$(id));
+const container = store.currentContainer(toRef(() => id));
 const visibleKeys = persistentVisibleKeysForContainer(container);
-
-const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
+const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
 
 provideLoggingContext(toRef(() => [container.value]));
 </script>
