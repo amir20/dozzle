@@ -168,7 +168,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     fetchingInProgress = true;
     try {
       const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
-      const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), fill: "1" };
+      const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), minimum: "100" };
       const logs = await (
         await fetch(withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`), { signal })
       ).text();
