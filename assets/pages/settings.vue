@@ -36,6 +36,7 @@
               {{ $t("settings.locale") }}
             </template>
             <template #input>
+              <!-- @vue-ignore -->
               <dropdown-menu
                 v-model="locale"
                 :options="[
@@ -52,6 +53,7 @@
             </template>
             <template #input>
               <div class="flex gap-2">
+                <!-- @vue-ignore -->
                 <dropdown-menu
                   v-model="dateLocale"
                   :options="[
@@ -62,6 +64,7 @@
                     { label: 'YYYY-MM-DD', value: 'en-CA' },
                   ]"
                 />
+                <!-- @vue-ignore -->
                 <dropdown-menu
                   v-model="hourStyle"
                   :options="[
@@ -79,6 +82,7 @@
               {{ $t("settings.font-size") }}
             </template>
             <template #input>
+              <!-- @vue-ignore -->
               <dropdown-menu
                 v-model="size"
                 :options="[
@@ -95,6 +99,7 @@
               {{ $t("settings.color-scheme") }}
             </template>
             <template #input>
+              <!-- @vue-ignore -->
               <dropdown-menu
                 v-model="lightTheme"
                 :options="[

@@ -24,6 +24,7 @@
           v-model="selectedHost"
         />
       </div>
+      <!-- @vue-ignore -->
       <dropdown-menu
         class="btn-sm"
         v-model="selectedHost"
@@ -36,6 +37,7 @@
     </div>
     <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
       {{ $t("label.per-page") }}
+      <!-- @vue-ignore -->
       <dropdown-menu
         class="dropdown-left btn-xs md:btn-sm"
         v-model="perPage"
