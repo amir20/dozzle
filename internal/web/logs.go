@@ -107,7 +107,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	buffer := utils.NewRingBuffer[*docker.LogEvent](500)
-	delta := to.Sub(from)
+	delta := max(to.Sub(from), time.Second*3)
 
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
@@ -156,13 +156,16 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 
-		from = from.Add(-delta)
-		delta = delta * 2
-
 		if from.Before(containerService.Container.Created) {
+			log.Debug().Msg("reached beginning of logs")
 			break
 		}
+
+		from = from.Add(-delta)
+		delta = delta * 2
 	}
+
+	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
 	encoder := json.NewEncoder(w)
 	for _, event := range buffer.Data() {
