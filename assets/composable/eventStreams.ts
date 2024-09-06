@@ -167,11 +167,12 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const signal = abortController.signal;
     fetchingInProgress = true;
     try {
-      const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), minimum: "100" };
-      const logs = await (
-        await fetch(withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`), { signal })
-      ).text();
+      const urlWithMoreParams = computed(() =>
+        withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`),
+      );
+      const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
+      const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
       stopWatcher();
 
       if (logs && signal.aborted === false) {
