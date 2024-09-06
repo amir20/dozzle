@@ -256,13 +256,53 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
 
+	absoluteTime := time.Time{}
+	var regex *regexp.Regexp
+	if r.URL.Query().Has("filter") {
+		var err error
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		absoluteTime = time.Now()
+
+		go func() {
+			for _, container := range existingContainers {
+				containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+				if err != nil {
+					log.Error().Err(err).Msg("error while finding container")
+					continue
+				}
+
+				logs, err := containerService.LogsBetweenDates(r.Context(), absoluteTime.Add(-100*time.Second), absoluteTime, stdTypes)
+
+				events := make([]*docker.LogEvent, 0)
+				for log := range logs {
+					if search.Search(regex, log) {
+						events = append(events, log)
+					}
+				}
+
+				if buf, err := json.Marshal(events); err != nil {
+					log.Error().Err(err).Msg("error encoding container event")
+				} else {
+					fmt.Fprintf(w, "event: logs-backfill\ndata: %s\n\n", buf)
+					f.Flush()
+				}
+			}
+		}()
+	}
+
 	streamLogs := func(container docker.Container) {
 		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 		if err != nil {
 			log.Error().Err(err).Msg("error while finding container")
 			return
 		}
-		err = containerService.StreamLogs(r.Context(), container.StartedAt, stdTypes, logs)
+		start := utils.Max(absoluteTime, container.StartedAt)
+		err = containerService.StreamLogs(r.Context(), start, stdTypes, logs)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Debug().Str("container", container.ID).Msg("streaming ended")
@@ -280,15 +320,6 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	newContainers := make(chan docker.Container)
 	multiHostClient.SubscribeContainersStarted(r.Context(), newContainers, filter)
 
-	var regex *regexp.Regexp
-	if r.URL.Query().Has("filter") {
-		var err error
-		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
 loop:
 	for {
 		select {

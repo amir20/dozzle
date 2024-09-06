@@ -86,9 +86,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         empty = true;
       }
       messages.value = [...messages.value, ...buffer.value];
-      if (isSearching && messages.value.length < 90 && empty) {
-        loadOlderLogs();
-      }
+      // if (isSearching && messages.value.length < 90 && empty) {
+      //   loadOlderLogs();
+      // }
       buffer.value = [];
     }
   }
@@ -141,6 +141,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
       flushBuffer.flush();
     });
+
+    es.addEventListener("logs-backfill", (e) => {
+      const data = JSON.parse((e as MessageEvent).data) as LogEvent[];
+      const logs = data.map((e) => asLogEntry(e));
+      console.log("backfill", logs.length);
+      messages.value = [...logs, ...messages.value];
+    });
+
     es.onmessage = (e) => {
       if (e.data) {
         buffer.value = [...buffer.value, parseMessage(e.data)];
