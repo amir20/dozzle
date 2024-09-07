@@ -1,29 +1,22 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
-
-	"github.com/goccy/go-json"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/rs/zerolog/log"
 )
 
 func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
-	f, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+	sseWriter, err := support_web.NewSSEWriter(r.Context(), w)
+	if err != nil {
+		log.Error().Err(err).Msg("error creating sse writer")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-transform")
-	w.Header().Add("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("X-Accel-Buffering", "no")
 
 	ctx := r.Context()
 	events := make(chan docker.ContainerEvent)
@@ -38,37 +31,30 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
-			bytes, _ := json.Marshal(hostNotAvailableError.Host)
-			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
+			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 			}
 		}
 	}
 
-	if err := sendContainersJSON(allContainers, w); err != nil {
+	if err := sseWriter.Event("containers-changed", allContainers); err != nil {
 		log.Error().Err(err).Msg("error writing containers to event stream")
-		return
 	}
-
-	f.Flush()
 
 	go sendBeaconEvent(h, r, len(allContainers))
 
 	for {
 		select {
 		case host := <-availableHosts:
-			bytes, _ := json.Marshal(host)
-			if _, err := fmt.Fprintf(w, "event: update-host\ndata: %s\n\n", string(bytes)); err != nil {
-				log.Error().Err(err).Msg("error writing event to event stream")
-			}
-			f.Flush()
-		case stat := <-stats:
-			bytes, _ := json.Marshal(stat)
-			if _, err := fmt.Fprintf(w, "event: container-stat\ndata: %s\n\n", string(bytes)); err != nil {
+			if err := sseWriter.Event("update-host", host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 				return
 			}
-			f.Flush()
+		case stat := <-stats:
+			if err := sseWriter.Event("container-stat", stat); err != nil {
+				log.Error().Err(err).Msg("error writing event to event stream")
+				return
+			}
 		case event, ok := <-events:
 			if !ok {
 				return
@@ -78,20 +64,17 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				if event.Name == "start" {
 					log.Debug().Str("container", event.ActorID).Msg("container started")
 					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
-						if err := sendContainersJSON(containers, w); err != nil {
+						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
 						}
 					}
 				}
 
-				bytes, _ := json.Marshal(event)
-				if _, err := fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", string(bytes)); err != nil {
+				if err := sseWriter.Event("container-event", event); err != nil {
 					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
-
-				f.Flush()
 
 			case "health_status: healthy", "health_status: unhealthy":
 				log.Debug().Str("container", event.ActorID).Str("health", event.Name).Msg("container health status")
@@ -103,12 +86,11 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					"actorId": event.ActorID,
 					"health":  healthy,
 				}
-				bytes, _ := json.Marshal(payload)
-				if _, err := fmt.Fprintf(w, "event: container-health\ndata: %s\n\n", string(bytes)); err != nil {
+
+				if err := sseWriter.Event("container-health", payload); err != nil {
 					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
-				f.Flush()
 			}
 		case <-ctx.Done():
 			return
@@ -141,20 +123,4 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	if err := analytics.SendBeacon(b); err != nil {
 		log.Debug().Err(err).Msg("error sending beacon")
 	}
-}
-
-func sendContainersJSON(containers []docker.Container, w http.ResponseWriter) error {
-	if _, err := fmt.Fprint(w, "event: containers-changed\ndata: "); err != nil {
-		return err
-	}
-
-	if err := json.NewEncoder(w).Encode(containers); err != nil {
-		return err
-	}
-
-	if _, err := fmt.Fprint(w, "\n\n"); err != nil {
-		return err
-	}
-
-	return nil
 }
