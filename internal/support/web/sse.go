@@ -73,7 +73,9 @@ func (s *SSEWriter) Message(data any) error {
 	buffer.WriteString("\n")
 
 	if f, ok := data.(HasId); ok {
-		buffer.WriteString(fmt.Sprintf("id: %d\n", f.MessageId()))
+		if f.MessageId() > 0 {
+			buffer.WriteString(fmt.Sprintf("id: %d\n", f.MessageId()))
+		}
 	}
 
 	_, err = buffer.WriteTo(s)
