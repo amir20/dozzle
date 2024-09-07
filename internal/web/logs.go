@@ -281,6 +281,10 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 					}
 
 					logs, err := containerService.LogsBetweenDates(r.Context(), to.Add(-100*time.Second), to, stdTypes)
+					if err != nil {
+						log.Error().Err(err).Msg("error while fetching logs")
+						return
+					}
 
 					for log := range logs {
 						if search.Search(regex, log) {
