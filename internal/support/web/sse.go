@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"net/http"
 )
 
@@ -90,7 +91,6 @@ func (s *SSEWriter) Event(event string, data any) error {
 	}
 
 	buffer := bytes.Buffer{}
-
 	buffer.WriteString("event: " + event + "\n")
 	buffer.WriteString("data: ")
 	buffer.Write(encoded)

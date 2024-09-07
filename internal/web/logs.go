@@ -266,9 +266,11 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 
 		go func() {
 			minimum := 50
+			delta := -10 * time.Second
 			to := absoluteTime
 			for minimum > 0 {
 				events := make([]*docker.LogEvent, 0)
+				stillRunning := false
 				for _, container := range existingContainers {
 					containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 					if err != nil {
@@ -280,7 +282,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 						continue
 					}
 
-					logs, err := containerService.LogsBetweenDates(r.Context(), to.Add(-100*time.Second), to, stdTypes)
+					logs, err := containerService.LogsBetweenDates(r.Context(), to.Add(delta), to, stdTypes)
 					if err != nil {
 						log.Error().Err(err).Msg("error while fetching logs")
 						return
@@ -291,16 +293,23 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 							events = append(events, log)
 						}
 					}
+
+					stillRunning = true
 				}
 
-				to = to.Add(-100 * time.Second)
-				minimum -= len(events)
+				if !stillRunning {
+					return
+				}
 
+				to = to.Add(delta)
+				delta *= 2
+				minimum -= len(events)
 				sort.Slice(events, func(i, j int) bool {
 					return events[i].Timestamp < events[j].Timestamp
 				})
-
-				backfill <- events
+				if len(events) > 0 {
+					backfill <- events
+				}
 			}
 		}()
 	}
