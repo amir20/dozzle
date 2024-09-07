@@ -79,16 +79,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         buffer.value = [];
       }
     } else {
-      let empty = false;
       if (messages.value.length == 0) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
-        empty = true;
       }
       messages.value = [...messages.value, ...buffer.value];
-      if (isSearching && messages.value.length < 90 && empty) {
-        loadOlderLogs();
-      }
       buffer.value = [];
     }
   }
@@ -141,6 +136,13 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
       flushBuffer.flush();
     });
+
+    es.addEventListener("logs-backfill", (e) => {
+      const data = JSON.parse((e as MessageEvent).data) as LogEvent[];
+      const logs = data.map((e) => asLogEntry(e));
+      messages.value = [...logs, ...messages.value];
+    });
+
     es.onmessage = (e) => {
       if (e.data) {
         buffer.value = [...buffer.value, parseMessage(e.data)];
@@ -167,11 +169,12 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const signal = abortController.signal;
     fetchingInProgress = true;
     try {
-      const stopWatcher = watchOnce(url, () => abortController.abort("stream changed"));
       const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), minimum: "100" };
-      const logs = await (
-        await fetch(withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`), { signal })
-      ).text();
+      const urlWithMoreParams = computed(() =>
+        withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`),
+      );
+      const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
+      const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
       stopWatcher();
 
       if (logs && signal.aborted === false) {

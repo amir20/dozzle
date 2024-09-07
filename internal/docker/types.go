@@ -83,3 +83,7 @@ func (l *LogEvent) HasLevel() bool {
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
 	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 10
 }
+
+func (l *LogEvent) MessageId() int64 {
+	return l.Timestamp
+}

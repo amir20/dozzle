@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/support/search"
+	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
@@ -234,26 +236,73 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		return
 	}
 
-	f, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+	sseWriter, err := support_web.NewSSEWriter(r.Context(), w)
+	if err != nil {
+		log.Error().Err(err).Msg("error creating sse writer")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-transform")
-	w.Header().Add("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("X-Accel-Buffering", "no")
-
-	logs := make(chan *docker.LogEvent)
-	events := make(chan *docker.ContainerEvent, 1)
-
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
 	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
+	}
+
+	absoluteTime := time.Time{}
+	var regex *regexp.Regexp
+	liveLogs := make(chan *docker.LogEvent)
+	events := make(chan *docker.ContainerEvent, 1)
+	backfill := make(chan []*docker.LogEvent)
+
+	if r.URL.Query().Has("filter") {
+		var err error
+		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		absoluteTime = time.Now()
+
+		go func() {
+			minimum := 50
+			to := absoluteTime
+			for minimum > 0 {
+				events := make([]*docker.LogEvent, 0)
+				for _, container := range existingContainers {
+					containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+					if err != nil {
+						log.Error().Err(err).Msg("error while finding container")
+						return
+					}
+
+					if to.Before(containerService.Container.Created) {
+						continue
+					}
+
+					logs, err := containerService.LogsBetweenDates(r.Context(), to.Add(-100*time.Second), to, stdTypes)
+					if err != nil {
+						log.Error().Err(err).Msg("error while fetching logs")
+						return
+					}
+
+					for log := range logs {
+						if search.Search(regex, log) {
+							events = append(events, log)
+						}
+					}
+				}
+
+				to = to.Add(-100 * time.Second)
+				minimum -= len(events)
+
+				sort.Slice(events, func(i, j int) bool {
+					return events[i].Timestamp < events[j].Timestamp
+				})
+
+				backfill <- events
+			}
+		}()
 	}
 
 	streamLogs := func(container docker.Container) {
@@ -262,7 +311,8 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 			log.Error().Err(err).Msg("error while finding container")
 			return
 		}
-		err = containerService.StreamLogs(r.Context(), container.StartedAt, stdTypes, logs)
+		start := utils.Max(absoluteTime, container.StartedAt)
+		err = containerService.StreamLogs(r.Context(), start, stdTypes, liveLogs)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Debug().Str("container", container.ID).Msg("streaming ended")
@@ -280,49 +330,34 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	newContainers := make(chan docker.Container)
 	multiHostClient.SubscribeContainersStarted(r.Context(), newContainers, filter)
 
-	var regex *regexp.Regexp
-	if r.URL.Query().Has("filter") {
-		var err error
-		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
+	ticker := time.NewTicker(5 * time.Second)
 loop:
 	for {
 		select {
-		case logEvent := <-logs:
+		case logEvent := <-liveLogs:
 			if regex != nil {
 				if !search.Search(regex, logEvent) {
 					continue
 				}
 			}
-			if buf, err := json.Marshal(logEvent); err != nil {
-				log.Error().Err(err).Msg("error encoding log event")
-			} else {
-				fmt.Fprintf(w, "data: %s\n", buf)
-			}
-			if logEvent.Timestamp > 0 {
-				fmt.Fprintf(w, "id: %d\n", logEvent.Timestamp)
-			}
-			fmt.Fprintf(w, "\n")
-			f.Flush()
-		case <-ticker.C:
-			fmt.Fprintf(w, ":ping \n\n")
-			f.Flush()
+			sseWriter.Message(logEvent)
 		case container := <-newContainers:
 			events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
 			go streamLogs(container)
 
 		case event := <-events:
 			log.Debug().Str("event", event.Name).Str("container", event.ActorID).Msg("received event")
-			if buf, err := json.Marshal(event); err != nil {
+			if err := sseWriter.Event("container-event", event); err != nil {
 				log.Error().Err(err).Msg("error encoding container event")
-			} else {
-				fmt.Fprintf(w, "event: container-event\ndata: %s\n\n", buf)
-				f.Flush()
 			}
+
+		case backfillEvents := <-backfill:
+			if err := sseWriter.Event("logs-backfill", backfillEvents); err != nil {
+				log.Error().Err(err).Msg("error encoding container event")
+			}
+
+		case <-ticker.C:
+			sseWriter.Ping()
 
 		case <-r.Context().Done():
 			break loop

@@ -187,6 +187,7 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
 
+
 event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
 
@@ -215,6 +216,7 @@ X-Accel-Buffering: no
 
 data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
 id: 1589396137772
+
 
 event: container-event
 data: {"actorId":"123456","name":"container-stopped","host":"localhost"}
