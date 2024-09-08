@@ -143,10 +143,10 @@ There are many ways you can support Dozzle:
 
 ## Building
 
-To Build and test locally:
+To build and test locally:
 
 1. Install [NodeJs](https://nodejs.org/en/download/) and [pnpm](https://pnpm.io/installation).
 2. Install [Go](https://go.dev/doc/install).
-3. Install [reflex](https://github.com/cespare/reflex) with `go install github.com/cespare/reflex@latest`.
+3. Install tools with `make tools`.
 4. Install node modules `pnpm install`.
-5. Run `make dev` to start a development server.
+5. Run `make dev` to start a development server with hot reload.
