@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+
 	"github.com/goccy/go-json"
 
 	"time"
@@ -329,6 +330,11 @@ func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion
 
 func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
 	var message *anypb.Any
+
+	if event.Message == nil {
+		log.Fatal().Interface("event", event).Msg("agent server: message is nil. This should not happen.")
+	}
+
 	switch data := event.Message.(type) {
 	case string:
 		message, _ = anypb.New(&pb.SimpleMessage{
