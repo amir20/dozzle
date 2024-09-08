@@ -71,7 +71,7 @@ useIntersectionObserver(
     monospace;
 
   > li {
-    @apply flex break-words px-2 py-1 last:snap-end odd:bg-gray-400/[0.07] md:px-4;
+    @apply flex break-words px-2 py-1 last:snap-end odd:bg-gray-400/[0.07] has-[.clickable]:cursor-pointer has-[.clickable]:hover:bg-primary/10 md:px-4;
     &:last-child {
       scroll-margin-block-end: 5rem;
     }

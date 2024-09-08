@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="group/item relative flex w-full cursor-pointer gap-x-2 hover:bg-secondary/10"
-    @click="showLogDetails(logEntry)"
-  >
+  <div class="group/item clickable relative flex w-full gap-x-2" @click="showLogDetails(logEntry)">
     <div v-if="showContainerName">
       <ContainerName :id="logEntry.containerID" />
     </div>
