@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@fontsource-variable/playfair-display':
-        specifier: ^5.0.26
-        version: 5.0.26
+        specifier: ^5.0.27
+        version: 5.0.27
     devDependencies:
       dozzle:
         specifier: workspace:*
@@ -18,9 +18,9 @@ importers:
 
 packages:
 
-  '@fontsource-variable/playfair-display@5.0.26':
-    resolution: {integrity: sha512-RupbW2PqBbsLbwcRBIX9fzzWr9jcovB+szNZGMRxU8V+l2VsaVhv9rm0NN/Z0gi15NtR+ipvB8apAeJJoBT1oQ==}
+  '@fontsource-variable/playfair-display@5.0.27':
+    resolution: {integrity: sha512-VQ7YOmWSvE+ZPg6tP7KtPUIM5in25/fnH+0Y74Z126hGQoan4gIhr557grh5RyIeakIptYizzcj36RJIksrQ9w==}
 
 snapshots:
 
-  '@fontsource-variable/playfair-display@5.0.26': {}
+  '@fontsource-variable/playfair-display@5.0.27': {}
