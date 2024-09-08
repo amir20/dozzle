@@ -16,6 +16,9 @@ export default {
       animation: {
         "bounce-fast": "bounce 0.5s 2 both",
       },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
       colors: {
         green: "oklch(69% 0.119722 188.479048)",
         red: "oklch(64% 0.218 28.85)",

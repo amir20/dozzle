@@ -25,7 +25,7 @@
         </div>
       </div>
       <div
-        class="animate-background h-1 bg-gradient-to-br from-primary via-primary/20 to-primary"
+        class="animate-background h-1 bg-gradient-radial from-primary to-transparent to-70%"
         v-show="!scrollContext.paused && !scrollContext.loading"
       ></div>
       <div ref="scrollObserver" class="h-px"></div>
@@ -95,17 +95,17 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
 }
 
 .animate-background {
-  background-size: 400% 400%;
-  animation: gradient-animation 5s ease infinite;
+  animation: gradient-animation 2s ease infinite;
+  background-position: center;
 }
 
 @keyframes gradient-animation {
   0%,
   100% {
-    background-position: 0% 0%;
+    background-size: 100% 100%;
   }
   50% {
-    background-position: 100% 100%;
+    background-size: 140% 120%;
   }
 }
 </style>
