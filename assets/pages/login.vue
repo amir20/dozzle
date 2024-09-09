@@ -1,38 +1,36 @@
 <template>
   <div class="card w-96 flex-shrink-0 bg-base-lighter shadow-2xl">
     <div class="card-body">
-      <form action="" method="post" @submit.prevent="onLogin" ref="form">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"> {{ $t("label.username") }} </span>
-          </label>
+      <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
+        <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
+          <mdi:account class="has-[+:focus]:text-primary" />
           <input
-            class="input input-bordered"
             type="text"
+            class="grow"
+            :placeholder="$t('label.username')"
             name="username"
             autocomplete="username"
-            v-model="username"
             autofocus
+            required
           />
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">{{ $t("label.password") }}</span>
-          </label>
+        </label>
+        <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
+          <mdi:key class="has-[+:focus]:text-primary" />
           <input
-            class="input input-bordered"
             type="password"
+            class="grow"
+            :placeholder="$t('label.password')"
             name="password"
             autocomplete="current-password"
-            v-model="password"
+            autofocus
+            required
           />
-        </div>
+        </label>
         <label class="label text-red" v-if="error">
           {{ $t("error.invalid-auth") }}
         </label>
-        <div class="form-control mt-6">
-          <button class="btn btn-primary" type="submit">{{ $t("button.login") }}</button>
-        </div>
+
+        <button class="btn btn-primary uppercase" type="submit">{{ $t("button.login") }}</button>
       </form>
     </div>
   </div>
@@ -43,27 +41,25 @@ const { t } = useI18n();
 
 setTitle(t("title.login"));
 
-let error = $ref(false);
-let username = $ref("");
-let password = $ref("");
-let form: HTMLFormElement | undefined = $ref();
+const error = ref(false);
+const form = ref<HTMLFormElement>();
 const params = new URLSearchParams(window.location.search);
 
 async function onLogin() {
   const response = await fetch(withBase("/api/token"), {
-    body: new FormData(form),
+    body: new FormData(form.value),
     method: "POST",
   });
 
   if (response.status == 200) {
-    error = false;
+    error.value = false;
     if (params.has("redirectUrl")) {
       window.location.href = withBase(params.get("redirectUrl")!);
     } else {
       window.location.href = withBase("/");
     }
   } else {
-    error = true;
+    error.value = true;
   }
 }
 </script>
