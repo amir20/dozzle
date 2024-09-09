@@ -1,38 +1,36 @@
 <template>
   <div class="card w-96 flex-shrink-0 bg-base-lighter shadow-2xl">
     <div class="card-body">
-      <form action="" method="post" @submit.prevent="onLogin" ref="form">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text"> {{ $t("label.username") }} </span>
-          </label>
+      <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
+        <label class="input input-bordered flex items-center gap-2 has-[:focus]:input-primary">
+          <ph:user-circle class="has-[+:focus]:text-primary" />
           <input
-            class="input input-bordered"
             type="text"
+            class="grow"
+            :placeholder="$t('label.username')"
+            v-model="username"
             name="username"
             autocomplete="username"
-            v-model="username"
             autofocus
           />
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">{{ $t("label.password") }}</span>
-          </label>
+        </label>
+        <label class="input input-bordered flex items-center gap-2 has-[:focus]:input-primary">
+          <ph:lock-key class="has-[+:focus]:text-primary" />
           <input
-            class="input input-bordered"
             type="password"
+            class="grow"
+            :placeholder="$t('label.password')"
             name="password"
             autocomplete="current-password"
             v-model="password"
+            autofocus
           />
-        </div>
+        </label>
         <label class="label text-red" v-if="error">
           {{ $t("error.invalid-auth") }}
         </label>
-        <div class="form-control mt-6">
-          <button class="btn btn-primary" type="submit">{{ $t("button.login") }}</button>
-        </div>
+
+        <button class="btn btn-primary" type="submit">{{ $t("button.login") }}</button>
       </form>
     </div>
   </div>
