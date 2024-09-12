@@ -48,10 +48,35 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
+async function fetchLogs(url: string) {
+  const fetchURL = url.replace("/stream", "?stdout=1&stderr=1");
+  console.log("fetching logs from", fetchURL);
+
+  const { db } = await useDuckDB();
+  const response = await fetch(fetchURL);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch logs: ${response.statusText}`);
+  }
+
+  await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
+  const conn = await db.connect();
+
+  const results = await conn.query(`
+      SELECT * FROM logs.json WHERE m.time = '2024-09-04T01:21:05.436558097Z'
+  `);
+
+  console.log(results.toArray()[0].m.msg);
+
+  await conn.close();
+}
+
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const { paused: scrollingPaused } = useScrollContext();
+
+  fetchLogs(url.value);
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
