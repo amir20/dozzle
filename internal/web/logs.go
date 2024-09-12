@@ -120,6 +120,13 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	onlyComplex := r.URL.Query().Has("jsonOnly")
+	everything := r.URL.Query().Has("everything")
+	if everything {
+		from = time.Time{}
+		to = time.Now()
+	}
+
 	minimum := 0
 	if r.URL.Query().Has("minimum") {
 		minimum, err = strconv.Atoi(r.URL.Query().Get("minimum"))
@@ -134,6 +141,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	encoder := json.NewEncoder(w)
 	for {
 		if buffer.Len() > minimum {
 			break
@@ -154,12 +162,23 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					buffer.Push(event)
 				}
 			} else {
-				buffer.Push(event)
+				if onlyComplex {
+					if _, ok := event.Message.(string); ok {
+						continue
+					}
+				}
+
+				if everything {
+					if err := encoder.Encode(event); err != nil {
+						log.Error().Err(err).Msg("error encoding log event")
+					}
+				} else {
+					buffer.Push(event)
+				}
 			}
 		}
 
-		if from.Before(containerService.Container.Created) {
-			log.Debug().Msg("reached beginning of logs")
+		if everything || from.Before(containerService.Container.Created) {
 			break
 		}
 
@@ -169,7 +188,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
-	encoder := json.NewEncoder(w)
 	for _, event := range buffer.Data() {
 		if err := encoder.Encode(event); err != nil {
 			log.Error().Err(err).Msg("error encoding log event")
