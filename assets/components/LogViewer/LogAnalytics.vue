@@ -5,7 +5,7 @@
   </header>
 
   <div class="mt-8 flex flex-col gap-10">
-    {{ table.length }}
+    {{ table.numRows }} of rows
 
     <table class="table">
       <thead>
@@ -14,7 +14,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in table" :key="row">
+        <tr v-for="row in page" :key="row">
           <td v-for="column in columns" :key="column">{{ row[column] }}</td>
         </tr>
       </tbody>
@@ -41,13 +41,14 @@ await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuff
 
 await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 
-const results = await conn.query(`SELECT * FROM logs LIMIT 10`);
+const results = await conn.query<Record<string, any>>(`SELECT * FROM logs`);
 
-const table = shallowRef(results.toArray());
-
+const table = ref(results);
+const page = computed(() => results.slice(0, 10));
+const rows = shallowRef(results.toArray());
 const columns = computed(() => {
-  if (table.value.length === 0) return [];
-  return Object.keys(table.value[0]);
+  if (rows.value.length === 0) return [];
+  return Object.keys(rows.value[0]);
 });
 </script>
 <style lang="postcss" scoped></style>
