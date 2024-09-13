@@ -5,9 +5,9 @@
   </header>
 
   <div class="mt-8 flex flex-col gap-10">
-    {{ table.numRows }} of rows
+    {{ table.numRows }} total rows
 
-    <table class="table">
+    <table class="table table-zebra table-pin-rows table-md">
       <thead>
         <tr>
           <th v-for="column in columns" :key="column">{{ column }}</th>
@@ -44,11 +44,9 @@ await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 const results = await conn.query<Record<string, any>>(`SELECT * FROM logs`);
 
 const table = ref(results);
-const page = computed(() => results.slice(0, 10));
-const rows = shallowRef(results.toArray());
-const columns = computed(() => {
-  if (rows.value.length === 0) return [];
-  return Object.keys(rows.value[0]);
-});
+const rows = shallowRef(results.toArray().map((row) => ({ ...row })));
+const columns = computed(() => (rows ? Object.keys(rows.value[0]) : []));
+
+const page = computed(() => table.value.slice(0, 20));
 </script>
 <style lang="postcss" scoped></style>
