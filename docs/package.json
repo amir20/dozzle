@@ -6,6 +6,6 @@
     "dozzle": "workspace:*"
   },
   "dependencies": {
-    "@fontsource-variable/playfair-display": "^5.0.27"
+    "@fontsource-variable/playfair-display": "^5.1.0"
   }
 }
