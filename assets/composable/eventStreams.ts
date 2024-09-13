@@ -62,13 +62,11 @@ async function fetchLogs(url: string) {
 
   const conn = await db.connect();
 
-  const results = await conn.query(`
-    SELECT * FROM logs.json WHERE m.status = 200
-    `);
+  await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 
-  for (const row of results.toArray()) {
-    console.log(row.m.request.uri);
-  }
+  const results = await conn.query(`SELECT * FROM logs`);
+  console.log("keys", Object.keys(results.toArray()[0]));
+  console.log("results", results.toArray().length);
 
   await conn.close();
 }
