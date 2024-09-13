@@ -14,6 +14,13 @@ export async function useDuckDB() {
   const db = new duckdb.AsyncDuckDB(logger, worker);
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
   URL.revokeObjectURL(worker_url);
+  const conn = await db.connect();
 
-  return { db };
+  onUnmounted(async () => {
+    await conn.close();
+    await db.terminate();
+    worker.terminate();
+  });
+
+  return { db, conn };
 }

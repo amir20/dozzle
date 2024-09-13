@@ -48,29 +48,6 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
-async function fetchLogs(url: string) {
-  const fetchURL = url.replace("/stream", "?stdout=1&stderr=1&everything&jsonOnly");
-  const { db } = await useDuckDB();
-  const response = await fetch(fetchURL);
-
-  if (!response.ok) {
-    console.log("fetching logs from", fetchURL);
-    throw new Error(`Failed to fetch logs: ${response.statusText}`);
-  }
-
-  await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
-
-  const conn = await db.connect();
-
-  await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
-
-  const results = await conn.query(`SELECT * FROM logs`);
-  console.log("keys", Object.keys(results.toArray()[0]));
-  console.log("results", results.toArray().length);
-
-  await conn.close();
-}
-
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
@@ -143,7 +120,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const urlWithParams = computed(() => withBase(`${url.value}?${new URLSearchParams(params.value).toString()}`));
 
   function connect({ clear } = { clear: true }) {
-    fetchLogs(url.value);
     close();
     if (clear) clearMessages();
     es = new EventSource(urlWithParams.value);
