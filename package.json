@@ -46,7 +46,6 @@
     "@vueuse/integrations": "^11.1.0",
     "@vueuse/router": "^11.1.0",
     "ansi-to-html": "^0.7.2",
-    "apache-arrow": "^17.0.0",
     "autoprefixer": "^10.4.20",
     "d3-array": "^3.2.4",
     "d3-ease": "^3.0.1",
