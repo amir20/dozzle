@@ -4,7 +4,22 @@
     <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
   </header>
 
-  <div class="mt-8 flex flex-col gap-10">{{ table.length }}</div>
+  <div class="mt-8 flex flex-col gap-10">
+    {{ table.length }}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th v-for="column in columns" :key="column">{{ column }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in table" :key="row">
+          <td v-for="column in columns" :key="column">{{ row[column] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,8 +41,13 @@ await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuff
 
 await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 
-const results = await conn.query(`SELECT * FROM logs`);
+const results = await conn.query(`SELECT * FROM logs LIMIT 10`);
 
-const table = ref(results.toArray());
+const table = shallowRef(results.toArray());
+
+const columns = computed(() => {
+  if (table.value.length === 0) return [];
+  return Object.keys(table.value[0]);
+});
 </script>
 <style lang="postcss" scoped></style>

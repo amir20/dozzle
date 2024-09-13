@@ -3,6 +3,7 @@
     <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
     <Suspense>
       <LogAnalytics :container="containers[0]" />
+      <template #fallback> Loading... </template>
     </Suspense>
   </SideDrawer>
 

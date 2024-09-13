@@ -25,11 +25,7 @@ defineExpose({
   },
 });
 
-onMounted(() => {
-  panel.value?.addEventListener("close", () => {
-    open.value = false;
-  });
-});
+useEventListener(panel, "close", () => (open.value = false));
 </script>
 <style scoped lang="postcss">
 .modal-right :where(.modal-box) {
