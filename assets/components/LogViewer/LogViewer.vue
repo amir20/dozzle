@@ -1,17 +1,17 @@
 <template>
   <SideDrawer ref="drawer">
+    <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
     <Suspense>
-      <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
-      <LogAnalytics :conttainer="containers[0]" v-if="containers.length == 1" />
+      <LogAnalytics :container="containers[0]" />
     </Suspense>
   </SideDrawer>
+
   <LogList :messages="visibleMessages" :show-container-name="showContainerName" />
 </template>
 
 <script lang="ts" setup>
 import SideDrawer from "@/components/common/SideDrawer.vue";
 import { ComplexLogEntry, type JSONObject, LogEntry } from "@/models/LogEntry";
-import LogAnalytics from "./LogAnalytics.vue";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -26,6 +26,10 @@ const { debouncedSearchFilter } = useSearchFilter();
 const { streamConfig, containers } = useLoggingContext();
 
 const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof SideDrawer>>;
+
+onMounted(() => {
+  drawer.value?.open();
+});
 
 const { entry } = provideLogDetails(drawer);
 

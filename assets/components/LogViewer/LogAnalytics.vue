@@ -4,7 +4,7 @@
     <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
   </header>
 
-  <div class="mt-8 flex flex-col gap-10"></div>
+  <div class="mt-8 flex flex-col gap-10">{{ table.length }}</div>
 </template>
 
 <script setup lang="ts">
@@ -28,7 +28,6 @@ await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 
 const results = await conn.query(`SELECT * FROM logs`);
 
-console.log("keys", Object.keys(results.toArray()[0]));
-console.log("results", results.toArray().length);
+const table = ref(results.toArray());
 </script>
 <style lang="postcss" scoped></style>

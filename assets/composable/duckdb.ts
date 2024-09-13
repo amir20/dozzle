@@ -5,6 +5,9 @@ const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
 
 export async function useDuckDB() {
+  let cleanup: (() => void) | undefined;
+  onUnmounted(() => cleanup?.());
+
   const worker_url = URL.createObjectURL(
     new Blob([`importScripts("${bundle.mainWorker!}");`], { type: "text/javascript" }),
   );
@@ -16,11 +19,12 @@ export async function useDuckDB() {
   URL.revokeObjectURL(worker_url);
   const conn = await db.connect();
 
-  onUnmounted(async () => {
+  cleanup = async () => {
+    console.log("Cleaning up DuckDB");
     await conn.close();
     await db.terminate();
     worker.terminate();
-  });
+  };
 
   return { db, conn };
 }

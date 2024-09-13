@@ -7,7 +7,7 @@
           <mdi:close class="swap-on" />
         </button>
       </form>
-      <slot></slot>
+      <slot v-if="open"></slot>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
@@ -16,11 +16,19 @@
 </template>
 <script setup lang="ts">
 const panel = ref<HTMLDialogElement>();
+const open = ref(false);
 
 defineExpose({
   open: () => {
+    open.value = true;
     panel.value?.showModal();
   },
+});
+
+onMounted(() => {
+  panel.value?.addEventListener("close", () => {
+    open.value = false;
+  });
 });
 </script>
 <style scoped lang="postcss">
