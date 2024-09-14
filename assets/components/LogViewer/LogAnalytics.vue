@@ -1,11 +1,11 @@
 <template>
-  <header class="flex items-center gap-4">
-    <h1 class="mobile-hidden text-lg">{{ container.name }}</h1>
-    <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
-  </header>
+  <aside class="flex flex-col gap-2">
+    <header class="flex items-center gap-4">
+      <h1 class="mobile-hidden text-lg">{{ container.name }}</h1>
+      <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
+    </header>
 
-  <div class="mt-8 flex flex-col gap-10">
-    {{ table.numRows }} total rows
+    <section>Total {{ table.numRows }} records</section>
 
     <table class="table table-zebra table-pin-rows table-md">
       <thead>
@@ -19,7 +19,7 @@
         </tr>
       </tbody>
     </table>
-  </div>
+  </aside>
 </template>
 
 <script setup lang="ts">
