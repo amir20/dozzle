@@ -26,7 +26,6 @@
 <script lang="ts" setup>
 import ViewerWithSource from "@/components/LogViewer/ViewerWithSource.vue";
 import { ComponentExposed } from "vue-component-type-helpers";
-import { useTemplateRef } from "vue";
 
 const {
   id,
