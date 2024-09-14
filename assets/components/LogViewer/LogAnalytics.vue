@@ -44,7 +44,7 @@ await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 const results = await conn.query<Record<string, any>>(`SELECT * FROM logs`);
 
 const table = ref(results);
-const rows = shallowRef(results.toArray().map((row) => ({ ...row })));
+const rows = shallowRef(results.toArray().map((row: Record<string, any>) => ({ ...row })));
 const columns = computed(() => (rows ? Object.keys(rows.value[0]) : []));
 
 const page = computed(() => table.value.slice(0, 20));
