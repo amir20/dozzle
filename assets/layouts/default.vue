@@ -42,6 +42,12 @@
       <button>close</button>
     </form>
   </dialog>
+  <SideDrawer ref="drawer">
+    <Suspense>
+      <component :is="component" v-bind="properties" />
+      <template #fallback> Loading... </template>
+    </Suspense>
+  </SideDrawer>
   <div class="toast toast-end whitespace-normal">
     <div
       class="alert max-w-xl"
@@ -71,11 +77,14 @@
 // @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
+import SideDrawer from "@/components/common/SideDrawer.vue";
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const { toasts, removeToast } = useToast();
+const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
+const { component, properties } = createDrawer(drawer);
 
 const modal = ref<HTMLDialogElement>();
 const open = ref(false);

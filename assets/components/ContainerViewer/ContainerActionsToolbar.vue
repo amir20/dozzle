@@ -119,6 +119,13 @@ const { container } = defineProps<{ container: Container }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
+onKeyStroke("f", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    showDrawer(LogAnalytics, { container });
+    e.preventDefault();
+  }
+});
+
 const downloadParams = computed(() =>
   Object.entries(toValue(streamConfig))
     .filter(([, value]) => value)
