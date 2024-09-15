@@ -41,7 +41,9 @@ func (a *agentService) ListContainers() ([]docker.Container, error) {
 }
 
 func (a *agentService) Host() (docker.Host, error) {
-	host, err := a.client.Host()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	host, err := a.client.Host(ctx)
 	if err != nil {
 		host := a.host
 		host.Available = false

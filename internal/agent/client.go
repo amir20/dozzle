@@ -6,9 +6,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/goccy/go-json"
 	"io"
 	"time"
+
+	"github.com/goccy/go-json"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/docker"
@@ -332,8 +333,8 @@ func (c *Client) ListContainers() ([]docker.Container, error) {
 	return containers, nil
 }
 
-func (c *Client) Host() (docker.Host, error) {
-	info, err := c.client.HostInfo(context.Background(), &pb.HostInfoRequest{})
+func (c *Client) Host(ctx context.Context) (docker.Host, error) {
+	info, err := c.client.HostInfo(ctx, &pb.HostInfoRequest{})
 	if err != nil {
 		return docker.Host{
 			Endpoint:  c.endpoint,
