@@ -20,6 +20,12 @@
           <KeyShortcut char="f" />
         </a>
       </li>
+      <li>
+        <a @click.prevent="showDrawer(LogAnalytics, { container })">
+          <ph:file-sql /> SQL Analytics
+          <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
       <li class="line"></li>
       <li>
         <a
@@ -102,16 +108,15 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
-
-const clear = defineEmit();
-
 const { streamConfig } = useLoggingContext();
+const showDrawer = useDrawer();
 
 const { container } = defineProps<{ container: Container }>();
-
+const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 const downloadParams = computed(() =>
@@ -126,9 +131,7 @@ const downloadUrl = computed(() =>
   ),
 );
 
-const disableRestart = computed(() => {
-  return actionStates.stop || actionStates.start || actionStates.restart;
-});
+const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 </script>
 
 <style scoped lang="postcss">
