@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
@@ -125,7 +126,9 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 			continue
 		}
 
-		host, err := agent.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		host, err := agent.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)

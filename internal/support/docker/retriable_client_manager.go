@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
@@ -47,7 +48,9 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 			continue
 		}
 
-		host, err := agent.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		host, err := agent.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
 			failed = append(failed, endpoint)
@@ -92,7 +95,9 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 				continue
 			}
 
-			host, err := agent.Host()
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+			host, err := agent.Host(ctx)
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
 				errors = append(errors, err)
