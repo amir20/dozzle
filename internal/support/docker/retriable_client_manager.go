@@ -152,6 +152,7 @@ func (m *RetriableClientManager) Hosts() []docker.Host {
 	hosts := lop.Map(clients, func(client ClientService, _ int) docker.Host {
 		host, err := client.Host()
 		if err != nil {
+			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
 			host.Available = false
 		} else {
 			host.Available = true
