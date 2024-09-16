@@ -261,8 +261,8 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 	}
 }
 
-func (c *Client) FindContainer(containerID string) (docker.Container, error) {
-	response, err := c.client.FindContainer(context.Background(), &pb.FindContainerRequest{ContainerId: containerID})
+func (c *Client) FindContainer(ctx context.Context, containerID string) (docker.Container, error) {
+	response, err := c.client.FindContainer(ctx, &pb.FindContainerRequest{ContainerId: containerID})
 	if err != nil {
 		return docker.Container{}, err
 	}
@@ -295,8 +295,8 @@ func (c *Client) FindContainer(containerID string) (docker.Container, error) {
 	}, nil
 }
 
-func (c *Client) ListContainers() ([]docker.Container, error) {
-	response, err := c.client.ListContainers(context.Background(), &pb.ListContainersRequest{})
+func (c *Client) ListContainers(ctx context.Context) ([]docker.Container, error) {
+	response, err := c.client.ListContainers(ctx, &pb.ListContainersRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +355,7 @@ func (c *Client) Host(ctx context.Context) (docker.Host, error) {
 	}, nil
 }
 
-func (c *Client) ContainerAction(containerId string, action docker.ContainerAction) error {
+func (c *Client) ContainerAction(ctx context.Context, containerId string, action docker.ContainerAction) error {
 	var containerAction pb.ContainerAction
 	switch action {
 	case docker.Start:
@@ -369,7 +369,7 @@ func (c *Client) ContainerAction(containerId string, action docker.ContainerActi
 
 	}
 
-	_, err := c.client.ContainerAction(context.Background(), &pb.ContainerActionRequest{ContainerId: containerId, Action: containerAction})
+	_, err := c.client.ContainerAction(ctx, &pb.ContainerActionRequest{ContainerId: containerId, Action: containerAction})
 
 	return err
 }

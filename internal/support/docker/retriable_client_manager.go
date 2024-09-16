@@ -23,10 +23,14 @@ type RetriableClientManager struct {
 	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
 }
 
+var DefaultTimeout = 3 * time.Second
+
 func NewRetriableClientManager(agents []string, certs tls.Certificate, clients ...ClientService) *RetriableClientManager {
 	clientMap := make(map[string]ClientService)
 	for _, client := range clients {
-		host, err := client.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		defer cancel()
+		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
 			continue
@@ -48,7 +52,7 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 			continue
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		defer cancel()
 		host, err := agent.Host(ctx)
 		if err != nil {
@@ -94,7 +98,6 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 				newFailed = append(newFailed, endpoint)
 				continue
 			}
-
 			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 			defer cancel()
 			host, err := agent.Host(ctx)
@@ -151,11 +154,11 @@ func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
 }
 
-func (m *RetriableClientManager) Hosts() []docker.Host {
+func (m *RetriableClientManager) Hosts(ctx context.Context) []docker.Host {
 	clients := m.List()
 
 	hosts := lop.Map(clients, func(client ClientService, _ int) docker.Host {
-		host, err := client.Host()
+		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
 			host.Available = false

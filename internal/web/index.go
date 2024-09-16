@@ -1,12 +1,14 @@
 package web
 
 import (
+	"context"
 	"html/template"
 	"io"
 	"mime"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/goccy/go-json"
 
@@ -43,7 +45,9 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		base = h.config.Base
 	}
 
-	hosts := h.multiHostService.Hosts()
+	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
+	defer cancel()
+	hosts := h.multiHostService.Hosts(ctx)
 	sort.Slice(hosts, func(i, j int) bool {
 		return hosts[i].Name < hosts[j].Name
 	})

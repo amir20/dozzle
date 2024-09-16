@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/rs/zerolog/log"
@@ -59,7 +60,9 @@ func (s *ContainerStore) checkConnectivity() error {
 			s.connected.Store(false)
 		}()
 
-		if containers, err := s.client.ListContainers(); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if containers, err := s.client.ListContainers(ctx); err != nil {
 			return err
 		} else {
 			s.containers.Clear()
@@ -81,7 +84,9 @@ func (s *ContainerStore) checkConnectivity() error {
 				}
 				go func(c Container, i int) {
 					defer sem.Release(1)
-					if container, err := s.client.FindContainer(c.ID); err == nil {
+					ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+					defer cancel()
+					if container, err := s.client.FindContainer(ctx, c.ID); err == nil {
 						s.containers.Store(c.ID, &container)
 					}
 				}(c, i)
@@ -173,8 +178,10 @@ func (s *ContainerStore) init() {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "start":
-				if container, err := s.client.FindContainer(event.ActorID); err == nil {
-					list, _ := s.client.ListContainers()
+				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
+				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
+					list, _ := s.client.ListContainers(ctx)
 
 					// make sure the container is in the list of containers when using filter
 					valid := lo.ContainsBy(list, func(item Container) bool {
@@ -193,6 +200,7 @@ func (s *ContainerStore) init() {
 						})
 					}
 				}
+				cancel()
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)

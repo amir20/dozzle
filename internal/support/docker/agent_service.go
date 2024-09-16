@@ -20,8 +20,8 @@ func NewAgentService(client *agent.Client) ClientService {
 	}
 }
 
-func (a *agentService) FindContainer(id string) (docker.Container, error) {
-	return a.client.FindContainer(id)
+func (a *agentService) FindContainer(ctx context.Context, id string) (docker.Container, error) {
+	return a.client.FindContainer(ctx, id)
 }
 
 func (a *agentService) RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
@@ -36,13 +36,11 @@ func (a *agentService) StreamLogs(ctx context.Context, container docker.Containe
 	return a.client.StreamContainerLogs(ctx, container.ID, from, stdTypes, events)
 }
 
-func (a *agentService) ListContainers() ([]docker.Container, error) {
-	return a.client.ListContainers()
+func (a *agentService) ListContainers(ctx context.Context) ([]docker.Container, error) {
+	return a.client.ListContainers(ctx)
 }
 
-func (a *agentService) Host() (docker.Host, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
+func (a *agentService) Host(ctx context.Context) (docker.Host, error) {
 	host, err := a.client.Host(ctx)
 	if err != nil {
 		host := a.host
@@ -66,6 +64,6 @@ func (d *agentService) SubscribeContainersStarted(ctx context.Context, container
 	go d.client.StreamNewContainers(ctx, containers)
 }
 
-func (a *agentService) ContainerAction(container docker.Container, action docker.ContainerAction) error {
-	return a.client.ContainerAction(container.ID, action)
+func (a *agentService) ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error {
+	return a.client.ContainerAction(ctx, container.ID, action)
 }

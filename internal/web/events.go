@@ -1,7 +1,9 @@
 package web
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
@@ -26,7 +28,10 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
 	h.multiHostService.SubscribeAvailableHosts(ctx, availableHosts)
 
-	allContainers, errors := h.multiHostService.ListAllContainers()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// This might not yield the best performance, but it's a good starting point
+	allContainers, errors := h.multiHostService.ListAllContainers(ctx)
+	cancel()
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
@@ -63,12 +68,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			case "start", "die", "destroy":
 				if event.Name == "start" {
 					log.Debug().Str("container", event.ActorID).Msg("container started")
-					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
+					ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
+					if containers, err := h.multiHostService.ListContainersForHost(ctx, event.Host); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
+							cancel()
 							return
 						}
 					}
+					cancel()
 				}
 
 				if err := sseWriter.Event("container-event", event); err != nil {
@@ -115,7 +124,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		Version:           h.config.Version,
 	}
 
-	local, err := h.multiHostService.LocalHost()
+	local, err := h.multiHostService.LocalHost(context.Background())
 	if err == nil {
 		b.ServerID = local.ID
 	}

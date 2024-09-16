@@ -103,7 +103,9 @@ func main() {
 				if err != nil {
 					log.Fatal().Err(err).Msg("Could not read certificates")
 				}
-				if err := healthcheck.RPCRequest(agentAddress, certs); err != nil {
+				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+				defer cancel()
+				if err := healthcheck.RPCRequest(ctx, agentAddress, certs); err != nil {
 					log.Fatal().Err(err).Msg("Failed to make request")
 				}
 			}

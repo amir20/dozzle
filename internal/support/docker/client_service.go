@@ -9,10 +9,10 @@ import (
 )
 
 type ClientService interface {
-	FindContainer(id string) (docker.Container, error)
-	ListContainers() ([]docker.Container, error)
-	Host() (docker.Host, error)
-	ContainerAction(container docker.Container, action docker.ContainerAction) error
+	FindContainer(ctx context.Context, id string) (docker.Container, error)
+	ListContainers(ctx context.Context) ([]docker.Container, error)
+	Host(ctx context.Context) (docker.Host, error)
+	ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error
 	LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
 	RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error)
 
@@ -70,19 +70,19 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 	}
 }
 
-func (d *dockerClientService) FindContainer(id string) (docker.Container, error) {
+func (d *dockerClientService) FindContainer(ctx context.Context, id string) (docker.Container, error) {
 	return d.store.FindContainer(id)
 }
 
-func (d *dockerClientService) ContainerAction(container docker.Container, action docker.ContainerAction) error {
-	return d.client.ContainerActions(action, container.ID)
+func (d *dockerClientService) ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error {
+	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
-func (d *dockerClientService) ListContainers() ([]docker.Container, error) {
+func (d *dockerClientService) ListContainers(ctx context.Context) ([]docker.Container, error) {
 	return d.store.ListContainers()
 }
 
-func (d *dockerClientService) Host() (docker.Host, error) {
+func (d *dockerClientService) Host(ctx context.Context) (docker.Host, error) {
 	return d.client.Host(), nil
 }
 

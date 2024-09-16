@@ -55,7 +55,9 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		log.Fatal().Msg("HOSTNAME environment variable not set when looking for swarm service name")
 	}
 
-	container, err := localClient.FindContainer(id)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	container, err := localClient.FindContainer(ctx, id)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error finding own container when looking for swarm service name")
 	}
@@ -98,7 +100,9 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	clients := lo.Values(m.clients)
 	endpoints := lo.KeyBy(clients, func(client ClientService) string {
-		host, _ := client.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		host, _ := client.Host(ctx)
 		return host.Endpoint
 	})
 
@@ -186,12 +190,13 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 	return client, ok
 }
 
-func (m *SwarmClientManager) Hosts() []docker.Host {
+func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
 	clients := m.List()
 
 	return lop.Map(clients, func(client ClientService, _ int) docker.Host {
-		host, err := client.Host()
+		host, err := client.Host(ctx)
 		if err != nil {
+			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
 			host.Available = false
 		} else {
 			host.Available = true

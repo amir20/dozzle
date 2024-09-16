@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"context"
 	"embed"
+	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
@@ -22,7 +24,9 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 
 		log.Info().Interface("host", host).Msg("Adding remote host")
 		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
-			if _, err := client.ListContainers(); err == nil {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if _, err := client.ListContainers(ctx); err == nil {
 				clients = append(clients, docker_support.NewDockerClientService(client))
 			} else {
 				log.Warn().Err(err).Interface("host", host).Msg("Could not connect to remote host")
@@ -34,7 +38,9 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 
 	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 	if err == nil {
-		_, err := localClient.ListContainers()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_, err := localClient.ListContainers(ctx)
 		if err != nil {
 			log.Debug().Err(err).Msg("Could not connect to local Docker Engine")
 		} else {
