@@ -1,28 +1,28 @@
 <template>
-  <aside class="flex flex-col gap-2">
+  <aside>
     <header class="flex items-center gap-4">
-      <h1 class="mobile-hidden text-lg">{{ container.name }}</h1>
+      <h1 class="mobile-hidden text-2xl">{{ container.name }}</h1>
       <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
     </header>
 
-    <section>
-      <textarea v-model="query" class="textarea textarea-primary w-full"></textarea>
-    </section>
-
-    <section>Total {{ results.numRows }} records</section>
-
-    <table class="table table-zebra table-pin-rows table-md">
-      <thead>
-        <tr>
-          <th v-for="column in columns" :key="column">{{ column }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in page" :key="row">
-          <td v-for="column in columns" :key="column">{{ row[column] }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="mt-8 flex flex-col gap-2">
+      <section>
+        <textarea v-model="query" class="textarea textarea-primary w-full"></textarea>
+      </section>
+      <section>Total {{ results.numRows }} records</section>
+      <table class="table table-zebra table-pin-rows table-md">
+        <thead>
+          <tr>
+            <th v-for="column in columns" :key="column">{{ column }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in page" :key="row">
+            <td v-for="column in columns" :key="column">{{ row[column] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </aside>
 </template>
 
@@ -36,7 +36,8 @@ const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
 );
 
-const response = await fetch(url);
+const [{ useDuckDB }, response] = await Promise.all([import(`@/composable/duckdb`), fetch(url)]);
+
 if (!response.ok) {
   console.log("error fetching logs from", url);
   throw new Error(`Failed to fetch logs: ${response.statusText}`);
