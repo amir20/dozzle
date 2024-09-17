@@ -7,10 +7,19 @@
 
     <div class="mt-8 flex flex-col gap-2">
       <section>
-        <textarea v-model="query" class="textarea textarea-primary w-full"></textarea>
+        <label class="form-control">
+          <textarea
+            v-model="query"
+            class="textarea textarea-primary w-full font-mono text-lg"
+            :class="{ 'textarea-error': error }"
+          ></textarea>
+          <div class="label" v-if="error">
+            <span class="label-text-alt text-error">{{ error }}</span>
+          </div>
+        </label>
       </section>
       <section>Total {{ results.numRows }} records</section>
-      <table class="table table-zebra table-pin-rows table-md">
+      <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating">
         <thead>
           <tr>
             <th v-for="column in columns" :key="column">{{ column }}</th>
@@ -22,6 +31,22 @@
           </tr>
         </tbody>
       </table>
+      <table class="table table-md animate-pulse" v-else>
+        <thead>
+          <tr>
+            <th v-for="_ in 3">
+              <div class="h-4 w-20 animate-pulse bg-base-content/50 opacity-50"></div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="_ in 9">
+            <td v-for="_ in 3">
+              <div class="h-4 w-20 bg-base-content/50 opacity-20"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </aside>
 </template>
@@ -30,7 +55,9 @@
 import { Container } from "@/models/Container";
 const { container } = defineProps<{ container: Container }>();
 const query = ref("SELECT * FROM logs");
+const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 1000);
+const evaluating = ref(false);
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
@@ -53,9 +80,14 @@ const results = computedAsync(
   async () => await conn.query<Record<string, any>>(debouncedQuery.value),
   { numRows: 0 },
   {
-    onError: (error) => console.error(error),
+    onError: (e: { message: string }) => (error.value = e.message),
+    evaluating,
   },
 );
+
+whenever(evaluating, () => {
+  error.value = null;
+});
 
 const columns = computed(() =>
   results.value.numRows > 0 ? Object.keys(results.value.get(0) as Record<string, any>) : [],
