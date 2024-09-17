@@ -20,17 +20,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
 	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
 	availableHosts := make(chan docker.Host)
 
-	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
-	h.multiHostService.SubscribeAvailableHosts(ctx, availableHosts)
+	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
+	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	// This might not yield the best performance, but it's a good starting point
-	allContainers, errors := h.multiHostService.ListAllContainers(ctx)
+	allContainers, errors := h.multiHostService.ListAllContainers(timeoutContext)
 	cancel()
 
 	for _, err := range errors {
@@ -101,7 +100,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
-		case <-ctx.Done():
+		case <-r.Context().Done():
 			return
 		}
 	}
