@@ -13,12 +13,12 @@
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
           ></textarea>
-          <div class="label" v-if="error">
-            <span class="label-text-alt text-error">{{ error }}</span>
+          <div class="label">
+            <span class="label-text-alt text-error" v-if="error">{{ error }}</span>
+            <span class="label-text-alt" v-else>Total {{ results.numRows }} records</span>
           </div>
         </label>
       </section>
-      <section>Total {{ results.numRows }} records</section>
       <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating">
         <thead>
           <tr>
@@ -56,7 +56,7 @@ import { Container } from "@/models/Container";
 const { container } = defineProps<{ container: Container }>();
 const query = ref("SELECT * FROM logs");
 const error = ref<string | null>(null);
-const debouncedQuery = debouncedRef(query, 1000);
+const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
 
 const url = withBase(

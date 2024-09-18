@@ -20,8 +20,8 @@
           <KeyShortcut char="f" />
         </a>
       </li>
-      <li>
-        <a @click.prevent="showDrawer(LogAnalytics, { container })">
+      <li v-if="hasComplexLogs">
+        <a @click.prevent="showDrawer(LogAnalytics, { container }, 'lg')">
           <ph:file-sql /> SQL Analytics
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
@@ -112,7 +112,7 @@ import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
-const { streamConfig } = useLoggingContext();
+const { streamConfig, hasComplexLogs } = useLoggingContext();
 const showDrawer = useDrawer();
 
 const { container } = defineProps<{ container: Container }>();
@@ -120,9 +120,11 @@ const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 onKeyStroke("f", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    showDrawer(LogAnalytics, { container });
-    e.preventDefault();
+  if (hasComplexLogs.value) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      showDrawer(LogAnalytics, { container }, "lg");
+      e.preventDefault();
+    }
   }
 });
 

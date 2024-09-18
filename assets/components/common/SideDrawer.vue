@@ -1,6 +1,6 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-none backdrop:bg-none">
-    <div class="modal-box">
+    <div class="modal-box" :size="size">
       <form method="dialog">
         <button class="swap swap-rotate absolute right-4 top-4 outline-none hover:swap-active">
           <mdi:keyboard-esc class="swap-off" />
@@ -15,8 +15,13 @@
   </dialog>
 </template>
 <script setup lang="ts">
-const panel = ref<HTMLDialogElement>();
+import { DrawerSize } from "@/composable/drawer";
+const panel = useTemplateRef<HTMLDialogElement>("panel");
+
 const open = ref(false);
+const { size } = defineProps<{
+  size: DrawerSize;
+}>();
 
 defineExpose({
   open: () => {
@@ -29,7 +34,15 @@ useEventListener(panel, "close", () => (open.value = false));
 </script>
 <style scoped lang="postcss">
 .modal-right :where(.modal-box) {
-  @apply fixed right-0 h-lvh max-h-screen max-w-3xl translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
+  @apply fixed right-0 h-lvh max-h-screen translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
+
+  &[size="md"] {
+    @apply max-w-3xl;
+  }
+
+  &[size="lg"] {
+    @apply max-w-5xl;
+  }
 }
 
 .modal-right[open] .modal-box {
