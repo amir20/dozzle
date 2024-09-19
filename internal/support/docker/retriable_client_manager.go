@@ -21,14 +21,13 @@ type RetriableClientManager struct {
 	certs        tls.Certificate
 	mu           sync.RWMutex
 	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
+	timeout      time.Duration
 }
 
-var DefaultTimeout = 3 * time.Second
-
-func NewRetriableClientManager(agents []string, certs tls.Certificate, clients ...ClientService) *RetriableClientManager {
+func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...ClientService) *RetriableClientManager {
 	clientMap := make(map[string]ClientService)
 	for _, client := range clients {
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 		host, err := client.Host(ctx)
 		if err != nil {
@@ -52,7 +51,7 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 			continue
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 		host, err := agent.Host(ctx)
 		if err != nil {
@@ -73,6 +72,7 @@ func NewRetriableClientManager(agents []string, certs tls.Certificate, clients .
 		failedAgents: failed,
 		certs:        certs,
 		subscribers:  xsync.NewMapOf[context.Context, chan<- docker.Host](),
+		timeout:      timeout,
 	}
 }
 
@@ -98,7 +98,8 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 				newFailed = append(newFailed, endpoint)
 				continue
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+
+			ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 			defer cancel()
 			host, err := agent.Host(ctx)
 			if err != nil {

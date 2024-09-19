@@ -26,6 +26,7 @@ type SwarmClientManager struct {
 	localClient docker.Client
 	localIPs    []string
 	name        string
+	timeout     time.Duration
 }
 
 func localIPs() []string {
@@ -45,7 +46,7 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *SwarmClientManager {
+func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, timeout time.Duration) *SwarmClientManager {
 	clientMap := make(map[string]ClientService)
 	localService := NewDockerClientService(localClient)
 	clientMap[localClient.Host().ID] = localService
@@ -55,7 +56,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		log.Fatal().Msg("HOSTNAME environment variable not set when looking for swarm service name")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	container, err := localClient.FindContainer(ctx, id)
 	if err != nil {
@@ -73,6 +74,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		subscribers: xsync.NewMapOf[context.Context, chan<- docker.Host](),
 		localIPs:    localIPs(),
 		name:        serviceName,
+		timeout:     timeout,
 	}
 }
 
@@ -100,7 +102,7 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	clients := lo.Values(m.clients)
 	endpoints := lo.KeyBy(clients, func(client ClientService) string {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
 		host, _ := client.Host(ctx)
 		return host.Endpoint
@@ -130,7 +132,7 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 			continue
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
 		host, err := agent.Host(ctx)
 		if err != nil {

@@ -54,8 +54,8 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	})
 
 	// This is needed so that the server is initialized for store
-	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient))
-	multiHostService := docker_support.NewMultiHostService(manager)
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient))
+	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 

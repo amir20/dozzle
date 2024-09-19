@@ -86,8 +86,8 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(client))
-	multiHostService := docker_support.NewMultiHostService(manager)
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client))
+	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		multiHostService: multiHostService,
 		content:          content,

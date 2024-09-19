@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"embed"
-	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
@@ -24,7 +23,7 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 
 		log.Info().Interface("host", host).Msg("Adding remote host")
 		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 			defer cancel()
 			if _, err := client.ListContainers(ctx); err == nil {
 				clients = append(clients, docker_support.NewDockerClientService(client))
@@ -38,7 +37,7 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 
 	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
 	if err == nil {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 		defer cancel()
 		_, err := localClient.ListContainers(ctx)
 		if err != nil {
@@ -54,6 +53,6 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 		log.Fatal().Err(err).Msg("Could not read certificates")
 	}
 
-	clientManager := docker_support.NewRetriableClientManager(args.RemoteAgent, certs, clients...)
-	return localClient, docker_support.NewMultiHostService(clientManager)
+	clientManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, clients...)
+	return localClient, docker_support.NewMultiHostService(clientManager, args.Timeout)
 }

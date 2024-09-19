@@ -60,7 +60,7 @@ func (s *ContainerStore) checkConnectivity() error {
 			s.connected.Store(false)
 		}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // 3s is enough to fetch all containers
 		defer cancel()
 		if containers, err := s.client.ListContainers(ctx); err != nil {
 			return err
@@ -84,7 +84,7 @@ func (s *ContainerStore) checkConnectivity() error {
 				}
 				go func(c Container, i int) {
 					defer sem.Release(1)
-					ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+					ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second) // 2s is hardcoded timeout for fetching container
 					defer cancel()
 					if container, err := s.client.FindContainer(ctx, c.ID); err == nil {
 						s.containers.Store(c.ID, &container)

@@ -31,9 +31,7 @@ import (
 
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-	containerService, err := h.multiHostService.FindContainer(ctx, hostKey(r), id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -104,9 +102,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-	containerService, err := h.multiHostService.FindContainer(ctx, hostKey(r), id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -265,9 +261,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
-	defer cancel()
-	existingContainers, errs := multiHostClient.ListAllContainersFiltered(ctx, filter)
+	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
@@ -296,9 +290,9 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 				events := make([]*docker.LogEvent, 0)
 				stillRunning := false
 				for _, container := range existingContainers {
-					ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-					containerService, err := multiHostClient.FindContainer(ctx, container.Host, container.ID)
-					defer cancel()
+
+					containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+
 					if err != nil {
 						log.Error().Err(err).Msg("error while finding container")
 						return
@@ -341,9 +335,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	}
 
 	streamLogs := func(container docker.Container) {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		containerService, err := multiHostClient.FindContainer(ctx, container.Host, container.ID)
+		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
 		if err != nil {
 			log.Error().Err(err).Msg("error while finding container")
 			return

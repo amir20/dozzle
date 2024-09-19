@@ -97,7 +97,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
-	timeoutCtx, cancel := context.WithTimeout(parentCtx, 2*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
 	if containers, err := sc.client.ListContainers(timeoutCtx); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
