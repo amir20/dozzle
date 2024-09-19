@@ -97,8 +97,8 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	if containers, err := sc.client.ListContainers(ctx); err == nil {
+	timeoutCtx, cancel := context.WithTimeout(parentCtx, 2*time.Second)
+	if containers, err := sc.client.ListContainers(timeoutCtx); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
 				go streamStats(ctx, sc, c.ID)
