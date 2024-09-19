@@ -42,7 +42,7 @@
       <button>close</button>
     </form>
   </dialog>
-  <SideDrawer ref="drawer" :size="drawerSize">
+  <SideDrawer ref="drawer" :width="drawerWidth">
     <Suspense>
       <component :is="drawerComponent" v-bind="drawerProperties" />
       <template #fallback> Loading... </template>
@@ -84,7 +84,7 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const { toasts, removeToast } = useToast();
 const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
-const { component: drawerComponent, properties: drawerProperties, size: drawerSize } = createDrawer(drawer);
+const { component: drawerComponent, properties: drawerProperties, width: drawerWidth } = createDrawer(drawer);
 
 const modal = ref<HTMLDialogElement>();
 const open = ref(false);

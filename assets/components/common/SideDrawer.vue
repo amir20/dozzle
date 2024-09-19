@@ -1,6 +1,6 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-none backdrop:bg-none">
-    <div class="modal-box" :size="size">
+    <div class="modal-box" :width="width">
       <form method="dialog">
         <button class="swap swap-rotate absolute right-4 top-4 outline-none hover:swap-active">
           <mdi:keyboard-esc class="swap-off" />
@@ -15,12 +15,12 @@
   </dialog>
 </template>
 <script setup lang="ts">
-import { DrawerSize } from "@/composable/drawer";
+import { type DrawerWidth } from "@/composable/drawer";
 const panel = useTemplateRef<HTMLDialogElement>("panel");
 
 const open = ref(false);
-const { size } = defineProps<{
-  size: DrawerSize;
+const { width } = defineProps<{
+  width: DrawerWidth;
 }>();
 
 defineExpose({

@@ -1,26 +1,26 @@
 import SideDrawer from "@/components/common/SideDrawer.vue";
 import { Component } from "vue";
 
-export type DrawerSize = "md" | "xl" | "lg";
+export type DrawerWidth = "md" | "xl" | "lg";
 
 export const drawerContext = Symbol("drawer") as InjectionKey<
-  (c: Component, p: Record<string, any>, s?: DrawerSize) => void
+  (c: Component, p: Record<string, any>, s?: DrawerWidth) => void
 >;
 
 export const createDrawer = (drawer: Ref<InstanceType<typeof SideDrawer>>) => {
   const component = shallowRef<Component | null>(null);
   const properties = shallowRef<Record<string, any>>({});
-  const size = ref<DrawerSize>("md");
-  const showDrawer = (c: Component, p: Record<string, any>, s: DrawerSize = "md") => {
+  const width = ref<DrawerWidth>("md");
+  const showDrawer = (c: Component, p: Record<string, any>, w: DrawerWidth = "md") => {
     component.value = c;
     properties.value = p;
-    size.value = s;
+    width.value = w;
     drawer.value?.open();
   };
 
   provide(drawerContext, showDrawer);
 
-  return { component, properties, showDrawer, size };
+  return { component, properties, showDrawer, width };
 };
 
 export const useDrawer = () =>
