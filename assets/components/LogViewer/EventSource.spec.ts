@@ -81,6 +81,7 @@ describe("<ContainerEventSource />", () => {
           [loggingContextKey as symbol]: {
             containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
             streamConfig: reactive({ stdout: true, stderr: true }),
+            hasComplexLogs: ref(false),
           },
         },
       },

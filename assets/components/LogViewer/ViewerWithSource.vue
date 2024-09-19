@@ -5,8 +5,9 @@
 </template>
 
 <script lang="ts" setup generic="T">
-import LogEventSource from "@/components/ContainerViewer/LogEventSource.vue";
+import EventSource from "@/components/LogViewer/EventSource.vue";
 import { LogStreamSource } from "@/composable/eventStreams";
+import { ComponentExposed } from "vue-component-type-helpers";
 
 const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
@@ -15,15 +16,15 @@ const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
   entity: T;
 }>();
 
-const source = $ref<InstanceType<typeof LogEventSource>>();
+const source = useTemplateRef<ComponentExposed<typeof EventSource>>("source");
 
 defineExpose({
-  clear: () => source?.clear(),
+  clear: () => source.value?.clear(),
 });
 
 onKeyStroke("k", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    source?.clear();
+    source.value?.clear();
     e.preventDefault();
   }
 });

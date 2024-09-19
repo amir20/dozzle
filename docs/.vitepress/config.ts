@@ -75,6 +75,7 @@ export default defineConfig({
           { text: "Swarm Mode", link: "/guide/swarm-mode" },
           { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
           { text: "Logging Files on Disk", link: "/guide/log-files-on-disk" },
+          { text: "SQL Engine", link: "/guide/sql-engine" },
         ],
       },
       {

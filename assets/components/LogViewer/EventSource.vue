@@ -21,7 +21,7 @@ defineExpose({
 });
 
 const fetchMore = async () => {
-  if (!isLoadingMore()) {
+  if (!isLoadingMore.value) {
     loadingMore.value = true;
     enabled.value = false;
     await loadOlderLogs();

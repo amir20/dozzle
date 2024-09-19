@@ -1,5 +1,5 @@
 <template>
-  <div class="group/item clickable relative flex w-full gap-x-2" @click="showLogDetails(logEntry)">
+  <div class="group/item clickable relative flex w-full gap-x-2" @click="showDrawer(LogDetails, { entry: logEntry })">
     <div v-if="showContainerName">
       <ContainerName :id="logEntry.containerID" />
     </div>
@@ -28,6 +28,7 @@
 </template>
 <script lang="ts" setup>
 import { type ComplexLogEntry } from "@/models/LogEntry";
+import LogDetails from "./LogDetails.vue";
 
 const { logEntry, showContainerName = false } = defineProps<{
   logEntry: ComplexLogEntry;
@@ -38,7 +39,7 @@ const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
 });
 
-const showLogDetails = useLogDetails();
+const showDrawer = useDrawer();
 </script>
 
 <style lang="postcss" scoped>

@@ -34,7 +34,7 @@ const { searchQueryFilter, showSearch, resetSearch, isValidQuery } = useSearchFi
 const { style } = useDraggable(container);
 
 onKeyStroke("f", (e) => {
-  if (e.ctrlKey || e.metaKey) {
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showSearch.value = true;
     nextTick(() => input.value?.focus() || input.value?.select());
     e.preventDefault();
