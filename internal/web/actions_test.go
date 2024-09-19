@@ -17,15 +17,15 @@ func mockedClient() *MockedClient {
 	mockedClient := new(MockedClient)
 	container := docker.Container{ID: "123"}
 
-	mockedClient.On("FindContainer", "123").Return(container, nil)
-	mockedClient.On("FindContainer", "456").Return(docker.Container{}, errors.New("container not found"))
-	mockedClient.On("ContainerActions", docker.Start, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", docker.Stop, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", docker.Restart, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", docker.Start, mock.Anything).Return(errors.New("container not found"))
-	mockedClient.On("ContainerActions", docker.ContainerAction("something-else"), container.ID).Return(errors.New("unknown action"))
+	mockedClient.On("FindContainer", mock.Anything, "123").Return(container, nil)
+	mockedClient.On("FindContainer", mock.Anything, "456").Return(docker.Container{}, errors.New("container not found"))
+	mockedClient.On("ContainerActions", mock.Anything, docker.Start, container.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, docker.Stop, container.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, docker.Restart, container.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, docker.Start, mock.Anything).Return(errors.New("container not found"))
+	mockedClient.On("ContainerActions", mock.Anything, docker.ContainerAction("something-else"), container.ID).Return(errors.New("unknown action"))
 	mockedClient.On("Host").Return(docker.Host{ID: "localhost"})
-	mockedClient.On("ListContainers").Return([]docker.Container{container}, nil)
+	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{container}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
 
 	return mockedClient

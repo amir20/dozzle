@@ -23,12 +23,12 @@ type MockedClient struct {
 	docker.Client
 }
 
-func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
+func (m *MockedClient) FindContainer(ctx context.Context, id string) (docker.Container, error) {
 	args := m.Called(id)
 	return args.Get(0).(docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerActions(action docker.ContainerAction, containerID string) error {
+func (m *MockedClient) ContainerActions(ctx context.Context, action docker.ContainerAction, containerID string) error {
 	args := m.Called(action, containerID)
 	return args.Error(0)
 }
@@ -38,7 +38,7 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers() ([]docker.Container, error) {
+func (m *MockedClient) ListContainers(ctx context.Context) ([]docker.Container, error) {
 	args := m.Called()
 	return args.Get(0).([]docker.Container), args.Error(1)
 }

@@ -14,12 +14,12 @@ type mockedClient struct {
 	Client
 }
 
-func (m *mockedClient) ListContainers() ([]Container, error) {
+func (m *mockedClient) ListContainers(context.Context) ([]Container, error) {
 	args := m.Called()
 	return args.Get(0).([]Container), args.Error(1)
 }
 
-func (m *mockedClient) FindContainer(id string) (Container, error) {
+func (m *mockedClient) FindContainer(ctx context.Context, id string) (Container, error) {
 	args := m.Called(id)
 	return args.Get(0).(Container), args.Error(1)
 }
