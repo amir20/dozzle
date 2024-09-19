@@ -76,14 +76,16 @@ await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuff
 
 await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
 
-const results = computedAsync(
-  async () => await conn.query<Record<string, any>>(debouncedQuery.value),
-  { numRows: 0 },
-  {
-    onError: (e: { message: string }) => (error.value = e.message),
-    evaluating,
+const empty = await conn.query<Record<string, any>>(`SELECT * FROM logs LIMIT 0`);
+
+const results = computedAsync(async () => await conn.query<Record<string, any>>(debouncedQuery.value), empty, {
+  onError: (e) => {
+    if (e instanceof Error) {
+      error.value = e.message;
+    }
   },
-);
+  evaluating,
+});
 
 whenever(evaluating, () => {
   error.value = null;

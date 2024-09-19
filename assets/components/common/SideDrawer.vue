@@ -36,11 +36,11 @@ useEventListener(panel, "close", () => (open.value = false));
 .modal-right :where(.modal-box) {
   @apply fixed right-0 h-lvh max-h-screen translate-x-24 scale-100 rounded-none bg-base-lighter shadow-none;
 
-  &[size="md"] {
+  &[width="md"] {
     @apply max-w-3xl;
   }
 
-  &[size="lg"] {
+  &[width="lg"] {
     @apply max-w-5xl;
   }
 }
