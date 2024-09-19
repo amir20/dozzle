@@ -20,6 +20,12 @@
           <KeyShortcut char="f" />
         </a>
       </li>
+      <li v-if="hasComplexLogs">
+        <a @click.prevent="showDrawer(LogAnalytics, { container }, 'lg')">
+          <ph:file-sql /> SQL Analytics
+          <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
       <li class="line"></li>
       <li>
         <a
@@ -102,17 +108,25 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
-
-const clear = defineEmit();
-
-const { streamConfig } = useLoggingContext();
+const { streamConfig, hasComplexLogs } = useLoggingContext();
+const showDrawer = useDrawer();
 
 const { container } = defineProps<{ container: Container }>();
-
+const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
+
+onKeyStroke("f", (e) => {
+  if (hasComplexLogs.value) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      showDrawer(LogAnalytics, { container }, "lg");
+      e.preventDefault();
+    }
+  }
+});
 
 const downloadParams = computed(() =>
   Object.entries(toValue(streamConfig))
@@ -126,9 +140,7 @@ const downloadUrl = computed(() =>
   ),
 );
 
-const disableRestart = computed(() => {
-  return actionStates.stop || actionStates.start || actionStates.restart;
-});
+const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 </script>
 
 <style scoped lang="postcss">

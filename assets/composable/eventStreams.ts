@@ -7,6 +7,7 @@ import {
   LogEntry,
   asLogEntry,
   ContainerEventLogEntry,
+  ComplexLogEntry,
   SkippedLogsEntry,
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
@@ -103,7 +104,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     buffer.value = [];
   }
 
-  const { streamConfig } = useLoggingContext();
+  const { streamConfig, hasComplexLogs } = useLoggingContext();
 
   const params = computed(() => {
     const params = Object.entries(toValue(streamConfig))
@@ -154,11 +155,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(urlWithParams, () => connect(), { immediate: true });
 
-  let fetchingInProgress = false;
+  const isLoadingMore = ref(false);
 
   async function loadOlderLogs() {
     if (!loadMoreUrl) return;
-    if (fetchingInProgress) return;
+    if (isLoadingMore.value) return;
 
     const to = messages.value[0].date;
     const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
@@ -167,7 +168,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
     const abortController = new AbortController();
     const signal = abortController.signal;
-    fetchingInProgress = true;
+    isLoadingMore.value = true;
     try {
       const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), minimum: "100" };
       const urlWithMoreParams = computed(() =>
@@ -187,13 +188,13 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     } catch (e) {
       console.error("Error loading older logs", e);
     } finally {
-      fetchingInProgress = false;
+      isLoadingMore.value = false;
     }
   }
 
   onScopeDispose(() => close());
 
-  const isLoadingMore = () => fetchingInProgress;
+  watch(messages, () => (hasComplexLogs.value = messages.value.some((m) => m instanceof ComplexLogEntry)));
 
-  return { messages, loadOlderLogs, isLoadingMore };
+  return { messages, loadOlderLogs, isLoadingMore, hasComplexLogs };
 }

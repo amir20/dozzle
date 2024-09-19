@@ -4,6 +4,7 @@ type LogContext = {
   streamConfig: { stdout: boolean; stderr: boolean };
   containers: Container[];
   loadingMore: boolean;
+  hasComplexLogs: boolean;
 };
 
 // export for testing
@@ -19,6 +20,7 @@ export const provideLoggingContext = (containers: Ref<Container[]>) => {
       streamConfig: { stdout, stderr },
       containers,
       loadingMore: false,
+      hasComplexLogs: false,
     }),
   );
 };
@@ -30,6 +32,7 @@ export const useLoggingContext = () => {
       streamConfig: { stdout: true, stderr: true },
       containers: [],
       loadingMore: false,
+      hasComplexLogs: false,
     }),
   );
 

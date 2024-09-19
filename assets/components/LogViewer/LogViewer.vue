@@ -1,13 +1,9 @@
 <template>
-  <SideDrawer ref="drawer">
-    <LogDetails :entry="entry" v-if="entry && entry instanceof ComplexLogEntry" />
-  </SideDrawer>
   <LogList :messages="visibleMessages" :show-container-name="showContainerName" />
 </template>
 
 <script lang="ts" setup>
-import SideDrawer from "@/components/common/SideDrawer.vue";
-import { ComplexLogEntry, type JSONObject, LogEntry } from "@/models/LogEntry";
+import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
@@ -21,12 +17,7 @@ const { filteredPayload } = useVisibleFilter(visibleKeys);
 const { debouncedSearchFilter } = useSearchFilter();
 const { streamConfig } = useLoggingContext();
 
-const drawer = ref<InstanceType<typeof SideDrawer>>() as Ref<InstanceType<typeof SideDrawer>>;
-
-const { entry } = provideLogDetails(drawer);
-
 const visibleMessages = filteredPayload(messages);
-
 const router = useRouter();
 
 watchEffect(() => {
