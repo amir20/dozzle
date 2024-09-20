@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"github.com/goccy/go-json"
+	"encoding/json"
 	"testing"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"

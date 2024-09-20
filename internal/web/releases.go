@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/goccy/go-json"
+	"encoding/json"
 	"net/http"
 	"time"
 

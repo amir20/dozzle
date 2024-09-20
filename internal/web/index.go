@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/goccy/go-json"
+	"encoding/json"
 
 	"net/http"
 	"path"

@@ -2,7 +2,7 @@ package releases
 
 import (
 	"bytes"
-	"github.com/goccy/go-json"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
