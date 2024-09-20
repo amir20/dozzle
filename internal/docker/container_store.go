@@ -178,7 +178,7 @@ func (s *ContainerStore) init() {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "start":
-				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
 				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
 					list, _ := s.client.ListContainers(ctx)

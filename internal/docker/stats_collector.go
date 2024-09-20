@@ -88,12 +88,12 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
-	var ctx context.Context
 	sc.mu.Lock()
 	if sc.stopper != nil {
 		sc.mu.Unlock()
 		return false
 	}
+	var ctx context.Context
 	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
