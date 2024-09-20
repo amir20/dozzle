@@ -14,13 +14,13 @@ type mockedClient struct {
 	Client
 }
 
-func (m *mockedClient) ListContainers(context.Context) ([]Container, error) {
-	args := m.Called()
+func (m *mockedClient) ListContainers(ctx context.Context) ([]Container, error) {
+	args := m.Called(ctx)
 	return args.Get(0).([]Container), args.Error(1)
 }
 
 func (m *mockedClient) FindContainer(ctx context.Context, id string) (Container, error) {
-	args := m.Called(id)
+	args := m.Called(ctx, id)
 	return args.Get(0).(Container), args.Error(1)
 }
 
@@ -42,7 +42,7 @@ func (m *mockedClient) Host() Host {
 func TestContainerStore_List(t *testing.T) {
 
 	client := new(mockedClient)
-	client.On("ListContainers").Return([]Container{
+	client.On("ListContainers", mock.Anything).Return([]Container{
 		{
 			ID:   "1234",
 			Name: "test",
@@ -56,7 +56,7 @@ func TestContainerStore_List(t *testing.T) {
 		ID: "localhost",
 	})
 
-	client.On("FindContainer", "1234").Return(Container{
+	client.On("FindContainer", mock.Anything, "1234").Return(Container{
 		ID:    "1234",
 		Name:  "test",
 		Image: "test",
@@ -74,7 +74,7 @@ func TestContainerStore_List(t *testing.T) {
 
 func TestContainerStore_die(t *testing.T) {
 	client := new(mockedClient)
-	client.On("ListContainers").Return([]Container{
+	client.On("ListContainers", mock.Anything).Return([]Container{
 		{
 			ID:    "1234",
 			Name:  "test",
@@ -100,7 +100,7 @@ func TestContainerStore_die(t *testing.T) {
 
 	client.On("ContainerStats", mock.Anything, "1234", mock.AnythingOfType("chan<- docker.ContainerStat")).Return(nil)
 
-	client.On("FindContainer", "1234").Return(Container{
+	client.On("FindContainer", mock.Anything, "1234").Return(Container{
 		ID:    "1234",
 		Name:  "test",
 		Image: "test",

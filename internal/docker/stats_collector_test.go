@@ -10,7 +10,7 @@ import (
 
 func startedCollector(ctx context.Context) *StatsCollector {
 	client := new(mockedClient)
-	client.On("ListContainers").Return([]Container{
+	client.On("ListContainers", mock.Anything).Return([]Container{
 		{
 			ID:    "1234",
 			Name:  "test",
@@ -46,6 +46,7 @@ func startedCollector(ctx context.Context) *StatsCollector {
 
 	return collector
 }
+
 func TestCancelers(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
