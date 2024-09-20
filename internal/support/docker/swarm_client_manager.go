@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
@@ -25,6 +26,7 @@ type SwarmClientManager struct {
 	localClient docker.Client
 	localIPs    []string
 	name        string
+	timeout     time.Duration
 }
 
 func localIPs() []string {
@@ -44,7 +46,7 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *SwarmClientManager {
+func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, timeout time.Duration) *SwarmClientManager {
 	clientMap := make(map[string]ClientService)
 	localService := NewDockerClientService(localClient)
 	clientMap[localClient.Host().ID] = localService
@@ -54,7 +56,9 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		log.Fatal().Msg("HOSTNAME environment variable not set when looking for swarm service name")
 	}
 
-	container, err := localClient.FindContainer(id)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	container, err := localClient.FindContainer(ctx, id)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error finding own container when looking for swarm service name")
 	}
@@ -70,6 +74,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate) *Sw
 		subscribers: xsync.NewMapOf[context.Context, chan<- docker.Host](),
 		localIPs:    localIPs(),
 		name:        serviceName,
+		timeout:     timeout,
 	}
 }
 
@@ -97,7 +102,9 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	clients := lo.Values(m.clients)
 	endpoints := lo.KeyBy(clients, func(client ClientService) string {
-		host, _ := client.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+		defer cancel()
+		host, _ := client.Host(ctx)
 		return host.Endpoint
 	})
 
@@ -125,7 +132,9 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 			continue
 		}
 
-		host, err := agent.Host()
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+		defer cancel()
+		host, err := agent.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Stringer("ip", ip).Msg("error getting host from agent client")
 			errors = append(errors, err)
@@ -183,12 +192,13 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 	return client, ok
 }
 
-func (m *SwarmClientManager) Hosts() []docker.Host {
+func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
 	clients := m.List()
 
 	return lop.Map(clients, func(client ClientService, _ int) docker.Host {
-		host, err := client.Host()
+		host, err := client.Host(ctx)
 		if err != nil {
+			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
 			host.Available = false
 		} else {
 			host.Available = true

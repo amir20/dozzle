@@ -2,6 +2,7 @@ package cli
 
 import (
 	"strings"
+	"time"
 
 	"github.com/alexflint/go-arg"
 )
@@ -24,6 +25,8 @@ type Args struct {
 	RemoteAgent     []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
+	TimeoutString   string              `arg:"env:DOZZLE_TIMEOUT" default:"3s" help:"sets the timeout for docker client"`
+	Timeout         time.Duration       `arg:"-"`
 	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent           *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
@@ -63,6 +66,14 @@ func ParseArgs() (Args, interface{}) {
 		key := filter[:pos]
 		val := filter[pos+1:]
 		args.Filter[key] = append(args.Filter[key], val)
+	}
+
+	if args.TimeoutString != "" {
+		timeout, err := time.ParseDuration(args.TimeoutString)
+		if err != nil {
+			parser.Fail("timeout should be a valid duration")
+		}
+		args.Timeout = timeout
 	}
 
 	return args, parser.Subcommand()

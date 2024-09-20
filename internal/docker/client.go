@@ -59,15 +59,15 @@ type DockerCLI interface {
 }
 
 type Client interface {
-	ListContainers() ([]Container, error)
-	FindContainer(string) (Container, error)
+	ListContainers(context.Context) ([]Container, error)
+	FindContainer(context.Context, string) (Container, error)
 	ContainerLogs(context.Context, string, time.Time, StdType) (io.ReadCloser, error)
 	ContainerEvents(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
 	Ping(context.Context) (types.Ping, error)
 	Host() Host
-	ContainerActions(action ContainerAction, containerID string) error
+	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
 	IsSwarmMode() bool
 	SystemInfo() system.Info
 }
@@ -179,9 +179,9 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 }
 
 // Finds a container by id, skipping the filters
-func (d *httpClient) FindContainer(id string) (Container, error) {
+func (d *httpClient) FindContainer(ctx context.Context, id string) (Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
-	if json, err := d.cli.ContainerInspect(context.Background(), id); err == nil {
+	if json, err := d.cli.ContainerInspect(ctx, id); err == nil {
 		return newContainerFromJSON(json, d.host.ID), nil
 	} else {
 		return Container{}, err
@@ -189,26 +189,26 @@ func (d *httpClient) FindContainer(id string) (Container, error) {
 
 }
 
-func (d *httpClient) ContainerActions(action ContainerAction, containerID string) error {
+func (d *httpClient) ContainerActions(ctx context.Context, action ContainerAction, containerID string) error {
 	switch action {
 	case Start:
-		return d.cli.ContainerStart(context.Background(), containerID, container.StartOptions{})
+		return d.cli.ContainerStart(ctx, containerID, container.StartOptions{})
 	case Stop:
-		return d.cli.ContainerStop(context.Background(), containerID, container.StopOptions{})
+		return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
 	case Restart:
-		return d.cli.ContainerRestart(context.Background(), containerID, container.StopOptions{})
+		return d.cli.ContainerRestart(ctx, containerID, container.StopOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
 }
 
-func (d *httpClient) ListContainers() ([]Container, error) {
+func (d *httpClient) ListContainers(ctx context.Context) ([]Container, error) {
 	log.Debug().Interface("filter", d.filters).Str("host", d.host.Name).Msg("Listing containers")
 	containerListOptions := container.ListOptions{
 		Filters: d.filters,
 		All:     true,
 	}
-	list, err := d.cli.ContainerList(context.Background(), containerListOptions)
+	list, err := d.cli.ContainerList(ctx, containerListOptions)
 	if err != nil {
 		return nil, err
 	}

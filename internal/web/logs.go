@@ -290,7 +290,9 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 				events := make([]*docker.LogEvent, 0)
 				stillRunning := false
 				for _, container := range existingContainers {
+
 					containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+
 					if err != nil {
 						log.Error().Err(err).Msg("error while finding container")
 						return

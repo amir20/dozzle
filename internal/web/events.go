@@ -18,13 +18,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
 	events := make(chan docker.ContainerEvent)
 	stats := make(chan docker.ContainerStat)
 	availableHosts := make(chan docker.Host)
 
-	h.multiHostService.SubscribeEventsAndStats(ctx, events, stats)
-	h.multiHostService.SubscribeAvailableHosts(ctx, availableHosts)
+	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
+	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
 	allContainers, errors := h.multiHostService.ListAllContainers()
 
@@ -63,6 +62,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			case "start", "die", "destroy":
 				if event.Name == "start" {
 					log.Debug().Str("container", event.ActorID).Msg("container started")
+
 					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
@@ -92,7 +92,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
-		case <-ctx.Done():
+		case <-r.Context().Done():
 			return
 		}
 	}

@@ -79,7 +79,7 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 		return err
 	}
 
-	container, err := s.client.FindContainer(in.ContainerId)
+	container, err := s.client.FindContainer(out.Context(), in.ContainerId)
 	if err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
 	}
 
-	err := s.client.ContainerActions(action, in.ContainerId)
+	err := s.client.ContainerActions(ctx, action, in.ContainerId)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

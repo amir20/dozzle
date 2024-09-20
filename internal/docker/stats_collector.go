@@ -88,16 +88,17 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
-	var ctx context.Context
 	sc.mu.Lock()
 	if sc.stopper != nil {
 		sc.mu.Unlock()
 		return false
 	}
+	var ctx context.Context
 	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
-	if containers, err := sc.client.ListContainers(); err == nil {
+	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
+	if containers, err := sc.client.ListContainers(timeoutCtx); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
 				go streamStats(ctx, sc, c.ID)
@@ -106,6 +107,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	} else {
 		log.Error().Str("host", sc.client.Host().Name).Err(err).Msg("failed to list containers")
 	}
+	cancel()
 
 	events := make(chan ContainerEvent)
 

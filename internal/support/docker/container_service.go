@@ -25,6 +25,6 @@ func (c *containerService) StreamLogs(ctx context.Context, from time.Time, stdTy
 	return c.clientService.StreamLogs(ctx, c.Container, from, stdTypes, events)
 }
 
-func (c *containerService) Action(action docker.ContainerAction) error {
-	return c.clientService.ContainerAction(c.Container, action)
+func (c *containerService) Action(ctx context.Context, action docker.ContainerAction) error {
+	return c.clientService.ContainerAction(ctx, c.Container, action)
 }

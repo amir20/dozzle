@@ -3,6 +3,7 @@ package docker_support
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
@@ -24,16 +25,18 @@ type ClientManager interface {
 	List() []ClientService
 	RetryAndList() ([]ClientService, []error)
 	Subscribe(ctx context.Context, channel chan<- docker.Host)
-	Hosts() []docker.Host
+	Hosts(ctx context.Context) []docker.Host
 }
 
 type MultiHostService struct {
 	manager ClientManager
+	timeout time.Duration
 }
 
-func NewMultiHostService(manager ClientManager) *MultiHostService {
+func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
 	m := &MultiHostService{
 		manager: manager,
+		timeout: timeout,
 	}
 
 	return m
@@ -44,8 +47,9 @@ func (m *MultiHostService) FindContainer(host string, id string) (*containerServ
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
 	}
-
-	container, err := client.FindContainer(id)
+	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+	defer cancel()
+	container, err := client.FindContainer(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +65,10 @@ func (m *MultiHostService) ListContainersForHost(host string) ([]docker.Containe
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+	defer cancel()
 
-	return client.ListContainers()
+	return client.ListContainers(ctx)
 }
 
 func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
@@ -70,9 +76,11 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 	clients, errors := m.manager.RetryAndList()
 
 	for _, client := range clients {
-		list, err := client.ListContainers()
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+		defer cancel()
+		list, err := client.ListContainers(ctx)
 		if err != nil {
-			host, _ := client.Host()
+			host, _ := client.Host(ctx)
 			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
 			host.Available = false
 			errors = append(errors, &HostUnavailableError{Host: host, Err: err})
@@ -131,7 +139,9 @@ func (m *MultiHostService) TotalClients() int {
 }
 
 func (m *MultiHostService) Hosts() []docker.Host {
-	return m.manager.Hosts()
+	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+	defer cancel()
+	return m.manager.Hosts(ctx)
 }
 
 func (m *MultiHostService) LocalHost() (docker.Host, error) {

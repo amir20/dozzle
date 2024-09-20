@@ -103,7 +103,9 @@ func main() {
 				if err != nil {
 					log.Fatal().Err(err).Msg("Could not read certificates")
 				}
-				if err := healthcheck.RPCRequest(agentAddress, certs); err != nil {
+				ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
+				defer cancel()
+				if err := healthcheck.RPCRequest(ctx, agentAddress, certs); err != nil {
 					log.Fatal().Err(err).Msg("Failed to make request")
 				}
 			}
@@ -155,8 +157,8 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
-		manager := docker_support.NewSwarmClientManager(localClient, certs)
-		multiHostService = docker_support.NewMultiHostService(manager)
+		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout)
+		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {

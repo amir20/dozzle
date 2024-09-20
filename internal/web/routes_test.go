@@ -23,13 +23,13 @@ type MockedClient struct {
 	docker.Client
 }
 
-func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
-	args := m.Called(id)
+func (m *MockedClient) FindContainer(ctx context.Context, id string) (docker.Container, error) {
+	args := m.Called(ctx, id)
 	return args.Get(0).(docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerActions(action docker.ContainerAction, containerID string) error {
-	args := m.Called(action, containerID)
+func (m *MockedClient) ContainerActions(ctx context.Context, action docker.ContainerAction, containerID string) error {
+	args := m.Called(ctx, action, containerID)
 	return args.Error(0)
 }
 
@@ -38,8 +38,8 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers() ([]docker.Container, error) {
-	args := m.Called()
+func (m *MockedClient) ListContainers(ctx context.Context) ([]docker.Container, error) {
+	args := m.Called(ctx)
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
@@ -73,7 +73,7 @@ func (m *MockedClient) SystemInfo() system.Info {
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
-		client.(*MockedClient).On("ListContainers").Return([]docker.Container{}, nil)
+		client.(*MockedClient).On("ListContainers", mock.Anything).Return([]docker.Container{}, nil)
 		client.(*MockedClient).On("Host").Return(docker.Host{
 			ID: "localhost",
 		})
@@ -86,8 +86,8 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(client))
-	multiHostService := docker_support.NewMultiHostService(manager)
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client))
+	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		multiHostService: multiHostService,
 		content:          content,

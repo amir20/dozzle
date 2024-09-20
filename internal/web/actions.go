@@ -1,7 +1,9 @@
 package web
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/go-chi/chi/v5"
@@ -26,7 +28,9 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := containerService.Action(parsedAction); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := containerService.Action(ctx, parsedAction); err != nil {
 		log.Error().Err(err).Msg("error while trying to perform container action")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

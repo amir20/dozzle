@@ -24,7 +24,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	mockedClient.On("ListContainers").Return([]docker.Container{}, nil)
+	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		messages := args.Get(1).(chan<- docker.ContainerEvent)
 
@@ -42,7 +42,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 		cancel()
 	})
-	mockedClient.On("FindContainer", "1234").Return(docker.Container{
+	mockedClient.On("FindContainer", mock.Anything, "1234").Return(docker.Container{
 		ID:    "1234",
 		Name:  "test",
 		Image: "test",
@@ -54,8 +54,8 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	})
 
 	// This is needed so that the server is initialized for store
-	manager := docker_support.NewRetriableClientManager(nil, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient))
-	multiHostService := docker_support.NewMultiHostService(manager)
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient))
+	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 
 	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 

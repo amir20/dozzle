@@ -31,13 +31,13 @@ type MockedClient struct {
 	docker.Client
 }
 
-func (m *MockedClient) FindContainer(id string) (docker.Container, error) {
-	args := m.Called(id)
+func (m *MockedClient) FindContainer(ctx context.Context, id string) (docker.Container, error) {
+	args := m.Called(ctx, id)
 	return args.Get(0).(docker.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerActions(action docker.ContainerAction, containerID string) error {
-	args := m.Called(action, containerID)
+func (m *MockedClient) ContainerActions(ctx context.Context, action docker.ContainerAction, containerID string) error {
+	args := m.Called(ctx, action, containerID)
 	return args.Error(0)
 }
 
@@ -46,8 +46,8 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers() ([]docker.Container, error) {
-	args := m.Called()
+func (m *MockedClient) ListContainers(ctx context.Context) ([]docker.Container, error) {
+	args := m.Called(ctx)
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
@@ -92,7 +92,7 @@ func init() {
 	}
 
 	client = &MockedClient{}
-	client.On("ListContainers").Return([]docker.Container{
+	client.On("ListContainers", mock.Anything).Return([]docker.Container{
 		{
 			ID:    "123456",
 			Name:  "test",
@@ -111,7 +111,7 @@ func init() {
 		time.Sleep(5 * time.Second)
 	})
 
-	client.On("FindContainer", "123456").Return(docker.Container{
+	client.On("FindContainer", mock.Anything, "123456").Return(docker.Container{
 		ID:      "123456",
 		Name:    "test",
 		Host:    "localhost",
@@ -142,7 +142,7 @@ func TestFindContainer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	container, _ := rpc.FindContainer("123456")
+	container, _ := rpc.FindContainer(context.Background(), "123456")
 
 	assert.Equal(t, container, docker.Container{
 		ID:      "123456",
@@ -167,7 +167,7 @@ func TestListContainers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	containers, _ := rpc.ListContainers()
+	containers, _ := rpc.ListContainers(context.Background())
 
 	assert.Equal(t, containers, []docker.Container{
 		{
