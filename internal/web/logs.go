@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/goccy/go-json"
+	"encoding/json"
 
 	"fmt"
 	"io"

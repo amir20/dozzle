@@ -7,7 +7,7 @@ import (
 	"crypto/x509"
 	"fmt"
 
-	"github.com/goccy/go-json"
+	"encoding/json"
 
 	"time"
 

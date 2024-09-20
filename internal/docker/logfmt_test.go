@@ -1,7 +1,7 @@
 package docker
 
 import (
-	"github.com/goccy/go-json"
+	"encoding/json"
 	"reflect"
 	"testing"
 

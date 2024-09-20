@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goccy/go-json"
+	"encoding/json"
 
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/api/types"
