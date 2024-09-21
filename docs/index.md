@@ -32,9 +32,11 @@ features:
     link: /guide/remote-hosts
     linkText: Learn More
     icon: 🌐
-  - title: No Database Required
-    details: Streams logs directly from Docker, remaining lightweight without extra overhead or complexity.
-    icon: 📦
+  - title: SQL Engine
+    details: Use SQL queries to analyze logs inside your browser with WebAssembly and DuckDB.
+    icon: 📊
+    linkText: Learn More
+    link: /guide/sql-engine
   - title: Secured Agents
     details: Connect to remote hosts securely with agents, providing a more secure way to connect to remote hosts.
     icon: 🔒
