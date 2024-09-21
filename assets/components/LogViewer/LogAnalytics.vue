@@ -19,7 +19,7 @@
           </div>
         </label>
       </section>
-      <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating">
+      <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating && isReady">
         <thead>
           <tr>
             <th v-for="column in columns" :key="column">{{ column }}</th>
@@ -71,21 +71,43 @@ if (!response.ok) {
 }
 
 const { db, conn } = await useDuckDB();
+const empty = await conn.query<Record<string, any>>(`SELECT 1 LIMIT 0`);
 
-await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
+const { isReady } = useAsyncState(
+  async () => {
+    await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
+    await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
+  },
+  undefined,
+  {
+    onError: (e) => {
+      console.error(e);
+      if (e instanceof Error) {
+        error.value = e.message;
+      }
+    },
+  },
+);
 
-await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
-
-const empty = await conn.query<Record<string, any>>(`SELECT * FROM logs LIMIT 0`);
-
-const results = computedAsync(async () => await conn.query<Record<string, any>>(debouncedQuery.value), empty, {
-  onError: (e) => {
-    if (e instanceof Error) {
-      error.value = e.message;
+const results = computedAsync(
+  async () => {
+    if (isReady.value) {
+      return await conn.query<Record<string, any>>(debouncedQuery.value);
+    } else {
+      return empty;
     }
   },
-  evaluating,
-});
+  empty,
+  {
+    onError: (e) => {
+      console.error(e);
+      if (e instanceof Error) {
+        error.value = e.message;
+      }
+    },
+    evaluating,
+  },
+);
 
 whenever(evaluating, () => {
   error.value = null;

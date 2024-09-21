@@ -45,7 +45,7 @@
   <SideDrawer ref="drawer" :width="drawerWidth">
     <Suspense>
       <component :is="drawerComponent" v-bind="drawerProperties" />
-      <template #fallback> Loading... </template>
+      <template #fallback> Loading dependencies... </template>
     </Suspense>
   </SideDrawer>
   <div class="toast toast-end whitespace-normal">
