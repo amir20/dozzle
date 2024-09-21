@@ -13,12 +13,13 @@ https://github.com/user-attachments/assets/66a7b4b2-d6c9-4fca-ab04-aef6cd7c0c31
 
 - Intelligent fuzzy search for container names 🤖
 - Search logs using regex 🔦
+- Search logs using [SQL queries](https://dozzle.dev/guide/sql-engine) 📊
 - Small memory footprint 🏎
 - Split screen for viewing multiple logs
 - Live stats with memory and CPU usage
-- Multi-user authentication with support for proxy forward authorization 🚨
-- Swarm mode support 🐳
-- Agent mode for monitoring multiple Docker hosts 🕵️‍♂️
+- Multi-user [authentication](https://dozzle.dev/guide/authentication) with support for proxy forward authorization 🚨
+- [Swarm](https://dozzle.dev/guide/swarm-mode) mode support 🐳
+- [Agent](https://dozzle.dev/guide/agent) mode for monitoring multiple Docker hosts 🕵️‍♂️
 - Dark mode 🌙
 
 Dozzle has been tested with hundreds of containers. However, it doesn't support offline searching. Products like [Loggly](https://www.loggly.com), [Papertrail](https://papertrailapp.com) or [Kibana](https://www.elastic.co/products/kibana) are more suited for full search capabilities.
