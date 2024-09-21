@@ -76,7 +76,9 @@ const empty = await conn.query<Record<string, any>>(`SELECT 1 LIMIT 0`);
 const { isReady } = useAsyncState(
   async () => {
     await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
-    await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM 'logs.json'`);
+    await conn.query(
+      `CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ignore_errors = true, format = 'newline_delimited')`,
+    );
   },
   undefined,
   {
