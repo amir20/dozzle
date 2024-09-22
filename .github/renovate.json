@@ -2,5 +2,5 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base", "schedule:weekly", "group:allNonMajor", ":automergeMinor"],
   "rangeStrategy": "bump",
-  "ignoreDeps": ["duckdb-wasm"]
+  "ignoreDeps": ["@duckdb/duckdb-wasm"]
 }
