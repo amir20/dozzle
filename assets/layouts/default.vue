@@ -43,7 +43,7 @@
     </form>
   </dialog>
   <SideDrawer ref="drawer" :width="drawerWidth">
-    <Suspense>
+    <Suspense :timeout="0">
       <component :is="drawerComponent" v-bind="drawerProperties" />
       <template #fallback> Loading dependencies... </template>
     </Suspense>
