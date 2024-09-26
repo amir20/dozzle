@@ -122,6 +122,6 @@ whenever(evaluating, () => {
 const columns = computed(() =>
   results.value.numRows > 0 ? Object.keys(results.value.get(0) as Record<string, any>) : [],
 );
-const page = computed(() => (results.value.numRows > 0 ? results.value.slice(0, pageLimit) : []));
+const page = computed(() => (results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value));
 </script>
 <style lang="postcss" scoped></style>
