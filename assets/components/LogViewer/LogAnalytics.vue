@@ -15,7 +15,10 @@
           ></textarea>
           <div class="label">
             <span class="label-text-alt text-error" v-if="error">{{ error }}</span>
-            <span class="label-text-alt" v-else>Total {{ results.numRows }} records</span>
+            <span class="label-text-alt" v-else>
+              Total {{ results.numRows }} records
+              <template v-if="results.numRows > pageLimit">. Showing first {{ page.numRows }}.</template></span
+            >
           </div>
         </label>
       </section>
@@ -58,6 +61,7 @@ const query = ref("SELECT * FROM logs");
 const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
+const pageLimit = 1000;
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
@@ -118,6 +122,6 @@ whenever(evaluating, () => {
 const columns = computed(() =>
   results.value.numRows > 0 ? Object.keys(results.value.get(0) as Record<string, any>) : [],
 );
-const page = computed(() => (results.value.numRows > 0 ? results.value.slice(0, 20) : []));
+const page = computed(() => (results.value.numRows > 0 ? results.value.slice(0, pageLimit) : []));
 </script>
 <style lang="postcss" scoped></style>
