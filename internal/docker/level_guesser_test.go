@@ -41,6 +41,18 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, any]{Key: "level", Value: "info"},
 			),
 		), "info"},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, string]{Key: "severity", Value: "info"},
+			),
+		), "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, any]{Key: "severity", Value: "info"},
+			),
+		), "info"},
 		{nilOrderedMap, ""},
 		{nil, ""},
 	}
