@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@duckdb/duckdb-wasm':
-        specifier: 1.28.1-dev287.0
-        version: 1.28.1-dev287.0
+        specifier: 1.28.1-dev288.0
+        version: 1.28.1-dev288.0
       '@iconify-json/carbon':
         specifier: ^1.2.1
         version: 1.2.1
@@ -380,8 +380,8 @@ packages:
       search-insights:
         optional: true
 
-  '@duckdb/duckdb-wasm@1.28.1-dev287.0':
-    resolution: {integrity: sha512-yt/+iu2N2CIMubtFXY3MZKLLJJumkaKm2jo9ssoHYwAuKNgDLZGj8TvU8CP2f7FZOBMFRmn1CoU66GyIOHteJg==}
+  '@duckdb/duckdb-wasm@1.28.1-dev288.0':
+    resolution: {integrity: sha512-WaaYXsnwSsmCacRDN9uV0TIUOAG/vi5KN29nc789jVqLndUv5l2Ea+6ZljtK7tFFnq3iYqz4htJ9QAAzwROPtQ==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -3693,7 +3693,7 @@ snapshots:
     transitivePeerDependencies:
       - '@algolia/client-search'
 
-  '@duckdb/duckdb-wasm@1.28.1-dev287.0':
+  '@duckdb/duckdb-wasm@1.28.1-dev288.0':
     dependencies:
       apache-arrow: 17.0.0
 
