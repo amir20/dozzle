@@ -15,7 +15,6 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 
 	for i := 0; i < len(log); i++ {
 		char := log[i]
-
 		if isKey {
 			if char == '=' {
 				if i == start {
@@ -48,9 +47,6 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 					inQuotes = true
 					start = i + 1
 				} else if char == ' ' {
-					if i == start {
-						return nil, errors.New("invalid format: value is empty")
-					}
 					value = log[start:i]
 					result.Set(key, value)
 					isKey = true
@@ -74,9 +70,6 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 	if !isKey {
 		if inQuotes {
 			return nil, errors.New("invalid format: unclosed quotes")
-		}
-		if start >= len(log) {
-			return nil, errors.New("invalid format: value is empty")
 		}
 		value = log[start:]
 		result.Set(key, value)

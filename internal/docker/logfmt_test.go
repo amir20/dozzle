@@ -9,7 +9,6 @@ import (
 )
 
 func TestParseLog(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		log     string
@@ -35,10 +34,27 @@ func TestParseLog(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "Invalid log with key without value",
-			log:     "key1=value1 key2=",
-			want:    nil,
-			wantErr: true,
+			name: "Valid log with key and trailing no value",
+			log:  "key1=value1 key2=",
+			want: orderedmap.New[string, string](
+				orderedmap.WithInitialData(
+					orderedmap.Pair[string, string]{Key: "key1", Value: "value1"},
+					orderedmap.Pair[string, string]{Key: "key2", Value: ""},
+				),
+			),
+			wantErr: false,
+		},
+		{
+			name: "Valid log with key and no values",
+			log:  "key1=value1 key2= key3=bar",
+			want: orderedmap.New[string, string](
+				orderedmap.WithInitialData(
+					orderedmap.Pair[string, string]{Key: "key1", Value: "value1"},
+					orderedmap.Pair[string, string]{Key: "key2", Value: ""},
+					orderedmap.Pair[string, string]{Key: "key3", Value: "bar"},
+				),
+			),
+			wantErr: false,
 		},
 		{
 			name: "Valid log",
