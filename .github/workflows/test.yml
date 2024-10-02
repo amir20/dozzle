@@ -74,8 +74,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create fake assets
-        run: make fake_assets
+      - name: Generate dependencies
+        run: make fake_assets shared_key.pem shared_cert.pem
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.1
         with:
