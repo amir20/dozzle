@@ -90,3 +90,7 @@ time="2024-07-10T13:35:53Z" level=warning msg="duplicate host ID: *********, End
 Dozzle uses the Docker API to gather information about the hosts. Each host must have a unique ID. This ID is used to identify the host in the UI. In swarm mode, Dozzle uses the node ID from `docker systen info` to identify the host. If you are not using swarm mode, then Dozzle will use the system ID from `docker system info` as the host ID.
 
 Somettimes, VMs maybe restored from back ups, with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
+
+## I can't see logs crashed/stopped containers?
+
+You can toggle on show all containers in Settings > Options > Show stopped containers.
