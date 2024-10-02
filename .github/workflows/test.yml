@@ -72,9 +72,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Go Staticcheck
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Create fake assets
         run: make fake_assets
       - name: Stactic checker
