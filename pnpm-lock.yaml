@@ -21,8 +21,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       '@iconify-json/material-symbols':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/mdi':
         specifier: ^1.2.0
         version: 1.2.0
@@ -81,8 +81,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       daisyui:
-        specifier: ^4.12.10
-        version: 4.12.10(postcss@8.4.47)
+        specifier: ^4.12.11
+        version: 4.12.11(postcss@8.4.47)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -96,8 +96,8 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8
       pinia:
-        specifier: ^2.2.3
-        version: 2.2.3(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2))
+        specifier: ^2.2.4
+        version: 2.2.4(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2))
       postcss:
         specifier: ^8.4.47
         version: 8.4.47
@@ -152,7 +152,7 @@ importers:
     devDependencies:
       '@pinia/testing':
         specifier: ^0.1.6
-        version: 0.1.6(pinia@2.2.3(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)))(vue@3.5.10(typescript@5.6.2))
+        version: 0.1.6(pinia@2.2.4(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)))(vue@3.5.10(typescript@5.6.2))
       '@playwright/test':
         specifier: ^1.47.2
         version: 1.47.2
@@ -712,8 +712,8 @@ packages:
   '@iconify-json/ic@1.2.0':
     resolution: {integrity: sha512-L4+m77xTQB08X3I+3xs1+IrvK+aNcuN/7ODu5aUPznHKLU+/8UYcsjUgNHze6vPOGPQ0AG+kCwvy91EYPXSRxw==}
 
-  '@iconify-json/material-symbols@1.2.1':
-    resolution: {integrity: sha512-r9yaBzlUmN87aCTSoCNtDCd7R9F0iVDjNPL9QHHhm1WglFJvTUKx9iBC5xcZpP0qN0bg9R5FkM90CndWxEBAnw==}
+  '@iconify-json/material-symbols@1.2.2':
+    resolution: {integrity: sha512-IDVSCt44kaiKIT9C32t/KLOCk7wR7HbLTsVDHdT477dYyp13gsmH6ovd1zN+Ir3x/FPW07e17HJt6BVn0hw7/g==}
 
   '@iconify-json/mdi-light@1.2.0':
     resolution: {integrity: sha512-nB/0xt/KxKwsaRbydDXI4mJLYDsTNWbNGopzj7E4G0r112vZ/0wd7frbrbCBWfoCGKMA5wyd0VUa3ciexjwjFA==}
@@ -1780,8 +1780,8 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
 
-  daisyui@4.12.10:
-    resolution: {integrity: sha512-jp1RAuzbHhGdXmn957Z2XsTZStXGHzFfF0FgIOZj3Wv9sH7OZgLfXTRZNfKVYxltGUOBsG1kbWAdF5SrqjebvA==}
+  daisyui@4.12.11:
+    resolution: {integrity: sha512-D9OJTlnU1ATiDsKkw5/TB0997Hm73zu9SFeUTthDtKd06OEJQlOLoYrGXlP2YhHZDW4VAcQnmhEphTgPFUYqSw==}
     engines: {node: '>=16.9.0'}
 
   data-urls@5.0.0:
@@ -2633,8 +2633,8 @@ packages:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
 
-  pinia@2.2.3:
-    resolution: {integrity: sha512-t2X9y1FT0h5zHmi9PsVr0LMNC0DXdPiYxX6zM5IyZHoWFjLq/LGpM1OVpGhXTPHjUh0XaFlsQd3GvPvGGNLQnw==}
+  pinia@2.2.4:
+    resolution: {integrity: sha512-K7ZhpMY9iJ9ShTC0cR2+PnxdQRuwVIsXDO/WIEV/RnMC/vmSoKDTKW/exNQYPI+4ij10UjXqdNiEHwn47McANQ==}
     peerDependencies:
       '@vue/composition-api': ^1.4.0
       typescript: '>=4.4.4'
@@ -3888,7 +3888,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.1':
+  '@iconify-json/material-symbols@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4046,9 +4046,9 @@ snapshots:
 
   '@one-ini/wasm@0.1.1': {}
 
-  '@pinia/testing@0.1.6(pinia@2.2.3(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)))(vue@3.5.10(typescript@5.6.2))':
+  '@pinia/testing@0.1.6(pinia@2.2.4(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)))(vue@3.5.10(typescript@5.6.2))':
     dependencies:
-      pinia: 2.2.3(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2))
+      pinia: 2.2.4(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2))
       vue-demi: 0.14.10(vue@3.5.10(typescript@5.6.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -5148,11 +5148,11 @@ snapshots:
       d3-selection: 3.0.0
       d3-timer: 3.0.1
 
-  daisyui@4.12.10(postcss@8.4.47):
+  daisyui@4.12.11(postcss@8.4.47):
     dependencies:
       css-selector-tokenizer: 0.8.0
       culori: 3.3.0
-      picocolors: 1.0.1
+      picocolors: 1.1.0
       postcss-js: 4.0.1(postcss@8.4.47)
     transitivePeerDependencies:
       - postcss
@@ -6001,7 +6001,7 @@ snapshots:
 
   pify@2.3.0: {}
 
-  pinia@2.2.3(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)):
+  pinia@2.2.4(typescript@5.6.2)(vue@3.5.10(typescript@5.6.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.10(typescript@5.6.2)
