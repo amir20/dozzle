@@ -68,10 +68,18 @@ jobs:
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
       - name: Run Go Tests with Coverage
         run: make test
+  staticcheck:
+    runs-on: ubuntu-latest
+    name: Go Staticcheck
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate dependencies
+        run: make fake_assets shared_key.pem shared_cert.pem
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.1
         with:
-          install-go: false
+          version: "latest"
   int-test:
     name: Integration Tests
     timeout-minutes: 60
