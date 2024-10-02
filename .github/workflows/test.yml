@@ -75,6 +75,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+      - name: Create fake assets
+        run: make fake_assets
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.1
         with:
