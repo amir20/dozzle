@@ -49,7 +49,7 @@ docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.s
 ```
 
 > [!TIP]
-> Using `CONTAINERS=1` is required to list running containers. `EVENTS` is also needed but it is enabled by default. `INFO=1` is optional but it will provide more information on host meta data.
+> Using `CONTAINERS=1` is required to list running containers. `EVENTS` is also needed but it is enabled by default. `INFO=1` is needed to list system information.
 
 Running Dozzle without any certs should work. Here is an example:
 
