@@ -141,6 +141,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	levels := make(map[string]struct{})
+	if r.URL.Query().Has("levels") {
+		for _, level := range strings.Split(r.URL.Query().Get("levels"), ",") {
+			levels[level] = struct{}{}
+		}
+	} else {
+		levels = docker.SupportedLogLevels
+	}
+
 	encoder := json.NewEncoder(w)
 	for {
 		if buffer.Len() > minimum {
@@ -157,25 +166,30 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		}
 
 		for event := range events {
-			if regex != nil {
-				if search.Search(regex, event) {
-					buffer.Push(event)
+			if everything {
+				if err := encoder.Encode(event); err != nil {
+					log.Error().Err(err).Msg("error encoding log event")
 				}
-			} else {
-				if onlyComplex {
-					if _, ok := event.Message.(string); ok {
-						continue
-					}
-				}
+				continue
+			}
 
-				if everything {
-					if err := encoder.Encode(event); err != nil {
-						log.Error().Err(err).Msg("error encoding log event")
-					}
-				} else {
-					buffer.Push(event)
+			if onlyComplex {
+				if _, ok := event.Message.(string); ok {
+					continue
 				}
 			}
+
+			if regex != nil {
+				if !search.Search(regex, event) {
+					continue
+				}
+			}
+
+			if _, ok := levels[event.Level]; !ok {
+				continue
+			}
+
+			buffer.Push(event)
 		}
 
 		if everything || from.Before(containerService.Container.Created) {
@@ -272,6 +286,15 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	events := make(chan *docker.ContainerEvent, 1)
 	backfill := make(chan []*docker.LogEvent)
 
+	levels := make(map[string]struct{})
+	if r.URL.Query().Has("levels") {
+		for _, level := range strings.Split(r.URL.Query().Get("levels"), ",") {
+			levels[level] = struct{}{}
+		}
+	} else {
+		levels = docker.SupportedLogLevels
+	}
+
 	if r.URL.Query().Has("filter") {
 		var err error
 		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
@@ -309,6 +332,9 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 					}
 
 					for log := range logs {
+						if _, ok := levels[log.Level]; !ok {
+							continue
+						}
 						if search.Search(regex, log) {
 							events = append(events, log)
 						}
@@ -368,6 +394,10 @@ loop:
 				if !search.Search(regex, logEvent) {
 					continue
 				}
+			}
+
+			if _, ok := levels[logEvent.Level]; !ok {
+				continue
 			}
 			sseWriter.Message(logEvent)
 		case container := <-newContainers:
