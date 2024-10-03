@@ -9,6 +9,8 @@ import (
 )
 
 var SupportedLogLevels map[string]struct{}
+
+// Changing this also needs to change the logContext.ts file
 var logLevels = []string{"error", "warn", "warning", "info", "debug", "trace", "severe", "critical", "fatal"}
 var plainLevels = map[string]*regexp.Regexp{}
 var bracketLevels = map[string]*regexp.Regexp{}
@@ -50,9 +52,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 			}
 		}
 
+		return "unknown"
+
 	case *orderedmap.OrderedMap[string, any]:
 		if value == nil {
-			return ""
+			return "unknown"
 		}
 		if level, ok := value.Get("level"); ok {
 			if level, ok := level.(string); ok {
@@ -66,7 +70,7 @@ func guessLogLevel(logEvent *LogEvent) string {
 
 	case *orderedmap.OrderedMap[string, string]:
 		if value == nil {
-			return ""
+			return "unknown"
 		}
 		if level, ok := value.Get("level"); ok {
 			return strings.ToLower(level)
