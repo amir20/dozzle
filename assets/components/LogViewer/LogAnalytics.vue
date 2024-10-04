@@ -12,7 +12,8 @@
             v-model="query"
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
-          ></textarea>
+          >
+          </textarea>
           <div class="label">
             <span class="label-text-alt text-error" v-if="error">{{ error }}</span>
             <span class="label-text-alt" v-else>
@@ -22,52 +23,20 @@
           </div>
         </label>
       </section>
-
-      <DefineTable>
-        <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating && isReady">
-          <thead>
-            <tr>
-              <th v-for="column in columns" :key="column">{{ column }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in page" :key="row">
-              <td v-for="column in columns" :key="column">{{ row[column] }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <table class="table table-md animate-pulse" v-else>
-          <thead>
-            <tr>
-              <th v-for="_ in 3">
-                <div class="h-4 w-20 animate-pulse bg-base-content/50 opacity-50"></div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="_ in 9">
-              <td v-for="_ in 3">
-                <div class="h-4 w-20 bg-base-content/50 opacity-20"></div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </DefineTable>
-      <UseTable />
+      <SQLTable :table="page" :loading="evaluating || !isReady" />
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
+
 const { container } = defineProps<{ container: Container }>();
 const query = ref("SELECT * FROM logs");
 const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
 const pageLimit = 1000;
-
-const [DefineTable, UseTable] = createReusableTemplate();
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
@@ -121,13 +90,7 @@ const results = computedAsync(
   },
 );
 
-whenever(evaluating, () => {
-  error.value = null;
-});
-
-const columns = computed(() =>
-  results.value.numRows > 0 ? Object.keys(results.value.get(0) as Record<string, any>) : [],
-);
+whenever(evaluating, () => (error.value = null));
 const page = computed(() => (results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value));
 </script>
 <style lang="postcss" scoped></style>
