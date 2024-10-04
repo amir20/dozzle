@@ -77,8 +77,10 @@ func rpcErrToErr(err error) error {
 		return fmt.Errorf("deadline exceeded: %v with %w", status.Message(), context.DeadlineExceeded)
 	case codes.Unknown:
 		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
+	case codes.OK:
+		return nil
 	default:
-		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
+		return fmt.Errorf("unknown code: %v with %w", status.Code(), err)
 	}
 }
 
