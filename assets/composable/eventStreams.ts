@@ -107,20 +107,17 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 
   const params = computed(() => {
-    const params = Object.entries(toValue(streamConfig))
-      .filter(([, value]) => value)
-      .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
-
-    if (isSearching.value) {
-      params["filter"] = debouncedSearchFilter.value;
+    const params = new URLSearchParams();
+    if (streamConfig.value.stdout) params.append("stdout", "1");
+    if (streamConfig.value.stderr) params.append("stderr", "1");
+    if (isSearching.value) params.append("filter", debouncedSearchFilter.value);
+    for (const level of levels.value) {
+      params.append("levels", level);
     }
-
-    params["levels"] = [...levels.value].join(",");
-
     return params;
   });
 
-  const urlWithParams = computed(() => withBase(`${url.value}?${new URLSearchParams(params.value).toString()}`));
+  const urlWithParams = computed(() => withBase(`${url.value}?${params.value.toString()}`));
 
   function connect({ clear } = { clear: true }) {
     close();
@@ -172,10 +169,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const signal = abortController.signal;
     isLoadingMore.value = true;
     try {
-      const moreParams = { ...params.value, from: from.toISOString(), to: to.toISOString(), minimum: "100" };
-      const urlWithMoreParams = computed(() =>
-        withBase(`${loadMoreUrl.value}?${new URLSearchParams(moreParams).toString()}`),
-      );
+      const urlWithMoreParams = computed(() => {
+        const loadMoreParams = new URLSearchParams(params.value);
+        loadMoreParams.append("from", from.toISOString());
+        loadMoreParams.append("to", to.toISOString());
+        loadMoreParams.append("minimum", "100");
+
+        return withBase(`${loadMoreUrl.value}?${loadMoreParams.toString()}`);
+      });
       const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
       const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
       stopWatcher();
