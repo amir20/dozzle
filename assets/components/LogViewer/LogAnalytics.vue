@@ -12,8 +12,7 @@
             v-model="query"
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
-          >
-          </textarea>
+          ></textarea>
           <div class="label">
             <span class="label-text-alt text-error" v-if="error">{{ error }}</span>
             <span class="label-text-alt" v-else>
@@ -30,7 +29,7 @@
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
-
+import { Table } from "@apache-arrow/ts";
 const { container } = defineProps<{ container: Container }>();
 const query = ref("SELECT * FROM logs");
 const error = ref<string | null>(null);
@@ -91,6 +90,8 @@ const results = computedAsync(
 );
 
 whenever(evaluating, () => (error.value = null));
-const page = computed(() => (results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value));
+const page = computed(() =>
+  results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value,
+) as unknown as ComputedRef<Table<Record<string, any>>>;
 </script>
 <style lang="postcss" scoped></style>

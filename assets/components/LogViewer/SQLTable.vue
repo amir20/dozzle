@@ -33,7 +33,7 @@ import { Table } from "@apache-arrow/ts";
 
 const { loading, table } = defineProps<{
   loading: boolean;
-  table: Table;
+  table: Table<Record<string, any>>;
 }>();
 
 const columns = computed(() => (table.numRows > 0 ? Object.keys(table.get(0) as Record<string, any>) : []));
