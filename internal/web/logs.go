@@ -143,7 +143,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	levels := make(map[string]struct{})
 	if r.URL.Query().Has("levels") {
-		for _, level := range strings.Split(r.URL.Query().Get("levels"), ",") {
+		for _, level := range r.URL.Query()["levels"] {
 			levels[level] = struct{}{}
 		}
 	} else {
@@ -288,7 +288,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 
 	levels := make(map[string]struct{})
 	if r.URL.Query().Has("levels") {
-		for _, level := range strings.Split(r.URL.Query().Get("levels"), ",") {
+		for _, level := range r.URL.Query()["levels"] {
 			levels[level] = struct{}{}
 		}
 	} else {
