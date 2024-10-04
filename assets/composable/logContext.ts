@@ -1,11 +1,25 @@
 import { Container } from "@/models/Container";
+import { Level } from "@/models/LogEntry";
 
 type LogContext = {
   streamConfig: { stdout: boolean; stderr: boolean };
   containers: Container[];
   loadingMore: boolean;
   hasComplexLogs: boolean;
+  levels: Set<Level>;
 };
+
+export const allLevels: Level[] = [
+  "info",
+  "debug",
+  "warn",
+  "error",
+  "fatal",
+  "trace",
+  "warning",
+  "critical",
+  "unknown",
+];
 
 // export for testing
 export const loggingContextKey = Symbol("loggingContext") as InjectionKey<LogContext>;
@@ -21,6 +35,7 @@ export const provideLoggingContext = (containers: Ref<Container[]>) => {
       containers,
       loadingMore: false,
       hasComplexLogs: false,
+      levels: new Set<Level>(allLevels),
     }),
   );
 };
@@ -33,6 +48,7 @@ export const useLoggingContext = () => {
       containers: [],
       loadingMore: false,
       hasComplexLogs: false,
+      levels: new Set<Level>(allLevels),
     }),
   );
 

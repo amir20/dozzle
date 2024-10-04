@@ -11,6 +11,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { default as Component } from "./EventSource.vue";
 import LogViewer from "@/components/LogViewer/LogViewer.vue";
 import { Container } from "@/models/Container";
+import { Level } from "@/models/LogEntry";
 
 vi.mock("@/stores/config", () => ({
   __esModule: true,
@@ -82,6 +83,7 @@ describe("<ContainerEventSource />", () => {
             containers: computed(() => [{ id: "abc", image: "test:v123", host: "localhost" }]),
             streamConfig: reactive({ stdout: true, stderr: true }),
             hasComplexLogs: ref(false),
+            levels: new Set<Level>(["info"]),
           },
         },
       },
@@ -97,7 +99,7 @@ describe("<ContainerEventSource />", () => {
     });
   }
 
-  const sourceUrl = "/api/hosts/localhost/containers/abc/logs/stream?stdout=1&stderr=1";
+  const sourceUrl = "/api/hosts/localhost/containers/abc/logs/stream?stdout=1&stderr=1&levels=info";
 
   test("renders loading correctly", async () => {
     const wrapper = createLogEventSource();

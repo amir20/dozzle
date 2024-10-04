@@ -104,7 +104,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     buffer.value = [];
   }
 
-  const { streamConfig, hasComplexLogs } = useLoggingContext();
+  const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 
   const params = computed(() => {
     const params = Object.entries(toValue(streamConfig))
@@ -114,6 +114,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     if (isSearching.value) {
       params["filter"] = debouncedSearchFilter.value;
     }
+
+    params["levels"] = [...levels.value].join(",");
 
     return params;
   });
@@ -194,7 +196,11 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   onScopeDispose(() => close());
 
-  watch(messages, () => (hasComplexLogs.value = messages.value.some((m) => m instanceof ComplexLogEntry)));
+  watch(messages, () => {
+    if (messages.value.length > 1) {
+      hasComplexLogs.value = messages.value.some((m) => m instanceof ComplexLogEntry);
+    }
+  });
 
   return { messages, loadOlderLogs, isLoadingMore, hasComplexLogs };
 }
