@@ -22,34 +22,38 @@
           </div>
         </label>
       </section>
-      <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating && isReady">
-        <thead>
-          <tr>
-            <th v-for="column in columns" :key="column">{{ column }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in page" :key="row">
-            <td v-for="column in columns" :key="column">{{ row[column] }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <table class="table table-md animate-pulse" v-else>
-        <thead>
-          <tr>
-            <th v-for="_ in 3">
-              <div class="h-4 w-20 animate-pulse bg-base-content/50 opacity-50"></div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="_ in 9">
-            <td v-for="_ in 3">
-              <div class="h-4 w-20 bg-base-content/50 opacity-20"></div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+
+      <DefineTable>
+        <table class="table table-zebra table-pin-rows table-md" v-if="!evaluating && isReady">
+          <thead>
+            <tr>
+              <th v-for="column in columns" :key="column">{{ column }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in page" :key="row">
+              <td v-for="column in columns" :key="column">{{ row[column] }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-md animate-pulse" v-else>
+          <thead>
+            <tr>
+              <th v-for="_ in 3">
+                <div class="h-4 w-20 animate-pulse bg-base-content/50 opacity-50"></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="_ in 9">
+              <td v-for="_ in 3">
+                <div class="h-4 w-20 bg-base-content/50 opacity-20"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </DefineTable>
+      <UseTable />
     </div>
   </aside>
 </template>
@@ -62,6 +66,8 @@ const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
 const pageLimit = 1000;
+
+const [DefineTable, UseTable] = createReusableTemplate();
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
