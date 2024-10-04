@@ -232,6 +232,16 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 		authorizer = auth.NewSimpleAuth(db)
 	}
 
+	authTTL := time.Duration(0)
+
+	if args.AuthTTL != "session" {
+		ttl, err := time.ParseDuration(args.AuthTTL)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not parse auth ttl")
+		}
+		authTTL = ttl
+	}
+
 	config := web.Config{
 		Addr:        args.Addr,
 		Base:        args.Base,
@@ -242,6 +252,7 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 		Authorization: web.Authorization{
 			Provider:   provider,
 			Authorizer: authorizer,
+			TTL:        authTTL,
 		},
 		EnableActions: args.EnableActions,
 	}
