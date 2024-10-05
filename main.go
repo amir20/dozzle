@@ -229,7 +229,14 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 		}
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
-		authorizer = auth.NewSimpleAuth(db)
+		ttl := time.Duration(0)
+		if args.AuthTTL != "session" {
+			ttl, err = time.ParseDuration(args.AuthTTL)
+			if err != nil {
+				log.Fatal().Err(err).Msg("Could not parse auth ttl")
+			}
+		}
+		authorizer = auth.NewSimpleAuth(db, ttl)
 	}
 
 	authTTL := time.Duration(0)

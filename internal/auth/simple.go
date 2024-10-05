@@ -12,11 +12,12 @@ import (
 type simpleAuthContext struct {
 	UserDatabase UserDatabase
 	tokenAuth    *jwtauth.JWTAuth
+	ttl          time.Duration
 }
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
-func NewSimpleAuth(userDatabase UserDatabase) *simpleAuthContext {
+func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthContext {
 	h := sha256.New()
 	for _, user := range userDatabase.Users {
 		h.Write([]byte(user.Password))
@@ -27,6 +28,7 @@ func NewSimpleAuth(userDatabase UserDatabase) *simpleAuthContext {
 	return &simpleAuthContext{
 		UserDatabase: userDatabase,
 		tokenAuth:    tokenAuth,
+		ttl:          ttl,
 	}
 }
 
@@ -36,7 +38,14 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 		return "", ErrInvalidCredentials
 	}
 
-	_, tokenString, err := a.tokenAuth.Encode(map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name, "timestamp": time.Now()})
+	claims := map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name}
+	jwtauth.SetIssuedNow(claims)
+
+	if a.ttl > 0 {
+		jwtauth.SetExpiryIn(claims, a.ttl)
+	}
+
+	_, tokenString, err := a.tokenAuth.Encode(claims)
 	if err != nil {
 		return "", err
 	}
