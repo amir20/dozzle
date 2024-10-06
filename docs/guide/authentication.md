@@ -62,6 +62,34 @@ users:
 
 Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
 
+### Extending Authentication Cookie Lifetime
+
+By default, Dozzle uses session cookies which expire when the browser is closed. You can extend the lifetime of the cookie by setting `--auth-ttl` to a duration. Here is an example:
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-ttl 48h
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_TTL: 48h
+```
+
+:::
+
+Note that only the duration is supported. You can only use `s`, `m`, `h` for seconds, minutes and hours respectively.
+
 ## Generating users.yml
 
 Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
