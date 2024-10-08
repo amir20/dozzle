@@ -9,7 +9,17 @@ export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue
 export type JSONObject = { [x: string]: JSONValue };
 export type Position = "start" | "end" | "middle" | undefined;
 export type Std = "stdout" | "stderr";
-export type Level = "debug" | "info" | "warn" | "error" | "fatal" | "trace" | "unknown";
+export type Level =
+  | "error"
+  | "warn"
+  | "warning"
+  | "info"
+  | "debug"
+  | "trace"
+  | "severe"
+  | "critical"
+  | "fatal"
+  | "unknown";
 export interface LogEvent {
   readonly m: string | JSONObject;
   readonly ts: number;

@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown dropdown-end dropdown-hover">
-    <label tabindex="0" class="btn btn-ghost btn-sm gap-0.5 px-2">
+    <label tabindex="0" class="btn btn-ghost btn-sm w-10 gap-0.5 px-2">
       <carbon:circle-solid class="w-2.5 text-red" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="w-2.5 text-blue" v-if="streamConfig.stdout" />
     </label>
@@ -28,46 +28,73 @@
       </li>
       <li class="line"></li>
       <li>
-        <a
-          @click="
-            streamConfig.stdout = true;
-            streamConfig.stderr = true;
-          "
-        >
-          <div class="flex size-4 gap-0.5">
-            <template v-if="streamConfig.stderr && streamConfig.stdout">
-              <carbon:circle-solid class="w-2 text-red" />
-              <carbon:circle-solid class="w-2 text-blue" />
-            </template>
-          </div>
-          {{ $t("toolbar.show-all") }}
-        </a>
+        <details>
+          <summary>
+            <div class="flex w-4">
+              <carbon:circle-solid class="w-2.5 text-red" v-if="streamConfig.stderr" />
+              <carbon:circle-solid class="w-2.5 text-blue" v-if="streamConfig.stdout" />
+            </div>
+            Streams
+          </summary>
+          <ul class="menu">
+            <li>
+              <a
+                @click="
+                  streamConfig.stdout = true;
+                  streamConfig.stderr = true;
+                "
+              >
+                <mdi:check class="w-4" v-if="streamConfig.stdout == true && streamConfig.stderr == true" />
+                <div v-else class="w-4"></div>
+                {{ $t("toolbar.show-all") }}
+              </a>
+            </li>
+            <li>
+              <a
+                @click="
+                  streamConfig.stdout = true;
+                  streamConfig.stderr = false;
+                "
+              >
+                <mdi:check class="w-4" v-if="streamConfig.stdout == true && streamConfig.stderr == false" />
+                <div v-else class="w-4"></div>
+                {{ $t("toolbar.show", { std: "STDOUT" }) }}
+              </a>
+            </li>
+            <li>
+              <a
+                @click="
+                  streamConfig.stdout = false;
+                  streamConfig.stderr = true;
+                "
+              >
+                <mdi:check class="w-4" v-if="streamConfig.stdout == false && streamConfig.stderr == true" />
+                <div v-else class="w-4"></div>
+                {{ $t("toolbar.show", { std: "STDERR" }) }}
+              </a>
+            </li>
+          </ul>
+        </details>
       </li>
       <li>
-        <a
-          @click="
-            streamConfig.stdout = true;
-            streamConfig.stderr = false;
-          "
-        >
-          <div class="flex size-4 flex-col gap-1">
-            <carbon:circle-solid class="w-2 text-blue" v-if="!streamConfig.stderr && streamConfig.stdout" />
-          </div>
-          {{ $t("toolbar.show", { std: "STDOUT" }) }}
-        </a>
-      </li>
-      <li>
-        <a
-          @click="
-            streamConfig.stdout = false;
-            streamConfig.stderr = true;
-          "
-        >
-          <div class="flex size-4 flex-col gap-1">
-            <carbon:circle-solid class="w-2 text-red" v-if="streamConfig.stderr && !streamConfig.stdout" />
-          </div>
-          {{ $t("toolbar.show", { std: "STDERR" }) }}
-        </a>
+        <details>
+          <summary>
+            <mdi:gauge />
+            Levels
+          </summary>
+          <ul class="menu">
+            <li v-for="level in allLevels">
+              <a class="capitalize" @click="levels.has(level) ? levels.delete(level) : levels.add(level)">
+                <mdi:check class="w-4" v-if="levels.has(level)" />
+                <div v-else class="w-4"></div>
+
+                <div class="flex">
+                  <div class="badge" :data-level="level">{{ level }}</div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </details>
       </li>
 
       <!-- Container Actions (Enabled via config) -->
@@ -108,11 +135,12 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import { allLevels } from "@/composable/logContext";
 import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
-const { streamConfig, hasComplexLogs } = useLoggingContext();
+const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();
 
 const { container } = defineProps<{ container: Container }>();
@@ -150,5 +178,12 @@ li.line {
 
 a {
   @apply whitespace-nowrap;
+}
+
+.menu li ul {
+  margin-inline-start: 0;
+  &:before {
+    display: none;
+  }
 }
 </style>

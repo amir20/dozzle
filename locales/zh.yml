@@ -4,16 +4,14 @@ toolbar:
   search: 搜索
   show: 显示 {std}
   show-all: 显示全部
+  stop: 停止
+  start: 启动
+  restart: 重启
 label:
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
   running-containers: 运行中的容器
   all-containers: 所有容器
-  total-containers: 所有容器
-  running: 运行中
-  total-cpu-usage: 所有CPU使用率
-  total-mem-usage: 所有内存使用率
-  dozzle-version: Dozzle版本
   all: 全部
   host: 主机
   hosts: 主机
@@ -72,15 +70,13 @@ placeholder:
   search: 搜索
 settings:
   display: 显示
-  locale: 覆盖语言
+  locale: 显示语言
   small-scrollbars: 使用较小的滚动条
   show-timesamps: 显示时间戳
   soft-wrap: 断行
-  12-24-format: >-
-    默认情况下，Dozzle将使用您的浏览器区域设置来格式化时间。系统支持12或24小时制。
+  datetime-format: 自定义日期和时间格式
   font-size: 字体大小
   color-scheme: 颜色方案
-  datetime-format: 覆盖日期和时间格式
   options: 选项
   show-stopped-containers: 显示已停止的容器
   about: 关于
@@ -91,6 +87,15 @@ settings:
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式
+  log:
+    preview: 这是默认日志样式
+    warning: 警告日志看起来像这样
+    complex: 这是一个复杂的JSON格式日志
+    simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+    multi-line-error: 
+      start-line: 这是一个多行错误消息
+      middle-line: 带有第二行
+      end-line: 最后是第三行
 releases:
   features: 一个新功能 | {count} 个新功能
   bugFixes: 一个错误修复 | {count} 个修复
@@ -100,15 +105,8 @@ releases:
   latest: 最新
   no_releases: 您拥有最新版本
 log_actions:
-  copy_log: 复制日志
-  warning: 警告日志看起来像这样
-  complex: 这是一个复杂的JSON格式日志
-  simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+  copy_log: 复制日志 
   jump_to_context: 跳转到上下文
-  multi-line-error: 
-    start-line: 这是一个多行错误消息
-    middle-line: 带有第二行
-    end-line: 最后是第三行
 toasts:
   copied:
     title: 已复制

@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -61,13 +62,17 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 }
 
 func rpcErrToErr(err error) error {
+	if err == nil {
+		return nil
+	}
+
 	status, ok := status.FromError(err)
 	if !ok {
 		return err
 	}
 
 	if status.Code() == codes.Unknown && status.Message() == "EOF" {
-		return fmt.Errorf("found EOF while streaming logs: %w", io.EOF)
+		return fmt.Errorf("EOF error while converting gRPC to error: %w", io.EOF)
 	}
 
 	switch status.Code() {
@@ -77,8 +82,10 @@ func rpcErrToErr(err error) error {
 		return fmt.Errorf("deadline exceeded: %v with %w", status.Message(), context.DeadlineExceeded)
 	case codes.Unknown:
 		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
+	case codes.OK:
+		return nil
 	default:
-		return fmt.Errorf("unknown error: %v with %w", status.Message(), err)
+		return fmt.Errorf("unknown code: %v with %w", status.Code(), err)
 	}
 }
 
@@ -174,9 +181,10 @@ func (c *Client) StreamRawBytes(ctx context.Context, containerID string, since t
 		defer w.Close()
 		for {
 			resp, err := out.Recv()
-			err = rpcErrToErr(err)
 			if err != nil {
-				if err == io.EOF || err == context.Canceled {
+				err = rpcErrToErr(err)
+				e := errors.Unwrap(err)
+				if e == io.EOF || e == context.Canceled {
 					return
 				} else {
 					log.Error().Err(err).Msg("agent client: failed to receive raw bytes")

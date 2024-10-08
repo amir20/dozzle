@@ -18,16 +18,16 @@ The content of the file looks like:
 users:
   # "admin" here is username
   admin:
-    name: "Admin"
-    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
-    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
     email: me@email.net
+    name: Admin
+    # Generate with docker run amir20/dozzle generate --name Admin --email me@email.net --password secret admin
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
 ```
 
-> [!TIP]
-> This file can be generated with `docker run amir20/dozzle generate` with v6.6.x. See [below](#generating-users-yml) for more details.
+Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `bcrypt` which can be generated using `docker run amir20/dozzle generate`.
 
-Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `sha256` which can be generated with `echo -n 'secret-password' | shasum -a 256` or `echo -n 'secret-password' | sha256sum` on linux.
+> [!WARNING]
+> In previous versions of Dozzle, SHA-256 was used to hash passwords. Bcrypt is now more secure and is recommended for future use. Dozzle will revert to SHA-256 if it does not find a bcrypt hash. It is advisable to update the password hash to bcrypt using `docker run amir20/dozzle generate`. For more details, see [this issue](https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35).
 
 You will need to mount this file for Dozzle to find it. Here is an example:
 
@@ -52,21 +52,47 @@ services:
 
 ```yaml [users.yml]
 users:
-  # "admin" here is username
   admin:
-    name: "Admin"
-    # Just sha-256 which can be computed with "echo -n password | shasum -a 256"
-    password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
     email: me@email.net
+    name: Admin
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
 ```
 
 :::
 
 Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
 
-## Generating users.yml <Badge type="tip" text="v6.6.x" />
+### Extending Authentication Cookie Lifetime
 
-Starting with version `v6.6.x`, Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
+By default, Dozzle uses session cookies which expire when the browser is closed. You can extend the lifetime of the cookie by setting `--auth-ttl` to a duration. Here is an example:
+
+::: code-group
+
+```sh [cli]
+$ docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/dozzle/data:/data -p 8080:8080 amir20/dozzle --auth-provider simple --auth-ttl 48h
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/dozzle/data:/data
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_AUTH_TTL: 48h
+```
+
+:::
+
+Note that only the duration is supported. You can only use `s`, `m`, `h` for seconds, minutes and hours respectively.
+
+## Generating users.yml
+
+Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml

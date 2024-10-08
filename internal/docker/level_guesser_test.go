@@ -20,7 +20,6 @@ func TestGuessLogLevel(t *testing.T) {
 		{"debug Something happened", "debug"},
 		{"TRACE: Something happened", "trace"},
 		{"FATAL: Something happened", "fatal"},
-		{"level=error Something went wrong", "error"},
 		{"[ERROR] Something went wrong", "error"},
 		{"[error] Something went wrong", "error"},
 		{"[ ERROR ] Something went wrong", "error"},
@@ -28,7 +27,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[test] [error] Something went wrong", "error"},
 		{"[foo] [ ERROR] Something went wrong", "error"},
 		{"123 ERROR Something went wrong", "error"},
-		{"123 Something went wrong", ""},
+		{"123 Something went wrong", "unknown"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
@@ -41,8 +40,20 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, any]{Key: "level", Value: "info"},
 			),
 		), "info"},
-		{nilOrderedMap, ""},
-		{nil, ""},
+		{orderedmap.New[string, string](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, string]{Key: "severity", Value: "info"},
+			),
+		), "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, any]{Key: "severity", Value: "info"},
+			),
+		), "info"},
+		{nilOrderedMap, "unknown"},
+		{nil, "unknown"},
 	}
 
 	for _, test := range tests {

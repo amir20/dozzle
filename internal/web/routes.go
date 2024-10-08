@@ -2,6 +2,7 @@ package web
 
 import (
 	"io/fs"
+	"time"
 
 	"net/http"
 	"strings"
@@ -36,6 +37,7 @@ type Config struct {
 type Authorization struct {
 	Provider   AuthProvider
 	Authorizer Authorizer
+	TTL        time.Duration
 }
 
 type Authorizer interface {

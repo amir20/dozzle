@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -61,7 +62,11 @@ func GenerateUsers(user User, hashPassword bool) *bytes.Buffer {
 	buffer := &bytes.Buffer{}
 
 	if hashPassword {
-		user.Password = sha256sum(user.Password)
+		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 11)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to hash password")
+		}
+		user.Password = string(hash)
 	}
 
 	users := UserDatabase{
@@ -93,8 +98,8 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 			log.Fatal().Msgf("User %s has an empty password", username)
 		}
 
-		if len(user.Password) != 64 {
-			log.Fatal().Str("password", user.Password).Msgf("User %s has an invalid password hash", username)
+		if !(len(user.Password) == 64 || len(user.Password) == 60) {
+			log.Fatal().Str("password", user.Password).Str("user", username).Msg("Invalid password for user")
 		}
 
 		if user.Name == "" {
@@ -146,15 +151,32 @@ func (u *UserDatabase) FindByPassword(username, password string) *User {
 		return nil
 	}
 
-	if user.Password != sha256sum(password) {
+	if !CompareHashAndPassword(user.Password, password) {
 		return nil
 	}
+
 	return user
 }
 
 func sha256sum(s string) string {
 	bytes := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(bytes[:])
+}
+
+func CompareHashAndPassword(hash, password string) bool {
+	if len(hash) == 64 {
+		log.Warn().Msg("Using sha256sum for password comparison. Consider using a more secure hash algorithm to protected against brute-force attacks. See https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35 for more details.")
+		return hash == sha256sum(password)
+	}
+
+	if len(hash) == 60 {
+		err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+		return err == nil
+	}
+
+	log.Error().Str("hash", hash).Msg("Invalid hash length. Expecting 64 or 60 characters.")
+
+	return false
 }
 
 func UserFromContext(ctx context.Context) *User {

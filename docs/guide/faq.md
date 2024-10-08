@@ -90,3 +90,11 @@ time="2024-07-10T13:35:53Z" level=warning msg="duplicate host ID: *********, End
 Dozzle uses the Docker API to gather information about the hosts. Each host must have a unique ID. This ID is used to identify the host in the UI. In swarm mode, Dozzle uses the node ID from `docker systen info` to identify the host. If you are not using swarm mode, then Dozzle will use the system ID from `docker system info` as the host ID.
 
 Somettimes, VMs maybe restored from back ups, with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
+
+## Why am I only seeing running containers? How do I see stopped containers?
+
+By default, Dozzle only shows running containers. To see stopped containers, you need to enable the `Show Stopped Containers` option in the settings. This option is disabled by default to reduce the number of containers shown in the UI.
+
+## Is there a way to sync my settings across multiple instances of Dozzle?
+
+In single-user mode, Dozzle stores the settings in the browser's local storage. This means that the settings are only available on the browser where they were set. For Dozzle to enable syncing settings across multiple instances, it needs to know who the user is. In multi-user mode, Dozzle uses the user's username to store the settings on disk and sync them across multiple instances. This information is stored in `/data` directory. If you want to sync settings across multiple instances, you need to [enable](/guide/authentication) multi-user mode and provide a username.

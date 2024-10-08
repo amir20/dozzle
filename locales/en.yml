@@ -2,8 +2,8 @@ toolbar:
   clear: Clear
   download: Download
   search: Search
-  show: Show only {std}
-  show-all: Show all streams
+  show: Show {std}
+  show-all: Show all
   stop: Stop
   start: Start
   restart: Restart
