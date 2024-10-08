@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { Container } from "@/models/Container";
-import { Table } from "@apache-arrow/ts";
+import { type Table } from "@apache-arrow/esnext-esm";
 const { container } = defineProps<{ container: Container }>();
 const query = ref("SELECT * FROM logs");
 const error = ref<string | null>(null);
