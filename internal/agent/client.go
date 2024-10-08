@@ -257,6 +257,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 			Tty:       resp.Container.Tty,
 			StartedAt: resp.Container.Started.AsTime(),
 			Command:   resp.Container.Command,
+			Ports:     resp.Container.Ports,
 		}
 	}
 }

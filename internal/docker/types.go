@@ -23,6 +23,7 @@ type Container struct {
 	Labels    map[string]string                `json:"labels,omitempty"`
 	Stats     *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
 	Group     string                           `json:"group,omitempty"`
+	Ports     string                           `json:"ports,omitempty"`
 }
 
 // ContainerStat represent stats instant for a container

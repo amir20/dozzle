@@ -22,6 +22,7 @@ message Container {
   repeated ContainerStat stats = 13;
   string group = 14;
   string command = 15;
+  string ports = 16;
 }
 
 message ContainerStat {

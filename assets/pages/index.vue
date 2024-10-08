@@ -5,7 +5,7 @@
     </section>
 
     <section>
-      <ContainerTable :containers="runningContainers"></ContainerTable>
+      <ContainerTable :containers="showAllContainers ? containers : runningContainers"></ContainerTable>
     </section>
   </PageWithLinks>
 </template>

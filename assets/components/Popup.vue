@@ -4,7 +4,7 @@
     <transition name="fade">
       <div
         v-show="show && (delayedShow || glopbalShow)"
-        class="fixed z-50 rounded border border-base-content/20 bg-base-lighter p-4 shadow"
+        class="fixed z-50 max-w-80 rounded border border-base-content/20 bg-base-lighter p-4 shadow"
         ref="content"
       >
         <slot name="content"></slot>
@@ -21,17 +21,32 @@ const show = ref(glopbalShow.value);
 const delayedShow = refDebounced(show, 1000);
 const content = ref<HTMLElement>();
 
+const props = defineProps({
+  positionOnRight: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+});
+
 const onMouseEnter = (e: Event) => {
   show.value = true;
   glopbalShow.value = true;
 
   if (content.value && e.target instanceof HTMLElement) {
     const { left, top, width } = e.target.getBoundingClientRect();
-    const x = left + width + 10;
-    const y = top;
 
-    content.value.style.left = `${x}px`;
-    content.value.style.top = `${y}px`;
+    if (props.positionOnRight == true) {
+      const y = top - 250; // don't show a popup below a screen, ideally should be dynamic
+      const x = 100;
+      content.value.style.right = `${x}px`;
+      content.value.style.top = `${y}px`;
+    } else {
+      const y = top;
+      const x = left + width + 10;
+      content.value.style.left = `${x}px`;
+      content.value.style.top = `${y}px`;
+    }
   }
 };
 

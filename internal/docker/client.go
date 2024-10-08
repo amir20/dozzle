@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -403,6 +404,17 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 		Group:   group,
 		Tty:     c.Config.Tty,
 	}
+
+	ports := []string{}
+	for _, val := range c.NetworkSettings.Ports {
+		for _, binding := range val {
+			ports = append(ports, binding.HostPort)
+		}
+	}
+
+	slices.Sort(ports)
+
+	container.Ports = strings.Join(slices.Compact(ports), ", ")
 
 	if startedAt, err := time.Parse(time.RFC3339Nano, c.State.StartedAt); err == nil {
 		container.StartedAt = startedAt.UTC()

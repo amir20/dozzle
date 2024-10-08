@@ -16,6 +16,12 @@ export type Settings = {
   collapseNav: boolean;
   automaticRedirect: boolean;
   locale: string;
+  showHostColumn: boolean;
+  showStatusColumn: boolean;
+  showCreatedColumn: boolean;
+  showPortsColumn: boolean;
+  showAvgCpuColumn: boolean;
+  showAvgMemColumn: boolean;
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -33,6 +39,12 @@ export const DEFAULT_SETTINGS: Settings = {
   collapseNav: false,
   automaticRedirect: true,
   locale: "",
+  showHostColumn: true,
+  showStatusColumn: true,
+  showCreatedColumn: true,
+  showPortsColumn: false,
+  showAvgCpuColumn: true,
+  showAvgMemColumn: true,
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -53,4 +65,10 @@ export const {
   search,
   locale,
   automaticRedirect,
+  showHostColumn,
+  showStatusColumn,
+  showCreatedColumn,
+  showPortsColumn,
+  showAvgCpuColumn,
+  showAvgMemColumn,
 } = toRefs(settings);

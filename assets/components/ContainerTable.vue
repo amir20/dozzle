@@ -52,22 +52,28 @@
         <th
           v-for="(value, key) in fields"
           :key="key"
-          @click.prevent="sort(key)"
+          @click.prevent="value.sortFunc ? sort(key) : {}"
           :class="{ 'selected-sort': key === sortField }"
           v-show="isVisible(key)"
         >
-          <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
+          <a class="inline-flex gap-2 text-sm uppercase" :class="value.sortFunc ? 'cursor-pointer' : 'cursor-default'">
             <span>{{ $t(value.label) }}</span>
             <span class="h-4" data-icon>
               <mdi:arrow-up />
             </span>
           </a>
         </th>
+        <th>
+          <a class="inline-flex gap-2 text-sm uppercase">
+            <span class="h-4" title="Details"><Mdi:information /></span>
+          </a>
+        </th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="container in paginated" :key="container.id">
-        <td v-if="isVisible('name')">
+        <td class="inline" v-if="isVisible('name')">
+          <StatusIcon v-if="!showStatusColumn" :state="container.state" />
           <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
             {{ container.name }}
           </router-link>
@@ -77,6 +83,7 @@
         <td v-if="isVisible('created')">
           <distance-time :date="container.created" strict :suffix="false"></distance-time>
         </td>
+        <td :title="container.ports" v-if="isVisible('ports')">{{ container.ports }}</td>
         <td v-if="isVisible('cpu')">
           <div class="flex flex-row items-center gap-1">
             <progress
@@ -92,6 +99,16 @@
             <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
             <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
           </div>
+        </td>
+        <td>
+          <Popup :position-on-right="true">
+            <div class="flex cursor-pointer flex-row items-center gap-1">
+              <span><Mdi:dotsHorizontal /></span>
+            </div>
+            <template #content>
+              <ContainerDetails :container="container" />
+            </template>
+          </Popup>
         </td>
       </tr>
     </tbody>
@@ -121,31 +138,43 @@ const fields = {
   name: {
     label: "label.container-name",
     sortFunc: (a: Container, b: Container) => a.name.localeCompare(b.name) * direction.value,
+    visible: true,
     mobileVisible: true,
   },
   host: {
     label: "label.host",
     sortFunc: (a: Container, b: Container) => a.hostLabel.localeCompare(b.hostLabel) * direction.value,
+    visible: showHostColumn.value,
     mobileVisible: false,
   },
   state: {
     label: "label.status",
     sortFunc: (a: Container, b: Container) => a.state.localeCompare(b.state) * direction.value,
+    visible: showStatusColumn.value,
     mobileVisible: false,
   },
   created: {
     label: "label.created",
     sortFunc: (a: Container, b: Container) => (a.created.getTime() - b.created.getTime()) * direction.value,
+    visible: showCreatedColumn.value,
     mobileVisible: true,
+  },
+  ports: {
+    label: "label.ports",
+    sortFunc: null,
+    visible: showPortsColumn.value,
+    mobileVisible: false,
   },
   cpu: {
     label: "label.avg-cpu",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
+    visible: showAvgCpuColumn.value,
     mobileVisible: false,
   },
   mem: {
     label: "label.avg-mem",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.memory - b.movingAverage.memory) * direction.value,
+    visible: showAvgMemColumn.value,
     mobileVisible: false,
   },
 };
@@ -192,7 +221,7 @@ function sort(field: keys) {
   }
 }
 function isVisible(field: keys) {
-  return fields[field].mobileVisible || !isMobile.value;
+  return fields[field].visible && (fields[field].mobileVisible || !isMobile.value);
 }
 </script>
 

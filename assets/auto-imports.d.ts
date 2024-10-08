@@ -143,7 +143,13 @@ declare global {
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const showAllContainers: typeof import('./stores/settings')['showAllContainers']
+  const showAvgCpuColumn: typeof import('./stores/settings')['showAvgCpuColumn']
+  const showAvgMemColumn: typeof import('./stores/settings')['showAvgMemColumn']
+  const showCreatedColumn: typeof import('./stores/settings')['showCreatedColumn']
+  const showHostColumn: typeof import('./stores/settings')['showHostColumn']
   const showLogDetails: typeof import('./composable/showLogDetails')['showLogDetails']
+  const showPortsColumn: typeof import('./stores/settings')['showPortsColumn']
+  const showStatusColumn: typeof import('./stores/settings')['showStatusColumn']
   const showStd: typeof import('./stores/settings')['showStd']
   const showTimestamp: typeof import('./stores/settings')['showTimestamp']
   const size: typeof import('./stores/settings')['size']
@@ -515,6 +521,12 @@ declare module 'vue' {
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly showAllContainers: UnwrapRef<typeof import('./stores/settings')['showAllContainers']>
+    readonly showAvgCpuColumn: UnwrapRef<typeof import('./stores/settings')['showAvgCpuColumn']>
+    readonly showAvgMemColumn: UnwrapRef<typeof import('./stores/settings')['showAvgMemColumn']>
+    readonly showCreatedColumn: UnwrapRef<typeof import('./stores/settings')['showCreatedColumn']>
+    readonly showHostColumn: UnwrapRef<typeof import('./stores/settings')['showHostColumn']>
+    readonly showPortsColumn: UnwrapRef<typeof import('./stores/settings')['showPortsColumn']>
+    readonly showStatusColumn: UnwrapRef<typeof import('./stores/settings')['showStatusColumn']>
     readonly showStd: UnwrapRef<typeof import('./stores/settings')['showStd']>
     readonly showTimestamp: UnwrapRef<typeof import('./stores/settings')['showTimestamp']>
     readonly size: UnwrapRef<typeof import('./stores/settings')['size']>
