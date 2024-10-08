@@ -16,14 +16,6 @@ onMounted(() => {
     },
   );
 });
-
-onMounted(() => {
-  document.documentElement.classList.add("home");
-});
-
-onUnmounted(() => {
-  document.documentElement.classList.remove("home");
-});
 </script>
 
 <template>

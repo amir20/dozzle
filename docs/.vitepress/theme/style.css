@@ -162,6 +162,6 @@
   max-width: 1200px;
 }
 
-.home .VPNav .container {
+.VPNavBar.home .container {
   max-width: 100%;
 }
