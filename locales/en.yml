@@ -18,10 +18,15 @@ label:
   password: Password
   username: Username
   container-name: Container Name
+  image: image
   status: Status
   created: Created
+  health: Health
+  ports: Ports
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
+  cpu-usage: CPU
+  mem-usage: MEM
   pinned: Pinned
   per-page: Rows per page
   swarm-mode: Swarm Mode
@@ -90,6 +95,14 @@ settings:
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Show stdout and stderr labels
   automatic-redirect: Automatically redirect to new containers with the same name
+  dashboard: Dashboard
+  show-host-column: Show 'Host' column
+  show-status-column: Show 'Status' column
+  show-created-column: Show 'Created' column
+  show-ports-column: Show 'Exposed Ports' column
+  show-avg-cpu-column: Show 'Average CPU Usage' column
+  show-avg-mem-column: Show 'Average Memory Usage' column
+
   compact: Enable compact mode for logs
   log:
     preview: This is a preview of the logs

@@ -39,6 +39,7 @@ export class Container {
     stats: Stat[],
     public readonly group?: string,
     public health?: ContainerHealth,
+    public readonly ports?: string,
   ) {
     this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));
     const { history } = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });

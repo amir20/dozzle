@@ -18,6 +18,7 @@ export type ContainerJson = {
   readonly stats: ContainerStat[];
   readonly health?: ContainerHealth;
   readonly group?: string;
+  readonly ports?: string;
 };
 
 export type ContainerState = "created" | "running" | "exited" | "dead" | "paused" | "restarting" | "deleted";

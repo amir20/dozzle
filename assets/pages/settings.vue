@@ -122,6 +122,30 @@
 
     <section class="flex flex-col gap-2">
       <div class="has-underline">
+        <h2>{{ $t("settings.dashboard") }}</h2>
+      </div>
+      <div>
+        <toggle v-model="showHostColumn">{{ $t("settings.show-host-column") }}</toggle>
+      </div>
+      <div>
+        <toggle v-model="showStatusColumn">{{ $t("settings.show-status-column") }}</toggle>
+      </div>
+      <div>
+        <toggle v-model="showCreatedColumn">{{ $t("settings.show-created-column") }}</toggle>
+      </div>
+      <div>
+        <toggle v-model="showPortsColumn">{{ $t("settings.show-ports-column") }}</toggle>
+      </div>
+      <div>
+        <toggle v-model="showAvgCpuColumn">{{ $t("settings.show-avg-cpu-column") }}</toggle>
+      </div>
+      <div>
+        <toggle v-model="showAvgMemColumn">{{ $t("settings.show-avg-mem-column") }}</toggle>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-2">
+      <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
       <div>
@@ -158,6 +182,12 @@ import {
   smallerScrollbars,
   softWrap,
   locale,
+  showHostColumn,
+  showStatusColumn,
+  showCreatedColumn,
+  showPortsColumn,
+  showAvgCpuColumn,
+  showAvgMemColumn,
 } from "@/stores/settings";
 
 import { availableLocales, i18n } from "@/modules/i18n";

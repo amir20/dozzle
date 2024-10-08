@@ -17,10 +17,15 @@ label:
   password: Hasło
   username: Nazwa użytkownika
   container-name: Nazwa kontenera
+  image: Obraz
   status: Status
+  health: Zdrowy
+  ports: Porty
   created: Utworzony
-  avg-cpu: Średnie zużycie CPU (%)
-  avg-mem: Średnie zużycie pamięci (%)
+  avg-cpu: CPU (średnia)
+  avg-mem: Pamięć (średnia)
+  cpu-usage: CPU
+  mem-usage: Pamięć
   pinned: Przypięte
   per-page: Wierszy na strone
 
@@ -49,7 +54,7 @@ alert:
     title: Podobny kontener został znaleziony
     message: >-
       Dozzle znalazł podobny kontener {containerId} który działa na tym samym
-      hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
+      hoście i przekieruje Cię na niego automatycznie, jeżeli nie klikniesz 'Anuluj'
 title:
   page-not-found: Strona nie została znaleziona
   login: Wymagane uwierzytelnienie
@@ -82,6 +87,12 @@ settings:
   show-std: Pokaż etykiety dla stdout i stderr
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
   compact: Włącz tryb kompaktowy dla logów
+  show-host-column: Pokaż kolumnę 'Host' 
+  show-status-column: Pokaż kolumnę 'Status'
+  show-created-column: Pokaż kolumnę 'Utworzony'
+  show-ports-column: Pokaż kolumnę 'Porty'
+  show-avg-cpu-column: Pokaż kolumnę 'Średnie zużycie CPU'
+  show-avg-mem-column: Pokaż kolumnę 'Średnie zużycie pamięci'
 releases:
   features: jedna nowa funkcjonalność | {count} funkcjonalności
   bugFixes: jeden naprawiony błąd | {count} poprawki
