@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMutationObserver } from "@vueuse/core";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const isDark = ref(false);
 onMounted(() => {
