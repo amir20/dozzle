@@ -29,7 +29,7 @@
   </table>
 </template>
 <script lang="ts" setup>
-import { Table } from "@apache-arrow/ts";
+import { type Table } from "@apache-arrow/esnext-esm";
 
 const { loading, table } = defineProps<{
   loading: boolean;

@@ -150,7 +150,7 @@ importers:
         specifier: ^4.4.5
         version: 4.4.5(vue@3.5.11(typescript@5.6.2))
     devDependencies:
-      '@apache-arrow/ts':
+      '@apache-arrow/esnext-esm':
         specifier: ^17.0.0
         version: 17.0.0
       '@pinia/testing':
@@ -336,8 +336,9 @@ packages:
   '@antfu/utils@0.7.10':
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
 
-  '@apache-arrow/ts@17.0.0':
-    resolution: {integrity: sha512-+NrpPoCEanJ29CRvo284yoyuIEOia1rsNavnczH3CgsFQG8SOyRX5hnfWa9MMWtiQZ/fhrELWEfO/7Hw1I2Heg==}
+  '@apache-arrow/esnext-esm@17.0.0':
+    resolution: {integrity: sha512-2dcd6jCdeeoAln7vNvTuyGOj1UB23PtBic2nwWJo7JaqFjNBiybC/KNW+W5p1rLeG9fLDmlZWYTNxQbIkWSHDw==}
+    hasBin: true
 
   '@babel/helper-string-parser@7.24.8':
     resolution: {integrity: sha512-pO9KhhRcuUyGnJWwyEgnRJTSIZHiT+vMD0kPeD+so0l7mxkMT19g3pjY9GTnHySck/hDzq+dtW/4VgnMkippsQ==}
@@ -3652,7 +3653,7 @@ snapshots:
 
   '@antfu/utils@0.7.10': {}
 
-  '@apache-arrow/ts@17.0.0':
+  '@apache-arrow/esnext-esm@17.0.0':
     dependencies:
       '@swc/helpers': 0.5.13
       '@types/command-line-args': 5.2.3
