@@ -29,7 +29,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@duckdb/duckdb-wasm": "1.28.1-dev292.0",
+    "@duckdb/duckdb-wasm": "1.29.0",
     "@iconify-json/carbon": "^1.2.2",
     "@iconify-json/cil": "^1.2.1",
     "@iconify-json/ic": "^1.2.1",
@@ -102,7 +102,7 @@
     "prettier-plugin-tailwindcss": "^0.6.8",
     "simple-git-hooks": "^2.11.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
+    "typescript": "^5.6.3",
     "vitest": "^2.1.2",
     "vue-component-type-helpers": "^2.1.6",
     "vue-tsc": "^2.1.6"
