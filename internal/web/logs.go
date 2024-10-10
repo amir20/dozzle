@@ -142,12 +142,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	levels := make(map[string]struct{})
-	if r.URL.Query().Has("levels") {
-		for _, level := range r.URL.Query()["levels"] {
-			levels[level] = struct{}{}
-		}
-	} else {
-		levels = docker.SupportedLogLevels
+	for _, level := range r.URL.Query()["levels"] {
+		levels[level] = struct{}{}
 	}
 
 	encoder := json.NewEncoder(w)
@@ -287,12 +283,8 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	backfill := make(chan []*docker.LogEvent)
 
 	levels := make(map[string]struct{})
-	if r.URL.Query().Has("levels") {
-		for _, level := range r.URL.Query()["levels"] {
-			levels[level] = struct{}{}
-		}
-	} else {
-		levels = docker.SupportedLogLevels
+	for _, level := range r.URL.Query()["levels"] {
+		levels[level] = struct{}{}
 	}
 
 	if r.URL.Query().Has("filter") {
