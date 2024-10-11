@@ -77,10 +77,15 @@
         </details>
       </li>
       <li>
-        <details>
+        <details class="group/details">
           <summary>
             <mdi:gauge />
             Levels
+            <Toggle
+              class="toggle-xs invisible group-open/details:visible"
+              v-model="toggleAllLevels"
+              title="Toggle all levels"
+            />
           </summary>
           <ul class="menu">
             <li v-for="level in allLevels">
@@ -169,6 +174,17 @@ const downloadUrl = computed(() =>
 );
 
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
+
+const toggleAllLevels = computed({
+  get: () => levels.value.size === allLevels.length,
+  set: (value) => {
+    if (value) {
+      allLevels.forEach((level) => levels.value.add(level));
+    } else {
+      levels.value.clear();
+    }
+  },
+});
 </script>
 
 <style scoped lang="postcss">

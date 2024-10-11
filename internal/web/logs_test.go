@@ -28,6 +28,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("levels", "info")
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -70,6 +71,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("levels", "info")
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -218,6 +220,7 @@ func Test_handler_between_dates(t *testing.T) {
 	q.Add("to", to.Format(time.RFC3339))
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	q.Add("levels", "info")
 
 	req.URL.RawQuery = q.Encode()
 
@@ -258,6 +261,7 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
 	q.Add("fill", "true")
+	q.Add("levels", "info")
 
 	req.URL.RawQuery = q.Encode()
 
