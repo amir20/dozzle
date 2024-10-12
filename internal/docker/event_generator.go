@@ -177,7 +177,9 @@ func createEvent(message string, streamType StdType) *LogEvent {
 			logEvent.Timestamp = timestamp.UnixMilli()
 			message = strings.TrimSuffix(message[index+1:], "\n")
 			logEvent.Message = message
-			if json.Valid([]byte(message)) {
+			if message == "" {
+				logEvent.Message = "" // empty message so do nothing
+			} else if json.Valid([]byte(message)) {
 				data := orderedmap.New[string, any]()
 				if err := json.Unmarshal([]byte(message), &data); err != nil {
 					var jsonErr *json.UnmarshalTypeError
