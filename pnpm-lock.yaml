@@ -123,8 +123,8 @@ importers:
         specifier: ^0.27.4
         version: 0.27.4(@babel/parser@7.25.6)(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
       unplugin-vue-macros:
-        specifier: ^2.12.3
-        version: 2.12.3(@vueuse/core@11.1.0(vue@3.5.12(typescript@5.6.3)))(esbuild@0.23.1)(rollup@4.21.3)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5))(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
+        specifier: ^2.12.4
+        version: 2.12.4(@vueuse/core@11.1.0(vue@3.5.12(typescript@5.6.3)))(esbuild@0.23.1)(rollup@4.21.3)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5))(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       unplugin-vue-router:
         specifier: ^0.10.8
         version: 0.10.8(rollup@4.21.3)(vue-router@4.4.5(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
@@ -138,8 +138,8 @@ importers:
         specifier: ^0.11.0
         version: 0.11.0(vite@5.4.8(@types/node@22.7.5))(vue-router@4.4.5(vue@3.5.12(typescript@5.6.3)))(vue@3.5.12(typescript@5.6.3))
       vitepress:
-        specifier: 1.4.0
-        version: 1.4.0(@algolia/client-search@5.4.1)(@types/node@22.7.5)(fuse.js@7.0.0)(postcss@8.4.47)(search-insights@2.17.2)(sortablejs@1.15.3)(typescript@5.6.3)
+        specifier: 1.4.1
+        version: 1.4.1(@algolia/client-search@5.4.1)(@types/node@22.7.5)(fuse.js@7.0.0)(postcss@8.4.47)(search-insights@2.17.2)(sortablejs@1.15.3)(typescript@5.6.3)
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.3)
@@ -1301,8 +1301,8 @@ packages:
     resolution: {integrity: sha512-DT/6ZWe90/qrFtgicKCRljdvcwM25Nk66lPF9UFydwOFHKa6yOwTdeexjU3W/uG8X4QLlQBTCsDKbjLbhK1i7g==}
     engines: {node: '>=16.14.0'}
 
-  '@vue-macros/volar@0.30.3':
-    resolution: {integrity: sha512-35ecwiHaKizySmEIsSHIdyBpf0AgP9wZkUJUIO4xq9lAlSXHkTMjELuwVCRFCCyjZS/UuB+rPqxguKiSaNKmGg==}
+  '@vue-macros/volar@0.30.4':
+    resolution: {integrity: sha512-K/ZQbQUKMV3ffrWuQ16ht0UVF++LshC+5lByFcKC4NRChaVgGM78BSlaFN5ils+YmlGDwN1HHGIz9oy1SLBThg==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue-tsc: 2.1.6
@@ -3326,8 +3326,8 @@ packages:
     resolution: {integrity: sha512-Ss+sHK0D98UPrzrJ1Bh7QmZtdymvGn7IVniB/Y1vsWQiKNOznjN8XLo228AfaHSFuIfx5x7wuNDqKTL5xBqhgw==}
     engines: {node: '>=16.14.0'}
 
-  unplugin-vue-macros@2.12.3:
-    resolution: {integrity: sha512-qzCMjgdN66amHYHb6IqXESeKOZfL058yoNyaOqhtLS98Xz1VU5C4q3Gsry0GHkkkVXfe2ckfvpP4u9CzWCUhGw==}
+  unplugin-vue-macros@2.12.4:
+    resolution: {integrity: sha512-MNcDZ0fMW/qsvJMZ+PUngLMHqGxMjBcZX0aBchezld7fHs6nCGIfUgO4FA1LFqot4gKDcKT5xR4SRWd+Aog6aQ==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -3433,8 +3433,8 @@ packages:
       terser:
         optional: true
 
-  vitepress@1.4.0:
-    resolution: {integrity: sha512-JXCv4EsKTDyAFb6C/UjZr7nsGAzZ6mafVk2rx7rG5o8N+B/4QstIk+iEOe/9dKoU6V624UIC6g1pZ+K63rxhlw==}
+  vitepress@1.4.1:
+    resolution: {integrity: sha512-C2rQ7PMlDVqgsaHOa0uJtgGGWaGv74QMaGL62lxKbtFkYtosJB5HAfZ8+pEbfzzvLemYaYwaiQdFLBlexK2sFw==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
@@ -4484,7 +4484,7 @@ snapshots:
   '@vue-macros/boolean-prop@0.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-core': 3.5.11
+      '@vue/compiler-core': 3.5.12
     transitivePeerDependencies:
       - rollup
       - vue
@@ -4662,7 +4662,7 @@ snapshots:
   '@vue-macros/named-template@0.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
     dependencies:
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-dom': 3.5.11
+      '@vue/compiler-dom': 3.5.12
       unplugin: 1.14.1(webpack-sources@3.2.3)
     transitivePeerDependencies:
       - rollup
@@ -4673,8 +4673,8 @@ snapshots:
     dependencies:
       '@babel/parser': 7.25.6
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-core': 3.5.11
-      '@vue/shared': 3.5.11
+      '@vue/compiler-core': 3.5.12
+      '@vue/shared': 3.5.12
       magic-string: 0.30.11
       unplugin: 1.14.1(webpack-sources@3.2.3)
       vue: 3.5.12(typescript@5.6.3)
@@ -4694,7 +4694,7 @@ snapshots:
   '@vue-macros/setup-block@0.4.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
     dependencies:
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-dom': 3.5.11
+      '@vue/compiler-dom': 3.5.12
       unplugin: 1.14.1(webpack-sources@3.2.3)
     transitivePeerDependencies:
       - rollup
@@ -4722,7 +4722,7 @@ snapshots:
   '@vue-macros/short-bind@1.1.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-core': 3.5.11
+      '@vue/compiler-core': 3.5.12
     transitivePeerDependencies:
       - rollup
       - vue
@@ -4739,12 +4739,12 @@ snapshots:
   '@vue-macros/short-vmodel@1.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue/compiler-core': 3.5.11
+      '@vue/compiler-core': 3.5.12
     transitivePeerDependencies:
       - rollup
       - vue
 
-  '@vue-macros/volar@0.30.3(rollup@4.21.3)(typescript@5.6.3)(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))':
+  '@vue-macros/volar@0.30.4(rollup@4.21.3)(typescript@5.6.3)(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@vue-macros/boolean-prop': 0.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
       '@vue-macros/common': 1.14.0(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
@@ -6824,7 +6824,7 @@ snapshots:
       - vue
       - webpack-sources
 
-  unplugin-vue-macros@2.12.3(@vueuse/core@11.1.0(vue@3.5.12(typescript@5.6.3)))(esbuild@0.23.1)(rollup@4.21.3)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5))(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3):
+  unplugin-vue-macros@2.12.4(@vueuse/core@11.1.0(vue@3.5.12(typescript@5.6.3)))(esbuild@0.23.1)(rollup@4.21.3)(typescript@5.6.3)(vite@5.4.8(@types/node@22.7.5))(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3):
     dependencies:
       '@vue-macros/better-define': 1.9.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       '@vue-macros/boolean-prop': 0.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
@@ -6853,7 +6853,7 @@ snapshots:
       '@vue-macros/short-bind': 1.1.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
       '@vue-macros/short-emits': 1.6.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       '@vue-macros/short-vmodel': 1.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))
-      '@vue-macros/volar': 0.30.3(rollup@4.21.3)(typescript@5.6.3)(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))
+      '@vue-macros/volar': 0.30.4(rollup@4.21.3)(typescript@5.6.3)(vue-tsc@2.1.6(typescript@5.6.3))(vue@3.5.12(typescript@5.6.3))
       unplugin: 1.14.1(webpack-sources@3.2.3)
       unplugin-combine: 1.0.3(esbuild@0.23.1)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5))(webpack-sources@3.2.3)
       unplugin-vue-define-options: 1.5.1(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
@@ -6988,7 +6988,7 @@ snapshots:
       '@types/node': 22.7.5
       fsevents: 2.3.3
 
-  vitepress@1.4.0(@algolia/client-search@5.4.1)(@types/node@22.7.5)(fuse.js@7.0.0)(postcss@8.4.47)(search-insights@2.17.2)(sortablejs@1.15.3)(typescript@5.6.3):
+  vitepress@1.4.1(@algolia/client-search@5.4.1)(@types/node@22.7.5)(fuse.js@7.0.0)(postcss@8.4.47)(search-insights@2.17.2)(sortablejs@1.15.3)(typescript@5.6.3):
     dependencies:
       '@docsearch/css': 3.6.2
       '@docsearch/js': 3.6.2(@algolia/client-search@5.4.1)(search-insights@2.17.2)
@@ -6998,7 +6998,7 @@ snapshots:
       '@types/markdown-it': 14.1.2
       '@vitejs/plugin-vue': 5.1.4(vite@5.4.8(@types/node@22.7.5))(vue@3.5.12(typescript@5.6.3))
       '@vue/devtools-api': 7.4.6
-      '@vue/shared': 3.5.11
+      '@vue/shared': 3.5.12
       '@vueuse/core': 11.1.0(vue@3.5.12(typescript@5.6.3))
       '@vueuse/integrations': 11.1.0(focus-trap@7.6.0)(fuse.js@7.0.0)(sortablejs@1.15.3)(vue@3.5.12(typescript@5.6.3))
       focus-trap: 7.6.0
