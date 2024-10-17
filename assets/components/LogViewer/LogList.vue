@@ -97,6 +97,10 @@ useIntersectionObserver(
     > li {
       @apply py-0;
     }
+
+    :deep(.tag) {
+      @apply rounded-none;
+    }
   }
 }
 </style>
