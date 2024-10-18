@@ -68,7 +68,7 @@ describe("<ContainerEventSource />", () => {
       ],
     });
 
-    return mount(Component<Container>, {
+    return mount(Component, {
       global: {
         plugins: [router, createTestingPinia({ createSpy: vi.fn }), createI18n({})],
         components: {
