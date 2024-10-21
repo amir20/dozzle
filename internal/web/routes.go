@@ -83,25 +83,28 @@ func createRouter(h *handler) *chi.Mux {
 			r.Use(h.config.Authorization.Authorizer.AuthMiddleware)
 		}
 		r.Group(func(r chi.Router) {
-			r.Group(func(r chi.Router) {
+			r.Route("/api", func(r chi.Router) {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
-				r.Get("/api/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
-				r.Get("/api/hosts/{host}/containers/{id}/logs/download", h.downloadLogs)
-				r.Get("/api/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
-				r.Get("/api/hosts/{host}/logs/mergedStream/{ids}", h.streamLogsMerged)
-				r.Get("/api/stacks/{stack}/logs/stream", h.streamStackLogs)
-				r.Get("/api/services/{service}/logs/stream", h.streamServiceLogs)
-				r.Get("/api/groups/{group}/logs/stream", h.streamGroupedLogs)
-				r.Get("/api/events/stream", h.streamEvents)
+				r.Get("/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
+				r.Get("/hosts/{host}/containers/{id}/logs/download", h.downloadLogs)
+				r.Get("/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
+				r.Get("/hosts/{host}/logs/mergedStream/{ids}", h.streamLogsMerged)
+				r.Get("/stacks/{stack}/logs/stream", h.streamStackLogs)
+				r.Get("/services/{service}/logs/stream", h.streamServiceLogs)
+				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
+				r.Get("/events/stream", h.streamEvents)
 				if h.config.EnableActions {
-					r.Post("/api/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 				}
-				r.Get("/api/releases", h.releases)
-				r.Get("/api/profile/avatar", h.avatar)
-				r.Patch("/api/profile", h.updateProfile)
+				r.Get("/releases", h.releases)
+				r.Get("/profile/avatar", h.avatar)
+				r.Patch("/profile", h.updateProfile)
 				r.Get("/version", h.version)
+				if log.Debug().Enabled() {
+					r.Get("/debug/store", h.debugStore)
+				}
 			})
 
 			defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
