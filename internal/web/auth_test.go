@@ -71,7 +71,7 @@ func Test_createRoutes_version(t *testing.T) {
 	fs := afero.NewMemMapFs()
 	require.NoError(t, afero.WriteFile(fs, "index.html", []byte("index page"), 0644), "WriteFile should have no error.")
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/", Version: "dev", Authorization: Authorization{Provider: NONE}})
-	req, err := http.NewRequest("GET", "/version", nil)
+	req, err := http.NewRequest("GET", "/api/version", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 	rr := httptest.NewRecorder()
 
