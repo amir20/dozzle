@@ -67,6 +67,7 @@ func CreateServer(multiHostService *MultiHostService, content fs.FS, config Conf
 var fileServer http.Handler
 
 func createRouter(h *handler) *chi.Mux {
+	fileServer = http.FileServer(http.FS(h.content))
 	base := h.config.Base
 	r := chi.NewRouter()
 
@@ -82,8 +83,10 @@ func createRouter(h *handler) *chi.Mux {
 		if h.config.Authorization.Provider != NONE {
 			r.Use(h.config.Authorization.Authorizer.AuthMiddleware)
 		}
-		r.Group(func(r chi.Router) {
-			r.Route("/api", func(r chi.Router) {
+
+		r.Route("/api", func(r chi.Router) {
+			// Authenticated routes
+			r.Group(func(r chi.Router) {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
@@ -107,19 +110,19 @@ func createRouter(h *handler) *chi.Mux {
 				}
 			})
 
-			defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
-			r.Get("/*", func(w http.ResponseWriter, req *http.Request) {
-				defaultHandler.ServeHTTP(w, req)
-			})
+			// Public API routes
+			if h.config.Authorization.Provider == SIMPLE {
+				r.Post("/token", h.createToken)
+				r.Delete("/token", h.deleteToken)
+			}
 		})
-
-		if h.config.Authorization.Provider == SIMPLE {
-			r.Post("/api/token", h.createToken)
-			r.Delete("/api/token", h.deleteToken)
-		}
 
 		r.Get("/healthcheck", h.healthcheck)
 
+		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
+		r.Get("/*", func(w http.ResponseWriter, req *http.Request) {
+			defaultHandler.ServeHTTP(w, req)
+		})
 	})
 
 	if base != "/" {
@@ -127,8 +130,6 @@ func createRouter(h *handler) *chi.Mux {
 			http.Redirect(w, req, base+"/", http.StatusMovedPermanently)
 		})
 	}
-
-	fileServer = http.FileServer(http.FS(h.content))
 
 	// r.Mount("/debug", middleware.Profiler())
 
