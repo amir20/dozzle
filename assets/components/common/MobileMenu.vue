@@ -2,9 +2,7 @@
   <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: '/' }">
-        <svg class="h-14 w-28 fill-secondary">
-          <use href="#logo"></use>
-        </svg>
+        <Logo class="h-10 w-14" />
       </router-link>
 
       <div class="ml-auto flex items-center gap-2">
@@ -28,6 +26,7 @@
 </template>
 
 <script lang="ts" setup>
+import Logo from "@/logo.svg";
 const route = useRoute();
 
 const show = ref(false);
