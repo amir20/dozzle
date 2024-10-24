@@ -2,7 +2,7 @@
   <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: '/' }">
-        <Logo class="h-10 w-14" />
+        <Logo class="logo h-10 w-14" />
       </router-link>
 
       <div class="ml-auto flex items-center gap-2">
@@ -57,5 +57,11 @@ li.exited {
 .fade-enter-from .menu,
 .fade-leave-to .menu {
   @apply -translate-y-2;
+}
+
+.logo {
+  :deep(.secondary-fill) {
+    @apply fill-secondary;
+  }
 }
 </style>

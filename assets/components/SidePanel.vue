@@ -2,7 +2,7 @@
   <aside class="fixed h-screen w-[inherit] overflow-auto p-3" data-testid="navigation">
     <h1>
       <router-link :to="{ name: '/' }">
-        <LogoWithText class="h-16 w-40" />
+        <LogoWithText class="logo h-16 w-40" />
       </router-link>
 
       <small class="mb-4 block text-xs font-light" v-if="hostname">
@@ -26,6 +26,18 @@
 </template>
 
 <script lang="ts" setup>
-import LogoWithText from "@/logo-dark.svg";
+import LogoWithText from "@/logo-text.svg";
 const { hostname } = config;
 </script>
+
+<style scoped lang="postcss">
+.logo {
+  :deep(.content-fill) {
+    @apply fill-base-content;
+  }
+
+  :deep(.secondary-fill) {
+    @apply fill-secondary;
+  }
+}
+</style>
