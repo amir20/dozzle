@@ -31,7 +31,7 @@
 import { Container } from "@/models/Container";
 import { type Table } from "@apache-arrow/esnext-esm";
 const { container } = defineProps<{ container: Container }>();
-const query = ref("SELECT * FROM logs");
+const query = ref("SELECT * FROM logs LIMIT 100");
 const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
