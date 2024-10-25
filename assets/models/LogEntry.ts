@@ -1,5 +1,5 @@
 import { Component, ComputedRef, Ref } from "vue";
-import { flattenJSON, getDeep } from "@/utils";
+import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
 import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
