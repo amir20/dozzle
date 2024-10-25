@@ -26,7 +26,7 @@ type Args struct {
 	RemoteAgent     []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics     bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
 	Mode            string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
-	TimeoutString   string              `arg:"env:DOZZLE_TIMEOUT" default:"3s" help:"sets the timeout for docker client"`
+	TimeoutString   string              `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"3s" help:"sets the timeout for docker client"`
 	Timeout         time.Duration       `arg:"-"`
 	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
