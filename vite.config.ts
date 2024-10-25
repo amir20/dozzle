@@ -11,6 +11,7 @@ import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import { compression } from "vite-plugin-compression2";
 import { VueRouterAutoImports } from "unplugin-vue-router";
+import svgLoader from "vite-svg-loader";
 
 export default defineConfig(() => ({
   resolve: {
@@ -71,21 +72,8 @@ export default defineConfig(() => ({
       include: [path.resolve(__dirname, "locales/**")],
     }),
     compression({ algorithm: "brotliCompress", exclude: [/\.(html)$/] }),
+    svgLoader({}),
   ],
-  server: {
-    watch: {
-      ignored: ["**/data/**"],
-    },
-    proxy: {
-      "/api": {
-        target: {
-          host: "127.0.0.1",
-          port: 3100,
-        },
-        changeOrigin: false,
-      },
-    },
-  },
   test: {
     include: ["assets/**/*.spec.ts"],
   },
