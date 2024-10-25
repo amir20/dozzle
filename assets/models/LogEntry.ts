@@ -85,10 +85,14 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
         if (visibleKeys.value.size === 0) {
           return flattenJSON(message);
         } else {
-          const keys = Array.from(visibleKeys.value.entries())
-            .filter(([, value]) => value)
-            .map(([key]) => key);
-          return keys.reduce((acc, attr) => ({ ...acc, [attr.join(".")]: getDeep(message, attr) }), {});
+          const flatJSON = flattenJSON(message);
+          for (const [keys, enabled] of visibleKeys.value.entries()) {
+            const key = keys.join(".");
+            if (!enabled) {
+              delete flatJSON[key];
+            }
+          }
+          return flatJSON;
         }
       });
     } else {
