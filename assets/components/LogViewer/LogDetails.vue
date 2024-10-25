@@ -85,7 +85,8 @@ function toggleField(key: string[]) {
     visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
   }
 
-  const enabled = visibleKeys.value.get(key);
+  const enabled = visibleKeys.value.get(key) ?? true;
+
   visibleKeys.value.set(key, !enabled);
 }
 
