@@ -116,7 +116,7 @@ const fields = computed({
 
       for (const [key, value] of allFields) {
         if ([...visibleKeys.value.keys()].findIndex((k) => arrayEquals(k, key)) === -1) {
-          fieldsWithValue.push({ key, value, enabled: false });
+          fieldsWithValue.push({ key, value, enabled: true });
         }
       }
     }
