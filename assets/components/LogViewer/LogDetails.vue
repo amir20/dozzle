@@ -48,7 +48,9 @@
         <tr>
           <th class="w-60">Field</th>
           <th class="mobile-hidden">Value</th>
-          <th class="w-20"><input type="checkbox" class="toggle toggle-primary" @change="toggleAll($event)" /></th>
+          <th class="w-20">
+            <input type="checkbox" class="toggle toggle-primary" v-model="toggleAllFields" title="Toggle all" />
+          </th>
         </tr>
       </thead>
       <tbody ref="list">
@@ -85,19 +87,9 @@ function toggleField(key: string[]) {
     visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
   }
 
-  const enabled = visibleKeys.value.get(key);
+  const enabled = visibleKeys.value.get(key) ?? true;
+
   visibleKeys.value.set(key, !enabled);
-}
-
-function toggleAll(e: Event) {
-  if (visibleKeys.value.size === 0) {
-    visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
-  }
-
-  const enabled = e.target instanceof HTMLInputElement && e.target.checked;
-  for (const key of visibleKeys.value.keys()) {
-    visibleKeys.value.set(key, enabled);
-  }
 }
 
 const fields = computed({
@@ -116,7 +108,7 @@ const fields = computed({
 
       for (const [key, value] of allFields) {
         if ([...visibleKeys.value.keys()].findIndex((k) => arrayEquals(k, key)) === -1) {
-          fieldsWithValue.push({ key, value, enabled: false });
+          fieldsWithValue.push({ key, value, enabled: true });
         }
       }
     }
@@ -129,6 +121,18 @@ const fields = computed({
       map.set(key, enabled);
     }
     visibleKeys.value = map;
+  },
+});
+
+const toggleAllFields = computed({
+  get: () => fields.value.every(({ enabled }) => enabled),
+  set(value) {
+    if (visibleKeys.value.size === 0) {
+      visibleKeys.value = new Map<string[], boolean>(fields.value.map(({ key }) => [key, true]));
+    }
+    for (const key of visibleKeys.value.keys()) {
+      visibleKeys.value.set(key, value);
+    }
   },
 });
 
@@ -149,7 +153,7 @@ function syntaxHighlight(json: any) {
       } else if (/null/.test(match)) {
         cls = "json-null";
       }
-      return '<span class="' + cls + '">' + match + "</span>";
+      return `<span class="${cls}">${match}</span>`;
     },
   );
 }
