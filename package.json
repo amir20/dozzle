@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "1.29.0",
-    "@iconify-json/carbon": "^1.2.3",
+    "@iconify-json/carbon": "^1.2.4",
     "@iconify-json/cil": "^1.2.1",
     "@iconify-json/ic": "^1.2.1",
     "@iconify-json/material-symbols": "^1.2.5",
@@ -81,7 +81,7 @@
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^17.0.0",
     "@pinia/testing": "^0.1.6",
-    "@playwright/test": "^1.48.1",
+    "@playwright/test": "^1.48.2",
     "@types/d3-array": "^3.2.1",
     "@types/d3-ease": "^3.0.2",
     "@types/d3-scale": "^4.0.8",
@@ -89,7 +89,7 @@
     "@types/d3-shape": "^3.1.6",
     "@types/d3-transition": "^3.0.9",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^22.8.0",
+    "@types/node": "^22.8.1",
     "@vitejs/plugin-vue": "5.1.4",
     "@vue/compiler-sfc": "^3.5.12",
     "@vue/test-utils": "^2.4.6",
