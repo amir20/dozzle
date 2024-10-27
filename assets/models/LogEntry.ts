@@ -86,13 +86,17 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
           return flattenJSON(message);
         } else {
           const flatJSON = flattenJSON(message);
+          const filteredJSON: Record<string, any> = {};
           for (const [keys, enabled] of visibleKeys.value.entries()) {
             const key = keys.join(".");
             if (!enabled) {
               delete flatJSON[key];
+              continue;
             }
+            filteredJSON[key] = flatJSON[key];
+            delete flatJSON[key];
           }
-          return flatJSON;
+          return { ...filteredJSON, ...flatJSON };
         }
       });
     } else {

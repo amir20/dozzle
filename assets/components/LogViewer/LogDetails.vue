@@ -133,6 +133,10 @@ const toggleAllFields = computed({
     for (const key of visibleKeys.value.keys()) {
       visibleKeys.value.set(key, value);
     }
+
+    for (const field of fields.value) {
+      visibleKeys.value.set(field.key, value);
+    }
   },
 });
 
