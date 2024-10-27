@@ -23,8 +23,8 @@ import stripAnsi from "strip-ansi";
 
 const ansiConvertor = new AnsiConvertor({
   escapeXML: false,
-  fg: "var(--base-content-color)",
-  bg: "var(--base-color)",
+  fg: "lch(var(--base-content-color))",
+  bg: "lch(var(--base-color))",
 });
 
 const { showContainerName = false } = defineProps<{
