@@ -6,7 +6,7 @@
     <ul class="menu dropdown-content z-50 mt-1 w-52 rounded-box border border-base-content/20 bg-base p-2 shadow">
       <slot>
         <li v-for="item in options">
-          <a @click="modelValue = item.value">
+          <a @click="update(item.value as T)">
             <mdi:check class="w-4" v-if="modelValue == item.value" />
             <div v-else class="w-4"></div>
             {{ item.label }}
@@ -36,5 +36,9 @@ const { options = [], defaultLabel = "" } = defineProps<{
 const label = computed(() => options.find((item) => item.value === modelValue.value)?.label ?? defaultLabel);
 const details = ref<HTMLElement | null>(null);
 const close = () => details.value?.removeAttribute("open");
-watch(modelValue, () => close());
+
+const update = (value: T) => {
+  modelValue.value = value;
+  close();
+};
 </script>

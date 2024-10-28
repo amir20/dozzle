@@ -37,7 +37,7 @@
             </template>
             <template #input>
               <!-- @vue-ignore -->
-              <dropdown-menu
+              <DropdownMenu
                 v-model="locale"
                 :options="[
                   { label: 'Auto', value: '' },
@@ -54,7 +54,7 @@
             <template #input>
               <div class="flex gap-2">
                 <!-- @vue-ignore -->
-                <dropdown-menu
+                <DropdownMenu
                   v-model="dateLocale"
                   :options="[
                     { label: 'Auto', value: 'auto' },
@@ -65,7 +65,7 @@
                   ]"
                 />
                 <!-- @vue-ignore -->
-                <dropdown-menu
+                <DropdownMenu
                   v-model="hourStyle"
                   :options="[
                     { label: 'Auto', value: 'auto' },
@@ -83,7 +83,7 @@
             </template>
             <template #input>
               <!-- @vue-ignore -->
-              <dropdown-menu
+              <DropdownMenu
                 v-model="size"
                 :options="[
                   { label: 'Small', value: 'small' },
@@ -100,7 +100,7 @@
             </template>
             <template #input>
               <!-- @vue-ignore -->
-              <dropdown-menu
+              <DropdownMenu
                 v-model="lightTheme"
                 :options="[
                   { label: 'Auto', value: 'auto' },

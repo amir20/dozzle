@@ -25,7 +25,7 @@
         />
       </div>
       <!-- @vue-ignore -->
-      <dropdown-menu
+      <DropdownMenu
         class="btn-sm"
         v-model="selectedHost"
         :options="[
@@ -38,7 +38,7 @@
     <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
       {{ $t("label.per-page") }}
       <!-- @vue-ignore -->
-      <dropdown-menu
+      <DropdownMenu
         class="dropdown-left btn-xs md:btn-sm"
         v-model="perPage"
         :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
