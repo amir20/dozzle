@@ -38,7 +38,7 @@ const linkify = (text: string) =>
   text.replace(urlPattern, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 </script>
 <style scoped lang="postcss">
-.log-wrapper > :deep(a) {
+.log-wrapper :deep(a) {
   @apply text-primary underline-offset-4 hover:underline;
 }
 </style>
