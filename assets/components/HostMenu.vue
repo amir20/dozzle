@@ -66,7 +66,7 @@
                     </span>
                   </router-link>
                   <template #content>
-                    <ContainerPopup :container="item" />
+                    <ContainerPopup :container="item as Container" />
                   </template>
                 </Popup>
               </li>
