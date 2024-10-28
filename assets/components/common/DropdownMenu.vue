@@ -24,21 +24,19 @@ type DropdownItem = {
   value: T;
 };
 
-const { modelValue } = defineModels<{
-  modelValue: T;
-}>();
+const model = defineModel<T>();
 
-const { options = [], defaultLabel = "" } = defineProps<{
-  options?: DropdownItem[];
+const { options, defaultLabel = "" } = defineProps<{
+  options: DropdownItem[];
   defaultLabel?: string;
 }>();
 
-const label = computed(() => options.find((item) => item.value === modelValue.value)?.label ?? defaultLabel);
+const label = computed(() => options.find((item) => item.value === model.value)?.label ?? defaultLabel);
 const details = ref<HTMLElement | null>(null);
 const close = () => details.value?.removeAttribute("open");
 
 const update = (value: T) => {
-  modelValue.value = value;
+  model.value = value;
   close();
 };
 </script>
