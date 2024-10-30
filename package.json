@@ -41,10 +41,10 @@
     "@intlify/unplugin-vue-i18n": "^5.2.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
-    "@vueuse/components": "^11.1.0",
-    "@vueuse/core": "^11.1.0",
-    "@vueuse/integrations": "^11.1.0",
-    "@vueuse/router": "^11.1.0",
+    "@vueuse/components": "^11.2.0",
+    "@vueuse/core": "^11.2.0",
+    "@vueuse/integrations": "^11.2.0",
+    "@vueuse/router": "^11.2.0",
     "ansi-to-html": "^0.7.2",
     "autoprefixer": "^10.4.20",
     "d3-array": "^3.2.4",
@@ -65,7 +65,7 @@
     "strip-ansi": "^7.1.0",
     "tailwindcss": "^3.4.14",
     "unplugin-auto-import": "^0.18.3",
-    "unplugin-icons": "^0.19.3",
+    "unplugin-icons": "^0.20.0",
     "unplugin-vue-components": "^0.27.4",
     "unplugin-vue-macros": "^2.13.3",
     "unplugin-vue-router": "^0.10.8",
@@ -105,8 +105,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4",
-    "vue-component-type-helpers": "^2.1.8",
-    "vue-tsc": "^2.1.8"
+    "vue-component-type-helpers": "^2.1.10",
+    "vue-tsc": "^2.1.10"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
