@@ -11,7 +11,7 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 
 	for _, host := range h.multiHostService.Hosts() {
 		if host.Type == "agent" {
-			log.Debug().Str("host", host.ID).Msg("Skipping agent host")
+			log.Debug().Str("host", host.ID).Msg("Skipping agent host for healthcheck")
 			continue
 		}
 
