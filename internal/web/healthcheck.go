@@ -9,11 +9,19 @@ import (
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	log.Trace().Msg("Healthcheck request received")
 
-	_, errors := h.multiHostService.ListAllContainers()
-	if len(errors) > 0 {
-		log.Error().Err(errors[0]).Msg("Error listing containers")
-		http.Error(w, "Error listing containers", http.StatusInternalServerError)
-	} else {
-		w.WriteHeader(http.StatusOK)
+	for _, host := range h.multiHostService.Hosts() {
+		if host.Type == "agent" {
+			log.Debug().Str("host", host.ID).Msg("Skipping agent host")
+			continue
+		}
+
+		_, err := h.multiHostService.ListContainersForHost(host.ID)
+		if err != nil {
+			log.Error().Err(err).Str("host", host.ID).Msg("Error listing containers")
+			http.Error(w, "Error listing containers", http.StatusInternalServerError)
+			return
+		}
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
