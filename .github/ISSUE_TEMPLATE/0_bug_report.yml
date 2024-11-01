@@ -28,7 +28,7 @@ body:
   - type: input
     attributes:
       label: 📦 Dozzle version
-      description: Can be found in logs or settings page.
+      description: Run `docker run amir20/dozzle --version` or `curl http://<host>/api/version`.
     validations:
       required: true
   - type: textarea
