@@ -32,7 +32,7 @@ Dozzle will be available at `http://localhost:8080/foobar/`. This option rewrite
 
 Here is an example with Nginx and proxy Dozzle with a different base:
 
-```conf
+```nginx
 location ^~ /foobar/ {
     set $upstream_app dozzle;
     set $upstream_port 8080;
