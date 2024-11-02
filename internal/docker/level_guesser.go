@@ -50,6 +50,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 			if strings.Contains(value, " "+strings.ToUpper(level)+" ") {
 				return level
 			}
+
+			// Look for levels with equal sign and quotes around them
+			if strings.Contains(value, level+"=") {
+				return level
+			}
 		}
 
 		return "unknown"
