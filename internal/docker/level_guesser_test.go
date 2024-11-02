@@ -25,6 +25,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[ ERROR ] Something went wrong", "error"},
 		{"[error] Something went wrong", "error"},
 		{"[test] [error] Something went wrong", "error"},
+		{"Some test with error=test", "error"},
 		{"[foo] [ ERROR] Something went wrong", "error"},
 		{"123 ERROR Something went wrong", "error"},
 		{"123 Something went wrong", "unknown"},
