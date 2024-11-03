@@ -7,7 +7,7 @@ import (
 )
 
 func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
-	log.Trace().Msg("Healthcheck request received")
+	log.Debug().Msg("Executing healthcheck")
 
 	for _, host := range h.multiHostService.Hosts() {
 		if host.Type == "agent" {
