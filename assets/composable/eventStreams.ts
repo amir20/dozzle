@@ -161,6 +161,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     if (isLoadingMore.value) return;
 
     const to = messages.value[0].date;
+    const lastSeenId = messages.value[0].id;
     const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
@@ -174,6 +175,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         loadMoreParams.append("from", from.toISOString());
         loadMoreParams.append("to", to.toISOString());
         loadMoreParams.append("minimum", "100");
+        loadMoreParams.append("lastSeenId", String(lastSeenId));
 
         return withBase(`${loadMoreUrl.value}?${loadMoreParams.toString()}`);
       });
