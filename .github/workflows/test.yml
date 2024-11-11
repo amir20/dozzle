@@ -74,12 +74,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Setup Go
+        uses: WillAbides/setup-go-faster@v1.14.0
+        with:
+          go-version: stable
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
       - name: Stactic checker
         uses: dominikh/staticcheck-action@v1.3.1
         with:
-          version: "latest"
+          install-go: false
   int-test:
     name: Integration Tests
     timeout-minutes: 60
