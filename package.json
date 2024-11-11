@@ -90,7 +90,7 @@
     "@types/d3-transition": "^3.0.9",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.9.0",
-    "@vitejs/plugin-vue": "5.1.4",
+    "@vitejs/plugin-vue": "5.1.5",
     "@vue/compiler-sfc": "^3.5.12",
     "@vue/test-utils": "^2.4.6",
     "bumpp": "^9.8.1",
