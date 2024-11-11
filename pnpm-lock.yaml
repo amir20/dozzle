@@ -187,8 +187,8 @@ importers:
         specifier: ^22.9.0
         version: 22.9.0
       '@vitejs/plugin-vue':
-        specifier: 5.1.4
-        version: 5.1.4(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))
+        specifier: 5.1.5
+        version: 5.1.5(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))
       '@vue/compiler-sfc':
         specifier: ^3.5.12
         version: 3.5.12
@@ -1195,8 +1195,8 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  '@vitejs/plugin-vue@5.1.4':
-    resolution: {integrity: sha512-N2XSI2n3sQqp5w7Y/AN/L2XDjBIRGqXko+eDp42sydYSBeJuSm5a1sLf8zakmo8u7tA8NmBgoDLA1HeOESjp9A==}
+  '@vitejs/plugin-vue@5.1.5':
+    resolution: {integrity: sha512-dlnib73G05CDBAUR/YpuZcQQ47fpjihnnNouAAqN62z+oqSsWJ+kh52GRzIxpkgFG3q11eXK7Di7RMmoCwISZA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0
@@ -4642,7 +4642,7 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-vue@5.1.4(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))':
+  '@vitejs/plugin-vue@5.1.5(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       vite: 5.4.10(@types/node@22.9.0)
       vue: 3.5.12(typescript@5.6.3)
@@ -7308,7 +7308,7 @@ snapshots:
       '@shikijs/transformers': 1.22.2
       '@shikijs/types': 1.22.2
       '@types/markdown-it': 14.1.2
-      '@vitejs/plugin-vue': 5.1.4(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))
+      '@vitejs/plugin-vue': 5.1.5(vite@5.4.10(@types/node@22.9.0))(vue@3.5.12(typescript@5.6.3))
       '@vue/devtools-api': 7.5.6
       '@vue/shared': 3.5.12
       '@vueuse/core': 11.2.0(vue@3.5.12(typescript@5.6.3))
