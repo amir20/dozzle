@@ -158,7 +158,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	encoder := json.NewEncoder(w)
-outer:
+
 	for {
 		if buffer.Len() > minimum {
 			break
@@ -199,7 +199,7 @@ outer:
 
 			if lastSeenId != 0 && event.Id == lastSeenId {
 				log.Debug().Uint32("lastSeenId", lastSeenId).Msg("found last seen id")
-				break outer
+				break
 			}
 
 			buffer.Push(event)
