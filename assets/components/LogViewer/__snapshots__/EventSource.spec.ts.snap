@@ -59,7 +59,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 
 exports[`<ContainerEventSource /> > renders loading correctly 1`] = `
 "<div class="flex min-h-[1px] justify-center"><span class="loading loading-bars loading-md mt-4 text-primary" style="display: none;"></span></div>
-<!--v-if-->"
+<div class="m-4 text-center"><span class="loading loading-ring loading-md text-primary"></span></div>
+<ul data-v-cf9ff940="" class="events group pt-4 medium"></ul>"
 `;
 
 exports[`<ContainerEventSource /> > should parse messages 1`] = `
