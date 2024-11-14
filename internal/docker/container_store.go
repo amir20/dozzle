@@ -230,6 +230,17 @@ func (s *ContainerStore) init() {
 						return c, true
 					}
 				})
+
+			case "rename":
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+					if loaded {
+						log.Debug().Str("id", event.ActorID).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
+						c.Name = event.ActorAttributes["name"]
+						return c, false
+					} else {
+						return c, true
+					}
+				})
 			}
 			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
 				select {

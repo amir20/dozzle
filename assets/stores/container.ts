@@ -124,6 +124,7 @@ export const useContainerStore = defineStore("container", () => {
       const existing = allContainersById.value[c.id];
       existing.state = c.state;
       existing.health = c.health;
+      existing.name = c.name;
     });
 
     containers.value = [

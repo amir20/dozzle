@@ -309,9 +309,10 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- Contai
 		case message := <-dockerMessages:
 			if message.Type == events.ContainerEventType && len(message.Actor.ID) > 0 {
 				messages <- ContainerEvent{
-					ActorID: message.Actor.ID[:12],
-					Name:    string(message.Action),
-					Host:    d.host.ID,
+					ActorID:         message.Actor.ID[:12],
+					Name:            string(message.Action),
+					Host:            d.host.ID,
+					ActorAttributes: message.Actor.Attributes,
 				}
 			}
 		}
