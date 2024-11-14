@@ -395,6 +395,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	multiHostClient.SubscribeContainersStarted(r.Context(), newContainers, filter)
 
 	ticker := time.NewTicker(5 * time.Second)
+	sseWriter.Ping()
 loop:
 	for {
 		select {
