@@ -38,7 +38,7 @@ type ContainerEvent struct {
 	Name            string            `json:"name"`
 	Host            string            `json:"host"`
 	ActorID         string            `json:"actorId"`
-	ActorAttributes map[string]string `json:"actorAttributes"`
+	ActorAttributes map[string]string `json:"actorAttributes,omitempty"`
 }
 
 type LogPosition string
