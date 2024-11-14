@@ -1,5 +1,8 @@
 <template>
   <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
+  <div v-if="!opened" class="m-4 text-center">
+    <span class="loading loading-ring loading-md text-primary"></span>
+  </div>
   <slot :messages="messages"></slot>
 </template>
 
@@ -11,7 +14,7 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs, isLoadingMore } = streamSource($$(entity));
+const { messages, loadOlderLogs, isLoadingMore, opened } = streamSource($$(entity));
 const { loadingMore } = useLoggingContext();
 
 const enabled = ref(true);

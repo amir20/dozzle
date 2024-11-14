@@ -1,9 +1,5 @@
 <template>
-  <ul
-    class="events group pt-4"
-    :class="{ 'disable-wrap': !softWrap, [size]: true, compact }"
-    v-if="messages.length > 0"
-  >
+  <ul class="events group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
     <li
       v-for="item in messages"
       ref="list"
