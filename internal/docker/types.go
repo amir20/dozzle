@@ -35,9 +35,10 @@ type ContainerStat struct {
 
 // ContainerEvent represents events that are triggered
 type ContainerEvent struct {
-	ActorID string `json:"actorId"`
-	Name    string `json:"name"`
-	Host    string `json:"host"`
+	Name            string            `json:"name"`
+	Host            string            `json:"host"`
+	ActorID         string            `json:"actorId"`
+	ActorAttributes map[string]string `json:"actorAttributes"`
 }
 
 type LogPosition string

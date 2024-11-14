@@ -59,9 +59,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			switch event.Name {
-			case "start", "die", "destroy":
-				if event.Name == "start" {
-					log.Debug().Str("container", event.ActorID).Msg("container started")
+			case "start", "die", "destroy", "rename":
+				if event.Name == "start" || event.Name == "rename" {
+					log.Debug().Str("action", event.Name).Str("id", event.ActorID).Msg("container event")
 
 					if containers, err := h.multiHostService.ListContainersForHost(event.Host); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {

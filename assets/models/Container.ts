@@ -23,9 +23,9 @@ export class GroupedContainers {
 
 export class Container {
   private _stat: Ref<Stat>;
+  private _name: string;
   private readonly _statsHistory: Ref<Stat[]>;
   private readonly movingAverageStat: Ref<Stat>;
-  private readonly _name: string;
 
   constructor(
     public readonly id: string,
@@ -74,6 +74,10 @@ export class Container {
 
   get customGroup() {
     return this.group;
+  }
+
+  set name(name: string) {
+    this._name = name;
   }
 
   get name() {
