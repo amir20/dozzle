@@ -65,7 +65,7 @@ Dozzle can be used to monitor multiple Docker hosts. You can run Dozzle in agent
 
     $ docker run -v /var/run/docker.sock:/var/run/docker.sock -p 7007:7007 amir20/dozzle:latest agent
 
-See the [Agent Mode](https://dozzle.dev/guide/agent-mode) documentation for more details.
+See the [Agent Mode](https://dozzle.dev/guide/agent) documentation for more details.
 
 ## Technical Details
 
