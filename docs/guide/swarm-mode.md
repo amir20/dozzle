@@ -74,3 +74,31 @@ secrets:
 ```
 
 In this example, `users.yml` file is stored in a Docker secret. It is the same as the [simple authentication](/guide/authentication#generating-users-yml) example.
+
+## Adding standalone Agents to Swarm Mode
+
+From version {TBD}, Dozzle now supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
+
+Simply [add the remote agent](/guide/agent#how-to-connect-to-an-agent) to your Swarm compose in the same way you normally would.
+
+```yml
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_MODE=swarm
+      - DOZZLE_REMOTE_AGENT=agent:7007
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080
+    networks:
+      - dozzle
+    deploy:
+      mode: global
+networks:
+  dozzle:
+    driver: overlay
+```
+
+The remote agent(s) will now display alongside the other nodes in Dozzle when "Swarm Mode" view is disabled.
