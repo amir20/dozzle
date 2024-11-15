@@ -126,6 +126,24 @@ func main() {
 			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
 				log.Fatal().Err(err).Msg("Failed to write to stdout")
 			}
+
+		case *cli.AgentTestCmd:
+			certs, err := cli.ReadCertificates(certs)
+			if err != nil {
+				log.Fatal().Err(err).Msg("Could not read certificates")
+			}
+
+			log.Info().Str("endpoint", args.AgentTest.Address).Msg("Connecting to agent")
+
+			agent, err := agent.NewClient(args.AgentTest.Address, certs)
+			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
+			defer cancel()
+			host, err := agent.Host(ctx)
+			if err != nil {
+				log.Fatal().Err(err).Str("endpoint", args.AgentTest.Address).Msg("error fetching host info for agent")
+			}
+
+			log.Info().Str("endpoint", args.AgentTest.Address).Str("version", host.AgentVersion).Str("name", host.Name).Str("id", host.ID).Msg("Successfully connected to agent")
 		}
 
 		os.Exit(0)
