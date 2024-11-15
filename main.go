@@ -136,6 +136,9 @@ func main() {
 			log.Info().Str("endpoint", args.AgentTest.Address).Msg("Connecting to agent")
 
 			agent, err := agent.NewClient(args.AgentTest.Address, certs)
+			if err != nil {
+				log.Fatal().Err(err).Str("endpoint", args.AgentTest.Address).Msg("error connecting to agent")
+			}
 			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 			defer cancel()
 			host, err := agent.Host(ctx)

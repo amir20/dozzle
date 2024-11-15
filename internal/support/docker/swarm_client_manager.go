@@ -206,9 +206,11 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 }
 
 func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
-	clients := m.List()
+	m.mu.RLock()
+	clients := lo.Values(m.clients)
+	m.mu.RUnlock()
 
-	hosts := lop.Map(clients, func(client ClientService, _ int) docker.Host {
+	swarmNodes := lop.Map(clients, func(client ClientService, _ int) docker.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
@@ -221,10 +223,7 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
 		return host
 	})
 
-	agents := m.agentManager.Hosts(ctx)
-
-	return append(agents, hosts...)
-
+	return append(m.agentManager.Hosts(ctx), swarmNodes...)
 }
 
 func (m *SwarmClientManager) String() string {
