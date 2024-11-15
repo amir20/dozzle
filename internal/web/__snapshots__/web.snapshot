@@ -166,6 +166,8 @@ Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+:ping
+
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
 Connection: close
@@ -185,6 +187,8 @@ Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+:ping 
+
 data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
 
 
@@ -201,6 +205,8 @@ Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn
 Content-Type: text/event-stream
 X-Accel-Buffering: no
 
+:ping 
+
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
 
@@ -213,6 +219,8 @@ Connection: keep-alive
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
 Content-Type: text/event-stream
 X-Accel-Buffering: no
+
+:ping 
 
 data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
 id: 1589396137772

@@ -52,6 +52,7 @@ export type LogStreamSource = ReturnType<typeof useLogStream>;
 function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
+  const opened = ref(false);
   const { paused: scrollingPaused } = useScrollContext();
 
   function flushNow() {
@@ -122,6 +123,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   function connect({ clear } = { clear: true }) {
     close();
     if (clear) clearMessages();
+    opened.value = false;
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
       const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
@@ -150,6 +152,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       }
     };
     es.onerror = () => clearMessages();
+    es.onopen = () => {
+      opened.value = true;
+    };
   }
 
   watch(urlWithParams, () => connect(), { immediate: true });
@@ -205,5 +210,5 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   });
 
-  return { messages, loadOlderLogs, isLoadingMore, hasComplexLogs };
+  return { messages, loadOlderLogs, isLoadingMore, hasComplexLogs, opened };
 }
