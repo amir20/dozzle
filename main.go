@@ -157,7 +157,8 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
-		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout)
+		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
+		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager)
 		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")

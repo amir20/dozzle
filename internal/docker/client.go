@@ -342,6 +342,7 @@ func (d *httpClient) Ping(ctx context.Context) (types.Ping, error) {
 }
 
 func (d *httpClient) Host() Host {
+	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
 }
 

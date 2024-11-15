@@ -1,9 +1,10 @@
 services:
   dozzle-service:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:local-test
     environment:
       - DOZZLE_LEVEL=debug
       - DOZZLE_MODE=swarm
+      - DOZZLE_REMOTE_AGENT=198.19.248.6:7070
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
