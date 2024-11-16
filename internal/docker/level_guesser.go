@@ -63,13 +63,14 @@ func guessLogLevel(logEvent *LogEvent) string {
 		if value == nil {
 			return "unknown"
 		}
+
 		if level, ok := value.Get("level"); ok {
 			if level, ok := level.(string); ok {
-				return strings.ToLower(level)
+				return normalizeLogLevel(level)
 			}
 		} else if severity, ok := value.Get("severity"); ok {
 			if severity, ok := severity.(string); ok {
-				return strings.ToLower(severity)
+				return normalizeLogLevel(severity)
 			}
 		}
 
@@ -78,9 +79,9 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return "unknown"
 		}
 		if level, ok := value.Get("level"); ok {
-			return strings.ToLower(level)
+			return normalizeLogLevel(level)
 		} else if severity, ok := value.Get("severity"); ok {
-			return strings.ToLower(severity)
+			return normalizeLogLevel(severity)
 		}
 
 	case map[string]interface{}:
@@ -91,6 +92,16 @@ func guessLogLevel(logEvent *LogEvent) string {
 
 	default:
 		log.Debug().Type("type", value).Msg("unknown logEvent type")
+	}
+
+	return "unknown"
+}
+
+func normalizeLogLevel(level string) string {
+	level = stripANSI(level)
+	level = strings.ToLower(level)
+	if _, ok := SupportedLogLevels[level]; ok {
+		return level
 	}
 
 	return "unknown"

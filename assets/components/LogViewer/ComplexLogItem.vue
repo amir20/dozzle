@@ -19,7 +19,7 @@
           <template v-else-if="Array.isArray(value)">
             <span class="font-bold" v-html="JSON.stringify(value)"> </span>
           </template>
-          <span class="font-bold" v-html="value" v-else></span>
+          <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
       </ul>
@@ -27,6 +27,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import stripAnsi from "strip-ansi";
 import { type ComplexLogEntry } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
 
