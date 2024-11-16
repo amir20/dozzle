@@ -68,6 +68,12 @@ func TestParseLog(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "Broken format with unexpected quotes",
+			log:     `key1=value"1"= key2="value2"`,
+			want:    nil,
+			wantErr: true,
+		},
+		{
 			name:    "Invalid log with unclosed quotes",
 			log:     "key1=\"value1 key2=value2",
 			want:    nil,
