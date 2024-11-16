@@ -17,7 +17,7 @@ func ParseLogFmt(log string) (*orderedmap.OrderedMap[string, string], error) {
 		char := log[i]
 		if isKey {
 			if char == '=' {
-				if i == start {
+				if start >= i {
 					return nil, errors.New("invalid format: key is empty")
 				}
 				key = log[start:i]
