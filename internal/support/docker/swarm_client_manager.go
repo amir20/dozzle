@@ -19,14 +19,15 @@ import (
 )
 
 type SwarmClientManager struct {
-	clients     map[string]ClientService
-	certs       tls.Certificate
-	mu          sync.RWMutex
-	subscribers *xsync.MapOf[context.Context, chan<- docker.Host]
-	localClient docker.Client
-	localIPs    []string
-	name        string
-	timeout     time.Duration
+	clients      map[string]ClientService
+	certs        tls.Certificate
+	mu           sync.RWMutex
+	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
+	localClient  docker.Client
+	localIPs     []string
+	name         string
+	timeout      time.Duration
+	agentManager *RetriableClientManager
 }
 
 func localIPs() []string {
@@ -46,7 +47,7 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, timeout time.Duration) *SwarmClientManager {
+func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager) *SwarmClientManager {
 	clientMap := make(map[string]ClientService)
 	localService := NewDockerClientService(localClient)
 	clientMap[localClient.Host().ID] = localService
@@ -68,18 +69,20 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, tim
 	log.Debug().Str("service", serviceName).Msg("found swarm service name")
 
 	return &SwarmClientManager{
-		localClient: localClient,
-		clients:     clientMap,
-		certs:       certs,
-		subscribers: xsync.NewMapOf[context.Context, chan<- docker.Host](),
-		localIPs:    localIPs(),
-		name:        serviceName,
-		timeout:     timeout,
+		localClient:  localClient,
+		clients:      clientMap,
+		certs:        certs,
+		subscribers:  xsync.NewMapOf[context.Context, chan<- docker.Host](),
+		localIPs:     localIPs(),
+		name:         serviceName,
+		timeout:      timeout,
+		agentManager: agentManager,
 	}
 }
 
 func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- docker.Host) {
 	m.subscribers.Store(ctx, channel)
+	m.agentManager.Subscribe(ctx, channel)
 
 	go func() {
 		<-ctx.Done()
@@ -174,6 +177,8 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 
 	m.mu.Unlock()
 
+	m.agentManager.RetryAndList()
+
 	return m.List(), errors
 }
 
@@ -181,7 +186,10 @@ func (m *SwarmClientManager) List() []ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	return lo.Values(m.clients)
+	agents := m.agentManager.List()
+	clients := lo.Values(m.clients)
+
+	return append(agents, clients...)
 }
 
 func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
@@ -189,13 +197,20 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 	defer m.mu.RUnlock()
 
 	client, ok := m.clients[id]
+
+	if !ok {
+		client, ok = m.agentManager.Find(id)
+	}
+
 	return client, ok
 }
 
 func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
-	clients := m.List()
+	m.mu.RLock()
+	clients := lo.Values(m.clients)
+	m.mu.RUnlock()
 
-	return lop.Map(clients, func(client ClientService, _ int) docker.Host {
+	swarmNodes := lop.Map(clients, func(client ClientService, _ int) docker.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
@@ -208,6 +223,7 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
 		return host
 	})
 
+	return append(m.agentManager.Hosts(ctx), swarmNodes...)
 }
 
 func (m *SwarmClientManager) String() string {

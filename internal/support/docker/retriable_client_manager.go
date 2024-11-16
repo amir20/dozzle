@@ -10,6 +10,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
 	"github.com/rs/zerolog/log"
@@ -136,11 +137,7 @@ func (m *RetriableClientManager) List() []ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	clients := make([]ClientService, 0, len(m.clients))
-	for _, client := range m.clients {
-		clients = append(clients, client)
-	}
-	return clients
+	return lo.Values(m.clients)
 }
 
 func (m *RetriableClientManager) Find(id string) (ClientService, bool) {

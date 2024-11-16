@@ -31,6 +31,7 @@ type Args struct {
 	Healthcheck     *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate        *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent           *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
+	AgentTest       *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 }
 
 type HealthcheckCmd struct {
@@ -38,6 +39,10 @@ type HealthcheckCmd struct {
 
 type AgentCmd struct {
 	Addr string `arg:"env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+}
+
+type AgentTestCmd struct {
+	Address string `arg:"positional"`
 }
 
 type GenerateCmd struct {
