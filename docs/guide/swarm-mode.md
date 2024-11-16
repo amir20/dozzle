@@ -77,9 +77,12 @@ In this example, `users.yml` file is stored in a Docker secret. It is the same a
 
 ## Adding standalone Agents to Swarm Mode
 
-From version {TBD}, Dozzle now supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
+From version v8.8.x, Dozzle supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
 
 Simply [add the remote agent](/guide/agent#how-to-connect-to-an-agent) to your Swarm compose in the same way you normally would.
+
+> [!NOTE]
+> While remote agents are supported, remote connections such as socket proxy are not supported.
 
 ```yml
 services:
@@ -101,4 +104,4 @@ networks:
     driver: overlay
 ```
 
-The remote agent(s) will now display alongside the other nodes in Dozzle when "Swarm Mode" view is disabled.
+The remote agent(s) will now display alongside the other nodes in Dozzle.
