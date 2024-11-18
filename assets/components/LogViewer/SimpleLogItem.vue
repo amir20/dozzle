@@ -1,9 +1,5 @@
 <template>
-  <div class="relative flex w-full items-start gap-x-2">
-    <LogStd :std="logEntry.std" v-if="showStd" />
-    <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
-    <LogDate :date="logEntry.date" v-if="showTimestamp" class="select-none" />
-    <LogLevel class="flex" :level="logEntry.level" :position="logEntry.position" />
+  <LogItem :logEntry :showContainerName>
     <div
       class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"
       v-html="linkify(colorize(logEntry.message))"
@@ -13,7 +9,7 @@
       :message="() => decodeXML(stripAnsi(logEntry.message))"
       :log-entry="logEntry"
     />
-  </div>
+  </LogItem>
 </template>
 <script lang="ts" setup>
 import { SimpleLogEntry } from "@/models/LogEntry";
@@ -37,8 +33,3 @@ const urlPattern = /(https?:\/\/[^\s]+)/g;
 const linkify = (text: string) =>
   text.replace(urlPattern, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
 </script>
-<style scoped lang="postcss">
-.log-wrapper :deep(a) {
-  @apply text-primary underline-offset-4 hover:underline;
-}
-</style>

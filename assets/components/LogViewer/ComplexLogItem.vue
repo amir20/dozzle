@@ -1,30 +1,16 @@
 <template>
-  <div class="group/item clickable relative flex w-full gap-x-2" @click="showDrawer(LogDetails, { entry: logEntry })">
-    <div v-if="showContainerName">
-      <ContainerName :id="logEntry.containerID" />
-    </div>
-    <div v-if="showStd">
-      <LogStd :std="logEntry.std" />
-    </div>
-    <div v-if="showTimestamp">
-      <LogDate :date="logEntry.date" class="select-none" />
-    </div>
-    <div class="flex">
-      <LogLevel :level="logEntry.level" />
-    </div>
-    <div>
-      <ul class="fields space-x-4">
-        <li v-for="(value, name) in validValues" :key="name">
-          <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
-          <template v-else-if="Array.isArray(value)">
-            <span class="font-bold" v-html="JSON.stringify(value)"> </span>
-          </template>
-          <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
-        </li>
-        <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
-      </ul>
-    </div>
-  </div>
+  <LogItem :logEntry :showContainerName @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
+    <ul class="fields space-x-4">
+      <li v-for="(value, name) in validValues" :key="name">
+        <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
+        <template v-else-if="Array.isArray(value)">
+          <span class="font-bold" v-html="JSON.stringify(value)"> </span>
+        </template>
+        <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
+      </li>
+      <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
+    </ul>
+  </LogItem>
 </template>
 <script lang="ts" setup>
 import stripAnsi from "strip-ansi";

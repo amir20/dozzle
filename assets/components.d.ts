@@ -49,6 +49,7 @@ declare module 'vue' {
     LogAnalytics: typeof import('./components/LogViewer/LogAnalytics.vue')['default']
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']
     LogDetails: typeof import('./components/LogViewer/LogDetails.vue')['default']
+    LogItem: typeof import('./components/LogViewer/LogItem.vue')['default']
     LogLevel: typeof import('./components/LogViewer/LogLevel.vue')['default']
     LogList: typeof import('./components/LogViewer/LogList.vue')['default']
     LogMessageActions: typeof import('./components/LogViewer/LogMessageActions.vue')['default']

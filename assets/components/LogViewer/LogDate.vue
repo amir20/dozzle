@@ -1,5 +1,5 @@
 <template>
-  <Tag size="small">
+  <Tag size="small" class="!items-start">
     <DateTime :date="date" class="whitespace-nowrap text-blue" />
   </Tag>
 </template>

@@ -23,7 +23,7 @@
       </div>
       <div
         class="animate-background h-1 w-1/2 bg-gradient-radial from-primary to-transparent to-75%"
-        v-show="!scrollContext.paused && !scrollContext.loading"
+        v-show="!scrollContext.paused"
       ></div>
       <div ref="scrollObserver" class="h-px"></div>
     </main>
