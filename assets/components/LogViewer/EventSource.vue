@@ -1,9 +1,9 @@
 <template>
   <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
   <ul role="status" class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || noLogs">
-    <div class="flex flex-row gap-2" v-for="_ in 7">
-      <div class="h-3 w-40 rounded-full bg-base-content/50 opacity-50"></div>
-      <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50"></div>
+    <div class="flex flex-row gap-2" v-for="size in ['w-3/5', 'w-2/3', 'w-9/12', 'w-1/2']">
+      <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
+      <div class="h-3 rounded-full bg-base-content/50 opacity-50" :class="size"></div>
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
