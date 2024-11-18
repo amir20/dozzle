@@ -59,8 +59,25 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 
 exports[`<ContainerEventSource /> > renders loading correctly 1`] = `
 "<div class="flex min-h-[1px] justify-center"><span class="loading loading-bars loading-md mt-4 text-primary" style="display: none;"></span></div>
-<div class="m-4 text-center"><span class="loading loading-ring loading-md text-primary"></span></div>
-<ul data-v-cf9ff940="" class="events group pt-4 medium"></ul>"
+<ul role="status" class="flex animate-pulse flex-col gap-4 p-4">
+  <div class="flex flex-row gap-2">
+    <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
+    <div class="h-3 rounded-full bg-base-content/50 opacity-50 w-3/5"></div>
+  </div>
+  <div class="flex flex-row gap-2">
+    <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
+    <div class="h-3 rounded-full bg-base-content/50 opacity-50 w-2/3"></div>
+  </div>
+  <div class="flex flex-row gap-2">
+    <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
+    <div class="h-3 rounded-full bg-base-content/50 opacity-50 w-9/12"></div>
+  </div>
+  <div class="flex flex-row gap-2">
+    <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
+    <div class="h-3 rounded-full bg-base-content/50 opacity-50 w-1/2"></div>
+  </div><span class="sr-only">Loading...</span>
+</ul>
+<div data-v-2dbf2928="" class="animate-background h-1 w-1/2 bg-gradient-radial to-transparent to-75% from-secondary"></div>"
 `;
 
 exports[`<ContainerEventSource /> > should parse messages 1`] = `

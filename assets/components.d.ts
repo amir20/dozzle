@@ -42,6 +42,7 @@ declare module 'vue' {
     HostList: typeof import('./components/HostList.vue')['default']
     HostMenu: typeof import('./components/HostMenu.vue')['default']
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
+    IndeterminateBar: typeof import('./components/common/IndeterminateBar.vue')['default']
     InfiniteLoader: typeof import('./components/InfiniteLoader.vue')['default']
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     LabeledInput: typeof import('./components/common/LabeledInput.vue')['default']

@@ -21,10 +21,7 @@
       <div ref="scrollableContent">
         <slot></slot>
       </div>
-      <div
-        class="animate-background h-1 w-1/2 bg-gradient-radial from-primary to-transparent to-75%"
-        v-show="!scrollContext.paused"
-      ></div>
+
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
@@ -89,20 +86,6 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
 .fade-enter-from,
 .fade-leave-to {
   @apply opacity-0;
-}
-
-.animate-background {
-  animation: gradient-animation 3s ease-out infinite;
-}
-
-@keyframes gradient-animation {
-  0%,
-  100% {
-    transform: translateX(0%);
-  }
-  50% {
-    transform: translateX(100%);
-  }
 }
 </style>
 
