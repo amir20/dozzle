@@ -1,9 +1,14 @@
 <template>
-  <div :class="{ 'flex h-[calc(100vh-200px)] flex-col justify-center': loading || noLogs }">
-    <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
-    <slot :messages="messages"></slot>
-    <IndeterminateBar :color />
-  </div>
+  <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
+  <ul role="status" class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || noLogs">
+    <div class="flex flex-row gap-2" v-for="_ in 7">
+      <div class="h-3 w-40 rounded-full bg-base-content/50 opacity-50"></div>
+      <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50"></div>
+    </div>
+    <span class="sr-only">Loading...</span>
+  </ul>
+  <slot :messages="messages" v-else></slot>
+  <IndeterminateBar :color />
 </template>
 
 <script lang="ts" setup generic="T">
