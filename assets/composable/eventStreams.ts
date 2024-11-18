@@ -161,6 +161,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     es.onopen = () => {
       loading.value = false;
       opened.value = true;
+      error.value = false;
     };
   }
 
