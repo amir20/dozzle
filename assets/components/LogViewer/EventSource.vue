@@ -1,9 +1,9 @@
 <template>
-  <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
-  <div v-if="!opened" class="m-4 text-center">
-    <span class="loading loading-ring loading-md text-primary"></span>
+  <div :class="{ 'flex h-[calc(100vh-200px)] flex-col justify-center': loading || noLogs }">
+    <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
+    <slot :messages="messages"></slot>
+    <IndeterminateBar :color />
   </div>
-  <slot :messages="messages"></slot>
 </template>
 
 <script lang="ts" setup generic="T">
@@ -14,10 +14,16 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs, isLoadingMore, opened } = streamSource($$(entity));
+const { messages, loadOlderLogs, isLoadingMore, opened, loading, error } = streamSource($$(entity));
 const { loadingMore } = useLoggingContext();
+const color = computed(() => {
+  if (error.value) return "error";
+  if (loading.value) return "secondary";
+  if (opened.value) return "primary";
+  return "error";
+});
 
-const enabled = ref(true);
+const noLogs = computed(() => messages.value.length === 0);
 
 defineExpose({
   clear: () => (messages.value = []),
@@ -26,10 +32,8 @@ defineExpose({
 const fetchMore = async () => {
   if (!isLoadingMore.value) {
     loadingMore.value = true;
-    enabled.value = false;
     await loadOlderLogs();
     loadingMore.value = false;
-    enabled.value = true;
   }
 };
 </script>
