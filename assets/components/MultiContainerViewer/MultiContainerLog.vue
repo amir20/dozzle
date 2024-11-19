@@ -37,5 +37,5 @@ const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const { allContainersById, ready } = storeToRefs(containerStore);
 const containers = computed(() => ids.map((id) => allContainersById.value[id]));
 
-provideLoggingContext(containers);
+provideLoggingContext(containers, { showContainerName: true, showHostname: false });
 </script>

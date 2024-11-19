@@ -7,6 +7,8 @@ type LogContext = {
   loadingMore: boolean;
   hasComplexLogs: boolean;
   levels: Set<Level>;
+  showContainerName: boolean;
+  showHostname: boolean;
 };
 
 export const allLevels: Level[] = [
@@ -27,7 +29,10 @@ const searchParams = new URLSearchParams(window.location.search);
 const stdout = searchParams.has("stdout") ? searchParams.get("stdout") === "true" : true;
 const stderr = searchParams.has("stderr") ? searchParams.get("stderr") === "true" : true;
 
-export const provideLoggingContext = (containers: Ref<Container[]>) => {
+export const provideLoggingContext = (
+  containers: Ref<Container[]>,
+  { showContainerName = false, showHostname = true } = {},
+) => {
   provide(
     loggingContextKey,
     reactive({
@@ -36,6 +41,8 @@ export const provideLoggingContext = (containers: Ref<Container[]>) => {
       loadingMore: false,
       hasComplexLogs: false,
       levels: new Set<Level>(allLevels),
+      showContainerName,
+      showHostname,
     }),
   );
 };
@@ -49,6 +56,8 @@ export const useLoggingContext = () => {
       loadingMore: false,
       hasComplexLogs: false,
       levels: new Set<Level>(allLevels),
+      showContainerName: false,
+      showHostname: false,
     }),
   );
 

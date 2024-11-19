@@ -60,6 +60,21 @@
           {{ $t("toolbar.show", { std: "STDERR" }) }}
         </a>
       </li>
+      <li class="line"></li>
+      <li>
+        <a @click="showContainerName = !showContainerName">
+          <mdi:check class="w-4" v-if="showContainerName" />
+          <div v-else class="w-4"></div>
+          Show container name
+        </a>
+      </li>
+      <li>
+        <a @click="showHostname = !showHostname">
+          <mdi:check class="w-4" v-if="showHostname" />
+          <div v-else class="w-4"></div>
+          Show Hostname
+        </a>
+      </li>
     </ul>
   </div>
 </template>
@@ -69,7 +84,7 @@ const { showSearch } = useSearchFilter();
 
 const clear = defineEmit();
 
-const { streamConfig } = useLoggingContext();
+const { streamConfig, showHostname, showContainerName } = useLoggingContext();
 </script>
 
 <style scoped lang="postcss">

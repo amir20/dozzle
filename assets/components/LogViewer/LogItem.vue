@@ -14,10 +14,10 @@
 <script lang="ts" setup>
 import { LogEntry, SimpleLogEntry } from "@/models/LogEntry";
 
-const { showContainerName = false, logEntry } = defineProps<{
+const { logEntry } = defineProps<{
   logEntry: LogEntry<any>;
-  showContainerName?: boolean;
 }>();
+const { showHostname, showContainerName } = useLoggingContext();
 </script>
 <style scoped lang="postcss">
 .log-wrapper :deep(a) {

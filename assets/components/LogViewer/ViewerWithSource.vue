@@ -1,6 +1,6 @@
 <template>
   <EventSource ref="source" #default="{ messages }" :stream-source="streamSource" :entity="entity">
-    <LogViewer :messages="messages" :visible-keys="visibleKeys" :show-container-name="showContainerName" />
+    <LogViewer :messages="messages" :visible-keys="visibleKeys" />
   </EventSource>
 </template>
 
@@ -9,10 +9,9 @@ import EventSource from "@/components/LogViewer/EventSource.vue";
 import { LogStreamSource } from "@/composable/eventStreams";
 import { ComponentExposed } from "vue-component-type-helpers";
 
-const { streamSource, visibleKeys, showContainerName, entity } = defineProps<{
+const { streamSource, visibleKeys, entity } = defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   visibleKeys: Map<string[], boolean>;
-  showContainerName: boolean;
   entity: T;
 }>();
 
