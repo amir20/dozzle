@@ -24,7 +24,7 @@ Options for generating UUIDs
 
 ### Ansible
 
-:warning: Depending on your setup you might have to take adjustments for file/folder permissions. The following task snippets would run as the become_user of the playbook running these tasks.
+:warning: Depending on your setup you might have to take adjustments for file/folder permissions. The following task snippets would run as the become_user/remote_user of the playbook running these tasks.
 
 If you wish to adjust the user have to set individual become/become_user parameters for the task.
 
