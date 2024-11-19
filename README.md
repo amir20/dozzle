@@ -101,6 +101,8 @@ Additionally you have to create a fake engine-id to prevent ```host not found```
 
 Under ```/var/lib/docker``` create a file named ```engine-id```, on a system with Podman you will have to creater the folder path as well. Inside the file place a UUID, for instance using ```uuidgen > engine-id```. After that the file should have an identifier that looks like this: ```b9f1d7fc-b459-4b6e-9f7a-e3d1cd2e14a9```.
 
+For more details check [Podman Infos](docs/guide/podman.md) or the [FAQ](docs/guide/faq.md#i-am-seeing-host-not-found-error-in-the-logs-how-do-i-fix-it)
+
 ## Security
 
 Dozzle supports file based authentication and forward proxy like [Authelia](https://www.authelia.com/). These are documented at https://dozzle.dev/guide/authentication.
