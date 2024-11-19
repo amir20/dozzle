@@ -15,7 +15,7 @@ Options for generating UUIDs
 
 ### uuidgen
 
-:warning: Adjust folder/file permissions if necessary. There isn't an critial info but depending on your existing setup you might want to take additional steps
+:warning: Adjust folder/file permissions if necessary. There isn't any critial info but depending on your existing setup you might want to take additional steps
 
 1. Install uuidgen
 2. Create the folders:  ```mkdir -p /var/lib/docker```
