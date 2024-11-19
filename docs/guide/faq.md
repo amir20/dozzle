@@ -91,6 +91,18 @@ Dozzle uses the Docker API to gather information about the hosts. Each host must
 
 Somettimes, VMs maybe restored from back ups, with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
 
+## I am seeing host not found error in the logs. How do I fix it?
+
+Using Podman doesn't create an engine-id like Docker. To resolve the error take following steps:
+
+1. Create the folders:  ```mkdir -p /var/lib/docker```
+2. Install uuidgen if necessary
+3. Using uuidgen generate an UUID: ```uuidgen > engine-id```
+
+The engine-id file should now have an UUID inside.
+
+It might be neccessary to clean up your existing dozzle deployment under Podman, stop the container and remove the associated data (container/volumes). After that you can redeploy the Dozzle container and your logs should now show up.
+
 ## Why am I only seeing running containers? How do I see stopped containers?
 
 By default, Dozzle only shows running containers. To see stopped containers, you need to enable the `Show Stopped Containers` option in the settings. This option is disabled by default to reduce the number of containers shown in the UI.
