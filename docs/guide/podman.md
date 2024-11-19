@@ -32,7 +32,7 @@ If you wish to adjust the user have to set individual become/become_user paramet
     state: directory
     mode: '755'
 
-- name: Create docker engine-id
+- name: Create engine-id and derive UUID from hostname
   ansible.builtin.lineinfile:
     path: /var/lib/docker/engine-id
     line: "{{ hostname | to_uuid }}"
