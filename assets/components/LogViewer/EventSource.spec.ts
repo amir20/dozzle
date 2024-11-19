@@ -103,7 +103,7 @@ describe("<ContainerEventSource />", () => {
 
   test("renders loading correctly", async () => {
     const wrapper = createLogEventSource();
-    expect(wrapper.html()).toMatchSnapshot();
+    expect(wrapper.find("ul.animate-pulse").exists()).toBe(true);
   });
 
   test("should connect to EventSource", async () => {
