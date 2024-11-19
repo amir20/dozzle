@@ -17,7 +17,6 @@
         :stream-source="useMergedStream"
         :entity="containers"
         :visible-keys="new Map<string[], boolean>()"
-        :show-container-name="true"
       />
     </template>
   </ScrollableView>

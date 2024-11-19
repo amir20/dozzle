@@ -31,7 +31,7 @@ const stderr = searchParams.has("stderr") ? searchParams.get("stderr") === "true
 
 export const provideLoggingContext = (
   containers: Ref<Container[]>,
-  { showContainerName = false, showHostname = true } = {},
+  { showContainerName = false, showHostname = false } = {},
 ) => {
   provide(
     loggingContextKey,
