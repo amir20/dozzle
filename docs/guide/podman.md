@@ -7,7 +7,7 @@ title: Podman
 This should be mainly a Podman only error: Using Podman doesn't create an engine-id like Docker.
 If you are using Docker check if the ```engine-id``` file exists with correct permissions in ```/var/lib/docker``` and has the UUID inside.
 
-It might be neccessary to clean up your existing dozzle deployment under Podman, stop the container and remove the associated data (container/volumes). After you created the engine-id you can redeploy the Dozzle container and your logs should now show up.
+It might be necessary to clean up your existing Dozzle deployment under Podman, stop the container and remove the associated data (container/volumes). After you created the engine-id you can redeploy the Dozzle container and your logs should now show up.
 
 ## Create UUID
 
