@@ -94,7 +94,7 @@ Somettimes, VMs maybe restored from back ups, with the same host ID. This can ca
 ## I am seeing host not found error in the logs. How do I fix it?
 
 This should be mainly a Podman only error: Using Podman doesn't create an engine-id like Docker.
-If you are using Docker check if the ```engine-id``` file exists in ```/var/lib/docker``` and accessible.
+If you are using Docker check if the ```engine-id``` file exists with correct permissions in ```/var/lib/docker``` and has the UUID inside.
 
 To resolve the error take following steps:
 
