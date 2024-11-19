@@ -1,12 +1,13 @@
 <template>
   <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
-  <ul role="status" class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || noLogs">
+  <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && !delay)">
     <div class="flex flex-row gap-2" v-for="size in ['w-3/5', 'w-2/3', 'w-9/12', 'w-1/2']">
       <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
       <div class="h-3 rounded-full bg-base-content/50 opacity-50" :class="size"></div>
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
+  <div v-else-if="noLogs && delay">no logs</div>
   <slot :messages="messages" v-else></slot>
   <IndeterminateBar :color />
 </template>
@@ -29,6 +30,7 @@ const color = computed(() => {
 });
 
 const noLogs = computed(() => messages.value.length === 0);
+const delay = useTimeout(3000);
 
 defineExpose({
   clear: () => (messages.value = []),
