@@ -23,7 +23,6 @@
         :stream-source="useStackStream"
         :entity="stack"
         :visible-keys="new Map<string[], boolean>()"
-        :show-container-name="true"
       />
     </template>
   </ScrollableView>
@@ -42,5 +41,8 @@ const viewer = ref<ComponentExposed<typeof ViewerWithSource>>();
 const store = useSwarmStore();
 const { stacks } = storeToRefs(store) as unknown as { stacks: Ref<Stack[]> };
 const stack = computed(() => stacks.value.find((s) => s.name === name) ?? new Stack("", [], []));
-provideLoggingContext(toRef(() => stack.value.containers));
+provideLoggingContext(
+  toRef(() => stack.value.containers),
+  { showContainerName: true, showHostname: false },
+);
 </script>

@@ -17,7 +17,6 @@
         :stream-source="useGroupedStream"
         :entity="group"
         :visible-keys="new Map<string[], boolean>()"
-        :show-container-name="true"
       />
     </template>
   </ScrollableView>
@@ -43,5 +42,8 @@ const { customGroups } = storeToRefs(swarmStore);
 
 const group = computed(() => customGroups.value.find((g) => g.name === name) ?? new GroupedContainers("", []));
 
-provideLoggingContext(toRef(() => group.value.containers));
+provideLoggingContext(
+  toRef(() => group.value.containers),
+  { showContainerName: true, showHostname: false },
+);
 </script>

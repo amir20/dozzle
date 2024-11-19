@@ -1,7 +1,7 @@
 <template>
   <div class="tag grid w-40 overflow-hidden rounded text-center text-sm text-white">
     <div class="random-color col-start-1 row-start-1 brightness-75"></div>
-    <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ containerNames[id] }}</div>
+    <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ value }}</div>
   </div>
 </template>
 <script lang="ts">
@@ -24,14 +24,11 @@ const colors = [
 ] as const;
 </script>
 <script lang="ts" setup>
-const containerStore = useContainerStore();
-const { containerNames } = storeToRefs(containerStore);
-
-const { id } = defineProps<{
-  id: string;
+const { value } = defineProps<{
+  value: string;
 }>();
 
-const color = computed(() => colors[Math.abs(hashCode(id)) % colors.length]);
+const color = computed(() => colors[Math.abs(hashCode(value)) % colors.length]);
 </script>
 
 <style lang="postcss" scoped>

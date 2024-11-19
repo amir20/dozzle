@@ -8,7 +8,7 @@
       :data-time="item.date.getTime()"
       class="group/entry"
     >
-      <component :is="item.getComponent()" :log-entry="item" :show-container-name="showContainerName" />
+      <component :is="item.getComponent()" :log-entry="item" />
     </li>
   </ul>
 </template>
@@ -20,7 +20,6 @@ const { loading, progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
-  showContainerName: boolean;
 }>();
 
 watchEffect(() => {

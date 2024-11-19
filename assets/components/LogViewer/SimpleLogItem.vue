@@ -1,5 +1,5 @@
 <template>
-  <LogItem :logEntry :showContainerName>
+  <LogItem :logEntry>
     <div
       class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap"
       v-html="linkify(colorize(logEntry.message))"
@@ -23,9 +23,8 @@ const ansiConvertor = new AnsiConvertor({
   bg: "oklch(var(--base-color))",
 });
 
-const { showContainerName = false } = defineProps<{
+defineProps<{
   logEntry: SimpleLogEntry;
-  showContainerName?: boolean;
 }>();
 
 const colorize = (value: string) => ansiConvertor.toHtml(value);

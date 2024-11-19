@@ -95,6 +95,7 @@ declare module 'vue' {
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     Popup: typeof import('./components/Popup.vue')['default']
+    RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']
     Releases: typeof import('./components/Releases.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

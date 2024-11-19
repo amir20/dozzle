@@ -1,5 +1,5 @@
 <template>
-  <LogList :messages="visibleMessages" :show-container-name="showContainerName" />
+  <LogList :messages="visibleMessages" />
 </template>
 
 <script lang="ts" setup>
@@ -8,7 +8,6 @@ import { type JSONObject, LogEntry } from "@/models/LogEntry";
 const props = defineProps<{
   messages: LogEntry<string | JSONObject>[];
   visibleKeys: Map<string[], boolean>;
-  showContainerName: boolean;
 }>();
 
 const { messages, visibleKeys } = toRefs(props);

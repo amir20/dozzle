@@ -17,7 +17,6 @@
         :stream-source="useContainerStream"
         :entity="container"
         :visible-keys="visibleKeys"
-        :show-container-name="false"
       />
     </template>
   </ScrollableView>
@@ -46,5 +45,8 @@ const container = store.currentContainer(toRef(() => id));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
 
-provideLoggingContext(toRef(() => [container.value]));
+provideLoggingContext(
+  toRef(() => [container.value]),
+  { showContainerName: false, showHostname: false },
+);
 </script>
