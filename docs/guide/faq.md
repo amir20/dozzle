@@ -104,7 +104,7 @@ To resolve the error take following steps:
 
 The engine-id file should now have an UUID inside.
 
-An example setup for Ansible can be found in [Podman](podman.md)
+An example setup for Ansible can be found in [Podman Infos](podman.md)
 
 It might be necessary to clean up your existing Dozzle deployment under Podman, stop the container and remove the associated data (container/volumes). After that you can redeploy the Dozzle container and your logs should now show up.
 
