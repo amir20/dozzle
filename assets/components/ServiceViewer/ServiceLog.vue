@@ -20,7 +20,6 @@
         :stream-source="useServiceStream"
         :entity="service"
         :visible-keys="new Map<string[], boolean>()"
-        :show-container-name="true"
       />
     </template>
   </ScrollableView>
@@ -41,5 +40,8 @@ const store = useSwarmStore();
 const { services } = storeToRefs(store) as unknown as { services: Ref<Service[]> };
 const service = computed(() => services.value.find((s) => s.name === name) ?? new Service("", []));
 
-provideLoggingContext(toRef(() => service.value.containers));
+provideLoggingContext(
+  toRef(() => service.value.containers),
+  { showContainerName: true, showHostname: false },
+);
 </script>

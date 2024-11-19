@@ -1,5 +1,5 @@
 <template>
-  <LogItem :logEntry :showContainerName @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
+  <LogItem :logEntry @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
     <ul class="fields space-x-4">
       <li v-for="(value, name) in validValues" :key="name">
         <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
@@ -17,7 +17,7 @@ import stripAnsi from "strip-ansi";
 import { type ComplexLogEntry } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
 
-const { logEntry, showContainerName = false } = defineProps<{
+const { logEntry } = defineProps<{
   logEntry: ComplexLogEntry;
   showContainerName?: boolean;
 }>();
