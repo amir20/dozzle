@@ -65,14 +65,14 @@
         <a @click="showHostname = !showHostname">
           <mdi:check class="w-4" v-if="showHostname" />
           <div v-else class="w-4"></div>
-          Show hostname
+          {{ $t("toolbar.show-hostname") }}
         </a>
       </li>
       <li>
         <a @click="showContainerName = !showContainerName">
           <mdi:check class="w-4" v-if="showContainerName" />
           <div v-else class="w-4"></div>
-          Show container name
+          {{ $t("toolbar.show-container-name") }}
         </a>
       </li>
     </ul>

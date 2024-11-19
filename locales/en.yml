@@ -7,6 +7,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  show-hostname: Show hostname
+  show-container-name: Show container name
 label:
   containers: Containers
   container: No containers | 1 container | {count} containers
