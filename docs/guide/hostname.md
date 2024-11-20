@@ -4,7 +4,7 @@ title: Hostname
 
 # Changing Dozzle's Hostname
 
-Dozzle's default connection is called localhost. Using `--hostname` flag Dozzle's name can be changed to anything. This value be will shown on the page title and under the Dozzle logo.
+Dozzle's default connection is called localhost. Using the `--hostname` flag, Dozzle's name can be changed to anything. This value will be shown on the page title and under the Dozzle logo.
 
 Changing the label for localhost also changes the label for the `localhost` connection which is displayed under the multi-host menu. Below is an example of using `--hostname` to change the name of Dozzle's subheader to `mywebsite.xyz`.
 

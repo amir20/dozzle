@@ -2,9 +2,9 @@
 title: Healthcheck
 ---
 
-# Enabling healthcheck
+# Enabling Healthcheck
 
-Dozzle has internal support for healthcheck using `dozzle healthcheck` command. It is not enabled by default as it adds extra CPU usage. To use `healthcheck` you need to configure it. Below is an example that checks the health of Dozzle every 3 seconds.
+Dozzle has internal support for healthcheck using the `dozzle healthcheck` command. It is not enabled by default as it adds extra CPU usage. To use `healthcheck`, you need to configure it. Below is an example that checks the health of Dozzle every 3 seconds.
 
 ```yaml
 services:

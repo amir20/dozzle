@@ -4,11 +4,9 @@ title: Container Actions
 
 # Using Container Actions
 
-Dozzle now supports **Container Actions**, which allows you to `start`, `stop` and `restart` container from within the UI in the dropdown menu.
+Dozzle now supports **Container Actions**, which allows you to `start`, `stop` and `restart` containers from within the UI in the dropdown menu.
 
-<img title="Container Actions" alt="Container Acions Menu UI" width="250" src="/.vitepress/theme/media/dozzle-ui-actions.png">
-
-This feature is **disabled** by default, which can be enabled by setting environment variable`DOZZLE_ENABLE_ACTIONS` to `true`
+This feature is **disabled** by default and can be enabled by setting the environment variable `DOZZLE_ENABLE_ACTIONS` to `true`.
 
 ::: code-group
 
@@ -24,7 +22,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 8080:8080
-    environment: DOZZLE_ENABLE_ACTIONS=true
+    environment:
+      DOZZLE_ENABLE_ACTIONS: true
 ```
 
 :::

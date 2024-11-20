@@ -8,7 +8,7 @@ Dozzle supports multiple ways to run the application. You can run it using Docke
 
 ## Running with Docker <Badge type="tip" text="Updated" />
 
-The easiest way to setup Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
+The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
 
 ::: code-group
 
