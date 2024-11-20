@@ -31,7 +31,7 @@ server {
 
 ### Disabling compression in traefik
 
-Traefik reverse proxy can be configures via middlewares to support compression. If implemented, the usual configuration looks like this:
+Traefik reverse proxy can be configured via middlewares to support compression. If implemented, the usual configuration looks like this:
 
 ```
 http:
@@ -40,8 +40,8 @@ http:
       compress: {}
 ```
 
-With this setup, you may find that certain containers do not show logs in dozzle anymore if you open dozzle via traefik (e.g. dozzle.mydomain.com).
-You will also note that the same dozzle instance does show the logs when accessed directly (e.g. localhost:8080).
+With this setup, you may find that certain containers do not show logs in dozzle anymore if you open dozzle via traefik (e.g., dozzle.mydomain.com).
+You will also note that the same dozzle instance does show the logs when accessed directly (e.g., localhost:8080).
 
 Containers where this has been observed (non-exhaustive list) are: dozzle, homepage, glances, filebrowser.
 
@@ -56,7 +56,7 @@ http:
           - text/event-stream
 ```
 
-## We have tools that uses Dozzle when a new container is created. How can I get a direct link to a container by name?
+## We have tools that use Dozzle when a new container is created. How can I get a direct link to a container by name?
 
 Dozzle has a special [route](https://github.com/amir20/dozzle/blob/master/assets/pages/show.vue) that can be used to search containers by name and then forward to that container. For example, if you have a container with name `"foo.bar"` and id `abc123`, you can send your users to `/show?name=foo.bar` which will be forwarded to `/container/abc123`.
 
@@ -73,7 +73,7 @@ WARNING: No memory limit support
 WARNING: No swap limit support
 ```
 
-In this case, you'll need to add the following line to your `/boot/cmdline.txt` file and reboot your device.
+In this case, you'll need to add the following line to your `/boot/cmdline.txt` file and reboot your device:
 
 ```
 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
@@ -81,28 +81,28 @@ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
 
 ## I am seeing duplicate hosts error in the logs. How do I fix it?
 
-If you are seeing the following error in the logs, then you may have duplicate hosts in configred that with the same host ID.
+If you are seeing the following error in the logs, then you may have duplicate hosts configured with the same host ID:
 
 ```
 time="2024-07-10T13:35:53Z" level=warning msg="duplicate host ID: *********, Endpoint: 1.1.1.1:7007 found, skipping"
 ```
 
-Dozzle uses the Docker API to gather information about the hosts. Each host must have a unique ID. This ID is used to identify the host in the UI. In swarm mode, Dozzle uses the node ID from `docker systen info` to identify the host. If you are not using swarm mode, then Dozzle will use the system ID from `docker system info` as the host ID.
+Dozzle uses the Docker API to gather information about the hosts. Each host must have a unique ID. This ID is used to identify the host in the UI. In swarm mode, Dozzle uses the node ID from `docker system info` to identify the host. If you are not using swarm mode, then Dozzle will use the system ID from `docker system info` as the host ID.
 
-Somettimes, VMs maybe restored from back ups, with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
+Sometimes, VMs may be restored from backups with the same host ID. This can cause Dozzle to think that the host is already present and skip adding it to the list of hosts. To fix this, you need to remove `/var/lib/docker/engine-id` file. This file contains the host ID and is created when the Docker daemon starts.
 
 ## I am seeing host not found error in the logs. How do I fix it?
 
 This should be mainly a Podman only error: Using Podman doesn't create an engine-id like Docker.
-If you are using Docker check if the ```engine-id``` file exists with correct permissions in ```/var/lib/docker``` and has the UUID inside.
+If you are using Docker check if the `engine-id` file exists with correct permissions in `/var/lib/docker` and has the UUID inside.
 
 To resolve the error take following steps:
 
-1. Create the folders:  ```mkdir -p /var/lib/docker```
+1. Create the folders: `mkdir -p /var/lib/docker`
 2. Install uuidgen if necessary
-3. Using uuidgen generate an UUID: ```uuidgen > engine-id```
+3. Using uuidgen generate a UUID: `uuidgen > engine-id`
 
-The engine-id file should now have an UUID inside.
+The engine-id file should now have a UUID inside.
 
 An example setup for Ansible can be found in [Podman Infos](podman.md)
 

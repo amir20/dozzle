@@ -9,7 +9,7 @@ Dozzle can run in agent mode which can expose Docker hosts to other Dozzle insta
 > [!NOTE] Using Docker Swarm?
 > If you are using Docker Swarm Mode, you don't need to use agents. Dozzle will automatically discover itself and create a cluster using swarm mode. See [Swarm Mode](/guide/swarm-mode) for more information.
 
-## How to create an agent?
+## How to Create an Agent
 
 To create a Dozzle agent, you need to run Dozzle with the `agent` subcommand. Here is an example:
 
@@ -37,7 +37,7 @@ The agent will start and listen on port `7007`. You can connect to the agent usi
 > [!TIP]
 > You don't need to expose port 7007 if using Docker network. The agent will be available to other containers on the same network.
 
-## How to connect to an agent?
+## How to Connect to an Agent
 
 To connect to an agent, you need to provide the agent's IP address and port. Here is an example:
 
@@ -65,9 +65,9 @@ Note that when connecting remotely, you don't need to mount local Docker socket.
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
 > [!WARNING]
-> Dozzle uses the Docker API to gather information about hosts. Each aget needs a unique host ID. They use Docker's system ID or node ID to identify the host. If you are using swarm, then the node ID is used. If you don't see all hosts, then you may have duplicate hosts configured that have the same host ID. To fix this, remove `/var/lib/docker/engine-id` file. See [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it) for more information.
+> Dozzle uses the Docker API to gather information about hosts. Each agent needs a unique host ID. They use Docker's system ID or node ID to identify the host. If you are using swarm, then the node ID is used. If you don't see all hosts, then you may have duplicate hosts configured that have the same host ID. To fix this, remove `/var/lib/docker/engine-id` file. See [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it) for more information.
 
-## Setting up healthcheck
+## Setting Up Healthcheck
 
 You can set a healthcheck for the agent, similar to the healthcheck for the main Dozzle instance. When running in agent mode, healthcheck checks agent connection to Docker. If Docker is not reachable, the agent will be marked as unhealthy and will not be shown in the UI.
 
@@ -90,7 +90,7 @@ services:
       - 7007:7007
 ```
 
-## Changing agent's name
+## Changing Agent's Name
 
 Similar to Dozzle instance, you can change the agent's name by providing the `DOZZLE_HOSTNAME` environment variable. Here is an example:
 
@@ -115,11 +115,11 @@ services:
 
 :::
 
-This will change the agent's name to `my-special-name` and reflected on the UI when connecting to the agent.
+This will change the agent's name to `my-special-name` and will be reflected on the UI when connecting to the agent.
 
-## Custom certificates
+## Custom Certificates
 
-By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed extenrally and an attacker knows exactly which port the agent is running on, then they can setup their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
+By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed externally and an attacker knows exactly which port the agent is running on, then they can set up their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
 
 To provide custom certificates, you need to mount or use secrets to provide the certificates. Here is an example:
 
@@ -145,7 +145,7 @@ secrets:
 ```
 
 > [!TIP]
-> Docker secrets are preferred for providing certificates. The can be created using `docker secret create` command or as the example above using `docker-compose.yml`. The same certificates should be provided to the Dozzle instance connecting to the agent.
+> Docker secrets are preferred for providing certificates. They can be created using `docker secret create` command or as the example above using `docker-compose.yml`. The same certificates should be provided to the Dozzle instance connecting to the agent.
 
 This will mount the `cert.pem` and `key.pem` files to the agent. The agent will use these certificates for communication. The same certificates should be provided to the Dozzle instance connecting to the agent.
 
@@ -157,17 +157,17 @@ $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=Sa
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
 
-## Comparing agents with remote connection
+## Comparing Agents with Remote Connection
 
 Agents are similar to remote connections, but they have some advantages. Generally, agents are preferred over remote connections due to performance and security reasons. Here is a comparison:
 
-| Feature     | Agent                      | Remote Connection               |
-| ----------- | -------------------------- | ------------------------------- |
-| Performance | Better with disturbed load | Worse on the UI                 |
-| Security    | Private SSL                | Insecure or Docker TLS          |
-| Ease of use | Easy out of the box        | Requires exposing Docker socket |
-| Permissions | Full access to Docker      | Can be controlled with a proxy  |
-| Reconnect   | Automatically reconnects   | Requires UI restart             |
-| Healthcheck | Built-in healthcheck       | No healthcheck                  |
+| Feature     | Agent                        | Remote Connection               |
+| ----------- | ---------------------------- | ------------------------------- |
+| Performance | Better with distributed load | Worse on the UI                 |
+| Security    | Private SSL                  | Insecure or Docker TLS          |
+| Ease of use | Easy out of the box          | Requires exposing Docker socket |
+| Permissions | Full access to Docker        | Can be controlled with a proxy  |
+| Reconnect   | Automatically reconnects     | Requires UI restart             |
+| Healthcheck | Built-in healthcheck         | No healthcheck                  |
 
 If you do plan to use remote connections, make sure to secure the connection using Docker TLS or a reverse proxy.

@@ -1,5 +1,5 @@
 ---
-title: Environment variables and subcommands
+title: Environment Variables and Subcommands
 ---
 
 # Global Environment Variables
@@ -24,8 +24,8 @@ Configurations can be done with flags or environment variables. The table below 
 | `--remote-agent`      | `DOZZLE_REMOTE_AGENT`      |                |
 | `--timeout`           | `DOZZLE_TIMEOUT`           | `3s`           |
 
-> [!TIP] Repeated Flags
-> Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
+> [!TIP]
+> Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
 
 ## Generate users.yml
 
@@ -61,6 +61,6 @@ See [agent](/guide/agent) for more information.
 
 ## Healthcheck
 
-Dozzle supports healthcheck using `dozzle healthcheck` command. It is not enabled by default as it adds extra CPU usage. To use `healthcheck` you need to configure it.
+Dozzle supports healthcheck using `dozzle healthcheck` command. It is not enabled by default as it adds extra CPU usage. To use `healthcheck`, you need to configure it.
 
 See [healthcheck](/guide/healthcheck) for more information.

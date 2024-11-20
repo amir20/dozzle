@@ -28,9 +28,9 @@ services:
 
 Dozzle will be available at `http://localhost:8080/foobar/`. This option rewrites all assets to `/foobar/{file.path}` and automatically redirects `/foobar` to `/foobar/`.
 
-## Example with proxy
+## Example with Proxy
 
-Here is an example with Nginx and proxy Dozzle with a different base:
+Here is an example with Nginx to proxy Dozzle with a different base:
 
 ```nginx
 location ^~ /foobar/ {

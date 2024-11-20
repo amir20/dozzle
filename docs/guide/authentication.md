@@ -4,11 +4,11 @@ title: Authentication
 
 # Setting Up Authentication
 
-Dozzle support two configurations for authentication. In the first configuration, you bring your own authentication method by protecting Dozzle through a proxy. Dozzle can read appropriate headers out of the box.
+Dozzle supports two configurations for authentication. In the first configuration, you bring your own authentication method by protecting Dozzle through a proxy. Dozzle can read appropriate headers out of the box.
 
-If you do not have an authentication solution then Dozzle has a simple file based user management solution. Authentication providers are setup using `--auth-provider` flag. In both of these configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
+If you do not have an authentication solution, then Dozzle has a simple file-based user management solution. Authentication providers are set up using the `--auth-provider` flag. In both configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
 
-## File Based User Management
+## File-Based User Management
 
 Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
 
@@ -88,11 +88,11 @@ services:
 
 :::
 
-Note that only the duration is supported. You can only use `s`, `m`, `h` for seconds, minutes and hours respectively.
+Note that only duration is supported. You can only use `s`, `m`, `h` for seconds, minutes and hours respectively.
 
 ## Generating users.yml
 
-Dozzle has a builtin `generate` command to generate `users.yml`. Here is an example:
+Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
@@ -126,7 +126,7 @@ services:
 
 In this mode, Dozzle expects the following headers:
 
-- `Remote-User` to map to the username eg. `johndoe`
+- `Remote-User` to map to the username e.g. `johndoe`
 - `Remote-Email` to map to the user's email address. This email is also used to find the right [Gravatar](https://gravatar.com/) for the user.
 - `Remote-Name` to be a display name like `John Doe`
 
@@ -194,6 +194,7 @@ services:
       - "--entrypoints.https.address=:443"
       - "--log=true"
       - "--log.level=DEBUG"
+
   dozzle:
     image: amir20/dozzle:latest
     networks:
@@ -216,7 +217,7 @@ services:
 
 ```yaml [configuration.yml]
 ###############################################################
-#                   Authelia configuration                    #
+#                   Authelia configuration                      #
 ###############################################################
 
 jwt_secret: a_very_important_secret
@@ -269,9 +270,7 @@ Valid SSL keys are required because Authelia only supports SSL.
 
 ### Setting up Dozzle with Cloudflare Zero Trust
 
-Cloudflare Zero Trust is a service for authenticated access to selfhosted
-software. This section defines how Dozzle can be setup to use Cloudflare Zero
-Trust for authentication.
+Cloudflare Zero Trust is a service for authenticated access to self-hosted software. This section defines how Dozzle can be set up to use Cloudflare Zero Trust for authentication.
 
 ```yaml [docker-compose.yml]
 services:
@@ -291,7 +290,4 @@ services:
     restart: unless-stopped
 ```
 
-After running the Dozzle container, configure the Application in Cloudflare Zero
-Trust dashboard by following the
-[guide](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/)
-here.
+After running the Dozzle container, configure the Application in Cloudflare Zero Trust dashboard by following the [guide](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/).
