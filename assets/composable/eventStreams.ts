@@ -218,5 +218,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   });
 
-  return { messages, loadOlderLogs, isLoadingMore, hasComplexLogs, opened, error, loading };
+  return {
+    messages,
+    loadOlderLogs,
+    isLoadingMore,
+    hasComplexLogs,
+    opened,
+    error,
+    loading,
+    eventSourceURL: urlWithParams,
+  };
 }
