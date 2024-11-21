@@ -1,7 +1,7 @@
 <template>
   <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog)">
-    <div class="flex flex-row gap-2" v-for="size in shuffle(['w-3/5', 'w-2/3', 'w-9/12', 'w-1/2', 'w-1/3', 'w-3/4'])">
+    <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
       <div class="h-3 rounded-full bg-base-content/50 opacity-50" :class="size"></div>
     </div>
@@ -20,7 +20,7 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs, isLoadingMore, opened, loading, error } = streamSource($$(entity));
+const { messages, loadOlderLogs, isLoadingMore, opened, loading, error, eventSourceURL } = streamSource($$(entity));
 const { loadingMore } = useLoggingContext();
 const color = computed(() => {
   if (error.value) return "error";
@@ -48,4 +48,8 @@ const fetchMore = async () => {
 const shuffle = (items: any[]) => {
   return items.sort(() => Math.random() - 0.5);
 };
+
+const sizes = computedWithControl(eventSourceURL, () =>
+  shuffle(["w-3/5", "w-2/3", "w-9/12", "w-1/2", "w-1/3", "w-3/4"]),
+);
 </script>
