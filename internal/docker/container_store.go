@@ -192,10 +192,12 @@ func (s *ContainerStore) init() {
 						log.Debug().Str("id", container.ID).Msg("container started")
 						s.containers.Store(container.ID, &container)
 						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
-							select {
-							case containers <- container:
-							case <-c.Done():
-							}
+							go func() {
+								select {
+								case containers <- container:
+								case <-c.Done():
+								}
+							}()
 							return true
 						})
 					}
