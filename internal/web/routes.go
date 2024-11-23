@@ -11,6 +11,7 @@ import (
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
 
@@ -131,7 +132,9 @@ func createRouter(h *handler) *chi.Mux {
 		})
 	}
 
-	// r.Mount("/debug", middleware.Profiler())
+	if log.Debug().Enabled() {
+		r.Mount("/debug", middleware.Profiler())
+	}
 
 	return r
 }
