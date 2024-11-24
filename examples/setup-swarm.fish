@@ -2,6 +2,8 @@
 
 # docker network create --driver bridge swarm-net
 
+echo "Removing existing containers"
+docker rm -f manager worker-1 worker-2
 
 echo "Creating manager"
 docker run -d --name manager \
@@ -12,6 +14,7 @@ docker run -d --name manager \
     -p 7946:7946 \
     -p 4789:4789 \
     -p 8000-9000:8000-9000 \
+    -v ./examples:/examples \
     docker
 
 # Store join command in a variable
@@ -35,5 +38,10 @@ for i in 1 2
     docker exec worker-$i sh -c "$JOIN_COMMAND"
 end
 
-# docker rm -f manager worker-1 worker-2
-# alias swarm="docker exec manager docker"
+function cleanup
+    docker rm -f manager worker-1 worker-2
+end
+
+function swarm
+    docker exec manager docker $argv
+end
