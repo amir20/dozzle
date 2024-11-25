@@ -179,3 +179,17 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []docker.Host {
 
 	return hosts
 }
+
+func (m *RetriableClientManager) LocalClients() []docker.Client {
+	services := m.List()
+
+	clients := make([]docker.Client, 0)
+
+	for _, service := range services {
+		if clientService, ok := service.(*dockerClientService); ok {
+			clients = append(clients, clientService.client)
+		}
+	}
+
+	return clients
+}
