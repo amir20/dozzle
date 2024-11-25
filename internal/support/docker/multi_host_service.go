@@ -26,6 +26,7 @@ type ClientManager interface {
 	RetryAndList() ([]ClientService, []error)
 	Subscribe(ctx context.Context, channel chan<- docker.Host)
 	Hosts(ctx context.Context) []docker.Host
+	LocalClients() []docker.Client
 }
 
 type MultiHostService struct {
@@ -155,4 +156,8 @@ func (m *MultiHostService) LocalHost() (docker.Host, error) {
 
 func (m *MultiHostService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- docker.Host) {
 	m.manager.Subscribe(ctx, hosts)
+}
+
+func (m *MultiHostService) LocalClients() []docker.Client {
+	return m.manager.LocalClients()
 }

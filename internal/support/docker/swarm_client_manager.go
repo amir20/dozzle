@@ -229,3 +229,7 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
 func (m *SwarmClientManager) String() string {
 	return fmt.Sprintf("SwarmClientManager{clients: %d}", len(m.clients))
 }
+
+func (m *SwarmClientManager) LocalClients() []docker.Client {
+	return []docker.Client{m.localClient}
+}
