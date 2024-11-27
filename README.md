@@ -94,7 +94,7 @@ If it's not enabled please follow [this tutorial](https://github.com/containers/
 Once you have the podman remote socket you can run Dozzle on podman.
 
 ```
-podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 amir20/dozzle:latest
+podman run --volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock -d -p 8080:8080 docker.io/amir20/dozzle:latest
 ```
 
 Additionally you have to create a fake engine-id to prevent ```host not found``` errors. Podman doesn't generate an engine-id like Docker by itself due to its daemonless architecture.
