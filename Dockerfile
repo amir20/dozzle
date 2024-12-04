@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:23.2.0-alpine AS node
+FROM --platform=$BUILDPLATFORM node:23.3.0-alpine AS node
 
 RUN corepack enable
 
@@ -22,7 +22,7 @@ COPY public ./public
 # Build assets
 RUN pnpm build
 
-FROM --platform=$BUILDPLATFORM golang:1.23.3-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23.4-alpine AS builder
 
 # install gRPC dependencies
 RUN apk add --no-cache ca-certificates protoc protobuf-dev\
