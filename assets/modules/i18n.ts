@@ -42,7 +42,9 @@ await loadLanguage("en", false); // load default language
 const userLocale = computed(
   () =>
     locale.value ||
-    [navigator.language, navigator.language.slice(0, 2)].find((l) => availableLocales.includes(l)) ||
+    [navigator.language.toLowerCase(), navigator.language.toLowerCase().slice(0, 2)].find((l) =>
+      availableLocales.includes(l),
+    ) ||
     "en",
 );
 
