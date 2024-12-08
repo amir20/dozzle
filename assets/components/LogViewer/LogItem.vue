@@ -26,8 +26,3 @@ const { hosts } = useHosts();
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => hosts.value[container.value.host]);
 </script>
-<style scoped lang="postcss">
-.log-wrapper :deep(a) {
-  @apply text-primary underline-offset-4 hover:underline;
-}
-</style>
