@@ -130,16 +130,19 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     error.value = false;
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
+      const event = JSON.parse((e as MessageEvent).data) as {
+        actorId: string;
+        name: "container-stopped" | "container-started";
+      };
       const containerEvent = new ContainerEventLogEntry(
         event.name == "container-started" ? "Container started" : "Container stopped",
         event.actorId,
         new Date(),
-        event.name as "container-stopped" | "container-started",
+        event.name,
       );
 
       buffer.value = [...buffer.value, containerEvent];
-
+      flushBuffer();
       flushBuffer.flush();
     });
 

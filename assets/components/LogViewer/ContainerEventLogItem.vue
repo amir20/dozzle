@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full flex-col">
     <div class="relative flex items-start gap-x-2">
-      <ContainerName class="flex-none" :id="logEntry.containerID" v-if="showContainerName" />
+      <RandomColorTag class="flex-none" :value="container.name" v-if="showContainerName" />
       <LogDate :date="logEntry.date" v-if="showTimestamp" />
       <LogLevel class="flex" />
       <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
@@ -32,6 +32,10 @@ import { ContainerEventLogEntry } from "@/models/LogEntry";
 const router = useRouter();
 const { showToast } = useToast();
 const { t } = useI18n();
+
+const { currentContainer } = useContainerStore();
+
+const container = currentContainer(toRef(() => logEntry.containerID));
 
 const { logEntry } = defineProps<{
   logEntry: ContainerEventLogEntry;
