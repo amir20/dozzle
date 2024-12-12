@@ -49,10 +49,7 @@ const nextContainer = computed(
     [
       ...allContainers.value.filter(
         (c) =>
-          c.host === container.value.host &&
-          c.created > container.value.created &&
-          c.name === container.value.name &&
-          c.state === "running",
+          c.host === container.value.host && c.created > container.value.created && c.name === container.value.name,
       ),
     ].sort((a, b) => +a.created - +b.created)[0],
 );
