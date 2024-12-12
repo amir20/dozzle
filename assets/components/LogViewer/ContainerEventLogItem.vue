@@ -33,19 +33,15 @@ const router = useRouter();
 const { showToast } = useToast();
 const { t } = useI18n();
 
-const { currentContainer } = useContainerStore();
-
-const container = currentContainer(toRef(() => logEntry.containerID));
-
 const { logEntry } = defineProps<{
   logEntry: ContainerEventLogEntry;
   showContainerName?: boolean;
 }>();
 
+const { currentContainer } = useContainerStore();
+const container = currentContainer(toRef(() => logEntry.containerID));
 const { containers } = useLoggingContext();
-
 const store = useContainerStore();
-
 const { containers: allContainers } = storeToRefs(store);
 
 const nextContainer = computed(
@@ -53,10 +49,7 @@ const nextContainer = computed(
     [
       ...allContainers.value.filter(
         (c) =>
-          c.host === containers.value[0].host &&
-          c.created > logEntry.date &&
-          c.name === containers.value[0].name &&
-          c.state === "running",
+          c.host === container.value.host && c.created > container.value.created && c.name === container.value.name,
       ),
     ].sort((a, b) => +a.created - +b.created)[0],
 );
