@@ -3,10 +3,12 @@ package docker_support
 import (
 	"context"
 	"io"
+
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/rs/zerolog/log"
 )
 
 type agentService struct {
@@ -37,6 +39,7 @@ func (a *agentService) StreamLogs(ctx context.Context, container docker.Containe
 }
 
 func (a *agentService) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+	log.Debug().Interface("filter", filter).Msg("Listing containers from agent")
 	return a.client.ListContainers(ctx, filter)
 }
 

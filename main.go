@@ -284,6 +284,7 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 			TTL:        authTTL,
 		},
 		EnableActions: args.EnableActions,
+		Filter:        args.Filter,
 	}
 
 	assets, err := fs.Sub(content, "dist")

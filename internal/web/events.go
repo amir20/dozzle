@@ -25,8 +25,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
 	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
-	// TODO - No user data so just fetch all containers
-	allContainers, errors := h.multiHostService.ListAllContainers(docker.ContainerFilter{})
+	allContainers, errors := h.multiHostService.ListAllContainers(h.config.Filter)
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")

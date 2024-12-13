@@ -307,6 +307,7 @@ func (c *Client) ListContainers(ctx context.Context, filter docker.ContainerFilt
 	in := &pb.ListContainersRequest{}
 
 	if filter != nil {
+		in.Filter = make(map[string]*pb.RepeatedString)
 		for k, v := range filter {
 			in.Filter[k] = &pb.RepeatedString{Values: v}
 		}
