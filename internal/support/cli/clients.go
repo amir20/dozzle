@@ -22,11 +22,11 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 		}
 
 		log.Info().Interface("host", host).Msg("Adding remote host")
-		if client, err := docker.NewRemoteClient(args.Filter, host); err == nil {
+		if client, err := docker.NewRemoteClient(host); err == nil {
 			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 			defer cancel()
-			if _, err := client.ListContainers(ctx); err == nil {
-				clients = append(clients, docker_support.NewDockerClientService(client))
+			if _, err := client.ListContainers(ctx, args.Filter); err == nil {
+				clients = append(clients, docker_support.NewDockerClientService(client, args.Filter))
 			} else {
 				log.Warn().Err(err).Interface("host", host).Msg("Could not connect to remote host")
 			}
@@ -35,16 +35,16 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *
 		}
 	}
 
-	localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+	localClient, err := docker.NewLocalClient(args.Hostname)
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 		defer cancel()
-		_, err := localClient.ListContainers(ctx)
+		_, err := localClient.ListContainers(ctx, args.Filter)
 		if err != nil {
 			log.Debug().Err(err).Msg("Could not connect to local Docker Engine")
 		} else {
 			log.Debug().Msg("Adding local Docker Engine")
-			clients = append(clients, docker_support.NewDockerClientService(localClient))
+			clients = append(clients, docker_support.NewDockerClientService(localClient, args.Filter))
 		}
 	}
 

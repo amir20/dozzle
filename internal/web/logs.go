@@ -288,7 +288,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		return
 	}
 
-	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
+	existingContainers, errs := multiHostClient.ListAllContainersFiltered(docker.ContainerFilter{}, filter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}

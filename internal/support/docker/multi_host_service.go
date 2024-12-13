@@ -61,7 +61,7 @@ func (m *MultiHostService) FindContainer(host string, id string) (*containerServ
 	}, nil
 }
 
-func (m *MultiHostService) ListContainersForHost(host string) ([]docker.Container, error) {
+func (m *MultiHostService) ListContainersForHost(host string, filter docker.ContainerFilter) ([]docker.Container, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -69,17 +69,17 @@ func (m *MultiHostService) ListContainersForHost(host string) ([]docker.Containe
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
 
-	return client.ListContainers(ctx)
+	return client.ListContainers(ctx, filter)
 }
 
-func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
+func (m *MultiHostService) ListAllContainers(filter docker.ContainerFilter) ([]docker.Container, []error) {
 	containers := make([]docker.Container, 0)
 	clients, errors := m.manager.RetryAndList()
 
 	for _, client := range clients {
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
-		list, err := client.ListContainers(ctx)
+		list, err := client.ListContainers(ctx, filter)
 		if err != nil {
 			host, _ := client.Host(ctx)
 			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
@@ -94,8 +94,8 @@ func (m *MultiHostService) ListAllContainers() ([]docker.Container, []error) {
 	return containers, errors
 }
 
-func (m *MultiHostService) ListAllContainersFiltered(filter ContainerFilter) ([]docker.Container, []error) {
-	containers, err := m.ListAllContainers()
+func (m *MultiHostService) ListAllContainersFiltered(userFilter docker.ContainerFilter, filter ContainerFilter) ([]docker.Container, []error) {
+	containers, err := m.ListAllContainers(userFilter)
 	filtered := make([]docker.Container, 0, len(containers))
 	for _, container := range containers {
 		if filter(&container) {

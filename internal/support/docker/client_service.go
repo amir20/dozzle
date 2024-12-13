@@ -10,7 +10,7 @@ import (
 
 type ClientService interface {
 	FindContainer(ctx context.Context, id string) (docker.Container, error)
-	ListContainers(ctx context.Context) ([]docker.Container, error)
+	ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error)
 	Host(ctx context.Context) (docker.Host, error)
 	ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error
 	LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error)
@@ -30,10 +30,10 @@ type dockerClientService struct {
 	store  *docker.ContainerStore
 }
 
-func NewDockerClientService(client docker.Client) ClientService {
+func NewDockerClientService(client docker.Client, filter docker.ContainerFilter) ClientService {
 	return &dockerClientService{
 		client: client,
-		store:  docker.NewContainerStore(context.Background(), client),
+		store:  docker.NewContainerStore(context.Background(), client, filter),
 	}
 }
 
@@ -78,8 +78,8 @@ func (d *dockerClientService) ContainerAction(ctx context.Context, container doc
 	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
-func (d *dockerClientService) ListContainers(ctx context.Context) ([]docker.Container, error) {
-	return d.store.ListContainers()
+func (d *dockerClientService) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+	return d.store.ListContainers(filter)
 }
 
 func (d *dockerClientService) Host(ctx context.Context) (docker.Host, error) {

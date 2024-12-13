@@ -3,9 +3,11 @@ package docker
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
+	"github.com/docker/docker/api/types/filters"
 )
 
 // Container represents an internal representation of docker containers
@@ -39,6 +41,34 @@ type ContainerEvent struct {
 	Host            string            `json:"host"`
 	ActorID         string            `json:"actorId"`
 	ActorAttributes map[string]string `json:"actorAttributes,omitempty"`
+}
+
+type ContainerFilter map[string][]string
+
+func NewContainerFilter(values map[string]string) (ContainerFilter, error) {
+	containerFilter := make(ContainerFilter)
+	for _, filter := range values {
+		pos := strings.Index(filter, "=")
+		if pos == -1 {
+			return nil, fmt.Errorf("invalid filter: %s. each filter should be of the form key=value", filter)
+		}
+		key := filter[:pos]
+		val := filter[pos+1:]
+		containerFilter[key] = append(containerFilter[key], val)
+	}
+
+	return containerFilter, nil
+}
+
+func (f ContainerFilter) asArgs() filters.Args {
+	filterArgs := filters.NewArgs()
+	for key, values := range f {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
+	}
+
+	return filterArgs
 }
 
 type LogPosition string

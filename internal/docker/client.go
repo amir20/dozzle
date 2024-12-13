@@ -15,7 +15,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
-	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/client"
@@ -59,7 +58,7 @@ type DockerCLI interface {
 }
 
 type Client interface {
-	ListContainers(context.Context) ([]Container, error)
+	ListContainers(context.Context, ContainerFilter) ([]Container, error)
 	FindContainer(context.Context, string) (Container, error)
 	ContainerLogs(context.Context, string, time.Time, StdType) (io.ReadCloser, error)
 	ContainerEvents(context.Context, chan<- ContainerEvent) error
@@ -73,13 +72,12 @@ type Client interface {
 }
 
 type httpClient struct {
-	cli     DockerCLI
-	filters filters.Args
-	host    Host
-	info    system.Info
+	cli  DockerCLI
+	host Host
+	info system.Info
 }
 
-func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
+func NewClient(cli DockerCLI, host Host) Client {
 	info, err := cli.Info(context.Background())
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
@@ -90,24 +88,14 @@ func NewClient(cli DockerCLI, filters filters.Args, host Host) Client {
 	host.DockerVersion = info.ServerVersion
 
 	return &httpClient{
-		cli:     cli,
-		filters: filters,
-		host:    host,
-		info:    info,
+		cli:  cli,
+		host: host,
+		info: info,
 	}
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
-	filterArgs := filters.NewArgs()
-	for key, values := range f {
-		for _, value := range values {
-			filterArgs.Add(key, value)
-		}
-	}
-
-	log.Debug().Interface("filterArgs", filterArgs).Msg("Creating local client")
-
+func NewLocalClient(hostname string) (Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 
 	if err != nil {
@@ -137,19 +125,10 @@ func NewLocalClient(f map[string][]string, hostname string) (Client, error) {
 		host.Name = hostname
 	}
 
-	return NewClient(cli, filterArgs, host), nil
+	return NewClient(cli, host), nil
 }
 
-func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
-	filterArgs := filters.NewArgs()
-	for key, values := range f {
-		for _, value := range values {
-			filterArgs.Add(key, value)
-		}
-	}
-
-	log.Debug().Interface("filterArgs", filterArgs).Msg("Creating remote client")
-
+func NewRemoteClient(host Host) (Client, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -175,7 +154,7 @@ func NewRemoteClient(f map[string][]string, host Host) (Client, error) {
 
 	host.Type = "remote"
 
-	return NewClient(cli, filterArgs, host), nil
+	return NewClient(cli, host), nil
 }
 
 // Finds a container by id, skipping the filters
@@ -202,10 +181,10 @@ func (d *httpClient) ContainerActions(ctx context.Context, action ContainerActio
 	}
 }
 
-func (d *httpClient) ListContainers(ctx context.Context) ([]Container, error) {
-	log.Debug().Interface("filter", d.filters).Str("host", d.host.Name).Msg("Listing containers")
+func (d *httpClient) ListContainers(ctx context.Context, filter ContainerFilter) ([]Container, error) {
+	log.Debug().Interface("filter", filter).Str("host", d.host.Name).Msg("Listing containers")
 	containerListOptions := container.ListOptions{
-		Filters: d.filters,
+		Filters: filter.asArgs(),
 		All:     true,
 	}
 	list, err := d.cli.ContainerList(ctx, containerListOptions)

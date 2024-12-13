@@ -37,7 +37,7 @@ func main() {
 	if subcommand != nil {
 		switch subcommand.(type) {
 		case *cli.AgentCmd:
-			client, err := docker.NewLocalClient(args.Filter, args.Hostname)
+			client, err := docker.NewLocalClient(args.Hostname)
 			if err != nil {
 				log.Fatal().Err(err).Msg("Could not create docker client")
 			}
@@ -56,7 +56,7 @@ func main() {
 			}
 			io.WriteString(tempFile, listener.Addr().String())
 			go cli.StartEvent(args, "", client, "agent")
-			server, err := agent.NewServer(client, certs, args.Version())
+			server, err := agent.NewServer(client, certs, args.Version(), args.Filter)
 			if err != nil {
 				log.Fatal().Err(err).Msg("failed to create agent server")
 			}
@@ -170,7 +170,7 @@ func main() {
 		go cli.StartEvent(args, "server", localClient, "")
 
 	} else if args.Mode == "swarm" {
-		localClient, err := docker.NewLocalClient(args.Filter, args.Hostname)
+		localClient, err := docker.NewLocalClient(args.Hostname)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
 		}
@@ -179,14 +179,14 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
 		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
-		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager)
+		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
-		server, err := agent.NewServer(localClient, certs, args.Version())
+		server, err := agent.NewServer(localClient, certs, args.Version(), args.Filter)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
 		}
