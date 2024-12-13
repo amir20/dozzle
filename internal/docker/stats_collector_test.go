@@ -10,7 +10,7 @@ import (
 
 func startedCollector(ctx context.Context) *StatsCollector {
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
 			ID:    "1234",
 			Name:  "test",

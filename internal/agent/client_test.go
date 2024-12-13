@@ -92,7 +92,7 @@ func init() {
 	}
 
 	client = &MockedClient{}
-	client.On("ListContainers", mock.Anything).Return([]docker.Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{
 			ID:    "123456",
 			Name:  "test",

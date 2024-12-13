@@ -73,7 +73,7 @@ func (m *MockedClient) SystemInfo() system.Info {
 func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
-		client.(*MockedClient).On("ListContainers", mock.Anything).Return([]docker.Container{}, nil)
+		client.(*MockedClient).On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{}, nil)
 		client.(*MockedClient).On("Host").Return(docker.Host{
 			ID: "localhost",
 		})
@@ -86,7 +86,7 @@ func createHandler(client docker.Client, content fs.FS, config Config) *chi.Mux 
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client))
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client, docker.ContainerFilter{}))
 	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
 		multiHostService: multiHostService,

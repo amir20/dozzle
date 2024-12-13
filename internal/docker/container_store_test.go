@@ -42,7 +42,7 @@ func (m *mockedClient) Host() Host {
 func TestContainerStore_List(t *testing.T) {
 
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
 			ID:   "1234",
 			Name: "test",
@@ -74,7 +74,7 @@ func TestContainerStore_List(t *testing.T) {
 
 func TestContainerStore_die(t *testing.T) {
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
 			ID:    "1234",
 			Name:  "test",

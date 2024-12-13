@@ -50,7 +50,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
@@ -94,7 +94,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 		ID: "localhost",
 	})
 
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 
@@ -133,7 +133,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
@@ -170,7 +170,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
@@ -193,7 +193,7 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
@@ -235,7 +235,7 @@ func Test_handler_between_dates(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
@@ -281,7 +281,7 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	mockedClient.On("Host").Return(docker.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
