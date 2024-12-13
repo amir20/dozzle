@@ -3,6 +3,7 @@ package docker
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
@@ -43,6 +44,29 @@ type ContainerEvent struct {
 }
 
 type ContainerFilter map[string][]string
+
+func ParseContainerFilter(commaValues string) (ContainerFilter, error) {
+	filter := make(ContainerFilter)
+	if commaValues == "" {
+		return filter, nil
+	}
+
+	for _, val := range strings.Split(commaValues, ",") {
+		pos := strings.Index(val, "=")
+		if pos == -1 {
+			return nil, fmt.Errorf("invalid filter: %s", filter)
+		}
+		key := val[:pos]
+		val := val[pos+1:]
+		filter[key] = append(filter[key], val)
+	}
+
+	return filter, nil
+}
+
+func (f ContainerFilter) Exists() bool {
+	return len(f) > 0
+}
 
 func (f ContainerFilter) asArgs() filters.Args {
 	filterArgs := filters.NewArgs()
