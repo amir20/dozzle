@@ -38,8 +38,8 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers(ctx context.Context) ([]docker.Container, error) {
-	args := m.Called(ctx)
+func (m *MockedClient) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+	args := m.Called(ctx, filter)
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 

@@ -46,8 +46,8 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- docker
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers(ctx context.Context) ([]docker.Container, error) {
-	args := m.Called(ctx)
+func (m *MockedClient) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+	args := m.Called(ctx, filter)
 	return args.Get(0).([]docker.Container), args.Error(1)
 }
 
@@ -127,7 +127,7 @@ func init() {
 		Stats: utils.NewRingBuffer[docker.ContainerStat](300),
 	}, nil)
 
-	server, _ := NewServer(client, certs, "test")
+	server, _ := NewServer(client, certs, "test", docker.ContainerFilter{})
 
 	go server.Serve(lis)
 }
@@ -167,7 +167,7 @@ func TestListContainers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	containers, _ := rpc.ListContainers(context.Background())
+	containers, _ := rpc.ListContainers(context.Background(), docker.ContainerFilter{})
 
 	assert.Equal(t, containers, []docker.Container{
 		{

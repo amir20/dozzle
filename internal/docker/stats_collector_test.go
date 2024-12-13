@@ -35,7 +35,7 @@ func startedCollector(ctx context.Context) *StatsCollector {
 		ID: "localhost",
 	})
 
-	collector := NewStatsCollector(client)
+	collector := NewStatsCollector(client, ContainerFilter{})
 	stats := make(chan ContainerStat)
 
 	collector.Subscribe(ctx, stats)
