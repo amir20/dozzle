@@ -27,6 +27,8 @@ type ContainerStore struct {
 }
 
 func NewContainerStore(ctx context.Context, client Client, filter ContainerFilter) *ContainerStore {
+	log.Debug().Str("host", client.Host().Name).Interface("filter", filter).Msg("initializing container store")
+
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
