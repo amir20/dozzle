@@ -199,9 +199,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 	filter := make(docker.ContainerFilter)
 	if in.GetFilter() != nil {
 		for k, v := range in.GetFilter() {
-			for _, vv := range v.GetValues() {
-				filter[k] = append(filter[k], vv)
-			}
+			filter[k] = append(filter[k], v.GetValues()...)
 		}
 	}
 
