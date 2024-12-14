@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	support_web "github.com/amir20/dozzle/internal/support/web"
@@ -25,7 +26,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
 	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
-	allContainers, errors := h.multiHostService.ListAllContainers(h.config.Filter)
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
+	}
+
+	allContainers, errors := h.multiHostService.ListAllContainers(usersFilter)
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
@@ -63,7 +72,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				if event.Name == "start" || event.Name == "rename" {
 					log.Debug().Str("action", event.Name).Str("id", event.ActorID).Msg("container event")
 
-					if containers, err := h.multiHostService.ListContainersForHost(event.Host, docker.ContainerFilter{}); err == nil {
+					if containers, err := h.multiHostService.ListContainersForHost(event.Host, usersFilter); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return

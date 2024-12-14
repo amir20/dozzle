@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,9 +16,10 @@ type contextKey string
 const remoteUser contextKey = "remoteUser"
 
 type proxyAuthContext struct {
-	headerUser  string
-	headerEmail string
-	headerName  string
+	headerUser   string
+	headerEmail  string
+	headerName   string
+	headerFilter string
 }
 
 func hashEmail(email string) string {
@@ -28,18 +30,23 @@ func hashEmail(email string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func NewForwardProxyAuth(user, email, name string) *proxyAuthContext {
+func NewForwardProxyAuth(userHeader, emailHeader, nameHeader, filterHeader string) *proxyAuthContext {
 	return &proxyAuthContext{
-		headerUser:  user,
-		headerEmail: email,
-		headerName:  name,
+		headerUser:   userHeader,
+		headerEmail:  emailHeader,
+		headerName:   nameHeader,
+		headerFilter: filterHeader,
 	}
 }
 
 func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get(p.headerUser) != "" {
-			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName))
+			containerFilter, err := docker.ParseContainerFilter(r.Header.Get(p.headerFilter))
+			if err != nil {
+				log.Fatal().Str("filter", r.Header.Get(p.headerFilter)).Msg("Failed to parse container filter")
+			}
+			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter)
 			ctx := context.WithValue(r.Context(), remoteUser, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {

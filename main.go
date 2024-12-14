@@ -121,6 +121,7 @@ func main() {
 				Password: args.Generate.Password,
 				Name:     args.Generate.Name,
 				Email:    args.Generate.Email,
+				Filter:   args.Generate.Filter,
 			}, true)
 
 			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
@@ -230,7 +231,7 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 	if args.AuthProvider == "forward-proxy" {
 		log.Debug().Msg("Using forward proxy authentication")
 		provider = web.FORWARD_PROXY
-		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName)
+		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName, args.AuthHeaderFilter)
 	} else if args.AuthProvider == "simple" {
 		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE

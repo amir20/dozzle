@@ -18,6 +18,7 @@ import (
 
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/support/search"
 	support_web "github.com/amir20/dozzle/internal/support/web"
@@ -288,7 +289,15 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	existingContainers, errs := h.multiHostService.ListAllContainersFiltered(h.config.Filter, containerFilter)
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
+	}
+
+	existingContainers, errs := h.multiHostService.ListAllContainersFiltered(usersFilter, containerFilter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
