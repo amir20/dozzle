@@ -2,7 +2,7 @@
 title: Authentication
 ---
 
-# Setting Up Authentication
+# Setting Up Authentication <Badge type="tip" text="Updated" />
 
 Dozzle supports two configurations for authentication. In the first configuration, you bring your own authentication method by protecting Dozzle through a proxy. Dozzle can read appropriate headers out of the box.
 
@@ -22,6 +22,7 @@ users:
     name: Admin
     # Generate with docker run amir20/dozzle generate --name Admin --email me@email.net --password secret admin
     password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    filter:
 ```
 
 Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `bcrypt` which can be generated using `docker run amir20/dozzle generate`.
@@ -90,15 +91,39 @@ services:
 
 Note that only duration is supported. You can only use `s`, `m`, `h` for seconds, minutes and hours respectively.
 
+### Setting specific filters for users
+
+Dozzle supports setting filters for users. Filters are used to restrict the containers that a user can see. Filters are set in the `users.yml` file. Here is an example:
+
+```yaml
+users:
+  admin:
+    email:
+    name: Admin
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    filter:
+
+  guest:
+    email:
+    name: Guest
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    filter: "label=com.example.app"
+```
+
+In this example, the `admin` user has no filter, so they can see all containers. The `guest` user can only see containers with the label `com.example.app`. This is useful for restricting access to specific containers.
+
+> [!NOTE]
+> Filters can also be set [globally](/guide/filters) with the `--filter` flag. This flag is applied to all users. If a user has a filter set, it will override the global filter.
+
 ## Generating users.yml
 
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
-docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
+docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yml
 ```
 
-In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
+In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters.
 
 ## Forward Proxy
 
@@ -129,6 +154,7 @@ In this mode, Dozzle expects the following headers:
 - `Remote-User` to map to the username e.g. `johndoe`
 - `Remote-Email` to map to the user's email address. This email is also used to find the right [Gravatar](https://gravatar.com/) for the user.
 - `Remote-Name` to be a display name like `John Doe`
+- `Remote-Filter` to be a comma-separated list of filters allowed for user.
 
 ### Setting up Dozzle with Authelia
 

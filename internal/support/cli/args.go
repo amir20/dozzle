@@ -51,6 +51,7 @@ type GenerateCmd struct {
 	Password string `arg:"--password, -p" help:"sets the password for the user"`
 	Name     string `arg:"--name, -n" help:"sets the display name for the user"`
 	Email    string `arg:"--email, -e" help:"sets the email for the user"`
+	Filter   string `arg:"--user-filter" help:"sets the filter for the user. This can be a comma separated list of filters."`
 }
 
 func (Args) Version() string {

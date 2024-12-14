@@ -117,6 +117,23 @@ services:
 
 This will change the agent's name to `my-special-name` and will be reflected on the UI when connecting to the agent.
 
+## Setting Up Filters
+
+You can set up filters for the agent to limit the containers it can access. These filters are passed directly to Docker, restricting what Dozzle can view.
+
+```yaml
+services:
+  dozzle-agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_FILTER=label=color
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+This will restrict the agent to displaying only containers with the label `color`. Keep in mind that these filters are combined with the UI filters to narrow down the containers. To learn more about the different types of filters, read the [filters documentation](/guide/filters#ui-agents-and-user-filters).
+
 ## Custom Certificates
 
 By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed externally and an attacker knows exactly which port the agent is running on, then they can set up their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
@@ -169,5 +186,6 @@ Agents are similar to remote connections, but they have some advantages. General
 | Permissions | Full access to Docker        | Can be controlled with a proxy  |
 | Reconnect   | Automatically reconnects     | Requires UI restart             |
 | Healthcheck | Built-in healthcheck         | No healthcheck                  |
+| Filters     | Supports filters             | No support for filters          |
 
 If you do plan to use remote connections, make sure to secure the connection using Docker TLS or a reverse proxy.

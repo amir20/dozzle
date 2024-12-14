@@ -121,6 +121,7 @@ func main() {
 				Password: args.Generate.Password,
 				Name:     args.Generate.Name,
 				Email:    args.Generate.Email,
+				Filter:   args.Generate.Filter,
 			}, true)
 
 			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
