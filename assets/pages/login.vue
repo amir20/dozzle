@@ -20,8 +20,10 @@
               :disabled="loading"
             />
           </label>
-          <label class="label text-error" v-if="error">
-            {{ $t("error.invalid-auth") }}
+          <label class="label" v-if="error">
+            <span class="label-text-alt text-error">
+              {{ $t("error.invalid-auth") }}
+            </span>
           </label>
         </label>
         <label class="form-control w-full">
@@ -40,7 +42,7 @@
           </label>
         </label>
 
-        <button class="btn btn-primary uppercase" type="submit">
+        <button class="btn btn-primary uppercase" type="submit" :disabled="loading">
           <span class="loading loading-spinner" v-if="loading"></span>
           {{ $t("button.login") }}
         </button>
