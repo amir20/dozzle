@@ -2,35 +2,50 @@
   <div class="card w-96 flex-shrink-0 bg-base-lighter shadow-2xl">
     <div class="card-body">
       <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
-        <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
-          <mdi:account class="has-[+:focus]:text-primary" />
-          <input
-            type="text"
-            class="grow"
-            :placeholder="$t('label.username')"
-            name="username"
-            autocomplete="username"
-            autofocus
-            required
-          />
+        <label class="form-control w-full">
+          <label
+            class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary"
+            :class="{ 'input-error': error }"
+          >
+            <mdi:account class="has-[+:focus]:text-primary" :class="{ 'text-error': error }" />
+            <input
+              type="text"
+              class="grow"
+              :class="{ 'text-error': error }"
+              :placeholder="$t('label.username')"
+              name="username"
+              autocomplete="username"
+              autofocus
+              required
+              :disabled="loading"
+            />
+          </label>
+          <label class="label" v-if="error">
+            <span class="label-text-alt text-error">
+              {{ $t("error.invalid-auth") }}
+            </span>
+          </label>
         </label>
-        <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
-          <mdi:key class="has-[+:focus]:text-primary" />
-          <input
-            type="password"
-            class="grow"
-            :placeholder="$t('label.password')"
-            name="password"
-            autocomplete="current-password"
-            autofocus
-            required
-          />
-        </label>
-        <label class="label text-red" v-if="error">
-          {{ $t("error.invalid-auth") }}
+        <label class="form-control w-full">
+          <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
+            <mdi:key class="has-[+:focus]:text-primary" />
+            <input
+              type="password"
+              class="grow"
+              :placeholder="$t('label.password')"
+              name="password"
+              autocomplete="current-password"
+              autofocus
+              required
+              :disabled="loading"
+            />
+          </label>
         </label>
 
-        <button class="btn btn-primary uppercase" type="submit">{{ $t("button.login") }}</button>
+        <button class="btn btn-primary uppercase" type="submit" :disabled="loading">
+          <span class="loading loading-spinner" v-if="loading"></span>
+          {{ $t("button.login") }}
+        </button>
       </form>
     </div>
   </div>
@@ -42,10 +57,12 @@ const { t } = useI18n();
 setTitle(t("title.login"));
 
 const error = ref(false);
+const loading = ref(false);
 const form = ref<HTMLFormElement>();
 const params = new URLSearchParams(window.location.search);
 
 async function onLogin() {
+  loading.value = true;
   const response = await fetch(withBase("/api/token"), {
     body: new FormData(form.value),
     method: "POST",
@@ -61,6 +78,7 @@ async function onLogin() {
   } else {
     error.value = true;
   }
+  loading.value = false;
 }
 </script>
 <route lang="yaml">
