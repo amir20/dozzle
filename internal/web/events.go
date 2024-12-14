@@ -72,7 +72,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				if event.Name == "start" || event.Name == "rename" {
 					log.Debug().Str("action", event.Name).Str("id", event.ActorID).Msg("container event")
 
-					if containers, err := h.multiHostService.ListContainersForHost(event.Host, docker.ContainerFilter{}); err == nil {
+					if containers, err := h.multiHostService.ListContainersForHost(event.Host, usersFilter); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
