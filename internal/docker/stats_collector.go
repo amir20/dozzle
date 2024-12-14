@@ -21,16 +21,18 @@ type StatsCollector struct {
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
+	filter       ContainerFilter
 }
 
 var timeToStop = 6 * time.Hour
 
-func NewStatsCollector(client Client) *StatsCollector {
+func NewStatsCollector(client Client, filter ContainerFilter) *StatsCollector {
 	return &StatsCollector{
 		stream:      make(chan ContainerStat),
 		subscribers: xsync.NewMapOf[context.Context, chan<- ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
+		filter:      filter,
 	}
 }
 
@@ -98,7 +100,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	sc.mu.Unlock()
 
 	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
-	if containers, err := sc.client.ListContainers(timeoutCtx); err == nil {
+	if containers, err := sc.client.ListContainers(timeoutCtx, sc.filter); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
 				go streamStats(ctx, sc, c.ID)

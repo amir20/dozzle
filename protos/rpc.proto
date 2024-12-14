@@ -23,7 +23,9 @@ service AgentService {
       returns (ContainerActionResponse) {}
 }
 
-message ListContainersRequest {}
+message ListContainersRequest { map<string, RepeatedString> filter = 1; }
+
+message RepeatedString { repeated string values = 1; }
 
 message ListContainersResponse { repeated Container containers = 1; }
 
@@ -72,5 +74,4 @@ message ContainerActionRequest {
   ContainerAction action = 2;
 }
 
-message ContainerActionResponse {
-}
+message ContainerActionResponse {}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
+	"github.com/docker/docker/api/types/filters"
 )
 
 // Container represents an internal representation of docker containers
@@ -39,6 +40,19 @@ type ContainerEvent struct {
 	Host            string            `json:"host"`
 	ActorID         string            `json:"actorId"`
 	ActorAttributes map[string]string `json:"actorAttributes,omitempty"`
+}
+
+type ContainerFilter map[string][]string
+
+func (f ContainerFilter) asArgs() filters.Args {
+	filterArgs := filters.NewArgs()
+	for key, values := range f {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
+	}
+
+	return filterArgs
 }
 
 type LogPosition string

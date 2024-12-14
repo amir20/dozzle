@@ -14,8 +14,8 @@ type mockedClient struct {
 	Client
 }
 
-func (m *mockedClient) ListContainers(ctx context.Context) ([]Container, error) {
-	args := m.Called(ctx)
+func (m *mockedClient) ListContainers(ctx context.Context, filter ContainerFilter) ([]Container, error) {
+	args := m.Called(ctx, filter)
 	return args.Get(0).([]Container), args.Error(1)
 }
 
@@ -42,7 +42,7 @@ func (m *mockedClient) Host() Host {
 func TestContainerStore_List(t *testing.T) {
 
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
 			ID:   "1234",
 			Name: "test",
@@ -66,15 +66,15 @@ func TestContainerStore_List(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
 
-	store := NewContainerStore(ctx, client)
-	containers, _ := store.ListContainers()
+	store := NewContainerStore(ctx, client, ContainerFilter{})
+	containers, _ := store.ListContainers(ContainerFilter{})
 
 	assert.Equal(t, containers[0].ID, "1234")
 }
 
 func TestContainerStore_die(t *testing.T) {
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
 		{
 			ID:    "1234",
 			Name:  "test",
@@ -109,13 +109,13 @@ func TestContainerStore_die(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
-	store := NewContainerStore(ctx, client)
+	store := NewContainerStore(ctx, client, ContainerFilter{})
 
 	// Wait until we get the event
 	events := make(chan ContainerEvent)
 	store.SubscribeEvents(ctx, events)
 	<-events
 
-	containers, _ := store.ListContainers()
+	containers, _ := store.ListContainers(ContainerFilter{})
 	assert.Equal(t, containers[0].State, "exited")
 }

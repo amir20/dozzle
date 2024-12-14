@@ -226,7 +226,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return container.ID == id && container.Host == hostKey(r)
 	})
 }
@@ -239,14 +239,14 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 		ids[id] = true
 	}
 
-	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return ids[container.ID] && container.Host == hostKey(r)
 	})
 }
 
 func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 	service := chi.URLParam(r, "service")
-	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return container.State == "running" && container.Labels["com.docker.swarm.service.name"] == service
 	})
 }
@@ -254,7 +254,7 @@ func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
 func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 	group := chi.URLParam(r, "group")
 
-	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return container.State == "running" && container.Group == group
 	})
 }
@@ -262,12 +262,12 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	stack := chi.URLParam(r, "stack")
 
-	streamLogsForContainers(w, r, h.multiHostService, func(container *docker.Container) bool {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return container.State == "running" && container.Labels["com.docker.stack.namespace"] == stack
 	})
 }
 
-func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostClient *MultiHostService, filter ContainerFilter) {
+func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter ContainerFilter) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= docker.STDOUT
@@ -288,7 +288,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 		return
 	}
 
-	existingContainers, errs := multiHostClient.ListAllContainersFiltered(filter)
+	existingContainers, errs := h.multiHostService.ListAllContainersFiltered(h.config.Filter, containerFilter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
@@ -323,7 +323,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 				stillRunning := false
 				for _, container := range existingContainers {
 
-					containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+					containerService, err := h.multiHostService.FindContainer(container.Host, container.ID)
 
 					if err != nil {
 						log.Error().Err(err).Msg("error while finding container")
@@ -370,7 +370,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	}
 
 	streamLogs := func(container docker.Container) {
-		containerService, err := multiHostClient.FindContainer(container.Host, container.ID)
+		containerService, err := h.multiHostService.FindContainer(container.Host, container.ID)
 		if err != nil {
 			log.Error().Err(err).Msg("error while finding container")
 			return
@@ -392,7 +392,7 @@ func streamLogsForContainers(w http.ResponseWriter, r *http.Request, multiHostCl
 	}
 
 	newContainers := make(chan docker.Container)
-	multiHostClient.SubscribeContainersStarted(r.Context(), newContainers, filter)
+	h.multiHostService.SubscribeContainersStarted(r.Context(), newContainers, containerFilter)
 
 	ticker := time.NewTicker(5 * time.Second)
 	sseWriter.Ping()

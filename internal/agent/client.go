@@ -303,8 +303,17 @@ func (c *Client) FindContainer(ctx context.Context, containerID string) (docker.
 	}, nil
 }
 
-func (c *Client) ListContainers(ctx context.Context) ([]docker.Container, error) {
-	response, err := c.client.ListContainers(ctx, &pb.ListContainersRequest{})
+func (c *Client) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+	in := &pb.ListContainersRequest{}
+
+	if filter != nil {
+		in.Filter = make(map[string]*pb.RepeatedString)
+		for k, v := range filter {
+			in.Filter[k] = &pb.RepeatedString{Values: v}
+		}
+	}
+
+	response, err := c.client.ListContainers(ctx, in)
 	if err != nil {
 		return nil, err
 	}

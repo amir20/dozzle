@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 
 	"github.com/amir20/dozzle/internal/agent"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,7 +14,7 @@ func RPCRequest(ctx context.Context, addr string, certs tls.Certificate) error {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create agent client")
 	}
-	containers, err := client.ListContainers(ctx)
+	containers, err := client.ListContainers(ctx, docker.ContainerFilter{})
 	log.Trace().Int("containers", len(containers)).Msg("Healtcheck RPC request completed")
 	return err
 }

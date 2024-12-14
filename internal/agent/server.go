@@ -32,12 +32,12 @@ type server struct {
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client docker.Client, dozzleVersion string) pb.AgentServiceServer {
+func newServer(client docker.Client, dozzleVersion string, filter docker.ContainerFilter) pb.AgentServiceServer {
 	return &server{
 		client:  client,
 		version: dozzleVersion,
 
-		store: docker.NewContainerStore(context.Background(), client),
+		store: docker.NewContainerStore(context.Background(), client, filter),
 	}
 }
 
@@ -196,7 +196,14 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 }
 
 func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersRequest) (*pb.ListContainersResponse, error) {
-	containers, err := s.store.ListContainers()
+	filter := make(docker.ContainerFilter)
+	if in.GetFilter() != nil {
+		for k, v := range in.GetFilter() {
+			filter[k] = append(filter[k], v.GetValues()...)
+		}
+	}
+
+	containers, err := s.store.ListContainers(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +311,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string) (*grpc.Server, error) {
+func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string, filter docker.ContainerFilter) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -323,7 +330,7 @@ func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, filter))
 
 	return grpcServer, nil
 }

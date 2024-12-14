@@ -3,12 +3,14 @@ package web
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/amir20/dozzle/internal/docker"
 )
 
 func (h *handler) debugStore(w http.ResponseWriter, r *http.Request) {
 	respone := make(map[string]interface{})
 	respone["hosts"] = h.multiHostService.Hosts()
-	containers, errors := h.multiHostService.ListAllContainers()
+	containers, errors := h.multiHostService.ListAllContainers(docker.ContainerFilter{})
 	respone["containers"] = containers
 	respone["errors"] = errors
 

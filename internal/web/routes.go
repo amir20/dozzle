@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 
 	"github.com/go-chi/chi/v5"
@@ -33,6 +34,7 @@ type Config struct {
 	Dev           bool
 	Authorization Authorization
 	EnableActions bool
+	Filter        docker.ContainerFilter
 }
 
 type Authorization struct {
