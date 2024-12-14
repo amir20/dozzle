@@ -14,6 +14,17 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	action := chi.URLParam(r, "action")
 	id := chi.URLParam(r, "id")
 
+	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := validIdMap[id]; !ok {
+		http.Error(w, "container not found", http.StatusUnauthorized)
+		return
+	}
+
 	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
