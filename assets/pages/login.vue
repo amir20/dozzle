@@ -12,6 +12,7 @@
             autocomplete="username"
             autofocus
             required
+            :disabled="loading"
           />
         </label>
         <label class="input input-bordered flex items-center gap-2 border-2 has-[:focus]:input-primary">
@@ -24,13 +25,17 @@
             autocomplete="current-password"
             autofocus
             required
+            :disabled="loading"
           />
         </label>
         <label class="label text-red" v-if="error">
           {{ $t("error.invalid-auth") }}
         </label>
 
-        <button class="btn btn-primary uppercase" type="submit">{{ $t("button.login") }}</button>
+        <button class="btn btn-primary uppercase" type="submit">
+          <span class="loading loading-spinner" v-if="loading"></span>
+          {{ $t("button.login") }}
+        </button>
       </form>
     </div>
   </div>
@@ -42,10 +47,12 @@ const { t } = useI18n();
 setTitle(t("title.login"));
 
 const error = ref(false);
+const loading = ref(false);
 const form = ref<HTMLFormElement>();
 const params = new URLSearchParams(window.location.search);
 
 async function onLogin() {
+  loading.value = true;
   const response = await fetch(withBase("/api/token"), {
     body: new FormData(form.value),
     method: "POST",
@@ -61,6 +68,7 @@ async function onLogin() {
   } else {
     error.value = true;
   }
+  loading.value = false;
 }
 </script>
 <route lang="yaml">
