@@ -197,11 +197,14 @@ func UserFromContext(ctx context.Context) *User {
 			}
 			email := claims["email"].(string)
 			name := claims["name"].(string)
-			filter := claims["filter"].(string)
-			containerFilter, err := docker.ParseContainerFilter(filter)
-			if err != nil {
-				log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
+			containerFilter := docker.ContainerFilter{}
+			if filter, ok := claims["filter"].(string); ok {
+				containerFilter, err = docker.ParseContainerFilter(filter)
+				if err != nil {
+					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
+				}
 			}
+
 			user := newUser(username, email, name, containerFilter)
 			return &user
 		}

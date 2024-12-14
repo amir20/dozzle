@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/analytics"
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	support_web "github.com/amir20/dozzle/internal/support/web"
@@ -25,7 +26,15 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
 	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
-	allContainers, errors := h.multiHostService.ListAllContainers(h.config.Filter)
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
+	}
+
+	allContainers, errors := h.multiHostService.ListAllContainers(usersFilter)
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
