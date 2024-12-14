@@ -26,12 +26,46 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
+	"github.com/samber/lo"
 
 	"github.com/rs/zerolog/log"
 )
 
+func (h *handler) validContainerIDsForHost(r *http.Request, host string) (map[string]docker.Container, error) {
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
+	}
+
+	validContainers, err := h.multiHostService.ListContainersForHost(host, usersFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	validIdMap := lo.KeyBy(validContainers, func(item docker.Container) string {
+		return item.ID
+	})
+
+	return validIdMap, nil
+}
+
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+
+	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := validIdMap[id]; !ok {
+		http.Error(w, "container not found", http.StatusUnauthorized)
+		return
+	}
+
 	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -100,6 +134,17 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
+		return
+	}
+
+	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if _, ok := validIdMap[id]; !ok {
+		http.Error(w, "container not found", http.StatusUnauthorized)
 		return
 	}
 
@@ -420,8 +465,16 @@ loop:
 			}
 			sseWriter.Message(logEvent)
 		case container := <-newContainers:
-			events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
-			go streamLogs(container)
+			validIdMap, err := h.validContainerIDsForHost(r, container.Host)
+			if err != nil {
+				log.Error().Err(err).Msg("error fetching valid container IDs")
+				continue
+			}
+
+			if _, ok := validIdMap[container.ID]; ok {
+				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
+				go streamLogs(container)
+			}
 
 		case event := <-events:
 			log.Debug().Str("event", event.Name).Str("container", event.ActorID).Msg("received event")

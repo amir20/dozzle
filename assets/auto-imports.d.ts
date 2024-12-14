@@ -369,6 +369,21 @@ declare global {
   // @ts-ignore
   export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { DrawerWidth } from './composable/drawer'
+  import('./composable/drawer')
+  // @ts-ignore
+  export type { LogStreamSource } from './composable/eventStreams'
+  import('./composable/eventStreams')
+  // @ts-ignore
+  export type { Config, Profile } from './stores/config'
+  import('./stores/config')
+  // @ts-ignore
+  export type { Host } from './stores/hosts'
+  import('./stores/hosts')
+  // @ts-ignore
+  export type { Settings } from './stores/settings'
+  import('./stores/settings')
 }
 
 // for vue template auto import
