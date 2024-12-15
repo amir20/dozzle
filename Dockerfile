@@ -18,7 +18,6 @@ COPY .* *.config.ts *.config.js *.config.cjs ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
-COPY types ./types
 
 # Build assets
 RUN pnpm build
@@ -39,6 +38,7 @@ RUN go mod download
 
 # Copy all other files
 COPY internal ./internal
+COPY types ./types
 COPY main.go ./
 COPY protos ./protos
 COPY shared_key.pem shared_cert.pem ./
