@@ -18,6 +18,7 @@ COPY .* *.config.ts *.config.js *.config.cjs ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
+COPY types ./types
 
 # Build assets
 RUN pnpm build
