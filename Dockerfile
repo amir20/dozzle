@@ -38,6 +38,7 @@ RUN go mod download
 
 # Copy all other files
 COPY internal ./internal
+COPY types ./types
 COPY main.go ./
 COPY protos ./protos
 COPY shared_key.pem shared_cert.pem ./
