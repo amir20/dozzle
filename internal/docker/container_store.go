@@ -134,11 +134,26 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 	return containers, nil
 }
 
-func (s *ContainerStore) FindContainer(id string) (Container, error) {
+func (s *ContainerStore) FindContainer(id string, filter ContainerFilter) (Container, error) {
 	s.wg.Wait()
-	container, ok := s.containers.Load(id)
 
-	if ok {
+	if filter.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, filter)
+		if err != nil {
+			return Container{}, err
+		}
+
+		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
+			return item.ID
+		})
+
+		if _, ok := validIDMap[id]; !ok {
+			log.Warn().Str("id", id).Msg("user doesn't have access to container")
+			return Container{}, ErrContainerNotFound
+		}
+	}
+
+	if container, ok := s.containers.Load(id); ok {
 		return *container, nil
 	} else {
 		log.Warn().Str("id", id).Msg("container not found")

@@ -26,12 +26,13 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/dustin/go-humanize"
 	"github.com/go-chi/chi/v5"
-	"github.com/samber/lo"
 
 	"github.com/rs/zerolog/log"
 )
 
-func (h *handler) validContainerIDsForHost(r *http.Request, host string) (map[string]docker.Container, error) {
+func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
 	usersFilter := h.config.Filter
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
@@ -40,33 +41,7 @@ func (h *handler) validContainerIDsForHost(r *http.Request, host string) (map[st
 		}
 	}
 
-	validContainers, err := h.multiHostService.ListContainersForHost(host, usersFilter)
-	if err != nil {
-		return nil, err
-	}
-
-	validIdMap := lo.KeyBy(validContainers, func(item docker.Container) string {
-		return item.ID
-	})
-
-	return validIdMap, nil
-}
-
-func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if _, ok := validIdMap[id]; !ok {
-		http.Error(w, "container not found", http.StatusUnauthorized)
-		return
-	}
-
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id, usersFilter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -137,18 +112,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
 	}
 
-	if _, ok := validIdMap[id]; !ok {
-		http.Error(w, "container not found", http.StatusUnauthorized)
-		return
-	}
-
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id, usersFilter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -376,8 +348,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 				events := make([]*docker.LogEvent, 0)
 				stillRunning := false
 				for _, container := range existingContainers {
-
-					containerService, err := h.multiHostService.FindContainer(container.Host, container.ID)
+					containerService, err := h.multiHostService.FindContainer(container.Host, container.ID, usersFilter)
 
 					if err != nil {
 						log.Error().Err(err).Msg("error while finding container")
@@ -424,7 +395,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	streamLogs := func(container docker.Container) {
-		containerService, err := h.multiHostService.FindContainer(container.Host, container.ID)
+		containerService, err := h.multiHostService.FindContainer(container.Host, container.ID, usersFilter)
 		if err != nil {
 			log.Error().Err(err).Msg("error while finding container")
 			return
@@ -465,13 +436,7 @@ loop:
 			}
 			sseWriter.Message(logEvent)
 		case container := <-newContainers:
-			validIdMap, err := h.validContainerIDsForHost(r, container.Host)
-			if err != nil {
-				log.Error().Err(err).Msg("error fetching valid container IDs")
-				continue
-			}
-
-			if _, ok := validIdMap[container.ID]; ok {
+			if _, err := h.multiHostService.FindContainer(container.Host, container.ID, usersFilter); err == nil {
 				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-started", Host: container.Host}
 				go streamLogs(container)
 			}

@@ -47,12 +47,12 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.StdType(in.StreamTypes))
+	container, err := s.store.FindContainer(in.ContainerId, docker.ContainerFilter{})
 	if err != nil {
 		return err
 	}
 
-	container, err := s.store.FindContainer(in.ContainerId)
+	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.StdType(in.StreamTypes))
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,14 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 }
 
 func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest) (*pb.FindContainerResponse, error) {
-	container, err := s.store.FindContainer(in.ContainerId)
+	filter := make(docker.ContainerFilter)
+	if in.GetFilter() != nil {
+		for k, v := range in.GetFilter() {
+			filter[k] = append(filter[k], v.GetValues()...)
+		}
+	}
+
+	container, err := s.store.FindContainer(in.ContainerId, filter)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}

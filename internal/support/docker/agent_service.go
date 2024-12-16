@@ -22,7 +22,7 @@ func NewAgentService(client *agent.Client) ClientService {
 	}
 }
 
-func (a *agentService) FindContainer(ctx context.Context, id string) (docker.Container, error) {
+func (a *agentService) FindContainer(ctx context.Context, id string, filter docker.ContainerFilter) (docker.Container, error) {
 	return a.client.FindContainer(ctx, id)
 }
 

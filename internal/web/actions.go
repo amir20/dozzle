@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -14,18 +15,15 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	action := chi.URLParam(r, "action")
 	id := chi.URLParam(r, "id")
 
-	validIdMap, err := h.validContainerIDsForHost(r, hostKey(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	usersFilter := h.config.Filter
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerFilter.Exists() {
+			usersFilter = user.ContainerFilter
+		}
 	}
 
-	if _, ok := validIdMap[id]; !ok {
-		http.Error(w, "container not found", http.StatusUnauthorized)
-		return
-	}
-
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id)
+	containerService, err := h.multiHostService.FindContainer(hostKey(r), id, usersFilter)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
 		http.Error(w, err.Error(), http.StatusNotFound)
