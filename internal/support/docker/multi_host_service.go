@@ -43,14 +43,14 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string) (*containerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string, filter docker.ContainerFilter) (*containerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
-	container, err := client.FindContainer(ctx, id)
+	container, err := client.FindContainer(ctx, id, filter)
 	if err != nil {
 		return nil, err
 	}

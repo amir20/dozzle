@@ -12,29 +12,29 @@ importers:
         specifier: 1.29.0
         version: 1.29.0
       '@iconify-json/carbon':
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.2.5
+        version: 1.2.5
       '@iconify-json/cil':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/ic':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/material-symbols':
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.11
+        version: 1.2.11
       '@iconify-json/mdi':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/mdi-light':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@iconify-json/octicon':
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/ph':
-        specifier: ^1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       '@intlify/unplugin-vue-i18n':
         specifier: ^6.0.1
         version: 6.0.1(@vue/compiler-dom@3.5.13)(eslint@9.10.0(jiti@2.4.1))(rollup@4.28.1)(typescript@5.6.3)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
@@ -117,11 +117,11 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0(@vueuse/core@12.0.0(typescript@5.6.3))(rollup@4.28.1)
       unplugin-icons:
-        specifier: ^0.21.0
-        version: 0.21.0(@vue/compiler-sfc@3.5.13)(vue-template-compiler@2.7.16)
+        specifier: ^0.22.0
+        version: 0.22.0(@vue/compiler-sfc@3.5.13)(vue-template-compiler@2.7.16)
       unplugin-vue-components:
-        specifier: ^0.27.5
-        version: 0.27.5(@babel/parser@7.26.3)(rollup@4.28.1)(vue@3.5.13(typescript@5.6.3))
+        specifier: ^0.28.0
+        version: 0.28.0(@babel/parser@7.26.3)(rollup@4.28.1)(vue@3.5.13(typescript@5.6.3))
       unplugin-vue-macros:
         specifier: ^2.13.6
         version: 2.13.6(@vueuse/core@12.0.0(typescript@5.6.3))(esbuild@0.23.1)(rollup@4.28.1)(typescript@5.6.3)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.1.10(typescript@5.6.3))(vue@3.5.13(typescript@5.6.3))
@@ -875,29 +875,29 @@ packages:
     resolution: {integrity: sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA==}
     engines: {node: '>=18.18'}
 
-  '@iconify-json/carbon@1.2.4':
-    resolution: {integrity: sha512-DhW2jjMVGwV0DLHc0cmDYohdtGxMra8UuwgjHrryPy+rQX4gXhJwCBBVP2h2UG/92AoRCTn7zUJve4WvY5MLYg==}
+  '@iconify-json/carbon@1.2.5':
+    resolution: {integrity: sha512-aI3TEzOrUDGhs74zIT3ym/ZQBUEziyu8JifntX2Hb4siVzsP5sQ/QEfVdmcCUj37kQUYT3TYBSeAw2vTfCJx9w==}
 
-  '@iconify-json/cil@1.2.1':
-    resolution: {integrity: sha512-sTauvkrqunhA42rjrQpFjRfWzbcJSq2GWrZIMJmyjEYWiHiHczUvH4Q0e1LsEpB3CVRPqr1oU3Wi3pAeUSt3Mg==}
+  '@iconify-json/cil@1.2.2':
+    resolution: {integrity: sha512-DiIDcsmGQhzFuxprBI5KTUm4+k3NS9qVqihpsJe5PBAbRXwEfn6fUfcHcdAcFPgU3hIQ6zgQ4cuebXPuiWxbOg==}
 
-  '@iconify-json/ic@1.2.1':
-    resolution: {integrity: sha512-UjL/bjJP/T5EV881+hTzcfTKVo0KEUjhnMiJcLtPzNgPtU2KZZmRx8BSKKR61H4CN/5FTEbyawGyG0aEt3SwGQ==}
+  '@iconify-json/ic@1.2.2':
+    resolution: {integrity: sha512-QmjwS3lYiOmVWgTCEOTFyGODaR/+689+ajep/VsrCcsUN0Gdle5PmIcibDsdmRyrOsW/E77G41UUijdbjQUofw==}
 
-  '@iconify-json/material-symbols@1.2.10':
-    resolution: {integrity: sha512-GcZxhOFStM7Dk/oZvJSaW0tR/k6NwTq+KDzYgCNBDg52ktZuRa/gkjRiYooJm/8PAe9NBYxIx8XjS/wi4sasdQ==}
+  '@iconify-json/material-symbols@1.2.11':
+    resolution: {integrity: sha512-S+uvQ2Piabm8eNVotq3oL3LjihlPw9gAmwhNA0P5Vd2EVjcGmo+KBJ5/oqEMZKHll4H7ISeHDHEUroarmQHkPw==}
 
-  '@iconify-json/mdi-light@1.2.1':
-    resolution: {integrity: sha512-kTs9efbpF5GDcevR9PWCDJQrV1Vfr6RS8KJyGIPM6zxd8AGGAtNCxyACrJ+zeq6K99ZmcTIPr8tlymmPFAxwnw==}
+  '@iconify-json/mdi-light@1.2.2':
+    resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
 
-  '@iconify-json/mdi@1.2.1':
-    resolution: {integrity: sha512-dSkQU78gsZV6Yxnq78+LuX7jzeFC/5NAmz7O3rh558GimGFcwMVY/OtqRowIzjqJBmMmWZft7wkFV4TrwRXjlg==}
+  '@iconify-json/mdi@1.2.2':
+    resolution: {integrity: sha512-84aznJXzfGdbOXGe8xB7E5uNAb7Yo5IABwTgq2X3kczb819qZeS9eL31bTVn7wJdCLK5ieaoUc2GTS3QYIkJ6g==}
 
   '@iconify-json/octicon@1.2.2':
     resolution: {integrity: sha512-qEPkP9DMMay5uILzyaSmVksSMxRw9i2wSDREfB8OK20mPdSadusjLqD/u69GzpFpw6894c+WNmoq7WzN5KAPeg==}
 
-  '@iconify-json/ph@1.2.1':
-    resolution: {integrity: sha512-x0DNfwWrS18dbsBYOq3XGiZnGz4CgRyC+YSl/TZvMQiKhIUl1woWqUbMYqqfMNUBzjyk7ulvaRovpRsIlqIf8g==}
+  '@iconify-json/ph@1.2.2':
+    resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
 
   '@iconify-json/simple-icons@1.2.10':
     resolution: {integrity: sha512-9OK1dsSjXlH36lhu5n+BlSoXuqFjHUErGLtNdzHpq0vHq4YFBuGYWtZ+vZTHLreRQ8ijPRv/6EsgkV+nf6AReQ==}
@@ -905,8 +905,8 @@ packages:
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
 
-  '@iconify/utils@2.1.33':
-    resolution: {integrity: sha512-jP9h6v/g0BIZx0p7XGJJVtkVnydtbgTgt9mVNcGDYwaa7UhdHdI9dvoq+gKj9sijMSJKxUPEG2JyjsgXjxL7Kw==}
+  '@iconify/utils@2.2.1':
+    resolution: {integrity: sha512-0/7J7hk4PqXmxo5PDBDxmnecw5PxklZJfNjIVG9FM0mEfVrvfudS22rYWsqVk6gR3UJ/mSYS90X4R3znXnqfNA==}
 
   '@intlify/bundle-utils@10.0.0':
     resolution: {integrity: sha512-BR5yLOkF2dzrARTbAg7RGAIPcx9Aark7p1K/0O285F7rfzso9j2dsa+S4dA67clZ0rToZ10NSSTfbyUptVu7Bg==}
@@ -1092,6 +1092,15 @@ packages:
 
   '@rollup/pluginutils@5.1.3':
     resolution: {integrity: sha512-Pnsb6f32CD2W3uCaLZIzDmeFyQ2b8UWMFI7xtwUezpcGBDVDW6y9XgAWIlARiGAo6eNF5FK5aQTr0LFyNyqq5A==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+
+  '@rollup/pluginutils@5.1.4':
+    resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
@@ -2599,6 +2608,10 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
+  globals@15.13.0:
+    resolution: {integrity: sha512-49TewVEz0UxZjr1WYYsWpPrhyC/B/pA8Bq0fUmet2n+eR7yn0IvNzNaoBwnK6mdkzcN+se7Ez9zUgULTz2QH4g==}
+    engines: {node: '>=18'}
+
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
@@ -3727,8 +3740,8 @@ packages:
       webpack:
         optional: true
 
-  unplugin-icons@0.21.0:
-    resolution: {integrity: sha512-sRic+yj7cCbpDFwrRj+m55ogOZi6PQRDc/WUEmjHLAnc90v0g5UVxE0cVAZgBOsAPCieizZJui/sgrCYrVx8mQ==}
+  unplugin-icons@0.22.0:
+    resolution: {integrity: sha512-CP+iZq5U7doOifer5bcM0jQ9t3Is7EGybIYt3myVxceI8Zuk8EZEpe1NPtJvh7iqMs1VdbK0L41t9+um9VuuLw==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -3750,8 +3763,8 @@ packages:
       vue-template-es2015-compiler:
         optional: true
 
-  unplugin-vue-components@0.27.5:
-    resolution: {integrity: sha512-m9j4goBeNwXyNN8oZHHxvIIYiG8FQ9UfmKWeNllpDvhU7btKNNELGPt+o3mckQKuPwrE7e0PvCsx+IWuDSD9Vg==}
+  unplugin-vue-components@0.28.0:
+    resolution: {integrity: sha512-jiTGtJ3JsRFBjgvyilfrX7yUoGKScFgbdNw+6p6kEXU+Spf/rhxzgvdfuMcvhCcLmflB/dY3pGQshYBVGOUx7Q==}
     engines: {node: '>=14'}
     peerDependencies:
       '@babel/parser': ^7.15.8
@@ -4579,27 +4592,27 @@ snapshots:
 
   '@humanwhocodes/retry@0.3.1': {}
 
-  '@iconify-json/carbon@1.2.4':
+  '@iconify-json/carbon@1.2.5':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/cil@1.2.1':
+  '@iconify-json/cil@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/ic@1.2.1':
+  '@iconify-json/ic@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.10':
+  '@iconify-json/material-symbols@1.2.11':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/mdi-light@1.2.1':
+  '@iconify-json/mdi-light@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/mdi@1.2.1':
+  '@iconify-json/mdi@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4607,7 +4620,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/ph@1.2.1':
+  '@iconify-json/ph@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4617,12 +4630,13 @@ snapshots:
 
   '@iconify/types@2.0.0': {}
 
-  '@iconify/utils@2.1.33':
+  '@iconify/utils@2.2.1':
     dependencies:
       '@antfu/install-pkg': 0.4.1
       '@antfu/utils': 0.7.10
       '@iconify/types': 2.0.0
       debug: 4.4.0
+      globals: 15.13.0
       kolorist: 1.8.0
       local-pkg: 0.5.1
       mlly: 1.7.3
@@ -4807,6 +4821,14 @@ snapshots:
   '@rollup/pluginutils@5.1.3(rollup@4.28.1)':
     dependencies:
       '@types/estree': 1.0.5
+      estree-walker: 2.0.2
+      picomatch: 4.0.2
+    optionalDependencies:
+      rollup: 4.28.1
+
+  '@rollup/pluginutils@5.1.4(rollup@4.28.1)':
+    dependencies:
+      '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 4.0.2
     optionalDependencies:
@@ -5359,7 +5381,7 @@ snapshots:
       '@vue-macros/common': 1.15.1(rollup@4.28.1)(vue@3.5.13(typescript@5.6.3))
       '@vue/compiler-core': 3.5.13
       '@vue/shared': 3.5.13
-      magic-string: 0.30.14
+      magic-string: 0.30.15
       unplugin: 1.16.0
       vue: 3.5.13(typescript@5.6.3)
     transitivePeerDependencies:
@@ -6484,6 +6506,8 @@ snapshots:
 
   globals@14.0.0: {}
 
+  globals@15.13.0: {}
+
   has-flag@4.0.0: {}
 
   hasown@2.0.2:
@@ -6768,11 +6792,11 @@ snapshots:
 
   magic-string-ast@0.6.2:
     dependencies:
-      magic-string: 0.30.14
+      magic-string: 0.30.15
 
   magic-string-ast@0.6.3:
     dependencies:
-      magic-string: 0.30.14
+      magic-string: 0.30.15
 
   magic-string@0.30.12:
     dependencies:
@@ -7602,33 +7626,33 @@ snapshots:
       rollup: 4.28.1
       vite: 6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1)
 
-  unplugin-icons@0.21.0(@vue/compiler-sfc@3.5.13)(vue-template-compiler@2.7.16):
+  unplugin-icons@0.22.0(@vue/compiler-sfc@3.5.13)(vue-template-compiler@2.7.16):
     dependencies:
       '@antfu/install-pkg': 0.5.0
       '@antfu/utils': 0.7.10
-      '@iconify/utils': 2.1.33
-      debug: 4.3.7
+      '@iconify/utils': 2.2.1
+      debug: 4.4.0
       kolorist: 1.8.0
       local-pkg: 0.5.1
-      unplugin: 1.16.0
+      unplugin: 2.1.0
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.13
       vue-template-compiler: 2.7.16
     transitivePeerDependencies:
       - supports-color
 
-  unplugin-vue-components@0.27.5(@babel/parser@7.26.3)(rollup@4.28.1)(vue@3.5.13(typescript@5.6.3)):
+  unplugin-vue-components@0.28.0(@babel/parser@7.26.3)(rollup@4.28.1)(vue@3.5.13(typescript@5.6.3)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.3(rollup@4.28.1)
+      '@rollup/pluginutils': 5.1.4(rollup@4.28.1)
       chokidar: 3.6.0
-      debug: 4.3.7
+      debug: 4.4.0
       fast-glob: 3.3.2
       local-pkg: 0.5.1
-      magic-string: 0.30.14
+      magic-string: 0.30.15
       minimatch: 9.0.5
       mlly: 1.7.3
-      unplugin: 1.16.0
+      unplugin: 2.1.0
       vue: 3.5.13(typescript@5.6.3)
     optionalDependencies:
       '@babel/parser': 7.26.3

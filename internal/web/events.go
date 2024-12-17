@@ -8,6 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	support_web "github.com/amir20/dozzle/internal/support/web"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -111,7 +112,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	if h.config.NoAnalytics {
 		return
 	}
-	b := analytics.BeaconEvent{
+	b := types.BeaconEvent{
 		AuthProvider:      string(h.config.Authorization.Provider),
 		Browser:           r.Header.Get("User-Agent"),
 		Clients:           h.multiHostService.TotalClients(),

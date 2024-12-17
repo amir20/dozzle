@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -10,7 +11,7 @@ func StartEvent(args Args, mode string, client docker.Client, subCommand string)
 	if args.NoAnalytics {
 		return
 	}
-	event := analytics.BeaconEvent{
+	event := types.BeaconEvent{
 		Name:             "start",
 		Version:          args.Version(),
 		Mode:             mode,

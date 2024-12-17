@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"net/http/httputil"
 
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
-func SendBeacon(e BeaconEvent) error {
+func SendBeacon(e types.BeaconEvent) error {
 	log.Trace().Interface("event", e).Msg("sending beacon")
 	jsonValue, err := json.Marshal(e)
 	if err != nil {

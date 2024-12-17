@@ -29,7 +29,10 @@ message RepeatedString { repeated string values = 1; }
 
 message ListContainersResponse { repeated Container containers = 1; }
 
-message FindContainerRequest { string containerId = 1; }
+message FindContainerRequest {
+  string containerId = 1;
+  map<string, RepeatedString> filter = 2;
+}
 
 message FindContainerResponse { Container container = 1; }
 

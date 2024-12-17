@@ -9,7 +9,7 @@ import (
 )
 
 type ClientService interface {
-	FindContainer(ctx context.Context, id string) (docker.Container, error)
+	FindContainer(ctx context.Context, id string, filter docker.ContainerFilter) (docker.Container, error)
 	ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error)
 	Host(ctx context.Context) (docker.Host, error)
 	ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error
@@ -70,8 +70,8 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, container docker.C
 	}
 }
 
-func (d *dockerClientService) FindContainer(ctx context.Context, id string) (docker.Container, error) {
-	return d.store.FindContainer(id)
+func (d *dockerClientService) FindContainer(ctx context.Context, id string, filter docker.ContainerFilter) (docker.Container, error) {
+	return d.store.FindContainer(id, filter)
 }
 
 func (d *dockerClientService) ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error {

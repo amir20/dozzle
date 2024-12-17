@@ -1,4 +1,4 @@
-package analytics
+package types
 
 type BeaconEvent struct {
 	Name              string `json:"name"`
