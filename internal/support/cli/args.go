@@ -39,7 +39,7 @@ type HealthcheckCmd struct {
 }
 
 type AgentCmd struct {
-	Addr string `arg:"env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
 }
 
 type AgentTestCmd struct {
