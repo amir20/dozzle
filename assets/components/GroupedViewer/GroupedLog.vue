@@ -4,7 +4,7 @@
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 gap-1.5 truncate @container md:gap-2">
           <div class="inline-flex font-mono text-sm">
-            <div class="font-semibold">{{ group.containers.length }} containers</div>
+            <div class="font-semibold">{{ $t("label.container", group.containers.length) }}</div>
           </div>
         </div>
         <MultiContainerStat class="ml-auto" :containers="group.containers" />
