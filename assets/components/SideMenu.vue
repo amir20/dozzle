@@ -23,11 +23,17 @@
 import { onBeforeRouteLeave } from "vue-router";
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
-
+const route = useRoute();
 const swarmStore = useSwarmStore();
 const { services, customGroups } = storeToRefs(swarmStore);
 
 const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
+
+if (route.meta.swarmMode) {
+  showSwarm.value = true;
+} else if (route.meta.containerMode) {
+  showSwarm.value = false;
+}
 
 onBeforeRouteLeave((to) => {
   if (to.meta.swarmMode) {
