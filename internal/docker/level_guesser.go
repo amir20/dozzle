@@ -11,22 +11,37 @@ import (
 var SupportedLogLevels map[string]struct{}
 
 // Changing this also needs to change the logContext.ts file
-var logLevels = []string{"error", "warn", "warning", "info", "debug", "trace", "severe", "critical", "fatal"}
-var plainLevels = map[string]*regexp.Regexp{}
-var bracketLevels = map[string]*regexp.Regexp{}
+var logLevels = [][]string{
+	{"error", "err"},
+	{"warn", "warning"},
+	{"info", "inf"},
+	{"debug", "dbg"},
+	{"trace"},
+	{"fatal", "sev", "severe", "crit", "critical"},
+}
+
+var plainLevels = map[string][]*regexp.Regexp{}
+var bracketLevels = map[string][]*regexp.Regexp{}
+var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 func init() {
-	for _, level := range logLevels {
-		plainLevels[level] = regexp.MustCompile("(?i)^" + level + "[^a-z]")
+	for _, levelGroup := range logLevels {
+		first := levelGroup[0]
+		for _, level := range levelGroup {
+			plainLevels[first] = append(plainLevels[first], regexp.MustCompile("(?i)^"+level+"[^a-z]"))
+		}
 	}
 
-	for _, level := range logLevels {
-		bracketLevels[level] = regexp.MustCompile("(?i)\\[ ?" + level + " ?\\]")
+	for _, levelGroup := range logLevels {
+		first := levelGroup[0]
+		for _, level := range levelGroup {
+			bracketLevels[first] = append(bracketLevels[first], regexp.MustCompile("(?i)\\[ ?"+level+" ?\\]"))
+		}
 	}
 
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
-	for _, level := range logLevels {
-		SupportedLogLevels[level] = struct{}{}
+	for _, levelGroup := range logLevels {
+		SupportedLogLevels[levelGroup[0]] = struct{}{}
 	}
 	SupportedLogLevels["unknown"] = struct{}{}
 }
@@ -35,25 +50,26 @@ func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
 		value = stripANSI(value)
-		for _, level := range logLevels {
+		value = timestampRegex.ReplaceAllString(value, "")
+		for _, levelGroup := range logLevels {
+			first := levelGroup[0]
 			// Look for the level at the beginning of the message
-			if plainLevels[level].MatchString(value) {
-				return level
+			for _, regex := range plainLevels[first] {
+				if regex.MatchString(value) {
+					return first
+				}
 			}
 
 			// Look for the level in brackets
-			if bracketLevels[level].MatchString(value) {
-				return level
+			for _, regex := range bracketLevels[first] {
+				if regex.MatchString(value) {
+					return first
+				}
 			}
 
 			// Look for the level in the middle of the message that are uppercase
-			if strings.Contains(value, " "+strings.ToUpper(level)+" ") {
-				return level
-			}
-
-			// Look for levels with equal sign and quotes around them
-			if strings.Contains(value, level+"=") {
-				return level
+			if strings.Contains(value, " "+strings.ToUpper(first)+" ") {
+				return first
 			}
 		}
 

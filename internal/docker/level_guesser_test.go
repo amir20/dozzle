@@ -13,6 +13,8 @@ func TestGuessLogLevel(t *testing.T) {
 		input    any
 		expected string
 	}{
+		{"2024/12/30 12:21AM INF this is a test", "info"},
+		{"2024-12-30T17:43:16Z DBG loggging debug from here", "debug"},
 		{"ERROR: Something went wrong", "error"},
 		{"WARN: Something might be wrong", "warn"},
 		{"INFO: Something happened", "info"},
@@ -25,10 +27,12 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[ ERROR ] Something went wrong", "error"},
 		{"[error] Something went wrong", "error"},
 		{"[test] [error] Something went wrong", "error"},
-		{"Some test with error=test", "error"},
 		{"[foo] [ ERROR] Something went wrong", "error"},
 		{"123 ERROR Something went wrong", "error"},
 		{"123 Something went wrong", "unknown"},
+		{"DBG Something went wrong", "debug"},
+		{"inf Something went wrong", "info"},
+		{"crit: Something went wrong", "fatal"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
