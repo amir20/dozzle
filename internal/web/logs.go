@@ -176,6 +176,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
+		return container.Host == hostKey(r)
+	})
+}
+
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 

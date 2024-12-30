@@ -20,7 +20,6 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeRouteLeave } from "vue-router";
 const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 const route = useRoute();
@@ -29,18 +28,18 @@ const { services, customGroups } = storeToRefs(swarmStore);
 
 const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
 
-if (route.meta.swarmMode) {
-  showSwarm.value = true;
-} else if (route.meta.containerMode) {
-  showSwarm.value = false;
-}
+console.log(route.meta.swarmMode);
 
-onBeforeRouteLeave((to) => {
-  if (to.meta.swarmMode) {
-    showSwarm.value = true;
-  } else if (to.meta.containerMode) {
-    showSwarm.value = false;
-  }
-});
+watch(
+  route,
+  () => {
+    if (route.meta.swarmMode) {
+      showSwarm.value = true;
+    } else if (route.meta.containerMode) {
+      showSwarm.value = false;
+    }
+  },
+  { immediate: true },
+);
 </script>
 <style scoped lang="postcss"></style>

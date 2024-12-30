@@ -161,9 +161,23 @@ export const useContainerStore = defineStore("container", () => {
 
   const findContainerById = (id: string) => allContainersById.value[id];
 
+  const containersByHost = computed(() =>
+    containers.value.reduce(
+      (acc, container) => {
+        if (!acc[container.host]) {
+          acc[container.host] = [];
+        }
+        acc[container.host].push(container);
+        return acc;
+      },
+      {} as Record<string, Container[]>,
+    ),
+  );
+
   return {
     containers,
     allContainersById,
+    containersByHost,
     visibleContainers,
     currentContainer,
     findContainerById,
