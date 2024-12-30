@@ -34,7 +34,7 @@ tooltip:
   pin-column: Pin as column
   merge-services: Merge all services into one view
   merge-containers: Merge all containers into one view
-  merge-hosts: Merge all hosts into one view
+  merge-hosts: Merge all containers on this host into one view
 error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
