@@ -44,14 +44,11 @@ defineProps<{
 }
 
 [data-level="error"],
-[data-level="severe"],
-[data-level="critical"],
 [data-level="fatal"] {
   @apply !bg-red;
 }
 
-[data-level="warn"],
-[data-level="warning"] {
+[data-level="warn"] {
   @apply !bg-orange;
 }
 </style>
