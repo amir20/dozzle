@@ -176,12 +176,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
-	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
-		return container.Host == hostKey(r)
-	})
-}
-
 func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
@@ -223,6 +217,13 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
 		return container.State == "running" && container.Labels["com.docker.stack.namespace"] == stack
+	})
+}
+
+func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
+	host := hostKey(r)
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
+		return container.State == "running" && container.Host == host
 	})
 }
 
