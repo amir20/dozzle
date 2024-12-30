@@ -12,6 +12,9 @@
         </a>
       </li>
       <li>
+        <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
+      </li>
+      <li>
         <a @click.prevent="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
           <KeyShortcut char="f" />
@@ -84,7 +87,19 @@ const { showSearch } = useSearchFilter();
 
 const clear = defineEmit();
 
-const { streamConfig, showHostname, showContainerName } = useLoggingContext();
+const { streamConfig, showHostname, showContainerName, containers } = useLoggingContext();
+
+const downloadParams = computed(() =>
+  Object.entries(toValue(streamConfig))
+    .filter(([, value]) => value)
+    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {}),
+);
+
+const downloadUrl = computed(() =>
+  withBase(
+    `/api/containers/${containers.value.map((c) => c.host + ":" + c.id).join(",")}/download?${new URLSearchParams(downloadParams.value).toString()}`,
+  ),
+);
 </script>
 
 <style scoped lang="postcss">
