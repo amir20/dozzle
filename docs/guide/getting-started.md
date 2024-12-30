@@ -50,3 +50,6 @@ networks:
 :::
 
 See [swarm mode](/guide/swarm-mode) for more information on running Dozzle in Swarm.
+
+> [!TIP]
+> If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
