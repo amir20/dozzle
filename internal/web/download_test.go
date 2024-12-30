@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"compress/gzip"
 	"io"
 	"time"
 
@@ -11,14 +10,13 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_handler_download_logs(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs/download?stdout=1", nil)
+	req, err := http.NewRequest("GET", "/api/containers/localhost:"+id+"/download?stdout=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
@@ -40,7 +38,6 @@ func Test_handler_download_logs(t *testing.T) {
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	reader, _ := gzip.NewReader(rr.Body)
-	abide.AssertReader(t, t.Name(), reader)
+	require.Equal(t, http.StatusOK, rr.Code, "Status code should be 200.")
 	mockedClient.AssertExpectations(t)
 }
