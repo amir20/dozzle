@@ -88,6 +88,7 @@ declare module 'vue' {
     'Ph:computerTower': typeof import('~icons/ph/computer-tower')['default']
     'Ph:controlBold': typeof import('~icons/ph/control-bold')['default']
     'Ph:cpu': typeof import('~icons/ph/cpu')['default']
+    'Ph:dotsThreeVerticalBold': typeof import('~icons/ph/dots-three-vertical-bold')['default']
     'Ph:fileSql': typeof import('~icons/ph/file-sql')['default']
     'Ph:globeSimple': typeof import('~icons/ph/globe-simple')['default']
     'Ph:memory': typeof import('~icons/ph/memory')['default']
