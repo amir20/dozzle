@@ -11,17 +11,7 @@ type LogContext = {
   showHostname: boolean;
 };
 
-export const allLevels: Level[] = [
-  "info",
-  "debug",
-  "warn",
-  "error",
-  "fatal",
-  "trace",
-  "warning",
-  "critical",
-  "unknown",
-];
+export const allLevels: Level[] = ["info", "debug", "warn", "error", "fatal", "trace", "unknown"];
 
 // export for testing
 export const loggingContextKey = Symbol("loggingContext") as InjectionKey<LogContext>;
