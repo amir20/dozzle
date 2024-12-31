@@ -3,6 +3,7 @@
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 gap-1.5 truncate @container md:gap-2">
+          <octicon:container-24 />
           <div class="inline-flex font-mono text-sm">
             <div class="font-semibold">{{ containers.length }} containers</div>
           </div>
