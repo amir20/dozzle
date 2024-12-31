@@ -1,29 +1,25 @@
 <template>
-  <div class="flex w-full flex-col">
-    <div class="relative flex items-start gap-x-2">
-      <RandomColorTag class="flex-none" :value="container.name" v-if="showContainerName" />
-      <LogDate :date="logEntry.date" v-if="showTimestamp" />
-      <LogLevel class="flex" />
-      <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
+  <LogItem :logEntry>
+    <div class="whitespace-pre-wrap" :data-event="logEntry.event" v-html="logEntry.message"></div>
+  </LogItem>
+
+  <div class="alert alert-info my-4 w-auto flex-none font-sans text-[1rem] md:mx-auto md:w-1/2" v-if="followEligible">
+    <carbon:information class="size-6 shrink-0 stroke-current" />
+    <div>
+      <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
+      {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
     </div>
-    <div class="alert alert-info mt-8 w-auto flex-none font-sans text-[1rem] md:mx-auto md:w-1/2" v-if="followEligible">
-      <carbon:information class="size-6 shrink-0 stroke-current" />
-      <div>
-        <h3 class="text-lg font-bold">{{ $t("alert.similar-container-found.title") }}</h3>
-        {{ $t("alert.similar-container-found.message", { containerId: nextContainer.id }) }}
-      </div>
-      <div>
-        <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">{{
-          $t("button.cancel")
-        }}</TimedButton>
-        <router-link
-          :to="{ name: '/container/[id]', params: { id: nextContainer.id } }"
-          class="btn btn-primary btn-sm"
-          v-else
-        >
-          {{ $t("button.redirect") }}
-        </router-link>
-      </div>
+    <div>
+      <TimedButton v-if="automaticRedirect" class="btn-primary btn-sm" @finished="redirectNow()">{{
+        $t("button.cancel")
+      }}</TimedButton>
+      <router-link
+        :to="{ name: '/container/[id]', params: { id: nextContainer.id } }"
+        class="btn btn-primary btn-sm"
+        v-else
+      >
+        {{ $t("button.redirect") }}
+      </router-link>
     </div>
   </div>
 </template>

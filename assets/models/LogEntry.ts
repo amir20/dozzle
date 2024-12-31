@@ -135,7 +135,7 @@ export class ContainerEventLogEntry extends LogEntry<string> {
     date: Date,
     public readonly event: "container-stopped" | "container-started",
   ) {
-    super(message, containerID, date.getTime(), date, "stderr", "info");
+    super(message, containerID, date.getTime(), date, "stderr", "unknown");
   }
   getComponent(): Component {
     return ContainerEventLogItem;
