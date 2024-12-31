@@ -1,13 +1,32 @@
 <template>
-  <div class="breadcrumbs">
-    <ul>
-      <li>
-        <a @click.prevent="setHost(null)" class="link-primary">{{ $t("label.hosts") }}</a>
-      </li>
-      <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
-        {{ hosts[sessionHost].name }}
-      </li>
-    </ul>
+  <div class="flex items-center">
+    <div class="breadcrumbs flex-1">
+      <ul>
+        <li>
+          <a @click.prevent="setHost(null)" class="link-primary">{{ $t("label.hosts") }}</a>
+        </li>
+        <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
+          {{ hosts[sessionHost].name }}
+        </li>
+      </ul>
+    </div>
+    <div class="flex-none">
+      <div class="dropdown dropdown-end dropdown-hover">
+        <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
+          <ph:dots-three-vertical-bold />
+        </label>
+        <ul tabindex="0" class="menu dropdown-content z-50 w-52 rounded-box bg-base p-1 shadow">
+          <li>
+            <a class="text-sm capitalize" @click="toggleShowAllContainers()">
+              <mdi:check class="w-4" v-if="showAllContainers" />
+              <div v-else class="w-4"></div>
+
+              Show all containers
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <SlideTransition :slide-right="!!sessionHost">
@@ -81,6 +100,7 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
+import { showAllContainers } from "@/stores/settings";
 
 // @ts-ignore
 import Pin from "~icons/ph/map-pin-simple";
@@ -175,6 +195,8 @@ watchEffect(() => {
     }
   }
 });
+
+const toggleShowAllContainers = () => (showAllContainers.value = !showAllContainers.value);
 </script>
 <style scoped lang="postcss">
 .menu {
