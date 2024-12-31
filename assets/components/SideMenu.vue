@@ -28,8 +28,6 @@ const { services, customGroups } = storeToRefs(swarmStore);
 
 const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
 
-console.log(route.meta.swarmMode);
-
 watch(
   route,
   () => {
