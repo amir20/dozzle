@@ -92,7 +92,6 @@ declare module 'vue' {
     'Ph:dotsThreeVerticalBold': typeof import('~icons/ph/dots-three-vertical-bold')['default']
     'Ph:fileSql': typeof import('~icons/ph/file-sql')['default']
     'Ph:globeSimple': typeof import('~icons/ph/globe-simple')['default']
-    'Ph:listBulletsFill': typeof import('~icons/ph/list-bullets-fill')['default']
     'Ph:memory': typeof import('~icons/ph/memory')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
