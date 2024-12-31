@@ -234,6 +234,7 @@ declare global {
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGroupedStream: typeof import('./composable/eventStreams')['useGroupedStream']
   const useHead: typeof import('@vueuse/head')['useHead']
+  const useHostStream: typeof import('./composable/eventStreams')['useHostStream']
   const useHosts: typeof import('./stores/hosts')['useHosts']
   const useI18n: typeof import('vue-i18n')['useI18n']
   const useId: typeof import('vue')['useId']
@@ -621,6 +622,7 @@ declare module 'vue' {
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/eventStreams')['useGroupedStream']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
+    readonly useHostStream: UnwrapRef<typeof import('./composable/eventStreams')['useHostStream']>
     readonly useHosts: UnwrapRef<typeof import('./stores/hosts')['useHosts']>
     readonly useI18n: UnwrapRef<typeof import('vue-i18n')['useI18n']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>

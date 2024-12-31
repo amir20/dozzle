@@ -6,7 +6,18 @@
           <a @click.prevent="setHost(null)" class="link-primary">{{ $t("label.hosts") }}</a>
         </li>
         <li v-if="sessionHost && hosts[sessionHost]" class="cursor-default">
-          {{ hosts[sessionHost].name }}
+          <router-link
+            :to="{
+              name: '/host/[id]',
+              params: { id: hosts[sessionHost].id },
+            }"
+            class="btn btn-outline btn-primary btn-xs"
+            active-class="btn-active"
+            :title="$t('tooltip.merge-hosts')"
+          >
+            <ph:arrows-merge />
+            {{ hosts[sessionHost].name }}
+          </router-link>
         </li>
       </ul>
     </div>

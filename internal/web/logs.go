@@ -220,6 +220,13 @@ func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
+	host := hostKey(r)
+	h.streamLogsForContainers(w, r, func(container *docker.Container) bool {
+		return container.State == "running" && container.Host == host
+	})
+}
+
 func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter ContainerFilter) {
 	var stdTypes docker.StdType
 	if r.URL.Query().Has("stdout") {

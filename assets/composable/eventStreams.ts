@@ -26,6 +26,10 @@ export function useContainerStream(container: Ref<Container>): LogStreamSource {
   return useLogStream(url, loadMoreUrl);
 }
 
+export function useHostStream(host: Ref<Host>): LogStreamSource {
+  return useLogStream(computed(() => `/api/hosts/${host.value.id}/logs/stream`));
+}
+
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   return useLogStream(computed(() => `/api/stacks/${stack.value.name}/logs/stream`));
 }
