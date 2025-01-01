@@ -1,5 +1,5 @@
 <template>
-  <aside class="fixed h-screen w-[inherit] overflow-auto p-3" data-testid="navigation">
+  <aside class="fixed flex h-screen w-[inherit] flex-col gap-4 p-3" data-testid="navigation">
     <h1>
       <router-link :to="{ name: '/' }">
         <LogoWithText class="logo h-16 w-40" />
@@ -11,7 +11,7 @@
     </h1>
 
     <button
-      class="input input-sm mt-4 inline-flex cursor-pointer items-center gap-2 font-light hover:border-primary"
+      class="input input-sm inline-flex cursor-pointer items-center gap-2 self-start font-light hover:border-primary"
       @click="$emit('search')"
       :title="$t('tooltip.search')"
       data-testid="search"
@@ -21,7 +21,7 @@
       <key-shortcut char="k" class="text-base-content/70"></key-shortcut>
     </button>
 
-    <SideMenu class="mt-8"></SideMenu>
+    <SideMenu class="mt-2 flex-1" />
   </aside>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
-  <div v-if="ready" data-testid="side-menu">
-    <Carousel v-model="selectedCard">
+  <div v-if="ready" data-testid="side-menu" class="flex min-h-0 flex-col">
+    <Carousel v-model="selectedCard" class="flex-1">
       <CarouselItem title="Hosts and Containers" id="host">
         <HostMenu />
       </CarouselItem>

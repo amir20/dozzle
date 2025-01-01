@@ -1,22 +1,26 @@
 <template>
-  <div
-    ref="container"
-    class="scrollbar-hide flex snap-x snap-mandatory overflow-hidden overflow-x-auto overscroll-x-contain scroll-smooth"
-  >
-    <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
-  </div>
-  <div class="my-4 flex justify-center gap-2">
-    <button
-      v-for="(c, index) in providedCards"
-      :key="c.props?.id"
-      @click="scrollToItem(index)"
-      :class="[
-        'size-2 rounded-full transition-all duration-700',
-        activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-content/50 hover:bg-base-content',
-      ]"
-      :aria-label="c.props?.title"
-      :title="c.props?.title"
-    />
+  <div class="flex min-h-0 flex-col">
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <div
+        ref="container"
+        class="scrollbar-hide flex snap-x snap-mandatory overflow-hidden overflow-x-auto overscroll-x-contain scroll-smooth"
+      >
+        <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
+      </div>
+    </div>
+    <div class="my-4 flex flex-none justify-center gap-2">
+      <button
+        v-for="(c, index) in providedCards"
+        :key="c.props?.id"
+        @click="scrollToItem(index)"
+        :class="[
+          'size-2 rounded-full transition-all duration-700',
+          activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-content/50 hover:bg-base-content',
+        ]"
+        :aria-label="c.props?.title"
+        :title="c.props?.title"
+      />
+    </div>
   </div>
 </template>
 
