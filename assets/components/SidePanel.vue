@@ -21,7 +21,13 @@
       <key-shortcut char="k" class="text-base-content/70"></key-shortcut>
     </button>
 
-    <side-menu class="mt-4"></side-menu>
+    <Carousel>
+      <CarouselItem title="test 1" class="bg-red"> This is a test 1 </CarouselItem>
+      <CarouselItem title="test 2" class="bg-blue"> This is a test 2 </CarouselItem>
+      <CarouselItem title="test 3" class="bg-purple"> This is a test 3 </CarouselItem>
+    </Carousel>
+
+    <!-- <Test /> -->
   </aside>
 </template>
 
