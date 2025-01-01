@@ -21,7 +21,7 @@
       <key-shortcut char="k" class="text-base-content/70"></key-shortcut>
     </button>
 
-    <SideMenu class="mt-4"></SideMenu>
+    <SideMenu class="mt-8"></SideMenu>
   </aside>
 </template>
 
