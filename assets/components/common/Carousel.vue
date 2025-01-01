@@ -25,8 +25,8 @@ import CarouselItem from "./CarouselItem.vue";
 const container = useTemplateRef<HTMLDivElement>("container");
 const activeIndex = ref(0);
 const activeId = defineModel<string>();
-const slots = useSlots();
-const providedCards = computed(() => slots.default?.().filter((vnode) => vnode.type === CarouselItem));
+const slots = defineSlots<{ default(): VNode[] }>();
+const providedCards = computed(() => slots.default?.().filter(({ type }) => type === CarouselItem));
 const cards = useTemplateRef<InstanceType<typeof CarouselItem>[]>("cards");
 
 const scrollToItem = (index: number) => {
@@ -51,7 +51,7 @@ useIntersectionObserver(
   (entries) => {
     entries.forEach(({ isIntersecting, target }) => {
       if (isIntersecting) {
-        const index = cards.value?.map((c) => c.$el).indexOf(target) ?? -1;
+        const index = cards.value?.map((c) => c.$el).indexOf(target as HTMLDivElement) ?? -1;
         if (index !== -1) {
           pause();
           activeIndex.value = index;
