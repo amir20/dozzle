@@ -1,14 +1,10 @@
 <template>
   <div v-if="ready" data-testid="side-menu">
-    <Toggle v-model="showSwarm" v-if="services.length > 0 || customGroups.length > 0">
-      <div class="text-lg font-light">{{ $t("label.swarm-mode") }}</div>
-    </Toggle>
-
-    <Carousel>
-      <CarouselItem title="Hosts and Containers">
+    <Carousel v-model="selectedCard">
+      <CarouselItem title="Hosts and Containers" id="host">
         <HostMenu />
       </CarouselItem>
-      <CarouselItem title="Services and Stacks">
+      <CarouselItem title="Services and Stacks" v-if="services.length > 0" id="swarm">
         <SwarmMenu />
       </CarouselItem>
     </Carousel>
@@ -24,17 +20,16 @@ const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 const route = useRoute();
 const swarmStore = useSwarmStore();
-const { services, customGroups } = storeToRefs(swarmStore);
-
-const showSwarm = useSessionStorage<boolean>("DOZZLE_SWARM_MODE", false);
+const { services } = storeToRefs(swarmStore);
+const selectedCard = ref<"host" | "swarm">("host");
 
 watch(
   route,
   () => {
     if (route.meta.swarmMode) {
-      showSwarm.value = true;
+      selectedCard.value = "swarm";
     } else if (route.meta.containerMode) {
-      showSwarm.value = false;
+      selectedCard.value = "host";
     }
   },
   { immediate: true },

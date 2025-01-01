@@ -1,22 +1,21 @@
 <template>
-  <!-- Indicators -->
-  <div class="my-4 flex justify-center gap-2">
-    <button
-      v-for="(_, index) in providedCards"
-      :key="index"
-      @click="scrollToItem(index)"
-      :class="[
-        'h-3 w-3 rounded-full transition-all duration-700',
-        activeIndex === index ? 'scale-110 bg-blue' : 'bg-base-content hover:bg-red',
-      ]"
-      :aria-label="`Go to slide ${index + 1}`"
-    />
-  </div>
   <div
     ref="container"
     class="scrollbar-hide flex snap-x snap-mandatory overflow-hidden overflow-x-auto overscroll-x-contain scroll-smooth"
   >
     <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
+  </div>
+  <div class="my-4 flex justify-center gap-2">
+    <button
+      v-for="(c, index) in providedCards"
+      :key="c.props?.id"
+      @click="scrollToItem(index)"
+      :class="[
+        'size-2 rounded-full transition-all duration-700',
+        activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-darker hover:bg-base-content',
+      ]"
+      :aria-label="c.props?.title"
+    />
   </div>
 </template>
 
@@ -24,24 +23,40 @@
 import CarouselItem from "./CarouselItem.vue";
 const container = useTemplateRef<HTMLDivElement>("container");
 const activeIndex = ref(0);
+const activeId = defineModel<string>();
 const slots = useSlots();
 const providedCards = computed(() => slots.default?.().filter((vnode) => vnode.type === CarouselItem));
 const cards = useTemplateRef<InstanceType<typeof CarouselItem>[]>("cards");
 
 const scrollToItem = (index: number) => {
+  console.log("scrollToItem");
   cards.value?.[index].$el.scrollIntoView({
     behavior: "smooth",
     inline: "start",
   });
 };
 
+const { pause, resume } = watchPausable(activeId, (v) => {
+  if (activeId.value) {
+    const index = cards.value?.map((c) => c.id).indexOf(activeId.value) ?? -1;
+    if (index !== -1) {
+      scrollToItem(index);
+    }
+  }
+});
+
 useIntersectionObserver(
   cards as Ref<InstanceType<typeof CarouselItem>[]>,
   (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const index = cards.value?.map((c) => c.$el).indexOf(entry.target);
-        if (index !== undefined && index !== -1) activeIndex.value = index;
+    entries.forEach(({ isIntersecting, target }) => {
+      if (isIntersecting) {
+        const index = cards.value?.map((c) => c.$el).indexOf(target) ?? -1;
+        if (index !== -1) {
+          pause();
+          activeIndex.value = index;
+          activeId.value = cards.value?.[index].id;
+          nextTick(() => resume());
+        }
       }
     });
   },
