@@ -26,7 +26,7 @@ const container = useTemplateRef<HTMLDivElement>("container");
 const activeIndex = ref(0);
 const activeId = defineModel<string>();
 const slots = defineSlots<{ default(): VNode[] }>();
-const providedCards = computed(() => slots.default?.().filter(({ type }) => type === CarouselItem));
+const providedCards = computed(() => slots.default().filter(({ type }) => type === CarouselItem));
 const cards = useTemplateRef<InstanceType<typeof CarouselItem>[]>("cards");
 
 const scrollToItem = (index: number) => {
