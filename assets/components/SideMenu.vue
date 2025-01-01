@@ -4,14 +4,14 @@
       <div class="text-lg font-light">{{ $t("label.swarm-mode") }}</div>
     </Toggle>
 
-    <SlideTransition :slide-right="showSwarm">
-      <template #left>
+    <Carousel>
+      <CarouselItem title="Hosts and Containers">
         <HostMenu />
-      </template>
-      <template #right>
+      </CarouselItem>
+      <CarouselItem title="Services and Stacks">
         <SwarmMenu />
-      </template>
-    </SlideTransition>
+      </CarouselItem>
+    </Carousel>
   </div>
   <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
     <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50" v-for="_ in 9"></div>
