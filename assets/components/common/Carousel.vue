@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-0 flex-col">
+  <div class="flex min-h-0 flex-col gap-2">
     <div class="flex min-h-0 flex-1 flex-col overflow-auto overscroll-y-contain">
       <div
         ref="container"
@@ -8,7 +8,7 @@
         <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
       </div>
     </div>
-    <div class="my-4 flex flex-none justify-center gap-2">
+    <div class="my-2 flex flex-none justify-center gap-2">
       <button
         v-for="(c, index) in providedCards"
         :key="c.props?.id"
@@ -34,7 +34,6 @@ const providedCards = computed(() => slots.default().filter(({ type }) => type =
 const cards = useTemplateRef<InstanceType<typeof CarouselItem>[]>("cards");
 
 const scrollToItem = (index: number) => {
-  console.log("scrollToItem");
   cards.value?.[index].$el.scrollIntoView({
     behavior: "smooth",
     inline: "start",
