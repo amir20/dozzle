@@ -8,18 +8,23 @@
         <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
       </div>
     </div>
-    <div class="my-2 flex flex-none justify-center gap-2">
-      <button
-        v-for="(c, index) in providedCards"
-        :key="c.props?.id"
-        @click="scrollToItem(index)"
-        :class="[
-          'size-2 rounded-full transition-all duration-700',
-          activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-content/50 hover:bg-base-content',
-        ]"
-        :aria-label="c.props?.title"
-        :title="c.props?.title"
-      />
+    <div class="flex flex-col gap-2">
+      <h3 class="text-center text-sm font-thin">
+        {{ cards?.[activeIndex].title }}
+      </h3>
+      <div class="flex flex-none justify-center gap-2" v-if="providedCards.length > 1">
+        <button
+          v-for="(c, index) in providedCards"
+          :key="c.props?.id"
+          @click="scrollToItem(index)"
+          :class="[
+            'size-2 rounded-full transition-all duration-700',
+            activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-content/50 hover:bg-base-content',
+          ]"
+          :aria-label="c.props?.title"
+          :title="c.props?.title"
+        />
+      </div>
     </div>
   </div>
 </template>
