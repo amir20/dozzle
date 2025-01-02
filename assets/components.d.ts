@@ -18,6 +18,8 @@ declare module 'vue' {
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
     'Carbon:stopFilledAlt': typeof import('~icons/carbon/stop-filled-alt')['default']
     'Carbon:warning': typeof import('~icons/carbon/warning')['default']
+    Carousel: typeof import('./components/common/Carousel.vue')['default']
+    CarouselItem: typeof import('./components/common/CarouselItem.vue')['default']
     'Cil:checkCircle': typeof import('~icons/cil/check-circle')['default']
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']

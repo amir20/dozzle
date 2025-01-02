@@ -10,7 +10,5 @@
 </template>
 
 <script lang="ts" setup>
-const { modelValue } = defineModels<{
-  modelValue: boolean;
-}>();
+const modelValue = defineModel<boolean>();
 </script>
