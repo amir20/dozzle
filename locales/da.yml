@@ -7,9 +7,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Genstart
+  show-hostname: Vis værtsnavn
+  show-container-name: Vis containernavn
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
+  serivce: Ingen tjenester | 1 tjeneste | {count} tjenester
   running-containers: Kørende Containere
   all-containers: Alle Containere
   host: Vært
@@ -23,10 +26,16 @@ label:
   avg-mem: Gns. MEM (%)
   pinned: Fastgjort
   per-page: Rækker per side
+  swarm-mode: Swarm Tilstand
+  services: Tjenester
+  custom-groups: Brugerdefinerede Grupper
 
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
+  merge-services: Sammenlæg alle tjenester i én visning
+  merge-containers: Sammenlæg alle containere i én visning
+  merge-hosts: Sammenlæg alle containere på denne vært i én visning
 error:
   page-not-found: Denne side eksisterer ikke
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
@@ -60,6 +69,8 @@ button:
   logout: Logout
   login: Login
   settings: Indstillinger
+  cancel: Annuller
+  redirect: Omdiriger
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
@@ -83,6 +94,15 @@ settings:
   show-std: Vis stdout og stderr mærker
   automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
   compact: Slå kompakt tilstand til for logs
+  log:
+    preview: Dette er en forhåndsvisning af loggene
+    warning: En advarselslog ser sådan ud
+    complex: Dette er en kompleks logindtastning som json
+    simple: Dette er en meget meget lang besked som standard vil wrappe. Deaktivering af soft wraps vil deaktivere dette.
+    multi-line-error:
+      start-line: Dette er en fejlmeddelelse over flere linjer
+      middle-line: med en anden linje
+      end-line: og endelig tredje linje.
 releases:
   features: en ny feature | {count} features
   bugFixes: en fejlrettelse | {count} rettelser

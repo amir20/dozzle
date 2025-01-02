@@ -2,14 +2,17 @@ toolbar:
   clear: Limpiar
   download: Descargar
   search: Buscar
-  show: Mostrar sólo {std}
-  show-all: Mostrar todos los flujos
+  show: Mostrar {std}
+  show-all: Mostrar todo
   stop: Detener
   start: Iniciar
   restart: Reiniciar
+  show-hostname: Mostrar nombre del host
+  show-container-name: Mostrar nombre del contenedor
 label:
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores
+  serivce: Sin servicios | 1 servicio | {count} servicios
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
   total-containers: Contenedores Totales
@@ -28,9 +31,16 @@ label:
   avg-cpu: Promedio de CPU (%)
   avg-mem: Promedio de MEM (%)
   pinned: Fijado
+  per-page: Filas por página
+  swarm-mode: Modo Swarm
+  services: Servicios
+  custom-groups: Grupos Personalizados
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna
+  merge-services: Fusionar todos los servicios en una vista
+  merge-containers: Fusionar todos los contenedores en una vista
+  merge-hosts: Fusionar todos los contenedores de este host en una vista
 error:
   page-not-found: Esta página no existe.
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
@@ -62,6 +72,8 @@ button:
   logout: Cerrar la sesión
   login: Iniciar sesión
   settings: Configuración
+  cancel: Cancelar
+  redirect: Redirigir
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
@@ -88,6 +100,15 @@ settings:
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
   compact: Modo compacto
+  log:
+    preview: Esta es una vista previa de los registros
+    warning: Un registro de advertencia se ve así
+    complex: Esta es una entrada de registro compleja en formato json
+    simple: Este es un mensaje muy largo que por defecto se ajustará. Desactivar los ajustes suaves deshabilitará esto. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Este es un mensaje de error de múltiples líneas
+      middle-line: con una segunda línea
+      end-line: y finalmente una tercera línea.
 releases:
   features: Características
   bugFixes: Correcciones de errores
