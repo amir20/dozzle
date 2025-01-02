@@ -1,10 +1,12 @@
 <template>
   <div class="flex min-h-0 flex-col">
-    <div
-      ref="container"
-      class="scrollbar-hide flex min-h-0 flex-1 snap-x snap-mandatory overflow-hidden overflow-x-auto overflow-y-auto overscroll-x-contain scroll-smooth"
-    >
-      <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
+    <div class="flex min-h-0 flex-1 flex-col overflow-auto overscroll-y-contain">
+      <div
+        ref="container"
+        class="scrollbar-hide flex shrink-0 grow snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth"
+      >
+        <component v-for="(card, index) in providedCards" :key="index" :is="card" ref="cards" />
+      </div>
     </div>
     <div class="my-4 flex flex-none justify-center gap-2">
       <button
