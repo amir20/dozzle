@@ -18,8 +18,8 @@
     </div>
 
     <transition name="fade">
-      <div v-show="show" class="h-[calc(100vh-60px)] overflow-auto">
-        <SideMenu />
+      <div v-show="show" class="flex h-[calc(100vh-60px)] overflow-auto">
+        <SideMenu class="flex-1" />
       </div>
     </transition>
   </nav>
@@ -35,17 +35,13 @@ watch(route, () => {
 });
 </script>
 <style scoped lang="postcss">
-li.exited {
-  @apply opacity-50;
-}
-
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;
 }
 
-.fade-enter-active .menu,
-.fade-leave-active .menu {
+.fade-enter-active > div,
+.fade-leave-active > div {
   @apply transition-transform;
 }
 
@@ -54,9 +50,9 @@ li.exited {
   @apply opacity-0;
 }
 
-.fade-enter-from .menu,
-.fade-leave-to .menu {
-  @apply -translate-y-2;
+.fade-enter-from > div,
+.fade-leave-to > div {
+  @apply -translate-y-10;
 }
 
 .logo {
