@@ -96,7 +96,7 @@
                     </span>
                   </router-link>
                   <template #content>
-                    <ContainerPopup :container="item as Container" />
+                    <ContainerPopup :container="item" />
                   </template>
                 </Popup>
               </li>

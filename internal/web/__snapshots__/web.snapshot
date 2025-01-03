@@ -81,22 +81,14 @@ Content-Type: text/html
 <pre>dev</pre>
 
 /* snapshot: Test_handler_between_dates */
-HTTP/1.1 200 OK
-Connection: close
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: application/x-jsonl; charset=UTF-8
-
 {"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
+
 
 /* snapshot: Test_handler_between_dates_with_fill */
-HTTP/1.1 200 OK
-Connection: close
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: application/x-jsonl; charset=UTF-8
-
 {"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"m":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
+
 
 /* snapshot: Test_handler_download_logs */
 INFO Testing logs...
@@ -145,7 +137,7 @@ data: []
 
 
 event: container-event
-data: {"name":"start","host":"localhost","actorId":"1234"}
+data: {"name":"start","host":"localhost","actorId":"1234","time":"0001-01-01T00:00:00Z"}
 
 /* snapshot: Test_handler_streamLogs_error_finding_container */
 HTTP/1.1 404 Not Found
@@ -157,16 +149,9 @@ X-Content-Type-Options: nosniff
 error finding container
 
 /* snapshot: Test_handler_streamLogs_error_reading */
-HTTP/1.1 200 OK
-Connection: close
-Cache-Control: no-transform
-Cache-Control: no-cache
-Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: text/event-stream
-X-Accel-Buffering: no
+:ping 
 
-:ping
+
 
 /* snapshot: Test_handler_streamLogs_error_std */
 HTTP/1.1 400 Bad Request
@@ -178,48 +163,27 @@ X-Content-Type-Options: nosniff
 stdout or stderr is required
 
 /* snapshot: Test_handler_streamLogs_happy */
-HTTP/1.1 200 OK
-Connection: close
-Cache-Control: no-transform
-Cache-Control: no-cache
-Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: text/event-stream
-X-Accel-Buffering: no
-
 :ping 
 
 data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+
+
+
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
-HTTP/1.1 200 OK
-Connection: close
-Cache-Control: no-transform
-Cache-Control: no-cache
-Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: text/event-stream
-X-Accel-Buffering: no
-
 :ping 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+
+
+
 
 /* snapshot: Test_handler_streamLogs_happy_with_id */
-HTTP/1.1 200 OK
-Connection: close
-Cache-Control: no-transform
-Cache-Control: no-cache
-Connection: keep-alive
-Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-Content-Type: text/event-stream
-X-Accel-Buffering: no
-
 :ping 
 
 data: {"m":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
@@ -227,4 +191,4 @@ id: 1589396137772
 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}

@@ -7,7 +7,9 @@ export interface ContainerStat {
 
 export type ContainerJson = {
   readonly id: string;
-  readonly created: number;
+  readonly created: string;
+  readonly startedAt: string;
+  readonly finishedAt: string;
   readonly image: string;
   readonly name: string;
   readonly command: string;

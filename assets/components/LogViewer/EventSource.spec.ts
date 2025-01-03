@@ -94,7 +94,19 @@ describe("<ContainerEventSource />", () => {
       },
       props: {
         streamSource: useContainerStream,
-        entity: new Container("abc", new Date(), "image", "name", "command", "localhost", {}, "created", []),
+        entity: new Container(
+          "abc",
+          new Date(), // created
+          new Date(), // started
+          new Date(), // finished
+          "image",
+          "name",
+          "command",
+          "localhost",
+          {},
+          "created",
+          [],
+        ),
       },
     });
   }

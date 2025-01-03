@@ -1,15 +1,25 @@
 <template>
   <div>
-    <span class="font-light capitalize"> RUNNING </span>
+    <span class="font-light capitalize"> STATE </span>
+    <span class="font-semibold uppercase"> {{ container.state }} </span>
+  </div>
+  <div v-if="container.startedAt.getFullYear() > 0">
+    <span class="font-light capitalize"> STARTED </span>
     <span class="font-semibold">
-      <DistanceTime :date="container.created" strict :suffix="false" />
+      <DistanceTime :date="container.startedAt" strict />
     </span>
   </div>
-  <div>
+  <div v-if="container.state != 'running' && container.finishedAt.getFullYear() > 0">
+    <span class="font-light capitalize"> Finished </span>
+    <span class="font-semibold">
+      <DistanceTime :date="container.finishedAt" strict />
+    </span>
+  </div>
+  <div v-if="container.state == 'running'">
     <span class="font-light capitalize"> Load </span>
     <span class="font-semibold"> {{ container.stat.cpu.toFixed(2) }}% </span>
   </div>
-  <div>
+  <div v-if="container.state == 'running'">
     <span class="font-light capitalize"> MEM </span>
     <span class="font-semibold"> {{ formatBytes(container.stat.memoryUsage) }} </span>
   </div>
