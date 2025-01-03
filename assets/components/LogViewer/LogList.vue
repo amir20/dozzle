@@ -70,10 +70,6 @@ useIntersectionObserver(
     &:last-child {
       scroll-margin-block-end: 5rem;
     }
-
-    .jump-context {
-      @apply mr-2 flex items-center font-sans text-secondary;
-    }
   }
 
   &.small {

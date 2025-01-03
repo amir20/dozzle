@@ -1,7 +1,7 @@
 <template>
   <LogItem :logEntry @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
-    <ul class="fields space-x-4">
-      <li v-for="(value, name) in validValues" :key="name">
+    <ul class="space-x-4">
+      <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
         <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
         <template v-else-if="Array.isArray(value)">
           <span class="font-bold" v-html="JSON.stringify(value)"> </span>
@@ -32,11 +32,5 @@ const showDrawer = useDrawer();
 <style lang="postcss" scoped>
 .text-light {
   @apply text-base-content/70;
-}
-
-.fields {
-  li {
-    @apply inline-flex;
-  }
 }
 </style>

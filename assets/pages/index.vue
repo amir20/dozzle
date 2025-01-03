@@ -34,20 +34,4 @@ watchEffect(() => {
   padding-top: 1em;
   padding-bottom: 1em;
 }
-
-.stat > div {
-  @apply text-center;
-}
-
-.stat-value {
-  @apply font-light;
-}
-
-.stat-title {
-  @apply font-light;
-}
-
-.section + .section {
-  padding-top: 0;
-}
 </style>
