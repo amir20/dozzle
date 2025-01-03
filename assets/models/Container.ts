@@ -30,6 +30,8 @@ export class Container {
   constructor(
     public readonly id: string,
     public readonly created: Date,
+    public startedAt: Date,
+    public finishedAt: Date,
     public readonly image: string,
     name: string,
     public readonly command: string,

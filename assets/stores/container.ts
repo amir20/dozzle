@@ -61,7 +61,7 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
     es.addEventListener("container-event", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string };
+      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string; time: string };
       const container = allContainersById.value[event.actorId];
       if (container) {
         switch (event.name) {
@@ -72,6 +72,18 @@ export const useContainerStore = defineStore("container", () => {
             container.state = "deleted";
             break;
         }
+      }
+    });
+
+    es.addEventListener("container-updated", (e) => {
+      const container = JSON.parse((e as MessageEvent).data) as ContainerJson;
+      const existing = allContainersById.value[container.id];
+      if (existing) {
+        existing.state = container.state;
+        existing.health = container.health;
+        existing.name = container.name;
+        existing.startedAt = new Date(container.startedAt);
+        existing.finishedAt = new Date(container.finishedAt);
       }
     });
 
@@ -133,6 +145,8 @@ export const useContainerStore = defineStore("container", () => {
         return new Container(
           c.id,
           new Date(c.created),
+          new Date(c.startedAt),
+          new Date(c.finishedAt),
           c.image,
           c.name,
           c.command,

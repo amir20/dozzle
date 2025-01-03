@@ -86,6 +86,14 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
+			case "update":
+				log.Debug().Str("id", event.ActorID).Msg("container updated")
+				if containerService, err := h.multiHostService.FindContainer(event.Host, event.ActorID, usersFilter); err == nil {
+					if err := sseWriter.Event("container-updated", containerService.Container); err != nil {
+						log.Error().Err(err).Msg("error writing event to event stream")
+						return
+					}
+				}
 			case "health_status: healthy", "health_status: unhealthy":
 				log.Debug().Str("container", event.ActorID).Str("health", event.Name).Msg("container health status")
 				healthy := "unhealthy"

@@ -154,6 +154,34 @@ func (s *ContainerStore) FindContainer(id string, filter ContainerFilter) (Conta
 	}
 
 	if container, ok := s.containers.Load(id); ok {
+		if container.StartedAt.IsZero() {
+			log.Debug().Str("id", id).Msg("container doesn't have detailed information, fetching it")
+			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, bool) {
+				if loaded {
+					ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+					defer cancel()
+					if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
+						return &newContainer, false
+					}
+				}
+				return c, false
+			}); ok {
+				event := ContainerEvent{
+					Name:    "update",
+					Host:    s.client.Host().ID,
+					ActorID: id,
+				}
+				s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
+					select {
+					case events <- event:
+					case <-c.Done():
+						s.subscribers.Delete(c)
+					}
+					return true
+				})
+				return *newContainer, nil
+			}
+		}
 		return *container, nil
 	} else {
 		log.Warn().Str("id", id).Msg("container not found")

@@ -137,11 +137,12 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       const event = JSON.parse((e as MessageEvent).data) as {
         actorId: string;
         name: "container-stopped" | "container-started";
+        time: string;
       };
       const containerEvent = new ContainerEventLogEntry(
         event.name == "container-started" ? "Container started" : "Container stopped",
         event.actorId,
-        new Date(),
+        new Date(event.time),
         event.name,
       );
 

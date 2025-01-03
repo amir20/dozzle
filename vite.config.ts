@@ -30,17 +30,17 @@ export default defineConfig(() => ({
     target: "esnext",
   },
   plugins: [
-    VueMacros({
-      plugins: {
-        vue: Vue(),
-      },
-    }),
     VueRouter({
       routesFolder: {
         src: "./assets/pages",
       },
       dts: "./assets/typed-router.d.ts",
       importMode: "sync",
+    }),
+    VueMacros({
+      plugins: {
+        vue: Vue(),
+      },
     }),
     Icons({
       autoInstall: true,

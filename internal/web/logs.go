@@ -342,6 +342,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			log.Error().Err(err).Msg("error while finding container")
 			return
 		}
+		container = containerService.Container
 		start := utils.Max(absoluteTime, container.StartedAt)
 		err = containerService.StreamLogs(r.Context(), start, stdTypes, liveLogs)
 		if err != nil {
