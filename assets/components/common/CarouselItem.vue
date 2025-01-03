@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full min-w-full flex-shrink-0 snap-start snap-always">
+  <div class="w-full min-w-full shrink-0 snap-start snap-always">
     <slot />
   </div>
 </template>
