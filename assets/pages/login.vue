@@ -1,5 +1,5 @@
 <template>
-  <div class="card w-96 flex-shrink-0 bg-base-lighter shadow-2xl">
+  <div class="card w-96 shrink-0 bg-base-lighter shadow-2xl">
     <div class="card-body">
       <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
         <label class="form-control w-full">
