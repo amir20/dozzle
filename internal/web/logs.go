@@ -347,7 +347,16 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Debug().Str("container", container.ID).Msg("streaming ended")
-				events <- &docker.ContainerEvent{ActorID: container.ID, Name: "container-stopped", Host: container.Host}
+				finishedAt := container.FinishedAt
+				if container.FinishedAt.IsZero() {
+					finishedAt = time.Now()
+				}
+				events <- &docker.ContainerEvent{
+					ActorID: container.ID,
+					Name:    "container-stopped",
+					Host:    container.Host,
+					Time:    finishedAt,
+				}
 			} else if !errors.Is(err, context.Canceled) {
 				log.Error().Err(err).Str("container", container.ID).Msg("unknown error while streaming logs")
 			}
