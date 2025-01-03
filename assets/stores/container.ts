@@ -67,6 +67,7 @@ export const useContainerStore = defineStore("container", () => {
         switch (event.name) {
           case "die":
             container.state = "exited";
+            container.finishedAt = new Date(event.time);
             break;
           case "destroy":
             container.state = "deleted";
@@ -79,9 +80,9 @@ export const useContainerStore = defineStore("container", () => {
       const container = JSON.parse((e as MessageEvent).data) as ContainerJson;
       const existing = allContainersById.value[container.id];
       if (existing) {
+        existing.name = container.name;
         existing.state = container.state;
         existing.health = container.health;
-        existing.name = container.name;
         existing.startedAt = new Date(container.startedAt);
         existing.finishedAt = new Date(container.finishedAt);
       }
