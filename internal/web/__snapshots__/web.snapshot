@@ -145,7 +145,7 @@ data: []
 
 
 event: container-event
-data: {"name":"start","host":"localhost","actorId":"1234"}
+data: {"name":"start","host":"localhost","actorId":"1234","time":"0001-01-01T00:00:00Z"}
 
 /* snapshot: Test_handler_streamLogs_error_finding_container */
 HTTP/1.1 404 Not Found
@@ -193,7 +193,7 @@ data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout"
 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"2025-01-03T10:52:34.003134-08:00"}
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 HTTP/1.1 200 OK
@@ -208,7 +208,7 @@ X-Accel-Buffering: no
 :ping 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"2025-01-03T10:52:34.109992-08:00"}
 
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 HTTP/1.1 200 OK
@@ -227,4 +227,4 @@ id: 1589396137772
 
 
 event: container-event
-data: {"name":"container-stopped","host":"localhost","actorId":"123456"}
+data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"2025-01-03T10:52:34.056228-08:00"}
