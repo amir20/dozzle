@@ -32,7 +32,7 @@ defineExpose({
 
 useEventListener(panel, "close", () => (open.value = false));
 </script>
-<style scoped lang="postcss">
+<style scoped>
 @import "@/main.css" reference;
 
 .modal-right :where(.modal-box) {

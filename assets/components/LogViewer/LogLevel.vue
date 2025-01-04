@@ -10,7 +10,7 @@ defineProps<{
 }>();
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 @import "@/main.css" reference;
 [data-position="start"] {
   border-radius: 0.5em 0.5em 0 0;
@@ -34,7 +34,7 @@ defineProps<{
   align-self: flex-start;
 }
 </style>
-<style lang="postcss">
+<style>
 @import "@/main.css" reference;
 [data-level="debug"],
 [data-level="trace"] {

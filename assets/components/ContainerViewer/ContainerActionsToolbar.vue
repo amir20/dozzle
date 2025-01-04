@@ -187,7 +187,7 @@ const toggleAllLevels = computed({
 });
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 @import "@/main.css" reference;
 
 li.line {

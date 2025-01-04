@@ -94,4 +94,4 @@ const page = computed(() =>
   results.value.numRows > pageLimit ? results.value.slice(0, pageLimit) : results.value,
 ) as unknown as ComputedRef<Table<Record<string, any>>>;
 </script>
-<style lang="postcss" scoped></style>
+<style scoped></style>

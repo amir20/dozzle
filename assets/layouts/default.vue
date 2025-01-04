@@ -117,7 +117,7 @@ function onResized(e: any) {
 }
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 @import "@/main.css" reference;
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {

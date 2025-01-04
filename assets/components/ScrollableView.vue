@@ -77,7 +77,7 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   hasMore.value = false;
 }
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;

@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 const { slideRight } = defineProps<{ slideRight: boolean }>();
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,

@@ -12,7 +12,7 @@ defineProps<{
 }>();
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 @import "@/main.css" reference;
 [std="stdout"] {
   @apply text-blue;

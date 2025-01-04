@@ -12,7 +12,7 @@
           <span> % </span>
         </div>
       </div>
-      <DistanceTime :date="date" class="whitespace-nowrap text-sm" />
+      <DistanceTime :date="date" class="text-sm whitespace-nowrap" />
     </div>
   </transition>
 </template>
@@ -41,7 +41,7 @@ watch(
   },
 );
 </script>
-<style scoped lang="postcss">
+<style scoped>
 svg {
   filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
   margin-top: 5px;

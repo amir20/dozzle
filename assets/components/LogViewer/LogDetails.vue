@@ -164,7 +164,7 @@ function syntaxHighlight(json: any) {
 
 useSortable(list, fields);
 </script>
-<style lang="postcss" scoped>
+<style scoped>
 @import "@/main.css" reference;
 .font-mono {
   font-family:

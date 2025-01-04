@@ -196,7 +196,7 @@ function isVisible(field: keys) {
 }
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 @import "@/main.css" reference;
 
 [data-icon] {

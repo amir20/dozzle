@@ -71,7 +71,7 @@ function redirectNow() {
 }
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 @import "@/main.css" reference;
 [data-event="container-stopped"] {
   @apply text-red;

@@ -57,7 +57,7 @@ onMounted(() => {
 onUnmounted(() => resetSearch());
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .slide-enter-active,
 .slide-leave-active {
   transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);

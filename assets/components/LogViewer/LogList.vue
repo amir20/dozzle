@@ -53,7 +53,7 @@ useIntersectionObserver(
   },
 );
 </script>
-<style scoped lang="postcss">
+<style scoped>
 @import "@/main.css" reference;
 .events {
   font-family:

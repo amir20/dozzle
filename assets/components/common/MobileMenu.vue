@@ -34,7 +34,7 @@ watch(route, () => {
   show.value = false;
 });
 </script>
-<style scoped lang="postcss">
+<style scoped>
 @import "@/main.css" reference;
 .fade-enter-active,
 .fade-leave-active {

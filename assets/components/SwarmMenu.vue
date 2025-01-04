@@ -2,7 +2,7 @@
   <ul class="menu p-0 text-[0.95rem]">
     <li v-for="{ name, services } in stacks" :key="name">
       <details open>
-        <summary class="font-light text-base-content/80">
+        <summary class="text-base-content/80 font-light">
           <ph:stack />
           {{ name }}
 
@@ -33,7 +33,7 @@
 
     <li v-if="serivcesWithoutStacks.length > 0">
       <details open>
-        <summary class="font-light text-base-content/80">
+        <summary class="text-base-content/80 font-light">
           <ph:circles-four />
           {{ $t("label.services") }}
         </summary>
@@ -55,7 +55,7 @@
 
     <li v-if="customGroups.length > 0">
       <details open>
-        <summary class="font-light text-base-content/80">
+        <summary class="text-base-content/80 font-light">
           <ph:bounding-box-fill />
           {{ $t("label.custom-groups") }}
         </summary>
@@ -81,7 +81,7 @@ const { stacks, services, customGroups } = storeToRefs(store);
 
 const serivcesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .menu {
   @apply text-[0.95rem];
 }

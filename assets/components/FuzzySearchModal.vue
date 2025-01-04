@@ -204,7 +204,7 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
 }
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 :deep(mark) {
   @apply bg-transparent text-inherit underline underline-offset-2;
 }

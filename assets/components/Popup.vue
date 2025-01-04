@@ -45,7 +45,7 @@ useEventListener(() => el.value?.nextElementSibling, "mouseenter", onMouseEnter)
 useEventListener(() => el.value?.nextElementSibling, "mouseleave", onMouseLeave);
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;

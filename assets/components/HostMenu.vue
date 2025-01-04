@@ -209,7 +209,7 @@ watchEffect(() => {
 
 const toggleShowAllContainers = () => (showAllContainers.value = !showAllContainers.value);
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .menu {
   @apply text-[0.95rem];
 }

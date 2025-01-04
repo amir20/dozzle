@@ -36,7 +36,7 @@ const { value } = defineProps<{
 const color = computed(() => colors[Math.abs(hashCode(value)) % colors.length]);
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 .random-color {
   background-color: v-bind(color);
 }
