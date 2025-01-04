@@ -1,6 +1,5 @@
 import type { Config } from "tailwindcss";
 import Typography from "@tailwindcss/typography";
-import Container from "@tailwindcss/container-queries";
 
 export default {
   future: {
@@ -27,5 +26,5 @@ export default {
       },
     },
   },
-  plugins: [Typography, Container],
+  plugins: [Typography],
 } satisfies Config;
