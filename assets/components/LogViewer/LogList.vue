@@ -94,5 +94,19 @@ useIntersectionObserver(
       @apply rounded-none;
     }
   }
+
+  :deep(mark) {
+    @apply bg-secondary inline-block rounded-xs;
+    animation: pops 200ms ease-out;
+  }
+}
+
+@keyframes pops {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.05);
+  }
 }
 </style>

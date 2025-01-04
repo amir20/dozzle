@@ -20,7 +20,7 @@
       </div>
 
       <section class="grid-cols-2 gap-4 @3xl:grid">
-        <div class="flex flex-col gap-2 text-balance @3xl:pr-8">
+        <div class="flex flex-col gap-4 text-balance @3xl:pr-8">
           <Toggle v-model="compact"> {{ $t("settings.compact") }} </Toggle>
 
           <Toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </Toggle>
@@ -51,7 +51,7 @@
               {{ $t("settings.datetime-format") }}
             </template>
             <template #input>
-              <div class="flex gap-2">
+              <div class="flex gap-4">
                 <DropdownMenu
                   v-model="dateLocale"
                   :options="[
@@ -115,7 +115,7 @@
       </section>
     </section>
 
-    <section class="flex flex-col gap-2">
+    <section class="flex flex-col gap-4">
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
@@ -216,6 +216,10 @@ const fakeMessages = computedWithControl(
 
 .has-underline {
   @apply border-base-content/50 mb-4 border-b py-4;
+
+  h2 {
+    @apply text-2xl;
+  }
 }
 
 :deep(a:not(.menu a)) {
