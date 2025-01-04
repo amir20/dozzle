@@ -269,6 +269,7 @@ func (s *ContainerStore) init() {
 					if loaded {
 						log.Debug().Str("id", c.ID).Msg("container died")
 						c.State = "exited"
+						c.FinishedAt = time.Now()
 						return c, false
 					} else {
 						return c, true
