@@ -7,12 +7,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!--v-if-->
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="tag inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] !items-start shrink-0 select-none" size="small">
-        <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+      <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-sm items-start! shrink-0 select-none" size="small">
+        <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>
@@ -27,12 +27,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       <!--v-if-->
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="tag inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] !items-start shrink-0 select-none" size="small">
-        <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
+      <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-sm items-start! shrink-0 select-none" size="small">
+        <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>
@@ -47,12 +47,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
       <!--v-if-->
       <!--v-if-->
       <!--v-if-->
-      <div data-v-961504e7="" class="tag inline-flex items-center justify-center rounded bg-base-lighter px-2 py-[0.2em] !items-start shrink-0 select-none" size="small">
-        <div class="inline-flex gap-2 whitespace-nowrap text-blue"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+      <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-sm items-start! shrink-0 select-none" size="small">
+        <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="mobile-hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper whitespace-pre-wrap [word-break:break-word] group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <div data-v-a49e52d4="" class="flex gap-2 duration-250 absolute -right-1 opacity-0 transition-opacity delay-150 group-hover/entry:opacity-100">
+      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
+      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>
