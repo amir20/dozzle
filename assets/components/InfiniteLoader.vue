@@ -1,6 +1,6 @@
 <template>
   <div ref="root" class="flex min-h-[1px] justify-center">
-    <span class="loading loading-bars loading-md mt-4 text-primary" v-show="isLoading"></span>
+    <span class="loading loading-bars loading-md text-primary mt-4" v-show="isLoading"></span>
   </div>
 </template>
 

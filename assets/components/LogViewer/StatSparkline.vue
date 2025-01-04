@@ -1,7 +1,7 @@
 <template>
   <svg :width="width" :height="height" @mousemove="onMove" class="group">
     <path :d="path" class="fill-primary" />
-    <line :x1="lineX" y1="0" :x2="lineX" :y2="height" class="invisible stroke-secondary stroke-2 group-hover:visible" />
+    <line :x1="lineX" y1="0" :x2="lineX" :y2="height" class="stroke-secondary invisible stroke-2 group-hover:visible" />
   </svg>
 </template>
 

@@ -2,8 +2,8 @@
   <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
-      <div class="h-3 w-40 shrink-0 rounded-full bg-base-content/50 opacity-50"></div>
-      <div class="h-3 rounded-full bg-base-content/50 opacity-50" :class="size"></div>
+      <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>
+      <div class="bg-base-content/50 h-3 rounded-full opacity-50" :class="size"></div>
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
