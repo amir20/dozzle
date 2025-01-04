@@ -11,7 +11,7 @@
     </h1>
 
     <button
-      class="input input-sm hover:border-primary inline-flex cursor-pointer items-center gap-2 self-start font-light"
+      class="input input-sm hover:border-primary inline-flex w-auto cursor-pointer items-center gap-2 self-start font-light"
       @click="$emit('search')"
       :title="$t('tooltip.search')"
       data-testid="search"
