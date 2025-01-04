@@ -1,6 +1,7 @@
-@import "splitpanes/dist/splitpanes.css" layer(base);
 @import "tailwindcss";
+@import "splitpanes/dist/splitpanes.css" layer(base);
 @plugin "daisyui";
+@plugin "@tailwindcss/typography";
 @config '../tailwind.config.ts';
 
 @theme {
