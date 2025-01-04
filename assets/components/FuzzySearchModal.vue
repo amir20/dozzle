@@ -1,10 +1,10 @@
 <template>
   <div class="dropdown dropdown-open w-full">
-    <div class="input input-primary flex h-auto items-center">
+    <div class="input input-lg input-primary flex w-full items-center">
       <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
-        class="input input-lg input-ghost flex-1 px-1"
+        class="input-ghost flex-1 px-1"
         ref="input"
         @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
@@ -21,13 +21,13 @@
       </form>
     </div>
     <div
-      class="dropdown-content !relative mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent bg-base-lighter px-2"
+      class="dropdown-content bg-base-100 relative! mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent px-2"
       v-if="results.length"
     >
       <ul tabindex="0" class="menu">
         <li v-for="(result, index) in data" ref="listItems">
           <a
-            class="grid auto-cols-max grid-cols-[min-content,auto] gap-2 py-4"
+            class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
             @click.prevent="selected(result.item)"
             :class="index === selectedIndex ? 'focus' : ''"
           >

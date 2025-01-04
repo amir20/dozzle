@@ -1,6 +1,6 @@
 <template>
   <ul class="grid gap-4 md:grid-cols-[repeat(auto-fill,minmax(480px,1fr))]">
-    <li v-for="host in hosts" class="card bg-base-lighter">
+    <li v-for="host in hosts" class="card bg-base-100">
       <div class="card-body grid auto-cols-auto grid-flow-col justify-between gap-4">
         <div class="flex flex-col gap-2 overflow-hidden">
           <div class="flex items-center gap-1 truncate text-xl font-semibold">
@@ -39,14 +39,14 @@
 
         <div class="flex flex-row gap-4 md:gap-8" v-if="weightedStats[host.id]">
           <div
-            class="radial-progress text-sm text-primary [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
+            class="radial-progress text-primary text-sm [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
             :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)};  `"
             role="progressbar"
           >
             {{ weightedStats[host.id].weighted.totalCPU.toFixed(0) }}%
           </div>
           <div
-            class="radial-progress text-sm text-primary [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
+            class="radial-progress text-primary text-sm [--size:4rem] [--thickness:0.25em] md:text-[1rem] md:[--size:5rem]"
             :style="`--value: ${(weightedStats[host.id].weighted.totalMem / host.memTotal) * 100};`"
             role="progressbar"
           >

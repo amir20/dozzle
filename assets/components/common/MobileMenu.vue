@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
+  <nav class="border-base-content/20 bg-base fixed top-0 z-10 w-full border-b p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: '/' }">
         <Logo class="logo h-8" />
@@ -35,6 +35,7 @@ watch(route, () => {
 });
 </script>
 <style scoped lang="postcss">
+@import "@/main.css" reference;
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;

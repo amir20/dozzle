@@ -8,7 +8,7 @@
       :style="style"
     >
       <div
-        class="input input-primary flex h-auto items-center !shadow-lg"
+        class="input input-primary flex h-auto items-center shadow-lg!"
         :class="!isValidQuery ? 'input-warning' : ''"
       >
         <mdi:magnify />

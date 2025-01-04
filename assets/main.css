@@ -1,8 +1,96 @@
-@import "splitpanes/dist/splitpanes.css";
+@import "splitpanes/dist/splitpanes.css" layer(base);
+@import "tailwindcss";
+@plugin "daisyui";
+@config '../tailwind.config.ts';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false; /* set as default */
+  prefersdark: false; /* set as default dark mode (prefers-color-scheme:dark) */
+  color-scheme: dark; /* color of browser-provided UI */
+
+  --color-base-100: oklch(25% 0 0);
+  --color-base-200: oklch(18% 0 0);
+  --color-base-300: oklch(11% 0 0);
+  --color-base-content: oklch(89.23% 0 0);
+  --color-primary: oklch(70.96% 0.143 176.65);
+  --color-primary-content: oklch(98% 0.01 240);
+  --color-secondary: oklch(81.38% 0.1448 90.1243);
+  --color-secondary-content: oklch(98% 0.01 200);
+  --color-accent: oklch(65% 0.25 160);
+  --color-accent-content: oklch(98% 0.01 160);
+  --color-neutral: oklch(50% 0.05 240);
+  --color-neutral-content: oklch(98% 0.01 240);
+  --color-info: oklch(70% 0.2 220);
+  --color-info-content: oklch(98% 0.01 220);
+  --color-success: oklch(65% 0.25 140);
+  --color-success-content: oklch(98% 0.01 140);
+  --color-warning: oklch(80% 0.25 80);
+  --color-warning-content: oklch(20% 0.05 80);
+  --color-error: oklch(65% 0.3 30);
+  --color-error-content: oklch(98% 0.01 30);
+
+  /* border radius */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* border size */
+  --border: 1px;
+
+  /* effects */
+  --depth: 1;
+  --noise: 1;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility input {
+  @apply outline-hidden!;
+  &.input-ghost {
+    @apply focus:border-transparent;
+  }
+}
+
+@utility btn {
+  @apply font-normal normal-case;
+
+  &:not(.btn-primary):not(.btn-secondary) {
+    @apply hover:bg-base-100;
+  }
+}
+
+@utility mobile-hidden {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+@utility active-primary {
+  --n: var(--p);
+  --nc: var(--pc);
+  /* @apply menu-active; */
+}
+
+@utility link-primary {
+  @apply underline-offset-4 hover:underline;
+}
 
 @layer base {
   :root {
@@ -60,7 +148,7 @@
   }
 
   .events mark {
-    @apply inline-block rounded-sm bg-secondary;
+    @apply bg-secondary inline-block rounded-xs;
     animation: pops 200ms ease-out;
   }
 
@@ -71,40 +159,5 @@
     100% {
       transform: scale(1.05);
     }
-  }
-}
-
-@layer components {
-  .input {
-    @apply !outline-none;
-    &.input-ghost {
-      @apply focus:border-transparent;
-    }
-  }
-
-  .btn {
-    @apply font-normal normal-case;
-  }
-
-  .btn:not(.btn-primary):not(.btn-secondary) {
-    @apply hover:bg-base-lighter;
-  }
-}
-
-@layer utilities {
-  @media (max-width: 768px) {
-    .mobile-hidden {
-      display: none;
-    }
-  }
-
-  .active-primary {
-    --n: var(--p);
-    --nc: var(--pc);
-    @apply active;
-  }
-
-  .link-primary {
-    @apply underline-offset-4 hover:underline;
   }
 }

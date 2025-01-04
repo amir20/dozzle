@@ -14,7 +14,7 @@
       </div>
     </section>
 
-    <section class="flex flex-col @container">
+    <section class="@container flex flex-col">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>
       </div>
@@ -110,7 +110,7 @@
           :messages="fakeMessages"
           :last-selected-item="undefined"
           :show-container-name="false"
-          class="hidden overflow-hidden rounded-lg border border-base-content/50 shadow @3xl:block"
+          class="border-base-content/50 hidden overflow-hidden rounded-lg border shadow-sm @3xl:block"
         />
       </section>
     </section>
@@ -211,9 +211,11 @@ const fakeMessages = computedWithControl(
   ],
 );
 </script>
-<style lang="postcss" scoped>
+<style scoped>
+@import "@/main.css" reference;
+
 .has-underline {
-  @apply mb-4 border-b border-base-content/50 py-4;
+  @apply border-base-content/50 mb-4 border-b py-4;
 }
 
 :deep(a:not(.menu a)) {

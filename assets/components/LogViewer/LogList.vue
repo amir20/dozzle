@@ -54,6 +54,7 @@ useIntersectionObserver(
 );
 </script>
 <style scoped lang="postcss">
+@import "@/main.css" reference;
 .events {
   font-family:
     ui-monospace,
@@ -66,7 +67,7 @@ useIntersectionObserver(
     monospace;
 
   > li {
-    @apply flex break-words px-2 py-1 last:snap-end odd:bg-gray-400/[0.07] has-[.clickable]:cursor-pointer has-[.clickable]:hover:bg-primary/10 md:px-4;
+    @apply has-[.clickable]:hover:bg-primary/10 flex px-2 py-1 break-words last:snap-end odd:bg-gray-400/[0.07] has-[.clickable]:cursor-pointer md:px-4;
     &:last-child {
       scroll-margin-block-end: 5rem;
     }

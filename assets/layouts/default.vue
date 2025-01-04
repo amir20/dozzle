@@ -25,8 +25,8 @@
       </pane>
     </splitpanes>
     <label
-      class="btn btn-circle swap btn-neutral swap-rotate fixed -left-12 bottom-4 w-16 transition-all hover:-left-4"
-      :class="{ '!-left-6': collapseNav }"
+      class="btn btn-circle swap btn-neutral swap-rotate fixed bottom-4 -left-12 w-16 transition-all hover:-left-4"
+      :class="{ '-left-6!': collapseNav }"
       v-if="!isMobile && !forceMenuHidden"
     >
       <input type="checkbox" v-model="collapseNav" />
@@ -34,7 +34,7 @@
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
-  <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-sm" @close="open = false">
+  <dialog ref="modal" class="modal items-start bg-white/20 backdrop:backdrop-blur-xs" @close="open = false">
     <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="open = false" v-if="open" />
     </div>
@@ -118,8 +118,10 @@ function onResized(e: any) {
 </script>
 
 <style scoped lang="postcss">
+@import "@/main.css" reference;
+
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  @apply min-w-[3px] bg-base-lighter hover:bg-secondary;
+  @apply bg-base-100 hover:bg-secondary min-w-[3px];
 }
 
 @media screen and (max-width: 768px) {

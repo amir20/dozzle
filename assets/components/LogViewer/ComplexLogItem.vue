@@ -30,6 +30,7 @@ const showDrawer = useDrawer();
 </script>
 
 <style lang="postcss" scoped>
+@import "@/main.css" reference;
 .text-light {
   @apply text-base-content/70;
 }

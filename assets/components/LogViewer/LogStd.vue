@@ -1,5 +1,5 @@
 <template>
-  <Tag size="small" :std="std" class="!items-start">
+  <Tag size="small" :std="std" class="items-start!">
     {{ std }}
   </Tag>
 </template>
@@ -13,6 +13,7 @@ defineProps<{
 </script>
 
 <style lang="postcss" scoped>
+@import "@/main.css" reference;
 [std="stdout"] {
   @apply text-blue;
 }

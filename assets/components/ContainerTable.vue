@@ -7,7 +7,7 @@
           type="radio"
           name="host"
           role="tab"
-          class="tab !rounded"
+          class="tab rounded-sm!"
           aria-label="Show All"
           v-model="selectedHost"
           :value="null"
@@ -16,7 +16,7 @@
           type="radio"
           name="host"
           role="tab"
-          class="tab !rounded"
+          class="tab rounded-sm!"
           :aria-label="host.name"
           v-for="host in hosts"
           :value="host.id"
@@ -46,7 +46,7 @@
     </div>
   </div>
 
-  <table class="table table-lg bg-base">
+  <table class="table-lg bg-base table">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th
@@ -197,6 +197,8 @@ function isVisible(field: keys) {
 </script>
 
 <style lang="postcss" scoped>
+@import "@/main.css" reference;
+
 [data-icon] {
   display: none;
   transition: transform 0.2s ease-in-out;
@@ -206,7 +208,7 @@ function isVisible(field: keys) {
 }
 
 th {
-  @apply border-b-2 border-base-lighter;
+  @apply border-base-100 border-b-2;
   &.selected-sort {
     font-weight: bold;
     @apply border-primary;

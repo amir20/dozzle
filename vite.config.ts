@@ -12,6 +12,7 @@ import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import { compression } from "vite-plugin-compression2";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(() => ({
   resolve: {
@@ -73,6 +74,7 @@ export default defineConfig(() => ({
     }),
     compression({ algorithm: "brotliCompress", exclude: [/\.(html)$/] }),
     svgLoader({}),
+    tailwindcss(),
   ],
   test: {
     include: ["assets/**/*.spec.ts"],

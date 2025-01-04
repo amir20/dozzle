@@ -1,5 +1,5 @@
 <template>
-  <div class="tag grid w-40 overflow-hidden rounded text-center text-sm text-white">
+  <div class="tag grid w-40 overflow-hidden rounded-sm text-center text-sm text-white">
     <div class="random-color col-start-1 row-start-1 brightness-75"></div>
     <div class="col-start-1 row-start-1 truncate px-2 brightness-100 [direction:rtl]">{{ value }}</div>
   </div>

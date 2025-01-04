@@ -11,6 +11,7 @@ defineProps<{
 </script>
 
 <style lang="postcss" scoped>
+@import "@/main.css" reference;
 [data-position="start"] {
   border-radius: 0.5em 0.5em 0 0;
   height: 70%;
@@ -34,6 +35,7 @@ defineProps<{
 }
 </style>
 <style lang="postcss">
+@import "@/main.css" reference;
 [data-level="debug"],
 [data-level="trace"] {
   @apply !bg-purple;
