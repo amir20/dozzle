@@ -3,6 +3,14 @@
 @plugin "daisyui";
 @config '../tailwind.config.ts';
 
+@theme {
+  --color-green: oklch(69% 0.119722 188.479048);
+  --color-red: oklch(64% 0.218 28.85);
+  --color-purple: oklch(51.49% 0.215 321.03);
+  --color-blue: oklch(65% 0.171 249.5);
+  --color-orange: oklch(70% 0.186 48.13);
+}
+
 @plugin "daisyui/theme" {
   name: "dark";
   default: false;
