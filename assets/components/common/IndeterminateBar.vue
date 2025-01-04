@@ -1,5 +1,5 @@
 <template>
-  <div class="animate-background bg-gradient-radial h-1 w-1/2 to-transparent to-75%" :class="colorClass"></div>
+  <div class="animate-background h-1 w-1/2 bg-radial to-transparent to-75%" :class="colorClass"></div>
 </template>
 <script setup lang="ts">
 const { color = "primary" } = defineProps<{ color: "primary" | "error" | "secondary" }>();

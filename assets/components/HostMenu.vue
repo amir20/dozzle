@@ -53,7 +53,7 @@
       </ul>
     </template>
     <template #right>
-      <ul class="containers menu p-0 [&_li.menu-title]:px-0">
+      <ul class="containers menu w-full p-0 [&_li.menu-title]:px-0">
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="text-base-content/80 font-light">
@@ -77,7 +77,7 @@
                 <Popup>
                   <router-link
                     :to="{ name: '/container/[id]', params: { id: item.id } }"
-                    active-class="active-primary"
+                    active-class="menu-active"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
                     class="group auto-cols-[auto_max-content_max-content]"

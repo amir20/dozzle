@@ -7,10 +7,7 @@
       ref="container"
       :style="style"
     >
-      <div
-        class="input input-primary flex h-auto items-center shadow-lg!"
-        :class="!isValidQuery ? 'input-warning' : ''"
-      >
+      <div class="input input-primary flex items-center shadow-lg" :class="!isValidQuery ? 'input-warning' : ''">
         <mdi:magnify />
         <input
           class="input input-ghost w-72 flex-1"

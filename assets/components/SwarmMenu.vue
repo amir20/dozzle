@@ -1,5 +1,5 @@
 <template>
-  <ul class="menu p-0 text-[0.95rem]">
+  <ul class="menu w-full p-0 text-[0.95rem]">
     <li v-for="{ name, services } in stacks" :key="name">
       <details open>
         <summary class="text-base-content/80 font-light">
@@ -17,10 +17,7 @@
         </summary>
         <ul>
           <li v-for="service in services" :key="service.name">
-            <router-link
-              :to="{ name: '/service/[name]', params: { name: service.name } }"
-              active-class="active-primary"
-            >
+            <router-link :to="{ name: '/service/[name]', params: { name: service.name } }" active-class="menu-active">
               <ph:stack-simple />
               <div class="truncate">
                 {{ service.name }}
@@ -39,10 +36,7 @@
         </summary>
         <ul>
           <li v-for="service in serivcesWithoutStacks" :key="service.name">
-            <router-link
-              :to="{ name: '/service/[name]', params: { name: service.name } }"
-              active-class="active-primary"
-            >
+            <router-link :to="{ name: '/service/[name]', params: { name: service.name } }" active-class="menu-active">
               <ph:stack-simple />
               <div class="truncate">
                 {{ service.name }}
@@ -61,7 +55,7 @@
         </summary>
         <ul>
           <li v-for="group in customGroups" :key="group.name">
-            <router-link :to="{ name: '/group/[name]', params: { name: group.name } }" active-class="active-primary">
+            <router-link :to="{ name: '/group/[name]', params: { name: group.name } }" active-class="menu-active">
               <ph:stack-simple />
               <div class="truncate">
                 {{ group.name }}

@@ -2,7 +2,6 @@
 @import "splitpanes/dist/splitpanes.css" layer(base);
 @plugin "daisyui";
 @plugin "@tailwindcss/typography";
-@config '../tailwind.config.ts';
 
 @theme {
   --color-green: oklch(69% 0.119722 188.479048);
@@ -48,7 +47,7 @@
   --border: 1px;
 
   /* effects */
-  --depth: 1;
+  --depth: 0;
   --noise: 1;
 }
 
@@ -78,8 +77,6 @@
 }
 
 @utility btn {
-  @apply font-normal normal-case;
-
   &:not(.btn-primary):not(.btn-secondary) {
     @apply hover:bg-base-100;
   }
@@ -91,10 +88,15 @@
   }
 }
 
-@utility active-primary {
-  --n: var(--p);
-  --nc: var(--pc);
-  /* @apply menu-active; */
+@utility menu-active {
+  &,
+  &:active {
+    --color-neutral: var(--color-primary);
+  }
+}
+
+@utility animate-bounce-fast {
+  animation: bounce 0.5s 2 both;
 }
 
 @utility link-primary {
