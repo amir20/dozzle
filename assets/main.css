@@ -5,9 +5,9 @@
 
 @plugin "daisyui/theme" {
   name: "dark";
-  default: false; /* set as default */
-  prefersdark: false; /* set as default dark mode (prefers-color-scheme:dark) */
-  color-scheme: dark; /* color of browser-provided UI */
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
 
   --color-base-100: oklch(25% 0 0);
   --color-base-200: oklch(18% 0 0);
@@ -93,33 +93,6 @@
 }
 
 @layer base {
-  :root {
-    --p: var(--primary-color);
-    --pc: 89.23% 0;
-    --s: var(--secondary-color);
-    --sc: 14.57% 0 0;
-    --b1: var(--base-lighter-color);
-    --b2: var(--base-color);
-    --b3: var(--base-darker-color);
-    --bc: var(--base-content-color);
-    --in: 65% 0.171 249.5;
-    --inc: 100% 0 0;
-    --er: 64% 0.218 28.85;
-    --su: 56% 0.119722 164.12;
-    --erc: 100% 0 0;
-    --wa: 70% 0.186 48.13;
-    --wac: 100% 0 0;
-    --n: var(--base-lighter-color);
-  }
-  html[data-theme="dark"] {
-    --base-lighter-color: 25% 0 0;
-    --base-color: 18% 0 0;
-    --base-darker-color: 11% 0 0;
-    --base-content-color: 89.23% 0 0;
-    --primary-color: 70.96% 0.143 176.65;
-    --secondary-color: 81.38% 0.1448 90.1243;
-  }
-
   html[data-theme="light"] {
     --base-lighter-color: 100% 0 0;
     --base-color: 97% 0 0;

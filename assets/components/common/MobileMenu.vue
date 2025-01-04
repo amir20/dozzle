@@ -1,5 +1,5 @@
 <template>
-  <nav class="border-base-content/20 bg-base fixed top-0 z-10 w-full border-b p-2" data-testid="navigation">
+  <nav class="border-base-content/20 bg-base-200 fixed top-0 z-10 w-full border-b p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: '/' }">
         <Logo class="logo h-8" />

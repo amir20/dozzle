@@ -26,7 +26,7 @@
         <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
           <ph:dots-three-vertical-bold />
         </label>
-        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base z-50 w-52 p-1 shadow-sm">
+        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 z-50 w-52 p-1 shadow-sm">
           <li>
             <a class="text-sm capitalize" @click="toggleShowAllContainers()">
               <mdi:check class="w-4" v-if="showAllContainers" />

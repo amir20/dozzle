@@ -46,7 +46,7 @@
     </div>
   </div>
 
-  <table class="table-lg bg-base table">
+  <table class="table-lg bg-base-200 table">
     <thead>
       <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
         <th

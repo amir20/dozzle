@@ -4,7 +4,7 @@
       <carbon:circle-solid class="text-red w-2.5" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="text-blue w-2.5" v-if="streamConfig.stdout" />
     </label>
-    <ul tabindex="0" class="menu dropdown-content rounded-box bg-base z-50 w-52 p-1 shadow-sm">
+    <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 z-50 w-52 p-1 shadow-sm">
       <li>
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}

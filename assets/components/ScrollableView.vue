@@ -2,7 +2,7 @@
   <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col">
     <header
       v-if="$slots.header"
-      class="border-base-content/10 bg-base sticky top-[65px] z-2 border-b py-2 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0"
+      class="border-base-content/10 bg-base-200 sticky top-[65px] z-2 border-b py-2 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0"
     >
       <slot name="header"></slot>
     </header>
