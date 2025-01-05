@@ -18,7 +18,7 @@
     </div>
 
     <transition name="fade">
-      <div v-show="show" class="flex h-[calc(100svh-65px)]">
+      <div v-show="show" class="flex h-[calc(100svh-55px)]">
         <SideMenu class="flex-1" />
       </div>
     </transition>
