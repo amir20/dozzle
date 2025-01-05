@@ -50,7 +50,7 @@
             :style="`--value: ${(weightedStats[host.id].weighted.totalMem / host.memTotal) * 100};`"
             role="progressbar"
           >
-            <span class="whitespace-nowrap">{{ formatBytes(weightedStats[host.id].weighted.totalMem, 1) }}</span>
+            {{ weightedStats[host.id].weighted.totalCPU.toFixed(0) }}%
           </div>
         </div>
       </div>
