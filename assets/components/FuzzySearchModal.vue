@@ -85,10 +85,13 @@ const { visibleContainers } = storeToRefs(containerStore);
 const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
 
-// useFocus(input, { initialValue: true }); // todo fix this
-
-watchOnce(input, () => {
-  setTimeout(() => input.value?.focus(), 100);
+onMounted(async () => {
+  const dialog = input.value?.closest("dialog");
+  if (dialog) {
+    const animations = dialog.getAnimations();
+    await Promise.all(animations.map((animation) => animation.finished));
+    input.value?.focus();
+  }
 });
 
 type Item = {
