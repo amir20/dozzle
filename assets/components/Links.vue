@@ -5,7 +5,7 @@
       <template #trigger>
         <mdi:announcement class="size-6 -rotate-12" />
         <span
-          class="absolute right-px top-0 size-2 rounded-full bg-red"
+          class="bg-red absolute top-0 right-px size-2 rounded-full"
           v-if="hasUpdate && latestTag != latest?.tag"
         ></span>
       </template>
@@ -28,7 +28,7 @@
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
         <img
-          class="size-6 max-w-none rounded-full p-px ring-1 ring-base-content/60"
+          class="ring-base-content/60 size-6 max-w-none rounded-full p-px ring-1"
           :src="withBase('/api/profile/avatar')"
         />
       </template>
@@ -43,7 +43,7 @@
         </div>
         <ul class="menu mt-4 p-0">
           <li v-if="config.authProvider === 'simple'">
-            <button @click.prevent="logout()" class="p-2 text-primary">{{ $t("button.logout") }}</button>
+            <button @click.prevent="logout()" class="text-primary p-2">{{ $t("button.logout") }}</button>
           </li>
         </ul>
       </template>

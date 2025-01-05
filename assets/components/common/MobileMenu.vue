@@ -1,8 +1,8 @@
 <template>
-  <nav class="fixed top-0 z-10 w-full border-b border-base-content/20 bg-base p-2" data-testid="navigation">
+  <nav class="border-base-content/20 bg-base-200 fixed top-0 z-10 w-full border-b p-2" data-testid="navigation">
     <div class="flex items-center">
       <router-link :to="{ name: '/' }">
-        <Logo class="logo h-8" />
+        <Logo class="logo [&_.secondary-fill]:fill-secondary h-8" />
       </router-link>
 
       <div class="ml-auto flex items-center gap-2">
@@ -18,7 +18,7 @@
     </div>
 
     <transition name="fade">
-      <div v-show="show" class="flex h-[calc(100svh-65px)]">
+      <div v-show="show" class="flex h-[calc(100svh-55px)]">
         <SideMenu class="flex-1" />
       </div>
     </transition>
@@ -34,7 +34,8 @@ watch(route, () => {
   show.value = false;
 });
 </script>
-<style scoped lang="postcss">
+<style scoped>
+@import "@/main.css" reference;
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;
@@ -53,11 +54,5 @@ watch(route, () => {
 .fade-enter-from > div,
 .fade-leave-to > div {
   @apply -translate-y-10;
-}
-
-.logo {
-  :deep(.secondary-fill) {
-    @apply fill-secondary;
-  }
 }
 </style>

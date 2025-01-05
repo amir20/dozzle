@@ -29,7 +29,8 @@ const validValues = computed(() => {
 const showDrawer = useDrawer();
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
+@import "@/main.css" reference;
 .text-light {
   @apply text-base-content/70;
 }

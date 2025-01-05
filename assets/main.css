@@ -1,110 +1,134 @@
-@import "splitpanes/dist/splitpanes.css";
+@import "tailwindcss";
+@import "splitpanes/dist/splitpanes.css" layer(base);
+@plugin "daisyui";
+@plugin "@tailwindcss/typography";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-green: oklch(69% 0.119722 188.479048);
+  --color-red: oklch(64% 0.218 28.85);
+  --color-purple: oklch(51.49% 0.215 321.03);
+  --color-blue: oklch(65% 0.171 249.5);
+  --color-orange: oklch(70% 0.186 48.13);
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(25% 0 0);
+  --color-base-200: oklch(18% 0 0);
+  --color-base-300: oklch(11% 0 0);
+  --color-base-content: oklch(89.23% 0 0);
+  --color-primary: oklch(70.96% 0.143 176.65);
+  --color-primary-content: oklch(98% 0.01 240);
+  --color-secondary: oklch(81.38% 0.1448 90.1243);
+  --color-secondary-content: oklch(98% 0.01 200);
+
+  --color-neutral: oklch(50% 0.05 240);
+  --color-neutral-content: oklch(98% 0.01 240);
+
+  --color-info: var(--color-blue);
+  --color-info-content: oklch(98% 0.01 220);
+
+  --color-success: var(--color-green);
+  --color-success-content: oklch(98% 0.01 140);
+
+  --color-warning: var(--color-orange);
+  --color-success-content: oklch(98% 0.01 140);
+
+  --color-error: var(--color-red);
+  --color-error-content: oklch(98% 0.01 30);
+
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  --border: 1px;
+
+  --depth: 0;
+  --noise: 1;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(90% 0 0);
+  --color-base-content: oklch(33% 0 0);
+  --color-primary: oklch(79.96% 0.143 176.65);
+  --color-primary-content: oklch(98% 0.01 240);
+  --color-secondary: oklch(82.67% 0.15380739746702807 77.82);
+  --color-secondary-content: oklch(98% 0.01 200);
+
+  --color-neutral: oklch(50% 0.05 240);
+  --color-neutral-content: oklch(98% 0.01 240);
+
+  --color-info: var(--color-blue);
+  --color-info-content: oklch(98% 0.01 220);
+
+  --color-success: var(--color-green);
+  --color-success-content: oklch(98% 0.01 140);
+
+  --color-warning: var(--color-orange);
+  --color-success-content: oklch(98% 0.01 140);
+
+  --color-error: var(--color-red);
+  --color-error-content: oklch(98% 0.01 30);
+
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  --border: 1px;
+
+  --depth: 0;
+  --noise: 1;
+}
+
+@utility input {
+  @apply outline-hidden!;
+  &.input-ghost {
+    @apply focus:border-transparent;
+  }
+}
+
+@utility btn {
+  &:not(.btn-primary):not(.btn-secondary) {
+    @apply hover:bg-base-100;
+  }
+}
+
+@utility mobile-hidden {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+@utility menu-active {
+  &,
+  &:active {
+    --color-neutral: var(--color-primary);
+  }
+}
+
+@utility animate-bounce-fast {
+  animation: bounce 0.5s 2 both;
+}
+
+@utility link-primary {
+  @apply underline-offset-4 hover:underline;
+}
 
 @layer base {
-  :root {
-    --p: var(--primary-color);
-    --pc: 89.23% 0;
-    --s: var(--secondary-color);
-    --sc: 14.57% 0 0;
-    --b1: var(--base-lighter-color);
-    --b2: var(--base-color);
-    --b3: var(--base-darker-color);
-    --bc: var(--base-content-color);
-    --in: 65% 0.171 249.5;
-    --inc: 100% 0 0;
-    --er: 64% 0.218 28.85;
-    --su: 56% 0.119722 164.12;
-    --erc: 100% 0 0;
-    --wa: 70% 0.186 48.13;
-    --wac: 100% 0 0;
-    --n: var(--base-lighter-color);
-  }
-  html[data-theme="dark"] {
-    --base-lighter-color: 25% 0 0;
-    --base-color: 18% 0 0;
-    --base-darker-color: 11% 0 0;
-    --base-content-color: 89.23% 0 0;
-    --primary-color: 70.96% 0.143 176.65;
-    --secondary-color: 81.38% 0.1448 90.1243;
-  }
-
-  html[data-theme="light"] {
-    --base-lighter-color: 100% 0 0;
-    --base-color: 97% 0 0;
-    --base-darker-color: 90% 0 0;
-    --base-content-color: 33% 0 0;
-    --primary-color: 79.96% 0.143 176.65;
-    --secondary-color: 82.67% 0.15380739746702807 77.82;
-  }
-
   @media screen and (max-device-width: 480px) {
     body {
       -webkit-text-size-adjust: 100%;
     }
-  }
-
-  h1 {
-    @apply text-3xl;
-  }
-
-  h2 {
-    @apply text-2xl;
-  }
-
-  h3 {
-    @apply text-lg;
-  }
-
-  .events mark {
-    @apply inline-block rounded-sm bg-secondary;
-    animation: pops 200ms ease-out;
-  }
-
-  @keyframes pops {
-    0% {
-      transform: scale(1.5);
-    }
-    100% {
-      transform: scale(1.05);
-    }
-  }
-}
-
-@layer components {
-  .input {
-    @apply !outline-none;
-    &.input-ghost {
-      @apply focus:border-transparent;
-    }
-  }
-
-  .btn {
-    @apply font-normal normal-case;
-  }
-
-  .btn:not(.btn-primary):not(.btn-secondary) {
-    @apply hover:bg-base-lighter;
-  }
-}
-
-@layer utilities {
-  @media (max-width: 768px) {
-    .mobile-hidden {
-      display: none;
-    }
-  }
-
-  .active-primary {
-    --n: var(--p);
-    --nc: var(--pc);
-    @apply active;
-  }
-
-  .link-primary {
-    @apply underline-offset-4 hover:underline;
   }
 }

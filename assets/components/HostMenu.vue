@@ -26,7 +26,7 @@
         <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
           <ph:dots-three-vertical-bold />
         </label>
-        <ul tabindex="0" class="menu dropdown-content z-50 w-52 rounded-box bg-base p-1 shadow">
+        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 z-50 w-52 p-1 shadow-sm">
           <li>
             <a class="text-sm capitalize" @click="toggleShowAllContainers()">
               <mdi:check class="w-4" v-if="showAllContainers" />
@@ -44,7 +44,7 @@
     <template #left>
       <ul class="menu p-0">
         <li v-for="host in hosts" :key="host.id">
-          <a @click.prevent="setHost(host.id)" :class="{ 'pointer-events-none text-base-content/50': !host.available }">
+          <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
             <HostIcon :type="host.type" />
             {{ host.name }}
             <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
@@ -53,10 +53,10 @@
       </ul>
     </template>
     <template #right>
-      <ul class="containers menu p-0 [&_li.menu-title]:px-0">
+      <ul class="containers menu w-full p-0 [&_li.menu-title]:px-0">
         <li v-for="{ label, containers, icon } in menuItems" :key="label">
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
-            <summary class="font-light text-base-content/80">
+            <summary class="text-base-content/80 font-light">
               <component :is="icon" />
               {{ label.startsWith("label.") ? $t(label) : label }}
 
@@ -77,7 +77,7 @@
                 <Popup>
                   <router-link
                     :to="{ name: '/container/[id]', params: { id: item.id } }"
-                    active-class="active-primary"
+                    active-class="menu-active"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
                     class="group auto-cols-[auto_max-content_max-content]"
@@ -87,7 +87,7 @@
                     </div>
                     <ContainerHealth :health="item.health" />
                     <span
-                      class="hidden hover:text-secondary group-hover:inline-block"
+                      class="hover:text-secondary hidden group-hover:inline-block"
                       @click.stop.prevent="pinnedStore.pinContainer(item)"
                       v-show="!pinnedStore.isPinned(item)"
                       :title="$t('tooltip.pin-column')"
@@ -209,7 +209,7 @@ watchEffect(() => {
 
 const toggleShowAllContainers = () => (showAllContainers.value = !showAllContainers.value);
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .menu {
   @apply text-[0.95rem];
 }

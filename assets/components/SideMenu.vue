@@ -10,7 +10,7 @@
     </Carousel>
   </div>
   <div role="status" class="flex animate-pulse flex-col gap-4" v-else>
-    <div class="h-3 w-full rounded-full bg-base-content/50 opacity-50" v-for="_ in 9"></div>
+    <div class="bg-base-content/50 h-3 w-full rounded-full opacity-50" v-for="_ in 9"></div>
     <span class="sr-only">Loading...</span>
   </div>
 </template>
@@ -35,4 +35,4 @@ watch(
   { immediate: true },
 );
 </script>
-<style scoped lang="postcss"></style>
+<style scoped></style>

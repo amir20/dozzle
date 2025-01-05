@@ -19,7 +19,7 @@
           @click="scrollToItem(index)"
           :class="[
             'size-2 rounded-full transition-all duration-700',
-            activeIndex === index ? 'scale-125 bg-primary' : 'bg-base-content/50 hover:bg-base-content',
+            activeIndex === index ? 'bg-primary scale-125' : 'bg-base-content/50 hover:bg-base-content',
           ]"
           :aria-label="c.props?.title"
           :title="c.props?.title"

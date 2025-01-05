@@ -1,5 +1,5 @@
 <template>
-  <div class="animate-background h-1 w-1/2 bg-gradient-radial to-transparent to-75%" :class="colorClass"></div>
+  <div class="animate-background h-1 w-1/2 bg-radial to-transparent to-75%" :class="colorClass"></div>
 </template>
 <script setup lang="ts">
 const { color = "primary" } = defineProps<{ color: "primary" | "error" | "secondary" }>();
@@ -16,7 +16,7 @@ const colorClass = computed(() => {
 });
 </script>
 
-<style scoped lang="postcss">
+<style scoped>
 .animate-background {
   animation: gradient-animation 3s ease-out infinite;
 }

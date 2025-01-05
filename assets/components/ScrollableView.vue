@@ -2,19 +2,19 @@
   <section :class="{ 'h-screen min-h-0': scrollable }" class="flex flex-col">
     <header
       v-if="$slots.header"
-      class="sticky top-[65px] z-[2] border-b border-base-content/10 bg-base py-2 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0"
+      class="border-base-content/10 bg-base-200 sticky top-[55px] z-2 border-b py-2 shadow-[1px_1px_2px_0_rgb(0,0,0,0.05)] md:top-0"
     >
       <slot name="header"></slot>
     </header>
     <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
       <div class="invisible relative md:visible" v-show="scrollContext.paused">
-        <div class="absolute right-44 top-4">
+        <div class="absolute top-4 right-44">
           <ScrollProgress
             :indeterminate="loadingMore"
             :auto-hide="!loadingMore"
             :progress="scrollContext.progress"
             :date="scrollContext.currentDate"
-            class="!fixed z-10 min-w-40"
+            class="fixed! z-10 min-w-40"
           />
         </div>
       </div>
@@ -28,7 +28,7 @@
     <div class="mr-16 text-right">
       <transition name="fade">
         <button
-          class="transition-colorsblur-xs dark btn btn-primary fixed bottom-8 rounded p-3 text-primary-content shadow"
+          class="transition-colorsblur-xs dark btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"
@@ -77,7 +77,7 @@ function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   hasMore.value = false;
 }
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;

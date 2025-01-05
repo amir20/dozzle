@@ -3,7 +3,9 @@
     <summary class="btn btn-primary flex-nowrap" v-bind="$attrs">
       <slot name="trigger"> {{ label }} <carbon:caret-down /></slot>
     </summary>
-    <ul class="menu dropdown-content z-50 mt-1 w-52 rounded-box border border-base-content/20 bg-base p-2 shadow">
+    <ul
+      class="menu dropdown-content rounded-box border-base-content/20 bg-base-200 z-50 mt-1 w-52 border p-2 shadow-sm"
+    >
       <slot>
         <li v-for="item in options">
           <a @click="update(item.value as T)">

@@ -2,21 +2,21 @@
   <ul class="space-y-4 p-2">
     <li v-for="release in releases" v-if="releases?.length">
       <div class="flex items-baseline gap-1">
-        <carbon:warning class="self-center stroke-orange" v-if="release.breaking > 0" />
+        <carbon:warning class="stroke-orange self-center" v-if="release.breaking > 0" />
         <a :href="release.htmlUrl" class="link-primary text-lg font-bold" target="_blank" rel="noreferrer noopener">
           {{ release.name }}
         </a>
         <span class="ml-1 text-xs"><distance-time :date="new Date(release.createdAt)" /></span>
-        <Tag class="ml-auto bg-red px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
+        <Tag class="bg-red ml-auto px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
           {{ $t("releases.latest") }}
         </Tag>
       </div>
-      <div class="text-sm text-base-content/80">
+      <div class="text-base-content/80 text-sm">
         {{ summary(release) }}
       </div>
     </li>
     <li v-else>
-      <div class="text-sm text-base-content/80">
+      <div class="text-base-content/80 text-sm">
         {{ $t("releases.no_releases") }}
       </div>
     </li>

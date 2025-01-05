@@ -14,7 +14,8 @@ defineProps<{
 }>();
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
+@import "@/main.css" reference;
 [health="unhealthy"] {
   @apply text-red;
 }

@@ -6,7 +6,7 @@
       :title="t('log_actions.copy_log')"
     >
       <span
-        class="rounded bg-slate-800/60 px-1.5 py-1 text-primary hover:bg-slate-700"
+        class="text-primary rounded-sm bg-slate-800/60 px-1.5 py-1 hover:bg-slate-700"
         @click.prevent="copyLogMessageToClipBoard()"
       >
         <carbon:copy-file />

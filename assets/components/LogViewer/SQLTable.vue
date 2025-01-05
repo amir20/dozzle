@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-zebra table-pin-rows table-md" v-if="!loading">
+  <table class="table-zebra table-pin-rows table-md table" v-if="!loading">
     <thead>
       <tr>
         <th v-for="column in columns" :key="column">{{ column }}</th>
@@ -11,18 +11,18 @@
       </tr>
     </tbody>
   </table>
-  <table class="table table-md animate-pulse" v-else>
+  <table class="table-md table animate-pulse" v-else>
     <thead>
       <tr>
         <th v-for="_ in 3">
-          <div class="h-4 w-20 animate-pulse bg-base-content/50 opacity-50"></div>
+          <div class="bg-base-content/50 h-4 w-20 animate-pulse opacity-50"></div>
         </th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="_ in 9">
         <td v-for="_ in 3">
-          <div class="h-4 w-20 bg-base-content/50 opacity-20"></div>
+          <div class="bg-base-content/50 h-4 w-20 opacity-20"></div>
         </td>
       </tr>
     </tbody>

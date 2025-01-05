@@ -3,7 +3,7 @@
     <div class="inline-flex flex-col items-end gap-2" ref="root" v-show="!autoHide || show">
       <div class="relative inline-block">
         <svg width="100" height="100" viewBox="0 0 100 100" :class="{ indeterminate }">
-          <circle r="44" cx="50" cy="50" class="fill-base-darker stroke-primary" />
+          <circle r="44" cx="50" cy="50" class="fill-base-300 stroke-primary" />
         </svg>
         <div class="absolute inset-0 flex items-center justify-center font-light">
           <span class="text-4xl">
@@ -12,7 +12,7 @@
           <span> % </span>
         </div>
       </div>
-      <DistanceTime :date="date" class="whitespace-nowrap text-sm" />
+      <DistanceTime :date="date" class="text-sm whitespace-nowrap" />
     </div>
   </transition>
 </template>
@@ -41,7 +41,7 @@ watch(
   },
 );
 </script>
-<style scoped lang="postcss">
+<style scoped>
 svg {
   filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.2));
   margin-top: 5px;

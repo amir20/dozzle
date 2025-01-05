@@ -18,7 +18,7 @@ watchEffect(() => {
   document.documentElement.setAttribute("data-theme", theme);
 });
 </script>
-<style lang="postcss">
+<style>
 html.has-custom-scrollbars {
   ::-webkit-scrollbar {
     width: 8px;

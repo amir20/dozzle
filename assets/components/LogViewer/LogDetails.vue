@@ -1,6 +1,6 @@
 <template>
   <header class="flex items-center gap-4">
-    <Tag :data-level="entry.level" class="uppercase text-white" v-if="entry.level">{{ entry.level }}</Tag>
+    <Tag :data-level="entry.level" class="text-white uppercase" v-if="entry.level">{{ entry.level }}</Tag>
     <h1 class="mobile-hidden text-lg">
       <DateTime :date="entry.date" />
     </h1>
@@ -26,21 +26,21 @@
     </section>
 
     <section class="flex flex-col gap-2">
-      <div class="flex gap-2 font-thin">
+      <div class="flex gap-2">
         Raw JSON
 
         <UseClipboard v-slot="{ copy, copied }" :source="JSON.stringify(entry.unfilteredMessage)">
-          <button class="swap swap-flip outline-none" @click="copy()" :class="{ 'hover:swap-active': copied }">
+          <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
             <mdi:content-copy class="swap-off" />
           </button>
         </UseClipboard>
       </div>
-      <div class="max-h-48 overflow-scroll rounded border border-base-lighter bg-base-darker p-2">
+      <div class="bg-base-200 max-h-48 overflow-scroll rounded-sm border border-white/20 p-2">
         <pre v-html="syntaxHighlight(entry.unfilteredMessage)"></pre>
       </div>
     </section>
-    <table class="table table-pin-rows table-fixed" v-if="entry instanceof ComplexLogEntry">
+    <table class="table-pin-rows table table-fixed" v-if="entry instanceof ComplexLogEntry">
       <caption class="caption-bottom">
         Fields are sortable by dragging and dropping.
       </caption>
@@ -55,7 +55,7 @@
       </thead>
       <tbody ref="list">
         <tr v-for="{ key, value, enabled } in fields" :key="key.join('.')" class="hover">
-          <td class="cursor-move break-all font-mono">
+          <td class="cursor-move font-mono break-all">
             {{ key.join(".") }}
           </td>
           <td class="mobile-hidden truncate">
@@ -164,7 +164,8 @@ function syntaxHighlight(json: any) {
 
 useSortable(list, fields);
 </script>
-<style lang="postcss" scoped>
+<style scoped>
+@import "@/main.css" reference;
 .font-mono {
   font-family:
     ui-monospace,
@@ -178,19 +179,19 @@ useSortable(list, fields);
 }
 
 pre {
-  :deep(.json-key) {
+  & :deep(.json-key) {
     @apply text-blue;
   }
-  :deep(.json-string) {
+  & :deep(.json-string) {
     @apply text-green;
   }
-  :deep(.json-number) {
+  & :deep(.json-number) {
     @apply text-orange;
   }
-  :deep(.json-boolean) {
+  & :deep(.json-boolean) {
     @apply text-purple;
   }
-  :deep(.json-null) {
+  & :deep(.json-null) {
     @apply text-red;
   }
 }
