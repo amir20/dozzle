@@ -119,19 +119,13 @@
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
-      <div>
-        <toggle v-model="search">
-          {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
-        </toggle>
-      </div>
+      <Toggle v-model="search">
+        {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
+      </Toggle>
 
-      <div>
-        <toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</toggle>
-      </div>
+      <Toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</Toggle>
 
-      <div>
-        <toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</toggle>
-      </div>
+      <Toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</Toggle>
     </section>
   </PageWithLinks>
 </template>
