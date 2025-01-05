@@ -16,6 +16,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { data } from "../../activity.data.ts";
+import { data } from "../../activity.data";
 import Counter from "./Counter.vue";
 </script>
