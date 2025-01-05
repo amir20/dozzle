@@ -39,14 +39,14 @@
 
         <div class="flex flex-row gap-4 md:gap-8" v-if="weightedStats[host.id]">
           <div
-            class="radial-progress text-primary text-sm [--size:4rem] [--thickness:0.25em] md:text-base md:[--size:5rem]"
+            class="radial-progress text-primary text-sm transition-none [--size:4rem] [--thickness:0.25em] md:text-base md:[--size:5rem]"
             :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalCPU / (host.nCPU * 100)) * 100)};  `"
             role="progressbar"
           >
             {{ weightedStats[host.id].weighted.totalCPU.toFixed(0) }}%
           </div>
           <div
-            class="radial-progress text-primary text-sm [--size:4rem] [--thickness:0.25em] md:text-base md:[--size:5rem]"
+            class="radial-progress text-primary text-sm transition-none [--size:4rem] [--thickness:0.25em] md:text-base md:[--size:5rem]"
             :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalMem / host.memTotal) * 100)};`"
             role="progressbar"
           >
