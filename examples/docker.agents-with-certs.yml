@@ -10,7 +10,7 @@ services:
       - source: key
         target: /dozzle_key.pem
     ports:
-      - 7070:7070
+      - 7007:7007
 secrets:
   cert:
     file: ./cert.pem
