@@ -4,13 +4,13 @@
       <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
         <label class="form-control w-full">
           <label
-            class="input input-bordered has-[:focus]:input-primary flex items-center gap-2 border-2"
+            class="input floating-label input-bordered has-[:focus]:input-primary flex items-center gap-2 border-2"
             :class="{ 'input-error': error }"
           >
+            <span class="ml-5">{{ $t("label.username") }}</span>
             <mdi:account class="has-[+:focus]:text-primary" :class="{ 'text-error': error }" />
             <input
               type="text"
-              class="grow"
               :class="{ 'text-error': error }"
               :placeholder="$t('label.username')"
               name="username"
@@ -27,11 +27,13 @@
           </label>
         </label>
         <label class="form-control w-full">
-          <label class="input input-bordered has-[:focus]:input-primary flex items-center gap-2 border-2">
+          <label
+            class="input floating-label input-bordered has-[:focus]:input-primary flex items-center gap-2 border-2"
+          >
+            <span class="ml-5">{{ $t("label.password") }}</span>
             <mdi:key class="has-[+:focus]:text-primary" />
             <input
               type="password"
-              class="grow"
               :placeholder="$t('label.password')"
               name="password"
               autocomplete="current-password"
