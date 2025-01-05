@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui" {
+  include: stat;
+}
 
 /**
  * Customize default theme styling by overriding CSS variables:
