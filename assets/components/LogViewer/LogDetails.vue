@@ -36,7 +36,7 @@
           </button>
         </UseClipboard>
       </div>
-      <div class="border-base-100 bg-base-darker max-h-48 overflow-scroll rounded-sm border p-2">
+      <div class="bg-base-200 max-h-48 overflow-scroll rounded-sm border border-white/20 p-2">
         <pre v-html="syntaxHighlight(entry.unfilteredMessage)"></pre>
       </div>
     </section>
@@ -179,19 +179,19 @@ useSortable(list, fields);
 }
 
 pre {
-  :deep(.json-key) {
+  & :deep(.json-key) {
     @apply text-blue;
   }
-  :deep(.json-string) {
+  & :deep(.json-string) {
     @apply text-green;
   }
-  :deep(.json-number) {
+  & :deep(.json-number) {
     @apply text-orange;
   }
-  :deep(.json-boolean) {
+  & :deep(.json-boolean) {
     @apply text-purple;
   }
-  :deep(.json-null) {
+  & :deep(.json-null) {
     @apply text-red;
   }
 }
