@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown dropdown-open w-full">
-    <div class="input input-lg input-primary flex w-full items-center">
+    <div class="input input-xl input-primary flex w-full items-center">
       <mdi:magnify class="flex size-8" />
       <input
         tabindex="0"
@@ -24,12 +24,12 @@
       class="dropdown-content bg-base-100 relative! mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent px-2"
       v-if="results.length"
     >
-      <ul tabindex="0" class="menu">
+      <ul tabindex="0" class="menu w-auto">
         <li v-for="(result, index) in data" ref="listItems">
           <a
             class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
             @click.prevent="selected(result.item)"
-            :class="index === selectedIndex ? 'focus' : ''"
+            :class="index === selectedIndex ? 'menu-focus' : ''"
           >
             <div :class="{ 'text-primary': result.item.state === 'running' }">
               <template v-if="result.item.type === 'container'">
@@ -84,6 +84,12 @@ const { visibleContainers } = storeToRefs(containerStore);
 
 const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
+
+// useFocus(input, { initialValue: true }); // todo fix this
+
+watchOnce(input, () => {
+  setTimeout(() => input.value?.focus(), 100);
+});
 
 type Item = {
   id: string;
@@ -166,8 +172,6 @@ watch(query, (data) => {
 watch(selectedIndex, () => {
   listItems.value?.[selectedIndex.value].scrollIntoView({ block: "end" });
 });
-
-useFocus(input, { initialValue: true });
 
 function selected(item: Item) {
   if (item.type === "container") {
