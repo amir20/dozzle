@@ -70,6 +70,7 @@ onMounted(async () => {
   if (!("anchorName" in document.documentElement.style)) {
     // @ts-ignore
     const module = await import("@oddbird/css-anchor-positioning/fn");
+    // @ts-ignore
     await module.default([wrapper.value]);
   }
 });
