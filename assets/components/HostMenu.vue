@@ -83,7 +83,7 @@
                     class="group auto-cols-[auto_max-content_max-content]"
                   >
                     <div class="truncate">
-                      {{ item.name }}<span class="font-light opacity-70" v-if="item.isSwarm">.{{ item.swarmId }}</span>
+                      {{ item.name }}
                     </div>
                     <ContainerHealth :health="item.health" />
                     <span

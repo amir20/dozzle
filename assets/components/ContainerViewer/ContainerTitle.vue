@@ -5,16 +5,14 @@
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
-    <div class="inline-flex font-mono text-sm">
-      <div v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
-        {{ container.hostLabel }}<span class="mx-2">/</span>
-      </div>
-      <div class="font-semibold">{{ container.name }}</div>
-      <div
-        class="mobile-hidden max-w-[1.5em] truncate transition-[max-width] hover:max-w-[400px]"
-        v-if="container.isSwarm"
-      >
-        .{{ container.swarmId }}
+    <div class="inline-flex items-center font-mono text-sm">
+      <div class="breadcrumbs p-0">
+        <ul>
+          <li v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
+            {{ container.hostLabel }}
+          </li>
+          <li class="font-semibold">{{ container.name }}</li>
+        </ul>
       </div>
     </div>
     <ContainerHealth :health="container.health" v-if="container.health" />
