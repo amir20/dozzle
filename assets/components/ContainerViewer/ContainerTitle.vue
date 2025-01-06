@@ -44,7 +44,6 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import polyfill from "@oddbird/css-anchor-positioning/fn";
 
 const { container } = defineProps<{ container: Container }>();
 const pinned = computed({
@@ -67,10 +66,11 @@ const otherContainers = computed(() =>
 );
 const wrapper = useTemplateRef("wrapper");
 
-onMounted(() => {
+onMounted(async () => {
   if (!("anchorName" in document.documentElement.style)) {
     // @ts-ignore
-    polyfill([wrapper.value]);
+    const module = await import("@oddbird/css-anchor-positioning/fn");
+    await module.default([wrapper.value]);
   }
 });
 </script>
