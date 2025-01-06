@@ -10,7 +10,7 @@
     </span>
   </div>
   <div v-if="container.state != 'running' && container.finishedAt.getFullYear() > 0">
-    <span class="font-light capitalize"> Finished </span>
+    <span class="font-light capitalize"> FINISHED </span>
     <span class="font-semibold">
       <DistanceTime :date="container.finishedAt" strict />
     </span>
