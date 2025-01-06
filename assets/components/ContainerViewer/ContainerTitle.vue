@@ -12,7 +12,7 @@
             {{ container.hostLabel }}
           </li>
           <li>
-            <div class="wrapper">
+            <div class="wrapper" ref="wrapper">
               <button popovertarget="popover-container-list" class="btn btn-sm anchor font-mono">
                 {{ container.name }} <carbon:caret-down />
               </button>
@@ -65,8 +65,14 @@ const otherContainers = computed(() =>
     (a, b) => +b.created - +a.created,
   ),
 );
+const wrapper = useTemplateRef("wrapper");
 
-onMounted(async () => await polyfill());
+onMounted(() => {
+  if (!("anchorName" in document.documentElement.style)) {
+    // @ts-ignore
+    polyfill([wrapper.value]);
+  }
+});
 </script>
 
 <style scoped>
@@ -80,6 +86,10 @@ onMounted(async () => await polyfill());
 }
 
 .tethered {
+  margin: 0;
+  padding: 0;
   position-anchor: --anchor;
+  top: anchor(bottom);
+  left: anchor(left);
 }
 </style>
