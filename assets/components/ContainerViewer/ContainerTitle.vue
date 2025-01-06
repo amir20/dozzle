@@ -92,6 +92,7 @@ onMounted(async () => {
   margin: 0;
   padding: 0;
   position-anchor: --anchor;
+  position: absolute;
   top: anchor(bottom);
   left: anchor(left);
 }
