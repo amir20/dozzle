@@ -13,7 +13,7 @@
           </li>
           <li>
             <div class="wrapper" ref="wrapper">
-              <button popovertarget="popover-container-list" class="btn btn-sm anchor font-mono">
+              <button popovertarget="popover-container-list" class="btn btn-xs md:btn-sm anchor font-mono">
                 {{ container.name }} <carbon:caret-down />
               </button>
               <ul popover id="popover-container-list" class="dropdown menu rounded-box bg-base-100 tethered shadow-sm">
