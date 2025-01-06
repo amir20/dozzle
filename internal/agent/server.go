@@ -186,18 +186,19 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 
 	return &pb.FindContainerResponse{
 		Container: &pb.Container{
-			Id:      container.ID,
-			Name:    container.Name,
-			Image:   container.Image,
-			Command: container.Command,
-			Created: timestamppb.New(container.Created),
-			State:   container.State,
-			Health:  container.Health,
-			Host:    container.Host,
-			Tty:     container.Tty,
-			Labels:  container.Labels,
-			Group:   container.Group,
-			Started: timestamppb.New(container.StartedAt),
+			Id:       container.ID,
+			Name:     container.Name,
+			Image:    container.Image,
+			Command:  container.Command,
+			Created:  timestamppb.New(container.Created),
+			State:    container.State,
+			Health:   container.Health,
+			Host:     container.Host,
+			Tty:      container.Tty,
+			Labels:   container.Labels,
+			Group:    container.Group,
+			Started:  timestamppb.New(container.StartedAt),
+			Finished: timestamppb.New(container.FinishedAt),
 		},
 	}, nil
 }
@@ -229,19 +230,20 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 		}
 
 		pbContainers = append(pbContainers, &pb.Container{
-			Id:      container.ID,
-			Name:    container.Name,
-			Image:   container.Image,
-			Created: timestamppb.New(container.Created),
-			State:   container.State,
-			Health:  container.Health,
-			Host:    container.Host,
-			Tty:     container.Tty,
-			Labels:  container.Labels,
-			Group:   container.Group,
-			Started: timestamppb.New(container.StartedAt),
-			Stats:   pbStats,
-			Command: container.Command,
+			Id:       container.ID,
+			Name:     container.Name,
+			Image:    container.Image,
+			Created:  timestamppb.New(container.Created),
+			State:    container.State,
+			Health:   container.Health,
+			Host:     container.Host,
+			Tty:      container.Tty,
+			Labels:   container.Labels,
+			Group:    container.Group,
+			Started:  timestamppb.New(container.StartedAt),
+			Finished: timestamppb.New(container.FinishedAt),
+			Stats:    pbStats,
+			Command:  container.Command,
 		})
 	}
 
@@ -274,17 +276,18 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 		case container := <-containers:
 			out.Send(&pb.StreamContainerStartedResponse{
 				Container: &pb.Container{
-					Id:      container.ID,
-					Name:    container.Name,
-					Image:   container.Image,
-					Created: timestamppb.New(container.Created),
-					State:   container.State,
-					Health:  container.Health,
-					Host:    container.Host,
-					Tty:     container.Tty,
-					Labels:  container.Labels,
-					Group:   container.Group,
-					Started: timestamppb.New(container.StartedAt),
+					Id:       container.ID,
+					Name:     container.Name,
+					Image:    container.Image,
+					Created:  timestamppb.New(container.Created),
+					State:    container.State,
+					Health:   container.Health,
+					Host:     container.Host,
+					Tty:      container.Tty,
+					Labels:   container.Labels,
+					Group:    container.Group,
+					Started:  timestamppb.New(container.StartedAt),
+					Finished: timestamppb.New(container.FinishedAt),
 				},
 			})
 		case <-out.Context().Done():

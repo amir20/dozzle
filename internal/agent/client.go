@@ -253,18 +253,19 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- dock
 		}
 
 		containers <- docker.Container{
-			ID:        resp.Container.Id,
-			Name:      resp.Container.Name,
-			Image:     resp.Container.Image,
-			Labels:    resp.Container.Labels,
-			Group:     resp.Container.Group,
-			Created:   resp.Container.Created.AsTime(),
-			State:     resp.Container.State,
-			Health:    resp.Container.Health,
-			Host:      resp.Container.Host,
-			Tty:       resp.Container.Tty,
-			StartedAt: resp.Container.Started.AsTime(),
-			Command:   resp.Container.Command,
+			ID:         resp.Container.Id,
+			Name:       resp.Container.Name,
+			Image:      resp.Container.Image,
+			Labels:     resp.Container.Labels,
+			Group:      resp.Container.Group,
+			Created:    resp.Container.Created.AsTime(),
+			State:      resp.Container.State,
+			Health:     resp.Container.Health,
+			Host:       resp.Container.Host,
+			Tty:        resp.Container.Tty,
+			StartedAt:  resp.Container.Started.AsTime(),
+			FinishedAt: resp.Container.Finished.AsTime(),
+			Command:    resp.Container.Command,
 		}
 	}
 }
@@ -287,19 +288,20 @@ func (c *Client) FindContainer(ctx context.Context, containerID string) (docker.
 	}
 
 	return docker.Container{
-		ID:        response.Container.Id,
-		Name:      response.Container.Name,
-		Image:     response.Container.Image,
-		Labels:    response.Container.Labels,
-		Group:     response.Container.Group,
-		Created:   response.Container.Created.AsTime(),
-		State:     response.Container.State,
-		Health:    response.Container.Health,
-		Host:      response.Container.Host,
-		Tty:       response.Container.Tty,
-		Command:   response.Container.Command,
-		StartedAt: response.Container.Started.AsTime(),
-		Stats:     utils.RingBufferFrom(300, stats),
+		ID:         response.Container.Id,
+		Name:       response.Container.Name,
+		Image:      response.Container.Image,
+		Labels:     response.Container.Labels,
+		Group:      response.Container.Group,
+		Created:    response.Container.Created.AsTime(),
+		State:      response.Container.State,
+		Health:     response.Container.Health,
+		Host:       response.Container.Host,
+		Tty:        response.Container.Tty,
+		Command:    response.Container.Command,
+		StartedAt:  response.Container.Started.AsTime(),
+		FinishedAt: response.Container.Finished.AsTime(),
+		Stats:      utils.RingBufferFrom(300, stats),
 	}, nil
 }
 
@@ -331,19 +333,20 @@ func (c *Client) ListContainers(ctx context.Context, filter docker.ContainerFilt
 		}
 
 		containers = append(containers, docker.Container{
-			ID:        container.Id,
-			Name:      container.Name,
-			Image:     container.Image,
-			Labels:    container.Labels,
-			Group:     container.Group,
-			Created:   container.Created.AsTime(),
-			State:     container.State,
-			Health:    container.Health,
-			Host:      container.Host,
-			Tty:       container.Tty,
-			Command:   container.Command,
-			StartedAt: container.Started.AsTime(),
-			Stats:     utils.RingBufferFrom(300, stats),
+			ID:         container.Id,
+			Name:       container.Name,
+			Image:      container.Image,
+			Labels:     container.Labels,
+			Group:      container.Group,
+			Created:    container.Created.AsTime(),
+			State:      container.State,
+			Health:     container.Health,
+			Host:       container.Host,
+			Tty:        container.Tty,
+			Command:    container.Command,
+			StartedAt:  container.Started.AsTime(),
+			FinishedAt: container.Finished.AsTime(),
+			Stats:      utils.RingBufferFrom(300, stats),
 		})
 	}
 
