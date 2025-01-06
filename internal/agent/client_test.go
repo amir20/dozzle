@@ -124,7 +124,10 @@ func init() {
 		Labels: map[string]string{
 			"test": "test",
 		},
-		Stats: utils.NewRingBuffer[docker.ContainerStat](300),
+		Stats:      utils.NewRingBuffer[docker.ContainerStat](300),
+		Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+		StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+		FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	}, nil)
 
 	server, _ := NewServer(client, certs, "test", docker.ContainerFilter{})
@@ -157,7 +160,10 @@ func TestFindContainer(t *testing.T) {
 		Labels: map[string]string{
 			"test": "test",
 		},
-		Stats: utils.NewRingBuffer[docker.ContainerStat](300),
+		Stats:      utils.NewRingBuffer[docker.ContainerStat](300),
+		Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+		StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+		FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	})
 }
 
@@ -183,7 +189,10 @@ func TestListContainers(t *testing.T) {
 			Labels: map[string]string{
 				"test": "test",
 			},
-			Stats: utils.NewRingBuffer[docker.ContainerStat](300),
+			Stats:      utils.NewRingBuffer[docker.ContainerStat](300),
+			Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		},
 	})
 }

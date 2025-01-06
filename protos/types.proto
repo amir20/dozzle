@@ -12,7 +12,7 @@ message Container {
   string image = 3;
   string status = 4; // deprecated
   string state = 5;
-  string ImageId = 6;
+  string ImageId = 6; // deprecated
   google.protobuf.Timestamp created = 7;
   google.protobuf.Timestamp started = 8;
   string health = 9;
@@ -22,6 +22,7 @@ message Container {
   repeated ContainerStat stats = 13;
   string group = 14;
   string command = 15;
+  google.protobuf.Timestamp finished = 16;
 }
 
 message ContainerStat {
