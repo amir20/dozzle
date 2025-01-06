@@ -5,30 +5,28 @@
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
-    <div class="inline-flex items-center font-mono text-sm">
+    <div class="inline-flex items-center text-sm">
       <div class="breadcrumbs p-0">
         <ul>
           <li v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
             {{ container.hostLabel }}
           </li>
           <li>
-            <div>
-              <button
-                popovertarget="popover-container-list"
-                class="btn btn-sm"
-                style="anchor-name: --anchor-popover-container-list"
-              >
+            <div class="wrapper">
+              <button popovertarget="popover-container-list" class="btn btn-sm anchor font-mono">
                 {{ container.name }} <carbon:caret-down />
               </button>
-              <ul
-                class="dropdown menu rounded-box bg-base-100 w-52 shadow-sm"
-                popover
-                id="popover-container-list"
-                style="position-anchor: --anchor-popover-container-list"
-              >
+              <ul popover id="popover-container-list" class="dropdown menu rounded-box bg-base-100 tethered shadow-sm">
                 <li v-for="other in otherContainers">
                   <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
-                    {{ other.name }}
+                    <div
+                      class="status data-[state=exited]:status-error data-[state=running]:status-success"
+                      :data-state="other.state"
+                    ></div>
+                    <div class="font-mono" v-if="other.isSwarm">{{ other.swarmId }}</div>
+                    <div class="font-mono" v-else>{{ other.name }}</div>
+                    <div v-if="other.state === 'running'">running</div>
+                    <DistanceTime :date="other.created" strict class="text-base-content/70 text-xs" v-else />
                   </router-link>
                 </li>
               </ul>
@@ -46,6 +44,7 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
+import polyfill from "@oddbird/css-anchor-positioning/fn";
 
 const { container } = defineProps<{ container: Container }>();
 const pinned = computed({
@@ -62,6 +61,25 @@ const store = useContainerStore();
 const { containers: allContainers } = storeToRefs(store);
 
 const otherContainers = computed(() =>
-  [...allContainers.value.filter((c) => c.name === container.name)].sort((a, b) => +b.created - +a.created),
+  [...allContainers.value.filter((c) => c.name === container.name && c.id !== container.id)].sort(
+    (a, b) => +b.created - +a.created,
+  ),
 );
+
+onMounted(async () => await polyfill());
 </script>
+
+<style scoped>
+/* https://github.com/oddbird/css-anchor-positioning/issues/282 */
+.wrapper {
+  anchor-scope: --anchor;
+}
+
+.anchor {
+  anchor-name: --anchor;
+}
+
+.tethered {
+  position-anchor: --anchor;
+}
+</style>

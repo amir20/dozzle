@@ -6,5 +6,4 @@ const app = createApp(App);
 Object.values(import.meta.glob<{ install: (app: VueApp) => void }>("./modules/*.ts", { eager: true })).forEach((i) =>
   i.install?.(app),
 );
-
 app.mount("#app");
