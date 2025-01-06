@@ -3,7 +3,11 @@
     <template #header v-if="showTitle">
       <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <ContainerTitle :container="container" />
-        <MultiContainerStat class="ml-auto lg:hidden lg:@3xl:flex" :containers="[container]" />
+        <MultiContainerStat
+          class="ml-auto lg:hidden lg:@3xl:flex"
+          :containers="[container]"
+          v-if="container.state === 'running'"
+        />
 
         <ContainerActionsToolbar @clear="viewer?.clear()" class="mobile-hidden" :container="container" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
