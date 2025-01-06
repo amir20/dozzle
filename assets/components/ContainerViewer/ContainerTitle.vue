@@ -12,10 +12,12 @@
             {{ container.hostLabel }}
           </li>
           <li>
-            <div class="wrapper" ref="wrapper">
+            <div v-if="otherContainers.length === 0" class="font-mono">{{ container.name }}</div>
+            <div class="wrapper" ref="wrapper" v-else>
               <button popovertarget="popover-container-list" class="btn btn-xs md:btn-sm anchor font-mono">
                 {{ container.name }} <carbon:caret-down />
               </button>
+
               <ul popover id="popover-container-list" class="dropdown menu rounded-box bg-base-100 tethered shadow-sm">
                 <li v-for="other in otherContainers">
                   <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
