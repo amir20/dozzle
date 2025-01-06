@@ -1,5 +1,5 @@
 <template>
-  <div class="@container flex flex-1 gap-1.5 truncate md:gap-2">
+  <div class="@container flex flex-1 items-center gap-1.5 truncate md:gap-2">
     <label class="swap swap-rotate size-4">
       <input type="checkbox" v-model="pinned" />
       <carbon:star-filled class="swap-on text-secondary" />
@@ -11,7 +11,29 @@
           <li v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
             {{ container.hostLabel }}
           </li>
-          <li class="font-semibold">{{ container.name }}</li>
+          <li>
+            <div>
+              <button
+                popovertarget="popover-container-list"
+                class="btn btn-sm"
+                style="anchor-name: --anchor-popover-container-list"
+              >
+                {{ container.name }} <carbon:caret-down />
+              </button>
+              <ul
+                class="dropdown menu rounded-box bg-base-100 w-52 shadow-sm"
+                popover
+                id="popover-container-list"
+                style="position-anchor: --anchor-popover-container-list"
+              >
+                <li v-for="other in otherContainers">
+                  <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
+                    {{ other.name }}
+                  </router-link>
+                </li>
+              </ul>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -36,4 +58,10 @@ const pinned = computed({
     }
   },
 });
+const store = useContainerStore();
+const { containers: allContainers } = storeToRefs(store);
+
+const otherContainers = computed(() =>
+  [...allContainers.value.filter((c) => c.name === container.name)].sort((a, b) => +b.created - +a.created),
+);
 </script>
