@@ -80,8 +80,12 @@
                     active-class="menu-active"
                     @click.alt.stop.prevent="pinnedStore.pinContainer(item)"
                     :title="item.name"
-                    class="group auto-cols-[auto_max-content_max-content]"
+                    class="group auto-cols-[content_max_auto_max-content_max-content]"
                   >
+                    <div
+                      class="status data-[state=exited]:status-error data-[state=running]:status-success"
+                      :data-state="item.state"
+                    ></div>
                     <div class="truncate">
                       {{ item.name }}
                     </div>
@@ -215,7 +219,7 @@ const toggleShowAllContainers = () => (showAllContainers.value = !showAllContain
 }
 
 li.exited {
-  @apply opacity-50;
+  @apply opacity-75;
 }
 
 li.deleted {
