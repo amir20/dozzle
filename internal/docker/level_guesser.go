@@ -67,6 +67,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 				}
 			}
 
+			// Look for the level in the middle of the message that are uppercase and surrounded by quotes
+			if strings.Contains(value, "\""+strings.ToUpper(first)+"\"") {
+				return first
+			}
+
 			// Look for the level in the middle of the message that are uppercase
 			if strings.Contains(value, " "+strings.ToUpper(first)+" ") {
 				return first
