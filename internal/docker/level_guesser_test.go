@@ -15,6 +15,10 @@ func TestGuessLogLevel(t *testing.T) {
 	}{
 		{"2024/12/30 12:21AM INF this is a test", "info"},
 		{"2024-12-30T17:43:16Z DBG loggging debug from here", "debug"},
+		{"2025-01-07 15:40:15,784 LL=\"ERROR\" some message", "error"},
+		{"2025-01-07 15:40:15,784 LL=\"WARN\" some message", "warn"},
+		{"2025-01-07 15:40:15,784 LL=\"INFO\" some message", "info"},
+		{"2025-01-07 15:40:15,784 LL=\"DEBUG\" some message", "debug"},
 		{"ERROR: Something went wrong", "error"},
 		{"WARN: Something might be wrong", "warn"},
 		{"INFO: Something happened", "info"},
