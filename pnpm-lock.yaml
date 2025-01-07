@@ -42,8 +42,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0
       '@tailwindcss/typography':
-        specifier: ^0.5.15
-        version: 0.5.15(tailwindcss@4.0.0-beta.8)
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@4.0.0-beta.8)
       '@tailwindcss/vite':
         specifier: 4.0.0-beta.8
         version: 4.0.0-beta.8(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))
@@ -120,8 +120,8 @@ importers:
         specifier: ^0.28.0
         version: 0.28.0(@babel/parser@7.26.3)(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       unplugin-vue-macros:
-        specifier: ^2.13.6
-        version: 2.13.6(@vueuse/core@12.3.0(typescript@5.7.2))(esbuild@0.23.1)(rollup@4.28.1)(typescript@5.7.2)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))
+        specifier: ^2.13.7
+        version: 2.13.7(@vueuse/core@12.3.0(typescript@5.7.2))(esbuild@0.23.1)(rollup@4.28.1)(typescript@5.7.2)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))
       unplugin-vue-router:
         specifier: ^0.10.9
         version: 0.10.9(rollup@4.28.1)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))
@@ -1393,10 +1393,10 @@ packages:
     resolution: {integrity: sha512-fpZkAwKDFuRNbxQZrXViij2D38R6qqgAnctBR9NPyHxZqYDjn3uyk75alrDnSGj4wUCTAhOCEX4HCI9xCgKGdA==}
     engines: {node: '>= 10'}
 
-  '@tailwindcss/typography@0.5.15':
-    resolution: {integrity: sha512-AqhlCXl+8grUz8uqExv5OTtgpjuVIwFTSXTrh8y9/pw6q2ek7fJ+Y8ZEVw7EB2DCcuCOtEjf9w3+J3rzts01uA==}
+  '@tailwindcss/typography@0.5.16':
+    resolution: {integrity: sha512-0wDLwCVF5V3x3b1SGXPCDcdsbDHMBe+lkFzBRaHeLvNi+nrrnZ1lA18u+OTWO8iSWU2GxUOCvlXtDuqftc1oiA==}
     peerDependencies:
-      tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20'
+      tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
 
   '@tailwindcss/vite@4.0.0-beta.8':
     resolution: {integrity: sha512-ZNlj0fdeH4/uWXafrXklZY+TgmN7wOHWHHBL4i3xzD4BflcCDZJkgJER/8baJCpagMzwWDnA6CyXDX+2q7lMRQ==}
@@ -1557,14 +1557,8 @@ packages:
   '@vitest/utils@2.1.8':
     resolution: {integrity: sha512-dwSoui6djdwbfFmIgbIjX2ZhIoG7Ex/+xpxyiEgIGzjliY8xGkcpITKTlp6B4MgtGkF2ilvm97cPM96XZaAgcA==}
 
-  '@volar/language-core@2.4.10':
-    resolution: {integrity: sha512-hG3Z13+nJmGaT+fnQzAkS0hjJRa2FCeqZt6Bd+oGNhUkQ+mTFsDETg5rqUTxyzIh5pSOGY7FHCWUS8G82AzLCA==}
-
   '@volar/language-core@2.4.11':
     resolution: {integrity: sha512-lN2C1+ByfW9/JRPpqScuZt/4OrUUse57GLI6TbLgTIqBVemdl1wNcZ1qYGEo2+Gw8coYLgCy7SuKqn6IrQcQgg==}
-
-  '@volar/source-map@2.4.10':
-    resolution: {integrity: sha512-OCV+b5ihV0RF3A7vEvNyHPi4G4kFa6ukPmyVocmqm5QzOd8r5yAtiNvaPEjl8dNvgC/lj4JPryeeHLdXd62rWA==}
 
   '@volar/source-map@2.4.11':
     resolution: {integrity: sha512-ZQpmafIGvaZMn/8iuvCFGrW3smeqkq/IIh9F1SdSx9aUl0J4Iurzd6/FhmjNO5g2ejF3rT45dKskgXWiofqlZQ==}
@@ -1650,8 +1644,8 @@ packages:
     peerDependencies:
       vue: ^2.7.0 || ^3.0.0
 
-  '@vue-macros/define-slots@1.2.3':
-    resolution: {integrity: sha512-rDCM63kCl3rYk5C5we6kJeDqKWD3flsceeLfTbUOj2cBE0bxtcOBoF/YcZ1Y6eotYMFz+srA/8LYtcZjOL/RUw==}
+  '@vue-macros/define-slots@1.2.4':
+    resolution: {integrity: sha512-AWmDGhdL0m0w9A6/NHKJiEZyZWG6jAUwuapr6Iiu4JZLZU7+MOgTxiMOLRcPBAtZJVPpTtO+sb5rTVRFDa4sJg==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.0.0
@@ -1735,8 +1729,8 @@ packages:
     resolution: {integrity: sha512-2UoojuV5x62mJFSytEWPEJ7ertaTCgE1LIRpBYfvxwAKGrRXviciQrqItvtP95bv5p2pBWAKDeHYkUfpGTxxog==}
     engines: {node: '>=16.14.0'}
 
-  '@vue-macros/volar@0.30.8':
-    resolution: {integrity: sha512-z+EhaXwloKqCNzwf6thqY243OVFEYYjFgATViT7t8rZyVO0Ls9CqAZP2U7fdRKqw2cTJn3vV3z34tKbQRK29tA==}
+  '@vue-macros/volar@0.30.9':
+    resolution: {integrity: sha512-uiiqqsW49kGnjSeMLT3ugoOaY2PkmRHWScF7ewvalQiczgQivdREuYD4gJ88QymIkceuV/T9OCzhj9AVUoQkIA==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue-tsc: 2.1.10
@@ -3641,8 +3635,8 @@ packages:
     peerDependencies:
       typescript: '>=4.2.0'
 
-  ts-macro@0.1.10:
-    resolution: {integrity: sha512-jK3yom5TWGtZ8Lbq8YEPrhWK51gn//71W6mY8KApHAzWKQeWMUHG3TO6YpduJeippjsUsHjm/zUCC4Ps+pAZ2Q==}
+  ts-macro@0.1.11:
+    resolution: {integrity: sha512-5JGt4ScV/FFOC/RPRVQnhXouR7hKKwXh/CB4nnr4bx38wskzw5tNhTCoSxTDH/9kRjl06+WBnN2DUhShKz2v1g==}
 
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
@@ -3792,8 +3786,8 @@ packages:
     resolution: {integrity: sha512-vh9hOHd/VRxZ5QHdLdl0WO8aZWuVx8GN8eExCP665o8anh0LC8Xj4PF5zx0BxRcDi6AZOnTQZPgfQlA0Iw/74Q==}
     engines: {node: '>=16.14.0'}
 
-  unplugin-vue-macros@2.13.6:
-    resolution: {integrity: sha512-Sg3e/zdb5BYTDdm5ALCdHq/BmysX9OVic86m45HGmmnR6h4MAh8cPOakshmzO5uoc8dkfz2TnfARSv5M0N7NYg==}
+  unplugin-vue-macros@2.13.7:
+    resolution: {integrity: sha512-cUUCkGTV01crDvR78iiVjT7OfNcCx0C9oGH+twWgALwdtPnko9fY7n298kyTE/IqZFTjHBHjeVOBxS3v0C3uag==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -5054,7 +5048,7 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.0.0-beta.8
       '@tailwindcss/oxide-win32-x64-msvc': 4.0.0-beta.8
 
-  '@tailwindcss/typography@0.5.15(tailwindcss@4.0.0-beta.8)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.0-beta.8)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
@@ -5233,15 +5227,9 @@ snapshots:
       loupe: 3.1.2
       tinyrainbow: 1.2.0
 
-  '@volar/language-core@2.4.10':
-    dependencies:
-      '@volar/source-map': 2.4.10
-
   '@volar/language-core@2.4.11':
     dependencies:
       '@volar/source-map': 2.4.11
-
-  '@volar/source-map@2.4.10': {}
 
   '@volar/source-map@2.4.11': {}
 
@@ -5374,7 +5362,7 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
-  '@vue-macros/define-slots@1.2.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))':
+  '@vue-macros/define-slots@1.2.4(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))':
     dependencies:
       '@vue-macros/common': 1.15.1(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       unplugin: 1.16.0
@@ -5520,7 +5508,7 @@ snapshots:
       - rollup
       - vue
 
-  '@vue-macros/volar@0.30.8(rollup@4.28.1)(typescript@5.7.2)(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))':
+  '@vue-macros/volar@0.30.9(rollup@4.28.1)(typescript@5.7.2)(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))':
     dependencies:
       '@vue-macros/boolean-prop': 0.5.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/common': 1.15.1(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
@@ -5529,7 +5517,7 @@ snapshots:
       '@vue-macros/short-vmodel': 1.5.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue/language-core': 2.1.10(typescript@5.7.2)
       muggle-string: 0.4.1
-      ts-macro: 0.1.10(rollup@4.28.1)(typescript@5.7.2)
+      ts-macro: 0.1.11(rollup@4.28.1)(typescript@5.7.2)
     optionalDependencies:
       vue-tsc: 2.2.0(typescript@5.7.2)
     transitivePeerDependencies:
@@ -5595,7 +5583,7 @@ snapshots:
 
   '@vue/language-core@2.1.10(typescript@5.7.2)':
     dependencies:
-      '@volar/language-core': 2.4.10
+      '@volar/language-core': 2.4.11
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-vue2': 2.7.16
       '@vue/shared': 3.5.13
@@ -7468,11 +7456,11 @@ snapshots:
     dependencies:
       typescript: 5.7.2
 
-  ts-macro@0.1.10(rollup@4.28.1)(typescript@5.7.2):
+  ts-macro@0.1.11(rollup@4.28.1)(typescript@5.7.2):
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.28.1)
-      '@volar/language-core': 2.4.10
-      '@vue/language-core': 2.1.10(typescript@5.7.2)
+      '@volar/language-core': 2.4.11
+      '@vue/language-core': 2.2.0(typescript@5.7.2)
       muggle-string: 0.4.1
     transitivePeerDependencies:
       - rollup
@@ -7639,7 +7627,7 @@ snapshots:
       - rollup
       - vue
 
-  unplugin-vue-macros@2.13.6(@vueuse/core@12.3.0(typescript@5.7.2))(esbuild@0.23.1)(rollup@4.28.1)(typescript@5.7.2)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2)):
+  unplugin-vue-macros@2.13.7(@vueuse/core@12.3.0(typescript@5.7.2))(esbuild@0.23.1)(rollup@4.28.1)(typescript@5.7.2)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2)):
     dependencies:
       '@vue-macros/better-define': 1.11.1(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/boolean-prop': 0.5.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
@@ -7652,7 +7640,7 @@ snapshots:
       '@vue-macros/define-props': 4.0.4(@vue-macros/reactivity-transform@1.1.4(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2)))(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/define-props-refs': 1.3.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/define-render': 1.6.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
-      '@vue-macros/define-slots': 1.2.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
+      '@vue-macros/define-slots': 1.2.4(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/define-stylex': 0.2.1(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/devtools': 0.4.1(typescript@5.7.2)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))
       '@vue-macros/export-expose': 0.3.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
@@ -7669,7 +7657,7 @@ snapshots:
       '@vue-macros/short-bind': 1.1.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/short-emits': 1.6.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
       '@vue-macros/short-vmodel': 1.5.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
-      '@vue-macros/volar': 0.30.8(rollup@4.28.1)(typescript@5.7.2)(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))
+      '@vue-macros/volar': 0.30.9(rollup@4.28.1)(typescript@5.7.2)(vue-tsc@2.2.0(typescript@5.7.2))(vue@3.5.13(typescript@5.7.2))
       unplugin: 1.16.0
       unplugin-combine: 1.0.3(esbuild@0.23.1)(rollup@4.28.1)(vite@6.0.7(@types/node@22.10.5)(jiti@2.4.1)(lightningcss@1.28.2)(tsx@4.19.2)(yaml@2.6.1))
       unplugin-vue-define-options: 1.5.3(rollup@4.28.1)(vue@3.5.13(typescript@5.7.2))
