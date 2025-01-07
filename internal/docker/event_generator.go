@@ -206,7 +206,7 @@ func createEvent(message string, streamType StdType) *LogEvent {
 func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
 	currentLevel := guessLogLevel(currentEvent)
 	if nextEvent != nil {
-		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "" && !nextEvent.HasLevel() {
+		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "unknown" && !nextEvent.HasLevel() {
 			currentEvent.Position = Beginning
 			nextEvent.Position = Middle
 		}

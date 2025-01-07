@@ -118,7 +118,7 @@ type LogEvent struct {
 }
 
 func (l *LogEvent) HasLevel() bool {
-	return l.Level != ""
+	return l.Level != "unknown"
 }
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
