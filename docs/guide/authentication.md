@@ -61,7 +61,23 @@ users:
 
 :::
 
-Dozzle uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) to generate tokens for authentication. This token is saved in a cookie.
+Or using Docker secrets:
+
+```yaml
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+    secrets:
+      - source: users
+        target: /data/users.yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+secrets:
+  users:
+    file: users.yml
+```
 
 ### Extending Authentication Cookie Lifetime
 
