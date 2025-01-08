@@ -23,10 +23,10 @@
             </span>
           </div>
           <ul class="flex flex-row gap-x-2 text-sm md:gap-3">
-            <li class="flex items-center gap-1"><ph:cpu /> {{ host.nCPU }} <span class="mobile-hidden">CPUs</span></li>
+            <li class="flex items-center gap-1"><ph:cpu /> {{ host.nCPU }} <span class="max-md:hidden">CPUs</span></li>
             <li class="flex items-center gap-1">
               <ph:memory /> {{ formatBytes(host.memTotal) }}
-              <span class="mobile-hidden">total</span>
+              <span class="max-md:hidden">total</span>
             </li>
           </ul>
           <ul class="flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">

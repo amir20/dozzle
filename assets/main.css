@@ -104,12 +104,6 @@
   }
 }
 
-@utility mobile-hidden {
-  @media (max-width: 768px) {
-    display: none;
-  }
-}
-
 @utility menu-active {
   &,
   &:active {
