@@ -1,7 +1,7 @@
 <template>
   <aside>
     <header class="flex items-center gap-4">
-      <h1 class="mobile-hidden text-2xl">{{ container.name }}</h1>
+      <h1 class="text-2xl max-md:hidden">{{ container.name }}</h1>
       <h2 class="text-sm"><DistanceTime :date="container.created" /></h2>
     </header>
 

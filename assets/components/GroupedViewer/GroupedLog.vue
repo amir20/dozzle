@@ -8,7 +8,7 @@
           </div>
         </div>
         <MultiContainerStat class="ml-auto" :containers="group.containers" />
-        <MultiContainerActionToolbar class="mobile-hidden" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

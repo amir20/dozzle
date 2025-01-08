@@ -7,12 +7,12 @@
           <div class="inline-flex font-mono text-sm">
             <div class="font-semibold">{{ service.name }}</div>
           </div>
-          <Tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+          <Tag class="hidden font-mono max-md:hidden @3xl:block" size="small">
             {{ $t("label.container", service.containers.length) }}
           </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
-        <MultiContainerActionToolbar class="mobile-hidden" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

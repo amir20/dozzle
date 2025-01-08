@@ -8,7 +8,7 @@
     <div class="inline-flex items-center text-sm">
       <div class="breadcrumbs p-0">
         <ul>
-          <li v-if="config.hosts.length > 1" class="mobile-hidden font-thin">
+          <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
           </li>
           <li>
@@ -38,7 +38,7 @@
       </div>
     </div>
     <ContainerHealth :health="container.health" v-if="container.health" />
-    <Tag class="mobile-hidden hidden font-mono @3xl:block" size="small">
+    <Tag class="hidden font-mono max-md:hidden @3xl:block" size="small">
       {{ container.image.replace(/@sha.*/, "") }}
     </Tag>
   </div>
