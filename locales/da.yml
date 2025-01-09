@@ -15,6 +15,12 @@ label:
   serivce: Ingen tjenester | 1 tjeneste | {count} tjenester
   running-containers: Kørende Containere
   all-containers: Alle Containere
+  total-containers: Samlede Containere
+  running: Kører
+  total-cpu-usage: Samlet CPU Forbrug
+  total-mem-usage: Samlet Hukommelsesforbrug
+  dozzle-version: Dozzle Version
+  all: Alle
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -81,6 +87,9 @@ settings:
   show-timesamps: Vis tids stempler
   soft-wrap: Blødt bræk på linjer
   datetime-format: Overskriv dato og tids format
+  12-24-format: >-
+    Som standard vil Dozzle bruge din browsers lokalitet til at formatere tiden. Du kan
+    tvinge 12 eller 24 timers format.
   font-size: Tekststørrelse at bruge til logs
   color-scheme: Farve skema
   options: Muligheder
@@ -98,7 +107,7 @@ settings:
     preview: Dette er en forhåndsvisning af loggene
     warning: En advarselslog ser sådan ud
     complex: Dette er en kompleks logindtastning som json
-    simple: Dette er en meget meget lang besked som standard vil wrappe. Deaktivering af soft wraps vil deaktivere dette.
+    simple: Dette er en meget meget lang besked som standard vil wrappe. Deaktivering af soft wraps vil deaktivere dette. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     multi-line-error:
       start-line: Dette er en fejlmeddelelse over flere linjer
       middle-line: med en anden linje
