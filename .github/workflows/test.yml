@@ -111,6 +111,7 @@ jobs:
       - name: Build
         uses: docker/bake-action@v6
         with:
+          source: .
           load: true
           set: |
             *.cache-from=type=gha
