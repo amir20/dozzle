@@ -109,7 +109,7 @@ jobs:
       - name: Generate certs
         run: make shared_key.pem shared_cert.pem
       - name: Build
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           load: true
           set: |
