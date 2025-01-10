@@ -37,7 +37,7 @@ const store = useContainerStore();
 const { containersByHost } = storeToRefs(store);
 const { hosts } = useHosts();
 const host = computed(() => hosts.value[id]);
-const containers = computed(() => containersByHost.value?.[id].filter((c) => c.state === "running") ?? []);
+const containers = computed(() => containersByHost.value?.[id]?.filter((c) => c.state === "running") ?? []);
 const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
 provideLoggingContext(containers, { showContainerName: true, showHostname: false });
 </script>
