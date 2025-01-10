@@ -74,9 +74,12 @@ services:
         target: /data/users.yml
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle:/data
 secrets:
   users:
     file: users.yml
+volumes:
+  dozzle:
 ```
 
 ### Extending Authentication Cookie Lifetime
