@@ -171,7 +171,7 @@ func main() {
 		go cli.StartEvent(args, "server", localClient, "")
 
 	} else if args.Mode == "swarm" {
-		localClient, err := docker.NewLocalClient(args.Hostname)
+		localClient, err := docker.NewLocalClient("")
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
 		}
