@@ -18,7 +18,7 @@
           :key="c.props?.id"
           @click="scrollToItem(index)"
           :class="[
-            'size-2 rounded-full transition-all duration-700',
+            'size-2 cursor-pointer rounded-full transition-all duration-700',
             activeIndex === index ? 'bg-primary scale-125' : 'bg-base-content/50 hover:bg-base-content',
           ]"
           :aria-label="c.props?.title"
