@@ -14,7 +14,7 @@
         :placeholder="$t('placeholder.search-containers')"
       />
       <form method="dialog">
-        <button class="swap swap-rotate hover:swap-active">
+        <button class="swap hover:swap-active">
           <mdi:keyboard-esc class="swap-off" />
           <mdi:close class="swap-on" />
         </button>
@@ -22,9 +22,10 @@
     </div>
     <div
       class="dropdown-content bg-base-100 relative! mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent px-2"
+      tabindex="0"
       v-if="results.length"
     >
-      <ul tabindex="0" class="menu w-auto">
+      <ul class="menu w-auto">
         <li v-for="(result, index) in data" ref="listItems">
           <a
             class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
@@ -186,6 +187,7 @@ function selected(item: Item) {
   }
   close();
 }
+
 function addColumn(container: { id: string }) {
   pinnedStore.pinContainer(container);
   close();
@@ -212,6 +214,7 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
 </script>
 
 <style scoped>
+@import "@/main.css" reference;
 :deep(mark) {
   @apply bg-transparent text-inherit underline underline-offset-2;
 }
