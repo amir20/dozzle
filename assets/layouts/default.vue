@@ -1,17 +1,17 @@
 <template>
   <div>
     <mobile-menu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></mobile-menu>
-    <splitpanes @resized="onResized($event)">
-      <pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
-        <side-panel @search="showFuzzySearch"></side-panel>
-      </pane>
-      <pane min-size="10">
-        <splitpanes>
-          <pane class="router-view min-h-screen">
+    <Splitpanes @resized="onResized($event)">
+      <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
+        <SidePanel @search="showFuzzySearch" />
+      </Pane>
+      <Pane min-size="10">
+        <Splitpanes>
+          <Pane class="router-view min-h-screen">
             <router-view></router-view>
-          </pane>
+          </Pane>
           <template v-if="!isMobile">
-            <pane v-for="other in pinnedLogs" :key="other.id">
+            <Pane v-for="other in pinnedLogs" :key="other.id">
               <ContainerLog
                 :id="other.id"
                 show-title
@@ -19,11 +19,11 @@
                 closable
                 @close="pinnedLogsStore.unPinContainer(other)"
               />
-            </pane>
+            </Pane>
           </template>
-        </splitpanes>
-      </pane>
-    </splitpanes>
+        </Splitpanes>
+      </Pane>
+    </Splitpanes>
     <label
       class="btn btn-circle swap bg-base-100 swap-rotate fixed bottom-4 -left-12 w-16 transition-all hover:-left-4"
       :class="{ '-left-6!': collapseNav }"
