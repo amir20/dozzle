@@ -49,6 +49,16 @@ const { pause, resume } = watchPausable(activeId, (v) => {
   if (activeId.value) {
     const index = cards.value?.map((c) => c.id).indexOf(activeId.value) ?? -1;
     if (index !== -1) {
+      console.log("watching", activeId.value);
+      scrollToItem(index);
+    }
+  }
+});
+
+watchOnce(cards, () => {
+  if (activeId.value) {
+    const index = cards.value?.map((c) => c.id).indexOf(activeId.value) ?? -1;
+    if (index !== -1) {
       scrollToItem(index);
     }
   }
