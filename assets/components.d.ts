@@ -119,6 +119,7 @@ declare module 'vue' {
     SwarmMenu: typeof import('./components/SwarmMenu.vue')['default']
     Tag: typeof import('./components/common/Tag.vue')['default']
     TimedButton: typeof import('./components/common/TimedButton.vue')['default']
+    ToastModal: typeof import('./components/common/ToastModal.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
     ViewerWithSource: typeof import('./components/LogViewer/ViewerWithSource.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
