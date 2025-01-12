@@ -52,29 +52,7 @@
       <template #fallback> Loading dependencies... </template>
     </Suspense>
   </SideDrawer>
-  <div class="toast toast-end whitespace-normal">
-    <div
-      class="alert max-w-xl"
-      v-for="toast in toasts"
-      :key="toast.id"
-      :class="{
-        'alert-error': toast.type === 'error',
-        'alert-info': toast.type === 'info',
-        'alert-warning': toast.type === 'warning',
-      }"
-    >
-      <carbon:information class="size-6 shrink-0 stroke-current" v-if="toast.type === 'info'" />
-      <carbon:warning class="size-6 shrink-0 stroke-current" v-else-if="toast.type === 'error'" />
-      <carbon:warning class="size-6 shrink-0 stroke-current" v-else-if="toast.type === 'warning'" />
-      <div>
-        <h3 class="text-lg font-bold" v-if="toast.title">{{ toast.title }}</h3>
-        <div v-html="toast.message" class="[&>a]:underline"></div>
-      </div>
-      <div>
-        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)"><mdi:close /></button>
-      </div>
-    </div>
-  </div>
+  <ToastModal />
 </template>
 
 <script lang="ts" setup>
@@ -86,7 +64,6 @@ import SideDrawer from "@/components/common/SideDrawer.vue";
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
-const { toasts, removeToast } = useToast();
 const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
 const { component: drawerComponent, properties: drawerProperties, width: drawerWidth } = createDrawer(drawer);
 
