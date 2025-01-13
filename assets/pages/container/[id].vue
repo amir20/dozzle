@@ -49,20 +49,31 @@ watchEffect(() => {
 
   if (!nextContainer) return;
 
-  redirectTrigger.value = true;
-
-  showToast(
-    {
-      title: t("alert.similar-container-found.title"),
-      message: t("alert.similar-container-found.message", { containerId: nextContainer.id }),
-      type: "info",
-      action: {
-        label: t("button.cancel"),
-        handler: () => router.push({ name: "/container/[id]", params: { id: nextContainer.id } }),
+  if (automaticRedirect.value) {
+    redirectTrigger.value = true;
+    showToast(
+      {
+        title: t("alert.similar-container-found.title"),
+        message: t("alert.similar-container-found.message", { containerId: nextContainer.id }),
+        type: "info",
+        action: {
+          label: t("button.cancel"),
+          handler: () => {
+            showToast(
+              {
+                title: t("alert.redirected.title"),
+                message: t("alert.redirected.message", { containerId: nextContainer.id }),
+                type: "info",
+              },
+              { expire: 5000 },
+            );
+            router.push({ name: "/container/[id]", params: { id: nextContainer.id } });
+          },
+        },
       },
-    },
-    { timed: 4000 },
-  );
+      { timed: 4000 },
+    );
+  }
 });
 </script>
 <route lang="yaml">
