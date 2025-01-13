@@ -50,6 +50,7 @@ message ContainerEvent {
   string actorId = 1;
   string name = 2;
   string host = 3;
+  google.protobuf.Timestamp timestamp = 4;
 }
 
 message Host {

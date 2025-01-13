@@ -2,7 +2,7 @@
   <div class="toast toast-end whitespace-normal max-md:m-0 max-md:w-full">
     <div
       class="alert max-w-xl max-md:rounded-none"
-      v-for="toast in toasts"
+      v-for="{ toast, options: { timed } } in toasts"
       :key="toast.id"
       :class="{
         'alert-error': toast.type === 'error',
@@ -18,7 +18,21 @@
         <div v-html="toast.message" class="[&>a]:underline"></div>
       </div>
       <div>
-        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)"><mdi:close /></button>
+        <TimedButton
+          v-if="timed"
+          class="btn-primary btn-sm"
+          :duration="timed"
+          @finished="
+            removeToast(toast.id);
+            toast.action?.handler();
+          "
+          @cancelled="removeToast(toast.id)"
+        >
+          {{ toast.action?.label }}
+        </TimedButton>
+        <button class="btn btn-circle btn-xs" @click="removeToast(toast.id)" v-else>
+          <mdi:close />
+        </button>
       </div>
     </div>
   </div>

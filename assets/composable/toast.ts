@@ -4,36 +4,55 @@ type Toast = {
   title?: string;
   message: string;
   type: "success" | "error" | "warning" | "info";
+  action?: {
+    label: string;
+    handler: () => void;
+  };
 };
 
 type ToastOptions = {
   expire?: number;
   once?: boolean;
+  timed?: number;
 };
 
-const toasts = ref<Toast[]>([]);
+const toasts = ref<
+  {
+    toast: Toast;
+    options: ToastOptions;
+  }[]
+>([]);
 
 const showToast = (
   toast: Omit<Toast, "id" | "createdAt"> & { id?: string },
-  { expire = -1, once = false }: ToastOptions = { expire: -1, once: false },
+  { expire = -1, once = false, timed }: ToastOptions = { expire: -1, once: false, translate: false },
 ) => {
-  if (once && toasts.value.some((t) => t.id === toast.id)) {
+  if (once && !toast.id) {
+    throw new Error("Toast id is required when once is true");
+  }
+  if (once && toasts.value.some((t) => t.toast.id === toast.id)) {
     return;
   }
-  toasts.value.push({
+
+  const toastWithId = {
     id: Date.now().toString(),
-    createdAt: new Date(),
     ...toast,
+    createdAt: new Date(),
+  };
+  toasts.value.push({
+    toast: toastWithId,
+    options: { expire, once, timed },
   });
+
   if (expire > 0) {
     setTimeout(() => {
-      removeToast(toasts.value[0].id);
+      removeToast(toastWithId.id);
     }, expire);
   }
 };
 
 const removeToast = (id: Toast["id"]) => {
-  toasts.value = toasts.value.filter((toast) => toast.id !== id);
+  toasts.value = toasts.value.filter((instance) => instance.toast.id !== id);
 };
 
 export const useToast = () => {
