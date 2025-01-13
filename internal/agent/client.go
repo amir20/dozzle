@@ -236,6 +236,7 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- docker.Containe
 			ActorID: resp.Event.ActorId,
 			Name:    resp.Event.Name,
 			Host:    resp.Event.Host,
+			Time:    resp.Event.Timestamp.AsTime(),
 		}
 	}
 }

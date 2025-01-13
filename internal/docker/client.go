@@ -292,6 +292,7 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- Contai
 					Name:            string(message.Action),
 					Host:            d.host.ID,
 					ActorAttributes: message.Actor.Attributes,
+					Time:            time.Now(),
 				}
 			}
 		}
