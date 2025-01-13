@@ -25,7 +25,7 @@ const toasts = ref<
 
 const showToast = (
   toast: Omit<Toast, "id" | "createdAt"> & { id?: string },
-  { expire = -1, once = false, timed }: ToastOptions = { expire: -1, once: false, translate: false },
+  { expire = -1, once = false, timed }: ToastOptions = { expire: -1, once: false },
 ) => {
   if (once && !toast.id) {
     throw new Error("Toast id is required when once is true");
