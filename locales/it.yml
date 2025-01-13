@@ -30,6 +30,9 @@ label:
   avg-mem: MEM (%)
   pinned: Spuntato
 tooltip:
+  merge-services: Unisci tutti i servizi in una vista
+  merge-containers: Unisci tutti i container in una vista
+  merge-hosts: Unisci tutti i container su questo host in una vista
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna
 error:

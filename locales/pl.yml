@@ -8,8 +8,13 @@ toolbar:
   start: Start
   restart: Restart
 label:
-  containers: Kontenery
   service: Brak usług | 1 usługa | {count} usług
+  total-containers: Całkowita liczba kontenerów
+  running: Uruchomione
+  total-cpu-usage: Całkowite użycie CPU
+  total-mem-usage: Całkowite użycie pamięci
+  dozzle-version: Wersja Dozzle
+  containers: Kontenery
   container: Brak kontenerów | 1 kontener | {count} kontenerów
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery

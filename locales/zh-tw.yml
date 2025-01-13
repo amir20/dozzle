@@ -10,7 +10,7 @@ toolbar:
 label:
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器
-  serivce: 無服務 | 1 個服務 | {count} 個服務
+  service: 無服務 | 1 個服務 | {count} 個服務
   running-containers: 運行中的容器
   all-containers: 所有容器
   total-containers: 總容器數
@@ -40,6 +40,15 @@ tooltip:
   merge-containers: 合併所有容器到一個視圖
   merge-hosts: 將此主機上的所有容器合併到一個視圖中
 error:
+  events-stream:
+    title: 意外錯誤
+    message: >-
+      Dozzle UI 無法連接到 API。請檢查您的網路設定。
+      如果您使用反向代理，請確保其正確配置。
+  events-timeout:
+    title: 發生錯誤
+    message: >-
+      Dozzle UI 連接 API 時超時。請檢查網路連接並重試。
   page-not-found: 此頁面不存在。
   invalid-auth: 使用者名稱和密碼不正確。
   logs-skipped: 略過 {total} 筆記錄
@@ -82,8 +91,8 @@ settings:
     preview: 這是日誌的預覽
     warning: 警告日誌看起來是這樣的
     complex: 這是一個複雜的 JSON 格式日誌條目
-    simple: 這是一條非常非常長的訊息，默認情況下會自動換行。禁用自動換行會使其禁用。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-    multi-line-error: 
+    simple: 這是一條非常非常長的訊息，默認情況下會自動換行。禁用自動換行會使其禁用。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
       start-line: 這是一條多行錯誤訊息
       middle-line: 第二行訊息
       end-line: 最後是第三行。

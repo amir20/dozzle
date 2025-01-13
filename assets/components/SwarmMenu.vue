@@ -28,14 +28,14 @@
       </details>
     </li>
 
-    <li v-if="serivcesWithoutStacks.length > 0">
+    <li v-if="servicesWithoutStacks.length > 0">
       <details open>
         <summary class="text-base-content/80 font-light">
           <ph:circles-four />
           {{ $t("label.services") }}
         </summary>
         <ul>
-          <li v-for="service in serivcesWithoutStacks" :key="service.name">
+          <li v-for="service in servicesWithoutStacks" :key="service.name">
             <router-link :to="{ name: '/service/[name]', params: { name: service.name } }" active-class="menu-active">
               <ph:stack-simple />
               <div class="truncate">
@@ -73,7 +73,7 @@ const store = useSwarmStore();
 
 const { stacks, services, customGroups } = storeToRefs(store);
 
-const serivcesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
+const servicesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
 </script>
 <style scoped>
 .menu {

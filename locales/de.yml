@@ -49,14 +49,13 @@ error:
   events-stream:
     title: Unerwarteter Fehler
     message: >-
-      Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfe
-      Deine Netzwerkeinstellungen. Wenn Du einen Reverse-Proxy verwendest,
-      stelle bitte sicher, dass er ordnungsgemäß konfiguriert ist.
+      Das Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfen Sie Ihre Netzwerkeinstellungen.
+      Wenn Sie einen Reverse-Proxy verwenden, stellen Sie sicher, dass er korrekt konfiguriert ist.
   events-timeout:
     title: Etwas stimmt nicht
     message: >-
-      Dozzle UI hat beim Verbinden mit der API ein Timeout. Bitte überprüfe
-      die Netzwerkverbindung und versuche es erneut.
+      Das Dozzle UI hat beim Verbinden mit der API eine Zeitüberschreitung. Bitte überprüfen Sie die
+      Netzwerkverbindung und versuchen Sie es erneut.
 alert:
   redirected:
     title: Zu neuem Container umgeleitet

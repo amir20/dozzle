@@ -8,9 +8,9 @@ toolbar:
   start: Démarrer
   restart: Redémarrer
 label:
+  container: Pas de conteneur | 1 conteneur | {count} conteneurs
+  service: Pas de service | 1 service | {count} services
   containers: Conteneurs
-  service: Aucun service | 1 service | {count} services
-  container: No containers | 1 container | {count} containers
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
   host: Hôte
