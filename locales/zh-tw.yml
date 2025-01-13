@@ -38,6 +38,7 @@ tooltip:
   pin-column: 固定此列
   merge-services: 合併所有服務到一個視圖
   merge-containers: 合併所有容器到一個視圖
+  merge-hosts: 將此主機上的所有容器合併到一個視圖中
 error:
   page-not-found: 此頁面不存在。
   invalid-auth: 使用者名稱和密碼不正確。

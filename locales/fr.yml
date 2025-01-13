@@ -9,6 +9,7 @@ toolbar:
   restart: Redémarrer
 label:
   containers: Conteneurs
+  service: Aucun service | 1 service | {count} services
   container: No containers | 1 container | {count} containers
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
@@ -23,10 +24,16 @@ label:
   avg-mem: Moyenne MEM (%)
   pinned: Epinglé
   per-page: Colonnes par page
+  swarm-mode: Mode Swarm
+  services: Services
+  custom-groups: Groupes personnalisés
 
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
+  merge-services: Fusionner tous les services dans une vue
+  merge-containers: Fusionner tous les conteneurs dans une vue
+  merge-hosts: Fusionner tous les conteneurs de cet hôte dans une vue
 error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
@@ -82,7 +89,25 @@ settings:
     rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Afficher les étiquettes stdout et stderr
   automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
+  cancel: Annuler
+  log:
+    preview: Voici un aperçu des logs
+    warning: Un log d'avertissement ressemble à ceci
+    complex: Voici une entrée de journal complexe au format json
+    simple: Ceci est un très long message qui se plierait par défaut. La désactivation des retours à la ligne doux désactiverait cela. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Ceci est un message d'erreur multiligne
+      middle-line: avec une deuxième ligne
+      end-line: et enfin une troisième ligne.
   compact: Activer le mode compact pour les journaux
+  releases:
+    features: une nouvelle fonctionnalité | {count} fonctionnalités
+    bugFixes: un correctif | {count} correctifs
+    breaking: un changement majeur | {count} changements majeurs
+    three_parts: "{first}, {second} et {third}"
+    two_parts: "{first} avec {second}"
+    latest: Plus récent
+    no_releases: Vous avez la dernière version
 releases:
   features: une nouvelle fonctionnalité | {count} fonctionnalités
   bugFixes: correction d'un bug | {count} bugs

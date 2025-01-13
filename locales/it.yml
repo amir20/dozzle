@@ -7,6 +7,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  show-hostname: Mostra nome host
+  show-container-name: Mostra nome container
 label:
   containers: Container
   running-containers: Container in esecuzione
@@ -41,6 +43,26 @@ error:
       Dozzle UI non è stato in grado di connettersi alle API. Controlla la tua configurazione di rete.
       Se stai utilizzando un reverse proxy, assicurati di averlo configurato correttamente.
   events-timeout:
+    alert:
+      redirected:
+        title: Reindirizzato a nuovo container
+        message: Dozzle ti ha automaticamente reindirizzato al nuovo container {containerId}.
+      similar-container-found:
+        title: Trovato container simile
+        message: >-
+          Dozzle ha trovato un container simile {containerId} in esecuzione sullo stesso
+          host e passerà automaticamente ad esso a meno che non si faccia clic su 'Annulla'.
+  
+    settings:
+      log:
+        preview: Questa è un'anteprima dei log
+        warning: Un log di avviso appare così
+        complex: Questa è una voce di log complessa in formato json
+        simple: Questo è un messaggio molto lungo che normalmente andrebbe a capo. La disattivazione del soft wrap disabiliterebbe questo comportamento. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        multi-line-error:
+          start-line: Questo è un messaggio di errore multilinea
+          middle-line: con una seconda riga
+          end-line: e infine una terza riga.
     title: Qualcosa non è corretto
     message: >-
       Dozzle UI timed out durante la connessione alle API. Controlla la configurazione di rete e riprova.

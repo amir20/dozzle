@@ -7,9 +7,17 @@ toolbar:
   stop: 停止
   start: 启动
   restart: 重启
+  show-hostname: 显示主机名
+  show-container-name: 显示容器名称
 label:
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
+  service: 无服务 | 1 个服务 | {count} 个服务
+  total-containers: 容器总数
+  running: 运行中
+  total-cpu-usage: CPU总使用率
+  total-mem-usage: 内存总使用率
+  dozzle-version: Dozzle 版本
   running-containers: 运行中的容器
   all-containers: 所有容器
   all: 全部

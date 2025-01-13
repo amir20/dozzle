@@ -3,15 +3,17 @@ toolbar:
   download: Herunterladen
   search: Suchen
   show: Zeige nur {std}
-  show-all: Zeige alle Streams  
+  show-all: Zeige alle Streams
   stop: Stop
   start: Start
   restart: Neustarten
+  show-hostname: Host-Name anzeigen
+  show-container-name: Container-Name anzeigen
 label:
   containers: Container
   container: Keine Container | 1 Container | {count} Container
   total-containers: Gesamte Container
-  serivce: Kein Service | 1 Service | {count} Service
+  service: Kein Service | 1 Service | {count} Services
   running-containers: Laufende Container
   all-containers: Alle Container
   host: Host
@@ -38,6 +40,7 @@ tooltip:
   pin-column: Als Spalte anheften
   merge-services: Services zusammenführen
   merge-containers: Container zusammenführen
+  merge-hosts: Alle Container auf diesem Host in einer Ansicht zusammenführen
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.
@@ -84,6 +87,9 @@ settings:
   show-timesamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
   datetime-format: Datums- und Zeitformat
+  12-24-format: >-
+    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
+    Zeit anzuzeigen. Sie können das 12- oder 24-Stunden-Format erzwingen.
   font-size: Schriftgröße für Logs
   color-scheme: Farbschema
   options: Optionen
@@ -96,15 +102,12 @@ settings:
   show-std: Zeige stdout und stderr Labels
   automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
   compact: Aktiviere den kompakten Modus für Logs
-  12-24-format: >-
-    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
-    Zeit anzuzeigen. Du kannst die Zeit auf 12 oder 24 Stunden umstellen.
   log:
     preview: Dies ist eine Vorschau auf die Protokolle
     warning: Ein Warnprotokoll sieht wie folgt aus
     complex: Dies ist ein komplexer Protokolleintrag als json
-    simple: Dies ist eine sehr, sehr lange Nachricht, die standardmäßig umbrochen wird. Die Deaktivierung von Zeilenumbrüche würde dies unterbinden. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-    multi-line-error: 
+    simple: Dies ist eine sehr, sehr lange Nachricht, die standardmäßig umbrochen wird. Die Deaktivierung von Zeilenumbrüche würde dies unterbinden. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
       start-line: Dies ist eine mehrzeilige Fehlermeldung
       middle-line: mit einer zweiten Zeile
       end-line: und schließlich einer dritten Zeile.
