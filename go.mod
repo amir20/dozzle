@@ -4,7 +4,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/alexflint/go-arg v1.5.1
 	github.com/beme/abide v0.0.0-20190723115211-635a09831760
-	github.com/docker/docker v27.4.1+incompatible
+	github.com/docker/docker v27.5.0+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1
@@ -34,7 +34,7 @@ require (
 	github.com/yuin/goldmark v1.7.8
 	golang.org/x/crypto v0.32.0
 	golang.org/x/sync v0.10.0
-	google.golang.org/grpc v1.69.2
+	google.golang.org/grpc v1.69.4
 	google.golang.org/protobuf v1.36.2
 )
 
