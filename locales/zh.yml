@@ -7,9 +7,17 @@ toolbar:
   stop: 停止
   start: 启动
   restart: 重启
+  show-hostname: 显示主机名
+  show-container-name: 显示容器名称
 label:
+  service: 无服务 | 1 个服务 | {count} 个服务
+  total-containers: 容器总数
+  total-cpu-usage: CPU总使用率
+  total-mem-usage: 内存总使用率
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
+  running: 运行中
+  dozzle-version: Dozzle 版本
   running-containers: 运行中的容器
   all-containers: 所有容器
   all: 全部
@@ -91,8 +99,8 @@ settings:
     preview: 这是默认日志样式
     warning: 警告日志看起来像这样
     complex: 这是一个复杂的JSON格式日志
-    simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-    multi-line-error: 
+    simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
       start-line: 这是一个多行错误消息
       middle-line: 带有第二行
       end-line: 最后是第三行
@@ -105,7 +113,7 @@ releases:
   latest: 最新
   no_releases: 您拥有最新版本
 log_actions:
-  copy_log: 复制日志 
+  copy_log: 复制日志
   jump_to_context: 跳转到上下文
 toasts:
   copied:

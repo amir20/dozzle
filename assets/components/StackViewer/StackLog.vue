@@ -11,7 +11,7 @@
             {{ $t("label.container", stack.containers.length) }}
           </Tag>
           <Tag class="hidden font-mono max-md:hidden @3xl:block" size="small">
-            {{ $t("label.serivce", stack.services.length) }}
+            {{ $t("label.service", stack.services.length) }}
           </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="stack.containers" />

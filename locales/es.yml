@@ -12,7 +12,7 @@ toolbar:
 label:
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores
-  serivce: Sin servicios | 1 servicio | {count} servicios
+  service: Sin servicios | 1 servicio | {count} servicios
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
   total-containers: Contenedores Totales

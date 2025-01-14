@@ -30,6 +30,9 @@ label:
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
+  merge-services: Tüm servisleri tek görünümde birleştir
+  merge-containers: Tüm konteynerleri tek görünümde birleştir
+  merge-hosts: Bu sunucudaki tüm konteynerleri tek görünümde birleştir
 error:
   page-not-found: Bu sayfa bulunamadı
   invalid-auth: Kullanıcı adı veya şifre geçersiz

@@ -12,7 +12,7 @@ toolbar:
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
-  serivce: Ingen tjenester | 1 tjeneste | {count} tjenester
+  service: Ingen tjenester | 1 tjeneste | {count} tjenester
   running-containers: Kørende Containere
   all-containers: Alle Containere
   total-containers: Samlede Containere

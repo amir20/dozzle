@@ -1,5 +1,7 @@
 toolbar:
   clear: Очистить
+  show-hostname: Показать имя хоста
+  show-container-name: Показать имя контейнера
   download: Скачать
   search: Поиск
   show: Показать только {std}
@@ -81,3 +83,12 @@ settings:
   show-std: Показывать метки stdout и stderr
   automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
   compact: Компактный режим
+  log:
+    preview: Это предварительный просмотр логов
+    warning: Так выглядит лог предупреждения
+    complex: Это сложная запись лога в формате json
+    simple: Это очень длинное сообщение, которое по умолчанию переносится. Отключение мягкого переноса отключит это. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Это многострочное сообщение об ошибке
+      middle-line: со второй строкой
+      end-line: и наконец третьей строкой.

@@ -12,7 +12,8 @@ toolbar:
 label:
   containers: Containers
   container: No containers | 1 container | {count} containers
-  serivce: No services | 1 service | {count} services
+  service: No services | 1 service | {count} services
+  services: Services
   running-containers: Running Containers
   all-containers: All Containers
   host: Host
@@ -27,7 +28,6 @@ label:
   pinned: Pinned
   per-page: Rows per page
   swarm-mode: Swarm Mode
-  services: Services
   custom-groups: Custom Groups
 tooltip:
   search: Search containers (⌘ + k, ⌃k)

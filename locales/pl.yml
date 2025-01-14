@@ -8,6 +8,12 @@ toolbar:
   start: Start
   restart: Restart
 label:
+  service: Brak usług | 1 usługa | {count} usług
+  total-containers: Całkowita liczba kontenerów
+  running: Uruchomione
+  total-cpu-usage: Całkowite użycie CPU
+  total-mem-usage: Całkowite użycie pamięci
+  dozzle-version: Wersja Dozzle
   containers: Kontenery
   container: Brak kontenerów | 1 kontener | {count} kontenerów
   running-containers: Działające kontenery
@@ -82,6 +88,15 @@ settings:
   show-std: Pokaż etykiety dla stdout i stderr
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
   compact: Włącz tryb kompaktowy dla logów
+  log:
+    preview: To jest podgląd logów
+    warning: Log ostrzeżenia wygląda tak
+    complex: To jest złożony wpis dziennika w formacie json
+    simple: To jest bardzo długa wiadomość, która domyślnie zostanie zawinięta. Wyłączenie miękkiego zawijania wyłączy to. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: To jest wieloliniowy komunikat o błędzie
+      middle-line: z drugą linią
+      end-line: i wreszcie trzecią linią.
 releases:
   features: jedna nowa funkcjonalność | {count} funkcjonalności
   bugFixes: jeden naprawiony błąd | {count} poprawki
