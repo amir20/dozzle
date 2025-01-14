@@ -112,10 +112,10 @@ jobs:
             amir20/dozzle
             ghcr.io/amir20/dozzle
           tags: |
-            type=raw,pattern=v{{version}}
-            type=raw,pattern=v{{major}}.{{minor}}
-            type=raw,pattern=v{{major}}
             type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
