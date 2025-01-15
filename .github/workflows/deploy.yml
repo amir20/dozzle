@@ -121,7 +121,7 @@ jobs:
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
           echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build and push
-        uses: docker/build-push-action@v6.11.0
+        uses: docker/build-push-action@v6.12.0
         with:
           push: true
           context: .
