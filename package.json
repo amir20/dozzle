@@ -78,7 +78,7 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@apache-arrow/esnext-esm": "^18.1.0",
+    "@apache-arrow/esnext-esm": "^19.0.0",
     "@pinia/testing": "^0.1.7",
     "@playwright/test": "^1.49.1",
     "@types/d3-array": "^3.2.1",
