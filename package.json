@@ -103,7 +103,7 @@
     "simple-git-hooks": "^2.11.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.8",
+    "vitest": "^3.0.0",
     "vue-component-type-helpers": "^2.2.0",
     "vue-tsc": "^2.2.0"
   },
