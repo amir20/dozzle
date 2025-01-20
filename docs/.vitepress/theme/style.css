@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  include: stat;
+  include: stat, button;
 }
 
 /**

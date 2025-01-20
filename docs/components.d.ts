@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Banner: typeof import('./.vitepress/theme/components/Banner.vue')['default']
     BuyMeCoffee: typeof import('./.vitepress/theme/components/BuyMeCoffee.vue')['default']
     Counter: typeof import('./.vitepress/theme/components/Counter.vue')['default']
     HeroVideo: typeof import('./.vitepress/theme/components/HeroVideo.vue')['default']
