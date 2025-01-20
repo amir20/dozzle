@@ -1,6 +1,14 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 @plugin "daisyui" {
   include: stat, button;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  --depth: 0;
+  --noise: 1;
 }
 
 /**
