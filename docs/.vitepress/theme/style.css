@@ -1,14 +1,17 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
+
 @plugin "daisyui" {
   include: stat, button;
+  themes: light --default;
 }
-
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
   --depth: 0;
-  --noise: 1;
+  --noise: 0;
+  --radius-field: 2rem;
+  --color-primary: var(--vp-button-brand-bg);
 }
 
 /**
