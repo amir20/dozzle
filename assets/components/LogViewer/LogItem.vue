@@ -2,7 +2,7 @@
   <div class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
     <RandomColorTag class="shrink-0 select-none" :value="host.name" v-if="showHostname" />
-    <RandomColorTag class="shrink-0 select-none" :value="container.name" v-if="showContainerName" />
+    <RandomColorTag class="shrink-0 select-none" :value="container.name" v-if="showContainerName" truncateRight />
     <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
     <LogLevel
       class="flex select-none"
