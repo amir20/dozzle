@@ -1,5 +1,21 @@
 <template>
   <ul class="space-y-4 p-2">
+    <li>
+      <div class="flex items-baseline gap-1">
+        <carbon:information class="text-info self-center" />
+        <a
+          href="https://tally.so/r/wLv4g2"
+          class="link-primary text-lg font-bold"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Take the survey
+        </a>
+      </div>
+      <div class="text-base-content/80 text-sm">
+        I'd love to hear about your experience in this short survey to shape the future of Dozzle
+      </div>
+    </li>
     <li v-for="release in releases" v-if="releases?.length">
       <div class="flex items-baseline gap-1">
         <carbon:warning class="stroke-orange self-center" v-if="release.breaking > 0" />

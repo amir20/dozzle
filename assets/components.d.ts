@@ -10,6 +10,7 @@ declare module 'vue' {
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
+    'Carbon:info': typeof import('~icons/carbon/info')['default']
     'Carbon:information': typeof import('~icons/carbon/information')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:play': typeof import('~icons/carbon/play')['default']
