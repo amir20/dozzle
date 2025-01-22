@@ -5,7 +5,7 @@
     <div class="mx-auto flex items-center gap-2 lg:gap-4">
       <span class="animate-bounce">👋🏼</span> Using Dozzle? I'd love to hear about your experience in this short survey
       to shape the future of Dozzle.
-      <a href="https://tally.so/r/wLv4g2" target="_blank" class="btn btn-sm btn-primary text-white!">
+      <a href="https://tally.so/r/wLv4g2?ref=docs" target="_blank" class="btn btn-sm btn-primary text-white!">
         Take a quick survey 🙏🏼
       </a>
     </div>
