@@ -17,7 +17,7 @@ const { data: releases } = useFetch(withBase("/api/releases")).get().json<Announ
 const otherAnnouncements = [
   {
     body: "I'd love to hear about your experience in this short survey to shape the future of Dozzle!",
-    createdAt: new Date("2025-01-22T00:00:00Z"),
+    createdAt: new Date("2025-01-22T18:00:00Z"),
     htmlUrl: "https://tally.so/r/wLv4g2?ref=notification",
     name: "Take survey!",
     announcement: true,
