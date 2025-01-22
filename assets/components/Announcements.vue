@@ -1,8 +1,8 @@
 <template>
-  <Dropdown class="dropdown-end" @closed="latestTag = latest?.tag ?? config.version">
+  <Dropdown class="dropdown-end" @closed="releaseSeen = latestTag ?? config.version">
     <template #trigger>
       <mdi:announcement class="size-6 -rotate-12" />
-      <template v-if="hasUpdate && latestTag != latest?.tag">
+      <template v-if="hasUpdate && releaseSeen != latestTag">
         <span class="bg-red absolute top-0 right-px size-2 animate-ping rounded-full opacity-75"></span>
         <span class="bg-red absolute top-0 right-px size-2 rounded-full"></span>
       </template>
@@ -39,7 +39,7 @@
                   {{ release.name }}
                 </a>
                 <span class="ml-1 text-xs"><distance-time :date="new Date(release.createdAt)" /></span>
-                <Tag class="bg-red ml-auto px-1 py-1 text-xs" v-if="release.tag === latest?.tag">
+                <Tag class="bg-red ml-auto px-1 py-1 text-xs" v-if="release.tag === latestRelease?.tag">
                   {{ $t("releases.latest") }}
                 </Tag>
               </div>
@@ -62,10 +62,10 @@
 <script setup lang="ts">
 import { useAnnouncements } from "@/stores/announcements";
 
-const { announcements, latest, hasUpdate } = useAnnouncements();
+const { announcements, latestTag, hasUpdate, latestRelease } = useAnnouncements();
 const { t } = useI18n();
 
-const latestTag = useProfileStorage("releaseSeen", config.version);
+const releaseSeen = useProfileStorage("releaseSeen", config.version);
 
 function summary(release: { features: number; bugFixes: number; breaking: number }) {
   if (release.features > 0 && release.bugFixes > 0 && release.breaking > 0) {

@@ -9,7 +9,7 @@
         <span v-html="$t('settings.using-version', { version: config.version })"></span>
         <div
           v-if="hasUpdate"
-          v-html="$t('settings.update-available', { nextVersion: latest?.name, href: latest?.htmlUrl })"
+          v-html="$t('settings.update-available', { nextVersion: latestRelease?.name, href: latestRelease?.htmlUrl })"
         ></div>
       </div>
     </section>
@@ -154,7 +154,7 @@ import { availableLocales, i18n } from "@/modules/i18n";
 const { t } = useI18n();
 
 setTitle(t("title.settings"));
-const { latest, hasUpdate } = useReleases();
+const { latestRelease, hasUpdate } = useAnnouncements();
 
 const now = new Date();
 const hoursAgo = (hours: number) => {

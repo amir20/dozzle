@@ -38,12 +38,14 @@ const announcements = computed(() => {
 });
 
 const hasUpdate = computed(() => announcements.value?.some((release) => release.latest) ?? false);
-const latest = computed(() => announcements.value?.find((release) => release.latest));
+const latestTag = computed(() => announcements.value?.find((release) => release.latest)?.tag);
+const latestRelease = computed(() => announcements.value?.find((release) => release.latest && !release.announcement));
 
 export function useAnnouncements() {
   return {
     hasUpdate,
-    latest,
+    latestTag,
     announcements,
+    latestRelease,
   };
 }
