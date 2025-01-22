@@ -37,15 +37,15 @@ const announcements = computed(() => {
   return [...newReleases, ...otherAnnouncements].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 });
 
-const hasUpdate = computed(() => announcements.value?.some((release) => release.latest) ?? false);
-const latestTag = computed(() => announcements.value?.find((release) => release.latest)?.tag);
+const mostRecent = computed(() => announcements.value?.[0]);
 const latestRelease = computed(() => announcements.value?.find((release) => release.latest && !release.announcement));
+const hasRelease = computed(() => latestRelease.value !== undefined);
 
 export function useAnnouncements() {
   return {
-    hasUpdate,
-    latestTag,
+    mostRecent,
     announcements,
     latestRelease,
+    hasRelease,
   };
 }
