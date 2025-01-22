@@ -18,7 +18,7 @@ const otherAnnouncements = [
   {
     body: "I'd love to hear about your experience in this short survey to shape the future of Dozzle",
     createdAt: new Date("2025-01-22T00:00:00Z"),
-    htmlUrl: "https://tally.so/r/wLv4g2",
+    htmlUrl: "https://tally.so/r/wLv4g2?ref=notification",
     name: "Take survey!",
     announcement: true,
     tag: "survey-2025-01",
