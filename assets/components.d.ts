@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Announcements: typeof import('./components/Announcements.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
@@ -99,7 +100,6 @@ declare module 'vue' {
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']
-    Releases: typeof import('./components/Releases.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollableView: typeof import('./components/ScrollableView.vue')['default']
