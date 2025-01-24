@@ -4,7 +4,7 @@
       <CarouselItem title="Hosts and Containers" id="host">
         <HostMenu />
       </CarouselItem>
-      <CarouselItem title="Services and Stacks" v-if="services.length > 0" id="swarm">
+      <CarouselItem title="Services and Stacks" v-if="services.length > 0 || customGroups.length > 0" id="swarm">
         <SwarmMenu />
       </CarouselItem>
     </Carousel>
@@ -20,7 +20,7 @@ const containerStore = useContainerStore();
 const { ready } = storeToRefs(containerStore);
 const route = useRoute();
 const swarmStore = useSwarmStore();
-const { services } = storeToRefs(swarmStore);
+const { services, customGroups } = storeToRefs(swarmStore);
 const selectedCard = ref<"host" | "swarm">("host");
 
 watch(
