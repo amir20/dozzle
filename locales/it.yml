@@ -29,6 +29,9 @@ label:
   avg-cpu: CPU (%)
   avg-mem: MEM (%)
   pinned: Spuntato
+  host-menu: Host e Container
+  swarm-menu: Servizi e Stack
+  group-menu: Gruppi Personalizzati
 tooltip:
   merge-services: Unisci tutti i servizi in una vista
   merge-containers: Unisci tutti i container in una vista
@@ -55,7 +58,7 @@ error:
         message: >-
           Dozzle ha trovato un container simile {containerId} in esecuzione sullo stesso
           host e passerà automaticamente ad esso a meno che non si faccia clic su 'Annulla'.
-  
+
     settings:
       log:
         preview: Questa è un'anteprima dei log

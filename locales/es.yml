@@ -34,7 +34,9 @@ label:
   per-page: Filas por página
   swarm-mode: Modo Swarm
   services: Servicios
-  custom-groups: Grupos Personalizados
+  host-menu: Hosts y Contenedores
+  swarm-menu: Servicios y Stacks
+  group-menu: Grupos Personalizados
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna

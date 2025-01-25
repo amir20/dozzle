@@ -25,6 +25,9 @@ label:
   created: Создан
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
+  host-menu: Хосты и Контейнеры
+  swarm-menu: Сервисы и Стеки
+  group-menu: Пользовательские Группы
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец

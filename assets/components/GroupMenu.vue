@@ -4,7 +4,7 @@
       <details open>
         <summary class="text-base-content/80 font-light">
           <ph:bounding-box-fill />
-          {{ $t("label.groups-menu") }}
+          {{ $t("label.group-menu") }}
         </summary>
         <ul>
           <li v-for="group in customGroups" :key="group.name">

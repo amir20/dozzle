@@ -35,6 +35,9 @@ label:
   swarm-mode: 集群模式
   services: 服务
   custom-groups: 自定义组
+  host-menu: 主机和容器
+  swarm-menu: 服务和堆栈
+  group-menu: 自定义组
 tooltip:
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列

@@ -4,8 +4,8 @@
       <CarouselItem :title="$t('label.host-menu')" id="host">
         <HostMenu />
       </CarouselItem>
-      <CarouselItem :title="$t('label.groups-menu')" v-if="customGroups.length > 0" id="group">
-        <GroupsMenu />
+      <CarouselItem :title="$t('label.group-menu')" v-if="customGroups.length > 0" id="group">
+        <GroupMenu />
       </CarouselItem>
       <CarouselItem :title="$t('label.swarm-menu')" v-if="services.length > 0" id="swarm">
         <SwarmMenu />

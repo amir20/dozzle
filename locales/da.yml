@@ -34,7 +34,9 @@ label:
   per-page: Rækker per side
   swarm-mode: Swarm Tilstand
   services: Tjenester
-  custom-groups: Brugerdefinerede Grupper
+  host-menu: Værter og Containere
+  swarm-menu: Tjenester og Stacks
+  group-menu: Brugerdefinerede Grupper
 
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)

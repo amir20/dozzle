@@ -27,6 +27,9 @@ label:
   avg-cpu: Ort. CPU (%)
   avg-mem: Ort. Bellek (%)
   pinned: Sabitlenmiş
+  host-menu: Sunucular ve Konteynerler
+  swarm-menu: Servisler ve Yığınlar
+  group-menu: Özel Gruplar
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle

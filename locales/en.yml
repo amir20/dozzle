@@ -29,7 +29,7 @@ label:
   per-page: Rows per page
   host-menu: Hosts and Containers
   swarm-menu: Services and Stacks
-  groups-menu: Custom Groups
+  group-menu: Custom Groups
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

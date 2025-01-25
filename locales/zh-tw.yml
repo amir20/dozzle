@@ -33,6 +33,9 @@ label:
   swarm-mode: Swarm 模式
   services: 服務
   custom-groups: 自訂群組
+  host-menu: 主機和容器
+  swarm-menu: 服務和堆疊
+  group-menu: 自定義群組
 tooltip:
   search: 查詢容器 (⌘ + k, ⌃k)
   pin-column: 固定此列
