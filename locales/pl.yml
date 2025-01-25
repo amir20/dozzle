@@ -29,7 +29,9 @@ label:
   avg-mem: Średnie zużycie pamięci (%)
   pinned: Przypięte
   per-page: Wierszy na strone
-
+  host-menu: Hosty i Kontenery
+  swarm-menu: Usługi i Stosy
+  group-menu: Grupy Niestandardowe
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna

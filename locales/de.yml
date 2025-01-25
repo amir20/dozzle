@@ -30,7 +30,9 @@ label:
   swarm-mode: Swarm Modus
   services: Service
   running: Laufende
-  custom-groups: Benutzerdefinierte Gruppen
+  host-menu: Hosts und Container
+  swarm-menu: Services und Stacks
+  group-menu: Benutzerdefinierte Gruppen
   total-cpu-usage: Gesamte CPU Auslastung
   total-mem-usage: Gesamte Speicher Auslastung
   dozzle-version: Dozzle Version

@@ -23,6 +23,9 @@ label:
   created: Criado
   avg-cpu: Média de CPU (%)
   avg-mem: Média de MEM (%)
+  host-menu: Anfitriões e Contentores
+  swarm-menu: Serviços e Stacks
+  group-menu: Grupos Personalizados
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna

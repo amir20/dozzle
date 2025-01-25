@@ -46,37 +46,13 @@
         </ul>
       </details>
     </li>
-
-    <li v-if="customGroups.length > 0">
-      <details open>
-        <summary class="text-base-content/80 font-light">
-          <ph:bounding-box-fill />
-          {{ $t("label.custom-groups") }}
-        </summary>
-        <ul>
-          <li v-for="group in customGroups" :key="group.name">
-            <router-link :to="{ name: '/group/[name]', params: { name: group.name } }" active-class="menu-active">
-              <ph:stack-simple />
-              <div class="truncate">
-                {{ group.name }}
-              </div>
-            </router-link>
-          </li>
-        </ul>
-      </details>
-    </li>
   </ul>
 </template>
 
 <script lang="ts" setup>
 const store = useSwarmStore();
 
-const { stacks, services, customGroups } = storeToRefs(store);
+const { stacks, services } = storeToRefs(store);
 
 const servicesWithoutStacks = computed(() => services.value.filter((service) => !service.stack));
 </script>
-<style scoped>
-.menu {
-  @apply text-[0.95rem];
-}
-</style>

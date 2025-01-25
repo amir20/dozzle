@@ -28,5 +28,5 @@ watchEffect(() => {
 </script>
 <route lang="yaml">
 meta:
-  swarmMode: true
+  menu: swarm
 </route>
