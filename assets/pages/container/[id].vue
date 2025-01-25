@@ -78,5 +78,5 @@ watchEffect(() => {
 </script>
 <route lang="yaml">
 meta:
-  menu: "host"
+  menu: host
 </route>
