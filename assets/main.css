@@ -107,7 +107,7 @@
 @utility menu-active {
   &,
   &:active {
-    --color-neutral: var(--color-primary);
+    --menu-active-bg: var(--color-primary);
   }
 }
 
