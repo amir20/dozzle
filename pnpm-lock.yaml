@@ -12,8 +12,8 @@ importers:
         specifier: 1.29.0
         version: 1.29.0
       '@iconify-json/carbon':
-        specifier: ^1.2.5
-        version: 1.2.5
+        specifier: ^1.2.6
+        version: 1.2.6
       '@iconify-json/cil':
         specifier: ^1.2.2
         version: 1.2.2
@@ -120,8 +120,8 @@ importers:
         specifier: ^28.0.0
         version: 28.0.0(@babel/parser@7.26.7)(rollup@4.32.1)(vue@3.5.13(typescript@5.7.3))
       unplugin-vue-macros:
-        specifier: ^2.14.0
-        version: 2.14.0(@vueuse/core@12.5.0(typescript@5.7.3))(esbuild@0.24.2)(rollup@4.32.1)(typescript@5.7.3)(vite@6.0.11(@types/node@22.13.0)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
+        specifier: ^2.14.1
+        version: 2.14.1(@vueuse/core@12.5.0(typescript@5.7.3))(esbuild@0.24.2)(rollup@4.32.1)(typescript@5.7.3)(vite@6.0.11(@types/node@22.13.0)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3))
       unplugin-vue-router:
         specifier: ^0.11.2
         version: 0.11.2(rollup@4.32.1)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
@@ -895,8 +895,8 @@ packages:
     resolution: {integrity: sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA==}
     engines: {node: '>=18.18'}
 
-  '@iconify-json/carbon@1.2.5':
-    resolution: {integrity: sha512-aI3TEzOrUDGhs74zIT3ym/ZQBUEziyu8JifntX2Hb4siVzsP5sQ/QEfVdmcCUj37kQUYT3TYBSeAw2vTfCJx9w==}
+  '@iconify-json/carbon@1.2.6':
+    resolution: {integrity: sha512-Oat/TUfu1Cpg/inoi6ZIVvNjWoKQJFugpDB6LqpahENf4f2pZKMOUR2B9MCQlje77iRRI5nWQzvUO2kJlXFStw==}
 
   '@iconify-json/cil@1.2.2':
     resolution: {integrity: sha512-DiIDcsmGQhzFuxprBI5KTUm4+k3NS9qVqihpsJe5PBAbRXwEfn6fUfcHcdAcFPgU3hIQ6zgQ4cuebXPuiWxbOg==}
@@ -1586,8 +1586,8 @@ packages:
     resolution: {integrity: sha512-qIKU0xLzZ4Woo5JfLR6eZwiCj/QXee7GmGqVPZquR5Nrnbf5PvkAJeirX3Wlizjgvg+snmkz1dOg+80qcYooTQ==}
     engines: {node: '>=16.14.0'}
 
-  '@vue-macros/jsx-directive@0.10.2':
-    resolution: {integrity: sha512-4z3XmANc0Sr+HuGPETn02KgkPVmfk+gtKx62gcTCrGpYxkWribMspINgytPa2Xs4/ZVA0YXUMkN6QLxwN4JEyQ==}
+  '@vue-macros/jsx-directive@0.10.3':
+    resolution: {integrity: sha512-yyobqxbBXar+QnbJNMgxky2Hwxp1PHWUrshg46kfBn9ZtRW2dOaup3Z85WxD9ShH/BytyCoFvkWCVjn/NWt+ew==}
     engines: {node: '>=16.14.0'}
 
   '@vue-macros/named-template@0.5.5':
@@ -3617,8 +3617,8 @@ packages:
     resolution: {integrity: sha512-V50sWbpoADsjyVgovxewoLo2IDW0zfgHJbKiAl2EdZT8OL3g3h1Mz3QKoAAu09i8+LnkDatIEQMgBVeHHxWXNg==}
     engines: {node: '>=16.14.0'}
 
-  unplugin-vue-macros@2.14.0:
-    resolution: {integrity: sha512-p5loYEKpdaPCQs/azLBjqfGZM66aoMNILQ3NG4tuPDuP6eab28/0vRymUJBgxNCMzIS0ld5n/4FHelGdECFfTg==}
+  unplugin-vue-macros@2.14.1:
+    resolution: {integrity: sha512-ey7XgkdBDXqMdvIM3i4zlUooRALPAyi0wvF/s0bXFG7YrwXbdIYSYYuyzZXUsOl8aA7KB3o7+HBikFEuUvadWg==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
       vue: ^2.7.0 || ^3.2.25
@@ -4437,7 +4437,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.3.1': {}
 
-  '@iconify-json/carbon@1.2.5':
+  '@iconify-json/carbon@1.2.6':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -5152,7 +5152,7 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  '@vue-macros/jsx-directive@0.10.2(typescript@5.7.3)':
+  '@vue-macros/jsx-directive@0.10.3(typescript@5.7.3)':
     dependencies:
       '@vue-macros/common': 1.16.1(vue@3.5.13(typescript@5.7.3))
       '@vue/compiler-core': 3.5.13
@@ -7266,7 +7266,7 @@ snapshots:
     transitivePeerDependencies:
       - vue
 
-  unplugin-vue-macros@2.14.0(@vueuse/core@12.5.0(typescript@5.7.3))(esbuild@0.24.2)(rollup@4.32.1)(typescript@5.7.3)(vite@6.0.11(@types/node@22.13.0)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
+  unplugin-vue-macros@2.14.1(@vueuse/core@12.5.0(typescript@5.7.3))(esbuild@0.24.2)(rollup@4.32.1)(typescript@5.7.3)(vite@6.0.11(@types/node@22.13.0)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(vue@3.5.13(typescript@5.7.3)):
     dependencies:
       '@vue-macros/better-define': 1.11.3(vue@3.5.13(typescript@5.7.3))
       '@vue-macros/boolean-prop': 0.5.5(vue@3.5.13(typescript@5.7.3))
@@ -7286,7 +7286,7 @@ snapshots:
       '@vue-macros/export-props': 0.6.5(vue@3.5.13(typescript@5.7.3))
       '@vue-macros/export-render': 0.3.5(vue@3.5.13(typescript@5.7.3))
       '@vue-macros/hoist-static': 1.7.0(vue@3.5.13(typescript@5.7.3))
-      '@vue-macros/jsx-directive': 0.10.2(typescript@5.7.3)
+      '@vue-macros/jsx-directive': 0.10.3(typescript@5.7.3)
       '@vue-macros/named-template': 0.5.5(vue@3.5.13(typescript@5.7.3))
       '@vue-macros/reactivity-transform': 1.1.6(vue@3.5.13(typescript@5.7.3))
       '@vue-macros/script-lang': 0.2.5(vue@3.5.13(typescript@5.7.3))
