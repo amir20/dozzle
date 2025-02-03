@@ -49,9 +49,16 @@ func NewClient(cli DockerCLI, host container.Host) container.Client {
 		log.Error().Err(err).Msg("Failed to get docker info")
 	}
 
+	id := info.ID
+	if info.Swarm.NodeID != "" {
+		id = info.Swarm.NodeID
+	}
+
+	host.ID = id
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
 	host.DockerVersion = info.ServerVersion
+	host.Swarm = info.Swarm.NodeID != ""
 
 	return &httpClient{
 		cli:  cli,
@@ -73,16 +80,8 @@ func NewLocalClient(hostname string) (container.Client, error) {
 		return nil, err
 	}
 
-	id := info.ID
-	if info.Swarm.NodeID != "" {
-		id = info.Swarm.NodeID
-	}
-
 	host := container.Host{
-		ID:       id,
 		Name:     info.Name,
-		MemTotal: info.MemTotal,
-		NCPU:     info.NCPU,
 		Endpoint: "local",
 		Type:     "local",
 	}
@@ -300,10 +299,6 @@ func (d *httpClient) Host() container.Host {
 
 func (d *httpClient) IsSwarmMode() bool {
 	return d.info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
-}
-
-func (d *httpClient) SystemInfo() system.Info {
-	return d.info
 }
 
 func newContainer(c types.Container, host string) container.Container {

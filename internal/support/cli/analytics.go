@@ -29,7 +29,7 @@ func StartEvent(args Args, mode string, client container.Client, subCommand stri
 		host := client.Host()
 		event.ServerID = host.ID
 		event.ServerVersion = host.DockerVersion
-		event.IsSwarmMode = client.SystemInfo().Swarm.NodeID != ""
+		event.IsSwarmMode = host.Swarm
 	} else {
 		event.ServerID = "n/a"
 	}

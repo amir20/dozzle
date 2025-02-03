@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/system"
 )
 
 type StdType int
@@ -42,5 +41,4 @@ type Client interface {
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
 	IsSwarmMode() bool
-	SystemInfo() system.Info
 }
