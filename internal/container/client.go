@@ -4,8 +4,6 @@ import (
 	"context"
 	"io"
 	"time"
-
-	"github.com/docker/docker/api/types"
 )
 
 type StdType int
@@ -37,7 +35,7 @@ type Client interface {
 	ContainerEvents(context.Context, chan<- ContainerEvent) error
 	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
 	ContainerStats(context.Context, string, chan<- ContainerStat) error
-	Ping(context.Context) (types.Ping, error)
+	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
 	IsSwarmMode() bool

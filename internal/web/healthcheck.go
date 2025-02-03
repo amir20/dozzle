@@ -11,7 +11,7 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 
 	clients := h.multiHostService.LocalClients()
 	for _, client := range clients {
-		if _, err := client.Ping(r.Context()); err != nil {
+		if err := client.Ping(r.Context()); err != nil {
 			log.Error().Err(err).Str("host", client.Host().Name).Msg("error pinging host")
 			w.WriteHeader(http.StatusInternalServerError)
 		}

@@ -288,8 +288,9 @@ func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, f
 	return reader, nil
 }
 
-func (d *httpClient) Ping(ctx context.Context) (types.Ping, error) {
-	return d.cli.Ping(ctx)
+func (d *httpClient) Ping(ctx context.Context) error {
+	_, err := d.cli.Ping(ctx)
+	return err
 }
 
 func (d *httpClient) Host() container.Host {
