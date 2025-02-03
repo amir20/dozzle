@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -21,17 +21,17 @@ func Test_handler_download_logs(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := makeMessage("INFO Testing logs...", docker.STDOUT)
+	data := makeMessage("INFO Testing logs...", container.STDOUT)
 
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Tty: false}, nil)
-	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, docker.STDOUT).Return(io.NopCloser(bytes.NewReader(data)), nil)
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Tty: false}, nil)
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDOUT).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		time.Sleep(1 * time.Second)
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", State: "running"},
 	}, nil)
 

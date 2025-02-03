@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"fmt"
@@ -25,6 +25,7 @@ type Host struct {
 	AgentVersion  string   `json:"agentVersion,omitempty"`
 	Type          string   `json:"type"`
 	Available     bool     `json:"available"`
+	Swarm         bool     `json:"-"`
 }
 
 func (h Host) String() string {

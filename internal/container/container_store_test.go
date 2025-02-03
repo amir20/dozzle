@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"context"
@@ -48,7 +48,7 @@ func TestContainerStore_List(t *testing.T) {
 			Name: "test",
 		},
 	}, nil)
-	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		ctx := args.Get(0).(context.Context)
 		<-ctx.Done()
 	})
@@ -83,7 +83,7 @@ func TestContainerStore_die(t *testing.T) {
 		},
 	}, nil)
 
-	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			ctx := args.Get(0).(context.Context)
 			events := args.Get(1).(chan<- ContainerEvent)
@@ -98,7 +98,7 @@ func TestContainerStore_die(t *testing.T) {
 		ID: "localhost",
 	})
 
-	client.On("ContainerStats", mock.Anything, "1234", mock.AnythingOfType("chan<- docker.ContainerStat")).Return(nil)
+	client.On("ContainerStats", mock.Anything, "1234", mock.AnythingOfType("chan<- container.ContainerStat")).Return(nil)
 
 	client.On("FindContainer", mock.Anything, "1234").Return(Container{
 		ID:    "1234",

@@ -2,12 +2,12 @@ package cli
 
 import (
 	"github.com/amir20/dozzle/internal/analytics"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
-func StartEvent(args Args, mode string, client docker.Client, subCommand string) {
+func StartEvent(args Args, mode string, client container.Client, subCommand string) {
 	if args.NoAnalytics {
 		return
 	}
@@ -29,7 +29,7 @@ func StartEvent(args Args, mode string, client docker.Client, subCommand string)
 		host := client.Host()
 		event.ServerID = host.ID
 		event.ServerVersion = host.DockerVersion
-		event.IsSwarmMode = client.SystemInfo().Swarm.NodeID != ""
+		event.IsSwarmMode = host.Swarm
 	} else {
 		event.ServerID = "n/a"
 	}

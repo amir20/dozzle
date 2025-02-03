@@ -16,6 +16,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/amir20/dozzle/internal/support/cli"
@@ -161,7 +162,7 @@ func main() {
 
 	var multiHostService *docker_support.MultiHostService
 	if args.Mode == "server" {
-		var localClient docker.Client
+		var localClient container.Client
 		localClient, multiHostService = cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
 			log.Fatal().Msg("Could not connect to any Docker Engine")

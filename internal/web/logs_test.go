@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/beme/abide"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -36,25 +36,25 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := makeMessage("INFO Testing logs...", docker.STDOUT)
+	data := makeMessage("INFO Testing logs...", container.STDOUT)
 
 	now := time.Now()
 
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Tty: false, Host: "localhost", StartedAt: now}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, now, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Tty: false, Host: "localhost", StartedAt: now}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, now, container.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
 		Run(func(args mock.Arguments) {
 			go func() {
 				time.Sleep(50 * time.Millisecond)
 				cancel()
 			}()
 		})
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		time.Sleep(50 * time.Millisecond)
 	})
 
@@ -80,27 +80,27 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", docker.STDOUT)
+	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", container.STDOUT)
 
 	started := time.Date(2020, time.May, 13, 18, 55, 37, 772853839, time.UTC)
 
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, started, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, mock.Anything, started, container.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil).
 		Run(func(args mock.Arguments) {
 			go func() {
 				time.Sleep(50 * time.Millisecond)
 				cancel()
 			}()
 		})
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
 
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
 
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		time.Sleep(50 * time.Millisecond)
 	})
 
@@ -125,21 +125,21 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 
 	started := time.Date(2020, time.May, 13, 18, 55, 37, 772853839, time.UTC)
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, started, docker.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, started, container.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
 		Run(func(args mock.Arguments) {
 			go func() {
 				time.Sleep(50 * time.Millisecond)
 				cancel()
 			}()
 		})
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -163,21 +163,21 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 
 	started := time.Date(2020, time.May, 13, 18, 55, 37, 772853839, time.UTC)
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
-	mockedClient.On("ContainerLogs", mock.Anything, id, started, docker.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error")).
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", StartedAt: started}, nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, started, container.STDALL).Return(io.NopCloser(strings.NewReader("")), errors.New("test error")).
 		Run(func(args mock.Arguments) {
 			go func() {
 				time.Sleep(50 * time.Millisecond)
 				cancel()
 			}()
 		})
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -194,14 +194,14 @@ func Test_handler_streamLogs_error_std(t *testing.T) {
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id, Host: "localhost"}, nil)
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost"}, nil)
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			time.Sleep(50 * time.Millisecond)
 		})
@@ -231,19 +231,19 @@ func Test_handler_between_dates(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
-	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", container.STDOUT)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", container.STDERR)
 	data := append(first, second...)
 
-	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, container.STDALL).Return(io.NopCloser(bytes.NewReader(data)), nil)
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id}, nil)
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -273,24 +273,24 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", docker.STDOUT)
-	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", docker.STDERR)
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", container.STDOUT)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z INFO Testing stderr logs...\n", container.STDERR)
 	data := append(first, second...)
 
-	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, docker.STDALL).
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, container.STDALL).
 		Return(io.NopCloser(bytes.NewReader([]byte{})), nil).
 		Once()
-	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, time.Date(2017, time.December, 31, 14, 0, 0, 0, time.UTC), to, docker.STDALL).
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, time.Date(2017, time.December, 31, 14, 0, 0, 0, time.UTC), to, container.STDALL).
 		Return(io.NopCloser(bytes.NewReader(data)), nil).
 		Once()
-	mockedClient.On("FindContainer", mock.Anything, id).Return(docker.Container{ID: id}, nil)
-	mockedClient.On("Host").Return(docker.Host{
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id}, nil)
+	mockedClient.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
 	handler := createDefaultHandler(mockedClient)
 	rr := httptest.NewRecorder()
@@ -300,7 +300,7 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
-func makeMessage(message string, stream docker.StdType) []byte {
+func makeMessage(message string, stream container.StdType) []byte {
 	data := make([]byte, 8)
 	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
 	data[0] = byte(stream / 2)

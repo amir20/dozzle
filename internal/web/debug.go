@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 )
 
 func (h *handler) debugStore(w http.ResponseWriter, r *http.Request) {
 	respone := make(map[string]interface{})
 	respone["hosts"] = h.multiHostService.Hosts()
-	containers, errors := h.multiHostService.ListAllContainers(docker.ContainerFilter{})
+	containers, errors := h.multiHostService.ListAllContainers(container.ContainerFilter{})
 	respone["containers"] = containers
 	respone["errors"] = errors
 

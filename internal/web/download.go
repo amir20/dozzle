@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/go-chi/chi/v5"
 )
@@ -32,12 +32,12 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	nowFmt := now.Format("2006-01-02T15-04-05")
 
-	var stdTypes docker.StdType
+	var stdTypes container.StdType
 	if r.URL.Query().Has("stdout") {
-		stdTypes |= docker.STDOUT
+		stdTypes |= container.STDOUT
 	}
 	if r.URL.Query().Has("stderr") {
-		stdTypes |= docker.STDERR
+		stdTypes |= container.STDERR
 	}
 
 	if stdTypes == 0 {

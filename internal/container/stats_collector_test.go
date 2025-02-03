@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"context"
@@ -17,13 +17,13 @@ func startedCollector(ctx context.Context) *StatsCollector {
 			State: "running",
 		},
 	}, nil)
-	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).
+	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
 			ctx := args.Get(0).(context.Context)
 			<-ctx.Done()
 		})
-	client.On("ContainerStats", mock.Anything, mock.Anything, mock.AnythingOfType("chan<- docker.ContainerStat")).
+	client.On("ContainerStats", mock.Anything, mock.Anything, mock.AnythingOfType("chan<- container.ContainerStat")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
 			stats := args.Get(2).(chan<- ContainerStat)

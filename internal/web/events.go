@@ -5,7 +5,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/types"
@@ -20,9 +20,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	events := make(chan docker.ContainerEvent)
-	stats := make(chan docker.ContainerStat)
-	availableHosts := make(chan docker.Host)
+	events := make(chan container.ContainerEvent)
+	stats := make(chan container.ContainerStat)
+	availableHosts := make(chan container.Host)
 
 	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
 	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)

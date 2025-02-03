@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 )
 
 type agentService struct {
 	client *agent.Client
-	host   docker.Host
+	host   container.Host
 }
 
 func NewAgentService(client *agent.Client) ClientService {
@@ -22,28 +22,28 @@ func NewAgentService(client *agent.Client) ClientService {
 	}
 }
 
-func (a *agentService) FindContainer(ctx context.Context, id string, filter docker.ContainerFilter) (docker.Container, error) {
+func (a *agentService) FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error) {
 	return a.client.FindContainer(ctx, id)
 }
 
-func (a *agentService) RawLogs(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (io.ReadCloser, error) {
+func (a *agentService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
 	return a.client.StreamRawBytes(ctx, container.ID, from, to, stdTypes)
 }
 
-func (a *agentService) LogsBetweenDates(ctx context.Context, container docker.Container, from time.Time, to time.Time, stdTypes docker.StdType) (<-chan *docker.LogEvent, error) {
+func (a *agentService) LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
 	return a.client.LogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
-func (a *agentService) StreamLogs(ctx context.Context, container docker.Container, from time.Time, stdTypes docker.StdType, events chan<- *docker.LogEvent) error {
+func (a *agentService) StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
 	return a.client.StreamContainerLogs(ctx, container.ID, from, stdTypes, events)
 }
 
-func (a *agentService) ListContainers(ctx context.Context, filter docker.ContainerFilter) ([]docker.Container, error) {
+func (a *agentService) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
 	log.Debug().Interface("filter", filter).Msg("Listing containers from agent")
 	return a.client.ListContainers(ctx, filter)
 }
 
-func (a *agentService) Host(ctx context.Context) (docker.Host, error) {
+func (a *agentService) Host(ctx context.Context) (container.Host, error) {
 	host, err := a.client.Host(ctx)
 	if err != nil {
 		host := a.host
@@ -55,18 +55,18 @@ func (a *agentService) Host(ctx context.Context) (docker.Host, error) {
 	return a.host, err
 }
 
-func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- docker.ContainerStat) {
+func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	go a.client.StreamStats(ctx, stats)
 }
 
-func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- docker.ContainerEvent) {
+func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
 	go a.client.StreamEvents(ctx, events)
 }
 
-func (d *agentService) SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container) {
+func (d *agentService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	go d.client.StreamNewContainers(ctx, containers)
 }
 
-func (a *agentService) ContainerAction(ctx context.Context, container docker.Container, action docker.ContainerAction) error {
+func (a *agentService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return a.client.ContainerAction(ctx, container.ID, action)
 }

@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"html"
@@ -30,7 +30,6 @@ func escape(logEvent *LogEvent) {
 }
 
 func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
-
 	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
 		switch value := pair.Value.(type) {
 		case string:

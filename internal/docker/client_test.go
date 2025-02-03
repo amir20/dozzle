@@ -10,8 +10,9 @@ import (
 
 	"testing"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	docker "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/system"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,7 +24,7 @@ type mockedProxy struct {
 	DockerCLI
 }
 
-func (m *mockedProxy) ContainerList(context.Context, container.ListOptions) ([]types.Container, error) {
+func (m *mockedProxy) ContainerList(context.Context, docker.ListOptions) ([]types.Container, error) {
 	args := m.Called()
 	containers, ok := args.Get(0).([]types.Container)
 	if !ok && args.Get(0) != nil {
@@ -33,7 +34,7 @@ func (m *mockedProxy) ContainerList(context.Context, container.ListOptions) ([]t
 
 }
 
-func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options container.LogsOptions) (io.ReadCloser, error) {
+func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options docker.LogsOptions) (io.ReadCloser, error) {
 	args := m.Called(ctx, id, options)
 	reader, ok := args.Get(0).(io.ReadCloser)
 	if !ok && args.Get(0) != nil {
@@ -47,11 +48,11 @@ func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) 
 	return args.Get(0).(types.ContainerJSON), args.Error(1)
 }
 
-func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (container.StatsResponseReader, error) {
-	return container.StatsResponseReader{}, nil
+func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (docker.StatsResponseReader, error) {
+	return docker.StatsResponseReader{}, nil
 }
 
-func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error {
+func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error {
 
 	args := m.Called(ctx, containerID, options)
 	err := args.Get(0)
@@ -63,7 +64,7 @@ func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, op
 	return nil
 }
 
-func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error {
+func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error {
 	args := m.Called(ctx, containerID, options)
 	err := args.Get(0)
 
@@ -74,7 +75,7 @@ func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, opt
 	return nil
 }
 
-func (m *mockedProxy) ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error {
+func (m *mockedProxy) ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error {
 
 	args := m.Called(ctx, containerID, options)
 	err := args.Get(0)
@@ -89,9 +90,9 @@ func (m *mockedProxy) ContainerRestart(ctx context.Context, containerID string, 
 func Test_dockerClient_ListContainers_null(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, nil)
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
 	assert.Empty(t, list, "list should be empty")
 	require.NoError(t, err, "error should not return an error.")
 
@@ -101,9 +102,9 @@ func Test_dockerClient_ListContainers_null(t *testing.T) {
 func Test_dockerClient_ListContainers_error(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, errors.New("test"))
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
 	assert.Nil(t, list, "list should be nil")
 	require.Error(t, err, "test.")
 
@@ -124,9 +125,9 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 
 	proxy := new(mockedProxy)
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
 	require.NoError(t, err, "error should not return an error.")
 
 	Ids := []string{"1234567890_a", "abcdefghijkl"}
@@ -149,7 +150,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 
 	reader := io.NopCloser(bytes.NewReader(b))
 	since := time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC)
-	options := container.LogsOptions{
+	options := docker.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -158,8 +159,8 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 		Since:      "2020-12-31T23:59:59.95Z"}
 	proxy.On("ContainerLogs", mock.Anything, id, options).Return(reader, nil)
 
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
-	logReader, _ := client.ContainerLogs(context.Background(), id, since, STDALL)
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
+	logReader, _ := client.ContainerLogs(context.Background(), id, since, container.STDALL)
 
 	actual, _ := io.ReadAll(logReader)
 	assert.Equal(t, string(b), string(actual), "message doesn't match expected")
@@ -172,9 +173,9 @@ func Test_dockerClient_ContainerLogs_error(t *testing.T) {
 
 	proxy.On("ContainerLogs", mock.Anything, id, mock.Anything).Return(nil, errors.New("test"))
 
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	reader, err := client.ContainerLogs(context.Background(), id, time.Time{}, STDALL)
+	reader, err := client.ContainerLogs(context.Background(), id, time.Time{}, container.STDALL)
 
 	assert.Nil(t, reader, "reader should be nil")
 	assert.Error(t, err, "error should have been returned")
@@ -185,10 +186,10 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 	proxy := new(mockedProxy)
 
 	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state}, Config: &container.Config{Tty: false}}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state}, Config: &docker.Config{Tty: false}}
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
 	container, err := client.FindContainer(context.Background(), "abcdefghijkl")
 	require.NoError(t, err, "error should not be thrown")
@@ -201,7 +202,7 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 func Test_dockerClient_FindContainer_error(t *testing.T) {
 	proxy := new(mockedProxy)
 	proxy.On("ContainerInspect", mock.Anything, "not_valid").Return(types.ContainerJSON{}, errors.New("not found"))
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
 	_, err := client.FindContainer(context.Background(), "not_valid")
 	require.Error(t, err, "error should be thrown")
@@ -211,24 +212,24 @@ func Test_dockerClient_FindContainer_error(t *testing.T) {
 
 func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 	proxy := new(mockedProxy)
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
 	state := &types.ContainerState{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijkl", State: state}, Config: &container.Config{Tty: false}}
+	json := types.ContainerJSON{ContainerJSONBase: &types.ContainerJSONBase{ID: "abcdefghijkl", State: state}, Config: &docker.Config{Tty: false}}
 
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
 	proxy.On("ContainerStop", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
 	proxy.On("ContainerRestart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
 
-	container, err := client.FindContainer(context.Background(), "abcdefghijkl")
+	c, err := client.FindContainer(context.Background(), "abcdefghijkl")
 	require.NoError(t, err, "error should not be thrown")
 
-	assert.Equal(t, container.ID, "abcdefghijkl")
+	assert.Equal(t, c.ID, "abcdefghijkl")
 
 	actions := []string{"start", "stop", "restart"}
 	for _, action := range actions {
-		err := client.ContainerActions(context.Background(), ContainerAction(action), container.ID)
+		err := client.ContainerActions(context.Background(), container.ContainerAction(action), c.ID)
 		require.NoError(t, err, "error should not be thrown")
 		assert.Equal(t, err, nil)
 	}
@@ -239,18 +240,18 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 func Test_dockerClient_ContainerActions_error(t *testing.T) {
 
 	proxy := new(mockedProxy)
-	client := &httpClient{proxy, Host{ID: "localhost"}, system.Info{}}
+	client := &httpClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 	proxy.On("ContainerInspect", mock.Anything, "random-id").Return(types.ContainerJSON{}, errors.New("not found"))
 	proxy.On("ContainerStart", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))
 	proxy.On("ContainerStop", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))
 	proxy.On("ContainerRestart", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test"))
 
-	container, err := client.FindContainer(context.Background(), "random-id")
+	c, err := client.FindContainer(context.Background(), "random-id")
 	require.Error(t, err, "error should be thrown")
 
 	actions := []string{"start", "stop", "restart"}
 	for _, action := range actions {
-		err := client.ContainerActions(context.Background(), ContainerAction(action), container.ID)
+		err := client.ContainerActions(context.Background(), container.ContainerAction(action), c.ID)
 		require.Error(t, err, "error should be thrown")
 		assert.Error(t, err, "error should have been returned")
 	}

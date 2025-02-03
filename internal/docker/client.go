@@ -11,10 +11,12 @@ import (
 
 	"encoding/json"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	docker "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/client"
@@ -22,70 +24,41 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type StdType int
-
-const (
-	UNKNOWN StdType = 1 << iota
-	STDOUT
-	STDERR
-)
-const STDALL = STDOUT | STDERR
-
-func (s StdType) String() string {
-	switch s {
-	case STDOUT:
-		return "stdout"
-	case STDERR:
-		return "stderr"
-	case STDALL:
-		return "all"
-	default:
-		return "unknown"
-	}
-}
-
 type DockerCLI interface {
-	ContainerList(context.Context, container.ListOptions) ([]types.Container, error)
-	ContainerLogs(context.Context, string, container.LogsOptions) (io.ReadCloser, error)
+	ContainerList(context.Context, docker.ListOptions) ([]types.Container, error)
+	ContainerLogs(context.Context, string, docker.LogsOptions) (io.ReadCloser, error)
 	Events(context.Context, events.ListOptions) (<-chan events.Message, <-chan error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
-	ContainerStats(ctx context.Context, containerID string, stream bool) (container.StatsResponseReader, error)
+	ContainerStats(ctx context.Context, containerID string, stream bool) (docker.StatsResponseReader, error)
 	Ping(ctx context.Context) (types.Ping, error)
-	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
-	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
-	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error
+	ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error
+	ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error
 	Info(ctx context.Context) (system.Info, error)
-}
-
-type Client interface {
-	ListContainers(context.Context, ContainerFilter) ([]Container, error)
-	FindContainer(context.Context, string) (Container, error)
-	ContainerLogs(context.Context, string, time.Time, StdType) (io.ReadCloser, error)
-	ContainerEvents(context.Context, chan<- ContainerEvent) error
-	ContainerLogsBetweenDates(context.Context, string, time.Time, time.Time, StdType) (io.ReadCloser, error)
-	ContainerStats(context.Context, string, chan<- ContainerStat) error
-	Ping(context.Context) (types.Ping, error)
-	Host() Host
-	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	IsSwarmMode() bool
-	SystemInfo() system.Info
 }
 
 type httpClient struct {
 	cli  DockerCLI
-	host Host
+	host container.Host
 	info system.Info
 }
 
-func NewClient(cli DockerCLI, host Host) Client {
+func NewClient(cli DockerCLI, host container.Host) container.Client {
 	info, err := cli.Info(context.Background())
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
 	}
 
+	id := info.ID
+	if info.Swarm.NodeID != "" {
+		id = info.Swarm.NodeID
+	}
+
+	host.ID = id
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
 	host.DockerVersion = info.ServerVersion
+	host.Swarm = info.Swarm.NodeID != ""
 
 	return &httpClient{
 		cli:  cli,
@@ -95,7 +68,7 @@ func NewClient(cli DockerCLI, host Host) Client {
 }
 
 // NewClientWithFilters creates a new instance of Client with docker filters
-func NewLocalClient(hostname string) (Client, error) {
+func NewLocalClient(hostname string) (container.Client, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 
 	if err != nil {
@@ -107,16 +80,8 @@ func NewLocalClient(hostname string) (Client, error) {
 		return nil, err
 	}
 
-	id := info.ID
-	if info.Swarm.NodeID != "" {
-		id = info.Swarm.NodeID
-	}
-
-	host := Host{
-		ID:       id,
+	host := container.Host{
 		Name:     info.Name,
-		MemTotal: info.MemTotal,
-		NCPU:     info.NCPU,
 		Endpoint: "local",
 		Type:     "local",
 	}
@@ -128,7 +93,7 @@ func NewLocalClient(hostname string) (Client, error) {
 	return NewClient(cli, host), nil
 }
 
-func NewRemoteClient(host Host) (Client, error) {
+func NewRemoteClient(host container.Host) (container.Client, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -158,33 +123,39 @@ func NewRemoteClient(host Host) (Client, error) {
 }
 
 // Finds a container by id, skipping the filters
-func (d *httpClient) FindContainer(ctx context.Context, id string) (Container, error) {
+func (d *httpClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	if json, err := d.cli.ContainerInspect(ctx, id); err == nil {
 		return newContainerFromJSON(json, d.host.ID), nil
 	} else {
-		return Container{}, err
+		return container.Container{}, err
 	}
 
 }
 
-func (d *httpClient) ContainerActions(ctx context.Context, action ContainerAction, containerID string) error {
+func (d *httpClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
 	switch action {
-	case Start:
-		return d.cli.ContainerStart(ctx, containerID, container.StartOptions{})
-	case Stop:
-		return d.cli.ContainerStop(ctx, containerID, container.StopOptions{})
-	case Restart:
-		return d.cli.ContainerRestart(ctx, containerID, container.StopOptions{})
+	case container.Start:
+		return d.cli.ContainerStart(ctx, containerID, docker.StartOptions{})
+	case container.Stop:
+		return d.cli.ContainerStop(ctx, containerID, docker.StopOptions{})
+	case container.Restart:
+		return d.cli.ContainerRestart(ctx, containerID, docker.StopOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
 }
 
-func (d *httpClient) ListContainers(ctx context.Context, filter ContainerFilter) ([]Container, error) {
+func (d *httpClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
 	log.Debug().Interface("filter", filter).Str("host", d.host.Name).Msg("Listing containers")
-	containerListOptions := container.ListOptions{
-		Filters: filter.asArgs(),
+	filterArgs := filters.NewArgs()
+	for key, values := range filter {
+		for _, value := range values {
+			filterArgs.Add(key, value)
+		}
+	}
+	containerListOptions := docker.ListOptions{
+		Filters: filterArgs,
 		All:     true,
 	}
 	list, err := d.cli.ContainerList(ctx, containerListOptions)
@@ -192,7 +163,7 @@ func (d *httpClient) ListContainers(ctx context.Context, filter ContainerFilter)
 		return nil, err
 	}
 
-	var containers = make([]Container, 0, len(list))
+	var containers = make([]container.Container, 0, len(list))
 	for _, c := range list {
 		containers = append(containers, newContainer(c, d.host.ID))
 	}
@@ -204,7 +175,7 @@ func (d *httpClient) ListContainers(ctx context.Context, filter ContainerFilter)
 	return containers, nil
 }
 
-func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<- ContainerStat) error {
+func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -213,7 +184,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 
 	defer response.Body.Close()
 	decoder := json.NewDecoder(response.Body)
-	var v *container.StatsResponse
+	var v *docker.StatsResponse
 	for {
 		if err := decoder.Decode(&v); err != nil {
 			return err
@@ -243,7 +214,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 			select {
 			case <-ctx.Done():
 				return nil
-			case stats <- ContainerStat{
+			case stats <- container.ContainerStat{
 				ID:            id,
 				CPUPercent:    cpuPercent,
 				MemoryPercent: memPercent,
@@ -254,13 +225,13 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 	}
 }
 
-func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType StdType) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("since", since).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Streaming logs for container")
 
 	sinceQuery := since.Add(-50 * time.Millisecond).Format(time.RFC3339Nano)
-	options := container.LogsOptions{
-		ShowStdout: stdType&STDOUT != 0,
-		ShowStderr: stdType&STDERR != 0,
+	options := docker.LogsOptions{
+		ShowStdout: stdType&container.STDOUT != 0,
+		ShowStderr: stdType&container.STDERR != 0,
 		Follow:     true,
 		Tail:       strconv.Itoa(100),
 		Timestamps: true,
@@ -275,7 +246,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Ti
 	return reader, nil
 }
 
-func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- ContainerEvent) error {
+func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- container.ContainerEvent) error {
 	dockerMessages, err := d.cli.Events(ctx, events.ListOptions{})
 
 	for {
@@ -287,7 +258,7 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- Contai
 
 		case message := <-dockerMessages:
 			if message.Type == events.ContainerEventType && len(message.Actor.ID) > 0 {
-				messages <- ContainerEvent{
+				messages <- container.ContainerEvent{
 					ActorID:         message.Actor.ID[:12],
 					Name:            string(message.Action),
 					Host:            d.host.ID,
@@ -299,11 +270,11 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- Contai
 	}
 }
 
-func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType StdType) (io.ReadCloser, error) {
+func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("from", from).Time("to", to).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Fetching logs between dates for container")
-	options := container.LogsOptions{
-		ShowStdout: stdType&STDOUT != 0,
-		ShowStderr: stdType&STDERR != 0,
+	options := docker.LogsOptions{
+		ShowStdout: stdType&container.STDOUT != 0,
+		ShowStderr: stdType&container.STDERR != 0,
 		Timestamps: true,
 		Since:      from.Format(time.RFC3339Nano),
 		Until:      to.Format(time.RFC3339Nano),
@@ -317,11 +288,12 @@ func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, f
 	return reader, nil
 }
 
-func (d *httpClient) Ping(ctx context.Context) (types.Ping, error) {
-	return d.cli.Ping(ctx)
+func (d *httpClient) Ping(ctx context.Context) error {
+	_, err := d.cli.Ping(ctx)
+	return err
 }
 
-func (d *httpClient) Host() Host {
+func (d *httpClient) Host() container.Host {
 	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
 }
@@ -330,11 +302,7 @@ func (d *httpClient) IsSwarmMode() bool {
 	return d.info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
 }
 
-func (d *httpClient) SystemInfo() system.Info {
-	return d.info
-}
-
-func newContainer(c types.Container, host string) Container {
+func newContainer(c types.Container, host string) container.Container {
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
@@ -346,7 +314,7 @@ func newContainer(c types.Container, host string) Container {
 	if c.Labels["dev.dozzle.group"] != "" {
 		group = c.Labels["dev.dozzle.group"]
 	}
-	return Container{
+	return container.Container{
 		ID:      c.ID[:12],
 		Name:    name,
 		Image:   c.Image,
@@ -355,12 +323,12 @@ func newContainer(c types.Container, host string) Container {
 		State:   c.State,
 		Host:    host,
 		Labels:  c.Labels,
-		Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
+		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:   group,
 	}
 }
 
-func newContainerFromJSON(c types.ContainerJSON, host string) Container {
+func newContainerFromJSON(c types.ContainerJSON, host string) container.Container {
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
@@ -373,7 +341,7 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 		group = c.Config.Labels["dev.dozzle.group"]
 	}
 
-	container := Container{
+	container := container.Container{
 		ID:      c.ID[:12],
 		Name:    name,
 		Image:   c.Config.Image,
@@ -381,7 +349,7 @@ func newContainerFromJSON(c types.ContainerJSON, host string) Container {
 		State:   c.State.Status,
 		Host:    host,
 		Labels:  c.Config.Labels,
-		Stats:   utils.NewRingBuffer[ContainerStat](300), // 300 seconds of stats
+		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:   group,
 		Tty:     c.Config.Tty,
 	}
