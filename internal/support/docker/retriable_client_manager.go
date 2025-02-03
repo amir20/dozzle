@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -21,7 +21,7 @@ type RetriableClientManager struct {
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
+	subscribers  *xsync.MapOf[context.Context, chan<- container.Host]
 	timeout      time.Duration
 }
 
@@ -72,12 +72,12 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		clients:      clientMap,
 		failedAgents: failed,
 		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- docker.Host](),
+		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
 		timeout:      timeout,
 	}
 }
 
-func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- docker.Host) {
+func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
 	m.subscribers.Store(ctx, channel)
 
 	go func() {
@@ -111,11 +111,11 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 			}
 
 			m.clients[host.ID] = NewAgentService(agent)
-			m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
+			m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
 				host.Available = true
 
 				// We don't want to block the subscribers in event.go
-				go func(host docker.Host) {
+				go func(host container.Host) {
 					select {
 					case channel <- host:
 					case <-ctx.Done():
@@ -152,10 +152,10 @@ func (m *RetriableClientManager) String() string {
 	return fmt.Sprintf("RetriableClientManager{clients: %d, failedAgents: %d}", len(m.clients), len(m.failedAgents))
 }
 
-func (m *RetriableClientManager) Hosts(ctx context.Context) []docker.Host {
+func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	clients := m.List()
 
-	hosts := lop.Map(clients, func(client ClientService, _ int) docker.Host {
+	hosts := lop.Map(clients, func(client ClientService, _ int) container.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
@@ -168,7 +168,7 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []docker.Host {
 	})
 
 	for _, endpoint := range m.failedAgents {
-		hosts = append(hosts, docker.Host{
+		hosts = append(hosts, container.Host{
 			ID:        endpoint,
 			Name:      endpoint,
 			Endpoint:  endpoint,
@@ -180,10 +180,10 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []docker.Host {
 	return hosts
 }
 
-func (m *RetriableClientManager) LocalClients() []docker.Client {
+func (m *RetriableClientManager) LocalClients() []container.Client {
 	services := m.List()
 
-	clients := make([]docker.Client, 0)
+	clients := make([]container.Client, 0)
 
 	for _, service := range services {
 		if clientService, ok := service.(*dockerClientService); ok {

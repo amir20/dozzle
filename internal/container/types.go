@@ -1,4 +1,4 @@
-package docker
+package container
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/utils"
-	"github.com/docker/docker/api/types/filters"
 )
 
 // Container represents an internal representation of docker containers
@@ -68,17 +67,6 @@ func ParseContainerFilter(commaValues string) (ContainerFilter, error) {
 
 func (f ContainerFilter) Exists() bool {
 	return len(f) > 0
-}
-
-func (f ContainerFilter) asArgs() filters.Args {
-	filterArgs := filters.NewArgs()
-	for key, values := range f {
-		for _, value := range values {
-			filterArgs.Add(key, value)
-		}
-	}
-
-	return filterArgs
 }
 
 type LogPosition string

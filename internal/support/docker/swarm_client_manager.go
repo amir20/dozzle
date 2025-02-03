@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -22,8 +22,8 @@ type SwarmClientManager struct {
 	clients      map[string]ClientService
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.MapOf[context.Context, chan<- docker.Host]
-	localClient  docker.Client
+	subscribers  *xsync.MapOf[context.Context, chan<- container.Host]
+	localClient  container.Client
 	localIPs     []string
 	name         string
 	timeout      time.Duration
@@ -47,7 +47,7 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, filter docker.ContainerFilter) *SwarmClientManager {
+func NewSwarmClientManager(localClient container.Client, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, filter container.ContainerFilter) *SwarmClientManager {
 	clientMap := make(map[string]ClientService)
 	localService := NewDockerClientService(localClient, filter)
 	clientMap[localClient.Host().ID] = localService
@@ -59,12 +59,12 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, tim
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	container, err := localClient.FindContainer(ctx, id)
+	c, err := localClient.FindContainer(ctx, id)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error finding own container when looking for swarm service name")
 	}
 
-	serviceName := container.Labels["com.docker.swarm.service.name"]
+	serviceName := c.Labels["com.docker.swarm.service.name"]
 
 	log.Debug().Str("service", serviceName).Msg("found swarm service name")
 
@@ -72,7 +72,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, tim
 		localClient:  localClient,
 		clients:      clientMap,
 		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- docker.Host](),
+		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
 		localIPs:     localIPs(),
 		name:         serviceName,
 		timeout:      timeout,
@@ -80,7 +80,7 @@ func NewSwarmClientManager(localClient docker.Client, certs tls.Certificate, tim
 	}
 }
 
-func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- docker.Host) {
+func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
 	m.subscribers.Store(ctx, channel)
 	m.agentManager.Subscribe(ctx, channel)
 
@@ -159,7 +159,7 @@ func (m *SwarmClientManager) RetryAndList() ([]ClientService, []error) {
 		m.clients[host.ID] = client
 		log.Info().Stringer("ip", ip).Str("id", host.ID).Str("name", host.Name).Msg("added new swarm agent")
 
-		m.subscribers.Range(func(ctx context.Context, channel chan<- docker.Host) bool {
+		m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
 			host.Available = true
 			host.Type = "swarm"
 
@@ -205,12 +205,12 @@ func (m *SwarmClientManager) Find(id string) (ClientService, bool) {
 	return client, ok
 }
 
-func (m *SwarmClientManager) Hosts(ctx context.Context) []docker.Host {
+func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
 	m.mu.RLock()
 	clients := lo.Values(m.clients)
 	m.mu.RUnlock()
 
-	swarmNodes := lop.Map(clients, func(client ClientService, _ int) docker.Host {
+	swarmNodes := lop.Map(clients, func(client ClientService, _ int) container.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
@@ -230,6 +230,6 @@ func (m *SwarmClientManager) String() string {
 	return fmt.Sprintf("SwarmClientManager{clients: %d}", len(m.clients))
 }
 
-func (m *SwarmClientManager) LocalClients() []docker.Client {
-	return []docker.Client{m.localClient}
+func (m *SwarmClientManager) LocalClients() []container.Client {
+	return []container.Client{m.localClient}
 }

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -25,19 +25,19 @@ import (
 )
 
 type server struct {
-	client  docker.Client
-	store   *docker.ContainerStore
+	client  container.Client
+	store   *container.ContainerStore
 	version string
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client docker.Client, dozzleVersion string, filter docker.ContainerFilter) pb.AgentServiceServer {
+func newServer(client container.Client, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
 	return &server{
 		client:  client,
 		version: dozzleVersion,
 
-		store: docker.NewContainerStore(context.Background(), client, filter),
+		store: container.NewContainerStore(context.Background(), client, filter),
 	}
 }
 
@@ -47,17 +47,17 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	container, err := s.store.FindContainer(in.ContainerId, docker.ContainerFilter{})
+	c, err := s.store.FindContainer(in.ContainerId, container.ContainerFilter{})
 	if err != nil {
 		return err
 	}
 
-	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, docker.StdType(in.StreamTypes))
+	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, container.StdType(in.StreamTypes))
 	if err != nil {
 		return err
 	}
 
-	g := docker.NewEventGenerator(out.Context(), reader, container)
+	g := container.NewEventGenerator(out.Context(), reader, c)
 
 	for event := range g.Events {
 		out.Send(&pb.StreamLogsResponse{
@@ -74,17 +74,17 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 }
 
 func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {
-	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
+	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
 	if err != nil {
 		return err
 	}
 
-	container, err := s.client.FindContainer(out.Context(), in.ContainerId)
+	c, err := s.client.FindContainer(out.Context(), in.ContainerId)
 	if err != nil {
 		return err
 	}
 
-	g := docker.NewEventGenerator(out.Context(), reader, container)
+	g := container.NewEventGenerator(out.Context(), reader, c)
 
 	for {
 		select {
@@ -101,7 +101,7 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 }
 
 func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentService_StreamRawBytesServer) error {
-	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), docker.StdType(in.StreamTypes))
+	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
 
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentServic
 }
 
 func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_StreamEventsServer) error {
-	events := make(chan docker.ContainerEvent)
+	events := make(chan container.ContainerEvent)
 
 	s.store.SubscribeEvents(out.Context(), events)
 
@@ -151,7 +151,7 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 }
 
 func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_StreamStatsServer) error {
-	stats := make(chan docker.ContainerStat)
+	stats := make(chan container.ContainerStat)
 
 	s.store.SubscribeStats(out.Context(), stats)
 
@@ -173,7 +173,7 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 }
 
 func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest) (*pb.FindContainerResponse, error) {
-	filter := make(docker.ContainerFilter)
+	filter := make(container.ContainerFilter)
 	if in.GetFilter() != nil {
 		for k, v := range in.GetFilter() {
 			filter[k] = append(filter[k], v.GetValues()...)
@@ -205,7 +205,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 }
 
 func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersRequest) (*pb.ListContainersResponse, error) {
-	filter := make(docker.ContainerFilter)
+	filter := make(container.ContainerFilter)
 	if in.GetFilter() != nil {
 		for k, v := range in.GetFilter() {
 			filter[k] = append(filter[k], v.GetValues()...)
@@ -268,7 +268,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 }
 
 func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, out pb.AgentService_StreamContainerStartedServer) error {
-	containers := make(chan docker.Container)
+	containers := make(chan container.Container)
 
 	go s.store.SubscribeNewContainers(out.Context(), containers)
 
@@ -298,16 +298,16 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 }
 
 func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequest) (*pb.ContainerActionResponse, error) {
-	var action docker.ContainerAction
+	var action container.ContainerAction
 	switch in.Action {
 	case pb.ContainerAction_Start:
-		action = docker.Start
+		action = container.Start
 
 	case pb.ContainerAction_Stop:
-		action = docker.Stop
+		action = container.Stop
 
 	case pb.ContainerAction_Restart:
-		action = docker.Restart
+		action = container.Restart
 
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
@@ -322,7 +322,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion string, filter docker.ContainerFilter) (*grpc.Server, error) {
+func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -346,7 +346,7 @@ func NewServer(client docker.Client, certificates tls.Certificate, dozzleVersion
 	return grpcServer, nil
 }
 
-func logEventToPb(event *docker.LogEvent) *pb.LogEvent {
+func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 	var message *anypb.Any
 
 	if event.Message == nil {

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 )
 
@@ -42,7 +42,7 @@ func NewForwardProxyAuth(userHeader, emailHeader, nameHeader, filterHeader strin
 func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get(p.headerUser) != "" {
-			containerFilter, err := docker.ParseContainerFilter(r.Header.Get(p.headerFilter))
+			containerFilter, err := container.ParseContainerFilter(r.Header.Get(p.headerFilter))
 			if err != nil {
 				log.Fatal().Str("filter", r.Header.Get(p.headerFilter)).Msg("Failed to parse container filter")
 			}

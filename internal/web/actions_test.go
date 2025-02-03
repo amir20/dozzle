@@ -7,7 +7,7 @@ import (
 
 	"testing"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -15,17 +15,17 @@ import (
 
 func mockedClient() *MockedClient {
 	mockedClient := new(MockedClient)
-	container := docker.Container{ID: "123"}
+	c := container.Container{ID: "123"}
 
-	mockedClient.On("FindContainer", mock.Anything, "123").Return(container, nil)
-	mockedClient.On("FindContainer", mock.Anything, "456").Return(docker.Container{}, errors.New("container not found"))
-	mockedClient.On("ContainerActions", mock.Anything, docker.Start, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", mock.Anything, docker.Stop, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", mock.Anything, docker.Restart, container.ID).Return(nil)
-	mockedClient.On("ContainerActions", mock.Anything, docker.Start, mock.Anything).Return(errors.New("container not found"))
-	mockedClient.On("ContainerActions", mock.Anything, docker.ContainerAction("something-else"), container.ID).Return(errors.New("unknown action"))
-	mockedClient.On("Host").Return(docker.Host{ID: "localhost"})
-	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]docker.Container{container}, nil)
+	mockedClient.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	mockedClient.On("FindContainer", mock.Anything, "456").Return(container.Container{}, errors.New("container not found"))
+	mockedClient.On("ContainerActions", mock.Anything, container.Start, c.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, container.Stop, c.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, container.Restart, c.ID).Return(nil)
+	mockedClient.On("ContainerActions", mock.Anything, container.Start, mock.Anything).Return(errors.New("container not found"))
+	mockedClient.On("ContainerActions", mock.Anything, container.ContainerAction("something-else"), c.ID).Return(errors.New("unknown action"))
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
 	mockedClient.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
 
 	return mockedClient

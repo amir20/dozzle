@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -30,7 +30,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsedAction, err := docker.ParseContainerAction(action)
+	parsedAction, err := container.ParseContainerAction(action)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to parse action")
 		http.Error(w, err.Error(), http.StatusBadRequest)

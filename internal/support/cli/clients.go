@@ -4,19 +4,20 @@ import (
 	"context"
 	"embed"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/rs/zerolog/log"
 )
 
-func CreateMultiHostService(embeddedCerts embed.FS, args Args) (docker.Client, *docker_support.MultiHostService) {
+func CreateMultiHostService(embeddedCerts embed.FS, args Args) (container.Client, *docker_support.MultiHostService) {
 	var clients []docker_support.ClientService
 	if len(args.RemoteHost) > 0 {
 		log.Info().Msg(`Consider using Dozzle's remote agent to manage remote hosts. See https://dozzle.dev/guide/agent for more information`)
 	}
 
 	for _, remoteHost := range args.RemoteHost {
-		host, err := docker.ParseConnection(remoteHost)
+		host, err := container.ParseConnection(remoteHost)
 		if err != nil {
 			log.Fatal().Err(err).Interface("host", remoteHost).Msg("Could not parse remote host")
 		}

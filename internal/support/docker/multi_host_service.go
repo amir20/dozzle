@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 )
 
-type ContainerFilter = func(*docker.Container) bool
+type ContainerFilter = func(*container.Container) bool
 
 type HostUnavailableError struct {
-	Host docker.Host
+	Host container.Host
 	Err  error
 }
 
@@ -24,9 +24,9 @@ type ClientManager interface {
 	Find(id string) (ClientService, bool)
 	List() []ClientService
 	RetryAndList() ([]ClientService, []error)
-	Subscribe(ctx context.Context, channel chan<- docker.Host)
-	Hosts(ctx context.Context) []docker.Host
-	LocalClients() []docker.Client
+	Subscribe(ctx context.Context, channel chan<- container.Host)
+	Hosts(ctx context.Context) []container.Host
+	LocalClients() []container.Client
 }
 
 type MultiHostService struct {
@@ -43,7 +43,7 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string, filter docker.ContainerFilter) (*containerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string, filter container.ContainerFilter) (*containerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -61,7 +61,7 @@ func (m *MultiHostService) FindContainer(host string, id string, filter docker.C
 	}, nil
 }
 
-func (m *MultiHostService) ListContainersForHost(host string, filter docker.ContainerFilter) ([]docker.Container, error) {
+func (m *MultiHostService) ListContainersForHost(host string, filter container.ContainerFilter) ([]container.Container, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -72,8 +72,8 @@ func (m *MultiHostService) ListContainersForHost(host string, filter docker.Cont
 	return client.ListContainers(ctx, filter)
 }
 
-func (m *MultiHostService) ListAllContainers(filter docker.ContainerFilter) ([]docker.Container, []error) {
-	containers := make([]docker.Container, 0)
+func (m *MultiHostService) ListAllContainers(filter container.ContainerFilter) ([]container.Container, []error) {
+	containers := make([]container.Container, 0)
 	clients, errors := m.manager.RetryAndList()
 
 	for _, client := range clients {
@@ -94,9 +94,9 @@ func (m *MultiHostService) ListAllContainers(filter docker.ContainerFilter) ([]d
 	return containers, errors
 }
 
-func (m *MultiHostService) ListAllContainersFiltered(userFilter docker.ContainerFilter, filter ContainerFilter) ([]docker.Container, []error) {
+func (m *MultiHostService) ListAllContainersFiltered(userFilter container.ContainerFilter, filter ContainerFilter) ([]container.Container, []error) {
 	containers, err := m.ListAllContainers(userFilter)
-	filtered := make([]docker.Container, 0, len(containers))
+	filtered := make([]container.Container, 0, len(containers))
 	for _, container := range containers {
 		if filter(&container) {
 			filtered = append(filtered, container)
@@ -105,15 +105,15 @@ func (m *MultiHostService) ListAllContainersFiltered(userFilter docker.Container
 	return filtered, err
 }
 
-func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- docker.ContainerEvent, stats chan<- docker.ContainerStat) {
+func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events chan<- container.ContainerEvent, stats chan<- container.ContainerStat) {
 	for _, client := range m.manager.List() {
 		client.SubscribeEvents(ctx, events)
 		client.SubscribeStats(ctx, stats)
 	}
 }
 
-func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- docker.Container, filter ContainerFilter) {
-	newContainers := make(chan docker.Container)
+func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter ContainerFilter) {
+	newContainers := make(chan container.Container)
 	for _, client := range m.manager.List() {
 		client.SubscribeContainersStarted(ctx, newContainers)
 	}
@@ -139,25 +139,25 @@ func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
 }
 
-func (m *MultiHostService) Hosts() []docker.Host {
+func (m *MultiHostService) Hosts() []container.Host {
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
 	return m.manager.Hosts(ctx)
 }
 
-func (m *MultiHostService) LocalHost() (docker.Host, error) {
+func (m *MultiHostService) LocalHost() (container.Host, error) {
 	for _, host := range m.Hosts() {
 		if host.Type == "local" {
 			return host, nil
 		}
 	}
-	return docker.Host{}, fmt.Errorf("local host not found")
+	return container.Host{}, fmt.Errorf("local host not found")
 }
 
-func (m *MultiHostService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- docker.Host) {
+func (m *MultiHostService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host) {
 	m.manager.Subscribe(ctx, hosts)
 }
 
-func (m *MultiHostService) LocalClients() []docker.Client {
+func (m *MultiHostService) LocalClients() []container.Client {
 	return m.manager.LocalClients()
 }

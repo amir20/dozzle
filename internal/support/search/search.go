@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
@@ -26,7 +26,7 @@ func ParseRegex(search string) (*regexp.Regexp, error) {
 	return re, nil
 }
 
-func Search(re *regexp.Regexp, logEvent *docker.LogEvent) bool {
+func Search(re *regexp.Regexp, logEvent *container.LogEvent) bool {
 	switch value := logEvent.Message.(type) {
 	case string:
 		if re.MatchString(value) {

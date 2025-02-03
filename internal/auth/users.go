@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
@@ -19,12 +19,12 @@ import (
 )
 
 type User struct {
-	Username        string                 `json:"username" yaml:"-"`
-	Email           string                 `json:"email" yaml:"email"`
-	Name            string                 `json:"name" yaml:"name"`
-	Password        string                 `json:"-" yaml:"password"`
-	Filter          string                 `json:"-" yaml:"filter"`
-	ContainerFilter docker.ContainerFilter `json:"-" yaml:"-"`
+	Username        string                    `json:"username" yaml:"-"`
+	Email           string                    `json:"email" yaml:"email"`
+	Name            string                    `json:"name" yaml:"name"`
+	Password        string                    `json:"-" yaml:"password"`
+	Filter          string                    `json:"-" yaml:"filter"`
+	ContainerFilter container.ContainerFilter `json:"-" yaml:"-"`
 }
 
 func (u User) AvatarURL() string {
@@ -35,7 +35,7 @@ func (u User) AvatarURL() string {
 	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), url.QueryEscape(name))
 }
 
-func newUser(username, email, name string, filter docker.ContainerFilter) User {
+func newUser(username, email, name string, filter container.ContainerFilter) User {
 	return User{
 		Username:        username,
 		Email:           email,
@@ -197,9 +197,9 @@ func UserFromContext(ctx context.Context) *User {
 			}
 			email := claims["email"].(string)
 			name := claims["name"].(string)
-			containerFilter := docker.ContainerFilter{}
+			containerFilter := container.ContainerFilter{}
 			if filter, ok := claims["filter"].(string); ok {
-				containerFilter, err = docker.ParseContainerFilter(filter)
+				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
 					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
 				}
