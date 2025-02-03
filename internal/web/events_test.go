@@ -25,7 +25,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	mockedClient := new(MockedClient)
 
 	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
-	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- docker.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
 		messages := args.Get(1).(chan<- container.ContainerEvent)
 
 		time.Sleep(50 * time.Millisecond)
