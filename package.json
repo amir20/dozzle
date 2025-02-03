@@ -56,7 +56,7 @@
     "daisyui": "5.0.0-beta.6",
     "date-fns": "^4.1.0",
     "entities": "^6.0.0",
-    "fuse.js": "^7.0.0",
+    "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.3.1",
     "sortablejs": "^1.15.6",
