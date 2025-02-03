@@ -55,7 +55,7 @@ importers:
         version: 12.5.0(typescript@5.7.3)
       '@vueuse/integrations':
         specifier: ^12.5.0
-        version: 12.5.0(focus-trap@7.6.4)(fuse.js@7.0.0)(sortablejs@1.15.6)(typescript@5.7.3)
+        version: 12.5.0(focus-trap@7.6.4)(fuse.js@7.1.0)(sortablejs@1.15.6)(typescript@5.7.3)
       '@vueuse/router':
         specifier: ^12.5.0
         version: 12.5.0(typescript@5.7.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))
@@ -90,8 +90,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       fuse.js:
-        specifier: ^7.0.0
-        version: 7.0.0
+        specifier: ^7.1.0
+        version: 7.1.0
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
@@ -139,7 +139,7 @@ importers:
         version: 5.1.0(vue@3.5.13(typescript@5.7.3))
       vitepress:
         specifier: 1.6.3
-        version: 1.6.3(@algolia/client-search@5.20.0)(@types/node@22.13.0)(fuse.js@7.0.0)(lightningcss@1.29.1)(postcss@8.5.1)(search-insights@2.17.2)(sortablejs@1.15.6)(typescript@5.7.3)
+        version: 1.6.3(@algolia/client-search@5.20.0)(@types/node@22.13.0)(fuse.js@7.1.0)(lightningcss@1.29.1)(postcss@8.5.1)(search-insights@2.17.2)(sortablejs@1.15.6)(typescript@5.7.3)
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.7.3)
@@ -2448,8 +2448,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fuse.js@7.0.0:
-    resolution: {integrity: sha512-14F4hBIxqKvD4Zz/XjDc3y94mNZN6pRv3U13Udo0lNLCWRBUsrMv2xwcF/y/Z5sV6+FQW+/ow68cHpm4sunt8Q==}
+  fuse.js@7.1.0:
+    resolution: {integrity: sha512-trLf4SzuuUxfusZADLINj+dE8clK1frKdmqiJNb1Es75fmI5oY6X2mxLVUciLLjxqw/xr72Dhy+lER6dGd02FQ==}
     engines: {node: '>=10'}
 
   get-caller-file@2.0.5:
@@ -5373,14 +5373,14 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@12.5.0(focus-trap@7.6.4)(fuse.js@7.0.0)(sortablejs@1.15.6)(typescript@5.7.3)':
+  '@vueuse/integrations@12.5.0(focus-trap@7.6.4)(fuse.js@7.1.0)(sortablejs@1.15.6)(typescript@5.7.3)':
     dependencies:
       '@vueuse/core': 12.5.0(typescript@5.7.3)
       '@vueuse/shared': 12.5.0(typescript@5.7.3)
       vue: 3.5.13(typescript@5.7.3)
     optionalDependencies:
       focus-trap: 7.6.4
-      fuse.js: 7.0.0
+      fuse.js: 7.1.0
       sortablejs: 1.15.6
     transitivePeerDependencies:
       - typescript
@@ -6161,7 +6161,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fuse.js@7.0.0: {}
+  fuse.js@7.1.0: {}
 
   get-caller-file@2.0.5: {}
 
@@ -7436,7 +7436,7 @@ snapshots:
       tsx: 4.19.2
       yaml: 2.7.0
 
-  vitepress@1.6.3(@algolia/client-search@5.20.0)(@types/node@22.13.0)(fuse.js@7.0.0)(lightningcss@1.29.1)(postcss@8.5.1)(search-insights@2.17.2)(sortablejs@1.15.6)(typescript@5.7.3):
+  vitepress@1.6.3(@algolia/client-search@5.20.0)(@types/node@22.13.0)(fuse.js@7.1.0)(lightningcss@1.29.1)(postcss@8.5.1)(search-insights@2.17.2)(sortablejs@1.15.6)(typescript@5.7.3):
     dependencies:
       '@docsearch/css': 3.8.2
       '@docsearch/js': 3.8.2(@algolia/client-search@5.20.0)(search-insights@2.17.2)
@@ -7449,7 +7449,7 @@ snapshots:
       '@vue/devtools-api': 7.7.1
       '@vue/shared': 3.5.13
       '@vueuse/core': 12.5.0(typescript@5.7.3)
-      '@vueuse/integrations': 12.5.0(focus-trap@7.6.4)(fuse.js@7.0.0)(sortablejs@1.15.6)(typescript@5.7.3)
+      '@vueuse/integrations': 12.5.0(focus-trap@7.6.4)(fuse.js@7.1.0)(sortablejs@1.15.6)(typescript@5.7.3)
       focus-trap: 7.6.4
       mark.js: 8.11.1
       minisearch: 7.1.1
