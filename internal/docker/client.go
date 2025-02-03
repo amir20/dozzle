@@ -17,7 +17,6 @@ import (
 	docker "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/client"
 
@@ -296,10 +295,6 @@ func (d *httpClient) Ping(ctx context.Context) error {
 func (d *httpClient) Host() container.Host {
 	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
-}
-
-func (d *httpClient) IsSwarmMode() bool {
-	return d.info.Swarm.LocalNodeState != swarm.LocalNodeStateInactive
 }
 
 func newContainer(c types.Container, host string) container.Container {

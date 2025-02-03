@@ -38,5 +38,4 @@ type Client interface {
 	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	IsSwarmMode() bool
 }
