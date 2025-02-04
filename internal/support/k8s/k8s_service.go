@@ -1,4 +1,4 @@
-package k8s
+package k8s_support
 
 import (
 	"context"
@@ -7,7 +7,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/k8s"
-	"github.com/amir20/dozzle/internal/support"
+
+	container_support "github.com/amir20/dozzle/internal/support/container"
 )
 
 type k8sClientService struct {
@@ -15,7 +16,7 @@ type k8sClientService struct {
 	store  *container.ContainerStore
 }
 
-func NewK8sClientService(client *k8s.K8sClient, filter container.ContainerFilter) support.ClientService {
+func NewK8sClientService(client *k8s.K8sClient, filter container.ContainerFilter) container_support.ClientService {
 	return &k8sClientService{
 		client: client,
 		store:  container.NewContainerStore(context.Background(), client, filter),

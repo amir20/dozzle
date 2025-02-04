@@ -21,6 +21,7 @@ import (
 	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
@@ -162,7 +163,7 @@ func main() {
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
 
-	var multiHostService *docker_support.MultiHostService
+	var multiHostService *container_support.MultiHostService
 	if args.Mode == "server" {
 		var localClient container.Client
 		localClient, multiHostService = cli.CreateMultiHostService(certs, args)
@@ -184,7 +185,7 @@ func main() {
 		}
 		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
 		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
-		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
+		multiHostService = container_support.NewMultiHostService(manager, args.Timeout)
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
@@ -213,7 +214,7 @@ func main() {
 		}
 
 		manager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, k8s_support.NewK8sClientService(localClient, args.Filter))
-		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
+		multiHostService = container_support.NewMultiHostService(manager, args.Timeout)
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
@@ -239,7 +240,7 @@ func main() {
 	log.Debug().Msg("shut down complete")
 }
 
-func createServer(args cli.Args, multiHostService *docker_support.MultiHostService) *http.Server {
+func createServer(args cli.Args, multiHostService *container_support.MultiHostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE

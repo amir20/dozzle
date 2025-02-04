@@ -6,7 +6,7 @@ import (
 	"github.com/amir20/dozzle/internal/analytics"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
@@ -39,7 +39,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
-		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
+		if hostNotAvailableError, ok := err.(*container_support.HostUnavailableError); ok {
 			if err := sseWriter.Event("update-host", hostNotAvailableError.Host); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 			}
