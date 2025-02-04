@@ -82,6 +82,7 @@ func NewK8sClient(namespace string) (*k8sClient, error) {
 	host.MemTotal = node.Status.Capacity.Memory().Value()
 	host.NCPU = int(node.Status.Capacity.Cpu().Value())
 	host.Swarm = false
+	host.DockerVersion = node.Status.NodeInfo.ContainerRuntimeVersion
 	host.Type = "k8s"
 
 	return &k8sClient{
