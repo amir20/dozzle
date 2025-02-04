@@ -19,6 +19,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/internal/web"
@@ -199,6 +200,19 @@ func main() {
 				log.Error().Err(err).Msg("failed to serve")
 			}
 		}()
+	} else if args.Mode == "k8s" {
+		localClient, err := k8s.NewK8sClient("default")
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not create k8s client")
+		}
+
+		certs, err := cli.ReadCertificates(certs)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not read certificates")
+		}
+
+		manager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, docker_support.NewDockerClientService(localClient, args.Filter))
+		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
