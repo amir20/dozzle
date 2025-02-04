@@ -173,6 +173,17 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
+func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
+	podName, containerName := parsePodContainerID(id)
+	opts := &corev1.PodLogOptions{
+		Container: containerName,
+		Follow:    false,
+		SinceTime: &metav1.Time{Time: start},
+	}
+
+	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
+}
+
 func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
 	watch, err := k.client.CoreV1().Pods(k.namespace).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -186,17 +197,6 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 	}
 
 	return nil
-}
-
-func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
-	podName, containerName := parsePodContainerID(id)
-	opts := &corev1.PodLogOptions{
-		Container: containerName,
-		Follow:    false,
-		SinceTime: &metav1.Time{Time: start},
-	}
-
-	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
 func (k *K8sClient) ContainerStats(ctx context.Context, id string, ch chan<- container.ContainerStat) error {

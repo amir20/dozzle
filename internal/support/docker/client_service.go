@@ -7,26 +7,26 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/amir20/dozzle/internal/support"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 )
 
-type dockerClientService struct {
+type DockerClientService struct {
 	client *docker.DockerClient
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) support.ClientService {
-	return &dockerClientService{
+func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) container_support.ClientService {
+	return &DockerClientService{
 		client: client,
 		store:  container.NewContainerStore(context.Background(), client, filter),
 	}
 }
 
-func (d *dockerClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
+func (d *DockerClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
 	return d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
-func (d *dockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
 	reader, err := d.client.ContainerLogsBetweenDates(ctx, c.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (d *dockerClientService) LogsBetweenDates(ctx context.Context, c container.
 	return g.Events, nil
 }
 
-func (d *dockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
 	reader, err := d.client.ContainerLogs(ctx, c.ID, from, stdTypes)
 	if err != nil {
 		return err
@@ -57,30 +57,30 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	}
 }
 
-func (d *dockerClientService) FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error) {
+func (d *DockerClientService) FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error) {
 	return d.store.FindContainer(id, filter)
 }
 
-func (d *dockerClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
+func (d *DockerClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
-func (d *dockerClientService) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
+func (d *DockerClientService) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
 	return d.store.ListContainers(filter)
 }
 
-func (d *dockerClientService) Host(ctx context.Context) (container.Host, error) {
+func (d *DockerClientService) Host(ctx context.Context) (container.Host, error) {
 	return d.client.Host(), nil
 }
 
-func (d *dockerClientService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
+func (d *DockerClientService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
 	d.store.SubscribeStats(ctx, stats)
 }
 
-func (d *dockerClientService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
+func (d *DockerClientService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
 	d.store.SubscribeEvents(ctx, events)
 }
 
-func (d *dockerClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	d.store.SubscribeNewContainers(ctx, containers)
 }

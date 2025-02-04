@@ -6,13 +6,13 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/amir20/dozzle/internal/support"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/rs/zerolog/log"
 )
 
-func CreateMultiHostService(embeddedCerts embed.FS, args Args) (container.Client, *docker_support.MultiHostService) {
-	var clients []support.ClientService
+func CreateMultiHostService(embeddedCerts embed.FS, args Args) (container.Client, *container_support.MultiHostService) {
+	var clients []container_support.ClientService
 	if len(args.RemoteHost) > 0 {
 		log.Info().Msg(`Consider using Dozzle's remote agent to manage remote hosts. See https://dozzle.dev/guide/agent for more information`)
 	}
@@ -56,5 +56,5 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) (container.Client
 	}
 
 	clientManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, clients...)
-	return localClient, docker_support.NewMultiHostService(clientManager, args.Timeout)
+	return localClient, container_support.NewMultiHostService(clientManager, args.Timeout)
 }
