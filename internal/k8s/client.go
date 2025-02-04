@@ -164,10 +164,11 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
-		Container: containerName,
-		Follow:    true,
-		Previous:  false,
-		SinceTime: &metav1.Time{Time: since},
+		Container:  containerName,
+		Follow:     true,
+		Previous:   false,
+		Timestamps: true,
+		SinceTime:  &metav1.Time{Time: since},
 	}
 
 	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
@@ -176,9 +177,10 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
-		Container: containerName,
-		Follow:    false,
-		SinceTime: &metav1.Time{Time: start},
+		Container:  containerName,
+		Follow:     false,
+		Timestamps: true,
+		SinceTime:  &metav1.Time{Time: start},
 	}
 
 	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
