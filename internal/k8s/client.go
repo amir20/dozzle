@@ -56,22 +56,38 @@ func NewK8sClient(namespace string) (*k8sClient, error) {
 		return nil, err
 	}
 
-	// nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	id, ok := os.LookupEnv("HOSTNAME")
+	host := container.Host{}
+	var node *corev1.Node
+	if ok {
+		node, err = clientset.CoreV1().Nodes().Get(context.Background(), id, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			return nil, err
+		}
 
-	// if err != nil {
-	// 	return nil, err
-	// }
+		if len(nodes.Items) == 0 {
+			return nil, fmt.Errorf("no nodes found")
+		}
 
-	// log.Info().Msgf("Node: %+v", node.Status.NodeInfo)
+		node = &nodes.Items[0]
+	}
+
+	host.ID = node.Status.NodeInfo.MachineID
+	host.Name = node.Name
+	host.MemTotal = node.Status.Capacity.Memory().Value()
+	host.NCPU = int(node.Status.Capacity.Cpu().Value())
+	host.Swarm = false
+	host.Type = "k8s"
 
 	return &k8sClient{
 		client:    clientset,
 		namespace: namespace,
-		host: container.Host{
-			ID:        "k8s",
-			Name:      "k8s",
-			Available: true,
-		},
+		host:      host,
 	}, nil
 }
 func (k *k8sClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
