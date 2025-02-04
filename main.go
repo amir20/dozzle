@@ -22,6 +22,7 @@ import (
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
 	"github.com/rs/zerolog/log"
 )
@@ -211,7 +212,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
 
-		manager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, docker_support.NewDockerClientService(localClient, args.Filter))
+		manager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, k8s_support.NewK8sClientService(localClient, args.Filter))
 		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")

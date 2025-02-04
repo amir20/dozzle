@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/support"
 )
 
 type containerService struct {
-	clientService ClientService
+	clientService support.ClientService
 	Container     container.Container
 }
 
