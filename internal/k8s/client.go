@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"os"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -22,6 +24,7 @@ import (
 type k8sClient struct {
 	client    *kubernetes.Clientset
 	namespace string
+	host      container.Host
 }
 
 func NewK8sClient(namespace string) (*k8sClient, error) {
@@ -56,6 +59,11 @@ func NewK8sClient(namespace string) (*k8sClient, error) {
 	return &k8sClient{
 		client:    clientset,
 		namespace: namespace,
+		host: container.Host{
+			ID:        "k8s",
+			Name:      "k8s",
+			Available: true,
+		},
 	}, nil
 }
 func (k *k8sClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
@@ -72,8 +80,9 @@ func (k *k8sClient) ListContainers(ctx context.Context, filter container.Contain
 				Name:    c.Name,
 				Image:   c.Image,
 				Created: pod.CreationTimestamp.Time,
-				State:   string(pod.Status.Phase),
+				State:   phaseToState(pod.Status.Phase),
 				Tty:     c.TTY,
+				Host:    k.host.ID,
 				Group:   pod.Name,
 			})
 		}
@@ -81,11 +90,50 @@ func (k *k8sClient) ListContainers(ctx context.Context, filter container.Contain
 	return containers, nil
 }
 
+func phaseToState(phase corev1.PodPhase) string {
+	switch phase {
+	case corev1.PodPending:
+		return "created"
+	case corev1.PodRunning:
+		return "running"
+	case corev1.PodSucceeded:
+		return "exited"
+	case corev1.PodFailed:
+		return "exited"
+	case corev1.PodUnknown:
+		return "unknown"
+	default:
+		return "unknown"
+	}
+}
+
 func (k *k8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
-	// Implementation to find a specific container by ID
-	//
-	k.client.CoreV1()
-	return container.Container{}, nil
+	podName, containerName := parsePodContainerID(id)
+
+	pod, err := k.client.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
+	if err != nil {
+		return container.Container{}, err
+	}
+
+	for _, c := range pod.Spec.Containers {
+		if c.Name == containerName {
+			return container.Container{
+				ID:        pod.Name + ":" + c.Name,
+				Name:      c.Name,
+				Image:     c.Image,
+				Created:   pod.CreationTimestamp.Time,
+				State:     phaseToState(pod.Status.Phase),
+				StartedAt: pod.Status.StartTime.Time,
+				Command:   strings.Join(c.Command, " "),
+				Host:      k.host.ID,
+				Tty:       c.TTY,
+				Group:     pod.Name,
+				Stats:     utils.NewRingBuffer[container.ContainerStat](300),
+			}, nil
+		}
+	}
+
+	return container.Container{}, fmt.Errorf("container %s not found in pod %s", containerName, podName)
 }
 
 func (k *k8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
@@ -106,12 +154,11 @@ func (k *k8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 		return err
 	}
 
-	go func() {
-		for event := range watch.ResultChan() {
-			// Convert and send kubernetes events to container events
-			// Implementation details depend on your ContainerEvent struct
-		}
-	}()
+	for event := range watch.ResultChan() {
+		log.Info().Interface("event.type", event.Type).Msg("Received kubernetes event")
+		// Convert and send kubernetes events to container events
+		// Implementation details depend on your ContainerEvent struct
+	}
 
 	return nil
 }
@@ -138,7 +185,7 @@ func (k *k8sClient) Ping(ctx context.Context) error {
 
 func (k *k8sClient) Host() container.Host {
 	// Return host information
-	return container.Host{}
+	return k.host
 }
 
 func (k *k8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
