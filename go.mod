@@ -25,7 +25,7 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.1
-	github.com/go-chi/chi/v5 v5.2.0
+	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/jwtauth/v5 v5.3.2
 	github.com/puzpuzpuz/xsync/v3 v3.5.0
 	github.com/rs/zerolog v1.33.0
@@ -33,7 +33,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.7.8
 	golang.org/x/crypto v0.32.0
-	golang.org/x/sync v0.10.0
+	golang.org/x/sync v0.11.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.4
 )
