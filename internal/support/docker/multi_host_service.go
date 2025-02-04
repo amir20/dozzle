@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/support"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,9 +22,9 @@ func (h *HostUnavailableError) Error() string {
 }
 
 type ClientManager interface {
-	Find(id string) (ClientService, bool)
-	List() []ClientService
-	RetryAndList() ([]ClientService, []error)
+	Find(id string) (support.ClientService, bool)
+	List() []support.ClientService
+	RetryAndList() ([]support.ClientService, []error)
 	Subscribe(ctx context.Context, channel chan<- container.Host)
 	Hosts(ctx context.Context) []container.Host
 	LocalClients() []container.Client

@@ -6,31 +6,16 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/support"
 )
 
-type ClientService interface {
-	FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error)
-	ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error)
-	Host(ctx context.Context) (container.Host, error)
-	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
-	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
-	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
-
-	// Subscriptions
-	SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat)
-	SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent)
-	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container)
-
-	// Blocking streaming functions that should be used in a goroutine
-	StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error
-}
-
 type dockerClientService struct {
-	client container.Client
+	client *docker.DockerClient
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client container.Client, filter container.ContainerFilter) ClientService {
+func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) support.ClientService {
 	return &dockerClientService{
 		client: client,
 		store:  container.NewContainerStore(context.Background(), client, filter),
@@ -47,7 +32,8 @@ func (d *dockerClientService) LogsBetweenDates(ctx context.Context, c container.
 		return nil, err
 	}
 
-	g := container.NewEventGenerator(ctx, reader, c)
+	dockerReader := docker.NewLogReader(reader, c.Tty)
+	g := container.NewEventGenerator(ctx, dockerReader, c)
 	return g.Events, nil
 }
 
@@ -57,7 +43,8 @@ func (d *dockerClientService) StreamLogs(ctx context.Context, c container.Contai
 		return err
 	}
 
-	g := container.NewEventGenerator(ctx, reader, c)
+	dockerReader := docker.NewLogReader(reader, c.Tty)
+	g := container.NewEventGenerator(ctx, dockerReader, c)
 	for event := range g.Events {
 		events <- event
 	}

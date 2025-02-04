@@ -13,6 +13,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -25,14 +26,14 @@ import (
 )
 
 type server struct {
-	client  container.Client
+	client  *docker.DockerClient
 	store   *container.ContainerStore
 	version string
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client container.Client, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
+func newServer(client *docker.DockerClient, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
 	return &server{
 		client:  client,
 		version: dozzleVersion,
@@ -57,7 +58,8 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		return err
 	}
 
-	g := container.NewEventGenerator(out.Context(), reader, c)
+	dockerReader := docker.NewLogReader(reader, c.Tty)
+	g := container.NewEventGenerator(out.Context(), dockerReader, c)
 
 	for event := range g.Events {
 		out.Send(&pb.StreamLogsResponse{
@@ -84,7 +86,8 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 		return err
 	}
 
-	g := container.NewEventGenerator(out.Context(), reader, c)
+	dockerReader := docker.NewLogReader(reader, c.Tty)
+	g := container.NewEventGenerator(out.Context(), dockerReader, c)
 
 	for {
 		select {
@@ -322,7 +325,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
+func NewServer(client *docker.DockerClient, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {

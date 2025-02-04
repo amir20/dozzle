@@ -21,13 +21,13 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type k8sClient struct {
+type K8sClient struct {
 	client    *kubernetes.Clientset
 	namespace string
 	host      container.Host
 }
 
-func NewK8sClient(namespace string) (*k8sClient, error) {
+func NewK8sClient(namespace string) (*K8sClient, error) {
 	var config *rest.Config
 	var err error
 
@@ -85,13 +85,13 @@ func NewK8sClient(namespace string) (*k8sClient, error) {
 	host.DockerVersion = node.Status.NodeInfo.ContainerRuntimeVersion
 	host.Type = "k8s"
 
-	return &k8sClient{
+	return &K8sClient{
 		client:    clientset,
 		namespace: namespace,
 		host:      host,
 	}, nil
 }
-func (k *k8sClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
+func (k *K8sClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
 	pods, err := k.client.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func phaseToState(phase corev1.PodPhase) string {
 	}
 }
 
-func (k *k8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	podName, containerName := parsePodContainerID(id)
 
 	pod, err := k.client.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
@@ -161,7 +161,7 @@ func (k *k8sClient) FindContainer(ctx context.Context, id string) (container.Con
 	return container.Container{}, fmt.Errorf("container %s not found in pod %s", containerName, podName)
 }
 
-func (k *k8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
 		Container: containerName,
@@ -173,7 +173,7 @@ func (k *k8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
-func (k *k8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
+func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
 	watch, err := k.client.CoreV1().Pods(k.namespace).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -188,32 +188,32 @@ func (k *k8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 	return nil
 }
 
-func (k *k8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
 		Container: containerName,
+		Follow:    false,
 		SinceTime: &metav1.Time{Time: start},
 	}
 
 	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
-func (k *k8sClient) ContainerStats(ctx context.Context, id string, ch chan<- container.ContainerStat) error {
+func (k *K8sClient) ContainerStats(ctx context.Context, id string, ch chan<- container.ContainerStat) error {
 	// Implementation to stream container stats
 	return nil
 }
 
-func (k *k8sClient) Ping(ctx context.Context) error {
+func (k *K8sClient) Ping(ctx context.Context) error {
 	_, err := k.client.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{Limit: 1})
 	return err
 }
 
-func (k *k8sClient) Host() container.Host {
-	// Return host information
+func (k *K8sClient) Host() container.Host {
 	return k.host
 }
 
-func (k *k8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
+func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
 	// Implementation for container actions (start, stop, restart, etc.)
 	return nil
 }

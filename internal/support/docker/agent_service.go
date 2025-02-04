@@ -8,6 +8,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/support"
 	"github.com/rs/zerolog/log"
 )
 
@@ -16,7 +17,7 @@ type agentService struct {
 	host   container.Host
 }
 
-func NewAgentService(client *agent.Client) ClientService {
+func NewAgentService(client *agent.Client) support.ClientService {
 	return &agentService{
 		client: client,
 	}

@@ -36,13 +36,13 @@ type DockerCLI interface {
 	Info(ctx context.Context) (system.Info, error)
 }
 
-type httpClient struct {
+type DockerClient struct {
 	cli  DockerCLI
 	host container.Host
 	info system.Info
 }
 
-func NewClient(cli DockerCLI, host container.Host) container.Client {
+func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	info, err := cli.Info(context.Background())
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get docker info")
@@ -59,7 +59,7 @@ func NewClient(cli DockerCLI, host container.Host) container.Client {
 	host.DockerVersion = info.ServerVersion
 	host.Swarm = info.Swarm.NodeID != ""
 
-	return &httpClient{
+	return &DockerClient{
 		cli:  cli,
 		host: host,
 		info: info,
@@ -92,7 +92,7 @@ func NewLocalClient(hostname string) (container.Client, error) {
 	return NewClient(cli, host), nil
 }
 
-func NewRemoteClient(host container.Host) (container.Client, error) {
+func NewRemoteClient(host container.Host) (*DockerClient, error) {
 	if host.URL.Scheme != "tcp" {
 		return nil, fmt.Errorf("invalid scheme: %s", host.URL.Scheme)
 	}
@@ -122,7 +122,7 @@ func NewRemoteClient(host container.Host) (container.Client, error) {
 }
 
 // Finds a container by id, skipping the filters
-func (d *httpClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+func (d *DockerClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
 	if json, err := d.cli.ContainerInspect(ctx, id); err == nil {
 		return newContainerFromJSON(json, d.host.ID), nil
@@ -132,7 +132,7 @@ func (d *httpClient) FindContainer(ctx context.Context, id string) (container.Co
 
 }
 
-func (d *httpClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
+func (d *DockerClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
 	switch action {
 	case container.Start:
 		return d.cli.ContainerStart(ctx, containerID, docker.StartOptions{})
@@ -145,7 +145,7 @@ func (d *httpClient) ContainerActions(ctx context.Context, action container.Cont
 	}
 }
 
-func (d *httpClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
+func (d *DockerClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
 	log.Debug().Interface("filter", filter).Str("host", d.host.Name).Msg("Listing containers")
 	filterArgs := filters.NewArgs()
 	for key, values := range filter {
@@ -174,7 +174,7 @@ func (d *httpClient) ListContainers(ctx context.Context, filter container.Contai
 	return containers, nil
 }
 
-func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
+func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
 	response, err := d.cli.ContainerStats(ctx, id, true)
 
 	if err != nil {
@@ -224,7 +224,7 @@ func (d *httpClient) ContainerStats(ctx context.Context, id string, stats chan<-
 	}
 }
 
-func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (d *DockerClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("since", since).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Streaming logs for container")
 
 	sinceQuery := since.Add(-50 * time.Millisecond).Format(time.RFC3339Nano)
@@ -245,7 +245,7 @@ func (d *httpClient) ContainerLogs(ctx context.Context, id string, since time.Ti
 	return reader, nil
 }
 
-func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- container.ContainerEvent) error {
+func (d *DockerClient) ContainerEvents(ctx context.Context, messages chan<- container.ContainerEvent) error {
 	dockerMessages, err := d.cli.Events(ctx, events.ListOptions{})
 
 	for {
@@ -269,7 +269,7 @@ func (d *httpClient) ContainerEvents(ctx context.Context, messages chan<- contai
 	}
 }
 
-func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
+func (d *DockerClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	log.Debug().Str("id", id).Time("from", from).Time("to", to).Stringer("stdType", stdType).Str("host", d.host.Name).Msg("Fetching logs between dates for container")
 	options := docker.LogsOptions{
 		ShowStdout: stdType&container.STDOUT != 0,
@@ -287,12 +287,12 @@ func (d *httpClient) ContainerLogsBetweenDates(ctx context.Context, id string, f
 	return reader, nil
 }
 
-func (d *httpClient) Ping(ctx context.Context) error {
+func (d *DockerClient) Ping(ctx context.Context) error {
 	_, err := d.cli.Ping(ctx)
 	return err
 }
 
-func (d *httpClient) Host() container.Host {
+func (d *DockerClient) Host() container.Host {
 	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
 }
