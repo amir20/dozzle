@@ -56,6 +56,14 @@ func NewK8sClient(namespace string) (*k8sClient, error) {
 		return nil, err
 	}
 
+	// nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// log.Info().Msgf("Node: %+v", node.Status.NodeInfo)
+
 	return &k8sClient{
 		client:    clientset,
 		namespace: namespace,
