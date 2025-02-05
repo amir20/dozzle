@@ -97,7 +97,7 @@ const downloadParams = computed(() =>
 
 const downloadUrl = computed(() =>
   withBase(
-    `/api/containers/${containers.value.map((c) => c.host + ":" + c.id).join(",")}/download?${new URLSearchParams(downloadParams.value).toString()}`,
+    `/api/containers/${containers.value.map((c) => c.host + "~" + c.id).join(",")}/download?${new URLSearchParams(downloadParams.value).toString()}`,
   ),
 );
 </script>

@@ -16,7 +16,7 @@ import (
 
 func Test_handler_download_logs(t *testing.T) {
 	id := "123456"
-	req, err := http.NewRequest("GET", "/api/containers/localhost:"+id+"/download?stdout=1", nil)
+	req, err := http.NewRequest("GET", "/api/containers/localhost~"+id+"/download?stdout=1", nil)
 	require.NoError(t, err, "NewRequest should not return an error.")
 
 	mockedClient := new(MockedClient)

@@ -169,7 +169,7 @@ const downloadParams = computed(() =>
 
 const downloadUrl = computed(() =>
   withBase(
-    `/api/containers/${container.host}:${container.id}/download?${new URLSearchParams(downloadParams.value).toString()}`,
+    `/api/containers/${container.host}~${container.id}/download?${new URLSearchParams(downloadParams.value).toString()}`,
   ),
 );
 
