@@ -55,7 +55,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Process each container
 	for _, hostId := range hostIds {
-		parts := strings.Split(hostId, ":")
+		parts := strings.Split(hostId, "~")
 		if len(parts) != 2 {
 			http.Error(w, fmt.Sprintf("invalid host id: %s", hostId), http.StatusBadRequest)
 			return
