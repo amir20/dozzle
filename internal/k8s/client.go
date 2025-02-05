@@ -60,7 +60,12 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 	host := container.Host{}
 	var node *corev1.Node
 	if ok {
-		node, err = clientset.CoreV1().Nodes().Get(context.Background(), id, metav1.GetOptions{})
+		pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), id, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		log.Debug().Str("node", pod.Spec.NodeName).Msg("Found pod")
+		node, err = clientset.CoreV1().Nodes().Get(context.Background(), pod.Spec.NodeName, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +113,6 @@ func (k *K8sClient) ListContainers(ctx context.Context, filter container.Contain
 				State:   phaseToState(pod.Status.Phase),
 				Tty:     c.TTY,
 				Host:    k.host.ID,
-				Group:   pod.Name,
 			})
 		}
 	}
@@ -152,7 +156,6 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 				Command:   strings.Join(c.Command, " "),
 				Host:      k.host.ID,
 				Tty:       c.TTY,
-				Group:     pod.Name,
 				Stats:     utils.NewRingBuffer[container.ContainerStat](300),
 			}, nil
 		}
@@ -193,9 +196,35 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 	}
 
 	for event := range watch.ResultChan() {
-		log.Info().Interface("event.type", event.Type).Msg("Received kubernetes event")
-		// Convert and send kubernetes events to container events
-		// Implementation details depend on your ContainerEvent struct
+		log.Debug().Interface("event.type", event.Type).Msg("Received kubernetes event")
+		pod, ok := event.Object.(*corev1.Pod)
+		if !ok {
+			continue
+		}
+
+		if event.Type == "ADDED" && pod.Status.StartTime == nil {
+			log.Debug().Str("pod", pod.Name).Msg("Pod not started yet")
+			continue
+		}
+
+		name := ""
+		switch event.Type {
+		case "ADDED":
+			name = "start"
+		case "DELETED":
+			name = "destroy"
+		}
+
+		log.Debug().Interface("event.Type", event.Type).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
+
+		for _, c := range pod.Spec.Containers {
+			ch <- container.ContainerEvent{
+				Name:    name,
+				ActorID: pod.Name + ":" + c.Name,
+				Host:    k.host.ID,
+				Time:    time.Now(),
+			}
+		}
 	}
 
 	return nil
