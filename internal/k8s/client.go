@@ -137,6 +137,7 @@ func phaseToState(phase corev1.PodPhase) string {
 }
 
 func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+	log.Debug().Str("id", id).Msg("Finding container")
 	podName, containerName := parsePodContainerID(id)
 
 	pod, err := k.client.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
@@ -202,20 +203,26 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 			continue
 		}
 
-		if event.Type == "ADDED" && pod.Status.StartTime == nil {
+		if pod.Status.StartTime == nil {
 			log.Debug().Str("pod", pod.Name).Msg("Pod not started yet")
 			continue
 		}
 
 		name := ""
-		switch event.Type {
-		case "ADDED":
+		if event.Type == "ADDED" {
 			name = "start"
-		case "DELETED":
-			name = "destroy"
+		} else if event.Type == "DELETED" {
+			name = "die"
+		} else if event.Type == "MODIFIED" {
+			if time.Now().Sub(pod.Status.StartTime.Time) < 5*time.Second {
+				name = "start"
+			} else {
+				log.Debug().Str("pod", pod.Name).Msg("No changes to pod to report")
+				continue
+			}
 		}
 
-		log.Debug().Interface("event.Type", event.Type).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
+		log.Debug().Interface("event.Type", event.Type).Str("name", name).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
 
 		for _, c := range pod.Spec.Containers {
 			ch <- container.ContainerEvent{
