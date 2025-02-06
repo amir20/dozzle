@@ -8,6 +8,8 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/rs/zerolog/log"
 )
 
 type DockerClientService struct {
@@ -23,7 +25,29 @@ func NewDockerClientService(client *docker.DockerClient, filter container.Contai
 }
 
 func (d *DockerClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
-	return d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
+	reader, err := d.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
+	if err != nil {
+		return nil, err
+	}
+
+	in, out := io.Pipe()
+
+	go func() {
+		if container.Tty {
+			if _, err := io.Copy(out, reader); err != nil {
+				log.Error().Err(err).Msgf("error copying logs for container %s", container.ID)
+			}
+		} else {
+			if _, err := stdcopy.StdCopy(out, out, reader); err != nil {
+				log.Error().Err(err).Msgf("error copying logs for container %s", container.ID)
+			}
+		}
+
+		out.Close()
+	}()
+
+	return in, nil
+
 }
 
 func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {

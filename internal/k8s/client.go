@@ -209,17 +209,15 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 		}
 
 		name := ""
-		if event.Type == "ADDED" {
+		if event.Type == "ADDED" && time.Now().Sub(pod.Status.StartTime.Time) < 2*time.Second {
 			name = "start"
 		} else if event.Type == "DELETED" {
 			name = "die"
-		} else if event.Type == "MODIFIED" {
-			if time.Now().Sub(pod.Status.StartTime.Time) < 5*time.Second {
-				name = "start"
-			} else {
-				log.Debug().Str("pod", pod.Name).Msg("No changes to pod to report")
-				continue
-			}
+		} else if event.Type == "MODIFIED" && time.Now().Sub(pod.Status.StartTime.Time) < 2*time.Second {
+			name = "start"
+		} else {
+			log.Debug().Str("pod", pod.Name).Msg("No changes to pod to report")
+			continue
 		}
 
 		log.Debug().Interface("event.Type", event.Type).Str("name", name).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
