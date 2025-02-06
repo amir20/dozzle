@@ -1,4 +1,4 @@
-package docker_support
+package container_support
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -43,7 +44,7 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string, filter container.ContainerFilter) (*containerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string, filter container.ContainerFilter) (*ContainerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -55,10 +56,7 @@ func (m *MultiHostService) FindContainer(host string, id string, filter containe
 		return nil, err
 	}
 
-	return &containerService{
-		clientService: client,
-		Container:     container,
-	}, nil
+	return NewContainerService(client, container), nil
 }
 
 func (m *MultiHostService) ListContainersForHost(host string, filter container.ContainerFilter) ([]container.Container, error) {

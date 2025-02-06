@@ -9,7 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -51,11 +51,11 @@ type Authorizer interface {
 type handler struct {
 	content          fs.FS
 	config           *Config
-	multiHostService *docker_support.MultiHostService
+	multiHostService *container_support.MultiHostService
 }
 
-type MultiHostService = docker_support.MultiHostService
-type ContainerFilter = docker_support.ContainerFilter
+type MultiHostService = container_support.MultiHostService
+type ContainerFilter = container_support.ContainerFilter
 
 func CreateServer(multiHostService *MultiHostService, content fs.FS, config Config) *http.Server {
 	handler := &handler{

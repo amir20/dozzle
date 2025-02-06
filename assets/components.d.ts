@@ -12,6 +12,7 @@ declare module 'vue' {
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
     'Carbon:information': typeof import('~icons/carbon/information')['default']
+    'Carbon:logoKubernetes': typeof import('~icons/carbon/logo-kubernetes')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
     'Carbon:play': typeof import('~icons/carbon/play')['default']
     'Carbon:restart': typeof import('~icons/carbon/restart')['default']
