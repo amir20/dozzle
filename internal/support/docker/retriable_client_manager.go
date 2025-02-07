@@ -66,7 +66,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		if _, ok := clientMap[host.ID]; ok {
 			log.Warn().Str("host", host.Name).Str("id", host.ID).Msg("duplicate host with same ID found")
 		} else {
-			clientMap[host.ID] = NewAgentService(agent)
+			clientMap[host.ID] = container_support.NewAgentService(agent)
 		}
 	}
 
@@ -112,7 +112,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 				continue
 			}
 
-			m.clients[host.ID] = NewAgentService(agent)
+			m.clients[host.ID] = container_support.NewAgentService(agent)
 			m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
 				host.Available = true
 

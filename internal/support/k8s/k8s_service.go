@@ -1,4 +1,4 @@
-package k8s_support
+package support_k8s
 
 import (
 	"context"

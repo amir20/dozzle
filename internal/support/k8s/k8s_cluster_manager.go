@@ -1,17 +1,16 @@
-package docker_support
+package support_k8s
 
 import (
 	"context"
 	"crypto/tls"
 	"fmt"
 	"net"
-	"os"
 	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/k8s"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/puzpuzpuz/xsync/v3"
@@ -21,16 +20,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type SwarmClientManager struct {
-	clients      map[string]container_support.ClientService
-	certs        tls.Certificate
-	mu           sync.RWMutex
-	subscribers  *xsync.MapOf[context.Context, chan<- container.Host]
-	localClient  container.Client
-	localIPs     []string
-	name         string
-	timeout      time.Duration
-	agentManager *RetriableClientManager
+type K8sClusterManager struct {
+	clients     map[string]container_support.ClientService
+	certs       tls.Certificate
+	mu          sync.RWMutex
+	subscribers *xsync.MapOf[context.Context, chan<- container.Host]
+	localClient container.Client
+	localIPs    []string
+	timeout     time.Duration
 }
 
 func localIPs() []string {
@@ -50,42 +47,23 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, filter container.ContainerFilter) *SwarmClientManager {
+func NewK8sClusterManager(localClient *k8s.K8sClient, certs tls.Certificate, timeout time.Duration, filter container.ContainerFilter) *K8sClusterManager {
 	clientMap := make(map[string]container_support.ClientService)
-	localService := NewDockerClientService(localClient, filter)
+	localService := NewK8sClientService(localClient, filter)
 	clientMap[localClient.Host().ID] = localService
 
-	id, ok := os.LookupEnv("HOSTNAME")
-	if !ok {
-		log.Fatal().Msg("HOSTNAME environment variable not set when looking for swarm service name")
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	c, err := localClient.FindContainer(ctx, id)
-	if err != nil {
-		log.Fatal().Err(err).Msg("error finding own container when looking for swarm service name")
-	}
-
-	serviceName := c.Labels["com.docker.swarm.service.name"]
-
-	log.Debug().Str("service", serviceName).Msg("found swarm service name")
-
-	return &SwarmClientManager{
-		localClient:  localClient,
-		clients:      clientMap,
-		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
-		localIPs:     localIPs(),
-		name:         serviceName,
-		timeout:      timeout,
-		agentManager: agentManager,
+	return &K8sClusterManager{
+		localClient: localClient,
+		clients:     clientMap,
+		certs:       certs,
+		subscribers: xsync.NewMapOf[context.Context, chan<- container.Host](),
+		localIPs:    localIPs(),
+		timeout:     timeout,
 	}
 }
 
-func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
+func (m *K8sClusterManager) Subscribe(ctx context.Context, channel chan<- container.Host) {
 	m.subscribers.Store(ctx, channel)
-	m.agentManager.Subscribe(ctx, channel)
 
 	go func() {
 		<-ctx.Done()
@@ -93,10 +71,10 @@ func (m *SwarmClientManager) Subscribe(ctx context.Context, channel chan<- conta
 	}()
 }
 
-func (m *SwarmClientManager) RetryAndList() ([]container_support.ClientService, []error) {
+func (m *K8sClusterManager) RetryAndList() ([]container_support.ClientService, []error) {
 	m.mu.Lock()
 
-	ips, err := net.LookupIP(fmt.Sprintf("tasks.%s", m.name))
+	ips, err := net.LookupIP(fmt.Sprintf("%s.default.svc.cluster.local", "dozzle-headless"))
 
 	errors := make([]error, 0)
 	if err != nil {
@@ -118,7 +96,7 @@ func (m *SwarmClientManager) RetryAndList() ([]container_support.ClientService, 
 		return ip.String()
 	})
 
-	log.Debug().Strs(fmt.Sprintf("tasks.%s", m.name), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
+	log.Debug().Strs(fmt.Sprintf("%s.default.svc.cluster.local", "dozzle-headless"), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
 
 	for _, ip := range ips {
 		if lo.Contains(m.localIPs, ip.String()) {
@@ -180,40 +158,30 @@ func (m *SwarmClientManager) RetryAndList() ([]container_support.ClientService, 
 
 	m.mu.Unlock()
 
-	m.agentManager.RetryAndList()
-
 	return m.List(), errors
 }
 
-func (m *SwarmClientManager) List() []container_support.ClientService {
+func (m *K8sClusterManager) List() []container_support.ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-
-	agents := m.agentManager.List()
-	clients := lo.Values(m.clients)
-
-	return append(agents, clients...)
+	return lo.Values(m.clients)
 }
 
-func (m *SwarmClientManager) Find(id string) (container_support.ClientService, bool) {
+func (m *K8sClusterManager) Find(id string) (container_support.ClientService, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	client, ok := m.clients[id]
 
-	if !ok {
-		client, ok = m.agentManager.Find(id)
-	}
-
 	return client, ok
 }
 
-func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
+func (m *K8sClusterManager) Hosts(ctx context.Context) []container.Host {
 	m.mu.RLock()
 	clients := lo.Values(m.clients)
 	m.mu.RUnlock()
 
-	swarmNodes := lop.Map(clients, func(client container_support.ClientService, _ int) container.Host {
+	clusterNodes := lop.Map(clients, func(client container_support.ClientService, _ int) container.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("id", host.ID).Msg("error getting host from client")
@@ -226,13 +194,13 @@ func (m *SwarmClientManager) Hosts(ctx context.Context) []container.Host {
 		return host
 	})
 
-	return append(m.agentManager.Hosts(ctx), swarmNodes...)
+	return clusterNodes
 }
 
-func (m *SwarmClientManager) String() string {
-	return fmt.Sprintf("SwarmClientManager{clients: %d}", len(m.clients))
+func (m *K8sClusterManager) String() string {
+	return fmt.Sprintf("K8sClusterManager{clients: %d}", len(m.clients))
 }
 
-func (m *SwarmClientManager) LocalClients() []container.Client {
+func (m *K8sClusterManager) LocalClients() []container.Client {
 	return []container.Client{m.localClient}
 }

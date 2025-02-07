@@ -23,7 +23,7 @@ import (
 	"github.com/amir20/dozzle/internal/support/cli"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
-	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
+	support_k8s "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
 	"github.com/rs/zerolog/log"
 )
@@ -197,7 +197,7 @@ func main() {
 		}
 		go cli.StartEvent(args, "swarm", localClient, "")
 		go func() {
-			log.Info().Msgf("Dozzle agent version %s", args.Version())
+			log.Info().Msgf("Dozzle agent version in swarm mode %s", args.Version())
 			if err := server.Serve(listener); err != nil {
 				log.Error().Err(err).Msg("failed to serve")
 			}
@@ -213,8 +213,25 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}
 
-		manager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs, k8s_support.NewK8sClientService(localClient, args.Filter))
+		manager := support_k8s.NewK8sClusterManager(localClient, certs, args.Timeout, args.Filter)
 		multiHostService = container_support.NewMultiHostService(manager, args.Timeout)
+		log.Info().Msg("Starting in k8s mode")
+		listener, err := net.Listen("tcp", ":7007")
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to listen")
+		}
+		server, err := agent.NewServer(localClient, certs, args.Version(), args.Filter)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create agent")
+		}
+		go cli.StartEvent(args, "k8s", localClient, "")
+		go func() {
+			log.Info().Msgf("Dozzle agent version %s in k8s mode", args.Version())
+			if err := server.Serve(listener); err != nil {
+				log.Error().Err(err).Msg("failed to serve")
+			}
+		}()
+
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}

@@ -55,16 +55,32 @@ spec:
             - name: DOZZLE_LEVEL
               value: "debug"
 ---
+# headless-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dozzle-headless
+  labels:
+    app: nginx
+spec:
+  clusterIP: None
+  selector:
+    app: dozzle
+  ports:
+    - name: internal
+      port: 7007
+      targetPort: 7007
+---
 # service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: dozzle-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: dozzle
   ports:
-    - port: 8080
+    - port: 8081
       targetPort: 8080
       protocol: TCP

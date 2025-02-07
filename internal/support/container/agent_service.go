@@ -1,4 +1,4 @@
-package docker_support
+package container_support
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
-	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,7 +16,7 @@ type agentService struct {
 	host   container.Host
 }
 
-func NewAgentService(client *agent.Client) container_support.ClientService {
+func NewAgentService(client *agent.Client) ClientService {
 	return &agentService{
 		client: client,
 	}

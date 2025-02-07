@@ -7,7 +7,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
-	container_support "github.com/amir20/dozzle/internal/support/container"
+
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/rs/zerolog/log"
 )
@@ -17,7 +17,7 @@ type DockerClientService struct {
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) container_support.ClientService {
+func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) *DockerClientService {
 	return &DockerClientService{
 		client: client,
 		store:  container.NewContainerStore(context.Background(), client, filter),

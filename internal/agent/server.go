@@ -26,14 +26,14 @@ import (
 )
 
 type server struct {
-	client  *docker.DockerClient
+	client  container.Client
 	store   *container.ContainerStore
 	version string
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client *docker.DockerClient, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
+func newServer(client container.Client, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
 	return &server{
 		client:  client,
 		version: dozzleVersion,
@@ -325,7 +325,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client *docker.DockerClient, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
+func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
