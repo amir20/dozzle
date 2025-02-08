@@ -36,6 +36,7 @@ func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClu
 			NCPU:          int(node.Status.Capacity.Cpu().Value()),
 			DockerVersion: node.Status.NodeInfo.ContainerRuntimeVersion,
 			Type:          "k8s",
+			Available:     true,
 		})
 	}
 
