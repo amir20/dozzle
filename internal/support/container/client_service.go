@@ -8,9 +8,11 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 )
 
+type ContainerFilter = func(*container.Container) bool
+
 type ClientService interface {
-	FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error)
-	ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error)
+	FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error)
+	ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error)
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)

@@ -9,8 +9,8 @@ import (
 
 func (h *handler) debugStore(w http.ResponseWriter, r *http.Request) {
 	respone := make(map[string]interface{})
-	respone["hosts"] = h.multiHostService.Hosts()
-	containers, errors := h.multiHostService.ListAllContainers(container.ContainerFilter{})
+	respone["hosts"] = h.hostService.Hosts()
+	containers, errors := h.hostService.ListAllContainers(container.ContainerLabels{})
 	respone["containers"] = containers
 	respone["errors"] = errors
 

@@ -14,7 +14,7 @@ func RPCRequest(ctx context.Context, addr string, certs tls.Certificate) error {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create agent client")
 	}
-	containers, err := client.ListContainers(ctx, container.ContainerFilter{})
+	containers, err := client.ListContainers(ctx, container.ContainerLabels{})
 	log.Trace().Int("containers", len(containers)).Msg("Healtcheck RPC request completed")
 	return err
 }

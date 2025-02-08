@@ -50,9 +50,9 @@ func localIPs() []string {
 	return ips
 }
 
-func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, filter container.ContainerFilter) *SwarmClientManager {
+func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certificate, timeout time.Duration, agentManager *RetriableClientManager, labels container.ContainerLabels) *SwarmClientManager {
 	clientMap := make(map[string]container_support.ClientService)
-	localService := NewDockerClientService(localClient, filter)
+	localService := NewDockerClientService(localClient, labels)
 	clientMap[localClient.Host().ID] = localService
 
 	id, ok := os.LookupEnv("HOSTNAME")

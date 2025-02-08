@@ -22,9 +22,8 @@ import (
 )
 
 type K8sClient struct {
-	client    *kubernetes.Clientset
+	Clientset *kubernetes.Clientset
 	namespace string
-	host      container.Host
 }
 
 func NewK8sClient(namespace string) (*K8sClient, error) {
@@ -56,55 +55,19 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 		return nil, err
 	}
 
-	id, ok := os.LookupEnv("HOSTNAME")
-	host := container.Host{}
-	var node *corev1.Node
-	if ok {
-		pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), id, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-		log.Debug().Str("node", pod.Spec.NodeName).Msg("Found pod")
-		node, err = clientset.CoreV1().Nodes().Get(context.Background(), pod.Spec.NodeName, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			return nil, err
-		}
-
-		if len(nodes.Items) == 0 {
-			return nil, fmt.Errorf("no nodes found")
-		}
-
-		node = &nodes.Items[0]
-	}
-
-	host.ID = node.Name
-	host.Name = node.Name
-	host.MemTotal = node.Status.Capacity.Memory().Value()
-	host.NCPU = int(node.Status.Capacity.Cpu().Value())
-	host.Swarm = false
-	host.DockerVersion = node.Status.NodeInfo.ContainerRuntimeVersion
-	host.Type = "k8s"
-
 	return &K8sClient{
-		client:    clientset,
+		Clientset: clientset,
 		namespace: namespace,
-		host:      host,
 	}, nil
 }
-func (k *K8sClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
-	pods, err := k.client.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{})
+func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	pods, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	var containers []container.Container
 	for _, pod := range pods.Items {
-		pod.Spec.NodeName
 		for _, c := range pod.Spec.Containers {
 			containers = append(containers, container.Container{
 				ID:      pod.Name + ":" + c.Name,
@@ -113,7 +76,7 @@ func (k *K8sClient) ListContainers(ctx context.Context, filter container.Contain
 				Created: pod.CreationTimestamp.Time,
 				State:   phaseToState(pod.Status.Phase),
 				Tty:     c.TTY,
-				Host:    k.host.ID,
+				Host:    pod.Spec.NodeName,
 			})
 		}
 	}
@@ -141,7 +104,7 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 	log.Debug().Str("id", id).Msg("Finding container")
 	podName, containerName := parsePodContainerID(id)
 
-	pod, err := k.client.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
+	pod, err := k.Clientset.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
 	if err != nil {
 		return container.Container{}, err
 	}
@@ -156,7 +119,7 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 				State:     phaseToState(pod.Status.Phase),
 				StartedAt: pod.Status.StartTime.Time,
 				Command:   strings.Join(c.Command, " "),
-				Host:      k.host.ID,
+				Host:      pod.Spec.NodeName,
 				Tty:       c.TTY,
 				Stats:     utils.NewRingBuffer[container.ContainerStat](300),
 			}, nil
@@ -176,7 +139,7 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 		SinceTime:  &metav1.Time{Time: since},
 	}
 
-	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
+	return k.Clientset.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
 func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
@@ -188,11 +151,11 @@ func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, st
 		SinceTime:  &metav1.Time{Time: start},
 	}
 
-	return k.client.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
+	return k.Clientset.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
 func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
-	watch, err := k.client.CoreV1().Pods(k.namespace).Watch(ctx, metav1.ListOptions{})
+	watch, err := k.Clientset.CoreV1().Pods(k.namespace).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -220,7 +183,7 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 			ch <- container.ContainerEvent{
 				Name:    name,
 				ActorID: pod.Name + ":" + c.Name,
-				Host:    k.host.ID,
+				Host:    pod.Spec.NodeName,
 				Time:    time.Now(),
 			}
 		}
@@ -235,12 +198,12 @@ func (k *K8sClient) ContainerStats(ctx context.Context, id string, ch chan<- con
 }
 
 func (k *K8sClient) Ping(ctx context.Context) error {
-	_, err := k.client.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{Limit: 1})
+	_, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{Limit: 1})
 	return err
 }
 
 func (k *K8sClient) Host() container.Host {
-	return k.host
+	return container.Host{}
 }
 
 func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {

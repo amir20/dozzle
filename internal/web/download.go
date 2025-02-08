@@ -22,11 +22,11 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersFilter := h.config.Filter
+	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
 		}
 	}
 
@@ -65,7 +65,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 
 		host := parts[0]
 		id := parts[1]
-		containerService, err := h.multiHostService.FindContainer(host, id, usersFilter)
+		containerService, err := h.hostService.FindContainer(host, id, userLabels)
 		if err != nil {
 			log.Error().Err(err).Msgf("error finding container %s", id)
 			http.Error(w, fmt.Sprintf("error finding container %s: %v", id, err), http.StatusBadRequest)

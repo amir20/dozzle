@@ -22,7 +22,7 @@ func NewAgentService(client *agent.Client) ClientService {
 	}
 }
 
-func (a *agentService) FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error) {
+func (a *agentService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
 	return a.client.FindContainer(ctx, id)
 }
 
@@ -38,9 +38,9 @@ func (a *agentService) StreamLogs(ctx context.Context, container container.Conta
 	return a.client.StreamContainerLogs(ctx, container.ID, from, stdTypes, events)
 }
 
-func (a *agentService) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
-	log.Debug().Interface("filter", filter).Msg("Listing containers from agent")
-	return a.client.ListContainers(ctx, filter)
+func (a *agentService) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	log.Debug().Interface("labels", labels).Msg("Listing containers from agent")
+	return a.client.ListContainers(ctx, labels)
 }
 
 func (a *agentService) Host(ctx context.Context) (container.Host, error) {

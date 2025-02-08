@@ -15,15 +15,15 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	action := chi.URLParam(r, "action")
 	id := chi.URLParam(r, "id")
 
-	usersFilter := h.config.Filter
+	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
 		}
 	}
 
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id, usersFilter)
+	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
 		http.Error(w, err.Error(), http.StatusNotFound)

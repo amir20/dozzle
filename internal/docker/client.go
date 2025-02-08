@@ -145,10 +145,10 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 	}
 }
 
-func (d *DockerClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
-	log.Debug().Interface("filter", filter).Str("host", d.host.Name).Msg("Listing containers")
+func (d *DockerClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	log.Debug().Interface("labels", labels).Str("host", d.host.Name).Msg("Listing containers")
 	filterArgs := filters.NewArgs()
-	for key, values := range filter {
+	for key, values := range labels {
 		for _, value := range values {
 			filterArgs.Add(key, value)
 		}

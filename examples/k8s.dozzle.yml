@@ -28,12 +28,13 @@ roleRef:
   name: pod-viewer-role
   apiGroup: rbac.authorization.k8s.io
 ---
-# daemonset.yaml
+# deployment.yaml
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: dozzle
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: dozzle
@@ -46,7 +47,7 @@ spec:
       containers:
         - name: dozzle
           image: amir20/dozzle:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
@@ -54,22 +55,6 @@ spec:
               value: "k8s"
             - name: DOZZLE_LEVEL
               value: "debug"
----
-# headless-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: dozzle-headless
-  labels:
-    app: nginx
-spec:
-  clusterIP: None
-  selector:
-    app: dozzle
-  ports:
-    - name: internal
-      port: 7007
-      targetPort: 7007
 ---
 # service.yaml
 apiVersion: v1

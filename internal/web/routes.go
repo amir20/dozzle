@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"io/fs"
 	"time"
 
@@ -34,7 +35,7 @@ type Config struct {
 	Dev           bool
 	Authorization Authorization
 	EnableActions bool
-	Filter        container.ContainerFilter
+	Labels        container.ContainerLabels
 }
 
 type Authorization struct {
@@ -48,20 +49,30 @@ type Authorizer interface {
 	CreateToken(string, string) (string, error)
 }
 
-type handler struct {
-	content          fs.FS
-	config           *Config
-	multiHostService *container_support.MultiHostService
+type HostService interface {
+	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+	ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error)
+	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
+	ListAllContainersFiltered(userFilter container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error)
+	SubscribeEventsAndStats(ctx context.Context, events chan<- container.ContainerEvent, stats chan<- container.ContainerStat)
+	SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter)
+	Hosts() []container.Host
+	LocalHost() (container.Host, error)
+	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
+	LocalClients() []container.Client
 }
 
-type MultiHostService = container_support.MultiHostService
-type ContainerFilter = container_support.ContainerFilter
+type handler struct {
+	content     fs.FS
+	config      *Config
+	hostService HostService
+}
 
-func CreateServer(multiHostService *MultiHostService, content fs.FS, config Config) *http.Server {
+func CreateServer(hostService HostService, content fs.FS, config Config) *http.Server {
 	handler := &handler{
-		content:          content,
-		config:           &config,
-		multiHostService: multiHostService,
+		content:     content,
+		config:      &config,
+		hostService: hostService,
 	}
 
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}

@@ -17,10 +17,10 @@ type DockerClientService struct {
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client *docker.DockerClient, filter container.ContainerFilter) *DockerClientService {
+func NewDockerClientService(client *docker.DockerClient, labels container.ContainerLabels) *DockerClientService {
 	return &DockerClientService{
 		client: client,
-		store:  container.NewContainerStore(context.Background(), client, filter),
+		store:  container.NewContainerStore(context.Background(), client, labels),
 	}
 }
 
@@ -81,16 +81,16 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	}
 }
 
-func (d *DockerClientService) FindContainer(ctx context.Context, id string, filter container.ContainerFilter) (container.Container, error) {
-	return d.store.FindContainer(id, filter)
+func (d *DockerClientService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
+	return d.store.FindContainer(id, labels)
 }
 
 func (d *DockerClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return d.client.ContainerActions(ctx, action, container.ID)
 }
 
-func (d *DockerClientService) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
-	return d.store.ListContainers(filter)
+func (d *DockerClientService) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	return d.store.ListContainers(labels)
 }
 
 func (d *DockerClientService) Host(ctx context.Context) (container.Host, error) {

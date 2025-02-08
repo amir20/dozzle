@@ -306,12 +306,12 @@ func (c *Client) FindContainer(ctx context.Context, containerID string) (contain
 	}, nil
 }
 
-func (c *Client) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
+func (c *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
 	in := &pb.ListContainersRequest{}
 
-	if filter != nil {
+	if labels != nil {
 		in.Filter = make(map[string]*pb.RepeatedString)
-		for k, v := range filter {
+		for k, v := range labels {
 			in.Filter[k] = &pb.RepeatedString{Values: v}
 		}
 	}

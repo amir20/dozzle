@@ -23,24 +23,29 @@ type ContainerStore struct {
 	connected               atomic.Bool
 	events                  chan ContainerEvent
 	ctx                     context.Context
-	filter                  ContainerFilter
+	labels                  ContainerLabels
 }
 
+<<<<<<< HEAD
 const defaultTimeout = 10 * time.Second
 
 func NewContainerStore(ctx context.Context, client Client, filter ContainerFilter) *ContainerStore {
 	log.Debug().Str("host", client.Host().Name).Interface("filter", filter).Msg("initializing container store")
+=======
+func NewContainerStore(ctx context.Context, client Client, labels ContainerLabels) *ContainerStore {
+	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
+>>>>>>> 3f971a2f (changes arch)
 
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
 		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
 		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
-		statsCollector:          NewStatsCollector(client, filter),
+		statsCollector:          NewStatsCollector(client, labels),
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
-		filter:                  filter,
+		labels:                  labels,
 	}
 
 	s.wg.Add(1)
@@ -68,7 +73,7 @@ func (s *ContainerStore) checkConnectivity() error {
 
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 		defer cancel()
-		if containers, err := s.client.ListContainers(ctx, s.filter); err != nil {
+		if containers, err := s.client.ListContainers(ctx, s.labels); err != nil {
 			return err
 		} else {
 			s.containers.Clear()
@@ -109,7 +114,7 @@ func (s *ContainerStore) checkConnectivity() error {
 	return nil
 }
 
-func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, error) {
+func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, error) {
 	s.wg.Wait()
 
 	if err := s.checkConnectivity(); err != nil {
@@ -143,11 +148,10 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 	return containers, nil
 }
 
-func (s *ContainerStore) FindContainer(id string, filter ContainerFilter) (Container, error) {
+func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Container, error) {
 	s.wg.Wait()
-
-	if filter.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, filter)
+	if labels.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, labels)
 		if err != nil {
 			return Container{}, err
 		}
@@ -249,7 +253,7 @@ func (s *ContainerStore) init() {
 				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
 				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
-					list, _ := s.client.ListContainers(ctx, s.filter)
+					list, _ := s.client.ListContainers(ctx, s.labels)
 
 					// make sure the container is in the list of containers when using filter
 					valid := lo.ContainsBy(list, func(item Container) bool {
@@ -274,7 +278,7 @@ func (s *ContainerStore) init() {
 				ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 
 				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
-					list, _ := s.client.ListContainers(ctx, s.filter)
+					list, _ := s.client.ListContainers(ctx, s.labels)
 
 					// make sure the container is in the list of containers when using filter
 					valid := lo.ContainsBy(list, func(item Container) bool {

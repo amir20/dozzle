@@ -33,12 +33,12 @@ type server struct {
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client container.Client, dozzleVersion string, filter container.ContainerFilter) pb.AgentServiceServer {
+func newServer(client container.Client, dozzleVersion string, labels container.ContainerLabels) pb.AgentServiceServer {
 	return &server{
 		client:  client,
 		version: dozzleVersion,
 
-		store: container.NewContainerStore(context.Background(), client, filter),
+		store: container.NewContainerStore(context.Background(), client, labels),
 	}
 }
 
@@ -48,7 +48,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	c, err := s.store.FindContainer(in.ContainerId, container.ContainerFilter{})
+	c, err := s.store.FindContainer(in.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return err
 	}
@@ -176,14 +176,14 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 }
 
 func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest) (*pb.FindContainerResponse, error) {
-	filter := make(container.ContainerFilter)
+	labels := make(container.ContainerLabels)
 	if in.GetFilter() != nil {
 		for k, v := range in.GetFilter() {
-			filter[k] = append(filter[k], v.GetValues()...)
+			labels[k] = append(labels[k], v.GetValues()...)
 		}
 	}
 
-	container, err := s.store.FindContainer(in.ContainerId, filter)
+	container, err := s.store.FindContainer(in.ContainerId, labels)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
@@ -208,14 +208,14 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 }
 
 func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersRequest) (*pb.ListContainersResponse, error) {
-	filter := make(container.ContainerFilter)
+	labels := make(container.ContainerLabels)
 	if in.GetFilter() != nil {
 		for k, v := range in.GetFilter() {
-			filter[k] = append(filter[k], v.GetValues()...)
+			labels[k] = append(labels[k], v.GetValues()...)
 		}
 	}
 
-	containers, err := s.store.ListContainers(filter)
+	containers, err := s.store.ListContainers(labels)
 	if err != nil {
 		return nil, err
 	}
@@ -325,7 +325,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, filter container.ContainerFilter) (*grpc.Server, error) {
+func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -344,7 +344,7 @@ func NewServer(client container.Client, certificates tls.Certificate, dozzleVers
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, filter))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, labels))
 
 	return grpcServer, nil
 }
