@@ -77,10 +77,10 @@ kind: Service
 metadata:
   name: dozzle-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: dozzle
   ports:
-    - port: 8081
+    - port: 8080
       targetPort: 8080
       protocol: TCP

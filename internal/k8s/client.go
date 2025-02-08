@@ -82,7 +82,7 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 		node = &nodes.Items[0]
 	}
 
-	host.ID = node.Status.NodeInfo.MachineID
+	host.ID = node.Name
 	host.Name = node.Name
 	host.MemTotal = node.Status.Capacity.Memory().Value()
 	host.NCPU = int(node.Status.Capacity.Cpu().Value())
@@ -104,6 +104,7 @@ func (k *K8sClient) ListContainers(ctx context.Context, filter container.Contain
 
 	var containers []container.Container
 	for _, pod := range pods.Items {
+		pod.Spec.NodeName
 		for _, c := range pod.Spec.Containers {
 			containers = append(containers, container.Container{
 				ID:      pod.Name + ":" + c.Name,
@@ -203,21 +204,14 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 			continue
 		}
 
-		if pod.Status.StartTime == nil {
-			log.Debug().Str("pod", pod.Name).Msg("Pod not started yet")
-			continue
-		}
-
 		name := ""
-		if event.Type == "ADDED" && time.Now().Sub(pod.Status.StartTime.Time) < 2*time.Second {
-			name = "start"
-		} else if event.Type == "DELETED" {
-			name = "die"
-		} else if event.Type == "MODIFIED" && time.Now().Sub(pod.Status.StartTime.Time) < 2*time.Second {
-			name = "start"
-		} else {
-			log.Debug().Str("pod", pod.Name).Msg("No changes to pod to report")
-			continue
+		switch event.Type {
+		case "ADDED":
+			name = "create"
+		case "DELETED":
+			name = "destroy"
+		case "MODIFIED":
+			name = "update"
 		}
 
 		log.Debug().Interface("event.Type", event.Type).Str("name", name).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")

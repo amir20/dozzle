@@ -96,7 +96,7 @@ func (m *K8sClusterManager) RetryAndList() ([]container_support.ClientService, [
 		return ip.String()
 	})
 
-	log.Debug().Strs(fmt.Sprintf("%s.default.svc.cluster.local", "dozzle-headless"), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found swarm service tasks")
+	log.Debug().Strs(fmt.Sprintf("%s.default.svc.cluster.local", "dozzle-headless"), ipStrings).Strs("localIPs", m.localIPs).Strs("clients.endpoints", lo.Keys(endpoints)).Msg("found dozzle instances")
 
 	for _, ip := range ips {
 		if lo.Contains(m.localIPs, ip.String()) {

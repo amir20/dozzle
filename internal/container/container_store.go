@@ -245,6 +245,31 @@ func (s *ContainerStore) init() {
 		case event := <-s.events:
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
+			case "create":
+				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
+					list, _ := s.client.ListContainers(ctx, s.filter)
+
+					// make sure the container is in the list of containers when using filter
+					valid := lo.ContainsBy(list, func(item Container) bool {
+						return item.ID == container.ID
+					})
+
+					if valid {
+						log.Debug().Str("id", container.ID).Msg("container started")
+						s.containers.Store(container.ID, &container)
+						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
+							select {
+							case containers <- container:
+							case <-c.Done():
+							}
+							return true
+						})
+					}
+				}
+				cancel()
+
 			case "start":
 				ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 
@@ -272,6 +297,44 @@ func (s *ContainerStore) init() {
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)
+
+			case "update":
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+					if loaded {
+						log.Debug().Str("id", c.ID).Msg("container updated")
+						started := false
+						if newContainer, err := s.client.FindContainer(context.Background(), c.ID); err == nil {
+
+							if newContainer.State == "running" && c.State != "running" {
+								started = true
+							}
+							c.State = newContainer.State
+							c.Name = newContainer.Name
+							c.Labels = newContainer.Labels
+							c.StartedAt = newContainer.StartedAt
+							c.FinishedAt = newContainer.FinishedAt
+							c.Created = newContainer.Created
+						} else {
+							log.Error().Err(err).Str("id", c.ID).Msg("failed to update container")
+						}
+						if started {
+							s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
+								select {
+								case events <- ContainerEvent{
+									Name:    "start",
+									ActorID: c.ID,
+								}:
+								case <-ctx.Done():
+									s.subscribers.Delete(ctx)
+								}
+								return true
+							})
+						}
+						return c, false
+					} else {
+						return c, true
+					}
+				})
 
 			case "die":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
