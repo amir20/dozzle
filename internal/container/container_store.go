@@ -308,12 +308,11 @@ func (s *ContainerStore) init() {
 						log.Debug().Str("id", c.ID).Msg("container updated")
 						started := false
 						if newContainer, err := s.client.FindContainer(context.Background(), c.ID); err == nil {
-
 							if newContainer.State == "running" && c.State != "running" {
 								started = true
 							}
-							c.State = newContainer.State
 							c.Name = newContainer.Name
+							c.State = newContainer.State
 							c.Labels = newContainer.Labels
 							c.StartedAt = newContainer.StartedAt
 							c.FinishedAt = newContainer.FinishedAt

@@ -71,7 +71,7 @@ func (k *K8sClient) ListContainers(ctx context.Context, labels container.Contain
 		for _, c := range pod.Spec.Containers {
 			containers = append(containers, container.Container{
 				ID:      pod.Name + ":" + c.Name,
-				Name:    c.Name,
+				Name:    pod.Name + "/" + c.Name,
 				Image:   c.Image,
 				Created: pod.CreationTimestamp.Time,
 				State:   phaseToState(pod.Status.Phase),
@@ -111,13 +111,17 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 
 	for _, c := range pod.Spec.Containers {
 		if c.Name == containerName {
+			started := time.Time{}
+			if pod.Status.StartTime != nil {
+				started = pod.Status.StartTime.Time
+			}
 			return container.Container{
 				ID:        pod.Name + ":" + c.Name,
-				Name:      c.Name,
+				Name:      pod.Name + "/" + c.Name,
 				Image:     c.Image,
 				Created:   pod.CreationTimestamp.Time,
 				State:     phaseToState(pod.Status.Phase),
-				StartedAt: pod.Status.StartTime.Time,
+				StartedAt: started,
 				Command:   strings.Join(c.Command, " "),
 				Host:      pod.Spec.NodeName,
 				Tty:       c.TTY,
