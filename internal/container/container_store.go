@@ -123,8 +123,8 @@ func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, er
 	}
 
 	containers := make([]Container, 0)
-	if filter.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, filter)
+	if labels.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, labels)
 		if err != nil {
 			return nil, err
 		}
