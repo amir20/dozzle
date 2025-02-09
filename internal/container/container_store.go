@@ -116,23 +116,31 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 		return nil, err
 	}
 
-	validContainers, err := s.client.ListContainers(s.ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	validIDMap := lo.KeyBy(validContainers, func(item Container) string {
-		return item.ID
-	})
-
 	containers := make([]Container, 0)
-	s.containers.Range(func(_ string, c *Container) bool {
-		if _, ok := validIDMap[c.ID]; ok {
-			containers = append(containers, *c)
+	if filter.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, filter)
+		if err != nil {
+			return nil, err
 		}
-		return true
-	})
 
+		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
+			return item.ID
+		})
+
+		containers := make([]Container, 0)
+		s.containers.Range(func(_ string, c *Container) bool {
+			if _, ok := validIDMap[c.ID]; ok {
+				containers = append(containers, *c)
+			}
+			return true
+		})
+
+	} else {
+		s.containers.Range(func(_ string, c *Container) bool {
+			containers = append(containers, *c)
+			return true
+		})
+	}
 	return containers, nil
 }
 
