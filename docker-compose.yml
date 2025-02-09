@@ -30,6 +30,7 @@ services:
       - DOZZLE_FILTER=name=dozzle
       - DOZZLE_NO_ANALYTICS=1
       - DOZZLE_HOSTNAME=localhost
+      - DOZZLE_LEVEL=debug
     ports:
       - 7070:8080
     build:

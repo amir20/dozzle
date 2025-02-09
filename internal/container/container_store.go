@@ -26,6 +26,8 @@ type ContainerStore struct {
 	filter                  ContainerFilter
 }
 
+const defaultTimeout = 10 * time.Second
+
 func NewContainerStore(ctx context.Context, client Client, filter ContainerFilter) *ContainerStore {
 	log.Debug().Str("host", client.Host().Name).Interface("filter", filter).Msg("initializing container store")
 
@@ -64,7 +66,7 @@ func (s *ContainerStore) checkConnectivity() error {
 			s.connected.Store(false)
 		}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // 3s is enough to fetch all containers
+		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 		defer cancel()
 		if containers, err := s.client.ListContainers(ctx, s.filter); err != nil {
 			return err
@@ -88,7 +90,7 @@ func (s *ContainerStore) checkConnectivity() error {
 				}
 				go func(c Container, i int) {
 					defer sem.Release(1)
-					ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second) // 2s is hardcoded timeout for fetching container
+					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 					defer cancel()
 					if container, err := s.client.FindContainer(ctx, c.ID); err == nil {
 						s.containers.Store(c.ID, &container)
@@ -114,22 +116,29 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 		return nil, err
 	}
 
-	validContainers, err := s.client.ListContainers(s.ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	validIDMap := lo.KeyBy(validContainers, func(item Container) string {
-		return item.ID
-	})
-
 	containers := make([]Container, 0)
-	s.containers.Range(func(_ string, c *Container) bool {
-		if _, ok := validIDMap[c.ID]; ok {
-			containers = append(containers, *c)
+	if filter.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, filter)
+		if err != nil {
+			return nil, err
 		}
-		return true
-	})
+
+		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
+			return item.ID
+		})
+
+		s.containers.Range(func(_ string, c *Container) bool {
+			if _, ok := validIDMap[c.ID]; ok {
+				containers = append(containers, *c)
+			}
+			return true
+		})
+	} else {
+		s.containers.Range(func(_ string, c *Container) bool {
+			containers = append(containers, *c)
+			return true
+		})
+	}
 
 	return containers, nil
 }
@@ -158,7 +167,7 @@ func (s *ContainerStore) FindContainer(id string, filter ContainerFilter) (Conta
 			log.Debug().Str("id", id).Msg("container doesn't have detailed information, fetching it")
 			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, bool) {
 				if loaded {
-					ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 					defer cancel()
 					if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
 						return &newContainer, false
@@ -237,7 +246,7 @@ func (s *ContainerStore) init() {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "start":
-				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+				ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 
 				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
 					list, _ := s.client.ListContainers(ctx, s.filter)

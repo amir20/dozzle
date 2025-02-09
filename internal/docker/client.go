@@ -69,7 +69,7 @@ func NewClient(cli DockerCLI, host container.Host) container.Client {
 
 // NewClientWithFilters creates a new instance of Client with docker filters
 func NewLocalClient(hostname string) (container.Client, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation(), client.WithUserAgent("Docker-Client/Dozzle"))
 
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func NewRemoteClient(host container.Host) (container.Client, error) {
 		log.Debug().Msg("Not using TLS for remote client")
 	}
 
-	opts = append(opts, client.WithAPIVersionNegotiation())
+	opts = append(opts, client.WithAPIVersionNegotiation(), client.WithUserAgent("Docker-Client/Dozzle"))
 
 	cli, err := client.NewClientWithOpts(opts...)
 
