@@ -33,12 +33,13 @@ type server struct {
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client container.Client, dozzleVersion string, labels container.ContainerLabels) pb.AgentServiceServer {
+func newServer(client *docker.DockerClient, dozzleVersion string, labels container.ContainerLabels) pb.AgentServiceServer {
+	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &server{
 		client:  client,
 		version: dozzleVersion,
 
-		store: container.NewContainerStore(context.Background(), client, labels),
+		store: container.NewContainerStore(context.Background(), client, statsCollector, labels),
 	}
 }
 
@@ -325,7 +326,7 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	return &pb.ContainerActionResponse{}, nil
 }
 
-func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
+func NewServer(client *docker.DockerClient, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {

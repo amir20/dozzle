@@ -13,12 +13,18 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
+type StatsCollector interface {
+	Start(parentCtx context.Context) bool
+	Subscribe(ctx context.Context, stats chan<- ContainerStat)
+	Stop()
+}
+
 type ContainerStore struct {
 	containers              *xsync.MapOf[string, *Container]
 	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
 	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
 	client                  Client
-	statsCollector          *StatsCollector
+	statsCollector          StatsCollector
 	wg                      sync.WaitGroup
 	connected               atomic.Bool
 	events                  chan ContainerEvent
@@ -26,22 +32,17 @@ type ContainerStore struct {
 	labels                  ContainerLabels
 }
 
-<<<<<<< HEAD
 const defaultTimeout = 10 * time.Second
 
-func NewContainerStore(ctx context.Context, client Client, filter ContainerFilter) *ContainerStore {
-	log.Debug().Str("host", client.Host().Name).Interface("filter", filter).Msg("initializing container store")
-=======
-func NewContainerStore(ctx context.Context, client Client, labels ContainerLabels) *ContainerStore {
+func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels) *ContainerStore {
 	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
->>>>>>> 3f971a2f (changes arch)
 
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
 		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
 		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
-		statsCollector:          NewStatsCollector(client, labels),
+		statsCollector:          statsCollect,
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,

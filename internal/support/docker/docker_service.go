@@ -18,9 +18,10 @@ type DockerClientService struct {
 }
 
 func NewDockerClientService(client *docker.DockerClient, labels container.ContainerLabels) *DockerClientService {
+	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
 		client: client,
-		store:  container.NewContainerStore(context.Background(), client, labels),
+		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
 	}
 }
 

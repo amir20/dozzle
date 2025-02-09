@@ -17,7 +17,7 @@ type K8sClientService struct {
 func NewK8sClientService(client *k8s.K8sClient, labels container.ContainerLabels) *K8sClientService {
 	return &K8sClientService{
 		client: client,
-		store:  container.NewContainerStore(context.Background(), client, labels),
+		store:  container.NewContainerStore(context.Background(), client, nil, labels), // TODO fixme
 	}
 }
 
