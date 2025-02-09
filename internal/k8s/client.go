@@ -13,7 +13,6 @@ import (
 	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 
 	"github.com/rs/zerolog/log"
 
@@ -23,9 +22,9 @@ import (
 )
 
 type K8sClient struct {
-	Clientset     *kubernetes.Clientset
-	metricsClient *metricsclient.Clientset
-	namespace     string
+	Clientset *kubernetes.Clientset
+	namespace string
+	config    *rest.Config
 }
 
 func NewK8sClient(namespace string) (*K8sClient, error) {
@@ -57,15 +56,10 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 		return nil, err
 	}
 
-	metricsClient, err := metricsclient.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-
 	return &K8sClient{
-		Clientset:     clientset,
-		namespace:     namespace,
-		metricsClient: metricsClient,
+		Clientset: clientset,
+		namespace: namespace,
+		config:    config,
 	}, nil
 }
 func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
@@ -205,31 +199,7 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 }
 
 func (k *K8sClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
-	ticker := time.NewTicker(1 * time.Second)
-
-	pod, id := parsePodContainerID(id)
-
-	for range ticker.C {
-		podMetrics, err := k.metricsClient.MetricsV1beta1().PodMetricses(k.namespace).Get(context.Background(), pod, metav1.GetOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
-		for _, c := range podMetrics.Containers {
-			log.Trace().Interface("container", c).Msg("Pod stat")
-
-			select {
-			case <-ctx.Done():
-				return nil
-			case stats <- container.ContainerStat{
-				ID:          pod + ":" + c.Name,
-				CPUPercent:  c.Usage.Cpu().AsApproximateFloat64(),
-				MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
-			}:
-			}
-		}
-	}
-
-	return nil
+	panic("not implemented")
 }
 
 func (k *K8sClient) Ping(ctx context.Context) error {

@@ -3,6 +3,9 @@ package k8s_support
 import (
 	"context"
 	"io"
+
+	"github.com/rs/zerolog/log"
+
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -15,9 +18,13 @@ type K8sClientService struct {
 }
 
 func NewK8sClientService(client *k8s.K8sClient, labels container.ContainerLabels) *K8sClientService {
+	statsCollector, err := k8s.NewK8sStatsCollector(client, labels)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not create k8s stats collector")
+	}
 	return &K8sClientService{
 		client: client,
-		store:  container.NewContainerStore(context.Background(), client, nil, labels), // TODO fixme
+		store:  container.NewContainerStore(context.Background(), client, statsCollector, labels),
 	}
 }
 
