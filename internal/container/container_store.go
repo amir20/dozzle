@@ -127,20 +127,19 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 			return item.ID
 		})
 
-		containers := make([]Container, 0)
 		s.containers.Range(func(_ string, c *Container) bool {
 			if _, ok := validIDMap[c.ID]; ok {
 				containers = append(containers, *c)
 			}
 			return true
 		})
-
 	} else {
 		s.containers.Range(func(_ string, c *Container) bool {
 			containers = append(containers, *c)
 			return true
 		})
 	}
+
 	return containers, nil
 }
 
