@@ -9,7 +9,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/rs/zerolog/log"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
@@ -25,7 +24,6 @@ type K8sStatsCollector struct {
 	mu           sync.Mutex
 	totalStarted atomic.Int32
 	labels       container.ContainerLabels
-	containers   *xsync.MapOf[string, corev1.Container]
 }
 
 func NewK8sStatsCollector(client *K8sClient, labels container.ContainerLabels) (*K8sStatsCollector, error) {

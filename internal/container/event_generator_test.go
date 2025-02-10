@@ -161,11 +161,3 @@ func Test_createEvent(t *testing.T) {
 		})
 	}
 }
-
-type mockReadCloser struct {
-	bytes []byte
-}
-
-func (m mockReadCloser) Read(p []byte) (int, error) {
-	return copy(p, m.bytes), nil
-}

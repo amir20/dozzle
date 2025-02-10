@@ -1,7 +1,6 @@
 package container
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -26,12 +25,6 @@ type EventGenerator struct {
 	wg          sync.WaitGroup
 	containerID string
 	ctx         context.Context
-}
-
-var bufPool = sync.Pool{
-	New: func() any {
-		return new(bytes.Buffer)
-	},
 }
 
 var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
