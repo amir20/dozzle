@@ -40,6 +40,9 @@ func main() {
 	if subcommand != nil {
 		switch subcommand.(type) {
 		case *cli.AgentCmd:
+			if args.Mode != "server" {
+				log.Fatal().Msg("Dozzle agent command is only available in server mode")
+			}
 			client, err := docker.NewLocalClient(args.Hostname)
 			if err != nil {
 				log.Fatal().Err(err).Msg("Could not create docker client")
