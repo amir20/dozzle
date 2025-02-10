@@ -1,12 +1,9 @@
 package container
 
 import (
-	"bufio"
-	"bytes"
 	"context"
-	"encoding/binary"
+	"io"
 	"reflect"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -18,9 +15,8 @@ import (
 
 func TestEventGenerator_Events_tty(t *testing.T) {
 	input := "example input"
-	reader := bufio.NewReader(strings.NewReader(input))
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: true})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
@@ -29,9 +25,8 @@ func TestEventGenerator_Events_tty(t *testing.T) {
 
 func TestEventGenerator_Events_non_tty(t *testing.T) {
 	input := "example input"
-	reader := bytes.NewReader(makeMessage(input, STDOUT))
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
 	event := <-g.Events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
@@ -40,9 +35,8 @@ func TestEventGenerator_Events_non_tty(t *testing.T) {
 
 func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 	input := "example input"
-	reader := bytes.NewReader(makeMessage(input, STDOUT))
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
 	<-g.Events
 	_, ok := <-g.Events
 
@@ -51,20 +45,31 @@ func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 
 func TestEventGenerator_Events_routines_done(t *testing.T) {
 	input := "example input"
-	reader := bytes.NewReader(makeMessage(input, STDOUT))
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
 	<-g.Events
 	assert.False(t, waitTimeout(&g.wg, 1*time.Second), "Expected routines to be done")
 }
 
-func makeMessage(message string, stream StdType) []byte {
-	data := make([]byte, 8)
-	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
-	data[0] = byte(stream / 2)
-	data = append(data, []byte(message)...)
+type mockLogReader struct {
+	messages []string
+	types    []StdType
+	i        int
+}
 
-	return data
+func (m *mockLogReader) Read() (string, StdType, error) {
+	if m.i >= len(m.messages) {
+		return "", 0, io.EOF
+	}
+	m.i++
+	return m.messages[m.i-1], m.types[m.i-1], nil
+}
+
+func makeFakeReader(message string, stream StdType) LogReader {
+	return &mockLogReader{
+		messages: []string{message},
+		types:    []StdType{stream},
+	}
 }
 
 func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
@@ -163,16 +168,4 @@ type mockReadCloser struct {
 
 func (m mockReadCloser) Read(p []byte) (int, error) {
 	return copy(p, m.bytes), nil
-}
-
-func Benchmark_readEvent(b *testing.B) {
-	b.ReportAllocs()
-
-	data := makeMessage("2020-05-13T18:55:37.772853839Z {\"key\": \"value\"}\n", STDOUT)
-
-	reader := bufio.NewReader(mockReadCloser{bytes: data})
-
-	for i := 0; i < b.N; i++ {
-		readEvent(reader, true)
-	}
 }

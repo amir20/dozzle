@@ -4,13 +4,44 @@ import (
 	"context"
 	"testing"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func startedCollector(ctx context.Context) *StatsCollector {
+type mockedClient struct {
+	mock.Mock
+	container.Client
+}
+
+func (m *mockedClient) ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error) {
+	args := m.Called(ctx, filter)
+	return args.Get(0).([]container.Container), args.Error(1)
+}
+
+func (m *mockedClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(container.Container), args.Error(1)
+}
+
+func (m *mockedClient) ContainerEvents(ctx context.Context, events chan<- container.ContainerEvent) error {
+	args := m.Called(ctx, events)
+	return args.Error(0)
+}
+
+func (m *mockedClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
+	args := m.Called(ctx, id, stats)
+	return args.Error(0)
+}
+
+func (m *mockedClient) Host() container.Host {
+	args := m.Called()
+	return args.Get(0).(container.Host)
+}
+
+func startedCollector(ctx context.Context) *DockerStatsCollector {
 	client := new(mockedClient)
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]Container{
+	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{
 			ID:    "1234",
 			Name:  "test",
@@ -26,17 +57,17 @@ func startedCollector(ctx context.Context) *StatsCollector {
 	client.On("ContainerStats", mock.Anything, mock.Anything, mock.AnythingOfType("chan<- container.ContainerStat")).
 		Return(nil).
 		Run(func(args mock.Arguments) {
-			stats := args.Get(2).(chan<- ContainerStat)
-			stats <- ContainerStat{
+			stats := args.Get(2).(chan<- container.ContainerStat)
+			stats <- container.ContainerStat{
 				ID: "1234",
 			}
 		})
-	client.On("Host").Return(Host{
+	client.On("Host").Return(container.Host{
 		ID: "localhost",
 	})
 
-	collector := NewStatsCollector(client, ContainerFilter{})
-	stats := make(chan ContainerStat)
+	collector := NewDockerStatsCollector(client, container.ContainerLabels{})
+	stats := make(chan container.ContainerStat)
 
 	collector.Subscribe(ctx, stats)
 

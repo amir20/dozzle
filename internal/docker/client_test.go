@@ -92,7 +92,7 @@ func Test_dockerClient_ListContainers_null(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, nil)
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerLabels{})
 	assert.Empty(t, list, "list should be empty")
 	require.NoError(t, err, "error should not return an error.")
 
@@ -104,7 +104,7 @@ func Test_dockerClient_ListContainers_error(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(nil, errors.New("test"))
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerLabels{})
 	assert.Nil(t, list, "list should be nil")
 	require.Error(t, err, "test.")
 
@@ -127,7 +127,7 @@ func Test_dockerClient_ListContainers_happy(t *testing.T) {
 	proxy.On("ContainerList", mock.Anything, mock.Anything).Return(containers, nil)
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
-	list, err := client.ListContainers(context.Background(), container.ContainerFilter{})
+	list, err := client.ListContainers(context.Background(), container.ContainerLabels{})
 	require.NoError(t, err, "error should not return an error.")
 
 	Ids := []string{"1234567890_a", "abcdefghijkl"}

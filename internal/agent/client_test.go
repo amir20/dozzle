@@ -46,7 +46,7 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- contai
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
+func (m *MockedClient) ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error) {
 	args := m.Called(ctx, filter)
 	return args.Get(0).([]container.Container), args.Error(1)
 }
@@ -130,7 +130,7 @@ func init() {
 		FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	}, nil)
 
-	server, _ := NewServer(client, certs, "test", container.ContainerFilter{})
+	server, _ := NewServer(client, certs, "test", container.ContainerLabels{})
 
 	go server.Serve(lis)
 }
@@ -173,7 +173,7 @@ func TestListContainers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	containers, _ := rpc.ListContainers(context.Background(), container.ContainerFilter{})
+	containers, _ := rpc.ListContainers(context.Background(), container.ContainerLabels{})
 
 	assert.Equal(t, containers, []container.Container{
 		{

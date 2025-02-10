@@ -13,11 +13,11 @@ import (
 )
 
 type DockerClientService struct {
-	client *docker.DockerClient
+	client container.Client
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client *docker.DockerClient, labels container.ContainerLabels) *DockerClientService {
+func NewDockerClientService(client container.Client, labels container.ContainerLabels) *DockerClientService {
 	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
 		client: client,

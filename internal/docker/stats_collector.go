@@ -16,7 +16,7 @@ import (
 type DockerStatsCollector struct {
 	stream       chan container.ContainerStat
 	subscribers  *xsync.MapOf[context.Context, chan<- container.ContainerStat]
-	client       *DockerClient
+	client       container.Client
 	cancelers    *xsync.MapOf[string, context.CancelFunc]
 	stopper      context.CancelFunc
 	timer        *time.Timer
@@ -27,7 +27,7 @@ type DockerStatsCollector struct {
 
 var timeToStop = 6 * time.Hour
 
-func NewDockerStatsCollector(client *DockerClient, labels container.ContainerLabels) *DockerStatsCollector {
+func NewDockerStatsCollector(client container.Client, labels container.ContainerLabels) *DockerStatsCollector {
 	return &DockerStatsCollector{
 		stream:      make(chan container.ContainerStat),
 		subscribers: xsync.NewMapOf[context.Context, chan<- container.ContainerStat](),
