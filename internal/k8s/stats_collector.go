@@ -105,10 +105,10 @@ func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
 				for _, c := range pod.Containers {
 					stat := container.ContainerStat{
 						ID:          pod.Name + ":" + c.Name,
-						CPUPercent:  c.Usage.Cpu().AsApproximateFloat64(),
+						CPUPercent:  float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
 						MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
 					}
-
+					log.Trace().Interface("stat", stat).Msg("k8s stats")
 					sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
 						select {
 						case stats <- stat:
