@@ -19,8 +19,10 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
 	"github.com/rs/zerolog/log"
 )
@@ -160,17 +162,17 @@ func main() {
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
 
-	var multiHostService *docker_support.MultiHostService
+	var hostService web.HostService
 	if args.Mode == "server" {
 		var localClient container.Client
-		localClient, multiHostService = cli.CreateMultiHostService(certs, args)
+		localClient, multiHostService := cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
 			log.Fatal().Msg("Could not connect to any Docker Engine")
 		} else {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
 		go cli.StartEvent(args, "server", localClient, "")
-
+		hostService = multiHostService
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient("")
 		if err != nil {
@@ -182,7 +184,7 @@ func main() {
 		}
 		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
 		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
-		multiHostService = docker_support.NewMultiHostService(manager, args.Timeout)
+		hostService = docker_support.NewMultiHostService(manager, args.Timeout)
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
@@ -194,16 +196,29 @@ func main() {
 		}
 		go cli.StartEvent(args, "swarm", localClient, "")
 		go func() {
-			log.Info().Msgf("Dozzle agent version %s", args.Version())
+			log.Info().Msgf("Dozzle agent version in swarm mode %s", args.Version())
 			if err := server.Serve(listener); err != nil {
 				log.Error().Err(err).Msg("failed to serve")
 			}
 		}()
+	} else if args.Mode == "k8s" {
+		localClient, err := k8s.NewK8sClient("default")
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not create k8s client")
+		}
+
+		clusterService, err := k8s_support.NewK8sClusterService(localClient, args.Timeout)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
+		}
+
+		go cli.StartEvent(args, "k8s", nil, "")
+		hostService = clusterService
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
-	srv := createServer(args, multiHostService)
+	srv := createServer(args, hostService)
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -224,7 +239,7 @@ func main() {
 	log.Debug().Msg("shut down complete")
 }
 
-func createServer(args cli.Args, multiHostService *docker_support.MultiHostService) *http.Server {
+func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var provider web.AuthProvider = web.NONE
@@ -286,7 +301,7 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 			TTL:        authTTL,
 		},
 		EnableActions: args.EnableActions,
-		Filter:        args.Filter,
+		Labels:        args.Filter,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -313,5 +328,5 @@ func createServer(args cli.Args, multiHostService *docker_support.MultiHostServi
 		}
 	}
 
-	return web.CreateServer(multiHostService, assets, config)
+	return web.CreateServer(hostService, assets, config)
 }

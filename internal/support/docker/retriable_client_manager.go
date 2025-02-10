@@ -9,6 +9,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
+
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -17,7 +19,7 @@ import (
 )
 
 type RetriableClientManager struct {
-	clients      map[string]ClientService
+	clients      map[string]container_support.ClientService
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
@@ -25,8 +27,8 @@ type RetriableClientManager struct {
 	timeout      time.Duration
 }
 
-func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...ClientService) *RetriableClientManager {
-	clientMap := make(map[string]ClientService)
+func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container_support.ClientService) *RetriableClientManager {
+	clientMap := make(map[string]container_support.ClientService)
 	for _, client := range clients {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
@@ -64,7 +66,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		if _, ok := clientMap[host.ID]; ok {
 			log.Warn().Str("host", host.Name).Str("id", host.ID).Msg("duplicate host with same ID found")
 		} else {
-			clientMap[host.ID] = NewAgentService(agent)
+			clientMap[host.ID] = container_support.NewAgentService(agent)
 		}
 	}
 
@@ -86,7 +88,7 @@ func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- c
 	}()
 }
 
-func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
+func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientService, []error) {
 	m.mu.Lock()
 	errors := make([]error, 0)
 	if len(m.failedAgents) > 0 {
@@ -110,7 +112,7 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 				continue
 			}
 
-			m.clients[host.ID] = NewAgentService(agent)
+			m.clients[host.ID] = container_support.NewAgentService(agent)
 			m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
 				host.Available = true
 
@@ -133,14 +135,14 @@ func (m *RetriableClientManager) RetryAndList() ([]ClientService, []error) {
 	return m.List(), errors
 }
 
-func (m *RetriableClientManager) List() []ClientService {
+func (m *RetriableClientManager) List() []container_support.ClientService {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	return lo.Values(m.clients)
 }
 
-func (m *RetriableClientManager) Find(id string) (ClientService, bool) {
+func (m *RetriableClientManager) Find(id string) (container_support.ClientService, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -155,7 +157,7 @@ func (m *RetriableClientManager) String() string {
 func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	clients := m.List()
 
-	hosts := lop.Map(clients, func(client ClientService, _ int) container.Host {
+	hosts := lop.Map(clients, func(client container_support.ClientService, _ int) container.Host {
 		host, err := client.Host(ctx)
 		if err != nil {
 			log.Warn().Err(err).Str("host", host.Name).Msg("error fetching host info for client")
@@ -186,7 +188,7 @@ func (m *RetriableClientManager) LocalClients() []container.Client {
 	clients := make([]container.Client, 0)
 
 	for _, service := range services {
-		if clientService, ok := service.(*dockerClientService); ok {
+		if clientService, ok := service.(*DockerClientService); ok {
 			clients = append(clients, clientService.client)
 		}
 	}

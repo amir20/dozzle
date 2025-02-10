@@ -24,18 +24,18 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	stats := make(chan container.ContainerStat)
 	availableHosts := make(chan container.Host)
 
-	h.multiHostService.SubscribeEventsAndStats(r.Context(), events, stats)
-	h.multiHostService.SubscribeAvailableHosts(r.Context(), availableHosts)
+	h.hostService.SubscribeEventsAndStats(r.Context(), events, stats)
+	h.hostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
-	usersFilter := h.config.Filter
+	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
 		}
 	}
 
-	allContainers, errors := h.multiHostService.ListAllContainers(usersFilter)
+	allContainers, errors := h.hostService.ListAllContainers(userLabels)
 
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
@@ -73,7 +73,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				if event.Name == "start" || event.Name == "rename" {
 					log.Debug().Str("action", event.Name).Str("id", event.ActorID).Msg("container event")
 
-					if containers, err := h.multiHostService.ListContainersForHost(event.Host, usersFilter); err == nil {
+					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
@@ -88,7 +88,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 			case "update":
 				log.Debug().Str("id", event.ActorID).Msg("container updated")
-				if containerService, err := h.multiHostService.FindContainer(event.Host, event.ActorID, usersFilter); err == nil {
+				if containerService, err := h.hostService.FindContainer(event.Host, event.ActorID, userLabels); err == nil {
 					if err := sseWriter.Event("container-updated", containerService.Container); err != nil {
 						log.Error().Err(err).Msg("error writing event to event stream")
 						return
@@ -123,7 +123,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 	b := types.BeaconEvent{
 		AuthProvider:      string(h.config.Authorization.Provider),
 		Browser:           r.Header.Get("User-Agent"),
-		Clients:           h.multiHostService.TotalClients(),
+		Clients:           len(h.hostService.Hosts()),
 		HasActions:        h.config.EnableActions,
 		HasCustomAddress:  h.config.Addr != ":8080",
 		HasCustomBase:     h.config.Base != "/",
@@ -133,9 +133,9 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 		Version:           h.config.Version,
 	}
 
-	local, err := h.multiHostService.LocalHost()
+	local, err := h.hostService.LocalHost()
 	if err == nil {
-		b.ServerID = local.ID
+		b.ServerID = local.ID // TODO : fix this for k8s
 	}
 
 	if err := analytics.SendBeacon(b); err != nil {

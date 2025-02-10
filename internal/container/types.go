@@ -44,10 +44,10 @@ type ContainerEvent struct {
 	Time            time.Time         `json:"time"`
 }
 
-type ContainerFilter map[string][]string
+type ContainerLabels map[string][]string
 
-func ParseContainerFilter(commaValues string) (ContainerFilter, error) {
-	filter := make(ContainerFilter)
+func ParseContainerFilter(commaValues string) (ContainerLabels, error) {
+	filter := make(ContainerLabels)
 	if commaValues == "" {
 		return filter, nil
 	}
@@ -65,7 +65,7 @@ func ParseContainerFilter(commaValues string) (ContainerFilter, error) {
 	return filter, nil
 }
 
-func (f ContainerFilter) Exists() bool {
+func (f ContainerLabels) Exists() bool {
 	return len(f) > 0
 }
 

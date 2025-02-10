@@ -38,8 +38,8 @@ func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- contai
 	return args.Error(0)
 }
 
-func (m *MockedClient) ListContainers(ctx context.Context, filter container.ContainerFilter) ([]container.Container, error) {
-	args := m.Called(ctx, filter)
+func (m *MockedClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	args := m.Called(ctx, labels)
 	return args.Get(0).([]container.Container), args.Error(1)
 }
 
@@ -86,12 +86,12 @@ func createHandler(client container.Client, content fs.FS, config Config) *chi.M
 		content = afero.NewIOFS(fs)
 	}
 
-	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client, container.ContainerFilter{}))
+	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(client, container.ContainerLabels{}))
 	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 	return createRouter(&handler{
-		multiHostService: multiHostService,
-		content:          content,
-		config:           &config,
+		hostService: multiHostService,
+		content:     content,
+		config:      &config,
 	})
 }
 

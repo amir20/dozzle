@@ -1,4 +1,4 @@
-package container
+package docker
 
 import (
 	"context"
@@ -8,35 +8,36 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/rs/zerolog/log"
 )
 
-type StatsCollector struct {
-	stream       chan ContainerStat
-	subscribers  *xsync.MapOf[context.Context, chan<- ContainerStat]
-	client       Client
+type DockerStatsCollector struct {
+	stream       chan container.ContainerStat
+	subscribers  *xsync.MapOf[context.Context, chan<- container.ContainerStat]
+	client       container.Client
 	cancelers    *xsync.MapOf[string, context.CancelFunc]
 	stopper      context.CancelFunc
 	timer        *time.Timer
 	mu           sync.Mutex
 	totalStarted atomic.Int32
-	filter       ContainerFilter
+	labels       container.ContainerLabels
 }
 
 var timeToStop = 6 * time.Hour
 
-func NewStatsCollector(client Client, filter ContainerFilter) *StatsCollector {
-	return &StatsCollector{
-		stream:      make(chan ContainerStat),
-		subscribers: xsync.NewMapOf[context.Context, chan<- ContainerStat](),
+func NewDockerStatsCollector(client container.Client, labels container.ContainerLabels) *DockerStatsCollector {
+	return &DockerStatsCollector{
+		stream:      make(chan container.ContainerStat),
+		subscribers: xsync.NewMapOf[context.Context, chan<- container.ContainerStat](),
 		client:      client,
 		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
-		filter:      filter,
+		labels:      labels,
 	}
 }
 
-func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- ContainerStat) {
+func (c *DockerStatsCollector) Subscribe(ctx context.Context, stats chan<- container.ContainerStat) {
 	c.subscribers.Store(ctx, stats)
 	go func() {
 		<-ctx.Done()
@@ -44,7 +45,7 @@ func (c *StatsCollector) Subscribe(ctx context.Context, stats chan<- ContainerSt
 	}()
 }
 
-func (c *StatsCollector) forceStop() {
+func (c *DockerStatsCollector) forceStop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.stopper != nil {
@@ -54,7 +55,7 @@ func (c *StatsCollector) forceStop() {
 	}
 }
 
-func (c *StatsCollector) Stop() {
+func (c *DockerStatsCollector) Stop() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.totalStarted.Add(-1) == 0 {
@@ -64,7 +65,7 @@ func (c *StatsCollector) Stop() {
 	}
 }
 
-func (c *StatsCollector) reset() {
+func (c *DockerStatsCollector) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.timer != nil {
@@ -73,7 +74,7 @@ func (c *StatsCollector) reset() {
 	c.timer = nil
 }
 
-func streamStats(parent context.Context, sc *StatsCollector, id string) {
+func streamStats(parent context.Context, sc *DockerStatsCollector, id string) {
 	ctx, cancel := context.WithCancel(parent)
 	sc.cancelers.Store(id, cancel)
 	log.Debug().Str("container", id).Str("host", sc.client.Host().Name).Msg("starting to stream stats")
@@ -86,7 +87,7 @@ func streamStats(parent context.Context, sc *StatsCollector, id string) {
 }
 
 // Start starts the stats collector and blocks until it's stopped. It returns true if the collector was stopped, false if it was already running
-func (sc *StatsCollector) Start(parentCtx context.Context) bool {
+func (sc *DockerStatsCollector) Start(parentCtx context.Context) bool {
 	sc.reset()
 	sc.totalStarted.Add(1)
 
@@ -99,8 +100,8 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	ctx, sc.stopper = context.WithCancel(parentCtx)
 	sc.mu.Unlock()
 
-	timeoutCtx, cancel := context.WithTimeout(parentCtx, defaultTimeout)
-	if containers, err := sc.client.ListContainers(timeoutCtx, sc.filter); err == nil {
+	timeoutCtx, cancel := context.WithTimeout(parentCtx, 3*time.Second) // 3 seconds to list containers is hard limit
+	if containers, err := sc.client.ListContainers(timeoutCtx, sc.labels); err == nil {
 		for _, c := range containers {
 			if c.State == "running" {
 				go streamStats(ctx, sc, c.ID)
@@ -111,7 +112,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 	}
 	cancel()
 
-	events := make(chan ContainerEvent)
+	events := make(chan container.ContainerEvent)
 
 	go func() {
 		log.Debug().Str("host", sc.client.Host().Name).Msg("starting to listen to docker events")
@@ -142,7 +143,7 @@ func (sc *StatsCollector) Start(parentCtx context.Context) bool {
 			log.Info().Str("host", sc.client.Host().Name).Msg("stopped container stats collector")
 			return true
 		case stat := <-sc.stream:
-			sc.subscribers.Range(func(c context.Context, stats chan<- ContainerStat) bool {
+			sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
 				select {
 				case stats <- stat:
 				case <-c.Done():

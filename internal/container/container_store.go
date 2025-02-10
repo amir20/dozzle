@@ -13,34 +13,40 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
+type StatsCollector interface {
+	Start(parentCtx context.Context) bool
+	Subscribe(ctx context.Context, stats chan<- ContainerStat)
+	Stop()
+}
+
 type ContainerStore struct {
 	containers              *xsync.MapOf[string, *Container]
 	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
 	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
 	client                  Client
-	statsCollector          *StatsCollector
+	statsCollector          StatsCollector
 	wg                      sync.WaitGroup
 	connected               atomic.Bool
 	events                  chan ContainerEvent
 	ctx                     context.Context
-	filter                  ContainerFilter
+	labels                  ContainerLabels
 }
 
 const defaultTimeout = 10 * time.Second
 
-func NewContainerStore(ctx context.Context, client Client, filter ContainerFilter) *ContainerStore {
-	log.Debug().Str("host", client.Host().Name).Interface("filter", filter).Msg("initializing container store")
+func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCollector, labels ContainerLabels) *ContainerStore {
+	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
 
 	s := &ContainerStore{
 		containers:              xsync.NewMapOf[string, *Container](),
 		client:                  client,
 		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
 		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
-		statsCollector:          NewStatsCollector(client, filter),
+		statsCollector:          statsCollect,
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
 		ctx:                     ctx,
-		filter:                  filter,
+		labels:                  labels,
 	}
 
 	s.wg.Add(1)
@@ -68,7 +74,7 @@ func (s *ContainerStore) checkConnectivity() error {
 
 		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 		defer cancel()
-		if containers, err := s.client.ListContainers(ctx, s.filter); err != nil {
+		if containers, err := s.client.ListContainers(ctx, s.labels); err != nil {
 			return err
 		} else {
 			s.containers.Clear()
@@ -109,7 +115,7 @@ func (s *ContainerStore) checkConnectivity() error {
 	return nil
 }
 
-func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, error) {
+func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, error) {
 	s.wg.Wait()
 
 	if err := s.checkConnectivity(); err != nil {
@@ -117,8 +123,8 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 	}
 
 	containers := make([]Container, 0)
-	if filter.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, filter)
+	if labels.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, labels)
 		if err != nil {
 			return nil, err
 		}
@@ -143,11 +149,10 @@ func (s *ContainerStore) ListContainers(filter ContainerFilter) ([]Container, er
 	return containers, nil
 }
 
-func (s *ContainerStore) FindContainer(id string, filter ContainerFilter) (Container, error) {
+func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Container, error) {
 	s.wg.Wait()
-
-	if filter.Exists() {
-		validContainers, err := s.client.ListContainers(s.ctx, filter)
+	if labels.Exists() {
+		validContainers, err := s.client.ListContainers(s.ctx, labels)
 		if err != nil {
 			return Container{}, err
 		}
@@ -245,11 +250,36 @@ func (s *ContainerStore) init() {
 		case event := <-s.events:
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
+			case "create":
+				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
+					list, _ := s.client.ListContainers(ctx, s.labels)
+
+					// make sure the container is in the list of containers when using filter
+					valid := lo.ContainsBy(list, func(item Container) bool {
+						return item.ID == container.ID
+					})
+
+					if valid {
+						log.Debug().Str("id", container.ID).Msg("container started")
+						s.containers.Store(container.ID, &container)
+						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
+							select {
+							case containers <- container:
+							case <-c.Done():
+							}
+							return true
+						})
+					}
+				}
+				cancel()
+
 			case "start":
 				ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 
 				if container, err := s.client.FindContainer(ctx, event.ActorID); err == nil {
-					list, _ := s.client.ListContainers(ctx, s.filter)
+					list, _ := s.client.ListContainers(ctx, s.labels)
 
 					// make sure the container is in the list of containers when using filter
 					valid := lo.ContainsBy(list, func(item Container) bool {
@@ -272,6 +302,43 @@ func (s *ContainerStore) init() {
 			case "destroy":
 				log.Debug().Str("id", event.ActorID).Msg("container destroyed")
 				s.containers.Delete(event.ActorID)
+
+			case "update":
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+					if loaded {
+						log.Debug().Str("id", c.ID).Msg("container updated")
+						started := false
+						if newContainer, err := s.client.FindContainer(context.Background(), c.ID); err == nil {
+							if newContainer.State == "running" && c.State != "running" {
+								started = true
+							}
+							c.Name = newContainer.Name
+							c.State = newContainer.State
+							c.Labels = newContainer.Labels
+							c.StartedAt = newContainer.StartedAt
+							c.FinishedAt = newContainer.FinishedAt
+							c.Created = newContainer.Created
+						} else {
+							log.Error().Err(err).Str("id", c.ID).Msg("failed to update container")
+						}
+						if started {
+							s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
+								select {
+								case events <- ContainerEvent{
+									Name:    "start",
+									ActorID: c.ID,
+								}:
+								case <-ctx.Done():
+									s.subscribers.Delete(ctx)
+								}
+								return true
+							})
+						}
+						return c, false
+					} else {
+						return c, true
+					}
+				})
 
 			case "die":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {

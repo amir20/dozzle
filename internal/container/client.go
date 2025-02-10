@@ -29,7 +29,7 @@ func (s StdType) String() string {
 }
 
 type Client interface {
-	ListContainers(context.Context, ContainerFilter) ([]Container, error)
+	ListContainers(context.Context, ContainerLabels) ([]Container, error)
 	FindContainer(context.Context, string) (Container, error)
 	ContainerLogs(context.Context, string, time.Time, StdType) (io.ReadCloser, error)
 	ContainerEvents(context.Context, chan<- ContainerEvent) error
@@ -38,5 +38,4 @@ type Client interface {
 	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	IsSwarmMode() bool
 }

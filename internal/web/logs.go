@@ -18,6 +18,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/internal/support/search"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/internal/utils"
@@ -47,15 +48,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	usersFilter := h.config.Filter
+	usersLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			usersLabels = user.ContainerLabels
 		}
 	}
 
-	containerService, err := h.multiHostService.FindContainer(hostKey(r), id, usersFilter)
+	containerService, err := h.hostService.FindContainer(hostKey(r), id, usersLabels)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -227,7 +228,7 @@ func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter ContainerFilter) {
+func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container_support.ContainerFilter) {
 	var stdTypes container.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= container.STDOUT
@@ -248,15 +249,15 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	usersFilter := h.config.Filter
+	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
 		}
 	}
 
-	existingContainers, errs := h.multiHostService.ListAllContainersFiltered(usersFilter, containerFilter)
+	existingContainers, errs := h.hostService.ListAllContainersFiltered(userLabels, containerFilter)
 	if len(errs) > 0 {
 		log.Warn().Err(errs[0]).Msg("error while listing containers")
 	}
@@ -290,7 +291,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 				events := make([]*container.LogEvent, 0)
 				stillRunning := false
 				for _, container := range existingContainers {
-					containerService, err := h.multiHostService.FindContainer(container.Host, container.ID, usersFilter)
+					containerService, err := h.hostService.FindContainer(container.Host, container.ID, userLabels)
 
 					if err != nil {
 						log.Error().Err(err).Msg("error while finding container")
@@ -337,7 +338,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	streamLogs := func(c container.Container) {
-		containerService, err := h.multiHostService.FindContainer(c.Host, c.ID, usersFilter)
+		containerService, err := h.hostService.FindContainer(c.Host, c.ID, userLabels)
 		if err != nil {
 			log.Error().Err(err).Msg("error while finding container")
 			return
@@ -369,7 +370,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	newContainers := make(chan container.Container)
-	h.multiHostService.SubscribeContainersStarted(r.Context(), newContainers, containerFilter)
+	h.hostService.SubscribeContainersStarted(r.Context(), newContainers, containerFilter)
 
 	ticker := time.NewTicker(5 * time.Second)
 	sseWriter.Ping()
@@ -388,7 +389,7 @@ loop:
 			}
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
-			if _, err := h.multiHostService.FindContainer(c.Host, c.ID, usersFilter); err == nil {
+			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
 				events <- &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host}
 				go streamLogs(c)
 			}

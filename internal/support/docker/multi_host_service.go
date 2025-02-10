@@ -6,10 +6,9 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 )
-
-type ContainerFilter = func(*container.Container) bool
 
 type HostUnavailableError struct {
 	Host container.Host
@@ -21,9 +20,9 @@ func (h *HostUnavailableError) Error() string {
 }
 
 type ClientManager interface {
-	Find(id string) (ClientService, bool)
-	List() []ClientService
-	RetryAndList() ([]ClientService, []error)
+	Find(id string) (container_support.ClientService, bool)
+	List() []container_support.ClientService
+	RetryAndList() ([]container_support.ClientService, []error)
 	Subscribe(ctx context.Context, channel chan<- container.Host)
 	Hosts(ctx context.Context) []container.Host
 	LocalClients() []container.Client
@@ -43,25 +42,22 @@ func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHos
 	return m
 }
 
-func (m *MultiHostService) FindContainer(host string, id string, filter container.ContainerFilter) (*containerService, error) {
+func (m *MultiHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
-	container, err := client.FindContainer(ctx, id, filter)
+	container, err := client.FindContainer(ctx, id, labels)
 	if err != nil {
 		return nil, err
 	}
 
-	return &containerService{
-		clientService: client,
-		Container:     container,
-	}, nil
+	return container_support.NewContainerService(client, container), nil
 }
 
-func (m *MultiHostService) ListContainersForHost(host string, filter container.ContainerFilter) ([]container.Container, error) {
+func (m *MultiHostService) ListContainersForHost(host string, labels container.ContainerLabels) ([]container.Container, error) {
 	client, ok := m.manager.Find(host)
 	if !ok {
 		return nil, fmt.Errorf("host %s not found", host)
@@ -69,17 +65,17 @@ func (m *MultiHostService) ListContainersForHost(host string, filter container.C
 	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 	defer cancel()
 
-	return client.ListContainers(ctx, filter)
+	return client.ListContainers(ctx, labels)
 }
 
-func (m *MultiHostService) ListAllContainers(filter container.ContainerFilter) ([]container.Container, []error) {
+func (m *MultiHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
 	containers := make([]container.Container, 0)
 	clients, errors := m.manager.RetryAndList()
 
 	for _, client := range clients {
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
-		list, err := client.ListContainers(ctx, filter)
+		list, err := client.ListContainers(ctx, labels)
 		if err != nil {
 			host, _ := client.Host(ctx)
 			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
@@ -94,8 +90,8 @@ func (m *MultiHostService) ListAllContainers(filter container.ContainerFilter) (
 	return containers, errors
 }
 
-func (m *MultiHostService) ListAllContainersFiltered(userFilter container.ContainerFilter, filter ContainerFilter) ([]container.Container, []error) {
-	containers, err := m.ListAllContainers(userFilter)
+func (m *MultiHostService) ListAllContainersFiltered(userLabels container.ContainerLabels, filter container_support.ContainerFilter) ([]container.Container, []error) {
+	containers, err := m.ListAllContainers(userLabels)
 	filtered := make([]container.Container, 0, len(containers))
 	for _, container := range containers {
 		if filter(&container) {
@@ -112,7 +108,7 @@ func (m *MultiHostService) SubscribeEventsAndStats(ctx context.Context, events c
 	}
 }
 
-func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter ContainerFilter) {
+func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
 	newContainers := make(chan container.Container)
 	for _, client := range m.manager.List() {
 		client.SubscribeContainersStarted(ctx, newContainers)
@@ -133,10 +129,6 @@ func (m *MultiHostService) SubscribeContainersStarted(ctx context.Context, conta
 			}
 		}
 	}()
-}
-
-func (m *MultiHostService) TotalClients() int {
-	return len(m.manager.List())
 }
 
 func (m *MultiHostService) Hosts() []container.Host {
@@ -160,4 +152,8 @@ func (m *MultiHostService) SubscribeAvailableHosts(ctx context.Context, hosts ch
 
 func (m *MultiHostService) LocalClients() []container.Client {
 	return m.manager.LocalClients()
+}
+
+func (m *MultiHostService) TotalClients() int {
+	return len(m.manager.List())
 }

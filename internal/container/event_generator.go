@@ -1,14 +1,10 @@
 package container
 
 import (
-	"bufio"
-	"bytes"
 	"context"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"hash/fnv"
-	"io"
 	"strings"
 	"sync"
 	"time"
@@ -23,30 +19,26 @@ import (
 type EventGenerator struct {
 	Events      chan *LogEvent
 	Errors      chan error
-	reader      *bufio.Reader
+	reader      LogReader
 	next        *LogEvent
 	buffer      chan *LogEvent
-	tty         bool
 	wg          sync.WaitGroup
 	containerID string
 	ctx         context.Context
 }
 
-var bufPool = sync.Pool{
-	New: func() any {
-		return new(bytes.Buffer)
-	},
-}
-
 var ErrBadHeader = fmt.Errorf("dozzle/docker: unable to read header")
 
-func NewEventGenerator(ctx context.Context, reader io.Reader, container Container) *EventGenerator {
+type LogReader interface {
+	Read() (string, StdType, error)
+}
+
+func NewEventGenerator(ctx context.Context, reader LogReader, container Container) *EventGenerator {
 	generator := &EventGenerator{
-		reader:      bufio.NewReader(reader),
+		reader:      reader,
 		buffer:      make(chan *LogEvent, 100),
 		Errors:      make(chan error, 1),
 		Events:      make(chan *LogEvent),
-		tty:         container.Tty,
 		containerID: container.ID,
 		ctx:         ctx,
 	}
@@ -90,7 +82,7 @@ loop:
 
 func (g *EventGenerator) consumeReader() {
 	for {
-		message, streamType, readerError := readEvent(g.reader, g.tty)
+		message, streamType, readerError := g.reader.Read()
 		if message != "" {
 			logEvent := createEvent(message, streamType)
 			logEvent.ContainerID = g.containerID
@@ -120,50 +112,6 @@ func (g *EventGenerator) peek() *LogEvent {
 		return g.next
 	case <-time.After(50 * time.Millisecond):
 		return nil
-	}
-}
-
-func readEvent(reader *bufio.Reader, tty bool) (string, StdType, error) {
-	header := []byte{0, 0, 0, 0, 0, 0, 0, 0}
-	buffer := bufPool.Get().(*bytes.Buffer)
-	buffer.Reset()
-	defer bufPool.Put(buffer)
-	var streamType StdType = STDOUT
-	if tty {
-		message, err := reader.ReadString('\n')
-		if err != nil {
-			return message, streamType, err
-		}
-		return message, streamType, nil
-	} else {
-		n, err := io.ReadFull(reader, header)
-		if err != nil {
-			return "", streamType, err
-		}
-		if n != 8 {
-			log.Warn().Bytes("header", header).Msg("short read")
-			message, _ := reader.ReadString('\n')
-			return message, streamType, ErrBadHeader
-		}
-
-		switch header[0] {
-		case 1:
-			streamType = STDOUT
-		case 2:
-			streamType = STDERR
-		default:
-			log.Warn().Bytes("header", header).Msg("unknown stream type")
-		}
-
-		count := binary.BigEndian.Uint32(header[4:])
-		if count == 0 {
-			return "", streamType, nil
-		}
-		_, err = io.CopyN(buffer, reader, int64(count))
-		if err != nil {
-			return "", streamType, err
-		}
-		return buffer.String(), streamType, nil
 	}
 }
 

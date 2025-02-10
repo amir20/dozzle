@@ -10,7 +10,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -23,11 +22,11 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersFilter := h.config.Filter
+	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
-		if user.ContainerFilter.Exists() {
-			usersFilter = user.ContainerFilter
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
 		}
 	}
 
@@ -66,7 +65,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 
 		host := parts[0]
 		id := parts[1]
-		containerService, err := h.multiHostService.FindContainer(host, id, usersFilter)
+		containerService, err := h.hostService.FindContainer(host, id, userLabels)
 		if err != nil {
 			log.Error().Err(err).Msgf("error finding container %s", id)
 			http.Error(w, fmt.Sprintf("error finding container %s: %v", id, err), http.StatusBadRequest)
@@ -90,19 +89,12 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Copy logs directly to zip entry
-		if containerService.Container.Tty {
-			if _, err := io.Copy(f, reader); err != nil {
-				log.Error().Err(err).Msgf("error copying logs for container %s", id)
-				http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
-				return
-			}
-		} else {
-			if _, err := stdcopy.StdCopy(f, f, reader); err != nil {
-				log.Error().Err(err).Msgf("error copying logs for container %s", id)
-				http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
-				return
-			}
+		// Copy logs to zip file
+		_, err = io.Copy(f, reader)
+		if err != nil {
+			log.Error().Err(err).Msgf("error copying logs for container %s", id)
+			http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
+			return
 		}
 	}
 }
