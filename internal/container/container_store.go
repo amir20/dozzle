@@ -336,7 +336,6 @@ func (s *ContainerStore) init() {
 				})
 
 				if started {
-					log.Debug().Str("id", updatedContainer.ID).Msg("sending started event")
 					s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
 						select {
 						case events <- ContainerEvent{

@@ -108,7 +108,10 @@ useIntervalFn(
         stat.totalCPU += container.stat.cpu;
         stat.totalMem += container.stat.memoryUsage;
       }
-      weightedStats[host].mostRecent = stat;
+      if (weightedStats[host]) {
+        // TODO fix this init
+        weightedStats[host].mostRecent = stat;
+      }
     }
   },
   1000,
