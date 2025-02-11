@@ -122,7 +122,7 @@ func (m *K8sClusterService) Hosts() []container.Host {
 }
 
 func (m *K8sClusterService) LocalHost() (container.Host, error) {
-	return container.Host{}, nil
+	return m.client.client.Host(), nil
 }
 
 func (m *K8sClusterService) SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host) {

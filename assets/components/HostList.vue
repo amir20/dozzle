@@ -31,7 +31,8 @@
           </ul>
           <ul class="flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">
             <li class="flex items-center gap-1">
-              <octicon:container-24 class="inline-block" /> {{ $t("label.container", hostContainers[host.id]?.length) }}
+              <octicon:container-24 class="inline-block" />
+              {{ $t("label.container", hostContainers[host.id]?.length ?? 0) }}
             </li>
             <li class="flex items-center gap-1"><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
           </ul>
@@ -107,7 +108,10 @@ useIntervalFn(
         stat.totalCPU += container.stat.cpu;
         stat.totalMem += container.stat.memoryUsage;
       }
-      weightedStats[host].mostRecent = stat;
+      if (weightedStats[host]) {
+        // TODO fix this init
+        weightedStats[host].mostRecent = stat;
+      }
     }
   },
   1000,

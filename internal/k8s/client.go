@@ -25,6 +25,7 @@ type K8sClient struct {
 	Clientset *kubernetes.Clientset
 	namespace string
 	config    *rest.Config
+	host      container.Host
 }
 
 func NewK8sClient(namespace string) (*K8sClient, error) {
@@ -56,12 +57,49 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 		return nil, err
 	}
 
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if len(nodes.Items) == 0 {
+		return nil, fmt.Errorf("nodes not found")
+	}
+	node := nodes.Items[0]
+
 	return &K8sClient{
 		Clientset: clientset,
 		namespace: namespace,
 		config:    config,
+		host: container.Host{
+			ID:   node.Status.NodeInfo.MachineID,
+			Name: node.Name,
+		},
 	}, nil
 }
+
+func podToContainers(pod *corev1.Pod) []container.Container {
+	started := time.Time{}
+	if pod.Status.StartTime != nil {
+		started = pod.Status.StartTime.Time
+	}
+	var containers []container.Container
+	for _, c := range pod.Spec.Containers {
+		containers = append(containers, container.Container{
+			ID:        pod.Name + ":" + c.Name,
+			Name:      pod.Name + "/" + c.Name,
+			Image:     c.Image,
+			Created:   pod.CreationTimestamp.Time,
+			State:     phaseToState(pod.Status.Phase),
+			StartedAt: started,
+			Command:   strings.Join(c.Command, " "),
+			Host:      pod.Spec.NodeName,
+			Tty:       c.TTY,
+			Stats:     utils.NewRingBuffer[container.ContainerStat](300),
+		})
+	}
+	return containers
+}
+
 func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
 	pods, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -77,7 +115,6 @@ func (k *K8sClient) ListContainers(ctx context.Context, labels container.Contain
 				Image:   c.Image,
 				Created: pod.CreationTimestamp.Time,
 				State:   phaseToState(pod.Status.Phase),
-				Tty:     c.TTY,
 				Host:    pod.Spec.NodeName,
 			})
 		}
@@ -111,24 +148,9 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 		return container.Container{}, err
 	}
 
-	for _, c := range pod.Spec.Containers {
-		if c.Name == containerName {
-			started := time.Time{}
-			if pod.Status.StartTime != nil {
-				started = pod.Status.StartTime.Time
-			}
-			return container.Container{
-				ID:        pod.Name + ":" + c.Name,
-				Name:      pod.Name + "/" + c.Name,
-				Image:     c.Image,
-				Created:   pod.CreationTimestamp.Time,
-				State:     phaseToState(pod.Status.Phase),
-				StartedAt: started,
-				Command:   strings.Join(c.Command, " "),
-				Host:      pod.Spec.NodeName,
-				Tty:       c.TTY,
-				Stats:     utils.NewRingBuffer[container.ContainerStat](300),
-			}, nil
+	for _, c := range podToContainers(pod) {
+		if c.ID == id {
+			return c, nil
 		}
 	}
 
@@ -183,14 +205,13 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 			name = "update"
 		}
 
-		log.Debug().Interface("event.Type", event.Type).Str("name", name).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
-
-		for _, c := range pod.Spec.Containers {
+		for _, c := range podToContainers(pod) {
 			ch <- container.ContainerEvent{
-				Name:    name,
-				ActorID: pod.Name + ":" + c.Name,
-				Host:    pod.Spec.NodeName,
-				Time:    time.Now(),
+				Name:      name,
+				ActorID:   c.ID,
+				Host:      pod.Spec.NodeName,
+				Time:      time.Now(),
+				Container: &c,
 			}
 		}
 	}
@@ -208,7 +229,7 @@ func (k *K8sClient) Ping(ctx context.Context) error {
 }
 
 func (k *K8sClient) Host() container.Host {
-	return container.Host{}
+	return k.host
 }
 
 func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
