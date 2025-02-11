@@ -42,6 +42,7 @@ type ContainerEvent struct {
 	ActorID         string            `json:"actorId"`
 	ActorAttributes map[string]string `json:"actorAttributes,omitempty"`
 	Time            time.Time         `json:"time"`
+	Container       *Container        `json:"-"`
 }
 
 type ContainerLabels map[string][]string

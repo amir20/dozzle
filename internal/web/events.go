@@ -87,11 +87,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 			case "update":
-				if containerService, err := h.hostService.FindContainer(event.Host, event.ActorID, userLabels); err == nil {
-					if err := sseWriter.Event("container-updated", containerService.Container); err != nil {
-						log.Error().Err(err).Msg("error writing event to event stream")
-						return
-					}
+				if err := sseWriter.Event("container-updated", event.Container); err != nil {
+					log.Error().Err(err).Msg("error writing event to event stream")
+					return
 				}
 			case "health_status: healthy", "health_status: unhealthy":
 				healthy := "unhealthy"

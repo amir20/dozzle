@@ -184,11 +184,11 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 				return c, false
 			}); ok {
 				go func() {
-					// TODO just send the updated container in payload
 					event := ContainerEvent{
-						Name:    "update",
-						Host:    newContainer.Host,
-						ActorID: id,
+						Name:      "update",
+						Host:      newContainer.Host,
+						ActorID:   id,
+						Container: newContainer,
 					}
 
 					s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
@@ -255,7 +255,7 @@ func (s *ContainerStore) init() {
 	for {
 		select {
 		case event := <-s.events:
-			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
+			log.Debug().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "create":
 				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -269,7 +269,6 @@ func (s *ContainerStore) init() {
 					})
 
 					if valid {
-						log.Debug().Str("id", container.ID).Msg("container started")
 						s.containers.Store(container.ID, &container)
 						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 							select {
@@ -294,7 +293,6 @@ func (s *ContainerStore) init() {
 					})
 
 					if valid {
-						log.Debug().Str("id", container.ID).Msg("container started")
 						s.containers.Store(container.ID, &container)
 						s.newContainerSubscribers.Range(func(c context.Context, containers chan<- Container) bool {
 							select {
@@ -312,23 +310,20 @@ func (s *ContainerStore) init() {
 
 			case "update":
 				started := false
-				log.Debug().Str("id", event.ActorID).Msg("attempting to update container")
 				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
 					if loaded {
-						if newContainer, err := s.client.FindContainer(context.Background(), c.ID); err == nil {
-							log.Debug().Str("id", c.ID).Str("new state", newContainer.State).Str("old state", c.State).Msg("container updated")
-							if newContainer.State == "running" && c.State != "running" {
-								started = true
-							}
-							c.Name = newContainer.Name
-							c.State = newContainer.State
-							c.Labels = newContainer.Labels
-							c.StartedAt = newContainer.StartedAt
-							c.FinishedAt = newContainer.FinishedAt
-							c.Created = newContainer.Created
-						} else {
-							log.Error().Err(err).Str("id", c.ID).Msg("failed to update container")
+						newContainer := event.Container
+						log.Debug().Str("id", c.ID).Str("new state", newContainer.State).Str("old state", c.State).Msg("container updated")
+						if newContainer.State == "running" && c.State != "running" {
+							started = true
 						}
+						c.Name = newContainer.Name
+						c.State = newContainer.State
+						c.Labels = newContainer.Labels
+						c.StartedAt = newContainer.StartedAt
+						c.FinishedAt = newContainer.FinishedAt
+						c.Created = newContainer.Created
+						c.Host = newContainer.Host
 						return c, false
 					} else {
 						return c, true
