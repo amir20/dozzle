@@ -313,7 +313,6 @@ func (s *ContainerStore) init() {
 				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
 					if loaded {
 						newContainer := event.Container
-						log.Debug().Str("id", c.ID).Str("new state", newContainer.State).Str("old state", c.State).Msg("container updated")
 						if newContainer.State == "running" && c.State != "running" {
 							started = true
 						}

@@ -131,7 +131,7 @@ func sendBeaconEvent(h *handler, r *http.Request, runningContainers int) {
 
 	local, err := h.hostService.LocalHost()
 	if err == nil {
-		b.ServerID = local.ID // TODO : fix this for k8s
+		b.ServerID = local.ID
 	}
 
 	if err := analytics.SendBeacon(b); err != nil {

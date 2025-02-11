@@ -25,6 +25,7 @@ type K8sClient struct {
 	Clientset *kubernetes.Clientset
 	namespace string
 	config    *rest.Config
+	host      container.Host
 }
 
 func NewK8sClient(namespace string) (*K8sClient, error) {
@@ -56,10 +57,23 @@ func NewK8sClient(namespace string) (*K8sClient, error) {
 		return nil, err
 	}
 
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if len(nodes.Items) == 0 {
+		return nil, fmt.Errorf("nodes not found")
+	}
+	node := nodes.Items[0]
+
 	return &K8sClient{
 		Clientset: clientset,
 		namespace: namespace,
 		config:    config,
+		host: container.Host{
+			ID:   node.Status.NodeInfo.MachineID,
+			Name: node.Name,
+		},
 	}, nil
 }
 
@@ -192,7 +206,6 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 		}
 
 		for _, c := range podToContainers(pod) {
-			log.Debug().Interface("event.Type", event.Type).Str("event", name).Str("state", string(pod.Status.Phase)).Interface("ID", pod.Name+":"+c.Name).Msg("Sending container event")
 			ch <- container.ContainerEvent{
 				Name:      name,
 				ActorID:   c.ID,
@@ -216,7 +229,7 @@ func (k *K8sClient) Ping(ctx context.Context) error {
 }
 
 func (k *K8sClient) Host() container.Host {
-	return container.Host{}
+	return k.host
 }
 
 func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
