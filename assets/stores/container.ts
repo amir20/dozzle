@@ -130,7 +130,6 @@ export const useContainerStore = defineStore("container", () => {
   })();
 
   const updateContainers = (containersPayload: ContainerJson[]) => {
-    console.log("update containers", containersPayload);
     const existingContainers = containersPayload.filter((c) => allContainersById.value[c.id]);
     const newContainers = containersPayload.filter((c) => !allContainersById.value[c.id]);
 

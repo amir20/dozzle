@@ -191,7 +191,6 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 				Host:    pod.Spec.NodeName,
 				Time:    time.Now(),
 			}
-			log.Debug().Msg("Sent container event")
 		}
 	}
 
