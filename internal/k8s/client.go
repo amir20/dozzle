@@ -183,15 +183,15 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 			name = "update"
 		}
 
-		log.Debug().Interface("event.Type", event.Type).Str("name", name).Interface("StartTime", pod.Status.StartTime).Msg("Sending container event")
-
 		for _, c := range pod.Spec.Containers {
+			log.Debug().Interface("event.Type", event.Type).Str("event", name).Str("state", string(pod.Status.Phase)).Interface("ID", pod.Name+":"+c.Name).Msg("Sending container event")
 			ch <- container.ContainerEvent{
 				Name:    name,
 				ActorID: pod.Name + ":" + c.Name,
 				Host:    pod.Spec.NodeName,
 				Time:    time.Now(),
 			}
+			log.Debug().Msg("Sent container event")
 		}
 	}
 

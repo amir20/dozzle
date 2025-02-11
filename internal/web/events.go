@@ -68,12 +68,12 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
+			log.Debug().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
 			switch event.Name {
 			case "start", "die", "destroy", "rename":
 				if event.Name == "start" || event.Name == "rename" {
-					log.Debug().Str("action", event.Name).Str("id", event.ActorID).Msg("container event")
-
 					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
+						log.Debug().Str("host", event.Host).Int("count", len(containers)).Msg("updating containers for host")
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
@@ -87,7 +87,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 			case "update":
-				log.Debug().Str("id", event.ActorID).Msg("container updated")
 				if containerService, err := h.hostService.FindContainer(event.Host, event.ActorID, userLabels); err == nil {
 					if err := sseWriter.Event("container-updated", containerService.Container); err != nil {
 						log.Error().Err(err).Msg("error writing event to event stream")
@@ -95,7 +94,6 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			case "health_status: healthy", "health_status: unhealthy":
-				log.Debug().Str("container", event.ActorID).Str("health", event.Name).Msg("container health status")
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"

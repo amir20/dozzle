@@ -176,23 +176,30 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 					defer cancel()
 					if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
 						return &newContainer, false
+					} else {
+						log.Error().Err(err).Msg("failed to fetch container")
+						return c, false
 					}
 				}
 				return c, false
 			}); ok {
-				event := ContainerEvent{
-					Name:    "update",
-					Host:    s.client.Host().ID,
-					ActorID: id,
-				}
-				s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
-					select {
-					case events <- event:
-					case <-c.Done():
-						s.subscribers.Delete(c)
+				go func() {
+					// TODO just send the updated container in payload
+					event := ContainerEvent{
+						Name:    "update",
+						Host:    newContainer.Host,
+						ActorID: id,
 					}
-					return true
-				})
+
+					s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
+						select {
+						case events <- event:
+						case <-c.Done():
+							s.subscribers.Delete(c)
+						}
+						return true
+					})
+				}()
 				return *newContainer, nil
 			}
 		}
@@ -304,11 +311,12 @@ func (s *ContainerStore) init() {
 				s.containers.Delete(event.ActorID)
 
 			case "update":
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				started := false
+				log.Debug().Str("id", event.ActorID).Msg("attempting to update container")
+				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
 					if loaded {
-						log.Debug().Str("id", c.ID).Msg("container updated")
-						started := false
 						if newContainer, err := s.client.FindContainer(context.Background(), c.ID); err == nil {
+							log.Debug().Str("id", c.ID).Str("new state", newContainer.State).Str("old state", c.State).Msg("container updated")
 							if newContainer.State == "running" && c.State != "running" {
 								started = true
 							}
@@ -321,24 +329,27 @@ func (s *ContainerStore) init() {
 						} else {
 							log.Error().Err(err).Str("id", c.ID).Msg("failed to update container")
 						}
-						if started {
-							s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
-								select {
-								case events <- ContainerEvent{
-									Name:    "start",
-									ActorID: c.ID,
-								}:
-								case <-ctx.Done():
-									s.subscribers.Delete(ctx)
-								}
-								return true
-							})
-						}
 						return c, false
 					} else {
 						return c, true
 					}
 				})
+
+				if started {
+					log.Debug().Str("id", updatedContainer.ID).Msg("sending started event")
+					s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
+						select {
+						case events <- ContainerEvent{
+							Name:    "start",
+							ActorID: updatedContainer.ID,
+							Host:    updatedContainer.Host,
+						}:
+						case <-ctx.Done():
+							s.subscribers.Delete(ctx)
+						}
+						return true
+					})
+				}
 
 			case "die":
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
