@@ -63,10 +63,8 @@ func TestContainerStore_List(t *testing.T) {
 		Stats: utils.NewRingBuffer[ContainerStat](300),
 	}, nil)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
 	collector := &fakeStatsCollector{}
-	store := NewContainerStore(ctx, client, collector, ContainerLabels{})
+	store := NewContainerStore(t.Context(), client, collector, ContainerLabels{})
 	containers, _ := store.ListContainers(ContainerLabels{})
 
 	assert.Equal(t, containers[0].ID, "1234")
