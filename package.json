@@ -58,7 +58,7 @@
     "entities": "^6.0.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
-    "pinia": "^3.0.0",
+    "pinia": "^3.0.1",
     "sortablejs": "^1.15.6",
     "splitpanes": "^3.1.8",
     "strip-ansi": "^7.1.0",
