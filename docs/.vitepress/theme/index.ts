@@ -16,7 +16,7 @@ export default {
       "home-hero-image": () => h(HeroVideo),
       "sidebar-nav-after": () => h(BuyMeCoffee),
       "home-hero-actions-after": () => h(Stats),
-      // "layout-top": () => h(Banner),
+      "layout-top": () => h(Banner),
     });
   },
   enhanceApp(ctx) {
