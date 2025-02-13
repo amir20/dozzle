@@ -31,19 +31,6 @@ roleRef:
   name: pod-viewer-role
   apiGroup: rbac.authorization.k8s.io
 ---
-# configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: user-config
-data:
-  users.yml: |
-    users:
-      amir:
-        email: ""
-        name: John Smith
-        password: $2a$11$nXizfBMJrSwfo4ofkS62denLyCKX0X7VsmfTbMyD3thTkmuGNp8.m
----
 # deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -71,16 +58,6 @@ spec:
               value: "k8s"
             - name: DOZZLE_LEVEL
               value: "debug"
-            - name: DOZZLE_AUTH_PROVIDER
-              value: "simple"
-          volumeMounts:
-            - name: user-config
-              mountPath: /data/users.yml
-              subPath: users.yml
-      volumes:
-        - name: user-config
-          configMap:
-            name: user-config
 ---
 # service.yaml
 apiVersion: v1
