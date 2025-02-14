@@ -90,3 +90,19 @@ All other features are supported as well, including authentication, filtering, a
 
 > [!NOTE]
 > Dozzle in Kubernetes is a new feature and may have some limitations compared to the Docker version. Please use this [discussion](https://github.com/amir20/dozzle/discussions/3614) to report any issues or suggestions for improvement.
+
+## Metrics API
+
+Dozzle relies on the [Kubernetes Metrics API](https://github.com/kubernetes-sigs/metrics-server) to retrieve resource usage information. The API can be installed using the following command:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+To verify that the API is running, you can run the following command:
+
+```bash
+kubectl top pod
+```
+
+For now this is required to use Dozzle in Kubernetes.
