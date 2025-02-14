@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.3.0",
+  "packageManager": "pnpm@10.4.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -42,10 +42,10 @@
     "@oddbird/css-anchor-positioning": "^0.4.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "4.0.6",
-    "@vueuse/components": "^12.5.0",
-    "@vueuse/core": "^12.5.0",
-    "@vueuse/integrations": "^12.5.0",
-    "@vueuse/router": "^12.5.0",
+    "@vueuse/components": "^12.6.1",
+    "@vueuse/core": "^12.6.1",
+    "@vueuse/integrations": "^12.6.1",
+    "@vueuse/router": "^12.6.1",
     "ansi-to-html": "^0.7.2",
     "d3-array": "^3.2.4",
     "d3-ease": "^3.0.1",
@@ -88,7 +88,7 @@
     "@types/d3-shape": "^3.1.7",
     "@types/d3-transition": "^3.0.9",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^22.13.2",
+    "@types/node": "^22.13.4",
     "@vitejs/plugin-vue": "5.2.1",
     "@vue/compiler-sfc": "^3.5.13",
     "@vue/test-utils": "^2.4.6",
