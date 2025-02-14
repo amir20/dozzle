@@ -29,6 +29,7 @@ type Args struct {
 	Mode             string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
 	TimeoutString    string              `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"10s" help:"sets the timeout for docker client"`
 	Timeout          time.Duration       `arg:"-"`
+	Namespace        string              `arg:"env:DOZZLE_NAMESPACE" default:"" help:"sets the namespace to use in k8s"`
 	Healthcheck      *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate         *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent            *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
