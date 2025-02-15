@@ -84,7 +84,7 @@ func (s *ContainerStore) checkConnectivity() error {
 			}
 
 			running := lo.Filter(containers, func(item Container, index int) bool {
-				return item.State != "exited"
+				return item.State != "exited" && item.FullyLoaded == false
 			})
 
 			sem := semaphore.NewWeighted(maxFetchParallelism)
@@ -168,8 +168,8 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 	}
 
 	if container, ok := s.containers.Load(id); ok {
-		if container.StartedAt.IsZero() {
-			log.Debug().Str("id", id).Msg("container doesn't have detailed information, fetching it")
+		if !container.FullyLoaded {
+			log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
 			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, bool) {
 				if loaded {
 					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)

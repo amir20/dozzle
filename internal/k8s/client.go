@@ -85,16 +85,17 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 	var containers []container.Container
 	for _, c := range pod.Spec.Containers {
 		containers = append(containers, container.Container{
-			ID:        pod.Name + ":" + c.Name,
-			Name:      pod.Name + "/" + c.Name,
-			Image:     c.Image,
-			Created:   pod.CreationTimestamp.Time,
-			State:     phaseToState(pod.Status.Phase),
-			StartedAt: started,
-			Command:   strings.Join(c.Command, " "),
-			Host:      pod.Spec.NodeName,
-			Tty:       c.TTY,
-			Stats:     utils.NewRingBuffer[container.ContainerStat](300),
+			ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
+			Name:        pod.Name + "/" + c.Name,
+			Image:       c.Image,
+			Created:     pod.CreationTimestamp.Time,
+			State:       phaseToState(pod.Status.Phase),
+			StartedAt:   started,
+			Command:     strings.Join(c.Command, " "),
+			Host:        pod.Spec.NodeName,
+			Tty:         c.TTY,
+			Stats:       utils.NewRingBuffer[container.ContainerStat](300),
+			FullyLoaded: true,
 		})
 	}
 	return containers
@@ -108,16 +109,7 @@ func (k *K8sClient) ListContainers(ctx context.Context, labels container.Contain
 
 	var containers []container.Container
 	for _, pod := range pods.Items {
-		for _, c := range pod.Spec.Containers {
-			containers = append(containers, container.Container{
-				ID:      pod.Name + ":" + c.Name,
-				Name:    pod.Name + "/" + c.Name,
-				Image:   c.Image,
-				Created: pod.CreationTimestamp.Time,
-				State:   phaseToState(pod.Status.Phase),
-				Host:    pod.Spec.NodeName,
-			})
-		}
+		containers = append(containers, podToContainers(&pod)...)
 	}
 	return containers, nil
 }
@@ -141,9 +133,9 @@ func phaseToState(phase corev1.PodPhase) string {
 
 func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
 	log.Debug().Str("id", id).Msg("Finding container")
-	podName, containerName := parsePodContainerID(id)
+	namespace, podName, containerName := parsePodContainerID(id)
 
-	pod, err := k.Clientset.CoreV1().Pods(k.namespace).Get(ctx, podName, metav1.GetOptions{})
+	pod, err := k.Clientset.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
 	if err != nil {
 		return container.Container{}, err
 	}
@@ -158,7 +150,7 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 }
 
 func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
-	podName, containerName := parsePodContainerID(id)
+	namespace, podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
 		Container:  containerName,
 		Follow:     true,
@@ -167,11 +159,11 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 		SinceTime:  &metav1.Time{Time: since},
 	}
 
-	return k.Clientset.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
+	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
 func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
-	podName, containerName := parsePodContainerID(id)
+	namespace, podName, containerName := parsePodContainerID(id)
 	opts := &corev1.PodLogOptions{
 		Container:  containerName,
 		Follow:     false,
@@ -179,7 +171,7 @@ func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, st
 		SinceTime:  &metav1.Time{Time: start},
 	}
 
-	return k.Clientset.CoreV1().Pods(k.namespace).GetLogs(podName, opts).Stream(ctx)
+	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
 }
 
 func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
@@ -224,7 +216,7 @@ func (k *K8sClient) ContainerStats(ctx context.Context, id string, stats chan<- 
 }
 
 func (k *K8sClient) Ping(ctx context.Context) error {
-	_, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{Limit: 1})
+	_, err := k.Clientset.CoreV1().Pods("default").List(ctx, metav1.ListOptions{Limit: 1})
 	return err
 }
 
@@ -238,7 +230,7 @@ func (k *K8sClient) ContainerActions(ctx context.Context, action container.Conta
 }
 
 // Helper function to parse pod and container names from container ID
-func parsePodContainerID(id string) (string, string) {
+func parsePodContainerID(id string) (string, string, string) {
 	parts := strings.Split(id, ":")
-	return parts[0], parts[1]
+	return parts[0], parts[1], parts[2]
 }
