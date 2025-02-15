@@ -106,3 +106,35 @@ kubectl top pod
 ```
 
 For now this is required to use Dozzle in Kubernetes.
+
+## Default Namespace
+
+By default, Dozzle will monitor all namespaces in the cluster. If you want to restrict Dozzle to a specific namespace, you can set the `DOZZLE_NAMESPACE` environment variable to the name of the namespace.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dozzle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dozzle
+  template:
+    metadata:
+      labels:
+        app: dozzle
+    spec:
+      serviceAccountName: pod-viewer
+      containers:
+        - name: dozzle
+          image: amir20/dozzle:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DOZZLE_MODE
+              value: "k8s"
+            - name: DOZZLE_NAMESPACE
+              value: "default"
+```
