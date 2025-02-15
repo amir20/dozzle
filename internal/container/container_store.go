@@ -84,7 +84,7 @@ func (s *ContainerStore) checkConnectivity() error {
 			}
 
 			running := lo.Filter(containers, func(item Container, index int) bool {
-				return item.State != "exited" && item.FullyLoaded == false
+				return item.State != "exited" && !item.FullyLoaded
 			})
 
 			sem := semaphore.NewWeighted(maxFetchParallelism)
