@@ -102,7 +102,7 @@ func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
 			for _, pod := range metricList.Items {
 				for _, c := range pod.Containers {
 					stat := container.ContainerStat{
-						ID:          pod.Name + ":" + c.Name,
+						ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
 						CPUPercent:  float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
 						MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
 					}
