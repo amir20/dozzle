@@ -213,7 +213,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
 
-		go cli.StartEvent(args, "k8s", nil, "")
+		go cli.StartEvent(args, "k8s", localClient, "")
 		hostService = clusterService
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
