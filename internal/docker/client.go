@@ -337,16 +337,17 @@ func newContainerFromJSON(c types.ContainerJSON, host string) container.Containe
 	}
 
 	container := container.Container{
-		ID:      c.ID[:12],
-		Name:    name,
-		Image:   c.Config.Image,
-		Command: strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
-		State:   c.State.Status,
-		Host:    host,
-		Labels:  c.Config.Labels,
-		Stats:   utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
-		Group:   group,
-		Tty:     c.Config.Tty,
+		ID:          c.ID[:12],
+		Name:        name,
+		Image:       c.Config.Image,
+		Command:     strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
+		State:       c.State.Status,
+		Host:        host,
+		Labels:      c.Config.Labels,
+		Stats:       utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
+		Group:       group,
+		Tty:         c.Config.Tty,
+		FullyLoaded: true,
 	}
 
 	if createdAt, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {

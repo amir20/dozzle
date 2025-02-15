@@ -11,20 +11,21 @@ import (
 
 // Container represents an internal representation of docker containers
 type Container struct {
-	ID         string                           `json:"id"`
-	Name       string                           `json:"name"`
-	Image      string                           `json:"image"`
-	Command    string                           `json:"command"`
-	Created    time.Time                        `json:"created"`
-	StartedAt  time.Time                        `json:"startedAt"`
-	FinishedAt time.Time                        `json:"finishedAt"`
-	State      string                           `json:"state"`
-	Health     string                           `json:"health,omitempty"`
-	Host       string                           `json:"host,omitempty"`
-	Tty        bool                             `json:"-"`
-	Labels     map[string]string                `json:"labels,omitempty"`
-	Stats      *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
-	Group      string                           `json:"group,omitempty"`
+	ID          string                           `json:"id"`
+	Name        string                           `json:"name"`
+	Image       string                           `json:"image"`
+	Command     string                           `json:"command"`
+	Created     time.Time                        `json:"created"`
+	StartedAt   time.Time                        `json:"startedAt"`
+	FinishedAt  time.Time                        `json:"finishedAt"`
+	State       string                           `json:"state"`
+	Health      string                           `json:"health,omitempty"`
+	Host        string                           `json:"host,omitempty"`
+	Tty         bool                             `json:"-"`
+	Labels      map[string]string                `json:"labels,omitempty"`
+	Stats       *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	Group       string                           `json:"group,omitempty"`
+	FullyLoaded bool                             `json:"-,omitempty"`
 }
 
 // ContainerStat represent stats instant for a container
