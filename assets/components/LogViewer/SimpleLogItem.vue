@@ -19,8 +19,8 @@ import stripAnsi from "strip-ansi";
 
 const ansiConvertor = new AnsiConvertor({
   escapeXML: false,
-  fg: "oklch(var(--base-content-color))",
-  bg: "oklch(var(--base-color))",
+  fg: "var(--color-base-content)",
+  bg: "var(--color-base-100)",
 });
 
 defineProps<{
