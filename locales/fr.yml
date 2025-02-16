@@ -7,10 +7,13 @@ toolbar:
   stop: Stop
   start: Démarrer
   restart: Redémarrer
+  show-hostname: Show hostname
+  show-container-name: Show container name
 label:
+  containers: Conteneurs
   container: Pas de conteneur | 1 conteneur | {count} conteneurs
   service: Pas de service | 1 service | {count} services
-  containers: Conteneurs
+  services: Services
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
   host: Hôte
@@ -24,12 +27,9 @@ label:
   avg-mem: Moyenne MEM (%)
   pinned: Epinglé
   per-page: Colonnes par page
-  swarm-mode: Mode Swarm
-  services: Services
   host-menu: Hôtes et Conteneurs
   swarm-menu: Services et Stacks
   group-menu: Groupes Personnalisés
-
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
@@ -44,13 +44,11 @@ error:
   events-stream:
     title: Erreur inattendue
     message: >-
-      L'interface utilisateur de Dozzle n'a pas pu se connecter à l'API. Veuillez vérifier les paramètres de votre réseau.
-      Si vous utilisez un proxy inversé, assurez-vous qu'il est configuré correctement.
+      L'interface utilisateur de Dozzle n'a pas pu se connecter à l'API. Veuillez vérifier les paramètres de votre réseau. Si vous utilisez un proxy inversé, assurez-vous qu'il est configuré correctement.
   events-timeout:
     title: Quelque chose ne va pas
     message: >-
-      La connexion de l'interface utilisateur de Dozzle à l'API a mis trop de temps. Veuillez vérifier la connexion
-      et réessayez.
+      La connexion de l'interface utilisateur de Dozzle à l'API a mis trop de temps. Veuillez vérifier la connexion et réessayez.
 alert:
   redirected:
     title: Redirigé vers le nouveau conteneur
@@ -58,8 +56,7 @@ alert:
   similar-container-found:
     title: Conteneur similaire trouvé
     message: >-
-      Dozzle a trouvé un conteneur similaire {containerId} qui s'exécute sur le même hôte
-      et basculera automatiquement vers lui à moins que vous ne cliquiez sur "Annuler".
+      Dozzle a trouvé un conteneur similaire {containerId} qui s'exécute sur le même hôte et basculera automatiquement vers lui à moins que vous ne cliquiez sur "Annuler".
 title:
   page-not-found: Page non trouvée
   login: Authentification requise
@@ -69,6 +66,8 @@ button:
   logout: Déconnexion
   login: Connexion
   settings: Paramètres
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
   search: Recherche
@@ -87,11 +86,10 @@ settings:
   search: Activer la recherche avec Dozzle en utilisant
   using-version: Vous utilisez Dozzle {version}.
   update-available: >-
-    Nouvelle version disponible! Mise à jour de <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+    Nouvelle version disponible! Mise à jour de <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Afficher les étiquettes stdout et stderr
   automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
-  cancel: Annuler
+  compact: Activer le mode compact pour les journaux
   log:
     preview: Voici un aperçu des logs
     warning: Un log d'avertissement ressemble à ceci
@@ -101,15 +99,6 @@ settings:
       start-line: Ceci est un message d'erreur multiligne
       middle-line: avec une deuxième ligne
       end-line: et enfin une troisième ligne.
-  compact: Activer le mode compact pour les journaux
-  releases:
-    features: une nouvelle fonctionnalité | {count} fonctionnalités
-    bugFixes: un correctif | {count} correctifs
-    breaking: un changement majeur | {count} changements majeurs
-    three_parts: "{first}, {second} et {third}"
-    two_parts: "{first} avec {second}"
-    latest: Plus récent
-    no_releases: Vous avez la dernière version
 releases:
   features: une nouvelle fonctionnalité | {count} fonctionnalités
   bugFixes: correction d'un bug | {count} bugs
