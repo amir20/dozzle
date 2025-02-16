@@ -7,15 +7,13 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  show-hostname: Show hostname
+  show-container-name: Show container name
 label:
-  service: Brak usług | 1 usługa | {count} usług
-  total-containers: Całkowita liczba kontenerów
-  running: Uruchomione
-  total-cpu-usage: Całkowite użycie CPU
-  total-mem-usage: Całkowite użycie pamięci
-  dozzle-version: Wersja Dozzle
   containers: Kontenery
   container: Brak kontenerów | 1 kontener | {count} kontenerów
+  service: Brak usług | 1 usługa | {count} usług
+  services: Services
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
   host: Host
@@ -35,6 +33,9 @@ label:
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
+  merge-services: Merge all services into one view
+  merge-containers: Merge all containers into one view
+  merge-hosts: Merge all containers on this host into one view
 error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
@@ -43,8 +44,7 @@ error:
   events-stream:
     title: Niespodziewany błąd
     message: >-
-      Dozzle nie był wstanie połączyć się z API. Sprawdź ustawienia sieciowe.
-      Jeżeli korzysasz z reverse proxy, upewnij się że jest poprawnie skonfigurowane.
+      Dozzle nie był wstanie połączyć się z API. Sprawdź ustawienia sieciowe. Jeżeli korzysasz z reverse proxy, upewnij się że jest poprawnie skonfigurowane.
   events-timeout:
     title: Coś jest nie tak
     message: >-
@@ -56,8 +56,7 @@ alert:
   similar-container-found:
     title: Podobny kontener został znaleziony
     message: >-
-      Dozzle znalazł podobny kontener {containerId} który działa na tym samym
-      hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
+      Dozzle znalazł podobny kontener {containerId} który działa na tym samym hoście i przekieruje Cię na niego automatycznie jeżeli nie klikniesz 'Anuluj'
 title:
   page-not-found: Strona nie została znaleziona
   login: Wymagane uwierzytelnienie
@@ -67,6 +66,8 @@ button:
   logout: Wyloguj się
   login: Zaloguj się
   settings: Ustawienia
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
   search: Szukaj
@@ -85,8 +86,7 @@ settings:
   search: Włącz szukanie z dozzle
   using-version: Używasz dozzle w wersji {version}.
   update-available: >-
-    Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+    Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Pokaż etykiety dla stdout i stderr
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
   compact: Włącz tryb kompaktowy dla logów
