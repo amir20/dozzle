@@ -11,14 +11,11 @@ toolbar:
   show-container-name: Mostra nome container
 label:
   containers: Container
+  container: No containers | 1 container | {count} containers
+  service: No services | 1 service | {count} services
+  services: Services
   running-containers: Container in esecuzione
   all-containers: Tutti i Container
-  total-containers: Container Totali
-  running: In esecuzione
-  total-cpu-usage: Utilizzo Totale della CPU
-  total-mem-usage: Utilizzo Totale della Memoria
-  dozzle-version: Versione Dozzle
-  all: Tutto
   host: Host
   hosts: Hosts
   password: Password
@@ -29,15 +26,16 @@ label:
   avg-cpu: CPU (%)
   avg-mem: MEM (%)
   pinned: Spuntato
+  per-page: Rows per page
   host-menu: Host e Container
   swarm-menu: Servizi e Stack
   group-menu: Gruppi Personalizzati
 tooltip:
+  search: Ricerca container (⌘ + k, ⌃k)
+  pin-column: Blocca come colonna
   merge-services: Unisci tutti i servizi in una vista
   merge-containers: Unisci tutti i container in una vista
   merge-hosts: Unisci tutti i container su questo host in una vista
-  search: Ricerca container (⌘ + k, ⌃k)
-  pin-column: Blocca come colonna
 error:
   page-not-found: Questa pagina non esiste
   invalid-auth: Username o password non valide
@@ -46,29 +44,8 @@ error:
   events-stream:
     title: Errore inaspettato
     message: >-
-      Dozzle UI non è stato in grado di connettersi alle API. Controlla la tua configurazione di rete.
-      Se stai utilizzando un reverse proxy, assicurati di averlo configurato correttamente.
+      Dozzle UI non è stato in grado di connettersi alle API. Controlla la tua configurazione di rete. Se stai utilizzando un reverse proxy, assicurati di averlo configurato correttamente.
   events-timeout:
-    alert:
-      redirected:
-        title: Reindirizzato a nuovo container
-        message: Dozzle ti ha automaticamente reindirizzato al nuovo container {containerId}.
-      similar-container-found:
-        title: Trovato container simile
-        message: >-
-          Dozzle ha trovato un container simile {containerId} in esecuzione sullo stesso
-          host e passerà automaticamente ad esso a meno che non si faccia clic su 'Annulla'.
-
-    settings:
-      log:
-        preview: Questa è un'anteprima dei log
-        warning: Un log di avviso appare così
-        complex: Questa è una voce di log complessa in formato json
-        simple: Questo è un messaggio molto lungo che normalmente andrebbe a capo. La disattivazione del soft wrap disabiliterebbe questo comportamento. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        multi-line-error:
-          start-line: Questo è un messaggio di errore multilinea
-          middle-line: con una seconda riga
-          end-line: e infine una terza riga.
     title: Qualcosa non è corretto
     message: >-
       Dozzle UI timed out durante la connessione alle API. Controlla la configurazione di rete e riprova.
@@ -89,6 +66,8 @@ button:
   logout: Logout
   login: Login
   settings: Configurazione
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
   search: Cerca
@@ -107,11 +86,19 @@ settings:
   search: Abilita la ricerca attraverso Dozzle
   using-version: Stai utilizzando Dozzle {version}.
   update-available: >-
-    Nuova versione disponibile! Aggiorna a <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+    Nuova versione disponibile! Aggiorna a <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Visualizza stdout e stderr
   automatic-redirect: Automaticamente reindirizza al nuovo container con lo stesso nome
   compact: Abilita il compact mode per i log
+  log:
+    preview: This is a preview of the logs
+    warning: A warning log looks like this
+    complex: This is a complex log entry as json
+    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: This is a multi line error message
+      middle-line: with a second line
+      end-line: and finally third line.
 releases:
   features: nuova funzione | {count} funzioni
   bugFixes: nuovo bug fix | {count} fix
