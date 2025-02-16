@@ -7,16 +7,15 @@ toolbar:
   stop: Durdur
   start: Başlat
   restart: Yeniden Başlat
+  show-hostname: Show hostname
+  show-container-name: Show container name
 label:
   containers: Konteynerlar
+  container: No containers | 1 container | {count} containers
+  service: No services | 1 service | {count} services
+  services: Services
   running-containers: Çalışan Konteynerlar
   all-containers: Tüm Konteynerlar
-  total-containers: Toplam Konteyner
-  running: Çalışıyor
-  total-cpu-usage: Toplam CPU Kullanımı
-  total-mem-usage: Toplam Bellek Kullanımı
-  dozzle-version: Dozzle Sürümü
-  all: Tümü
   host: Sunucu
   hosts: Sunucular
   password: Şifre
@@ -27,6 +26,7 @@ label:
   avg-cpu: Ort. CPU (%)
   avg-mem: Ort. Bellek (%)
   pinned: Sabitlenmiş
+  per-page: Rows per page
   host-menu: Sunucular ve Konteynerler
   swarm-menu: Servisler ve Yığınlar
   group-menu: Özel Gruplar
@@ -39,18 +39,16 @@ tooltip:
 error:
   page-not-found: Bu sayfa bulunamadı
   invalid-auth: Kullanıcı adı veya şifre geçersiz
-  logs-skipped: "{total} giriş atlanıldı"
+  logs-skipped: '{total} giriş atlanıldı'
   container-not-found: Konteyner bulunamadı
   events-stream:
     title: Beklenmeyen Hata
     message: >-
-      Dozzle arayüzü API'ye bağlanamadı. Lütfen ağ ayarlarınızı kontrol edin.
-      Ters proxy kullanıyorsanız, doğru yapılandırıldığından emin olun.
+      Dozzle arayüzü API'ye bağlanamadı. Lütfen ağ ayarlarınızı kontrol edin. Ters proxy kullanıyorsanız, doğru yapılandırıldığından emin olun.
   events-timeout:
     title: Bir şeyler ters gidiyor
     message: >-
-      Dozzle arayüzü API'ye bağlanırken zaman aşımına uğradı. Lütfen ağ
-      bağlantısını kontrol edin ve tekrar deneyin.
+      Dozzle arayüzü API'ye bağlanırken zaman aşımına uğradı. Lütfen ağ bağlantısını kontrol edin ve tekrar deneyin.
 alert:
   redirected:
     title: Yeni konteynere yönlendirildi
@@ -58,8 +56,7 @@ alert:
   similar-container-found:
     title: Benzer konteyner bulundu
     message: >-
-      Dozzle, aynı sunucuda çalışan benzer bir {containerId} konteyneri buldu ve
-      'İptal'e tıklamadığınız sürece otomatik olarak ona geçecektir.
+      Dozzle, aynı sunucuda çalışan benzer bir {containerId} konteyneri buldu ve 'İptal'e tıklamadığınız sürece otomatik olarak ona geçecektir.
 title:
   page-not-found: Sayfa bulunamadı
   login: Kimlik Doğrulama Gerekli
@@ -69,6 +66,8 @@ button:
   logout: Çıkış Yap
   login: Giriş Yap
   settings: Ayarlar
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
@@ -87,11 +86,19 @@ settings:
   search: Dozzle kullanarak aramayı etkinleştir
   using-version: Dozzle {version} kullanıyorsunuz.
   update-available: >-
-    Yeni sürüm mevcut! <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a> sürümüne güncelleyin.
+    Yeni sürüm mevcut! <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a> sürümüne güncelleyin.
   show-std: stdout ve stderr etiketlerini göster
   automatic-redirect: Aynı ada sahip yeni konteynerlere otomatik olarak yönlendir
   compact: Günlükler için kompakt modu etkinleştir
+  log:
+    preview: This is a preview of the logs
+    warning: A warning log looks like this
+    complex: This is a complex log entry as json
+    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: This is a multi line error message
+      middle-line: with a second line
+      end-line: and finally third line.
 releases:
   features: bir yeni özellik | {count} özellik
   bugFixes: bir hata düzeltmesi | {count} düzeltme
