@@ -1,21 +1,21 @@
 toolbar:
   clear: Очистить
-  show-hostname: Показать имя хоста
-  show-container-name: Показать имя контейнера
   download: Скачать
   search: Поиск
   show: Показать только {std}
   show-all: Показать все потоки
+  stop: Stop
+  start: Start
+  restart: Restart
+  show-hostname: Показать имя хоста
+  show-container-name: Показать имя контейнера
 label:
   containers: Контейнеры
+  container: No containers | 1 container | {count} containers
+  service: No services | 1 service | {count} services
+  services: Services
   running-containers: Запущенные контейнеры
   all-containers: Все контейнеры
-  total-containers: Всего Контейнеров
-  running: Запущенные
-  total-cpu-usage: Использование процессора
-  total-mem-usage: Использование памяти
-  dozzle-version: Версия Dozzle
-  all: Все
   host: Хост
   hosts: Хосты
   password: Пароль
@@ -25,12 +25,17 @@ label:
   created: Создан
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
+  pinned: Pinned
+  per-page: Rows per page
   host-menu: Хосты и Контейнеры
   swarm-menu: Сервисы и Стеки
   group-menu: Пользовательские Группы
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
+  merge-services: Merge all services into one view
+  merge-containers: Merge all containers into one view
+  merge-hosts: Merge all containers on this host into one view
 error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
@@ -39,8 +44,7 @@ error:
   events-stream:
     title: Неожиданная ошибка
     message: >-
-      Dozzle UI не смог подключиться к API. Пожалуйста, проверьте настройки сети.
-      Если вы используете обратный прокси, убедитесь, что он настроен правильно.
+      Dozzle UI не смог подключиться к API. Пожалуйста, проверьте настройки сети. Если вы используете обратный прокси, убедитесь, что он настроен правильно.
   events-timeout:
     title: Что-то не так
     message: >-
@@ -62,6 +66,8 @@ button:
   logout: Выйти
   login: Войти
   settings: Настройки
+  cancel: Cancel
+  redirect: Redirect
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
@@ -71,13 +77,11 @@ settings:
   small-scrollbars: Уменьшенная полоса прокрутки
   show-timesamps: Показывать временные метки
   soft-wrap: Плавный перенос текста
-  12-24-format: >-
-    Формат времени. По умолчанию, Dozzle будет использовать локализацию вашего браузера.
+  datetime-format: Формат даты и времени
   font-size: Размер шрифта
   color-scheme: Цветовая схема
   options: Опции
   show-stopped-containers: Показывать остановленные контейнеры
-  datetime-format: Формат даты и времени
   about: Информация
   search: Включить поиск с помощью Dozzle, используя
   using-version: Вы используете версию Dozzle {version}.
@@ -95,3 +99,18 @@ settings:
       start-line: Это многострочное сообщение об ошибке
       middle-line: со второй строкой
       end-line: и наконец третьей строкой.
+releases:
+  features: one new feature | {count} features
+  bugFixes: one bug fix | {count} fixes
+  breaking: one breaking change | {count} breaking changes
+  three_parts: "{first}, {second} and {third}"
+  two_parts: "{first} with {second}"
+  latest: Latest
+  no_releases: You have the latest version
+log_actions:
+  copy_log: Copy log
+  jump_to_context: Jump to context
+toasts:
+  copied:
+    title: Copied
+    message: Log copied to clipboard
