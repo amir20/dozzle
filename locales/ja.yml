@@ -1,0 +1,116 @@
+toolbar:
+  clear: Clear
+  download: Download
+  search: Search
+  show: Show {std}
+  show-all: Show all
+  stop: Stop
+  start: Start
+  restart: Restart
+  show-hostname: Show hostname
+  show-container-name: Show container name
+label:
+  containers: Containers
+  container: No containers | 1 container | {count} containers
+  service: No services | 1 service | {count} services
+  services: Services
+  running-containers: Running Containers
+  all-containers: All Containers
+  host: Host
+  hosts: Hosts
+  password: Password
+  username: Username
+  container-name: Container Name
+  status: Status
+  created: Created
+  avg-cpu: Avg. CPU (%)
+  avg-mem: Avg. MEM (%)
+  pinned: Pinned
+  per-page: Rows per page
+  host-menu: Hosts and Containers
+  swarm-menu: Services and Stacks
+  group-menu: Custom Groups
+tooltip:
+  search: Search containers (⌘ + k, ⌃k)
+  pin-column: Pin as column
+  merge-services: Merge all services into one view
+  merge-containers: Merge all containers into one view
+  merge-hosts: Merge all containers on this host into one view
+error:
+  page-not-found: This page does not exist
+  invalid-auth: Username or password are not valid
+  logs-skipped: Skipped {total} entries
+  container-not-found: Container not found
+  events-stream:
+    title: Unexpected Error
+    message: >-
+      Dozzle UI wasn't able to connect to API. Please check your network settings. If you are using a reverse proxy, please make sure it is configured properly.
+  events-timeout:
+    title: Something is not right
+    message: >-
+      Dozzle UI timed out while connecting to API. Please check network connection and try again.
+alert:
+  redirected:
+    title: Redirected to new container
+    message: Dozzle automatically redirected you to new container {containerId}.
+  similar-container-found:
+    title: Similar container found
+    message: >-
+      Dozzle found a similar container {containerId} that is running on the same host and will automatically switch to it unless you click 'Cancel'.
+title:
+  page-not-found: Page not found
+  login: Authentication Required
+  dashboard: 1 container | {count} containers
+  settings: Settings
+button:
+  logout: Logout
+  login: Login
+  settings: Settings
+  cancel: Cancel
+  redirect: Redirect
+placeholder:
+  search-containers: Search containers (⌘ + k, ⌃k)
+  search: Search
+settings:
+  display: Display
+  locale: Override language
+  small-scrollbars: Use smaller scrollbars
+  show-timesamps: Show timestamps
+  soft-wrap: Soft wrap lines
+  datetime-format: Override date and time format
+  font-size: Font size to use for logs
+  color-scheme: Color scheme
+  options: Options
+  show-stopped-containers: Show stopped containers
+  about: About
+  search: Enable searching with Dozzle using
+  using-version: You are using Dozzle {version}.
+  update-available: >-
+    New version is available! Update to <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Show stdout and stderr labels
+  automatic-redirect: Automatically redirect to new containers with the same name
+  compact: Enable compact mode for logs
+  log:
+    preview: This is a preview of the logs
+    warning: A warning log looks like this
+    complex: This is a complex log entry as json
+    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: This is a multi line error message
+      middle-line: with a second line
+      end-line: and finally third line.
+releases:
+  features: one new feature | {count} features
+  bugFixes: one bug fix | {count} fixes
+  breaking: one breaking change | {count} breaking changes
+  three_parts: "{first}, {second} and {third}"
+  two_parts: "{first} with {second}"
+  latest: Latest
+  no_releases: You have the latest version
+log_actions:
+  copy_log: Copy log
+  jump_to_context: Jump to context
+toasts:
+  copied:
+    title: Copied
+    message: Log copied to clipboard
