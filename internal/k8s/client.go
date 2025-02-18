@@ -102,7 +102,19 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 }
 
 func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
-	pods, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{})
+	selector := ""
+	if labels.Exists() {
+		for key, values := range labels {
+			for _, value := range values {
+				if selector != "" {
+					selector += ","
+				}
+				selector += fmt.Sprintf("%s=%s", key, value)
+			}
+		}
+		log.Debug().Str("selector", selector).Msg("Listing containers with labels")
+	}
+	pods, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{LabelSelector: selector})
 	if err != nil {
 		return nil, err
 	}
@@ -158,10 +170,8 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 		stream = "Stdout"
 	case container.STDERR:
 		stream = "Stderr"
-
 	case container.STDALL:
 		stream = "All"
-
 	default:
 		return nil, fmt.Errorf("unknown stream type %s", stdType)
 	}
