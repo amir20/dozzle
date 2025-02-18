@@ -50,7 +50,6 @@ kind: Deployment
 metadata:
   name: dozzle
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: dozzle
@@ -119,7 +118,6 @@ kind: Deployment
 metadata:
   name: dozzle
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: dozzle
@@ -151,7 +149,6 @@ kind: Deployment
 metadata:
   name: dozzle
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: dozzle
