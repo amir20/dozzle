@@ -1,7 +1,7 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="stack.name">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="mx-2 flex flex-wrap items-center gap-2 md:ml-4">
         <div class="@container flex flex-1 gap-1.5 truncate md:gap-2">
           <ph:stack />
           <div class="inline-flex font-mono text-sm">
@@ -14,8 +14,8 @@
             {{ $t("label.service", stack.services.length) }}
           </Tag>
         </div>
-        <MultiContainerStat class="ml-auto" :containers="stack.containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerStat class="ml-auto justify-center max-md:basis-full max-md:order-last" :containers="stack.containers" />
+        <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

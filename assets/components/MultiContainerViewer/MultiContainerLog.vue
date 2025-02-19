@@ -1,15 +1,15 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="containers.length && ready">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="mx-2 flex flex-wrap items-center gap-2 md:ml-4">
         <div class="@container flex flex-1 gap-1.5 truncate md:gap-2">
           <octicon:container-24 />
           <div class="inline-flex font-mono text-sm">
             <div class="font-semibold">{{ containers.length }} containers</div>
           </div>
         </div>
-        <MultiContainerStat class="ml-auto" :containers="containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerStat class="ml-auto justify-center max-md:basis-full max-md:order-last" :containers="containers" />
+        <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>
