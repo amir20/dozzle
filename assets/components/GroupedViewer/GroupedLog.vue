@@ -1,14 +1,14 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="group.containers.length && ready">
     <template #header>
-      <div class="mx-2 flex items-center gap-2 md:ml-4">
+      <div class="mx-2 flex flex-wrap items-center gap-2 md:ml-4">
         <div class="@container flex flex-1 gap-1.5 truncate md:gap-2">
           <div class="inline-flex font-mono text-sm">
             <div class="font-semibold">{{ $t("label.container", group.containers.length) }}</div>
           </div>
         </div>
-        <MultiContainerStat class="ml-auto" :containers="group.containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerStat class="ml-auto justify-center max-md:basis-full max-md:order-last" :containers="group.containers" />
+        <MultiContainerActionToolbar @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>
