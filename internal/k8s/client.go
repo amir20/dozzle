@@ -164,25 +164,14 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 
-	stream := ""
-	switch stdType {
-	case container.STDOUT:
-		stream = "Stdout"
-	case container.STDERR:
-		stream = "Stderr"
-	case container.STDALL:
-		stream = "All"
-	default:
-		return nil, fmt.Errorf("unknown stream type %s", stdType)
-	}
-
+	var lines int64 = 500
 	opts := &corev1.PodLogOptions{
 		Container:  containerName,
 		Follow:     true,
 		Previous:   false,
 		Timestamps: true,
 		SinceTime:  &metav1.Time{Time: since},
-		Stream:     &stream,
+		TailLines:  &lines,
 	}
 
 	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
@@ -191,24 +180,11 @@ func (k *K8sClient) ContainerLogs(ctx context.Context, id string, since time.Tim
 func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, start time.Time, end time.Time, stdType container.StdType) (io.ReadCloser, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 
-	stream := ""
-	switch stdType {
-	case container.STDOUT:
-		stream = "Stdout"
-	case container.STDERR:
-		stream = "Stderr"
-	case container.STDALL:
-		stream = "All"
-	default:
-		return nil, fmt.Errorf("unknown stream type %s", stdType)
-	}
-
 	opts := &corev1.PodLogOptions{
 		Container:  containerName,
 		Follow:     false,
 		Timestamps: true,
 		SinceTime:  &metav1.Time{Time: start},
-		Stream:     &stream,
 	}
 
 	return k.Clientset.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
