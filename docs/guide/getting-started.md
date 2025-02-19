@@ -4,9 +4,12 @@ title: Getting Started
 
 # Getting Started
 
-Dozzle supports multiple ways to run the application. You can run it using Docker CLI, Docker Compose, or in Swarm. The following sections will guide you through the process of setting up Dozzle.
+Dozzle supports multiple ways to run the application. You can run it using Docker CLI, Docker Compose, Swarm, or Kubernetes. The following sections will guide you through the process of setting up Dozzle.
 
-## Running with Docker <Badge type="tip" text="Updated" />
+> [!TIP]
+> If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
+
+## Standalone Docker
 
 The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
 
@@ -27,6 +30,14 @@ services:
       - 8080:8080
 ```
 
+:::
+
+Dozzle also supports connecting to remote agents to monitor multiple Docker hosts. See [agent](/guide/agent) to learn more.
+
+## Docker Swarm
+
+Dozzle supports running in Swarm mode by deploying it on every node. To run Dozzle in Swarm mode, you can use the following configuration:
+
 ```yaml [dozzle-stack.yml]
 # Run with docker stack deploy -c dozzle-stack.yml <name>
 services:
@@ -46,6 +57,18 @@ networks:
   dozzle:
     driver: overlay
 ```
+
+Then you can deploy the stack using the following command:
+
+```bash
+docker stack deploy -c dozzle-stack.yml <name>
+```
+
+See [swarm mode](/guide/swarm-mode) for more information.
+
+## K8s <Badge type="tip" text="New" />
+
+Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster.
 
 ```yaml [k8s-dozzle.yml]
 # rbac.yaml
@@ -107,9 +130,10 @@ spec:
               value: "k8s"
 ```
 
-:::
+Then apply the configuration using the following command:
 
-See [swarm mode](/guide/swarm-mode) for more information on running Dozzle in Swarm and [Kubernetes](/guide/k8s) for running Dozzle in Kubernetes.
+```bash
+kubectl apply -f k8s-dozzle.yml
+```
 
-> [!TIP]
-> If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
+See [Kubernetes mode](/guide/k8s) for more information.

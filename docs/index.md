@@ -6,7 +6,7 @@ title: Home
 
 hero:
   name: "Dozzle"
-  tagline: Real-time logging and monitoring for Docker in the browser
+  tagline: Simple Container Monitoring and Logging
   actions:
     - theme: brand
       text: Get Started
