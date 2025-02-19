@@ -23,6 +23,7 @@ body:
         - Agents
         - Remote Hosts
         - Swarm Mode
+        - Kubernetes
     validations:
       required: true
   - type: input

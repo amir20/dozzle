@@ -1,7 +1,0 @@
-{
-  "i18n-ally.localesPaths": ["locales"],
-  "i18n-ally.keystyle": "nested",
-  "cSpell.words": ["healthcheck", "orderedmap", "Retriable", "stdcopy", "Warnf"],
-  "editor.formatOnSave": true,
-  "i18n-ally.extract.autoDetect": true
-}
