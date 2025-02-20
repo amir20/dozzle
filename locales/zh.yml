@@ -1,116 +1,116 @@
 toolbar:
-  clear: Clear
-  download: Download
-  search: Search
-  show: Show {std}
-  show-all: Show all
-  stop: Stop
-  start: Start
-  restart: Restart
-  show-hostname: Show hostname
-  show-container-name: Show container name
+  clear: 清除
+  download: 下载
+  search: 搜索
+  show: 显示 {std}
+  show-all: 显示全部
+  stop: 停止
+  start: 启动
+  restart: 重启
+  show-hostname: 显示主机名
+  show-container-name: 显示容器名称
 label:
-  containers: Containers
-  container: No containers | 1 container | {count} containers
-  service: No services | 1 service | {count} services
-  services: Services
-  running-containers: Running Containers
-  all-containers: All Containers
-  host: Host
-  hosts: Hosts
-  password: Password
-  username: Username
-  container-name: Container Name
-  status: Status
-  created: Created
-  avg-cpu: Avg. CPU (%)
-  avg-mem: Avg. MEM (%)
-  pinned: Pinned
-  per-page: Rows per page
-  host-menu: Hosts and Containers
-  swarm-menu: Services and Stacks
-  group-menu: Custom Groups
+  containers: 容器
+  container: 无容器 | 1 容器 | {count} 容器
+  service: 无服务 | 1 个服务 | {count} 个服务
+  services: 服务
+  running-containers: 运行中的容器
+  all-containers: 所有容器
+  host: 主机
+  hosts: 主机
+  password: 密码
+  username: 用户名
+  container-name: 容器名称
+  status: 状态
+  created: 创建时间
+  avg-cpu: 平均CPU (%)
+  avg-mem: 平均MEM (%)
+  pinned: 固定
+  per-page: 每页行数
+  host-menu: 主机和容器
+  swarm-menu: 服务和堆栈
+  group-menu: 自定义组
 tooltip:
-  search: Search containers (⌘ + k, ⌃k)
-  pin-column: Pin as column
-  merge-services: Merge all services into one view
-  merge-containers: Merge all containers into one view
+  search: 搜索 (⌘ + k, ⌃k)
+  pin-column: 固定为列
+  merge-services: 合并所有服务到一个视图
+  merge-containers: 合并所有容器到一个视图
   merge-hosts: Merge all containers on this host into one view
 error:
-  page-not-found: This page does not exist
-  invalid-auth: Username or password are not valid
-  logs-skipped: Skipped {total} entries
-  container-not-found: Container not found
+  page-not-found: 此页面不存在。
+  invalid-auth: 用户名和密码无效。
+  logs-skipped: 跳过 {total} 条记录
+  container-not-found: 容器未找到。
   events-stream:
-    title: Unexpected Error
+    title: 意外错误
     message: >-
-      Dozzle UI wasn't able to connect to API. Please check your network settings. If you are using a reverse proxy, please make sure it is configured properly.
+      Dozzle UI无法连接到API。请检查您的网络设置。 如果您使用反向代理，请确保其正确配置。
   events-timeout:
-    title: Something is not right
+    title: 出了点问题
     message: >-
-      Dozzle UI timed out while connecting to API. Please check network connection and try again.
+      Dozzle UI在连接到API时超时。请检查网络连接并重试。
 alert:
   redirected:
-    title: Redirected to new container
-    message: Dozzle automatically redirected you to new container {containerId}.
+    title: 重定向到新容器
+    message: Dozzle自动将您重定向到新容器 {containerId}。
   similar-container-found:
-    title: Similar container found
+    title: 找到相似的容器
     message: >-
-      Dozzle found a similar container {containerId} that is running on the same host and will automatically switch to it unless you click 'Cancel'.
+      Dozzle发现了一个相似的容器 {containerId}，它在同一主机上运行。您想切换到它吗？d
 title:
-  page-not-found: Page not found
-  login: Authentication Required
-  dashboard: 1 container | {count} containers
-  settings: Settings
+  page-not-found: 页面未找到
+  login: 需要身份验证
+  dashboard: 1 容器 | {count} 容器
+  settings: 设置
 button:
-  logout: Logout
-  login: Login
-  settings: Settings
-  cancel: Cancel
-  redirect: Redirect
+  logout: 退出
+  login: 登录
+  settings: 设置
+  cancel: 取消
+  redirect: 重定向
 placeholder:
-  search-containers: Search containers (⌘ + k, ⌃k)
-  search: Search
+  search-containers: 搜索容器 (⌘ + k, ⌃k)
+  search: 搜索
 settings:
-  display: Display
-  locale: Override language
-  small-scrollbars: Use smaller scrollbars
-  show-timesamps: Show timestamps
-  soft-wrap: Soft wrap lines
-  datetime-format: Override date and time format
-  font-size: Font size to use for logs
-  color-scheme: Color scheme
-  options: Options
-  show-stopped-containers: Show stopped containers
-  about: About
-  search: Enable searching with Dozzle using
-  using-version: You are using Dozzle {version}.
+  display: 显示
+  locale: 显示语言
+  small-scrollbars: 使用较小的滚动条
+  show-timesamps: 显示时间戳
+  soft-wrap: 断行
+  datetime-format: 自定义日期和时间格式
+  font-size: 字体大小
+  color-scheme: 颜色方案
+  options: 选项
+  show-stopped-containers: 显示已停止的容器
+  about: 关于
+  search: 使用Dozzle启用搜索
+  using-version: 您正在使用Dozzle {version}。
   update-available: >-
-    New version is available! Update to <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
-  show-std: Show stdout and stderr labels
-  automatic-redirect: Automatically redirect to new containers with the same name
-  compact: Enable compact mode for logs
+    新版本可用！更新到 <a href="{href}" rel="noreferrer noopener">{nextVersion}</a>。
+  show-std: 显示stdout和stderr标签
+  automatic-redirect: 自动重定向到同名的新容器
+  compact: 紧凑模式
   log:
-    preview: This is a preview of the logs
-    warning: A warning log looks like this
-    complex: This is a complex log entry as json
-    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    preview: 这是默认日志样式
+    warning: 警告日志看起来像这样
+    complex: 这是一个复杂的JSON格式日志
+    simple: 这是一个非常非常长的消息，默认情况下会自动换行。禁用软换行将禁用此功能。Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     multi-line-error:
-      start-line: This is a multi line error message
-      middle-line: with a second line
-      end-line: and finally third line.
+      start-line: 这是一个多行错误消息
+      middle-line: 带有第二行
+      end-line: 最后是第三行
 releases:
-  features: one new feature | {count} features
-  bugFixes: one bug fix | {count} fixes
-  breaking: one breaking change | {count} breaking changes
-  three_parts: "{first}, {second} and {third}"
-  two_parts: "{first} with {second}"
-  latest: Latest
-  no_releases: You have the latest version
+  features: 一个新功能 | {count} 个新功能
+  bugFixes: 一个错误修复 | {count} 个修复
+  breaking: 一个重大变更 | {count} 个重大变更
+  three_parts: "{first}, {second} 和 {third}"
+  two_parts: "{first} 与 {second}"
+  latest: 最新
+  no_releases: 您拥有最新版本
 log_actions:
-  copy_log: Copy log
-  jump_to_context: Jump to context
+  copy_log: 复制日志
+  jump_to_context: 跳转到上下文
 toasts:
   copied:
-    title: Copied
-    message: Log copied to clipboard
+    title: 已复制
+    message: 日志已复制到剪贴板
