@@ -1,116 +1,116 @@
 toolbar:
-  clear: Clear
-  download: Download
-  search: Search
-  show: Show {std}
-  show-all: Show all
-  stop: Stop
-  start: Start
-  restart: Restart
-  show-hostname: Show hostname
-  show-container-name: Show container name
+  clear: Limpar
+  download: Baixar
+  search: Pesquisar
+  show: Mostrar {std}
+  show-all: Mostrar tudo
+  stop: Parar
+  start: Iniciar
+  restart: Reiniciar
+  show-hostname: Mostrar nome do host
+  show-container-name: Mostrar nome do container
 label:
-  containers: Containers
-  container: No containers | 1 container | {count} containers
-  service: No services | 1 service | {count} services
-  services: Services
-  running-containers: Running Containers
-  all-containers: All Containers
+  containers: Contêineres
+  container: Nenhum container | 1 container | {count} containers
+  service: Nenhum serviço | 1 serviço | {count} serviços
+  services: Serviços
+  running-containers: Containers em Execução
+  all-containers: Todos os Containers
   host: Host
   hosts: Hosts
-  password: Password
-  username: Username
-  container-name: Container Name
+  password: Senha
+  username: Usuário
+  container-name: Nome do Container
   status: Status
-  created: Created
-  avg-cpu: Avg. CPU (%)
-  avg-mem: Avg. MEM (%)
-  pinned: Pinned
-  per-page: Rows per page
-  host-menu: Hosts and Containers
-  swarm-menu: Services and Stacks
-  group-menu: Custom Groups
+  created: Criado
+  avg-cpu: Média CPU (%)
+  avg-mem: Média MEM (%)
+  pinned: Fixado
+  per-page: Linhas por página
+  host-menu: Hosts e Containers
+  swarm-menu: Serviços e Stacks
+  group-menu: Grupos Personalizados
 tooltip:
-  search: Search containers (⌘ + k, ⌃k)
-  pin-column: Pin as column
-  merge-services: Merge all services into one view
-  merge-containers: Merge all containers into one view
-  merge-hosts: Merge all containers on this host into one view
+  search: Pesquisar containers (⌘ + k, ⌃k)
+  pin-column: Fixar como coluna
+  merge-services: Mesclar todos os serviços em uma visualização
+  merge-containers: Mesclar todos os containers em uma visualização
+  merge-hosts: Mesclar todos os containers neste host em uma visualização
 error:
-  page-not-found: This page does not exist
-  invalid-auth: Username or password are not valid
-  logs-skipped: Skipped {total} entries
-  container-not-found: Container not found
+  page-not-found: Esta página não existe
+  invalid-auth: Usuário ou senha inválidos
+  logs-skipped: \{total} entradas ignoradas
+  container-not-found: Container não encontrado
   events-stream:
-    title: Unexpected Error
+    title: Erro Inesperado
     message: >-
-      Dozzle UI wasn't able to connect to API. Please check your network settings. If you are using a reverse proxy, please make sure it is configured properly.
+      A interface do Dozzle não conseguiu se conectar à API. Verifique suas configurações de rede. Se você estiver usando um proxy reverso, certifique-se de que ele esteja configurado corretamente.
   events-timeout:
-    title: Something is not right
+    title: Algo não está certo
     message: >-
-      Dozzle UI timed out while connecting to API. Please check network connection and try again.
+      A interface do Dozzle atingiu o tempo limite ao conectar-se à API. Verifique a conexão de rede e tente novamente.
 alert:
   redirected:
-    title: Redirected to new container
-    message: Dozzle automatically redirected you to new container {containerId}.
+    title: Redirecionado para novo container
+    message: O Dozzle redirecionou você automaticamente para o novo container {containerId}.
   similar-container-found:
-    title: Similar container found
+    title: Container similar encontrado
     message: >-
-      Dozzle found a similar container {containerId} that is running on the same host and will automatically switch to it unless you click 'Cancel'.
+      O Dozzle encontrou um container similar {containerId} que está em execução no mesmo host e mudará automaticamente para ele, a menos que você clique em 'Cancelar'.
 title:
-  page-not-found: Page not found
-  login: Authentication Required
+  page-not-found: Página não encontrada
+  login: Autenticação Requerida
   dashboard: 1 container | {count} containers
-  settings: Settings
+  settings: Configurações
 button:
-  logout: Logout
-  login: Login
-  settings: Settings
-  cancel: Cancel
-  redirect: Redirect
+  logout: Sair
+  login: Entrar
+  settings: Configurações
+  cancel: Cancelar
+  redirect: Redirecionar
 placeholder:
-  search-containers: Search containers (⌘ + k, ⌃k)
-  search: Search
+  search-containers: Pesquisar containers (⌘ + k, ⌃k)
+  search: Pesquisar
 settings:
-  display: Display
-  locale: Override language
-  small-scrollbars: Use smaller scrollbars
-  show-timesamps: Show timestamps
-  soft-wrap: Soft wrap lines
-  datetime-format: Override date and time format
-  font-size: Font size to use for logs
-  color-scheme: Color scheme
-  options: Options
-  show-stopped-containers: Show stopped containers
-  about: About
-  search: Enable searching with Dozzle using
-  using-version: You are using Dozzle {version}.
+  display: Exibição
+  locale: Sobrescrever idioma
+  small-scrollbars: Usar barras de rolagem menores
+  show-timesamps: Mostrar marcas de tempo
+  soft-wrap: Quebrar linhas automaticamente
+  datetime-format: Sobrescrever formato de data e hora
+  font-size: Tamanho da fonte para logs
+  color-scheme: Esquema de cores
+  options: Opções
+  show-stopped-containers: Mostrar containers parados
+  about: Sobre
+  search: Habilitar pesquisa com Dozzle usando
+  using-version: Você está usando Dozzle {version}.
   update-available: >-
-    New version is available! Update to <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
-  show-std: Show stdout and stderr labels
-  automatic-redirect: Automatically redirect to new containers with the same name
-  compact: Enable compact mode for logs
+    Nova versão disponível! Atualize para <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Mostrar rótulos stdout e stderr
+  automatic-redirect: Redirecionar automaticamente para novos containers com o mesmo nome
+  compact: Ativar modo compacto para logs
   log:
-    preview: This is a preview of the logs
-    warning: A warning log looks like this
-    complex: This is a complex log entry as json
-    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    preview: Esta é uma prévia dos logs
+    warning: Um log de aviso se parece com isto
+    complex: Esta é uma entrada de log complexa como json
+    simple: Esta é uma mensagem muito longa que seria quebrada por padrão. Desabilitar quebras suaves desabilitaria isso. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     multi-line-error:
-      start-line: This is a multi line error message
-      middle-line: with a second line
-      end-line: and finally third line.
+      start-line: Esta é uma mensagem de erro multi-linha
+      middle-line: com uma segunda linha
+      end-line: e finalmente a terceira linha.
 releases:
-  features: one new feature | {count} features
-  bugFixes: one bug fix | {count} fixes
-  breaking: one breaking change | {count} breaking changes
-  three_parts: "{first}, {second} and {third}"
-  two_parts: "{first} with {second}"
-  latest: Latest
-  no_releases: You have the latest version
+  features: uma nova funcionalidade | {count} funcionalidades
+  bugFixes: uma correção de bug | {count} correções
+  breaking: uma mudança incompatível | {count} mudanças incompatíveis
+  three_parts: "{first}, {second} e {third}"
+  two_parts: "{first} com {second}"
+  latest: Mais recente
+  no_releases: Você tem a versão mais recente
 log_actions:
-  copy_log: Copy log
-  jump_to_context: Jump to context
+  copy_log: Copiar log
+  jump_to_context: Ir para contexto
 toasts:
   copied:
-    title: Copied
-    message: Log copied to clipboard
+    title: Copiado
+    message: Log copiado para a área de transferência
