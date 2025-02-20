@@ -60,6 +60,14 @@ export default defineConfig({
         ],
       },
       {
+        text: "Platforms",
+        items: [
+          { text: "Swarm", link: "/guide/swarm-mode" },
+          { text: "K8s", link: "/guide/k8s" },
+          { text: "Podman", link: "/guide/podman" },
+        ],
+      },
+      {
         text: "Advanced Configuration",
         items: [
           { text: "Authentication", link: "/guide/authentication" },
@@ -73,9 +81,6 @@ export default defineConfig({
           { text: "Filters", link: "/guide/filters" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
           { text: "Remote Hosts", link: "/guide/remote-hosts" },
-          { text: "Swarm Mode", link: "/guide/swarm-mode" },
-          { text: "K8s Mode", link: "/guide/k8s" },
-          { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
           { text: "Logging Files on Disk", link: "/guide/log-files-on-disk" },
           { text: "SQL Engine", link: "/guide/sql-engine" },
         ],
@@ -85,6 +90,7 @@ export default defineConfig({
         items: [
           { text: "FAQ", link: "/guide/faq" },
           { text: "Debugging", link: "/guide/debugging" },
+          { text: "Supported Env Vars", link: "/guide/supported-env-vars" },
         ],
       },
       {

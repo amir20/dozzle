@@ -14,6 +14,9 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/amir20/dozzle
+    - theme: alt
+      text: Support 🙏🏼
+      link: https://www.buymeacoffee.com/amirraminfar
 
 features:
   - title: Self Hosted

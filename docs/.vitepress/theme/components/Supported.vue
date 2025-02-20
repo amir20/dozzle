@@ -1,5 +1,8 @@
 <template>
-  <ul class="center -mt-8! mb-12! flex flex-row justify-center gap-8 text-lg font-thin md:text-3xl">
+  <ul
+    class="center -mt-8! mb-12! flex flex-col items-center justify-center gap-x-8 gap-y-4 text-lg font-light md:text-3xl lg:flex-row"
+  >
+    <li>Supported Platforms</li>
     <li>
       <a href="/guide/getting-started" class="flex flex-row items-center gap-2">
         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="size-12">
@@ -9,6 +12,29 @@
           />
         </svg>
         Docker
+      </a>
+    </li>
+    <li>
+      <a href="/guide/swarm-mode" class="flex flex-row items-center gap-2"
+        ><svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="currentColor"
+            d="M10.5 34.29L2 29.39v-9.81l8.5-4.9l8.5 4.9v9.81ZM4 28.23L10.5 32l6.5-3.77v-7.49L10.5 17L4 20.74Z"
+            class="clr-i-outline clr-i-outline-path-1"
+          />
+          <path
+            fill="currentColor"
+            d="m25.5 34.29l-8.5-4.9v-9.81l8.5-4.9l8.5 4.9v9.81ZM19 28.23L25.5 32l6.5-3.77v-7.49L25.5 17L19 20.74Z"
+            class="clr-i-outline clr-i-outline-path-2"
+          />
+          <path
+            fill="currentColor"
+            d="m18 21.32l-8.5-4.9V6.61l8.5-4.9l8.5 4.9v9.81Zm-6.5-6.06L18 19l6.5-3.75V7.77L18 4l-6.5 3.77Z"
+            class="clr-i-outline clr-i-outline-path-3"
+          />
+          <path fill="none" d="M0 0h36v36H0z" />
+        </svg>
+        Docker Swarm
       </a>
     </li>
     <li>

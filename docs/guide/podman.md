@@ -2,6 +2,10 @@
 title: Podman
 ---
 
+# Podman
+
+Dozzle supports Podman. However, there are some issues with Podman that might prevent Dozzle from working properly. One of the main issues is that Podman doesn't create an engine-id like Docker.
+
 ## I am seeing host not found error in the logs. How do I fix it?
 
 This should be mainly a Podman only error: Using Podman doesn't create an engine-id like Docker.
