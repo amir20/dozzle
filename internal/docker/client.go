@@ -24,10 +24,10 @@ import (
 )
 
 type DockerCLI interface {
-	ContainerList(context.Context, docker.ListOptions) ([]types.Container, error)
+	ContainerList(context.Context, docker.ListOptions) ([]docker.Summary, error)
 	ContainerLogs(context.Context, string, docker.LogsOptions) (io.ReadCloser, error)
 	Events(context.Context, events.ListOptions) (<-chan events.Message, <-chan error)
-	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error)
 	ContainerStats(ctx context.Context, containerID string, stream bool) (docker.StatsResponseReader, error)
 	Ping(ctx context.Context) (types.Ping, error)
 	ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error
@@ -297,7 +297,7 @@ func (d *DockerClient) Host() container.Host {
 	return d.host
 }
 
-func newContainer(c types.Container, host string) container.Container {
+func newContainer(c docker.Summary, host string) container.Container {
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
@@ -323,7 +323,7 @@ func newContainer(c types.Container, host string) container.Container {
 	}
 }
 
-func newContainerFromJSON(c types.ContainerJSON, host string) container.Container {
+func newContainerFromJSON(c docker.InspectResponse, host string) container.Container {
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
