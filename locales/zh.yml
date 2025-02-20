@@ -10,17 +10,12 @@ toolbar:
   show-hostname: 显示主机名
   show-container-name: 显示容器名称
 label:
-  service: 无服务 | 1 个服务 | {count} 个服务
-  total-containers: 容器总数
-  total-cpu-usage: CPU总使用率
-  total-mem-usage: 内存总使用率
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
-  running: 运行中
-  dozzle-version: Dozzle 版本
+  service: 无服务 | 1 个服务 | {count} 个服务
+  services: 服务
   running-containers: 运行中的容器
   all-containers: 所有容器
-  all: 全部
   host: 主机
   hosts: 主机
   password: 密码
@@ -32,9 +27,6 @@ label:
   avg-mem: 平均MEM (%)
   pinned: 固定
   per-page: 每页行数
-  swarm-mode: 集群模式
-  services: 服务
-  custom-groups: 自定义组
   host-menu: 主机和容器
   swarm-menu: 服务和堆栈
   group-menu: 自定义组
@@ -43,6 +35,7 @@ tooltip:
   pin-column: 固定为列
   merge-services: 合并所有服务到一个视图
   merge-containers: 合并所有容器到一个视图
+  merge-hosts: Merge all containers on this host into one view
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。
@@ -51,8 +44,7 @@ error:
   events-stream:
     title: 意外错误
     message: >-
-      Dozzle UI无法连接到API。请检查您的网络设置。
-      如果您使用反向代理，请确保其正确配置。
+      Dozzle UI无法连接到API。请检查您的网络设置。 如果您使用反向代理，请确保其正确配置。
   events-timeout:
     title: 出了点问题
     message: >-

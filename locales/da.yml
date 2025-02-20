@@ -13,14 +13,9 @@ label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
+  services: Tjenester
   running-containers: Kørende Containere
   all-containers: Alle Containere
-  total-containers: Samlede Containere
-  running: Kører
-  total-cpu-usage: Samlet CPU Forbrug
-  total-mem-usage: Samlet Hukommelsesforbrug
-  dozzle-version: Dozzle Version
-  all: Alle
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -32,12 +27,9 @@ label:
   avg-mem: Gns. MEM (%)
   pinned: Fastgjort
   per-page: Rækker per side
-  swarm-mode: Swarm Tilstand
-  services: Tjenester
   host-menu: Værter og Containere
   swarm-menu: Tjenester og Stacks
   group-menu: Brugerdefinerede Grupper
-
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
@@ -52,13 +44,11 @@ error:
   events-stream:
     title: Uventet fejl
     message: >-
-      Dozzle UI kunne ikke forbinde til API. Tjek venligst dine netværks indstillinger.
-      Hvis du bruger en reverse proxy, vær sikker på at den er konfigureret korrekt.
+      Dozzle UI kunne ikke forbinde til API. Tjek venligst dine netværks indstillinger. Hvis du bruger en reverse proxy, vær sikker på at den er konfigureret korrekt.
   events-timeout:
     title: Der er noget galt
     message: >-
-      Dozzle UI timed ud inden der blev forbundet til API. Tjek venligst din
-      internet forbindelse og prøv igen.
+      Dozzle UI timed ud inden der blev forbundet til API. Tjek venligst din internet forbindelse og prøv igen.
 alert:
   redirected:
     title: Omdirigeret til ny container
@@ -66,8 +56,7 @@ alert:
   similar-container-found:
     title: Lignende container fundet
     message: >-
-      Dozzle fandt en lignende container {containerId} som kører på den samme
-      host og vil automatisk skifte til den, med mindre du trykker 'Cancel'.
+      Dozzle fandt en lignende container {containerId} som kører på den samme host og vil automatisk skifte til den, med mindre du trykker 'Cancel'.
 title:
   page-not-found: Side ikke fundet
   login: Godkendelse Krævet
@@ -89,9 +78,6 @@ settings:
   show-timesamps: Vis tids stempler
   soft-wrap: Blødt bræk på linjer
   datetime-format: Overskriv dato og tids format
-  12-24-format: >-
-    Som standard vil Dozzle bruge din browsers lokalitet til at formatere tiden. Du kan
-    tvinge 12 eller 24 timers format.
   font-size: Tekststørrelse at bruge til logs
   color-scheme: Farve skema
   options: Muligheder
@@ -100,8 +86,7 @@ settings:
   search: Aktiver søgning med Dozzle ved brug af
   using-version: Du bruger Dozzle {version}.
   update-available: >-
-    Ny version er tilgængelig! Opdater til <a href="{href}" target="_blank"
-    rel="noreferrer noopener">{nextVersion}</a>.
+    Ny version er tilgængelig! Opdater til <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Vis stdout og stderr mærker
   automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
   compact: Slå kompakt tilstand til for logs

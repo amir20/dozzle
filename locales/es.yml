@@ -13,14 +13,9 @@ label:
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores
   service: Sin servicios | 1 servicio | {count} servicios
+  services: Servicios
   running-containers: Contenedores en ejecución
   all-containers: Todos los contenedores
-  total-containers: Contenedores Totales
-  running: En ejecución
-  total-cpu-usage: Uso total del Procesador
-  total-mem-usage: Uso total de la Memoria
-  dozzle-version: Versión de Dozzle
-  all: Todo
   host: Host
   hosts: Hosts
   password: Contraseña
@@ -32,8 +27,6 @@ label:
   avg-mem: Promedio de MEM (%)
   pinned: Fijado
   per-page: Filas por página
-  swarm-mode: Modo Swarm
-  services: Servicios
   host-menu: Hosts y Contenedores
   swarm-menu: Servicios y Stacks
   group-menu: Grupos Personalizados
@@ -51,8 +44,7 @@ error:
   events-stream:
     title: Error inesperado
     message: >-
-      Dozzle UI no pudo conectar con la API. Por favor, compruebe la configuración de su red.
-      Si está utilizando un proxy inverso, por favor, asegúrese de que está configurado correctamente.
+      Dozzle UI no pudo conectar con la API. Por favor, compruebe la configuración de su red. Si está utilizando un proxy inverso, por favor, asegúrese de que está configurado correctamente.
   events-timeout:
     title: Algo no está bien
     message: >-
@@ -86,9 +78,6 @@ settings:
   show-timesamps: Mostrar marcas de tiempo
   soft-wrap: Líneas de texto con ajuste suave
   datetime-format: Sobrescribir el formato de fecha y hora
-  12-24-format: >-
-    Por defecto, Dozzle utilizará la configuración regional de tu navegador para formatear la hora. Usted puede
-    forzar el estilo de 12 o 24 horas.
   font-size: Tamaño de letra a utilizar para los registros
   color-scheme: Esquema de colores
   options: Opciones
@@ -97,8 +86,7 @@ settings:
   search: Activar la búsqueda con Dozzle mediante
   using-version: Estás usando Dozzle {version}.
   update-available: >-
-    ¡La nueva versión está disponible! Actualizar a la
-    <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+    ¡La nueva versión está disponible! Actualizar a la <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
   compact: Modo compacto
