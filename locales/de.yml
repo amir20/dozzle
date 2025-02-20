@@ -12,8 +12,8 @@ toolbar:
 label:
   containers: Container
   container: Keine Container | 1 Container | {count} Container
-  total-containers: Gesamte Container
   service: Kein Service | 1 Service | {count} Services
+  services: Service
   running-containers: Laufende Container
   all-containers: Alle Container
   host: Host
@@ -27,16 +27,9 @@ label:
   avg-mem: Avg. MEM (%)
   pinned: Angepinnt
   per-page: Zeilen pro Seite
-  swarm-mode: Swarm Modus
-  services: Service
-  running: Laufende
   host-menu: Hosts und Container
   swarm-menu: Services und Stacks
   group-menu: Benutzerdefinierte Gruppen
-  total-cpu-usage: Gesamte CPU Auslastung
-  total-mem-usage: Gesamte Speicher Auslastung
-  dozzle-version: Dozzle Version
-  all: Alle
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
@@ -51,13 +44,11 @@ error:
   events-stream:
     title: Unerwarteter Fehler
     message: >-
-      Das Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfen Sie Ihre Netzwerkeinstellungen.
-      Wenn Sie einen Reverse-Proxy verwenden, stellen Sie sicher, dass er korrekt konfiguriert ist.
+      Das Dozzle UI konnte keine Verbindung zur API herstellen. Bitte überprüfen Sie Ihre Netzwerkeinstellungen. Wenn Sie einen Reverse-Proxy verwenden, stellen Sie sicher, dass er korrekt konfiguriert ist.
   events-timeout:
     title: Etwas stimmt nicht
     message: >-
-      Das Dozzle UI hat beim Verbinden mit der API eine Zeitüberschreitung. Bitte überprüfen Sie die
-      Netzwerkverbindung und versuchen Sie es erneut.
+      Das Dozzle UI hat beim Verbinden mit der API eine Zeitüberschreitung. Bitte überprüfen Sie die Netzwerkverbindung und versuchen Sie es erneut.
 alert:
   redirected:
     title: Zu neuem Container umgeleitet
@@ -65,8 +56,7 @@ alert:
   similar-container-found:
     title: Ähnlicher Container gefunden
     message: >-
-      Dozzle hat einen ähnlichen Container {containerId} gefunden, der auf dem
-      gleichen Host ausgeführt wird. Möchtest Du zu ihm wechseln?
+      Dozzle hat einen ähnlichen Container {containerId} gefunden, der auf dem gleichen Host ausgeführt wird. Möchtest Du zu ihm wechseln?
 title:
   page-not-found: Seite nicht gefunden
   login: Authentifizierung erforderlich
@@ -88,9 +78,6 @@ settings:
   show-timesamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
   datetime-format: Datums- und Zeitformat
-  12-24-format: >-
-    Standardmäßig verwendet Dozzle die Spracheinstellungen des Browsers, um die
-    Zeit anzuzeigen. Sie können das 12- oder 24-Stunden-Format erzwingen.
   font-size: Schriftgröße für Logs
   color-scheme: Farbschema
   options: Optionen
