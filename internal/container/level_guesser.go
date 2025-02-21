@@ -20,23 +20,18 @@ var logLevels = [][]string{
 	{"fatal", "sev", "severe", "crit", "critical"},
 }
 
-var plainLevels = map[string][]*regexp.Regexp{}
-var bracketLevels = map[string][]*regexp.Regexp{}
+var plainLevels = map[string]*regexp.Regexp{}
+var bracketLevels = map[string]*regexp.Regexp{}
+var separatorLevels = map[string]*regexp.Regexp{}
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 func init() {
 	for _, levelGroup := range logLevels {
 		first := levelGroup[0]
-		for _, level := range levelGroup {
-			plainLevels[first] = append(plainLevels[first], regexp.MustCompile("(?i)^"+level+"[^a-z]"))
-		}
-	}
-
-	for _, levelGroup := range logLevels {
-		first := levelGroup[0]
-		for _, level := range levelGroup {
-			bracketLevels[first] = append(bracketLevels[first], regexp.MustCompile("(?i)\\[ ?"+level+" ?\\]"))
-		}
+		levelsGroup := "(?:" + strings.Join(levelGroup, "|") + ")"
+		plainLevels[first] = regexp.MustCompile("(?i)^" + levelsGroup + "[^a-z]")
+		bracketLevels[first] = regexp.MustCompile("(?i)\\[ ?" + levelsGroup + " ?\\]")
+		separatorLevels[first] = regexp.MustCompile("(?i) " + levelsGroup + "[/-]")
 	}
 
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
@@ -54,17 +49,18 @@ func guessLogLevel(logEvent *LogEvent) string {
 		for _, levelGroup := range logLevels {
 			first := levelGroup[0]
 			// Look for the level at the beginning of the message
-			for _, regex := range plainLevels[first] {
-				if regex.MatchString(value) {
-					return first
-				}
+			if plainLevels[first].MatchString(value) {
+				return first
 			}
 
 			// Look for the level in brackets
-			for _, regex := range bracketLevels[first] {
-				if regex.MatchString(value) {
-					return first
-				}
+			if bracketLevels[first].MatchString(value) {
+				return first
+			}
+
+			// Look for the level with a separator after
+			if separatorLevels[first].MatchString(value) {
+				return first
 			}
 
 			// Look for the level in the middle of the message that are uppercase and surrounded by quotes

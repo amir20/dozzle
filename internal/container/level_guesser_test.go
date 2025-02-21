@@ -14,6 +14,8 @@ func TestGuessLogLevel(t *testing.T) {
 		expected string
 	}{
 		{"2024/12/30 12:21AM INF this is a test", "info"},
+		{"2025-01-07 22:00:08,059: DEBUG/MainProcess TaskPool: ", "debug"},
+		{"Some test with error-test", "error"},
 		{"2024-12-30T17:43:16Z DBG loggging debug from here", "debug"},
 		{"2025-01-07 15:40:15,784 LL=\"ERROR\" some message", "error"},
 		{"2025-01-07 15:40:15,784 LL=\"WARN\" some message", "warn"},
@@ -35,6 +37,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{"123 ERROR Something went wrong", "error"},
 		{"123 Something went wrong", "unknown"},
 		{"DBG Something went wrong", "debug"},
+		{"DBG with more error=msg", "debug"},
 		{"inf Something went wrong", "info"},
 		{"crit: Something went wrong", "fatal"},
 		{orderedmap.New[string, string](
