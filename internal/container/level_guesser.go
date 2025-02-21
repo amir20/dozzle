@@ -22,6 +22,7 @@ var logLevels = [][]string{
 
 var plainLevels = map[string][]*regexp.Regexp{}
 var bracketLevels = map[string][]*regexp.Regexp{}
+var separatorLevels = map[string][]*regexp.Regexp{}
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 func init() {
@@ -36,6 +37,7 @@ func init() {
 		first := levelGroup[0]
 		for _, level := range levelGroup {
 			bracketLevels[first] = append(bracketLevels[first], regexp.MustCompile("(?i)\\[ ?"+level+" ?\\]"))
+			separatorLevels[first] = append(separatorLevels[first], regexp.MustCompile("(?i)"+level+"[=/-]"))
 		}
 	}
 
@@ -62,6 +64,13 @@ func guessLogLevel(logEvent *LogEvent) string {
 
 			// Look for the level in brackets
 			for _, regex := range bracketLevels[first] {
+				if regex.MatchString(value) {
+					return first
+				}
+			}
+
+			// Look for the level with a separator after
+			for _, regex := range separatorLevels[first] {
 				if regex.MatchString(value) {
 					return first
 				}
