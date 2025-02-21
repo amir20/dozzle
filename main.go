@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"io"
 	"io/fs"
 
 	"net"
@@ -17,7 +16,6 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
-	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
@@ -37,122 +35,13 @@ func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
 	if subcommand != nil {
-		switch subcommand.(type) {
-		case *cli.AgentCmd:
-			if args.Mode != "server" {
-				log.Fatal().Msg("Dozzle agent command is only available in server mode")
-			}
-			client, err := docker.NewLocalClient(args.Hostname)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not create docker client")
-			}
-			certs, err := cli.ReadCertificates(certs)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not read certificates")
-			}
-
-			listener, err := net.Listen("tcp", args.Agent.Addr)
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to listen")
-			}
-			tempFile, err := os.CreateTemp("./", "agent-*.addr")
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to create temp file")
-			}
-			io.WriteString(tempFile, listener.Addr().String())
-			go cli.StartEvent(args, "", client, "agent")
-			server, err := agent.NewServer(client, certs, args.Version(), args.Filter)
-			if err != nil {
-				log.Fatal().Err(err).Msg("failed to create agent server")
-			}
-			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-			defer stop()
-			go func() {
-				log.Info().Msgf("Dozzle agent version %s", args.Version())
-				log.Info().Msgf("Agent listening on %s", listener.Addr().String())
-
-				if err := server.Serve(listener); err != nil {
-					log.Error().Err(err).Msg("failed to serve")
-				}
-			}()
-			<-ctx.Done()
-			stop()
-			log.Info().Msg("Shutting down agent")
-			server.Stop()
-			log.Debug().Str("file", tempFile.Name()).Msg("Removing temp file")
-			os.Remove(tempFile.Name())
-
-		case *cli.HealthcheckCmd:
-			files, err := os.ReadDir(".")
-			if err != nil {
-				log.Fatal().Err(err).Msg("Failed to read directory")
-			}
-
-			agentAddress := ""
-			for _, file := range files {
-				if match, _ := filepath.Match("agent-*.addr", file.Name()); match {
-					data, err := os.ReadFile(file.Name())
-					if err != nil {
-						log.Fatal().Err(err).Msg("Failed to read file")
-					}
-					agentAddress = string(data)
-					break
-				}
-			}
-			if agentAddress == "" {
-				if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-					log.Fatal().Err(err).Msg("Failed to make request")
-				}
-			} else {
-				certs, err := cli.ReadCertificates(certs)
-				if err != nil {
-					log.Fatal().Err(err).Msg("Could not read certificates")
-				}
-				ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
-				defer cancel()
-				if err := healthcheck.RPCRequest(ctx, agentAddress, certs); err != nil {
-					log.Fatal().Err(err).Msg("Failed to make request")
-				}
-			}
-
-		case *cli.GenerateCmd:
-			cli.StartEvent(args, "", nil, "generate")
-			if args.Generate.Username == "" || args.Generate.Password == "" {
-				log.Fatal().Msg("Username and password are required")
-			}
-
-			buffer := auth.GenerateUsers(auth.User{
-				Username: args.Generate.Username,
-				Password: args.Generate.Password,
-				Name:     args.Generate.Name,
-				Email:    args.Generate.Email,
-				Filter:   args.Generate.Filter,
-			}, true)
-
-			if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
-				log.Fatal().Err(err).Msg("Failed to write to stdout")
-			}
-
-		case *cli.AgentTestCmd:
-			certs, err := cli.ReadCertificates(certs)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not read certificates")
-			}
-
-			log.Info().Str("endpoint", args.AgentTest.Address).Msg("Connecting to agent")
-
-			agent, err := agent.NewClient(args.AgentTest.Address, certs)
-			if err != nil {
-				log.Fatal().Err(err).Str("endpoint", args.AgentTest.Address).Msg("error connecting to agent")
-			}
-			ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
-			defer cancel()
-			host, err := agent.Host(ctx)
-			if err != nil {
-				log.Fatal().Err(err).Str("endpoint", args.AgentTest.Address).Msg("error fetching host info for agent")
-			}
-
-			log.Info().Str("endpoint", args.AgentTest.Address).Str("version", host.AgentVersion).Str("name", host.Name).Str("id", host.ID).Msg("Successfully connected to agent")
+		runnable, ok := subcommand.(cli.Runnable)
+		if !ok {
+			log.Fatal().Msg("Invalid command")
+		}
+		err := runnable.Run(args, certs)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to run command")
 		}
 
 		os.Exit(0)

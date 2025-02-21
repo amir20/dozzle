@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"embed"
 	"strings"
 	"time"
 
@@ -36,23 +37,8 @@ type Args struct {
 	AgentTest        *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
 }
 
-type HealthcheckCmd struct {
-}
-
-type AgentCmd struct {
-	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
-}
-
-type AgentTestCmd struct {
-	Address string `arg:"positional"`
-}
-
-type GenerateCmd struct {
-	Username string `arg:"positional"`
-	Password string `arg:"--password, -p" help:"sets the password for the user"`
-	Name     string `arg:"--name, -n" help:"sets the display name for the user"`
-	Email    string `arg:"--email, -e" help:"sets the email for the user"`
-	Filter   string `arg:"--user-filter" help:"sets the filter for the user. This can be a comma separated list of filters."`
+type Runnable interface {
+	Run(args Args, embeddedCerts embed.FS) error
 }
 
 func (Args) Version() string {
