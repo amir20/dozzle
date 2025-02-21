@@ -19,7 +19,7 @@ type GenerateCmd struct {
 func (g *GenerateCmd) Run(args Args, embeddedCerts embed.FS) error {
 	StartEvent(args, "", nil, "generate")
 	if args.Generate.Username == "" || args.Generate.Password == "" {
-		return fmt.Errorf("Username and password are required")
+		return fmt.Errorf("username and password are required")
 	}
 
 	buffer := auth.GenerateUsers(auth.User{
@@ -31,7 +31,7 @@ func (g *GenerateCmd) Run(args Args, embeddedCerts embed.FS) error {
 	}, true)
 
 	if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {
-		return fmt.Errorf("Failed to write to stdout: %w", err)
+		return fmt.Errorf("failed to write to stdout: %w", err)
 	}
 
 	return nil
