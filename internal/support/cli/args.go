@@ -35,6 +35,7 @@ type Args struct {
 	Generate         *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent            *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
 	AgentTest        *AgentTestCmd       `arg:"subcommand:agent-test" help:"tests an agent"`
+	Ingest           *IngestCmd          `arg:"subcommand:ingest" help:"starts the ingest"`
 }
 
 type Runnable interface {

@@ -66,7 +66,6 @@ func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	}
 }
 
-// NewClientWithFilters creates a new instance of Client with docker filters
 func NewLocalClient(hostname string) (*DockerClient, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation(), client.WithUserAgent("Docker-Client/Dozzle"))
 

@@ -16,6 +16,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
+
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
@@ -42,6 +43,7 @@ func main() {
 		err := runnable.Run(args, certs)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to run command")
+
 		}
 
 		os.Exit(0)
