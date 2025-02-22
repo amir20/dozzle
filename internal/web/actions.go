@@ -1,9 +1,7 @@
 package web
 
 import (
-	"context"
 	"net/http"
-	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
@@ -37,9 +35,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	if err := containerService.Action(ctx, parsedAction); err != nil {
+	if err := containerService.Action(r.Context(), parsedAction); err != nil {
 		log.Error().Err(err).Msg("error while trying to perform container action")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
