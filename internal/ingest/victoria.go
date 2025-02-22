@@ -101,7 +101,9 @@ func (v *VictoriaIngestor) Start(ctx context.Context) error {
 	}
 
 	for _, c := range containers {
-		go v.streamLogs(ctx, c)
+		if c.State == "running" {
+			go v.streamLogs(ctx, c)
+		}
 	}
 
 	<-ctx.Done()
