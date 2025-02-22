@@ -75,7 +75,7 @@ func (v *VictoriaIngestor) Start(ctx context.Context) error {
 	go func() {
 		err := v.consumeLogs(ctx)
 		if err != nil {
-			log.Error().Err(err).Msg("Error consuming logs")
+			log.Fatal().Err(err).Msg("Error consuming logs")
 		}
 	}()
 
