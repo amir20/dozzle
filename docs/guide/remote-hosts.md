@@ -9,7 +9,7 @@ Dozzle supports connecting to remote Docker hosts. This is useful when running D
 However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.
 
 > [!WARNING]
-> Remote hosts have been replaced with agents. Agents provide a more secure way to connect to remote hosts. Although remote hosts are still supported, it is recommended to use agents. See the [agent](/guide/agent) page for more information and examples. For comparison, see the [comparing agents with remote connections](/guide/agent#comparing-agents-with-remote-connection) section.
+> Remote hosts have been replaced with agents. Agents provide a more secure way to connect to remote hosts. Although remote hosts are still supported, it is recommended to use agents. See the [agent](/guide/agent) page for more information and examples. For comparison, see the [comparing agents with remote connections](/guide/agent#comparing-agents-with-remote-connection) section. I won't be able to investigate user's issues with remote hosts as it is very time consuming.
 
 ## Connecting to Remote Hosts with TLS
 
@@ -45,7 +45,7 @@ services:
 If you are in a private network, then you can use [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) which exposes `docker.sock` file without the need for TLS. Dozzle will never try to write to Docker but it will need access to list APIs. The following command will start a proxy with minimal access:
 
 ```sh
-docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
+$ docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
 ```
 
 > [!TIP]
@@ -53,12 +53,28 @@ docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.s
 
 Running Dozzle without any certificates should work. Here is an example:
 
-```sh
-docker run --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle --remote-host tcp://123.1.1.1:2375
+::: code-group
+
+```sh [cli]
+$ docker run -p 8080:8080 amir20/dozzle --remote-host tcp://123.1.1.1:2375
 ```
 
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    ports:
+      - 8080:8080
+    environment:
+      DOZZLE_REMOTE_HOST: tcp://123.1.1.1:2375
+```
+
+:::
+
+When using remote host, mounting `/var/run/docker.sock` is optional. You need to have at least one remote host to connect to.
+
 > [!WARNING]
-> Docker Socket Proxy is not recommended for production use. It is only for private networks.
+> Docker Socket Proxy exposes the Docker API to the internet. This can be a security risk if not properly secured.
 
 ## Adding Labels to Hosts
 
