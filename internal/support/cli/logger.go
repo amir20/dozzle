@@ -10,6 +10,7 @@ import (
 func ConfigureLogger(level string) {
 	if level, err := zerolog.ParseLevel(level); err == nil {
 		zerolog.SetGlobalLevel(level)
+		log.Logger = log.With().Str("version", Version).Logger()
 	} else {
 		panic(err)
 	}
