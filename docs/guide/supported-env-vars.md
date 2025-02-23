@@ -23,7 +23,7 @@ Configurations can be done with flags or environment variables. The table below 
 | `--remote-host`       | `DOZZLE_REMOTE_HOST`       |                |
 | `--remote-agent`      | `DOZZLE_REMOTE_AGENT`      |                |
 | `--timeout`           | `DOZZLE_TIMEOUT`           | `10s`          |
-| --namespace           | `DOZZLE_NAMESPACE`         | `""`           |
+| `--namespace`         | `DOZZLE_NAMESPACE`         | `""`           |
 
 > [!TIP]
 > Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
