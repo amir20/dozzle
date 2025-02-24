@@ -129,6 +129,10 @@ func (s *ContainerStore) ListContainers(labels ContainerLabels) ([]Container, er
 			return nil, err
 		}
 
+		if len(validContainers) == 0 {
+			log.Warn().Interface("userLabels", labels).Msg("no containers found with user labels")
+		}
+
 		validIDMap := lo.KeyBy(validContainers, func(item Container) string {
 			return item.ID
 		})
