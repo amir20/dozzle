@@ -1,9 +1,3 @@
-includeWorkspaceRoot: true
-ignoreWorkspaceRootCheck: true
-sharedWorkspaceLockfile: false
 packages:
   - docs
   - e2e
-onlyBuiltDependencies:
-  - esbuild
-  - simple-git-hooks

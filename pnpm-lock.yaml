@@ -235,16 +235,6 @@ importers:
         specifier: ^2.2.8
         version: 2.2.8(typescript@5.8.2)
 
-  docs:
-    dependencies:
-      '@fontsource-variable/playfair-display':
-        specifier: ^5.2.5
-        version: 5.2.5
-    devDependencies:
-      dozzle:
-        specifier: workspace:*
-        version: link:..
-
 packages:
 
   '@algolia/autocomplete-core@1.17.7':
@@ -910,9 +900,6 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
-
-  '@fontsource-variable/playfair-display@5.2.5':
-    resolution: {integrity: sha512-nzSCC5pbWHjkJBqjPe81cPIC7fqJ6U5DwJ6tec7vF1bQ2DJnaKRBZluRQJuseFpACZLTN8LeN/1gBQEA7PnKOw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4598,8 +4585,6 @@ snapshots:
       '@floating-ui/utils': 0.2.9
 
   '@floating-ui/utils@0.2.9': {}
-
-  '@fontsource-variable/playfair-display@5.2.5': {}
 
   '@humanfs/core@0.19.1': {}
 
