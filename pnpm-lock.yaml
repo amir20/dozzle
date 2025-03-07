@@ -102,8 +102,8 @@ importers:
         specifier: ^1.15.6
         version: 1.15.6
       splitpanes:
-        specifier: ^3.1.8
-        version: 3.1.8(vue@3.5.13(typescript@5.8.2))
+        specifier: ^4.0.0
+        version: 4.0.0(vue@3.5.13(typescript@5.8.2))
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
@@ -3350,8 +3350,8 @@ packages:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
 
-  splitpanes@3.1.8:
-    resolution: {integrity: sha512-iYir0doakV9gYBfCuflGCxCD5Yhh09OGgT+epjfc6LZfTvGDdMXuD0Q4w6jI3hlkdRR1Ta3DlARcV3MOkybymg==}
+  splitpanes@4.0.0:
+    resolution: {integrity: sha512-jQZHekeS6D7KwIuFm9OijRkA0teJGGV8HWEjtQHGqn+25sXLpMpYI9EBxb/eTt0yQMjb8qxiexvQyDQ5KJht3A==}
     peerDependencies:
       vue: ^3.2.0
 
@@ -7025,7 +7025,7 @@ snapshots:
 
   speakingurl@14.0.1: {}
 
-  splitpanes@3.1.8(vue@3.5.13(typescript@5.8.2)):
+  splitpanes@4.0.0(vue@3.5.13(typescript@5.8.2)):
     dependencies:
       vue: 3.5.13(typescript@5.8.2)
 
