@@ -129,34 +129,30 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		for event := range events {
 			if everything {
+				if _, ok := event.Message.(string); onlyComplex && ok {
+					continue
+				}
 				if err := encoder.Encode(event); err != nil {
 					log.Error().Err(err).Msg("error encoding log event")
 				}
-				continue
-			}
+			} else {
+				if regex != nil {
+					if !search.Search(regex, event) {
+						continue
+					}
+				}
 
-			if onlyComplex {
-				if _, ok := event.Message.(string); ok {
+				if _, ok := levels[event.Level]; !ok {
 					continue
 				}
-			}
 
-			if regex != nil {
-				if !search.Search(regex, event) {
-					continue
+				if lastSeenId != 0 && event.Id == lastSeenId {
+					log.Debug().Uint32("lastSeenId", lastSeenId).Msg("found last seen id")
+					break
 				}
-			}
 
-			if _, ok := levels[event.Level]; !ok {
-				continue
+				buffer.Push(event)
 			}
-
-			if lastSeenId != 0 && event.Id == lastSeenId {
-				log.Debug().Uint32("lastSeenId", lastSeenId).Msg("found last seen id")
-				break
-			}
-
-			buffer.Push(event)
 		}
 
 		if everything || from.Before(containerService.Container.Created) {
