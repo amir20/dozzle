@@ -91,11 +91,22 @@ function showFuzzySearch() {
   open.value = true;
 }
 
-function onResized(e: any) {
-  if (e.length == 2) {
-    menuWidth.value = e[0].size;
+function onResized({ panes }: { panes: { size: number }[] }) {
+  if (panes) {
+    console.log("onResized", panes[0].size);
+    menuWidth.value = panes[0].size;
   }
 }
+
+watch(
+  menuWidth,
+  (newWidth) => {
+    console.log("Menu width", newWidth);
+  },
+  {
+    immediate: true,
+  },
+);
 </script>
 
 <style scoped>

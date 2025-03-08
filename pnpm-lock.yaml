@@ -102,8 +102,8 @@ importers:
         specifier: ^1.15.6
         version: 1.15.6
       splitpanes:
-        specifier: ^3.1.8
-        version: 3.1.8(vue@3.5.13(typescript@5.8.2))
+        specifier: ^4.0.1
+        version: 4.0.1(vue@3.5.13(typescript@5.8.2))
       strip-ansi:
         specifier: ^7.1.0
         version: 7.1.0
@@ -2435,8 +2435,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  eslint-scope@8.2.0:
-    resolution: {integrity: sha512-PHlWUfG6lvPc3yvP5A4PNyBL1W8fkDUccmI21JUu/+GKZBoH/W5u6usENXUrWFRsyoW5ACUjFGgAFQp5gUlb/A==}
+  eslint-scope@8.3.0:
+    resolution: {integrity: sha512-pUNxi75F8MJ/GdeKtVLSbYg4ZI34J6C0C7sbL4YOp2exGwen7ZsuBqKzUhXd0qMQ362yET3z+uPwKeg/0C2XCQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   eslint-visitor-keys@3.4.3:
@@ -3459,8 +3459,8 @@ packages:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
 
-  splitpanes@3.1.8:
-    resolution: {integrity: sha512-iYir0doakV9gYBfCuflGCxCD5Yhh09OGgT+epjfc6LZfTvGDdMXuD0Q4w6jI3hlkdRR1Ta3DlARcV3MOkybymg==}
+  splitpanes@4.0.1:
+    resolution: {integrity: sha512-IJ8sYNk5DMMb5T15YpFkvout4AVHIYwUjbPNfBiNgu167lJlCEkuBq3PiyNvu9sC54Z0FQXLaLOagYJsFJXqbw==}
     peerDependencies:
       vue: ^3.2.0
 
@@ -6237,7 +6237,7 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
-  eslint-scope@8.2.0:
+  eslint-scope@8.3.0:
     dependencies:
       esrecurse: 4.3.0
       estraverse: 5.3.0
@@ -6265,7 +6265,7 @@ snapshots:
       cross-spawn: 7.0.6
       debug: 4.4.0
       escape-string-regexp: 4.0.0
-      eslint-scope: 8.2.0
+      eslint-scope: 8.3.0
       eslint-visitor-keys: 4.2.0
       espree: 10.3.0
       esquery: 1.6.0
@@ -7224,7 +7224,7 @@ snapshots:
 
   speakingurl@14.0.1: {}
 
-  splitpanes@3.1.8(vue@3.5.13(typescript@5.8.2)):
+  splitpanes@4.0.1(vue@3.5.13(typescript@5.8.2)):
     dependencies:
       vue: 3.5.13(typescript@5.8.2)
 
