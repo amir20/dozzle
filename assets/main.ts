@@ -7,3 +7,9 @@ Object.values(import.meta.glob<{ install: (app: VueApp) => void }>("./modules/*.
   i.install?.(app),
 );
 app.mount("#app");
+
+if ("serviceWorker" in navigator && import.meta.env.MODE === "production") {
+  navigator.serviceWorker.register(withBase("/sw.js"), {
+    scope: withBase("/"),
+  });
+}

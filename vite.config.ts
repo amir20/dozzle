@@ -13,6 +13,7 @@ import { compression } from "vite-plugin-compression2";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(() => ({
   resolve: {
@@ -75,6 +76,17 @@ export default defineConfig(() => ({
     compression({ algorithm: "brotliCompress", exclude: [/\.(html)$/] }),
     svgLoader({}),
     tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: false,
+      manifest: {
+        name: "Dozzle",
+        display: "standalone",
+        short_name: "Dozzle",
+        description: "A simple and lightweight Vue.js application",
+        theme_color: "#000",
+      },
+    }),
   ],
   test: {
     include: ["assets/**/*.spec.ts"],

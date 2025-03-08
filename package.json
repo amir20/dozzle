@@ -103,6 +103,7 @@
     "simple-git-hooks": "^2.11.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
+    "vite-plugin-pwa": "^0.21.1",
     "vitest": "^3.0.8",
     "vue-component-type-helpers": "^2.2.8",
     "vue-tsc": "^2.2.8"
