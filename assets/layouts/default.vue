@@ -5,7 +5,7 @@
       <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
         <SidePanel @search="showFuzzySearch" />
       </Pane>
-      <Pane min-size="10">
+      <Pane min-size="10" :size="100 - menuWidth">
         <Splitpanes>
           <Pane class="router-view min-h-screen">
             <router-view></router-view>
@@ -91,9 +91,9 @@ function showFuzzySearch() {
   open.value = true;
 }
 
-function onResized(e: any) {
-  if (e.length == 2) {
-    menuWidth.value = e[0].size;
+function onResized({ panes }: { panes: { size: number }[] }) {
+  if (panes) {
+    menuWidth.value = panes[0].size;
   }
 }
 </script>
@@ -102,7 +102,7 @@ function onResized(e: any) {
 @import "@/main.css" reference;
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  @apply bg-base-100 hover:bg-secondary min-w-[3px];
+  @apply bg-base-100 hover:bg-secondary min-w-[5px];
 }
 
 @media screen and (max-width: 768px) {
