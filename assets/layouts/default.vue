@@ -92,8 +92,8 @@ function showFuzzySearch() {
 }
 
 function onResized({ panes }: { panes: { size: number }[] }) {
-  if (panes) {
-    menuWidth.value = panes[0].size;
+  if (panes.length == 2) {
+    menuWidth.value = Math.min(panes[0].size, 50);
   }
 }
 </script>
