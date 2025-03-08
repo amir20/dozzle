@@ -13,7 +13,6 @@ import { compression } from "vite-plugin-compression2";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(() => ({
   resolve: {
@@ -76,24 +75,6 @@ export default defineConfig(() => ({
     compression({ algorithm: "brotliCompress", exclude: [/\.(html)$/] }),
     svgLoader({}),
     tailwindcss(),
-    VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: false,
-      manifest: {
-        name: "Dozzle",
-        display: "standalone",
-        short_name: "Dozzle",
-        description: "A log viewer for containers",
-        theme_color: "#000",
-        icons: [
-          {
-            src: "/apple-touch-icon.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      },
-    }),
   ],
   test: {
     include: ["assets/**/*.spec.ts"],
