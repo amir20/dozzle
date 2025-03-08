@@ -16,9 +16,10 @@
     <link rel="stylesheet" href="{{ .Base }}/{{ index $css 0}}" />
     <script type="module" src="{{ .Base }}/{{ $js }}"></script>
     {{- end }}
-    <meta name="description" content="Dozzle is a log viewer for Docker" />
+    <meta name="description" content="A log viewer for containers" />
     <meta name="robots" content="noindex" />
     <link rel="apple-touch-icon" href="{{ .Base }}/apple-touch-icon.png" sizes="512x512" />
+    <link rel="manifest" href="{{ .Base }}/manifest.webmanifest" />
   </head>
 
   <body>

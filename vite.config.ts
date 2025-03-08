@@ -83,8 +83,15 @@ export default defineConfig(() => ({
         name: "Dozzle",
         display: "standalone",
         short_name: "Dozzle",
-        description: "A simple and lightweight Vue.js application",
+        description: "A log viewer for containers",
         theme_color: "#000",
+        icons: [
+          {
+            src: "/apple-touch-icon.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
       },
     }),
   ],
