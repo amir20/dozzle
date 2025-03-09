@@ -2,7 +2,7 @@
 <html class="bg-base-200 text-base-content">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <title>Dozzle</title>
     <script type="application/json" id="config__json">
       {{ marshal .Config }}
@@ -16,9 +16,10 @@
     <link rel="stylesheet" href="{{ .Base }}/{{ index $css 0}}" />
     <script type="module" src="{{ .Base }}/{{ $js }}"></script>
     {{- end }}
-    <meta name="description" content="Dozzle is a log viewer for Docker" />
+    <meta name="description" content="A log viewer for containers" />
     <meta name="robots" content="noindex" />
     <link rel="apple-touch-icon" href="{{ .Base }}/apple-touch-icon.png" sizes="512x512" />
+    <link rel="manifest" href="{{ .Base }}/manifest.webmanifest" />
   </head>
 
   <body>
