@@ -300,6 +300,46 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
+func Test_handler_between_dates_with_everything_complex(t *testing.T) {
+	id := "123456"
+	req, err := http.NewRequest("GET", "/api/hosts/localhost/containers/"+id+"/logs", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	q := req.URL.Query()
+	q.Add("jsonOnly", "true")
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	q.Add("everything", "true")
+	q.Add("levels", "info")
+
+	req.URL.RawQuery = q.Encode()
+
+	mockedClient := new(MockedClient)
+
+	first := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing stdout logs...\n", container.STDOUT)
+	second := makeMessage("2020-05-13T18:56:37.772853839Z {\"msg\":\"a complex log message\"}\n", container.STDOUT)
+	data := append(first, second...)
+
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+		Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Once()
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id}, nil)
+	mockedClient.On("Host").Return(container.Host{
+		ID: "localhost",
+	})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
+	abide.AssertReader(t, t.Name(), reader)
+	mockedClient.AssertExpectations(t)
+}
+
 func makeMessage(message string, stream container.StdType) []byte {
 	data := make([]byte, 8)
 	binary.BigEndian.PutUint32(data[4:], uint32(len(message)))
