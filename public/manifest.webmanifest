@@ -3,10 +3,8 @@
   "short_name": "Dozzle",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000",
   "lang": "en",
   "scope": "/",
   "description": "A log viewer for containers",
-  "theme_color": "#000",
   "icons": [{ "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png" }]
 }
