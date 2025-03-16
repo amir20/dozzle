@@ -15,6 +15,7 @@ watchEffect(() => {
   if (theme === "auto") {
     theme = mode.value;
   }
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", theme == "dark" ? "#121212" : "#3FA68F");
   document.documentElement.setAttribute("data-theme", theme);
 });
 </script>
