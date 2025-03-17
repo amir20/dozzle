@@ -62,9 +62,9 @@ const store = useContainerStore();
 const { containers: allContainers } = storeToRefs(store);
 
 const otherContainers = computed(() =>
-  [...allContainers.value.filter((c) => c.name === container.name && c.id !== container.id)].sort(
-    (a, b) => +b.created - +a.created,
-  ),
+  allContainers.value
+    .filter((c) => c.name === container.name && c.id !== container.id)
+    .sort((a, b) => +b.created - +a.created),
 );
 const wrapper = useTemplateRef("wrapper");
 
