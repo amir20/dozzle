@@ -68,7 +68,6 @@ export default defineConfig(() => ({
     }),
     VueI18nPlugin({
       runtimeOnly: true,
-      compositionOnly: true,
       strictMessage: false,
       include: [path.resolve(__dirname, "locales/**")],
     }),
