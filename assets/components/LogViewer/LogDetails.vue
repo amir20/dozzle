@@ -72,7 +72,6 @@
 
 <script setup lang="ts">
 import { ComplexLogEntry } from "@/models/LogEntry";
-import { useSortable } from "@vueuse/integrations/useSortable";
 import { UseClipboard } from "@vueuse/components";
 
 const { entry } = defineProps<{ entry: ComplexLogEntry }>();
@@ -81,6 +80,8 @@ const list = ref<HTMLElement>();
 const container = currentContainer(toRef(() => entry.containerID));
 const visibleKeys = persistentVisibleKeysForContainer(container);
 const { hosts } = useHosts();
+
+const { useSortable } = await import("@vueuse/integrations/useSortable");
 
 function toggleField(key: string[]) {
   if (visibleKeys.value.size === 0) {
