@@ -57,7 +57,7 @@ func Test_handler_streamEvents_happy(t *testing.T) {
 	manager := docker_support.NewRetriableClientManager(nil, 3*time.Second, tls.Certificate{}, docker_support.NewDockerClientService(mockedClient, container.ContainerLabels{}))
 	multiHostService := docker_support.NewMultiHostService(manager, 3*time.Second)
 
-	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	server := CreateServer(multiHostService, nil, Config{Base: "/", Authorization: Authorization{Provider: None}})
 
 	handler := server.Handler
 	rr := httptest.NewRecorder()

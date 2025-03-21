@@ -28,7 +28,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 	h.hostService.SubscribeAvailableHosts(r.Context(), availableHosts)
 
 	userLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
+	if h.config.Authorization.Provider != None {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels

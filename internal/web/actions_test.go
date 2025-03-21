@@ -34,7 +34,7 @@ func mockedClient() *MockedClient {
 func Test_handler_containerActions_stop(t *testing.T) {
 	mockedClient := mockedClient()
 
-	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: None}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/stop", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
@@ -46,7 +46,7 @@ func Test_handler_containerActions_stop(t *testing.T) {
 func Test_handler_containerActions_restart(t *testing.T) {
 	mockedClient := mockedClient()
 
-	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: None}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/restart", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
@@ -58,7 +58,7 @@ func Test_handler_containerActions_restart(t *testing.T) {
 func Test_handler_containerActions_unknown_action(t *testing.T) {
 	mockedClient := mockedClient()
 
-	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: None}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/something-else", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
@@ -70,7 +70,7 @@ func Test_handler_containerActions_unknown_action(t *testing.T) {
 func Test_handler_containerActions_unknown_container(t *testing.T) {
 	mockedClient := mockedClient()
 
-	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: None}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/456/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
 
@@ -82,7 +82,7 @@ func Test_handler_containerActions_unknown_container(t *testing.T) {
 func Test_handler_containerActions_start(t *testing.T) {
 	mockedClient := mockedClient()
 
-	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: None}})
 	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/start", nil)
 	require.NoError(t, err, "Request should not return an error.")
 

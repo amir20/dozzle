@@ -54,7 +54,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 
 	user := auth.UserFromContext(req.Context())
 
-	if h.config.Authorization.Provider == NONE || user != nil {
+	if h.config.Authorization.Provider == None || user != nil {
 		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
 		config["hostname"] = h.config.Hostname
@@ -69,7 +69,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			config["profile"] = struct{}{}
 		}
 		config["user"] = user
-	} else if h.config.Authorization.Provider == FORWARD_PROXY {
+	} else if h.config.Authorization.Provider == ForwardProxy {
 		log.Error().Msg("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
 		log.Debug().Str("url", req.URL.String()).Msg("Dumping all headers for request")
 		for k, v := range req.Header {
@@ -77,7 +77,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
 		return
-	} else if h.config.Authorization.Provider == SIMPLE && req.URL.Path != "login" {
+	} else if h.config.Authorization.Provider == Simple && req.URL.Path != "login" {
 		log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
 		http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
 		return

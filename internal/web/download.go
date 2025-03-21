@@ -23,7 +23,7 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
+	if h.config.Authorization.Provider != None {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels

@@ -20,9 +20,10 @@ import (
 type AuthProvider string
 
 const (
-	NONE          AuthProvider = "none"
-	SIMPLE        AuthProvider = "simple"
-	FORWARD_PROXY AuthProvider = "forward-proxy"
+	None         AuthProvider = "none"
+	Simple       AuthProvider = "simple"
+	ForwardProxy AuthProvider = "forward-proxy"
+	OpenID       AuthProvider = "openid"
 )
 
 // Config is a struct for configuring the web service
@@ -89,19 +90,19 @@ func createRouter(h *handler) *chi.Mux {
 		r.Use(cspHeaders)
 	}
 
-	if h.config.Authorization.Provider != NONE && h.config.Authorization.Authorizer == nil {
+	if h.config.Authorization.Provider != None && h.config.Authorization.Authorizer == nil {
 		log.Fatal().Msg("Authorization provider is set but no authorizer is provided")
 	}
 
 	r.Route(base, func(r chi.Router) {
-		if h.config.Authorization.Provider != NONE {
+		if h.config.Authorization.Provider != None {
 			r.Use(h.config.Authorization.Authorizer.AuthMiddleware)
 		}
 
 		r.Route("/api", func(r chi.Router) {
 			// Authenticated routes
 			r.Group(func(r chi.Router) {
-				if h.config.Authorization.Provider != NONE {
+				if h.config.Authorization.Provider != None {
 					r.Use(auth.RequireAuthentication)
 				}
 				r.Get("/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
@@ -128,7 +129,7 @@ func createRouter(h *handler) *chi.Mux {
 			})
 
 			// Public API routes
-			if h.config.Authorization.Provider == SIMPLE {
+			if h.config.Authorization.Provider == Simple {
 				r.Post("/token", h.createToken)
 				r.Delete("/token", h.deleteToken)
 			}

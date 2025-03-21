@@ -96,5 +96,5 @@ func createHandler(client container.Client, content fs.FS, config Config) *chi.M
 }
 
 func createDefaultHandler(client container.Client) *chi.Mux {
-	return createHandler(client, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
+	return createHandler(client, nil, Config{Base: "/", Authorization: Authorization{Provider: None}})
 }

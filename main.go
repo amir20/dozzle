@@ -132,15 +132,15 @@ func main() {
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
-	var provider web.AuthProvider = web.NONE
+	var provider web.AuthProvider = web.None
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
 		log.Debug().Msg("Using forward proxy authentication")
-		provider = web.FORWARD_PROXY
+		provider = web.ForwardProxy
 		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName, args.AuthHeaderFilter)
 	} else if args.AuthProvider == "simple" {
 		log.Debug().Msg("Using simple authentication")
-		provider = web.SIMPLE
+		provider = web.Simple
 
 		path, err := filepath.Abs("./data/users.yml")
 		if err != nil {

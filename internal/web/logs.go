@@ -49,7 +49,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	usersLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
+	if h.config.Authorization.Provider != None {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			usersLabels = user.ContainerLabels
@@ -246,7 +246,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	userLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
+	if h.config.Authorization.Provider != None {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
