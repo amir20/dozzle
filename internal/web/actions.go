@@ -14,7 +14,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	userLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
+	if h.config.Authorization.Provider != None {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
