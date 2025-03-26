@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@10.7.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
     "@intlify/unplugin-vue-i18n": "^6.0.5",
     "@oddbird/css-anchor-positioning": "^0.4.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@tailwindcss/vite": "4.0.15",
+    "@tailwindcss/vite": "4.0.17",
     "@vueuse/components": "^13.0.0",
     "@vueuse/core": "^13.0.0",
     "@vueuse/integrations": "^13.0.0",
@@ -62,8 +62,8 @@
     "sortablejs": "^1.15.6",
     "splitpanes": "^4.0.3",
     "strip-ansi": "^7.1.0",
-    "tailwindcss": "4.0.15",
-    "unplugin-auto-import": "^19.1.1",
+    "tailwindcss": "4.0.17",
+    "unplugin-auto-import": "^19.1.2",
     "unplugin-icons": "^22.1.0",
     "unplugin-vue-components": "^28.4.1",
     "unplugin-vue-macros": "^2.14.5",
@@ -88,7 +88,7 @@
     "@types/d3-shape": "^3.1.7",
     "@types/d3-transition": "^3.0.9",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.13",
     "@vitejs/plugin-vue": "5.2.3",
     "@vue/compiler-sfc": "^3.5.13",
     "@vue/test-utils": "^2.4.6",
