@@ -53,9 +53,8 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 
 	defer writer.Close()
 
-	wsReader := &WebSocketReader{conn: conn}
-
 	go func() {
+		wsReader := &WebSocketReader{conn: conn}
 		if _, err := io.Copy(writer, wsReader); err != nil {
 			log.Error().Err(err).Msg("error while copying ws reader")
 		}
@@ -69,7 +68,7 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	<-r.Context().Done()
-
+	log.Info().Msg("attach stream finished")
 }
 
 type WebSocketWriter struct {
@@ -87,7 +86,6 @@ type WebSocketReader struct {
 }
 
 func (r *WebSocketReader) Read(p []byte) (n int, err error) {
-	log.Info().Msg("reading from websocket")
 	if len(r.buffer) > 0 {
 		n = copy(p, r.buffer)
 		r.buffer = r.buffer[n:]

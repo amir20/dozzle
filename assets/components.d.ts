@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Announcements: typeof import('./components/Announcements.vue')['default']
+    Attach: typeof import('./components/LogViewer/Attach.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
