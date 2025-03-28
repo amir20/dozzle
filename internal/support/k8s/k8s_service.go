@@ -90,3 +90,7 @@ func (k *K8sClientService) SubscribeEvents(ctx context.Context, events chan<- co
 func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	k.store.SubscribeNewContainers(ctx, containers)
 }
+
+func (k *K8sClientService) Attach(ctx context.Context, container container.Container) (io.WriteCloser, io.Reader, error) {
+	return k.client.ContainerAttach(ctx, container.ID)
+}

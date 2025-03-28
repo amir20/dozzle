@@ -70,3 +70,7 @@ func (d *agentService) SubscribeContainersStarted(ctx context.Context, container
 func (a *agentService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
+
+func (a *agentService) Attach(ctx context.Context, container container.Container) (io.WriteCloser, io.Reader, error) {
+	return a.client.ContainerAttach(ctx, container.ID)
+}

@@ -35,3 +35,7 @@ func (c *ContainerService) StreamLogs(ctx context.Context, from time.Time, stdTy
 func (c *ContainerService) Action(ctx context.Context, action container.ContainerAction) error {
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
+
+func (c *ContainerService) Attach(ctx context.Context) (io.WriteCloser, io.Reader, error) {
+	return c.clientService.Attach(ctx, c.Container)
+}
