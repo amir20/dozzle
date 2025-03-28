@@ -56,38 +56,19 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 	wsReader := &WebSocketReader{conn: conn}
 
 	go func() {
-		_, err := io.Copy(writer, wsReader)
-		if err != nil {
+		if _, err := io.Copy(writer, wsReader); err != nil {
 			log.Error().Err(err).Msg("error while copying ws reader")
 		}
 	}()
 
 	go func() {
 		wsWriter := &WebSocketWriter{conn: conn}
-		// buf := bufio.NewReader(reader)
-		buffer := make([]byte, 1024)
-		for {
-			n, err := reader.Read(buffer)
-			if err != nil {
-				log.Error().Err(err).Msg("error while reading ws reader")
-				break
-			}
-			wsWriter.Write(buffer[:n])
+		if _, err := io.Copy(wsWriter, reader); err != nil {
+			log.Error().Err(err).Msg("error while copying ws writer")
 		}
-		// wsWriter.Write([]byte("this is a test"))
-		// wsWriter.Write([]byte("this is another test"))
-		// _, err := io.Copy(wsWriter, reader)
-		// if err != nil {
-		// 	log.Error().Err(err).Msg("error while copying ws writer")
-		// }
-		log.Info().Msg("detached from container")
 	}()
 
-	log.Info().Msg("attached to container")
-
 	<-r.Context().Done()
-
-	log.Info().Msg("detached from container")
 
 }
 
@@ -95,18 +76,9 @@ type WebSocketWriter struct {
 	conn *websocket.Conn
 }
 
-// Write implements the io.Writer interface
-func (w *WebSocketWriter) Write(p []byte) (n int, err error) {
-	log.Info().Str("p", string(p)).Msg("writing to websocket")
-	err = w.conn.WriteMessage(websocket.TextMessage, p)
-	if err != nil {
-		log.Error().Err(err).Msg("error while writing to websocket")
-		return 0, err
-	}
-
-	log.Info().Msg("done websocket")
-
-	return len(p), nil
+func (w *WebSocketWriter) Write(p []byte) (int, error) {
+	err := w.conn.WriteMessage(websocket.TextMessage, p)
+	return len(p), err
 }
 
 type WebSocketReader struct {
