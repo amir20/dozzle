@@ -1,8 +1,10 @@
 package web
 
 import (
+	"context"
 	"io"
 	"net/http"
+	"sync"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/go-chi/chi/v5"
@@ -44,31 +46,38 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writer, reader, err := containerService.Attach(r.Context())
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+	writer, reader, err := containerService.Attach(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	defer writer.Close()
+	var wg sync.WaitGroup
 
+	wg.Add(2)
 	go func() {
+		defer wg.Done()
 		wsReader := &WebSocketReader{conn: conn}
 		if _, err := io.Copy(writer, wsReader); err != nil {
-			log.Error().Err(err).Msg("error while copying ws reader")
+			log.Error().Err(err).Msg("error while reading from ws")
 		}
+		cancel()
+		writer.Close()
 	}()
 
 	go func() {
+		defer wg.Done()
 		wsWriter := &WebSocketWriter{conn: conn}
 		if _, err := io.Copy(wsWriter, reader); err != nil {
-			log.Error().Err(err).Msg("error while copying ws writer")
+			log.Error().Err(err).Msg("error while writing to ws")
 		}
+		cancel()
 	}()
 
-	<-r.Context().Done()
-	log.Info().Msg("attach stream finished")
+	wg.Wait()
 }
 
 type WebSocketWriter struct {
