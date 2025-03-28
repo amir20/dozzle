@@ -142,6 +142,7 @@
 import { Container } from "@/models/Container";
 import { allLevels } from "@/composable/logContext";
 import LogAnalytics from "../LogViewer/LogAnalytics.vue";
+import Attach from "../LogViewer/Attach.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
@@ -158,6 +159,13 @@ onKeyStroke("f", (e) => {
       showDrawer(LogAnalytics, { container }, "lg");
       e.preventDefault();
     }
+  }
+});
+
+onKeyStroke("a", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    showDrawer(Attach, { container }, "lg");
+    e.preventDefault();
   }
 });
 

@@ -59,6 +59,9 @@ importers:
       '@vueuse/router':
         specifier: ^13.0.0
         version: 13.0.0(vue-router@4.5.0(vue@3.5.13(typescript@5.8.2)))(vue@3.5.13(typescript@5.8.2))
+      '@xterm/xterm':
+        specifier: ^5.5.0
+        version: 5.5.0
       ansi-to-html:
         specifier: ^0.7.2
         version: 0.7.2
@@ -1881,6 +1884,9 @@ packages:
     resolution: {integrity: sha512-9MiHhAPw+sqCF/RLo8V6HsjRqEdNEWVpDLm2WBRW2G/kSQjb8X901sozXpSCaeLG0f7TEfMrT4XNaA5m1ez7Dg==}
     peerDependencies:
       vue: ^3.5.0
+
+  '@xterm/xterm@5.5.0':
+    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -5608,6 +5614,8 @@ snapshots:
   '@vueuse/shared@13.0.0(vue@3.5.13(typescript@5.8.2))':
     dependencies:
       vue: 3.5.13(typescript@5.8.2)
+
+  '@xterm/xterm@5.5.0': {}
 
   abbrev@2.0.0: {}
 
