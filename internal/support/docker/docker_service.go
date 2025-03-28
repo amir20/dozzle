@@ -109,3 +109,7 @@ func (d *DockerClientService) SubscribeEvents(ctx context.Context, events chan<-
 func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
 	d.store.SubscribeNewContainers(ctx, containers)
 }
+
+func (d *DockerClientService) Attach(ctx context.Context, container container.Container) (io.WriteCloser, io.Reader, error) {
+	return d.client.ContainerAttach(ctx, container.ID)
+}

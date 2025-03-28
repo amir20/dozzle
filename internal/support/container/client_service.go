@@ -25,4 +25,7 @@ type ClientService interface {
 
 	// Blocking streaming functions that should be used in a goroutine
 	StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error
+
+	// Attach to a container's stdin/stdout/stderr
+	Attach(ctx context.Context, container container.Container) (io.WriteCloser, io.Reader, error)
 }

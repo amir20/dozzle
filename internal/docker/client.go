@@ -33,6 +33,7 @@ type DockerCLI interface {
 	ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error
 	ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error
+	ContainerAttach(ctx context.Context, containerID string, options docker.AttachOptions) (types.HijackedResponse, error)
 	Info(ctx context.Context) (system.Info, error)
 }
 
@@ -295,6 +296,24 @@ func (d *DockerClient) Ping(ctx context.Context) error {
 func (d *DockerClient) Host() container.Host {
 	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
+}
+
+func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
+	options := docker.AttachOptions{
+		Stream: true,
+		Stdin:  true,
+		Stdout: true,
+		Stderr: true,
+	}
+
+	waiter, err := d.cli.ContainerAttach(ctx, id, options)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return waiter.Conn, waiter.Reader, nil
 }
 
 func newContainer(c docker.Summary, host string) container.Container {

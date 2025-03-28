@@ -245,6 +245,10 @@ func (k *K8sClient) ContainerActions(ctx context.Context, action container.Conta
 	return nil
 }
 
+func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+	panic("not implemented")
+}
+
 // Helper function to parse pod and container names from container ID
 func parsePodContainerID(id string) (string, string, string) {
 	parts := strings.Split(id, ":")
