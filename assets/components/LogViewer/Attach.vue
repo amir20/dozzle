@@ -17,7 +17,8 @@
 import { Container } from "@/models/Container";
 import "@xterm/xterm/css/xterm.css";
 const { container } = defineProps<{ container: Container }>();
-import { Terminal } from "@xterm/xterm";
+
+const { Terminal } = await import("@xterm/xterm");
 
 const terminal = useTemplateRef<HTMLDivElement>("terminal");
 const term = new Terminal({
