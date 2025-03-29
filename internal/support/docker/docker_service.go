@@ -172,7 +172,7 @@ func (d *DockerClientService) Exec(ctx context.Context, container container.Cont
 
 	go func() {
 		defer wg.Done()
-		if _, err := io.Copy(stdout, containerReader); err != nil {
+		if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
 			log.Error().Err(err).Msg("error while writing to ws")
 		}
 		cancel()
