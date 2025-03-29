@@ -145,7 +145,7 @@
       <li>
         <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
           <material-symbols:terminal /> Shell
-          <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
+          <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
         </a>
       </li>
     </ul>
