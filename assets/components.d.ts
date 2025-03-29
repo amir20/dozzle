@@ -104,6 +104,7 @@ declare module 'vue' {
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']
+    'Ri:terminalWindowFill': typeof import('~icons/ri/terminal-window-fill')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollableView: typeof import('./components/ScrollableView.vue')['default']

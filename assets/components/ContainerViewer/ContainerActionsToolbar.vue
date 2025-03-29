@@ -134,6 +134,14 @@
           </button>
         </li>
       </template>
+
+      <li class="line"></li>
+      <li>
+        <a @click.prevent="showDrawer(Terminal, { container }, 'lg')">
+          <ri:terminal-window-fill /> Attach
+          <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
     </ul>
   </div>
 </template>
