@@ -80,6 +80,7 @@
   },
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^19.0.1",
+    "@iconify-json/ri": "^1.2.5",
     "@pinia/testing": "^1.0.0",
     "@playwright/test": "^1.51.1",
     "@types/d3-array": "^3.2.1",
