@@ -7,7 +7,7 @@
 
     <div class="mt-8 flex flex-col gap-2">
       <section>
-        <div ref="terminal"></div>
+        <div ref="terminal" class="shell"></div>
       </section>
     </div>
   </aside>
@@ -38,7 +38,8 @@ onUnmounted(() => {
 });
 
 ws.onopen = () => {
-  term.writeln("Attached to container 🚀");
+  term.writeln(`Attached to ${container.name} 🚀`);
+  ws.send("\r");
   term.onData((data) => {
     ws.send(data);
   });
@@ -46,4 +47,20 @@ ws.onopen = () => {
 
 ws.onmessage = (event) => term.write(event.data);
 </script>
-<style scoped></style>
+<style scoped>
+@import "@/main.css" reference;
+
+.shell {
+  & :deep(.terminal) {
+    @apply border-primary overflow-hidden rounded border-1 p-2;
+  }
+
+  & :deep(.xterm-viewport) {
+    @apply bg-base-200!;
+  }
+
+  & :deep(.xterm-rows) {
+    @apply text-base-content;
+  }
+}
+</style>
