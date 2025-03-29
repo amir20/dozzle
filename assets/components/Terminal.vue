@@ -43,6 +43,7 @@ ws.onopen = () => {
   term.onData((data) => {
     ws.send(data);
   });
+  term.focus();
 };
 
 ws.onmessage = (event) => term.write(event.data);

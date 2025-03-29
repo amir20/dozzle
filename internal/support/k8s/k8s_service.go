@@ -91,6 +91,6 @@ func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, conta
 	k.store.SubscribeNewContainers(ctx, containers)
 }
 
-func (k *K8sClientService) Attach(ctx context.Context, container container.Container) (io.WriteCloser, io.Reader, error) {
-	return k.client.ContainerAttach(ctx, container.ID)
+func (k *K8sClientService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
+	panic("not implemented")
 }
