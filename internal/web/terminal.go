@@ -51,6 +51,39 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("error while trying to upgrade connection")
+		return
+	}
+	defer conn.Close()
+
+	id := chi.URLParam(r, "id")
+	userLabels := h.config.Labels
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerLabels.Exists() {
+			userLabels = user.ContainerLabels
+		}
+	}
+
+	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
+	if err != nil {
+		log.Error().Err(err).Msg("error while trying to find container")
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	wsReader := &webSocketReader{conn: conn}
+	wsWriter := &webSocketWriter{conn: conn}
+	if err = containerService.Exec(r.Context(), []string{"sh"}, wsReader, wsWriter); err != nil {
+		log.Error().Err(err).Msg("error while trying to attach to container")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 type webSocketWriter struct {
 	conn *websocket.Conn
 }

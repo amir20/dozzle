@@ -241,11 +241,14 @@ func (k *K8sClient) Host() container.Host {
 }
 
 func (k *K8sClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
-	// Implementation for container actions (start, stop, restart, etc.)
-	return nil
+	panic("not implemented")
 }
 
 func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+	panic("not implemented")
+}
+
+func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {
 	panic("not implemented")
 }
 

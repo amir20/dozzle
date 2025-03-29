@@ -94,3 +94,7 @@ func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, conta
 func (k *K8sClientService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
 	panic("not implemented")
 }
+
+func (k *K8sClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+	panic("not implemented")
+}

@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { Container } from "@/models/Container";
 import "@xterm/xterm/css/xterm.css";
-const { container } = defineProps<{ container: Container }>();
+const { container, action } = defineProps<{ container: Container; action: "attach" | "exec" }>();
 
 const { Terminal } = await import("@xterm/xterm");
 
@@ -25,7 +25,7 @@ const term = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
 });
-const ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/attach`));
+const ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
 
 onMounted(() => {
   term.open(terminal.value!);
@@ -39,7 +39,9 @@ onUnmounted(() => {
 
 ws.onopen = () => {
   term.writeln(`Attached to ${container.name} 🚀`);
-  ws.send("\r");
+  if (action === "attach") {
+    ws.send("\r");
+  }
   term.onData((data) => {
     ws.send(data);
   });

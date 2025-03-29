@@ -39,3 +39,7 @@ func (c *ContainerService) Action(ctx context.Context, action container.Containe
 func (c *ContainerService) Attach(ctx context.Context, stdin io.Reader, stdout io.Writer) error {
 	return c.clientService.Attach(ctx, c.Container, stdin, stdout)
 }
+
+func (c *ContainerService) Exec(ctx context.Context, cmd []string, stdin io.Reader, stdout io.Writer) error {
+	return c.clientService.Exec(ctx, c.Container, cmd, stdin, stdout)
+}

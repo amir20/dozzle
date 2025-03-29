@@ -137,8 +137,14 @@
 
       <li class="line"></li>
       <li>
-        <a @click.prevent="showDrawer(Terminal, { container }, 'lg')">
+        <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
           <ri:terminal-window-fill /> Attach
+          <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
+      <li>
+        <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
+          <material-symbols:terminal /> Shell
           <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
         </a>
       </li>
@@ -172,7 +178,14 @@ onKeyStroke("f", (e) => {
 
 onKeyStroke("a", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    showDrawer(Terminal, { container }, "lg");
+    showDrawer(Terminal, { container, action: "attach" }, "lg");
+    e.preventDefault();
+  }
+});
+
+onKeyStroke("e", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    showDrawer(Terminal, { container, action: "exec" }, "lg");
     e.preventDefault();
   }
 });

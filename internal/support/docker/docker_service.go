@@ -112,9 +112,10 @@ func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, co
 }
 
 func (d *DockerClientService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
-	ctx, cancel := context.WithCancel(ctx)
-	containerWriter, containerReader, err := d.client.ContainerAttach(ctx, container.ID)
+	cancelCtx, cancel := context.WithCancel(ctx)
+	containerWriter, containerReader, err := d.client.ContainerAttach(cancelCtx, container.ID)
 	if err != nil {
+		cancel()
 		return err
 	}
 
@@ -140,6 +141,39 @@ func (d *DockerClientService) Attach(ctx context.Context, container container.Co
 			if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
 				log.Error().Err(err).Msg("error while writing to ws")
 			}
+		}
+		cancel()
+	}()
+
+	wg.Wait()
+
+	return nil
+}
+
+func (d *DockerClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+	cancelCtx, cancel := context.WithCancel(ctx)
+	containerWriter, containerReader, err := d.client.ContainerExec(cancelCtx, container.ID, cmd)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if _, err := io.Copy(containerWriter, stdin); err != nil {
+			log.Error().Err(err).Msg("error while reading from ws")
+		}
+		cancel()
+		containerWriter.Close()
+	}()
+
+	go func() {
+		defer wg.Done()
+		if _, err := io.Copy(stdout, containerReader); err != nil {
+			log.Error().Err(err).Msg("error while writing to ws")
 		}
 		cancel()
 	}()

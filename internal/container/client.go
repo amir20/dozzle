@@ -39,4 +39,5 @@ type Client interface {
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
 	ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error)
+	ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error)
 }

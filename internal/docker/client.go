@@ -34,6 +34,8 @@ type DockerCLI interface {
 	ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error
 	ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error
 	ContainerAttach(ctx context.Context, containerID string, options docker.AttachOptions) (types.HijackedResponse, error)
+	ContainerExecCreate(ctx context.Context, containerID string, options docker.ExecOptions) (docker.ExecCreateResponse, error)
+	ContainerExecAttach(ctx context.Context, execID string, config docker.ExecAttachOptions) (types.HijackedResponse, error)
 	Info(ctx context.Context) (system.Info, error)
 }
 
@@ -309,6 +311,29 @@ func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (io.Write
 
 	waiter, err := d.cli.ContainerAttach(ctx, id, options)
 
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return waiter.Conn, waiter.Reader, nil
+}
+
+func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {
+	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Executing command in container")
+	options := docker.ExecOptions{
+		AttachStdout: true,
+		AttachStderr: true,
+		AttachStdin:  true,
+		Cmd:          cmd,
+		Tty:          true,
+	}
+
+	execID, err := d.cli.ContainerExecCreate(ctx, id, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{})
 	if err != nil {
 		return nil, nil, err
 	}
