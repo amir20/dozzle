@@ -36,6 +36,6 @@ func (c *ContainerService) Action(ctx context.Context, action container.Containe
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
 
-func (c *ContainerService) Attach(ctx context.Context) (io.WriteCloser, io.Reader, error) {
-	return c.clientService.Attach(ctx, c.Container)
+func (c *ContainerService) Attach(ctx context.Context, stdin io.Reader, stdout io.Writer) error {
+	return c.clientService.Attach(ctx, c.Container, stdin, stdout)
 }

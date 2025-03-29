@@ -142,7 +142,7 @@
 import { Container } from "@/models/Container";
 import { allLevels } from "@/composable/logContext";
 import LogAnalytics from "../LogViewer/LogAnalytics.vue";
-import Attach from "../LogViewer/Attach.vue";
+import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
@@ -164,7 +164,7 @@ onKeyStroke("f", (e) => {
 
 onKeyStroke("a", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    showDrawer(Attach, { container }, "lg");
+    showDrawer(Terminal, { container }, "lg");
     e.preventDefault();
   }
 });

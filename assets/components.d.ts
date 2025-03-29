@@ -122,6 +122,7 @@ declare module 'vue' {
     StatSparkline: typeof import('./components/LogViewer/StatSparkline.vue')['default']
     SwarmMenu: typeof import('./components/SwarmMenu.vue')['default']
     Tag: typeof import('./components/common/Tag.vue')['default']
+    Terminal: typeof import('./components/Terminal.vue')['default']
     TimedButton: typeof import('./components/common/TimedButton.vue')['default']
     ToastModal: typeof import('./components/common/ToastModal.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
