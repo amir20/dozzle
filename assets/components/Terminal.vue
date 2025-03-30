@@ -7,7 +7,7 @@
 
     <div class="mt-8 flex flex-col gap-2">
       <section>
-        <div ref="terminal" class="shell"></div>
+        <div ref="host" class="shell"></div>
       </section>
     </div>
   </aside>
@@ -19,34 +19,37 @@ import "@xterm/xterm/css/xterm.css";
 const { container, action } = defineProps<{ container: Container; action: "attach" | "exec" }>();
 
 const { Terminal } = await import("@xterm/xterm");
+const { WebLinksAddon } = await import("@xterm/addon-web-links");
 
-const terminal = useTemplateRef<HTMLDivElement>("terminal");
-const term = new Terminal({
+const host = useTemplateRef<HTMLDivElement>("host");
+const terminal = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
 });
+terminal.loadAddon(new WebLinksAddon());
+
 let ws: WebSocket | null = null;
 
 onMounted(() => {
-  term.open(terminal.value!);
-  term.resize(100, 40);
+  terminal.open(host.value!);
+  terminal.resize(100, 40);
   ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
   ws.onopen = () => {
-    term.writeln(`Attached to ${container.name} 🚀`);
+    terminal.writeln(`Attached to ${container.name} 🚀`);
     if (action === "attach") {
       ws?.send("\r");
     }
-    term.onData((data) => {
+    terminal.onData((data) => {
       ws?.send(data);
     });
-    term.focus();
+    terminal.focus();
   };
-  ws.onmessage = (event) => term.write(event.data);
+  ws.onmessage = (event) => terminal.write(event.data);
 });
 
 onUnmounted(() => {
   console.log("Closing WebSocket");
-  term.dispose();
+  terminal.dispose();
   ws?.close();
 });
 </script>

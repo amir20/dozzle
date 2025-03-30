@@ -46,6 +46,7 @@
     "@vueuse/core": "^13.0.0",
     "@vueuse/integrations": "^13.0.0",
     "@vueuse/router": "^13.0.0",
+    "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
     "ansi-to-html": "^0.7.2",
     "d3-array": "^3.2.4",
