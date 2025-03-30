@@ -49,9 +49,6 @@ onMounted(() => {
   ws.addEventListener("close", () => {
     terminal.writeln("⚠️ Connection closed");
   });
-  ws.addEventListener("error", (error) => {
-    terminal.writeln(`🚨 Error: ${error.message}`);
-  });
 });
 
 onUnmounted(() => {
