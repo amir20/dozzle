@@ -77,7 +77,7 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 
 	wsReader := &webSocketReader{conn: conn}
 	wsWriter := &webSocketWriter{conn: conn}
-	if err = containerService.Exec(r.Context(), []string{"sh"}, wsReader, wsWriter); err != nil {
+	if err = containerService.Exec(r.Context(), []string{"sh", "-c", "command -v bash >/dev/null 2>&1 && exec bash || exec sh"}, wsReader, wsWriter); err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
