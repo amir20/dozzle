@@ -62,7 +62,10 @@ onUnmounted(() => {
 
 .shell {
   & :deep(.terminal) {
-    @apply border-primary overflow-hidden rounded border-1 p-2;
+    @apply overflow-hidden rounded border-1 p-2;
+    &:is(.focus) {
+      @apply border-primary;
+    }
   }
 
   & :deep(.xterm-viewport) {
