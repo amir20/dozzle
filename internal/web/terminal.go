@@ -38,7 +38,6 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -46,7 +45,6 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 	wsWriter := &webSocketWriter{conn: conn}
 	if err = containerService.Attach(r.Context(), wsReader, wsWriter); err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -71,7 +69,6 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -79,7 +76,6 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 	wsWriter := &webSocketWriter{conn: conn}
 	if err = containerService.Exec(r.Context(), []string{"sh", "-c", "command -v bash >/dev/null 2>&1 && exec bash || exec sh"}, wsReader, wsWriter); err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
