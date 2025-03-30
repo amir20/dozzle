@@ -2,7 +2,7 @@
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
     <div class="modal-box" :width="width">
       <form method="dialog">
-        <button class="swap swap-rotate hover:swap-active absolute top-4 right-4 outline-hidden">
+        <button class="swap hover:swap-active absolute top-4 right-4 outline-hidden">
           <mdi:keyboard-esc class="swap-off" />
           <mdi:close class="swap-on" />
         </button>
