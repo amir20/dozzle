@@ -36,6 +36,7 @@ type DockerCLI interface {
 	ContainerAttach(ctx context.Context, containerID string, options docker.AttachOptions) (types.HijackedResponse, error)
 	ContainerExecCreate(ctx context.Context, containerID string, options docker.ExecOptions) (docker.ExecCreateResponse, error)
 	ContainerExecAttach(ctx context.Context, execID string, config docker.ExecAttachOptions) (types.HijackedResponse, error)
+	ContainerExecResize(ctx context.Context, execID string, options docker.ResizeOptions) error
 	Info(ctx context.Context) (system.Info, error)
 }
 
@@ -335,6 +336,13 @@ func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []strin
 
 	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{})
 	if err != nil {
+		return nil, nil, err
+	}
+
+	if err = d.cli.ContainerExecResize(ctx, execID.ID, docker.ResizeOptions{
+		Width:  100,
+		Height: 40,
+	}); err != nil {
 		return nil, nil, err
 	}
 

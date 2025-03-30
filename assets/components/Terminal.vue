@@ -25,30 +25,30 @@ const term = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
 });
-const ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
+let ws: WebSocket | null = null;
 
 onMounted(() => {
   term.open(terminal.value!);
+  term.resize(100, 40);
+  ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
+  ws.onopen = () => {
+    term.writeln(`Attached to ${container.name} 🚀`);
+    if (action === "attach") {
+      ws?.send("\r");
+    }
+    term.onData((data) => {
+      ws?.send(data);
+    });
+    term.focus();
+  };
+  ws.onmessage = (event) => term.write(event.data);
 });
 
 onUnmounted(() => {
+  console.log("Closing WebSocket");
   term.dispose();
-  ws.close();
-  console.log("WebSocket closed");
+  ws?.close();
 });
-
-ws.onopen = () => {
-  term.writeln(`Attached to ${container.name} 🚀`);
-  if (action === "attach") {
-    ws.send("\r");
-  }
-  term.onData((data) => {
-    ws.send(data);
-  });
-  term.focus();
-};
-
-ws.onmessage = (event) => term.write(event.data);
 </script>
 <style scoped>
 @import "@/main.css" reference;
