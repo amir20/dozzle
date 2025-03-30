@@ -134,6 +134,20 @@
           </button>
         </li>
       </template>
+
+      <li class="line"></li>
+      <li>
+        <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
+          <ri:terminal-window-fill /> Attach
+          <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
+      <li>
+        <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
+          <material-symbols:terminal /> Shell
+          <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
+        </a>
+      </li>
     </ul>
   </div>
 </template>
@@ -142,6 +156,7 @@
 import { Container } from "@/models/Container";
 import { allLevels } from "@/composable/logContext";
 import LogAnalytics from "../LogViewer/LogAnalytics.vue";
+import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
 const { enableActions } = config;
@@ -158,6 +173,20 @@ onKeyStroke("f", (e) => {
       showDrawer(LogAnalytics, { container }, "lg");
       e.preventDefault();
     }
+  }
+});
+
+onKeyStroke("a", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    showDrawer(Terminal, { container, action: "attach" }, "lg");
+    e.preventDefault();
+  }
+});
+
+onKeyStroke("e", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    showDrawer(Terminal, { container, action: "exec" }, "lg");
+    e.preventDefault();
   }
 });
 

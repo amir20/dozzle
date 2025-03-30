@@ -33,6 +33,10 @@ type DockerCLI interface {
 	ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error
 	ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error
+	ContainerAttach(ctx context.Context, containerID string, options docker.AttachOptions) (types.HijackedResponse, error)
+	ContainerExecCreate(ctx context.Context, containerID string, options docker.ExecOptions) (docker.ExecCreateResponse, error)
+	ContainerExecAttach(ctx context.Context, execID string, config docker.ExecAttachOptions) (types.HijackedResponse, error)
+	ContainerExecResize(ctx context.Context, execID string, options docker.ResizeOptions) error
 	Info(ctx context.Context) (system.Info, error)
 }
 
@@ -295,6 +299,54 @@ func (d *DockerClient) Ping(ctx context.Context) error {
 func (d *DockerClient) Host() container.Host {
 	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
+}
+
+func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
+	options := docker.AttachOptions{
+		Stream: true,
+		Stdin:  true,
+		Stdout: true,
+		Stderr: true,
+	}
+
+	waiter, err := d.cli.ContainerAttach(ctx, id, options)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return waiter.Conn, waiter.Reader, nil
+}
+
+func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {
+	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Executing command in container")
+	options := docker.ExecOptions{
+		AttachStdout: true,
+		AttachStderr: true,
+		AttachStdin:  true,
+		Cmd:          cmd,
+		Tty:          true,
+	}
+
+	execID, err := d.cli.ContainerExecCreate(ctx, id, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err = d.cli.ContainerExecResize(ctx, execID.ID, docker.ResizeOptions{
+		Width:  100,
+		Height: 40,
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	return waiter.Conn, waiter.Reader, nil
 }
 
 func newContainer(c docker.Summary, host string) container.Container {

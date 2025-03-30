@@ -70,3 +70,11 @@ func (d *agentService) SubscribeContainersStarted(ctx context.Context, container
 func (a *agentService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
+
+func (a *agentService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
+	panic("not implemented")
+}
+
+func (a *agentService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+	panic("not implemented")
+}

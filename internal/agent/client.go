@@ -395,6 +395,14 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
+func (c *Client) ContainerAttach(ctx context.Context, containerId string) (io.WriteCloser, io.Reader, error) {
+	panic("not implemented")
+}
+
+func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (io.WriteCloser, io.Reader, error) {
+	panic("not implemented")
+}
+
 func (c *Client) Close() error {
 	return c.conn.Close()
 }
