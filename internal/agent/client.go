@@ -400,7 +400,51 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (io.Wr
 }
 
 func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (io.WriteCloser, io.Reader, error) {
-	panic("not implemented")
+	stream, err := c.client.ContainerExec(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err = stream.Send(&pb.ContainerExecRequest{
+		ContainerId: containerId,
+		Command:     cmd,
+	}); err != nil {
+		return nil, nil, err
+	}
+	stdoutReader, stdoutWriter := io.Pipe()
+	stdinReader, stdinWriter := io.Pipe()
+
+	go func() {
+		defer stdoutWriter.Close()
+
+		for {
+			msg, err := stream.Recv()
+			if err != nil {
+				return
+			}
+
+			stdoutWriter.Write(msg.Stdout)
+		}
+	}()
+
+	go func() {
+		buffer := make([]byte, 1024)
+
+		for {
+			n, err := stdinReader.Read(buffer)
+			if err != nil {
+				return
+			}
+
+			if err := stream.Send(&pb.ContainerExecRequest{
+				Stdin: buffer[:n],
+			}); err != nil {
+				return
+			}
+		}
+	}()
+
+	return stdinWriter, stdoutReader, nil
 }
 
 func (c *Client) Close() error {

@@ -135,7 +135,7 @@
         </li>
       </template>
 
-      <template v-if="enableShell && host.type === 'local'">
+      <template v-if="enableShell && host.type !== 'k8s'">
         <li class="line"></li>
         <li>
           <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">

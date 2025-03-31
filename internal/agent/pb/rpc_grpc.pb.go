@@ -29,6 +29,7 @@ const (
 	AgentService_StreamContainerStarted_FullMethodName = "/protobuf.AgentService/StreamContainerStarted"
 	AgentService_HostInfo_FullMethodName               = "/protobuf.AgentService/HostInfo"
 	AgentService_ContainerAction_FullMethodName        = "/protobuf.AgentService/ContainerAction"
+	AgentService_ContainerExec_FullMethodName          = "/protobuf.AgentService/ContainerExec"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -45,6 +46,7 @@ type AgentServiceClient interface {
 	StreamContainerStarted(ctx context.Context, in *StreamContainerStartedRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamContainerStartedResponse], error)
 	HostInfo(ctx context.Context, in *HostInfoRequest, opts ...grpc.CallOption) (*HostInfoResponse, error)
 	ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error)
+	ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error)
 }
 
 type agentServiceClient struct {
@@ -209,6 +211,19 @@ func (c *agentServiceClient) ContainerAction(ctx context.Context, in *ContainerA
 	return out, nil
 }
 
+func (c *agentServiceClient) ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[6], AgentService_ContainerExec_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ContainerExecRequest, ContainerExecResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_ContainerExecClient = grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse]
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -223,6 +238,7 @@ type AgentServiceServer interface {
 	StreamContainerStarted(*StreamContainerStartedRequest, grpc.ServerStreamingServer[StreamContainerStartedResponse]) error
 	HostInfo(context.Context, *HostInfoRequest) (*HostInfoResponse, error)
 	ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error)
+	ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -262,6 +278,9 @@ func (UnimplementedAgentServiceServer) HostInfo(context.Context, *HostInfoReques
 }
 func (UnimplementedAgentServiceServer) ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ContainerAction not implemented")
+}
+func (UnimplementedAgentServiceServer) ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method ContainerExec not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -422,6 +441,13 @@ func _AgentService_ContainerAction_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_ContainerExec_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentServiceServer).ContainerExec(&grpc.GenericServerStream[ContainerExecRequest, ContainerExecResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_ContainerExecServer = grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -476,6 +502,12 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "StreamContainerStarted",
 			Handler:       _AgentService_StreamContainerStarted_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "ContainerExec",
+			Handler:       _AgentService_ContainerExec_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "rpc.proto",

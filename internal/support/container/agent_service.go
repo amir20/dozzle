@@ -3,11 +3,13 @@ package container_support
 import (
 	"context"
 	"io"
+	"sync"
 
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/rs/zerolog/log"
 )
 
@@ -76,5 +78,35 @@ func (a *agentService) Attach(ctx context.Context, container container.Container
 }
 
 func (a *agentService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
-	panic("not implemented")
+	cancelCtx, cancel := context.WithCancel(ctx)
+	containerWriter, containerReader, err := a.client.ContainerExec(cancelCtx, container.ID, cmd)
+
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if _, err := io.Copy(containerWriter, stdin); err != nil {
+			log.Error().Err(err).Msg("error while reading from ws using agent")
+		}
+		cancel()
+		containerWriter.Close()
+	}()
+
+	go func() {
+		defer wg.Done()
+		if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
+			log.Error().Err(err).Msg("error while writing to ws using agent")
+		}
+		cancel()
+	}()
+
+	wg.Wait()
+
+	return nil
 }
