@@ -36,7 +36,7 @@ onMounted(() => {
   terminal.resize(100, 40);
   ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
   ws.onopen = () => {
-    terminal.writeln(`Attached to ${container.name} 🚀`);
+    terminal.writeln(`Attaching to ${container.name} 🚀`);
     if (action === "attach") {
       ws?.send("\r");
     }
