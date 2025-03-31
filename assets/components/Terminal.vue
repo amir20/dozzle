@@ -75,5 +75,21 @@ onUnmounted(() => {
   & :deep(.xterm-rows) {
     @apply text-base-content;
   }
+
+  & :deep(.xterm-cursor-block.xterm-cursor-blink) {
+    animation-name: blink !important;
+  }
+}
+
+@keyframes blink {
+  0% {
+    background-color: var(--color-base-content);
+    color: #000000;
+  }
+
+  50% {
+    background-color: inherit;
+    color: var(--color-base-content);
+  }
 }
 </style>
