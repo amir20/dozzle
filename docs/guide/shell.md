@@ -25,3 +25,6 @@ services:
 ```
 
 :::
+
+> [!NOTE]
+> Shell access only works in Docker containers. This includes agents, remote, swarm and local mode. Support for Kubernetes is planned, but it is not yet available.
