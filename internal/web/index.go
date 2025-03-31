@@ -60,6 +60,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["hostname"] = h.config.Hostname
 		config["hosts"] = hosts
 		config["enableActions"] = h.config.EnableActions
+		config["enableShell"] = h.config.EnableShell
 	}
 
 	if user != nil {

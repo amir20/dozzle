@@ -191,6 +191,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			TTL:        authTTL,
 		},
 		EnableActions: args.EnableActions,
+		EnableShell:   args.EnableShell,
 		Labels:        args.Filter,
 	}
 

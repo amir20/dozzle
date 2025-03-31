@@ -35,6 +35,7 @@ type Config struct {
 	Dev           bool
 	Authorization Authorization
 	EnableActions bool
+	EnableShell   bool
 	Labels        container.ContainerLabels
 }
 
@@ -107,8 +108,6 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
 				r.Get("/hosts/{host}/logs/stream", h.streamHostLogs)
 				r.Get("/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
-				r.Get("/hosts/{host}/containers/{id}/attach", h.attach)
-				r.Get("/hosts/{host}/containers/{id}/exec", h.exec)
 				r.Get("/hosts/{host}/logs/mergedStream/{ids}", h.streamLogsMerged)
 				r.Get("/containers/{hostIds}/download", h.downloadLogs) // formatted as host:container,host:container
 				r.Get("/stacks/{stack}/logs/stream", h.streamStackLogs)
@@ -117,6 +116,10 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/events/stream", h.streamEvents)
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
+				}
+				if h.config.EnableShell {
+					r.Get("/hosts/{host}/containers/{id}/attach", h.attach)
+					r.Get("/hosts/{host}/containers/{id}/exec", h.exec)
 				}
 				r.Get("/releases", h.releases)
 				r.Get("/profile/avatar", h.avatar)
