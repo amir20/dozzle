@@ -21,6 +21,8 @@ service AgentService {
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
   rpc ContainerAction(ContainerActionRequest)
       returns (ContainerActionResponse) {}
+  rpc ContainerExec(stream ContainerExecRequest)
+      returns (stream ContainerExecResponse) {}
 }
 
 message ListContainersRequest { map<string, RepeatedString> filter = 1; }
@@ -78,3 +80,11 @@ message ContainerActionRequest {
 }
 
 message ContainerActionResponse {}
+
+message ContainerExecRequest {
+  string containerId = 1;
+  repeated string command = 2;
+  bytes stdin = 3;
+}
+
+message ContainerExecResponse { bytes stdout = 1; }

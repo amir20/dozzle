@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"sync"
 
 	"encoding/json"
 
@@ -324,6 +325,59 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	}
 
 	return &pb.ContainerActionResponse{}, nil
+}
+
+func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error {
+	request, err := stream.Recv()
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	cancelCtx, cancel := context.WithCancel(stream.Context())
+	containerWriter, containerReader, err := s.client.ContainerExec(cancelCtx, request.ContainerId, request.Command)
+	if err != nil {
+		cancel()
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		defer cancel()
+		defer containerWriter.Close()
+		for {
+			stdinReq, err := stream.Recv()
+			if err != nil {
+				return
+			}
+
+			if _, err := containerWriter.Write(stdinReq.Stdin); err != nil {
+				return
+			}
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		defer cancel()
+		buffer := make([]byte, 1024)
+		for {
+			n, err := containerReader.Read(buffer)
+			if err != nil {
+				return
+			}
+
+			if err := stream.Send(&pb.ContainerExecResponse{Stdout: buffer[:n]}); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Wait()
+
+	return nil
 }
 
 func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
