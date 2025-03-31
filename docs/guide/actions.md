@@ -4,7 +4,7 @@ title: Container Actions
 
 # Using Container Actions
 
-Dozzle supports Container Actions, which allows you to `start`, `stop` and `restart` containers from within the UI in the dropdown menu. This feature is **disabled** by default and can be enabled by setting the environment variable `DOZZLE_ENABLE_ACTIONS` to `true`.
+Dozzle supports container actions, which allows you to `start`, `stop` and `restart` containers from the dropdown menu on the right next to the container stats. This feature is **disabled** by default and can be enabled by setting the environment variable `DOZZLE_ENABLE_ACTIONS` to `true`.
 
 ::: code-group
 

@@ -72,6 +72,7 @@ export default defineConfig({
         items: [
           { text: "Authentication", link: "/guide/authentication" },
           { text: "Actions", link: "/guide/actions" },
+          { text: "Shell Access", link: "/guide/shell" },
           { text: "Agent Mode", link: "/guide/agent" },
           { text: "Changing Base", link: "/guide/changing-base" },
           { text: "Container Names", link: "/guide/container-names" },
