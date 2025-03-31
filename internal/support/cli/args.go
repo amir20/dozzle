@@ -22,6 +22,7 @@ type Args struct {
 	AuthHeaderName   string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
 	AuthHeaderFilter string              `arg:"--auth-header-filter,env:DOZZLE_AUTH_HEADER_FILTER" default:"Remote-Filter" help:"sets the HTTP Header to use for filtering in Forward Proxy configuration."`
 	EnableActions    bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
+	EnableShell      bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
 	FilterStrings    []string            `arg:"env:DOZZLE_FILTER,--filter,separate" help:"filters docker containers using Docker syntax."`
 	Filter           map[string][]string `arg:"-"`
 	RemoteHost       []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`

@@ -135,19 +135,21 @@
         </li>
       </template>
 
-      <li class="line" v-if="host.type === 'local'"></li>
-      <li v-if="host.type === 'local'">
-        <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
-          <ri:terminal-window-fill /> Attach
-          <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
-        </a>
-      </li>
-      <li v-if="host.type === 'local'">
-        <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
-          <material-symbols:terminal /> Shell
-          <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
-        </a>
-      </li>
+      <template v-if="enableShell && host.type === 'local'">
+        <li class="line"></li>
+        <li>
+          <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
+            <ri:terminal-window-fill /> Attach
+            <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
+          </a>
+        </li>
+        <li>
+          <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
+            <material-symbols:terminal /> Shell
+            <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
+          </a>
+        </li>
+      </template>
     </ul>
   </div>
 </template>
@@ -160,7 +162,7 @@ import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
-const { enableActions } = config;
+const { enableActions, enableShell } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();
 
