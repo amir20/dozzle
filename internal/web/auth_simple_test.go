@@ -25,7 +25,7 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
 		Authorization: Authorization{
-			Provider: SIMPLE,
+			Provider: Simple,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
 				Users: map[string]*auth.User{
 					"amir": {
@@ -50,7 +50,7 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
 		Authorization: Authorization{
-			Provider: SIMPLE,
+			Provider: Simple,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
 				Users: map[string]*auth.User{
 					"amir": {
@@ -95,7 +95,7 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
 		Authorization: Authorization{
-			Provider: SIMPLE,
+			Provider: Simple,
 			Authorizer: auth.NewSimpleAuth(auth.UserDatabase{
 				Users: map[string]*auth.User{
 					"amir": {
