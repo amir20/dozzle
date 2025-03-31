@@ -179,20 +179,21 @@ onKeyStroke("f", (e) => {
     }
   }
 });
+if (enableShell) {
+  onKeyStroke("a", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      showDrawer(Terminal, { container, action: "attach" }, "lg");
+      e.preventDefault();
+    }
+  });
 
-onKeyStroke("a", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    showDrawer(Terminal, { container, action: "attach" }, "lg");
-    e.preventDefault();
-  }
-});
-
-onKeyStroke("e", (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    showDrawer(Terminal, { container, action: "exec" }, "lg");
-    e.preventDefault();
-  }
-});
+  onKeyStroke("e", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      showDrawer(Terminal, { container, action: "exec" }, "lg");
+      e.preventDefault();
+    }
+  });
+}
 
 const downloadParams = computed(() =>
   Object.entries(toValue(streamConfig))
