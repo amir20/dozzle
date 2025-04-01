@@ -25,11 +25,11 @@ features:
   - title: Real-time Logging & Monitoring
     details: Captures real-time Docker container logs, enabling quick and efficient issue diagnosis.
     icon: 🚀
-  - title: Docker Swarm Support
-    details: Supports Docker services, allowing you to monitor logs from multiple nodes in a single interface.
-    link: /guide/swarm-mode
+  - title: Shell Support
+    details: Supports shell access to containers, allowing you to attach or execute commands directly from the browser.
+    link: /guide/shell
     linkText: Learn More
-    icon: 🐳
+    icon: 💻
   - title: Multi-host Support
     details: UI support connecting to multiple remote hosts with a simple drop down to choose between different hosts.
     link: /guide/remote-hosts
@@ -45,9 +45,11 @@ features:
     icon: 🔒
     link: /guide/agent
     linkText: Learn More
-  - title: Easy to Use
-    details: Simple to set up and use, with a clean and intuitive interface that requires no additional configuration.
-    icon: 🎨
+  - title: Swarm Support
+    link: /guide/swarm-mode
+    details: Supports Docker Swarm mode, allowing you to manage and monitor your swarm clusters across multiple hosts.
+    icon: 🐳
+    linkText: Learn More
   - title: Sponsored by Docker OSS
     details: Dozzle is open source and free to use, with the source code available on GitHub.
     icon: 📜
