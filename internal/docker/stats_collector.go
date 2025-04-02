@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type DockerStatsCollector struct {
 	stream       chan container.ContainerStat
-	subscribers  *xsync.MapOf[context.Context, chan<- container.ContainerStat]
+	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
 	client       container.Client
-	cancelers    *xsync.MapOf[string, context.CancelFunc]
+	cancelers    *xsync.Map[string, context.CancelFunc]
 	stopper      context.CancelFunc
 	timer        *time.Timer
 	mu           sync.Mutex
@@ -30,9 +30,9 @@ var timeToStop = 6 * time.Hour
 func NewDockerStatsCollector(client container.Client, labels container.ContainerLabels) *DockerStatsCollector {
 	return &DockerStatsCollector{
 		stream:      make(chan container.ContainerStat),
-		subscribers: xsync.NewMapOf[context.Context, chan<- container.ContainerStat](),
+		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
 		client:      client,
-		cancelers:   xsync.NewMapOf[string, context.CancelFunc](),
+		cancelers:   xsync.NewMap[string, context.CancelFunc](),
 		labels:      labels,
 	}
 }

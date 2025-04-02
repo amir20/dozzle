@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"golang.org/x/sync/semaphore"
@@ -20,9 +20,9 @@ type StatsCollector interface {
 }
 
 type ContainerStore struct {
-	containers              *xsync.MapOf[string, *Container]
-	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
-	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
+	containers              *xsync.Map[string, *Container]
+	subscribers             *xsync.Map[context.Context, chan<- ContainerEvent]
+	newContainerSubscribers *xsync.Map[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          StatsCollector
 	wg                      sync.WaitGroup
@@ -38,10 +38,10 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
 
 	s := &ContainerStore{
-		containers:              xsync.NewMapOf[string, *Container](),
+		containers:              xsync.NewMap[string, *Container](),
 		client:                  client,
-		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
-		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
+		subscribers:             xsync.NewMap[context.Context, chan<- ContainerEvent](),
+		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),

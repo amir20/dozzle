@@ -11,7 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
@@ -23,7 +23,7 @@ type RetriableClientManager struct {
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.MapOf[context.Context, chan<- container.Host]
+	subscribers  *xsync.Map[context.Context, chan<- container.Host]
 	timeout      time.Duration
 }
 
