@@ -135,7 +135,7 @@
         </li>
       </template>
 
-      <template v-if="enableShell && host.type !== 'k8s'">
+      <template v-if="enableShell">
         <li class="line"></li>
         <li>
           <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
@@ -157,7 +157,6 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { allLevels } from "@/composable/logContext";
-const { hosts } = useHosts();
 import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 import Terminal from "@/components/Terminal.vue";
 
@@ -169,7 +168,6 @@ const showDrawer = useDrawer();
 const { container } = defineProps<{ container: Container }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
-const host = computed(() => hosts.value[container.host]);
 
 onKeyStroke("f", (e) => {
   if (hasComplexLogs.value) {
