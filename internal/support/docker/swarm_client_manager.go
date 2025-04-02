@@ -14,7 +14,7 @@ import (
 	"github.com/amir20/dozzle/internal/docker"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 
@@ -25,7 +25,7 @@ type SwarmClientManager struct {
 	clients      map[string]container_support.ClientService
 	certs        tls.Certificate
 	mu           sync.RWMutex
-	subscribers  *xsync.MapOf[context.Context, chan<- container.Host]
+	subscribers  *xsync.Map[context.Context, chan<- container.Host]
 	localClient  container.Client
 	localIPs     []string
 	name         string
@@ -75,7 +75,7 @@ func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certifica
 		localClient:  localClient,
 		clients:      clientMap,
 		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
+		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
 		localIPs:     localIPs(),
 		name:         serviceName,
 		timeout:      timeout,

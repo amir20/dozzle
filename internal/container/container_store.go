@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"golang.org/x/sync/semaphore"
@@ -20,9 +20,9 @@ type StatsCollector interface {
 }
 
 type ContainerStore struct {
-	containers              *xsync.MapOf[string, *Container]
-	subscribers             *xsync.MapOf[context.Context, chan<- ContainerEvent]
-	newContainerSubscribers *xsync.MapOf[context.Context, chan<- Container]
+	containers              *xsync.Map[string, *Container]
+	subscribers             *xsync.Map[context.Context, chan<- ContainerEvent]
+	newContainerSubscribers *xsync.Map[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          StatsCollector
 	wg                      sync.WaitGroup
@@ -38,10 +38,10 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 	log.Debug().Str("host", client.Host().Name).Interface("labels", labels).Msg("initializing container store")
 
 	s := &ContainerStore{
-		containers:              xsync.NewMapOf[string, *Container](),
+		containers:              xsync.NewMap[string, *Container](),
 		client:                  client,
-		subscribers:             xsync.NewMapOf[context.Context, chan<- ContainerEvent](),
-		newContainerSubscribers: xsync.NewMapOf[context.Context, chan<- Container](),
+		subscribers:             xsync.NewMap[context.Context, chan<- ContainerEvent](),
+		newContainerSubscribers: xsync.NewMap[context.Context, chan<- Container](),
 		statsCollector:          statsCollect,
 		wg:                      sync.WaitGroup{},
 		events:                  make(chan ContainerEvent),
@@ -174,18 +174,18 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 	if container, ok := s.containers.Load(id); ok {
 		if !container.FullyLoaded {
 			log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, bool) {
+			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 				if loaded {
 					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 					defer cancel()
 					if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
-						return &newContainer, false
+						return &newContainer, xsync.UpdateOp
 					} else {
 						log.Error().Err(err).Msg("failed to fetch container")
-						return c, false
+						return c, xsync.CancelOp
 					}
 				}
-				return c, false
+				return c, xsync.CancelOp
 			}); ok {
 				go func() {
 					event := ContainerEvent{
@@ -314,7 +314,7 @@ func (s *ContainerStore) init() {
 
 			case "update":
 				started := false
-				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						newContainer := event.Container
 						if newContainer.State == "running" && c.State != "running" {
@@ -327,9 +327,9 @@ func (s *ContainerStore) init() {
 						c.FinishedAt = newContainer.FinishedAt
 						c.Created = newContainer.Created
 						c.Host = newContainer.Host
-						return c, false
+						return c, xsync.UpdateOp
 					} else {
-						return c, true
+						return c, xsync.CancelOp
 					}
 				})
 
@@ -349,14 +349,14 @@ func (s *ContainerStore) init() {
 				}
 
 			case "die":
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", c.ID).Msg("container died")
 						c.State = "exited"
 						c.FinishedAt = time.Now()
-						return c, false
+						return c, xsync.UpdateOp
 					} else {
-						return c, true
+						return c, xsync.CancelOp
 					}
 				})
 			case "health_status: healthy", "health_status: unhealthy":
@@ -365,24 +365,24 @@ func (s *ContainerStore) init() {
 					healthy = "healthy"
 				}
 
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", c.ID).Str("health", healthy).Msg("container health status changed")
 						c.Health = healthy
-						return c, false
+						return c, xsync.UpdateOp
 					} else {
-						return c, true
+						return c, xsync.CancelOp
 					}
 				})
 
 			case "rename":
-				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, bool) {
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", event.ActorID).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
 						c.Name = event.ActorAttributes["name"]
-						return c, false
+						return c, xsync.UpdateOp
 					} else {
-						return c, true
+						return c, xsync.CancelOp
 					}
 				})
 			}

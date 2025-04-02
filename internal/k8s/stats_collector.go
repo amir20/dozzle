@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
@@ -18,7 +18,7 @@ var timeToStop = 2 * time.Hour
 type K8sStatsCollector struct {
 	client       *K8sClient
 	metrics      *metricsclient.Clientset
-	subscribers  *xsync.MapOf[context.Context, chan<- container.ContainerStat]
+	subscribers  *xsync.Map[context.Context, chan<- container.ContainerStat]
 	stopper      context.CancelFunc
 	timer        *time.Timer
 	mu           sync.Mutex
@@ -32,7 +32,7 @@ func NewK8sStatsCollector(client *K8sClient, labels container.ContainerLabels) (
 		return nil, err
 	}
 	return &K8sStatsCollector{
-		subscribers: xsync.NewMapOf[context.Context, chan<- container.ContainerStat](),
+		subscribers: xsync.NewMap[context.Context, chan<- container.ContainerStat](),
 		client:      client,
 		labels:      labels,
 		metrics:     metricsClient,
