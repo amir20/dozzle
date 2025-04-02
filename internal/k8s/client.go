@@ -12,7 +12,6 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/rs/zerolog/log"
@@ -256,7 +255,7 @@ func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteClo
 		Namespace(namespace).
 		SubResource("attach")
 
-	option := &v1.PodAttachOptions{
+	option := &corev1.PodAttachOptions{
 		Container: containerName,
 		Stdin:     true,
 		Stdout:    true,
@@ -300,7 +299,7 @@ func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) 
 		Namespace(namespace).
 		SubResource("exec")
 
-	option := &v1.PodExecOptions{
+	option := &corev1.PodExecOptions{
 		Command:   cmd,
 		Container: containerName,
 		Stdin:     true,
