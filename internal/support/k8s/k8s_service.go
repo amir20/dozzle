@@ -3,6 +3,7 @@ package k8s_support
 import (
 	"context"
 	"io"
+	"sync"
 
 	"github.com/rs/zerolog/log"
 
@@ -96,5 +97,33 @@ func (k *K8sClientService) Attach(ctx context.Context, container container.Conta
 }
 
 func (k *K8sClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
-	panic("not implemented")
+	cancelCtx, cancel := context.WithCancel(ctx)
+	writer, reader, err := k.client.ContainerExec(cancelCtx, container.ID, cmd)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer writer.Close()
+		defer cancel()
+		defer wg.Done()
+		if _, err := io.Copy(writer, stdin); err != nil {
+			log.Error().Err(err).Msg("error copying stdin")
+		}
+	}()
+
+	go func() {
+		defer cancel()
+		defer wg.Done()
+		if _, err := io.Copy(stdout, reader); err != nil {
+			log.Error().Err(err).Msg("error copying stdout")
+		}
+	}()
+
+	wg.Wait()
+	return nil
 }
