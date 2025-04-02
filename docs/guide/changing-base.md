@@ -42,5 +42,8 @@ location ^~ /foobar/ {
     chunked_transfer_encoding off;
     proxy_buffering off;
     proxy_cache off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
 }
 ```
