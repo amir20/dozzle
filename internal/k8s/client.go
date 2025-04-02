@@ -248,7 +248,47 @@ func (k *K8sClient) ContainerActions(ctx context.Context, action container.Conta
 }
 
 func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
-	panic("not implemented")
+	namespace, podName, containerName := parsePodContainerID(id)
+	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Executing command in pod")
+	req := k.Clientset.CoreV1().RESTClient().Post().
+		Resource("pods").
+		Name(podName).
+		Namespace(namespace).
+		SubResource("attach")
+
+	option := &v1.PodAttachOptions{
+		Container: containerName,
+		Stdin:     true,
+		Stdout:    true,
+		Stderr:    true,
+		TTY:       true,
+	}
+
+	req.VersionedParams(
+		option,
+		scheme.ParameterCodec,
+	)
+
+	exec, err := remotecommand.NewSPDYExecutor(k.config, "POST", req.URL())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	stdinReader, stdinWriter := io.Pipe()
+	stdoutReader, stdoutWriter := io.Pipe()
+
+	go func() {
+		err := exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+			Stdin:  stdinReader,
+			Stdout: stdoutWriter,
+			Tty:    true,
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("Error streaming command")
+		}
+	}()
+
+	return stdinWriter, stdoutReader, nil
 }
 
 func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {

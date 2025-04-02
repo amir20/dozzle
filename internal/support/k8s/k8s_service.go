@@ -93,7 +93,35 @@ func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, conta
 }
 
 func (k *K8sClientService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
-	panic("not implemented")
+	cancelCtx, cancel := context.WithCancel(ctx)
+	writer, reader, err := k.client.ContainerAttach(cancelCtx, container.ID)
+	if err != nil {
+		cancel()
+		return err
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer writer.Close()
+		defer cancel()
+		defer wg.Done()
+		if _, err := io.Copy(writer, stdin); err != nil {
+			log.Error().Err(err).Msg("error copying stdin")
+		}
+	}()
+
+	go func() {
+		defer cancel()
+		defer wg.Done()
+		if _, err := io.Copy(stdout, reader); err != nil {
+			log.Error().Err(err).Msg("error copying stdout")
+		}
+	}()
+
+	wg.Wait()
+	return nil
 }
 
 func (k *K8sClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
