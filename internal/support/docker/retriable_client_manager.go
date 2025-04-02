@@ -74,7 +74,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		clients:      clientMap,
 		failedAgents: failed,
 		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
+		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
 		timeout:      timeout,
 	}
 }

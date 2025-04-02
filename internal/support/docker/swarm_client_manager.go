@@ -75,7 +75,7 @@ func NewSwarmClientManager(localClient *docker.DockerClient, certs tls.Certifica
 		localClient:  localClient,
 		clients:      clientMap,
 		certs:        certs,
-		subscribers:  xsync.NewMapOf[context.Context, chan<- container.Host](),
+		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
 		localIPs:     localIPs(),
 		name:         serviceName,
 		timeout:      timeout,
