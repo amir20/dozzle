@@ -64,6 +64,14 @@ func ParseArgs() (Args, interface{}) {
 		args.Filter[key] = append(args.Filter[key], val)
 	}
 
+	for i, value := range args.RemoteAgent {
+		args.RemoteAgent[i] = strings.TrimSpace(value)
+	}
+
+	for i, value := range args.RemoteHost {
+		args.RemoteHost[i] = strings.TrimSpace(value)
+	}
+
 	if args.TimeoutString != "" {
 		timeout, err := time.ParseDuration(args.TimeoutString)
 		if err != nil {
