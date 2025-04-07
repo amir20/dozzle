@@ -154,6 +154,8 @@ export const useContainerStore = defineStore("container", () => {
           c.host,
           c.labels,
           c.state,
+          c.cpuLimit,
+          c.memoryLimit,
           c.stats,
           c.group,
           c.health,

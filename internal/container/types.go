@@ -24,6 +24,8 @@ type Container struct {
 	Tty         bool                             `json:"-"`
 	Labels      map[string]string                `json:"labels,omitempty"`
 	Stats       *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	MemoryLimit int64                            `json:"memoryLimit"`
+	CPULimit    float64                          `json:"cpuLimit"`
 	Group       string                           `json:"group,omitempty"`
 	FullyLoaded bool                             `json:"-,omitempty"`
 }
@@ -54,7 +56,7 @@ func ParseContainerFilter(commaValues string) (ContainerLabels, error) {
 		return filter, nil
 	}
 
-	for _, val := range strings.Split(commaValues, ",") {
+	for val := range strings.SplitSeq(commaValues, ",") {
 		pos := strings.Index(val, "=")
 		if pos == -1 {
 			return nil, fmt.Errorf("invalid filter: %s", filter)

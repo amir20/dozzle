@@ -16,6 +16,8 @@ export type ContainerJson = {
   readonly status: string;
   readonly state: ContainerState;
   readonly host: string;
+  readonly cpuLimit: number;
+  readonly memoryLimit: number;
   readonly labels: Record<string, string>;
   readonly stats: ContainerStat[];
   readonly health?: ContainerHealth;

@@ -1,10 +1,19 @@
-export function formatBytes(bytes: number, decimals = 2) {
+export function formatBytes(
+  bytes: number,
+  { decimals = 2, short = false }: { decimals?: number; short?: boolean } = { decimals: 2, short: false },
+) {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+
+  const value = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+  if (short) {
+    return value + sizes[i].charAt(0);
+  } else {
+    return value + " " + sizes[i];
+  }
 }
 
 export function getDeep(obj: Record<string, any>, path: string[]) {

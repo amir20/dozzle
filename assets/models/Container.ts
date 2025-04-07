@@ -38,6 +38,8 @@ export class Container {
     public readonly host: string,
     public readonly labels = {} as Record<string, string>,
     public state: ContainerState,
+    public readonly cpuLimit: number,
+    public readonly memoryLimit: number,
     stats: Stat[],
     public readonly group?: string,
     public health?: ContainerHealth,
