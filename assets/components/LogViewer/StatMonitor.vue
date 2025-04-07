@@ -7,7 +7,7 @@
       <div class="font-light uppercase">{{ label }}</div>
       <div class="font-bold select-none">
         {{ mouseOver ? (selectedPoint?.value ?? selectedPoint?.y ?? statValue) : statValue }}
-        <span v-if="limit !== -1" class="max-md:hidden"> / {{ limit }} </span>
+        <span v-if="limit !== -1 && !mouseOver" class="max-md:hidden"> / {{ limit }} </span>
       </div>
     </div>
   </div>

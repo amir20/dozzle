@@ -11,7 +11,7 @@ import { scaleLinear } from "d3-scale";
 import { area, curveStep } from "d3-shape";
 
 const d3 = { extent, scaleLinear, area, curveStep };
-const { data, width = 200, height = 30 } = defineProps<{ data: Point<unknown>[]; width?: number; height?: number }>();
+const { data, width = 175, height = 30 } = defineProps<{ data: Point<unknown>[]; width?: number; height?: number }>();
 const x = d3.scaleLinear().range([0, width]);
 const y = d3.scaleLinear().range([height, 0]);
 
