@@ -4,13 +4,13 @@
       :data="memoryData"
       label="mem"
       :stat-value="formatBytes(totalStat.memoryUsage)"
-      :limit="formatBytes(limits.memory, { short: true })"
+      :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
     />
     <StatMonitor
       :data="cpuData"
       label="load"
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
-      :limit="limits.cpu.toFixed(0)"
+      :limit="limits.cpu.toFixed(0) + ' CPUs'"
     />
   </div>
 </template>
