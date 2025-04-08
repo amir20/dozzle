@@ -68,13 +68,17 @@ Note that when connecting remotely, you don't need to mount local Docker socket.
 
 ### Agent Not Showing Up
 
+If you are seeing `An agent with an existing ID was found. Removing the duplicate host.` then you have two hosts that use the same Server ID.
+
 Dozzle utilizes the Docker API to collect information about hosts. Each agent requires a unique host ID that remains consistent across restarts to ensure proper identification. Currently, agents identify the host using either Docker's system ID or node ID.
 
 If you are operating in a Swarm environment, the node ID will be employed for this purpose. However, if you notice that not all hosts are visible, it may be due to the presence of duplicate hosts configured with the same host ID.
 
-To resolve this issue, you should remove the `/var/lib/docker/engine-id` file from your system. This action will help eliminate any conflicts caused by duplicate host IDs. For additional information and troubleshooting tips, please refer to the [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it).
+To resolve this issue, you should remove `/var/lib/docker/engine-id` from your system and restart. This action will help eliminate any conflicts caused by duplicate host IDs. For additional information and troubleshooting tips, please refer to the [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it).
 
-## Setting Up Healthcheck
+## Advanced Options
+
+### Setting Up Healthcheck
 
 You can set a healthcheck for the agent, similar to the healthcheck for the main Dozzle instance. When running in agent mode, healthcheck checks agent connection to Docker. If Docker is not reachable, the agent will be marked as unhealthy and will not be shown in the UI.
 
@@ -97,7 +101,7 @@ services:
       - 7007:7007
 ```
 
-## Changing Agent's Name
+### Changing Agent's Name
 
 Similar to Dozzle instance, you can change the agent's name by providing the `DOZZLE_HOSTNAME` environment variable. Here is an example:
 
@@ -124,7 +128,7 @@ services:
 
 This will change the agent's name to `my-special-name` and will be reflected on the UI when connecting to the agent.
 
-## Setting Up Filters
+### Setting Up Filters
 
 You can set up filters for the agent to limit the containers it can access. These filters are passed directly to Docker, restricting what Dozzle can view.
 
@@ -141,7 +145,7 @@ services:
 
 This will restrict the agent to displaying only containers with the label `color`. Keep in mind that these filters are combined with the UI filters to narrow down the containers. To learn more about the different types of filters, read the [filters documentation](/guide/filters#ui-agents-and-user-filters).
 
-## Custom Certificates
+### Custom Certificates
 
 By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed externally and an attacker knows exactly which port the agent is running on, then they can set up their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
 

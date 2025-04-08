@@ -64,7 +64,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 		}
 
 		if _, ok := clientMap[host.ID]; ok {
-			log.Warn().Str("host", host.Name).Str("id", host.ID).Msg("duplicate host with same ID found")
+			log.Warn().Str("name", host.Name).Str("id", host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
 		} else {
 			clientMap[host.ID] = container_support.NewAgentService(agent)
 		}
