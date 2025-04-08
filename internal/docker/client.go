@@ -388,6 +388,11 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		group = c.Config.Labels["dev.dozzle.group"]
 	}
 
+	CPULimit := float64(0)
+	if c.HostConfig.CPUPeriod > 0 {
+		CPULimit = float64(c.HostConfig.CPUQuota) / float64(c.HostConfig.CPUPeriod)
+	}
+
 	container := container.Container{
 		ID:          c.ID[:12],
 		Name:        name,
@@ -399,6 +404,8 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		Stats:       utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:       group,
 		Tty:         c.Config.Tty,
+		MemoryLimit: c.HostConfig.Memory,
+		CPULimit:    CPULimit,
 		FullyLoaded: true,
 	}
 

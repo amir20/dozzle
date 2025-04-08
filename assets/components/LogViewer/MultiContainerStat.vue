@@ -1,7 +1,17 @@
 <template>
   <div class="flex gap-4">
-    <StatMonitor :data="memoryData" label="mem" :stat-value="formatBytes(totalStat.memoryUsage)" />
-    <StatMonitor :data="cpuData" label="load" :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'" />
+    <StatMonitor
+      :data="memoryData"
+      label="mem"
+      :stat-value="formatBytes(totalStat.memoryUsage)"
+      :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
+    />
+    <StatMonitor
+      :data="cpuData"
+      label="load"
+      :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
+      :limit="limits.cpu.toFixed(0) + ' CPUs'"
+    />
   </div>
 </template>
 
@@ -15,6 +25,7 @@ const { containers } = defineProps<{
 
 const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
+const { hosts } = useHosts();
 
 watch(
   () => containers,
@@ -41,6 +52,19 @@ watch(
   },
   { immediate: true },
 );
+
+const limits = computed(() => {
+  const limit = containers.reduce(
+    (acc, c) => {
+      return {
+        cpu: acc.cpu + c.cpuLimit > 0 ? c.cpuLimit : hosts.value[c.host].nCPU,
+        memory: acc.memory + c.memoryLimit > 0 ? c.memoryLimit : hosts.value[c.host].memTotal,
+      };
+    },
+    { cpu: 0, memory: 0 },
+  );
+  return limit;
+});
 
 useIntervalFn(() => {
   totalStat.value = containers.reduce(

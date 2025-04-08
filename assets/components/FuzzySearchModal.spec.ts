@@ -42,6 +42,8 @@ function createFuzzySearchModal() {
                   "host",
                   {},
                   "running",
+                  0,
+                  0,
                   [],
                 ),
                 new Container(
@@ -55,6 +57,8 @@ function createFuzzySearchModal() {
                   "host",
                   {},
                   "running",
+                  0,
+                  0,
                   [],
                 ),
                 new Container(
@@ -68,6 +72,8 @@ function createFuzzySearchModal() {
                   "host",
                   {},
                   "running",
+                  0,
+                  0,
                   [],
                 ),
               ],
