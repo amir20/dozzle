@@ -25,8 +25,8 @@ label:
   created: Creato
   avg-cpu: CPU (%)
   avg-mem: MEM (%)
-  pinned: Spuntato
-  per-page: Rows per page
+  pinned: Fissato
+  per-page: Righe per pagina
   host-menu: Host e Container
   swarm-menu: Servizi e Stack
   group-menu: Gruppi Personalizzati
@@ -52,20 +52,20 @@ error:
 alert:
   redirected:
     title: Reindirizzamento ad un nuovo container
-    message: Dozzle automaticamente si è reindirizzato ad un nuovo container {containerId}.
+    message: Dozzle si è reindirizzato automaticamente ad un nuovo container {containerId}.
   similar-container-found:
     title: Trovato un Container simile
     message: >-
-      Dozzle ha trovato un Container soimile {containerId} in esecuzione sullo stesso Host and verrà automaticamente agganciato ad esso se non premi 'Cancel'.
+      Dozzle ha trovato un Container simile {containerId} in esecuzione sullo stesso Host e passerà automaticamente ad esso se non premi 'Cancel'.
 title:
   page-not-found: Pagina non trovata
   login: Autenticazione richiesta
   dashboard: 1 container | {count} container
-  settings: Configurazione
+  settings: Impostazioni
 button:
   logout: Logout
   login: Login
-  settings: Configurazione
+  settings: Impostazioni
   cancel: Cancel
   redirect: Redirect
 placeholder:
@@ -73,32 +73,32 @@ placeholder:
   search: Cerca
 settings:
   display: Visualizza
-  locale: Sovrascrivi Linguaggio
+  locale: Sovrascrivi Lingua
   small-scrollbars: Usa una scrollbars più piccola
   show-timesamps: Visualizza timestamp
-  soft-wrap: Linee morbide
+  soft-wrap: Soft Wrap
   datetime-format: Sovrascrivi data e formato dell'ora
   font-size: Grandezza del Font da usare nei log
-  color-scheme: Schema colori
+  color-scheme: Tema colori
   options: Opzioni
-  show-stopped-containers: Visualizza i container fermi
+  show-stopped-containers: Visualizza i container arrestati
   about: Circa
   search: Abilita la ricerca attraverso Dozzle
   using-version: Stai utilizzando Dozzle {version}.
   update-available: >-
     Nuova versione disponibile! Aggiorna a <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Visualizza stdout e stderr
-  automatic-redirect: Automaticamente reindirizza al nuovo container con lo stesso nome
-  compact: Abilita il compact mode per i log
+  automatic-redirect: Reindirizza automaticamente al nuovo container con lo stesso nome
+  compact: Abilita la modalità compatta per i log
   log:
-    preview: This is a preview of the logs
-    warning: A warning log looks like this
-    complex: This is a complex log entry as json
-    simple: This is a very very long message which would wrap by default. Disabling soft wraps would disable this. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    preview: Questa è un'anteprima dei log
+    warning: Un log di avviso appare così
+    complex: Questa è un log complesso in formato json
+    simple: Questo è un messaggio molto molto lungo che dovrebbe andare a capo automaticamente. Disabilitando il soft wrap si può disabilitare questa funzione. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     multi-line-error:
-      start-line: This is a multi line error message
-      middle-line: with a second line
-      end-line: and finally third line.
+      start-line: Questo è un messaggio di errore su più righe
+      middle-line: una seconda riga
+      end-line: e infine una terza riga.
 releases:
   features: nuova funzione | {count} funzioni
   bugFixes: nuovo bug fix | {count} fix
