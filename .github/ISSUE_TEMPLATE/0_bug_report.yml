@@ -48,17 +48,18 @@ body:
     id: environment
     attributes:
       label: 💻 Environment
-      description: Run `docker system info` and paste the output in the field below..
+      description: Run `docker system info` and paste the output in the field below.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 📜 Dozzle logs are required for debugging purposes. You may need to enable debug mode. See https://dozzle.dev/guide/debugging.
+      description: Drag log files or paste the logs into the text input below
     validations:
       required: true
   - type: textarea
     attributes:
       label: 📸 If applicable, add screenshots to help explain your bug
-      description: Drag issues into the text input below
-    validations:
-      required: false
-  - type: textarea
-    attributes:
-      label: 📜 If applicable, attach your Dozzle logs. You many need to enable debug mode. See https://dozzle.dev/guide/debugging.
+      description: Drag screenshots into the text input below
     validations:
       required: false

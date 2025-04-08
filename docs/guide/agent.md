@@ -64,8 +64,15 @@ Note that when connecting remotely, you don't need to mount local Docker socket.
 > [!TIP]
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
-> [!WARNING]
-> Dozzle uses the Docker API to gather information about hosts. Each agent needs a unique host ID. They use Docker's system ID or node ID to identify the host. If you are using swarm, then the node ID is used. If you don't see all hosts, then you may have duplicate hosts configured that have the same host ID. To fix this, remove `/var/lib/docker/engine-id` file. See [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it) for more information.
+## Common Issues
+
+### Agent Not Showing Up
+
+Dozzle utilizes the Docker API to collect information about hosts. Each agent requires a unique host ID that remains consistent across restarts to ensure proper identification. Currently, agents identify the host using either Docker's system ID or node ID.
+
+If you are operating in a Swarm environment, the node ID will be employed for this purpose. However, if you notice that not all hosts are visible, it may be due to the presence of duplicate hosts configured with the same host ID.
+
+To resolve this issue, you should remove the `/var/lib/docker/engine-id` file from your system. This action will help eliminate any conflicts caused by duplicate host IDs. For additional information and troubleshooting tips, please refer to the [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it).
 
 ## Setting Up Healthcheck
 
