@@ -184,7 +184,11 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 	proxy := new(mockedProxy)
 
 	state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := docker.InspectResponse{ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state}, Config: &docker.Config{Tty: false}}
+
+	json := docker.InspectResponse{
+		ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state, HostConfig: &docker.HostConfig{}},
+		Config:            &docker.Config{Tty: false},
+	}
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
@@ -213,7 +217,7 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
 	state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := docker.InspectResponse{ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijkl", State: state}, Config: &docker.Config{Tty: false}}
+	json := docker.InspectResponse{ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijkl", State: state, HostConfig: &docker.HostConfig{}}, Config: &docker.Config{Tty: false}}
 
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
