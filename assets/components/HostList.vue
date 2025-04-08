@@ -51,7 +51,7 @@
             :style="`--value: ${Math.floor((weightedStats[host.id].weighted.totalMem / host.memTotal) * 100)};`"
             role="progressbar"
           >
-            {{ formatBytes(weightedStats[host.id].weighted.totalMem, 1) }}
+            {{ formatBytes(weightedStats[host.id].weighted.totalMem, { decimals: 1, short: true }) }}
           </div>
         </div>
       </div>
