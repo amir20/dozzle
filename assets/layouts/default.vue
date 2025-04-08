@@ -34,11 +34,7 @@
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
-  <dialog
-    ref="modal"
-    class="modal items-start bg-white/20 transition-none backdrop:backdrop-blur-xs"
-    @close="open = false"
-  >
+  <dialog ref="modal" class="modal items-start bg-white/30 backdrop-blur-xs transition-none!" @close="open = false">
     <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
       <FuzzySearchModal @close="open = false" v-if="open" />
     </div>
