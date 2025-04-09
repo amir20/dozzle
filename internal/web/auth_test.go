@@ -6,9 +6,8 @@ import (
 
 	"testing"
 
-	"github.com/magiconair/properties/assert"
-
 	"github.com/beme/abide"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/spf13/afero"

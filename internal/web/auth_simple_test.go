@@ -13,7 +13,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/beme/abide"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/spf13/afero"
@@ -86,7 +86,7 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 
 	assert.Equal(t, rr.Code, 200)
 	cookie := rr.Header().Get("Set-Cookie")
-	assert.Matches(t, cookie, "jwt=.+")
+	assert.Regexp(t, `jwt=.+`, cookie)
 }
 
 func Test_createRoutes_simple_bad_password(t *testing.T) {

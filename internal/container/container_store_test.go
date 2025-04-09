@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/utils"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
