@@ -388,8 +388,6 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		group = c.Config.Labels["dev.dozzle.group"]
 	}
 
-	log.Debug().Float64("limit", float64(c.HostConfig.NanoCPUs)/1e9).Int64("nanoCPU", c.HostConfig.NanoCPUs).Msgf("Quota for container id=%s", c.ID)
-
 	container := container.Container{
 		ID:          c.ID[:12],
 		Name:        name,
@@ -401,7 +399,7 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		Stats:       utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
 		Group:       group,
 		Tty:         c.Config.Tty,
-		MemoryLimit: c.HostConfig.Memory,
+		MemoryLimit: uint64(c.HostConfig.Memory),
 		CPULimit:    float64(c.HostConfig.NanoCPUs) / 1e9,
 		FullyLoaded: true,
 	}

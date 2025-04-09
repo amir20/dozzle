@@ -55,18 +55,15 @@ watch(
   { immediate: true },
 );
 
-const limits = computed(() => {
-  const limit = containers.reduce(
-    (acc, c) => {
-      return {
-        cpu: acc.cpu + c.cpuLimit > 0 ? c.cpuLimit : hosts.value[c.host].nCPU,
-        memory: acc.memory + c.memoryLimit > 0 ? c.memoryLimit : hosts.value[c.host].memTotal,
-      };
-    },
+const limits = computed(() =>
+  containers.reduce(
+    (acc, c) => ({
+      cpu: acc.cpu + (c.cpuLimit > 0 ? c.cpuLimit : hosts.value[c.host].nCPU),
+      memory: acc.memory + (c.memoryLimit > 0 ? c.memoryLimit : hosts.value[c.host].memTotal),
+    }),
     { cpu: 0, memory: 0 },
-  );
-  return limit;
-});
+  ),
+);
 
 useIntervalFn(() => {
   totalStat.value = containers.reduce(
