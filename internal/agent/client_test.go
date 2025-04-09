@@ -78,6 +78,27 @@ func (m *MockedClient) SystemInfo() system.Info {
 	return system.Info{ID: "123"}
 }
 
+var wantedContainer = container.Container{
+	ID:      "123456",
+	Name:    "test",
+	Host:    "localhost",
+	Image:   "test",
+	State:   "running",
+	Health:  "healthy",
+	Group:   "test",
+	Command: "test",
+	Tty:     true,
+	Labels: map[string]string{
+		"test": "test",
+	},
+	Stats:       utils.NewRingBuffer[container.ContainerStat](300),
+	Created:     time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	StartedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	FinishedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	CPULimit:    0.1,
+	MemoryLimit: 1024,
+}
+
 func init() {
 	lis = bufconn.Listen(bufSize)
 
@@ -111,27 +132,8 @@ func init() {
 		time.Sleep(5 * time.Second)
 	})
 
-	client.On("FindContainer", mock.Anything, "123456").Return(container.Container{
-		ID:      "123456",
-		Name:    "test",
-		Host:    "localhost",
-		Image:   "test",
-		State:   "running",
-		Health:  "healthy",
-		Group:   "test",
-		Command: "test",
-		Tty:     true,
-		Labels: map[string]string{
-			"test": "test",
-		},
-		Stats:      utils.NewRingBuffer[container.ContainerStat](300),
-		Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-		StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-		FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-	}, nil)
-
+	client.On("FindContainer", mock.Anything, "123456").Return(wantedContainer, nil)
 	server, _ := NewServer(client, certs, "test", container.ContainerLabels{})
-
 	go server.Serve(lis)
 }
 
@@ -147,24 +149,7 @@ func TestFindContainer(t *testing.T) {
 
 	c, _ := rpc.FindContainer(context.Background(), "123456")
 
-	assert.Equal(t, c, container.Container{
-		ID:      "123456",
-		Name:    "test",
-		Host:    "localhost",
-		Image:   "test",
-		State:   "running",
-		Health:  "healthy",
-		Group:   "test",
-		Command: "test",
-		Tty:     true,
-		Labels: map[string]string{
-			"test": "test",
-		},
-		Stats:      utils.NewRingBuffer[container.ContainerStat](300),
-		Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-		StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-		FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-	})
+	assert.Equal(t, c, wantedContainer)
 }
 
 func TestListContainers(t *testing.T) {
@@ -176,23 +161,6 @@ func TestListContainers(t *testing.T) {
 	containers, _ := rpc.ListContainers(context.Background(), container.ContainerLabels{})
 
 	assert.Equal(t, containers, []container.Container{
-		{
-			ID:      "123456",
-			Name:    "test",
-			Host:    "localhost",
-			Image:   "test",
-			State:   "running",
-			Health:  "healthy",
-			Group:   "test",
-			Command: "test",
-			Tty:     true,
-			Labels: map[string]string{
-				"test": "test",
-			},
-			Stats:      utils.NewRingBuffer[container.ContainerStat](300),
-			Created:    time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-			StartedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-			FinishedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-		},
+		wantedContainer,
 	})
 }
