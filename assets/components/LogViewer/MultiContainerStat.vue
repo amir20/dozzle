@@ -10,7 +10,7 @@
       :data="cpuData"
       label="load"
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
-      :limit="limits.cpu.toFixed(0) + ' CPUs'"
+      :limit="roundCPU(limits.cpu) + ' CPU'"
     />
   </div>
 </template>
@@ -26,6 +26,8 @@ const { containers } = defineProps<{
 const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
+
+const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.toFixed(1));
 
 watch(
   () => containers,
