@@ -25,6 +25,7 @@ message Container {
   google.protobuf.Timestamp finished = 16;
   uint64 memoryLimit = 17;
   double cpuLimit = 18;
+  bool fullyLoaded = 19;
 }
 
 message ContainerStat {

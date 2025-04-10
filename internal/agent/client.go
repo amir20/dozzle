@@ -269,6 +269,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- cont
 			Command:     resp.Container.Command,
 			MemoryLimit: resp.Container.MemoryLimit,
 			CPULimit:    resp.Container.CpuLimit,
+			FullyLoaded: resp.Container.FullyLoaded,
 		}
 	}
 }
@@ -307,6 +308,7 @@ func (c *Client) FindContainer(ctx context.Context, containerID string) (contain
 		Stats:       utils.RingBufferFrom(300, stats),
 		MemoryLimit: response.Container.MemoryLimit,
 		CPULimit:    response.Container.CpuLimit,
+		FullyLoaded: response.Container.FullyLoaded,
 	}, nil
 }
 
@@ -354,6 +356,7 @@ func (c *Client) ListContainers(ctx context.Context, labels container.ContainerL
 			Stats:       utils.RingBufferFrom(300, stats),
 			MemoryLimit: c.MemoryLimit,
 			CPULimit:    c.CpuLimit,
+			FullyLoaded: c.FullyLoaded,
 		})
 	}
 
