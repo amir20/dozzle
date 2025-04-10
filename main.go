@@ -146,16 +146,31 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	} else if args.AuthProvider == "simple" {
 		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
-
-		path, err := filepath.Abs("./data/users.yml")
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not get absolute path")
+		
+		// Check both .yaml and .yml files
+		yamlPath, errYaml := filepath.Abs("./data/users.yaml")
+		ymlPath, errYml := filepath.Abs("./data/users.yml")
+	
+		yamlExists := errYaml == nil && fileExists(yamlPath)
+		ymlExists := errYml == nil && fileExists(ymlPath)
+	
+		var userFilePath string
+		switch {
+		case yamlExists && ymlExists:
+			userFilePath = ymlPath
+			log.Warn().
+				Str("yml", ymlPath).
+				Str("yaml", yamlPath).
+				Msg("Both users.yaml and users.yml exist. Using users.yml and ignoring users.yaml.")
+		case yamlExists:
+			userFilePath = yamlPath
+		case ymlExists:
+			userFilePath = ymlPath
+		default:
+			log.Fatal().Msg("No users.yaml or users.yml file found.")
 		}
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			log.Fatal().Msg("users.yml file does not exist")
-		}
-
-		log.Debug().Str("path", path).Msg("Reading users.yml file")
+	
+		log.Debug().Str("path", userFilePath).Msg("Reading users file")
 
 		db, err := auth.ReadUsersFromFile(path)
 		if err != nil {
