@@ -189,26 +189,9 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
-
+	c := container.ToProto()
 	return &pb.FindContainerResponse{
-		Container: &pb.Container{
-			Id:          container.ID,
-			Name:        container.Name,
-			Image:       container.Image,
-			Command:     container.Command,
-			Created:     timestamppb.New(container.Created),
-			State:       container.State,
-			Health:      container.Health,
-			Host:        container.Host,
-			Tty:         container.Tty,
-			Labels:      container.Labels,
-			Group:       container.Group,
-			Started:     timestamppb.New(container.StartedAt),
-			Finished:    timestamppb.New(container.FinishedAt),
-			MemoryLimit: container.MemoryLimit,
-			CpuLimit:    container.CPULimit,
-			FullyLoaded: container.FullyLoaded,
-		},
+		Container: &c,
 	}, nil
 }
 
@@ -226,37 +209,9 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 	}
 
 	var pbContainers []*pb.Container
-
 	for _, container := range containers {
-		var pbStats []*pb.ContainerStat
-		for _, stat := range container.Stats.Data() {
-			pbStats = append(pbStats, &pb.ContainerStat{
-				Id:            stat.ID,
-				CpuPercent:    stat.CPUPercent,
-				MemoryPercent: stat.MemoryPercent,
-				MemoryUsage:   stat.MemoryUsage,
-			})
-		}
-
-		pbContainers = append(pbContainers, &pb.Container{
-			Id:          container.ID,
-			Name:        container.Name,
-			Image:       container.Image,
-			Created:     timestamppb.New(container.Created),
-			State:       container.State,
-			Health:      container.Health,
-			Host:        container.Host,
-			Tty:         container.Tty,
-			Labels:      container.Labels,
-			Group:       container.Group,
-			Started:     timestamppb.New(container.StartedAt),
-			Finished:    timestamppb.New(container.FinishedAt),
-			Stats:       pbStats,
-			Command:     container.Command,
-			MemoryLimit: container.MemoryLimit,
-			CpuLimit:    container.CPULimit,
-			FullyLoaded: container.FullyLoaded,
-		})
+		c := container.ToProto()
+		pbContainers = append(pbContainers, &c)
 	}
 
 	return &pb.ListContainersResponse{
@@ -286,24 +241,9 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 	for {
 		select {
 		case container := <-containers:
+			c := container.ToProto()
 			out.Send(&pb.StreamContainerStartedResponse{
-				Container: &pb.Container{
-					Id:          container.ID,
-					Name:        container.Name,
-					Image:       container.Image,
-					Created:     timestamppb.New(container.Created),
-					State:       container.State,
-					Health:      container.Health,
-					Host:        container.Host,
-					Tty:         container.Tty,
-					Labels:      container.Labels,
-					Group:       container.Group,
-					Started:     timestamppb.New(container.StartedAt),
-					Finished:    timestamppb.New(container.FinishedAt),
-					MemoryLimit: container.MemoryLimit,
-					CpuLimit:    container.CPULimit,
-					FullyLoaded: container.FullyLoaded,
-				},
+				Container: &c,
 			})
 		case <-out.Context().Done():
 			return nil

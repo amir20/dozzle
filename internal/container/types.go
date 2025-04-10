@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/utils"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Container represents an internal representation of docker containers
@@ -28,6 +30,70 @@ type Container struct {
 	CPULimit    float64                          `json:"cpuLimit"`
 	Group       string                           `json:"group,omitempty"`
 	FullyLoaded bool                             `json:"-,omitempty"`
+}
+
+func (container Container) ToProto() pb.Container {
+	var pbStats []*pb.ContainerStat
+	for _, stat := range container.Stats.Data() {
+		pbStats = append(pbStats, &pb.ContainerStat{
+			Id:            stat.ID,
+			CpuPercent:    stat.CPUPercent,
+			MemoryPercent: stat.MemoryPercent,
+			MemoryUsage:   stat.MemoryUsage,
+		})
+	}
+
+	return pb.Container{
+		Id:          container.ID,
+		Name:        container.Name,
+		Image:       container.Image,
+		Created:     timestamppb.New(container.Created),
+		State:       container.State,
+		Health:      container.Health,
+		Host:        container.Host,
+		Tty:         container.Tty,
+		Labels:      container.Labels,
+		Group:       container.Group,
+		Started:     timestamppb.New(container.StartedAt),
+		Finished:    timestamppb.New(container.FinishedAt),
+		Stats:       pbStats,
+		Command:     container.Command,
+		MemoryLimit: container.MemoryLimit,
+		CpuLimit:    container.CPULimit,
+		FullyLoaded: container.FullyLoaded,
+	}
+}
+
+func FromProto(c *pb.Container) Container {
+	var stats []ContainerStat
+	for _, stat := range c.Stats {
+		stats = append(stats, ContainerStat{
+			ID:            stat.Id,
+			CPUPercent:    stat.CpuPercent,
+			MemoryPercent: stat.MemoryPercent,
+			MemoryUsage:   stat.MemoryUsage,
+		})
+	}
+
+	return Container{
+		ID:          c.Id,
+		Name:        c.Name,
+		Image:       c.Image,
+		Labels:      c.Labels,
+		Group:       c.Group,
+		Created:     c.Created.AsTime(),
+		State:       c.State,
+		Health:      c.Health,
+		Host:        c.Host,
+		Tty:         c.Tty,
+		Command:     c.Command,
+		StartedAt:   c.Started.AsTime(),
+		FinishedAt:  c.Finished.AsTime(),
+		Stats:       utils.RingBufferFrom(300, stats),
+		MemoryLimit: c.MemoryLimit,
+		CPULimit:    c.CpuLimit,
+		FullyLoaded: c.FullyLoaded,
+	}
 }
 
 // ContainerStat represent stats instant for a container
