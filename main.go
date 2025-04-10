@@ -129,6 +129,11 @@ func main() {
 	log.Debug().Msg("shut down complete")
 }
 
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+		return err == nil && !info.IsDir()
+}
+
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
