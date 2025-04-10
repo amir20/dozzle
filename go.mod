@@ -26,6 +26,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/jwtauth/v5 v5.3.3
+	github.com/go-faker/faker/v4 v4.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/puzpuzpuz/xsync/v4 v4.0.0
 	github.com/rs/zerolog v1.34.0

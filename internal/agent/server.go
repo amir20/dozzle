@@ -207,6 +207,7 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 			Finished:    timestamppb.New(container.FinishedAt),
 			MemoryLimit: container.MemoryLimit,
 			CpuLimit:    container.CPULimit,
+			FullyLoaded: container.FullyLoaded,
 		},
 	}, nil
 }
@@ -254,6 +255,7 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 			Command:     container.Command,
 			MemoryLimit: container.MemoryLimit,
 			CpuLimit:    container.CPULimit,
+			FullyLoaded: container.FullyLoaded,
 		})
 	}
 
@@ -300,6 +302,7 @@ func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, ou
 					Finished:    timestamppb.New(container.FinishedAt),
 					MemoryLimit: container.MemoryLimit,
 					CpuLimit:    container.CPULimit,
+					FullyLoaded: container.FullyLoaded,
 				},
 			})
 		case <-out.Context().Done():

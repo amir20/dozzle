@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -13,6 +14,8 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/docker/docker/api/types/system"
+	"github.com/go-faker/faker/v4"
+	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -78,28 +81,16 @@ func (m *MockedClient) SystemInfo() system.Info {
 	return system.Info{ID: "123"}
 }
 
-var wantedContainer = container.Container{
-	ID:      "123456",
-	Name:    "test",
-	Host:    "localhost",
-	Image:   "test",
-	State:   "running",
-	Health:  "healthy",
-	Group:   "test",
-	Command: "test",
-	Tty:     true,
-	Labels: map[string]string{
-		"test": "test",
-	},
-	Stats:       utils.NewRingBuffer[container.ContainerStat](300),
-	Created:     time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-	StartedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-	FinishedAt:  time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-	CPULimit:    0.1,
-	MemoryLimit: 1024,
-}
+var wantedContainer = container.Container{}
 
 func init() {
+	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats"))
+	wantedContainer.FinishedAt = wantedContainer.FinishedAt.UTC()
+	wantedContainer.Created = wantedContainer.Created.UTC()
+	wantedContainer.StartedAt = wantedContainer.StartedAt.UTC()
+	wantedContainer.Stats = utils.NewRingBuffer[container.ContainerStat](300)
+
+	fmt.Printf("Fake data generated %+v", wantedContainer)
 	lis = bufconn.Listen(bufSize)
 
 	cwd, err := os.Getwd()
@@ -149,7 +140,7 @@ func TestFindContainer(t *testing.T) {
 
 	c, _ := rpc.FindContainer(context.Background(), "123456")
 
-	assert.Equal(t, c, wantedContainer)
+	assert.Equal(t, wantedContainer, c)
 }
 
 func TestListContainers(t *testing.T) {
@@ -160,7 +151,7 @@ func TestListContainers(t *testing.T) {
 
 	containers, _ := rpc.ListContainers(context.Background(), container.ContainerLabels{})
 
-	assert.Equal(t, containers, []container.Container{
+	assert.Equal(t, []container.Container{
 		wantedContainer,
-	})
+	}, containers)
 }
