@@ -131,7 +131,7 @@ func main() {
 
 func fileExists(path string) bool {
 	info, err := os.Stat(path)
-		return err == nil && !info.IsDir()
+	return err == nil && !info.IsDir()
 }
 
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
@@ -147,35 +147,20 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
 		
-		// Check both .yaml and .yml files
-		yamlPath, errYaml := filepath.Abs("./data/users.yaml")
-		ymlPath, errYml := filepath.Abs("./data/users.yml")
-	
-		yamlExists := errYaml == nil && fileExists(yamlPath)
-		ymlExists := errYml == nil && fileExists(ymlPath)
-	
-		var userFilePath string
-		switch {
-		case yamlExists && ymlExists:
-			path = ymlPath
-			log.Warn().
-				Str("yml", ymlPath).
-				Str("yaml", yamlPath).
-				Msg("Both users.yaml and users.yml exist. Using users.yml and ignoring users.yaml.")
-		case yamlExists:
-			path = yamlPath
-		case ymlExists:
-			path = ymlPath
-		default:
-			log.Fatal().Msg("No users.yaml or users.yml file found.")
-		}
-	
-		log.Debug().Msgf("Reading %s file", filepath.Base(path))
+        userFilePath := "./data/users.yml"
+        if !fileExists(userFilePath) {
+            userFilePath = "./data/users.yaml"
+            if !fileExists(userFilePath) {
+                log.Fatal().Msg("No users.yaml or users.yml file found.")
+            }
+        }
 
-		db, err := auth.ReadUsersFromFile(path)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not read users.yml file")
-		}
+        log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
+
+        db, err := auth.ReadUsersFromFile(userFilePath)
+        if err != nil {
+            log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
+        }
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
 		ttl := time.Duration(0)
