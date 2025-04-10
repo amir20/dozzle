@@ -157,15 +157,15 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		var userFilePath string
 		switch {
 		case yamlExists && ymlExists:
-			userFilePath = ymlPath
+			path = ymlPath
 			log.Warn().
 				Str("yml", ymlPath).
 				Str("yaml", yamlPath).
 				Msg("Both users.yaml and users.yml exist. Using users.yml and ignoring users.yaml.")
 		case yamlExists:
-			userFilePath = yamlPath
+			path = yamlPath
 		case ymlExists:
-			userFilePath = ymlPath
+			path = ymlPath
 		default:
 			log.Fatal().Msg("No users.yaml or users.yml file found.")
 		}
