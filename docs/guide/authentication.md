@@ -10,7 +10,11 @@ If you do not have an authentication solution, then Dozzle has a simple file-bas
 
 ## File-Based User Management
 
-Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
+**Dozzle** supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
+
+### Example file paths:
+- `/data/users.yml`
+- `/data/users.yaml`
 
 The content of the file looks like:
 
@@ -112,7 +116,7 @@ Note that only duration is supported. You can only use `s`, `m`, `h` for seconds
 
 ### Setting specific filters for users
 
-Dozzle supports setting filters for users. Filters are used to restrict the containers that a user can see. Filters are set in the `users.yml` file. Here is an example:
+Dozzle supports setting filters for users. Filters are used to restrict the containers that a user can see. Filters are set in the `users.yml` or `users.yaml` file. Here is an example:
 
 ```yaml
 users:
@@ -134,12 +138,16 @@ In this example, the `admin` user has no filter, so they can see all containers.
 > [!NOTE]
 > Filters can also be set [globally](/guide/filters) with the `--filter` flag. This flag is applied to all users. If a user has a filter set, it will override the global filter.
 
-## Generating users.yml
+## Generating users.yml or users.yaml
 
-Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
+Dozzle has a built-in `generate` command to generate `users.yml` or `users.yaml`. Here is an example:
 
 ```sh
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yml
+```
+
+```sh
+docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yaml
 ```
 
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters.

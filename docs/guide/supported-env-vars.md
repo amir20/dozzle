@@ -29,12 +29,16 @@ Configurations can be done with flags or environment variables. The table below 
 > [!TIP]
 > Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
 
-## Generate users.yml
+## Generate users.yml or users.yaml
 
 Dozzle supports generating `users.yml` file. This file is used to authenticate users. Here is an example:
 
 ```sh
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
+```
+
+```sh
+docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yaml
 ```
 
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
