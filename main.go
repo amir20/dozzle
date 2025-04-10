@@ -170,7 +170,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			log.Fatal().Msg("No users.yaml or users.yml file found.")
 		}
 	
-		log.Debug().Str("path", userFilePath).Msg("Reading users file")
+		log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
 
 		db, err := auth.ReadUsersFromFile(path)
 		if err != nil {
