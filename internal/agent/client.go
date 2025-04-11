@@ -14,7 +14,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/utils"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -253,24 +252,7 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- cont
 			return rpcErrToErr(err)
 		}
 
-		containers <- container.Container{
-			ID:          resp.Container.Id,
-			Name:        resp.Container.Name,
-			Image:       resp.Container.Image,
-			Labels:      resp.Container.Labels,
-			Group:       resp.Container.Group,
-			Created:     resp.Container.Created.AsTime(),
-			State:       resp.Container.State,
-			Health:      resp.Container.Health,
-			Host:        resp.Container.Host,
-			Tty:         resp.Container.Tty,
-			StartedAt:   resp.Container.Started.AsTime(),
-			FinishedAt:  resp.Container.Finished.AsTime(),
-			Command:     resp.Container.Command,
-			MemoryLimit: resp.Container.MemoryLimit,
-			CPULimit:    resp.Container.CpuLimit,
-			FullyLoaded: resp.Container.FullyLoaded,
-		}
+		containers <- container.FromProto(resp.Container)
 	}
 }
 
@@ -280,36 +262,7 @@ func (c *Client) FindContainer(ctx context.Context, containerID string) (contain
 		return container.Container{}, err
 	}
 
-	var stats []container.ContainerStat
-
-	for _, stat := range response.Container.Stats {
-		stats = append(stats, container.ContainerStat{
-			ID:            stat.Id,
-			CPUPercent:    stat.CpuPercent,
-			MemoryPercent: stat.MemoryPercent,
-			MemoryUsage:   stat.MemoryUsage,
-		})
-	}
-
-	return container.Container{
-		ID:          response.Container.Id,
-		Name:        response.Container.Name,
-		Image:       response.Container.Image,
-		Labels:      response.Container.Labels,
-		Group:       response.Container.Group,
-		Created:     response.Container.Created.AsTime(),
-		State:       response.Container.State,
-		Health:      response.Container.Health,
-		Host:        response.Container.Host,
-		Tty:         response.Container.Tty,
-		Command:     response.Container.Command,
-		StartedAt:   response.Container.Started.AsTime(),
-		FinishedAt:  response.Container.Finished.AsTime(),
-		Stats:       utils.RingBufferFrom(300, stats),
-		MemoryLimit: response.Container.MemoryLimit,
-		CPULimit:    response.Container.CpuLimit,
-		FullyLoaded: response.Container.FullyLoaded,
-	}, nil
+	return container.FromProto(response.Container), nil
 }
 
 func (c *Client) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
@@ -329,35 +282,7 @@ func (c *Client) ListContainers(ctx context.Context, labels container.ContainerL
 
 	containers := make([]container.Container, 0)
 	for _, c := range response.Containers {
-		var stats []container.ContainerStat
-		for _, stat := range c.Stats {
-			stats = append(stats, container.ContainerStat{
-				ID:            stat.Id,
-				CPUPercent:    stat.CpuPercent,
-				MemoryPercent: stat.MemoryPercent,
-				MemoryUsage:   stat.MemoryUsage,
-			})
-		}
-
-		containers = append(containers, container.Container{
-			ID:          c.Id,
-			Name:        c.Name,
-			Image:       c.Image,
-			Labels:      c.Labels,
-			Group:       c.Group,
-			Created:     c.Created.AsTime(),
-			State:       c.State,
-			Health:      c.Health,
-			Host:        c.Host,
-			Tty:         c.Tty,
-			Command:     c.Command,
-			StartedAt:   c.Started.AsTime(),
-			FinishedAt:  c.Finished.AsTime(),
-			Stats:       utils.RingBufferFrom(300, stats),
-			MemoryLimit: c.MemoryLimit,
-			CPULimit:    c.CpuLimit,
-			FullyLoaded: c.FullyLoaded,
-		})
+		containers = append(containers, container.FromProto(c))
 	}
 
 	return containers, nil
