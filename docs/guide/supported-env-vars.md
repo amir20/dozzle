@@ -29,7 +29,7 @@ Configurations can be done with flags or environment variables. The table below 
 > [!TIP]
 > Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent tcp://167.99.1.1:7007 --remote-agent tcp://167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=tcp://167.99.1.1:7007,tcp://167.99.1.2:7007`.
 
-## Generate users.yml or users.yaml
+## Generate users.yml
 
 Dozzle supports generating `users.yml` file. This file is used to authenticate users. Here is an example:
 
