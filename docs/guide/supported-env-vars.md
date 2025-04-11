@@ -37,10 +37,6 @@ Dozzle supports generating `users.yml` file. This file is used to authenticate u
 docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
 ```
 
-```sh
-docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yaml
-```
-
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
 
 | Flag         | Description      | Default |
