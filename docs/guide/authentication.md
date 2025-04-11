@@ -10,7 +10,11 @@ If you do not have an authentication solution, then Dozzle has a simple file-bas
 
 ## File-Based User Management
 
-Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will try to read `/data/users.yml`.
+**Dozzle** supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
+
+### Example file paths:
+- `/data/users.yml`
+- `/data/users.yaml`
 
 The content of the file looks like:
 

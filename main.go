@@ -129,6 +129,14 @@ func main() {
 	log.Debug().Msg("shut down complete")
 }
 
+func fileExists(filename string) bool {
+    _, err := os.Stat(filename)
+    if os.IsNotExist(err) {
+        return false
+    }
+    return err == nil
+}
+
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
@@ -141,21 +149,21 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	} else if args.AuthProvider == "simple" {
 		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
+		
+        userFilePath := "./data/users.yml"
+        if !fileExists(userFilePath) {
+            userFilePath = "./data/users.yaml"
+            if !fileExists(userFilePath) {
+                log.Fatal().Msg("No users.yaml or users.yml file found.")
+            }
+        }
 
-		path, err := filepath.Abs("./data/users.yml")
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not get absolute path")
-		}
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			log.Fatal().Msg("users.yml file does not exist")
-		}
+        log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
 
-		log.Debug().Str("path", path).Msg("Reading users.yml file")
-
-		db, err := auth.ReadUsersFromFile(path)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Could not read users.yml file")
-		}
+        db, err := auth.ReadUsersFromFile(userFilePath)
+        if err != nil {
+            log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
+        }
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
 		ttl := time.Duration(0)
