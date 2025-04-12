@@ -41,6 +41,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
 	io.WriteString(tempFile, listener.Addr().String())
+	log.Debug().Str("file", tempFile.Name()).Msg("Created temp file")
 	go StartEvent(args, "", client, "agent")
 	server, err := agent.NewServer(client, certs, args.Version(), args.Filter)
 	if err != nil {
