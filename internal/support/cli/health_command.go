@@ -11,8 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type HealthcheckCmd struct {
-}
+type HealthcheckCmd struct{}
 
 func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if matches, err := filepath.Glob("/tmp/agent-*.addr"); err == nil && len(matches) == 1 {
