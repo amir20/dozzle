@@ -15,7 +15,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-
 type AgentCmd struct {
 	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
 }
@@ -37,7 +36,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
-	tempFile, err := os.CreateTemp("./", "agent-*.addr")
+	tempFile, err := os.CreateTemp("", "agent-*.addr")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}

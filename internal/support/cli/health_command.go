@@ -21,7 +21,7 @@ func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 
 	agentAddress := ""
 	for _, file := range files {
-		if match, _ := filepath.Match("agent-*.addr", file.Name()); match {
+		if match, _ := filepath.Match("/tmp/agent-*.addr", file.Name()); match {
 			data, err := os.ReadFile(file.Name())
 			if err != nil {
 				return fmt.Errorf("failed to read file: %w", err)
