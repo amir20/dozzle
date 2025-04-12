@@ -17,13 +17,13 @@ require (
 	github.com/spf13/afero v1.14.0
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.10.2
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/go-faker/faker/v4 v4.6.0
