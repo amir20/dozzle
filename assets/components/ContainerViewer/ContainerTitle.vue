@@ -6,15 +6,15 @@
       <carbon:star class="swap-off" />
     </label>
     <div class="inline-flex items-center text-sm">
-      <div class="breadcrumbs p-0">
+      <div class="breadcrumbs p-0 font-mono">
         <ul>
           <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
           </li>
           <li>
-            <div v-if="otherContainers.length === 0" class="font-mono">{{ container.name }}</div>
+            <template v-if="otherContainers.length === 0">{{ container.name }}</template>
             <div class="wrapper" ref="wrapper" v-else>
-              <button popovertarget="popover-container-list" class="btn btn-xs md:btn-sm anchor font-mono">
+              <button popovertarget="popover-container-list" class="btn btn-xs md:btn-sm anchor">
                 {{ container.name }} <carbon:caret-down />
               </button>
 
@@ -25,8 +25,8 @@
                       class="status data-[state=exited]:status-error data-[state=running]:status-success"
                       :data-state="other.state"
                     ></div>
-                    <div class="font-mono" v-if="other.isSwarm">{{ other.swarmId }}</div>
-                    <div class="font-mono" v-else>{{ other.name }}</div>
+                    <div v-if="other.isSwarm">{{ other.swarmId }}</div>
+                    <div v-else>{{ other.name }}</div>
                     <div v-if="other.state === 'running'">running</div>
                     <DistanceTime :date="other.created" strict class="text-base-content/70 text-xs" v-else />
                   </router-link>
