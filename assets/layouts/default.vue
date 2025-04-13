@@ -25,7 +25,7 @@
       </Pane>
     </Splitpanes>
     <label
-      class="btn btn-circle swap bg-base-100 swap-rotate fixed bottom-4 -left-12 w-16 transition-all hover:-left-4"
+      class="btn btn-circle swap bg-base-content/10 swap-rotate border-base-content/20 hover:border-primary fixed bottom-4 -left-12 w-16 transition-all hover:-left-4"
       :class="{ '-left-6!': collapseNav }"
       v-if="!isMobile && !forceMenuHidden"
     >
