@@ -13,6 +13,7 @@ If you do not have an authentication solution, then Dozzle has a simple file-bas
 **Dozzle** supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
 
 ### Example file paths:
+
 - `/data/users.yml`
 - `/data/users.yaml`
 
@@ -24,7 +25,7 @@ users:
   admin:
     email: me@email.net
     name: Admin
-    # Generate with docker run amir20/dozzle generate --name Admin --email me@email.net --password secret admin
+    # Generate with docker run run -it --rm amir20/dozzle generate --name Admin --email me@email.net --password secret admin
     password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
     filter:
 ```
@@ -143,10 +144,10 @@ In this example, the `admin` user has no filter, so they can see all containers.
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
-docker run amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yml
+docker run -it --rm amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yml
 ```
 
-In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters.
+In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run -it --rm amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters.
 
 ## Forward Proxy
 
