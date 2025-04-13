@@ -8,43 +8,28 @@ import (
 	"path/filepath"
 
 	"github.com/amir20/dozzle/internal/healthcheck"
+	"github.com/rs/zerolog/log"
 )
 
-type HealthcheckCmd struct {
-}
+type HealthcheckCmd struct{}
 
 func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
-	files, err := os.ReadDir(".")
-	if err != nil {
-		return fmt.Errorf("failed to read directory: %w", err)
-	}
-
-	agentAddress := ""
-	for _, file := range files {
-		if match, _ := filepath.Match("agent-*.addr", file.Name()); match {
-			data, err := os.ReadFile(file.Name())
-			if err != nil {
-				return fmt.Errorf("failed to read file: %w", err)
-			}
-			agentAddress = string(data)
-			break
+	if matches, err := filepath.Glob("/tmp/agent-*.addr"); err == nil && len(matches) == 1 {
+		data, err := os.ReadFile(matches[0])
+		if err != nil {
+			return fmt.Errorf("failed to read file: %w", err)
 		}
-	}
-	if agentAddress == "" {
-		if err := healthcheck.HttpRequest(args.Addr, args.Base); err != nil {
-			return fmt.Errorf("failed to make request: %w", err)
-		}
-	} else {
+		agentAddress := string(data)
 		certs, err := ReadCertificates(embeddedCerts)
 		if err != nil {
 			return fmt.Errorf("failed to read certificates: %w", err)
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), args.Timeout)
 		defer cancel()
-		if err := healthcheck.RPCRequest(ctx, agentAddress, certs); err != nil {
-			return fmt.Errorf("failed to make request: %w", err)
-		}
+		log.Info().Str("address", agentAddress).Msg("Making RPC request to agent")
+		return healthcheck.RPCRequest(ctx, agentAddress, certs)
+	} else {
+		log.Info().Str("address", args.Addr).Str("base", args.Base).Msg("Making HTTP request to server")
+		return healthcheck.HttpRequest(args.Addr, args.Base)
 	}
-
-	return nil
 }
