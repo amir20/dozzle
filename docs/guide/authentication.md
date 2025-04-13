@@ -10,7 +10,7 @@ If you do not have an authentication solution, then Dozzle has a simple file-bas
 
 ## File-Based User Management
 
-**Dozzle** supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
+Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
 
 ### Example file paths:
 
@@ -33,7 +33,7 @@ users:
 Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `bcrypt` which can be generated using `docker run amir20/dozzle generate`.
 
 > [!WARNING]
-> In previous versions of Dozzle, SHA-256 was used to hash passwords. Bcrypt is now more secure and is recommended for future use. Dozzle will revert to SHA-256 if it does not find a bcrypt hash. It is advisable to update the password hash to bcrypt using `docker run amir20/dozzle generate`. For more details, see [this issue](https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35).
+> In previous versions of Dozzle, SHA-256 was used to hash passwords. Bcrypt is now more secure and is recommended for future use. Dozzle will revert to SHA-256 if it does not find a bcrypt hash. It is advisable to update the password hash to bcrypt using `generate`. For more details, see [this issue](https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35).
 
 You will need to mount this file for Dozzle to find it. Here is an example:
 
