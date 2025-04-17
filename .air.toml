@@ -35,7 +35,7 @@ pre_cmd = []
 rerun = false
 rerun_delay = 500
 send_interrupt = true
-stop_on_error = false
+stop_on_error = true
 
 [color]
 app = ""
