@@ -13,13 +13,15 @@
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
           ></textarea>
-          <div class="label max-h-48 overflow-y-auto pr-2">
-            <span v-if="!isReady">Creating temporary table...</span>
-            <span v-else-if="evaluating">Evaluating query...</span>
+          <div class="label mt-2 overflow-y-auto">
+            <span v-if="!isReady">{{ $t("analytics.creating_table") }}</span>
+            <span v-else-if="evaluating">{{ $t("analytics.evaluating_query") }}</span>
             <span class="label-text-alt text-error" v-else-if="error">{{ error }}</span>
             <span class="label-text-alt" v-else>
-              Total {{ results.numRows.toLocaleString() }} records.
-              <template v-if="results.numRows > pageLimit">Showing first {{ page.numRows }}. </template>
+              {{ $t("analytics.total_records", { count: results.numRows.toLocaleString() }) }}
+              <template v-if="results.numRows > pageLimit">{{
+                $t("analytics.showing_first", { count: page.numRows.toLocaleString() })
+              }}</template>
             </span>
           </div>
         </label>

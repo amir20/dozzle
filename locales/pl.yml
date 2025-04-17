@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Skopiowany
     message: Log skopiowany do schowka
+analytics:
+  creating_table: Tworzenie tymczasowej tabeli...
+  evaluating_query: Przetwarzanie zapytania...
+  total_records: Razem {count} rekordów.
+  showing_first: Pokazywanie pierwszych {count}.

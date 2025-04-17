@@ -117,3 +117,8 @@ toasts:
   copied:
     title: 已複製
     message: 日誌已複製到剪貼簿
+analytics:
+  creating_table: 正在建立臨時資料表...
+  evaluating_query: 正在評估查詢...
+  total_records: 共計 {count} 筆記錄。
+  showing_first: 顯示前 {count} 筆。

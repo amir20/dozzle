@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Copié
     message: Journal copié dans le presse-papiers
+analytics:
+  creating_table: Création d'une table temporaire...
+  evaluating_query: Évaluation de la requête...
+  total_records: Total de {count} enregistrements.
+  showing_first: Affichage des {count} premiers.
