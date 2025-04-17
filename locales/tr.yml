@@ -107,3 +107,8 @@ toasts:
   copied:
     title: Kopyalandı
     message: Günlük panoya kopyalandı
+analytics:
+  creating_table: Geçici tablo oluşturuluyor...
+  evaluating_query: Sorgu değerlendiriliyor...
+  total_records: Toplam {count} kayıt.
+  showing_first: İlk {count} gösteriliyor.

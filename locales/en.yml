@@ -119,3 +119,8 @@ toasts:
   copied:
     title: Copied
     message: Log copied to clipboard
+analytics:
+  creating_table: Creating temporary table...
+  evaluating_query: Evaluating query...
+  total_records: Total {count} records.
+  showing_first: Showing first {count}.

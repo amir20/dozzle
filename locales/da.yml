@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Kopieret
     message: Log kopieret til clipboard
+analytics:
+  creating_table: Opretter midlertidig tabel...
+  evaluating_query: Evaluerer forespørgsel...
+  total_records: I alt {count} poster.
+  showing_first: Viser de første {count}.

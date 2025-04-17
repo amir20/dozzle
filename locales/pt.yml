@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Copiado
     message: Log copiado para a área de transferência
+analytics:
+  creating_table: Criando tabela temporária...
+  evaluating_query: Avaliando consulta...
+  total_records: Total de {count} registros.
+  showing_first: Mostrando os primeiros {count}.

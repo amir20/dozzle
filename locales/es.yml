@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Copiado
     message: Registro copiado al portapapeles
+analytics:
+  creating_table: Creando tabla temporal...
+  evaluating_query: Evaluando consulta...
+  total_records: Total {count} registros.
+  showing_first: Mostrando los primeros {count}.

@@ -114,3 +114,8 @@ toasts:
   copied:
     title: Kopiert
     message: Log in Zwischenablage kopiert
+analytics:
+  creating_table: Temporäre Tabelle wird erstellt...
+  evaluating_query: Abfrage wird ausgewertet...
+  total_records: Insgesamt {count} Datensätze.
+  showing_first: Zeige die ersten {count}.

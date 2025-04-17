@@ -109,3 +109,9 @@ settings:
         start-line: Esta é uma mensagem de erro multi-linha
         middle-line: com uma segunda linha
         end-line: e finalmente uma terceira linha.
+
+analytics:
+  creating_table: A criar tabela temporária...
+  evaluating_query: A avaliar consulta...
+  total_records: Total de {count} registos.
+  showing_first: A mostrar os primeiros {count}.
