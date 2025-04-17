@@ -1,6 +1,7 @@
 package web
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"regexp"
@@ -111,7 +112,15 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		lastSeenId = uint32(num)
 	}
 
-	encoder := json.NewEncoder(w)
+	var encoder *json.Encoder
+	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		w.Header().Set("Content-Encoding", "gzip")
+		writer := gzip.NewWriter(w)
+		defer writer.Close()
+		encoder = json.NewEncoder(writer)
+	} else {
+		encoder = json.NewEncoder(w)
+	}
 
 	for {
 		if buffer.Len() > minimum {
