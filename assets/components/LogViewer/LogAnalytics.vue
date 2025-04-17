@@ -14,10 +14,12 @@
             :class="{ 'textarea-error': error }"
           ></textarea>
           <div class="label max-h-48 overflow-y-auto pr-2">
-            <span class="label-text-alt text-error" v-if="error">{{ error }}</span>
+            <span v-if="!isReady">Creating temporary table...</span>
+            <span v-else-if="evaluating">Evaluating query...</span>
+            <span class="label-text-alt text-error" v-else-if="error">{{ error }}</span>
             <span class="label-text-alt" v-else>
-              Total {{ results.numRows }} records
-              <template v-if="results.numRows > pageLimit"> . Showing first {{ page.numRows }}. </template>
+              Total {{ results.numRows.toLocaleString() }} records.
+              <template v-if="results.numRows > pageLimit">Showing first {{ page.numRows }}. </template>
             </span>
           </div>
         </label>
