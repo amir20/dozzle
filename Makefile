@@ -43,7 +43,7 @@ int:
 	docker compose up --build --force-recreate --exit-code-from playwright
 
 shared_key.pem:
-	@openssl genpkey -algorithm RSA -out shared_key.pem -pkeyopt rsa_keygen_bits:2048
+	@openssl genpkey -algorithm Ed25519 -out shared_key.pem
 
 shared_cert.pem: shared_key.pem
 	@openssl req -new -key shared_key.pem -out shared_request.csr -subj "/C=US/ST=California/L=San Francisco/O=Dozzle"
