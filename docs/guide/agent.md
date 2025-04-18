@@ -180,7 +180,7 @@ This will mount the `cert.pem` and `key.pem` files to the agent. The agent will 
 To generate certificates, you can use the following command:
 
 ```sh
-$ openssl genpkey -algorithm RSA -out key.pem -pkeyopt rsa_keygen_bits:2048
+$ openssl genpkey -algorithm Ed25519 -out key.pem
 $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=San Francisco/O=My Company"
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
