@@ -12,11 +12,14 @@
             v-model="query"
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
+            :disabled="state !== 'ready'"
           ></textarea>
           <div class="mt-2">
             <span class="text-error" v-if="state === 'error'">{{ error }}</span>
             <span v-else-if="state === 'initializing'">{{ $t("analytics.creating_table") }}</span>
-            <span v-else-if="state === 'downloading'">{{ $t("analytics.downloading") }}</span>
+            <span v-else-if="state === 'downloading'">{{
+              $t("analytics.downloading", { size: formatBytes(bytes, { decimals: 1 }) })
+            }}</span>
             <span v-else-if="evaluating">{{ $t("analytics.evaluating_query") }}</span>
             <span v-else>
               {{ $t("analytics.total_records", { count: results.numRows.toLocaleString() }) }}
@@ -43,6 +46,7 @@ const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
 const pageLimit = 1000;
 const state = ref<"downloading" | "error" | "ready" | "initializing">("downloading");
+const bytes = ref(0);
 
 const url = withBase(
   `/api/hosts/${container.host}/containers/${container.id}/logs?stdout=1&stderr=1&everything&jsonOnly`,
@@ -61,7 +65,28 @@ const empty = await conn.query<Record<string, any>>(`SELECT 1 LIMIT 0`);
 onMounted(async () => {
   try {
     state.value = "downloading";
-    await db.registerFileBuffer("logs.json", new Uint8Array(await response.arrayBuffer()));
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("No reader available from stream");
+
+    const chunks: Uint8Array[] = [];
+    bytes.value = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      bytes.value += value.length;
+    }
+
+    const arrayBuffer = new Uint8Array(bytes.value);
+    let position = 0;
+    for (const chunk of chunks) {
+      arrayBuffer.set(chunk, position);
+      position += chunk.length;
+    }
+
+    await db.registerFileBuffer("logs.json", arrayBuffer);
 
     state.value = "initializing";
     await conn.query(
