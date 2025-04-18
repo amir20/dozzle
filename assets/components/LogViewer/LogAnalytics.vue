@@ -12,6 +12,7 @@
             v-model="query"
             class="textarea textarea-primary w-full font-mono text-lg"
             :class="{ 'textarea-error': error }"
+            :disabled="state !== 'ready'"
           ></textarea>
           <div class="mt-2">
             <span class="text-error" v-if="state === 'error'">{{ error }}</span>
