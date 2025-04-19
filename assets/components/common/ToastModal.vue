@@ -1,5 +1,5 @@
 <template>
-  <div class="toast toast-end whitespace-normal max-md:m-0 max-md:w-full">
+  <div class="toast toast-end whitespace-normal max-md:end-auto max-md:m-0 max-md:max-w-full">
     <div
       class="alert max-w-xl shadow-sm max-md:rounded-none"
       v-for="{ toast, options: { timed } } in toasts"
