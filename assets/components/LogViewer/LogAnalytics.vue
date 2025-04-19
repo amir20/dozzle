@@ -11,11 +11,11 @@
           <textarea
             v-model="query"
             class="textarea textarea-primary w-full font-mono text-lg"
-            :class="{ 'textarea-error': error }"
-            :disabled="state !== 'ready'"
+            :class="{ 'textarea-error!': error }"
+            :disabled="state === 'downloading'"
           ></textarea>
           <div class="mt-2">
-            <span class="text-error" v-if="state === 'error'">{{ error }}</span>
+            <span class="text-error" v-if="error">{{ error }}</span>
             <span v-else-if="state === 'initializing'">{{ $t("analytics.creating_table") }}</span>
             <span v-else-if="state === 'downloading'">{{
               $t("analytics.downloading", { size: formatBytes(bytes, { decimals: 1 }) })
@@ -45,7 +45,7 @@ const error = ref<string | null>(null);
 const debouncedQuery = debouncedRef(query, 500);
 const evaluating = ref(false);
 const pageLimit = 1000;
-const state = ref<"downloading" | "error" | "ready" | "initializing">("downloading");
+const state = ref<"downloading" | "ready" | "initializing">("downloading");
 const bytes = ref(0);
 
 const url = withBase(
@@ -96,7 +96,6 @@ onMounted(async () => {
     state.value = "ready";
   } catch (e) {
     console.error(e);
-    state.value = "error";
     if (e instanceof Error) {
       error.value = e.message;
     }
@@ -115,7 +114,6 @@ const results = computedAsync(
   {
     onError: (e) => {
       console.error(e);
-      state.value = "error";
       if (e instanceof Error) {
         error.value = e.message;
       }
