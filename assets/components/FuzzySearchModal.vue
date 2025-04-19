@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown dropdown-open w-full">
+  <div class="dropdown dropdown-open w-full shadow-md">
     <div class="input input-xl input-primary flex w-full items-center">
       <mdi:magnify class="flex size-8" />
       <input
