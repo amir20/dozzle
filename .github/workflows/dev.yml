@@ -47,7 +47,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             TAG=${{ steps.meta.outputs.version }}
-            SHA=${{ GITHUB_SHA::7 }}
+            SHA=${{ github.sha.substr(0,9) }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
