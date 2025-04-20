@@ -48,13 +48,14 @@ COPY --from=node /build/dist ./dist
 
 # Args
 ARG TAG=dev
+ARG SHA=
 ARG TARGETOS TARGETARCH
 
 # Generate protos
 RUN go generate
 
 # Build binary
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG -X github.com/amir20/dozzle/internal/support/cli.SHA=$SHA" -o dozzle
 
 RUN mkdir /data
 

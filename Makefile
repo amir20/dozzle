@@ -2,7 +2,7 @@ PROTO_DIR := protos
 GEN_DIR := internal/agent/pb
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
 GEN_FILES := $(patsubst $(PROTO_DIR)/%.proto,$(GEN_DIR)/%.pb.go,$(PROTO_FILES))
-
+SHA := $(shell git rev-parse --short HEAD)
 .PHONY: clean
 clean:
 	@rm -rf dist
@@ -26,11 +26,12 @@ test: fake_assets generate
 
 .PHONY: build
 build: dist generate
-	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
+	echo "Building with SHA: $(SHA)"
+	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local -X github.com/amir20/dozzle/internal/support/cli.SHA=$(SHA)"
 
 .PHONY: docker
 docker: shared_key.pem shared_cert.pem
-	@docker build  --build-arg TAG=local -t amir20/dozzle .
+	@docker build  --build-arg TAG=local --build-arg SHA=$(SHA) -t amir20/dozzle .
 
 generate: shared_key.pem shared_cert.pem $(GEN_FILES)
 

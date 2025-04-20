@@ -9,6 +9,7 @@ import (
 )
 
 var Version = "head"
+var SHA = ""
 
 type Args struct {
 	Addr             string              `arg:"env:DOZZLE_ADDR" default:":8080" help:"sets host:port to bind for server. This is rarely needed inside a docker container."`

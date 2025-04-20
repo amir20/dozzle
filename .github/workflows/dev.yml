@@ -45,7 +45,9 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: TAG=${{ steps.meta.outputs.version }}
+          build-args: |
+            TAG=${{ steps.meta.outputs.version }}
+            SHA=${{ GITHUB_SHA::7 }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
