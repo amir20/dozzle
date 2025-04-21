@@ -2,26 +2,27 @@ package support_web
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
 
 	"net/http"
 )
 
 type SSEWriter struct {
+	w io.Writer
 	f http.Flusher
-	w http.ResponseWriter
 }
 
 type HasId interface {
 	MessageId() int64
 }
 
-func NewSSEWriter(ctx context.Context, w http.ResponseWriter) (*SSEWriter, error) {
-	f, ok := w.(http.Flusher)
-
-	if !ok {
+func NewSSEWriter(ctx context.Context, w http.ResponseWriter, r *http.Request) (*SSEWriter, error) {
+	if _, ok := w.(http.Flusher); !ok {
 		return nil, http.ErrNotSupported
 	}
 
@@ -31,9 +32,15 @@ func NewSSEWriter(ctx context.Context, w http.ResponseWriter) (*SSEWriter, error
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
+	var writer io.Writer = w
+	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		w.Header().Set("Content-Encoding", "gzip")
+		writer = gzip.NewWriter(w)
+	}
+
 	sse := &SSEWriter{
-		f: f,
-		w: w,
+		w: writer,
+		f: w.(http.Flusher),
 	}
 
 	return sse, nil
@@ -50,6 +57,13 @@ func (s *SSEWriter) Write(data []byte) (int, error) {
 		return written, err
 	}
 
+	if f, ok := s.w.(*gzip.Writer); ok {
+		err := f.Flush()
+		if err != nil {
+			return written, err
+		}
+	}
+
 	s.f.Flush()
 
 	return written, nil
@@ -58,6 +72,14 @@ func (s *SSEWriter) Write(data []byte) (int, error) {
 func (s *SSEWriter) Ping() error {
 	_, err := s.Write([]byte(":ping "))
 	return err
+}
+
+func (s *SSEWriter) Close() error {
+	if s.w != nil {
+		return s.w.(io.Closer).Close()
+	}
+
+	return nil
 }
 
 func (s *SSEWriter) Message(data any) error {
