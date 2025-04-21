@@ -74,12 +74,10 @@ func (s *SSEWriter) Ping() error {
 	return err
 }
 
-func (s *SSEWriter) Close() error {
-	if s.w != nil {
-		return s.w.(io.Closer).Close()
+func (s *SSEWriter) Close() {
+	if closer, ok := s.w.(io.Closer); ok && s.w != nil {
+		closer.Close()
 	}
-
-	return nil
 }
 
 func (s *SSEWriter) Message(data any) error {
