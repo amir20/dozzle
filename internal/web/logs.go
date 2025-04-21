@@ -246,12 +246,12 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	sseWriter, err := support_web.NewSSEWriter(r.Context(), w, r)
-	defer sseWriter.Close()
 	if err != nil {
 		log.Error().Err(err).Msg("error creating sse writer")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer sseWriter.Close()
 
 	userLabels := h.config.Labels
 	if h.config.Authorization.Provider != NONE {
