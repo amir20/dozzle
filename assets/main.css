@@ -11,6 +11,10 @@
   --color-orange: oklch(70% 0.186 48.13);
 }
 
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 @plugin "daisyui/theme" {
   name: "dark";
   default: false;

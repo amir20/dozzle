@@ -1,5 +1,5 @@
 <template>
-  <nav class="border-base-content/20 bg-base-200 fixed top-0 z-10 w-full border-b" data-testid="navigation">
+  <nav class="border-base-content/20 bg-base-200 pt-safe fixed top-0 z-10 w-full border-b" data-testid="navigation">
     <div class="p-2">
       <div class="flex items-center">
         <router-link :to="{ name: '/' }">
@@ -56,9 +56,5 @@ watch(route, () => {
 .fade-enter-from > div,
 .fade-leave-to > div {
   @apply -translate-y-10;
-}
-
-nav {
-  padding-top: env(safe-area-inset-top);
 }
 </style>
