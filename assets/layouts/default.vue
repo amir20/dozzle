@@ -1,6 +1,6 @@
 <template>
   <div>
-    <mobile-menu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></mobile-menu>
+    <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
     <Splitpanes @resized="onResized($event)">
       <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
         <SidePanel @search="showFuzzySearch" />

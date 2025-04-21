@@ -1,27 +1,29 @@
 <template>
-  <nav class="border-base-content/20 bg-base-200 fixed top-0 z-10 w-full border-b p-2" data-testid="navigation">
-    <div class="flex items-center">
-      <router-link :to="{ name: '/' }">
-        <Logo class="logo [&_.secondary-fill]:fill-secondary h-8" />
-      </router-link>
+  <nav class="border-base-content/20 bg-base-200 fixed top-0 z-10 w-full border-b" data-testid="navigation">
+    <div class="p-2">
+      <div class="flex items-center">
+        <router-link :to="{ name: '/' }">
+          <Logo class="logo [&_.secondary-fill]:fill-secondary h-8" />
+        </router-link>
 
-      <div class="ml-auto flex items-center gap-2">
-        <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
-          <mdi:magnify class="size-5" />
-        </a>
-        <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
-          <input type="checkbox" v-model="show" />
-          <mdi:close class="swap-on" />
-          <mdi:hamburger-menu class="swap-off" />
-        </label>
+        <div class="ml-auto flex items-center gap-2">
+          <a class="btn btn-circle flex" @click="$emit('search')" :title="$t('tooltip.search')">
+            <mdi:magnify class="size-5" />
+          </a>
+          <label class="btn btn-circle swap swap-rotate" data-testid="hamburger">
+            <input type="checkbox" v-model="show" />
+            <mdi:close class="swap-on" />
+            <mdi:hamburger-menu class="swap-off" />
+          </label>
+        </div>
       </div>
+
+      <transition name="fade">
+        <div v-show="show" class="flex h-[calc(100svh-55px)]">
+          <SideMenu class="flex-1" />
+        </div>
+      </transition>
     </div>
-
-    <transition name="fade">
-      <div v-show="show" class="flex h-[calc(100svh-55px)]">
-        <SideMenu class="flex-1" />
-      </div>
-    </transition>
   </nav>
 </template>
 
@@ -54,5 +56,9 @@ watch(route, () => {
 .fade-enter-from > div,
 .fade-leave-to > div {
   @apply -translate-y-10;
+}
+
+nav {
+  padding-top: env(safe-area-inset-top);
 }
 </style>
