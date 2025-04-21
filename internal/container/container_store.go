@@ -315,7 +315,7 @@ func (s *ContainerStore) init() {
 			case "update":
 				started := false
 				updatedContainer, _ := s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
-					if loaded {
+					if loaded && event.Container != nil {
 						newContainer := event.Container
 						if newContainer.State == "running" && c.State != "running" {
 							started = true
