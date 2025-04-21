@@ -57,4 +57,8 @@ watch(route, () => {
 .fade-leave-to > div {
   @apply -translate-y-10;
 }
+
+nav {
+  padding-top: env(safe-area-inset-top);
+}
 </style>
