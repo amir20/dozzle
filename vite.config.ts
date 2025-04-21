@@ -9,7 +9,6 @@ import IconsResolver from "unplugin-icons/resolver";
 import VueRouter from "unplugin-vue-router/vite";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
-import { compression } from "vite-plugin-compression2";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
@@ -71,7 +70,6 @@ export default defineConfig(() => ({
       strictMessage: false,
       include: [path.resolve(__dirname, "locales/**")],
     }),
-    compression({ algorithm: "brotliCompress", exclude: [/\.(html)$/] }),
     svgLoader({}),
     tailwindcss(),
   ],

@@ -112,14 +112,12 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		lastSeenId = uint32(num)
 	}
 
-	var encoder *json.Encoder
+	encoder := json.NewEncoder(w)
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Encoding", "gzip")
 		writer := gzip.NewWriter(w)
 		defer writer.Close()
 		encoder = json.NewEncoder(writer)
-	} else {
-		encoder = json.NewEncoder(w)
 	}
 
 	for {
