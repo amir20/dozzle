@@ -1,6 +1,6 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
-    <div class="modal-box" :width="width">
+    <div class="modal-box pt-safe" :width="width">
       <form method="dialog">
         <button class="swap hover:swap-active absolute top-4 right-4 outline-hidden">
           <mdi:keyboard-esc class="swap-off" />
