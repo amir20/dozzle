@@ -1,13 +1,15 @@
 <template>
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
-    <div class="modal-box pt-safe" :width="width">
-      <form method="dialog">
-        <button class="swap hover:swap-active absolute top-4 right-4 outline-hidden">
-          <mdi:keyboard-esc class="swap-off" />
-          <mdi:close class="swap-on" />
-        </button>
-      </form>
-      <slot v-if="open"></slot>
+    <div class="modal-box" :width="width">
+      <div class="pt-safe relative">
+        <form method="dialog">
+          <button class="swap hover:swap-active absolute right-0 outline-hidden">
+            <mdi:keyboard-esc class="swap-off" />
+            <mdi:close class="swap-on" />
+          </button>
+        </form>
+        <slot v-if="open"></slot>
+      </div>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
