@@ -33,7 +33,7 @@
           <a
             class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
             @click.prevent="selected(result.item)"
-            :class="index === selectedIndex ? 'menu-focus' : ''"
+            :class="{ 'menu-focus': index === selectedIndex }"
           >
             <div :class="{ 'text-primary': result.item.state === 'running' }">
               <template v-if="result.item.type === 'container'">
