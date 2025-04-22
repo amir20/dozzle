@@ -13,8 +13,11 @@
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
       />
-      <form method="dialog">
-        <button class="swap hover:swap-active">
+      <form method="dialog" class="flex">
+        <button v-if="isMobile">
+          <mdi:close />
+        </button>
+        <button v-else class="swap hover:swap-active outline-hidden">
           <mdi:keyboard-esc class="swap-off" />
           <mdi:close class="swap-on" />
         </button>
