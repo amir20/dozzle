@@ -2,8 +2,11 @@
   <dialog ref="panel" class="modal-right modal items-start outline-hidden backdrop:bg-none">
     <div class="modal-box" :width="width">
       <div class="pt-safe relative">
-        <form method="dialog">
-          <button class="swap hover:swap-active absolute right-0 outline-hidden">
+        <form method="dialog" class="absolute right-0">
+          <button v-if="isMobile">
+            <mdi:close />
+          </button>
+          <button v-else class="swap hover:swap-active outline-hidden">
             <mdi:keyboard-esc class="swap-off" />
             <mdi:close class="swap-on" />
           </button>
