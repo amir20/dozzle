@@ -45,8 +45,8 @@
         />
       </div>
     </div>
-    <div class="rounded-box border-base-content/10 overflow-x-auto border p-2">
-      <table class="table-lg bg-base-200 table-zebra table">
+    <div class="rounded-box border-base-content/10 overflow-x-auto border">
+      <table class="table-lg table-zebra table">
         <thead>
           <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
             <th
@@ -65,8 +65,8 @@
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="container in paginated" :key="container.id">
+        <tbody class="bg-base-300/30">
+          <tr v-for="container in paginated" :key="container.id" class="hover:bg-base-100/80!">
             <td v-if="isVisible('name')">
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
@@ -100,18 +100,18 @@
           </tr>
         </tbody>
       </table>
-      <div class="p-4 text-center">
-        <nav class="join" v-if="isPaginated">
-          <input
-            class="btn btn-square join-item"
-            type="radio"
-            v-model="currentPage"
-            :aria-label="`${i}`"
-            :value="i"
-            v-for="i in totalPages"
-          />
-        </nav>
-      </div>
+    </div>
+    <div class="p-4 text-center">
+      <nav class="join" v-if="isPaginated">
+        <input
+          class="btn btn-square join-item"
+          type="radio"
+          v-model="currentPage"
+          :aria-label="`${i}`"
+          :value="i"
+          v-for="i in totalPages"
+        />
+      </nav>
     </div>
   </div>
 </template>
