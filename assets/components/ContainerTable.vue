@@ -1,112 +1,118 @@
-!
 <template>
-  <div class="flex flex-row">
-    <div v-if="Object.keys(hosts).length > 1" class="flex-1">
-      <div role="tablist" class="tabs-boxed tabs block" v-if="Object.keys(hosts).length < 4">
-        <input
-          type="radio"
-          name="host"
-          role="tab"
-          class="tab rounded-sm!"
-          aria-label="Show All"
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-row">
+      <div v-if="Object.keys(hosts).length > 1" class="flex-1">
+        <div role="tablist" class="tabs-boxed tabs block" v-if="Object.keys(hosts).length < 4">
+          <input
+            type="radio"
+            name="host"
+            role="tab"
+            class="tab rounded-sm!"
+            aria-label="Show All"
+            v-model="selectedHost"
+            :value="null"
+          />
+          <input
+            type="radio"
+            name="host"
+            role="tab"
+            class="tab rounded-sm!"
+            :aria-label="host.name"
+            v-for="host in hosts"
+            :value="host.id"
+            :key="host.id"
+            v-model="selectedHost"
+          />
+        </div>
+
+        <DropdownMenu
+          class="btn-sm"
           v-model="selectedHost"
-          :value="null"
-        />
-        <input
-          type="radio"
-          name="host"
-          role="tab"
-          class="tab rounded-sm!"
-          :aria-label="host.name"
-          v-for="host in hosts"
-          :value="host.id"
-          :key="host.id"
-          v-model="selectedHost"
+          :options="[
+            { label: 'Show All', value: null },
+            ...Object.values(hosts).map((host) => ({ label: host.name, value: host.id })),
+          ]"
+          v-else
         />
       </div>
+      <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
+        {{ $t("label.per-page") }}
 
-      <DropdownMenu
-        class="btn-sm"
-        v-model="selectedHost"
-        :options="[
-          { label: 'Show All', value: null },
-          ...Object.values(hosts).map((host) => ({ label: host.name, value: host.id })),
-        ]"
-        v-else
-      />
+        <DropdownMenu
+          class="dropdown-left btn-xs md:btn-sm"
+          v-model="perPage"
+          :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
+        />
+      </div>
     </div>
-    <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
-      {{ $t("label.per-page") }}
-
-      <DropdownMenu
-        class="dropdown-left btn-xs md:btn-sm"
-        v-model="perPage"
-        :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
-      />
+    <div class="rounded-box border-base-content/10 overflow-x-auto border">
+      <table class="table-md md:table-lg table-zebra table">
+        <thead>
+          <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
+            <th
+              v-for="(value, key) in fields"
+              :key="key"
+              @click.prevent="sort(key)"
+              :class="{ 'selected-sort': key === sortField }"
+              v-show="isVisible(key)"
+            >
+              <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
+                <span>{{ $t(value.label) }}</span>
+                <span class="h-4" data-icon>
+                  <mdi:arrow-up />
+                </span>
+              </a>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-base-300/30">
+          <tr v-for="container in paginated" :key="container.id" class="hover:bg-base-100/80!">
+            <td v-if="isVisible('name')">
+              <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
+                {{ container.name }}
+              </router-link>
+            </td>
+            <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
+            <td v-if="isVisible('state')">{{ container.state }}</td>
+            <td v-if="isVisible('created')">
+              <distance-time :date="container.created" strict :suffix="false"></distance-time>
+            </td>
+            <td v-if="isVisible('cpu')">
+              <div class="flex flex-row items-center gap-1">
+                <progress
+                  class="progress progress-primary"
+                  :value="Math.min(container.movingAverage.cpu, 100)"
+                  :max="100"
+                ></progress>
+                <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+              </div>
+            </td>
+            <td v-if="isVisible('mem')">
+              <div class="flex flex-row items-center gap-1">
+                <progress
+                  class="progress progress-primary"
+                  :value="container.movingAverage.memory"
+                  max="100"
+                ></progress>
+                <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </div>
-
-  <table class="table-lg bg-base-200 table">
-    <thead>
-      <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
-        <th
-          v-for="(value, key) in fields"
-          :key="key"
-          @click.prevent="sort(key)"
-          :class="{ 'selected-sort': key === sortField }"
-          v-show="isVisible(key)"
-        >
-          <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
-            <span>{{ $t(value.label) }}</span>
-            <span class="h-4" data-icon>
-              <mdi:arrow-up />
-            </span>
-          </a>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="container in paginated" :key="container.id">
-        <td v-if="isVisible('name')">
-          <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
-            {{ container.name }}
-          </router-link>
-        </td>
-        <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
-        <td v-if="isVisible('state')">{{ container.state }}</td>
-        <td v-if="isVisible('created')">
-          <distance-time :date="container.created" strict :suffix="false"></distance-time>
-        </td>
-        <td v-if="isVisible('cpu')">
-          <div class="flex flex-row items-center gap-1">
-            <progress
-              class="progress progress-primary"
-              :value="Math.min(container.movingAverage.cpu, 100)"
-              :max="100"
-            ></progress>
-            <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
-          </div>
-        </td>
-        <td v-if="isVisible('mem')">
-          <div class="flex flex-row items-center gap-1">
-            <progress class="progress progress-primary" :value="container.movingAverage.memory" max="100"></progress>
-            <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="p-4 text-center">
-    <nav class="join" v-if="isPaginated">
-      <input
-        class="btn btn-square join-item"
-        type="radio"
-        v-model="currentPage"
-        :aria-label="`${i}`"
-        :value="i"
-        v-for="i in totalPages"
-      />
-    </nav>
+    <div class="p-4 text-center">
+      <nav class="join" v-if="isPaginated">
+        <input
+          class="btn btn-square join-item"
+          type="radio"
+          v-model="currentPage"
+          :aria-label="`${i}`"
+          :value="i"
+          v-for="i in totalPages"
+        />
+      </nav>
+    </div>
   </div>
 </template>
 
@@ -208,7 +214,7 @@ function isVisible(field: keys) {
 }
 
 th {
-  @apply border-base-100 border-b-2;
+  @apply border-base-200 border-b-2;
   &.selected-sort {
     font-weight: bold;
     @apply border-primary;
