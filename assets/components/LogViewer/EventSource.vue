@@ -60,7 +60,7 @@ const sizes = computedWithControl(eventSourceURL, () => {
     "w-full",
   ];
   const result = [];
-  const iterations = 30;
+  const iterations = 18;
   for (let i = 0; i < iterations; i++) {
     result.push(sizeOptions[Math.floor(Math.random() * sizeOptions.length)]);
   }

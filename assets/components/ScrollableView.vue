@@ -28,7 +28,7 @@
     <div class="mr-16 text-right">
       <transition name="fade">
         <button
-          class="transition-colorsblur-xs dark btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm"
+          class="btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
           :class="hasMore ? 'btn-secondary animate-bounce-fast text-secondary-content' : ''"
           @click="scrollToBottom()"
           v-show="scrollContext.paused"
