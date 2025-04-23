@@ -46,7 +46,7 @@
       </div>
     </div>
     <div class="rounded-box border-base-content/10 overflow-x-auto border">
-      <table class="table-lg table-zebra table">
+      <table class="table-md md:table-lg table-zebra table">
         <thead>
           <tr :data-direction="direction > 0 ? 'asc' : 'desc'">
             <th
@@ -214,7 +214,7 @@ function isVisible(field: keys) {
 }
 
 th {
-  @apply border-base-100 border-b-2;
+  @apply border-base-200 border-b-2;
   &.selected-sort {
     font-weight: bold;
     @apply border-primary;
