@@ -37,6 +37,6 @@ services:
 
 :::
 
-In the above example, `/var/log/system.log` is mounted from the host and used with `tail -f` to follow the file. `tail` is smart to follow log rotations. During testing, using Alpine only uses about `300KB` of memory.
+In the above example, `/var/log/system.log` is mounted from the host and used with `tail -f` to follow the file. `tail` is smart to follow log rotations. During testing, using Alpine used about `~50KB` of memory.
 
 The second tab shows a `docker-compose` file which is useful if you want the log stream to survive server reboot.
