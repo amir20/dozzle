@@ -2,6 +2,7 @@ package search
 
 import (
 	"fmt"
+	"html"
 	"regexp"
 	"strings"
 
@@ -56,9 +57,9 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
 		switch value := pair.Value.(type) {
 		case string:
-			if re.MatchString(value) {
+			if replaced, matched := searchString(re, value); matched {
 				found = true
-				orderedMap.Set(pair.Key, re.ReplaceAllString(value, "<mark>$0</mark>"))
+				orderedMap.Set(pair.Key, replaced)
 			}
 
 		case []any:
@@ -101,11 +102,10 @@ func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
 	for key, value := range data {
 		switch value := value.(type) {
 		case string:
-			if re.MatchString(value) {
-				data[key] = re.ReplaceAllString(value, "<mark>$0</mark>")
+			if replaced, matched := searchString(re, value); matched {
 				found = true
+				data[key] = replaced
 			}
-
 		case []any:
 			if searchArray(re, value) {
 				found = true
@@ -133,9 +133,9 @@ func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
 func searchMapString(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, string]) bool {
 	found := false
 	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
-		if re.MatchString(pair.Value) {
-			orderedMap.Set(pair.Key, re.ReplaceAllString(pair.Value, "<mark>$0</mark>"))
+		if replaced, matched := searchString(re, pair.Value); matched {
 			found = true
+			orderedMap.Set(pair.Key, replaced)
 		}
 	}
 	return found
@@ -146,9 +146,9 @@ func searchArray(re *regexp.Regexp, data []any) bool {
 	for i, value := range data {
 		switch value := value.(type) {
 		case string:
-			if re.MatchString(value) {
-				data[i] = re.ReplaceAllString(value, "<mark>$0</mark>")
+			if replaced, matched := searchString(re, value); matched {
 				found = true
+				data[i] = replaced
 			}
 		case int, float64, bool:
 			formatted := fmt.Sprintf("%v", value)
@@ -168,4 +168,15 @@ func searchArray(re *regexp.Regexp, data []any) bool {
 	}
 
 	return found
+}
+
+func searchString(re *regexp.Regexp, value string) (string, bool) {
+	if re.MatchString(html.UnescapeString(value)) {
+		escaped := html.EscapeString(re.ReplaceAllString(html.UnescapeString(value), "\uE000$0\uE001"))
+		escaped = strings.ReplaceAll(escaped, "\uE000", "<mark>")
+		escaped = strings.ReplaceAll(escaped, "\uE001", "</mark>")
+		return escaped, true
+	}
+
+	return value, false
 }
