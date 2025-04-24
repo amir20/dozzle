@@ -103,6 +103,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		log.Fatal().Err(err).Msg("Could not parse index.html")
 	}
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not execute index.html")
