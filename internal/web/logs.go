@@ -158,6 +158,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					break
 				}
 
+				support_web.EscapeHTMLValues(event) // only escape when not exporting
 				buffer.Push(event)
 			}
 		}
@@ -391,6 +392,8 @@ loop:
 			if _, ok := levels[logEvent.Level]; !ok {
 				continue
 			}
+
+			support_web.EscapeHTMLValues(logEvent)
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
@@ -405,6 +408,9 @@ loop:
 			}
 
 		case backfillEvents := <-backfill:
+			for _, event := range backfillEvents {
+				support_web.EscapeHTMLValues(event)
+			}
 			if err := sseWriter.Event("logs-backfill", backfillEvents); err != nil {
 				log.Error().Err(err).Msg("error encoding container event")
 			}

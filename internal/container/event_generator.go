@@ -87,7 +87,6 @@ func (g *EventGenerator) consumeReader() {
 			logEvent := createEvent(message, streamType)
 			logEvent.ContainerID = g.containerID
 			logEvent.Level = guessLogLevel(logEvent)
-			escape(logEvent)
 			g.buffer <- logEvent
 		}
 
