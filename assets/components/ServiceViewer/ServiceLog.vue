@@ -2,15 +2,8 @@
   <ScrollableView :scrollable="scrollable" v-if="service.name">
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
-        <div class="@container flex flex-1 items-center gap-1.5 truncate md:gap-2">
-          <ph:stack-simple />
-          <div class="inline-flex font-mono text-sm">
-            <div class="font-semibold">{{ service.name }}</div>
-          </div>
-          <Tag class="hidden font-mono max-md:hidden @3xl:block" size="small">
-            {{ $t("label.container", service.containers.length) }}
-          </Tag>
-        </div>
+        <ph:stack-simple />
+        <ContainerDropdown :containers="service.containers">{{ service.name }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
         <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
       </div>
