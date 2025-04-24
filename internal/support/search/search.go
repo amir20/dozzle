@@ -2,13 +2,17 @@ package search
 
 import (
 	"fmt"
-	"html"
 	"regexp"
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+)
+
+const (
+	MarkerStart = "\uE000"
+	MarkerEnd   = "\uE001"
 )
 
 func ParseRegex(search string) (*regexp.Regexp, error) {
@@ -31,7 +35,7 @@ func Search(re *regexp.Regexp, logEvent *container.LogEvent) bool {
 	switch value := logEvent.Message.(type) {
 	case string:
 		if re.MatchString(value) {
-			logEvent.Message = re.ReplaceAllString(value, "<mark>$0</mark>")
+			logEvent.Message = re.ReplaceAllString(value, MarkerStart+"$0"+MarkerEnd)
 			return true
 		}
 
@@ -85,7 +89,7 @@ func searchMapAny(re *regexp.Regexp, orderedMap *orderedmap.OrderedMap[string, a
 		case int, float64, bool:
 			formatted := fmt.Sprintf("%v", value)
 			if re.MatchString(formatted) {
-				orderedMap.Set(pair.Key, re.ReplaceAllString(formatted, "<mark>$0</mark>"))
+				orderedMap.Set(pair.Key, re.ReplaceAllString(formatted, MarkerStart+"$0"+MarkerEnd))
 				found = true
 			}
 
@@ -119,7 +123,7 @@ func searchMap(re *regexp.Regexp, data map[string]interface{}) bool {
 		case int, float64, bool:
 			formatted := fmt.Sprintf("%v", value)
 			if re.MatchString(formatted) {
-				data[key] = re.ReplaceAllString(formatted, "<mark>$0</mark>")
+				data[key] = re.ReplaceAllString(formatted, MarkerStart+"$0"+MarkerEnd)
 				found = true
 			}
 		default:
@@ -153,7 +157,7 @@ func searchArray(re *regexp.Regexp, data []any) bool {
 		case int, float64, bool:
 			formatted := fmt.Sprintf("%v", value)
 			if re.MatchString(formatted) {
-				data[i] = re.ReplaceAllString(formatted, "<mark>$0</mark>")
+				data[i] = re.ReplaceAllString(formatted, MarkerStart+"$0"+MarkerEnd)
 				found = true
 			}
 		case []any:
@@ -171,11 +175,9 @@ func searchArray(re *regexp.Regexp, data []any) bool {
 }
 
 func searchString(re *regexp.Regexp, value string) (string, bool) {
-	if re.MatchString(html.UnescapeString(value)) {
-		escaped := html.EscapeString(re.ReplaceAllString(html.UnescapeString(value), "\uE000$0\uE001"))
-		escaped = strings.ReplaceAll(escaped, "\uE000", "<mark>")
-		escaped = strings.ReplaceAll(escaped, "\uE001", "</mark>")
-		return escaped, true
+	if re.MatchString(value) {
+		replaced := re.ReplaceAllString(value, MarkerStart+"$0"+MarkerEnd)
+		return replaced, true
 	}
 
 	return value, false
