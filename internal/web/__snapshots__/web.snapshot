@@ -2,7 +2,7 @@
 HTTP/1.1 200 OK
 Connection: close
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:;
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/html; charset=utf-8
 
 foo page
 
@@ -10,7 +10,7 @@ foo page
 HTTP/1.1 200 OK
 Connection: close
 Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:;
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/html; charset=utf-8
 
 index page
 
@@ -86,7 +86,6 @@ Content-Type: text/html
 
 /* snapshot: Test_handler_between_dates_with_everything_complex */
 {"m":{"msg":"a complex log message"},"ts":1589396197772,"id":62280847,"l":"unknown","s":"stdout","c":"123456"}
-
 
 /* snapshot: Test_handler_between_dates_with_fill */
 {"m":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
