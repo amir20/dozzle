@@ -39,7 +39,6 @@
     "@iconify-json/octicon": "^1.2.5",
     "@iconify-json/ph": "^1.2.2",
     "@intlify/unplugin-vue-i18n": "^6.0.8",
-    "@oddbird/css-anchor-positioning": "^0.5.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "4.1.4",
     "@vueuse/components": "^13.1.0",
