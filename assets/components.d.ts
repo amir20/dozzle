@@ -29,6 +29,7 @@ declare module 'vue' {
     'Cil:xCircle': typeof import('~icons/cil/x-circle')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerActionsToolbar: typeof import('./components/ContainerViewer/ContainerActionsToolbar.vue')['default']
+    ContainerDropdown: typeof import('./components/ContainerDropdown.vue')['default']
     ContainerEventLogItem: typeof import('./components/LogViewer/ContainerEventLogItem.vue')['default']
     ContainerHealth: typeof import('./components/ContainerViewer/ContainerHealth.vue')['default']
     ContainerLog: typeof import('./components/ContainerViewer/ContainerLog.vue')['default']
