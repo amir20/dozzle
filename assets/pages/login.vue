@@ -4,7 +4,7 @@
       <form action="" method="post" @submit.prevent="onLogin" ref="form" class="flex flex-col gap-8">
         <label class="form-control w-full">
           <label
-            class="input floating-label input-bordered has-[:focus]:input-primary flex w-full items-center gap-2 border-2"
+            class="input input-lg floating-label input-bordered has-[:focus]:input-primary flex w-full items-center gap-2 border-2"
             :class="{ 'input-error': error }"
           >
             <span class="ml-5">{{ $t("label.username") }}</span>
@@ -28,7 +28,7 @@
         </label>
         <label class="form-control w-full">
           <label
-            class="input floating-label input-bordered has-[:focus]:input-primary flex w-full items-center gap-2 border-2"
+            class="input input-lg floating-label input-bordered has-[:focus]:input-primary flex w-full items-center gap-2 border-2"
           >
             <span class="ml-5">{{ $t("label.password") }}</span>
             <mdi:key class="has-[+:focus]:text-primary" />
@@ -44,7 +44,7 @@
           </label>
         </label>
 
-        <button class="btn btn-primary uppercase" type="submit" :disabled="loading">
+        <button class="btn btn-primary mt-2 uppercase" type="submit" :disabled="loading">
           <span class="loading loading-spinner" v-if="loading"></span>
           {{ $t("button.login") }}
         </button>

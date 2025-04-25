@@ -1,5 +1,5 @@
 <template>
-  <div class="hero min-h-dvh">
+  <div class="hero max-h-500:pt-4 min-h-dvh content-start pt-[20dvh]">
     <div class="hero-content">
       <router-view></router-view>
     </div>
