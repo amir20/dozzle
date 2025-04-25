@@ -55,15 +55,42 @@ watch(
   { immediate: true },
 );
 
-const limits = computed(() =>
-  containers.reduce(
-    (acc, c) => ({
-      cpu: acc.cpu + (c.cpuLimit > 0 ? c.cpuLimit : hosts.value[c.host].nCPU),
-      memory: acc.memory + (c.memoryLimit > 0 ? c.memoryLimit : hosts.value[c.host].memTotal),
-    }),
+const limits = computed(() => {
+  const hostLimits = new Map<string, { cpu: number; memory: number }>();
+
+  for (const container of containers) {
+    if (!hostLimits.has(container.host)) {
+      hostLimits.set(container.host, {
+        cpu: 0,
+        memory: 0,
+      });
+    }
+    if (hostLimits.get(container.host)!.cpu < hosts.value[container.host].nCPU) {
+      if (container.cpuLimit == 0) {
+        hostLimits.get(container.host)!.cpu = hosts.value[container.host].nCPU;
+      } else {
+        hostLimits.get(container.host)!.cpu = hostLimits.get(container.host)!.cpu + container.cpuLimit;
+      }
+    }
+    if (hostLimits.get(container.host)!.memory < hosts.value[container.host].memTotal) {
+      if (container.memoryLimit == 0) {
+        hostLimits.get(container.host)!.memory = hosts.value[container.host].memTotal;
+      } else {
+        hostLimits.get(container.host)!.memory = hostLimits.get(container.host)!.memory + container.memoryLimit;
+      }
+    }
+  }
+
+  return hostLimits.values().reduce(
+    (acc, { cpu, memory }) => {
+      return {
+        cpu: acc.cpu + cpu,
+        memory: acc.memory + memory,
+      };
+    },
     { cpu: 0, memory: 0 },
-  ),
-);
+  );
+});
 
 useIntervalFn(() => {
   totalStat.value = containers.reduce(
