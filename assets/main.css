@@ -15,6 +15,12 @@
   padding-top: env(safe-area-inset-top);
 }
 
+@custom-variant max-h-500 {
+  @media (max-height: 500px) {
+    @slot;
+  }
+}
+
 @plugin "daisyui/theme" {
   name: "dark";
   default: false;
