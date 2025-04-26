@@ -217,7 +217,7 @@ function matchedName({ item, matches = [] }: FuseResult<Item>) {
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 :deep(mark) {
   @apply bg-transparent text-inherit underline underline-offset-2;
 }

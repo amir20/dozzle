@@ -206,7 +206,7 @@ const fakeMessages = computedWithControl(
 );
 </script>
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 
 .has-underline {
   @apply border-base-content/50 mb-4 border-b py-4;

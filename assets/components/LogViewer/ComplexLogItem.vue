@@ -30,7 +30,7 @@ const showDrawer = useDrawer();
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 .text-light {
   @apply text-base-content/70;
 }

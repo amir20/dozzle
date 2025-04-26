@@ -203,7 +203,7 @@ function isVisible(field: keys) {
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 
 [data-icon] {
   display: none;

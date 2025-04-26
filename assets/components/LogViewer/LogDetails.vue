@@ -166,7 +166,7 @@ function syntaxHighlight(json: any) {
 useSortable(list, fields);
 </script>
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 .font-mono {
   font-family:
     ui-monospace,
