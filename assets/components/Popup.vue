@@ -3,7 +3,7 @@
   <teleport to="body">
     <transition name="fade">
       <div
-        v-show="show && (delayedShow || glopbalShow)"
+        v-show="show && (delayedShow || globalShow)"
         class="border-base-content/20 bg-base-100 fixed z-50 rounded-sm border p-4 shadow-sm"
         ref="content"
       >
@@ -16,14 +16,14 @@
 <script lang="ts" setup>
 import { globalShowPopup } from "@/composable/popup";
 
-const glopbalShow = globalShowPopup();
-const show = ref(glopbalShow.value);
+const globalShow = globalShowPopup();
+const show = ref(globalShow.value);
 const delayedShow = refDebounced(show, 1000);
 const content = ref<HTMLElement>();
 
 const onMouseEnter = (e: Event) => {
   show.value = true;
-  glopbalShow.value = true;
+  globalShow.value = true;
 
   if (content.value && e.target instanceof HTMLElement) {
     const { left, top, width } = e.target.getBoundingClientRect();
@@ -37,7 +37,7 @@ const onMouseEnter = (e: Event) => {
 
 const onMouseLeave = () => {
   show.value = false;
-  glopbalShow.value = false;
+  globalShow.value = false;
 };
 
 const el: Ref<HTMLElement> = useCurrentElement();
