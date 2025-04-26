@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	lop "github.com/samber/lo/parallel"
+
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -95,28 +97,30 @@ func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
 	for {
 		select {
 		case <-ticker.C:
-			metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(sc.client.namespace).List(ctx, metav1.ListOptions{})
-			if err != nil {
-				panic(err.Error())
-			}
-			for _, pod := range metricList.Items {
-				for _, c := range pod.Containers {
-					stat := container.ContainerStat{
-						ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
-						CPUPercent:  float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
-						MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
-					}
-					log.Trace().Interface("stat", stat).Msg("k8s stats")
-					sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
-						select {
-						case stats <- stat:
-						case <-c.Done():
-							sc.subscribers.Delete(c)
-						}
-						return true
-					})
+			lop.ForEach(sc.client.namespace, func(item string, index int) {
+				metricList, err := sc.metrics.MetricsV1beta1().PodMetricses(item).List(ctx, metav1.ListOptions{})
+				if err != nil {
+					log.Panic().Err(err).Msg("failed to get pod metrics")
 				}
-			}
+				for _, pod := range metricList.Items {
+					for _, c := range pod.Containers {
+						stat := container.ContainerStat{
+							ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
+							CPUPercent:  float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
+							MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
+						}
+						log.Trace().Interface("stat", stat).Msg("k8s stats")
+						sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {
+							select {
+							case stats <- stat:
+							case <-c.Done():
+								sc.subscribers.Delete(c)
+							}
+							return true
+						})
+					}
+				}
+			})
 		case <-ctx.Done():
 			return true
 		}

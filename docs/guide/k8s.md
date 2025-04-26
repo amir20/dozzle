@@ -139,6 +139,9 @@ spec:
               value: "default"
 ```
 
+> [!NOTE]
+> Dozzle supports multiple namespaces, you can set the `DOZZLE_NAMESPACES` environment variable to a comma separated list of namespaces. When multiple namespaces are specified, Dozzle will monitor all namespaces in the cluster.
+
 ### Labels and Filters
 
 `DOZZLE_FILTER` behave similarlty to Docker filters. You can limit the scope of Dozzle using the `DOZZLE_FILTER` environment variable. For example, to scope only to `env=prod`:
