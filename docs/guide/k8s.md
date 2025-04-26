@@ -140,7 +140,7 @@ spec:
 ```
 
 > [!NOTE]
-> Dozzle supports multiple namespaces, you can set the `DOZZLE_NAMESPACES` environment variable to a comma separated list of namespaces. When multiple namespaces are specified, Dozzle will monitor all namespaces in the cluster.
+> Dozzle supports multiple namespaces, you can set the `DOZZLE_NAMESPACES` environment variable to a comma separated list of namespaces. When multiple namespaces are specified, Dozzle will monitor each namespace separately and combine the results.
 
 ### Labels and Filters
 
