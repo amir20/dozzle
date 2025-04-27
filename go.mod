@@ -27,13 +27,13 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/jwtauth/v5 v5.3.3
-	github.com/go-faker/faker/v4 v4.6.0
+	github.com/go-faker/faker/v4 v4.6.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/puzpuzpuz/xsync/v4 v4.0.0
 	github.com/rs/zerolog v1.34.0
-	github.com/samber/lo v1.49.1
+	github.com/samber/lo v1.50.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.7.10
+	github.com/yuin/goldmark v1.7.11
 	golang.org/x/crypto v0.37.0
 	golang.org/x/sync v0.13.0
 	google.golang.org/grpc v1.72.0
