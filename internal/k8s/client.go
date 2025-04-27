@@ -2,9 +2,11 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
 	"os"
@@ -13,8 +15,12 @@ import (
 	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/rs/zerolog/log"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -25,14 +31,18 @@ import (
 
 type K8sClient struct {
 	Clientset *kubernetes.Clientset
-	namespace string
+	namespace []string
 	config    *rest.Config
 	host      container.Host
 }
 
-func NewK8sClient(namespace string) (*K8sClient, error) {
+func NewK8sClient(namespace []string) (*K8sClient, error) {
 	var config *rest.Config
 	var err error
+
+	if len(namespace) == 0 {
+		namespace = []string{metav1.NamespaceAll}
+	}
 
 	// Check if we're running in cluster
 	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
@@ -116,15 +126,36 @@ func (k *K8sClient) ListContainers(ctx context.Context, labels container.Contain
 		}
 		log.Debug().Str("selector", selector).Msg("Listing containers with labels")
 	}
-	pods, err := k.Clientset.CoreV1().Pods(k.namespace).List(ctx, metav1.ListOptions{LabelSelector: selector})
-	if err != nil {
-		return nil, err
-	}
+	containerList := lop.Map(k.namespace, func(namespace string, index int) lo.Tuple2[[]container.Container, error] {
+		pods, err := k.Clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{LabelSelector: selector})
+		if err != nil {
+			return lo.T2[[]container.Container, error](nil, fmt.Errorf("failed to list pods in namespace %s: %w", namespace, err))
+		}
+		var containers []container.Container
+		for _, pod := range pods.Items {
+			containers = append(containers, podToContainers(&pod)...)
+		}
+		return lo.T2[[]container.Container, error](containers, nil)
+	})
 
 	var containers []container.Container
-	for _, pod := range pods.Items {
-		containers = append(containers, podToContainers(&pod)...)
+	var lastError error
+	success := false
+	for _, t2 := range containerList {
+		items, err := t2.Unpack()
+		if err != nil {
+			log.Error().Err(err).Msg("failed to fetch containers")
+			lastError = err
+			continue
+		}
+		success = true
+		containers = append(containers, items...)
 	}
+
+	if !success {
+		return nil, lastError
+	}
+
 	return containers, nil
 }
 
@@ -193,38 +224,56 @@ func (k *K8sClient) ContainerLogsBetweenDates(ctx context.Context, id string, st
 }
 
 func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.ContainerEvent) error {
-	watch, err := k.Clientset.CoreV1().Pods(k.namespace).Watch(ctx, metav1.ListOptions{})
-	if err != nil {
-		return err
+	watchers := lo.Map(k.namespace, func(namespace string, index int) watch.Interface {
+		watcher, err := k.Clientset.CoreV1().Pods(namespace).Watch(ctx, metav1.ListOptions{})
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to watch pods")
+			return nil
+		}
+		return watcher
+	})
+
+	if len(watchers) == 0 {
+		return errors.New("no namespaces to watch")
 	}
 
-	for event := range watch.ResultChan() {
-		log.Debug().Interface("event.type", event.Type).Msg("Received kubernetes event")
-		pod, ok := event.Object.(*corev1.Pod)
-		if !ok {
-			continue
-		}
+	wg := sync.WaitGroup{}
+	wg.Add(len(watchers))
 
-		name := ""
-		switch event.Type {
-		case "ADDED":
-			name = "create"
-		case "DELETED":
-			name = "destroy"
-		case "MODIFIED":
-			name = "update"
-		}
+	for _, watcher := range watchers {
+		go func(w watch.Interface) {
+			defer wg.Done()
+			for event := range w.ResultChan() {
+				log.Debug().Interface("event.type", event.Type).Msg("Received kubernetes event")
+				pod, ok := event.Object.(*corev1.Pod)
+				if !ok {
+					continue
+				}
 
-		for _, c := range podToContainers(pod) {
-			ch <- container.ContainerEvent{
-				Name:      name,
-				ActorID:   c.ID,
-				Host:      pod.Spec.NodeName,
-				Time:      time.Now(),
-				Container: &c,
+				name := ""
+				switch event.Type {
+				case "ADDED":
+					name = "create"
+				case "DELETED":
+					name = "destroy"
+				case "MODIFIED":
+					name = "update"
+				}
+
+				for _, c := range podToContainers(pod) {
+					ch <- container.ContainerEvent{
+						Name:      name,
+						ActorID:   c.ID,
+						Host:      pod.Spec.NodeName,
+						Time:      time.Now(),
+						Container: &c,
+					}
+				}
 			}
-		}
+		}(watcher)
 	}
+
+	wg.Wait()
 
 	return nil
 }
