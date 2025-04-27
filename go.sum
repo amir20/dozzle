@@ -54,6 +54,8 @@ github.com/go-chi/jwtauth/v5 v5.3.3 h1:50Uzmacu35/ZP9ER2Ht6SazwPsnLQ9LRJy6zTZJpH
 github.com/go-chi/jwtauth/v5 v5.3.3/go.mod h1:O4QvPRuZLZghl9WvfVaON+ARfGzpD2PBX/QY5vUz7aQ=
 github.com/go-faker/faker/v4 v4.6.0 h1:6aOPzNptRiDwD14HuAnEtlTa+D1IfFuEHO8+vEFwjTs=
 github.com/go-faker/faker/v4 v4.6.0/go.mod h1:ZmrHuVtTTm2Em9e0Du6CJ9CADaLEzGXW62z1YqFH0m0=
+github.com/go-faker/faker/v4 v4.6.1 h1:xUyVpAjEtB04l6XFY0V/29oR332rOSPWV4lU8RwDt4k=
+github.com/go-faker/faker/v4 v4.6.1/go.mod h1:arSdxNCSt7mOhdk8tEolvHeIJ7eX4OX80wXjKKvkKBY=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
@@ -174,6 +176,8 @@ github.com/rs/zerolog v1.34.0 h1:k43nTLIwcTVQAncfCw4KZ2VY6ukYoZaBPNOE8txlOeY=
 github.com/rs/zerolog v1.34.0/go.mod h1:bJsvje4Z08ROH4Nhs5iH600c3IkWhwp44iRc54W6wYQ=
 github.com/samber/lo v1.49.1 h1:4BIFyVfuQSEpluc7Fua+j1NolZHiEHEpaSEKdsH0tew=
 github.com/samber/lo v1.49.1/go.mod h1:dO6KHFzUKXgP8LDhU0oI8d2hekjXnGOu0DB8Jecxd6o=
+github.com/samber/lo v1.50.0 h1:XrG0xOeHs+4FQ8gJR97zDz5uOFMW7OwFWiFVzqopKgY=
+github.com/samber/lo v1.50.0/go.mod h1:RjZyNk6WSnUFRKK6EyOhsRJMqft3G+pg7dCWHQCWvsc=
 github.com/segmentio/asm v1.2.0 h1:9BQrFxC+YOHJlTlHGkTrFWf59nbL3XnCoFLTwDCI7ys=
 github.com/segmentio/asm v1.2.0/go.mod h1:BqMnlJP91P8d+4ibuonYZw9mfnzI9HfxselHZr5aAcs=
 github.com/sergi/go-diff v1.3.1 h1:xkr+Oxo4BOQKmkn/B9eMK0g5Kg/983T9DqqPHwYqD+8=
@@ -206,6 +210,8 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yuin/goldmark v1.7.10 h1:S+LrtBjRmqMac2UdtB6yyCEJm+UILZ2fefI4p7o0QpI=
 github.com/yuin/goldmark v1.7.10/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
+github.com/yuin/goldmark v1.7.11 h1:ZCxLyDMtz0nT2HFfsYG8WZ47Trip2+JyLysKcMYE5bo=
+github.com/yuin/goldmark v1.7.11/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
 go.opentelemetry.io/auto/sdk v1.1.0/go.mod h1:3wSPjt5PWp2RhlCcmmOial7AvC4DQqZb7a7wCow3W8A=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.59.0 h1:CV7UdSGJt/Ao6Gp4CXckLxVRRsRgDHoI8XjbL3PDl8s=
