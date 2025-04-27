@@ -95,7 +95,7 @@ function onResized({ panes }: { panes: { size: number }[] }) {
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
   @apply bg-base-100 hover:bg-secondary min-w-[5px];

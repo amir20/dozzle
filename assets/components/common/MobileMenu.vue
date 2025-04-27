@@ -37,7 +37,7 @@ watch(route, () => {
 });
 </script>
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity;

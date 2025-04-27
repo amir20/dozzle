@@ -54,7 +54,7 @@ useIntersectionObserver(
 );
 </script>
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 .events {
   font-family:
     ui-monospace,

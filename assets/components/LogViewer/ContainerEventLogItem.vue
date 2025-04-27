@@ -13,7 +13,7 @@ const { logEntry } = defineProps<{
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 [data-event="container-stopped"] {
   @apply text-red;
 }

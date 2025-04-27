@@ -103,7 +103,7 @@ const downloadUrl = computed(() =>
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 li.line {
   @apply bg-base-content/20 h-px;
 }
