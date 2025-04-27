@@ -35,7 +35,7 @@ const linkify = (text: string) =>
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 .log-wrapper :deep(a) {
   @apply text-primary underline-offset-4 hover:underline;
 }

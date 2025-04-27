@@ -13,7 +13,7 @@ defineProps<{
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 [std="stdout"] {
   @apply text-blue;
 }

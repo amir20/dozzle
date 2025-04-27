@@ -38,7 +38,7 @@ defineExpose({
 useEventListener(panel, "close", () => (open.value = false));
 </script>
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 
 .modal-right :where(.modal-box) {
   @apply bg-base-100 fixed right-0 h-lvh max-h-screen translate-x-24 scale-100 rounded-none shadow-none;

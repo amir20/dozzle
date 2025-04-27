@@ -11,7 +11,7 @@ defineProps<{
 </script>
 
 <style scoped>
-@import "@/main.css" reference;
+@reference "@/main.css";
 [data-position="start"] {
   border-radius: 0.5em 0.5em 0 0;
   height: 70%;
@@ -35,7 +35,7 @@ defineProps<{
 }
 </style>
 <style>
-@import "@/main.css" reference;
+@reference "@/main.css";
 [data-level="debug"],
 [data-level="trace"] {
   @apply !bg-purple;
