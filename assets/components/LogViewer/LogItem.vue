@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+  <div class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch max-md:group-[.compact]:gap-x-0">
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
     <RandomColorTag class="shrink-0 select-none" :value="host.name" v-if="showHostname" />
     <RandomColorTag class="shrink-0 select-none" :value="container.name" v-if="showContainerName" truncateRight />
