@@ -1,9 +1,17 @@
 <template>
   <div class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
-    <RandomColorTag class="shrink-0 select-none" :value="host.name" v-if="showHostname" />
-    <RandomColorTag class="shrink-0 select-none" :value="container.name" v-if="showContainerName" truncateRight />
-    <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
+
+    <div class="flex flex-col-reverse gap-x-2 gap-y-1 group-[.compact]:gap-y-0 md:flex-row">
+      <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
+      <RandomColorTag
+        class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
+        :value="container.name"
+        v-if="showContainerName"
+        truncateRight
+      />
+      <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
+    </div>
     <LogLevel
       class="flex select-none"
       :level="logEntry.level"
