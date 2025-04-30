@@ -10,7 +10,7 @@
     <script type="application/json" id="config__json">
       {{ marshal .Config }}
     </script>
-    <link rel="icon" href="{{ .Base }}/favicon.png" type="image/png" />
+    <link rel="icon" href="{{ .Base }}/favicon.png" type="image/png" sizes="192x192" />
     {{- if .Dev}}
     <script type="module" src="http://localhost:5173/@vite/client"></script>
     <script type="module" src="http://localhost:5173/assets/main.ts"></script>
