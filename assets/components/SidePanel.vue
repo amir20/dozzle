@@ -1,8 +1,8 @@
 <template>
   <aside class="fixed flex h-screen w-[inherit] flex-col gap-4 p-3" data-testid="navigation">
     <h1>
-      <router-link :to="{ name: '/' }" class="flex items-center gap-4 text-4xl font-thin">
-        <Logo class="h-14" />
+      <router-link :to="{ name: '/' }" class="flex w-full items-center gap-4 overflow-hidden text-4xl font-thin">
+        <Logo class="h-14 w-14 shrink-0" />
         Dozzle
       </router-link>
 
