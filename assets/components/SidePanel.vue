@@ -1,8 +1,8 @@
 <template>
   <aside class="fixed flex h-screen w-[inherit] flex-col gap-4 p-3" data-testid="navigation">
     <h1>
-      <router-link :to="{ name: '/' }" class="flex items-center gap-2 text-3xl font-thin">
-        <Logo class="logo [&_.secondary-fill]:fill-secondary [&_.content-fill]:fill-base-content h-16 w-20" />
+      <router-link :to="{ name: '/' }" class="my-2 flex items-center gap-4 text-4xl font-thin">
+        <Logo class="h-16" />
         Dozzle
       </router-link>
 
@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts" setup>
-import LogoWithText from "@/logo-text.svg";
 import Logo from "@/logo.svg";
 const { hostname } = config;
 </script>

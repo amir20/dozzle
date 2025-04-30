@@ -3,7 +3,7 @@
     <div class="p-2">
       <div class="flex items-center">
         <router-link :to="{ name: '/' }">
-          <Logo class="logo [&_.secondary-fill]:fill-secondary h-8" />
+          <Logo class="h-10" />
         </router-link>
 
         <div class="ml-auto flex items-center gap-2">
