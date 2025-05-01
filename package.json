@@ -54,7 +54,7 @@
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-transition": "^3.0.1",
-    "daisyui": "5.0.34",
+    "daisyui": "5.0.35",
     "date-fns": "^4.1.0",
     "entities": "^6.0.0",
     "fuse.js": "^7.1.0",
