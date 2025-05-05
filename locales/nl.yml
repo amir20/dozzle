@@ -75,12 +75,12 @@ placeholder:
 settings:
   display: Weergave
   locale: Taal aanpassen
-  small-scrollbars: Kleinere schuifbalken gebruiken
-  show-timesamps: Timestamps tonen
+  small-scrollbars: Kleinere scrollbalk gebruiken
+  show-timesamps: Tijdstempel tonen
   soft-wrap: Regels zacht afbreken
   datetime-format: Datum- en tijdnotatie aanpassen
   font-size: Lettergrootte voor logs
-  color-scheme: Kleurschema
+  color-scheme: Kleurmodus
   options: Opties
   show-stopped-containers: Gestopte containers tonen
   about: Over
