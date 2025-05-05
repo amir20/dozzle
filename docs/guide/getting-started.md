@@ -70,6 +70,9 @@ See [swarm mode](/guide/swarm-mode) for more information.
 
 Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster.
 
+<details>
+<summary>Kubernetes Configuration</summary>
+
 ```yaml [k8s-dozzle.yml]
 # rbac.yaml
 apiVersion: v1
@@ -130,9 +133,11 @@ spec:
               value: "k8s"
 ```
 
-Then apply the configuration using the following command:
+</details>
 
-```bash
+Apply the configuration using the following command:
+
+```sh
 kubectl apply -f k8s-dozzle.yml
 ```
 
