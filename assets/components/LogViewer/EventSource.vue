@@ -7,7 +7,9 @@
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
-  <div v-else-if="noLogs && !waitingForMoreLog" class="p-4">Container has no logs yet</div>
+  <div v-else-if="noLogs && !waitingForMoreLog" class="p-4">
+    {{ $t("label.no-logs") }}
+  </div>
   <slot :messages="messages" v-else></slot>
   <IndeterminateBar :color />
 </template>
