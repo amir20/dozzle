@@ -1,0 +1,124 @@
+toolbar:
+  clear: Wissen
+  download: Downloaden
+  search: Zoeken
+  show: Toon {std}
+  show-all: Toon alles
+  stop: Stoppen
+  start: Starten
+  restart: Herstarten
+  show-hostname: Toon hostnaam
+  show-container-name: Toon containernaam
+label:
+  containers: Containers
+  container: Geen containers | 1 container | {count} containers
+  service: Geen services | 1 service | {count} services
+  services: Services
+  running-containers: Actieve containers
+  all-containers: Alle containers
+  host: Host
+  hosts: Hosts
+  password: Wachtwoord
+  username: Gebruikersnaam
+  container-name: Containernaam
+  status: Status
+  created: Aangemaakt
+  avg-cpu: Gem. CPU (%)
+  avg-mem: Gem. geheugen (%)
+  pinned: Vastgezet
+  per-page: Rijen per pagina
+  host-menu: Hosts en Containers
+  swarm-menu: Services en Stacks
+  group-menu: Aangepaste groepen
+  no-logs: Container heeft nog geen logbestanden
+tooltip:
+  search: Zoek containers (⌘ + k, ⌃k)
+  pin-column: Vastzetten als kolom
+  merge-services: Voeg alle services samen in één weergave
+  merge-containers: Voeg alle containers samen in één weergave
+  merge-hosts: Voeg alle containers op deze host samen in één weergave
+error:
+  page-not-found: Deze pagina bestaat niet
+  invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
+  logs-skipped: \{total} items overgeslagen
+  container-not-found: Container niet gevonden
+  events-stream:
+    title: Onverwachte fout
+    message: >-
+      De Dozzle-interface kon geen verbinding maken met de API. Controleer je netwerkinstellingen.
+      Gebruik je een reverse proxy? Zorg er dan voor dat deze correct is geconfigureerd.
+  events-timeout:
+    title: Er gaat iets mis
+    message: >-
+      De verbinding met de API is verlopen. Controleer je netwerkverbinding en probeer het opnieuw.
+alert:
+  redirected:
+    title: Doorgestuurd naar nieuwe container
+    message: Dozzle heeft je automatisch doorgestuurd naar de nieuwe container {containerId}.
+  similar-container-found:
+    title: Vergelijkbare container gevonden
+    message: >-
+      Dozzle heeft een vergelijkbare container gevonden ({containerId}) op dezelfde host. Je wordt hier automatisch naartoe omgeleid, tenzij je op 'Annuleren' klikt.
+title:
+  page-not-found: Pagina niet gevonden
+  login: Aanmelding vereist
+  dashboard: 1 container | {count} containers
+  settings: Instellingen
+button:
+  logout: Afmelden
+  login: Aanmelden
+  settings: Instellingen
+  cancel: Annuleren
+  redirect: Doorsturen
+placeholder:
+  search-containers: Zoek containers (⌘ + k, ⌃k)
+  search: Zoeken
+settings:
+  display: Weergave
+  locale: Taal aanpassen
+  small-scrollbars: Kleinere scrollbalk gebruiken
+  show-timesamps: Tijdstempel tonen
+  soft-wrap: Regels zacht afbreken
+  datetime-format: Datum- en tijdnotatie aanpassen
+  font-size: Lettergrootte voor logs
+  color-scheme: Kleurmodus
+  options: Opties
+  show-stopped-containers: Gestopte containers tonen
+  about: Over
+  search: Doorzoeken inschakelen via Dozzle
+  using-version: Je gebruikt Dozzle {version}.
+  update-available: >-
+    Er is een nieuwe versie beschikbaar! Update naar <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Toon stdout- en stderr-labels
+  automatic-redirect: Automatisch omleiden naar nieuwe containers met dezelfde naam
+  compact: Compacte modus inschakelen voor logs
+  log:
+    preview: Voorbeeld van de logweergave
+    warning: Een waarschuwingslog ziet er zo uit
+    complex: Dit is een complexe logvermelding in JSON-formaat
+    simple: Dit is een hele lange logregel die standaard wordt afgebroken. Als je zachte afbreking uitschakelt, gebeurt dit niet. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Dit is een foutmelding over meerdere regels
+      middle-line: met een tweede regel
+      end-line: en tenslotte een derde regel.
+releases:
+  features: één nieuwe functie | {count} functies
+  bugFixes: één bugfix | {count} bugfixes
+  breaking: één breaking change | {count} breaking changes
+  three_parts: "{first}, {second} en {third}"
+  two_parts: "{first} met {second}"
+  latest: Meest recent
+  no_releases: Je gebruikt de nieuwste versie
+log_actions:
+  copy_log: Log kopiëren
+  jump_to_context: Ga naar context
+toasts:
+  copied:
+    title: Gekopieerd
+    message: Log gekopieerd naar klembord
+analytics:
+  creating_table: Tijdelijke tabel wordt aangemaakt...
+  downloading: Containerlogs worden opgehaald... ({size})
+  evaluating_query: Query wordt geëvalueerd...
+  total_records: In totaal {count} resultaten.
+  showing_first: Eerste {count} worden weergegeven.
