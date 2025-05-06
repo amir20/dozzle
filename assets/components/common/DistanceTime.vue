@@ -15,12 +15,11 @@ const {
 
 const text = ref<string>();
 
-watch($$(date), updateFromNow, { immediate: true });
-
-function updateFromNow() {
+const updateFromNow = () => {
   text.value = getRelativeTime(date, locale.value === "" ? undefined : locale.value);
-}
-useIntervalFn(updateFromNow, 30_000, { immediateCallback: true });
+};
+watch(date, updateFromNow, { immediate: true });
+useIntervalFn(updateFromNow, 30_000);
 
 function getRelativeTime(date: Date, locale: string | undefined): string {
   const diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
