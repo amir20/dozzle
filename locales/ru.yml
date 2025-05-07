@@ -4,16 +4,16 @@ toolbar:
   search: Поиск
   show: Показать только {std}
   show-all: Показать все потоки
-  stop: Stop
-  start: Start
-  restart: Restart
+  stop: Остановить
+  start: Запустить
+  restart: Перезапустить
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
 label:
   containers: Контейнеры
-  container: No containers | 1 container | {count} containers
-  service: No services | 1 service | {count} services
-  services: Services
+  container: Нет контейнеров | 1 контейнер | {count} контейнеров
+  service: Нет сервисов | 1 сервис | {count} сервисов
+  services: Сервисы
   running-containers: Запущенные контейнеры
   all-containers: Все контейнеры
   host: Хост
@@ -25,17 +25,19 @@ label:
   created: Создан
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
-  pinned: Pinned
-  per-page: Rows per page
+  pinned: Закреплено
+  per-page: Строк на странице
   host-menu: Хосты и Контейнеры
   swarm-menu: Сервисы и Стеки
   group-menu: Пользовательские Группы
+  no-logs: У контейнера еще нет логов
+  show-all-containers: Показать все контейнеры
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
-  merge-services: Merge all services into one view
-  merge-containers: Merge all containers into one view
-  merge-hosts: Merge all containers on this host into one view
+  merge-services: Объединить все сервисы в один вид
+  merge-containers: Объединить все контейнеры в один вид
+  merge-hosts: Объединить все контейнеры на этом хосте в один вид
 error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
@@ -66,8 +68,8 @@ button:
   logout: Выйти
   login: Войти
   settings: Настройки
-  cancel: Cancel
-  redirect: Redirect
+  cancel: Отмена
+  redirect: Перенаправить
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
@@ -100,20 +102,20 @@ settings:
       middle-line: со второй строкой
       end-line: и наконец третьей строкой.
 releases:
-  features: one new feature | {count} features
-  bugFixes: one bug fix | {count} fixes
-  breaking: one breaking change | {count} breaking changes
-  three_parts: "{first}, {second} and {third}"
-  two_parts: "{first} with {second}"
-  latest: Latest
-  no_releases: You have the latest version
+  features: одна новая функция | {count} функций
+  bugFixes: одно исправление ошибки | {count} исправлений
+  breaking: одно критическое изменение | {count} критических изменений
+  three_parts: "{first}, {second} и {third}"
+  two_parts: "{first} и {second}"
+  latest: Последняя
+  no_releases: У вас последняя версия
 log_actions:
-  copy_log: Copy log
-  jump_to_context: Jump to context
+  copy_log: Копировать лог
+  jump_to_context: Перейти к контексту
 toasts:
   copied:
-    title: Copied
-    message: Log copied to clipboard
+    title: Скопировано
+    message: Лог скопирован в буфер обмена
 analytics:
   creating_table: Создание временной таблицы...
   downloading: Получение логов контейнеров... ({size})

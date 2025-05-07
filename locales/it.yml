@@ -11,9 +11,9 @@ toolbar:
   show-container-name: Mostra nome container
 label:
   containers: Container
-  container: No containers | 1 container | {count} containers
-  service: No services | 1 service | {count} services
-  services: Services
+  container: Nessun container | 1 container | {count} container
+  service: Nessun servizio | 1 servizio | {count} servizi
+  services: Servizi
   running-containers: Container in esecuzione
   all-containers: Tutti i Container
   host: Host
@@ -30,6 +30,8 @@ label:
   host-menu: Host e Container
   swarm-menu: Servizi e Stack
   group-menu: Gruppi Personalizzati
+  no-logs: Il container non ha ancora log
+  show-all-containers: Mostra tutti i container
 tooltip:
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna
@@ -66,8 +68,8 @@ button:
   logout: Logout
   login: Login
   settings: Impostazioni
-  cancel: Cancel
-  redirect: Redirect
+  cancel: Annulla
+  redirect: Reindirizza
 placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
   search: Cerca

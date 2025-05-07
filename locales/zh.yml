@@ -16,6 +16,8 @@ label:
   services: 服务
   running-containers: 运行中的容器
   all-containers: 所有容器
+  no-logs: 容器尚无日志
+  show-all-containers: 显示所有容器
   host: 主机
   hosts: 主机
   password: 密码
@@ -35,7 +37,7 @@ tooltip:
   pin-column: 固定为列
   merge-services: 合并所有服务到一个视图
   merge-containers: 合并所有容器到一个视图
-  merge-hosts: Merge all containers on this host into one view
+  merge-hosts: 合并此主机上的所有容器到一个视图
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。
@@ -56,7 +58,7 @@ alert:
   similar-container-found:
     title: 找到相似的容器
     message: >-
-      Dozzle发现了一个相似的容器 {containerId}，它在同一主机上运行。您想切换到它吗？d
+      Dozzle发现了一个相似的容器 {containerId}，它在同一主机上运行。您想切换到它吗？
 title:
   page-not-found: 页面未找到
   login: 需要身份验证
@@ -86,7 +88,7 @@ settings:
   search: 使用Dozzle启用搜索
   using-version: 您正在使用Dozzle {version}。
   update-available: >-
-    新版本可用！更新到 <a href="{href}" rel="noreferrer noopener">{nextVersion}</a>。
+    新版本可用！更新到 <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>。
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式

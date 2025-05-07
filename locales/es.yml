@@ -30,6 +30,8 @@ label:
   host-menu: Hosts y Contenedores
   swarm-menu: Servicios y Stacks
   group-menu: Grupos Personalizados
+  no-logs: El contenedor aún no tiene registros
+  show-all-containers: Mostrar todos los contenedores
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna
@@ -100,9 +102,9 @@ settings:
       middle-line: con una segunda línea
       end-line: y finalmente una tercera línea.
 releases:
-  features: Características
-  bugFixes: Correcciones de errores
-  breaking: Cambios importantes
+  features: una nueva característica | {count} características
+  bugFixes: una corrección de error | {count} correcciones
+  breaking: un cambio importante | {count} cambios importantes
   three_parts: "{features}, {bugFixes} y {breaking}"
   two_parts: "{features} y {bugFixes}"
   latest: Último

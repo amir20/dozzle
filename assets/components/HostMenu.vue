@@ -31,8 +31,7 @@
             <a class="text-sm capitalize" @click="toggleShowAllContainers()">
               <mdi:check class="w-4" v-if="showAllContainers" />
               <div v-else class="w-4"></div>
-
-              Show all containers
+              {{ $t("label.show-all-containers") }}
             </a>
           </li>
         </ul>

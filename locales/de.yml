@@ -30,6 +30,8 @@ label:
   host-menu: Hosts und Container
   swarm-menu: Services und Stacks
   group-menu: Benutzerdefinierte Gruppen
+  no-logs: Container hat noch keine Logs
+  show-all-containers: Zeige alle Container
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften

@@ -7,8 +7,13 @@ toolbar:
   stop: Durdur
   start: Başlat
   restart: Yeniden Başlat
+  show-hostname: Sunucu adını göster
+  show-container-name: Konteyner adını göster
 label:
   containers: Konteynerlar
+  container: Konteyner yok | 1 konteyner | {count} konteyner
+  service: Servis yok | 1 servis | {count} servis
+  services: Servisler
   running-containers: Çalışan Konteynerlar
   all-containers: Tüm Konteynerlar
   total-containers: Toplam Konteyner
@@ -27,9 +32,12 @@ label:
   avg-cpu: Ort. CPU (%)
   avg-mem: Ort. Bellek (%)
   pinned: Sabitlenmiş
+  per-page: Sayfa başına satır
   host-menu: Sunucular ve Konteynerler
   swarm-menu: Servisler ve Yığınlar
   group-menu: Özel Gruplar
+  no-logs: Konteyner henüz log içermiyor
+  show-all-containers: Tüm konteynerleri göster
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
@@ -69,6 +77,8 @@ button:
   logout: Çıkış Yap
   login: Giriş Yap
   settings: Ayarlar
+  cancel: İptal
+  redirect: Yönlendir
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara

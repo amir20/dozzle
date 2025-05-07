@@ -7,6 +7,8 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  show-hostname: Pokaż nazwę hosta
+  show-container-name: Pokaż nazwę kontenera
 label:
   service: Brak usług | 1 usługa | {count} usług
   total-containers: Całkowita liczba kontenerów
@@ -32,9 +34,14 @@ label:
   host-menu: Hosty i Kontenery
   swarm-menu: Usługi i Stosy
   group-menu: Grupy Niestandardowe
+  no-logs: Kontener nie ma jeszcze logów
+  show-all-containers: Pokaż wszystkie kontenery
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
+  merge-services: Scal wszystkie usługi w jeden widok
+  merge-containers: Scal wszystkie kontenery w jeden widok
+  merge-hosts: Scal wszystkie kontenery na tym hoście w jeden widok
 error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
@@ -67,6 +74,8 @@ button:
   logout: Wyloguj się
   login: Zaloguj się
   settings: Ustawienia
+  cancel: Anuluj
+  redirect: Przekieruj
 placeholder:
   search-containers: Przeszukaj kontery (⌘ + k, ⌃k)
   search: Szukaj

@@ -16,6 +16,8 @@ label:
   services: 服務
   running-containers: 運作中的容器
   all-containers: 所有容器
+  no-logs: 容器尚無日誌
+  show-all-containers: 顯示所有容器
   host: 主機
   hosts: 主機
   password: 密碼
