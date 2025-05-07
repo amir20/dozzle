@@ -6,6 +6,9 @@ toolbar:
   show-all: Mostrar todos os fluxos
 label:
   containers: Contentores
+  container: Nenhum contentor | 1 contentor | {count} contentores
+  service: Nenhum serviço | 1 serviço | {count} serviços
+  services: Serviços
   running-containers: Contentores em execução
   all-containers: Todos os contentores
   total-containers: Contentores Totais
@@ -26,9 +29,14 @@ label:
   host-menu: Anfitriões e Contentores
   swarm-menu: Serviços e Stacks
   group-menu: Grupos Personalizados
+  no-logs: O contentor ainda não tem logs
+  show-all-containers: Mostrar todos os contentores
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna
+  merge-services: Fundir todos os serviços numa vista
+  merge-containers: Fundir todos os contentores numa vista
+  merge-hosts: Fundir todos os contentores neste anfitrião numa vista
 error:
   page-not-found: Esta página não existe.
   invalid-auth: O nome de usuário e a senha não são válidos.
@@ -60,6 +68,8 @@ button:
   logout: Terminar sessão
   login: Iniciar sessão
   settings: Configurações
+  cancel: Cancelar
+  redirect: Redirecionar
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
   search: Pesquisa
@@ -86,29 +96,30 @@ settings:
   show-std: Mostrar etiquetas de saída padrão e saída de erro padrão
   automatic-redirect: Redirecionar automaticamente para novos contentores com o mesmo nome
   compact: Compactar a interface do utilizador
-  releases:
-    features: uma nova funcionalidade | {count} funcionalidades
-    bugFixes: uma correção de bug | {count} correções
-    breaking: uma mudança significativa | {count} mudanças significativas
-    three_parts: "{first}, {second} e {third}"
-    two_parts: "{first} com {second}"
-    latest: Mais recente
-    no_releases: Você tem a versão mais recente
-
-  log_actions:
-    copy_log: Copiar log
-    jump_to_context: Ir para contexto
-
-  settings:
-    log:
-      preview: Esta é uma prévia dos logs
-      warning: Um log de aviso se parece com isto
-      complex: Esta é uma entrada de log complexa em json
-      simple: Esta é uma mensagem muito longa que seria quebrada por padrão. Desativar quebras suaves desativaria isso. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-      multi-line-error:
-        start-line: Esta é uma mensagem de erro multi-linha
-        middle-line: com uma segunda linha
-        end-line: e finalmente uma terceira linha.
+  log:
+    preview: Esta é uma prévia dos logs
+    warning: Um log de aviso se parece com isto
+    complex: Esta é uma entrada de log complexa em json
+    simple: Esta é uma mensagem muito longa que seria quebrada por padrão. Desativar quebras suaves desativaria isso. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Esta é uma mensagem de erro multi-linha
+      middle-line: com uma segunda linha
+      end-line: e finalmente uma terceira linha.
+releases:
+  features: uma nova funcionalidade | {count} funcionalidades
+  bugFixes: uma correção de bug | {count} correções
+  breaking: uma mudança significativa | {count} mudanças significativas
+  three_parts: "{first}, {second} e {third}"
+  two_parts: "{first} com {second}"
+  latest: Mais recente
+  no_releases: Você tem a versão mais recente
+log_actions:
+  copy_log: Copiar log
+  jump_to_context: Ir para contexto
+toasts:
+  copied:
+    title: Copiado
+    message: Log copiado para a área de transferência
 
 analytics:
   creating_table: A criar tabela temporária...

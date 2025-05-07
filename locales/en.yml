@@ -31,6 +31,7 @@ label:
   swarm-menu: Services and Stacks
   group-menu: Custom Groups
   no-logs: Container has no logs yet
+  show-all-containers: Show all containers
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column

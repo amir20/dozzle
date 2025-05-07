@@ -7,8 +7,8 @@ toolbar:
   stop: Stop
   start: Démarrer
   restart: Redémarrer
-  show-hostname: Show hostname
-  show-container-name: Show container name
+  show-hostname: Afficher le nom d'hôte
+  show-container-name: Afficher le nom du conteneur
 label:
   containers: Conteneurs
   container: Pas de conteneur | 1 conteneur | {count} conteneurs
@@ -30,6 +30,8 @@ label:
   host-menu: Hôtes et Conteneurs
   swarm-menu: Services et Stacks
   group-menu: Groupes Personnalisés
+  no-logs: Le conteneur n'a pas encore de logs
+  show-all-containers: Afficher tous les conteneurs
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
@@ -66,8 +68,8 @@ button:
   logout: Déconnexion
   login: Connexion
   settings: Paramètres
-  cancel: Cancel
-  redirect: Redirect
+  cancel: Annuler
+  redirect: Rediriger
 placeholder:
   search-containers: Recherche de conteneurs (⌘ + k, ⌃k)
   search: Recherche

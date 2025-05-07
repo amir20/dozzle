@@ -30,6 +30,8 @@ label:
   host-menu: Værter og Containere
   swarm-menu: Tjenester og Stacks
   group-menu: Brugerdefinerede Grupper
+  no-logs: Container har ingen logs endnu
+  show-all-containers: Vis alle containere
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
