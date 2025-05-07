@@ -1,28 +1,32 @@
 <template>
-  <div>
-    <span class="font-light capitalize"> STATE </span>
-    <span class="font-semibold uppercase"> {{ container.state }} </span>
-  </div>
-  <div v-if="container.startedAt.getFullYear() > 0">
-    <span class="font-light capitalize"> STARTED </span>
-    <span class="font-semibold">
-      <DistanceTime :date="container.startedAt" strict />
-    </span>
-  </div>
-  <div v-if="container.state != 'running' && container.finishedAt.getFullYear() > 0">
-    <span class="font-light capitalize"> FINISHED </span>
-    <span class="font-semibold">
-      <DistanceTime :date="container.finishedAt" strict />
-    </span>
-  </div>
-  <div v-if="container.state == 'running'">
-    <span class="font-light capitalize"> Load </span>
-    <span class="font-semibold"> {{ container.stat.cpu.toFixed(2) }}% </span>
-  </div>
-  <div v-if="container.state == 'running'">
-    <span class="font-light capitalize"> MEM </span>
-    <span class="font-semibold"> {{ formatBytes(container.stat.memoryUsage) }} </span>
-  </div>
+  <table class="w-full border-separate border-spacing-x-1">
+    <tbody>
+      <tr>
+        <th class="text-right font-light capitalize">STATE</th>
+        <td class="font-semibold uppercase">{{ container.state }}</td>
+      </tr>
+      <tr v-if="container.startedAt.getFullYear() > 0">
+        <th class="text-right font-light capitalize">STARTED</th>
+        <td class="font-semibold">
+          <RelativeTime :date="container.startedAt" />
+        </td>
+      </tr>
+      <tr v-if="container.state != 'running' && container.finishedAt.getFullYear() > 0">
+        <th class="text-right font-light capitalize">FINISHED</th>
+        <td class="font-semibold">
+          <RelativeTime :date="container.finishedAt" />
+        </td>
+      </tr>
+      <tr v-if="container.state == 'running'">
+        <th class="text-right font-light capitalize">Load</th>
+        <td class="font-semibold">{{ container.stat.cpu.toFixed(2) }}%</td>
+      </tr>
+      <tr v-if="container.state == 'running'">
+        <th class="text-right font-light capitalize">MEM</th>
+        <td class="font-semibold">{{ formatBytes(container.stat.memoryUsage) }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script lang="ts" setup>

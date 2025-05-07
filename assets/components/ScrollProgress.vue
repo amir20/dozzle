@@ -12,7 +12,7 @@
           <span> % </span>
         </div>
       </div>
-      <DistanceTime :date="date" class="text-sm whitespace-nowrap" />
+      <RelativeTime :date="date" class="text-sm whitespace-nowrap" />
     </div>
   </transition>
 </template>

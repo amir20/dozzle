@@ -22,7 +22,7 @@
                 >
                   {{ release.name }}
                 </a>
-                <span class="ml-1 text-xs"><distance-time :date="release.createdAt" /></span>
+                <span class="ml-1 text-xs"><RelativeTime :date="release.createdAt" /></span>
               </div>
               <div class="text-base-content/80 text-sm">
                 {{ release.body }}
@@ -39,7 +39,7 @@
                 >
                   {{ release.name }}
                 </a>
-                <span class="ml-1 text-xs"><distance-time :date="release.createdAt" /></span>
+                <span class="ml-1 text-xs"><RelativeTime :date="release.createdAt" /></span>
                 <Tag class="bg-red ml-auto px-1 py-1 text-xs" v-if="release.latest">
                   {{ $t("releases.latest") }}
                 </Tag>
