@@ -37,7 +37,6 @@ declare module 'vue' {
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
-    DistanceTime: typeof import('./components/common/DistanceTime.vue')['default']
     Dropdown: typeof import('./components/common/Dropdown.vue')['default']
     DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
     EventSource: typeof import('./components/LogViewer/EventSource.vue')['default']
