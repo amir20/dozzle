@@ -3,7 +3,7 @@
     <header class="flex items-center gap-4">
       <material-symbols:terminal class="size-8" />
       <h1 class="text-2xl max-md:hidden">{{ container.name }}</h1>
-      <h2 class="text-sm">Started <DistanceTime :date="container.created" /></h2>
+      <h2 class="text-sm">Started <RelativeTime :date="container.created" /></h2>
     </header>
 
     <div class="mt-8 flex flex-col gap-2">

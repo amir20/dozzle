@@ -109,3 +109,27 @@ export function hashCode(str: string) {
   }
   return hash;
 }
+
+const units: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 31536000],
+  ["month", 2592000],
+  ["week", 604800],
+  ["day", 86400],
+  ["hour", 3600],
+  ["minute", 60],
+  ["second", 1],
+];
+
+export function toRelativeTime(date: Date, locale: string | undefined): string {
+  const diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  for (const [unit, seconds] of units) {
+    const value = Math.round(diffInSeconds / seconds);
+    if (Math.abs(value) >= 1) {
+      return rtf.format(value, unit);
+    }
+  }
+
+  return rtf.format(0, "second");
+}

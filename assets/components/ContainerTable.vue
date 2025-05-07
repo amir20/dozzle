@@ -75,7 +75,7 @@
             <td v-if="isVisible('host')">{{ container.hostLabel }}</td>
             <td v-if="isVisible('state')">{{ container.state }}</td>
             <td v-if="isVisible('created')">
-              <distance-time :date="container.created" strict :suffix="false"></distance-time>
+              <RelativeTime :date="container.created" />
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">

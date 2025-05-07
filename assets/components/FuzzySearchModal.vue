@@ -53,7 +53,7 @@
               <span data-name v-html="matchedName(result)"></span>
             </div>
 
-            <DistanceTime :date="result.item.created" class="text-xs font-light" />
+            <RelativeTime :date="result.item.created" class="text-xs font-light" />
             <span
               @click.stop.prevent="addColumn(result.item)"
               :title="$t('tooltip.pin-column')"

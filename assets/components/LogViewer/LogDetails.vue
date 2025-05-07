@@ -4,7 +4,7 @@
     <h1 class="text-lg max-md:hidden">
       <DateTime :date="entry.date" />
     </h1>
-    <h2 class="text-sm"><DistanceTime :date="entry.date" /> on {{ entry.std }}</h2>
+    <h2 class="text-sm"><RelativeTime :date="entry.date" /> on {{ entry.std }}</h2>
   </header>
 
   <div class="mt-8 flex flex-col gap-10">

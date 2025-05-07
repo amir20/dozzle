@@ -10,7 +10,7 @@
           ></div>
           {{ other.name }}
           <div v-if="other.state === 'running'">running</div>
-          <DistanceTime :date="other.created" strict class="text-base-content/70 text-xs" v-else />
+          <RelativeTime :date="other.finishedAt" class="text-base-content/70 text-xs" v-else />
         </router-link>
       </li>
     </ul>
