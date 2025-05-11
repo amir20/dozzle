@@ -8,6 +8,8 @@ Dozzle supports connecting to remote Docker hosts. This is useful when running D
 
 However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.
 
+Dozzle agents remove the need to remotely expose the Docker socket but cannot be uses with a Docker Socket proxy inside the Dozzle agent stack. If you wish to use a Socket Proxy on it's own without an agent see the [connecting with a socket proxy](#connecting-with-a-socket-proxy) section.
+
 > [!WARNING]
 > Remote hosts have been replaced with agents. Agents provide a more secure way to connect to remote hosts. Although remote hosts are still supported, it is recommended to use agents. See the [agent](/guide/agent) page for more information and examples. For comparison, see the [comparing agents with remote connections](/guide/agent#comparing-agents-with-remote-connection) section. I won't be able to investigate user's issues with remote hosts as it is very time consuming.
 
@@ -42,7 +44,7 @@ services:
 
 ## Connecting with a Socket Proxy
 
-If you are in a private network, then you can use [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) which exposes `docker.sock` file without the need for TLS. Dozzle will never try to write to Docker but it will need access to list APIs. The following command will start a proxy with minimal access:
+If you are in a private network, then you can use [Docker Socket Proxy](https://github.com/Tecnativa/docker-socket-proxy) which exposes `docker.sock` file without the need for TLS. This will remove the need for a Dozzle agent and Dozzle will connect directly to the Socket Proxy instead. Dozzle will never try to write to Docker but it will need access to list APIs. The following command will start a proxy with minimal access:
 
 ```sh
 $ docker container run --privileged -e CONTAINERS=1 -e INFO=1 -v /var/run/docker.sock:/var/run/docker.sock -p 2375:2375 tecnativa/docker-socket-proxy
