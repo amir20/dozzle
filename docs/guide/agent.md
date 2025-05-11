@@ -32,6 +32,10 @@ services:
 
 :::
 
+> [!NOTE] Docker Socket Proxy users
+> If you are using a remote agent you **CANNOT** add a socket proxy on top of the agent. Dozzle agents **REPLACE** using a proxy, see [Remote Hosts](/guide/remote-hosts.md) for more info and how to use a socket proxy instead of an agent.
+
+
 The agent will start and listen on port `7007`. You can connect to the agent using the Dozzle UI by providing the agent's IP address and port. The agent will only show the containers that are available on the host where the agent is running.
 
 > [!TIP]
