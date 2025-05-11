@@ -1,0 +1,136 @@
+toolbar:
+  clear: Bersihkan
+  download: Unduh
+  search: Cari
+  show: Tampilkan {std}
+  show-all: Tampilkan semua
+  stop: Hentikan
+  start: Mulai
+  restart: Mulai ulang
+  show-hostname: Tampilkan nama host
+  show-container-name: Tampilkan nama kontainer
+
+label:
+  containers: Kontainer
+  container: Tidak ada kontainer | 1 kontainer | {count} kontainer
+  service: Tidak ada layanan | 1 layanan | {count} layanan
+  services: Layanan
+  running-containers: Kontainer Berjalan
+  all-containers: Semua Kontainer
+  host: Host
+  hosts: Host
+  password: Kata sandi
+  username: Nama pengguna
+  container-name: Nama Kontainer
+  status: Status
+  created: Dibuat
+  avg-cpu: Rata-rata CPU (%)
+  avg-mem: Rata-rata MEM (%)
+  pinned: Disematkan
+  per-page: Baris per halaman
+  host-menu: Host dan Kontainer
+  swarm-menu: Layanan dan Stack
+  group-menu: Grup Kustom
+  no-logs: Kontainer belum memiliki log
+  show-all-containers: Tampilkan semua kontainer
+
+tooltip:
+  search: Cari kontainer (⌘ + k, ⌃k)
+  pin-column: Sematkan sebagai kolom
+  merge-services: Gabungkan semua layanan dalam satu tampilan
+  merge-containers: Gabungkan semua kontainer dalam satu tampilan
+  merge-hosts: Gabungkan semua kontainer di host ini dalam satu tampilan
+
+error:
+  page-not-found: Halaman ini tidak ada
+  invalid-auth: Nama pengguna atau kata sandi tidak valid
+  logs-skipped: Melewati {total} entri
+  container-not-found: Kontainer tidak ditemukan
+  events-stream:
+    title: Kesalahan Tak Terduga
+    message: >-
+      UI Dozzle tidak dapat terhubung ke API. Periksa pengaturan jaringan Anda. Jika Anda menggunakan reverse proxy, pastikan konfigurasinya sudah benar.
+  events-timeout:
+    title: Ada yang tidak beres
+    message: >-
+      UI Dozzle gagal terhubung ke API karena waktu habis. Periksa koneksi jaringan dan coba lagi.
+
+alert:
+  redirected:
+    title: Dialihkan ke kontainer baru
+    message: Dozzle secara otomatis mengalihkan Anda ke kontainer baru {containerId}.
+  similar-container-found:
+    title: Kontainer serupa ditemukan
+    message: >-
+      Dozzle menemukan kontainer serupa {containerId} yang berjalan di host yang sama dan akan otomatis beralih kecuali Anda mengklik 'Batal'.
+
+title:
+  page-not-found: Halaman tidak ditemukan
+  login: Autentikasi Diperlukan
+  dashboard: 1 kontainer | {count} kontainer
+  settings: Pengaturan
+
+button:
+  logout: Keluar
+  login: Masuk
+  settings: Pengaturan
+  cancel: Batal
+  redirect: Alihkan
+
+placeholder:
+  search-containers: Cari kontainer (⌘ + k, ⌃k)
+  search: Cari
+
+settings:
+  display: Tampilan
+  locale: Ganti bahasa
+  small-scrollbars: Gunakan scrollbar kecil
+  show-timesamps: Tampilkan cap waktu
+  soft-wrap: Bungkus baris secara lunak
+  datetime-format: Ganti format tanggal dan waktu
+  font-size: Ukuran font untuk log
+  color-scheme: Skema warna
+  options: Opsi
+  show-stopped-containers: Tampilkan kontainer yang dihentikan
+  about: Tentang
+  search: Aktifkan pencarian dengan Dozzle menggunakan
+  using-version: Anda menggunakan Dozzle {version}.
+  update-available: >-
+    Versi baru tersedia! Perbarui ke <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Tampilkan label stdout dan stderr
+  automatic-redirect: Alihkan otomatis ke kontainer baru dengan nama yang sama
+  compact: Aktifkan mode ringkas untuk log
+  log:
+    preview: Ini adalah pratinjau log
+    warning: Log peringatan seperti ini
+    complex: Ini adalah entri log kompleks dalam format json
+    simple: Ini adalah pesan yang sangat panjang yang akan terbungkus secara default. Menonaktifkan pembungkusan lunak akan menonaktifkannya. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: Ini adalah pesan kesalahan multi-baris
+      middle-line: dengan baris kedua
+      end-line: dan akhirnya baris ketiga.
+
+releases:
+  features: satu fitur baru | {count} fitur
+  bugFixes: satu perbaikan bug | {count} perbaikan
+  breaking: satu perubahan besar | {count} perubahan besar
+  three_parts: "{first}, {second}, dan {third}"
+  two_parts: "{first} dengan {second}"
+  latest: Terbaru
+  no_releases: Anda sudah menggunakan versi terbaru
+
+log_actions:
+  copy_log: Salin log
+  jump_to_context: Lompat ke konteks
+
+toasts:
+  copied:
+    title: Disalin
+    message: Log disalin ke clipboard
+
+analytics:
+  creating_table: Membuat tabel sementara...
+  downloading: Mengambil log kontainer... ({size})
+  evaluating_query: Mengevaluasi kueri...
+  total_records: Total {count} entri.
+  showing_first: Menampilkan {count} pertama.
