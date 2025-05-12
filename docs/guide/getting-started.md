@@ -39,11 +39,11 @@ services:
       # - DOZZLE_AUTH_PROVIDER=simple
 ```
 
+:::
+
 > [!TIP]
 > Dozzle supports actions, such as stopping, starting, and restarting containers, or attaching to container shells. But they are disabled by default for security reasons. To enable them, uncomment the corresponding environment variables.
-> :::
-
-Dozzle also supports connecting to remote agents to monitor multiple Docker hosts. See [agent](/guide/agent) to learn more.
+> Dozzle also supports connecting to remote agents to monitor multiple Docker hosts. See [agent](/guide/agent) to learn more.
 
 ## Docker Swarm
 
