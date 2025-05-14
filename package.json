@@ -77,7 +77,7 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@apache-arrow/esnext-esm": "^19.0.1",
+    "@apache-arrow/esnext-esm": "^20.0.0",
     "@iconify-json/material-symbols-light": "^1.2.20",
     "@iconify-json/ri": "^1.2.5",
     "@pinia/testing": "^1.0.1",
