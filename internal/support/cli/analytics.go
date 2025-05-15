@@ -19,6 +19,7 @@ func StartEvent(args Args, mode string, client container.Client, subCommand stri
 		RemoteClients:    len(args.RemoteHost),
 		SubCommand:       subCommand,
 		HasActions:       args.EnableActions,
+		HasShell:         args.EnableShell,
 		HasCustomAddress: args.Addr != ":8080",
 		HasCustomBase:    args.Base != "/",
 		HasHostname:      args.Hostname != "",
