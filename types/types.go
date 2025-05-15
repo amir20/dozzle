@@ -12,6 +12,7 @@ type BeaconEvent struct {
 	HasHostname       bool   `json:"hasHostname"`
 	RunningContainers int    `json:"runningContainers"`
 	HasActions        bool   `json:"hasActions"`
+	HasShell          bool   `json:"hasShell"`
 	IsSwarmMode       bool   `json:"isSwarmMode"`
 	ServerVersion     string `json:"serverVersion"`
 	ServerID          string `json:"serverID"`
