@@ -119,13 +119,28 @@
       <div class="has-underline">
         <h2>{{ $t("settings.options") }}</h2>
       </div>
+
+      <LabeledInput>
+        <template #label>
+          {{ $t("settings.automatic-redirect") }}
+        </template>
+        <template #input>
+          <DropdownMenu
+            v-model="automaticRedirect"
+            :options="[
+              { label: 'Instant', value: 'instant' },
+              { label: 'Delayed', value: 'delayed' },
+              { label: 'None', value: 'none' },
+            ]"
+          />
+        </template>
+      </LabeledInput>
+
       <Toggle v-model="search">
         {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
       </Toggle>
 
       <Toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</Toggle>
-
-      <Toggle v-model="automaticRedirect">{{ $t("settings.automatic-redirect") }}</Toggle>
     </section>
   </PageWithLinks>
 </template>

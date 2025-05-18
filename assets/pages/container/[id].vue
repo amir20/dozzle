@@ -39,6 +39,7 @@ watch(currentContainer, () => (redirectTrigger.value = false));
 
 watchEffect(() => {
   if (redirectTrigger.value) return;
+  if (automaticRedirect.value === "none") return;
   if (!currentContainer.value) return;
   if (currentContainer.value.state === "running") return;
   if (Date.now() - +currentContainer.value.finishedAt > 5 * 60 * 1000) return;
@@ -49,7 +50,7 @@ watchEffect(() => {
 
   if (!nextContainer) return;
 
-  if (automaticRedirect.value) {
+  if (automaticRedirect.value === "delayed") {
     redirectTrigger.value = true;
     showToast(
       {
@@ -72,6 +73,16 @@ watchEffect(() => {
         },
       },
       { timed: 4000 },
+    );
+  } else {
+    router.push({ name: "/container/[id]", params: { id: nextContainer.id } });
+    showToast(
+      {
+        title: t("alert.redirected.title"),
+        message: t("alert.redirected.message", { containerId: nextContainer.id }),
+        type: "info",
+      },
+      { expire: 3000 },
     );
   }
 });
