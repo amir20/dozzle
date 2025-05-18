@@ -28,7 +28,7 @@ type Settings struct {
 	ShowAllContainers bool    `json:"showAllContainers"`
 	SoftWrap          bool    `json:"softWrap"`
 	CollapseNav       bool    `json:"collapseNav"`
-	AutomaticRedirect bool    `json:"automaticRedirect"`
+	AutomaticRedirect string  `json:"automaticRedirect"`
 	Size              string  `json:"size,omitempty"`
 	Compact           bool    `json:"compact"`
 	LightTheme        string  `json:"lightTheme,omitempty"`
