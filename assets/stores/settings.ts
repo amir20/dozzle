@@ -40,6 +40,9 @@ export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
 // @ts-ignore: automaticRedirect is now a string enum, but might be a boolean in older data
 if (settings.value.automaticRedirect === true) {
   settings.value.automaticRedirect = "delayed";
+  // @ts-ignore: automaticRedirect is now a string enum, but might be a boolean in older data
+} else if (settings.value.automaticRedirect === false) {
+  settings.value.automaticRedirect = "none";
 }
 
 export const {
