@@ -14,7 +14,7 @@ export type Settings = {
   dateLocale: "auto" | "en-US" | "en-GB" | "de-DE" | "en-CA";
   softWrap: boolean;
   collapseNav: boolean;
-  automaticRedirect: boolean;
+  automaticRedirect: "instant" | "delayed" | "none";
   locale: string;
 };
 export const DEFAULT_SETTINGS: Settings = {
@@ -31,11 +31,19 @@ export const DEFAULT_SETTINGS: Settings = {
   dateLocale: "auto",
   softWrap: true,
   collapseNav: false,
-  automaticRedirect: true,
+  automaticRedirect: "delayed",
   locale: "",
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
+
+// @ts-ignore: automaticRedirect is now a string enum, but might be a boolean in older data
+if (settings.value.automaticRedirect === true) {
+  settings.value.automaticRedirect = "delayed";
+  // @ts-ignore: automaticRedirect is now a string enum, but might be a boolean in older data
+} else if (settings.value.automaticRedirect === false) {
+  settings.value.automaticRedirect = "none";
+}
 
 export const {
   collapseNav,

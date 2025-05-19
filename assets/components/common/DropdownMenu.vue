@@ -1,5 +1,5 @@
 <template>
-  <details class="dropdown" ref="details" v-on-click-outside="close">
+  <details class="dropdown dropdown-end" ref="details" v-on-click-outside="close">
     <summary class="btn btn-primary flex-nowrap" v-bind="$attrs">
       <slot name="trigger"> {{ label }} <carbon:caret-down /></slot>
     </summary>
