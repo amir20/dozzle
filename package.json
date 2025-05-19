@@ -89,7 +89,7 @@
     "@types/d3-shape": "^3.1.7",
     "@types/d3-transition": "^3.0.9",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^22.15.18",
+    "@types/node": "^22.15.19",
     "@vitejs/plugin-vue": "5.2.4",
     "@vue/compiler-sfc": "^3.5.14",
     "@vue/test-utils": "^2.4.6",
