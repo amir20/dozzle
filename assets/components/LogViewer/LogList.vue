@@ -101,6 +101,10 @@ useIntersectionObserver(
   }
 }
 
+ul :deep(a[rel~="external"]) {
+  @apply text-primary underline-offset-4 hover:underline;
+}
+
 @keyframes pops {
   0% {
     transform: scale(1.5);

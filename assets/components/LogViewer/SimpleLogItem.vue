@@ -29,10 +29,3 @@ defineProps<{
 
 const colorize = (value: string) => ansiConvertor.toHtml(value);
 </script>
-
-<style scoped>
-@reference "@/main.css";
-.log-wrapper :deep(a) {
-  @apply text-primary underline-offset-4 hover:underline;
-}
-</style>

@@ -44,7 +44,7 @@ func escapeAndProcessMarkers(value string) string {
 	value = strings.ReplaceAll(value, MarkerStart, "<mark>")
 	value = strings.ReplaceAll(value, MarkerEnd, "</mark>")
 	// Process URL markers
-	value = urlMarkerRegex.ReplaceAllString(value, "<a href=\"$1\" target=\"_blank\" rel=\"noopener noreferrer\">$1</a>")
+	value = urlMarkerRegex.ReplaceAllString(value, "<a href=\"$1\" target=\"_blank\" rel=\"noopener noreferrer external\">$1</a>")
 	return value
 }
 

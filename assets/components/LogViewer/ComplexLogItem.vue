@@ -1,6 +1,6 @@
 <template>
   <LogItem :logEntry @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
-    <ul class="space-x-4">
+    <ul class="log-wrapper space-x-4" @click="console.log($event.target)">
       <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
         <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
         <template v-else-if="Array.isArray(value)">
