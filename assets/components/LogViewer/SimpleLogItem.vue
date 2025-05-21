@@ -1,7 +1,7 @@
 <template>
   <LogItem :logEntry>
     <div
-      class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"
+      class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap"
       v-html="colorize(logEntry.message)"
     ></div>
     <LogMessageActions
