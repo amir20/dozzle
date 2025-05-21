@@ -1,5 +1,5 @@
 <template>
-  <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
+  <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }" data-logs>
     <li
       v-for="item in messages"
       ref="list"

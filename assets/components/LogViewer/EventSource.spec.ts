@@ -160,7 +160,7 @@ describe("<ContainerEventSource />", () => {
       vi.runAllTimers();
       await nextTick();
 
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
+      expect(wrapper.find("ul[data-logs]").html()).toMatchSnapshot();
     });
 
     test("should render dates with 12 hour style", async () => {
@@ -173,7 +173,7 @@ describe("<ContainerEventSource />", () => {
       vi.runAllTimers();
       await nextTick();
 
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
+      expect(wrapper.find("ul[data-logs]").html()).toMatchSnapshot();
     });
 
     test("should render dates with 24 hour style", async () => {
@@ -186,7 +186,7 @@ describe("<ContainerEventSource />", () => {
       vi.runAllTimers();
       await nextTick();
 
-      expect(wrapper.find("ul.events").html()).toMatchSnapshot();
+      expect(wrapper.find("ul[data-logs]").html()).toMatchSnapshot();
     });
   });
 });
