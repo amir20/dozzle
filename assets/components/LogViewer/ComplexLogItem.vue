@@ -1,6 +1,6 @@
 <template>
   <LogItem :logEntry @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
-    <ul class="space-x-4" @click="onClick">
+    <ul class="space-x-4" @click="preventDefaultOnLinks">
       <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
         <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
         <template v-else-if="Array.isArray(value)">
@@ -27,7 +27,7 @@ const validValues = computed(() => {
 });
 
 const showDrawer = useDrawer();
-function onClick(event: MouseEvent) {
+function preventDefaultOnLinks(event: MouseEvent) {
   if (event.target instanceof HTMLAnchorElement && event.target.rel?.includes("external")) {
     event.stopImmediatePropagation();
   }
