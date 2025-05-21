@@ -167,6 +167,7 @@ func ParseContainerAction(input string) (ContainerAction, error) {
 
 type LogEvent struct {
 	Message     any         `json:"m,omitempty"`
+	RawMessage  string      `json:"rm,omitempty"`
 	Timestamp   int64       `json:"ts"`
 	Id          uint32      `json:"id,omitempty"`
 	Level       string      `json:"l,omitempty"`

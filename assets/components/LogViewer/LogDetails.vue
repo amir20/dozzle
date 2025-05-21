@@ -37,7 +37,7 @@
         </UseClipboard>
       </div>
       <div class="bg-base-200 max-h-48 overflow-scroll rounded-sm border border-white/20 p-2">
-        <pre v-html="syntaxHighlight(entry.unfilteredMessage)"></pre>
+        <pre v-html="syntaxHighlight(entry.rawMessage)"></pre>
       </div>
     </section>
     <table class="table-pin-rows table table-fixed" v-if="entry instanceof ComplexLogEntry">
@@ -141,8 +141,8 @@ const toggleAllFields = computed({
   },
 });
 
-function syntaxHighlight(json: any) {
-  json = JSON.stringify(json, null, 2);
+function syntaxHighlight(json: string) {
+  json = JSON.stringify(JSON.parse(json), null, 2);
   return json.replace(
     /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|\b\d+\b)/g,
     function (match: string) {
