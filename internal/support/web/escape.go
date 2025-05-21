@@ -57,13 +57,35 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeAnyMap(value)
 		case *orderedmap.OrderedMap[string, string]:
 			escapeStringMap(value)
+		case map[string]interface{}:
+			escapeMapStringInterface(value)
+		case map[string]string:
+			escapeStringMapString(value)
 		}
 	}
-
 }
 
 func escapeStringMap(orderedMap *orderedmap.OrderedMap[string, string]) {
 	for pair := orderedMap.Oldest(); pair != nil; pair = pair.Next() {
 		orderedMap.Set(pair.Key, escapeAndProcessMarkers(pair.Value))
+	}
+}
+
+func escapeMapStringInterface(value map[string]interface{}) {
+	for key, val := range value {
+		switch val := val.(type) {
+		case string:
+			value[key] = escapeAndProcessMarkers(val)
+		case map[string]interface{}:
+			escapeMapStringInterface(val)
+		case map[string]string:
+			escapeStringMapString(val)
+		}
+	}
+}
+
+func escapeStringMapString(value map[string]string) {
+	for key, val := range value {
+		value[key] = escapeAndProcessMarkers(val)
 	}
 }
