@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
-"<ul data-v-cf9ff940="" class="events group pt-4 medium" show-container-name="false">
+"<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -13,8 +13,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>
@@ -23,9 +23,9 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
-"<ul data-v-cf9ff940="" class="events group pt-4 medium" show-container-name="false">
+"<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -35,8 +35,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>
@@ -45,9 +45,9 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 `;
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
-"<ul data-v-cf9ff940="" class="events group pt-4 medium" show-container-name="false">
+"<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
-    <div data-v-a49e52d4="" data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+    <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -57,8 +57,8 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div data-v-a49e52d4="" class="log-wrapper [word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <div data-v-a49e52d4="" class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
+      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
         <!--v-if-->
       </div>
     </div>

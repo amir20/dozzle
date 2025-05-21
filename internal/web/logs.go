@@ -20,7 +20,6 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
-	"github.com/amir20/dozzle/internal/support/search"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/dustin/go-humanize"
@@ -68,7 +67,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
-		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
+		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -144,7 +143,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				}
 			} else {
 				if regex != nil {
-					if !search.Search(regex, event) {
+					if !support_web.Search(regex, event) {
 						continue
 					}
 				}
@@ -158,7 +157,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					break
 				}
 
-				support_web.EscapeHTMLValues(event) // only escape when not exporting
+				support_web.EscapeHTMLValues(event)
 				buffer.Push(event)
 			}
 		}
@@ -280,7 +279,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	if r.URL.Query().Has("filter") {
 		var err error
-		regex, err = search.ParseRegex(r.URL.Query().Get("filter"))
+		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -317,7 +316,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 						if _, ok := levels[log.Level]; !ok {
 							continue
 						}
-						if search.Search(regex, log) {
+						if support_web.Search(regex, log) {
 							events = append(events, log)
 						}
 					}
@@ -384,7 +383,7 @@ loop:
 		select {
 		case logEvent := <-liveLogs:
 			if regex != nil {
-				if !search.Search(regex, logEvent) {
+				if !support_web.Search(regex, logEvent) {
 					continue
 				}
 			}

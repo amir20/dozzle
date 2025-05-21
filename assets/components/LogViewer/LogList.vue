@@ -1,5 +1,5 @@
 <template>
-  <ul class="events group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }">
+  <ul class="group pt-4" :class="{ 'disable-wrap': !softWrap, [size]: true, compact }" data-logs>
     <li
       v-for="item in messages"
       ref="list"
@@ -55,7 +55,7 @@ useIntersectionObserver(
 </script>
 <style scoped>
 @reference "@/main.css";
-.events {
+ul {
   font-family:
     ui-monospace,
     SFMono-Regular,
@@ -98,6 +98,10 @@ useIntersectionObserver(
   :deep(mark) {
     @apply bg-secondary inline-block rounded-xs;
     animation: pops 200ms ease-out;
+  }
+
+  :deep(a[rel~="external"]) {
+    @apply text-primary underline-offset-4 hover:underline;
   }
 }
 
