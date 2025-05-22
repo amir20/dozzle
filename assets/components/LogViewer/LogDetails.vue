@@ -29,7 +29,7 @@
       <div class="flex gap-2">
         Raw JSON
 
-        <UseClipboard v-slot="{ copy, copied }" :source="JSON.stringify(entry.rawMessage)">
+        <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
           <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
             <mdi:content-copy class="swap-off" />
