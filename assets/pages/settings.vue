@@ -181,8 +181,8 @@ const hoursAgo = (hours: number) => {
 const fakeMessages = computedWithControl(
   () => i18n.global.locale.value,
   () => [
-    new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", undefined, "stdout"),
-    new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", undefined, "stdout"),
+    new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", undefined, "stdout", ""),
+    new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", undefined, "stdout", ""),
     new SimpleLogEntry(
       t("settings.log.multi-line-error.start-line"),
       "123",
@@ -191,6 +191,7 @@ const fakeMessages = computedWithControl(
       "error",
       "start",
       "stderr",
+      "",
     ),
     new SimpleLogEntry(
       t("settings.log.multi-line-error.middle-line"),
@@ -200,8 +201,9 @@ const fakeMessages = computedWithControl(
       "error",
       "middle",
       "stderr",
+      "",
     ),
-    new SimpleLogEntry(t("settings.log.multi-line-error.end-line"), "123", 5, new Date(), "error", "end", "stderr"),
+    new SimpleLogEntry(t("settings.log.multi-line-error.end-line"), "123", 5, new Date(), "error", "end", "stderr", ""),
     new ComplexLogEntry(
       {
         message: t("settings.log.complex"),
@@ -215,8 +217,9 @@ const fakeMessages = computedWithControl(
       new Date(),
       "info",
       "stdout",
+      "",
     ),
-    new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", undefined, "stderr"),
+    new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", undefined, "stderr", ""),
   ],
 );
 </script>

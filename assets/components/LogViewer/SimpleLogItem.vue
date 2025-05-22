@@ -6,14 +6,13 @@
     ></div>
     <LogMessageActions
       class="absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100"
-      :message="() => decodeXML(stripAnsi(logEntry.message))"
+      :message="() => stripAnsi(logEntry.rawMessage)"
       :log-entry="logEntry"
     />
   </LogItem>
 </template>
 <script lang="ts" setup>
 import { SimpleLogEntry } from "@/models/LogEntry";
-import { decodeXML } from "entities";
 import AnsiConvertor from "ansi-to-html";
 import stripAnsi from "strip-ansi";
 

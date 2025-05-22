@@ -29,7 +29,7 @@
       <div class="flex gap-2">
         Raw JSON
 
-        <UseClipboard v-slot="{ copy, copied }" :source="JSON.stringify(entry.unfilteredMessage)">
+        <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
           <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
             <mdi:content-copy class="swap-off" />
@@ -37,7 +37,7 @@
         </UseClipboard>
       </div>
       <div class="bg-base-200 max-h-48 overflow-scroll rounded-sm border border-white/20 p-2">
-        <pre v-html="syntaxHighlight(entry.unfilteredMessage)"></pre>
+        <pre v-html="syntaxHighlight(entry.rawMessage)"></pre>
       </div>
     </section>
     <table class="table-pin-rows table table-fixed" v-if="entry instanceof ComplexLogEntry">
@@ -59,7 +59,7 @@
             {{ key.join(".") }}
           </td>
           <td class="truncate max-md:hidden">
-            <code v-html="JSON.stringify(value)"></code>
+            <code>{{ JSON.stringify(value) }}</code>
           </td>
           <td>
             <input type="checkbox" class="toggle toggle-primary" :checked="enabled" @change="toggleField(key)" />
@@ -96,14 +96,15 @@ function toggleField(key: string[]) {
 const fields = computed({
   get() {
     const fieldsWithValue: { key: string[]; value: any; enabled: boolean }[] = [];
-    const allFields = flattenJSONToMap(entry.unfilteredMessage);
+    const rawFields = JSON.parse(entry.rawMessage);
+    const allFields = flattenJSONToMap(rawFields);
     if (visibleKeys.value.size === 0) {
       for (const [key, value] of allFields) {
         fieldsWithValue.push({ key, value, enabled: true });
       }
     } else {
       for (const [key, enabled] of visibleKeys.value) {
-        const value = getDeep(entry.unfilteredMessage, key);
+        const value = getDeep(rawFields, key);
         fieldsWithValue.push({ key, value, enabled });
       }
 
@@ -141,8 +142,8 @@ const toggleAllFields = computed({
   },
 });
 
-function syntaxHighlight(json: any) {
-  json = JSON.stringify(json, null, 2);
+function syntaxHighlight(json: string) {
+  json = JSON.stringify(JSON.parse(json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")), null, 2);
   return json.replace(
     /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|\b\d+\b)/g,
     function (match: string) {

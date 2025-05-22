@@ -74,6 +74,7 @@ SimpleLogEntry {
   "id": 1,
   "level": undefined,
   "position": undefined,
+  "rawMessage": "This is a message.",
   "std": "stderr",
 }
 `;
