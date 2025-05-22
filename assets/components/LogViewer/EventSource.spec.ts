@@ -138,7 +138,7 @@ describe("<ContainerEventSource />", () => {
     const wrapper = createLogEventSource();
     sources[sourceUrl].emitOpen();
     sources[sourceUrl].emitMessage({
-      data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
+      data: `{"ts":1560336942459, "m":"This is a message.", "id":1, "rm": "This is a message."}`,
     });
 
     vi.runAllTimers();
@@ -154,7 +154,7 @@ describe("<ContainerEventSource />", () => {
       const wrapper = createLogEventSource();
       sources[sourceUrl].emitOpen();
       sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"This is a message.", "id":1}`,
+        data: `{"ts":1560336942459, "m":"This is a message.", "id":1, "rm": "This is a message."}`,
       });
 
       vi.runAllTimers();
@@ -167,7 +167,7 @@ describe("<ContainerEventSource />", () => {
       const wrapper = createLogEventSource({ hourStyle: "12" });
       sources[sourceUrl].emitOpen();
       sources[sourceUrl].emitMessage({
-        data: `{"ts":1560336942459, "m":"foo bar", "id":1}`,
+        data: `{"ts":1560336942459, "m":"foo bar", "id":1, "rm": "foo bar"}`,
       });
 
       vi.runAllTimers();

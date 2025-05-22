@@ -28,6 +28,7 @@ export interface LogEvent {
   readonly p: Position;
   readonly s: "stdout" | "stderr" | "unknown";
   readonly c: string;
+  readonly rm: string;
 }
 
 export abstract class LogEntry<T extends string | JSONObject> {
@@ -38,6 +39,7 @@ export abstract class LogEntry<T extends string | JSONObject> {
     public readonly id: number,
     public readonly date: Date,
     public readonly std: Std,
+    public readonly rawMessage: string,
     public readonly level?: Level,
   ) {
     this._message = message;
@@ -59,8 +61,9 @@ export class SimpleLogEntry extends LogEntry<string> {
     public readonly level: Level,
     public readonly position: Position,
     public readonly std: Std,
+    public readonly rawMessage: string,
   ) {
-    super(message, containerID, id, date, std, level);
+    super(message, containerID, id, date, std, rawMessage, level);
   }
   getComponent(): Component {
     return SimpleLogItem;
@@ -77,9 +80,10 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
     date: Date,
     public readonly level: Level,
     public readonly std: Std,
+    public readonly rawMessage: string,
     visibleKeys?: Ref<Map<string[], boolean>>,
   ) {
-    super(message, containerID, id, date, std, level);
+    super(message, containerID, id, date, std, rawMessage, level);
     if (visibleKeys) {
       this.filteredMessage = computed(() => {
         if (visibleKeys.value.size === 0) {
@@ -123,6 +127,7 @@ export class ComplexLogEntry extends LogEntry<JSONObject> {
       event.date,
       event.level,
       event.std,
+      event.rawMessage,
       visibleKeys,
     );
   }
@@ -187,6 +192,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       new Date(event.ts),
       event.l,
       event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
+      event.rm,
     );
   } else {
     return new SimpleLogEntry(
@@ -197,6 +203,7 @@ export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
       event.l,
       event.p,
       event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
+      event.rm,
     );
   }
 }
