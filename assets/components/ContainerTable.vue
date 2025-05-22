@@ -88,7 +88,7 @@
                   high="80"
                   :value="Math.min(container.movingAverage.cpu, 100)"
                 ></meter>
-                <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+                <span class="w-8 text-right text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
@@ -102,7 +102,7 @@
                   high="75"
                   :value="container.movingAverage.memory"
                 ></meter>
-                <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+                <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
               </div>
             </td>
           </tr>
@@ -244,13 +244,15 @@ a {
 }
 
 meter::-webkit-meter-optimum-value {
-  background: #4caf50; /* green for optimal */
+  background: var(--color-green);
 }
+
 meter::-webkit-meter-suboptimum-value {
-  background: #ffc107; /* yellow for warning */
+  background: var(--color-orange);
 }
+
 meter::-webkit-meter-even-less-good-value {
-  background: #f44336; /* red for bad */
+  background: var(--color-red);
 }
 
 meter::-webkit-meter-bar {
