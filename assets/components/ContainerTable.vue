@@ -79,21 +79,29 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress progress-primary"
+                <meter
+                  class="flex-1 overflow-hidden rounded-3xl"
+                  min="0"
+                  max="100"
+                  low="10"
+                  optimum="0"
+                  high="80"
                   :value="Math.min(container.movingAverage.cpu, 100)"
-                  :max="100"
-                ></progress>
+                ></meter>
                 <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress progress-primary"
-                  :value="container.movingAverage.memory"
+                <meter
+                  class="flex-1 overflow-hidden rounded-3xl"
+                  min="0"
                   max="100"
-                ></progress>
+                  low="10"
+                  optimum="0"
+                  high="75"
+                  :value="container.movingAverage.memory"
+                ></meter>
                 <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
               </div>
             </td>
@@ -233,5 +241,20 @@ tbody td {
 
 a {
   @apply hover:text-primary;
+}
+
+meter::-webkit-meter-optimum-value {
+  background: #4caf50; /* green for optimal */
+}
+meter::-webkit-meter-suboptimum-value {
+  background: #ffc107; /* yellow for warning */
+}
+meter::-webkit-meter-even-less-good-value {
+  background: #f44336; /* red for bad */
+}
+
+meter::-webkit-meter-bar {
+  background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  border-radius: 1rem;
 }
 </style>
