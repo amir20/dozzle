@@ -84,7 +84,7 @@
                   min="0"
                   max="100"
                   low="10"
-                  optimum="0"
+                  optimum="20"
                   high="80"
                   :value="Math.min(container.movingAverage.cpu, 100)"
                 ></meter>
@@ -98,7 +98,7 @@
                   min="0"
                   max="100"
                   low="10"
-                  optimum="0"
+                  optimum="25"
                   high="75"
                   :value="container.movingAverage.memory"
                 ></meter>
