@@ -83,8 +83,8 @@
                   class="flex-1 overflow-hidden rounded-3xl"
                   min="0"
                   max="100"
-                  low="5"
-                  optimum="20"
+                  low="40"
+                  optimum="0"
                   high="70"
                   :value="Math.min(container.movingAverage.cpu, 100)"
                 ></meter>
@@ -97,9 +97,9 @@
                   class="flex-1 overflow-hidden rounded-3xl"
                   min="0"
                   max="100"
-                  low="5"
-                  optimum="20"
-                  high="80"
+                  low="40"
+                  optimum="0"
+                  high="70"
                   :value="container.movingAverage.memory"
                 ></meter>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
@@ -248,7 +248,7 @@ meter::-webkit-meter-optimum-value {
 }
 
 meter::-webkit-meter-suboptimum-value {
-  background: var(--color-red);
+  background: var(--color-orange);
 }
 
 meter::-webkit-meter-even-less-good-value {
