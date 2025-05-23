@@ -4,7 +4,7 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-green: oklch(69% 0.119722 188.479048);
+  --color-green: oklch(0.62 0.119722 158.82);
   --color-red: oklch(64% 0.218 28.85);
   --color-purple: oklch(51.49% 0.215 321.03);
   --color-blue: oklch(65% 0.171 249.5);

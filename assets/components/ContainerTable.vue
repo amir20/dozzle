@@ -79,22 +79,30 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress progress-primary"
+                <meter
+                  class="flex-1 overflow-hidden rounded-3xl"
+                  min="0"
+                  max="100"
+                  low="40"
+                  optimum="0"
+                  high="70"
                   :value="Math.min(container.movingAverage.cpu, 100)"
-                  :max="100"
-                ></progress>
-                <span class="text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+                ></meter>
+                <span class="w-8 text-right text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress progress-primary"
-                  :value="container.movingAverage.memory"
+                <meter
+                  class="flex-1 overflow-hidden rounded-3xl"
+                  min="0"
                   max="100"
-                ></progress>
-                <span class="text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+                  low="40"
+                  optimum="0"
+                  high="70"
+                  :value="container.movingAverage.memory"
+                ></meter>
+                <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
               </div>
             </td>
           </tr>
@@ -233,5 +241,22 @@ tbody td {
 
 a {
   @apply hover:text-primary;
+}
+
+meter::-webkit-meter-optimum-value {
+  background: var(--color-green);
+}
+
+meter::-webkit-meter-suboptimum-value {
+  background: var(--color-orange);
+}
+
+meter::-webkit-meter-even-less-good-value {
+  background: var(--color-red);
+}
+
+meter::-webkit-meter-bar {
+  background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  border-radius: 1rem;
 }
 </style>
