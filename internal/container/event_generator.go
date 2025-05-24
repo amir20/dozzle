@@ -145,6 +145,11 @@ func createEvent(message string, streamType StdType) *LogEvent {
 				}
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
+				data, err := json.Marshal(data)
+				if err != nil {
+					log.Error().Err(err).Msg("failed to marshal json")
+				}
+				logEvent.RawMessage = string(data)
 			}
 		}
 	}
