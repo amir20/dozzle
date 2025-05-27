@@ -156,6 +156,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     totalSkipped: number,
     public readonly firstSkipped: LogEntry<string | JSONObject>,
     lastSkipped: LogEntry<string | JSONObject>,
+    private readonly loader: (i: SkippedLogsEntry) => {},
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
     this._totalSkipped = totalSkipped;
@@ -178,8 +179,12 @@ export class SkippedLogsEntry extends LogEntry<string> {
     return this._totalSkipped;
   }
 
-  public get lastSkippedItem(): LogEntry<string | JSONObject> {
+  public get lastSkippedLog(): LogEntry<string | JSONObject> {
     return this.lastSkipped;
+  }
+
+  public loadSkippedEntries(): void {
+    this.loader(this);
   }
 }
 

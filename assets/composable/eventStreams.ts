@@ -71,10 +71,9 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         } else {
           const firstItem = buffer.value.at(0) as LogEntry<string | JSONObject>;
           const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
-
           messages.value = [
             ...messages.value,
-            new SkippedLogsEntry(new Date(), buffer.value.length, firstItem, lastItem),
+            new SkippedLogsEntry(new Date(), buffer.value.length, firstItem, lastItem, loadSkippedLogs),
           ];
         }
         buffer.value = [];
@@ -177,44 +176,67 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   const isLoadingMore = ref(false);
 
-  async function loadOlderLogs() {
-    if (!loadMoreUrl) return;
-    if (isLoadingMore.value) return;
+  async function loadBetween(from: Date, to: Date, lastSeenId: number, minimum: number = 0) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    if (isLoadingMore.value) throw new Error("Already loading");
+    try {
+      isLoadingMore.value = true;
+      const urlWithMoreParams = computed(() => {
+        const loadMoreParams = new URLSearchParams(params.value);
+        loadMoreParams.append("from", from.toISOString());
+        loadMoreParams.append("to", to.toISOString());
+        if (minimum > 0) {
+          loadMoreParams.append("minimum", String(minimum));
+        }
+        loadMoreParams.append("lastSeenId", String(lastSeenId));
 
+        return withBase(`${loadMoreUrl!.value}?${loadMoreParams.toString()}`);
+      });
+      const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
+      const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
+      stopWatcher();
+      return {
+        logs: logs
+          .trim()
+          .split("\n")
+          .map((line) => parseMessage(line)),
+        signal,
+      };
+    } finally {
+      isLoadingMore.value = false;
+    }
+  }
+
+  async function loadOlderLogs() {
+    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     const to = messages.value[0].date;
     const lastSeenId = messages.value[0].id;
     const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
-
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-    isLoadingMore.value = true;
     try {
-      const urlWithMoreParams = computed(() => {
-        const loadMoreParams = new URLSearchParams(params.value);
-        loadMoreParams.append("from", from.toISOString());
-        loadMoreParams.append("to", to.toISOString());
-        loadMoreParams.append("minimum", "100");
-        loadMoreParams.append("lastSeenId", String(lastSeenId));
-
-        return withBase(`${loadMoreUrl.value}?${loadMoreParams.toString()}`);
-      });
-      const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
-      const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
-      stopWatcher();
-
+      const { logs, signal } = await loadBetween(from, to, lastSeenId, 100);
       if (logs && signal.aborted === false) {
-        const newMessages = logs
-          .trim()
-          .split("\n")
-          .map((line) => parseMessage(line));
-        messages.value = [...newMessages, ...messages.value];
+        messages.value = [...logs, ...messages.value];
       }
-    } catch (e) {
-      console.error("Error loading older logs", e);
-    } finally {
-      isLoadingMore.value = false;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function loadSkippedLogs(entry: SkippedLogsEntry) {
+    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
+    const from = entry.firstSkipped.date;
+    const to = entry.lastSkippedLog.date;
+    const lastSeenId = entry.lastSkippedLog.id;
+    try {
+      const { logs, signal } = await loadBetween(from, to, lastSeenId);
+      if (logs && signal.aborted === false) {
+        messages.value = messages.value.flatMap((log) => (log === entry ? logs : [log]));
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
