@@ -156,7 +156,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     totalSkipped: number,
     public readonly firstSkipped: LogEntry<string | JSONObject>,
     lastSkipped: LogEntry<string | JSONObject>,
-    private readonly loader: (i: SkippedLogsEntry) => {},
+    private readonly loader: (i: SkippedLogsEntry) => Promise<void>,
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
     this._totalSkipped.value = totalSkipped;
@@ -179,8 +179,8 @@ export class SkippedLogsEntry extends LogEntry<string> {
     return this.lastSkipped;
   }
 
-  public loadSkippedEntries(): void {
-    this.loader(this);
+  public async loadSkippedEntries(): Promise<void> {
+    await this.loader(this);
   }
 
   public get totalSkipped(): number {
