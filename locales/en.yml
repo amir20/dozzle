@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
-  logs-skipped: Skipped {total} entries
+  logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
   events-stream:
     title: Unexpected Error
