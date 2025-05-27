@@ -148,7 +148,7 @@ export class ContainerEventLogEntry extends LogEntry<string> {
 }
 
 export class SkippedLogsEntry extends LogEntry<string> {
-  private _totalSkipped = 0;
+  private _totalSkipped = ref(0);
   private lastSkipped: LogEntry<string | JSONObject>;
 
   constructor(
@@ -159,7 +159,7 @@ export class SkippedLogsEntry extends LogEntry<string> {
     private readonly loader: (i: SkippedLogsEntry) => {},
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
-    this._totalSkipped = totalSkipped;
+    this._totalSkipped.value = totalSkipped;
     this.lastSkipped = lastSkipped;
   }
   getComponent(): Component {
@@ -167,16 +167,12 @@ export class SkippedLogsEntry extends LogEntry<string> {
   }
 
   public get message(): string {
-    return `Skipped ${this.totalSkipped} entries`;
+    return `Skipped ${this._totalSkipped.value} entries`;
   }
 
   public addSkippedEntries(totalSkipped: number, lastItem: LogEntry<string | JSONObject>) {
-    this._totalSkipped += totalSkipped;
+    this._totalSkipped.value += totalSkipped;
     this.lastSkipped = lastItem;
-  }
-
-  public get totalSkipped(): number {
-    return this._totalSkipped;
   }
 
   public get lastSkippedLog(): LogEntry<string | JSONObject> {
@@ -185,6 +181,10 @@ export class SkippedLogsEntry extends LogEntry<string> {
 
   public loadSkippedEntries(): void {
     this.loader(this);
+  }
+
+  public get totalSkipped(): number {
+    return unref(this._totalSkipped);
   }
 }
 

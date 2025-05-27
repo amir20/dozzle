@@ -67,6 +67,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         if (messages.value.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
           const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
+          console.log("Flushing skipped logs - ", buffer.value.length);
           lastEvent.addSkippedEntries(buffer.value.length, lastItem);
         } else {
           const firstItem = buffer.value.at(0) as LogEntry<string | JSONObject>;
@@ -233,7 +234,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     try {
       const { logs, signal } = await loadBetween(from, to, lastSeenId);
       if (logs && signal.aborted === false) {
-        messages.value = messages.value.flatMap((log) => (log === entry ? logs : [log]));
+        messages.value = messages.value.slice(logs.length).flatMap((log) => (log === entry ? logs : [log]));
       }
     } catch (error) {
       console.error(error);
