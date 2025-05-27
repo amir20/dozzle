@@ -67,7 +67,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         if (messages.value.at(-1) instanceof SkippedLogsEntry) {
           const lastEvent = messages.value.at(-1) as SkippedLogsEntry;
           const lastItem = buffer.value.at(-1) as LogEntry<string | JSONObject>;
-          console.log("Flushing skipped logs - ", buffer.value.length);
+          console.log("Skipping logs");
           lastEvent.addSkippedEntries(buffer.value.length, lastItem);
         } else {
           const firstItem = buffer.value.at(0) as LogEntry<string | JSONObject>;
