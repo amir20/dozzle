@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: Deze pagina bestaat niet
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
-  logs-skipped: \{total} items overgeslagen
+  logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
   events-stream:
     title: Onverwachte fout

@@ -22,7 +22,9 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs, isLoadingMore, opened, loading, error, eventSourceURL } = streamSource($$(entity));
+const { messages, loadOlderLogs, isLoadingMore, opened, loading, error, eventSourceURL } = streamSource(
+  toRef(() => entity),
+);
 const { loadingMore } = useLoggingContext();
 const color = computed(() => {
   if (error.value) return "error";

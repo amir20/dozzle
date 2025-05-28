@@ -44,7 +44,7 @@ tooltip:
 error:
   page-not-found: Halaman ini tidak ada
   invalid-auth: Nama pengguna atau kata sandi tidak valid
-  logs-skipped: Melewati {total} entri
+  logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
   events-stream:
     title: Kesalahan Tak Terduga

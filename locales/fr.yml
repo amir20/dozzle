@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
-  logs-skipped: Entrées {total} ignorées
+  logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
   events-stream:
     title: Erreur inattendue

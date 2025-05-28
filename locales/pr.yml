@@ -40,7 +40,7 @@ tooltip:
 error:
   page-not-found: Esta página não existe.
   invalid-auth: O nome de usuário e a senha não são válidos.
-  logs-skipped: Saltado {total} entradas
+  logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contentor não encontrado.
   events-stream:
     title: Erro inesperado

@@ -45,7 +45,7 @@ tooltip:
 error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
-  logs-skipped: Pominiętych wpisów {total}
+  logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
   events-stream:
     title: Niespodziewany błąd

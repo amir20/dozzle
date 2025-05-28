@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.
-  logs-skipped: \{total} Einträge übersprungen
+  logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
   events-stream:
     title: Unerwarteter Fehler

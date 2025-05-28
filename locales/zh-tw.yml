@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: 此頁面不存在
   invalid-auth: 使用者名稱或密碼不正確
-  logs-skipped: 已略過 {total} 筆記錄
+  logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
   events-stream:
     title: 意外錯誤

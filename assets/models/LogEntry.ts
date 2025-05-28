@@ -148,7 +148,7 @@ export class ContainerEventLogEntry extends LogEntry<string> {
 }
 
 export class SkippedLogsEntry extends LogEntry<string> {
-  private _totalSkipped = 0;
+  private _totalSkipped = ref(0);
   private lastSkipped: LogEntry<string | JSONObject>;
 
   constructor(
@@ -156,9 +156,10 @@ export class SkippedLogsEntry extends LogEntry<string> {
     totalSkipped: number,
     public readonly firstSkipped: LogEntry<string | JSONObject>,
     lastSkipped: LogEntry<string | JSONObject>,
+    private readonly loader: (i: SkippedLogsEntry) => Promise<void>,
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
-    this._totalSkipped = totalSkipped;
+    this._totalSkipped.value = totalSkipped;
     this.lastSkipped = lastSkipped;
   }
   getComponent(): Component {
@@ -166,20 +167,24 @@ export class SkippedLogsEntry extends LogEntry<string> {
   }
 
   public get message(): string {
-    return `Skipped ${this.totalSkipped} entries`;
+    return `Skipped ${this._totalSkipped.value} entries`;
   }
 
   public addSkippedEntries(totalSkipped: number, lastItem: LogEntry<string | JSONObject>) {
-    this._totalSkipped += totalSkipped;
+    this._totalSkipped.value += totalSkipped;
     this.lastSkipped = lastItem;
   }
 
-  public get totalSkipped(): number {
-    return this._totalSkipped;
+  public get lastSkippedLog(): LogEntry<string | JSONObject> {
+    return this.lastSkipped;
   }
 
-  public get lastSkippedItem(): LogEntry<string | JSONObject> {
-    return this.lastSkipped;
+  public async loadSkippedEntries(): Promise<void> {
+    await this.loader(this);
+  }
+
+  public get totalSkipped(): number {
+    return unref(this._totalSkipped);
   }
 }
 

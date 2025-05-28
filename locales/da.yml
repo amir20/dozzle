@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: Denne side eksisterer ikke
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
-  logs-skipped: Sprang over {total} indtastninger
+  logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
   events-stream:
     title: Uventet fejl
