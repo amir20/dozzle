@@ -153,7 +153,9 @@
 
       <ul class="mb-8 flex gap-2">
         <li>
-          <a href="https://github.com/dozzle/dozzle" target="_blank" rel="noopener noreferrer" class="btn"> GitHub </a>
+          <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn">
+            <mdi:github /> amir20/dozzle
+          </a>
         </li>
         <li>
           <a

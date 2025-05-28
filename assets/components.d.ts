@@ -76,6 +76,7 @@ declare module 'vue' {
     'Mdi:contentCopy': typeof import('~icons/mdi/content-copy')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
     'Mdi:gauge': typeof import('~icons/mdi/gauge')['default']
+    'Mdi:github': typeof import('~icons/mdi/github')['default']
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
