@@ -47,7 +47,7 @@ tooltip:
 error:
   page-not-found: Bu sayfa bulunamadı
   invalid-auth: Kullanıcı adı veya şifre geçersiz
-  logs-skipped: "{total} giriş atlanıldı"
+  logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
   events-stream:
     title: Beklenmeyen Hata

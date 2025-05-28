@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。
-  logs-skipped: 跳过 {total} 条记录
+  logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
   events-stream:
     title: 意外错误

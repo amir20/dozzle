@@ -41,7 +41,7 @@ tooltip:
 error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
-  logs-skipped: Пропущено {total} записей
+  logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
   events-stream:
     title: Неожиданная ошибка
