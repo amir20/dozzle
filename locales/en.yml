@@ -90,7 +90,7 @@ settings:
   show-stopped-containers: Show stopped containers
   about: About
   search: Enable searching with Dozzle using
-  using-version: You are using Dozzle {version}.
+  using-version: You are using <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     New version is available! Update to <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>.

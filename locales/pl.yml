@@ -92,7 +92,7 @@ settings:
   show-stopped-containers: Pokaż zatrzymane kontenery
   about: Informacje
   search: Włącz szukanie z dozzle
-  using-version: Używasz dozzle w wersji {version}.
+  using-version: Używasz <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> w wersji {version}.
   update-available: >-
     Nowa wersja jest dostępna! Zaktualizuj do <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>.

@@ -142,6 +142,32 @@
 
       <Toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</Toggle>
     </section>
+
+    <section class="flex flex-col gap-4">
+      <div class="has-underline">
+        <h2>Support</h2>
+      </div>
+
+      Please consider supporting Dozzle by donating or sponsoring us on GitHub. Your contributions help us maintain and
+      improve Dozzle for everyone. Thank you for your support! 🙏🏼
+
+      <ul class="mb-8 flex gap-2">
+        <li>
+          <a href="https://github.com/dozzle/dozzle" target="_blank" rel="noopener noreferrer" class="btn"> GitHub </a>
+        </li>
+        <li>
+          <a
+            href="https://buymeacoffee.com/amirraminfar"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-secondary"
+          >
+            <mdi:beer />
+            Buy me a beer
+          </a>
+        </li>
+      </ul>
+    </section>
   </PageWithLinks>
 </template>
 
@@ -227,14 +253,14 @@ const fakeMessages = computedWithControl(
 @reference "@/main.css";
 
 .has-underline {
-  @apply border-base-content/50 mb-4 border-b py-4;
+  @apply border-base-content/50 mb-4 border-b py-2;
 
   h2 {
-    @apply text-2xl;
+    @apply text-3xl;
   }
 }
 
-:deep(a:not(.menu a)) {
+:deep(a:not(.menu a):not(.btn)) {
   @apply text-primary underline-offset-4 hover:underline;
 }
 </style>

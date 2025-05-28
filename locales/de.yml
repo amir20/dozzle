@@ -86,7 +86,7 @@ settings:
   show-stopped-containers: Zeige gestoppte Container
   about: Über
   search: Aktiviere die Suche mit Dozzle mit
-  using-version: Du verwendest Dozzle {version}.
+  using-version: Du verwendest <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Eine neue Version ist verfügbar! Aktualisiere auf <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Zeige stdout und stderr Labels

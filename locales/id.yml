@@ -94,7 +94,7 @@ settings:
   show-stopped-containers: Tampilkan kontainer yang dihentikan
   about: Tentang
   search: Aktifkan pencarian dengan Dozzle menggunakan
-  using-version: Anda menggunakan Dozzle {version}.
+  using-version: Anda menggunakan <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Versi baru tersedia! Perbarui ke <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Tampilkan label stdout dan stderr
