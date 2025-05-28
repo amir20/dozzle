@@ -87,7 +87,7 @@ settings:
   show-stopped-containers: Gestopte containers tonen
   about: Over
   search: Doorzoeken inschakelen via Dozzle
-  using-version: Je gebruikt Dozzle {version}.
+  using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.
   update-available: >-
     Er is een nieuwe versie beschikbaar! Update naar <a href="{href}" target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Toon stdout- en stderr-labels

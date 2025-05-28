@@ -88,7 +88,7 @@ settings:
   show-stopped-containers: 顯示已停止的容器
   about: 關於
   search: 啟用 Dozzle 搜尋功能
-  using-version: 您目前使用的是 Dozzle {version}。
+  using-version: 您目前使用的是 <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。
   update-available: >-
     有新版本可用！請更新至 <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a>。

@@ -95,7 +95,7 @@ settings:
   show-stopped-containers: Durdurulan konteynerleri göster
   about: Hakkında
   search: Dozzle kullanarak aramayı etkinleştir
-  using-version: Dozzle {version} kullanıyorsunuz.
+  using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version} kullanıyorsunuz.
   update-available: >-
     Yeni sürüm mevcut! <a href="{href}" target="_blank"
     rel="noreferrer noopener">{nextVersion}</a> sürümüne güncelleyin.
