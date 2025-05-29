@@ -5,12 +5,36 @@
         <h2>{{ $t("settings.about") }}</h2>
       </div>
 
-      <div>
+      <div class="flex flex-row gap-2">
         <span v-html="$t('settings.using-version', { version: config.version })"></span>
-        <div
+        <span
           v-if="hasRelease"
           v-html="$t('settings.update-available', { nextVersion: latestRelease?.name, href: latestRelease?.htmlUrl })"
-        ></div>
+        ></span>
+      </div>
+
+      <div class="mt-4">
+        Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
+        everyone. Thank you! 🙏🏼
+
+        <ul class="mt-8 flex gap-2">
+          <li>
+            <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn">
+              <mdi:github /> amir20/dozzle
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://buymeacoffee.com/amirraminfar"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-secondary"
+            >
+              <mdi:beer />
+              Buy me a beer
+            </a>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -141,34 +165,6 @@
       </Toggle>
 
       <Toggle v-model="showAllContainers">{{ $t("settings.show-stopped-containers") }}</Toggle>
-    </section>
-
-    <section class="flex flex-col gap-4">
-      <div class="has-underline">
-        <h2>Support</h2>
-      </div>
-
-      Please consider supporting Dozzle by donating or sponsoring us on GitHub. Your contributions help us maintain and
-      improve Dozzle for everyone. Thank you for your support! 🙏🏼
-
-      <ul class="mb-8 flex gap-2">
-        <li>
-          <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn">
-            <mdi:github /> amir20/dozzle
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://buymeacoffee.com/amirraminfar"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-secondary"
-          >
-            <mdi:beer />
-            Buy me a beer
-          </a>
-        </li>
-      </ul>
     </section>
   </PageWithLinks>
 </template>
