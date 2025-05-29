@@ -14,10 +14,9 @@
       </div>
 
       <div class="mt-4">
-        Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
-        everyone. Thank you! 🙏🏼
+        {{ $t("settings.help-support") }}
 
-        <ul class="mt-8 flex gap-2">
+        <ul class="mt-6 flex gap-2">
           <li>
             <a href="https://github.com/amir20/dozzle" target="_blank" rel="noopener noreferrer" class="btn">
               <mdi:github /> amir20/dozzle
