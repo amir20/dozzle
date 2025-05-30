@@ -1,5 +1,5 @@
 <template>
-  <LogItem :logEntry @click="showDrawer(LogDetails, { entry: logEntry })" class="clickable">
+  <LogItem :logEntry @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="clickable">
     <ul class="space-x-4" @click="preventDefaultOnLinks">
       <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
         <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
@@ -21,6 +21,8 @@ const { logEntry } = defineProps<{
   logEntry: ComplexLogEntry;
   showContainerName?: boolean;
 }>();
+
+const { containers } = useLoggingContext();
 
 const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));

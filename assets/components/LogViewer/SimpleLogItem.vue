@@ -8,6 +8,7 @@
       class="absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100"
       :message="() => stripAnsi(logEntry.rawMessage)"
       :log-entry="logEntry"
+      v-if="containers.length > 0"
     />
   </LogItem>
 </template>
@@ -15,6 +16,7 @@
 import { SimpleLogEntry } from "@/models/LogEntry";
 import AnsiConvertor from "ansi-to-html";
 import stripAnsi from "strip-ansi";
+const { containers } = useLoggingContext();
 
 const ansiConvertor = new AnsiConvertor({
   escapeXML: false,
