@@ -83,6 +83,8 @@ placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
 settings:
+  help-support: >
+    Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan

@@ -82,6 +82,8 @@ placeholder:
   search: Cari
 
 settings:
+  help-support: >
+    Silakan dukung Dozzle dengan berdonasi atau mensponsori kami di GitHub. Kontribusi Anda membantu kami meningkatkan Dozzle untuk semua orang. Terima kasih! 🙏🏼
   display: Tampilan
   locale: Ganti bahasa
   small-scrollbars: Gunakan scrollbar kecil

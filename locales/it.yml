@@ -74,6 +74,8 @@ placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
   search: Cerca
 settings:
+  help-support: >
+    Per favore sostieni Dozzle donando o sponsorizzandoci su GitHub. I tuoi contributi ci aiutano a migliorare Dozzle per tutti. Grazie! 🙏🏼
   display: Visualizza
   locale: Sovrascrivi Lingua
   small-scrollbars: Usa una scrollbars più piccola

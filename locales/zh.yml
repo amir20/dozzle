@@ -74,6 +74,8 @@ placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索
 settings:
+  help-support: >
+    请通过在 GitHub 上捐赠或赞助我们来支持 Dozzle。您的贡献帮助我们为所有人改进 Dozzle。谢谢！ 🙏🏼
   display: 显示
   locale: 显示语言
   small-scrollbars: 使用较小的滚动条
