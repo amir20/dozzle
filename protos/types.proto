@@ -43,6 +43,7 @@ message LogEvent {
   string level = 5;
   string stream = 6;
   string position = 7;
+  string rawMessage = 8;
 }
 
 message SimpleMessage { string message = 1; }
