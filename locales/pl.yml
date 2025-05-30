@@ -36,6 +36,7 @@ label:
   group-menu: Grupy Niestandardowe
   no-logs: Kontener nie ma jeszcze logów
   show-all-containers: Pokaż wszystkie kontenery
+  collapse-all: Zwiń wszystkie
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna

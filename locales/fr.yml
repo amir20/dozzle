@@ -32,6 +32,7 @@ label:
   group-menu: Groupes Personnalisés
   no-logs: Le conteneur n'a pas encore de logs
   show-all-containers: Afficher tous les conteneurs
+  collapse-all: Réduire tout
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne

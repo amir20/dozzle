@@ -32,6 +32,7 @@ label:
   group-menu: Aangepaste groepen
   no-logs: Container heeft nog geen logbestanden
   show-all-containers: Toon alle containers
+  collapse-all: Alles inklappen
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom

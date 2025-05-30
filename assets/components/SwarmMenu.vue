@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-2 flex">
+  <div class="mb-2 flex items-center">
     <div class="flex-1">
       {{ $t("label.service", services.length) }}
     </div>

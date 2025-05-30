@@ -32,6 +32,7 @@ label:
   group-menu: Brugerdefinerede Grupper
   no-logs: Container har ingen logs endnu
   show-all-containers: Vis alle containere
+  collapse-all: Kollaps alle
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
