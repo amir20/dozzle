@@ -26,12 +26,19 @@
         <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
           <ph:dots-three-vertical-bold />
         </label>
-        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 z-50 w-52 p-1 shadow-sm">
+        <ul
+          tabindex="0"
+          class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
+        >
           <li>
             <a class="text-sm capitalize" @click="toggleShowAllContainers()">
               <mdi:check class="w-4" v-if="showAllContainers" />
               <div v-else class="w-4"></div>
               {{ $t("label.show-all-containers") }}
+            </a>
+            <a class="text-sm capitalize" @click="collapseAll()">
+              <material-symbols-light:collapse-all class="w-4" />
+              {{ $t("label.collapse-all") }}
             </a>
           </li>
         </ul>
@@ -139,6 +146,18 @@ const updateCollapsedGroups = (event: Event, label: string) => {
     collapsedGroups.value.delete(label);
   } else {
     collapsedGroups.value.add(label);
+  }
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+};
+
+const collapseAll = () => {
+  menuItems.value.forEach(({ label }) => {
+    collapsedGroups.value.add(label);
+  });
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
   }
 };
 

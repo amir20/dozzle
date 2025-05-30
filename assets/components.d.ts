@@ -63,6 +63,7 @@ declare module 'vue' {
     LogStd: typeof import('./components/LogViewer/LogStd.vue')['default']
     LogViewer: typeof import('./components/LogViewer/LogViewer.vue')['default']
     'MaterialSymbols:terminal': typeof import('~icons/material-symbols/terminal')['default']
+    'MaterialSymbolsLight:collapseAll': typeof import('~icons/material-symbols-light/collapse-all')['default']
     'Mdi:account': typeof import('~icons/mdi/account')['default']
     'Mdi:announcement': typeof import('~icons/mdi/announcement')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
