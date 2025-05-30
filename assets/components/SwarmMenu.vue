@@ -14,8 +14,8 @@
         >
           <li>
             <a class="text-sm capitalize" @click="collapseAll()">
-              <material-symbols-light:collapse-all />
-              Collapse All
+              <material-symbols-light:collapse-all class="w-4" />
+              {{ $t("label.collapse-all") }}
             </a>
           </li>
         </ul>
