@@ -33,6 +33,7 @@ label:
   group-menu: Grup Kustom
   no-logs: Kontainer belum memiliki log
   show-all-containers: Tampilkan semua kontainer
+  collapse-all: Tutup semua
 
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)

@@ -38,6 +38,7 @@ label:
   group-menu: Özel Gruplar
   no-logs: Konteyner henüz log içermiyor
   show-all-containers: Tüm konteynerleri göster
+  collapse-all: Hepsini daralt
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle

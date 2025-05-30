@@ -31,6 +31,7 @@ label:
   group-menu: Grupos Personalizados
   no-logs: O contentor ainda não tem logs
   show-all-containers: Mostrar todos os contentores
+  collapse-all: Recolher tudo
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna
