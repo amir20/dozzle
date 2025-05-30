@@ -158,6 +158,7 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			Position:    container.LogPosition(resp.Event.Position),
 			Level:       resp.Event.Level,
 			Stream:      resp.Event.Stream,
+			RawMessage:  resp.Event.RawMessage,
 		}
 	}
 }

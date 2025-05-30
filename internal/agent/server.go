@@ -387,6 +387,7 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 		Level:       event.Level,
 		Stream:      event.Stream,
 		Position:    string(event.Position),
+		RawMessage:  string(event.RawMessage),
 	}
 }
 
