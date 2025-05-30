@@ -4,7 +4,7 @@
       <slot name="trigger"> {{ label }} <carbon:caret-down /></slot>
     </summary>
     <ul
-      class="menu dropdown-content rounded-box outline-base-content/20 bg-base-200 z-50 mt-1 w-52 p-2 shadow-sm outline"
+      class="menu dropdown-content rounded-box border-base-content/20 bg-base-200 z-50 mt-1 w-52 border p-2 shadow-sm"
     >
       <slot>
         <li v-for="item in options">

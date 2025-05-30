@@ -22,12 +22,13 @@
       </ul>
     </div>
     <div class="flex-none">
-      <details class="dropdown dropdown-end">
-        <summary class="btn btn-square btn-ghost btn-sm">
-          <ph:dots-three-vertical-bold class="text-lg" />
-        </summary>
+      <div class="dropdown dropdown-end dropdown-hover">
+        <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
+          <ph:dots-three-vertical-bold />
+        </label>
         <ul
-          class="menu dropdown-content rounded-box bg-base-200 outline-base-content/20 z-50 w-52 p-1 shadow-sm outline"
+          tabindex="0"
+          class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
         >
           <li>
             <a class="text-sm capitalize" @click="toggleShowAllContainers()">
@@ -36,12 +37,12 @@
               {{ $t("label.show-all-containers") }}
             </a>
             <a class="text-sm capitalize" @click="collapseAll()">
-              <div class="w-4"></div>
+              <material-symbols-light:collapse-all />
               Collapse All
             </a>
           </li>
         </ul>
-      </details>
+      </div>
     </div>
   </div>
 
@@ -146,12 +147,18 @@ const updateCollapsedGroups = (event: Event, label: string) => {
   } else {
     collapsedGroups.value.add(label);
   }
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 };
 
 const collapseAll = () => {
   menuItems.value.forEach(({ label }) => {
     collapsedGroups.value.add(label);
   });
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 };
 
 const debouncedPinnedContainers = debouncedRef(pinnedContainers, 200);
