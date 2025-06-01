@@ -83,9 +83,9 @@
                   class="flex-1 overflow-hidden rounded-3xl"
                   min="0"
                   max="100"
-                  low="40"
+                  low="60"
                   optimum="0"
-                  high="70"
+                  high="80"
                   :value="Math.min(container.movingAverage.cpu, 100)"
                 ></meter>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
@@ -97,9 +97,9 @@
                   class="flex-1 overflow-hidden rounded-3xl"
                   min="0"
                   max="100"
-                  low="40"
+                  low="70"
                   optimum="0"
-                  high="70"
+                  high="90"
                   :value="container.movingAverage.memory"
                 ></meter>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
