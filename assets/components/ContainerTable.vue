@@ -79,16 +79,16 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <meter
-                  class="flex-1 overflow-hidden rounded-3xl"
-                  min="0"
-                  max="100"
-                  low="60"
-                  optimum="0"
-                  high="80"
+              <meter
+                class="flex-1 overflow-hidden rounded-3xl"
+                min="0"
+                max="100"
+                low="60"
+                optimum="0"
+                high="80"
                   :value="normalizedCpu(container)"
-                ></meter>
-                <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
+              ></meter>
+              <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
@@ -210,14 +210,10 @@ function isVisible(field: keys) {
 }
 
 function normalizedCpu(container: Container): number {
-  const rawCpu = container.movingAverage.cpu;
-  const cores = container.cpuCores;
+  const host = hosts.value[container.host];
+  if (!host || host.nCPU === 0) return 0;
 
-  if (typeof cores === "number" && cores > 0) {
-    return Math.min((rawCpu / cores) * 100, 100);
-  }
-
-  return Math.min(rawCpu, 100);
+  return (container.movingAverage.cpu / host.nCPU) * 100;
 }
 </script>
 
