@@ -88,7 +88,7 @@
                   high="80"
                   :value="normalizedCpu(container)"
                 ></meter>
-              <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
+                <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
