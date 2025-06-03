@@ -79,15 +79,15 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-              <meter
-                class="flex-1 overflow-hidden rounded-3xl"
-                min="0"
-                max="100"
-                low="60"
-                optimum="0"
-                high="80"
+                <meter
+                  class="flex-1 overflow-hidden rounded-3xl"
+                  min="0"
+                  max="100"
+                  low="60"
+                  optimum="0"
+                  high="80"
                   :value="normalizedCpu(container)"
-              ></meter>
+                ></meter>
               <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
               </div>
             </td>
