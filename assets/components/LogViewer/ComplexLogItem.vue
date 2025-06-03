@@ -2,9 +2,10 @@
   <LogItem :logEntry @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="clickable">
     <ul class="space-x-4" @click="preventDefaultOnLinks">
       <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
-        <span class="text-light">{{ name }}=</span><span class="font-bold" v-if="value === null">&lt;null&gt;</span>
+        <span class="text-light">{{ name }}=</span>
+        <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
         <template v-else-if="Array.isArray(value)">
-          <span class="font-bold" v-html="JSON.stringify(value)"> </span>
+          <span class="font-bold" v-html="JSON.stringify(value)"></span>
         </template>
         <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
       </li>
