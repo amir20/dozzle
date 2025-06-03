@@ -86,9 +86,9 @@
                   low="60"
                   optimum="0"
                   high="80"
-                  :value="Math.min(container.movingAverage.cpu, 100)"
+                  :value="normalizedCpu(container)"
                 ></meter>
-                <span class="w-8 text-right text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+                <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
@@ -154,7 +154,7 @@ const fields = {
   },
   cpu: {
     label: "label.avg-cpu",
-    sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
+    sortFunc: (a: Container, b: Container) => (normalizedCpu(a) - normalizedCpu(b)) * direction.value,
     mobileVisible: false,
   },
   mem: {
@@ -207,6 +207,17 @@ function sort(field: keys) {
 }
 function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
+}
+
+function normalizedCpu(container: Container): number {
+  const rawCpu = container.movingAverage.cpu;
+  const cores = container.cpuCores;
+
+  if (typeof cores === "number" && cores > 0) {
+    return Math.min((rawCpu / cores) * 100, 100);
+  }
+
+  return Math.min(rawCpu, 100);
 }
 </script>
 
