@@ -2,7 +2,9 @@ package container
 
 import (
 	"context"
+	"encoding/json"
 	"io"
+	"os"
 	"reflect"
 	"sync"
 	"testing"
@@ -160,4 +162,35 @@ func Test_createEvent(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_createEventWithLargeJSON(t *testing.T) {
+	data, err := os.ReadFile("large.json")
+	if err != nil {
+		t.Errorf("os.ReadFile() error = %v", err)
+	}
+	event := createEvent("2020-05-13T18:55:37.772853839Z "+string(data), STDOUT)
+	if event.Message == nil {
+		t.Errorf("message is nil")
+	}
+
+	if _, ok := event.Message.(string); ok {
+		t.Errorf("message is string, but was expecting map[string]interface{}")
+	}
+}
+
+func Test_createEventWithLargeJSONSimple(t *testing.T) {
+	data, err := os.ReadFile("large.json")
+	if err != nil {
+		t.Errorf("os.ReadFile() error = %v", err)
+	}
+	var jsonData map[string]interface{}
+	err = json.Unmarshal(data, &jsonData)
+	if err != nil {
+		t.Errorf("json.Unmarshal() error = %v", err)
+	}
+	if jsonData == nil {
+		t.Errorf("jsonData is nil")
+	}
+	println("JSON data loaded successfully, length:", len(jsonData))
 }

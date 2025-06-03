@@ -135,6 +135,8 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						if jsonErr.Value == "string" {
 							log.Warn().Err(err).Str("value", jsonErr.Value).Msg("failed to unmarshal json")
 						}
+					} else {
+						log.Error().Err(err).Msgf("failed to unmarshal json:  %s", message)
 					}
 				} else {
 					if data == nil {
