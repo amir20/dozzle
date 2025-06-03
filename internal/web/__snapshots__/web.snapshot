@@ -84,15 +84,12 @@ Content-Type: text/html
 {"m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
 
-
 /* snapshot: Test_handler_between_dates_with_everything_complex */
 {"m":{"msg":"a complex log message"},"rm":"{\"msg\":\"a complex log message\"}","ts":1589396197772,"id":62280847,"l":"unknown","s":"stdout","c":"123456"}
-
 
 /* snapshot: Test_handler_between_dates_with_fill */
 {"m":"INFO Testing stdout logs...","rm":"INFO Testing stdout logs...","ts":1589396137772,"id":466600245,"l":"info","s":"stdout","c":"123456"}
 {"m":"INFO Testing stderr logs...","rm":"INFO Testing stderr logs...","ts":1589396197772,"id":1101501603,"l":"info","s":"stderr","c":"123456"}
-
 
 /* snapshot: Test_handler_download_logs */
 INFO Testing logs...
@@ -167,11 +164,14 @@ stdout or stderr is required
 /* snapshot: Test_handler_streamLogs_happy */
 :ping 
 
-data: {"m":"INFO Testing logs...","ts":0,"id":4256192898,"l":"info","s":"stdout","c":"123456"}
+data: {"m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"info","s":"stdout","c":"123456"}
 
 
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+
+
+
 
 /* snapshot: Test_handler_streamLogs_happy_container_stopped */
 :ping 
@@ -182,7 +182,7 @@ data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 :ping 
 
-data: {"m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":1469707724,"l":"info","s":"stdout","c":"123456"}
+data: {"m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout","c":"123456"}
 id: 1589396137772
 
 
