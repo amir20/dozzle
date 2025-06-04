@@ -79,29 +79,38 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <meter
-                  class="flex-1 overflow-hidden rounded-3xl"
-                  min="0"
-                  max="100"
-                  low="60"
-                  optimum="0"
-                  high="80"
-                  :value="normalizedCpu(container)"
-                ></meter>
-                <span class="w-8 text-right text-sm">{{ normalizedCpu(container).toFixed(0) }}%</span>
+                <div class="relative flex-1 h-3 rounded-3xl bg-base-200 overflow-hidden">
+                  <div
+                    class="absolute left-0 top-0 h-full rounded-3xl transition-all"
+                    :class="{
+                      'bg-green-600': container.movingAverage.cpu <= 70,
+                      'bg-yellow-400': container.movingAverage.cpu > 71 && container.movingAverage.cpu <= 80,
+                      'bg-orange-400': container.movingAverage.cpu > 81 && container.movingAverage.cpu <= 90,
+                      'bg-red-500': container.movingAverage.cpu > 91 && container.movingAverage.cpu <= 100,
+                      'bg-purple-600': container.movingAverage.cpu > 100
+                    }"
+                    :style="{ width: Math.min(container.movingAverage.cpu, 100) + '%' }"
+                  ></div>
+                </div>
+                <span class="w-8 text-right text-sm">
+                  {{ container.movingAverage.cpu.toFixed(0) }}%
+                </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <meter
-                  class="flex-1 overflow-hidden rounded-3xl"
-                  min="0"
-                  max="100"
-                  low="70"
-                  optimum="0"
-                  high="90"
-                  :value="container.movingAverage.memory"
-                ></meter>
+                <div class="relative flex-1 h-3 rounded-3xl bg-base-200 overflow-hidden">
+                  <div
+                    class="absolute left-0 top-0 h-full rounded-3xl transition-all"
+                    :class="{
+                      'bg-green-600': container.movingAverage.memory <= 70,
+                      'bg-yellow-400': container.movingAverage.memory > 71 && container.movingAverage.memory <= 80,
+                      'bg-orange-400': container.movingAverage.memory > 81 && container.movingAverage.memory <= 90,
+                      'bg-red-500': container.movingAverage.memory > 91
+                    }"
+                    :style="{ width: Math.min(container.movingAverage.memory, 100) + '%' }"
+                  ></div>
+                </div>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
               </div>
             </td>
@@ -154,7 +163,7 @@ const fields = {
   },
   cpu: {
     label: "label.avg-cpu",
-    sortFunc: (a: Container, b: Container) => (normalizedCpu(a) - normalizedCpu(b)) * direction.value,
+    sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
     mobileVisible: false,
   },
   mem: {
@@ -208,13 +217,6 @@ function sort(field: keys) {
 function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
-
-function normalizedCpu(container: Container): number {
-  const host = hosts.value[container.host];
-  if (!host || host.nCPU === 0) return 0;
-
-  return (container.movingAverage.cpu / host.nCPU) * 100;
-}
 </script>
 
 <style scoped>
@@ -248,22 +250,5 @@ tbody td {
 
 a {
   @apply hover:text-primary;
-}
-
-meter::-webkit-meter-optimum-value {
-  background: var(--color-green);
-}
-
-meter::-webkit-meter-suboptimum-value {
-  background: var(--color-orange);
-}
-
-meter::-webkit-meter-even-less-good-value {
-  background: var(--color-red);
-}
-
-meter::-webkit-meter-bar {
-  background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
-  border-radius: 1rem;
 }
 </style>
