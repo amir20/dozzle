@@ -79,36 +79,23 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <div class="relative flex-1 h-3 rounded-3xl bg-base-200 overflow-hidden">
+                <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
                   <div
-                    class="absolute left-0 top-0 h-full rounded-3xl transition-all"
-                    :class="{
-                      'bg-green-600': container.movingAverage.cpu <= 70,
-                      'bg-yellow-400': container.movingAverage.cpu > 71 && container.movingAverage.cpu <= 80,
-                      'bg-orange-400': container.movingAverage.cpu > 81 && container.movingAverage.cpu <= 90,
-                      'bg-red-500': container.movingAverage.cpu > 91 && container.movingAverage.cpu <= 100,
-                      'bg-purple-600': container.movingAverage.cpu > 100
-                    }"
-                    :style="{ width: Math.min(container.movingAverage.cpu, 100) + '%' }"
+                    class="absolute top-0 left-0 h-full rounded-3xl transition-all"
+                    :class="cpuUsageClass(containerAverageCpu)"
+                    :style="{ width: containerAverageCpu + '%' }"
                   ></div>
                 </div>
-                <span class="w-8 text-right text-sm">
-                  {{ container.movingAverage.cpu.toFixed(0) }}%
-                </span>
+                <span class="w-8 text-right text-sm"> {{ containerAverageCpu.toFixed(0) }}% </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <div class="relative flex-1 h-3 rounded-3xl bg-base-200 overflow-hidden">
+                <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
                   <div
-                    class="absolute left-0 top-0 h-full rounded-3xl transition-all"
-                    :class="{
-                      'bg-green-600': container.movingAverage.memory <= 70,
-                      'bg-yellow-400': container.movingAverage.memory > 71 && container.movingAverage.memory <= 80,
-                      'bg-orange-400': container.movingAverage.memory > 81 && container.movingAverage.memory <= 90,
-                      'bg-red-500': container.movingAverage.memory > 91
-                    }"
-                    :style="{ width: Math.min(container.movingAverage.memory, 100) + '%' }"
+                    class="absolute top-0 left-0 h-full rounded-3xl transition-all"
+                    :class="memUsageClass(container.movingAverage.memory)"
+                    :style="{ width: container.movingAverage.memory + '%' }"
                   ></div>
                 </div>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
@@ -217,6 +204,26 @@ function sort(field: keys) {
 function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
+
+function cpuUsageClass(cpu: number) {
+  if (cpu <= 70) return "bg-green-600";
+  if (cpu <= 80) return "bg-yellow-400";
+  if (cpu <= 90) return "bg-orange-400";
+  return "bg-red-500";
+}
+
+function memUsageClass(memory: number) {
+  if (memory <= 70) return "bg-green-600";
+  if (memory <= 80) return "bg-yellow-400";
+  if (memory <= 90) return "bg-orange-400";
+  return "bg-red-500";
+}
+
+const cores = 16; // Chore: Need to figure out how to make this dynamic.
+const containerAverageCpu = computed(() => {
+  const scaledCpu = containers[0].movingAverage.cpu / cores;
+  return Math.min(scaledCpu, 100);
+});
 </script>
 
 <style scoped>
