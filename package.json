@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.11.1",
   "type": "module",
   "repository": {
     "type": "git",
@@ -104,7 +104,7 @@
     "simple-git-hooks": "^2.13.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.4",
+    "vitest": "^3.2.1",
     "vue-component-type-helpers": "3.0.0-alpha.8",
     "vue-tsc": "3.0.0-alpha.8"
   },
