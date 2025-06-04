@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"strings"
 	"sync"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -52,8 +53,16 @@ func (d *LogReader) Read() (string, container.StdType, error) {
 		std = container.STDERR
 	}
 
-	return message, std, nil
+	for !strings.HasSuffix(message, "\n") {
+		tail, _, err := d.readEvent()
+		if err != nil {
+			return "", std, err
+		}
 
+		message += tail[32:]
+	}
+
+	return message, std, nil
 }
 
 func (d *LogReader) readEvent() (string, StdType, error) {
