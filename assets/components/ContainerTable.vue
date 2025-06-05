@@ -80,23 +80,15 @@
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
                 <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
-                  <div
-                    class="absolute top-0 left-0 h-full rounded-3xl transition-all"
-                    :class="cpuUsageClass(containerAverageCpu(container))"
-                    :style="{ width: containerAverageCpu(container) + '%' }"
-                  ></div>
+                  <div v-bind="getUsageBarProps(containerAverageCpu(container))"></div>
                 </div>
-                <span class="w-8 text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
+                <span class="w-8 text-right text-sm">{{ containerAverageCpu(container).toFixed(0) }}%</span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
                 <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
-                  <div
-                    class="absolute top-0 left-0 h-full rounded-3xl transition-all"
-                    :class="memUsageClass(container.movingAverage.memory)"
-                    :style="{ width: container.movingAverage.memory + '%' }"
-                  ></div>
+                  <div v-bind="getUsageBarProps(container.movingAverage.memory)"></div>
                 </div>
                 <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
               </div>
@@ -205,20 +197,6 @@ function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
 
-function cpuUsageClass(cpu: number) {
-  if (cpu <= 70) return "bg-green-600";
-  if (cpu <= 80) return "bg-yellow-400";
-  if (cpu <= 90) return "bg-orange-400";
-  return "bg-red-500";
-}
-
-function memUsageClass(memory: number) {
-  if (memory <= 70) return "bg-green-600";
-  if (memory <= 80) return "bg-yellow-400";
-  if (memory <= 90) return "bg-orange-400";
-  return "bg-red-500";
-}
-
 function getContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
     return container.cpuLimit;
@@ -231,6 +209,20 @@ function containerAverageCpu(container: Container): number {
   const cores = getContainerCores(container);
   const scaledCpu = container.movingAverage.cpu / cores;
   return Math.min(scaledCpu, 100);
+}
+
+function getUsageColorClass(value: number): string {
+  if (value <= 70) return "bg-green-600";
+  if (value <= 80) return "bg-yellow-400";
+  if (value <= 90) return "bg-orange-400";
+  return "bg-red-500";
+}
+
+function getUsageBarProps(value: number) {
+  return {
+    class: ["absolute top-0 left-0 h-full rounded-3xl transition-all", getUsageColorClass(value)],
+    style: { width: `${value.toFixed(0)}%` },
+  };
 }
 </script>
 
