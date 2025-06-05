@@ -213,6 +213,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   }
 
+  // todo fix this for log id
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     const to = messages.value[0].date;
