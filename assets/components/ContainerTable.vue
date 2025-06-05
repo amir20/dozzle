@@ -79,18 +79,24 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
-                  <div v-bind="getUsageBarProps(containerAverageCpu(container))"></div>
-                </div>
-                <span class="w-8 text-right text-sm">{{ containerAverageCpu(container).toFixed(0) }}%</span>
+                <progress
+                  class="progress h-3 w-full rounded-3xl"
+                  :class="getProgressColorClass(containerAverageCpu(container))"
+                  :value="containerAverageCpu(container)"
+                  max="100"
+                ></progress>
+                <span class="w-8 text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
-                  <div v-bind="getUsageBarProps(container.movingAverage.memory)"></div>
-                </div>
-                <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+                <progress
+                  class="progress h-3 w-full rounded-3xl"
+                  :class="getProgressColorClass(container.movingAverage.memory)"
+                  :value="container.movingAverage.memory"
+                  max="100"
+                ></progress>
+                <span class="w-8 text-right text-sm"> {{ container.movingAverage.memory.toFixed(0) }}% </span>
               </div>
             </td>
           </tr>
@@ -211,18 +217,11 @@ function containerAverageCpu(container: Container): number {
   return Math.min(scaledCpu, 100);
 }
 
-function getUsageColorClass(value: number): string {
-  if (value <= 70) return "bg-green-600";
-  if (value <= 80) return "bg-yellow-400";
-  if (value <= 90) return "bg-orange-400";
-  return "bg-red-500";
-}
-
-function getUsageBarProps(value: number) {
-  return {
-    class: ["absolute top-0 left-0 h-full rounded-3xl transition-all", getUsageColorClass(value)],
-    style: { width: `${value.toFixed(0)}%` },
-  };
+function getProgressColorClass(value: number): string {
+  if (value <= 70) return "progress-success";
+  if (value <= 80) return "progress-secondary";
+  if (value <= 90) return "progress-warning";
+  return "progress-error";
 }
 </script>
 
