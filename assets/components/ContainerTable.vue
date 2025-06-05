@@ -82,11 +82,11 @@
                 <div class="bg-base-200 relative h-3 flex-1 overflow-hidden rounded-3xl">
                   <div
                     class="absolute top-0 left-0 h-full rounded-3xl transition-all"
-                    :class="cpuUsageClass(containerAverageCpu)"
-                    :style="{ width: containerAverageCpu + '%' }"
+                    :class="cpuUsageClass(containerAverageCpu(container))"
+                    :style="{ width: containerAverageCpu(container) + '%' }"
                   ></div>
                 </div>
-                <span class="w-8 text-right text-sm"> {{ containerAverageCpu.toFixed(0) }}% </span>
+                <span class="w-8 text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
@@ -219,11 +219,19 @@ function memUsageClass(memory: number) {
   return "bg-red-500";
 }
 
-const cores = 16; // Chore: Need to figure out how to make this dynamic.
-const containerAverageCpu = computed(() => {
-  const scaledCpu = containers[0].movingAverage.cpu / cores;
+function getContainerCores(container: Container): number {
+  if (container.cpuLimit && container.cpuLimit > 0) {
+    return container.cpuLimit;
+  }
+  const hostInfo = hosts.value[container.host];
+  return hostInfo?.nCPU ?? 1;
+}
+
+function containerAverageCpu(container: Container): number {
+  const cores = getContainerCores(container);
+  const scaledCpu = container.movingAverage.cpu / cores;
   return Math.min(scaledCpu, 100);
-});
+}
 </script>
 
 <style scoped>
