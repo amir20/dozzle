@@ -1,7 +1,6 @@
 <template>
-  <div ref="root" class="flex min-h-[1px] justify-center">
-    This is a loader!
-    <span class="loading loading-bars loading-md text-primary mt-4" v-show="isLoading"></span>
+  <div ref="root" class="flex min-h-[1px] flex-1 content-center justify-center p-2">
+    <span class="loading loading-bars loading-md text-primary" v-show="isLoading"></span>
   </div>
 </template>
 <script lang="ts" setup>

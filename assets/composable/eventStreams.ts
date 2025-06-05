@@ -213,18 +213,18 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   }
 
-  // todo fix this for log id
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!loadMoreUrl) throw new Error("No loadMoreUrl");
-    const to = messages.value[0].date;
-    const lastSeenId = messages.value[0].id;
+    const [loader, ...existingLogs] = messages.value;
+    const to = existingLogs[0].date;
+    const lastSeenId = existingLogs[0].id;
     const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
     try {
-      const { logs, signal } = await loadBetween(from, to, lastSeenId, 100);
-      if (logs && signal.aborted === false) {
-        messages.value = [...logs, ...messages.value];
+      const { logs: newLogs, signal } = await loadBetween(from, to, lastSeenId, 100);
+      if (newLogs && signal.aborted === false) {
+        messages.value = [loader, ...newLogs, ...existingLogs];
       }
     } catch (error) {
       console.error(error);
