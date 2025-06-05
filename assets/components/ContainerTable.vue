@@ -79,30 +79,24 @@
             </td>
             <td v-if="isVisible('cpu')">
               <div class="flex flex-row items-center gap-1">
-                <meter
-                  class="flex-1 overflow-hidden rounded-3xl"
-                  min="0"
+                <progress
+                  class="progress h-3 w-full rounded-3xl"
+                  :class="getProgressColorClass(containerAverageCpu(container))"
+                  :value="containerAverageCpu(container)"
                   max="100"
-                  low="60"
-                  optimum="0"
-                  high="80"
-                  :value="Math.min(container.movingAverage.cpu, 100)"
-                ></meter>
-                <span class="w-8 text-right text-sm">{{ container.movingAverage.cpu.toFixed(0) }}%</span>
+                ></progress>
+                <span class="w-8 text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
               <div class="flex flex-row items-center gap-1">
-                <meter
-                  class="flex-1 overflow-hidden rounded-3xl"
-                  min="0"
-                  max="100"
-                  low="70"
-                  optimum="0"
-                  high="90"
+                <progress
+                  class="progress h-3 w-full rounded-3xl"
+                  :class="getProgressColorClass(container.movingAverage.memory)"
                   :value="container.movingAverage.memory"
-                ></meter>
-                <span class="w-8 text-right text-sm">{{ container.movingAverage.memory.toFixed(0) }}%</span>
+                  max="100"
+                ></progress>
+                <span class="w-8 text-right text-sm"> {{ container.movingAverage.memory.toFixed(0) }}% </span>
               </div>
             </td>
           </tr>
@@ -208,6 +202,27 @@ function sort(field: keys) {
 function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
+
+function getContainerCores(container: Container): number {
+  if (container.cpuLimit && container.cpuLimit > 0) {
+    return container.cpuLimit;
+  }
+  const hostInfo = hosts.value[container.host];
+  return hostInfo?.nCPU ?? 1;
+}
+
+function containerAverageCpu(container: Container): number {
+  const cores = getContainerCores(container);
+  const scaledCpu = container.movingAverage.cpu / cores;
+  return Math.min(scaledCpu, 100);
+}
+
+function getProgressColorClass(value: number): string {
+  if (value <= 70) return "progress-success";
+  if (value <= 80) return "progress-secondary";
+  if (value <= 90) return "progress-warning";
+  return "progress-error";
+}
 </script>
 
 <style scoped>
@@ -241,22 +256,5 @@ tbody td {
 
 a {
   @apply hover:text-primary;
-}
-
-meter::-webkit-meter-optimum-value {
-  background: var(--color-green);
-}
-
-meter::-webkit-meter-suboptimum-value {
-  background: var(--color-orange);
-}
-
-meter::-webkit-meter-even-less-good-value {
-  background: var(--color-red);
-}
-
-meter::-webkit-meter-bar {
-  background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
-  border-radius: 1rem;
 }
 </style>
