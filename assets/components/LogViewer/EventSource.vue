@@ -1,5 +1,4 @@
 <template>
-  <InfiniteLoader :onLoadMore="fetchMore" :enabled="!loadingMore && messages.length > 10" />
   <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>
@@ -22,10 +21,8 @@ const { entity, streamSource } = $defineProps<{
   entity: T;
 }>();
 
-const { messages, loadOlderLogs, isLoadingMore, opened, loading, error, eventSourceURL } = streamSource(
-  toRef(() => entity),
-);
-const { loadingMore } = useLoggingContext();
+const { messages, opened, loading, error, eventSourceURL } = streamSource(toRef(() => entity));
+
 const color = computed(() => {
   if (error.value) return "error";
   if (loading.value) return "secondary";
@@ -40,14 +37,6 @@ watchImmediate(loading, () => (waitingForMoreLog.value = true));
 defineExpose({
   clear: () => (messages.value = []),
 });
-
-const fetchMore = async () => {
-  if (!isLoadingMore.value) {
-    loadingMore.value = true;
-    await loadOlderLogs();
-    loadingMore.value = false;
-  }
-};
 
 const sizes = computedWithControl(eventSourceURL, () => {
   const sizeOptions = [

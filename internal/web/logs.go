@@ -103,7 +103,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	lastSeenId := uint32(0)
 	if r.URL.Query().Has("lastSeenId") {
 		to = to.Add(50 * time.Millisecond) // Add a little buffer to ensure we get the last event
-		num, err := strconv.ParseUint(r.URL.Query().Get("lastSeenId"), 10, 32)
+		num, err := strconv.ParseUint(r.URL.Query().Get("lastSeenId"), 10, 64)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

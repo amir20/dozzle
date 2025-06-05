@@ -9,6 +9,7 @@ import {
   ContainerEventLogEntry,
   ComplexLogEntry,
   SkippedLogsEntry,
+  LoadMoreLogEntry,
 } from "@/models/LogEntry";
 import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
@@ -89,6 +90,10 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
       if (messages.value.length == 0) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        // insert a loader
+        const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
+        messages.value = [loadMoreItem];
       }
       messages.value = [...messages.value, ...buffer.value];
       buffer.value = [];
@@ -208,7 +213,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     }
   }
 
-  async function loadOlderLogs() {
+  async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     const to = messages.value[0].date;
     const lastSeenId = messages.value[0].id;
