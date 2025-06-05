@@ -36,7 +36,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := makeMessage("INFO Testing logs...", container.STDOUT)
+	data := makeMessage("INFO Testing logs...\n", container.STDOUT)
 
 	now := time.Now()
 
@@ -80,7 +80,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 
 	mockedClient := new(MockedClient)
 
-	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...", container.STDOUT)
+	data := makeMessage("2020-05-13T18:55:37.772853839Z INFO Testing logs...\n", container.STDOUT)
 
 	started := time.Date(2020, time.May, 13, 18, 55, 37, 772853839, time.UTC)
 
