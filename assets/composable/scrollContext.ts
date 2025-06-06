@@ -1,5 +1,4 @@
 type ScrollContext = {
-  loading: boolean;
   paused: boolean;
   progress: number;
   currentDate: Date;
@@ -9,20 +8,18 @@ type ScrollContext = {
 export const scrollContextKey = Symbol("scrollContext") as InjectionKey<ScrollContext>;
 
 export const provideScrollContext = () => {
-  const context = defauleValue();
+  const context = defaultValue();
   provide(scrollContextKey, context);
   return context;
 };
 
 export const useScrollContext = () => {
-  const defaultValue = defauleValue();
-  const context = inject(scrollContextKey, defaultValue);
+  const context = inject(scrollContextKey, defaultValue());
   return toRefs(context);
 };
 
-function defauleValue() {
+function defaultValue() {
   return reactive({
-    loading: false,
     paused: false,
     progress: 1,
     currentDate: new Date(),

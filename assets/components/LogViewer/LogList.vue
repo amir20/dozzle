@@ -16,15 +16,11 @@
 <script lang="ts" setup>
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
-const { loading, progress, currentDate } = useScrollContext();
+const { progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
   messages: LogEntry<string | JSONObject>[];
 }>();
-
-watchEffect(() => {
-  loading.value = messages.length === 0;
-});
 
 const { containers } = useLoggingContext();
 

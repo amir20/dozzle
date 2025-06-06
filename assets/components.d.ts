@@ -53,6 +53,7 @@ declare module 'vue' {
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     LabeledInput: typeof import('./components/common/LabeledInput.vue')['default']
     Links: typeof import('./components/Links.vue')['default']
+    LoadMoreLogItem: typeof import('./components/LogViewer/LoadMoreLogItem.vue')['default']
     LogAnalytics: typeof import('./components/LogViewer/LogAnalytics.vue')['default']
     LogDate: typeof import('./components/LogViewer/LogDate.vue')['default']
     LogDetails: typeof import('./components/LogViewer/LogDetails.vue')['default']

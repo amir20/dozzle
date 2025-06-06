@@ -4,6 +4,7 @@ import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
 import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
+import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
@@ -185,6 +186,23 @@ export class SkippedLogsEntry extends LogEntry<string> {
 
   public get totalSkipped(): number {
     return unref(this._totalSkipped);
+  }
+}
+
+export class LoadMoreLogEntry extends LogEntry<string> {
+  constructor(
+    date: Date,
+    private readonly loader: (i: LoadMoreLogEntry) => Promise<void>,
+  ) {
+    super("", "", date.getTime(), date, "stderr", "info");
+  }
+
+  getComponent(): Component {
+    return LoadMoreLogItem;
+  }
+
+  async loadMore(): Promise<void> {
+    await this.loader(this);
   }
 }
 
