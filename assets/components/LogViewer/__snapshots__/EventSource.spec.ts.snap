@@ -2,6 +2,9 @@
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
+  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  </li>
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
@@ -24,6 +27,9 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
+  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  </li>
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
@@ -46,6 +52,9 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
+  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  </li>
   <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
@@ -67,14 +76,14 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
 `;
 
 exports[`<ContainerEventSource /> > should parse messages 1`] = `
-SimpleLogEntry {
-  "_message": "This is a message.",
-  "containerID": undefined,
-  "date": 2019-06-12T10:55:42.459Z,
-  "id": 1,
+LoadMoreLogEntry {
+  "_message": "",
+  "containerID": "",
+  "date": 2019-06-12T10:55:42.709Z,
+  "id": 1560336942709,
   "level": undefined,
-  "position": undefined,
-  "rawMessage": "This is a message.",
+  "loader": [Function],
+  "rawMessage": "info",
   "std": "stderr",
 }
 `;

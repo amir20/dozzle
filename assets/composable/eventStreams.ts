@@ -61,6 +61,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   const loading = ref(true);
   const error = ref(false);
   const { paused: scrollingPaused } = useScrollContext();
+  const { streamConfig, hasComplexLogs, levels, loadingMore } = useLoggingContext();
+  let initial = true;
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
@@ -87,13 +89,15 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         buffer.value = [];
       }
     } else {
-      if (messages.value.length == 0) {
+      if (initial) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        // insert a loader
-        const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
-        messages.value = [loadMoreItem];
+        if (loadMoreUrl) {
+          const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
+          messages.value = [loadMoreItem];
+        }
+        initial = false;
       }
       messages.value = [...messages.value, ...buffer.value];
       buffer.value = [];
@@ -115,8 +119,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     buffer.value = [];
   }
 
-  const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
-
   const params = computed(() => {
     const params = new URLSearchParams();
     if (streamConfig.value.stdout) params.append("stdout", "1");
@@ -136,6 +138,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     opened.value = false;
     loading.value = true;
     error.value = false;
+    initial = true;
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
       const event = JSON.parse((e as MessageEvent).data) as {
@@ -179,14 +182,13 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(urlWithParams, () => connect(), { immediate: true });
 
-  const isLoadingMore = ref(false);
-
   async function loadBetween(from: Date, to: Date, lastSeenId: number, minimum: number = 0) {
+    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     const abortController = new AbortController();
     const signal = abortController.signal;
-    if (isLoadingMore.value) throw new Error("Already loading");
+    if (loadingMore.value) throw new Error("Already loading");
     try {
-      isLoadingMore.value = true;
+      loadingMore.value = true;
       const urlWithMoreParams = computed(() => {
         const loadMoreParams = new URLSearchParams(params.value);
         loadMoreParams.append("from", from.toISOString());
@@ -209,12 +211,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         signal,
       };
     } finally {
-      isLoadingMore.value = false;
+      loadingMore.value = false;
     }
   }
 
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!loadMoreUrl) throw new Error("No loadMoreUrl");
+    if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
+
     const [loader, ...existingLogs] = messages.value;
     const to = existingLogs[0].date;
     const lastSeenId = existingLogs[0].id;
@@ -257,7 +261,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   return {
     messages,
     loadOlderLogs,
-    isLoadingMore,
     hasComplexLogs,
     opened,
     error,
