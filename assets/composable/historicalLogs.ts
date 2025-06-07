@@ -27,18 +27,31 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   });
 
   async function loadLogs() {
-    const { logs: newLogs, signal } = await loadBetween(
-      url,
-      loadingMore,
-      params,
-      historicalContainer.value.date,
-      new Date(),
-      0,
-      300,
-    );
-    messages.value = newLogs;
-    loading.value = false;
-    opened.value = true;
+    loadingMore.value = true;
+    try {
+      const [{ logs: before }, { logs: after }] = await Promise.all([
+        loadBetween(
+          url,
+          params,
+          new Date(historicalContainer.value.date.getTime() - 1000 * 60 * 5),
+          historicalContainer.value.date,
+          {
+            min: 10,
+            maxEnd: 10,
+          },
+        ),
+        loadBetween(url, params, historicalContainer.value.date, new Date(), {
+          maxStart: 10,
+        }),
+      ]);
+      messages.value = [...before, ...after];
+      loading.value = false;
+      opened.value = true;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      loadingMore.value = false;
+    }
   }
 
   loadLogs();

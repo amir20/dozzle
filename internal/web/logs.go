@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
+	"math"
 	"regexp"
 	"sort"
 	"strconv"
@@ -82,8 +83,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	minimum := 0
-	if r.URL.Query().Has("minimum") {
-		minimum, err = strconv.Atoi(r.URL.Query().Get("minimum"))
+	if r.URL.Query().Has("min") {
+		minimum, err = strconv.Atoi(r.URL.Query().Get("min"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -91,6 +92,34 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		if minimum < 0 || minimum > buffer.Size {
 			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	maxStart := math.MaxInt
+	if r.URL.Query().Has("maxStart") {
+		maxStart, err = strconv.Atoi(r.URL.Query().Get("maxStart"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if maxStart < 0 || maxStart > buffer.Size {
+			http.Error(w, errors.New("maximum is between 0 and buffer size").Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	maxEnd := math.MaxInt
+	if r.URL.Query().Has("maxEnd") {
+		maxEnd, err = strconv.Atoi(r.URL.Query().Get("maxEnd"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if maxEnd < 0 || maxEnd > buffer.Size {
+			http.Error(w, errors.New("maximum is between 0 and buffer size").Error(), http.StatusBadRequest)
 			return
 		}
 	}
@@ -157,6 +186,10 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					break
 				}
 
+				if buffer.Len() >= maxStart {
+					break
+				}
+
 				support_web.EscapeHTMLValues(event)
 				buffer.Push(event)
 			}
@@ -172,7 +205,13 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
-	for _, event := range buffer.Data() {
+	data := buffer.Data()
+
+	if maxEnd != math.MaxInt {
+		data = data[len(data)-maxEnd:]
+	}
+
+	for _, event := range data {
 		if err := encoder.Encode(event); err != nil {
 			log.Error().Err(err).Msg("error encoding log event")
 			return

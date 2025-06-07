@@ -193,12 +193,18 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
     try {
-      const { logs: newLogs, signal } = await loadBetween(loadMoreUrl, loadingMore, params, from, to, lastSeenId, 100);
+      loadingMore.value = true;
+      const { logs: newLogs, signal } = await loadBetween(loadMoreUrl, params, from, to, {
+        min: 100,
+        lastSeenId,
+      });
       if (newLogs && signal.aborted === false) {
         messages.value = [loader, ...newLogs, ...existingLogs];
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      loadingMore.value = false;
     }
   }
 
@@ -208,12 +214,15 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const to = entry.lastSkippedLog.date;
     const lastSeenId = entry.lastSkippedLog.id;
     try {
-      const { logs, signal } = await loadBetween(loadMoreUrl, loadingMore, params, from, to, lastSeenId);
+      loadingMore.value = true;
+      const { logs, signal } = await loadBetween(loadMoreUrl, params, from, to, { lastSeenId });
       if (logs && signal.aborted === false) {
         messages.value = messages.value.slice(logs.length).flatMap((log) => (log === entry ? logs : [log]));
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      loadingMore.value = false;
     }
   }
 
@@ -236,42 +245,42 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
 export async function loadBetween(
   resourceUrl: Ref<string>,
-  loadingMore: Ref<boolean>,
   params: Ref<URLSearchParams>,
   from: Date,
   to: Date,
-  lastSeenId: number,
-  minimum: number = 0,
+  { lastSeenId = -1, min = -1, maxStart = -1, maxEnd = -1 } = { lastSeenId: -1, min: -1, maxStart: -1, maxEnd: -1 },
 ) {
   if (!resourceUrl.value) throw new Error("No resourceUrl");
-  if (loadingMore.value) throw new Error("Already loading");
+
   const abortController = new AbortController();
   const signal = abortController.signal;
 
-  try {
-    loadingMore.value = true;
-    const urlWithMoreParams = computed(() => {
-      const loadMoreParams = new URLSearchParams(params.value);
-      loadMoreParams.append("from", from.toISOString());
-      loadMoreParams.append("to", to.toISOString());
-      if (minimum > 0) {
-        loadMoreParams.append("minimum", String(minimum));
-      }
+  const urlWithMoreParams = computed(() => {
+    const loadMoreParams = new URLSearchParams(params.value);
+    loadMoreParams.append("from", from.toISOString());
+    loadMoreParams.append("to", to.toISOString());
+    if (min > 0) {
+      loadMoreParams.append("minimum", String(min));
+    }
+    if (maxStart > 0) {
+      loadMoreParams.append("maxStart", String(maxStart));
+    }
+    if (maxEnd > 0) {
+      loadMoreParams.append("maxEnd", String(maxEnd));
+    }
+    if (lastSeenId > 0) {
       loadMoreParams.append("lastSeenId", String(lastSeenId));
-
-      return withBase(`${resourceUrl!.value}?${loadMoreParams.toString()}`);
-    });
-    const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
-    const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
-    stopWatcher();
-    return {
-      logs: logs
-        .trim()
-        .split("\n")
-        .map((line) => parseMessage(line)),
-      signal,
-    };
-  } finally {
-    loadingMore.value = false;
-  }
+    }
+    return withBase(`${resourceUrl!.value}?${loadMoreParams.toString()}`);
+  });
+  const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
+  const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
+  stopWatcher();
+  return {
+    logs: logs
+      .trim()
+      .split("\n")
+      .map((line) => parseMessage(line)),
+    signal,
+  };
 }
