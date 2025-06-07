@@ -22,7 +22,7 @@ declare module 'vue-router/auto-routes' {
     '/[...all]': RouteRecordInfo<'/[...all]', '/:all(.*)', { all: ParamValue<true> }, { all: ParamValue<false> }>,
     '/container/[id]': RouteRecordInfo<'/container/[id]', '/container/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/container/[id]/': RouteRecordInfo<'/container/[id]/', '/container/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
-    '/container/[id]/logs/[logId]': RouteRecordInfo<'/container/[id]/logs/[logId]', '/container/:id/logs/:logId', { id: ParamValue<true>, logId: ParamValue<true> }, { id: ParamValue<false>, logId: ParamValue<false> }>,
+    '/container/[id]/time/[datetime]': RouteRecordInfo<'/container/[id]/time/[datetime]', '/container/:id/time/:datetime', { id: ParamValue<true>, datetime: ParamValue<true> }, { id: ParamValue<false>, datetime: ParamValue<false> }>,
     '/group/[name]': RouteRecordInfo<'/group/[name]', '/group/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/host/[id]': RouteRecordInfo<'/host/[id]', '/host/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,

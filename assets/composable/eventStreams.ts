@@ -182,39 +182,6 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   watch(urlWithParams, () => connect(), { immediate: true });
 
-  async function loadBetween(from: Date, to: Date, lastSeenId: number, minimum: number = 0) {
-    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-    if (loadingMore.value) throw new Error("Already loading");
-    try {
-      loadingMore.value = true;
-      const urlWithMoreParams = computed(() => {
-        const loadMoreParams = new URLSearchParams(params.value);
-        loadMoreParams.append("from", from.toISOString());
-        loadMoreParams.append("to", to.toISOString());
-        if (minimum > 0) {
-          loadMoreParams.append("minimum", String(minimum));
-        }
-        loadMoreParams.append("lastSeenId", String(lastSeenId));
-
-        return withBase(`${loadMoreUrl!.value}?${loadMoreParams.toString()}`);
-      });
-      const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
-      const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
-      stopWatcher();
-      return {
-        logs: logs
-          .trim()
-          .split("\n")
-          .map((line) => parseMessage(line)),
-        signal,
-      };
-    } finally {
-      loadingMore.value = false;
-    }
-  }
-
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
@@ -226,7 +193,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const delta = to.getTime() - last.getTime();
     const from = new Date(to.getTime() + delta);
     try {
-      const { logs: newLogs, signal } = await loadBetween(from, to, lastSeenId, 100);
+      const { logs: newLogs, signal } = await loadBetween(loadMoreUrl, loadingMore, params, from, to, lastSeenId, 100);
       if (newLogs && signal.aborted === false) {
         messages.value = [loader, ...newLogs, ...existingLogs];
       }
@@ -241,7 +208,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const to = entry.lastSkippedLog.date;
     const lastSeenId = entry.lastSkippedLog.id;
     try {
-      const { logs, signal } = await loadBetween(from, to, lastSeenId);
+      const { logs, signal } = await loadBetween(loadMoreUrl, loadingMore, params, from, to, lastSeenId);
       if (logs && signal.aborted === false) {
         messages.value = messages.value.slice(logs.length).flatMap((log) => (log === entry ? logs : [log]));
       }
@@ -260,11 +227,51 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
 
   return {
     messages,
-    loadOlderLogs,
-    hasComplexLogs,
     opened,
     error,
     loading,
     eventSourceURL: urlWithParams,
   };
+}
+
+export async function loadBetween(
+  resourceUrl: Ref<string>,
+  loadingMore: Ref<boolean>,
+  params: Ref<URLSearchParams>,
+  from: Date,
+  to: Date,
+  lastSeenId: number,
+  minimum: number = 0,
+) {
+  if (!resourceUrl.value) throw new Error("No resourceUrl");
+  if (loadingMore.value) throw new Error("Already loading");
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  try {
+    loadingMore.value = true;
+    const urlWithMoreParams = computed(() => {
+      const loadMoreParams = new URLSearchParams(params.value);
+      loadMoreParams.append("from", from.toISOString());
+      loadMoreParams.append("to", to.toISOString());
+      if (minimum > 0) {
+        loadMoreParams.append("minimum", String(minimum));
+      }
+      loadMoreParams.append("lastSeenId", String(lastSeenId));
+
+      return withBase(`${resourceUrl!.value}?${loadMoreParams.toString()}`);
+    });
+    const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
+    const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
+    stopWatcher();
+    return {
+      logs: logs
+        .trim()
+        .split("\n")
+        .map((line) => parseMessage(line)),
+      signal,
+    };
+  } finally {
+    loadingMore.value = false;
+  }
 }

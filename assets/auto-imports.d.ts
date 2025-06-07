@@ -69,6 +69,7 @@ declare global {
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const lightTheme: typeof import('./stores/settings')['lightTheme']
+  const loadBetween: typeof import('./composable/eventStreams')['loadBetween']
   const locale: typeof import('./stores/settings')['locale']
   const loggingContextKey: typeof import('./composable/logContext')['loggingContextKey']
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
@@ -239,6 +240,7 @@ declare global {
   const useGeolocation: typeof import('@vueuse/core')['useGeolocation']
   const useGroupedStream: typeof import('./composable/eventStreams')['useGroupedStream']
   const useHead: typeof import('@vueuse/head')['useHead']
+  const useHistoricalContainerLog: typeof import('./composable/historicalLogs')['useHistoricalContainerLog']
   const useHostStream: typeof import('./composable/eventStreams')['useHostStream']
   const useHosts: typeof import('./stores/hosts')['useHosts']
   const useI18n: typeof import('vue-i18n')['useI18n']
@@ -461,6 +463,7 @@ declare module 'vue' {
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
+    readonly loadBetween: UnwrapRef<typeof import('./composable/eventStreams')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly loggingContextKey: UnwrapRef<typeof import('./composable/logContext')['loggingContextKey']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
@@ -631,6 +634,7 @@ declare module 'vue' {
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/eventStreams')['useGroupedStream']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
+    readonly useHistoricalContainerLog: UnwrapRef<typeof import('./composable/historicalLogs')['useHistoricalContainerLog']>
     readonly useHostStream: UnwrapRef<typeof import('./composable/eventStreams')['useHostStream']>
     readonly useHosts: UnwrapRef<typeof import('./stores/hosts')['useHosts']>
     readonly useI18n: UnwrapRef<typeof import('vue-i18n')['useI18n']>

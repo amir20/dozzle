@@ -43,6 +43,7 @@ declare module 'vue' {
     FuzzySearchModal: typeof import('./components/FuzzySearchModal.vue')['default']
     GroupedLog: typeof import('./components/GroupedViewer/GroupedLog.vue')['default']
     GroupMenu: typeof import('./components/GroupMenu.vue')['default']
+    HistoricalContainerLog: typeof import('./components/ContainerViewer/HistoricalContainerLog.vue')['default']
     HostIcon: typeof import('./components/common/HostIcon.vue')['default']
     HostList: typeof import('./components/HostList.vue')['default']
     HostLog: typeof import('./components/HostViewer/HostLog.vue')['default']

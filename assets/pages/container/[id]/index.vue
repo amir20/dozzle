@@ -34,6 +34,8 @@ watchEffect(() => {
   }
 });
 
+console.log("currentContainer", currentContainer.value);
+
 const redirectTrigger = ref(false);
 watch(currentContainer, () => (redirectTrigger.value = false));
 
