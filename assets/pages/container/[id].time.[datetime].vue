@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute("/container/[id]/time/[datetime]");
+const route = useRoute("/container/[id].time.[datetime]");
 const id = toRef(() => route.params.id);
 const date = toRef(() => new Date(+route.params.datetime));
 const containerStore = useContainerStore();
@@ -25,8 +25,6 @@ const currentContainer = containerStore.currentContainer(id);
 const { ready } = storeToRefs(containerStore);
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
-
-console.log(route.params.datetime, new Date(+route.params.datetime));
 
 watchEffect(() => {
   if (ready.value) {

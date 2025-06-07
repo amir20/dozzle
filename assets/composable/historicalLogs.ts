@@ -37,6 +37,8 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       300,
     );
     messages.value = newLogs;
+    loading.value = false;
+    opened.value = true;
   }
 
   loadLogs();

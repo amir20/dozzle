@@ -1,22 +1,18 @@
 <template>
-  <router-view v-if="nested.params.datetime"></router-view>
-  <template v-else>
-    <Search />
-    <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
-    <div v-else-if="ready" class="hero bg-base-200 min-h-screen">
-      <div class="hero-content text-center">
-        <div class="max-w-md">
-          <p class="py-6 text-2xl font-bold">{{ $t("error.container-not-found") }}</p>
-        </div>
+  <Search />
+  <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
+  <div v-else-if="ready" class="hero bg-base-200 min-h-screen">
+    <div class="hero-content text-center">
+      <div class="max-w-md">
+        <p class="py-6 text-2xl font-bold">{{ $t("error.container-not-found") }}</p>
       </div>
-    </div></template
-  >
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { type Container } from "@/models/Container";
 const route = useRoute("/container/[id]");
-const nested = useRoute("/container/[id]/time/[datetime]");
 const id = toRef(() => route.params.id);
 const containerStore = useContainerStore();
 const currentContainer = containerStore.currentContainer(id);
