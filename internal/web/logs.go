@@ -186,6 +186,10 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			break
 		}
 
+		if minimum == 0 {
+			break
+		}
+
 		from = from.Add(-delta)
 		delta = delta * 2
 	}

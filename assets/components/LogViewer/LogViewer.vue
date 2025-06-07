@@ -24,14 +24,20 @@ watchEffect(() => {
   const hash = router.currentRoute.value.hash;
   if (debouncedSearchFilter.value !== "") {
     query.search = debouncedSearchFilter.value;
+  } else {
+    delete query.search;
   }
 
   if (!streamConfig.value.stderr) {
     query.stderr = streamConfig.value.stderr.toString();
+  } else {
+    delete query.stderr;
   }
 
   if (!streamConfig.value.stdout) {
     query.stdout = streamConfig.value.stdout.toString();
+  } else {
+    delete query.stdout;
   }
 
   router.push({

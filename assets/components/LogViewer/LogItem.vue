@@ -14,10 +14,15 @@
         :to="{
           name: '/container/[id].time.[datetime]',
           params: { id: container.id, datetime: logEntry.date.toISOString() },
-          hash: `#${logEntry.id}`,
+          query: { logId: logEntry.id },
         }"
       >
-        <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
+        <LogDate
+          :date="logEntry.date"
+          v-if="showTimestamp"
+          class="shrink-0 select-none"
+          :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
+        />
       </router-link>
     </div>
     <LogLevel
@@ -41,4 +46,6 @@ const { hosts } = useHosts();
 
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => hosts.value[container.value.host]);
+
+const route = useRoute();
 </script>

@@ -26,23 +26,28 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     return params;
   });
 
+  const route = useRoute();
   async function loadLogs() {
     loadingMore.value = true;
     try {
+      const lastSeenId = route.query.logId ? +route.query.logId : undefined;
       const [{ logs: before }, { logs: after }] = await Promise.all([
         loadBetween(
           url,
           params,
           new Date(historicalContainer.value.date.getTime() - 1000 * 60 * 5),
-          historicalContainer.value.date,
+          new Date(historicalContainer.value.date.getTime() + 1000),
           {
             min: 10,
+            lastSeenId,
           },
         ),
         loadBetween(url, params, historicalContainer.value.date, new Date(), {
           maxStart: 10,
         }),
       ]);
+      console.log(before);
+      console.log(after);
       messages.value = [...before, ...after];
       loading.value = false;
       opened.value = true;
