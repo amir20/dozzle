@@ -37,7 +37,6 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
           historicalContainer.value.date,
           {
             min: 10,
-            maxEnd: 10,
           },
         ),
         loadBetween(url, params, historicalContainer.value.date, new Date(), {

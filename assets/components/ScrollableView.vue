@@ -25,7 +25,7 @@
       <div ref="scrollObserver" class="h-px"></div>
     </main>
 
-    <div class="mr-16 text-right">
+    <div class="mr-16 text-right" v-if="!historical">
       <transition name="fade">
         <button
           class="btn btn-primary text-primary-content fixed bottom-8 rounded-sm p-3 shadow-sm transition-colors"
@@ -49,7 +49,7 @@ const scrollableContent = ref<HTMLElement>();
 
 const scrollContext = provideScrollContext();
 
-const { loadingMore } = useLoggingContext();
+const { loadingMore, historical } = useLoggingContext();
 
 useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
   threshold: [0, 1],

@@ -10,7 +10,7 @@
     {{ $t("label.no-logs") }}
   </div>
   <slot :messages="messages" v-else></slot>
-  <IndeterminateBar :color />
+  <IndeterminateBar :color v-if="!historical" />
 </template>
 
 <script lang="ts" setup generic="T">
@@ -20,6 +20,8 @@ const { entity, streamSource } = $defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   entity: T;
 }>();
+
+const { historical } = useLoggingContext();
 
 const { messages, opened, loading, error, eventSourceURL } = streamSource(toRef(() => entity));
 

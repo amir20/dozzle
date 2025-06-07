@@ -248,7 +248,7 @@ export async function loadBetween(
   params: Ref<URLSearchParams>,
   from: Date,
   to: Date,
-  { lastSeenId = -1, min = -1, maxStart = -1, maxEnd = -1 } = { lastSeenId: -1, min: -1, maxStart: -1, maxEnd: -1 },
+  { lastSeenId = -1, min = -1, maxStart = -1 } = { lastSeenId: -1, min: -1, maxStart: -1 },
 ) {
   if (!resourceUrl.value) throw new Error("No resourceUrl");
 
@@ -260,13 +260,10 @@ export async function loadBetween(
     loadMoreParams.append("from", from.toISOString());
     loadMoreParams.append("to", to.toISOString());
     if (min > 0) {
-      loadMoreParams.append("minimum", String(min));
+      loadMoreParams.append("min", String(min));
     }
     if (maxStart > 0) {
       loadMoreParams.append("maxStart", String(maxStart));
-    }
-    if (maxEnd > 0) {
-      loadMoreParams.append("maxEnd", String(maxEnd));
     }
     if (lastSeenId > 0) {
       loadMoreParams.append("lastSeenId", String(lastSeenId));

@@ -82,6 +82,7 @@ declare module 'vue' {
     'Mdi:github': typeof import('~icons/mdi/github')['default']
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']
+    'Mdi:history': typeof import('~icons/mdi/history')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']

@@ -10,7 +10,15 @@
         v-if="showContainerName"
         truncateRight
       />
-      <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
+      <router-link
+        :to="{
+          name: '/container/[id].time.[datetime]',
+          params: { id: container.id, datetime: logEntry.date.toISOString() },
+          hash: `#${logEntry.id}`,
+        }"
+      >
+        <LogDate :date="logEntry.date" v-if="showTimestamp" class="shrink-0 select-none" />
+      </router-link>
     </div>
     <LogLevel
       class="flex select-none"

@@ -63,7 +63,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	buffer := utils.NewRingBuffer[*container.LogEvent](500)
 	delta := max(to.Sub(from), time.Second*3)
 
 	var regex *regexp.Regexp
@@ -83,6 +82,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	minimum := 0
+	buffer := utils.NewRingBuffer[*container.LogEvent](500)
 	if r.URL.Query().Has("min") {
 		minimum, err = strconv.Atoi(r.URL.Query().Get("min"))
 		if err != nil {
@@ -94,6 +94,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
 			return
 		}
+		buffer = utils.NewRingBuffer[*container.LogEvent](minimum)
 	}
 
 	maxStart := math.MaxInt
@@ -104,22 +105,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		if maxStart < 0 || maxStart > buffer.Size {
-			http.Error(w, errors.New("maximum is between 0 and buffer size").Error(), http.StatusBadRequest)
-			return
-		}
-	}
-
-	maxEnd := math.MaxInt
-	if r.URL.Query().Has("maxEnd") {
-		maxEnd, err = strconv.Atoi(r.URL.Query().Get("maxEnd"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if maxEnd < 0 || maxEnd > buffer.Size {
-			http.Error(w, errors.New("maximum is between 0 and buffer size").Error(), http.StatusBadRequest)
+		if maxStart < 1 || maxStart > buffer.Size {
+			http.Error(w, errors.New("invalid maxStart").Error(), http.StatusBadRequest)
 			return
 		}
 	}
@@ -149,7 +136,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	for {
-		if buffer.Len() > minimum {
+		if minimum > 0 && buffer.Len() >= minimum {
 			break
 		}
 
@@ -206,10 +193,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
 	data := buffer.Data()
-
-	if maxEnd != math.MaxInt {
-		data = data[len(data)-maxEnd:]
-	}
 
 	for _, event := range data {
 		if err := encoder.Encode(event); err != nil {

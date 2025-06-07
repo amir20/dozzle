@@ -3,11 +3,13 @@
     <template #header v-if="showTitle">
       <div class="@container mx-2 flex items-center gap-2 md:ml-4">
         <ContainerTitle :container="container" />
-        <MultiContainerStat
-          class="ml-auto lg:hidden lg:@3xl:flex"
-          :containers="[container]"
+        <router-link
+          :to="{ name: '/container/[id]', params: { id: container.id } }"
+          class="btn btn-secondary btn-sm"
           v-if="container.state === 'running'"
-        />
+        >
+          Live Logs
+        </router-link>
 
         <ContainerActionsToolbar class="max-md:hidden" :container="container" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
@@ -55,6 +57,6 @@ const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer
 
 provideLoggingContext(
   toRef(() => [container.value]),
-  { showContainerName: false, showHostname: false },
+  { showContainerName: false, showHostname: false, historical: true },
 );
 </script>

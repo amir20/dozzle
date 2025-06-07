@@ -20,7 +20,8 @@ const visibleMessages = filteredPayload(messages);
 const router = useRouter();
 
 watchEffect(() => {
-  const query = {} as Record<string, string>;
+  const query = router.currentRoute.value.query;
+  const hash = router.currentRoute.value.hash;
   if (debouncedSearchFilter.value !== "") {
     query.search = debouncedSearchFilter.value;
   }
@@ -35,6 +36,7 @@ watchEffect(() => {
 
   router.push({
     query,
+    hash,
     replace: true,
   });
 });
