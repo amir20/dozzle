@@ -16,6 +16,7 @@
           params: { id: container.id, datetime: logEntry.date.toISOString() },
           query: { logId: logEntry.id },
         }"
+        v-if="container"
       >
         <LogDate
           :date="logEntry.date"
@@ -24,6 +25,13 @@
           :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
         />
       </router-link>
+      <LogDate
+        v-else
+        :date="logEntry.date"
+        v-if="showTimestamp"
+        class="shrink-0 select-none"
+        :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
+      />
     </div>
     <LogLevel
       class="flex select-none"
