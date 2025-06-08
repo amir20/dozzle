@@ -22,7 +22,9 @@ useIntersectionObserver(root, async (entries) => {
   await logEntry.loadMore();
   isLoading.value = false;
   await nextTick();
-  scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;
+  if (logEntry.rememberScrollPosition) {
+    scrollingParent.scrollTop += scrollingParent.scrollHeight - previousHeight;
+  }
 });
 </script>
 
