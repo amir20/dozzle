@@ -1,0 +1,131 @@
+toolbar:
+  clear: 지우기
+  download: 다운로드
+  search: 검색
+  show: "{std} 보기"
+  show-all: 전체 보기
+  stop: 중지
+  start: 시작
+  restart: 다시 시작
+  show-hostname: 호스트 이름 보기
+  show-container-name: 컨테이너 이름 보기
+label:
+  containers: 컨테이너
+  container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
+  service: 서비스가 없습니다 | 서비스 1개 | 서비스 {count}개
+  services: 서비스
+  running-containers: 실행 중인 컨테이너
+  all-containers: 전체 컨테이너
+  host: 호스트
+  hosts: 호스트
+  password: 비밀번호
+  username: 사용자 이름
+  container-name: 컨테이너 이름
+  status: 상태
+  created: 만든 날짜
+  avg-cpu: 평균 CPU (%)
+  avg-mem: 평균 메모리 (%)
+  pinned: 고정됨
+  per-page: 페이지당 행 수
+  host-menu: 호스트 및 컨테이너
+  swarm-menu: 서비스 및 스택
+  group-menu: 사용자 그룹
+  no-logs: 아직 로그가 없습니다
+  show-all-containers: 전체 컨테이너 보기
+  collapse-all: 전체 접기
+tooltip:
+  search: 컨테이너 검색 (⌘ + k, ⌃k)
+  pin-column: 열로 고정
+  merge-services: 모든 서비스를 하나의 화면으로 합치기
+  merge-containers: 모든 컨테이너를 하나의 화면으로 합치기
+  merge-hosts: 이 호스트의 모든 컨테이너를 하나의 화면으로 합치기
+error:
+  page-not-found: 페이지를 찾을 수 없습니다
+  invalid-auth: 사용자 이름 또는 비밀번호가 올바르지 않습니다
+  logs-skipped: 숨겨진 항목 {total}개 보기
+  container-not-found: 컨테이너를 찾을 수 없습니다
+  events-stream:
+    title: 예상치 못한 오류
+    message: >-
+      Dozzle UI가 API에 연결하지 못했습니다. 네트워크 설정을 확인해 주세요.
+      리버스 프록시를 사용 중이라면 설정이 올바른지 확인해 주세요.
+  events-timeout:
+    title: 문제가 발생했습니다
+    message: >-
+      Dozzle UI가 API 연결 중에 시간 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.
+alert:
+  redirected:
+    title: 새 컨테이너로 이동했습니다
+    message: Dozzle이 자동으로 새 컨테이너 {containerId}로 이동했습니다.
+  similar-container-found:
+    title: 비슷한 컨테이너를 찾았습니다
+    message: >-
+      Dozzle이 같은 호스트에서 실행 중인 비슷한 컨테이너 {containerId}를 찾았습니다.
+      '취소'를 누르지 않으면 자동으로 해당 컨테이너로 전환됩니다.
+title:
+  page-not-found: 페이지를 찾을 수 없습니다
+  login: 인증이 필요합니다
+  dashboard: 컨테이너 1개 | 컨테이너 {count}개
+  settings: 설정
+button:
+  logout: 로그아웃
+  login: 로그인
+  settings: 설정
+  cancel: 취소
+  redirect: 이동
+placeholder:
+  search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
+  search: 검색
+settings:
+  help-support: >
+    GitHub에서 후원하거나 기부로 Dozzle을 응원해 주세요. 여러분의 도움으로
+    모두를 위한 더 나은 Dozzle을 만들 수 있습니다. 감사합니다! 🙏🏼
+  display: 화면 설정
+  locale: 언어 변경
+  small-scrollbars: 작은 스크롤바 사용
+  show-timesamps: 타임스탬프 표시
+  soft-wrap: 자동 줄바꿈
+  datetime-format: 날짜 및 시간 형식 변경
+  font-size: 로그 글꼴 크기
+  color-scheme: 색상 테마
+  options: 옵션
+  show-stopped-containers: 중지된 컨테이너 보기
+  about: 정보
+  search: Dozzle 검색 기능 사용
+  using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}을 사용하고 있습니다.
+  update-available: >-
+    새 버전이 있습니다! <a href="{href}" target="_blank"
+    rel="noreferrer noopener">{nextVersion}</a>으로 업데이트하세요.
+  show-std: stdout 및 stderr 라벨 표시
+  automatic-redirect: 같은 이름의 새 컨테이너로 자동 이동
+  compact: 로그 간단하게 보기
+  log:
+    preview: 로그 미리보기입니다
+    warning: 경고 로그는 이렇게 표시됩니다
+    complex: JSON 형태의 복잡한 로그 항목입니다
+    simple: 기본적으로 줄바꿈되는 매우 긴 메시지입니다. 자동 줄바꿈을 비활성화하면 이 기능이 꺼집니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    multi-line-error:
+      start-line: 여러 줄로 된 오류 메시지입니다
+      middle-line: 두 번째 줄과
+      end-line: 마지막 세 번째 줄입니다.
+releases:
+  features: 새 기능 1개 | 새 기능 {count}개
+  bugFixes: 버그 수정 1개 | 버그 수정 {count}개
+  breaking: 주요 변경사항 1개 | 주요 변경사항 {count}개
+  three_parts: "{first}, {second} 그리고 {third}"
+  two_parts: "{first} 및 {second}"
+  latest: 최신
+  no_releases: 최신 버전을 사용하고 있습니다
+log_actions:
+  copy_log: 로그 복사
+  jump_to_context: 해당 위치로 이동
+toasts:
+  copied:
+    title: 복사 완료
+    message: 로그가 클립보드에 복사되었습니다
+analytics:
+  creating_table: 임시 테이블을 생성하고 있습니다...
+  downloading: 컨테이너 로그를 가져오고 있습니다... ({size})
+  evaluating_query: 쿼리를 실행하고 있습니다...
+  total_records: 총 {count}개 기록
+  showing_first: 처음 {count}개 표시
