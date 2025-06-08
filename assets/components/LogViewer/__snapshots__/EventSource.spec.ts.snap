@@ -2,18 +2,19 @@
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
-        <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
-        </div>
+        <!--v-if--><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="">
+          <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
+            <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+          </div>
+        </a>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
@@ -27,18 +28,19 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
-        <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
-        </div>
+        <!--v-if--><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="">
+          <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
+            <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42</time></div>
+          </div>
+        </a>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
@@ -52,18 +54,19 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
     <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
-        <!--v-if-->
-        <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
-          <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
-        </div>
+        <!--v-if--><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class="">
+          <div class="tag bg-base-100 inline-flex items-center justify-center rounded-sm px-2 py-[0.2em] [[size='small']]:text-[0.8rem] items-start! shrink-0 select-none" size="small">
+            <div class="inline-flex gap-2 text-blue whitespace-nowrap"><time datetime="2019-06-12T10:55:42.459Z" class="max-md:hidden">06/12/2019</time><time datetime="2019-06-12T10:55:42.459Z">10:55:42 AM</time></div>
+          </div>
+        </a>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>

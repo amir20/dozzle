@@ -164,7 +164,13 @@ export const useContainerStore = defineStore("container", () => {
     ];
   };
 
-  const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
+  const currentContainer = (id: Ref<string>) => {
+    console.log("Fetching before:", id.value);
+    return computed(() => {
+      console.log("Fetching container:", id.value);
+      return allContainersById.value[id.value];
+    });
+  };
 
   const containerNames = computed(() =>
     containers.value.reduce(
