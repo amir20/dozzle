@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       '@fontsource-variable/playfair-display':
-        specifier: ^5.2.5
-        version: 5.2.5
+        specifier: ^5.2.6
+        version: 5.2.6
     devDependencies:
       dozzle:
         specifier: workspace:*
@@ -21,9 +21,9 @@ importers:
 
 packages:
 
-  '@fontsource-variable/playfair-display@5.2.5':
-    resolution: {integrity: sha512-nzSCC5pbWHjkJBqjPe81cPIC7fqJ6U5DwJ6tec7vF1bQ2DJnaKRBZluRQJuseFpACZLTN8LeN/1gBQEA7PnKOw==}
+  '@fontsource-variable/playfair-display@5.2.6':
+    resolution: {integrity: sha512-Uedpo4WwsWtobi1KMYGm9tlKcZJcD18EiBtPWhbbccT2u58qM7vwkOZGdrmdWVDhcEhjwNrqRUyZijwIFtsCcQ==}
 
 snapshots:
 
-  '@fontsource-variable/playfair-display@5.2.5': {}
+  '@fontsource-variable/playfair-display@5.2.6': {}
