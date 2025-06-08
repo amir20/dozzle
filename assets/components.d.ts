@@ -85,6 +85,7 @@ declare module 'vue' {
     'Mdi:history': typeof import('~icons/mdi/history')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
+    'Mdi:lightningBolt': typeof import('~icons/mdi/lightning-bolt')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']

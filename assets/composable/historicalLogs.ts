@@ -38,16 +38,14 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
           new Date(historicalContainer.value.date.getTime() - 1000 * 60 * 5),
           new Date(historicalContainer.value.date.getTime() + 1000),
           {
-            min: 10,
+            min: 50,
             lastSeenId,
           },
         ),
         loadBetween(url, params, historicalContainer.value.date, new Date(), {
-          maxStart: 10,
+          maxStart: 50,
         }),
       ]);
-      console.log(before);
-      console.log(after);
       messages.value = [...before, ...after];
       loading.value = false;
       opened.value = true;

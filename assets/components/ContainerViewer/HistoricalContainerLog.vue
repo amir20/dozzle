@@ -8,6 +8,7 @@
           class="btn btn-secondary btn-sm"
           v-if="container.state === 'running'"
         >
+          <mdi:lightning-bolt />
           Live Logs
         </router-link>
 

@@ -4,7 +4,7 @@
       v-for="item in messages"
       ref="list"
       :key="item.id"
-      :data-key="item.id"
+      :id="item.id.toString()"
       :data-time="item.date.getTime()"
       class="group/entry"
     >

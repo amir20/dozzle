@@ -50,27 +50,28 @@ const scrollableContent = ref<HTMLElement>();
 const scrollContext = provideScrollContext();
 
 const { loadingMore, historical } = useLoggingContext();
+if (!historical.value) {
+  useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
+    threshold: [0, 1],
+    rootMargin: "40px 0px",
+  });
 
-useIntersectionObserver(scrollObserver, ([entry]) => (scrollContext.paused = entry.intersectionRatio == 0), {
-  threshold: [0, 1],
-  rootMargin: "40px 0px",
-});
-
-useMutationObserver(
-  scrollableContent,
-  (records) => {
-    if (!scrollContext.paused) {
-      scrollToBottom();
-    } else {
-      const record = records[records.length - 1];
-      const children = (record.target as HTMLElement).children;
-      if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
-        hasMore.value = true;
+  useMutationObserver(
+    scrollableContent,
+    (records) => {
+      if (!scrollContext.paused) {
+        scrollToBottom();
+      } else {
+        const record = records[records.length - 1];
+        const children = (record.target as HTMLElement).children;
+        if (children[children.length - 1] == record.addedNodes[record.addedNodes.length - 1]) {
+          hasMore.value = true;
+        }
       }
-    }
-  },
-  { childList: true, subtree: true },
-);
+    },
+    { childList: true, subtree: true },
+  );
+}
 
 function scrollToBottom(behavior: "auto" | "smooth" = "auto") {
   scrollObserver.value?.scrollIntoView({ behavior });

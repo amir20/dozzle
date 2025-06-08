@@ -15,6 +15,7 @@
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/eventStreams";
+const route = useRoute();
 
 const { entity, streamSource } = $defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
@@ -39,6 +40,13 @@ watchImmediate(loading, () => (waitingForMoreLog.value = true));
 defineExpose({
   clear: () => (messages.value = []),
 });
+
+if (historical.value && route.query.logId) {
+  watchOnce(messages, async () => {
+    await nextTick();
+    document.getElementById(route.query.logId as string)?.scrollIntoView({ behavior: "instant", block: "center" });
+  });
+}
 
 const sizes = computedWithControl(eventSourceURL, () => {
   const sizeOptions = [
