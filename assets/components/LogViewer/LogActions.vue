@@ -9,6 +9,7 @@
     <ul
       tabindex="0"
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm"
+      @click="hideMenu"
     >
       <li>
         <a v-if="isSupported" @click="copyLogMessage()">
@@ -83,6 +84,18 @@ async function copyPermalink() {
     query: { logId: logEntry.id },
   }).href;
 
-  await copy(url);
+  const resolved = new URL(url, window.location.origin);
+
+  await copy(resolved.href);
+}
+
+function hideMenu(e: MouseEvent) {
+  if (e.target instanceof HTMLAnchorElement) {
+    setTimeout(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 50);
+  }
 }
 </script>
