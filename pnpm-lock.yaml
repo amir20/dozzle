@@ -24,8 +24,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/material-symbols':
-        specifier: ^1.2.24
-        version: 1.2.24
+        specifier: ^1.2.25
+        version: 1.2.25
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -90,8 +90,8 @@ importers:
         specifier: 5.0.43
         version: 5.0.43
       entities:
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^6.0.1
+        version: 6.0.1
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -154,8 +154,8 @@ importers:
         specifier: ^20.0.0
         version: 20.0.0
       '@iconify-json/material-symbols-light':
-        specifier: ^1.2.24
-        version: 1.2.24
+        specifier: ^1.2.25
+        version: 1.2.25
       '@iconify-json/ri':
         specifier: ^1.2.5
         version: 1.2.5
@@ -655,11 +655,11 @@ packages:
   '@iconify-json/ic@1.2.2':
     resolution: {integrity: sha512-QmjwS3lYiOmVWgTCEOTFyGODaR/+689+ajep/VsrCcsUN0Gdle5PmIcibDsdmRyrOsW/E77G41UUijdbjQUofw==}
 
-  '@iconify-json/material-symbols-light@1.2.24':
-    resolution: {integrity: sha512-5/7uxon/ZBkPUzJeaMdiZfbFWpjSALqdwuPrf9S8NEnsH0HIdZv0whCdSJCh44NK55Dg8OvTrm7M6HLAx9EWHw==}
+  '@iconify-json/material-symbols-light@1.2.25':
+    resolution: {integrity: sha512-lbejcqyI64qxfva20iirLKDMo+F2X6YIn0C3B3+st+1MMKJbnu/1kNTqoDBhpHrNmJzONCG2c1lf2h4GGJT9nA==}
 
-  '@iconify-json/material-symbols@1.2.24':
-    resolution: {integrity: sha512-SYEpI2LKwWE50D9SDmX4KvfX6cMOVb/AOtyiFWulshRoXbZMBxgBEOiR7vbGESnn46SI6miHuH7IbCiqb+1RBQ==}
+  '@iconify-json/material-symbols@1.2.25':
+    resolution: {integrity: sha512-WIC8rKKA5fsqt8E2ZFT6lqRGP30BK8P+SAzlqo0GzPe6mxKY+NLcRs+Tk+SnpZElgDjnb27A9zMmUajMLQGPmQ==}
 
   '@iconify-json/mdi-light@1.2.2':
     resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
@@ -2135,8 +2135,8 @@ packages:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
 
-  entities@6.0.0:
-    resolution: {integrity: sha512-aKstq2TDOndCn4diEyp9Uq/Flu2i1GlLkc6XIDQSDMuaFE3OPW5OphLCyQ5SpSJZTb4reN+kTcYru5yIfXoRPw==}
+  entities@6.0.1:
+    resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
 
   environment@1.1.0:
@@ -4141,11 +4141,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols-light@1.2.24':
+  '@iconify-json/material-symbols-light@1.2.25':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.24':
+  '@iconify-json/material-symbols@1.2.25':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -5666,7 +5666,7 @@ snapshots:
 
   entities@4.5.0: {}
 
-  entities@6.0.0: {}
+  entities@6.0.1: {}
 
   environment@1.1.0: {}
 
