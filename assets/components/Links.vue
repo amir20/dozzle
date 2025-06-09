@@ -30,7 +30,10 @@
         </div>
         <ul class="menu mt-4 p-0">
           <li v-if="config.authProvider === 'simple'">
-            <button @click.prevent="logout()" class="text-primary p-2">{{ $t("button.logout") }}</button>
+            <button @click.prevent="logout()" class="text-primary p-2">
+              <material-symbols:logout />
+              {{ $t("button.logout") }}
+            </button>
           </li>
         </ul>
       </template>
