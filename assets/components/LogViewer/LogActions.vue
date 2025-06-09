@@ -31,7 +31,7 @@
           <material-symbols:eye-tracking />
           See log in context
         </router-link>
-        <a @click="showDrawer(LogDetails, { entry: logEntry })" v-if="logEntry instanceof SimpleLogEntry">
+        <a @click="showDrawer(LogDetails, { entry: logEntry })" v-if="logEntry instanceof ComplexLogEntry">
           <material-symbols:code-blocks-rounded />
           Show details
         </a>
