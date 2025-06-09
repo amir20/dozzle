@@ -11,21 +11,16 @@
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm"
     >
       <li>
-        <a>
+        <a v-if="isSupported" @click="copyLogMessage()">
           <material-symbols:content-copy />
           Copy line
         </a>
-        <router-link
-          :to="{
-            name: '/container/[id].time.[datetime]',
-            params: { id: container.id, datetime: logEntry.date.toISOString() },
-            query: { logId: logEntry.id },
-          }"
-        >
+        <a v-if="isSupported" @click="copyPermalink()">
           <material-symbols:link />
           Copy permalink
-        </router-link>
+        </a>
         <router-link
+          v-if="isSearching"
           :to="{
             name: '/container/[id].time.[datetime]',
             params: { id: container.id, datetime: logEntry.date.toISOString() },
@@ -35,7 +30,7 @@
           <material-symbols:eye-tracking />
           See log in context
         </router-link>
-        <a @click="showDrawer(LogDetails, { entry: logEntry })">
+        <a @click="showDrawer(LogDetails, { entry: logEntry })" v-if="logEntry instanceof SimpleLogEntry">
           <material-symbols:code-blocks-rounded />
           Show details
         </a>
@@ -46,7 +41,7 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-import { LogEntry, JSONObject } from "@/models/LogEntry";
+import { LogEntry, SimpleLogEntry, ComplexLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
 
 const { logEntry, container } = defineProps<{
@@ -56,22 +51,38 @@ const { logEntry, container } = defineProps<{
 
 const { showToast } = useToast();
 const showDrawer = useDrawer();
+const router = useRouter();
+const { isSearching } = useSearchFilter();
 
 const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
 
-// async function copyLogMessageToClipBoard() {
-//   await copy(message());
+async function copyLogMessage() {
+  if (logEntry instanceof ComplexLogEntry) {
+    await copy(logEntry.rawMessage);
+  } else if (logEntry instanceof SimpleLogEntry) {
+    await copy(logEntry.message);
+  }
 
-//   if (copied.value) {
-//     showToast(
-//       {
-//         title: t("toasts.copied.title"),
-//         message: t("toasts.copied.message"),
-//         type: "info",
-//       },
-//       { expire: 2000 },
-//     );
-//   }
-// }
+  if (copied.value) {
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  }
+}
+
+async function copyPermalink() {
+  const url = router.resolve({
+    name: "/container/[id].time.[datetime]",
+    params: { id: container.id, datetime: logEntry.date.toISOString() },
+    query: { logId: logEntry.id },
+  }).href;
+
+  await copy(url);
+}
 </script>
