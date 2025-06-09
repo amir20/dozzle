@@ -1,34 +1,20 @@
 <template>
   <div class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+    <LogActions :logEntry :container />
+
     <LogStd :std="logEntry.std" class="shrink-0 select-none" v-if="showStd" />
 
     <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
       <RandomColorTag class="w-30 shrink-0 select-none md:w-40" :value="host.name" v-if="showHostname" />
       <RandomColorTag
+        v-if="showContainerName"
         class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
         :value="container.name"
-        v-if="showContainerName"
         truncateRight
       />
-      <router-link
-        :to="{
-          name: '/container/[id].time.[datetime]',
-          params: { id: container.id, datetime: logEntry.date.toISOString() },
-          query: { logId: logEntry.id },
-        }"
-        v-if="container"
-      >
-        <LogDate
-          :date="logEntry.date"
-          v-if="showTimestamp"
-          class="shrink-0 select-none"
-          :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
-        />
-      </router-link>
       <LogDate
-        v-else
-        :date="logEntry.date"
         v-if="showTimestamp"
+        :date="logEntry.date"
         class="shrink-0 select-none"
         :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
       />
