@@ -59,6 +59,8 @@
 
   --depth: 0;
   --noise: 1;
+
+  --tw-shadow-color: rgb(1 0 0 / 0.9);
 }
 
 @plugin "daisyui/theme" {
@@ -99,6 +101,8 @@
 
   --depth: 0;
   --noise: 1;
+
+  --tw-shadow-color: rgb(0 0 0 / 0.1);
 }
 
 @utility input {
