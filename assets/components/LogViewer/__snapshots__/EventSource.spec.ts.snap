@@ -13,15 +13,13 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
-              </svg> Copy line </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
-              </svg> Copy permalink </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
-              </svg> See log in context </a><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if--><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
                 <path fill="currentColor" d="m8.825 12l1.475-1.475q.3-.3.3-.7t-.3-.7t-.712-.3t-.713.3L6.7 11.3q-.15.15-.213.325T6.425 12t.062.375t.213.325l2.175 2.175q.3.3.713.3t.712-.3t.3-.7t-.3-.7zm6.35 0L13.7 13.475q-.3.3-.3.7t.3.7t.713.3t.712-.3L17.3 12.7q.15-.15.213-.325t.062-.375t-.062-.375t-.213-.325l-2.175-2.175q-.15-.15-.337-.225t-.376-.075t-.375.075t-.337.225q-.3.3-.3.7t.3.7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"></path>
-              </svg> Show details </a></li>
+              </svg> Show details </a>
+          </li>
         </ul>
       </div>
       <!--v-if-->
@@ -52,15 +50,13 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
-              </svg> Copy line </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
-              </svg> Copy permalink </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
-              </svg> See log in context </a><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if--><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
                 <path fill="currentColor" d="m8.825 12l1.475-1.475q.3-.3.3-.7t-.3-.7t-.712-.3t-.713.3L6.7 11.3q-.15.15-.213.325T6.425 12t.062.375t.213.325l2.175 2.175q.3.3.713.3t.712-.3t.3-.7t-.3-.7zm6.35 0L13.7 13.475q-.3.3-.3.7t.3.7t.713.3t.712-.3L17.3 12.7q.15-.15.213-.325t.062-.375t-.062-.375t-.213-.325l-2.175-2.175q-.15-.15-.337-.225t-.376-.075t-.375.075t-.337.225q-.3.3-.3.7t.3.7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"></path>
-              </svg> Show details </a></li>
+              </svg> Show details </a>
+          </li>
         </ul>
       </div>
       <!--v-if-->
@@ -91,15 +87,13 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
-              </svg> Copy line </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
-              </svg> Copy permalink </a><a href="/container/abc/time/2019-06-12T10:55:42.459Z?logId=1" class=""><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
-                <path fill="currentColor" d="M6 23H3q-.825 0-1.412-.587T1 21v-3h2v3h3zm12 0v-2h3v-3h2v3q0 .825-.587 1.413T21 23zm-6-4.5q-3 0-5.437-1.775T3 12q1.125-2.95 3.563-4.725T12 5.5t5.438 1.775T21 12q-1.125 2.95-3.562 4.725T12 18.5m0-3q1.45 0 2.475-1.025T15.5 12t-1.025-2.475T12 8.5T9.525 9.525T8.5 12t1.025 2.475T12 15.5m0-2q-.625 0-1.062-.437T10.5 12t.438-1.062T12 10.5t1.063.438T13.5 12t-.437 1.063T12 13.5M1 6V3q0-.825.588-1.412T3 1h3v2H3v3zm20 0V3h-3V1h3q.825 0 1.413.588T23 3v3z"></path>
-              </svg> See log in context </a><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if--><a><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
                 <path fill="currentColor" d="m8.825 12l1.475-1.475q.3-.3.3-.7t-.3-.7t-.712-.3t-.713.3L6.7 11.3q-.15.15-.213.325T6.425 12t.062.375t.213.325l2.175 2.175q.3.3.713.3t.712-.3t.3-.7t-.3-.7zm6.35 0L13.7 13.475q-.3.3-.3.7t.3.7t.713.3t.712-.3L17.3 12.7q.15-.15.213-.325t.062-.375t-.062-.375t-.213-.325l-2.175-2.175q-.15-.15-.337-.225t-.376-.075t-.375.075t-.337.225q-.3.3-.3.7t.3.7zM5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21z"></path>
-              </svg> Show details </a></li>
+              </svg> Show details </a>
+          </li>
         </ul>
       </div>
       <!--v-if-->

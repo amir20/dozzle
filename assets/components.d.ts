@@ -11,6 +11,7 @@ declare module 'vue' {
     Announcements: typeof import('./components/Announcements.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
+    'Carbon:copyFile': typeof import('~icons/carbon/copy-file')['default']
     'Carbon:information': typeof import('~icons/carbon/information')['default']
     'Carbon:logoKubernetes': typeof import('~icons/carbon/logo-kubernetes')['default']
     'Carbon:macShift': typeof import('~icons/carbon/mac-shift')['default']
