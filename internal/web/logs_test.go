@@ -268,6 +268,7 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	q.Add("stderr", "true")
 	q.Add("fill", "true")
 	q.Add("levels", "info")
+	q.Add("min", "10")
 
 	req.URL.RawQuery = q.Encode()
 
@@ -280,16 +281,22 @@ func Test_handler_between_dates_with_fill(t *testing.T) {
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, from, to, container.STDALL).
 		Return(io.NopCloser(bytes.NewReader([]byte{})), nil).
 		Once()
+
 	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, time.Date(2017, time.December, 31, 14, 0, 0, 0, time.UTC), to, container.STDALL).
 		Return(io.NopCloser(bytes.NewReader(data)), nil).
 		Once()
-	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id}, nil)
-	mockedClient.On("Host").Return(container.Host{
-		ID: "localhost",
-	})
+
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, time.Date(2017, time.December, 30, 18, 0, 0, 0, time.UTC), to, container.STDALL).
+		Return(io.NopCloser(bytes.NewReader(data)), nil).
+		Once()
+
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Created: time.Date(2017, time.December, 31, 10, 0, 0, 0, time.UTC)}, nil)
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+
 	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
 		{ID: id, Name: "test", Host: "localhost", State: "running"},
 	}, nil)
+
 	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
 
 	handler := createDefaultHandler(mockedClient)
