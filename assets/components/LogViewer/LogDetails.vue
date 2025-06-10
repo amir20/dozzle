@@ -32,7 +32,7 @@
         <UseClipboard v-slot="{ copy, copied }" :source="entry.rawMessage">
           <button class="swap outline-hidden" @click="copy()" :class="{ 'hover:swap-active': copied }">
             <mdi:check class="swap-on" />
-            <mdi:content-copy class="swap-off" />
+            <material-symbols:content-copy class="swap-off" />
           </button>
         </UseClipboard>
       </div>
