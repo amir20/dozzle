@@ -80,7 +80,6 @@ declare module 'vue' {
     'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
     'Mdi:close': typeof import('~icons/mdi/close')['default']
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
-    'Mdi:contentCopy': typeof import('~icons/mdi/content-copy')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
     'Mdi:gauge': typeof import('~icons/mdi/gauge')['default']
     'Mdi:github': typeof import('~icons/mdi/github')['default']
