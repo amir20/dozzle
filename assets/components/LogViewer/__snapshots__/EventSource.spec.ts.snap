@@ -2,11 +2,25 @@
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 12 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
-    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div class="dropdown dropdown-start dropdown-hover font-sans group-[.compact]:absolute group-[.compact]:-left-0.5"><button tabindex="0" class="btn btn-square btn-ghost btn-xs -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+            <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
+          </svg></button>
+        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+          </li>
+        </ul>
+      </div>
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -17,9 +31,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
-        <!--v-if-->
-      </div>
     </div>
   </li>
 </ul>"
@@ -27,11 +38,25 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render dates with 24 hour style 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
-    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div class="dropdown dropdown-start dropdown-hover font-sans group-[.compact]:absolute group-[.compact]:-left-0.5"><button tabindex="0" class="btn btn-square btn-ghost btn-xs -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+            <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
+          </svg></button>
+        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+          </li>
+        </ul>
+      </div>
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -42,9 +67,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
-      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
-        <!--v-if-->
-      </div>
     </div>
   </li>
 </ul>"
@@ -52,11 +74,25 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
 
 exports[`<ContainerEventSource /> > render html correctly > should render messages 1`] = `
 "<ul data-v-cf9ff940="" class="group pt-4 medium" data-logs="" show-container-name="false">
-  <li data-v-cf9ff940="" data-key="1560336942709" data-time="1560336942709" class="group/entry">
-    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center p-2"><span class="loading loading-bars loading-md text-primary" style="display: none;"></span></div>
+  <li data-v-cf9ff940="" id="1560336942709" data-time="1560336942709" class="group/entry">
+    <div data-v-cf9ff940="" class="flex min-h-[1px] flex-1 content-center justify-center"><span class="loading loading-bars loading-md text-primary m-2" style="display: none;"></span></div>
   </li>
-  <li data-v-cf9ff940="" data-key="1" data-time="1560336942459" class="group/entry">
+  <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
+      <div class="dropdown dropdown-start dropdown-hover font-sans group-[.compact]:absolute group-[.compact]:-left-0.5"><button tabindex="0" class="btn btn-square btn-ghost btn-xs -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+            <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
+            <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
+          </svg></button>
+        <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
+          <li>
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+            <!--v-if-->
+          </li>
+        </ul>
+      </div>
       <!--v-if-->
       <div class="flex gap-x-2 gap-y-1 group-[.compact]:gap-y-0 has-[>_*:nth-of-type(2)]:flex-col-reverse md:flex-row!">
         <!--v-if-->
@@ -67,9 +103,6 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
       <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
-      <div class="flex gap-2 absolute -right-1 opacity-0 transition-opacity delay-150 duration-250 group-hover/entry:opacity-100">
-        <!--v-if-->
-      </div>
     </div>
   </li>
 </ul>"
@@ -84,6 +117,7 @@ LoadMoreLogEntry {
   "level": undefined,
   "loader": [Function],
   "rawMessage": "info",
+  "rememberScrollPosition": true,
   "std": "stderr",
 }
 `;

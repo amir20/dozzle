@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
+	"math"
 	"regexp"
 	"sort"
 	"strconv"
@@ -62,7 +63,6 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	buffer := utils.NewRingBuffer[*container.LogEvent](500)
 	delta := max(to.Sub(from), time.Second*3)
 
 	var regex *regexp.Regexp
@@ -82,8 +82,9 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	minimum := 0
-	if r.URL.Query().Has("minimum") {
-		minimum, err = strconv.Atoi(r.URL.Query().Get("minimum"))
+	buffer := utils.NewRingBuffer[*container.LogEvent](500)
+	if r.URL.Query().Has("min") {
+		minimum, err = strconv.Atoi(r.URL.Query().Get("min"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -91,6 +92,21 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		if minimum < 0 || minimum > buffer.Size {
 			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
+			return
+		}
+		buffer = utils.NewRingBuffer[*container.LogEvent](minimum)
+	}
+
+	maxStart := math.MaxInt
+	if r.URL.Query().Has("maxStart") {
+		maxStart, err = strconv.Atoi(r.URL.Query().Get("maxStart"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if maxStart < 1 || maxStart > buffer.Size {
+			http.Error(w, errors.New("invalid maxStart").Error(), http.StatusBadRequest)
 			return
 		}
 	}
@@ -120,7 +136,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	for {
-		if buffer.Len() > minimum {
+		if minimum > 0 && buffer.Len() >= minimum {
 			break
 		}
 
@@ -157,6 +173,10 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					break
 				}
 
+				if buffer.Len() >= maxStart {
+					break
+				}
+
 				support_web.EscapeHTMLValues(event)
 				buffer.Push(event)
 			}
@@ -166,13 +186,19 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			break
 		}
 
+		if minimum == 0 {
+			break
+		}
+
 		from = from.Add(-delta)
 		delta = delta * 2
 	}
 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
-	for _, event := range buffer.Data() {
+	data := buffer.Data()
+
+	for _, event := range data {
 		if err := encoder.Encode(event); err != nil {
 			log.Error().Err(err).Msg("error encoding log event")
 			return

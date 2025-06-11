@@ -1,6 +1,6 @@
 <template>
   <Search />
-  <ContainerLog :id="id" :show-title="true" :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
+  <ContainerLog :id show-title :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
   <div v-else-if="ready" class="hero bg-base-200 min-h-screen">
     <div class="hero-content text-center">
       <div class="max-w-md">

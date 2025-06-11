@@ -9,6 +9,7 @@ type LogContext = {
   levels: Set<Level>;
   showContainerName: boolean;
   showHostname: boolean;
+  historical: boolean;
 };
 
 export const allLevels: Level[] = ["info", "debug", "warn", "error", "fatal", "trace", "unknown"];
@@ -21,7 +22,7 @@ const stderr = searchParams.has("stderr") ? searchParams.get("stderr") === "true
 
 export const provideLoggingContext = (
   containers: Ref<Container[]>,
-  { showContainerName = false, showHostname = false } = {},
+  { showContainerName = false, showHostname = false, historical = false } = {},
 ) => {
   provide(
     loggingContextKey,
@@ -33,6 +34,7 @@ export const provideLoggingContext = (
       levels: new Set<Level>(allLevels),
       showContainerName,
       showHostname,
+      historical,
     }),
   );
 };
@@ -48,6 +50,7 @@ export const useLoggingContext = () => {
       levels: new Set<Level>(allLevels),
       showContainerName: false,
       showHostname: false,
+      historical: false,
     }),
   );
 

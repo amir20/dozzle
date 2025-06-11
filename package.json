@@ -79,6 +79,7 @@
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^20.0.0",
     "@iconify-json/material-symbols-light": "^1.2.25",
+    "@iconify-json/ion": "^1.2.3",
     "@iconify-json/ri": "^1.2.5",
     "@pinia/testing": "^1.0.2",
     "@playwright/test": "^1.52.0",

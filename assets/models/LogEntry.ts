@@ -193,6 +193,7 @@ export class LoadMoreLogEntry extends LogEntry<string> {
   constructor(
     date: Date,
     private readonly loader: (i: LoadMoreLogEntry) => Promise<void>,
+    public readonly rememberScrollPosition: boolean = true,
   ) {
     super("", "", date.getTime(), date, "stderr", "info");
   }

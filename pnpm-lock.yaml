@@ -153,6 +153,9 @@ importers:
       '@apache-arrow/esnext-esm':
         specifier: ^20.0.0
         version: 20.0.0
+      '@iconify-json/ion':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@iconify-json/material-symbols-light':
         specifier: ^1.2.25
         version: 1.2.25
@@ -654,6 +657,9 @@ packages:
 
   '@iconify-json/ic@1.2.2':
     resolution: {integrity: sha512-QmjwS3lYiOmVWgTCEOTFyGODaR/+689+ajep/VsrCcsUN0Gdle5PmIcibDsdmRyrOsW/E77G41UUijdbjQUofw==}
+
+  '@iconify-json/ion@1.2.3':
+    resolution: {integrity: sha512-qV9zsuBFjCgU5WRFO2thhhmaw1wr1wpJMliuuwu7pOtFEEoMOPP45Q7edF+k8uYuouFq+94SlCMIsca+v9kt2g==}
 
   '@iconify-json/material-symbols-light@1.2.25':
     resolution: {integrity: sha512-lbejcqyI64qxfva20iirLKDMo+F2X6YIn0C3B3+st+1MMKJbnu/1kNTqoDBhpHrNmJzONCG2c1lf2h4GGJT9nA==}
@@ -4138,6 +4144,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/ic@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/ion@1.2.3':
     dependencies:
       '@iconify/types': 2.0.0
 

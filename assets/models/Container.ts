@@ -21,6 +21,13 @@ export class GroupedContainers {
   ) {}
 }
 
+export class HistoricalContainer {
+  constructor(
+    public readonly container: Container,
+    public readonly date: Date,
+  ) {}
+}
+
 export class Container {
   private _stat: Ref<Stat>;
   private _name: string;

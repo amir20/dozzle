@@ -24,7 +24,7 @@
     <div class="flex-none">
       <div class="dropdown dropdown-end dropdown-hover">
         <label tabindex="0" class="btn btn-square btn-ghost btn-sm">
-          <ph:dots-three-vertical-bold />
+          <ion:ellipsis-vertical />
         </label>
         <ul
           tabindex="0"

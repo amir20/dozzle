@@ -10,18 +10,21 @@
     {{ $t("label.no-logs") }}
   </div>
   <slot :messages="messages" v-else></slot>
-  <IndeterminateBar :color />
+  <IndeterminateBar :color v-if="!historical" />
 </template>
 
 <script lang="ts" setup generic="T">
 import { LogStreamSource } from "@/composable/eventStreams";
+const route = useRoute();
 
 const { entity, streamSource } = $defineProps<{
   streamSource: (t: Ref<T>) => LogStreamSource;
   entity: T;
 }>();
 
-const { messages, opened, loading, error, eventSourceURL } = streamSource(toRef(() => entity));
+const { historical } = useLoggingContext();
+
+const { messages, opened, loading, error } = streamSource(toRef(() => entity));
 
 const color = computed(() => {
   if (error.value) return "error";
@@ -38,25 +41,36 @@ defineExpose({
   clear: () => (messages.value = []),
 });
 
-const sizes = computedWithControl(eventSourceURL, () => {
-  const sizeOptions = [
-    "w-2/12",
-    "w-3/12",
-    "w-4/12",
-    "w-5/12",
-    "w-6/12",
-    "w-7/12",
-    "w-8/12",
-    "w-9/12",
-    "w-10/12",
-    "w-11/12",
-    "w-full",
-  ];
-  const result = [];
-  const iterations = 18;
-  for (let i = 0; i < iterations; i++) {
-    result.push(sizeOptions[Math.floor(Math.random() * sizeOptions.length)]);
-  }
-  return result;
-});
+if (historical.value && route.query.logId) {
+  watchOnce(messages, async () => {
+    await nextTick();
+    document.getElementById(route.query.logId as string)?.scrollIntoView({ behavior: "instant", block: "center" });
+  });
+}
+
+const sizes = ref<string[]>([]);
+watch(
+  opened,
+  (value) => {
+    if (value) return;
+    const sizeOptions = [
+      "w-2/12",
+      "w-3/12",
+      "w-4/12",
+      "w-5/12",
+      "w-6/12",
+      "w-7/12",
+      "w-8/12",
+      "w-9/12",
+      "w-10/12",
+      "w-11/12",
+      "w-full",
+    ];
+    sizes.value = Array.from({ length: 18 }, () => sizeOptions[Math.floor(Math.random() * sizeOptions.length)]);
+  },
+  {
+    flush: "sync",
+    immediate: true,
+  },
+);
 </script>

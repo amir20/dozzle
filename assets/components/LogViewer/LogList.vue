@@ -4,7 +4,7 @@
       v-for="item in messages"
       ref="list"
       :key="item.id"
-      :data-key="item.id"
+      :id="item.id.toString()"
       :data-time="item.date.getTime()"
       class="group/entry"
     >
@@ -63,7 +63,7 @@ ul {
     monospace;
 
   > li {
-    @apply has-[.clickable]:hover:bg-primary/10 flex px-2 py-1 break-words last:snap-end odd:bg-gray-400/[0.07] has-[.clickable]:cursor-pointer md:px-4;
+    @apply flex px-2 py-1 break-words last:snap-end odd:bg-gray-400/[0.07] md:px-4;
     &:last-child {
       scroll-margin-block-end: 5rem;
     }
