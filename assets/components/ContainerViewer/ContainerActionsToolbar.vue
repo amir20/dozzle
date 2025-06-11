@@ -4,8 +4,12 @@
       <carbon:circle-solid class="text-red w-2.5" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="text-blue w-2.5" v-if="streamConfig.stdout" />
     </label>
-    <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 z-50 w-52 p-1 shadow-sm" @click="hideMenu">
-      <li>
+    <ul
+      tabindex="0"
+      class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 shadow-sm"
+      @click="hideMenu"
+    >
+      <li v-if="!historical">
         <a @click.prevent="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
@@ -14,7 +18,7 @@
       <li>
         <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
-      <li>
+      <li v-if="!historical">
         <a @click.prevent="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
           <KeyShortcut char="f" />
@@ -103,7 +107,7 @@
       </li>
 
       <!-- Container Actions (Enabled via config) -->
-      <template v-if="enableActions">
+      <template v-if="enableActions && !historical">
         <li class="line"></li>
         <li>
           <button
@@ -135,7 +139,7 @@
         </li>
       </template>
 
-      <template v-if="enableShell">
+      <template v-if="enableShell && !historical">
         <li class="line"></li>
         <li>
           <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
@@ -165,7 +169,7 @@ const { enableActions, enableShell } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();
 
-const { container } = defineProps<{ container: Container }>();
+const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 

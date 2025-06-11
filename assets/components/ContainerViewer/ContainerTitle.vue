@@ -18,7 +18,10 @@
                 <button tabindex="0" role="button" class="btn btn-xs md:btn-sm">
                   {{ container.name }} <carbon:caret-down />
                 </button>
-                <ul tabindex="0" class="dropdown-content menu rounded-box bg-base-100 shadow-sm">
+                <ul
+                  tabindex="0"
+                  class="dropdown-content menu rounded-box bg-base-100 border-base-content/20 border shadow-sm"
+                >
                   <li v-for="other in otherContainers">
                     <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
                       <div

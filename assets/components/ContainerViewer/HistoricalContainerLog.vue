@@ -12,7 +12,7 @@
           Live Logs
         </router-link>
 
-        <ContainerActionsToolbar class="max-md:hidden" :container="container" />
+        <ContainerActionsToolbar class="max-md:hidden" :container="container" historical />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
           <mdi:close />
         </a>

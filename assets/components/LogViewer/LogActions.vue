@@ -22,6 +22,7 @@
         </a>
         <router-link
           v-if="isSearching"
+          @click="resetSearch()"
           :to="{
             name: '/container/[id].time.[datetime]',
             params: { id: container.id, datetime: logEntry.date.toISOString() },
@@ -53,7 +54,7 @@ const { logEntry, container } = defineProps<{
 const { showToast } = useToast();
 const showDrawer = useDrawer();
 const router = useRouter();
-const { isSearching } = useSearchFilter();
+const { isSearching, resetSearch } = useSearchFilter();
 
 const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
@@ -87,6 +88,17 @@ async function copyPermalink() {
   const resolved = new URL(url, window.location.origin);
 
   await copy(resolved.href);
+
+  if (copied.value) {
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  }
 }
 
 function hideMenu(e: MouseEvent) {
