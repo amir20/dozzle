@@ -25,7 +25,7 @@ users:
   admin:
     email: me@email.net
     name: Admin
-    # Generate with docker run run -it --rm amir20/dozzle generate --name Admin --email me@email.net --password secret admin
+    # Generate with docker run -it --rm amir20/dozzle generate --name Admin --email me@email.net --password secret admin
     password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
     filter:
 ```
