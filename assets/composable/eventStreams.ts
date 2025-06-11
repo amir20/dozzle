@@ -23,8 +23,7 @@ function parseMessage(data: string): LogEntry<string | JSONObject> {
 
 export function useContainerStream(container: Ref<Container>): LogStreamSource {
   const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs/stream`);
-  const loadMoreUrl = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs`);
-  return useLogStream(url, loadMoreUrl);
+  return useLogStream(url, container);
 }
 
 export function useHostStream(host: Ref<Host>): LogStreamSource {
@@ -54,7 +53,7 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
-function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
+function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const opened = ref(false);
@@ -93,7 +92,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        if (loadMoreUrl) {
+        if (container) {
           const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
           messages.value = [loadMoreItem];
         }
@@ -183,8 +182,8 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   watch(urlWithParams, () => connect(), { immediate: true });
 
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
-    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
+    if (!container) throw new Error("No container");
 
     const [loader, ...existingLogs] = messages.value;
     const to = existingLogs[0].date;
@@ -194,7 +193,7 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     const from = new Date(to.getTime() + delta);
     try {
       loadingMore.value = true;
-      const { logs: newLogs, signal } = await loadBetween(loadMoreUrl, params, from, to, {
+      const { logs: newLogs, signal } = await loadBetween(container, params, from, to, {
         min: 100,
         lastSeenId,
       });
@@ -209,13 +208,14 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
   }
 
   async function loadSkippedLogs(entry: SkippedLogsEntry) {
-    if (!loadMoreUrl) throw new Error("No loadMoreUrl");
+    if (!container) throw new Error("No container");
+
     const from = entry.firstSkipped.date;
     const to = entry.lastSkippedLog.date;
     const lastSeenId = entry.lastSkippedLog.id;
     try {
       loadingMore.value = true;
-      const { logs, signal } = await loadBetween(loadMoreUrl, params, from, to, { lastSeenId });
+      const { logs, signal } = await loadBetween(container, params, from, to, { lastSeenId });
       if (logs && signal.aborted === false) {
         messages.value = messages.value.slice(logs.length).flatMap((log) => (log === entry ? logs : [log]));
       }
@@ -239,19 +239,17 @@ function useLogStream(url: Ref<string>, loadMoreUrl?: Ref<string>) {
     opened,
     error,
     loading,
-    eventSourceURL: urlWithParams,
   };
 }
 
 export async function loadBetween(
-  resourceUrl: Ref<string>,
+  container: Ref<Container>,
   params: Ref<URLSearchParams>,
   from: Date,
   to: Date,
   { lastSeenId, min, maxStart }: { lastSeenId?: number; min?: number; maxStart?: number } = {},
 ) {
-  if (!resourceUrl.value) throw new Error("No resourceUrl");
-
+  const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs`);
   const abortController = new AbortController();
   const signal = abortController.signal;
 
@@ -268,11 +266,14 @@ export async function loadBetween(
     if (lastSeenId) {
       loadMoreParams.append("lastSeenId", String(lastSeenId));
     }
-    return withBase(`${resourceUrl!.value}?${loadMoreParams.toString()}`);
+    return withBase(`${url.value}?${loadMoreParams.toString()}`);
   });
   const stopWatcher = watchOnce(urlWithMoreParams, () => abortController.abort("stream changed"));
   const logs = await (await fetch(urlWithMoreParams.value, { signal })).text();
   stopWatcher();
+
+  if (!logs) return { logs: [], signal };
+
   return {
     logs: logs
       .trim()

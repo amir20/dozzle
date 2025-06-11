@@ -4,15 +4,11 @@ import { ShallowRef } from "vue";
 import { loadBetween } from "@/composable/eventStreams";
 
 export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalContainer>): LogStreamSource {
-  const url = computed(
-    () =>
-      `/api/hosts/${historicalContainer.value.container.host}/containers/${historicalContainer.value.container.id}/logs`,
-  );
-
   const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);
+  const container = toRef(() => historicalContainer.value.container);
 
   const { streamConfig, levels, loadingMore } = useLoggingContext();
   const { isSearching, debouncedSearchFilter } = useSearchFilter();
@@ -35,7 +31,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
       const lastSeenId = route.query.logId ? +route.query.logId : undefined;
       const [{ logs: before }, { logs: after }] = await Promise.all([
         loadBetween(
-          url,
+          container,
           params,
           new Date(historicalContainer.value.date.getTime() - 1000 * 60 * 5),
           new Date(historicalContainer.value.date.getTime() + 1000),
@@ -44,7 +40,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
             lastSeenId,
           },
         ),
-        loadBetween(url, params, historicalContainer.value.date, new Date(), {
+        loadBetween(container, params, historicalContainer.value.date, new Date(), {
           maxStart: 50,
         }),
       ]);
@@ -60,14 +56,14 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     }
   }
 
-  loadLogs();
+  watchArray([params, container], loadLogs, { immediate: true });
 
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     loadingMore.value = true;
     try {
       const item = messages.value[1];
       const { logs, signal } = await loadBetween(
-        url,
+        container,
         params,
         new Date(item.date.getTime() - 1000 * 60 * 5),
         item.date,
@@ -99,7 +95,7 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     try {
       const item = messages.value.at(-2)!;
       const { logs, signal } = await loadBetween(
-        url,
+        container,
         params,
         item.date,
         new Date(item.date.getTime() + 1000 * 60 * 5),
@@ -131,6 +127,5 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     opened,
     error,
     loading,
-    eventSourceURL: url,
   };
 }

@@ -13,16 +13,18 @@ const props = defineProps<{
 const { messages, visibleKeys } = toRefs(props);
 
 const { filteredPayload } = useVisibleFilter(visibleKeys);
-const { debouncedSearchFilter } = useSearchFilter();
+const { debouncedSearchFilter, isSearching } = useSearchFilter();
 const { streamConfig } = useLoggingContext();
 
 const visibleMessages = filteredPayload(messages);
 const router = useRouter();
 
-watchEffect(() => {
+watchArray([debouncedSearchFilter, streamConfig], () => {
+  console.log("Updating route...");
   const query = router.currentRoute.value.query;
   const hash = router.currentRoute.value.hash;
-  if (debouncedSearchFilter.value !== "") {
+  if (isSearching.value) {
+    console.log("Searching...");
     query.search = debouncedSearchFilter.value;
   } else {
     delete query.search;
@@ -40,6 +42,7 @@ watchEffect(() => {
     delete query.stdout;
   }
 
+  console.log("Updating route...", query);
   router.push({
     query,
     hash,

@@ -24,7 +24,7 @@ const { entity, streamSource } = $defineProps<{
 
 const { historical } = useLoggingContext();
 
-const { messages, opened, loading, error, eventSourceURL } = streamSource(toRef(() => entity));
+const { messages, opened, loading, error } = streamSource(toRef(() => entity));
 
 const color = computed(() => {
   if (error.value) return "error";
@@ -48,25 +48,29 @@ if (historical.value && route.query.logId) {
   });
 }
 
-const sizes = computedWithControl(eventSourceURL, () => {
-  const sizeOptions = [
-    "w-2/12",
-    "w-3/12",
-    "w-4/12",
-    "w-5/12",
-    "w-6/12",
-    "w-7/12",
-    "w-8/12",
-    "w-9/12",
-    "w-10/12",
-    "w-11/12",
-    "w-full",
-  ];
-  const result = [];
-  const iterations = 18;
-  for (let i = 0; i < iterations; i++) {
-    result.push(sizeOptions[Math.floor(Math.random() * sizeOptions.length)]);
-  }
-  return result;
-});
+const sizes = ref<string[]>([]);
+watch(
+  opened,
+  (value) => {
+    if (value) return;
+    const sizeOptions = [
+      "w-2/12",
+      "w-3/12",
+      "w-4/12",
+      "w-5/12",
+      "w-6/12",
+      "w-7/12",
+      "w-8/12",
+      "w-9/12",
+      "w-10/12",
+      "w-11/12",
+      "w-full",
+    ];
+    sizes.value = Array.from({ length: 18 }, () => sizeOptions[Math.floor(Math.random() * sizeOptions.length)]);
+  },
+  {
+    flush: "sync",
+    immediate: true,
+  },
+);
 </script>
