@@ -3,7 +3,24 @@
     class="dropdown dropdown-start dropdown-hover font-sans group-[.compact]:absolute group-[.compact]:-left-0.5"
     v-show="container"
   >
-    <button tabindex="0" class="btn btn-square btn-ghost btn-xs -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100">
+    <router-link
+      v-if="isSearching"
+      @click="resetSearch()"
+      tabindex="0"
+      class="btn btn-square btn-ghost btn-xs pointer-events-auto! -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100"
+      :to="{
+        name: '/container/[id].time.[datetime]',
+        params: { id: container.id, datetime: logEntry.date.toISOString() },
+        query: { logId: logEntry.id },
+      }"
+    >
+      <material-symbols:eye-tracking />
+    </router-link>
+    <button
+      tabindex="0"
+      class="btn btn-square btn-ghost btn-xs -mr-1 -ml-3 opacity-0 group-hover/entry:opacity-100"
+      v-else
+    >
       <ion:ellipsis-vertical />
     </button>
     <ul
@@ -11,17 +28,8 @@
       class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm"
       @click="hideMenu"
     >
-      <li>
-        <a v-if="isSupported" @click="copyLogMessage()">
-          <material-symbols:content-copy />
-          Copy line
-        </a>
-        <a v-if="isSupported" @click="copyPermalink()">
-          <material-symbols:link />
-          Copy permalink
-        </a>
+      <li v-if="isSearching">
         <router-link
-          v-if="isSearching"
           @click="resetSearch()"
           :to="{
             name: '/container/[id].time.[datetime]',
@@ -30,11 +38,25 @@
           }"
         >
           <material-symbols:eye-tracking />
-          See log in context
+          {{ $t("action.see-in-context") }}
         </router-link>
-        <a @click="showDrawer(LogDetails, { entry: logEntry })" v-if="logEntry instanceof ComplexLogEntry">
+      </li>
+      <li v-if="isSupported">
+        <a @click="copyLogMessage()">
+          <material-symbols:content-copy />
+          {{ $t("action.copy-log") }}
+        </a>
+      </li>
+      <li v-if="isSupported">
+        <a @click="copyPermalink()">
+          <material-symbols:link />
+          {{ $t("action.copy-link") }}
+        </a>
+      </li>
+      <li v-if="logEntry instanceof ComplexLogEntry">
+        <a @click="showDrawer(LogDetails, { entry: logEntry })">
           <material-symbols:code-blocks-rounded />
-          Show details
+          {{ $t("action.show-details") }}
         </a>
       </li>
     </ul>

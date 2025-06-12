@@ -1,5 +1,4 @@
 <template>
-  <Search />
   <HistoricalContainerLog :id :date show-title :scrollable="pinnedLogs.length > 0" v-if="currentContainer" />
   <div v-else-if="ready" class="hero bg-base-200 min-h-screen">
     <div class="hero-content text-center">

@@ -4,6 +4,18 @@ toolbar:
   search: Pesquisa
   show: Mostrar apenas {std}
   show-all: Mostrar todos os fluxos
+  stop: Parar
+  start: Iniciar
+  restart: Reiniciar
+  show-hostname: Mostrar nome do anfitrião
+  show-container-name: Mostrar nome do contentor
+  shell: Shell
+  attach: Anexar
+action:
+  copy-log: Copiar registo
+  copy-link: Copiar hiperligação permanente
+  see-in-context: Ver no contexto
+  show-details: Mostrar detalhes
 label:
   containers: Contentores
   container: Nenhum contentor | 1 contentor | {count} contentores

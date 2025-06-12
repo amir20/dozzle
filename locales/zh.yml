@@ -9,6 +9,13 @@ toolbar:
   restart: 重启
   show-hostname: 显示主机名
   show-container-name: 显示容器名称
+  shell: 终端
+  attach: 附加
+action:
+  copy-log: 复制日志
+  copy-link: 复制永久链接
+  see-in-context: 在上下文中查看
+  show-details: 显示详细信息
 label:
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
