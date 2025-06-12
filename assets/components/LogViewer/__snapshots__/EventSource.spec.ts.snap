@@ -13,12 +13,10 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li>
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-          </li>
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
         </ul>
       </div>
       <!--v-if-->
@@ -49,12 +47,10 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li>
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-          </li>
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
         </ul>
       </div>
       <!--v-if-->
@@ -85,12 +81,10 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm">
-          <li>
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-            <!--v-if-->
-          </li>
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
+          <!--v-if-->
         </ul>
       </div>
       <!--v-if-->
