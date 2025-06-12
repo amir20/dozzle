@@ -5,9 +5,13 @@
         <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
           <span class="text-light">{{ name }}=</span>
           <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
-          <template v-else-if="Array.isArray(value)">
-            <span class="font-bold" v-html="JSON.stringify(value)"></span>
-          </template>
+          <span v-else-if="Array.isArray(value)" class="font-bold">
+            [<span v-for="(item, index) in value" :key="index">
+              <span v-html="stripAnsi(item.toString())" v-if="typeof item === 'string'"></span>
+              <span v-else>{{ JSON.stringify(item) }}</span>
+              <span v-if="index < value.length - 1">, </span></span
+            >]
+          </span>
           <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
         </li>
         <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
