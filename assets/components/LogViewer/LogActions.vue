@@ -4,7 +4,7 @@
       v-if="isSearching"
       @click="resetSearch()"
       tabindex="0"
-      class="btn btn-square btn-xs border-base-content/20 pointer-events-auto! bg-white opacity-0 shadow-sm group-hover/entry:opacity-90"
+      class="btn btn-square btn-xs border-base-content/20 bg-base-100 pointer-events-auto! opacity-0 shadow-sm group-hover/entry:opacity-90"
       :to="{
         name: '/container/[id].time.[datetime]',
         params: { id: container.id, datetime: logEntry.date.toISOString() },
@@ -15,7 +15,7 @@
     </router-link>
     <button
       tabindex="0"
-      class="btn btn-square btn-xs border-base-content/20 border bg-white opacity-0 shadow-sm group-hover/entry:opacity-90"
+      class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"
       v-else
     >
       <ion:ellipsis-vertical />
