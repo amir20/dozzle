@@ -1,13 +1,10 @@
 <template>
-  <div
-    class="dropdown dropdown-start dropdown-hover font-sans group-[.compact]:absolute group-[.compact]:-left-0.5"
-    v-show="container"
-  >
+  <div class="dropdown dropdown-start dropdown-hover absolute -left-2 font-sans" v-show="container">
     <router-link
       v-if="isSearching"
       @click="resetSearch()"
       tabindex="0"
-      class="btn btn-square btn-ghost btn-xs border-base-content/20 pointer-events-auto! -mr-1 -ml-3 opacity-0 shadow-sm group-hover/entry:opacity-100"
+      class="btn btn-square btn-xs border-base-content/20 pointer-events-auto! bg-white opacity-0 shadow-sm group-hover/entry:opacity-90"
       :to="{
         name: '/container/[id].time.[datetime]',
         params: { id: container.id, datetime: logEntry.date.toISOString() },
@@ -18,14 +15,14 @@
     </router-link>
     <button
       tabindex="0"
-      class="btn btn-square btn-ghost btn-xs border-base-content/20 -mr-1 -ml-3 border opacity-0 shadow-sm group-hover/entry:opacity-100"
+      class="btn btn-square btn-xs border-base-content/20 border bg-white opacity-0 shadow-sm group-hover/entry:opacity-90"
       v-else
     >
       <ion:ellipsis-vertical />
     </button>
     <ul
       tabindex="0"
-      class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 -mr-1 -ml-3 w-52 border p-1 text-sm shadow-sm"
+      class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm"
       @click="hideMenu"
     >
       <li v-if="isSearching">
