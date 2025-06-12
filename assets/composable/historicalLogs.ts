@@ -94,15 +94,9 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     loadingMore.value = true;
     try {
       const item = messages.value.at(-2)!;
-      const { logs, signal } = await loadBetween(
-        container,
-        params,
-        item.date,
-        new Date(item.date.getTime() + 1000 * 60 * 5),
-        {
-          maxStart: 100,
-        },
-      );
+      const { logs, signal } = await loadBetween(container, params, item.date, new Date(), {
+        maxStart: 100,
+      });
 
       if (signal.aborted) {
         return;
