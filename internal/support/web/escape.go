@@ -15,7 +15,6 @@ import (
 var urlMarkerRegex = regexp.MustCompile(URLMarkerStart + "(.*?)" + URLMarkerEnd)
 
 func EscapeHTMLValues(logEvent *container.LogEvent) {
-	// Mark URLs before HTML escaping
 	MarkURLs(logEvent)
 
 	switch value := logEvent.Message.(type) {
@@ -43,7 +42,6 @@ func escapeAndProcessMarkers(value string) string {
 	value = html.EscapeString(value)
 	value = strings.ReplaceAll(value, MarkerStart, "<mark>")
 	value = strings.ReplaceAll(value, MarkerEnd, "</mark>")
-	// Process URL markers
 	value = urlMarkerRegex.ReplaceAllString(value, "<a href=\"$1\" target=\"_blank\" rel=\"noopener noreferrer external\">$1</a>")
 	return value
 }
@@ -61,6 +59,11 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeMapStringInterface(value)
 		case map[string]string:
 			escapeStringMapString(value)
+		case []interface{}:
+			escapeSlice(value)
+			orderedMap.Set(pair.Key, value)
+		default:
+			log.Warn().Type("type", value).Msg("unknown logEvent type")
 		}
 	}
 }
@@ -80,6 +83,8 @@ func escapeMapStringInterface(value map[string]interface{}) {
 			escapeMapStringInterface(val)
 		case map[string]string:
 			escapeStringMapString(val)
+		case []interface{}:
+			escapeSlice(val)
 		}
 	}
 }
@@ -87,5 +92,24 @@ func escapeMapStringInterface(value map[string]interface{}) {
 func escapeStringMapString(value map[string]string) {
 	for key, val := range value {
 		value[key] = escapeAndProcessMarkers(val)
+	}
+}
+
+func escapeSlice(slice []interface{}) {
+	for i, val := range slice {
+		switch val := val.(type) {
+		case string:
+			slice[i] = escapeAndProcessMarkers(val)
+		case *orderedmap.OrderedMap[string, any]:
+			escapeAnyMap(val)
+		case *orderedmap.OrderedMap[string, string]:
+			escapeStringMap(val)
+		case map[string]interface{}:
+			escapeMapStringInterface(val)
+		case map[string]string:
+			escapeStringMapString(val)
+		case []interface{}:
+			escapeSlice(val)
+		}
 	}
 }
