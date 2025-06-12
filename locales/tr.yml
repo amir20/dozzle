@@ -9,6 +9,13 @@ toolbar:
   restart: Yeniden Başlat
   show-hostname: Sunucu adını göster
   show-container-name: Konteyner adını göster
+  shell: Kabuk
+  attach: Bağla
+action:
+  copy-log: Günlüğü kopyala
+  copy-link: Kalıcı bağlantıyı kopyala
+  see-in-context: Bağlamda gör
+  show-details: Detayları göster
 label:
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner

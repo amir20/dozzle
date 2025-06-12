@@ -9,6 +9,13 @@ toolbar:
   restart: Herstarten
   show-hostname: Toon hostnaam
   show-container-name: Toon containernaam
+  shell: Shell
+  attach: Koppelen
+action:
+  copy-log: Log kopiëren
+  copy-link: Permalink kopiëren
+  see-in-context: Bekijk in context
+  show-details: Toon details
 label:
   containers: Containers
   container: Geen containers | 1 container | {count} containers

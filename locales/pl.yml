@@ -9,6 +9,13 @@ toolbar:
   restart: Restart
   show-hostname: Pokaż nazwę hosta
   show-container-name: Pokaż nazwę kontenera
+  shell: Shell
+  attach: Dołącz
+action:
+  copy-log: Skopiuj log
+  copy-link: Skopiuj permalink
+  see-in-context: Zobacz w kontekście
+  show-details: Pokaż szczegóły
 label:
   service: Brak usług | 1 usługa | {count} usług
   total-containers: Całkowita liczba kontenerów

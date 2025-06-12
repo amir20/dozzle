@@ -9,6 +9,13 @@ toolbar:
   restart: Mulai ulang
   show-hostname: Tampilkan nama host
   show-container-name: Tampilkan nama kontainer
+  shell: Shell
+  attach: Lampirkan
+action:
+  copy-log: Salin log
+  copy-link: Salin permalink
+  see-in-context: Lihat dalam konteks
+  show-details: Tampilkan detail
 
 label:
   containers: Kontainer

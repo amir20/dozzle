@@ -9,6 +9,13 @@ toolbar:
   restart: 重新啟動
   show-hostname: 顯示主機名稱
   show-container-name: 顯示容器名稱
+  shell: 終端機
+  attach: 附加
+action:
+  copy-log: 複製日誌
+  copy-link: 複製永久連結
+  see-in-context: 在內容中查看
+  show-details: 顯示詳細資訊
 label:
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器

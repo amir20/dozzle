@@ -143,13 +143,15 @@
         <li class="line"></li>
         <li>
           <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
-            <ri:terminal-window-fill /> Attach
+            <ri:terminal-window-fill />
+            {{ $t("toolbar.attach") }}
             <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
           </a>
         </li>
         <li>
           <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
-            <material-symbols:terminal /> Shell
+            <material-symbols:terminal />
+            {{ $t("toolbar.shell") }}
             <KeyShortcut char="e" :modifiers="['shift', 'meta']" />
           </a>
         </li>

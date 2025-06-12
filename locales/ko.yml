@@ -9,6 +9,13 @@ toolbar:
   restart: 다시 시작
   show-hostname: 호스트 이름 보기
   show-container-name: 컨테이너 이름 보기
+  shell: 셸
+  attach: 연결
+action:
+  copy-log: 로그 복사
+  copy-link: 영구 링크 복사
+  see-in-context: 컨텍스트에서 보기
+  show-details: 세부 정보 표시
 label:
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개

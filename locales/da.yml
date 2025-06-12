@@ -9,6 +9,13 @@ toolbar:
   restart: Genstart
   show-hostname: Vis værtsnavn
   show-container-name: Vis containernavn
+  shell: Shell
+  attach: Tilknyt
+action:
+  copy-log: Kopier log
+  copy-link: Kopier permalink
+  see-in-context: Se i kontekst
+  show-details: Vis detaljer
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere

@@ -14,11 +14,11 @@
       <li>
         <a v-if="isSupported" @click="copyLogMessage()">
           <material-symbols:content-copy />
-          Copy line
+          {{ $t("action.copy-log") }}
         </a>
         <a v-if="isSupported" @click="copyPermalink()">
           <material-symbols:link />
-          Copy permalink
+          {{ $t("action.copy-link") }}
         </a>
         <router-link
           v-if="isSearching"
@@ -30,11 +30,11 @@
           }"
         >
           <material-symbols:eye-tracking />
-          See log in context
+          {{ $t("action.see-in-context") }}
         </router-link>
         <a @click="showDrawer(LogDetails, { entry: logEntry })" v-if="logEntry instanceof ComplexLogEntry">
           <material-symbols:code-blocks-rounded />
-          Show details
+          {{ $t("action.show-details") }}
         </a>
       </li>
     </ul>

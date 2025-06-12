@@ -9,6 +9,13 @@ toolbar:
   restart: Перезапустить
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
+  shell: Оболочка
+  attach: Подключить
+action:
+  copy-log: Копировать лог
+  copy-link: Копировать постоянную ссылку
+  see-in-context: Посмотреть в контексте
+  show-details: Показать детали
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров

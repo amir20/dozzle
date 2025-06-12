@@ -9,6 +9,13 @@ toolbar:
   restart: Reiniciar
   show-hostname: Mostrar nome do host
   show-container-name: Mostrar nome do container
+  shell: Shell
+  attach: Anexar
+action:
+  copy-log: Copiar log
+  copy-link: Copiar permalink
+  see-in-context: Ver no contexto
+  show-details: Mostrar detalhes
 label:
   containers: Contêineres
   container: Nenhum container | 1 container | {count} containers
