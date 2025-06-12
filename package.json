@@ -82,7 +82,7 @@
     "@iconify-json/ion": "^1.2.3",
     "@iconify-json/ri": "^1.2.5",
     "@pinia/testing": "^1.0.2",
-    "@playwright/test": "^1.53.0",
+    "@playwright/test": "^1.52.0",
     "@types/d3-array": "^3.2.1",
     "@types/d3-ease": "^3.0.2",
     "@types/d3-scale": "^4.0.9",
