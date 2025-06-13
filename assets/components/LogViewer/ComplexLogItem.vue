@@ -1,21 +1,24 @@
 <template>
+  <DefineTemplate v-slot="{ data }">
+    <ul class="space-x-4" @click="preventDefaultOnLinks">
+      <li v-for="(value, name) in data" :key="name" class="inline-flex">
+        <span class="text-light">{{ name }}=</span>
+        <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
+        <span v-else-if="Array.isArray(value)" class="font-bold">
+          [<span v-for="(item, index) in value" :key="index">
+            <span v-html="stripAnsi(item.toString())" v-if="typeof item === 'string'"></span>
+            <ReuseTemplate v-else :data="item"></ReuseTemplate>
+            <span v-if="index < value.length - 1">, </span></span
+          >]
+        </span>
+        <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
+      </li>
+      <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
+    </ul>
+  </DefineTemplate>
   <LogItem :logEntry>
     <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
-      <ul class="space-x-4" @click="preventDefaultOnLinks">
-        <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
-          <span class="text-light">{{ name }}=</span>
-          <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
-          <span v-else-if="Array.isArray(value)" class="font-bold">
-            [<span v-for="(item, index) in value" :key="index">
-              <span v-html="stripAnsi(item.toString())" v-if="typeof item === 'string'"></span>
-              <span v-else>{{ JSON.stringify(item) }}</span>
-              <span v-if="index < value.length - 1">, </span></span
-            >]
-          </span>
-          <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
-        </li>
-        <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
-      </ul>
+      <ReuseTemplate :data="validValues"></ReuseTemplate>
     </div>
   </LogItem>
 </template>
@@ -30,6 +33,8 @@ const { logEntry } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
+
+const [DefineTemplate, ReuseTemplate] = createReusableTemplate();
 
 const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
