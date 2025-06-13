@@ -1,0 +1,140 @@
+toolbar:
+  clear: Počisti
+  download: Prenesi
+  search: Iskanje
+  show: Prikaži {std}
+  show-all: Prikaži vse
+  stop: Ustavi
+  start: Začni
+  show-container-name: Prikaži ime zabojnika
+  shell: Lupina
+  attach: Priloži
+  restart: Ponovni zagon
+  show-hostname: Prikaži ime gostitelja
+action:
+  copy-log: Kopiraj dnevnik
+  copy-link: Kopiraj trajno povezavo
+  see-in-context: Glej v kontekstu
+  show-details: Prikaži podrobnosti
+label:
+  containers: Zabojniki
+  service: Ni storitev | 1 storitev | {count} storitev
+  running-containers: Delujoči zabojniki
+  all-containers: Vsi zabojniki
+  host: Gostitelj
+  hosts: Gostitelji
+  password: Geslo
+  username: Uporabniško ime
+  status: Stanje
+  created: Ustvarjeno
+  avg-cpu: CPE povprečje (%)
+  pinned: Pripeto
+  per-page: Vrstic na stran
+  host-menu: Gostitelji in zabojniki
+  swarm-menu: Storitve in skladi
+  group-menu: Skupine po meri
+  show-all-containers: Prikaži vse zabojnike
+  collapse-all: Strni vse
+  container-name: Ime zabojnika
+  container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
+  services: Storitve
+  avg-mem: Povprečje spomina (%)
+  no-logs: Zabojnik še nima dnevnika
+tooltip:
+  search: Iskanje zabojnikov (⌘ + k, ⌃k)
+  pin-column: Pripni kot stolpec
+  merge-services: Združite vse storitve v en pogled
+  merge-hosts: Združi vse zabojnike na tem gostitelju v en pogled
+  merge-containers: Združi vse zabojnike v en pogled
+error:
+  page-not-found: Ta stran ne obstaja
+  invalid-auth: Uporabniško ime ali geslo nista veljavna
+  logs-skipped: Prikaži {total} skritih vnosov
+  events-stream:
+    title: Nepričakovana napaka
+    message: Uporabniški vmesnik Dozzle se ni mogel povezati z API-jem. 
+      Preverite omrežne nastavitve. Če uporabljate obratni proxy, se 
+      prepričajte, da je pravilno konfiguriran.
+  events-timeout:
+    title: Nekaj ni v redu
+    message: Časovna omejitev uporabniškega vmesnika Dozzle je potekla med 
+      povezovanjem z API-jem. Preverite omrežno povezavo in poskusite znova.
+  container-not-found: Zabojnika ni bilo mogoče najti
+alert:
+  redirected:
+    title: Preusmerjeno v nov zabojnik
+    message: Dozzle vas je samodejno preusmeril v nov zabojnik {containerId}.
+  similar-container-found:
+    title: Najden podoben zabojnik
+    message: Dozzle je našel podoben zabojnik {containerId}, ki se izvaja na 
+      istem gostitelju in bo samodejno preklopil nanj, razen če kliknete 
+      »Prekliči«.
+title:
+  page-not-found: Strani ni bilo mogoče najti
+  login: Zahtevana overitev
+  dashboard: 1 zabojnik| {count} zabojnikov
+  settings: Nastavitve
+button:
+  logout: Odjava
+  cancel: Prekliči
+  redirect: Preusmeritev
+  login: Prijava
+  settings: Nastavitve
+placeholder:
+  search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
+  search: Iskanje
+settings:
+  display: Prikaz
+  locale: Preglasi jezik
+  small-scrollbars: Uporabite manjše drsne trakove
+  show-timesamps: Prikaži časovne žige
+  soft-wrap: Mehke ovojne linije
+  datetime-format: Preglasi obliko zapisa datuma in časa
+  font-size: Velikost pisave za dnevnike
+  color-scheme: Barvna shema
+  options: Možnosti
+  show-stopped-containers: Prikaži ustavljene zabojnike
+  about: O programu
+  search: Omogočite iskanje z Dozzle z uporabo
+  update-available: Nova različica je na voljo! Posodobi na <a href="{href}" 
+    target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
+  show-std: Prikaži oznake stdout in stderr
+  compact: Omogoči kompaktni način za dnevnike
+  log:
+    preview: To je predogled dnevnikov
+    warning: Dnevnik opozoril izgleda tako
+    complex: To je zapleten vnos v dnevnik kot json
+    multi-line-error:
+      start-line: To je večvrstično sporočilo o napaki
+      middle-line: z drugo vrstico
+      end-line: in nazadnje tretja vrstica.
+    simple: To je zelo zelo dolgo sporočilo, ki bi se privzeto prelomilo. Če 
+      onemogočite mehke ovoje, bi to onemogočili. Lorem ipsum dolor sit amet, 
+      consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+      dolore magna aliqua.
+  using-version: Uporabljaš <a href="https://dozzle.dev/" target="_blank" 
+    rel="noreferrer noopener">Dozzle</a> {version}.
+  help-support: "Prosimo, podprite Dozzle z donacijo ali sponzoriranjem na GitHubu.
+    Vaši prispevki nam pomagajo izboljšati Dozzle za vse. Hvala! 🙏🏼\n"
+  automatic-redirect: Samodejna preusmeritev na nove zabojnike z istim imenom
+releases:
+  features: ena nova funkcija | {count} funkcij
+  bugFixes: en popravek napake | {counr} popravkov
+  breaking: ena ključna sprememba | {count} ključnih sprememb
+  three_parts: '{first}, {second} in {third}'
+  two_parts: '{first} s/z {second}'
+  latest: Najnovejše
+  no_releases: Imate najnovejšo različico
+log_actions:
+  copy_log: Kopiraj dnevnik
+  jump_to_context: Skoči na kontekst
+toasts:
+  copied:
+    title: Kopirano
+    message: Kopirano v odložišče
+analytics:
+  downloading: Pridobivanje dnevnikov zabojnika... ({size})
+  evaluating_query: Ocenjevanje poizvedbe...
+  total_records: Skupaj zapisov {count}.
+  showing_first: Prikaz prvih {count}.
+  creating_table: Ustvarjanje začasne tabele...
