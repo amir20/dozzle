@@ -1,31 +1,32 @@
 <template>
   <DefineTemplate v-slot="{ data }">
-    <ul class="inline-flex space-x-4" @click="preventDefaultOnLinks">
+    <ul class="inline-flex flex-wrap space-x-4" @click="preventDefaultOnLinks">
       <li v-for="(value, name) in data" :key="name" v-if="isObject(data)">
-        <span class="text-light">{{ name }}=</span>
-        <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
-        <span v-else-if="Array.isArray(value)" class="font-bold">
-          [<span v-for="(item, index) in value" :key="index">
-            <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
-            <span v-else class="font-bold" v-html="stripAnsi(item.toString())"></span>
-            <span v-if="index < value.length - 1">, </span></span
-          >]
-        </span>
-        <span v-else class="red font-bold" v-html="stripAnsi(value.toString())"></span>
+        <span class="key">{{ name }}=</span>
+        <span class="value" v-if="value === null">&lt;null&gt;</span>
+        <ReuseTemplate :data="value" v-if="isObject(value) || Array.isArray(value)" />
+        <span v-else class="value" v-html="stripAnsi(value.toString())"></span>
       </li>
       <li v-else-if="Array.isArray(data)">
-        [<span v-for="(item, index) in data" :key="index">
-          <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
-          <span v-else class="font-bold" v-html="stripAnsi(item.toString())"></span>
-          <span v-if="index < data.length - 1">, </span></span
-        >]
+        <ul
+          class="before:text-base-content/70 after:text-base-content/70 inline-flex flex-wrap space-x-1 before:content-['['] after:content-[']']"
+        >
+          <li
+            v-for="(item, index) in data"
+            :key="index"
+            class="after:text-base-content/70 not-last:after:content-[',']"
+          >
+            <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
+            <span v-else class="value" v-html="stripAnsi(item.toString())"></span>
+          </li>
+        </ul>
       </li>
-      <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
+      <li class="key" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
     </ul>
   </DefineTemplate>
   <LogItem :logEntry>
     <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
-      <ReuseTemplate :data="validValues"></ReuseTemplate>
+      <ReuseTemplate :data="validValues" />
     </div>
   </LogItem>
 </template>
@@ -57,7 +58,11 @@ function preventDefaultOnLinks(event: MouseEvent) {
 
 <style scoped>
 @reference "@/main.css";
-.text-light {
-  @apply text-base-content/70;
+.key {
+  @apply text-base-content/70 font-light;
+}
+
+.value {
+  @apply text-base-content font-bold;
 }
 </style>
