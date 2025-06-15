@@ -1,12 +1,22 @@
 <template>
-  <div :data-level="level" :data-position="position" class="mt-1.5 size-2.5 flex-none rounded-lg"></div>
+  <div
+    :data-level="level"
+    :data-position="position"
+    class="mt-1.5 size-2.5 flex-none rounded-lg"
+    :class="{ showUnknown }"
+  ></div>
 </template>
 <script lang="ts" setup>
-import { Position } from "@/models/LogEntry";
+import { Position, Level } from "@/models/LogEntry";
 
-defineProps<{
-  level?: string;
+const {
+  level,
+  position,
+  showUnknown = false,
+} = defineProps<{
+  level?: Level;
   position?: Position;
+  showUnknown?: boolean;
 }>();
 </script>
 
@@ -52,5 +62,9 @@ defineProps<{
 
 [data-level="warn"] {
   @apply !bg-orange;
+}
+
+[data-level="unknown"].show-unknown {
+  @apply !bg-base-300;
 }
 </style>
