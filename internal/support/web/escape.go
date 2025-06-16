@@ -63,7 +63,7 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeSlice(value)
 			orderedMap.Set(pair.Key, value)
 		default:
-			log.Warn().Type("type", value).Msg("unknown logEvent type")
+			log.Debug().Type("type", value).Msg("unknown logEvent type")
 		}
 	}
 }
