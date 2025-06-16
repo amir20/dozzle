@@ -5,19 +5,17 @@
         <span class="key">{{ name }}=</span>
         <span class="value" v-if="value === null">&lt;null&gt;</span>
         <ReuseTemplate :data="value" v-if="isObject(value) || Array.isArray(value)" />
-        <span v-else class="value" v-html="stripAnsi(value.toString())"></span>
+        <span v-else class="value" :class="typeof value" v-html="stripAnsi(value.toString())"></span>
       </li>
       <li v-else-if="Array.isArray(data)">
-        <ul
-          class="before:text-base-content/70 after:text-base-content/70 inline-flex flex-wrap space-x-1 before:content-['['] after:content-[']']"
-        >
+        <ul class="array inline-flex flex-wrap space-x-1">
           <li
             v-for="(item, index) in data"
             :key="index"
             class="after:text-base-content/70 not-last:after:content-[',']"
           >
             <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
-            <span v-else class="value" v-html="stripAnsi(item.toString())"></span>
+            <span v-else class="value" :class="typeof item" v-html="stripAnsi(item.toString())"></span>
           </li>
         </ul>
       </li>
@@ -64,5 +62,13 @@ function preventDefaultOnLinks(event: MouseEvent) {
 
 .value {
   @apply text-base-content font-bold;
+}
+
+.array {
+  @apply before:text-base-content/80 after:text-base-content/80 before:content-['['] after:content-[']'];
+}
+
+.string {
+  @apply before:content-['"'] after:content-['"'];
 }
 </style>
