@@ -13,7 +13,7 @@ var SupportedLogLevels map[string]struct{}
 // Changing this also needs to change the logContext.ts file
 var logLevels = [][]string{
 	{"error", "err"},
-	{"warn", "warning"},
+	{"warn", "warning", "wrn"},
 	{"info", "inf"},
 	{"debug", "dbg"},
 	{"trace"},

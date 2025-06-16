@@ -40,6 +40,7 @@ func TestGuessLogLevel(t *testing.T) {
 		{"DBG with more error=msg", "debug"},
 		{"inf Something went wrong", "info"},
 		{"crit: Something went wrong", "fatal"},
+		{"[21:01:45] [WRN] this is a test", "warn"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
