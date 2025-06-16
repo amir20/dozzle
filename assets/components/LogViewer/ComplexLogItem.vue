@@ -1,21 +1,30 @@
 <template>
+  <DefineTemplate v-slot="{ data }">
+    <ul class="inline-flex flex-wrap space-x-4" @click="preventDefaultOnLinks">
+      <li v-for="(value, name) in data" :key="name" v-if="isObject(data)">
+        <span class="key">{{ name }}=</span>
+        <span class="value" v-if="value === null">&lt;null&gt;</span>
+        <ReuseTemplate :data="value" v-if="isObject(value) || Array.isArray(value)" />
+        <span v-else class="value" :class="typeof value" v-html="stripAnsi(value.toString())"></span>
+      </li>
+      <li v-else-if="Array.isArray(data)">
+        <ul class="array inline-flex flex-wrap space-x-1">
+          <li
+            v-for="(item, index) in data"
+            :key="index"
+            class="after:text-base-content/70 not-last:after:content-[',']"
+          >
+            <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
+            <span v-else class="value" :class="typeof item" v-html="stripAnsi(item.toString())"></span>
+          </li>
+        </ul>
+      </li>
+      <li class="key" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
+    </ul>
+  </DefineTemplate>
   <LogItem :logEntry>
     <div @click="containers.length > 0 && showDrawer(LogDetails, { entry: logEntry })" class="cursor-pointer">
-      <ul class="space-x-4" @click="preventDefaultOnLinks">
-        <li v-for="(value, name) in validValues" :key="name" class="inline-flex">
-          <span class="text-light">{{ name }}=</span>
-          <span class="font-bold" v-if="value === null">&lt;null&gt;</span>
-          <span v-else-if="Array.isArray(value)" class="font-bold">
-            [<span v-for="(item, index) in value" :key="index">
-              <span v-html="stripAnsi(item.toString())" v-if="typeof item === 'string'"></span>
-              <span v-else>{{ JSON.stringify(item) }}</span>
-              <span v-if="index < value.length - 1">, </span></span
-            >]
-          </span>
-          <span class="font-bold" v-html="stripAnsi(value.toString())" v-else></span>
-        </li>
-        <li class="text-light" v-if="Object.keys(validValues).length === 0">all values are hidden</li>
-      </ul>
+      <ReuseTemplate :data="validValues" />
     </div>
   </LogItem>
 </template>
@@ -31,6 +40,8 @@ const { logEntry } = defineProps<{
 
 const { containers } = useLoggingContext();
 
+const [DefineTemplate, ReuseTemplate] = createReusableTemplate();
+
 const validValues = computed(() => {
   return Object.fromEntries(Object.entries(logEntry.message).filter(([_, value]) => value !== undefined));
 });
@@ -45,7 +56,19 @@ function preventDefaultOnLinks(event: MouseEvent) {
 
 <style scoped>
 @reference "@/main.css";
-.text-light {
-  @apply text-base-content/70;
+.key {
+  @apply text-base-content/70 font-light;
+}
+
+.value {
+  @apply text-base-content font-bold;
+}
+
+.array {
+  @apply before:text-base-content/80 after:text-base-content/80 before:content-['['] after:content-[']'];
+}
+
+.string {
+  @apply before:content-['"'] after:content-['"'];
 }
 </style>

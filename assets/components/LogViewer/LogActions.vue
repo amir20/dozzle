@@ -61,6 +61,7 @@
 </template>
 
 <script lang="ts" setup>
+import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
@@ -80,9 +81,9 @@ const { t } = useI18n();
 
 async function copyLogMessage() {
   if (logEntry instanceof ComplexLogEntry) {
-    await copy(logEntry.rawMessage);
+    await copy(stripAnsi(logEntry.rawMessage));
   } else if (logEntry instanceof SimpleLogEntry) {
-    await copy(logEntry.message);
+    await copy(stripAnsi(logEntry.rawMessage));
   }
 
   if (copied.value) {
