@@ -38,7 +38,7 @@ networks:
 Note that the `DOZZLE_MODE` environment variable is set to `swarm`. This tells Dozzle to automatically discover other Dozzle instances in the swarm. The `overlay` network is used to create the mesh network between the different Dozzle instances.
 
 > [!WARNING]
-> There is no way to use socket-proxy in swarm mode. This is not a limitation of Dozzle, but rather a limitation of Docker itself as all services in a swarm are behind a load balancer which means Dozzle cannot connect to a specific service. You can use `network_mode: host` but not recommended. If you know how to use socket-proxy in swarm mode, please let us know!
+> Socket-proxy cannot be used in Docker Swarm mode. This limitation stems from Docker itself, not Dozzle. In Swarm mode, services can only communicate with other services, but Dozzle requires direct connections to individual proxy instances—which isn't supported. If you have a solution for using socket-proxy in Swarm mode, we'd love to hear from you!
 
 ## Setting Up Simple Authentication in Swarm Mode
 
