@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover">
+  <div class="dropdown dropdown-end dropdown-hover z-20">
     <label tabindex="0" class="btn btn-ghost btn-sm w-10 gap-0.5 px-2">
       <carbon:circle-solid class="text-red w-2.5" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="text-blue w-2.5" v-if="streamConfig.stdout" />
