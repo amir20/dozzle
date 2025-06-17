@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown dropdown-end dropdown-hover">
+  <div class="dropdown dropdown-end dropdown-hover z-20">
     <label tabindex="0" class="btn btn-ghost btn-sm w-10 gap-0.5 px-2">
       <carbon:circle-solid class="text-red w-2.5" v-if="streamConfig.stderr" />
       <carbon:circle-solid class="text-blue w-2.5" v-if="streamConfig.stdout" />
@@ -10,7 +10,7 @@
       @click="hideMenu"
     >
       <li v-if="!historical">
-        <a @click.prevent="clear()">
+        <a @click="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
@@ -19,13 +19,13 @@
         <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
       <li v-if="!historical">
-        <a @click.prevent="showSearch = true">
+        <a @click="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
           <KeyShortcut char="f" />
         </a>
       </li>
       <li v-if="hasComplexLogs">
-        <a @click.prevent="showDrawer(LogAnalytics, { container }, 'lg')">
+        <a @click="showDrawer(LogAnalytics, { container }, 'lg')">
           <ph:file-sql /> SQL Analytics
           <KeyShortcut char="f" :modifiers="['shift', 'meta']" />
         </a>
@@ -142,14 +142,14 @@
       <template v-if="enableShell && !historical">
         <li class="line"></li>
         <li>
-          <a @click.prevent="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
+          <a @click="showDrawer(Terminal, { container, action: 'attach' }, 'lg')">
             <ri:terminal-window-fill />
             {{ $t("toolbar.attach") }}
             <KeyShortcut char="a" :modifiers="['shift', 'meta']" />
           </a>
         </li>
         <li>
-          <a @click.prevent="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
+          <a @click="showDrawer(Terminal, { container, action: 'exec' }, 'lg')">
             <material-symbols:terminal />
             {{ $t("toolbar.shell") }}
             <KeyShortcut char="e" :modifiers="['shift', 'meta']" />

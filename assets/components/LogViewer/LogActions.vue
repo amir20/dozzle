@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown dropdown-start dropdown-hover absolute -left-2 font-sans" v-show="container">
+  <div class="dropdown dropdown-start dropdown-hover absolute -left-2 z-10 font-sans" v-show="container">
     <router-link
       v-if="isSearching"
       @click="resetSearch()"

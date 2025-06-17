@@ -7,7 +7,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 z-10 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
             <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
@@ -41,7 +41,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 z-10 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
             <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
@@ -75,7 +75,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
   </li>
   <li data-v-cf9ff940="" id="1" data-time="1560336942459" class="group/entry">
     <div data-v-cf9ff940="" class="relative flex w-full items-start gap-x-2 group-[.compact]:items-stretch">
-      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
+      <div class="dropdown dropdown-start dropdown-hover absolute -left-2 z-10 font-sans"><button tabindex="0" class="btn btn-square btn-xs border-base-content/20 bg-base-100 border opacity-0 shadow-sm group-hover/entry:opacity-90"><svg viewBox="0 0 512 512" width="1.2em" height="1.2em">
             <circle cx="256" cy="256" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="416" r="48" fill="currentColor"></circle>
             <circle cx="256" cy="96" r="48" fill="currentColor"></circle>
