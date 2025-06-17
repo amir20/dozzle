@@ -1,5 +1,5 @@
 <template>
-  <time :datetime="date.toISOString()" data-ci-skip>{{ text }}</time>
+  <time :datetime="date.toISOString()">{{ text }}</time>
 </template>
 
 <script lang="ts" setup>

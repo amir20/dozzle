@@ -26,6 +26,7 @@ const { containers } = useLoggingContext();
 
 const list = ref<HTMLElement[]>([]);
 
+let previousDate = new Date();
 useIntersectionObserver(
   list,
   (entries) => {
@@ -36,9 +37,12 @@ useIntersectionObserver(
         const time = entry.target.getAttribute("data-time");
         if (time) {
           const date = new Date(parseInt(time));
+          if (+date === +previousDate) break;
+          previousDate = date;
           const diff = new Date().getTime() - container.created.getTime();
           progress.value = (date.getTime() - container.created.getTime()) / diff;
           currentDate.value = date;
+          break;
         }
       }
     }

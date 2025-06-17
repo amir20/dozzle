@@ -93,7 +93,7 @@ svg {
 }
 
 .fadeout-leave-active {
-  @apply transition-opacity;
+  @apply transition-opacity duration-400;
 }
 
 .fadeout-leave-to {
