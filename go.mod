@@ -25,7 +25,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/andybalholm/brotli v1.1.1
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/go-faker/faker/v4 v4.6.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
@@ -65,10 +65,8 @@ require (
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.6.9 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
