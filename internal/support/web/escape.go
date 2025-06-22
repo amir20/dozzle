@@ -34,7 +34,7 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 		panic("not implemented")
 
 	default:
-		log.Debug().Type("type", value).Msg("unknown logEvent type")
+		log.Trace().Type("type", value).Msg("unknown logEvent type")
 	}
 }
 
@@ -63,7 +63,7 @@ func escapeAnyMap(orderedMap *orderedmap.OrderedMap[string, any]) {
 			escapeSlice(value)
 			orderedMap.Set(pair.Key, value)
 		default:
-			log.Debug().Type("type", value).Msg("unknown logEvent type")
+			log.Trace().Type("type", value).Msg("unknown logEvent type")
 		}
 	}
 }
