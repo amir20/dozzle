@@ -24,8 +24,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/material-symbols':
-        specifier: ^1.2.27
-        version: 1.2.27
+        specifier: ^1.2.28
+        version: 1.2.28
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -157,8 +157,8 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@iconify-json/material-symbols-light':
-        specifier: ^1.2.27
-        version: 1.2.27
+        specifier: ^1.2.28
+        version: 1.2.28
       '@iconify-json/ri':
         specifier: ^1.2.5
         version: 1.2.5
@@ -670,11 +670,11 @@ packages:
   '@iconify-json/ion@1.2.3':
     resolution: {integrity: sha512-qV9zsuBFjCgU5WRFO2thhhmaw1wr1wpJMliuuwu7pOtFEEoMOPP45Q7edF+k8uYuouFq+94SlCMIsca+v9kt2g==}
 
-  '@iconify-json/material-symbols-light@1.2.27':
-    resolution: {integrity: sha512-o/DMOIfPb8BdRn+RNsQp5VnIsDLINKGf7QvdvHafrm1G6y80WGqcl4qGPW5iz5MU45BwM2SF95qxARmELnfUPQ==}
+  '@iconify-json/material-symbols-light@1.2.28':
+    resolution: {integrity: sha512-CP0EhkxcPulGrVU2WDgFxMHgXvOmFBGFk905hcOsGGkSMaY39k5xUMa4rbCcPfOy79qOR0A2EL7cmwzBCwXNAA==}
 
-  '@iconify-json/material-symbols@1.2.27':
-    resolution: {integrity: sha512-Xu1IXCczB7ubTmFQZaqQI7qlMstVdBpQyQYo1y1ZrWrCT1oKylMcZfJKKuTV6OGJu/KyO6J0Da0pb5aawyz8CA==}
+  '@iconify-json/material-symbols@1.2.28':
+    resolution: {integrity: sha512-yJsuEWZ9cDhQfg9qt4YQYhAqh6Pht0B23fGxr/jbMV12yJIft48Z/Qg5txqAXXsueDci2ZxAPqBPyKZIaEBq1w==}
 
   '@iconify-json/mdi-light@1.2.2':
     resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
@@ -4180,11 +4180,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols-light@1.2.27':
+  '@iconify-json/material-symbols-light@1.2.28':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.27':
+  '@iconify-json/material-symbols@1.2.28':
     dependencies:
       '@iconify/types': 2.0.0
 
