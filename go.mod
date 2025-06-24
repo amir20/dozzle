@@ -24,7 +24,7 @@ require (
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
-	github.com/andybalholm/brotli v1.1.1
+	github.com/andybalholm/brotli v1.2.0
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/go-faker/faker/v4 v4.6.1
