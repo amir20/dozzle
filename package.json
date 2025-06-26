@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.12.3",
+  "packageManager": "pnpm@10.12.4",
   "type": "module",
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     "@iconify-json/ph": "^1.2.2",
     "@intlify/unplugin-vue-i18n": "^6.0.8",
     "@tailwindcss/typography": "^0.5.16",
-    "@tailwindcss/vite": "4.1.10",
+    "@tailwindcss/vite": "4.1.11",
     "@vueuse/components": "^13.4.0",
     "@vueuse/core": "^13.4.0",
     "@vueuse/integrations": "^13.4.0",
@@ -62,7 +62,7 @@
     "sortablejs": "^1.15.6",
     "splitpanes": "^4.0.4",
     "strip-ansi": "^7.1.0",
-    "tailwindcss": "4.1.10",
+    "tailwindcss": "4.1.11",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-icons": "^22.1.0",
     "unplugin-vue-components": "^28.7.0",
