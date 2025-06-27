@@ -47,7 +47,7 @@ shared_key.pem:
 
 shared_cert.pem: shared_key.pem
 	@openssl req -new -key shared_key.pem -out shared_request.csr -subj "/C=US/ST=California/L=San Francisco/O=Dozzle"
-	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 365
+	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 1825
 	@rm shared_request.csr
 
 $(GEN_DIR)/%.pb.go: $(PROTO_DIR)/%.proto
