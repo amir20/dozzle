@@ -5,7 +5,7 @@
         <span class="key">{{ name }}=</span>
         <span class="value" v-if="value === null">&lt;null&gt;</span>
         <ReuseTemplate :data="value" v-else-if="isObject(value) || Array.isArray(value)" />
-        <span v-else class="value" :class="typeof value" v-html="value"></span>
+        <span v-else class="value" :class="typeof value" v-html="stripAnsi(value.toString())"></span>
       </li>
       <li v-else-if="Array.isArray(data)">
         <ul class="array inline-flex flex-wrap space-x-1">
