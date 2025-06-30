@@ -4,8 +4,8 @@
       <li v-for="(value, name) in data" :key="name" v-if="isObject(data)">
         <span class="key">{{ name }}=</span>
         <span class="value" v-if="value === null">&lt;null&gt;</span>
-        <ReuseTemplate :data="value" v-if="isObject(value) || Array.isArray(value)" />
-        <span v-else class="value" :class="typeof value" v-html="stripAnsi(value.toString())"></span>
+        <ReuseTemplate :data="value" v-else-if="isObject(value) || Array.isArray(value)" />
+        <span v-else class="value" :class="typeof value" v-html="value"></span>
       </li>
       <li v-else-if="Array.isArray(data)">
         <ul class="array inline-flex flex-wrap space-x-1">
