@@ -82,7 +82,7 @@ jobs:
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
       - name: Stactic checker
-        uses: dominikh/staticcheck-action@v1.3.1
+        uses: dominikh/staticcheck-action@v1.4.0
         with:
           install-go: false
   int-test:
