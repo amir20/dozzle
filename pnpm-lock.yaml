@@ -151,8 +151,8 @@ importers:
         version: 4.5.1(vue@3.5.17(typescript@5.8.3))
     devDependencies:
       '@apache-arrow/esnext-esm':
-        specifier: ^20.0.0
-        version: 20.0.0
+        specifier: ^21.0.0
+        version: 21.0.0
       '@iconify-json/ion':
         specifier: ^1.2.4
         version: 1.2.4
@@ -328,8 +328,8 @@ packages:
   '@antfu/utils@8.1.1':
     resolution: {integrity: sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ==}
 
-  '@apache-arrow/esnext-esm@20.0.0':
-    resolution: {integrity: sha512-CY2R2R3lrjrvsnhqZnSqTv0o3W7qL841dDqe2lnEauiaVmt0yx3QJreYeuS7RGzZtuv0CH63A37Pn7WKjXXPLQ==}
+  '@apache-arrow/esnext-esm@21.0.0':
+    resolution: {integrity: sha512-C7MAk3CSLOSP1UlZZqozvVvKnzhMO8dSV3oVIC6/KLVjm5CIsQVsuw4fRRWcc8FolyhAXzD12hqG+giPAu+RAw==}
     hasBin: true
 
   '@asamuzakjp/css-color@3.1.2':
@@ -3923,12 +3923,12 @@ snapshots:
 
   '@antfu/utils@8.1.1': {}
 
-  '@apache-arrow/esnext-esm@20.0.0':
+  '@apache-arrow/esnext-esm@21.0.0':
     dependencies:
       '@swc/helpers': 0.5.17
       '@types/command-line-args': 5.2.3
       '@types/command-line-usage': 5.0.4
-      '@types/node': 20.19.0
+      '@types/node': 24.0.10
       command-line-args: 6.0.1
       command-line-usage: 7.0.3
       flatbuffers: 25.2.10
