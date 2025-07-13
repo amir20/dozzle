@@ -12,7 +12,7 @@ const (
 )
 
 // Standard URL regex pattern to match http/https URLs
-var urlRegex = regexp.MustCompile(`(https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+~#?&//=]*[^.]))`)
+var urlRegex = regexp.MustCompile(`(https?://[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}[-a-zA-Z0-9()@:%_+.~#?&/=]*/?(?:[-a-zA-Z0-9@%_+~#?&/=]|\b))`)
 
 // MarkURLs marks URLs in the logEvent message with special markers
 func MarkURLs(logEvent *container.LogEvent) bool {
