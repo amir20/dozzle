@@ -57,6 +57,7 @@ export default defineConfig({
         items: [
           { text: "What is Dozzle?", link: "/guide/what-is-dozzle" },
           { text: "Getting Started", link: "/guide/getting-started" },
+          { text: "Introducing dtop 🚀", link: "/guide/dtop" },
         ],
       },
       {
