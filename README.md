@@ -9,6 +9,9 @@ https://github.com/user-attachments/assets/66a7b4b2-d6c9-4fca-ab04-aef6cd7c0c31
 [![Docker Version](https://img.shields.io/docker/v/amir20/dozzle?sort=semver)](https://hub.docker.com/r/amir20/dozzle/)
 ![Test](https://github.com/amir20/dozzle/workflows/Test/badge.svg)
 
+> [!NOTE]
+> If you like Dozzle, check out [`dtop`](https://github.com/amir20/dtop) which is a top like application for monitoring Docker containers. It integrates with Dozzle to allow for linking directly to container logs.
+
 ## Features
 
 - Intelligent fuzzy search for container names 🤖
