@@ -73,7 +73,7 @@
     "vite-svg-loader": "^5.1.0",
     "vitepress": "1.6.3",
     "vue": "^3.5.17",
-    "vue-i18n": "^11.1.9",
+    "vue-i18n": "^11.1.10",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
