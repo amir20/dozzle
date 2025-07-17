@@ -71,10 +71,11 @@ affinity: {}
 # Additional environment variables for the Dozzle container.
 # See https://dozzle.dev/guide/supported-env-vars
 config:
-  # DOZZLE_MODE
-  # - is auto set to k8s if DOZZLE_REMOTE_AGENT is empty
-  # - is auto set to server if DOZZLE_REMOTE_AGENT isn't empty
-  # DOZZLE_REMOTE_AGENT: "agent1:7007, agent2:7007, agent3:7007"
+  # DOZZLE_MODE is automatically configured by this chart based on DOZZLE_REMOTE_AGENT.
+  # - If DOZZLE_REMOTE_AGENT is set and not empty, DOZZLE_MODE is set to "server".
+  # - Otherwise, DOZZLE_MODE defaults to "k8s".
+  # To connect to remote Docker agents, uncomment and configure DOZZLE_REMOTE_AGENT below.
+  # DOZZLE_REMOTE_AGENT: "agent1-hostname:7007, agent2-hostname:7007"
   DOZZLE_LEVEL: "info"
   # DOZZLE_FILTER: "label=foo"
   # DOZZLE_AUTH_PROVIDER: simple
