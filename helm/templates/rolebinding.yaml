@@ -1,0 +1,17 @@
+{{- if and .Values.rbac.create (not .Values.rbac.clusterScoped) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "dozzle.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "dozzle.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "dozzle.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "dozzle.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
