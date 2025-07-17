@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         {{- include "dozzle.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ .Values | toJson | sha256sum }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
