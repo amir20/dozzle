@@ -86,7 +86,7 @@ Dozzle supports running in Kubernetes. It only needs to be deployed on one node 
 To deploy using Helm, navigate to the `helm` directory inside the repository and use the following command. This will install Dozzle with the release name `dozzle` in a new `dozzle` namespace.
 
 ```bash
-cd helm
+cd helm/
 helm upgrade --install dozzle . --create-namespace --namespace dozzle -f values.yaml
 ```
 
