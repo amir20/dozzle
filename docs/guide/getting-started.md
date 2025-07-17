@@ -162,5 +162,4 @@ Apply the configuration using the following command:
 ```sh
 kubectl apply -f k8s-dozzle.yml
 ```
-
 See [Kubernetes mode](/guide/k8s) for more information.
