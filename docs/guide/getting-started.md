@@ -92,6 +92,11 @@ helm upgrade --install dozzle . --create-namespace --namespace dozzle -f values.
 
 You can customize the installation by modifying the `values.yaml` file or by creating your own values file (e.g., `my-values.yaml`) and passing it with `-f my-values.yaml`. For example, to enable the ingress, you would set `ingress.enabled` to `true`.
 
+> [!NOTE]
+> The Helm chart automatically configures `DOZZLE_MODE` for you.
+> - If you provide `config.DOZZLE_REMOTE_AGENT` in your values, `DOZZLE_MODE` is set to `server`.
+> - Otherwise, it defaults to `k8s` for in-cluster log viewing.
+
 ### Using raw Kubernetes manifests
 
 If you prefer not to use Helm, you can apply the raw Kubernetes manifests directly. Note that this basic configuration does not create a Service to expose Dozzle.
