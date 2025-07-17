@@ -41,6 +41,12 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: DOZZLE_MODE
+              value: {{- if and (kindIs "map" .Values.config) (hasKey .Values.config "DOZZLE_REMOTE_AGENT") (ne .Values.config.DOZZLE_REMOTE_AGENT "") }} "server" {{ else }} "k8s" {{ end }}
+            {{- if and (hasKey .Values.config "dozzle_remote_agent") (ne .Values.config.dozzle_remote_agent "") }}
+            - name: DOZZLE_REMOTE_AGENT
+              value: "{{ .Values.config.dozzle_remote_agent }}"
+            {{- end }}
           {{- if .Values.auth.secret.existingSecret }}
           volumeMounts:
             - name: auth-config
