@@ -1,0 +1,13 @@
+image:
+  repository: amir20/dozzle
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: pod-viewer
+
+service:
+  type: ClusterIP
+  port: 8080
+
+namespace: default

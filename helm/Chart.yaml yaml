@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dozzle
+description: A Helm chart for deploying Dozzle with pod-viewer RBAC
+type: application
+version: 0.1.0
+appVersion: "latest"
