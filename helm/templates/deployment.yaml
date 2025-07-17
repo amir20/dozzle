@@ -1,23 +1,71 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dozzle
+  name: {{ include "dozzle.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "dozzle.labels" . | nindent 4 }}
 spec:
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: dozzle
+      {{- include "dozzle.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: dozzle
+        {{- include "dozzle.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dozzle.serviceAccountName" . }}
+      securityContext:
+        {}
       containers:
-        - name: dozzle
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           env:
             - name: DOZZLE_MODE
               value: "k8s"
+            {{- range $key, $value := .Values.config }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- if .Values.auth.secret.existingSecret }}
+          volumeMounts:
+            - name: auth-config
+              mountPath: "/data"
+              readOnly: true
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.auth.secret.existingSecret }}
+      volumes:
+        - name: auth-config
+          secret:
+            secretName: {{ .Values.auth.secret.existingSecret }}
+            items:
+              - key: {{ .Values.auth.secret.key }}
+                path: {{ .Values.auth.secret.key }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

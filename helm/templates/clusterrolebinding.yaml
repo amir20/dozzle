@@ -1,12 +1,16 @@
+{{- if and .Values.rbac.create .Values.rbac.clusterScoped }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: pod-viewer-binding
+  name: {{ include "dozzle.fullname" . }}
+  labels:
+    {{- include "dozzle.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.serviceAccount.name }}
-    namespace: {{ .Values.namespace }}
+    name: {{ include "dozzle.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: pod-viewer-role
+  name: {{ include "dozzle.fullname" . }}
   apiGroup: rbac.authorization.k8s.io
+{{- end }}
