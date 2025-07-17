@@ -44,7 +44,7 @@ ingress:
     - host: dozzle.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: dozzle-tls
   #    hosts:
