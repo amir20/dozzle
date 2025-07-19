@@ -79,19 +79,37 @@ See [swarm mode](/guide/swarm-mode) for more information.
 
 ## K8s <Badge type="tip" text="New" />
 
-Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster.
+Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster. The recommended way to install Dozzle on Kubernetes is by using the provided Helm chart.
+
+### Using Helm
+
+To deploy using Helm, navigate to the `helm` directory inside the repository and use the following command. This will install Dozzle with the release name `dozzle` in a new `dozzle` namespace.
+
+```bash
+cd helm/
+helm upgrade --install dozzle . --create-namespace --namespace dozzle -f values.yaml
+```
+
+You can customize the installation by modifying the `values.yaml` file or by creating your own values file (e.g., `my-values.yaml`) and passing it with `-f my-values.yaml`. For example, to enable the ingress, you would set `ingress.enabled` to `true`.
+
+> [!NOTE]
+> The Helm chart automatically configures `DOZZLE_MODE` for you.
+> - If you provide `config.DOZZLE_REMOTE_AGENT` in your values, `DOZZLE_MODE` is set to `server`.
+> - Otherwise, it defaults to `k8s` for in-cluster log viewing.
+
+### Using raw Kubernetes manifests
+
+If you prefer not to use Helm, you can apply the raw Kubernetes manifests directly. Note that this basic configuration does not create a Service to expose Dozzle.
 
 <details>
 <summary>Kubernetes Configuration</summary>
 
 ```yaml [k8s-dozzle.yml]
-# rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: pod-viewer
 ---
-# clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -104,7 +122,6 @@ rules:
     resources: ["pods"]
     verbs: ["get", "list"]
 ---
-# clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -118,7 +135,6 @@ roleRef:
   name: pod-viewer-role
   apiGroup: rbac.authorization.k8s.io
 ---
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -151,5 +167,4 @@ Apply the configuration using the following command:
 ```sh
 kubectl apply -f k8s-dozzle.yml
 ```
-
 See [Kubernetes mode](/guide/k8s) for more information.
