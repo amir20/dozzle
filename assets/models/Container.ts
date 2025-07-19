@@ -80,7 +80,11 @@ export class Container {
   }
 
   get namespace() {
-    return this.labels["com.docker.stack.namespace"] || this.labels["com.docker.compose.project"];
+    return (
+      this.labels["dev.dozzle.group"] ||
+      this.labels["com.docker.stack.namespace"] ||
+      this.labels["com.docker.compose.project"]
+    );
   }
 
   get customGroup() {
