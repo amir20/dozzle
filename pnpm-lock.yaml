@@ -15,8 +15,8 @@ importers:
         specifier: 1.29.1-dev132.0
         version: 1.29.1-dev132.0
       '@iconify-json/carbon':
-        specifier: ^1.2.10
-        version: 1.2.10
+        specifier: ^1.2.11
+        version: 1.2.11
       '@iconify-json/cil':
         specifier: ^1.2.2
         version: 1.2.2
@@ -24,8 +24,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/material-symbols':
-        specifier: ^1.2.29
-        version: 1.2.29
+        specifier: ^1.2.30
+        version: 1.2.30
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -33,8 +33,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/octicon':
-        specifier: ^1.2.7
-        version: 1.2.7
+        specifier: ^1.2.8
+        version: 1.2.8
       '@iconify-json/ph':
         specifier: ^1.2.2
         version: 1.2.2
@@ -157,8 +157,8 @@ importers:
         specifier: ^1.2.4
         version: 1.2.4
       '@iconify-json/material-symbols-light':
-        specifier: ^1.2.29
-        version: 1.2.29
+        specifier: ^1.2.30
+        version: 1.2.30
       '@iconify-json/ri':
         specifier: ^1.2.5
         version: 1.2.5
@@ -652,8 +652,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@iconify-json/carbon@1.2.10':
-    resolution: {integrity: sha512-Z+psKjwGZ9wZu+mVOStmIqHux1OWc8AtDiJ4eHmOkbcW5SMoGVtsQ6LWGJcYguT+9q9YgGihUTvHEnQSPWKGiQ==}
+  '@iconify-json/carbon@1.2.11':
+    resolution: {integrity: sha512-fWcoR0V4dLGLsgUvgjioBcTmj+l8NlMMEP/aMMUwR9PWAr5mCBg52rsTe/bvOnL1zj9PUCNxaj2M4H27GrnO3g==}
 
   '@iconify-json/cil@1.2.2':
     resolution: {integrity: sha512-DiIDcsmGQhzFuxprBI5KTUm4+k3NS9qVqihpsJe5PBAbRXwEfn6fUfcHcdAcFPgU3hIQ6zgQ4cuebXPuiWxbOg==}
@@ -664,11 +664,11 @@ packages:
   '@iconify-json/ion@1.2.4':
     resolution: {integrity: sha512-8NKX73IWq+HTTdlMcYiGMSKVqLW2PmTPx86dIEBsTKFxRlO+CvwHX+6W2oADI+OKaUZmX51IcJNQwsH77JpeKQ==}
 
-  '@iconify-json/material-symbols-light@1.2.29':
-    resolution: {integrity: sha512-Dz5UPy90a2Pm+oBAfZ6ESLXSQ44WdqXqNLzNKnDpkgsu9ZNTthnHm0ewYIFqVfwhyTcj+6n46IFkO/zYR/TsyA==}
+  '@iconify-json/material-symbols-light@1.2.30':
+    resolution: {integrity: sha512-a0tM3+hxM3a8sd5nAG/cSSMgXsPdnq4iaS3227Ejqb640JCjKH+xbnqU+WdqhvLDwOV0/ZC6SZJWoN5R8xb2ww==}
 
-  '@iconify-json/material-symbols@1.2.29':
-    resolution: {integrity: sha512-UUSrsl0gHF0GjAB9eZOpXrj7/v55ayMzo3QnMwUqP/FSfSkITKLR7CsBmUIFS8eEj8eRTfBNWA1yiIJR6UOdWg==}
+  '@iconify-json/material-symbols@1.2.30':
+    resolution: {integrity: sha512-3dA1jxkCd8LqEaAWjwQ5tob4pJNKE59Bz604AL1GP3Kyv//pR3un3cIyAUWOFQS1lz0vKKkn0BKOCmcUDi1G8A==}
 
   '@iconify-json/mdi-light@1.2.2':
     resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
@@ -676,8 +676,8 @@ packages:
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
-  '@iconify-json/octicon@1.2.7':
-    resolution: {integrity: sha512-o1WcVH2Uus6PlMOZkBOpmWywAoHDJBsHx/3cH/D/FZPB1OLNG7N9o+xI67iqlc7/5vKMeW22jI/1iSgdEYdfBw==}
+  '@iconify-json/octicon@1.2.8':
+    resolution: {integrity: sha512-HNi18zdI/9fMuwpPjrlkHT7slt2dF0/+rq5IXDJopl/t+3JE2jsJCx5l8TMjqzm/dlvrnEOuO6n9t7ZxhFjByQ==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -4197,7 +4197,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@iconify-json/carbon@1.2.10':
+  '@iconify-json/carbon@1.2.11':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4213,11 +4213,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols-light@1.2.29':
+  '@iconify-json/material-symbols-light@1.2.30':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.29':
+  '@iconify-json/material-symbols@1.2.30':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4229,7 +4229,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/octicon@1.2.7':
+  '@iconify-json/octicon@1.2.8':
     dependencies:
       '@iconify/types': 2.0.0
 
