@@ -1,7 +1,7 @@
 <template>
   <transition name="slide">
     <div
-      class="fixed z-10 flex w-full justify-end p-2"
+      class="fixed z-50 flex w-full justify-end p-2"
       v-show="showSearch"
       v-if="search"
       ref="container"
