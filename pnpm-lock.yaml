@@ -33,8 +33,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/octicon':
-        specifier: ^1.2.8
-        version: 1.2.8
+        specifier: ^1.2.9
+        version: 1.2.9
       '@iconify-json/ph':
         specifier: ^1.2.2
         version: 1.2.2
@@ -87,8 +87,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       daisyui:
-        specifier: 5.0.47
-        version: 5.0.47
+        specifier: 5.0.48
+        version: 5.0.48
       entities:
         specifier: ^6.0.1
         version: 6.0.1
@@ -193,8 +193,8 @@ importers:
         specifier: ^24.1.0
         version: 24.1.0
       '@vitejs/plugin-vue':
-        specifier: 6.0.0
-        version: 6.0.0(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+        specifier: 6.0.1
+        version: 6.0.1(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
       '@vue/compiler-sfc':
         specifier: ^3.5.18
         version: 3.5.18
@@ -676,8 +676,8 @@ packages:
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
-  '@iconify-json/octicon@1.2.8':
-    resolution: {integrity: sha512-HNi18zdI/9fMuwpPjrlkHT7slt2dF0/+rq5IXDJopl/t+3JE2jsJCx5l8TMjqzm/dlvrnEOuO6n9t7ZxhFjByQ==}
+  '@iconify-json/octicon@1.2.9':
+    resolution: {integrity: sha512-8v4jxXCvN9GDKecnQRL49YtENFyHIlxaZE07RUSxxOTTnz++imYYPHf3gAEPu5BlP2ChZmsxR1dflD2Q9lOeqA==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -897,8 +897,8 @@ packages:
     resolution: {integrity: sha512-ezIadUb1aFhwJLd++WVqVpi9rnlX8vnd4ju7saPhwLHJN1mJgOv0puePTGV+FbtSnWtwoHDT8lAm4kagDZmpCg==}
     engines: {node: '>=20.0.0'}
 
-  '@rolldown/pluginutils@1.0.0-beta.19':
-    resolution: {integrity: sha512-3FL3mnMbPu0muGOCaKAhhFEYmqv9eTfPSJRJmANrCwtgK8VuxpsZDGK+m0LYAGoyO8+0j5uRe4PeyPDK1yA/hA==}
+  '@rolldown/pluginutils@1.0.0-beta.29':
+    resolution: {integrity: sha512-NIJgOsMjbxAXvoGq/X0gD7VPMQ8j9g0BiDaNjVNVjvl+iKXxL3Jre0v31RmBYeLEmkbj2s02v8vFTbUXi5XS2Q==}
 
   '@rollup/pluginutils@5.1.4':
     resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
@@ -1256,8 +1256,8 @@ packages:
       vite: ^5.0.0 || ^6.0.0
       vue: ^3.2.25
 
-  '@vitejs/plugin-vue@6.0.0':
-    resolution: {integrity: sha512-iAliE72WsdhjzTOp2DtvKThq1VBC4REhwRcaA+zPAAph6I+OQhUXv+Xu2KS7ElxYtb7Zc/3R30Hwv1DxEo7NXQ==}
+  '@vitejs/plugin-vue@6.0.1':
+    resolution: {integrity: sha512-+MaE752hU0wfPFJEUAIxqw18+20euHHdxVtMvbFcOEpjEyfqXH/5DCoTHiVJ0J29EhTJdoTkjEv5YBKU9dnoTw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
@@ -2079,8 +2079,8 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
 
-  daisyui@5.0.47:
-    resolution: {integrity: sha512-RuYjjVKpodDoOYAHIvG6qC3BeRxhlyj4JCO+6aV0VzK+i3RWD7cmICh0m5+Xfr5938mV0Mk7FUOQ00msz8H8dw==}
+  daisyui@5.0.48:
+    resolution: {integrity: sha512-t2nvzKENuhbjkKmxhIoDgV/nzAnNLbswK9MBlOMnEO6hxfgNLlt7jVrHYWw6ts492JdQ0Mmf6iX3aO/u+1zXAw==}
 
   data-urls@5.0.0:
     resolution: {integrity: sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg==}
@@ -4227,7 +4227,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/octicon@1.2.8':
+  '@iconify-json/octicon@1.2.9':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4457,7 +4457,7 @@ snapshots:
     dependencies:
       quansync: 0.2.10
 
-  '@rolldown/pluginutils@1.0.0-beta.19': {}
+  '@rolldown/pluginutils@1.0.0-beta.29': {}
 
   '@rollup/pluginutils@5.1.4(rollup@4.44.2)':
     dependencies:
@@ -4771,9 +4771,9 @@ snapshots:
       vite: 5.4.19(@types/node@24.1.0)(lightningcss@1.30.1)(terser@5.39.0)
       vue: 3.5.18(typescript@5.8.3)
 
-  '@vitejs/plugin-vue@6.0.0(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))':
+  '@vitejs/plugin-vue@6.0.1(vite@7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))':
     dependencies:
-      '@rolldown/pluginutils': 1.0.0-beta.19
+      '@rolldown/pluginutils': 1.0.0-beta.29
       vite: 7.0.6(@types/node@24.1.0)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0)
       vue: 3.5.18(typescript@5.8.3)
 
@@ -5694,7 +5694,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-timer: 3.0.1
 
-  daisyui@5.0.47: {}
+  daisyui@5.0.48: {}
 
   data-urls@5.0.0:
     dependencies:
