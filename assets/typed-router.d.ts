@@ -31,4 +31,76 @@ declare module 'vue-router/auto-routes' {
     '/show': RouteRecordInfo<'/show', '/show', Record<never, never>, Record<never, never>>,
     '/stack/[name]': RouteRecordInfo<'/stack/[name]', '/stack/:name', { name: ParamValue<true> }, { name: ParamValue<false> }>,
   }
+
+  /**
+   * Route file to route info map by unplugin-vue-router.
+   * Used by the volar plugin to automatically type useRoute()
+   *
+   * Each key is a file path relative to the project root with 2 properties:
+   * - routes: union of route names of the possible routes when in this page (passed to useRoute<...>())
+   * - views: names of nested views (can be passed to <RouterView name="...">)
+   *
+   * @internal
+   */
+  export interface _RouteFileInfoMap {
+    'assets/pages/index.vue': {
+      routes: '/'
+      views: never
+    }
+    'assets/pages/[...all].vue': {
+      routes: '/[...all]'
+      views: never
+    }
+    'assets/pages/container/[id].vue': {
+      routes: '/container/[id]'
+      views: never
+    }
+    'assets/pages/container/[id].time.[datetime].vue': {
+      routes: '/container/[id].time.[datetime]'
+      views: never
+    }
+    'assets/pages/group/[name].vue': {
+      routes: '/group/[name]'
+      views: never
+    }
+    'assets/pages/host/[id].vue': {
+      routes: '/host/[id]'
+      views: never
+    }
+    'assets/pages/login.vue': {
+      routes: '/login'
+      views: never
+    }
+    'assets/pages/merged/[ids].vue': {
+      routes: '/merged/[ids]'
+      views: never
+    }
+    'assets/pages/service/[name].vue': {
+      routes: '/service/[name]'
+      views: never
+    }
+    'assets/pages/settings.vue': {
+      routes: '/settings'
+      views: never
+    }
+    'assets/pages/show.vue': {
+      routes: '/show'
+      views: never
+    }
+    'assets/pages/stack/[name].vue': {
+      routes: '/stack/[name]'
+      views: never
+    }
+  }
+
+  /**
+   * Get a union of possible route names in a certain route component file.
+   * Used by the volar plugin to automatically type useRoute()
+   *
+   * @internal
+   */
+  export type _RouteNamesForFilePath<FilePath extends string> =
+    _RouteFileInfoMap extends Record<FilePath, infer Info>
+      ? Info['routes']
+      : keyof RouteNamedMap
 }
