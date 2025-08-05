@@ -63,7 +63,7 @@
     "splitpanes": "^4.0.4",
     "strip-ansi": "^7.1.0",
     "tailwindcss": "4.1.11",
-    "unplugin-auto-import": "^19.3.0",
+    "unplugin-auto-import": "^20.0.0",
     "unplugin-icons": "^22.2.0",
     "unplugin-vue-components": "^28.8.0",
     "unplugin-vue-macros": "^2.14.5",
