@@ -53,6 +53,8 @@ ARG TARGETOS TARGETARCH
 # Generate protos
 RUN go generate
 
+ENV GOEXPERIMENT=jsonv2
+
 # Build binary
 RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
 
