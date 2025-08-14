@@ -104,7 +104,7 @@ To verify that the API is running, you can run the following command:
 kubectl top pod
 ```
 
-For now this is required to use Dozzle in Kubernetes.
+For now, this is required to use Dozzle in Kubernetes.
 
 ## Namespaces and Filters
 
@@ -140,11 +140,11 @@ spec:
 ```
 
 > [!NOTE]
-> Dozzle supports multiple namespaces, you can set the `DOZZLE_NAMESPACES` environment variable to a comma separated list of namespaces. When multiple namespaces are specified, Dozzle will monitor each namespace separately and combine the results.
+> Dozzle supports multiple namespaces, you can set the `DOZZLE_NAMESPACE` environment variable to a comma-separated list of namespaces. When multiple namespaces are specified, Dozzle will monitor each namespace separately and combine the results.
 
 ### Labels and Filters
 
-`DOZZLE_FILTER` behave similarlty to Docker filters. You can limit the scope of Dozzle using the `DOZZLE_FILTER` environment variable. For example, to scope only to `env=prod`:
+`DOZZLE_FILTER` behave similarly to Docker filters. You can limit the scope of Dozzle using the `DOZZLE_FILTER` environment variable. For example, to scope only to `env=prod`:
 
 ```yaml
 apiVersion: apps/v1
