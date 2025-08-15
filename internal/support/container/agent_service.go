@@ -87,24 +87,21 @@ func (a *agentService) Exec(ctx context.Context, container container.Container, 
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		if _, err := io.Copy(containerWriter, stdin); err != nil {
 			log.Error().Err(err).Msg("error while reading from ws using agent")
 		}
 		cancel()
 		containerWriter.Close()
-	}()
+	})
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
 			log.Error().Err(err).Msg("error while writing to ws using agent")
 		}
 		cancel()
-	}()
+	})
 
 	wg.Wait()
 
