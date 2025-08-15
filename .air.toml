@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "./tmp/dozzle"
-cmd = "go build -race -o ./tmp/dozzle ."
+cmd = "GOEXPERIMENT=jsonv2 go build -race -o ./tmp/dozzle ."
 delay = 1000
 exclude_dir = [
   "assets",
