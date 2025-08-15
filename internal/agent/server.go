@@ -290,10 +290,8 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		defer cancel()
 		defer containerWriter.Close()
 		for {
@@ -306,10 +304,9 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 				return
 			}
 		}
-	}()
+	})
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		defer cancel()
 		buffer := make([]byte, 1024)
 		for {
@@ -322,7 +319,7 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 				return
 			}
 		}
-	}()
+	})
 
 	wg.Wait()
 
