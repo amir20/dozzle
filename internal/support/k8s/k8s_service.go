@@ -101,24 +101,21 @@ func (k *K8sClientService) Attach(ctx context.Context, container container.Conta
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
 
-	go func() {
+	wg.Go(func() {
 		defer writer.Close()
 		defer cancel()
-		defer wg.Done()
 		if _, err := io.Copy(writer, stdin); err != nil {
 			log.Error().Err(err).Msg("error copying stdin")
 		}
-	}()
+	})
 
-	go func() {
+	wg.Go(func() {
 		defer cancel()
-		defer wg.Done()
 		if _, err := io.Copy(stdout, reader); err != nil {
 			log.Error().Err(err).Msg("error copying stdout")
 		}
-	}()
+	})
 
 	wg.Wait()
 	return nil
@@ -133,24 +130,21 @@ func (k *K8sClientService) Exec(ctx context.Context, container container.Contain
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
 
-	go func() {
+	wg.Go(func() {
 		defer writer.Close()
 		defer cancel()
-		defer wg.Done()
 		if _, err := io.Copy(writer, stdin); err != nil {
 			log.Error().Err(err).Msg("error copying stdin")
 		}
-	}()
+	})
 
-	go func() {
+	wg.Go(func() {
 		defer cancel()
-		defer wg.Done()
 		if _, err := io.Copy(stdout, reader); err != nil {
 			log.Error().Err(err).Msg("error copying stdout")
 		}
-	}()
+	})
 
 	wg.Wait()
 	return nil

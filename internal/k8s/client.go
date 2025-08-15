@@ -238,12 +238,10 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(len(watchers))
 
 	for _, watcher := range watchers {
-		go func(w watch.Interface) {
-			defer wg.Done()
-			for event := range w.ResultChan() {
+		wg.Go(func() {
+			for event := range watcher.ResultChan() {
 				log.Debug().Interface("event.type", event.Type).Msg("Received kubernetes event")
 				pod, ok := event.Object.(*corev1.Pod)
 				if !ok {
@@ -270,7 +268,7 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 					}
 				}
 			}
-		}(watcher)
+		})
 	}
 
 	wg.Wait()
