@@ -8,6 +8,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
+	lop "github.com/samber/lo/parallel"
 )
 
 type HostUnavailableError struct {
@@ -69,22 +70,35 @@ func (m *MultiHostService) ListContainersForHost(host string, labels container.C
 }
 
 func (m *MultiHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
-	containers := make([]container.Container, 0)
 	clients, errors := m.manager.RetryAndList()
 
-	for _, client := range clients {
+	type result struct {
+		containers []container.Container
+		err        error
+	}
+
+	results := lop.Map(clients, func(client container_support.ClientService, _ int) result {
 		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 		defer cancel()
+
 		list, err := client.ListContainers(ctx, labels)
 		if err != nil {
 			host, _ := client.Host(ctx)
 			log.Debug().Err(err).Str("host", host.Name).Msg("error listing containers")
 			host.Available = false
-			errors = append(errors, &HostUnavailableError{Host: host, Err: err})
-			continue
+			return result{nil, &HostUnavailableError{Host: host, Err: err}}
 		}
 
-		containers = append(containers, list...)
+		return result{list, nil}
+	})
+
+	containers := make([]container.Container, 0)
+	for _, r := range results {
+		if r.err != nil {
+			errors = append(errors, r.err)
+		} else {
+			containers = append(containers, r.containers...)
+		}
 	}
 
 	return containers, errors
