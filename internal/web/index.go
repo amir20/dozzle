@@ -51,6 +51,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["hosts"] = hosts
 		config["enableActions"] = h.config.EnableActions
 		config["enableShell"] = h.config.EnableShell
+		config["disableAvatars"] = h.config.DisableAvatars
 	}
 
 	if user != nil {

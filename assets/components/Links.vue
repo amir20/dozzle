@@ -14,10 +14,15 @@
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
-        <img
-          class="ring-base-content/60 size-6 max-w-none rounded-full p-px ring-1"
-          :src="withBase('/api/profile/avatar')"
-        />
+        <template v-if="disableAvatars">
+          <material-symbols:person class="size-6" />
+        </template>
+        <template v-else>
+          <img
+            class="ring-base-content/60 size-6 max-w-none rounded-full p-px ring-1"
+            :src="withBase('/api/profile/avatar')"
+          />
+        </template>
       </template>
       <template #content>
         <div class="p-2">
@@ -41,6 +46,8 @@
   </div>
 </template>
 <script lang="ts" setup>
+const { disableAvatars } = config;
+
 async function logout() {
   await fetch(withBase("/api/token"), {
     method: "DELETE",

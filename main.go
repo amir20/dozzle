@@ -198,9 +198,10 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			Authorizer: authorizer,
 			TTL:        authTTL,
 		},
-		EnableActions: args.EnableActions,
-		EnableShell:   args.EnableShell,
-		Labels:        args.Filter,
+		EnableActions:  args.EnableActions,
+		EnableShell:    args.EnableShell,
+		DisableAvatars: args.DisableAvatars,
+		Labels:         args.Filter,
 	}
 
 	assets, err := fs.Sub(content, "dist")

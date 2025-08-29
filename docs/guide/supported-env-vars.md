@@ -18,6 +18,7 @@ Configurations can be done with flags or environment variables. The table below 
 | `--auth-header-name`  | `DOZZLE_AUTH_HEADER_NAME`  | `Remote-Name`  |
 | `--enable-actions`    | `DOZZLE_ENABLE_ACTIONS`    | `false`        |
 | `--enable-shell`      | `DOZZLE_ENABLE_SHELL`      | `false`        |
+| `--disable-avatars`   | `DOZZLE_DISABLE_AVATARS`   | `false`        |
 | `--filter`            | `DOZZLE_FILTER`            | `""`           |
 | `--no-analytics`      | `DOZZLE_NO_ANALYTICS`      | `false`        |
 | `--mode`              | `DOZZLE_MODE`              | `server`       |

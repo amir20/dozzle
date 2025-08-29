@@ -27,16 +27,17 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base          string
-	Addr          string
-	Version       string
-	Hostname      string
-	NoAnalytics   bool
-	Dev           bool
-	Authorization Authorization
-	EnableActions bool
-	EnableShell   bool
-	Labels        container.ContainerLabels
+	Base           string
+	Addr           string
+	Version        string
+	Hostname       string
+	NoAnalytics    bool
+	Dev            bool
+	Authorization  Authorization
+	EnableActions  bool
+	EnableShell    bool
+	DisableAvatars bool
+	Labels         container.ContainerLabels
 }
 
 type Authorization struct {
@@ -122,7 +123,9 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/hosts/{host}/containers/{id}/exec", h.exec)
 				}
 				r.Get("/releases", h.releases)
-				r.Get("/profile/avatar", h.avatar)
+				if !h.config.DisableAvatars {
+					r.Get("/profile/avatar", h.avatar)
+				}
 				r.Patch("/profile", h.updateProfile)
 				r.Get("/version", h.version)
 				if log.Debug().Enabled() {
