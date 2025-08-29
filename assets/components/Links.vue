@@ -14,7 +14,7 @@
 
     <dropdown class="dropdown-end" v-if="config.user">
       <template #trigger>
-        <template v-if="disableAvatars">
+        <template v-if="config.disableAvatars || !config.user.email">
           <material-symbols:person class="size-6" />
         </template>
         <template v-else>
@@ -29,12 +29,12 @@
           <div class="font-bold">
             {{ config.user.name }}
           </div>
-          <div class="text-sm font-light">
+          <div v-if="config.user.email" class="text-sm font-light">
             {{ config.user.email }}
           </div>
         </div>
-        <ul class="menu mt-4 p-0">
-          <li v-if="config.authProvider === 'simple'">
+        <ul v-if="config.authProvider === 'simple'" class="menu mt-4 p-0">
+          <li>
             <button @click.prevent="logout()" class="text-primary p-2">
               <material-symbols:logout />
               {{ $t("button.logout") }}
@@ -46,8 +46,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-const { disableAvatars } = config;
-
 async function logout() {
   await fetch(withBase("/api/token"), {
     method: "DELETE",
