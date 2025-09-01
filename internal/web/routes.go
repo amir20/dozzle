@@ -17,6 +17,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type ReleaseCheckMode string
+
+const (
+	Automatic ReleaseCheckMode = "automatic"
+	Manual    ReleaseCheckMode = "manual"
+)
+
 type AuthProvider string
 
 const (
@@ -27,17 +34,18 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base           string
-	Addr           string
-	Version        string
-	Hostname       string
-	NoAnalytics    bool
-	Dev            bool
-	Authorization  Authorization
-	EnableActions  bool
-	EnableShell    bool
-	DisableAvatars bool
-	Labels         container.ContainerLabels
+	Base             string
+	Addr             string
+	Version          string
+	Hostname         string
+	NoAnalytics      bool
+	Dev              bool
+	Authorization    Authorization
+	EnableActions    bool
+	EnableShell      bool
+	DisableAvatars   bool
+	ReleaseCheckMode ReleaseCheckMode
+	Labels           container.ContainerLabels
 }
 
 type Authorization struct {

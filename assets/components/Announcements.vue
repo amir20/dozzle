@@ -1,5 +1,9 @@
 <template>
-  <Dropdown class="dropdown-end" @closed="releaseSeen = mostRecent?.tag ?? config.version">
+  <Dropdown
+    class="dropdown-end"
+    @click="config.releaseCheckMode === 'manual' && fetchReleases()"
+    @closed="releaseSeen = mostRecent?.tag ?? config.version"
+  >
     <template #trigger>
       <mdi:announcement class="size-6 -rotate-12" />
       <template v-if="announcements.length > 0 && releaseSeen != mostRecent?.tag">
@@ -63,7 +67,7 @@
 <script setup lang="ts">
 import { useAnnouncements } from "@/stores/announcements";
 
-const { announcements, mostRecent } = useAnnouncements();
+const { announcements, mostRecent, fetchReleases } = useAnnouncements();
 const { t } = useI18n();
 
 const releaseSeen = useProfileStorage("releaseSeen", config.version);

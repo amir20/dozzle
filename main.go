@@ -140,6 +140,17 @@ func fileExists(filename string) bool {
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
+	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
+
+	switch args.ReleaseCheckMode {
+		case "automatic":
+			releaseCheckMode = web.Automatic
+		case "manual":
+			releaseCheckMode = web.Manual
+		default:
+			log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
+	}
+
 	var provider web.AuthProvider = web.NONE
 	var authorizer web.Authorizer
 	if args.AuthProvider == "forward-proxy" {
@@ -198,10 +209,11 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			Authorizer: authorizer,
 			TTL:        authTTL,
 		},
-		EnableActions:  args.EnableActions,
-		EnableShell:    args.EnableShell,
-		DisableAvatars: args.DisableAvatars,
-		Labels:         args.Filter,
+		EnableActions:    args.EnableActions,
+		EnableShell:      args.EnableShell,
+		DisableAvatars:   args.DisableAvatars,
+		ReleaseCheckMode: releaseCheckMode,
+		Labels:           args.Filter,
 	}
 
 	assets, err := fs.Sub(content, "dist")
