@@ -140,13 +140,13 @@ func fileExists(filename string) bool {
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
-	var releaseCheckMode web.ReleaseCheckMode = web.AUTOMATIC
+	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
 
 	switch args.ReleaseCheckMode {
 		case "automatic":
-			releaseCheckMode = web.AUTOMATIC
+			releaseCheckMode = web.Automatic
 		case "manual":
-			releaseCheckMode = web.MANUAL
+			releaseCheckMode = web.Manual
 		default:
 			log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
 	}

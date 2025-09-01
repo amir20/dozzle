@@ -20,8 +20,8 @@ import (
 type ReleaseCheckMode string
 
 const (
-	AUTOMATIC ReleaseCheckMode = "automatic"
-	MANUAL    ReleaseCheckMode = "manual"
+	Automatic ReleaseCheckMode = "automatic"
+	Manual    ReleaseCheckMode = "manual"
 )
 
 type AuthProvider string
