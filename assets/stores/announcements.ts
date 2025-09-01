@@ -12,7 +12,25 @@ type Announcement = {
   breaking: number;
 };
 
-const { data: releases } = useFetch(withBase("/api/releases")).get().json<Announcement[]>();
+const releases = ref<Announcement[]>([]);
+let fetched = false;
+
+async function fetchReleases() {
+  if (fetched) return;
+  fetched = true;
+
+  try {
+    const { data } = await useFetch(withBase("/api/releases")).get().json<Announcement[]>();
+    releases.value = data.value || [];
+  } catch (error) {
+    console.error("Error while fetching releases:\n", error);
+    fetched = false;
+  }
+}
+
+if (config.releaseCheckMode === "automatic") {
+  fetchReleases();
+}
 
 const otherAnnouncements = [] as Announcement[];
 
@@ -33,5 +51,6 @@ export function useAnnouncements() {
     announcements,
     latestRelease,
     hasRelease,
+    fetchReleases,
   };
 }

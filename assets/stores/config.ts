@@ -13,6 +13,7 @@ export interface Config {
   enableActions: boolean;
   enableShell: boolean;
   disableAvatars: boolean;
+  releaseCheckMode: "automatic" | "manual";
   user?: {
     username: string;
     email: string;
