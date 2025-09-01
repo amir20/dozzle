@@ -141,8 +141,14 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.AUTOMATIC
-	if args.ReleaseCheckMode == "manual" {
-		releaseCheckMode = web.MANUAL
+
+	switch args.ReleaseCheckMode {
+		case "automatic":
+			releaseCheckMode = web.AUTOMATIC
+		case "manual":
+			releaseCheckMode = web.MANUAL
+		default:
+			log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
 	}
 
 	var provider web.AuthProvider = web.NONE
