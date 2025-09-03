@@ -121,9 +121,7 @@ func (d *DockerClientService) Attach(ctx context.Context, container container.Co
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
 	wg.Go(func() {
-		defer wg.Done()
 		if _, err := io.Copy(containerWriter, stdin); err != nil {
 			log.Error().Err(err).Msg("error while reading from ws")
 		}
@@ -131,9 +129,7 @@ func (d *DockerClientService) Attach(ctx context.Context, container container.Co
 		containerWriter.Close()
 	})
 
-	wg.Add(1)
 	wg.Go(func() {
-		defer wg.Done()
 		if container.Tty {
 			if _, err := io.Copy(stdout, containerReader); err != nil {
 				log.Error().Err(err).Msg("error while writing to ws")
