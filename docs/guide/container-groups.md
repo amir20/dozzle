@@ -12,7 +12,7 @@ By default, containers are grouped by their stack name in host mode. If `com.doc
 
 ## Custom Groups
 
-Additionally, you can create custom groups by adding a label to your container. The label is `dev.dozzle.group` and the value is the name of the group. All containers with the same group name will be joined together in the UI. For example, if you have a group named `myapp`, all containers with the label `dozzle.group=myapp` will be joined together.
+Additionally, you can create custom groups by adding a label to your container. The label is `dev.dozzle.group` and the value is the name of the group. All containers with the same group name will be joined together in the UI. For example, if you have a group named `myapp`, all containers with the label `dev.dozzle.group=myapp` will be joined together.
 
 Here is an example using Docker Compose or Docker CLI:
 
