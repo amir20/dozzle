@@ -35,7 +35,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.7.13
 	golang.org/x/crypto v0.41.0
-	golang.org/x/sync v0.16.0
+	golang.org/x/sync v0.17.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	k8s.io/api v0.34.0
