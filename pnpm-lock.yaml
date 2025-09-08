@@ -33,8 +33,8 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify-json/octicon':
-        specifier: ^1.2.12
-        version: 1.2.12
+        specifier: ^1.2.13
+        version: 1.2.13
       '@iconify-json/ph':
         specifier: ^1.2.2
         version: 1.2.2
@@ -87,8 +87,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       daisyui:
-        specifier: 5.1.7
-        version: 5.1.7
+        specifier: 5.1.8
+        version: 5.1.8
       entities:
         specifier: ^6.0.1
         version: 6.0.1
@@ -809,8 +809,8 @@ packages:
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
-  '@iconify-json/octicon@1.2.12':
-    resolution: {integrity: sha512-Ycrc3Vb43gD1yGEPVLxusfexLzm8WPk/aZmZjN2vCDBXaF2Ticgo8TXEUV7GILb0VZofOL9HkYeSFM15iruDVg==}
+  '@iconify-json/octicon@1.2.13':
+    resolution: {integrity: sha512-SRtqbRAl/v9FdC8D0dWlJpCkNAidAqN0R/ORj1TRGR8K5TfcrD1HSa0zmLQXJ2kKD9jowMh2WjLsIczVak4jKQ==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -2247,8 +2247,8 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
 
-  daisyui@5.1.7:
-    resolution: {integrity: sha512-XjP2N22lQjFdpH6C1dqCXI+O3stt6ELe8aRtRC/7iKtbRCGZRhgz2YlzPfTiDFm8QH8nEcI/i1MgwY8Im0Ii5A==}
+  daisyui@5.1.8:
+    resolution: {integrity: sha512-MJd683sm8ydToKrPoY8q72cht4j2EKellmTex51alY7L4p782gUtXTAZwiMOZixeKda/qb/c94XgoyLWSm4VNg==}
 
   data-urls@5.0.0:
     resolution: {integrity: sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg==}
@@ -4471,7 +4471,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/octicon@1.2.12':
+  '@iconify-json/octicon@1.2.13':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -5984,7 +5984,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-timer: 3.0.1
 
-  daisyui@5.1.7: {}
+  daisyui@5.1.8: {}
 
   data-urls@5.0.0:
     dependencies:
