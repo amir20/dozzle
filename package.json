@@ -29,7 +29,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@duckdb/duckdb-wasm": "1.29.2",
+    "@duckdb/duckdb-wasm": "1.30.0",
     "@iconify-json/carbon": "^1.2.13",
     "@iconify-json/cil": "^1.2.3",
     "@iconify-json/ic": "^1.2.4",
