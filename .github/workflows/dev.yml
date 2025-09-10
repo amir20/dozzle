@@ -49,3 +49,24 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Create temporary containers for binary extraction
+        run: |
+          # Create containers for each platform without running them
+          docker create --platform linux/amd64 --name dozzle-amd64 ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          docker create --platform linux/arm64 --name dozzle-arm64 ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+      - name: Extract binaries from containers
+        run: |
+          # Create directories for binaries
+          mkdir -p binaries/amd64 binaries/arm64
+
+          # Extract binaries from containers
+          docker cp dozzle-amd64:/dozzle binaries/amd64/dozzle
+          docker cp dozzle-arm64:/dozzle binaries/arm64/dozzle
+
+          # Clean up containers
+          docker rm dozzle-amd64 dozzle-arm64
+      - name: Archive binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: dozzle-binaries-${{ steps.meta.outputs.version }}
+          path: binaries/
