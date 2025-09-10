@@ -177,4 +177,10 @@ jobs:
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx changelogithub --assets binaries/*.tar.gz
+        run: npx changelogithub
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: binaries/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
