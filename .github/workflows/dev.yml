@@ -70,3 +70,4 @@ jobs:
         with:
           name: dozzle-binaries-${{ steps.meta.outputs.version }}
           path: binaries/
+          retention-days: 30

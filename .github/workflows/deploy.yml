@@ -131,6 +131,33 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Create temporary containers for binary extraction
+        run: |
+          # Create containers for each platform without running them
+          docker create --platform linux/amd64 --name dozzle-amd64 ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          docker create --platform linux/arm64 --name dozzle-arm64 ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+      - name: Extract binaries from containers
+        run: |
+          # Create directories for binaries
+          mkdir -p binaries/amd64 binaries/arm64
+
+          # Extract binaries from containers
+          docker cp dozzle-amd64:/dozzle binaries/amd64/dozzle
+          docker cp dozzle-arm64:/dozzle binaries/arm64/dozzle
+
+          # Clean up containers
+          docker rm dozzle-amd64 dozzle-arm64
+
+          # Create archives for release
+          cd binaries
+          tar -czf dozzle-linux-amd64.tar.gz -C amd64 dozzle
+          tar -czf dozzle-linux-arm64.tar.gz -C arm64 dozzle
+      - name: Upload binaries as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-binaries
+          path: binaries/*.tar.gz
+          retention-days: 1
   git-release:
     needs: [buildx]
     name: Github Release
@@ -142,7 +169,18 @@ jobs:
           fetch-depth: 0
       - name: Install Node
         uses: actions/setup-node@v4
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: release-binaries
+          path: binaries/
       - name: Release to Github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx changelogithub
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: binaries/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
