@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
@@ -32,13 +32,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
@@ -91,13 +91,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
