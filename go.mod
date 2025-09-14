@@ -27,21 +27,21 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/jwtauth/v5 v5.3.3
-	github.com/go-faker/faker/v4 v4.6.1
+	github.com/go-faker/faker/v4 v4.6.2
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
-	github.com/puzpuzpuz/xsync/v4 v4.1.0
+	github.com/puzpuzpuz/xsync/v4 v4.2.0
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.51.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.7.13
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
-	google.golang.org/grpc v1.75.0
-	google.golang.org/protobuf v1.36.8
-	k8s.io/api v0.34.0
-	k8s.io/apimachinery v0.34.0
-	k8s.io/client-go v0.34.0
-	k8s.io/metrics v0.34.0
+	google.golang.org/grpc v1.75.1
+	google.golang.org/protobuf v1.36.9
+	k8s.io/api v0.34.1
+	k8s.io/apimachinery v0.34.1
+	k8s.io/client-go v0.34.1
+	k8s.io/metrics v0.34.1
 )
 
 require (
