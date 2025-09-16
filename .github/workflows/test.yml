@@ -14,13 +14,13 @@ jobs:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
@@ -36,13 +36,13 @@ jobs:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
@@ -97,13 +97,13 @@ jobs:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: Install Node
         with:
           node-version: latest
       - run: corepack enable
       - run: pnpm --version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: latest
           cache: "pnpm"
