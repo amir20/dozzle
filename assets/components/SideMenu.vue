@@ -1,5 +1,5 @@
 <template>
-  <div v-if="ready" data-testid="side-menu" class="flex min-h-0 flex-col">
+  <div v-if="ready" data-testid="side-menu" class="flex min-h-0 flex-col w-full">
     <Carousel v-model="selectedCard" class="flex-1">
       <CarouselItem :title="$t('label.host-menu')" id="host">
         <HostMenu />
