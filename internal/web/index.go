@@ -12,8 +12,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/profile"
-	"github.com/amir20/dozzle/internal/role"
-
 	"github.com/rs/zerolog/log"
 )
 
@@ -46,29 +44,20 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	user := auth.UserFromContext(req.Context())
 
 	if h.config.Authorization.Provider == NONE || user != nil {
-		enableShell := h.config.EnableShell
-		enableActions := h.config.EnableActions
-		enableDownload := true
-
-		if user != nil && user.UserRoles.Exists() {
-			if enableShell && !user.UserRoles.HasRole(role.Shell) {
-				enableShell = false
-			}
-			if enableActions && !user.UserRoles.HasRole(role.Actions) {
-				enableActions = false
-			}
-			if !user.UserRoles.HasRole(role.Download) {
-				enableDownload = false
-			}
+		if user != nil {
+			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
+			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
+			config["enableDownload"] = user.Roles.Has(auth.Download)
+		} else {
+			config["enableShell"] = h.config.EnableShell
+			config["enableActions"] = h.config.EnableActions
+			config["enableDownload"] = true
 		}
 
 		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
 		config["hostname"] = h.config.Hostname
 		config["hosts"] = hosts
-		config["enableActions"] = enableActions
-		config["enableShell"] = enableShell
-		config["enableDownload"] = enableDownload
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
 	}

@@ -11,12 +11,12 @@ import (
 )
 
 type GenerateCmd struct {
-	Username string `arg:"positional"`
-	Password string `arg:"--password, -p" help:"sets the password for the user"`
-	Name     string `arg:"--name, -n" help:"sets the display name for the user"`
-	Email    string `arg:"--email, -e" help:"sets the email for the user"`
-	Filter   string `arg:"--user-filter" help:"sets the filter for the user. This can be a comma separated list of filters."`
-	Roles    string `arg:"--user-roles" help:"sets the roles for the user. This can be a comma separated list of roles."`
+	Username        string `arg:"positional"`
+	Password        string `arg:"--password, -p" help:"sets the password for the user"`
+	Name            string `arg:"--name, -n" help:"sets the display name for the user"`
+	Email           string `arg:"--email, -e" help:"sets the email for the user"`
+	Filter          string `arg:"--user-filter" help:"sets the filter for the user. This can be a comma separated list of filters."`
+	RolesConfigured string `arg:"--user-roles" help:"sets the roles for the user. This can be a comma separated list of roles."`
 }
 
 func (g *GenerateCmd) Run(args Args, embeddedCerts embed.FS) error {
@@ -28,12 +28,12 @@ func (g *GenerateCmd) Run(args Args, embeddedCerts embed.FS) error {
 	}
 
 	buffer := auth.GenerateUsers(auth.User{
-		Username: args.Generate.Username,
-		Password: args.Generate.Password,
-		Name:     args.Generate.Name,
-		Email:    args.Generate.Email,
-		Filter:   args.Generate.Filter,
-		Roles:    args.Generate.Roles,
+		Username:        args.Generate.Username,
+		Password:        args.Generate.Password,
+		Name:            args.Generate.Name,
+		Email:           args.Generate.Email,
+		Filter:          args.Generate.Filter,
+		RolesConfigured: args.Generate.RolesConfigured,
 	}, true)
 
 	if _, err := os.Stdout.Write(buffer.Bytes()); err != nil {

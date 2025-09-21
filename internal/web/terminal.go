@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/auth"
-	"github.com/amir20/dozzle/internal/role"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -34,9 +33,7 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
-		if user.UserRoles.Exists() && !user.UserRoles.HasRole(role.Shell) {
-			permit = false
-		}
+		permit = user.Roles.Has(auth.Shell)
 	}
 
 	if !permit {
@@ -76,9 +73,7 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
-		if user.UserRoles.Exists() && !user.UserRoles.HasRole(role.Shell) {
-			permit = false
-		}
+		permit = user.Roles.Has(auth.Shell)
 	}
 
 	if !permit {

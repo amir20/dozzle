@@ -15,7 +15,7 @@
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li v-if="enableDownload && !historical">
+      <li v-if="enableDownload">
         <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
       <li v-if="!historical">

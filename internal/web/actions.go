@@ -5,7 +5,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/role"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -21,9 +20,7 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
-		if user.UserRoles.Exists() && !user.UserRoles.HasRole(role.Actions) {
-			permit = false
-		}
+		permit = user.Roles.Has(auth.Actions)
 	}
 
 	if !permit {

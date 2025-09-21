@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/role"
 	"github.com/rs/zerolog/log"
 )
 
@@ -49,7 +48,7 @@ func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 			if err != nil {
 				log.Fatal().Str("filter", r.Header.Get(p.headerFilter)).Msg("Failed to parse container filter")
 			}
-			userRoles := role.ParseUserRole(r.Header.Get(p.headerRoles))
+			userRoles := ParseRole(r.Header.Get(p.headerRoles))
 			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter, userRoles)
 			ctx := context.WithValue(r.Context(), remoteUser, user)
 			next.ServeHTTP(w, r.WithContext(ctx))

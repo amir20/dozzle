@@ -20,7 +20,7 @@ func Test_createRoutes_proxy_missing_headers(t *testing.T) {
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
 		Authorization: Authorization{
 			Provider:   FORWARD_PROXY,
-			Authorizer: auth.NewForwardProxyAuth("Remote-User", "Remote-Email", "Remote-Name", "Remote-Filter", "Remote-Roles"),
+			Authorizer: auth.NewForwardProxyAuth("Remote-User", "Remote-Email", "Remote-Name", "Remote-Filter", "Remote-RolesConfigured"),
 		},
 	})
 	req, err := http.NewRequest("GET", "/", nil)
@@ -39,7 +39,7 @@ func Test_createRoutes_proxy_happy(t *testing.T) {
 	handler := createHandler(nil, afero.NewIOFS(fs), Config{Base: "/",
 		Authorization: Authorization{
 			Provider:   FORWARD_PROXY,
-			Authorizer: auth.NewForwardProxyAuth("Remote-User", "Remote-Email", "Remote-Name", "Remote-Filter", "Remote-Roles"),
+			Authorizer: auth.NewForwardProxyAuth("Remote-User", "Remote-Email", "Remote-Name", "Remote-Filter", "Remote-RolesConfigured"),
 		},
 	})
 	req, err := http.NewRequest("GET", "/", nil)
