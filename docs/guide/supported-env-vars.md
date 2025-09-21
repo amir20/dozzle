@@ -6,27 +6,29 @@ title: Environment Variables and Subcommands
 
 Configurations can be done with flags or environment variables. The table below outlines all supported options and their respective env vars.
 
-| Flag                   | Env Variable                | Default        |
-| ---------------------- | --------------------------- | -------------- |
-| `--addr`               | `DOZZLE_ADDR`               | `:8080`        |
-| `--base`               | `DOZZLE_BASE`               | `/`            |
-| `--hostname`           | `DOZZLE_HOSTNAME`           | `""`           |
-| `--level`              | `DOZZLE_LEVEL`              | `info`         |
-| `--auth-provider`      | `DOZZLE_AUTH_PROVIDER`      | `none`         |
-| `--auth-header-user`   | `DOZZLE_AUTH_HEADER_USER`   | `Remote-User`  |
-| `--auth-header-email`  | `DOZZLE_AUTH_HEADER_EMAIL`  | `Remote-Email` |
-| `--auth-header-name`   | `DOZZLE_AUTH_HEADER_NAME`   | `Remote-Name`  |
-| `--enable-actions`     | `DOZZLE_ENABLE_ACTIONS`     | `false`        |
-| `--enable-shell`       | `DOZZLE_ENABLE_SHELL`       | `false`        |
-| `--disable-avatars`    | `DOZZLE_DISABLE_AVATARS`    | `false`        |
-| `--filter`             | `DOZZLE_FILTER`             | `""`           |
-| `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`        |
-| `--mode`               | `DOZZLE_MODE`               | `server`       |
-| `--release-check-mode` | `DOZZLE_RELEASE_CHECK_MODE` | `automatic`    |
-| `--remote-host`        | `DOZZLE_REMOTE_HOST`        |                |
-| `--remote-agent`       | `DOZZLE_REMOTE_AGENT`       |                |
-| `--timeout`            | `DOZZLE_TIMEOUT`            | `10s`          |
-| `--namespace`          | `DOZZLE_NAMESPACE`          | `""`           |
+| Flag                   | Env Variable                | Default         |
+|------------------------|-----------------------------|-----------------|
+| `--addr`               | `DOZZLE_ADDR`               | `:8080`         |
+| `--base`               | `DOZZLE_BASE`               | `/`             |
+| `--hostname`           | `DOZZLE_HOSTNAME`           | `""`            |
+| `--level`              | `DOZZLE_LEVEL`              | `info`          |
+| `--auth-provider`      | `DOZZLE_AUTH_PROVIDER`      | `none`          |
+| `--auth-header-user`   | `DOZZLE_AUTH_HEADER_USER`   | `Remote-User`   |
+| `--auth-header-email`  | `DOZZLE_AUTH_HEADER_EMAIL`  | `Remote-Email`  |
+| `--auth-header-name`   | `DOZZLE_AUTH_HEADER_NAME`   | `Remote-Name`   |
+| `--auth-header-filter` | `DOZZLE_AUTH_HEADER_FILTER` | `Remote-Filter` |
+| `--auth-header-roles`  | `DOZZLE_AUTH_HEADER_ROLES`  | `Remote-Roles`  |
+| `--enable-actions`     | `DOZZLE_ENABLE_ACTIONS`     | `false`         |
+| `--enable-shell`       | `DOZZLE_ENABLE_SHELL`       | `false`         |
+| `--disable-avatars`    | `DOZZLE_DISABLE_AVATARS`    | `false`         |
+| `--filter`             | `DOZZLE_FILTER`             | `""`            |
+| `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`         |
+| `--mode`               | `DOZZLE_MODE`               | `server`        |
+| `--release-check-mode` | `DOZZLE_RELEASE_CHECK_MODE` | `automatic`     |
+| `--remote-host`        | `DOZZLE_REMOTE_HOST`        |                 |
+| `--remote-agent`       | `DOZZLE_REMOTE_AGENT`       |                 |
+| `--timeout`            | `DOZZLE_TIMEOUT`            | `10s`           |
+| `--namespace`          | `DOZZLE_NAMESPACE`          | `""`            |
 
 > [!TIP]
 > Some flags like `--remote-host` or `--remote-agent` can be used multiple times. For example, `--remote-agent 167.99.1.1:7007 --remote-agent 167.99.1.2:7007` or comma-separated `DOZZLE_REMOTE_AGENT=167.99.1.1:7007,167.99.1.2:7007`.
@@ -36,16 +38,18 @@ Configurations can be done with flags or environment variables. The table below 
 Dozzle supports generating `users.yml` file. This file is used to authenticate users. Here is an example:
 
 ```sh
-docker run -it --rm amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" > users.yml
+docker run -it --rm amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo --user-roles shell > users.yml
 ```
 
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run amir20/dozzle generate --help` displays all options.
 
-| Flag         | Description      | Default |
-| ------------ | ---------------- | ------- |
-| `--password` | User's password  |         |
-| `--email`    | User's email     |         |
-| `--name`     | User's full name |         |
+| Flag            | Description      | Default |
+|-----------------|------------------| ------- |
+| `--password`    | User's password  |         |
+| `--email`       | User's email     |         |
+| `--name`        | User's full name |         |
+| `--user-filter` | User's filters   |         |
+| `--user-roles`  | User's roles     |         |
 
 See [authentication](/guide/authentication) for more information.
 

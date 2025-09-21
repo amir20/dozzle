@@ -28,6 +28,7 @@ users:
     # Generate with docker run -it --rm amir20/dozzle generate --name Admin --email me@email.net --password secret admin
     password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
     filter:
+    roles:
 ```
 
 Dozzle uses `email` to generate avatars using [Gravatar](https://gravatar.com/). It is optional. The password is hashed using `bcrypt` which can be generated using `docker run amir20/dozzle generate`.
@@ -139,15 +140,43 @@ In this example, the `admin` user has no filter, so they can see all containers.
 > [!NOTE]
 > Filters can also be set [globally](/guide/filters) with the `--filter` flag. This flag is applied to all users. If a user has a filter set, it will override the global filter.
 
+### Setting specific roles for users
+
+Dozzle allows assigning roles to users. Roles define what actions a user can perform on containers. Roles are configured in the users.yml file.
+
+```yaml
+users:
+  admin:
+    email:
+    name: Admin
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    roles:
+
+  guest:
+    email:
+    name: Guest
+    password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
+    roles: shell
+```
+
+In this example, the `admin` user has no roles specified, so they have full access to all container actions. The `guest` user has the shell role, meaning they can only open a shell in the containers. Roles make it easy to control and restrict what users can do in Dozzle.
+
+Dozzle supports the following roles:
+
+- **shell** - allows attach and exec in the container.
+- **actions** - allows performing container actions (start, stop, restart).
+- **download** - allows downloading container logs.
+- **none** - denies all actions.
+
 ## Generating users.yml
 
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
 
 ```sh
-docker run -it --rm amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo > users.yml
+docker run -it --rm amir20/dozzle generate admin --password password --email test@email.net --name "John Doe" --user-filter name=foo --user-roles shell > users.yml
 ```
 
-In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run -it --rm amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters.
+In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run -it --rm amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters. The `--user-roles` flag is a comma-separated list of roles.
 
 ## Forward Proxy
 
@@ -179,6 +208,7 @@ In this mode, Dozzle expects the following headers:
 - `Remote-Email` to map to the user's email address. This email is also used to find the right [Gravatar](https://gravatar.com/) for the user.
 - `Remote-Name` to be a display name like `John Doe`
 - `Remote-Filter` to be a comma-separated list of filters allowed for user.
+- `Remote-Roles` to be a comma-separated list of roles allowed for user.
 
 ### Setting up Dozzle with Authelia
 

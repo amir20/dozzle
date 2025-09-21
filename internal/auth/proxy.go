@@ -20,6 +20,7 @@ type proxyAuthContext struct {
 	headerEmail  string
 	headerName   string
 	headerFilter string
+	headerRoles  string
 }
 
 func hashEmail(email string) string {
@@ -30,12 +31,13 @@ func hashEmail(email string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func NewForwardProxyAuth(userHeader, emailHeader, nameHeader, filterHeader string) *proxyAuthContext {
+func NewForwardProxyAuth(userHeader, emailHeader, nameHeader, filterHeader, rolesHeader string) *proxyAuthContext {
 	return &proxyAuthContext{
 		headerUser:   userHeader,
 		headerEmail:  emailHeader,
 		headerName:   nameHeader,
 		headerFilter: filterHeader,
+		headerRoles:  rolesHeader,
 	}
 }
 
@@ -46,7 +48,8 @@ func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 			if err != nil {
 				log.Fatal().Str("filter", r.Header.Get(p.headerFilter)).Msg("Failed to parse container filter")
 			}
-			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter)
+			userRoles := ParseRole(r.Header.Get(p.headerRoles))
+			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter, userRoles)
 			ctx := context.WithValue(r.Context(), remoteUser, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {

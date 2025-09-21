@@ -24,7 +24,9 @@ type User struct {
 	Name            string                    `json:"name" yaml:"name"`
 	Password        string                    `json:"-" yaml:"password"`
 	Filter          string                    `json:"-" yaml:"filter"`
+	RolesConfigured string                    `json:"-" yaml:"roles"`
 	ContainerLabels container.ContainerLabels `json:"-" yaml:"-"`
+	Roles           Role                      `json:"-" yaml:"-"`
 }
 
 func (u User) AvatarURL() string {
@@ -35,12 +37,13 @@ func (u User) AvatarURL() string {
 	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), url.QueryEscape(name))
 }
 
-func newUser(username, email, name string, labels container.ContainerLabels) User {
+func newUser(username, email, name string, labels container.ContainerLabels, roles Role) User {
 	return User{
 		Username:        username,
 		Email:           email,
 		Name:            name,
 		ContainerLabels: labels,
+		Roles:           roles,
 	}
 }
 
@@ -198,14 +201,18 @@ func UserFromContext(ctx context.Context) *User {
 			email := claims["email"].(string)
 			name := claims["name"].(string)
 			containerFilter := container.ContainerLabels{}
+			roles := AllRole
 			if filter, ok := claims["filter"].(string); ok {
 				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
 					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
 				}
 			}
+			if role, ok := claims["roles"].(string); ok {
+				roles = ParseRole(role)
+			}
 
-			user := newUser(username, email, name, containerFilter)
+			user := newUser(username, email, name, containerFilter, roles)
 			return &user
 		}
 		return nil

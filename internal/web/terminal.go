@@ -27,15 +27,22 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
 	userLabels := h.config.Labels
+	permit := true
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
+		permit = user.Roles.Has(auth.Shell)
+	}
+
+	if !permit {
+		log.Warn().Msg("user is not permitted to attach to container")
+		conn.WriteMessage(websocket.TextMessage, []byte("⛔ Access denied: attaching to this container is forbidden\r\n"))
+		return
 	}
 
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
-
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
 		return
@@ -60,11 +67,19 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 
 	id := chi.URLParam(r, "id")
 	userLabels := h.config.Labels
+	permit := true
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
+		permit = user.Roles.Has(auth.Shell)
+	}
+
+	if !permit {
+		log.Warn().Msg("user is not permitted to exec into container")
+		conn.WriteMessage(websocket.TextMessage, []byte("⛔ Access denied: attaching to this container is forbidden\r\n"))
+		return
 	}
 
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)

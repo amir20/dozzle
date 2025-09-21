@@ -130,11 +130,11 @@ func main() {
 }
 
 func fileExists(filename string) bool {
-    _, err := os.Stat(filename)
-    if os.IsNotExist(err) {
-        return false
-    }
-    return err == nil
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil
 }
 
 func createServer(args cli.Args, hostService web.HostService) *http.Server {
@@ -143,12 +143,12 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
 
 	switch args.ReleaseCheckMode {
-		case "automatic":
-			releaseCheckMode = web.Automatic
-		case "manual":
-			releaseCheckMode = web.Manual
-		default:
-			log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
+	case "automatic":
+		releaseCheckMode = web.Automatic
+	case "manual":
+		releaseCheckMode = web.Manual
+	default:
+		log.Fatal().Str("releaseCheckMode", args.ReleaseCheckMode).Msg("Invalid release check mode")
 	}
 
 	var provider web.AuthProvider = web.NONE
@@ -156,25 +156,25 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	if args.AuthProvider == "forward-proxy" {
 		log.Debug().Msg("Using forward proxy authentication")
 		provider = web.FORWARD_PROXY
-		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName, args.AuthHeaderFilter)
+		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName, args.AuthHeaderFilter, args.AuthHeaderRoles)
 	} else if args.AuthProvider == "simple" {
 		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
-		
-        userFilePath := "./data/users.yml"
-        if !fileExists(userFilePath) {
-            userFilePath = "./data/users.yaml"
-            if !fileExists(userFilePath) {
-                log.Fatal().Msg("No users.yaml or users.yml file found.")
-            }
-        }
 
-        log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
+		userFilePath := "./data/users.yml"
+		if !fileExists(userFilePath) {
+			userFilePath = "./data/users.yaml"
+			if !fileExists(userFilePath) {
+				log.Fatal().Msg("No users.yaml or users.yml file found.")
+			}
+		}
 
-        db, err := auth.ReadUsersFromFile(userFilePath)
-        if err != nil {
-            log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
-        }
+		log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
+
+		db, err := auth.ReadUsersFromFile(userFilePath)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
+		}
 
 		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
 		ttl := time.Duration(0)
