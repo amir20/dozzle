@@ -2,6 +2,8 @@ package auth
 
 import (
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Role int
@@ -32,6 +34,10 @@ func ParseRole(commaValues string) Role {
 			roles |= Download
 		case "none":
 			return None
+		case "all":
+			return All
+		default:
+			log.Warn().Str("role", role).Msg("invalid role")
 		}
 	}
 	return roles
