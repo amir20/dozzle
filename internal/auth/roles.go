@@ -7,17 +7,17 @@ import (
 type Role int
 
 const (
-	NONE  Role = 0
+	None  Role = 0
 	Shell Role = 1 << iota
 	Actions
 	Download
 )
 
-const AllRole = Shell | Actions | Download
+const All = Shell | Actions | Download
 
 func ParseRole(commaValues string) Role {
 	if commaValues == "" {
-		return AllRole
+		return All
 	}
 
 	var roles Role
@@ -31,7 +31,7 @@ func ParseRole(commaValues string) Role {
 		case "download":
 			roles |= Download
 		case "none":
-			return NONE
+			return None
 		}
 	}
 	return roles

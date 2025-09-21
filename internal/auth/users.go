@@ -201,7 +201,7 @@ func UserFromContext(ctx context.Context) *User {
 			email := claims["email"].(string)
 			name := claims["name"].(string)
 			containerFilter := container.ContainerLabels{}
-			roles := AllRole
+			roles := All
 			if filter, ok := claims["filter"].(string); ok {
 				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
