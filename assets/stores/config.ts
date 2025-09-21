@@ -12,6 +12,7 @@ export interface Config {
   authProvider: "simple" | "none" | "forward-proxy";
   enableActions: boolean;
   enableShell: boolean;
+  enableDownload: boolean;
   disableAvatars: boolean;
   releaseCheckMode: "automatic" | "manual";
   user?: {

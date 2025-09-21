@@ -15,7 +15,7 @@
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li>
+      <li v-if="enableDownload && !historical">
         <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
       <li v-if="!historical">
@@ -167,7 +167,7 @@ import LogAnalytics from "../LogViewer/LogAnalytics.vue";
 import Terminal from "@/components/Terminal.vue";
 
 const { showSearch } = useSearchFilter();
-const { enableActions, enableShell } = config;
+const { enableActions, enableShell, enableDownload } = config;
 const { streamConfig, hasComplexLogs, levels } = useLoggingContext();
 const showDrawer = useDrawer();
 

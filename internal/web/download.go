@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/role"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -23,11 +24,21 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userLabels := h.config.Labels
+	permit := true
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
+		if user.UserRoles.Exists() && !user.UserRoles.HasRole(role.Download) {
+			permit = false
+		}
+	}
+
+	if !permit {
+		log.Warn().Msg("user is not permitted to download logs from container")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
 	}
 
 	now := time.Now()

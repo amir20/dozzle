@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/role"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
@@ -24,7 +25,9 @@ type User struct {
 	Name            string                    `json:"name" yaml:"name"`
 	Password        string                    `json:"-" yaml:"password"`
 	Filter          string                    `json:"-" yaml:"filter"`
+	Roles           string                    `json:"-" yaml:"roles"`
 	ContainerLabels container.ContainerLabels `json:"-" yaml:"-"`
+	UserRoles       role.UserRoles            `json:"-" yaml:"-"`
 }
 
 func (u User) AvatarURL() string {
@@ -35,12 +38,13 @@ func (u User) AvatarURL() string {
 	return fmt.Sprintf("https://gravatar.com/avatar/%s?d=https%%3A%%2F%%2Fui-avatars.com%%2Fapi%%2F/%s/128", hashEmail(u.Email), url.QueryEscape(name))
 }
 
-func newUser(username, email, name string, labels container.ContainerLabels) User {
+func newUser(username, email, name string, labels container.ContainerLabels, roles role.UserRoles) User {
 	return User{
 		Username:        username,
 		Email:           email,
 		Name:            name,
 		ContainerLabels: labels,
+		UserRoles:       roles,
 	}
 }
 
@@ -198,14 +202,18 @@ func UserFromContext(ctx context.Context) *User {
 			email := claims["email"].(string)
 			name := claims["name"].(string)
 			containerFilter := container.ContainerLabels{}
+			userRoles := role.UserRoles{}
 			if filter, ok := claims["filter"].(string); ok {
 				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
 					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
 				}
 			}
+			if r, ok := claims["roles"].(string); ok {
+				userRoles = role.ParseUserRole(r)
+			}
 
-			user := newUser(username, email, name, containerFilter)
+			user := newUser(username, email, name, containerFilter, userRoles)
 			return &user
 		}
 		return nil
