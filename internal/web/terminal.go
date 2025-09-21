@@ -41,7 +41,7 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 
 	if !permit {
 		log.Warn().Msg("user is not permitted to attach to container")
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		conn.WriteMessage(websocket.TextMessage, []byte("⛔ Access denied: attaching to this container is forbidden\r\n"))
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 
 	if !permit {
 		log.Warn().Msg("user is not permitted to exec into container")
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		conn.WriteMessage(websocket.TextMessage, []byte("⛔ Access denied: attaching to this container is forbidden\r\n"))
 		return
 	}
 
