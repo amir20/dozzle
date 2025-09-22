@@ -5,13 +5,13 @@
         <th class="text-right font-light capitalize">STATE</th>
         <td class="font-semibold uppercase">{{ container.state }}</td>
       </tr>
-      <tr v-if="container.startedAt.getFullYear() > 0">
+      <tr v-if="container.startedAt.getFullYear() > 1">
         <th class="text-right font-light capitalize">STARTED</th>
         <td class="font-semibold">
           <RelativeTime :date="container.startedAt" />
         </td>
       </tr>
-      <tr v-if="container.state != 'running' && container.finishedAt.getFullYear() > 0">
+      <tr v-if="container.state != 'running' && container.finishedAt.getFullYear() > 1">
         <th class="text-right font-light capitalize">FINISHED</th>
         <td class="font-semibold">
           <RelativeTime :date="container.finishedAt" />
@@ -35,4 +35,5 @@ import { Container } from "@/models/Container";
 const { container } = defineProps<{
   container: Container;
 }>();
+console.log(container)
 </script>
