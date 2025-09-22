@@ -416,6 +416,10 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		container.FinishedAt = stoppedAt.UTC()
 	}
 
+	if container.StartedAt.IsZero() {
+		container.StartedAt = container.Created
+	}
+
 	if c.State.Health != nil {
 		container.Health = strings.ToLower(c.State.Health.Status)
 	}
