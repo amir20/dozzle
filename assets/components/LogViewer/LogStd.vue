@@ -1,5 +1,5 @@
 <template>
-  <Tag size="small" :std="std" class="items-start!">
+  <Tag :std="std" class="items-start!">
     {{ std }}
   </Tag>
 </template>

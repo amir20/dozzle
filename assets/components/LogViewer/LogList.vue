@@ -82,7 +82,7 @@ ul {
   }
 
   &.large {
-    @apply text-lg;
+    @apply text-[1em];
   }
 
   &.compact {
