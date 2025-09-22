@@ -15,7 +15,7 @@
           <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
-      <li>
+      <li v-if="enableDownload">
         <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
       </li>
       <li>
@@ -88,7 +88,7 @@
 
 <script lang="ts" setup>
 const { showSearch } = useSearchFilter();
-
+const { enableDownload } = config;
 const clear = defineEmit();
 
 const { streamConfig, showHostname, showContainerName, containers } = useLoggingContext();

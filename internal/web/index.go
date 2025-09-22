@@ -12,7 +12,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/profile"
-
 	"github.com/rs/zerolog/log"
 )
 
@@ -45,12 +44,20 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 	user := auth.UserFromContext(req.Context())
 
 	if h.config.Authorization.Provider == NONE || user != nil {
+		if user != nil {
+			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
+			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
+			config["enableDownload"] = user.Roles.Has(auth.Download)
+		} else {
+			config["enableShell"] = h.config.EnableShell
+			config["enableActions"] = h.config.EnableActions
+			config["enableDownload"] = true
+		}
+
 		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
 		config["hostname"] = h.config.Hostname
 		config["hosts"] = hosts
-		config["enableActions"] = h.config.EnableActions
-		config["enableShell"] = h.config.EnableShell
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
 	}

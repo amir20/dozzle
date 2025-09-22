@@ -14,11 +14,19 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	userLabels := h.config.Labels
+	permit := true
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
+		permit = user.Roles.Has(auth.Actions)
+	}
+
+	if !permit {
+		log.Warn().Msg("user is not permitted to perform actions on container")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
 	}
 
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)

@@ -23,11 +23,19 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userLabels := h.config.Labels
+	permit := true
 	if h.config.Authorization.Provider != NONE {
 		user := auth.UserFromContext(r.Context())
 		if user.ContainerLabels.Exists() {
 			userLabels = user.ContainerLabels
 		}
+		permit = user.Roles.Has(auth.Download)
+	}
+
+	if !permit {
+		log.Warn().Msg("user is not permitted to download logs from container")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
 	}
 
 	now := time.Now()
