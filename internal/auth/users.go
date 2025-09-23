@@ -112,6 +112,8 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 		if user.Name == "" {
 			user.Name = username
 		}
+
+		user.Roles = ParseRole(user.RolesConfigured)
 	}
 
 	return users, nil
@@ -201,15 +203,18 @@ func UserFromContext(ctx context.Context) *User {
 			email := claims["email"].(string)
 			name := claims["name"].(string)
 			containerFilter := container.ContainerLabels{}
-			roles := All
+
 			if filter, ok := claims["filter"].(string); ok {
 				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
 					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
 				}
 			}
-			if role, ok := claims["roles"].(string); ok {
-				roles = ParseRole(role)
+			roles := None
+			if r, ok := claims["roles"].(float64); ok {
+				roles = Role(r)
+			} else {
+				log.Warn().Interface("roles", claims["roles"]).Msg("Failed to parse roles from JWT claims")
 			}
 
 			user := newUser(username, email, name, containerFilter, roles)
