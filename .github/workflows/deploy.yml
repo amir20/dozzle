@@ -144,6 +144,8 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
       - name: Install Node
         uses: actions/setup-node@v5
       - name: Release to Github
