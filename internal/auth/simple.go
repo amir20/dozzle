@@ -21,6 +21,7 @@ func NewSimpleAuth(userDatabase UserDatabase, ttl time.Duration) *simpleAuthCont
 	h := sha256.New()
 	for _, user := range userDatabase.Users {
 		h.Write([]byte(user.Password))
+		h.Write([]byte(user.RolesConfigured))
 	}
 
 	tokenAuth := jwtauth.New("HS256", h.Sum(nil), nil)
@@ -38,7 +39,7 @@ func (a *simpleAuthContext) CreateToken(username, password string) (string, erro
 		return "", ErrInvalidCredentials
 	}
 
-	claims := map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name, "filter": user.Filter, "roles": user.RolesConfigured}
+	claims := map[string]interface{}{"username": user.Username, "email": user.Email, "name": user.Name, "filter": user.Filter, "roles": user.Roles}
 	jwtauth.SetIssuedNow(claims)
 
 	if a.ttl > 0 {
