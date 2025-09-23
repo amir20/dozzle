@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -111,6 +112,10 @@ func decodeUsersFromFile(path string) (UserDatabase, error) {
 
 		if user.Name == "" {
 			user.Name = username
+		}
+
+		if strings.TrimSpace(user.RolesConfigured) == "" {
+			user.RolesConfigured = "all"
 		}
 
 		user.Roles = ParseRole(user.RolesConfigured)

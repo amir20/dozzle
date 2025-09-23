@@ -17,12 +17,8 @@ const (
 
 const All = Shell | Actions | Download
 
-// ParseRole parses a comma-separated string of roles and returns the corresponding Role. Default is All for empty input.
+// ParseRole parses a comma-separated string of roles and returns the corresponding Role.
 func ParseRole(commaValues string) Role {
-	if strings.TrimSpace(commaValues) == "" {
-		return All
-	}
-
 	var roles Role
 	for r := range strings.SplitSeq(commaValues, ",") {
 		role := strings.TrimSpace(strings.ToLower(r))
