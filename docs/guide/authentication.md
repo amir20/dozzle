@@ -163,10 +163,11 @@ In this example, the `admin` user has no roles specified, so they have full acce
 
 Dozzle supports the following roles:
 
-- **shell** - allows attach and exec in the container.
-- **actions** - allows performing container actions (start, stop, restart).
-- **download** - allows downloading container logs.
-- **none** - denies all actions.
+- **shell** - allows attach and exec in the container
+- **actions** - allows performing container actions (start, stop, restart)
+- **download** - allows downloading container logs
+- **none** - denies all actions
+- **all** - allows all actions (default)
 
 ## Generating users.yml
 
