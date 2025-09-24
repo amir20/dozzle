@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"embed"
 	"io/fs"
 
@@ -108,9 +109,14 @@ func main() {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
+	certs, err := cli.ReadWebCertificates()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Could not read certificates")
+	}
 	srv := createServer(args, hostService)
 	go func() {
-		if srv.TLSConfig != nil {
+		if len(certs.Certificate) > 0 {
+			srv.TLSConfig = &tls.Config{Certificates: []tls.Certificate{certs}}
 			log.Info().Msgf("Accepting secure connections on %s", args.Addr)
 			if err := srv.ListenAndServeTLS("", ""); err != http.ErrServerClosed {
 				log.Fatal().Err(err).Msg("failed to listen")

@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"crypto/tls"
 	"io/fs"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/support/cli"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/go-chi/chi/v5"
@@ -87,14 +85,6 @@ func CreateServer(hostService HostService, content fs.FS, config Config) *http.S
 		hostService: hostService,
 	}
 
-	certs, err := cli.ReadWebCertificates()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Could not read certificates")
-	}
-
-	if len(certs.Certificate) > 0 {
-		return &http.Server{Addr: config.Addr, Handler: createRouter(handler), TLSConfig: &tls.Config{Certificates: []tls.Certificate{certs}}}
-	}
 	return &http.Server{Addr: config.Addr, Handler: createRouter(handler)}
 }
 
