@@ -1,6 +1,7 @@
 package healthcheck
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HttpRequest(addr string, base string) error {
+func HttpRequest(addr string, base string, useHttps bool) error {
 	if strings.HasPrefix(addr, ":") {
 		addr = "localhost" + addr
 	}
@@ -20,11 +21,26 @@ func HttpRequest(addr string, base string) error {
 	url := fmt.Sprintf("%s%s/healthcheck", addr, base)
 
 	if !strings.HasPrefix(url, "http") {
-		url = "http://" + url
+		if useHttps {
+			url = "https://" + url
+		} else {
+			url = "http://" + url
+		}
 	}
 
 	log.Info().Str("url", url).Msg("performing healthcheck")
-	resp, err := http.Get(url)
+
+	var client *http.Client
+	if useHttps || strings.HasPrefix(url, "https") {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true, // Set to true if the server's hostname does not match the certificate
+		}
+		client = &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
+	} else {
+		client = http.DefaultClient
+	}
+
+	resp, err := client.Get(url)
 
 	if err != nil {
 		return err

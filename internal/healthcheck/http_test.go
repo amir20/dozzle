@@ -41,7 +41,7 @@ func TestHttpRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := HttpRequest(tt.addr, tt.base)
+			err := HttpRequest(tt.addr, tt.base, false)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HttpRequest() error = %v, wantErr %v", err, tt.wantErr)

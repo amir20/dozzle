@@ -11,7 +11,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type HealthcheckCmd struct{}
+type HealthcheckCmd struct {
+	Https bool `arg:"--https" help:"use HTTPS for healthcheck"`
+}
 
 func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if matches, err := filepath.Glob("/tmp/agent-*.addr"); err == nil && len(matches) == 1 {
@@ -30,6 +32,6 @@ func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 		return healthcheck.RPCRequest(ctx, agentAddress, certs)
 	} else {
 		log.Info().Str("address", args.Addr).Str("base", args.Base).Msg("Making HTTP request to server")
-		return healthcheck.HttpRequest(args.Addr, args.Base)
+		return healthcheck.HttpRequest(args.Addr, args.Base, h.Https)
 	}
 }

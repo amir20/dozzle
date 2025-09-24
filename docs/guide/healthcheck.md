@@ -22,6 +22,13 @@ services:
       start_period: 30s
 ```
 
+If you are using TLS/HTTPS for the web interface, you need to add the --https flag to the healthcheck command:
+
+```yaml
+healthcheck:
+  test: ["CMD", "/dozzle", "healthcheck", "--https"]
+```
+
 `dozzle healthcheck` skips agents as they are not required for healthcheck. Agents can be configured to have their own [healthcheck](/guide/agent#setting-up-healthcheck).
 
 > [!WARNING]
