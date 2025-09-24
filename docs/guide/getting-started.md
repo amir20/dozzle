@@ -153,3 +153,37 @@ kubectl apply -f k8s-dozzle.yml
 ```
 
 See [Kubernetes mode](/guide/k8s) for more information.
+
+## TLS for Web
+
+By default, Dozzle runs over HTTP. For secure external access, you can configure HTTPS using TLS certificates.
+
+To provide certificates, you need to mount or use secrets to provide the certificates. Here is an example:
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: cert
+        target: /dozzle_web_cert.pem
+      - source: key
+        target: /dozzle_web_key.pem
+    ports:
+      - 8443:8433
+    environment:
+      DOZZLE_ADDR: ":8443"
+secrets:
+  cert:
+    file: ./cert.pem
+  key:
+    file: ./key.pem
+```
+
+> [!TIP]
+> Docker secrets are preferred for providing certificates. They can be created using `docker secret create` command or as the example above using `docker-compose.yml`. The same certificates should be provided to the Dozzle instance connecting to the agent.
+
+This will mount the `cert.pem` and `key.pem` files to the container. Dozzle will use these certificates for HTTPS connections.
+

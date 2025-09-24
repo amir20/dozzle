@@ -110,9 +110,16 @@ func main() {
 
 	srv := createServer(args, hostService)
 	go func() {
-		log.Info().Msgf("Accepting connections on %s", args.Addr)
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			log.Fatal().Err(err).Msg("failed to listen")
+		if srv.TLSConfig != nil {
+			log.Info().Msgf("Accepting secure connections on %s", args.Addr)
+			if err := srv.ListenAndServeTLS("", ""); err != http.ErrServerClosed {
+				log.Fatal().Err(err).Msg("failed to listen")
+			}
+		} else {
+			log.Info().Msgf("Accepting connections on %s", args.Addr)
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				log.Fatal().Err(err).Msg("failed to listen")
+			}
 		}
 	}()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

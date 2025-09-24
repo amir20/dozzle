@@ -30,3 +30,15 @@ func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
 
 	return tls.X509KeyPair(cert, key)
 }
+
+func ReadWebCertificates() (tls.Certificate, error) {
+	if pair, err := tls.LoadX509KeyPair("dozzle_web_cert.pem", "dozzle_web_key.pem"); err == nil {
+		log.Info().Msg("Loaded custom dozzle web certificate and key")
+		return pair, nil
+	} else {
+		if os.IsNotExist(err) {
+			return tls.Certificate{}, nil
+		}
+		return tls.Certificate{}, err
+	}
+}
