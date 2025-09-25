@@ -49,7 +49,7 @@ func (p *proxyAuthContext) AuthMiddleware(next http.Handler) http.Handler {
 				log.Fatal().Str("filter", r.Header.Get(p.headerFilter)).Msg("Failed to parse container filter")
 			}
 			userRoles := All
-			if r.Header.Get(p.headerRoles) != "" {
+			if strings.TrimSpace(r.Header.Get(p.headerRoles)) != "" {
 				userRoles = ParseRole(r.Header.Get(p.headerRoles))
 			}
 			user := newUser(r.Header.Get(p.headerUser), r.Header.Get(p.headerEmail), r.Header.Get(p.headerName), containerFilter, userRoles)
