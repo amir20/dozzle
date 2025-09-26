@@ -75,10 +75,10 @@ func UpdateFromReader(user auth.User, reader io.Reader) error {
 		return err
 	}
 
-	return Save(user, existingProfile)
+	return save(user, existingProfile)
 }
 
-func Save(user auth.User, profile Profile) error {
+func save(user auth.User, profile Profile) error {
 	path := filepath.Join(dataPath, user.Username)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
