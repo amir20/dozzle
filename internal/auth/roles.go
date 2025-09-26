@@ -54,7 +54,7 @@ func ParseRole(input string) Role {
 		case "all":
 			return All
 		default:
-			log.Warn().Str("role", role).Msg("invalid role")
+			log.Debug().Str("role", role).Msg("invalid role")
 		}
 	}
 	return roles
