@@ -208,6 +208,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			Provider:   provider,
 			Authorizer: authorizer,
 			TTL:        authTTL,
+			LogoutUrl:  args.AuthLogoutUrl,
 		},
 		EnableActions:    args.EnableActions,
 		EnableShell:      args.EnableShell,

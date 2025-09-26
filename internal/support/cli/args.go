@@ -22,6 +22,7 @@ type Args struct {
 	AuthHeaderName   string              `arg:"--auth-header-name,env:DOZZLE_AUTH_HEADER_NAME" default:"Remote-Name" help:"sets the HTTP Header to use for name in Forward Proxy configuration."`
 	AuthHeaderFilter string              `arg:"--auth-header-filter,env:DOZZLE_AUTH_HEADER_FILTER" default:"Remote-Filter" help:"sets the HTTP Header to use for filtering in Forward Proxy configuration."`
 	AuthHeaderRoles  string              `arg:"--auth-header-roles,env:DOZZLE_AUTH_HEADER_ROLES" default:"Remote-Roles" help:"sets the HTTP Header to use for roles in Forward Proxy configuration."`
+	AuthLogoutUrl    string              `arg:"--auth-logout-url,env:DOZZLE_AUTH_LOGOUT_URL" help:"sets the Logout URL used with Forward Proxy."`
 	EnableActions    bool                `arg:"--enable-actions,env:DOZZLE_ENABLE_ACTIONS" default:"false" help:"enables essential actions on containers from the web interface."`
 	EnableShell      bool                `arg:"--enable-shell,env:DOZZLE_ENABLE_SHELL" default:"false" help:"enables shell access to containers from the web interface."`
 	DisableAvatars   bool                `arg:"--disable-avatars,env:DOZZLE_DISABLE_AVATARS" default:"false" help:"disables avatars for authenticated users."`

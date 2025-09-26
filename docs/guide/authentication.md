@@ -211,6 +211,12 @@ In this mode, Dozzle expects the following headers:
 - `Remote-Filter` to be a comma-separated list of filters allowed for user.
 - `Remote-Roles` to be a comma-separated list of roles allowed for user.
 
+Additionally, you can configure a logout URL with:
+
+```yaml
+DOZZLE_AUTH_LOGOUT_URL: http://oauth2.example.ru/oauth2/sign_out
+```
+
 ### Setting up Dozzle with Authelia
 
 [Authelia](https://www.authelia.com/) is an open-source authentication and authorization server and portal fulfilling the identity and access management. While setting up Authelia is out of scope for this section, the configuration can be shared as an example for setting up Dozzle with Authelia.

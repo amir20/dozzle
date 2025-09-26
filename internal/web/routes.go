@@ -52,6 +52,7 @@ type Authorization struct {
 	Provider   AuthProvider
 	Authorizer Authorizer
 	TTL        time.Duration
+	LogoutUrl  string
 }
 
 type Authorizer interface {

@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"sort"
+	"strings"
 
 	"encoding/json"
 
@@ -52,6 +53,10 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 			config["enableShell"] = h.config.EnableShell
 			config["enableActions"] = h.config.EnableActions
 			config["enableDownload"] = true
+		}
+
+		if h.config.Authorization.Provider == FORWARD_PROXY && strings.TrimSpace(h.config.Authorization.LogoutUrl) != "" {
+			config["logoutUrl"] = strings.TrimSpace(h.config.Authorization.LogoutUrl)
 		}
 
 		config["authProvider"] = h.config.Authorization.Provider
