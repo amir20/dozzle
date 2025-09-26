@@ -33,7 +33,7 @@
             {{ config.user.email }}
           </div>
         </div>
-        <ul v-if="config.authProvider === 'simple'" class="menu mt-4 p-0">
+        <ul v-if="config.authProvider === 'simple' || config.logoutUrl" class="menu mt-4 p-0">
           <li>
             <button @click.prevent="logout()" class="text-primary p-2">
               <material-symbols:logout />
@@ -46,11 +46,17 @@
   </div>
 </template>
 <script lang="ts" setup>
-async function logout() {
-  await fetch(withBase("/api/token"), {
-    method: "DELETE",
-  });
+const { logoutUrl } = config;
 
-  location.reload();
+async function logout() {
+  if (logoutUrl) {
+    location.href = logoutUrl;
+  } else {
+    await fetch(withBase("/api/token"), {
+      method: "DELETE",
+    });
+
+    location.reload();
+  }
 }
 </script>

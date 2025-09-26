@@ -10,6 +10,7 @@ export interface Config {
   hostname: string;
   hosts: Host[];
   authProvider: "simple" | "none" | "forward-proxy";
+  logoutUrl?: string;
   enableActions: boolean;
   enableShell: boolean;
   enableDownload: boolean;
