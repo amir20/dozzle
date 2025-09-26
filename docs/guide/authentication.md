@@ -215,6 +215,9 @@ In this mode, Dozzle expects the following headers:
 
 [Authelia](https://www.authelia.com/) is an open-source authentication and authorization server and portal fulfilling the identity and access management. While setting up Authelia is out of scope for this section, the configuration can be shared as an example for setting up Dozzle with Authelia.
 
+<details>
+<summary>➡️ Click to expand Authelia example</summary>
+
 ::: code-group
 
 ```yaml [docker-compose.yml]
@@ -349,6 +352,8 @@ notifier:
 
 Valid SSL keys are required because Authelia only supports SSL.
 
+</details>
+
 ### Setting up Dozzle with Cloudflare Zero Trust
 
 Cloudflare Zero Trust is a service for authenticated access to self-hosted software. This section defines how Dozzle can be set up to use Cloudflare Zero Trust for authentication.
@@ -379,53 +384,53 @@ You must first setup a container to pass OpenID Connect authentication through y
 
 Below is an example using [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy).
 
-1. Create a new OIDC client in Pocket ID for Dozzle: 
-    
-    - **Name:** `Dozzle`
-    - **Callback URLs:** `https://dozzle.example.com/oauth2/callback`
-    - **PKCE:** `Enabled`
+<details>
+<summary>➡️ Click to expand oauth2-proxy example</summary>
 
-    Copy the **Client ID** and **Client Secret** values for use later.
+1. Create a new OIDC client in Pocket ID for Dozzle:
+   - **Name:** `Dozzle`
+   - **Callback URLs:** `https://dozzle.example.com/oauth2/callback`
+   - **PKCE:** `Enabled`
 
+   Copy the **Client ID** and **Client Secret** values for use later.
 
 2. Add the following to your existing Dozzle compose:
-   
-    ```yml
-    environment:
-      DOZZLE_AUTH_PROVIDER: forward-proxy
-      DOZZLE_AUTH_HEADER_USER: X-Forwarded-User
-      DOZZLE_AUTH_HEADER_EMAIL: X-Forwarded-Email
-      DOZZLE_AUTH_HEADER_NAME: X-Forwarded-Preferred-Username
-    ```
+
+   ```yml
+   environment:
+     DOZZLE_AUTH_PROVIDER: forward-proxy
+     DOZZLE_AUTH_HEADER_USER: X-Forwarded-User
+     DOZZLE_AUTH_HEADER_EMAIL: X-Forwarded-Email
+     DOZZLE_AUTH_HEADER_NAME: X-Forwarded-Preferred-Username
+   ```
 
    Comment out the Dozzle ports, as we will redirect these through the new authentication container.
 
    This method should not require any changes to your reverse proxy configuration.
 
-    ```yml
-    # ports:
-    #   - 8080:8080
-    ```
+   ```yml
+   # ports:
+   #   - 8080:8080
+   ```
 
+3. Add a new oauth2-proxy container service to your existing Dozzle compose:
 
-3. Add a new oauth2-proxy container service to your existing Dozzle compose: 
-   
    ```yml
    services:
-   # ...
-    oauth2-proxy:
-      image: quay.io/oauth2-proxy/oauth2-proxy:latest
-      restart: unless-stopped
-      container_name: dozzle-oidc
-      command: --config /oauth2-proxy.cfg
-      volumes:
-        - "./oauth2-proxy.cfg:/oauth2-proxy.cfg"
-      ports:
-        - 8080:4180
+     # ...
+     oauth2-proxy:
+       image: quay.io/oauth2-proxy/oauth2-proxy:latest
+       restart: unless-stopped
+       container_name: dozzle-oidc
+       command: --config /oauth2-proxy.cfg
+       volumes:
+         - "./oauth2-proxy.cfg:/oauth2-proxy.cfg"
+       ports:
+         - 8080:4180
    ```
 
 4. Create the oauth2-proxy config file.
-   
+
    In the directory beside your compose file, create `oauth2-proxy.cfg` :
 
    ```toml
@@ -447,9 +452,11 @@ Below is an example using [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-
    ```
 
    Fill in the variables per the comments.
-   
-5. Finally - restart your Docker compose stack. 
-   
+
+5. Finally - restart your Docker compose stack.
+
    Your reverse proxy should now authenticate you to Dozzle via oauth2-proxy.
 
    Check logs for troubleshooting.
+
+</details>
