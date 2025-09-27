@@ -43,15 +43,15 @@ func ParseRole(input string) Role {
 	for _, r := range parts {
 		role := strings.TrimSpace(strings.ToLower(r))
 		switch role {
-		case "shell":
+		case "shell", "dozzle_shell":
 			roles |= Shell
-		case "actions":
+		case "actions", "dozzle_actions":
 			roles |= Actions
-		case "download":
+		case "download", "dozzle_download":
 			roles |= Download
-		case "none":
+		case "none", "dozzle_none":
 			return None
-		case "all":
+		case "all", "dozzle_all":
 			return All
 		default:
 			log.Debug().Str("role", role).Msg("invalid role")
