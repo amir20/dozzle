@@ -54,7 +54,7 @@
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-transition": "^3.0.1",
-    "daisyui": "5.1.23",
+    "daisyui": "5.1.25",
     "entities": "^7.0.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
@@ -99,15 +99,15 @@
     "concurrently": "^9.2.1",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^27.0.0",
-    "lint-staged": "^16.2.1",
+    "lint-staged": "^16.2.3",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
-    "vue-component-type-helpers": "3.0.8",
-    "vue-tsc": "3.0.8"
+    "vue-component-type-helpers": "3.1.0",
+    "vue-tsc": "3.1.0"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
