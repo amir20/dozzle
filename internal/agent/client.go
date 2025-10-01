@@ -19,6 +19,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -45,7 +46,10 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	// Create the gRPC transport credentials
 	creds := credentials.NewTLS(tlsConfig)
 
-	opts = append(opts, grpc.WithTransportCredentials(creds))
+	opts = append(opts,
+		grpc.WithTransportCredentials(creds),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(10*1024*1024), grpc.UseCompressor(gzip.Name)),
+	)
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to %s: %w", endpoint, err)
