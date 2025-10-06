@@ -1,5 +1,5 @@
 <template>
-  <div class="hover:text-secondary relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+  <div class="hover:text-primary relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
     <div class="border-primary overflow-hidden rounded-xs border px-px pt-1 pb-px max-md:hidden">
       <StatSparkline :data="data" @selected-point="onSelectedPoint" />
     </div>
