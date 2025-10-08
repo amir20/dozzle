@@ -87,8 +87,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(d3-selection@3.0.0)
       daisyui:
-        specifier: 5.1.27
-        version: 5.1.27
+        specifier: 5.1.29
+        version: 5.1.29
       entities:
         specifier: ^7.0.0
         version: 7.0.0
@@ -151,8 +151,8 @@ importers:
         version: 4.5.1(vue@3.5.22(typescript@5.9.3))
     devDependencies:
       '@apache-arrow/esnext-esm':
-        specifier: ^21.0.0
-        version: 21.0.0
+        specifier: ^21.1.0
+        version: 21.1.0
       '@iconify-json/ion':
         specifier: ^1.2.6
         version: 1.2.6
@@ -324,8 +324,8 @@ packages:
   '@antfu/utils@9.2.0':
     resolution: {integrity: sha512-Oq1d9BGZakE/FyoEtcNeSwM7MpDO2vUBi11RWBZXf75zPsbUVWmUs03EqkRFrcgbXyKTas0BdZWC1wcuSoqSAw==}
 
-  '@apache-arrow/esnext-esm@21.0.0':
-    resolution: {integrity: sha512-C7MAk3CSLOSP1UlZZqozvVvKnzhMO8dSV3oVIC6/KLVjm5CIsQVsuw4fRRWcc8FolyhAXzD12hqG+giPAu+RAw==}
+  '@apache-arrow/esnext-esm@21.1.0':
+    resolution: {integrity: sha512-ZMlUJKmoout0U6PvHFMqYhXD5V7UAOdxUyf3cZQQwAJisz9HL2t449J6POjo+Na1M4HhHXtuHWuOakYi7n4SlQ==}
     hasBin: true
 
   '@asamuzakjp/css-color@4.0.4':
@@ -2105,8 +2105,8 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
 
-  daisyui@5.1.27:
-    resolution: {integrity: sha512-oCC2RwjrGRPTeEpaXoNmYydzVfSRdyJCthFsi/Q5PErAvaoD8kDarxlW+wiPAx2WmM8W8lXvyAHJUqjObCMWOQ==}
+  daisyui@5.1.29:
+    resolution: {integrity: sha512-4eZhqCXO7CJVNGytTZEIQYJz3fah2gPleuqp4qUD4fD8WoEQIYzKwlOewi8nPaz6NX7vvSLZ+YSjt5Z5zqacGw==}
 
   data-urls@6.0.0:
     resolution: {integrity: sha512-BnBS08aLUM+DKamupXs3w2tJJoqU+AkaE/+6vQxi/G/DPmIZFJJp9Dkb1kM03AZx8ADehDUZgsNxju3mPXZYIA==}
@@ -3982,7 +3982,7 @@ snapshots:
 
   '@antfu/utils@9.2.0': {}
 
-  '@apache-arrow/esnext-esm@21.0.0':
+  '@apache-arrow/esnext-esm@21.1.0':
     dependencies:
       '@swc/helpers': 0.5.17
       '@types/command-line-args': 5.2.3
@@ -5778,7 +5778,7 @@ snapshots:
       d3-selection: 3.0.0
       d3-timer: 3.0.1
 
-  daisyui@5.1.27: {}
+  daisyui@5.1.29: {}
 
   data-urls@6.0.0:
     dependencies:
