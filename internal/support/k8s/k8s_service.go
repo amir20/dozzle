@@ -51,9 +51,17 @@ func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Con
 		return nil, err
 	}
 
+	events := make(chan *container.LogEvent)
 	k8sReader := k8s.NewLogReader(reader)
-	g := container.NewEventGenerator(ctx, k8sReader, c)
-	return g.Events, nil
+	g := container.NewEventGenerator(ctx, k8sReader, c, events)
+
+	// Start a goroutine to close the channel when EventGenerator completes
+	go func() {
+		defer close(events)
+		g.Wait()
+	}()
+
+	return events, nil
 }
 
 func (k *K8sClientService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
@@ -67,16 +75,25 @@ func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container
 	}
 
 	k8sReader := k8s.NewLogReader(reader)
-	g := container.NewEventGenerator(ctx, k8sReader, c)
-	for event := range g.Events {
-		events <- event
-	}
+	g := container.NewEventGenerator(ctx, k8sReader, c, events)
 
+	// Create a channel to signal when EventGenerator completes
+	done := make(chan struct{})
+	go func() {
+		g.Wait()
+		close(done)
+	}()
+
+	// Wait for either an error, completion, or context cancellation
 	select {
 	case e := <-g.Errors:
 		return e
-	default:
-		return nil
+	case <-done:
+		// EventGenerator completed successfully
+		close(events)
+		return io.EOF
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 }
 

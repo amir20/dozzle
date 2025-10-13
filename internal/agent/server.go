@@ -60,10 +60,11 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		return err
 	}
 
+	events := make(chan *container.LogEvent)
 	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(out.Context(), dockerReader, c)
+	g := container.NewEventGenerator(out.Context(), dockerReader, c, events)
 
-	for event := range g.Events {
+	for event := range events {
 		out.Send(&pb.StreamLogsResponse{
 			Event: logEventToPb(event),
 		})
@@ -88,12 +89,13 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 		return err
 	}
 
+	events := make(chan *container.LogEvent)
 	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(out.Context(), dockerReader, c)
+	g := container.NewEventGenerator(out.Context(), dockerReader, c, events)
 
 	for {
 		select {
-		case event := <-g.Events:
+		case event := <-events:
 			out.Send(&pb.StreamLogsResponse{
 				Event: logEventToPb(event),
 			})

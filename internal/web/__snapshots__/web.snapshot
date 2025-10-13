@@ -164,11 +164,11 @@ stdout or stderr is required
 /* snapshot: Test_handler_streamLogs_happy */
 :ping 
 
-data: {"m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"info","s":"stdout","c":"123456"}
-
-
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+
+
+data: {"m":"INFO Testing logs...\n","ts":0,"id":3835490584,"l":"info","s":"stdout","c":"123456"}
 
 
 
@@ -182,9 +182,9 @@ data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"
 /* snapshot: Test_handler_streamLogs_happy_with_id */
 :ping 
 
-data: {"m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout","c":"123456"}
-id: 1589396137772
-
-
 event: container-event
 data: {"name":"container-stopped","host":"localhost","actorId":"123456","time":"<removed>"}
+
+
+data: {"m":"INFO Testing logs...","rm":"INFO Testing logs...","ts":1589396137772,"id":2908612274,"l":"info","s":"stdout","c":"123456"}
+id: 1589396137772

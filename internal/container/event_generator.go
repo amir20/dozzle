@@ -17,7 +17,7 @@ import (
 )
 
 type EventGenerator struct {
-	Events      chan *LogEvent
+	events      chan<- *LogEvent
 	Errors      chan error
 	reader      LogReader
 	next        *LogEvent
@@ -33,12 +33,12 @@ type LogReader interface {
 	Read() (string, StdType, error)
 }
 
-func NewEventGenerator(ctx context.Context, reader LogReader, container Container) *EventGenerator {
+func NewEventGenerator(ctx context.Context, reader LogReader, container Container, events chan<- *LogEvent) *EventGenerator {
 	generator := &EventGenerator{
 		reader:      reader,
 		buffer:      make(chan *LogEvent, 100),
 		Errors:      make(chan error, 1),
-		Events:      make(chan *LogEvent),
+		events:      events,
 		containerID: container.ID,
 		ctx:         ctx,
 	}
@@ -69,13 +69,11 @@ loop:
 		checkPosition(current, next)
 
 		select {
-		case g.Events <- current:
+		case g.events <- current:
 		case <-g.ctx.Done():
 			break loop
 		}
 	}
-
-	close(g.Events)
 
 	g.wg.Done()
 }
@@ -112,6 +110,10 @@ func (g *EventGenerator) peek() *LogEvent {
 	case <-time.After(50 * time.Millisecond):
 		return nil
 	}
+}
+
+func (g *EventGenerator) Wait() {
+	g.wg.Wait()
 }
 
 func createEvent(message string, streamType StdType) *LogEvent {

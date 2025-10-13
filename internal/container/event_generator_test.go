@@ -16,8 +16,9 @@ import (
 func TestEventGenerator_Events_tty(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
-	event := <-g.Events
+	events := make(chan *LogEvent, 1)
+	NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true}, events)
+	event := <-events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
@@ -26,8 +27,9 @@ func TestEventGenerator_Events_tty(t *testing.T) {
 func TestEventGenerator_Events_non_tty(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
-	event := <-g.Events
+	events := make(chan *LogEvent, 1)
+	NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false}, events)
+	event := <-events
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
@@ -36,9 +38,12 @@ func TestEventGenerator_Events_non_tty(t *testing.T) {
 func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
-	<-g.Events
-	_, ok := <-g.Events
+	events := make(chan *LogEvent, 1)
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false}, events)
+	<-events
+	g.wg.Wait()   // Wait for goroutines to finish
+	close(events) // Close the channel manually since generator no longer owns it
+	_, ok := <-events
 
 	assert.False(t, ok, "Expected channel to be closed")
 }
@@ -46,8 +51,9 @@ func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
 func TestEventGenerator_Events_routines_done(t *testing.T) {
 	input := "example input"
 
-	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
-	<-g.Events
+	events := make(chan *LogEvent, 1)
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false}, events)
+	<-events
 	assert.False(t, waitTimeout(&g.wg, 1*time.Second), "Expected routines to be done")
 }
 

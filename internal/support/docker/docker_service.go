@@ -58,9 +58,17 @@ func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.
 		return nil, err
 	}
 
+	events := make(chan *container.LogEvent)
 	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(ctx, dockerReader, c)
-	return g.Events, nil
+	g := container.NewEventGenerator(ctx, dockerReader, c, events)
+
+	// Start a goroutine to close the channel when EventGenerator completes
+	go func() {
+		defer close(events)
+		g.Wait()
+	}()
+
+	return events, nil
 }
 
 func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
@@ -70,16 +78,25 @@ func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Contai
 	}
 
 	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(ctx, dockerReader, c)
-	for event := range g.Events {
-		events <- event
-	}
+	g := container.NewEventGenerator(ctx, dockerReader, c, events)
 
+	// Create a channel to signal when EventGenerator completes
+	done := make(chan struct{})
+	go func() {
+		g.Wait()
+		close(done)
+	}()
+
+	// Wait for either an error, completion, or context cancellation
 	select {
 	case e := <-g.Errors:
 		return e
-	default:
-		return nil
+	case <-done:
+		// EventGenerator completed successfully
+		close(events)
+		return io.EOF
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 }
 
