@@ -92,7 +92,7 @@ func rpcErrToErr(err error) error {
 	}
 }
 
-func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std container.StdType) (<-chan *container.LogEvent, error) {
+func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since time.Time, until time.Time, std container.StdType) (<-chan container.LogEvent, error) {
 	stream, err := c.client.LogsBetweenDates(ctx, &pb.LogsBetweenDatesRequest{
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
@@ -104,7 +104,7 @@ func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since
 		return nil, err
 	}
 
-	events := make(chan *container.LogEvent)
+	events := make(chan container.LogEvent)
 
 	go func() {
 		sendLogs(stream, events)
@@ -114,7 +114,7 @@ func (c *Client) LogsBetweenDates(ctx context.Context, containerID string, since
 	return events, nil
 }
 
-func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, std container.StdType, events chan<- *container.LogEvent) error {
+func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, since time.Time, std container.StdType, events chan<- container.LogEvent) error {
 	stream, err := c.client.StreamLogs(ctx, &pb.StreamLogsRequest{
 		ContainerId: containerID,
 		Since:       timestamppb.New(since),
@@ -128,7 +128,7 @@ func (c *Client) StreamContainerLogs(ctx context.Context, containerID string, si
 	return sendLogs(stream, events)
 }
 
-func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.LogEvent) error {
+func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- container.LogEvent) error {
 	for {
 		resp, err := stream.Recv()
 		if err != nil {
@@ -154,7 +154,7 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			continue
 		}
 
-		events <- &container.LogEvent{
+		events <- container.LogEvent{
 			Id:          resp.Event.Id,
 			ContainerID: resp.Event.ContainerId,
 			Message:     message,

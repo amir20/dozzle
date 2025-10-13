@@ -65,7 +65,7 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 
 	for event := range g.Events {
 		out.Send(&pb.StreamLogsResponse{
-			Event: logEventToPb(event),
+			Event: logEventToPb(&event),
 		})
 	}
 
@@ -95,7 +95,7 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 		select {
 		case event := <-g.Events:
 			out.Send(&pb.StreamLogsResponse{
-				Event: logEventToPb(event),
+				Event: logEventToPb(&event),
 			})
 		case e := <-g.Errors:
 			return e

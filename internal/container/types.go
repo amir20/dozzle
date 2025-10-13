@@ -176,14 +176,14 @@ type LogEvent struct {
 	ContainerID string      `json:"c,omitempty"`
 }
 
-func (l *LogEvent) HasLevel() bool {
+func (l LogEvent) HasLevel() bool {
 	return l.Level != "unknown"
 }
 
-func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {
+func (l LogEvent) IsCloseToTime(other LogEvent) bool {
 	return math.Abs(float64(l.Timestamp-other.Timestamp)) < 10
 }
 
-func (l *LogEvent) MessageId() int64 {
+func (l LogEvent) MessageId() int64 {
 	return l.Timestamp
 }

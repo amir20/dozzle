@@ -32,11 +32,11 @@ func (a *agentService) RawLogs(ctx context.Context, container container.Containe
 	return a.client.StreamRawBytes(ctx, container.ID, from, to, stdTypes)
 }
 
-func (a *agentService) LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (a *agentService) LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan container.LogEvent, error) {
 	return a.client.LogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
-func (a *agentService) StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (a *agentService) StreamLogs(ctx context.Context, container container.Container, from time.Time, stdTypes container.StdType, events chan<- container.LogEvent) error {
 	return a.client.StreamContainerLogs(ctx, container.ID, from, stdTypes, events)
 }
 

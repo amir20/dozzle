@@ -41,7 +41,7 @@ func init() {
 	SupportedLogLevels["unknown"] = struct{}{}
 }
 
-func guessLogLevel(logEvent *LogEvent) string {
+func guessLogLevel(logEvent LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
 		value = stripANSI(value)

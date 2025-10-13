@@ -72,7 +72,7 @@ func TestGuessLogLevel(t *testing.T) {
 	for _, test := range tests {
 		name, _ := json.Marshal(test.input)
 		t.Run(string(name), func(t *testing.T) {
-			actual := guessLogLevel(&LogEvent{Message: test.input})
+			actual := guessLogLevel(LogEvent{Message: test.input})
 			if actual != test.expected {
 				t.Errorf("Expected %s, got %s", test.expected, actual)
 			}

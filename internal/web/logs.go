@@ -82,7 +82,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	}
 
 	minimum := 0
-	buffer := utils.NewRingBuffer[*container.LogEvent](500)
+	buffer := utils.NewRingBuffer[container.LogEvent](500)
 	if r.URL.Query().Has("min") {
 		minimum, err = strconv.Atoi(r.URL.Query().Get("min"))
 		if err != nil {
@@ -94,7 +94,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
 			return
 		}
-		buffer = utils.NewRingBuffer[*container.LogEvent](minimum)
+		buffer = utils.NewRingBuffer[container.LogEvent](minimum)
 	}
 
 	maxStart := math.MaxInt
@@ -177,7 +177,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					break
 				}
 
-				support_web.EscapeHTMLValues(event)
+				support_web.EscapeHTMLValues(&event)
 				buffer.Push(event)
 			}
 		}
@@ -294,9 +294,9 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 
 	absoluteTime := time.Time{}
 	var regex *regexp.Regexp
-	liveLogs := make(chan *container.LogEvent)
+	liveLogs := make(chan container.LogEvent)
 	events := make(chan *container.ContainerEvent, 1)
-	backfill := make(chan []*container.LogEvent)
+	backfill := make(chan []container.LogEvent)
 
 	levels := make(map[string]struct{})
 	for _, level := range r.URL.Query()["levels"] {
@@ -318,7 +318,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			delta := -10 * time.Second
 			to := absoluteTime
 			for minimum > 0 {
-				events := make([]*container.LogEvent, 0)
+				events := make([]container.LogEvent, 0)
 				stillRunning := false
 				for _, container := range existingContainers {
 					containerService, err := h.hostService.FindContainer(container.Host, container.ID, userLabels)
@@ -418,7 +418,7 @@ loop:
 				continue
 			}
 
-			support_web.EscapeHTMLValues(logEvent)
+			support_web.EscapeHTMLValues(&logEvent)
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
@@ -433,8 +433,8 @@ loop:
 			}
 
 		case backfillEvents := <-backfill:
-			for _, event := range backfillEvents {
-				support_web.EscapeHTMLValues(event)
+			for i := range backfillEvents {
+				support_web.EscapeHTMLValues(&backfillEvents[i])
 			}
 			if err := sseWriter.Event("logs-backfill", backfillEvents); err != nil {
 				log.Error().Err(err).Msg("error encoding container event")

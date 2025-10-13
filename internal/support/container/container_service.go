@@ -24,11 +24,11 @@ func (c *ContainerService) RawLogs(ctx context.Context, from time.Time, to time.
 	return c.clientService.RawLogs(ctx, c.Container, from, to, stdTypes)
 }
 
-func (c *ContainerService) LogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (c *ContainerService) LogsBetweenDates(ctx context.Context, from time.Time, to time.Time, stdTypes container.StdType) (<-chan container.LogEvent, error) {
 	return c.clientService.LogsBetweenDates(ctx, c.Container, from, to, stdTypes)
 }
 
-func (c *ContainerService) StreamLogs(ctx context.Context, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (c *ContainerService) StreamLogs(ctx context.Context, from time.Time, stdTypes container.StdType, events chan<- container.LogEvent) error {
 	return c.clientService.StreamLogs(ctx, c.Container, from, stdTypes, events)
 }
 

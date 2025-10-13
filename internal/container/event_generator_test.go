@@ -96,14 +96,14 @@ func Test_createEvent(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *LogEvent
+		want LogEvent
 	}{
 		{
 			name: "empty message",
 			args: args{
 				message: "",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: "",
 			},
 		}, {
@@ -111,7 +111,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z {\"xyz\": \"value\", \"abc\": \"value2\"}",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: data,
 			},
 		},
@@ -120,7 +120,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z {\"key\"}",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: "{\"key\"}",
 			},
 		},
@@ -129,7 +129,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z 123",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: "123",
 			},
 		},
@@ -138,7 +138,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z sample text with=equal sign",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: "sample text with=equal sign",
 			},
 		},
@@ -147,7 +147,7 @@ func Test_createEvent(t *testing.T) {
 			args: args{
 				message: "2020-05-13T18:55:37.772853839Z null",
 			},
-			want: &LogEvent{
+			want: LogEvent{
 				Message: "",
 			},
 		},

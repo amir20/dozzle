@@ -16,7 +16,7 @@ func ParseRegex(search string) (*regexp.Regexp, error) {
 	return CreateRegex(search, search == strings.ToLower(search))
 }
 
-func Search(re *regexp.Regexp, logEvent *container.LogEvent) bool {
+func Search(re *regexp.Regexp, logEvent container.LogEvent) bool {
 	matcher := NewPatternMatcher(re, MarkerStart, MarkerEnd)
-	return matcher.MarkInLogEvent(logEvent)
+	return matcher.MarkInLogEvent(&logEvent)
 }

@@ -45,7 +45,7 @@ func (k *K8sClientService) ContainerAction(ctx context.Context, container contai
 	return k.client.ContainerActions(ctx, action, container.ID)
 }
 
-func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (k *K8sClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan container.LogEvent, error) {
 	reader, err := k.client.ContainerLogsBetweenDates(ctx, c.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (k *K8sClientService) RawLogs(ctx context.Context, container container.Cont
 	return k.client.ContainerLogsBetweenDates(ctx, container.ID, from, to, stdTypes)
 }
 
-func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (k *K8sClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- container.LogEvent) error {
 	reader, err := k.client.ContainerLogs(ctx, c.ID, from, stdTypes)
 	if err != nil {
 		return err

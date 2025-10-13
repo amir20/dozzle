@@ -17,11 +17,11 @@ import (
 )
 
 type EventGenerator struct {
-	Events      chan *LogEvent
+	Events      chan LogEvent
 	Errors      chan error
 	reader      LogReader
 	next        *LogEvent
-	buffer      chan *LogEvent
+	buffer      chan LogEvent
 	wg          sync.WaitGroup
 	containerID string
 	ctx         context.Context
@@ -36,9 +36,9 @@ type LogReader interface {
 func NewEventGenerator(ctx context.Context, reader LogReader, container Container) *EventGenerator {
 	generator := &EventGenerator{
 		reader:      reader,
-		buffer:      make(chan *LogEvent, 100),
+		buffer:      make(chan LogEvent, 100),
 		Errors:      make(chan error, 1),
-		Events:      make(chan *LogEvent),
+		Events:      make(chan LogEvent),
 		containerID: container.ID,
 		ctx:         ctx,
 	}
@@ -49,24 +49,29 @@ func NewEventGenerator(ctx context.Context, reader LogReader, container Containe
 }
 
 func (g *EventGenerator) processBuffer() {
-	var current, next *LogEvent
+	var current, next LogEvent
+	var hasNext bool
 
 loop:
 	for {
 		if g.next != nil {
-			current = g.next
+			current = *g.next
 			g.next = nil
-			next = g.peek()
+			next, hasNext = g.peek()
 		} else {
 			event, ok := <-g.buffer
 			if !ok {
 				break loop
 			}
 			current = event
-			next = g.peek()
+			next, hasNext = g.peek()
 		}
 
-		checkPosition(current, next)
+		if hasNext {
+			checkPosition(&current, &next)
+		} else {
+			checkPosition(&current, nil)
+		}
 
 		select {
 		case g.Events <- current:
@@ -101,23 +106,23 @@ func (g *EventGenerator) consumeReader() {
 	g.wg.Done()
 }
 
-func (g *EventGenerator) peek() *LogEvent {
+func (g *EventGenerator) peek() (LogEvent, bool) {
 	if g.next != nil {
-		return g.next
+		return *g.next, true
 	}
 	select {
 	case event := <-g.buffer:
-		g.next = event
-		return g.next
+		g.next = &event
+		return event, true
 	case <-time.After(50 * time.Millisecond):
-		return nil
+		return LogEvent{}, false
 	}
 }
 
-func createEvent(message string, streamType StdType) *LogEvent {
+func createEvent(message string, streamType StdType) LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
-	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String()}
+	logEvent := LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String()}
 	if index := strings.IndexAny(message, " "); index != -1 {
 		logId := message[:index]
 		if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
@@ -157,20 +162,20 @@ func createEvent(message string, streamType StdType) *LogEvent {
 }
 
 func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
-	currentLevel := guessLogLevel(currentEvent)
+	currentLevel := guessLogLevel(*currentEvent)
 	if nextEvent != nil {
-		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "unknown" && !nextEvent.HasLevel() {
+		if currentEvent.IsCloseToTime(*nextEvent) && currentLevel != "unknown" && !nextEvent.HasLevel() {
 			currentEvent.Position = Beginning
 			nextEvent.Position = Middle
 		}
 
 		// If next item is not close to current item or has level, set current item position to end
-		if currentEvent.Position == Middle && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(nextEvent)) {
+		if currentEvent.Position == Middle && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(*nextEvent)) {
 			currentEvent.Position = End
 		}
 
 		// If next item is close to current item and has no level, set next item position to middle
-		if currentEvent.Position == Middle && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(nextEvent) {
+		if currentEvent.Position == Middle && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(*nextEvent) {
 			nextEvent.Position = Middle
 		}
 		// Set next item level to current item level

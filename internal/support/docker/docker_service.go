@@ -52,7 +52,7 @@ func (d *DockerClientService) RawLogs(ctx context.Context, container container.C
 
 }
 
-func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan container.LogEvent, error) {
 	reader, err := d.client.ContainerLogsBetweenDates(ctx, c.ID, from, to, stdTypes)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (d *DockerClientService) LogsBetweenDates(ctx context.Context, c container.
 	return g.Events, nil
 }
 
-func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+func (d *DockerClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- container.LogEvent) error {
 	reader, err := d.client.ContainerLogs(ctx, c.ID, from, stdTypes)
 	if err != nil {
 		return err
