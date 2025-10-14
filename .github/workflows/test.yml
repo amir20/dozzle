@@ -58,7 +58,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.2"
+          go-version: "1.25.3"
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v5
@@ -81,7 +81,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.2"
+          go-version: "1.25.3"
           check-latest: true
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
