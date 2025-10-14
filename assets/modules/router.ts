@@ -5,7 +5,7 @@ import { setupLayouts } from "virtual:generated-layouts";
 
 export const router = createRouter({
   history: createWebHistory(withBase("/")),
-  routes: setupLayouts(routes),
+  routes: setupLayouts([...routes]),
 });
 
 export const install = (app: App) => {
