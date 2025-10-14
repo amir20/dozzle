@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Comment Style
+
+**Always use ultra-brief mode for all PR reviews and responses.**
+
+Format:
+
+- Critical issues only (bugs, security, blockers)
+- Brief bullet points, no lengthy explanations
+- Skip verbose sections (no "Strengths", "Summary", etc.)
+- Include file:line references when relevant
+- Maximum ~10-15 lines per response
+
 ## Project Overview
 
 Dozzle is a lightweight, web-based Docker log viewer with real-time monitoring capabilities. It's a hybrid application with:
