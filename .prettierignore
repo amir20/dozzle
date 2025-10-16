@@ -1,5 +1,6 @@
 auto-imports.d.ts
 components.d.ts
+typed-router.d.ts
 docs/.vitepress/cache
 docs/.vitepress/dist
 dist
