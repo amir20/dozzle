@@ -15,8 +15,8 @@ func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
 		key  string
 	}{
 		{"dozzle_cert.pem", "dozzle_key.pem"},
-		{"/dozzle-cert.pem", "/dozzle-key.pem"},
-		{"/certs/dozzle-cert.pem", "/certs/dozzle-key.pem"},
+		{"/dozzle_cert.pem", "/dozzle_key.pem"},
+		{"/certs/dozzle_cert.pem", "/certs/dozzle_key.pem"},
 	}
 
 	for _, paths := range certPaths {
