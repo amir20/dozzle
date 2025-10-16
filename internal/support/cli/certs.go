@@ -24,7 +24,7 @@ func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
 			log.Info().Str("cert", paths.cert).Str("key", paths.key).Msg("Loaded custom dozzle certificate and key")
 			return pair, nil
 		} else if !os.IsNotExist(err) {
-			log.Fatal().Err(err).Str("cert", paths.cert).Str("key", paths.key).Msg("Failed to load custom dozzle certificate and key. Stopping...")
+			log.Debug().Err(err).Str("cert", paths.cert).Str("key", paths.key).Msg("Failed to load custom dozzle certificate and key, trying next path...")
 		}
 	}
 
