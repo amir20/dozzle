@@ -9,12 +9,22 @@ import (
 )
 
 func ReadCertificates(certs embed.FS) (tls.Certificate, error) {
-	if pair, err := tls.LoadX509KeyPair("dozzle_cert.pem", "dozzle_key.pem"); err == nil {
-		log.Info().Msg("Loaded custom dozzle certificate and key")
-		return pair, nil
-	} else {
-		if !os.IsNotExist(err) {
-			log.Fatal().Err(err).Msg("Failed to load custom dozzle certificate and key. Stopping...")
+	// Try multiple certificate paths in order of preference
+	certPaths := []struct {
+		cert string
+		key  string
+	}{
+		{"dozzle_cert.pem", "dozzle_key.pem"},
+		{"/dozzle-cert.pem", "/dozzle-key.pem"},
+		{"/certs/dozzle-cert.pem", "/certs/dozzle-key.pem"},
+	}
+
+	for _, paths := range certPaths {
+		if pair, err := tls.LoadX509KeyPair(paths.cert, paths.key); err == nil {
+			log.Info().Str("cert", paths.cert).Str("key", paths.key).Msg("Loaded custom dozzle certificate and key")
+			return pair, nil
+		} else if !os.IsNotExist(err) {
+			log.Fatal().Err(err).Str("cert", paths.cert).Str("key", paths.key).Msg("Failed to load custom dozzle certificate and key. Stopping...")
 		}
 	}
 
