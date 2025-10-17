@@ -17,12 +17,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: latest
+          node-version: v24
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: latest
+          node-version: v24
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -36,15 +36,11 @@ jobs:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
         name: Install pnpm
-      - uses: actions/setup-node@v6
-        name: Install Node
-        with:
-          node-version: latest
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: latest
+          node-version: v24
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -100,12 +96,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: latest
+          node-version: v24
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: latest
+          node-version: v24
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
