@@ -14,12 +14,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: v24
+          node-version: 24.x
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: v24
+          node-version: 24.x
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -56,12 +56,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: v24
+          node-version: 24.x
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: v24
+          node-version: 24.x
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
