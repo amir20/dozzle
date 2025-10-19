@@ -27,7 +27,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to create docker client: %w", err)
 	}
-	certs, err := ReadCertificates(embeddedCerts)
+	certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 	if err != nil {
 		return fmt.Errorf("failed to read certificates: %w", err)
 	}

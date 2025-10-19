@@ -68,7 +68,7 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not create docker client")
 		}
-		certs, err := cli.ReadCertificates(certs)
+		certs, err := cli.ReadCertificates(certs, args.CertPath, args.KeyPath)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Could not read certificates")
 		}

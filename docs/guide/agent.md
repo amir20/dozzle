@@ -35,7 +35,6 @@ services:
 > [!NOTE] Docker Socket Proxy users
 > If you are using a remote agent you **CANNOT** add a socket proxy on top of the agent. Dozzle agents **REPLACE** using a proxy, see [Remote Hosts](/guide/remote-hosts.md) for more info and how to use a socket proxy instead of an agent.
 
-
 The agent will start and listen on port `7007`. You can connect to the agent using the Dozzle UI by providing the agent's IP address and port. The agent will only show the containers that are available on the host where the agent is running.
 
 > [!TIP]
@@ -153,7 +152,9 @@ This will restrict the agent to displaying only containers with the label `color
 
 By default, Dozzle uses self-signed certificates for communication between agents. This is a private certificate which is only valid to other Dozzle instances. This is secure and recommended for most use cases. However, if Dozzle is exposed externally and an attacker knows exactly which port the agent is running on, then they can set up their own Dozzle instance and connect to the agent. To prevent this, you can provide your own certificates.
 
-To provide custom certificates, you need to mount or use secrets to provide the certificates. Here is an example:
+To provide custom certificates, you need to mount or use secrets to provide the certificates. By default, Dozzle looks for certificates at `/dozzle_cert.pem` and `/dozzle_key.pem`, but you can customize these paths using the `--cert` and `--key` flags or the `DOZZLE_CERT` and `DOZZLE_KEY` environment variables.
+
+Here is an example using the default paths:
 
 ```yml
 services:
@@ -176,10 +177,49 @@ secrets:
     file: ./key.pem
 ```
 
+Or using custom paths with environment variables:
+
+```yml
+services:
+  agent:
+    image: amir20/dozzle:latest
+    command: agent
+    environment:
+      - DOZZLE_CERT=/certs/my-cert.pem
+      - DOZZLE_KEY=/certs/my-key.pem
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./certs:/certs
+    ports:
+      - 7007:7007
+```
+
+Or using command-line flags:
+
+::: code-group
+
+```sh
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v ./certs:/certs -p 7007:7007 amir20/dozzle:latest agent --cert /certs/my-cert.pem --key /certs/my-key.pem
+```
+
+```yaml [docker-compose.yml]
+services:
+  agent:
+    image: amir20/dozzle:latest
+    command: agent --cert /certs/my-cert.pem --key /certs/my-key.pem
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./certs:/certs
+    ports:
+      - 7007:7007
+```
+
+:::
+
 > [!TIP]
 > Docker secrets are preferred for providing certificates. They can be created using `docker secret create` command or as the example above using `docker-compose.yml`. The same certificates should be provided to the Dozzle instance connecting to the agent.
 
-This will mount the `cert.pem` and `key.pem` files to the agent. The agent will use these certificates for communication. The same certificates should be provided to the Dozzle instance connecting to the agent.
+This will mount the certificate and key files to the agent. The agent will use these certificates for communication. The same certificates should be provided to the Dozzle instance connecting to the agent.
 
 To generate certificates, you can use the following command:
 

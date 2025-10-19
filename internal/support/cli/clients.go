@@ -51,7 +51,7 @@ func CreateMultiHostService(embeddedCerts embed.FS, args Args) *docker_support.M
 		go StartEvent(args, "server", localClient, "")
 	}
 
-	certs, err := ReadCertificates(embeddedCerts)
+	certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not read certificates")
 	}

@@ -14,7 +14,7 @@ type AgentTestCmd struct {
 }
 
 func (at *AgentTestCmd) Run(args Args, embeddedCerts embed.FS) error {
-	certs, err := ReadCertificates(embeddedCerts)
+	certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 	if err != nil {
 		return fmt.Errorf("error reading certificates: %w", err)
 	}

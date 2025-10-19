@@ -36,6 +36,8 @@ type Args struct {
 	TimeoutString    string              `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"10s" help:"sets the timeout for docker client"`
 	Timeout          time.Duration       `arg:"-"`
 	Namespace        []string            `arg:"env:DOZZLE_NAMESPACE" help:"sets the namespace to use in k8s"`
+	CertPath         string              `arg:"--cert,env:DOZZLE_CERT" default:"dozzle_cert.pem" help:"path to custom TLS certificate"`
+	KeyPath          string              `arg:"--key,env:DOZZLE_KEY" default:"dozzle_key.pem" help:"path to custom TLS key"`
 	Healthcheck      *HealthcheckCmd     `arg:"subcommand:healthcheck" help:"checks if the server is running"`
 	Generate         *GenerateCmd        `arg:"subcommand:generate" help:"generates a configuration file for simple auth"`
 	Agent            *AgentCmd           `arg:"subcommand:agent" help:"starts the agent"`
