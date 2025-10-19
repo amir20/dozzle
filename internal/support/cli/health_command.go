@@ -20,7 +20,7 @@ func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 			return fmt.Errorf("failed to read file: %w", err)
 		}
 		agentAddress := string(data)
-		certs, err := ReadCertificates(embeddedCerts)
+		certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 		if err != nil {
 			return fmt.Errorf("failed to read certificates: %w", err)
 		}
