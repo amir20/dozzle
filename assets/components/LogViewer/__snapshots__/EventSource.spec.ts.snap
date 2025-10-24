@@ -28,7 +28,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
   </li>
 </ul>"
@@ -62,7 +62,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">foo bar</div>
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">foo bar</div>
     </div>
   </li>
 </ul>"
@@ -96,7 +96,7 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
         </div>
       </div>
       <div data-v-e625cddd="" class="mt-1.5 size-2.5 flex-none rounded-lg flex select-none"></div>
-      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-nowrap">This is a message.</div>
+      <div class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre">This is a message.</div>
     </div>
   </li>
 </ul>"
