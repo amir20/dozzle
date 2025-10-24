@@ -29,17 +29,15 @@ describe("<ContainerEventSource />", () => {
     global.EventSource = EventSource;
     // @ts-ignore
     window.scrollTo = vi.fn();
-    global.IntersectionObserver = vi.fn().mockImplementation(
-      class {
-        observe = vi.fn();
-        disconnect = vi.fn();
-        unobserve = vi.fn();
-        takeRecords = vi.fn();
-        root = null;
-        rootMargin = "";
-        thresholds = [];
-      },
-    );
+    global.IntersectionObserver = class IntersectionObserver {
+      observe = vi.fn();
+      disconnect = vi.fn();
+      unobserve = vi.fn();
+      takeRecords = vi.fn();
+      root = null;
+      rootMargin = "";
+      thresholds = [];
+    } as any;
     vi.useFakeTimers();
     vi.setSystemTime(1560336942459);
   });
