@@ -132,26 +132,25 @@ function hideMenu(e: MouseEvent) {
   }
 }
 
-const dropdownRef = ref<HTMLElement | null>(null);
-const isDropdownTop = ref(false);
+const DROPDOWN_BOTTOM_THRESHOLD = 100;
+
+const dropdownRef = useTemplateRef<HTMLDivElement>("dropdownRef");
+const shouldShowAbove = ref(false);
 
 function checkDropdownPosition() {
   if (!dropdownRef.value) return;
+
   const rect = dropdownRef.value.getBoundingClientRect();
-  const kValue = 100; // this is can be manipulated to better fit when the dropdown position is changed.
-  const viewportHeight = window.innerHeight;
-  isDropdownTop.value = rect.bottom + kValue > viewportHeight;
+  shouldShowAbove.value = rect.bottom + DROPDOWN_BOTTOM_THRESHOLD > window.innerHeight;
 }
 
-const dropdownClass = computed(() => {
-  return [
-    "dropdown",
-    isDropdownTop.value ? "dropdown-top" : "dropdown-right",
-    "dropdown-hover",
-    "absolute",
-    "-left-2",
-    "z-10",
-    "font-sans",
-  ].join(" ");
-});
+const dropdownClass = computed(() => [
+  "dropdown",
+  "dropdown-hover",
+  "absolute",
+  "-left-2",
+  "z-10",
+  "font-sans",
+  shouldShowAbove.value ? "dropdown-top" : "dropdown-right",
+]);
 </script>
