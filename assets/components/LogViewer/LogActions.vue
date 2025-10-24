@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown dropdown-right dropdown-hover absolute -left-2 z-10 font-sans" v-show="container">
+  <div :class="dropdownClass" v-show="container" ref="dropdownRef" @mouseenter="checkDropdownPosition">
     <router-link
       v-if="isSearching"
       @click="resetSearch()"
@@ -65,6 +65,7 @@ import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
+import { ref, computed } from "vue";
 
 const { logEntry, container } = defineProps<{
   logEntry: LogEntry<string | JSONObject>;
@@ -130,4 +131,27 @@ function hideMenu(e: MouseEvent) {
     }, 50);
   }
 }
+
+const dropdownRef = ref<HTMLElement | null>(null);
+const isDropdownTop = ref(false);
+
+function checkDropdownPosition() {
+  if (!dropdownRef.value) return;
+  const rect = dropdownRef.value.getBoundingClientRect();
+  const kValue = 100; // this is can be manipulated to better fit when the dropdown position is changed.
+  const viewportHeight = window.innerHeight;
+  isDropdownTop.value = rect.bottom + kValue > viewportHeight;
+}
+
+const dropdownClass = computed(() => {
+  return [
+    "dropdown",
+    isDropdownTop.value ? "dropdown-top" : "dropdown-right",
+    "dropdown-hover",
+    "absolute",
+    "-left-2",
+    "z-10",
+    "font-sans",
+  ].join(" ");
+});
 </script>
