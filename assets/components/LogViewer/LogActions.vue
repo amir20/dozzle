@@ -1,5 +1,11 @@
 <template>
-  <div :class="dropdownClass" v-show="container" ref="dropdownRef" @mouseenter="checkDropdownPosition">
+  <div
+    class="dropdown dropdown-hover absolute -left-2 z-10 font-sans"
+    :class="shouldShowBelow ? 'dropdown-right' : 'dropdown-right dropdown-end'"
+    v-show="container"
+    ref="dropdownRef"
+    @mouseenter="checkDropdownPosition"
+  >
     <router-link
       v-if="isSearching"
       @click="resetSearch()"
@@ -65,7 +71,6 @@ import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
-import { ref, computed } from "vue";
 
 const { logEntry, container } = defineProps<{
   logEntry: LogEntry<string | JSONObject>;
@@ -132,25 +137,13 @@ function hideMenu(e: MouseEvent) {
   }
 }
 
-const DROPDOWN_BOTTOM_THRESHOLD = 100;
-
 const dropdownRef = useTemplateRef<HTMLDivElement>("dropdownRef");
-const shouldShowAbove = ref(false);
+const shouldShowBelow = ref(false);
 
 function checkDropdownPosition() {
   if (!dropdownRef.value) return;
 
   const rect = dropdownRef.value.getBoundingClientRect();
-  shouldShowAbove.value = rect.bottom + DROPDOWN_BOTTOM_THRESHOLD > window.innerHeight;
+  shouldShowBelow.value = rect.top < 150;
 }
-
-const dropdownClass = computed(() => [
-  "dropdown",
-  "dropdown-hover",
-  "absolute",
-  "-left-2",
-  "z-10",
-  "font-sans",
-  shouldShowAbove.value ? "dropdown-top" : "dropdown-right",
-]);
 </script>
