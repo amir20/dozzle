@@ -6,7 +6,7 @@
     >
       <slot name="header"></slot>
     </header>
-    <main :data-scrolling="scrollable ? true : undefined" class="snap-y overflow-auto">
+    <main :data-scrolling="scrollable ? true : undefined" :class="{ 'snap-y overflow-auto': scrollable }">
       <div class="invisible relative md:visible" v-show="scrollContext.paused">
         <div class="absolute top-4 right-44">
           <ScrollProgress
