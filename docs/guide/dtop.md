@@ -10,10 +10,10 @@ title: Introducing dtop
 
 ## Installation
 
-Full installation instructions can be found at [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation). You can also install using brew:
+Full installation instructions can be found at [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation). You can use Docker to quickly run `dtop`:
 
 ```bash
-brew install amir20/homebrew-dtop/dtop
+docker run -v /var/run/docker.sock:/var/run/docker.sock -it ghcr.io/amir20/dtop:latest
 ```
 
 ## Project Status
