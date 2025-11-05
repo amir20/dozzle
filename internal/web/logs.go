@@ -304,7 +304,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	allLogs := true
-	for level, _ := range container.SupportedLogLevels {
+	for level := range container.SupportedLogLevels {
 		if _, ok := levels[level]; !ok {
 			allLogs = false
 		}
