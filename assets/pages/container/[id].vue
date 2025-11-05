@@ -45,7 +45,12 @@ watchEffect(() => {
   if (Date.now() - +currentContainer.value.finishedAt > 5 * 60 * 1000) return;
 
   const nextContainer = allContainers.value
-    .filter((c) => c.startedAt > currentContainer.value.startedAt && c.name === currentContainer.value.name)
+    .filter(
+      (c) =>
+        c.startedAt > currentContainer.value.startedAt &&
+        c.name === currentContainer.value.name &&
+        c.host === currentContainer.value.host,
+    )
     .sort((a, b) => +a.created - +b.created)[0];
 
   if (!nextContainer) return;
