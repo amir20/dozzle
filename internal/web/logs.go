@@ -303,6 +303,13 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		levels[level] = struct{}{}
 	}
 
+	allLogs := true
+	for level := range container.SupportedLogLevels {
+		if _, ok := levels[level]; !ok {
+			allLogs = false
+		}
+	}
+
 	if r.URL.Query().Has("filter") {
 		var err error
 		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
@@ -310,7 +317,9 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+	}
 
+	if !allLogs || regex != nil {
 		absoluteTime = time.Now()
 
 		go func() {
@@ -342,9 +351,10 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 						if _, ok := levels[log.Level]; !ok {
 							continue
 						}
-						if support_web.Search(regex, log) {
-							events = append(events, log)
+						if regex != nil && !support_web.Search(regex, log) {
+							continue
 						}
+						events = append(events, log)
 					}
 
 					stillRunning = true

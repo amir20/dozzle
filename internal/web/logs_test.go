@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"net/url"
 	"regexp"
 	"time"
 
@@ -20,6 +21,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func addAllLogLevels(q url.Values) {
+	q.Add("levels", "error")
+	q.Add("levels", "warn")
+	q.Add("levels", "info")
+	q.Add("levels", "debug")
+	q.Add("levels", "trace")
+	q.Add("levels", "fatal")
+	q.Add("levels", "unknown")
+}
+
 func Test_handler_streamLogs_happy(t *testing.T) {
 	ctx, cancel := context.WithCancel(t.Context())
 
@@ -29,7 +40,7 @@ func Test_handler_streamLogs_happy(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("levels", "info")
+	addAllLogLevels(q)
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -73,7 +84,7 @@ func Test_handler_streamLogs_happy_with_id(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
-	q.Add("levels", "info")
+	addAllLogLevels(q)
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -119,6 +130,7 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	addAllLogLevels(q)
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
@@ -157,6 +169,7 @@ func Test_handler_streamLogs_error_reading(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
+	addAllLogLevels(q)
 
 	req.URL.RawQuery = q.Encode()
 	require.NoError(t, err, "NewRequest should not return an error.")
