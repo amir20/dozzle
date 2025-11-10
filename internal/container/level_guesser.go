@@ -81,7 +81,11 @@ func guessLogLevel(logEvent *LogEvent) string {
 			return "unknown"
 		}
 
-		if level, ok := value.Get("level"); ok {
+		if level, ok := value.Get("@l"); ok {
+			if level, ok := level.(string); ok {
+				return normalizeLogLevel(level)
+			}
+		} else if level, ok := value.Get("level"); ok {
 			if level, ok := level.(string); ok {
 				return normalizeLogLevel(level)
 			}
@@ -95,7 +99,9 @@ func guessLogLevel(logEvent *LogEvent) string {
 		if value == nil {
 			return "unknown"
 		}
-		if level, ok := value.Get("level"); ok {
+		if level, ok := value.Get("@l"); ok {
+			return normalizeLogLevel(level)
+		} else if level, ok := value.Get("level"); ok {
 			return normalizeLogLevel(level)
 		} else if severity, ok := value.Get("severity"); ok {
 			return normalizeLogLevel(severity)
