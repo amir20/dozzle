@@ -118,7 +118,7 @@
         v-else-if="isPaginated"
         class="btn-sm"
         v-model="currentPage"
-        :options="Array.from({ length: totalPages }, (_, i) => ({ label: `Page ${i + 1}`, value: i + 1 }))"
+        :options="Array.from({ length: totalPages }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }))"
       />
     </div>
   </div>
