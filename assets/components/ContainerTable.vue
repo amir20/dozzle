@@ -104,7 +104,7 @@
       </table>
     </div>
     <div class="p-4 text-center">
-      <nav class="join" v-if="isPaginated">
+      <nav class="join" v-if="isPaginated && totalPages <= 10">
         <input
           class="btn btn-square join-item"
           type="radio"
@@ -114,6 +114,12 @@
           v-for="i in totalPages"
         />
       </nav>
+      <DropdownMenu
+        v-else-if="isPaginated"
+        class="btn-sm"
+        v-model="currentPage"
+        :options="Array.from({ length: totalPages }, (_, i) => ({ label: `Page ${i + 1}`, value: i + 1 }))"
+      />
     </div>
   </div>
 </template>
