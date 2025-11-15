@@ -104,7 +104,7 @@
       </table>
     </div>
     <div class="p-4 text-center">
-      <nav class="join" v-if="isPaginated && totalPages <= 10">
+      <nav class="join" v-if="isPaginated && totalPages <= 15">
         <input
           class="btn btn-square join-item"
           type="radio"
