@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -54,6 +56,25 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse filter regex if provided
+	var regex *regexp.Regexp
+	var err error
+	if r.URL.Query().Has("filter") {
+		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Parse level filters if provided
+	levels := make(map[string]struct{})
+	if r.URL.Query().Has("levels") {
+		for _, level := range r.URL.Query()["levels"] {
+			levels[level] = struct{}{}
+		}
+	}
+
 	// Set headers for zip file
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=container-logs-%s.zip", nowFmt))
 	w.Header().Set("Content-Type", "application/zip")
@@ -89,20 +110,69 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Get container logs
-		reader, err := containerService.RawLogs(r.Context(), time.Time{}, now, stdTypes)
-		if err != nil {
-			log.Error().Err(err).Msgf("error getting logs for container %s", id)
-			http.Error(w, fmt.Sprintf("error getting logs for container %s: %v", id, err), http.StatusInternalServerError)
-			return
-		}
+		// Get container logs - use LogsBetweenDates if filtering is needed, otherwise use RawLogs
+		if regex != nil || len(levels) > 0 {
+			// Fetch parsed log events for filtering
+			events, err := containerService.LogsBetweenDates(r.Context(), time.Time{}, now, stdTypes)
+			if err != nil {
+				log.Error().Err(err).Msgf("error getting logs for container %s", id)
+				http.Error(w, fmt.Sprintf("error getting logs for container %s: %v", id, err), http.StatusInternalServerError)
+				return
+			}
 
-		// Copy logs to zip file
-		_, err = io.Copy(f, reader)
-		if err != nil {
-			log.Error().Err(err).Msgf("error copying logs for container %s", id)
-			http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
-			return
+			// Filter and write events
+			for event := range events {
+				// Apply regex filter if provided
+				if regex != nil && !support_web.Search(regex, event) {
+					continue
+				}
+
+				// Apply level filter if provided
+				if len(levels) > 0 {
+					if _, ok := levels[event.Level]; !ok {
+						continue
+					}
+				}
+
+				// Format timestamp in UTC
+				timestamp := time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano)
+
+				// Write the log message to the file
+				message := event.RawMessage
+				if message == "" {
+					// Fallback to formatted message if RawMessage is empty
+					if msg, ok := event.Message.(string); ok {
+						message = msg
+					} else {
+						// For complex messages, use a simple string representation
+						message = fmt.Sprintf("%v", event.Message)
+					}
+				}
+
+				// Write timestamp followed by message
+				_, err = fmt.Fprintf(f, "%s %s\n", timestamp, message)
+				if err != nil {
+					log.Error().Err(err).Msgf("error writing log for container %s", id)
+					http.Error(w, fmt.Sprintf("error writing logs for container %s: %v", id, err), http.StatusInternalServerError)
+					return
+				}
+			}
+		} else {
+			// No filtering needed, use raw logs for better performance
+			reader, err := containerService.RawLogs(r.Context(), time.Time{}, now, stdTypes)
+			if err != nil {
+				log.Error().Err(err).Msgf("error getting logs for container %s", id)
+				http.Error(w, fmt.Sprintf("error getting logs for container %s: %v", id, err), http.StatusInternalServerError)
+				return
+			}
+
+			// Copy logs to zip file
+			_, err = io.Copy(f, reader)
+			if err != nil {
+				log.Error().Err(err).Msgf("error copying logs for container %s", id)
+				http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 }
