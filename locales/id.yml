@@ -1,6 +1,7 @@
 toolbar:
   clear: Bersihkan
   download: Unduh
+  download-filtered: Unduh Log yang Difilter
   search: Cari
   show: Tampilkan {std}
   show-all: Tampilkan semua

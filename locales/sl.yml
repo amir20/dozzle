@@ -1,6 +1,7 @@
 toolbar:
   clear: Počisti
   download: Prenesi
+  download-filtered: Prenesi Filtrirane Dnevnike
   search: Iskanje
   show: Prikaži {std}
   show-all: Prikaži vse
@@ -52,12 +53,12 @@ error:
   logs-skipped: Prikaži {total} skritih vnosov
   events-stream:
     title: Nepričakovana napaka
-    message: Uporabniški vmesnik Dozzle se ni mogel povezati z API-jem. 
-      Preverite omrežne nastavitve. Če uporabljate obratni proxy, se 
+    message: Uporabniški vmesnik Dozzle se ni mogel povezati z API-jem.
+      Preverite omrežne nastavitve. Če uporabljate obratni proxy, se
       prepričajte, da je pravilno konfiguriran.
   events-timeout:
     title: Nekaj ni v redu
-    message: Časovna omejitev uporabniškega vmesnika Dozzle je potekla med 
+    message: Časovna omejitev uporabniškega vmesnika Dozzle je potekla med
       povezovanjem z API-jem. Preverite omrežno povezavo in poskusite znova.
   container-not-found: Zabojnika ni bilo mogoče najti
 alert:
@@ -66,8 +67,8 @@ alert:
     message: Dozzle vas je samodejno preusmeril v nov zabojnik {containerId}.
   similar-container-found:
     title: Najden podoben zabojnik
-    message: Dozzle je našel podoben zabojnik {containerId}, ki se izvaja na 
-      istem gostitelju in bo samodejno preklopil nanj, razen če kliknete 
+    message: Dozzle je našel podoben zabojnik {containerId}, ki se izvaja na
+      istem gostitelju in bo samodejno preklopil nanj, razen če kliknete
       »Prekliči«.
 title:
   page-not-found: Strani ni bilo mogoče najti
@@ -96,7 +97,7 @@ settings:
   show-stopped-containers: Prikaži ustavljene zabojnike
   about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
-  update-available: Nova različica je na voljo! Posodobi na <a href="{href}" 
+  update-available: Nova različica je na voljo! Posodobi na <a href="{href}"
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Prikaži oznake stdout in stderr
   compact: Omogoči kompaktni način za dnevnike
@@ -108,11 +109,11 @@ settings:
       start-line: To je večvrstično sporočilo o napaki
       middle-line: z drugo vrstico
       end-line: in nazadnje tretja vrstica.
-    simple: To je zelo zelo dolgo sporočilo, ki bi se privzeto prelomilo. Če 
-      onemogočite mehke ovoje, bi to onemogočili. Lorem ipsum dolor sit amet, 
+    simple: To je zelo zelo dolgo sporočilo, ki bi se privzeto prelomilo. Če
+      onemogočite mehke ovoje, bi to onemogočili. Lorem ipsum dolor sit amet,
       consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
       dolore magna aliqua.
-  using-version: Uporabljaš <a href="https://dozzle.dev/" target="_blank" 
+  using-version: Uporabljaš <a href="https://dozzle.dev/" target="_blank"
     rel="noreferrer noopener">Dozzle</a> {version}.
   help-support: "Prosimo, podprite Dozzle z donacijo ali sponzoriranjem na GitHubu.
     Vaši prispevki nam pomagajo izboljšati Dozzle za vse. Hvala! 🙏🏼\n"
@@ -121,8 +122,8 @@ releases:
   features: ena nova funkcija | {count} funkcij
   bugFixes: en popravek napake | {counr} popravkov
   breaking: ena ključna sprememba | {count} ključnih sprememb
-  three_parts: '{first}, {second} in {third}'
-  two_parts: '{first} s/z {second}'
+  three_parts: "{first}, {second} in {third}"
+  two_parts: "{first} s/z {second}"
   latest: Najnovejše
   no_releases: Imate najnovejšo različico
 log_actions:

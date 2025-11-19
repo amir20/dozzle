@@ -1,6 +1,7 @@
 toolbar:
   clear: Wissen
   download: Downloaden
+  download-filtered: Gefilterde Logs Downloaden
   search: Zoeken
   show: Toon {std}
   show-all: Toon alles

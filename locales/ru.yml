@@ -1,6 +1,7 @@
 toolbar:
   clear: Очистить
   download: Скачать
+  download-filtered: Скачать Отфильтрованные Логи
   search: Поиск
   show: Показать только {std}
   show-all: Показать все потоки

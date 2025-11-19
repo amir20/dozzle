@@ -1,6 +1,7 @@
 toolbar:
   clear: 지우기
   download: 다운로드
+  download-filtered: 필터링된 로그 다운로드
   search: 검색
   show: "{std} 보기"
   show-all: 전체 보기

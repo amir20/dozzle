@@ -1,6 +1,7 @@
 toolbar:
   clear: Temizle
   download: İndir
+  download-filtered: Filtrelenmiş Logları İndir
   search: Ara
   show: Sadece {std} göster
   show-all: Tüm akışları göster

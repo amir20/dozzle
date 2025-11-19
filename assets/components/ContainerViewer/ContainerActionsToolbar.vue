@@ -16,7 +16,10 @@
         </a>
       </li>
       <li v-if="enableDownload">
-        <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
+        <a :href="downloadUrl" download>
+          <octicon:download-24 />
+          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+        </a>
       </li>
       <li v-if="!historical">
         <a @click="showSearch = true">
@@ -199,17 +202,8 @@ if (enableShell) {
   });
 }
 
-const downloadParams = computed(() =>
-  Object.entries(toValue(streamConfig))
-    .filter(([, value]) => value)
-    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {}),
-);
-
-const downloadUrl = computed(() =>
-  withBase(
-    `/api/containers/${container.host}~${container.id}/download?${new URLSearchParams(downloadParams.value).toString()}`,
-  ),
-);
+const containerRef = computed(() => [container]);
+const { downloadUrl, isFiltered } = useDownloadUrl(containerRef, streamConfig, levels);
 
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 

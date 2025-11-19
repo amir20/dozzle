@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
+	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
@@ -54,15 +57,34 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set headers for zip file
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=container-logs-%s.zip", nowFmt))
-	w.Header().Set("Content-Type", "application/zip")
+	// Parse filter regex if provided
+	var regex *regexp.Regexp
+	var err error
+	if r.URL.Query().Has("filter") {
+		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
 
-	// Create zip writer
-	zw := zip.NewWriter(w)
-	defer zw.Close()
+	// Parse level filters if provided
+	levels := make(map[string]struct{})
+	if r.URL.Query().Has("levels") {
+		for _, level := range r.URL.Query()["levels"] {
+			levels[level] = struct{}{}
+		}
+	}
 
-	// Process each container
+	// Validate all containers before starting to write response
+	type containerInfo struct {
+		hostId           string
+		host             string
+		id               string
+		containerService *container_support.ContainerService
+	}
+	containers := make([]containerInfo, 0, len(hostIds))
+
 	for _, hostId := range hostIds {
 		parts := strings.Split(hostId, "~")
 		if len(parts) != 2 {
@@ -80,29 +102,79 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		containers = append(containers, containerInfo{
+			hostId:           hostId,
+			host:             host,
+			id:               id,
+			containerService: containerService,
+		})
+	}
+
+	// Set headers for zip file
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=container-logs-%s.zip", nowFmt))
+	w.Header().Set("Content-Type", "application/zip")
+
+	// Create zip writer
+	zw := zip.NewWriter(w)
+	defer zw.Close()
+
+	// Process each container - errors after this point are logged only since response has started
+	for _, c := range containers {
 		// Create new file in zip for this container's logs
-		fileName := fmt.Sprintf("%s-%s.log", containerService.Container.Name, nowFmt)
+		fileName := fmt.Sprintf("%s-%s.log", c.containerService.Container.Name, nowFmt)
 		f, err := zw.Create(fileName)
 		if err != nil {
-			log.Error().Err(err).Msgf("error creating zip entry for container %s", id)
-			http.Error(w, fmt.Sprintf("error creating zip entry: %v", err), http.StatusInternalServerError)
+			log.Error().Err(err).Msgf("error creating zip entry for container %s", c.id)
 			return
 		}
 
-		// Get container logs
-		reader, err := containerService.RawLogs(r.Context(), time.Time{}, now, stdTypes)
-		if err != nil {
-			log.Error().Err(err).Msgf("error getting logs for container %s", id)
-			http.Error(w, fmt.Sprintf("error getting logs for container %s: %v", id, err), http.StatusInternalServerError)
-			return
-		}
+		// Get container logs - use LogsBetweenDates if filtering is needed, otherwise use RawLogs
+		if regex != nil || len(levels) > 0 {
+			// Fetch parsed log events for filtering
+			events, err := c.containerService.LogsBetweenDates(r.Context(), time.Time{}, now, stdTypes)
+			if err != nil {
+				log.Error().Err(err).Msgf("error getting logs for container %s", c.id)
+				return
+			}
 
-		// Copy logs to zip file
-		_, err = io.Copy(f, reader)
-		if err != nil {
-			log.Error().Err(err).Msgf("error copying logs for container %s", id)
-			http.Error(w, fmt.Sprintf("error copying logs for container %s: %v", id, err), http.StatusInternalServerError)
-			return
+			// Filter and write events
+			for event := range events {
+				// Apply regex filter if provided
+				if regex != nil && !support_web.Search(regex, event) {
+					continue
+				}
+
+				// Apply level filter if provided
+				if len(levels) > 0 {
+					if _, ok := levels[event.Level]; !ok {
+						continue
+					}
+				}
+
+				// Format timestamp in UTC
+				timestamp := time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano)
+
+				// Write timestamp followed by message
+				_, err = fmt.Fprintf(f, "%s %s\n", timestamp, event.RawMessage)
+				if err != nil {
+					log.Error().Err(err).Msgf("error writing log for container %s", c.id)
+					return
+				}
+			}
+		} else {
+			// No filtering needed, use raw logs for better performance
+			reader, err := c.containerService.RawLogs(r.Context(), time.Time{}, now, stdTypes)
+			if err != nil {
+				log.Error().Err(err).Msgf("error getting logs for container %s", c.id)
+				return
+			}
+
+			// Copy logs to zip file
+			_, err = io.Copy(f, reader)
+			if err != nil {
+				log.Error().Err(err).Msgf("error copying logs for container %s", c.id)
+				return
+			}
 		}
 	}
 }

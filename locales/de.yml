@@ -1,6 +1,7 @@
 toolbar:
   clear: Leeren
   download: Herunterladen
+  download-filtered: Gefilterte Logs Herunterladen
   search: Suchen
   show: Zeige nur {std}
   show-all: Zeige alle Streams

@@ -16,7 +16,10 @@
         </a>
       </li>
       <li v-if="enableDownload">
-        <a :href="downloadUrl" download> <octicon:download-24 /> {{ $t("toolbar.download") }} </a>
+        <a :href="downloadUrl" download>
+          <octicon:download-24 />
+          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+        </a>
       </li>
       <li>
         <a @click="showSearch = true">
@@ -91,19 +94,9 @@ const { showSearch } = useSearchFilter();
 const { enableDownload } = config;
 const clear = defineEmit();
 
-const { streamConfig, showHostname, showContainerName, containers } = useLoggingContext();
+const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 
-const downloadParams = computed(() =>
-  Object.entries(toValue(streamConfig))
-    .filter(([, value]) => value)
-    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {}),
-);
-
-const downloadUrl = computed(() =>
-  withBase(
-    `/api/containers/${containers.value.map((c) => c.host + "~" + c.id).join(",")}/download?${new URLSearchParams(downloadParams.value).toString()}`,
-  ),
-);
+const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels);
 
 const hideMenu = (e: MouseEvent) => {
   if (e.target instanceof HTMLAnchorElement) {

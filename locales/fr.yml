@@ -1,6 +1,7 @@
 toolbar:
   clear: Effacer
   download: Téléchargement
+  download-filtered: Télécharger Logs Filtrés
   search: Chercher
   show: Montrer seulement {std}
   show-all: Afficher tous les flux

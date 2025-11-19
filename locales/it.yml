@@ -1,6 +1,7 @@
 toolbar:
   clear: Pulisci
   download: Scarica
+  download-filtered: Scarica Log Filtrati
   search: Cerca
   show: Mostra solo {std}
   show-all: Mostra tutto

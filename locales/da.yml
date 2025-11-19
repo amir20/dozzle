@@ -1,6 +1,7 @@
 toolbar:
   clear: Ryd
   download: Download
+  download-filtered: Download Filtrerede Logs
   search: Søg
   show: Vis kun {std}
   show-all: Vis alle streams
