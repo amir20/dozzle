@@ -1,6 +1,7 @@
 toolbar:
   clear: 清除
   download: 下载
+  download-filtered: 下载筛选的日志
   search: 搜索
   show: 显示 {std}
   show-all: 显示全部

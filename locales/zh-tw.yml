@@ -1,6 +1,7 @@
 toolbar:
   clear: 清除
   download: 下載
+  download-filtered: 下載篩選的日誌
   search: 搜尋
   show: 僅顯示 {std}
   show-all: 顯示全部

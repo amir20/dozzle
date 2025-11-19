@@ -1,6 +1,7 @@
 toolbar:
   clear: Wyczyść
   download: Pobierz
+  download-filtered: Pobierz Filtrowane Logi
   search: Szukaj
   show: Pokaż tylko {std}
   show-all: Pokaż wszystko
