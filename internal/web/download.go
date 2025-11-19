@@ -154,20 +154,8 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 				// Format timestamp in UTC
 				timestamp := time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano)
 
-				// Write the log message to the file
-				message := event.RawMessage
-				if message == "" {
-					// Fallback to formatted message if RawMessage is empty
-					if msg, ok := event.Message.(string); ok {
-						message = msg
-					} else {
-						// For complex messages, use a simple string representation
-						message = fmt.Sprintf("%v", event.Message)
-					}
-				}
-
 				// Write timestamp followed by message
-				_, err = fmt.Fprintf(f, "%s %s\n", timestamp, message)
+				_, err = fmt.Fprintf(f, "%s %s\n", timestamp, event.RawMessage)
 				if err != nil {
 					log.Error().Err(err).Msgf("error writing log for container %s", c.id)
 					return
