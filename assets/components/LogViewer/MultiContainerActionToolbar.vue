@@ -90,60 +90,13 @@
 </template>
 
 <script lang="ts" setup>
-import { allLevels } from "@/composable/logContext";
-
-const { showSearch, debouncedSearchFilter } = useSearchFilter();
+const { showSearch } = useSearchFilter();
 const { enableDownload } = config;
 const clear = defineEmit();
 
 const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 
-const downloadParams = computed(() => {
-  const params = Object.entries(toValue(streamConfig))
-    .filter(([, value]) => value)
-    .reduce((acc, [key]) => ({ ...acc, [key]: "1" }), {} as Record<string, string>);
-
-  // Add filter if search is active
-  if (debouncedSearchFilter.value) {
-    params.filter = debouncedSearchFilter.value;
-  }
-
-  // Add selected levels
-  const selectedLevels = Array.from(levels.value);
-  if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
-    selectedLevels.forEach((level) => {
-      params[`levels`] = level;
-    });
-  }
-
-  return params;
-});
-
-const downloadUrl = computed(() => {
-  const params = new URLSearchParams();
-  const downloadParamsValue = downloadParams.value;
-
-  // Add stdout/stderr
-  if (downloadParamsValue.stdout) params.append("stdout", "1");
-  if (downloadParamsValue.stderr) params.append("stderr", "1");
-
-  // Add filter
-  if (downloadParamsValue.filter) params.append("filter", downloadParamsValue.filter);
-
-  // Add levels (multiple values)
-  const selectedLevels = Array.from(levels.value);
-  if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
-    selectedLevels.forEach((level) => params.append("levels", level));
-  }
-
-  return withBase(
-    `/api/containers/${containers.value.map((c) => c.host + "~" + c.id).join(",")}/download?${params.toString()}`,
-  );
-});
-
-const isFiltered = computed(
-  () => debouncedSearchFilter.value || (levels.value.size > 0 && levels.value.size < allLevels.length),
-);
+const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels);
 
 const hideMenu = (e: MouseEvent) => {
   if (e.target instanceof HTMLAnchorElement) {
