@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/go-chi/chi/v5"
@@ -13,7 +14,26 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			// No Origin header means this is not a browser request (e.g., CLI tools)
+			// Allow these requests as they're not subject to CSRF
+			return true
+		}
+
+		// Extract host from Origin header (format: scheme://host[:port])
+		originHost := origin
+		if idx := strings.Index(origin, "://"); idx != -1 {
+			originHost = origin[idx+3:]
+		}
+		// Remove any path component
+		if idx := strings.Index(originHost, "/"); idx != -1 {
+			originHost = originHost[:idx]
+		}
+
+		// Compare with the Host header
+		host := r.Host
+		return strings.EqualFold(originHost, host)
 	},
 }
 
