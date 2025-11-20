@@ -8,7 +8,7 @@ jobs:
     name: JavaScript Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         name: Install pnpm
       - uses: actions/setup-node@v6
@@ -36,7 +36,7 @@ jobs:
           go-version: 1.25.4
           check-latest: true
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
       - name: Install gRPC and Go
@@ -50,7 +50,7 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         name: Install pnpm
       - uses: actions/setup-node@v6
@@ -107,7 +107,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
