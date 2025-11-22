@@ -67,13 +67,13 @@
     "unplugin-icons": "^22.5.0",
     "unplugin-vue-components": "^30.0.0",
     "unplugin-vue-macros": "^2.14.5",
-    "unplugin-vue-router": "^0.17.0",
+    "unplugin-vue-router": "^0.17.1",
     "vite": "7.2.4",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-svg-loader": "^5.1.0",
     "vitepress": "1.6.4",
     "vue": "^3.5.24",
-    "vue-i18n": "^11.1.12",
+    "vue-i18n": "^11.2.1",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
@@ -105,7 +105,7 @@
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.12",
+    "vitest": "^4.0.13",
     "vue-component-type-helpers": "3.1.4",
     "vue-tsc": "3.1.4"
   },
