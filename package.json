@@ -106,8 +106,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.13",
-    "vue-component-type-helpers": "3.1.4",
-    "vue-tsc": "3.1.4"
+    "vue-component-type-helpers": "3.1.5",
+    "vue-tsc": "3.1.5"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
