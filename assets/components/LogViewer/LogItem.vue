@@ -16,7 +16,7 @@
         v-if="showTimestamp"
         :date="logEntry.date"
         class="shrink-0 select-none"
-        :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
+        :class="{ 'bg-secondary': isTargetLine }"
       />
     </div>
     <LogLevel
@@ -25,6 +25,38 @@
       :position="logEntry instanceof SimpleLogEntry ? logEntry.position : undefined"
     />
     <slot />
+
+    <!-- Context navigation controls for target line -->
+    <div v-if="isTargetLine" class="ml-auto flex shrink-0 items-center gap-1">
+      <button
+        @click="scrollByLines(-10)"
+        class="btn btn-xs btn-ghost border-base-content/20 border"
+        title="Scroll 10 lines up"
+      >
+        <mdi:chevron-up />10
+      </button>
+      <button
+        @click="scrollByLines(10)"
+        class="btn btn-xs btn-ghost border-base-content/20 border"
+        title="Scroll 10 lines down"
+      >
+        <mdi:chevron-down />10
+      </button>
+      <button
+        @click="scrollByLines(-50)"
+        class="btn btn-xs btn-ghost border-base-content/20 border"
+        title="Scroll 50 lines up"
+      >
+        <mdi:chevron-double-up />50
+      </button>
+      <button
+        @click="scrollByLines(50)"
+        class="btn btn-xs btn-ghost border-base-content/20 border"
+        title="Scroll 50 lines down"
+      >
+        <mdi:chevron-double-down />50
+      </button>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -42,4 +74,21 @@ const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => hosts.value[container.value.host]);
 
 const route = useRoute();
+
+const isTargetLine = computed(() => route.query.logId === logEntry.id.toString());
+
+function scrollByLines(offset: number) {
+  const logList = document.querySelector("[data-logs]");
+  if (!logList) return;
+
+  const items = Array.from(logList.querySelectorAll("li[id]"));
+  const currentIndex = items.findIndex((el) => el.id === logEntry.id.toString());
+
+  if (currentIndex === -1) return;
+
+  const targetIndex = Math.max(0, Math.min(items.length - 1, currentIndex + offset));
+  const targetElement = items[targetIndex];
+
+  targetElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 </script>
