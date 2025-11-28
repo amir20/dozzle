@@ -183,7 +183,7 @@ const menuItems = computed(() => {
 
   for (const item of sortedContainers.value) {
     const namespace = item.namespace;
-    if (debouncedPinnedContainers.value.has(item.name)) {
+    if (debouncedPinnedContainers.value?.has(item.name)) {
       pinned.push(item);
     } else if (namespace) {
       namespaced[namespace] ||= [];

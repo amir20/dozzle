@@ -173,10 +173,10 @@ const perPage = useStorage("DOZZLE_TABLE_PAGE_SIZE", 15);
 const pageSizes = [15, 30, 50, 100];
 
 const storage = useStorage<{ column: keys; direction: 1 | -1 }>("DOZZLE_TABLE_CONTAINERS_SORT", {
-  column: "created",
-  direction: -1,
+  column: "created" as keys,
+  direction: -1 as 1 | -1,
 });
-const { column: sortField, direction } = toRefs(storage);
+const { column: sortField, direction } = toRefs(storage.value);
 const counter = useInterval(10000);
 const filteredContainers = computed(() =>
   containers.filter((c) => selectedHost.value === null || c.host === selectedHost.value),
