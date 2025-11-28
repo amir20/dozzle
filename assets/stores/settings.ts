@@ -61,4 +61,4 @@ export const {
   search,
   locale,
   automaticRedirect,
-} = toRefs(settings);
+} = toRefs(settings.value);
