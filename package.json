@@ -100,7 +100,7 @@
     "eventsourcemock": "^2.0.0",
     "jsdom": "^27.2.0",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.1",
+    "prettier": "^3.7.3",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "simple-git-hooks": "^2.13.1",
     "ts-node": "^10.9.2",
