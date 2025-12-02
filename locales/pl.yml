@@ -111,6 +111,26 @@ settings:
   show-std: Pokaż etykiety dla stdout i stderr
   automatic-redirect: Automatycznie przekieruj na kontener o tej samej nazwie
   compact: Włącz tryb kompaktowy dla logów
+  size:
+    small: Mały
+    medium: Średni
+    large: Duży
+  theme:
+    auto: Auto
+    dark: Ciemny
+    light: Jasny
+  redirect:
+    instant: Natychmiastowe
+    delayed: Opóźnione
+    none: Brak
+  grouping:
+    always: Zawsze
+    at-least-2: Co najmniej 2
+    never: Nigdy
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: To jest podgląd logów
     warning: Log ostrzeżenia wygląda tak

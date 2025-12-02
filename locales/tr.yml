@@ -114,6 +114,26 @@ settings:
   show-std: stdout ve stderr etiketlerini göster
   automatic-redirect: Aynı ada sahip yeni konteynerlere otomatik olarak yönlendir
   compact: Günlükler için kompakt modu etkinleştir
+  size:
+    small: Küçük
+    medium: Orta
+    large: Büyük
+  theme:
+    auto: Otomatik
+    dark: Karanlık
+    light: Açık
+  redirect:
+    instant: Anında
+    delayed: Gecikmeli
+    none: Hiçbiri
+  grouping:
+    always: Her zaman
+    at-least-2: En az 2
+    never: Asla
+  hour:
+    auto: Otomatik
+    12: "12"
+    24: "24"
 releases:
   features: bir yeni özellik | {count} özellik
   bugFixes: bir hata düzeltmesi | {count} düzeltme

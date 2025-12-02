@@ -108,6 +108,26 @@ settings:
   show-std: stdout 및 stderr 라벨 표시
   automatic-redirect: 같은 이름의 새 컨테이너로 자동 이동
   compact: 로그 간단하게 보기
+  size:
+    small: 작게
+    medium: 중간
+    large: 크게
+  theme:
+    auto: 자동
+    dark: 어두움
+    light: 밝음
+  redirect:
+    instant: 즉시
+    delayed: 지연
+    none: 안 함
+  grouping:
+    always: 항상
+    at-least-2: 최소 2개
+    never: 안 함
+  hour:
+    auto: 자동
+    12: "12"
+    24: "24"
   log:
     preview: 로그 미리보기입니다
     warning: 경고 로그는 이렇게 표시됩니다

@@ -107,6 +107,26 @@ settings:
   show-std: 顯示標準輸出(stdout)與標準錯誤(stderr)標籤
   automatic-redirect: 自動重新導向至相同名稱的新容器
   compact: 啟用緊湊模式
+  size:
+    small: 小
+    medium: 中
+    large: 大
+  theme:
+    auto: 自動
+    dark: 深色
+    light: 淺色
+  redirect:
+    instant: 立即
+    delayed: 延遲
+    none: 無
+  grouping:
+    always: 總是
+    at-least-2: 至少 2 個
+    never: 從不
+  hour:
+    auto: 自動
+    12: "12"
+    24: "24"
   log:
     preview: 這是日誌的預覽
     warning: 警告日誌看起來是這樣的

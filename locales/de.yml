@@ -104,6 +104,26 @@ settings:
   show-std: Zeige stdout und stderr Labels
   automatic-redirect: Automatische Weiterleitung zu neuen Containern mit demselben Namen
   compact: Aktiviere den kompakten Modus für Logs
+  size:
+    small: Klein
+    medium: Mittel
+    large: Groß
+  theme:
+    auto: Auto
+    dark: Dunkel
+    light: Hell
+  redirect:
+    instant: Sofort
+    delayed: Verzögert
+    none: Keine
+  grouping:
+    always: Immer
+    at-least-2: Mindestens 2
+    never: Nie
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Dies ist eine Vorschau auf die Protokolle
     warning: Ein Warnprotokoll sieht wie folgt aus

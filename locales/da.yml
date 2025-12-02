@@ -104,6 +104,26 @@ settings:
   show-std: Vis stdout og stderr mærker
   automatic-redirect: Automatisk omdiriger til nye containere med det samme navn
   compact: Slå kompakt tilstand til for logs
+  size:
+    small: Lille
+    medium: Mellem
+    large: Stor
+  theme:
+    auto: Auto
+    dark: Mørk
+    light: Lys
+  redirect:
+    instant: Øjeblikkelig
+    delayed: Forsinket
+    none: Ingen
+  grouping:
+    always: Altid
+    at-least-2: Mindst 2
+    never: Aldrig
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Dette er en forhåndsvisning af loggene
     warning: En advarselslog ser sådan ud
