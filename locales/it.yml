@@ -104,6 +104,26 @@ settings:
   show-std: Visualizza stdout e stderr
   automatic-redirect: Reindirizza automaticamente al nuovo container con lo stesso nome
   compact: Abilita la modalità compatta per i log
+  size:
+    small: Piccolo
+    medium: Medio
+    large: Grande
+  theme:
+    auto: Auto
+    dark: Scuro
+    light: Chiaro
+  redirect:
+    instant: Immediato
+    delayed: Ritardato
+    none: Nessuno
+  grouping:
+    always: Sempre
+    at-least-2: Almeno 2
+    never: Mai
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Questa è un'anteprima dei log
     warning: Un log di avviso appare così

@@ -104,6 +104,26 @@ settings:
   show-std: 显示stdout和stderr标签
   automatic-redirect: 自动重定向到同名的新容器
   compact: 紧凑模式
+  size:
+    small: 小
+    medium: 中
+    large: 大
+  theme:
+    auto: 自动
+    dark: 深色
+    light: 浅色
+  redirect:
+    instant: 即时
+    delayed: 延迟
+    none: 无
+  grouping:
+    always: 始终
+    at-least-2: 至少 2 个
+    never: 从不
+  hour:
+    auto: 自动
+    12: "12"
+    24: "24"
   log:
     preview: 这是默认日志样式
     warning: 警告日志看起来像这样

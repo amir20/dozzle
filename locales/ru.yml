@@ -104,6 +104,26 @@ settings:
   show-std: Показывать метки stdout и stderr
   automatic-redirect: Автоматическое перенаправление на новые контейнеры с тем же именем.
   compact: Компактный режим
+  size:
+    small: Маленький
+    medium: Средний
+    large: Большой
+  theme:
+    auto: Авто
+    dark: Тёмная
+    light: Светлая
+  redirect:
+    instant: Мгновенное
+    delayed: Отложенное
+    none: Нет
+  grouping:
+    always: Всегда
+    at-least-2: Минимум 2
+    never: Никогда
+  hour:
+    auto: Авто
+    12: "12"
+    24: "24"
   log:
     preview: Это предварительный просмотр логов
     warning: Так выглядит лог предупреждения

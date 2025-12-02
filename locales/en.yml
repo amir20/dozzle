@@ -110,6 +110,26 @@ settings:
   show-std: Show stdout and stderr labels
   automatic-redirect: Automatically redirect to new containers with the same name
   compact: Enable compact mode for logs
+  size:
+    small: Small
+    medium: Medium
+    large: Large
+  theme:
+    auto: Auto
+    dark: Dark
+    light: Light
+  redirect:
+    instant: Instant
+    delayed: Delayed
+    none: None
+  grouping:
+    always: Always
+    at-least-2: At least 2
+    never: Never
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: This is a preview of the logs
     warning: A warning log looks like this

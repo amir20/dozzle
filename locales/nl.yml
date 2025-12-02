@@ -105,6 +105,26 @@ settings:
   show-std: Toon stdout- en stderr-labels
   automatic-redirect: Automatisch omleiden naar nieuwe containers met dezelfde naam
   compact: Compacte modus inschakelen voor logs
+  size:
+    small: Klein
+    medium: Middel
+    large: Groot
+  theme:
+    auto: Auto
+    dark: Donker
+    light: Licht
+  redirect:
+    instant: Direct
+    delayed: Vertraagd
+    none: Geen
+  grouping:
+    always: Altijd
+    at-least-2: Minimaal 2
+    never: Nooit
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Voorbeeld van de logweergave
     warning: Een waarschuwingslog ziet er zo uit

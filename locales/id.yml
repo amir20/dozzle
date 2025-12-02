@@ -112,6 +112,26 @@ settings:
   show-std: Tampilkan label stdout dan stderr
   automatic-redirect: Alihkan otomatis ke kontainer baru dengan nama yang sama
   compact: Aktifkan mode ringkas untuk log
+  size:
+    small: Kecil
+    medium: Sedang
+    large: Besar
+  theme:
+    auto: Auto
+    dark: Gelap
+    light: Terang
+  redirect:
+    instant: Instan
+    delayed: Tertunda
+    none: Tidak ada
+  grouping:
+    always: Selalu
+    at-least-2: Setidaknya 2
+    never: Tidak pernah
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Ini adalah pratinjau log
     warning: Log peringatan seperti ini

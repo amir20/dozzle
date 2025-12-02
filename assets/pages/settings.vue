@@ -88,9 +88,9 @@
                 <DropdownMenu
                   v-model="hourStyle"
                   :options="[
-                    { label: 'Auto', value: 'auto' },
-                    { label: '12', value: '12' },
-                    { label: '24', value: '24' },
+                    { label: $t('settings.hour.auto'), value: 'auto' },
+                    { label: $t('settings.hour.12'), value: '12' },
+                    { label: $t('settings.hour.24'), value: '24' },
                   ]"
                 />
               </div>
@@ -105,9 +105,9 @@
               <DropdownMenu
                 v-model="size"
                 :options="[
-                  { label: 'Small', value: 'small' },
-                  { label: 'Medium', value: 'medium' },
-                  { label: 'Large', value: 'large' },
+                  { label: $t('settings.size.small'), value: 'small' },
+                  { label: $t('settings.size.medium'), value: 'medium' },
+                  { label: $t('settings.size.large'), value: 'large' },
                 ]"
               />
             </template>
@@ -121,9 +121,9 @@
               <DropdownMenu
                 v-model="lightTheme"
                 :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: 'Dark', value: 'dark' },
-                  { label: 'Light', value: 'light' },
+                  { label: $t('settings.theme.auto'), value: 'auto' },
+                  { label: $t('settings.theme.dark'), value: 'dark' },
+                  { label: $t('settings.theme.light'), value: 'light' },
                 ]"
               />
             </template>
@@ -151,9 +151,9 @@
           <DropdownMenu
             v-model="automaticRedirect"
             :options="[
-              { label: 'Instant', value: 'instant' },
-              { label: 'Delayed', value: 'delayed' },
-              { label: 'None', value: 'none' },
+              { label: $t('settings.redirect.instant'), value: 'instant' },
+              { label: $t('settings.redirect.delayed'), value: 'delayed' },
+              { label: $t('settings.redirect.none'), value: 'none' },
             ]"
           />
         </template>
@@ -166,9 +166,9 @@
           <DropdownMenu
             v-model="groupContainers"
             :options="[
-              { label: 'Always', value: 'always' },
-              { label: 'At least 2', value: 'at-least-2' },
-              { label: 'Never', value: 'never' },
+              { label: $t('settings.grouping.always'), value: 'always' },
+              { label: $t('settings.grouping.at-least-2'), value: 'at-least-2' },
+              { label: $t('settings.grouping.never'), value: 'never' },
             ]"
           />
         </template>

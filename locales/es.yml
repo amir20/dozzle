@@ -104,6 +104,26 @@ settings:
   show-std: Mostrar etiquetas de salida estándar y salida de error estándar
   automatic-redirect: Redireccionar automáticamente a nuevos contenedores con el mismo nombre
   compact: Modo compacto
+  size:
+    small: Pequeño
+    medium: Mediano
+    large: Grande
+  theme:
+    auto: Auto
+    dark: Oscuro
+    light: Claro
+  redirect:
+    instant: Instantáneo
+    delayed: Retrasado
+    none: Ninguno
+  grouping:
+    always: Siempre
+    at-least-2: Al menos 2
+    never: Nunca
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Esta es una vista previa de los registros
     warning: Un registro de advertencia se ve así

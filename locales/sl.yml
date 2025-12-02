@@ -102,6 +102,26 @@ settings:
     target="_blank" rel="noreferrer noopener">{nextVersion}</a>.
   show-std: Prikaži oznake stdout in stderr
   compact: Omogoči kompaktni način za dnevnike
+  size:
+    small: Majhna
+    medium: Srednja
+    large: Velika
+  theme:
+    auto: Samodejno
+    dark: Temna
+    light: Svetla
+  redirect:
+    instant: Takojšnje
+    delayed: Zakasnelo
+    none: Brez
+  grouping:
+    always: Vedno
+    at-least-2: Vsaj 2
+    never: Nikoli
+  hour:
+    auto: Samodejno
+    12: "12"
+    24: "24"
   log:
     preview: To je predogled dnevnikov
     warning: Dnevnik opozoril izgleda tako

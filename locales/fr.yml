@@ -104,6 +104,26 @@ settings:
   show-std: Afficher les étiquettes stdout et stderr
   automatic-redirect: Redirection automatique vers de nouveaux conteneurs portant le même nom
   compact: Activer le mode compact pour les journaux
+  size:
+    small: Petit
+    medium: Moyen
+    large: Grand
+  theme:
+    auto: Auto
+    dark: Sombre
+    light: Clair
+  redirect:
+    instant: Instantané
+    delayed: Différé
+    none: Aucun
+  grouping:
+    always: Toujours
+    at-least-2: Au moins 2
+    never: Jamais
+  hour:
+    auto: Auto
+    12: "12"
+    24: "24"
   log:
     preview: Voici un aperçu des logs
     warning: Un log d'avertissement ressemble à ceci
