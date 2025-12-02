@@ -103,6 +103,7 @@ settings:
   color-scheme: Skema warna
   options: Opsi
   show-stopped-containers: Tampilkan kontainer yang dihentikan
+  group-containers: Kelompokkan kontainer berdasarkan namespace
   about: Tentang
   search: Aktifkan pencarian dengan Dozzle menggunakan
   using-version: Anda menggunakan <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

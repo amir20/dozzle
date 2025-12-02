@@ -95,6 +95,7 @@ settings:
   color-scheme: 颜色方案
   options: 选项
   show-stopped-containers: 显示已停止的容器
+  group-containers: 按命名空间分组容器
   about: 关于
   search: 使用Dozzle启用搜索
   using-version: 您正在使用<a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}。

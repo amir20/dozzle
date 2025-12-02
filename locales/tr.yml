@@ -104,6 +104,7 @@ settings:
   color-scheme: Renk düzeni
   options: Seçenekler
   show-stopped-containers: Durdurulan konteynerleri göster
+  group-containers: Konteynerleri ad alanına göre grupla
   about: Hakkında
   search: Dozzle kullanarak aramayı etkinleştir
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version} kullanıyorsunuz.

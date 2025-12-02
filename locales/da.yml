@@ -95,6 +95,7 @@ settings:
   color-scheme: Farve skema
   options: Muligheder
   show-stopped-containers: Vis stoppet containere
+  group-containers: Gruppér containere efter namespace
   about: Omkring
   search: Aktiver søgning med Dozzle ved brug af
   using-version: Du bruger <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

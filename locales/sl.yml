@@ -95,6 +95,7 @@ settings:
   color-scheme: Barvna shema
   options: Možnosti
   show-stopped-containers: Prikaži ustavljene zabojnike
+  group-containers: Združi zabojnike po imenskem prostoru
   about: O programu
   search: Omogočite iskanje z Dozzle z uporabo
   update-available: Nova različica je na voljo! Posodobi na <a href="{href}"

@@ -98,6 +98,7 @@ settings:
   color-scheme: 색상 테마
   options: 옵션
   show-stopped-containers: 중지된 컨테이너 보기
+  group-containers: 네임스페이스별로 컨테이너 그룹화
   about: 정보
   search: Dozzle 검색 기능 사용
   using-version: <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}을 사용하고 있습니다.
