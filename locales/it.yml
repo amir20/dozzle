@@ -95,6 +95,7 @@ settings:
   color-scheme: Tema colori
   options: Opzioni
   show-stopped-containers: Visualizza i container arrestati
+  group-containers: Raggruppa i container per namespace
   about: Circa
   search: Abilita la ricerca attraverso Dozzle
   using-version: Stai utilizzando <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

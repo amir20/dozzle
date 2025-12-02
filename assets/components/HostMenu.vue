@@ -121,7 +121,7 @@
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
-import { showAllContainers } from "@/stores/settings";
+import { showAllContainers, groupContainers } from "@/stores/settings";
 
 // @ts-ignore
 import Pin from "~icons/ph/map-pin-simple";
@@ -198,10 +198,15 @@ const menuItems = computed(() => {
     items.push({ label: "label.pinned", containers: pinned, icon: Pin });
   }
   for (const [label, containers] of Object.entries(namespaced).sort(([a], [b]) => a.localeCompare(b))) {
-    if (containers.length > 1) {
+    const shouldGroup =
+      groupContainers.value === "always" || (groupContainers.value === "at-least-2" && containers.length > 1);
+
+    if (shouldGroup) {
       items.push({ label, containers, icon: Stack });
     } else {
-      singular.push(containers[0]);
+      for (const container of containers) {
+        singular.push(container);
+      }
     }
   }
 

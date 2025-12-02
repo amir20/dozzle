@@ -101,6 +101,7 @@ settings:
   color-scheme: Motyw
   options: Opcje
   show-stopped-containers: Pokaż zatrzymane kontenery
+  group-containers: Grupuj kontenery według przestrzeni nazw
   about: Informacje
   search: Włącz szukanie z dozzle
   using-version: Używasz <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> w wersji {version}.

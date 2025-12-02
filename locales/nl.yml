@@ -96,6 +96,7 @@ settings:
   color-scheme: Kleurmodus
   options: Opties
   show-stopped-containers: Gestopte containers tonen
+  group-containers: Groepeer containers op namespace
   about: Over
   search: Doorzoeken inschakelen via Dozzle
   using-version: Je gebruikt <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

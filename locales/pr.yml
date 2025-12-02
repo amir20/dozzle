@@ -103,6 +103,7 @@ settings:
   options: Opções
   datetime-format: Formato de data e hora
   show-stopped-containers: Mostrar contentores parados
+  group-containers: Agrupar contentores por namespace
   about: Acerca de
   search: Habilitar a pesquisa com Dozzle usando
   using-version: Está a usar <a href="https://dozzle.dev/" target="_blank" rel="noreferrer noopener">Dozzle</a> {version}.

@@ -56,6 +56,7 @@ declare global {
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const getDeep: typeof import('./utils/index').getDeep
   const globalShowPopup: typeof import('./composable/popup').globalShowPopup
+  const groupContainers: typeof import('./stores/settings').groupContainers
   const h: typeof import('vue').h
   const hashCode: typeof import('./utils/index').hashCode
   const hourStyle: typeof import('./stores/settings').hourStyle
@@ -456,6 +457,7 @@ declare module 'vue' {
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composable/popup')['globalShowPopup']>
+    readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
