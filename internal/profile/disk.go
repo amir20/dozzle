@@ -35,6 +35,7 @@ type Settings struct {
 	HourStyle         string  `json:"hourStyle,omitempty"`
 	DateLocale        string  `json:"dateLocale,omitempty"`
 	Locale            string  `json:"locale"`
+	GroupContainers   string  `json:"groupContainers,omitempty"`
 }
 
 type Profile struct {
