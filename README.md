@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="Dozzle Logo" width="200"/>
+</p>
+
 # Dozzle - [dozzle.dev](https://dozzle.dev/)
 
 Dozzle is a small lightweight application with a web based interface to monitor Docker logs. It doesn’t store any log files. It is for live monitoring of your container logs only.
