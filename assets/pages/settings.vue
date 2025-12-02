@@ -158,6 +158,21 @@
           />
         </template>
       </LabeledInput>
+      <LabeledInput>
+        <template #label>
+          {{ $t("settings.group-containers") }}
+        </template>
+        <template #input>
+          <DropdownMenu
+            v-model="groupContainers"
+            :options="[
+              { label: 'Always', value: 'always' },
+              { label: 'At least 2', value: 'at-least-2' },
+              { label: 'Never', value: 'never' },
+            ]"
+          />
+        </template>
+      </LabeledInput>
 
       <Toggle v-model="search">
         {{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut>
@@ -185,6 +200,7 @@ import {
   smallerScrollbars,
   softWrap,
   locale,
+  groupContainers,
 } from "@/stores/settings";
 
 import { availableLocales, i18n } from "@/modules/i18n";

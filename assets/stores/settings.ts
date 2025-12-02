@@ -16,6 +16,7 @@ export type Settings = {
   collapseNav: boolean;
   automaticRedirect: "instant" | "delayed" | "none";
   locale: string;
+  groupContainers: "always" | "at-least-2" | "never";
 };
 export const DEFAULT_SETTINGS: Settings = {
   search: true,
@@ -33,6 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
   collapseNav: false,
   automaticRedirect: "delayed",
   locale: "",
+  groupContainers: "at-least-2",
 };
 
 export const settings = useProfileStorage("settings", DEFAULT_SETTINGS);
@@ -61,4 +63,5 @@ export const {
   search,
   locale,
   automaticRedirect,
+  groupContainers,
 } = toRefs(settings.value);
