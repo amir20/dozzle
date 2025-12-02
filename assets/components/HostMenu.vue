@@ -204,7 +204,9 @@ const menuItems = computed(() => {
     if (shouldGroup) {
       items.push({ label, containers, icon: Stack });
     } else {
-      singular.push(...containers);
+      for (const container of containers) {
+        singular.push(container);
+      }
     }
   }
 
