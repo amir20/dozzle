@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-4">
+  <div class="flex gap-1 md:gap-4">
     <StatMonitor
       :data="memoryData"
       label="mem"
