@@ -1,15 +1,15 @@
 <template>
   <ScrollableView :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
-      <div class="@container mx-2 flex items-center gap-2 md:ml-4">
-        <ContainerTitle :container="container" />
+      <div class="@container mx-2 flex items-center gap-1 md:ml-4 md:gap-2">
+        <ContainerTitle :container="container" class="mt-1 md:mt-0" />
         <MultiContainerStat
           class="ml-auto lg:hidden lg:@3xl:flex"
           :containers="[container]"
           v-if="container.state === 'running'"
         />
 
-        <ContainerActionsToolbar @clear="viewer?.clear()" class="max-md:hidden" :container="container" />
+        <ContainerActionsToolbar @clear="viewer?.clear()" :container="container" />
         <a class="btn btn-circle btn-xs" @click="close()" v-if="closable">
           <mdi:close />
         </a>
