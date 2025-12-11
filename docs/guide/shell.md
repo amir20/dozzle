@@ -2,7 +2,10 @@
 title: Container Shell Access
 ---
 
-# Attaching and Executing Commands <Badge type="info" text="new" />
+# Attaching and Executing Shell Commands
+
+<Badge type="tip" text="Docker" />
+<Badge type="tip" text="K8s" />
 
 Dozzle supports attaching or executing commands within containers. It provides a web-based interface to interact with Docker containers, allowing users to attach to running containers and execute commands directly from the browser. This feature is particularly useful for debugging and troubleshooting containerized applications. This feature is **disabled** by default as it may pose security risks. To enable it, set the `DOZZLE_ENABLE_SHELL` environment variable to `true`.
 

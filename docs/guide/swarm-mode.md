@@ -4,6 +4,8 @@ title: Swarm Mode
 
 # Swarm Mode
 
+<Badge type="warning" text="Docker Only" />
+
 Dozzle supports Docker Swarm Mode starting from version 8. When using Swarm Mode, Dozzle will automatically discover services and custom groups. Dozzle does not use Swarm API internally as it is [limited](https://github.com/moby/moby/issues/33183). Instead, Dozzle implements its own grouping using swarm labels. Additionally, Dozzle merges stats for containers in a group. This means that you can see logs and stats for all containers in a group in one view. However, it does mean each host needs to be set up with Dozzle.
 
 ## How Does It Work?

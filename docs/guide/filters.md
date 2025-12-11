@@ -4,6 +4,9 @@ title: Filter
 
 # Filtering Containers
 
+<Badge type="tip" text="Docker" />
+<Badge type="tip" text="K8s" />
+
 Dozzle supports conditional filtering similar to Docker's [--filter](https://docs.docker.com/reference/cli/docker/container/ls/#filter) with `DOZZLE_FILTER` or `--filter`. Filters are passed directly to Docker to limit what Dozzle can see. For example, filtering by label is supported with `--filter "label=color"`, which is similar to `docker ps` command with `docker ps --filter "label=color"`.
 
 ::: code-group

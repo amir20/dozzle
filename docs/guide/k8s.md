@@ -2,7 +2,7 @@
 title: Kubernetes Support
 ---
 
-# Kubernetes Support <Badge type="warning" text="beta" /> <Badge type="tip" text="v8.11.x" />
+# Kubernetes Support
 
 Dozzle now supports Kubernetes, allowing you to view logs from your Kubernetes pods. This feature is available in `v8.11` version of Dozzle.
 

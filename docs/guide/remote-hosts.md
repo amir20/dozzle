@@ -4,6 +4,8 @@ title: Remote Host Setup
 
 # Remote Host Setup
 
+<Badge type="warning" text="Docker Only" />
+
 Dozzle supports connecting to remote Docker hosts. This is useful when running Dozzle in a container and you want to monitor a different Docker host.
 
 However, with Dozzle agents, you can connect to remote hosts without exposing the Docker socket. See the [agent](/guide/agent) page for more information.

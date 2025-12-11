@@ -2,7 +2,7 @@
 title: Authentication
 ---
 
-# Setting Up Authentication <Badge type="tip" text="Updated" />
+# Authentication
 
 Dozzle supports two configurations for authentication. In the first configuration, you bring your own authentication method by protecting Dozzle through a proxy. Dozzle can read appropriate headers out of the box.
 
