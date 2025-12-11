@@ -54,7 +54,7 @@ const store = useContainerStore();
 const container = store.currentContainer(toRef(() => id));
 const historicalContainer = toRef(() => new HistoricalContainer(container.value, date));
 const visibleKeys = persistentVisibleKeysForContainer(container);
-const viewer = useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
+useTemplateRef<ComponentExposed<typeof ViewerWithSource>>("viewer");
 
 provideLoggingContext(
   toRef(() => [container.value]),
