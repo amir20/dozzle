@@ -28,6 +28,19 @@ func (s StdType) String() string {
 	}
 }
 
+type ExecSession struct {
+	Writer io.WriteCloser
+	Reader io.Reader
+	Resize func(width uint, height uint) error
+}
+
+type ExecEvent struct {
+	Type   string `json:"type"`
+	Data   string `json:"data,omitempty"`
+	Width  uint   `json:"width,omitempty"`
+	Height uint   `json:"height,omitempty"`
+}
+
 type Client interface {
 	ListContainers(context.Context, ContainerLabels) ([]Container, error)
 	FindContainer(context.Context, string) (Container, error)
@@ -38,6 +51,6 @@ type Client interface {
 	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error)
-	ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error)
+	ContainerAttach(ctx context.Context, id string) (*ExecSession, error)
+	ContainerExec(ctx context.Context, id string, cmd []string) (*ExecSession, error)
 }

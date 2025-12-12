@@ -1,16 +1,12 @@
 <template>
-  <aside>
+  <aside class="flex h-[calc(100vh-50px)] flex-col gap-2">
     <header class="flex items-center gap-4">
       <material-symbols:terminal class="size-8" />
       <h1 class="text-2xl max-md:hidden">{{ container.name }}</h1>
       <h2 class="text-sm">Started <RelativeTime :date="container.created" /></h2>
     </header>
 
-    <div class="mt-8 flex flex-col gap-2">
-      <section>
-        <div ref="host" class="shell"></div>
-      </section>
-    </div>
+    <div ref="host" class="shell flex-1"></div>
   </aside>
 </template>
 
@@ -21,6 +17,7 @@ const { container, action } = defineProps<{ container: Container; action: "attac
 
 const { Terminal } = await import("@xterm/xterm");
 const { WebLinksAddon } = await import("@xterm/addon-web-links");
+const { FitAddon } = await import("@xterm/addon-fit");
 
 const host = useTemplateRef<HTMLDivElement>("host");
 const terminal = new Terminal({
@@ -28,26 +25,60 @@ const terminal = new Terminal({
   cursorStyle: "block",
 });
 terminal.loadAddon(new WebLinksAddon());
+const fitAddon = new FitAddon();
+terminal.loadAddon(fitAddon);
 
 let ws: WebSocket | null = null;
 
+function sendEvent(type: "userinput" | "resize", data?: string, width?: number, height?: number) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  const event: { type: string; data?: string; width?: number; height?: number } = { type };
+  if (data !== undefined) event.data = data;
+  if (width !== undefined) event.width = width;
+  if (height !== undefined) event.height = height;
+
+  ws.send(JSON.stringify(event));
+}
+
 onMounted(() => {
   terminal.open(host.value!);
-  terminal.resize(100, 40);
+  fitAddon.fit();
+
   ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
   ws.onopen = () => {
     terminal.writeln(`Attaching to ${container.name} 🚀`);
+
+    // Send initial resize event
+    sendEvent("resize", undefined, terminal.cols, terminal.rows);
+
     if (action === "attach") {
-      ws?.send("\r");
+      sendEvent("userinput", "\r");
     }
+
     terminal.onData((data) => {
-      ws?.send(data);
+      sendEvent("userinput", data);
     });
+
+    // Handle terminal resize
+    terminal.onResize(({ cols, rows }) => {
+      sendEvent("resize", undefined, cols, rows);
+    });
+
     terminal.focus();
   };
+
   ws.onmessage = (event) => terminal.write(event.data);
   ws.addEventListener("close", () => {
     terminal.writeln("⚠️ Connection closed");
+  });
+
+  // Handle window resize
+  const { width, height } = useWindowSize();
+  watch([width, height], () => {
+    requestAnimationFrame(() => {
+      fitAddon.fit();
+    });
   });
 });
 
@@ -62,7 +93,7 @@ onUnmounted(() => {
 
 .shell {
   & :deep(.terminal) {
-    @apply overflow-hidden rounded border-1 p-2;
+    @apply overflow-hidden rounded border p-2;
     &:is(.focus) {
       @apply border-primary;
     }

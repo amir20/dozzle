@@ -23,6 +23,8 @@ service AgentService {
       returns (ContainerActionResponse) {}
   rpc ContainerExec(stream ContainerExecRequest)
       returns (stream ContainerExecResponse) {}
+  rpc ContainerAttach(stream ContainerAttachRequest)
+      returns (stream ContainerAttachResponse) {}
 }
 
 message ListContainersRequest { map<string, RepeatedString> filter = 1; }
@@ -84,7 +86,25 @@ message ContainerActionResponse {}
 message ContainerExecRequest {
   string containerId = 1;
   repeated string command = 2;
-  bytes stdin = 3;
+  oneof payload {
+    bytes stdin = 3;
+    ResizePayload resize = 4;
+  }
+}
+
+message ResizePayload {
+  uint32 width = 1;
+  uint32 height = 2;
 }
 
 message ContainerExecResponse { bytes stdout = 1; }
+
+message ContainerAttachRequest {
+  string containerId = 1;
+  oneof payload {
+    bytes stdin = 2;
+    ResizePayload resize = 3;
+  }
+}
+
+message ContainerAttachResponse { bytes stdout = 1; }

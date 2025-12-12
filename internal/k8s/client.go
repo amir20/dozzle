@@ -293,9 +293,9 @@ func (k *K8sClient) ContainerActions(ctx context.Context, action container.Conta
 	panic("not implemented")
 }
 
-func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
-	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Executing command in pod")
+	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Attaching to pod")
 	req := k.Clientset.CoreV1().RESTClient().Post().
 		Resource("pods").
 		Name(podName).
@@ -317,27 +317,60 @@ func (k *K8sClient) ContainerAttach(ctx context.Context, id string) (io.WriteClo
 
 	exec, err := remotecommand.NewSPDYExecutor(k.config, "POST", req.URL())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	stdinReader, stdinWriter := io.Pipe()
 	stdoutReader, stdoutWriter := io.Pipe()
 
+	// Create TerminalSizeQueue for dynamic resizing
+	sizeQueue := &terminalSizeQueue{
+		resizeChan: make(chan remotecommand.TerminalSize, 1),
+	}
+
 	go func() {
 		err := exec.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:  stdinReader,
-			Stdout: stdoutWriter,
-			Tty:    true,
+			Stdin:             stdinReader,
+			Stdout:            stdoutWriter,
+			Tty:               true,
+			TerminalSizeQueue: sizeQueue,
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Error streaming command")
 		}
 	}()
 
-	return stdinWriter, stdoutReader, nil
+	// Create resize closure that sends to the queue
+	resizeFn := func(width uint, height uint) error {
+		select {
+		case sizeQueue.resizeChan <- remotecommand.TerminalSize{Width: uint16(width), Height: uint16(height)}:
+			return nil
+		default:
+			return fmt.Errorf("resize queue full")
+		}
+	}
+
+	return &container.ExecSession{
+		Writer: stdinWriter,
+		Reader: stdoutReader,
+		Resize: resizeFn,
+	}, nil
 }
 
-func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {
+// terminalSizeQueue implements remotecommand.TerminalSizeQueue
+type terminalSizeQueue struct {
+	resizeChan chan remotecommand.TerminalSize
+}
+
+func (t *terminalSizeQueue) Next() *remotecommand.TerminalSize {
+	size, ok := <-t.resizeChan
+	if !ok {
+		return nil
+	}
+	return &size
+}
+
+func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
 	namespace, podName, containerName := parsePodContainerID(id)
 	log.Debug().Str("container", containerName).Str("pod", podName).Msg("Executing command in pod")
 	req := k.Clientset.CoreV1().RESTClient().Post().
@@ -362,24 +395,44 @@ func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) 
 
 	exec, err := remotecommand.NewSPDYExecutor(k.config, "POST", req.URL())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	stdinReader, stdinWriter := io.Pipe()
 	stdoutReader, stdoutWriter := io.Pipe()
 
+	// Create TerminalSizeQueue for dynamic resizing
+	sizeQueue := &terminalSizeQueue{
+		resizeChan: make(chan remotecommand.TerminalSize, 1),
+	}
+
 	go func() {
 		err := exec.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:  stdinReader,
-			Stdout: stdoutWriter,
-			Tty:    true,
+			Stdin:             stdinReader,
+			Stdout:            stdoutWriter,
+			Tty:               true,
+			TerminalSizeQueue: sizeQueue,
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("Error streaming command")
 		}
 	}()
 
-	return stdinWriter, stdoutReader, nil
+	// Create resize closure that sends to the queue
+	resizeFn := func(width uint, height uint) error {
+		select {
+		case sizeQueue.resizeChan <- remotecommand.TerminalSize{Width: uint16(width), Height: uint16(height)}:
+			return nil
+		default:
+			return fmt.Errorf("resize queue full")
+		}
+	}
+
+	return &container.ExecSession{
+		Writer: stdinWriter,
+		Reader: stdoutReader,
+		Resize: resizeFn,
+	}, nil
 }
 
 // Helper function to parse pod and container names from container ID

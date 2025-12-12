@@ -301,7 +301,7 @@ func (d *DockerClient) Host() container.Host {
 	return d.host
 }
 
-func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error) {
+func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
 	options := docker.AttachOptions{
 		Stream: true,
@@ -313,13 +313,24 @@ func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (io.Write
 	waiter, err := d.cli.ContainerAttach(ctx, id, options)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return waiter.Conn, waiter.Reader, nil
+	// Docker attach doesn't support resize - it's not an exec session
+	// Return a no-op resize function
+	resizeFn := func(width uint, height uint) error {
+		log.Debug().Uint("width", width).Uint("height", height).Msg("resize not supported for attach")
+		return nil
+	}
+
+	return &container.ExecSession{
+		Writer: waiter.Conn,
+		Reader: waiter.Reader,
+		Resize: resizeFn,
+	}, nil
 }
 
-func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []string) (io.WriteCloser, io.Reader, error) {
+func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Executing command in container")
 	options := docker.ExecOptions{
 		AttachStdout: true,
@@ -331,22 +342,35 @@ func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []strin
 
 	execID, err := d.cli.ContainerExecCreate(ctx, id, options)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
+	// Initial resize
 	if err = d.cli.ContainerExecResize(ctx, execID.ID, docker.ResizeOptions{
 		Width:  100,
 		Height: 40,
 	}); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return waiter.Conn, waiter.Reader, nil
+	// Create resize closure that captures execID and context
+	resizeFn := func(width uint, height uint) error {
+		return d.cli.ContainerExecResize(ctx, execID.ID, docker.ResizeOptions{
+			Width:  width,
+			Height: height,
+		})
+	}
+
+	return &container.ExecSession{
+		Writer: waiter.Conn,
+		Reader: waiter.Reader,
+		Resize: resizeFn,
+	}, nil
 }
 
 func newContainer(c docker.Summary, host string) container.Container {

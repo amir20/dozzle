@@ -2,6 +2,7 @@ package container_support
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"sync"
 
@@ -77,9 +78,9 @@ func (a *agentService) Attach(ctx context.Context, container container.Container
 	panic("not implemented")
 }
 
-func (a *agentService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
-	containerWriter, containerReader, err := a.client.ContainerExec(cancelCtx, container.ID, cmd)
+	session, err := a.client.ContainerExec(cancelCtx, c.ID, cmd)
 
 	if err != nil {
 		cancel()
@@ -89,15 +90,35 @@ func (a *agentService) Exec(ctx context.Context, container container.Container, 
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		if _, err := io.Copy(containerWriter, stdin); err != nil {
-			log.Error().Err(err).Msg("error while reading from ws using agent")
+		decoder := json.NewDecoder(stdin)
+	loop:
+		for {
+			var event container.ExecEvent
+			if err := decoder.Decode(&event); err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error decoding event from ws using agent")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error writing to container using agent")
+					break loop
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal using agent")
+				}
+			}
 		}
 		cancel()
-		containerWriter.Close()
+		session.Writer.Close()
 	})
 
 	wg.Go(func() {
-		if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
+		if _, err := stdcopy.StdCopy(stdout, stdout, session.Reader); err != nil {
 			log.Error().Err(err).Msg("error while writing to ws using agent")
 		}
 		cancel()
