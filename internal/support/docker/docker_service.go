@@ -124,6 +124,7 @@ func (d *DockerClientService) Attach(ctx context.Context, c container.Container,
 
 	wg.Go(func() {
 		decoder := json.NewDecoder(stdin)
+	loop:
 		for {
 			var event container.ExecEvent
 			if err := decoder.Decode(&event); err != nil {
@@ -137,7 +138,7 @@ func (d *DockerClientService) Attach(ctx context.Context, c container.Container,
 			case "userinput":
 				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
 					log.Error().Err(err).Msg("error while writing to container")
-					break
+					break loop
 				}
 			case "resize":
 				if err := session.Resize(event.Width, event.Height); err != nil {
@@ -181,6 +182,7 @@ func (d *DockerClientService) Exec(ctx context.Context, c container.Container, c
 
 	wg.Go(func() {
 		decoder := json.NewDecoder(stdin)
+	loop:
 		for {
 			var event container.ExecEvent
 			if err := decoder.Decode(&event); err != nil {
@@ -194,7 +196,7 @@ func (d *DockerClientService) Exec(ctx context.Context, c container.Container, c
 			case "userinput":
 				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
 					log.Error().Err(err).Msg("error while writing to container")
-					break
+					break loop
 				}
 			case "resize":
 				if err := session.Resize(event.Width, event.Height); err != nil {

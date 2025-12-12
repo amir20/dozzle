@@ -108,6 +108,7 @@ func (k *K8sClientService) Attach(ctx context.Context, c container.Container, st
 		defer cancel()
 
 		decoder := json.NewDecoder(stdin)
+	loop:
 		for {
 			var event container.ExecEvent
 			if err := decoder.Decode(&event); err != nil {
@@ -121,7 +122,7 @@ func (k *K8sClientService) Attach(ctx context.Context, c container.Container, st
 			case "userinput":
 				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
 					log.Error().Err(err).Msg("error writing to container")
-					break
+					break loop
 				}
 			case "resize":
 				if err := session.Resize(event.Width, event.Height); err != nil {
@@ -157,6 +158,7 @@ func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd 
 		defer cancel()
 
 		decoder := json.NewDecoder(stdin)
+	loop:
 		for {
 			var event container.ExecEvent
 			if err := decoder.Decode(&event); err != nil {
@@ -170,7 +172,7 @@ func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd 
 			case "userinput":
 				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
 					log.Error().Err(err).Msg("error writing to container")
-					break
+					break loop
 				}
 			case "resize":
 				if err := session.Resize(event.Width, event.Height); err != nil {

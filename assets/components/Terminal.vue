@@ -74,16 +74,11 @@ onMounted(() => {
   });
 
   // Handle window resize
-  const resizeObserver = new ResizeObserver(() => {
-    fitAddon.fit();
-  });
-
-  if (host.value) {
-    resizeObserver.observe(host.value);
-  }
-
-  onUnmounted(() => {
-    resizeObserver.disconnect();
+  const { width, height } = useWindowSize();
+  watch([width, height], () => {
+    requestAnimationFrame(() => {
+      fitAddon.fit();
+    });
   });
 });
 
