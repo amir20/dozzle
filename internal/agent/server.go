@@ -342,6 +342,66 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 	return nil
 }
 
+func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) error {
+	request, err := stream.Recv()
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	cancelCtx, cancel := context.WithCancel(stream.Context())
+	session, err := s.client.ContainerAttach(cancelCtx, request.ContainerId)
+	if err != nil {
+		cancel()
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	var wg sync.WaitGroup
+
+	// Read from container and send to client
+	wg.Go(func() {
+		defer cancel()
+		buffer := make([]byte, 1024)
+		for {
+			n, err := session.Reader.Read(buffer)
+			if err != nil {
+				return
+			}
+
+			if err := stream.Send(&pb.ContainerAttachResponse{Stdout: buffer[:n]}); err != nil {
+				return
+			}
+		}
+	})
+
+	// Read from client stream and handle stdin/resize
+	wg.Go(func() {
+		defer cancel()
+		defer session.Writer.Close()
+		for {
+			req, err := stream.Recv()
+			if err != nil {
+				return
+			}
+
+			switch payload := req.Payload.(type) {
+			case *pb.ContainerAttachRequest_Stdin:
+				if _, err := session.Writer.Write(payload.Stdin); err != nil {
+					log.Error().Err(err).Msg("error writing stdin to container")
+					return
+				}
+			case *pb.ContainerAttachRequest_Resize:
+				if err := session.Resize(uint(payload.Resize.Width), uint(payload.Resize.Height)); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
+			}
+		}
+	})
+
+	wg.Wait()
+
+	return nil
+}
+
 func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])

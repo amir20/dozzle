@@ -51,6 +51,6 @@ type Client interface {
 	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	ContainerAttach(ctx context.Context, id string) (io.WriteCloser, io.Reader, error)
+	ContainerAttach(ctx context.Context, id string) (*ExecSession, error)
 	ContainerExec(ctx context.Context, id string, cmd []string) (*ExecSession, error)
 }

@@ -30,6 +30,7 @@ const (
 	AgentService_HostInfo_FullMethodName               = "/protobuf.AgentService/HostInfo"
 	AgentService_ContainerAction_FullMethodName        = "/protobuf.AgentService/ContainerAction"
 	AgentService_ContainerExec_FullMethodName          = "/protobuf.AgentService/ContainerExec"
+	AgentService_ContainerAttach_FullMethodName        = "/protobuf.AgentService/ContainerAttach"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -47,6 +48,7 @@ type AgentServiceClient interface {
 	HostInfo(ctx context.Context, in *HostInfoRequest, opts ...grpc.CallOption) (*HostInfoResponse, error)
 	ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error)
 	ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error)
+	ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error)
 }
 
 type agentServiceClient struct {
@@ -224,6 +226,19 @@ func (c *agentServiceClient) ContainerExec(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_ContainerExecClient = grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse]
 
+func (c *agentServiceClient) ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[7], AgentService_ContainerAttach_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ContainerAttachRequest, ContainerAttachResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_ContainerAttachClient = grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse]
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -239,6 +254,7 @@ type AgentServiceServer interface {
 	HostInfo(context.Context, *HostInfoRequest) (*HostInfoResponse, error)
 	ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error)
 	ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error
+	ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -281,6 +297,9 @@ func (UnimplementedAgentServiceServer) ContainerAction(context.Context, *Contain
 }
 func (UnimplementedAgentServiceServer) ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ContainerExec not implemented")
+}
+func (UnimplementedAgentServiceServer) ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method ContainerAttach not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -448,6 +467,13 @@ func _AgentService_ContainerExec_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_ContainerExecServer = grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]
 
+func _AgentService_ContainerAttach_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentServiceServer).ContainerAttach(&grpc.GenericServerStream[ContainerAttachRequest, ContainerAttachResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgentService_ContainerAttachServer = grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -506,6 +532,12 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ContainerExec",
 			Handler:       _AgentService_ContainerExec_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ContainerAttach",
+			Handler:       _AgentService_ContainerAttach_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

@@ -112,9 +112,9 @@ func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, co
 	d.store.SubscribeNewContainers(ctx, containers)
 }
 
-func (d *DockerClientService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
+func (d *DockerClientService) Attach(ctx context.Context, c container.Container, stdin io.Reader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
-	containerWriter, containerReader, err := d.client.ContainerAttach(cancelCtx, container.ID)
+	session, err := d.client.ContainerAttach(cancelCtx, c.ID)
 	if err != nil {
 		cancel()
 		return err
@@ -123,20 +123,41 @@ func (d *DockerClientService) Attach(ctx context.Context, container container.Co
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		if _, err := io.Copy(containerWriter, stdin); err != nil {
-			log.Error().Err(err).Msg("error while reading from ws")
+		decoder := json.NewDecoder(stdin)
+		for {
+			var event container.ExecEvent
+			if err := decoder.Decode(&event); err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error while decoding event from ws")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error while writing to container")
+					break
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error while resizing terminal")
+				}
+			default:
+				log.Warn().Str("type", event.Type).Msg("unknown event type")
+			}
 		}
 		cancel()
-		containerWriter.Close()
+		session.Writer.Close()
 	})
 
 	wg.Go(func() {
-		if container.Tty {
-			if _, err := io.Copy(stdout, containerReader); err != nil {
+		if c.Tty {
+			if _, err := io.Copy(stdout, session.Reader); err != nil {
 				log.Error().Err(err).Msg("error while writing to ws")
 			}
 		} else {
-			if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
+			if _, err := stdcopy.StdCopy(stdout, stdout, session.Reader); err != nil {
 				log.Error().Err(err).Msg("error while writing to ws")
 			}
 		}
