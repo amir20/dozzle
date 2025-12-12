@@ -84,7 +84,15 @@ message ContainerActionResponse {}
 message ContainerExecRequest {
   string containerId = 1;
   repeated string command = 2;
-  bytes stdin = 3;
+  oneof payload {
+    bytes stdin = 3;
+    ResizePayload resize = 4;
+  }
+}
+
+message ResizePayload {
+  uint32 width = 1;
+  uint32 height = 2;
 }
 
 message ContainerExecResponse { bytes stdout = 1; }

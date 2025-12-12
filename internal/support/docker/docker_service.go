@@ -2,6 +2,7 @@ package docker_support
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"sync"
 	"time"
@@ -147,25 +148,47 @@ func (d *DockerClientService) Attach(ctx context.Context, container container.Co
 	return nil
 }
 
-func (d *DockerClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (d *DockerClientService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
-	containerWriter, containerReader, err := d.client.ContainerExec(cancelCtx, container.ID, cmd)
+	session, err := d.client.ContainerExec(cancelCtx, c.ID, cmd)
 	if err != nil {
 		cancel()
 		return err
 	}
 
 	var wg sync.WaitGroup
+
 	wg.Go(func() {
-		if _, err := io.Copy(containerWriter, stdin); err != nil {
-			log.Error().Err(err).Msg("error while reading from ws")
+		decoder := json.NewDecoder(stdin)
+		for {
+			var event container.ExecEvent
+			if err := decoder.Decode(&event); err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error while decoding event from ws")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error while writing to container")
+					break
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error while resizing terminal")
+				}
+			default:
+				log.Warn().Str("type", event.Type).Msg("unknown event type")
+			}
 		}
 		cancel()
-		containerWriter.Close()
+		session.Writer.Close()
 	})
 
 	wg.Go(func() {
-		if _, err := stdcopy.StdCopy(stdout, stdout, containerReader); err != nil {
+		if _, err := stdcopy.StdCopy(stdout, stdout, session.Reader); err != nil {
 			log.Error().Err(err).Msg("error while writing to ws")
 		}
 		cancel()

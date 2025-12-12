@@ -289,7 +289,7 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 	}
 
 	cancelCtx, cancel := context.WithCancel(stream.Context())
-	containerWriter, containerReader, err := s.client.ContainerExec(cancelCtx, request.ContainerId, request.Command)
+	session, err := s.client.ContainerExec(cancelCtx, request.ContainerId, request.Command)
 	if err != nil {
 		cancel()
 		return status.Error(codes.Internal, err.Error())
@@ -297,32 +297,42 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 
 	var wg sync.WaitGroup
 
-	wg.Go(func() {
-		defer cancel()
-		defer containerWriter.Close()
-		for {
-			stdinReq, err := stream.Recv()
-			if err != nil {
-				return
-			}
-
-			if _, err := containerWriter.Write(stdinReq.Stdin); err != nil {
-				return
-			}
-		}
-	})
-
+	// Read from container and send to client
 	wg.Go(func() {
 		defer cancel()
 		buffer := make([]byte, 1024)
 		for {
-			n, err := containerReader.Read(buffer)
+			n, err := session.Reader.Read(buffer)
 			if err != nil {
 				return
 			}
 
 			if err := stream.Send(&pb.ContainerExecResponse{Stdout: buffer[:n]}); err != nil {
 				return
+			}
+		}
+	})
+
+	// Read from client stream and handle stdin/resize
+	wg.Go(func() {
+		defer cancel()
+		defer session.Writer.Close()
+		for {
+			req, err := stream.Recv()
+			if err != nil {
+				return
+			}
+
+			switch payload := req.Payload.(type) {
+			case *pb.ContainerExecRequest_Stdin:
+				if _, err := session.Writer.Write(payload.Stdin); err != nil {
+					log.Error().Err(err).Msg("error writing stdin to container")
+					return
+				}
+			case *pb.ContainerExecRequest_Resize:
+				if err := session.Resize(uint(payload.Resize.Width), uint(payload.Resize.Height)); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
 			}
 		}
 	})

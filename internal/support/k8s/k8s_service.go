@@ -2,6 +2,7 @@ package k8s_support
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"sync"
 
@@ -121,9 +122,9 @@ func (k *K8sClientService) Attach(ctx context.Context, container container.Conta
 	return nil
 }
 
-func (k *K8sClientService) Exec(ctx context.Context, container container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
-	writer, reader, err := k.client.ContainerExec(cancelCtx, container.ID, cmd)
+	session, err := k.client.ContainerExec(cancelCtx, c.ID, cmd)
 	if err != nil {
 		cancel()
 		return err
@@ -132,16 +133,36 @@ func (k *K8sClientService) Exec(ctx context.Context, container container.Contain
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		defer writer.Close()
+		defer session.Writer.Close()
 		defer cancel()
-		if _, err := io.Copy(writer, stdin); err != nil {
-			log.Error().Err(err).Msg("error copying stdin")
+
+		decoder := json.NewDecoder(stdin)
+		for {
+			var event container.ExecEvent
+			if err := decoder.Decode(&event); err != nil {
+				if err != io.EOF {
+					log.Error().Err(err).Msg("error decoding event")
+				}
+				break
+			}
+
+			switch event.Type {
+			case "userinput":
+				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
+					log.Error().Err(err).Msg("error writing to container")
+					break
+				}
+			case "resize":
+				if err := session.Resize(event.Width, event.Height); err != nil {
+					log.Error().Err(err).Msg("error resizing terminal")
+				}
+			}
 		}
 	})
 
 	wg.Go(func() {
 		defer cancel()
-		if _, err := io.Copy(stdout, reader); err != nil {
+		if _, err := io.Copy(stdout, session.Reader); err != nil {
 			log.Error().Err(err).Msg("error copying stdout")
 		}
 	})

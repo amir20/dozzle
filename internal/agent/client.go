@@ -338,17 +338,17 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (io.Wr
 	panic("not implemented")
 }
 
-func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (io.WriteCloser, io.Reader, error) {
+func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (*container.ExecSession, error) {
 	stream, err := c.client.ContainerExec(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if err = stream.Send(&pb.ContainerExecRequest{
 		ContainerId: containerId,
 		Command:     cmd,
 	}); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	stdoutReader, stdoutWriter := io.Pipe()
 	stdinReader, stdinWriter := io.Pipe()
@@ -376,14 +376,32 @@ func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []st
 			}
 
 			if err := stream.Send(&pb.ContainerExecRequest{
-				Stdin: buffer[:n],
+				Payload: &pb.ContainerExecRequest_Stdin{
+					Stdin: buffer[:n],
+				},
 			}); err != nil {
 				return
 			}
 		}
 	}()
 
-	return stdinWriter, stdoutReader, nil
+	// Create resize closure that sends via gRPC
+	resizeFn := func(width uint, height uint) error {
+		return stream.Send(&pb.ContainerExecRequest{
+			Payload: &pb.ContainerExecRequest_Resize{
+				Resize: &pb.ResizePayload{
+					Width:  uint32(width),
+					Height: uint32(height),
+				},
+			},
+		})
+	}
+
+	return &container.ExecSession{
+		Writer: stdinWriter,
+		Reader: stdoutReader,
+		Resize: resizeFn,
+	}, nil
 }
 
 func (c *Client) Close() error {

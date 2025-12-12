@@ -21,6 +21,7 @@ const { container, action } = defineProps<{ container: Container; action: "attac
 
 const { Terminal } = await import("@xterm/xterm");
 const { WebLinksAddon } = await import("@xterm/addon-web-links");
+const { FitAddon } = await import("@xterm/addon-fit");
 
 const host = useTemplateRef<HTMLDivElement>("host");
 const terminal = new Terminal({
@@ -28,26 +29,65 @@ const terminal = new Terminal({
   cursorStyle: "block",
 });
 terminal.loadAddon(new WebLinksAddon());
+const fitAddon = new FitAddon();
+terminal.loadAddon(fitAddon);
 
 let ws: WebSocket | null = null;
 
+function sendEvent(type: "userinput" | "resize", data?: string, width?: number, height?: number) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  const event: { type: string; data?: string; width?: number; height?: number } = { type };
+  if (data !== undefined) event.data = data;
+  if (width !== undefined) event.width = width;
+  if (height !== undefined) event.height = height;
+
+  ws.send(JSON.stringify(event));
+}
+
 onMounted(() => {
   terminal.open(host.value!);
-  terminal.resize(100, 40);
+  fitAddon.fit();
+
   ws = new WebSocket(withBase(`/api/hosts/${container.host}/containers/${container.id}/${action}`));
   ws.onopen = () => {
     terminal.writeln(`Attaching to ${container.name} 🚀`);
+
+    // Send initial resize event
+    sendEvent("resize", undefined, terminal.cols, terminal.rows);
+
     if (action === "attach") {
-      ws?.send("\r");
+      sendEvent("userinput", "\r");
     }
+
     terminal.onData((data) => {
-      ws?.send(data);
+      sendEvent("userinput", data);
     });
+
+    // Handle terminal resize
+    terminal.onResize(({ cols, rows }) => {
+      sendEvent("resize", undefined, cols, rows);
+    });
+
     terminal.focus();
   };
+
   ws.onmessage = (event) => terminal.write(event.data);
   ws.addEventListener("close", () => {
     terminal.writeln("⚠️ Connection closed");
+  });
+
+  // Handle window resize
+  const resizeObserver = new ResizeObserver(() => {
+    fitAddon.fit();
+  });
+
+  if (host.value) {
+    resizeObserver.observe(host.value);
+  }
+
+  onUnmounted(() => {
+    resizeObserver.disconnect();
   });
 });
 
