@@ -1,16 +1,12 @@
 <template>
-  <aside>
+  <aside class="flex h-[calc(100vh-50px)] flex-col gap-2">
     <header class="flex items-center gap-4">
       <material-symbols:terminal class="size-8" />
       <h1 class="text-2xl max-md:hidden">{{ container.name }}</h1>
       <h2 class="text-sm">Started <RelativeTime :date="container.created" /></h2>
     </header>
 
-    <div class="mt-8 flex flex-col gap-2">
-      <section>
-        <div ref="host" class="shell"></div>
-      </section>
-    </div>
+    <div ref="host" class="shell flex-1"></div>
   </aside>
 </template>
 
@@ -102,7 +98,7 @@ onUnmounted(() => {
 
 .shell {
   & :deep(.terminal) {
-    @apply overflow-hidden rounded border-1 p-2;
+    @apply overflow-hidden rounded border p-2;
     &:is(.focus) {
       @apply border-primary;
     }
