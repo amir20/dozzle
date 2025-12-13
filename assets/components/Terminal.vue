@@ -1,5 +1,5 @@
 <template>
-  <aside class="flex h-[calc(100vh-50px)] flex-col gap-2">
+  <aside class="flex h-[calc(100svh-50px)] flex-col gap-2">
     <header class="flex items-center gap-4">
       <material-symbols:terminal class="size-8" />
       <h1 class="text-2xl max-md:hidden">{{ container.name }}</h1>
