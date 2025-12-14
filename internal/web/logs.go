@@ -432,7 +432,7 @@ loop:
 			sseWriter.Message(logEvent)
 		case c := <-newContainers:
 			if _, err := h.hostService.FindContainer(c.Host, c.ID, userLabels); err == nil {
-				events <- &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host}
+				events <- &container.ContainerEvent{ActorID: c.ID, Name: "container-started", Host: c.Host, Time: time.Now()}
 				go streamLogs(c)
 			}
 
