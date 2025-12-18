@@ -73,7 +73,7 @@
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-svg-loader": "^5.1.0",
     "vitepress": "1.6.4",
-    "vue": "^3.5.25",
+    "vue": "^3.5.26",
     "vue-i18n": "^11.2.2",
     "vue-router": "^4.6.4"
   },
@@ -93,7 +93,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^25.0.3",
     "@vitejs/plugin-vue": "6.0.3",
-    "@vue/compiler-sfc": "^3.5.25",
+    "@vue/compiler-sfc": "^3.5.26",
     "@vue/test-utils": "^2.4.6",
     "bumpp": "^10.3.2",
     "c8": "^10.1.3",
