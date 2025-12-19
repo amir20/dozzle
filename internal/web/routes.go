@@ -46,6 +46,7 @@ type Config struct {
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
+	Mode             string
 }
 
 type Authorization struct {

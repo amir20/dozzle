@@ -215,6 +215,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
+		Mode:             args.Mode,
 	}
 
 	assets, err := fs.Sub(content, "dist")

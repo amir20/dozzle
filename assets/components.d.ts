@@ -53,6 +53,7 @@ declare module 'vue' {
     'Ic:sharpKeyboardReturn': typeof import('~icons/ic/sharp-keyboard-return')['default']
     IndeterminateBar: typeof import('./components/common/IndeterminateBar.vue')['default']
     'Ion:ellipsisVertical': typeof import('~icons/ion/ellipsis-vertical')['default']
+    K8sMenu: typeof import('./components/K8sMenu.vue')['default']
     KeyShortcut: typeof import('./components/common/KeyShortcut.vue')['default']
     LabeledInput: typeof import('./components/common/LabeledInput.vue')['default']
     Links: typeof import('./components/Links.vue')['default']

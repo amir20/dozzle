@@ -96,7 +96,7 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 	}
 	var containers []container.Container
 	for _, c := range pod.Spec.Containers {
-		containers = append(containers, container.Container{
+		container := container.Container{
 			ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
 			Name:        pod.Name + "/" + c.Name,
 			Image:       c.Image,
@@ -108,7 +108,11 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 			Tty:         c.TTY,
 			Stats:       utils.NewRingBuffer[container.ContainerStat](300),
 			FullyLoaded: true,
-		})
+		}
+		if len(pod.OwnerReferences) > 0 {
+			container.Group = pod.OwnerReferences[0].Name
+		}
+		containers = append(containers, container)
 	}
 	return containers
 }

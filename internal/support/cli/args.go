@@ -32,7 +32,7 @@ type Args struct {
 	RemoteHost       []string            `arg:"env:DOZZLE_REMOTE_HOST,--remote-host,separate" help:"list of hosts to connect remotely"`
 	RemoteAgent      []string            `arg:"env:DOZZLE_REMOTE_AGENT,--remote-agent,separate" help:"list of agents to connect remotely"`
 	NoAnalytics      bool                `arg:"--no-analytics,env:DOZZLE_NO_ANALYTICS" help:"disables anonymous analytics"`
-	Mode             string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm)"`
+	Mode             string              `arg:"env:DOZZLE_MODE" default:"server" help:"sets the mode to run in (server, swarm, k8s)"`
 	TimeoutString    string              `arg:"--timeout,env:DOZZLE_TIMEOUT" default:"10s" help:"sets the timeout for docker client"`
 	Timeout          time.Duration       `arg:"-"`
 	Namespace        []string            `arg:"env:DOZZLE_NAMESPACE" help:"sets the namespace to use in k8s"`

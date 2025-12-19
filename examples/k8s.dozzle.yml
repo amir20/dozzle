@@ -50,7 +50,6 @@ spec:
       containers:
         - name: dozzle
           image: amir20/dozzle:latest
-          imagePullPolicy: Never
           ports:
             - containerPort: 8080
           env:

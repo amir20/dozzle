@@ -22,6 +22,7 @@ export interface Config {
     name: string;
   };
   profile?: Profile;
+  mode: "swarm" | "k8s" | "server";
 }
 
 export interface Profile {

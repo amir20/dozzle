@@ -65,6 +65,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["hosts"] = hosts
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
+		config["mode"] = h.config.Mode
 	}
 
 	if user != nil {

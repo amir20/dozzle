@@ -1,14 +1,17 @@
 <template>
-  <div v-if="ready" data-testid="side-menu" class="flex min-h-0 flex-col w-full">
+  <div v-if="ready" data-testid="side-menu" class="flex min-h-0 w-full flex-col">
     <Carousel v-model="selectedCard" class="flex-1">
+      <CarouselItem :title="$t('label.k8s-menu')" v-if="config.mode === 'k8s'" id="k8s">
+        <K8sMenu />
+      </CarouselItem>
+      <CarouselItem :title="$t('label.swarm-menu')" v-if="config.mode === 'swarm' && services.length > 0" id="swarm">
+        <SwarmMenu />
+      </CarouselItem>
       <CarouselItem :title="$t('label.host-menu')" id="host">
         <HostMenu />
       </CarouselItem>
       <CarouselItem :title="$t('label.group-menu')" v-if="customGroups.length > 0" id="group">
         <GroupMenu />
-      </CarouselItem>
-      <CarouselItem :title="$t('label.swarm-menu')" v-if="services.length > 0" id="swarm">
-        <SwarmMenu />
       </CarouselItem>
     </Carousel>
   </div>
@@ -24,13 +27,13 @@ const { ready } = storeToRefs(containerStore);
 const route = useRoute();
 const swarmStore = useSwarmStore();
 const { services, customGroups } = storeToRefs(swarmStore);
-const selectedCard = ref<"host" | "swarm" | "group">("host");
+const selectedCard = ref<"host" | "swarm" | "group" | "k8s">("host");
 
 watch(
   route,
   () => {
-    if (route.meta.menu && ["host", "swarm", "group"].includes(route.meta.menu as string)) {
-      selectedCard.value = route.meta.menu as "host" | "swarm" | "group";
+    if (route.meta.menu && ["host", "swarm", "group", "k8s"].includes(route.meta.menu as string)) {
+      selectedCard.value = route.meta.menu as "host" | "swarm" | "group" | "k8s";
     }
   },
   { immediate: true },
