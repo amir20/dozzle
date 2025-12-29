@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.26.2",
   "type": "module",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@duckdb/duckdb-wasm": "1.30.0",
+    "@duckdb/duckdb-wasm": "1.32.0",
     "@iconify-json/carbon": "^1.2.15",
     "@iconify-json/cil": "^1.2.3",
     "@iconify-json/ic": "^1.2.4",
@@ -45,8 +45,8 @@
     "@vueuse/core": "^14.1.0",
     "@vueuse/integrations": "^14.1.0",
     "@vueuse/router": "14.1.0",
-    "@xterm/addon-fit": "^0.10.0",
-    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/addon-web-links": "^0.12.0",
     "@xterm/xterm": "^5.5.0",
     "ansi-to-html": "^0.7.2",
     "d3-array": "^3.2.4",
@@ -99,7 +99,7 @@
     "c8": "^10.1.3",
     "concurrently": "^9.2.1",
     "eventsourcemock": "^2.0.0",
-    "jsdom": "^27.3.0",
+    "jsdom": "^27.4.0",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
@@ -108,7 +108,7 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.16",
     "vue-component-type-helpers": "3.2.1",
-    "vue-tsc": "3.2.0"
+    "vue-tsc": "3.2.1"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
