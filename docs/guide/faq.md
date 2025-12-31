@@ -123,19 +123,9 @@ In Swarm Mode, Dozzle instances may require their own overlay network. If you se
 ```
 services:
   logs:
-    image: amir20/dozzle:latest
+    ...
     networks: [ traefik, dozzle ]
-    environment:
-      - DOZZLE_MODE=swarm
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      mode: global
-      endpoint_mode: dnsrr
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.services.logs.loadbalancer.server.port=8080"
-        - "traefik.http.services.logs.loadbalancer.sticky.cookie.name=dozzle"
+    ...
 
 networks:
   dozzle:
@@ -144,4 +134,4 @@ networks:
     external: true
 ```
 
-Notice the external network `traefik` is the overlay network which is used for the load balancer service discovery, and we've created a new `dozzle` overlay network for the Dozzle nodes to talk to one another.
+The external network `traefik` is the overlay network which is used for the load balancer service discovery, and we've created a new `dozzle` overlay network for the Dozzle nodes to talk to one another.
