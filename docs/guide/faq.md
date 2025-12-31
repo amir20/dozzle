@@ -115,3 +115,23 @@ By default, Dozzle only shows running containers. To see stopped containers, you
 ## Is there a way to sync my settings across multiple instances of Dozzle?
 
 In single-user mode, Dozzle stores the settings in the browser's local storage. This means that the settings are only available on the browser where they were set. For Dozzle to enable syncing settings across multiple instances, it needs to know who the user is. In multi-user mode, Dozzle uses the user's username to store the settings on disk and sync them across multiple instances. This information is stored in `/data` directory. If you want to sync settings across multiple instances, you need to [enable](/guide/authentication) multi-user mode and provide a username.
+
+## My Dozzle instances are timing out in Swarm Mode or I'm not seeing all my Swarm nodes when behind a load balancer. How do I fix it?
+
+In Swarm Mode, Dozzle instances may require their own overlay network. If you see inconsistent behavior when connecting to different Dozzle nodes, consider adding a separate overlay network which only contains the Dozzle instances, as shown below:
+
+```
+services:
+  logs:
+    ...
+    networks: [ traefik, dozzle ]
+    ...
+
+networks:
+  dozzle:
+    driver: overlay
+  traefik:
+    external: true
+```
+
+The external network `traefik` is the overlay network which is used for the load balancer service discovery, and we've created a new `dozzle` overlay network for the Dozzle nodes to talk to one another.
