@@ -5,7 +5,7 @@
       <span>{{ label }}</span>
     </div>
     <div class="mb-1.5 text-lg font-semibold">{{ formattedValue }}</div>
-    <div class="text-base-content/60 mb-1 text-[10px]">avg {{ formattedAverage }} • pk {{ formattedPeak }}</div>
+    <div class="text-base-content/60 mb-1 text-[10px]">avg {{ formatValue(average) }} • pk {{ formatValue(peak) }}</div>
     <!-- Bar chart -->
     <div ref="chartContainer" class="flex h-8 items-end gap-[2px]">
       <div
@@ -13,7 +13,7 @@
         :key="i"
         class="flex-1 rounded-t-sm"
         :class="barClass"
-        :style="`height: ${calculateBarHeight(dataPoint)}%`"
+        :style="`height: ${Math.min(dataPoint, 100)}%`"
       ></div>
     </div>
   </div>
@@ -74,19 +74,8 @@ const average = computed(() => {
   return chartData.reduce((sum, val) => sum + val, 0) / chartData.length;
 });
 
-const maxChartValue = computed(() => (downsampledData.value.length > 0 ? Math.max(...downsampledData.value) : 1));
-
 const formattedValue = computed(() => {
   if (typeof value === "string") return value;
   return formatValue(value);
 });
-
-const formattedAverage = computed(() => formatValue(average.value));
-
-const formattedPeak = computed(() => formatValue(peak.value));
-
-const calculateBarHeight = (val: number) => {
-  if (maxChartValue.value === 0) return 0;
-  return Math.max((val / maxChartValue.value) * 100, 2); // Minimum 2% for visibility
-};
 </script>

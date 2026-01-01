@@ -41,18 +41,18 @@
         <MetricCard
           label="CPU"
           :icon="PhCpu"
-          :value="stats.mostRecent.totalCPU"
+          :value="stats.weighted.totalCPU"
           :chartData="cpuHistory"
           container-class="border-primary/30 bg-primary/10"
           text-class="text-primary"
           bar-class="bg-primary/50"
-          :formatValue="(value: number) => `${value.toFixed(1)}%`"
+          :formatValue="(value) => `${value.toFixed(1)}%`"
         />
 
         <MetricCard
           label="MEM"
           :icon="PhMemory"
-          :value="stats.mostRecent.totalMem"
+          :value="stats.weighted.totalMemUsage"
           :chartData="memHistory"
           container-class="border-secondary/30 bg-secondary/10"
           text-class="text-secondary"
@@ -88,9 +88,10 @@ const hostContainers = computed(() =>
 type TotalStat = {
   totalCPU: number;
   totalMem: number;
+  totalMemUsage: number;
 };
 
-const totalStat = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
+const totalStat = ref<TotalStat>({ totalCPU: 0, totalMem: 0, totalMemUsage: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
 const cpuHistory = computed(() => history.value.map((stat) => stat.totalCPU));
@@ -111,10 +112,11 @@ watch(
           }
           return {
             totalCPU: acc.totalCPU + item.cpu,
-            totalMem: acc.totalMem + item.memoryUsage,
+            totalMem: acc.totalMem + item.memory,
+            totalMemUsage: acc.totalMemUsage + item.memoryUsage,
           };
         },
-        { totalCPU: 0, totalMem: 0 },
+        { totalCPU: 0, totalMem: 0, totalMemUsage: 0 },
       );
       initial.push(stat);
     }
@@ -128,10 +130,11 @@ useIntervalFn(() => {
     (acc, { stat }) => {
       return {
         totalCPU: acc.totalCPU + stat.cpu,
-        totalMem: acc.totalMem + stat.memoryUsage,
+        totalMem: acc.totalMem + stat.memory,
+        totalMemUsage: acc.totalMemUsage + stat.memoryUsage,
       };
     },
-    { totalCPU: 0, totalMem: 0 },
+    { totalCPU: 0, totalMem: 0, totalMemUsage: 0 },
   );
 }, 1000);
 </script>
