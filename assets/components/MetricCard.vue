@@ -22,6 +22,11 @@
 <script setup lang="ts">
 import type { Component } from "vue";
 
+export interface MetricDataPoint {
+  percent: number; // value 0 - 100
+  value: number;
+}
+
 const {
   label,
   icon,
@@ -35,7 +40,7 @@ const {
   label: string;
   icon: Component;
   value: string | number;
-  chartData: number[];
+  chartData: MetricDataPoint[];
   containerClass?: string;
   textClass?: string;
   barClass?: string;
@@ -51,7 +56,7 @@ const downsampledData = computed(() => {
   const availableBars = Math.floor(width.value / (BAR_WIDTH + GAP));
 
   if (chartData.length <= availableBars || availableBars === 0) {
-    return chartData;
+    return chartData.map((d) => d.percent);
   }
 
   // Downsample by averaging buckets
@@ -61,17 +66,17 @@ const downsampledData = computed(() => {
     const start = Math.floor(i * bucketSize);
     const end = Math.floor((i + 1) * bucketSize);
     const bucket = chartData.slice(start, end);
-    const avg = bucket.reduce((sum, val) => sum + val, 0) / bucket.length;
+    const avg = bucket.reduce((sum, val) => sum + val.percent, 0) / bucket.length;
     result.push(avg);
   }
   return result;
 });
 
-const peak = computed(() => (chartData.length > 0 ? Math.max(...chartData) : 0));
+const peak = computed(() => (chartData.length > 0 ? Math.max(...chartData.map((d) => d.value)) : 0));
 
 const average = computed(() => {
   if (chartData.length === 0) return 0;
-  return chartData.reduce((sum, val) => sum + val, 0) / chartData.length;
+  return chartData.reduce((sum, d) => sum + d.value, 0) / chartData.length;
 });
 
 const formattedValue = computed(() => {

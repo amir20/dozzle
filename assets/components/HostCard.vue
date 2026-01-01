@@ -94,8 +94,18 @@ type TotalStat = {
 const totalStat = ref<TotalStat>({ totalCPU: 0, totalMem: 0, totalMemUsage: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
-const cpuHistory = computed(() => history.value.map((stat) => stat.totalCPU));
-const memHistory = computed(() => history.value.map((stat) => stat.totalMem));
+const cpuHistory = computed(() =>
+  history.value.map((stat) => ({
+    percent: stat.totalCPU,
+    value: stat.totalCPU,
+  })),
+);
+const memHistory = computed(() =>
+  history.value.map((stat) => ({
+    percent: stat.totalMem,
+    value: stat.totalMemUsage,
+  })),
+);
 
 const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
 
