@@ -1,7 +1,7 @@
 <template>
   <div class="card bg-base-100">
     <div class="card-body flex gap-2">
-      <div class="flex flex-col gap-2 overflow-hidden">
+      <div class="flex flex-row gap-2 overflow-hidden">
         <div class="flex items-center gap-1 truncate text-xl font-semibold">
           <HostIcon :type="host.type" class="flex-none" />
           <div class="truncate">
@@ -28,53 +28,37 @@
             <span class="max-md:hidden">total</span>
           </li>
         </ul> -->
-        <ul class="flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">
+        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">
           <li class="flex items-center gap-1">
             <octicon:container-24 class="inline-block" />
-            {{ $t("label.container", containerCount) }}
+            {{ $t("label.container", hostContainers.length) }}
           </li>
           <li class="flex items-center gap-1"><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
         </ul>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 md:gap-4" v-if="stats">
-        <!-- CPU Card -->
-        <div class="border-primary/30 bg-primary/10 rounded-lg border p-3">
-          <div class="text-primary mb-2 flex items-center gap-1.5 text-xs font-medium">
-            <ph:cpu class="text-sm" />
-            <span>CPU</span>
-          </div>
-          <div class="mb-1.5 text-lg font-semibold">4%</div>
-          <div class="text-base-content/60 mb-1 text-[10px]">avg 1.2 • pk 4.5</div>
-          <!-- Bar chart placeholder -->
-          <div class="flex h-8 items-end gap-[2px]">
-            <div
-              v-for="i in 24"
-              :key="i"
-              class="bg-primary/50 flex-1 rounded-sm"
-              :style="`height: ${20 + Math.random() * 60}%`"
-            ></div>
-          </div>
-        </div>
+      <div class="grid grid-cols-2 gap-2 md:gap-3" v-if="stats">
+        <MetricCard
+          label="CPU"
+          :icon="PhCpu"
+          :value="stats.mostRecent.totalCPU"
+          :chartData="cpuHistory"
+          container-class="border-primary/30 bg-primary/10"
+          text-class="text-primary"
+          bar-class="bg-primary/50"
+          :formatValue="(value: number) => `${value.toFixed(1)}%`"
+        />
 
-        <!-- Memory Card -->
-        <div class="border-secondary/30 bg-secondary/10 rounded-lg border p-3">
-          <div class="text-secondary mb-2 flex items-center gap-1.5 text-xs font-medium">
-            <ph:memory class="text-sm" />
-            <span>MEM</span>
-          </div>
-          <div class="mb-1.5 text-lg font-semibold">1.9G</div>
-          <div class="text-base-content/60 mb-1 text-[10px]">avg 1.5 • pk 2.1</div>
-          <!-- Bar chart placeholder -->
-          <div class="flex h-8 items-end gap-[2px]">
-            <div
-              v-for="i in 24"
-              :key="i"
-              class="bg-secondary/50 flex-1 rounded-sm"
-              :style="`height: ${30 + Math.random() * 50}%`"
-            ></div>
-          </div>
-        </div>
+        <MetricCard
+          label="MEM"
+          :icon="PhMemory"
+          :value="stats.mostRecent.totalMem"
+          :chartData="memHistory"
+          container-class="border-secondary/30 bg-secondary/10"
+          text-class="text-secondary"
+          bar-class="bg-secondary/50"
+          :formatValue="formatBytes"
+        />
       </div>
     </div>
   </div>
@@ -83,6 +67,10 @@
 <script setup lang="ts">
 import type { Host } from "@/stores/hosts";
 import { Container } from "@/models/Container";
+// @ts-ignore
+import PhCpu from "~icons/ph/cpu";
+// @ts-ignore
+import PhMemory from "~icons/ph/memory";
 
 const props = defineProps<{
   host: Host;
@@ -97,26 +85,53 @@ const hostContainers = computed(() =>
   containers.value.filter((container) => container.host === props.host.id && container.state === "running"),
 );
 
-const containerCount = computed(() => hostContainers.value.length);
-
 type TotalStat = {
   totalCPU: number;
   totalMem: number;
 };
 
-const mostRecent = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
-const stats = reactive({ mostRecent, weighted: useExponentialMovingAverage(mostRecent) });
+const totalStat = ref<TotalStat>({ totalCPU: 0, totalMem: 0 });
+const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 
-useIntervalFn(
+const cpuHistory = computed(() => history.value.map((stat) => stat.totalCPU));
+const memHistory = computed(() => history.value.map((stat) => stat.totalMem));
+
+const stats = reactive({ mostRecent: totalStat, weighted: useExponentialMovingAverage(totalStat) });
+
+watch(
+  () => hostContainers.value,
   () => {
-    const stat = { totalCPU: 0, totalMem: 0 };
-    for (const container of hostContainers.value) {
-      stat.totalCPU += container.stat.cpu;
-      stat.totalMem += container.stat.memoryUsage;
+    const initial: TotalStat[] = [];
+    for (let i = 1; i <= 300; i++) {
+      const stat = hostContainers.value.reduce(
+        (acc, { statsHistory }) => {
+          const item = statsHistory.at(-i);
+          if (!item) {
+            return acc;
+          }
+          return {
+            totalCPU: acc.totalCPU + item.cpu,
+            totalMem: acc.totalMem + item.memoryUsage,
+          };
+        },
+        { totalCPU: 0, totalMem: 0 },
+      );
+      initial.push(stat);
     }
-    mostRecent.value = stat;
+    reset({ initial: initial.reverse() });
   },
-  1000,
   { immediate: true },
 );
+
+useIntervalFn(() => {
+  totalStat.value = hostContainers.value.reduce(
+    (acc, { stat }) => {
+      return {
+        totalCPU: acc.totalCPU + stat.cpu,
+        totalMem: acc.totalMem + stat.memoryUsage,
+      };
+    },
+    { totalCPU: 0, totalMem: 0 },
+  );
+}, 1000);
 </script>

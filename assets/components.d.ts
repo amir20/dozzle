@@ -96,6 +96,7 @@ declare module 'vue' {
     'Mdi:lightningBolt': typeof import('~icons/mdi/lightning-bolt')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
+    MetricCard: typeof import('./components/MetricCard.vue')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']
     MultiContainerLog: typeof import('./components/MultiContainerViewer/MultiContainerLog.vue')['default']
