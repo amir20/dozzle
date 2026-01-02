@@ -1,16 +1,20 @@
 <template>
   <div class="flex gap-1 md:gap-4">
     <StatMonitor
-      :data="memoryData"
-      label="mem"
-      :stat-value="formatBytes(totalStat.memoryUsage)"
-      :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
-    />
-    <StatMonitor
       :data="cpuData"
-      label="load"
+      :icon="PhCpu"
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
       :limit="roundCPU(limits.cpu) + ' CPU'"
+      container-class="border-primary/30 bg-primary/10"
+      bar-class="bg-primary/70"
+    />
+    <StatMonitor
+      :data="memoryData"
+      :icon="PhMemory"
+      :stat-value="formatBytes(totalStat.memoryUsage)"
+      :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
+      container-class="border-secondary/30 bg-secondary/10"
+      bar-class="bg-secondary/70"
     />
   </div>
 </template>
@@ -18,6 +22,10 @@
 <script lang="ts" setup>
 import { Stat } from "@/models/Container";
 import { Container } from "@/models/Container";
+// @ts-ignore
+import PhCpu from "~icons/ph/cpu";
+// @ts-ignore
+import PhMemory from "~icons/ph/memory";
 
 const { containers } = defineProps<{
   containers: Container[];

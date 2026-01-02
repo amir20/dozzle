@@ -3,9 +3,10 @@
     <div
       v-for="(dataPoint, i) in downsampledData"
       :key="i"
-      class="flex-1 rounded-t-sm"
+      class="hover:bg-primary flex-1 rounded-t-sm"
       :class="barClass"
       :style="`height: ${Math.min(dataPoint, 100)}%`"
+      @mousemove="onBarHover(i)"
     ></div>
   </div>
 </template>
@@ -15,6 +16,8 @@ const { chartData, barClass = "" } = defineProps<{
   chartData: number[];
   barClass?: string;
 }>();
+
+const hoverIndex = defineEmit<[index: number]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
 const { width } = useElementSize(chartContainer);
@@ -74,5 +77,13 @@ function recalculate() {
 
   // Show only the last N bars that fit on screen
   downsampledData.value = result.slice(-availableBars.value);
+}
+
+function onBarHover(index: number) {
+  // Map downsampled index back to original data index
+  const numCompleteBuckets = Math.floor(chartData.length / bucketSize.value);
+  const offset = Math.max(0, numCompleteBuckets - availableBars.value);
+  const originalIndex = (offset + index) * bucketSize.value + bucketSize.value - 1;
+  hoverIndex(Math.min(originalIndex, chartData.length - 1));
 }
 </script>
