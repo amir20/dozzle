@@ -19,25 +19,60 @@ const { chartData, barClass = "" } = defineProps<{
 const chartContainer = ref<HTMLElement | null>(null);
 const { width } = useElementSize(chartContainer);
 
-const downsampledData = computed(() => {
-  const BAR_WIDTH = 3;
-  const GAP = 2;
-  const availableBars = Math.floor(width.value / (BAR_WIDTH + GAP));
+const BAR_WIDTH = 3;
+const GAP = 2;
 
-  if (chartData.length <= availableBars || availableBars === 0) {
-    return chartData;
+const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP)));
+const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
+
+const downsampledData = ref<number[]>([]);
+const changeCounter = ref(-1);
+
+// Watch chartData changes
+watch(
+  () => chartData,
+  () => {
+    // If changeCounter is -1, it means this is the first time the data is loaded
+    if (changeCounter.value === -1) {
+      recalculate();
+    }
+    changeCounter.value++;
+    if (changeCounter.value >= bucketSize.value) {
+      // Recalculate when counter reaches bucket size
+      recalculate();
+      changeCounter.value = 0;
+    }
+  },
+  { deep: true },
+);
+
+// Recalculate when width changes
+watch([availableBars, bucketSize], () => {
+  recalculate();
+  changeCounter.value = -1;
+});
+
+function recalculate() {
+  if (chartData.length <= availableBars.value || availableBars.value === 0) {
+    downsampledData.value = [...chartData];
+    return;
   }
 
-  // Downsample by averaging buckets
-  const bucketSize = chartData.length / availableBars;
+  const size = bucketSize.value;
   const result = [];
-  for (let i = 0; i < availableBars; i++) {
-    const start = Math.floor(i * bucketSize);
-    const end = Math.floor((i + 1) * bucketSize);
+
+  // Create complete buckets
+  const numCompleteBuckets = Math.floor(chartData.length / size);
+
+  for (let i = 0; i < numCompleteBuckets; i++) {
+    const start = i * size;
+    const end = start + size;
     const bucket = chartData.slice(start, end);
     const avg = bucket.reduce((sum, val) => sum + val, 0) / bucket.length;
     result.push(avg);
   }
-  return result;
-});
+
+  // Show only the last N bars that fit on screen
+  downsampledData.value = result.slice(-availableBars.value);
+}
 </script>
