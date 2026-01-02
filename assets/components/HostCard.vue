@@ -21,13 +21,6 @@
             {{ host.agentVersion }}
           </span>
         </div>
-        <!-- <ul class="flex flex-row gap-x-2 text-sm md:gap-3">
-          <li class="flex items-center gap-1"><ph:cpu /> {{ host.nCPU }} <span class="max-md:hidden">CPUs</span></li>
-          <li class="flex items-center gap-1">
-            <ph:memory /> {{ formatBytes(host.memTotal) }}
-            <span class="max-md:hidden">total</span>
-          </li>
-        </ul> -->
         <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm max-md:text-xs md:gap-3">
           <li class="flex items-center gap-1">
             <octicon:container-24 class="inline-block" />
@@ -85,6 +78,13 @@ const hostContainers = computed(() =>
   containers.value.filter((container) => container.host === props.host.id && container.state === "running"),
 );
 
+function toContainerCores(container: Container): number {
+  if (container.cpuLimit && container.cpuLimit > 0) {
+    return container.cpuLimit;
+  }
+  return props.host.nCPU ?? 1;
+}
+
 type TotalStat = {
   totalCPU: number;
   totalMem: number;
@@ -115,13 +115,14 @@ watch(
     const initial: TotalStat[] = [];
     for (let i = 1; i <= 300; i++) {
       const stat = hostContainers.value.reduce(
-        (acc, { statsHistory }) => {
-          const item = statsHistory.at(-i);
+        (acc, container) => {
+          const item = container.statsHistory.at(-i);
           if (!item) {
             return acc;
           }
+          const cores = toContainerCores(container);
           return {
-            totalCPU: acc.totalCPU + item.cpu,
+            totalCPU: acc.totalCPU + item.cpu / cores,
             totalMem: acc.totalMem + item.memory,
             totalMemUsage: acc.totalMemUsage + item.memoryUsage,
           };
@@ -138,11 +139,12 @@ watch(
 
 useIntervalFn(() => {
   totalStat.value = hostContainers.value.reduce(
-    (acc, { stat }) => {
+    (acc, container) => {
+      const cores = toContainerCores(container);
       return {
-        totalCPU: acc.totalCPU + stat.cpu,
-        totalMem: acc.totalMem + stat.memory,
-        totalMemUsage: acc.totalMemUsage + stat.memoryUsage,
+        totalCPU: acc.totalCPU + container.stat.cpu / cores,
+        totalMem: acc.totalMem + container.stat.memory,
+        totalMemUsage: acc.totalMemUsage + container.stat.memoryUsage,
       };
     },
     { totalCPU: 0, totalMem: 0, totalMemUsage: 0 },
