@@ -1,6 +1,6 @@
 <template>
   <div class="card bg-base-100">
-    <div class="card-body flex gap-2">
+    <div class="card-body flex gap-2 max-md:p-4">
       <div class="flex flex-row gap-2 overflow-hidden">
         <div class="flex items-center gap-1 truncate text-xl font-semibold">
           <HostIcon :type="host.type" class="flex-none" />
@@ -28,7 +28,7 @@
             <span class="max-md:hidden">total</span>
           </li>
         </ul> -->
-        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm md:gap-3">
+        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm max-md:text-xs md:gap-3">
           <li class="flex items-center gap-1">
             <octicon:container-24 class="inline-block" />
             {{ $t("label.container", hostContainers.length) }}
@@ -57,7 +57,7 @@
           container-class="border-secondary/30 bg-secondary/10"
           text-class="text-secondary"
           bar-class="bg-secondary/50"
-          :formatValue="formatBytes"
+          :formatValue="(value) => formatBytes(value, { decimals: 1 })"
         />
       </div>
     </div>
