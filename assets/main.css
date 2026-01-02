@@ -147,3 +147,7 @@ body {
 [class*="shadow-"] {
   @apply shadow-base-content/8;
 }
+
+.splitpanes--vertical .splitpanes__pane {
+  transition: none !important;
+}
