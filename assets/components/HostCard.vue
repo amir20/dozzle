@@ -32,7 +32,6 @@
 
       <div class="grid grid-cols-2 gap-2 md:gap-3" v-if="stats">
         <MetricCard
-          label="CPU"
           :icon="PhCpu"
           :value="stats.weighted.movingAverage.totalCPU"
           :chartData="cpuHistory"
@@ -40,10 +39,10 @@
           text-class="text-primary"
           bar-class="bg-primary/50"
           :formatValue="(value) => `${value.toFixed(1)}%`"
+          :label="`${host.nCPU} CPU`"
         />
 
         <MetricCard
-          label="MEM"
           :icon="PhMemory"
           :value="stats.weighted.movingAverage.totalMemUsage"
           :chartData="memHistory"
@@ -51,6 +50,7 @@
           text-class="text-secondary"
           bar-class="bg-secondary/50"
           :formatValue="(value) => formatBytes(value, { decimals: 1 })"
+          :label="formatBytes(host.memTotal, { decimals: 1 })"
         />
       </div>
     </div>
