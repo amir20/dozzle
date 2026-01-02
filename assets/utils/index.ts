@@ -70,7 +70,7 @@ export function useExponentialMovingAverage<T extends Record<string, number>>(so
     ema.value = newValue as T;
   });
 
-  return ema;
+  return { movingAverage: ema, reset: (value: T) => (ema.value = value) };
 }
 
 interface UseSimpleRefHistoryOptions<T> {

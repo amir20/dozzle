@@ -41,7 +41,7 @@
         <MetricCard
           label="CPU"
           :icon="PhCpu"
-          :value="stats.weighted.totalCPU"
+          :value="stats.weighted.movingAverage.totalCPU"
           :chartData="cpuHistory"
           container-class="border-primary/30 bg-primary/10"
           text-class="text-primary"
@@ -52,7 +52,7 @@
         <MetricCard
           label="MEM"
           :icon="PhMemory"
-          :value="stats.weighted.totalMemUsage"
+          :value="stats.weighted.movingAverage.totalMemUsage"
           :chartData="memHistory"
           container-class="border-secondary/30 bg-secondary/10"
           text-class="text-secondary"
@@ -131,6 +131,7 @@ watch(
       initial.push(stat);
     }
     reset({ initial: initial.reverse() });
+    stats.weighted.reset(initial.at(-1)!);
   },
   { immediate: true },
 );
