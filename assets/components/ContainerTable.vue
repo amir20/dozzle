@@ -211,7 +211,7 @@ function isVisible(field: keys) {
 
 function getContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return container.cpuLimit;
+    return 1;
   }
   const hostInfo = hosts.value[container.host];
   return hostInfo?.nCPU ?? 1;

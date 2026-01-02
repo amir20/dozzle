@@ -80,7 +80,7 @@ const hostContainers = computed(() =>
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return container.cpuLimit;
+    return 1;
   }
   return props.host.nCPU ?? 1;
 }
@@ -113,6 +113,7 @@ watch(
   () => hostContainers.value,
   () => {
     const initial: TotalStat[] = [];
+
     for (let i = 1; i <= 300; i++) {
       const stat = hostContainers.value.reduce(
         (acc, container) => {
