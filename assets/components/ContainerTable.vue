@@ -53,7 +53,7 @@
               v-for="(value, key) in fields"
               :key="key"
               @click.prevent="sort(key)"
-              :class="{ 'selected-sort': key === sortField }"
+              :class="[value.customClass, { 'selected-sort': key === sortField }]"
               v-show="isVisible(key)"
             >
               <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
@@ -78,25 +78,25 @@
               <RelativeTime :date="container.created" />
             </td>
             <td v-if="isVisible('cpu')">
-              <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress h-3 w-full rounded-3xl"
-                  :class="getProgressColorClass(containerAverageCpu(container))"
-                  :value="containerAverageCpu(container)"
-                  max="100"
-                ></progress>
-                <span class="w-8 text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
+              <div class="flex flex-row items-center gap-2">
+                <BarChart
+                  class="h-4 flex-1"
+                  :chart-data="cpuHistory(container)"
+                  :bar-class="barClass(containerAverageCpu(container))"
+                />
+                <span class="w-fit text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
               </div>
             </td>
             <td v-if="isVisible('mem')">
-              <div class="flex flex-row items-center gap-1">
-                <progress
-                  class="progress h-3 w-full rounded-3xl"
-                  :class="getProgressColorClass(container.movingAverage.memory)"
-                  :value="container.movingAverage.memory"
-                  max="100"
-                ></progress>
-                <span class="w-8 text-right text-sm"> {{ container.movingAverage.memory.toFixed(0) }}% </span>
+              <div class="flex flex-row items-center gap-2">
+                <BarChart
+                  class="h-4 flex-1"
+                  :chart-data="memoryHistory(container)"
+                  :bar-class="barClass(container.movingAverage.memory)"
+                />
+                <span class="w-fit text-right text-sm">
+                  {{ formatBytes(container.movingAverage.memoryUsage) }}
+                </span>
               </div>
             </td>
           </tr>
@@ -131,7 +131,15 @@ import { toRefs } from "@vueuse/core";
 const { hosts } = useHosts();
 const selectedHost = ref(null);
 
-const fields = {
+const fields: Record<
+  string,
+  {
+    label: string;
+    sortFunc: (a: Container, b: Container) => number;
+    mobileVisible: boolean;
+    customClass?: string;
+  }
+> = {
   name: {
     label: "label.container-name",
     sortFunc: (a: Container, b: Container) => a.name.localeCompare(b.name) * direction.value,
@@ -141,26 +149,32 @@ const fields = {
     label: "label.host",
     sortFunc: (a: Container, b: Container) => a.hostLabel.localeCompare(b.hostLabel) * direction.value,
     mobileVisible: false,
+    customClass: "w-1",
   },
   state: {
     label: "label.status",
     sortFunc: (a: Container, b: Container) => a.state.localeCompare(b.state) * direction.value,
     mobileVisible: false,
+    customClass: "w-1",
   },
   created: {
     label: "label.created",
     sortFunc: (a: Container, b: Container) => (a.created.getTime() - b.created.getTime()) * direction.value,
     mobileVisible: true,
+    customClass: "w-1",
   },
   cpu: {
     label: "label.avg-cpu",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
     mobileVisible: false,
+    customClass: "min-w-48",
   },
   mem: {
     label: "label.avg-mem",
-    sortFunc: (a: Container, b: Container) => (a.movingAverage.memory - b.movingAverage.memory) * direction.value,
+    sortFunc: (a: Container, b: Container) =>
+      (a.movingAverage.memoryUsage - b.movingAverage.memoryUsage) * direction.value,
     mobileVisible: false,
+    customClass: "min-w-48",
   },
 };
 
@@ -209,7 +223,7 @@ function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
 }
 
-function getContainerCores(container: Container): number {
+function totalContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
     return 1;
   }
@@ -218,16 +232,25 @@ function getContainerCores(container: Container): number {
 }
 
 function containerAverageCpu(container: Container): number {
-  const cores = getContainerCores(container);
+  const cores = totalContainerCores(container);
   const scaledCpu = container.movingAverage.cpu / cores;
   return Math.min(scaledCpu, 100);
 }
 
-function getProgressColorClass(value: number): string {
-  if (value <= 70) return "progress-success";
-  if (value <= 80) return "progress-secondary";
-  if (value <= 90) return "progress-warning";
-  return "progress-error";
+function cpuHistory(container: Container): number[] {
+  const cores = totalContainerCores(container);
+  return container.statsHistory.map((stat) => Math.min(stat.cpu / cores, 100));
+}
+
+function memoryHistory(container: Container): number[] {
+  return container.statsHistory.map((stat) => Math.min(stat.memory, 100));
+}
+
+function barClass(value: number): string {
+  if (value <= 50) return "bg-success";
+  if (value <= 70) return "bg-secondary";
+  if (value <= 90) return "bg-warning";
+  return "bg-error";
 }
 </script>
 
@@ -251,13 +274,6 @@ th {
       display: inline-block;
     }
   }
-}
-
-tbody td {
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 a {

@@ -3,7 +3,7 @@
     <div
       v-for="(dataPoint, i) in downsampledData"
       :key="i"
-      class="flex-1 rounded-t-sm"
+      class="min-h-px flex-1 rounded-t-sm"
       :class="barClass"
       :style="`height: ${Math.min(dataPoint, 100)}%`"
       @mousemove="onBarHover(i)"
