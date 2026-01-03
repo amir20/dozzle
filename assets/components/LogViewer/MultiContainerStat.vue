@@ -6,7 +6,7 @@
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
       :limit="roundCPU(limits.cpu) + ' CPU'"
       container-class="border-primary/30 bg-primary/10"
-      bar-class="bg-primary/70"
+      bar-class="bg-primary"
     />
     <StatMonitor
       :data="memoryData"
@@ -14,7 +14,7 @@
       :stat-value="formatBytes(totalStat.memoryUsage)"
       :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
       container-class="border-secondary/30 bg-secondary/10"
-      bar-class="bg-secondary/70"
+      bar-class="bg-secondary"
     />
   </div>
 </template>
@@ -112,7 +112,7 @@ const cpuData = computed(() =>
 const memoryData = computed(() =>
   history.value.map((stat, i) => ({
     x: i,
-    y: stat.memoryUsage,
+    y: stat.memory,
     value: formatBytes(stat.memoryUsage),
   })),
 );

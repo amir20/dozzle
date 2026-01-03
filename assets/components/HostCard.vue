@@ -37,7 +37,7 @@
           :chartData="cpuHistory"
           container-class="border-primary/30 bg-primary/10"
           text-class="text-primary"
-          bar-class="bg-primary/70"
+          bar-class="bg-primary"
           :formatValue="(value) => `${value.toFixed(1)}%`"
           :label="`${host.nCPU} CPU`"
         />
@@ -48,7 +48,7 @@
           :chartData="memHistory"
           container-class="border-secondary/30 bg-secondary/10"
           text-class="text-secondary"
-          bar-class="bg-secondary/70"
+          bar-class="bg-secondary"
           :formatValue="(value) => formatBytes(value, { decimals: 1 })"
           :label="formatBytes(host.memTotal, { decimals: 1 })"
         />
