@@ -1,17 +1,14 @@
 <template>
-  <div class="hover:text-primary relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+  <div class="relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false" :class="textClass">
     <div class="overflow-hidden rounded-xs border px-px pt-1 pb-px max-md:hidden" :class="containerClass">
       <BarChart
         :chart-data="chartData"
         :bar-class="`${barClass} opacity-70 hover:opacity-100`"
         class="h-8 w-44"
-        @hover-index="onHoverIndex"
+        @hover-index="(index: number) => (hoveredIndex = index)"
       />
     </div>
-    <div
-      class="bg-base-200 inline-flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5"
-      :class="textClass"
-    >
+    <div class="bg-base-200 inline-flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
       <component :is="icon" class="text-sm" />
       <div class="font-bold select-none">
         {{ displayValue }}
@@ -53,8 +50,4 @@ const displayValue = computed(() => {
   }
   return statValue;
 });
-
-function onHoverIndex(index: number) {
-  hoveredIndex.value = index;
-}
 </script>

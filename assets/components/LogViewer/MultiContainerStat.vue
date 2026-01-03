@@ -6,6 +6,7 @@
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
       :limit="roundCPU(limits.cpu) + ' CPU'"
       container-class="border-primary/30 bg-primary/10"
+      text-class="hover:text-primary"
       bar-class="bg-primary"
     />
     <StatMonitor
@@ -14,6 +15,7 @@
       :stat-value="formatBytes(totalStat.memoryUsage)"
       :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
       container-class="border-secondary/30 bg-secondary/10"
+      text-class="hover:text-secondary"
       bar-class="bg-secondary"
     />
   </div>
