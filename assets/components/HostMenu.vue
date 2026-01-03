@@ -64,7 +64,7 @@
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="text-base-content/80 font-light">
               <component :is="icon" />
-              {{ label.startsWith("label.") ? $t(label) : label }}
+              {{ label.startsWith("label.") ? $t(label) : label }} ({{ containers.length }})
 
               <router-link
                 :to="{

@@ -27,7 +27,7 @@
       <details open>
         <summary class="text-base-content/80 font-light">
           <ph:stack />
-          {{ name }}
+          {{ name }} ({{ services.length }})
 
           <router-link
             :to="{ name: '/stack/[name]', params: { name } }"
@@ -55,7 +55,7 @@
       <details open>
         <summary class="text-base-content/80 font-light">
           <ph:circles-four />
-          {{ $t("label.services") }}
+          {{ $t("label.services") }} ({{ servicesWithoutStacks.length }})
         </summary>
         <ul>
           <li v-for="service in servicesWithoutStacks" :key="service.name">
