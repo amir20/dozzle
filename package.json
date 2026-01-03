@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.27.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -68,7 +68,7 @@
     "unplugin-icons": "^22.5.0",
     "unplugin-vue-components": "^30.0.0",
     "unplugin-vue-macros": "^2.14.5",
-    "unplugin-vue-router": "^0.19.1",
+    "unplugin-vue-router": "^0.19.2",
     "vite": "7.3.0",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-svg-loader": "^5.1.0",
@@ -81,7 +81,7 @@
     "@apache-arrow/esnext-esm": "^21.1.0",
     "@iconify-json/ion": "^1.2.6",
     "@iconify-json/material-symbols-light": "^1.2.50",
-    "@iconify-json/ri": "^1.2.6",
+    "@iconify-json/ri": "^1.2.7",
     "@pinia/testing": "^1.0.3",
     "@playwright/test": "^1.57.0",
     "@types/d3-array": "^3.2.2",
