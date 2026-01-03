@@ -2,7 +2,7 @@
   <ScrollableView :scrollable="scrollable" v-if="container">
     <template #header v-if="showTitle">
       <div class="@container mx-2 flex items-center gap-1 md:ml-4 md:gap-2">
-        <ContainerTitle :container="container" class="mt-1 md:mt-0" />
+        <ContainerTitle :container="container" />
         <MultiContainerStat
           class="ml-auto lg:hidden lg:@3xl:flex"
           :containers="[container]"
