@@ -276,6 +276,10 @@ th {
   }
 }
 
+tbody td {
+  white-space: nowrap;
+}
+
 a {
   @apply hover:text-primary;
 }
