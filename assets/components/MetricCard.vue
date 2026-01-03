@@ -1,11 +1,13 @@
 <template>
-  <div class="rounded-lg border p-3" :class="containerClass">
-    <div class="mb-2 flex items-center gap-1.5 text-xs font-medium" :class="textClass">
-      <component :is="icon" class="text-sm" />
+  <div class="rounded-lg border p-2 md:p-3" :class="containerClass">
+    <div class="mb-2 flex items-center gap-1.5 text-sm font-medium" :class="textClass">
+      <component :is="icon" class="text-lg" />
       <span>{{ label }}</span>
     </div>
     <div class="mb-1.5 text-lg font-semibold">{{ formattedValue }}</div>
-    <div class="text-base-content/60 mb-1 text-[10px]">avg {{ formatValue(average) }} • pk {{ formatValue(peak) }}</div>
+    <div class="text-base-content/60 mb-1 text-xs max-md:hidden">
+      avg {{ formatValue(average) }} • pk {{ formatValue(peak) }}
+    </div>
     <BarChart class="h-8" :chartData="percentData" :barClass="barClass" />
   </div>
 </template>
