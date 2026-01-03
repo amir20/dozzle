@@ -149,6 +149,10 @@ The frontend uses file-based routing with these conventions:
   - `LogViewer/`: Core log viewing components
   - `ContainerViewer/`: Container-specific UI
   - `common/`: Reusable UI components
+  - `BarChart.vue`: Lightweight bar chart with automatic downsampling
+  - `HostCard.vue`: Host overview card with metrics
+  - `MetricCard.vue`: Reusable metric display component
+  - `ContainerTable.vue`: Container table with historical stat visualization
 
 - **`assets/stores/`** - Pinia stores (auto-imported)
   - `config.ts`: App configuration and feature flags
@@ -190,6 +194,10 @@ The frontend uses file-based routing with these conventions:
 - Icons use unplugin-icons with multiple icon sets (mdi, carbon, material-symbols, etc.)
 - Tailwind CSS with DaisyUI for styling
 - TypeScript definitions auto-generated in `assets/auto-imports.d.ts` and `assets/components.d.ts`
+- **Charts/Visualizations**: Custom lightweight implementations (no D3.js)
+  - `BarChart.vue`: Self-contained bar chart with responsive downsampling
+  - Downsampling algorithm: Averages data into buckets based on available screen width
+  - All stat history tracked in `Container.statsHistory` (max 300 items via rolling window)
 
 ### Backend
 
@@ -210,6 +218,14 @@ The frontend uses file-based routing with these conventions:
 - Frontend uses Vitest with `@vue/test-utils`
 - Integration tests with Playwright in `e2e/`
 - Tests must run with `TZ=UTC` for consistent timestamps
+
+### Container Stats & Metrics
+
+- Stats are tracked using exponential moving average (EMA) with alpha=0.2
+- History stored in rolling window (300 items max) via `useSimpleRefHistory`
+- CPU metrics normalized by core count (respects `cpuLimit` or falls back to host `nCPU`)
+- Memory metrics include both percentage and absolute usage (`memoryUsage` vs `memory`)
+- Stats visualization uses adaptive downsampling for performance
 
 ### Container Labels
 

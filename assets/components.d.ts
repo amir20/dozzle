@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Announcements: typeof import('./components/Announcements.vue')['default']
+    BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
     'Carbon:circleSolid': typeof import('~icons/carbon/circle-solid')['default']
     'Carbon:information': typeof import('~icons/carbon/information')['default']
@@ -46,6 +47,7 @@ declare module 'vue' {
     GroupedLog: typeof import('./components/GroupedViewer/GroupedLog.vue')['default']
     GroupMenu: typeof import('./components/GroupMenu.vue')['default']
     HistoricalContainerLog: typeof import('./components/ContainerViewer/HistoricalContainerLog.vue')['default']
+    HostCard: typeof import('./components/HostCard.vue')['default']
     HostIcon: typeof import('./components/common/HostIcon.vue')['default']
     HostList: typeof import('./components/HostList.vue')['default']
     HostLog: typeof import('./components/HostViewer/HostLog.vue')['default']
@@ -94,6 +96,7 @@ declare module 'vue' {
     'Mdi:lightningBolt': typeof import('~icons/mdi/lightning-bolt')['default']
     'Mdi:magnify': typeof import('~icons/mdi/magnify')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
+    MetricCard: typeof import('./components/MetricCard.vue')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']
     MultiContainerLog: typeof import('./components/MultiContainerViewer/MultiContainerLog.vue')['default']
