@@ -33,7 +33,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.52.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	github.com/yuin/goldmark v1.7.13
+	github.com/yuin/goldmark v1.7.14
 	golang.org/x/crypto v0.46.0
 	golang.org/x/sync v0.19.0
 	google.golang.org/grpc v1.78.0
