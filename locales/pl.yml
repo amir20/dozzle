@@ -19,6 +19,7 @@ action:
   show-details: Pokaż szczegóły
 label:
   service: Brak usług | 1 usługa | {count} usług
+  host-count: Brak Hostów | 1 Host | {count} Hostów
   total-containers: Całkowita liczba kontenerów
   running: Uruchomione
   total-cpu-usage: Całkowite użycie CPU

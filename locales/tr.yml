@@ -20,6 +20,7 @@ action:
 label:
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner
+  host-count: Ana Bilgisayar yok | 1 Ana Bilgisayar | {count} Ana Bilgisayar
   service: Servis yok | 1 servis | {count} servis
   services: Servisler
   running-containers: Çalışan Konteynerlar

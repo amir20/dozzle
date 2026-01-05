@@ -20,6 +20,7 @@ action:
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров
+  host-count: Нет Хостов | 1 Хост | {count} Хостов
   service: Нет сервисов | 1 сервис | {count} сервисов
   services: Сервисы
   running-containers: Запущенные контейнеры

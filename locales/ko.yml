@@ -20,6 +20,7 @@ action:
 label:
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개
+  host-count: 호스트가 없습니다 | 호스트 1개 | 호스트 {count}개
   service: 서비스가 없습니다 | 서비스 1개 | 서비스 {count}개
   services: 서비스
   running-containers: 실행 중인 컨테이너

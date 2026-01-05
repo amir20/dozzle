@@ -20,6 +20,7 @@ action:
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere
+  host-count: Ingen Værter | 1 Vært | {count} Værter
   service: Ingen tjenester | 1 tjeneste | {count} tjenester
   services: Tjenester
   running-containers: Kørende Containere
