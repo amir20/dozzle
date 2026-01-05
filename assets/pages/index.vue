@@ -1,11 +1,29 @@
 <template>
   <PageWithLinks>
     <section>
-      <HostList />
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">{{ $t("label.hosts") }}</h2>
+        <button @click="hostsCollapsed = !hostsCollapsed" class="btn btn-ghost btn-sm">
+          <mdi:chevron-down :class="{ 'rotate-180': !hostsCollapsed }" class="transition-transform" />
+        </button>
+      </div>
+      <Transition name="collapse">
+        <HostList v-show="!hostsCollapsed" />
+      </Transition>
     </section>
 
     <section>
-      <ContainerTable :containers="runningContainers"></ContainerTable>
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">
+          {{ $t("title.dashboard", { count: runningContainers.length }) }}
+        </h2>
+        <button @click="containersCollapsed = !containersCollapsed" class="btn btn-ghost btn-sm">
+          <mdi:chevron-down :class="{ 'rotate-180': !containersCollapsed }" class="transition-transform" />
+        </button>
+      </div>
+      <Transition name="collapse">
+        <ContainerTable v-show="!containersCollapsed" :containers="runningContainers" />
+      </Transition>
     </section>
   </PageWithLinks>
 </template>
@@ -23,6 +41,10 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 
 const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
 
+// Persist collapse state in localStorage
+const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);
+const containersCollapsed = useStorage("DOZZLE_CONTAINERS_COLLAPSED", false);
+
 watchEffect(() => {
   if (ready.value) {
     setTitle(t("title.dashboard", { count: runningContainers.value.length }));
@@ -33,5 +55,17 @@ watchEffect(() => {
 :deep(tr td) {
   padding-top: 1em;
   padding-bottom: 1em;
+}
+
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+  opacity: 0;
+  max-height: 0;
 }
 </style>
