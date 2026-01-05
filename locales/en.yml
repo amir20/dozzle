@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
+  copy-not-supported: Copy to clipboard is not supported in your browser
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
   events-stream:

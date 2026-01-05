@@ -44,18 +44,29 @@
           {{ $t("action.see-in-context") }}
         </router-link>
       </li>
-      <li v-if="isSupported">
-        <a @click="copyLogMessage()">
+      <li>
+        <a
+          @click="copyLogMessage()"
+          :disabled="!isSupported"
+          :title="!isSupported ? $t('error.copy-not-supported') : ''"
+          :class="{ 'cursor-not-allowed opacity-50': !isSupported }"
+        >
           <material-symbols:content-copy />
           {{ $t("action.copy-log") }}
         </a>
       </li>
-      <li v-if="isSupported">
-        <a @click="copyPermalink()">
+      <li>
+        <a
+          @click="copyPermalink()"
+          :disabled="!isSupported"
+          :title="!isSupported ? $t('error.copy-not-supported') : ''"
+          :class="{ 'cursor-not-allowed opacity-50': !isSupported }"
+        >
           <material-symbols:link />
           {{ $t("action.copy-link") }}
         </a>
       </li>
+
       <li v-if="logEntry instanceof ComplexLogEntry">
         <a @click="showDrawer(LogDetails, { entry: logEntry })">
           <material-symbols:code-blocks-rounded />
@@ -86,6 +97,10 @@ const { copy, isSupported, copied } = useClipboard();
 const { t } = useI18n();
 
 async function copyLogMessage() {
+  if (!isSupported.value) {
+    return;
+  }
+
   if (logEntry instanceof ComplexLogEntry) {
     await copy(stripAnsi(logEntry.rawMessage));
   } else if (logEntry instanceof SimpleLogEntry) {
@@ -105,6 +120,9 @@ async function copyLogMessage() {
 }
 
 async function copyPermalink() {
+  if (!isSupported.value) {
+    return;
+  }
   const url = router.resolve({
     name: "/container/[id].time.[datetime]",
     params: { id: container.id, datetime: logEntry.date.toISOString() },
