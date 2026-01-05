@@ -2,7 +2,7 @@ import { ComplexLogEntry, type JSONObject, type LogEntry } from "@/models/LogEnt
 
 export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
   const { isSearching } = useSearchFilter();
-  function filteredPayload(messages: Ref<LogEntry<string | JSONObject>[]>) {
+  function filteredPayload(messages: Ref<LogEntry<string | string[] | JSONObject>[]>) {
     return computed(() => {
       return messages.value
         .map((d) => {

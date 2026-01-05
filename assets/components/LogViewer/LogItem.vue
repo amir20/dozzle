@@ -19,16 +19,11 @@
         :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
       />
     </div>
-    <LogLevel
-      class="flex select-none"
-      :level="logEntry.level"
-      :position="logEntry instanceof SimpleLogEntry ? logEntry.position : undefined"
-    />
     <slot />
   </div>
 </template>
 <script lang="ts" setup>
-import { LogEntry, SimpleLogEntry } from "@/models/LogEntry";
+import { LogEntry } from "@/models/LogEntry";
 
 const { logEntry } = defineProps<{
   logEntry: LogEntry<any>;

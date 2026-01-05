@@ -1,10 +1,11 @@
 syntax = "proto3";
-option go_package = "internal/agent/pb";
 
 package protobuf;
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "internal/agent/pb";
 
 message Container {
   string id = 1;
@@ -35,20 +36,32 @@ message ContainerStat {
   double memoryPercent = 4;
 }
 
+message LogFragment {
+  string message = 1;
+}
+
 message LogEvent {
   uint32 id = 1;
   string containerId = 2;
-  google.protobuf.Any message = 3;
+  google.protobuf.Any message = 3; // SingleMessage, GroupMessage, or ComplexMessage
   google.protobuf.Timestamp timestamp = 4;
   string level = 5;
   string stream = 6;
-  string position = 7;
+  string type = 7; // "single", "group", or "complex"
   string rawMessage = 8;
 }
 
-message SimpleMessage { string message = 1; }
+message SingleMessage {
+  string message = 1;
+}
 
-message ComplexMessage { bytes data = 1; }
+message GroupMessage {
+  repeated LogFragment fragments = 1;
+}
+
+message ComplexMessage {
+  bytes data = 1;
+}
 
 message ContainerEvent {
   string actorId = 1;

@@ -22,26 +22,25 @@ const {
 
 <style scoped>
 @reference "@/main.css";
+[data-position="start"],
+[data-position="middle"],
+[data-position="end"] {
+  align-self: stretch;
+  height: auto;
+}
+
 [data-position="start"] {
-  border-radius: 0.5em 0.5em 0 0;
-  height: 70%;
-  margin-bottom: -0.4em;
-  margin-top: auto;
-  align-self: flex-end;
+  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 [data-position="middle"] {
   border-radius: 0;
-  height: auto;
-  margin: -0.4em 0;
-  align-self: stretch;
+  margin-top: 0;
 }
 
 [data-position="end"] {
-  border-radius: 0 0 0.5em 0.5em;
-  height: 70%;
-  margin-top: -0.4em;
-  align-self: flex-start;
+  border-radius: 0 0 0.375rem 0.375rem;
+  margin-top: 0;
 }
 </style>
 <style>

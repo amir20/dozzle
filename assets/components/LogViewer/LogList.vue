@@ -19,7 +19,7 @@ import { type JSONObject, LogEntry } from "@/models/LogEntry";
 const { progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
-  messages: LogEntry<string | JSONObject>[];
+  messages: LogEntry<string | string[] | JSONObject>[];
 }>();
 
 const { containers } = useLoggingContext();

@@ -16,7 +16,7 @@ import { Container, GroupedContainers } from "@/models/Container";
 
 const { isSearching, debouncedSearchFilter } = useSearchFilter();
 
-function parseMessage(data: string): LogEntry<string | JSONObject> {
+function parseMessage(data: string): LogEntry<string | string[] | JSONObject> {
   const e = JSON.parse(data) as LogEvent;
   return asLogEntry(e);
 }
@@ -54,8 +54,8 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>, container?: Ref<Container>) {
-  const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
-  const buffer: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
+  const messages: ShallowRef<LogEntry<string | string[] | JSONObject>[]> = shallowRef([]);
+  const buffer: ShallowRef<LogEntry<string | string[] | JSONObject>[]> = shallowRef([]);
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);

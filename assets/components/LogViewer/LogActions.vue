@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
-import { LogEntry, SimpleLogEntry, ComplexLogEntry, JSONObject } from "@/models/LogEntry";
+import { LogEntry, SimpleLogEntry, ComplexLogEntry, GroupedLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
 
 const { logEntry, container } = defineProps<{
@@ -105,6 +105,8 @@ async function copyLogMessage() {
     await copy(stripAnsi(logEntry.rawMessage));
   } else if (logEntry instanceof SimpleLogEntry) {
     await copy(stripAnsi(logEntry.rawMessage));
+  } else if (logEntry instanceof GroupedLogEntry) {
+    await copy(stripAnsi(logEntry.message.join("\n")));
   }
 
   if (copied.value) {
