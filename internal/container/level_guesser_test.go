@@ -41,6 +41,8 @@ func TestGuessLogLevel(t *testing.T) {
 		{"inf Something went wrong", "info"},
 		{"crit: Something went wrong", "fatal"},
 		{"[21:01:45] [WRN] this is a test", "warn"},
+		{"2026-01-05 12:13:24,566 - retry.api                        (7fd8ad34eb30) :  WARNING (api:40) - HTTPSConnectionPool(host='podnapisi.net', port=443): Max retries exceeded", "warn"},
+		{"2026-01-05 08:21:16,511 - root                             (7fd8bf822b30) :  INFO (get_providers:408) - Throttling podnapisi for 10 minutes", "info"},
 		{orderedmap.New[string, string](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, string]{Key: "key", Value: "value"},
