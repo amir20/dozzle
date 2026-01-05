@@ -5,18 +5,20 @@
       :icon="PhCpu"
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
       :limit="roundCPU(limits.cpu) + ' CPU'"
-      container-class="border-primary/30 bg-primary/10"
+      container-class="border-primary/40 bg-primary/20"
       text-class="hover:text-primary"
       bar-class="bg-primary"
+      :formatter="(value: number) => value.toFixed(2) + '%'"
     />
     <StatMonitor
       :data="memoryData"
       :icon="PhMemory"
       :stat-value="formatBytes(totalStat.memoryUsage)"
       :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
-      container-class="border-secondary/30 bg-secondary/10"
+      container-class="border-secondary/40 bg-secondary/20"
       text-class="hover:text-secondary"
       bar-class="bg-secondary"
+      :formatter="(value: number) => formatBytes(value)"
     />
   </div>
 </template>
@@ -107,7 +109,7 @@ const cpuData = computed(() =>
   history.value.map((stat, i) => ({
     x: i,
     y: Math.max(0, stat.cpu),
-    value: Math.max(0, stat.cpu).toFixed(2) + "%",
+    value: Math.max(0, stat.cpu),
   })),
 );
 
@@ -115,7 +117,7 @@ const memoryData = computed(() =>
   history.value.map((stat, i) => ({
     x: i,
     y: stat.memory,
-    value: formatBytes(stat.memoryUsage),
+    value: stat.memoryUsage,
   })),
 );
 </script>

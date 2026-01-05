@@ -5,7 +5,7 @@
         :chart-data="chartData"
         :bar-class="`${barClass} opacity-70 hover:opacity-100`"
         class="h-8 w-44"
-        @hover-index="(index: number) => (hoveredIndex = index)"
+        @hover-index="(startIndex: number, endIndex: number) => onHoverIndexChange(startIndex, endIndex)"
       />
     </div>
     <div class="bg-base-200 inline-flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
@@ -29,6 +29,7 @@ const {
   containerClass = "border-primary",
   textClass = "",
   barClass = "bg-primary",
+  formatter,
 } = defineProps<{
   data: Point<unknown>[];
   icon: Component;
@@ -37,16 +38,28 @@ const {
   containerClass?: string;
   textClass?: string;
   barClass?: string;
+  formatter?: (value: number) => string;
 }>();
 
 const chartData = computed(() => data.map((point) => (point.y as number) ?? 0));
 const mouseOver = ref(false);
-const hoveredIndex = ref<number | null>(null);
+const hoveredRange = ref<{ start: number; end: number } | null>(null);
+
+function onHoverIndexChange(startIndex: number, endIndex: number) {
+  hoveredRange.value = { start: startIndex, end: endIndex };
+}
 
 const displayValue = computed(() => {
-  if (mouseOver.value && hoveredIndex.value !== null) {
-    const point = data[hoveredIndex.value];
-    return point?.value ?? point?.y ?? statValue;
+  if (mouseOver.value && hoveredRange.value !== null) {
+    const { start, end } = hoveredRange.value;
+    const points = data.slice(start, end + 1);
+    const sum = points.reduce((acc, point) => acc + ((point.value as number) ?? (point.y as number) ?? 0), 0);
+    const avg = sum / points.length;
+
+    if (formatter) {
+      return formatter(avg);
+    }
+    return avg.toFixed(2);
   }
   return statValue;
 });
