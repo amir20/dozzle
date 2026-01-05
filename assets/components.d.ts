@@ -82,6 +82,7 @@ declare module 'vue' {
     'Mdi:beer': typeof import('~icons/mdi/beer')['default']
     'Mdi:check': typeof import('~icons/mdi/check')['default']
     'Mdi:chevronDoubleDown': typeof import('~icons/mdi/chevron-double-down')['default']
+    'Mdi:chevronDown': typeof import('~icons/mdi/chevron-down')['default']
     'Mdi:chevronLeft': typeof import('~icons/mdi/chevron-left')['default']
     'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
     'Mdi:close': typeof import('~icons/mdi/close')['default']
