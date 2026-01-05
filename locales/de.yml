@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.
+  copy-not-supported: Kopieren in die Zwischenablage wird von Ihrem Browser nicht unterstützt
   logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
   events-stream:

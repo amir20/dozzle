@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
+  copy-not-supported: La copie dans le presse-papiers n'est pas prise en charge par votre navigateur
   logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
   events-stream:

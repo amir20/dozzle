@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Esta página no existe.
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
+  copy-not-supported: Copiar al portapapeles no está soportado en su navegador
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
   events-stream:

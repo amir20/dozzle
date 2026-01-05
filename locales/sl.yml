@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Ta stran ne obstaja
   invalid-auth: Uporabniško ime ali geslo nista veljavna
+  copy-not-supported: Kopiranje v odložišče ni podprto v vašem brskalniku
   logs-skipped: Prikaži {total} skritih vnosov
   events-stream:
     title: Nepričakovana napaka

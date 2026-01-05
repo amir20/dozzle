@@ -14,8 +14,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
           <!--v-if-->
-          <!--v-if-->
-          <!--v-if-->
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
+              </svg> action.copy-log</a></li>
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
+              </svg> action.copy-link</a></li>
           <!--v-if-->
         </ul>
       </div>
@@ -48,8 +52,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render dates 
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
           <!--v-if-->
-          <!--v-if-->
-          <!--v-if-->
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
+              </svg> action.copy-log</a></li>
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
+              </svg> action.copy-link</a></li>
           <!--v-if-->
         </ul>
       </div>
@@ -82,8 +90,12 @@ exports[`<ContainerEventSource /> > render html correctly > should render messag
           </svg></button>
         <ul tabindex="0" class="menu dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 w-52 border p-1 text-sm shadow-sm">
           <!--v-if-->
-          <!--v-if-->
-          <!--v-if-->
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm-4 4q-.825 0-1.412-.587T3 20V6h2v14h11v2z"></path>
+              </svg> action.copy-log</a></li>
+          <li><a disabled="true" title="error.copy-not-supported" class="cursor-not-allowed opacity-50"><svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path fill="currentColor" d="M11 17H7q-2.075 0-3.537-1.463T2 12t1.463-3.537T7 7h4v2H7q-1.25 0-2.125.875T4 12t.875 2.125T7 15h4zm-3-4v-2h8v2zm5 4v-2h4q1.25 0 2.125-.875T20 12t-.875-2.125T17 9h-4V7h4q2.075 0 3.538 1.463T22 12t-1.463 3.538T17 17z"></path>
+              </svg> action.copy-link</a></li>
           <!--v-if-->
         </ul>
       </div>

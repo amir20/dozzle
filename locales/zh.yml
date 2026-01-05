@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。
+  copy-not-supported: 您的浏览器不支持复制到剪贴板
   logs-skipped: 显示 {total} 个隐藏条目
   container-not-found: 容器未找到。
   events-stream:

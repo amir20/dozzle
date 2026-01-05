@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
+  copy-not-supported: Копирование в буфер обмена не поддерживается вашим браузером
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
   events-stream:
