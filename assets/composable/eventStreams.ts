@@ -4,6 +4,7 @@ import debounce from "lodash.debounce";
 import {
   type LogEvent,
   type JSONObject,
+  type LogMessage,
   LogEntry,
   asLogEntry,
   ContainerEventLogEntry,
@@ -16,7 +17,7 @@ import { Container, GroupedContainers } from "@/models/Container";
 
 const { isSearching, debouncedSearchFilter } = useSearchFilter();
 
-function parseMessage(data: string): LogEntry<string | string[] | JSONObject> {
+function parseMessage(data: string): LogEntry<LogMessage> {
   const e = JSON.parse(data) as LogEvent;
   return asLogEntry(e);
 }
@@ -54,8 +55,8 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>, container?: Ref<Container>) {
-  const messages: ShallowRef<LogEntry<string | string[] | JSONObject>[]> = shallowRef([]);
-  const buffer: ShallowRef<LogEntry<string | string[] | JSONObject>[]> = shallowRef([]);
+  const messages: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);
+  const buffer: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);

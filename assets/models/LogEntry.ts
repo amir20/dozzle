@@ -40,7 +40,7 @@ export interface LogEvent {
   readonly rm: string;
 }
 
-export abstract class LogEntry<T extends string | string[] | JSONObject> {
+export abstract class LogEntry<T extends LogMessage> {
   protected readonly _message: T;
   constructor(
     message: T,
@@ -235,7 +235,7 @@ export class LoadMoreLogEntry extends LogEntry<string> {
   }
 }
 
-export function asLogEntry(event: LogEvent): LogEntry<string | string[] | JSONObject> {
+export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {
   const std = event.s === "unknown" ? "stderr" : (event.s ?? "stderr");
 
   switch (event.t) {
