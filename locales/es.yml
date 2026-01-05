@@ -20,6 +20,7 @@ action:
 label:
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores
+  host-count: Sin Hosts | 1 Host | {count} Hosts
   service: Sin servicios | 1 servicio | {count} servicios
   services: Servicios
   running-containers: Contenedores en ejecución

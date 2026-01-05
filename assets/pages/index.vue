@@ -2,7 +2,7 @@
   <PageWithLinks>
     <section>
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">{{ $t("label.hosts") }}</h2>
+        <h2 class="text-lg font-semibold">{{ $t("label.host-count") }}</h2>
         <button @click="hostsCollapsed = !hostsCollapsed" class="btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !hostsCollapsed }" class="transition-transform" />
         </button>
@@ -15,7 +15,7 @@
     <section>
       <div class="mb-2 flex items-center justify-between">
         <h2 class="text-lg font-semibold">
-          {{ $t("title.dashboard", { count: runningContainers.length }) }}
+          {{ $t("label.container", { count: runningContainers.length }) }}
         </h2>
         <button @click="containersCollapsed = !containersCollapsed" class="btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !containersCollapsed }" class="transition-transform" />
