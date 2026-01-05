@@ -435,8 +435,19 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 
 	switch data := event.Message.(type) {
 	case string:
-		message, _ = anypb.New(&pb.SimpleMessage{
+		message, _ = anypb.New(&pb.SingleMessage{
 			Message: data,
+		})
+
+	case []container.LogFragment:
+		fragments := make([]*pb.LogFragment, len(data))
+		for i, f := range data {
+			fragments[i] = &pb.LogFragment{
+				Message: f.Message,
+			}
+		}
+		message, _ = anypb.New(&pb.GroupMessage{
+			Fragments: fragments,
 		})
 
 	case *orderedmap.OrderedMap[string, any]:
@@ -459,7 +470,7 @@ func logEventToPb(event *container.LogEvent) *pb.LogEvent {
 		ContainerId: event.ContainerID,
 		Level:       event.Level,
 		Stream:      event.Stream,
-		Position:    string(event.Position),
+		Type:        string(event.Type),
 		RawMessage:  string(event.RawMessage),
 	}
 }

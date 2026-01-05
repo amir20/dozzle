@@ -48,36 +48,138 @@ func NewEventGenerator(ctx context.Context, reader LogReader, container Containe
 	return generator
 }
 
+func (g *EventGenerator) emit(event *LogEvent) bool {
+	select {
+	case g.Events <- event:
+		return true
+	case <-g.ctx.Done():
+		return false
+	}
+}
+
+func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
+	if len(pendingGroup) == 0 {
+		return true
+	}
+
+	if len(pendingGroup) == 1 {
+		pendingGroup[0].Type = LogTypeSingle
+		return g.emit(pendingGroup[0])
+	}
+
+	first := pendingGroup[0]
+	fragments := make([]LogFragment, len(pendingGroup))
+	for i, e := range pendingGroup {
+		fragments[i] = LogFragment{Message: e.Message.(string)}
+	}
+
+	return g.emit(&LogEvent{
+		Type:        LogTypeGroup,
+		Message:     fragments,
+		Timestamp:   first.Timestamp,
+		Id:          first.Id,
+		Level:       first.Level,
+		Stream:      first.Stream,
+		ContainerID: first.ContainerID,
+	})
+}
+
 func (g *EventGenerator) processBuffer() {
-	var current, next *LogEvent
+	var pendingGroup []*LogEvent
 
 loop:
 	for {
-		if g.next != nil {
-			current = g.next
-			g.next = nil
-			next = g.peek()
-		} else {
-			event, ok := <-g.buffer
-			if !ok {
-				break loop
-			}
-			current = event
-			next = g.peek()
+		current := g.nextEvent()
+		if current == nil {
+			g.flushGroup(pendingGroup)
+			break loop
 		}
 
-		checkPosition(current, next)
+		// Complex logs are emitted immediately
+		if !current.IsSimple() {
+			if !g.flushGroup(pendingGroup) {
+				break loop
+			}
+			pendingGroup = nil
+			if !g.emit(current) {
+				break loop
+			}
+			continue
+		}
 
-		select {
-		case g.Events <- current:
-		case <-g.ctx.Done():
-			break loop
+		// Simple log - peek ahead to decide grouping
+		next := g.peek()
+
+		if len(pendingGroup) == 0 {
+			if next != nil && next.IsSimple() && canStartGroup(current, next) {
+				next.Level = current.Level
+				pendingGroup = append(pendingGroup, current)
+			} else {
+				current.Type = LogTypeSingle
+				if !g.emit(current) {
+					break loop
+				}
+			}
+			continue
+		}
+
+		pendingGroup = append(pendingGroup, current)
+
+		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[0], next) {
+			if !g.flushGroup(pendingGroup) {
+				break loop
+			}
+			pendingGroup = nil
+		} else {
+			next.Level = pendingGroup[0].Level
 		}
 	}
 
 	close(g.Events)
-
 	g.wg.Done()
+}
+
+func (g *EventGenerator) nextEvent() *LogEvent {
+	if g.next != nil {
+		event := g.next
+		g.next = nil
+		return event
+	}
+	event, ok := <-g.buffer
+	if !ok {
+		return nil
+	}
+	return event
+}
+
+// canStartGroup checks if current can start a group with next
+func canStartGroup(current, next *LogEvent) bool {
+	// Current must have a known level
+	if !current.HasLevel() {
+		return false
+	}
+	// Next must not have its own level (continuation)
+	if next.HasLevel() {
+		return false
+	}
+	// Must be close in time
+	if !current.IsCloseToTime(next) {
+		return false
+	}
+	return true
+}
+
+// canContinueGroup checks if next can be added to a group started by first
+func canContinueGroup(first, next *LogEvent) bool {
+	// Next must not have its own level (continuation)
+	if next.HasLevel() {
+		return false
+	}
+	// Must be close in time to the group leader
+	if !first.IsCloseToTime(next) {
+		return false
+	}
+	return true
 }
 
 func (g *EventGenerator) consumeReader() {
@@ -117,7 +219,7 @@ func (g *EventGenerator) peek() *LogEvent {
 func createEvent(message string, streamType StdType) *LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
-	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String()}
+	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String(), Type: LogTypeSingle}
 	if index := strings.IndexAny(message, " "); index != -1 {
 		logId := message[:index]
 		if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
@@ -141,10 +243,12 @@ func createEvent(message string, streamType StdType) *LogEvent {
 						logEvent.Message = ""
 					} else {
 						logEvent.Message = data
+						logEvent.Type = LogTypeComplex
 					}
 				}
 			} else if data, err := ParseLogFmt(message); err == nil {
 				logEvent.Message = data
+				logEvent.Type = LogTypeComplex
 				data, err := json.Marshal(data)
 				if err != nil {
 					log.Error().Err(err).Msg("failed to marshal json")
@@ -154,30 +258,4 @@ func createEvent(message string, streamType StdType) *LogEvent {
 		}
 	}
 	return logEvent
-}
-
-func checkPosition(currentEvent *LogEvent, nextEvent *LogEvent) {
-	currentLevel := guessLogLevel(currentEvent)
-	if nextEvent != nil {
-		if currentEvent.IsCloseToTime(nextEvent) && currentLevel != "unknown" && !nextEvent.HasLevel() {
-			currentEvent.Position = Beginning
-			nextEvent.Position = Middle
-		}
-
-		// If next item is not close to current item or has level, set current item position to end
-		if currentEvent.Position == Middle && (nextEvent.HasLevel() || !currentEvent.IsCloseToTime(nextEvent)) {
-			currentEvent.Position = End
-		}
-
-		// If next item is close to current item and has no level, set next item position to middle
-		if currentEvent.Position == Middle && !nextEvent.HasLevel() && currentEvent.IsCloseToTime(nextEvent) {
-			nextEvent.Position = Middle
-		}
-		// Set next item level to current item level
-		if currentEvent.Position == Beginning || currentEvent.Position == Middle {
-			nextEvent.Level = currentEvent.Level
-		}
-	} else if currentEvent.Position == Middle {
-		currentEvent.Position = End
-	}
 }

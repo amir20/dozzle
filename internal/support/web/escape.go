@@ -21,6 +21,11 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 	case string:
 		logEvent.Message = escapeAndProcessMarkers(value)
 
+	case []container.LogFragment:
+		for i, fragment := range value {
+			value[i].Message = escapeAndProcessMarkers(fragment.Message)
+		}
+
 	case *orderedmap.OrderedMap[string, any]:
 		escapeAnyMap(value)
 

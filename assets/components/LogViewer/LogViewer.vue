@@ -6,7 +6,7 @@
 import { type JSONObject, LogEntry } from "@/models/LogEntry";
 
 const props = defineProps<{
-  messages: LogEntry<string | JSONObject>[];
+  messages: LogEntry<string | string[] | JSONObject>[];
   visibleKeys: Map<string[], boolean>;
 }>();
 

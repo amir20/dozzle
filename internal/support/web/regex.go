@@ -51,6 +51,16 @@ func (pm *PatternMatcher) MarkInLogEvent(logEvent *container.LogEvent) bool {
 			return true
 		}
 
+	case []container.LogFragment:
+		found := false
+		for i, fragment := range value {
+			if pm.Regex.MatchString(fragment.Message) {
+				value[i].Message = pm.Regex.ReplaceAllString(fragment.Message, pm.MarkerStart+"$0"+pm.MarkerEnd)
+				found = true
+			}
+		}
+		return found
+
 	case *orderedmap.OrderedMap[string, any]:
 		return pm.markMapAny(value)
 

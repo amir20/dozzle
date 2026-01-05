@@ -2,14 +2,17 @@ import { Component, ComputedRef, Ref } from "vue";
 import { flattenJSON } from "@/utils";
 import ComplexLogItem from "@/components/LogViewer/ComplexLogItem.vue";
 import SimpleLogItem from "@/components/LogViewer/SimpleLogItem.vue";
+import GroupedLogItem from "@/components/LogViewer/GroupedLogItem.vue";
 import ContainerEventLogItem from "@/components/LogViewer/ContainerEventLogItem.vue";
 import SkippedEntriesLogItem from "@/components/LogViewer/SkippedEntriesLogItem.vue";
 import LoadMoreLogItem from "@/components/LogViewer/LoadMoreLogItem.vue";
 
 export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 export type JSONObject = { [x: string]: JSONValue };
-export type Position = "start" | "end" | "middle" | undefined;
 export type Std = "stdout" | "stderr";
+export type LogType = "single" | "group" | "complex";
+export type Position = "start" | "end" | "middle" | undefined;
+export type LogMessage = string | string[] | JSONObject;
 export type Level =
   | "error"
   | "warn"
@@ -21,18 +24,23 @@ export type Level =
   | "critical"
   | "fatal"
   | "unknown";
+
+export interface LogFragment {
+  readonly m: string;
+}
+
 export interface LogEvent {
-  readonly m: string | JSONObject;
+  readonly t: LogType;
+  readonly m: string | LogFragment[] | JSONObject;
   readonly ts: number;
   readonly id: number;
   readonly l: Level;
-  readonly p: Position;
   readonly s: "stdout" | "stderr" | "unknown";
   readonly c: string;
   readonly rm: string;
 }
 
-export abstract class LogEntry<T extends string | JSONObject> {
+export abstract class LogEntry<T extends LogMessage> {
   protected readonly _message: T;
   constructor(
     message: T,
@@ -60,7 +68,6 @@ export class SimpleLogEntry extends LogEntry<string> {
     id: number,
     date: Date,
     public readonly level: Level,
-    public readonly position: Position,
     public readonly std: Std,
     public readonly rawMessage: string,
   ) {
@@ -68,6 +75,27 @@ export class SimpleLogEntry extends LogEntry<string> {
   }
   getComponent(): Component {
     return SimpleLogItem;
+  }
+}
+
+export class GroupedLogEntry extends LogEntry<string[]> {
+  constructor(
+    messages: string[],
+    containerID: string,
+    id: number,
+    date: Date,
+    public readonly level: Level,
+    public readonly std: Std,
+  ) {
+    super(messages as any, containerID, id, date, std, "", level);
+  }
+
+  public get message(): string[] {
+    return this._message as unknown as string[];
+  }
+
+  getComponent(): Component {
+    return GroupedLogItem;
   }
 }
 
@@ -207,27 +235,23 @@ export class LoadMoreLogEntry extends LogEntry<string> {
   }
 }
 
-export function asLogEntry(event: LogEvent): LogEntry<string | JSONObject> {
-  if (isObject(event.m)) {
-    return new ComplexLogEntry(
-      event.m,
-      event.c,
-      event.id,
-      new Date(event.ts),
-      event.l,
-      event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
-      event.rm,
-    );
-  } else {
-    return new SimpleLogEntry(
-      event.m,
-      event.c,
-      event.id,
-      new Date(event.ts),
-      event.l,
-      event.p,
-      event.s === "unknown" ? "stderr" : (event.s ?? "stderr"),
-      event.rm,
-    );
+export function asLogEntry(event: LogEvent): LogEntry<LogMessage> {
+  const std = event.s === "unknown" ? "stderr" : (event.s ?? "stderr");
+
+  switch (event.t) {
+    case "complex":
+      return new ComplexLogEntry(event.m as JSONObject, event.c, event.id, new Date(event.ts), event.l, std, event.rm);
+    case "group":
+      return new GroupedLogEntry(
+        (event.m as LogFragment[]).map((f) => f.m),
+        event.c,
+        event.id,
+        new Date(event.ts),
+        event.l,
+        std,
+      );
+    case "single":
+    default:
+      return new SimpleLogEntry(event.m as string, event.c, event.id, new Date(event.ts), event.l, std, event.rm);
   }
 }

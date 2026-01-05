@@ -154,11 +154,24 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 				// Format timestamp in UTC
 				timestamp := time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano)
 
-				// Write timestamp followed by message
-				_, err = fmt.Fprintf(f, "%s %s\n", timestamp, event.RawMessage)
-				if err != nil {
-					log.Error().Err(err).Msgf("error writing log for container %s", c.id)
-					return
+				// Handle grouped logs
+				if event.Type == container.LogTypeGroup {
+					if fragments, ok := event.Message.([]container.LogFragment); ok {
+						for _, fragment := range fragments {
+							_, err = fmt.Fprintf(f, "%s %s\n", timestamp, fragment.Message)
+							if err != nil {
+								log.Error().Err(err).Msgf("error writing log for container %s", c.id)
+								return
+							}
+						}
+					}
+				} else {
+					// Write timestamp followed by message for single/complex logs
+					_, err = fmt.Fprintf(f, "%s %s\n", timestamp, event.RawMessage)
+					if err != nil {
+						log.Error().Err(err).Msgf("error writing log for container %s", c.id)
+						return
+					}
 				}
 			}
 		} else {

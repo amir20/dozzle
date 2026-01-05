@@ -1,10 +1,10 @@
 import { HistoricalContainer } from "@/models/Container";
-import { JSONObject, LoadMoreLogEntry, LogEntry } from "@/models/LogEntry";
+import { LogMessage, LoadMoreLogEntry, LogEntry } from "@/models/LogEntry";
 import { ShallowRef } from "vue";
 import { loadBetween } from "@/composable/eventStreams";
 
 export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalContainer>): LogStreamSource {
-  const messages: ShallowRef<LogEntry<string | JSONObject>[]> = shallowRef([]);
+  const messages: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);

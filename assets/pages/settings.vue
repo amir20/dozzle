@@ -184,7 +184,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ComplexLogEntry, SimpleLogEntry } from "@/models/LogEntry";
+import { ComplexLogEntry, SimpleLogEntry, GroupedLogEntry } from "@/models/LogEntry";
 
 import {
   automaticRedirect,
@@ -220,29 +220,20 @@ const hoursAgo = (hours: number) => {
 const fakeMessages = computedWithControl(
   () => i18n.global.locale.value,
   () => [
-    new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", undefined, "stdout", ""),
-    new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", undefined, "stdout", ""),
-    new SimpleLogEntry(
-      t("settings.log.multi-line-error.start-line"),
+    new SimpleLogEntry(t("settings.log.preview"), "123", 1, hoursAgo(16), "info", "stdout", ""),
+    new SimpleLogEntry(t("settings.log.warning"), "123", 2, hoursAgo(12), "warn", "stdout", ""),
+    new GroupedLogEntry(
+      [
+        t("settings.log.multi-line-error.start-line"),
+        t("settings.log.multi-line-error.middle-line"),
+        t("settings.log.multi-line-error.end-line"),
+      ],
       "123",
       3,
       hoursAgo(7),
       "error",
-      "start",
       "stderr",
-      "",
     ),
-    new SimpleLogEntry(
-      t("settings.log.multi-line-error.middle-line"),
-      "123",
-      4,
-      hoursAgo(2),
-      "error",
-      "middle",
-      "stderr",
-      "",
-    ),
-    new SimpleLogEntry(t("settings.log.multi-line-error.end-line"), "123", 5, new Date(), "error", "end", "stderr", ""),
     new ComplexLogEntry(
       {
         message: t("settings.log.complex"),
@@ -258,7 +249,7 @@ const fakeMessages = computedWithControl(
       "stdout",
       "",
     ),
-    new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", undefined, "stderr", ""),
+    new SimpleLogEntry(t("settings.log.simple"), "123", 7, new Date(), "debug", "stderr", ""),
   ],
 );
 </script>

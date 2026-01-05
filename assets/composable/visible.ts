@@ -1,8 +1,8 @@
-import { ComplexLogEntry, type JSONObject, type LogEntry } from "@/models/LogEntry";
+import { ComplexLogEntry, type LogMessage, type LogEntry } from "@/models/LogEntry";
 
 export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
   const { isSearching } = useSearchFilter();
-  function filteredPayload(messages: Ref<LogEntry<string | JSONObject>[]>) {
+  function filteredPayload(messages: Ref<LogEntry<LogMessage>[]>) {
     return computed(() => {
       return messages.value
         .map((d) => {

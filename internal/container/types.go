@@ -147,6 +147,19 @@ const (
 	End       LogPosition = "end"
 )
 
+type LogType string
+
+const (
+	LogTypeSingle  LogType = "single"  // Single simple text log (no grouping)
+	LogTypeGroup   LogType = "group"   // Grouped simple logs (array of fragments)
+	LogTypeComplex LogType = "complex" // JSON or logfmt parsed log
+)
+
+// LogFragment represents a single line within a grouped simple log
+type LogFragment struct {
+	Message string `json:"m"`
+}
+
 type ContainerAction string
 
 const (
@@ -166,18 +179,22 @@ func ParseContainerAction(input string) (ContainerAction, error) {
 }
 
 type LogEvent struct {
-	Message     any         `json:"m,omitempty"`
-	RawMessage  string      `json:"rm,omitempty"`
-	Timestamp   int64       `json:"ts"`
-	Id          uint32      `json:"id,omitempty"`
-	Level       string      `json:"l,omitempty"`
-	Position    LogPosition `json:"p,omitempty"`
-	Stream      string      `json:"s,omitempty"`
-	ContainerID string      `json:"c,omitempty"`
+	Type        LogType `json:"t,omitempty"`
+	Message     any     `json:"m,omitempty"`
+	RawMessage  string  `json:"rm,omitempty"`
+	Timestamp   int64   `json:"ts"`
+	Id          uint32  `json:"id,omitempty"`
+	Level       string  `json:"l,omitempty"`
+	Stream      string  `json:"s,omitempty"`
+	ContainerID string  `json:"c,omitempty"`
 }
 
 func (l *LogEvent) HasLevel() bool {
 	return l.Level != "unknown"
+}
+
+func (l *LogEvent) IsSimple() bool {
+	return l.Type == LogTypeSingle || l.Type == LogTypeGroup
 }
 
 func (l *LogEvent) IsCloseToTime(other *LogEvent) bool {

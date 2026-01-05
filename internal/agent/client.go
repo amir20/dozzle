@@ -142,12 +142,25 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 		}
 
 		var message any
+		var logType container.LogType
 		switch m := m.(type) {
-		case *pb.SimpleMessage:
+		case *pb.SingleMessage:
 			message = m.Message
+			logType = container.LogTypeSingle
+
+		case *pb.GroupMessage:
+			fragments := make([]container.LogFragment, len(m.Fragments))
+			for i, f := range m.Fragments {
+				fragments[i] = container.LogFragment{
+					Message: f.Message,
+				}
+			}
+			message = fragments
+			logType = container.LogTypeGroup
 
 		case *pb.ComplexMessage:
 			message = jsonBytesToOrderedMap(m.Data)
+			logType = container.LogTypeComplex
 
 		default:
 			log.Error().Type("message", m).Msg("agent client: unknown message type")
@@ -158,8 +171,8 @@ func sendLogs(stream pb.AgentService_StreamLogsClient, events chan<- *container.
 			Id:          resp.Event.Id,
 			ContainerID: resp.Event.ContainerId,
 			Message:     message,
+			Type:        logType,
 			Timestamp:   resp.Event.Timestamp.AsTime().Unix(),
-			Position:    container.LogPosition(resp.Event.Position),
 			Level:       resp.Event.Level,
 			Stream:      resp.Event.Stream,
 			RawMessage:  resp.Event.RawMessage,

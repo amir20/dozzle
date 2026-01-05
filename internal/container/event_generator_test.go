@@ -21,6 +21,7 @@ func TestEventGenerator_Events_tty(t *testing.T) {
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
+	assert.Equal(t, LogTypeSingle, event.Type)
 }
 
 func TestEventGenerator_Events_non_tty(t *testing.T) {
@@ -31,6 +32,7 @@ func TestEventGenerator_Events_non_tty(t *testing.T) {
 
 	require.NotNil(t, event, "Expected event to not be nil, but got nil")
 	assert.Equal(t, input, event.Message)
+	assert.Equal(t, LogTypeSingle, event.Type)
 }
 
 func TestEventGenerator_Events_non_tty_close_channel(t *testing.T) {
@@ -160,4 +162,104 @@ func Test_createEvent(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEventGenerator_ComplexLog(t *testing.T) {
+	input := "2020-05-13T18:55:37.772853839Z {\"level\": \"info\", \"message\": \"test\"}"
+
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, LogTypeComplex, event.Type)
+	_, isMap := event.Message.(*orderedmap.OrderedMap[string, any])
+	assert.True(t, isMap, "Expected Message to be an ordered map")
+}
+
+func TestEventGenerator_GroupedSimpleLogs(t *testing.T) {
+	// Create messages with same timestamp (close enough to group) where first has level
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	messages := []string{
+		baseTime + " ERROR: Something went wrong",
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, LogTypeGroup, event.Type)
+
+	fragments, ok := event.Message.([]LogFragment)
+	require.True(t, ok, "Expected Message to be []LogFragment")
+	assert.Len(t, fragments, 3)
+	assert.Equal(t, "ERROR: Something went wrong", fragments[0].Message)
+	assert.Equal(t, "at line 42", fragments[1].Message)
+	assert.Equal(t, "in function foo", fragments[2].Message)
+}
+
+func TestEventGenerator_SingleSimpleLog(t *testing.T) {
+	input := "2020-05-13T18:55:37.772853839Z INFO: Single log message"
+
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: false})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, LogTypeSingle, event.Type)
+	assert.Equal(t, "INFO: Single log message", event.Message)
+}
+
+func TestEventGenerator_MixedLogs(t *testing.T) {
+	// Mix of complex and simple logs
+	messages := []string{
+		"2020-05-13T18:55:37.772853839Z {\"level\": \"info\"}",
+		"2020-05-13T18:55:38.772853839Z WARN: warning message",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDOUT, STDOUT},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+
+	// First event should be complex
+	event1 := <-g.Events
+	require.NotNil(t, event1)
+	assert.Equal(t, LogTypeComplex, event1.Type)
+
+	// Second event should be single simple
+	event2 := <-g.Events
+	require.NotNil(t, event2)
+	assert.Equal(t, LogTypeSingle, event2.Type)
+}
+
+func TestEventGenerator_NoGroupingWhenTimestampGap(t *testing.T) {
+	// Messages with different timestamps (too far apart to group)
+	messages := []string{
+		"2020-05-13T18:55:37.000Z ERROR: First error",
+		"2020-05-13T18:55:38.000Z continuation line",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+
+	// Should get two separate events (not grouped due to timestamp gap)
+	event1 := <-g.Events
+	require.NotNil(t, event1)
+	assert.Equal(t, LogTypeSingle, event1.Type)
+
+	event2 := <-g.Events
+	require.NotNil(t, event2)
+	assert.Equal(t, LogTypeSingle, event2.Type)
 }
