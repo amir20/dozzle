@@ -53,6 +53,7 @@ tooltip:
 error:
   page-not-found: Halaman ini tidak ada
   invalid-auth: Nama pengguna atau kata sandi tidak valid
+  copy-not-supported: Salin ke clipboard tidak didukung di browser Anda
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
   events-stream:

@@ -50,6 +50,7 @@ tooltip:
 error:
   page-not-found: Denne side eksisterer ikke
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
+  copy-not-supported: Kopiering til udklipsholder understøttes ikke i din browser
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
   events-stream:
