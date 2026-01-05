@@ -1,12 +1,11 @@
 <template>
-  <div ref="chartContainer" class="flex items-end gap-[2px]">
+  <div ref="chartContainer" class="flex items-end gap-[2px]" @mousemove="onContainerHover">
     <div
       v-for="(dataPoint, i) in downsampledData"
       :key="i"
       class="min-h-px flex-1 rounded-t-sm"
       :class="barClass"
       :style="`height: ${Math.min(dataPoint, 100)}%`"
-      @mousemove="onBarHover(i)"
     ></div>
   </div>
 </template>
@@ -17,7 +16,7 @@ const { chartData, barClass = "" } = defineProps<{
   barClass?: string;
 }>();
 
-const hoverIndex = defineEmit<[index: number]>();
+const hoverIndex = defineEmit<[startIndex: number, endIndex: number]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
 const { width } = useElementSize(chartContainer);
@@ -79,11 +78,24 @@ function recalculate() {
   downsampledData.value = result.slice(-availableBars.value);
 }
 
-function onBarHover(index: number) {
-  // Map downsampled index back to original data index
+function onContainerHover(event: MouseEvent) {
+  if (!chartContainer.value) return;
+
+  const rect = chartContainer.value.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+
+  // Calculate which bar the mouse is over based on position
+  const barWidth = width.value / downsampledData.value.length;
+  const index = Math.floor(x / barWidth);
+
+  // Ensure index is within bounds
+  if (index < 0 || index >= downsampledData.value.length) return;
+
+  // Map downsampled index back to original data index range
   const numCompleteBuckets = Math.floor(chartData.length / bucketSize.value);
   const offset = Math.max(0, numCompleteBuckets - availableBars.value);
-  const originalIndex = (offset + index) * bucketSize.value + bucketSize.value - 1;
-  hoverIndex(Math.min(originalIndex, chartData.length - 1));
+  const startIndex = (offset + index) * bucketSize.value;
+  const endIndex = Math.min(startIndex + bucketSize.value - 1, chartData.length - 1);
+  hoverIndex(startIndex, endIndex);
 }
 </script>
