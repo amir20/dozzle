@@ -8,7 +8,7 @@
         @hover-index="(startIndex: number, endIndex: number) => onHoverIndexChange(startIndex, endIndex)"
       />
     </div>
-    <div class="bg-base-200 inline-flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
+    <div class="bg-base-200 flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
       <component :is="icon" class="text-sm" />
       <div class="font-bold select-none">
         {{ displayValue }}
