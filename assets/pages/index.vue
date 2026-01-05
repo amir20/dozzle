@@ -2,7 +2,7 @@
   <PageWithLinks>
     <section>
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold">{{ $t("label.host-count", { count: hosts.length }) }}</h2>
+        <h2 class="text-lg font-semibold">{{ $t("label.host-count", { count: Object.keys(hosts).length }) }}</h2>
         <button @click="hostsCollapsed = !hostsCollapsed" class="btn btn-ghost btn-sm">
           <mdi:chevron-down :class="{ 'rotate-180': !hostsCollapsed }" class="transition-transform" />
         </button>
