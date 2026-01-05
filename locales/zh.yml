@@ -20,6 +20,7 @@ action:
 label:
   containers: 容器
   container: 无容器 | 1 容器 | {count} 容器
+  host-count: 无主机 | 1 个主机 | {count} 个主机
   service: 无服务 | 1 个服务 | {count} 个服务
   services: 服务
   running-containers: 运行中的容器

@@ -21,6 +21,7 @@ action:
 label:
   containers: Kontainer
   container: Tidak ada kontainer | 1 kontainer | {count} kontainer
+  host-count: Tidak ada Host | 1 Host | {count} Host
   service: Tidak ada layanan | 1 layanan | {count} layanan
   services: Layanan
   running-containers: Kontainer Berjalan

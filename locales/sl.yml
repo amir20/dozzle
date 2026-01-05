@@ -19,6 +19,7 @@ action:
   show-details: Prikaži podrobnosti
 label:
   containers: Zabojniki
+  host-count: Ni Gostiteljev | 1 Gostitelj | {count} Gostiteljev
   service: Ni storitev | 1 storitev | {count} storitev
   running-containers: Delujoči zabojniki
   all-containers: Vsi zabojniki
