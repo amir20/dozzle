@@ -147,6 +147,12 @@ The frontend uses file-based routing with these conventions:
 
 - **`assets/components/`** - Vue components (auto-imported)
   - `LogViewer/`: Core log viewing components
+    - `SimpleLogItem.vue`: Single-line log entries
+    - `ComplexLogItem.vue`: JSON/structured log entries
+    - `GroupedLogItem.vue`: Multi-line grouped log entries
+    - `ContainerEventLogItem.vue`: Container lifecycle events
+    - `SkippedEntriesLogItem.vue`: Placeholder for skipped logs
+    - `LoadMoreLogItem.vue`: Load more historical logs
   - `ContainerViewer/`: Container-specific UI
   - `common/`: Reusable UI components
   - `BarChart.vue`: Lightweight bar chart with automatic downsampling
@@ -165,6 +171,7 @@ The frontend uses file-based routing with these conventions:
   - `historicalLogs.ts`: Historical log fetching
   - `logContext.ts`: Log filtering and search context
   - `storage.ts`: LocalStorage abstractions
+  - `visible.ts`: Log filtering by visible keys for complex logs
 
 - **`assets/modules/`** - Vue plugins
   - `router.ts`: Vue Router configuration
@@ -194,6 +201,11 @@ The frontend uses file-based routing with these conventions:
 - Icons use unplugin-icons with multiple icon sets (mdi, carbon, material-symbols, etc.)
 - Tailwind CSS with DaisyUI for styling
 - TypeScript definitions auto-generated in `assets/auto-imports.d.ts` and `assets/components.d.ts`
+- **Log Entry Types**: Three types of log messages supported
+  - `SimpleLogEntry`: Single-line text logs (`string`)
+  - `ComplexLogEntry`: Structured JSON logs (`JSONObject`)
+  - `GroupedLogEntry`: Multi-line grouped logs (`string[]`)
+- **Type consistency**: Use `LogMessage` type alias instead of `string | string[] | JSONObject` for log entry messages
 - **Charts/Visualizations**: Custom lightweight implementations (no D3.js)
   - `BarChart.vue`: Self-contained bar chart with responsive downsampling
   - Downsampling algorithm: Averages data into buckets based on available screen width
