@@ -19,46 +19,38 @@ const { chartData, barClass = "" } = defineProps<{
 const hoverIndex = defineEmit<[startIndex: number, endIndex: number]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
-const { width: containerWidth } = useElementSize(chartContainer, undefined, { box: "content-box" });
-const isVisible = useElementVisibility(chartContainer);
+const { width } = useElementSize(chartContainer);
 
 const BAR_WIDTH = 3;
 const GAP = 2;
 
-const availableBars = computed(() => Math.floor(containerWidth.value / (BAR_WIDTH + GAP)));
+const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP)));
 const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
 
 const downsampledData = ref<number[]>([]);
-const changeCounter = ref(0);
+const changeCounter = ref(-1);
 
-// Watch chartData reference changes (new array from .map())
+// Watch chartData changes
 watch(
   () => chartData,
   () => {
-    if (!isVisible.value) return;
-
+    // If changeCounter is -1, it means this is the first time the data is loaded
+    if (changeCounter.value === -1) {
+      recalculate();
+    }
     changeCounter.value++;
     if (changeCounter.value >= bucketSize.value) {
+      // Recalculate when counter reaches bucket size
       recalculate();
       changeCounter.value = 0;
     }
   },
-  { immediate: true },
 );
 
-// Recalculate when becoming visible
-watch(isVisible, (visible) => {
-  if (visible) {
-    recalculate();
-    changeCounter.value = 0;
-  }
-});
-
-// Recalculate when width changes significantly
+// Recalculate when width changes
 watch([availableBars, bucketSize], () => {
-  if (isVisible.value) {
-    recalculate();
-  }
+  recalculate();
+  changeCounter.value = -1;
 });
 
 function recalculate() {
@@ -68,7 +60,7 @@ function recalculate() {
   }
 
   const size = bucketSize.value;
-  const result: number[] = [];
+  const result = [];
 
   // Create complete buckets
   const numCompleteBuckets = Math.floor(chartData.length / size);
@@ -76,11 +68,9 @@ function recalculate() {
   for (let i = 0; i < numCompleteBuckets; i++) {
     const start = i * size;
     const end = start + size;
-    let sum = 0;
-    for (let j = start; j < end; j++) {
-      sum += chartData[j];
-    }
-    result.push(sum / size);
+    const bucket = chartData.slice(start, end);
+    const avg = bucket.reduce((sum, val) => sum + val, 0) / bucket.length;
+    result.push(avg);
   }
 
   // Show only the last N bars that fit on screen
@@ -94,7 +84,7 @@ function onContainerHover(event: MouseEvent) {
   const x = event.clientX - rect.left;
 
   // Calculate which bar the mouse is over based on position
-  const barWidth = containerWidth.value / downsampledData.value.length;
+  const barWidth = width.value / downsampledData.value.length;
   const index = Math.floor(x / barWidth);
 
   // Ensure index is within bounds
