@@ -40,6 +40,7 @@ type Config struct {
 	Hostname         string
 	NoAnalytics      bool
 	Dev              bool
+	Mode             string
 	Authorization    Authorization
 	EnableActions    bool
 	EnableShell      bool
