@@ -9,17 +9,17 @@
 import type { Container } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
 
-const { container, type, hosts } = defineProps<{
+const { container, type, host } = defineProps<{
   container: Container;
   type: "cpu" | "mem";
-  hosts: Record<string, Host>;
+  host: Host;
 }>();
 
 function totalCores(): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
     return 1;
   }
-  return hosts[container.host]?.nCPU ?? 1;
+  return host.nCPU ?? 1;
 }
 
 const chartData = computed(() => {
