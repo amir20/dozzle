@@ -204,6 +204,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		Hostname:    args.Hostname,
 		NoAnalytics: args.NoAnalytics,
 		Dev:         dev,
+		Mode:        args.Mode,
 		Authorization: web.Authorization{
 			Provider:   provider,
 			Authorizer: authorizer,

@@ -8,6 +8,7 @@ export interface Config {
   base: string;
   maxLogs: number;
   hostname: string;
+  mode: "server" | "swarm" | "k8s";
   hosts: Host[];
   authProvider: "simple" | "none" | "forward-proxy";
   logoutUrl?: string;
