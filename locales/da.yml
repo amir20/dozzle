@@ -25,6 +25,7 @@ label:
   services: Tjenester
   running-containers: Kørende Containere
   all-containers: Alle Containere
+  all-namespaces: Alle Navneområder
   host: Vært
   hosts: Værter
   password: Kodeord
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
-  merge-services: Sammenlæg alle tjenester i én visning
-  merge-containers: Sammenlæg alle containere i én visning
-  merge-hosts: Sammenlæg alle containere på denne vært i én visning
+  merge-all: Sammenlæg alt i én stream
 error:
   page-not-found: Denne side eksisterer ikke
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
@@ -90,7 +89,7 @@ settings:
   display: Visning
   locale: Overskriv sprog
   small-scrollbars: Brug mindre scrollbarer
-  show-timesamps: Vis tids stempler
+  show-timestamps: Vis tids stempler
   soft-wrap: Blødt bræk på linjer
   datetime-format: Overskriv dato og tids format
   font-size: Tekststørrelse at bruge til logs

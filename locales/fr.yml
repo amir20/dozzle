@@ -25,6 +25,7 @@ label:
   services: Services
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
+  all-namespaces: Tous les espaces de noms
   host: Hôte
   hosts: Hôtes
   password: Mot de passe
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
-  merge-services: Fusionner tous les services dans une vue
-  merge-containers: Fusionner tous les conteneurs dans une vue
-  merge-hosts: Fusionner tous les conteneurs de cet hôte dans une vue
+  merge-all: Fusionner tout dans un flux
 error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
@@ -90,7 +89,7 @@ settings:
   display: Afficher
   locale: Langue de remplacement
   small-scrollbars: Utiliser des barres de défilement plus petites
-  show-timesamps: Afficher les horodatages
+  show-timestamps: Afficher les horodatages
   soft-wrap: Lignes d'enroulement souples
   datetime-format: Remplacer le format de la date et de l'heure
   font-size: Taille de police à utiliser pour les journaux

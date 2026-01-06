@@ -48,7 +48,7 @@
 
           <Toggle v-model="smallerScrollbars"> {{ $t("settings.small-scrollbars") }} </Toggle>
 
-          <Toggle v-model="showTimestamp">{{ $t("settings.show-timesamps") }}</Toggle>
+          <Toggle v-model="showTimestamp">{{ $t("settings.show-timestamps") }}</Toggle>
 
           <Toggle v-model="showStd">{{ $t("settings.show-std") }}</Toggle>
 

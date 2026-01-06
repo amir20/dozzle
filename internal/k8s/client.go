@@ -94,6 +94,21 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 	if pod.Status.StartTime != nil {
 		started = pod.Status.StartTime.Time
 	}
+
+	// Build labels map with pod labels, namespace, and owner reference
+	labels := make(map[string]string)
+	for k, v := range pod.Labels {
+		labels[k] = v
+	}
+	labels["namespace"] = pod.Namespace
+
+	// Add owner reference if present
+	if len(pod.OwnerReferences) > 0 {
+		owner := pod.OwnerReferences[0]
+		labels["owner.kind"] = owner.Kind
+		labels["owner.name"] = owner.Name
+	}
+
 	var containers []container.Container
 	for _, c := range pod.Spec.Containers {
 		containers = append(containers, container.Container{
@@ -106,6 +121,7 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 			Command:     strings.Join(c.Command, " "),
 			Host:        pod.Spec.NodeName,
 			Tty:         c.TTY,
+			Labels:      labels,
 			Stats:       utils.NewRingBuffer[container.ContainerStat](300),
 			FullyLoaded: true,
 		})

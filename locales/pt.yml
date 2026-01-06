@@ -45,9 +45,7 @@ label:
 tooltip:
   search: Pesquisar containers (⌘ + k, ⌃k)
   pin-column: Fixar como coluna
-  merge-services: Mesclar todos os serviços em uma visualização
-  merge-containers: Mesclar todos os containers em uma visualização
-  merge-hosts: Mesclar todos os containers neste host em uma visualização
+  merge-all: Unir tudo em um fluxo
 error:
   page-not-found: Esta página não existe
   invalid-auth: Usuário ou senha inválidos
@@ -90,7 +88,7 @@ settings:
   display: Exibição
   locale: Sobrescrever idioma
   small-scrollbars: Usar barras de rolagem menores
-  show-timesamps: Mostrar marcas de tempo
+  show-timestamps: Mostrar marcas de tempo
   soft-wrap: Quebrar linhas automaticamente
   datetime-format: Sobrescrever formato de data e hora
   font-size: Tamanho da fonte para logs

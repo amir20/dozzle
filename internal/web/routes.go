@@ -40,6 +40,7 @@ type Config struct {
 	Hostname         string
 	NoAnalytics      bool
 	Dev              bool
+	Mode             string
 	Authorization    Authorization
 	EnableActions    bool
 	EnableShell      bool
@@ -120,8 +121,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
 				r.Get("/hosts/{host}/logs/mergedStream/{ids}", h.streamLogsMerged)
 				r.Get("/containers/{hostIds}/download", h.downloadLogs) // formatted as host:container,host:container
-				r.Get("/stacks/{stack}/logs/stream", h.streamStackLogs)
-				r.Get("/services/{service}/logs/stream", h.streamServiceLogs)
+				r.Get("/labels/{labels}/logs/stream", h.streamLogsWithLabels)
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
 				r.Get("/events/stream", h.streamEvents)
 				if h.config.EnableActions {

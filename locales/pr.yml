@@ -49,9 +49,7 @@ label:
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna
-  merge-services: Fundir todos os serviços numa vista
-  merge-containers: Fundir todos os contentores numa vista
-  merge-hosts: Fundir todos os contentores neste anfitrião numa vista
+  merge-all: Mesclar tudo em um fluxo
 error:
   page-not-found: Esta página não existe.
   invalid-auth: O nome de usuário e a senha não são válidos.
@@ -95,7 +93,7 @@ settings:
   display: Visão
   locale: Localidade
   small-scrollbars: Usar barras de rolagem mais pequenas
-  show-timesamps: Mostrar carimbos de tempo
+  show-timestamps: Mostrar carimbos de tempo
   soft-wrap: Linhas de texto de embrulho suave
   12-24-format: >-
     Por defeito, Dozzle utilizará o locale do seu navegador para formatar a hora. Pode

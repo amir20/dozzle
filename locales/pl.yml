@@ -29,6 +29,7 @@ label:
   container: Brak kontenerów | 1 kontener | {count} kontenerów
   running-containers: Działające kontenery
   all-containers: Wszystkie kontenery
+  all-namespaces: Wszystkie przestrzenie nazw
   host: Host
   hosts: Hosty
   password: Hasło
@@ -49,9 +50,7 @@ label:
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
-  merge-services: Scal wszystkie usługi w jeden widok
-  merge-containers: Scal wszystkie kontenery w jeden widok
-  merge-hosts: Scal wszystkie kontenery na tym hoście w jeden widok
+  merge-all: Scal wszystko w jeden strumień
 error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
@@ -96,7 +95,7 @@ settings:
   display: Wyświetlanie
   locale: Nadpisz język
   small-scrollbars: Użyj mniejszych suwaków
-  show-timesamps: Pokaż date i godzinę
+  show-timestamps: Pokaż date i godzinę
   soft-wrap: Zwijaj linie
   datetime-format: Nadpisz format daty i godziny
   font-size: Rozmiar czcionki używany dla logów

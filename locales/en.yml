@@ -25,6 +25,8 @@ label:
   services: Services
   running-containers: Running Containers
   all-containers: All Containers
+  all-namespaces: All
+  namespaces: Namespaces
   host: Host
   hosts: Hosts
   password: Password
@@ -38,6 +40,7 @@ label:
   per-page: Rows per page
   host-menu: Hosts and Containers
   swarm-menu: Services and Stacks
+  k8s-menu: Kubernetes
   group-menu: Custom Groups
   no-logs: Container has no logs yet
   show-all-containers: Show all containers
@@ -45,9 +48,7 @@ label:
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
-  merge-services: Merge all services into one view
-  merge-containers: Merge all containers into one view
-  merge-hosts: Merge all containers on this host into one view
+  merge-all: Merge all into one stream
 error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
@@ -95,7 +96,7 @@ settings:
   display: Display
   locale: Override language
   small-scrollbars: Use smaller scrollbars
-  show-timesamps: Show timestamps
+  show-timestamps: Show timestamps
   soft-wrap: Soft wrap lines
   datetime-format: Override date and time format
   font-size: Font size to use for logs

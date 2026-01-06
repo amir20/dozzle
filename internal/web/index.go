@@ -62,6 +62,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
 		config["hostname"] = h.config.Hostname
+		config["mode"] = h.config.Mode
 		config["hosts"] = hosts
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode

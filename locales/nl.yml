@@ -25,6 +25,7 @@ label:
   services: Services
   running-containers: Actieve containers
   all-containers: Alle containers
+  all-namespaces: Alle Namespaces
   host: Host
   hosts: Hosts
   password: Wachtwoord
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom
-  merge-services: Voeg alle services samen in één weergave
-  merge-containers: Voeg alle containers samen in één weergave
-  merge-hosts: Voeg alle containers op deze host samen in één weergave
+  merge-all: Voeg alles samen in één stream
 error:
   page-not-found: Deze pagina bestaat niet
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
@@ -91,7 +90,7 @@ settings:
   display: Weergave
   locale: Taal aanpassen
   small-scrollbars: Kleinere scrollbalk gebruiken
-  show-timesamps: Tijdstempel tonen
+  show-timestamps: Tijdstempel tonen
   soft-wrap: Regels zacht afbreken
   datetime-format: Datum- en tijdnotatie aanpassen
   font-size: Lettergrootte voor logs

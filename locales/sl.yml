@@ -45,9 +45,7 @@ label:
 tooltip:
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec
-  merge-services: Združite vse storitve v en pogled
-  merge-hosts: Združi vse zabojnike na tem gostitelju v en pogled
-  merge-containers: Združi vse zabojnike v en pogled
+  merge-all: Združi vse v en tok
 error:
   page-not-found: Ta stran ne obstaja
   invalid-auth: Uporabniško ime ali geslo nista veljavna
@@ -90,7 +88,7 @@ settings:
   display: Prikaz
   locale: Preglasi jezik
   small-scrollbars: Uporabite manjše drsne trakove
-  show-timesamps: Prikaži časovne žige
+  show-timestamps: Prikaži časovne žige
   soft-wrap: Mehke ovojne linije
   datetime-format: Preglasi obliko zapisa datuma in časa
   font-size: Velikost pisave za dnevnike

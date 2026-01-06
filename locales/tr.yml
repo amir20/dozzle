@@ -51,9 +51,7 @@ label:
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
-  merge-services: Tüm servisleri tek görünümde birleştir
-  merge-containers: Tüm konteynerleri tek görünümde birleştir
-  merge-hosts: Bu sunucudaki tüm konteynerleri tek görünümde birleştir
+  merge-all: Tümünü tek bir akışta birleştir
 error:
   page-not-found: Bu sayfa bulunamadı
   invalid-auth: Kullanıcı adı veya şifre geçersiz
@@ -99,7 +97,7 @@ settings:
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan
-  show-timesamps: Zaman damgalarını göster
+  show-timestamps: Zaman damgalarını göster
   soft-wrap: Satırları yumuşak kaydır
   datetime-format: Tarih ve saat biçimini geçersiz kıl
   font-size: Günlükler için kullanılacak yazı tipi boyutu
