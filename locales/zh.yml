@@ -25,6 +25,7 @@ label:
   services: 服务
   running-containers: 运行中的容器
   all-containers: 所有容器
+  all-namespaces: 所有命名空间
   no-logs: 容器尚无日志
   show-all-containers: 显示所有容器
   collapse-all: 折叠全部
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列
-  merge-services: 合并所有服务到一个视图
-  merge-containers: 合并所有容器到一个视图
-  merge-hosts: 合并此主机上的所有容器到一个视图
+  merge-all: 将所有内容合并到一个流中
 error:
   page-not-found: 此页面不存在。
   invalid-auth: 用户名和密码无效。

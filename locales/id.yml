@@ -26,6 +26,7 @@ label:
   services: Layanan
   running-containers: Kontainer Berjalan
   all-containers: Semua Kontainer
+  all-namespaces: Semua Namespace
   host: Host
   hosts: Host
   password: Kata sandi
@@ -47,9 +48,7 @@ label:
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom
-  merge-services: Gabungkan semua layanan dalam satu tampilan
-  merge-containers: Gabungkan semua kontainer dalam satu tampilan
-  merge-hosts: Gabungkan semua kontainer di host ini dalam satu tampilan
+  merge-all: Gabungkan semua ke dalam satu aliran
 
 error:
   page-not-found: Halaman ini tidak ada

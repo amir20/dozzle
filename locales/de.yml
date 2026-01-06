@@ -25,6 +25,7 @@ label:
   services: Service
   running-containers: Laufende Container
   all-containers: Alle Container
+  all-namespaces: Alle Namespaces
   host: Host
   hosts: Hosts
   password: Passwort
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
-  merge-services: Services zusammenführen
-  merge-containers: Container zusammenführen
-  merge-hosts: Alle Container auf diesem Host in einer Ansicht zusammenführen
+  merge-all: Alles in einen Stream zusammenführen
 error:
   page-not-found: Diese Seite existiert nicht.
   invalid-auth: Benutzername und Passwort sind ungültig.

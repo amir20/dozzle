@@ -25,6 +25,7 @@ label:
   services: Services
   running-containers: Conteneurs en execution
   all-containers: Tous les conteneurs
+  all-namespaces: Tous les espaces de noms
   host: Hôte
   hosts: Hôtes
   password: Mot de passe
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
-  merge-services: Fusionner tous les services dans une vue
-  merge-containers: Fusionner tous les conteneurs dans une vue
-  merge-hosts: Fusionner tous les conteneurs de cet hôte dans une vue
+  merge-all: Fusionner tout dans un flux
 error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides

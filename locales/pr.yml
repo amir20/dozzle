@@ -49,9 +49,7 @@ label:
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna
-  merge-services: Fundir todos os serviços numa vista
-  merge-containers: Fundir todos os contentores numa vista
-  merge-hosts: Fundir todos os contentores neste anfitrião numa vista
+  merge-all: Mesclar tudo em um fluxo
 error:
   page-not-found: Esta página não existe.
   invalid-auth: O nome de usuário e a senha não são válidos.

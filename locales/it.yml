@@ -25,6 +25,7 @@ label:
   services: Servizi
   running-containers: Container in esecuzione
   all-containers: Tutti i Container
+  all-namespaces: Tutti i Namespace
   host: Host
   hosts: Hosts
   password: Password
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna
-  merge-services: Unisci tutti i servizi in una vista
-  merge-containers: Unisci tutti i container in una vista
-  merge-hosts: Unisci tutti i container su questo host in una vista
+  merge-all: Unisci tutto in un flusso
 error:
   page-not-found: Questa pagina non esiste
   invalid-auth: Username o password non valide

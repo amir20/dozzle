@@ -72,7 +72,7 @@
                 :to="{ name: '/namespace/[name]', params: { name } }"
                 class="btn btn-square btn-outline btn-primary btn-xs"
                 active-class="btn-active"
-                :title="$t('tooltip.merge-owners')"
+                :title="$t('tooltip.merge-all')"
               >
                 <ph:arrows-merge />
               </router-link>

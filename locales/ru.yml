@@ -25,6 +25,7 @@ label:
   services: Сервисы
   running-containers: Запущенные контейнеры
   all-containers: Все контейнеры
+  all-namespaces: Все пространства имён
   host: Хост
   hosts: Хосты
   password: Пароль
@@ -45,9 +46,7 @@ label:
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
-  merge-services: Объединить все сервисы в один вид
-  merge-containers: Объединить все контейнеры в один вид
-  merge-hosts: Объединить все контейнеры на этом хосте в один вид
+  merge-all: Объединить все в один поток
 error:
   page-not-found: Эта страница не доступна.
   invalid-auth: Имя пользователя или пароль неверны.
