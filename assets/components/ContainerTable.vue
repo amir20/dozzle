@@ -66,7 +66,7 @@
           </tr>
         </thead>
         <tbody class="bg-base-300/30">
-          <tr v-for="container in paginated" :key="container.id" class="hover:bg-base-100/80!">
+          <tr v-for="container in paginated" :key="container.id" v-memo="[container.id]" class="hover:bg-base-100/80!">
             <td v-if="isVisible('name')">
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
@@ -78,26 +78,10 @@
               <RelativeTime :date="container.created" />
             </td>
             <td v-if="isVisible('cpu')">
-              <div class="flex flex-row items-center gap-2">
-                <BarChart
-                  class="h-4 flex-1"
-                  :chart-data="cpuHistory(container)"
-                  :bar-class="barClass(containerAverageCpu(container))"
-                />
-                <span class="w-fit text-right text-sm"> {{ containerAverageCpu(container).toFixed(0) }}% </span>
-              </div>
+              <ContainerStatCell :container="container" type="cpu" :hosts="hosts" />
             </td>
             <td v-if="isVisible('mem')">
-              <div class="flex flex-row items-center gap-2">
-                <BarChart
-                  class="h-4 flex-1"
-                  :chart-data="memoryHistory(container)"
-                  :bar-class="barClass(container.movingAverage.memory)"
-                />
-                <span class="w-fit text-right text-sm">
-                  {{ formatBytes(container.movingAverage.memoryUsage) }}
-                </span>
-              </div>
+              <ContainerStatCell :container="container" type="mem" :hosts="hosts" />
             </td>
           </tr>
         </tbody>
@@ -221,36 +205,6 @@ function sort(field: keys) {
 }
 function isVisible(field: keys) {
   return fields[field].mobileVisible || !isMobile.value;
-}
-
-function totalContainerCores(container: Container): number {
-  if (container.cpuLimit && container.cpuLimit > 0) {
-    return 1;
-  }
-  const hostInfo = hosts.value[container.host];
-  return hostInfo?.nCPU ?? 1;
-}
-
-function containerAverageCpu(container: Container): number {
-  const cores = totalContainerCores(container);
-  const scaledCpu = container.movingAverage.cpu / cores;
-  return Math.min(scaledCpu, 100);
-}
-
-function cpuHistory(container: Container): number[] {
-  const cores = totalContainerCores(container);
-  return container.statsHistory.map((stat) => Math.min(stat.cpu / cores, 100));
-}
-
-function memoryHistory(container: Container): number[] {
-  return container.statsHistory.map((stat) => Math.min(stat.memory, 100));
-}
-
-function barClass(value: number): string {
-  if (value <= 50) return "bg-success";
-  if (value <= 70) return "bg-secondary";
-  if (value <= 90) return "bg-warning";
-  return "bg-error";
 }
 </script>
 
