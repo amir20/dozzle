@@ -3,12 +3,20 @@
     <div
       v-for="(dataPoint, i) in downsampledData"
       :key="i"
-      class="min-h-px flex-1 rounded-t-sm"
+      class="bar min-h-px flex-1 rounded-t-sm"
       :class="barClass"
-      :style="`height: ${Math.min(dataPoint, 100)}%`"
+      :style="{ '--height': `${Math.min(dataPoint, 100)}%` }"
     ></div>
   </div>
 </template>
+
+<style scoped>
+.bar {
+  height: var(--height);
+  will-change: height;
+  contain: layout;
+}
+</style>
 
 <script setup lang="ts">
 const { chartData, barClass = "" } = defineProps<{
@@ -45,7 +53,6 @@ watch(
       changeCounter.value = 0;
     }
   },
-  { deep: true },
 );
 
 // Recalculate when width changes
