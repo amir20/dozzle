@@ -38,6 +38,7 @@ label:
   per-page: Rows per page
   host-menu: Hosts and Containers
   swarm-menu: Services and Stacks
+  k8s-menu: Kubernetes
   group-menu: Custom Groups
   no-logs: Container has no logs yet
   show-all-containers: Show all containers

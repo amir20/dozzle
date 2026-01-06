@@ -30,7 +30,19 @@ const { ready } = storeToRefs(containerStore);
 const route = useRoute();
 const swarmStore = useSwarmStore();
 const { services, customGroups } = storeToRefs(swarmStore);
-const selectedCard = ref<"host" | "swarm" | "group" | "k8s">("host");
+
+let defaultCard: "host" | "swarm" | "group" | "k8s";
+switch (config.mode) {
+  case "k8s":
+    defaultCard = "k8s";
+    break;
+  case "swarm":
+    defaultCard = "swarm";
+    break;
+  default:
+    defaultCard = "host";
+}
+const selectedCard = ref<"host" | "swarm" | "group" | "k8s">(defaultCard);
 
 watch(
   route,

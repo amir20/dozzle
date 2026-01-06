@@ -227,10 +227,34 @@ func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *handler) streamServiceLogs(w http.ResponseWriter, r *http.Request) {
-	service := chi.URLParam(r, "service")
+func (h *handler) streamLogsWithLabels(w http.ResponseWriter, r *http.Request) {
+	// Parse label filters from URL path
+	// Expected format: /labels/key1:value1,key2:value2/logs/stream
+	labelsParam := chi.URLParam(r, "labels")
+	labelFilters := make(map[string]string)
+
+	if labelsParam != "" {
+		for _, pair := range strings.Split(labelsParam, ",") {
+			parts := strings.SplitN(pair, ":", 2)
+			if len(parts) == 2 {
+				labelFilters[parts[0]] = parts[1]
+			}
+		}
+	}
+
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
-		return container.State == "running" && container.Labels["com.docker.swarm.service.name"] == service
+		if container.State != "running" {
+			return false
+		}
+
+		// Check if all label filters match
+		for key, value := range labelFilters {
+			if container.Labels[key] != value {
+				return false
+			}
+		}
+
+		return len(labelFilters) > 0
 	})
 }
 
@@ -239,14 +263,6 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group
-	})
-}
-
-func (h *handler) streamStackLogs(w http.ResponseWriter, r *http.Request) {
-	stack := chi.URLParam(r, "stack")
-
-	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
-		return container.State == "running" && container.Labels["com.docker.stack.namespace"] == stack
 	})
 }
 

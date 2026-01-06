@@ -79,6 +79,20 @@ declare module 'vue-router/auto-routes' {
       { ids: ParamValue<false> },
       | never
     >,
+    '/namespace/[name]': RouteRecordInfo<
+      '/namespace/[name]',
+      '/namespace/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
+      | never
+    >,
+    '/owner/[name]': RouteRecordInfo<
+      '/owner/[name]',
+      '/owner/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
+      | never
+    >,
     '/service/[name]': RouteRecordInfo<
       '/service/[name]',
       '/service/:name',
@@ -165,6 +179,18 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/merged/[ids].vue': {
       routes:
         | '/merged/[ids]'
+      views:
+        | never
+    }
+    'assets/pages/namespace/[name].vue': {
+      routes:
+        | '/namespace/[name]'
+      views:
+        | never
+    }
+    'assets/pages/owner/[name].vue': {
+      routes:
+        | '/owner/[name]'
       views:
         | never
     }

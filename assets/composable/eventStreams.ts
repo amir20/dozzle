@@ -32,7 +32,8 @@ export function useHostStream(host: Ref<Host>): LogStreamSource {
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
-  return useLogStream(computed(() => `/api/stacks/${stack.value.name}/logs/stream`));
+  const labels = computed(() => `com.docker.stack.namespace:${stack.value.name}`);
+  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
 export function useGroupedStream(group: Ref<GroupedContainers>): LogStreamSource {
@@ -49,7 +50,18 @@ export function useMergedStream(containers: Ref<Container[]>): LogStreamSource {
 }
 
 export function useServiceStream(service: Ref<Service>): LogStreamSource {
-  return useLogStream(computed(() => `/api/services/${service.value.name}/logs/stream`));
+  const labels = computed(() => `com.docker.swarm.service.name:${service.value.name}`);
+  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+}
+
+export function useNamespaceStream(namespace: Ref<{ name: string }>): LogStreamSource {
+  const labels = computed(() => `namespace:${namespace.value.name}`);
+  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
+}
+
+export function useOwnerStream(owner: Ref<{ name: string; kind: string }>): LogStreamSource {
+  const labels = computed(() => `owner.kind:${owner.value.kind},owner.name:${owner.value.name}`);
+  return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
 export type LogStreamSource = ReturnType<typeof useLogStream>;
