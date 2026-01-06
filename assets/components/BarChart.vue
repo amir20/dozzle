@@ -14,6 +14,7 @@
 .bar {
   height: var(--height);
   will-change: height;
+  contain: layout;
 }
 </style>
 
