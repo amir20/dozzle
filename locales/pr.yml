@@ -95,7 +95,7 @@ settings:
   display: Visão
   locale: Localidade
   small-scrollbars: Usar barras de rolagem mais pequenas
-  show-timesamps: Mostrar carimbos de tempo
+  show-timestamps: Mostrar carimbos de tempo
   soft-wrap: Linhas de texto de embrulho suave
   12-24-format: >-
     Por defeito, Dozzle utilizará o locale do seu navegador para formatar a hora. Pode

@@ -98,7 +98,7 @@ settings:
   display: Tampilan
   locale: Ganti bahasa
   small-scrollbars: Gunakan scrollbar kecil
-  show-timesamps: Tampilkan cap waktu
+  show-timestamps: Tampilkan cap waktu
   soft-wrap: Bungkus baris secara lunak
   datetime-format: Ganti format tanggal dan waktu
   font-size: Ukuran font untuk log

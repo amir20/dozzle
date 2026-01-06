@@ -90,7 +90,7 @@ settings:
   display: Vista
   locale: Sobrescribir idioma
   small-scrollbars: Utilizar barras de desplazamiento más pequeñas
-  show-timesamps: Mostrar marcas de tiempo
+  show-timestamps: Mostrar marcas de tiempo
   soft-wrap: Líneas de texto con ajuste suave
   datetime-format: Sobrescribir el formato de fecha y hora
   font-size: Tamaño de letra a utilizar para los registros

@@ -90,7 +90,7 @@ settings:
   display: Exibição
   locale: Sobrescrever idioma
   small-scrollbars: Usar barras de rolagem menores
-  show-timesamps: Mostrar marcas de tempo
+  show-timestamps: Mostrar marcas de tempo
   soft-wrap: Quebrar linhas automaticamente
   datetime-format: Sobrescrever formato de data e hora
   font-size: Tamanho da fonte para logs

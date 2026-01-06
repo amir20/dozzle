@@ -96,7 +96,7 @@ settings:
   display: Wyświetlanie
   locale: Nadpisz język
   small-scrollbars: Użyj mniejszych suwaków
-  show-timesamps: Pokaż date i godzinę
+  show-timestamps: Pokaż date i godzinę
   soft-wrap: Zwijaj linie
   datetime-format: Nadpisz format daty i godziny
   font-size: Rozmiar czcionki używany dla logów

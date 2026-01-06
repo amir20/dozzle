@@ -92,7 +92,7 @@ settings:
   display: 顯示
   locale: 變更語言
   small-scrollbars: 使用較小的捲軸
-  show-timesamps: 顯示時間戳記
+  show-timestamps: 顯示時間戳記
   soft-wrap: 自動換行
   datetime-format: 變更日期與時間格式
   font-size: 日誌字型大小

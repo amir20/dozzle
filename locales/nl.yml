@@ -91,7 +91,7 @@ settings:
   display: Weergave
   locale: Taal aanpassen
   small-scrollbars: Kleinere scrollbalk gebruiken
-  show-timesamps: Tijdstempel tonen
+  show-timestamps: Tijdstempel tonen
   soft-wrap: Regels zacht afbreken
   datetime-format: Datum- en tijdnotatie aanpassen
   font-size: Lettergrootte voor logs

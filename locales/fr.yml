@@ -90,7 +90,7 @@ settings:
   display: Afficher
   locale: Langue de remplacement
   small-scrollbars: Utiliser des barres de défilement plus petites
-  show-timesamps: Afficher les horodatages
+  show-timestamps: Afficher les horodatages
   soft-wrap: Lignes d'enroulement souples
   datetime-format: Remplacer le format de la date et de l'heure
   font-size: Taille de police à utiliser pour les journaux

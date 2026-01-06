@@ -90,7 +90,7 @@ settings:
   display: Anzeige
   locale: Sprache überschreiben
   small-scrollbars: Verwende kleinere Scrollbars
-  show-timesamps: Zeige Zeitstempel
+  show-timestamps: Zeige Zeitstempel
   soft-wrap: Zeilenumbruch
   datetime-format: Datums- und Zeitformat
   font-size: Schriftgröße für Logs

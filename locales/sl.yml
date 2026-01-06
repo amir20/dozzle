@@ -90,7 +90,7 @@ settings:
   display: Prikaz
   locale: Preglasi jezik
   small-scrollbars: Uporabite manjše drsne trakove
-  show-timesamps: Prikaži časovne žige
+  show-timestamps: Prikaži časovne žige
   soft-wrap: Mehke ovojne linije
   datetime-format: Preglasi obliko zapisa datuma in časa
   font-size: Velikost pisave za dnevnike

@@ -90,7 +90,7 @@ settings:
   display: 显示
   locale: 显示语言
   small-scrollbars: 使用较小的滚动条
-  show-timesamps: 显示时间戳
+  show-timestamps: 显示时间戳
   soft-wrap: 断行
   datetime-format: 自定义日期和时间格式
   font-size: 字体大小

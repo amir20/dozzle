@@ -90,7 +90,7 @@ settings:
   display: Visualizza
   locale: Sovrascrivi Lingua
   small-scrollbars: Usa una scrollbars più piccola
-  show-timesamps: Visualizza timestamp
+  show-timestamps: Visualizza timestamp
   soft-wrap: Soft Wrap
   datetime-format: Sovrascrivi data e formato dell'ora
   font-size: Grandezza del Font da usare nei log

@@ -93,7 +93,7 @@ settings:
   display: 화면 설정
   locale: 언어 변경
   small-scrollbars: 작은 스크롤바 사용
-  show-timesamps: 타임스탬프 표시
+  show-timestamps: 타임스탬프 표시
   soft-wrap: 자동 줄바꿈
   datetime-format: 날짜 및 시간 형식 변경
   font-size: 로그 글꼴 크기

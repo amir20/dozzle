@@ -90,7 +90,7 @@ settings:
   display: Visning
   locale: Overskriv sprog
   small-scrollbars: Brug mindre scrollbarer
-  show-timesamps: Vis tids stempler
+  show-timestamps: Vis tids stempler
   soft-wrap: Blødt bræk på linjer
   datetime-format: Overskriv dato og tids format
   font-size: Tekststørrelse at bruge til logs

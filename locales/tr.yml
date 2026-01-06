@@ -99,7 +99,7 @@ settings:
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan
-  show-timesamps: Zaman damgalarını göster
+  show-timestamps: Zaman damgalarını göster
   soft-wrap: Satırları yumuşak kaydır
   datetime-format: Tarih ve saat biçimini geçersiz kıl
   font-size: Günlükler için kullanılacak yazı tipi boyutu
