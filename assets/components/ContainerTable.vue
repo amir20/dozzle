@@ -67,7 +67,7 @@
         </thead>
         <tbody class="bg-base-300/30">
           <tr v-for="container in paginated" :key="container.id" v-memo="[container.id]" class="hover:bg-base-100/80!">
-            <td v-if="isVisible('name')">
+            <td v-if="isVisible('name')" class="max-w-80 truncate">
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
               </router-link>
