@@ -6,6 +6,7 @@
         <div
           class="[word-break:break-word] whitespace-pre-wrap group-[.disable-wrap]:whitespace-pre"
           v-html="colorize(msg)"
+          :class="{ 'min-h-4': msg === '' }"
         ></div>
       </div>
     </div>
