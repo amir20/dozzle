@@ -23,6 +23,9 @@ const host = useTemplateRef<HTMLDivElement>("host");
 const terminal = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
+  theme: {
+    background: "rgba(0, 0, 0, 0)",
+  },
 });
 terminal.loadAddon(new WebLinksAddon());
 const fitAddon = new FitAddon();
@@ -109,6 +112,10 @@ onUnmounted(() => {
 
   & :deep(.xterm-cursor-block.xterm-cursor-blink) {
     animation-name: blink !important;
+  }
+
+  & :deep(.xterm-selection) {
+    @apply bg-primary/30;
   }
 }
 
