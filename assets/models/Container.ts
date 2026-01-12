@@ -51,7 +51,9 @@ export class Container {
     public readonly group?: string,
     public health?: ContainerHealth,
   ) {
-    this._stat = ref(stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0 } as Stat));
+    this._stat = ref(
+      stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat),
+    );
     const { history } = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
     this._statsHistory = history;
     const { movingAverage } = useExponentialMovingAverage(this._stat, 0.2);

@@ -1,5 +1,11 @@
 <template>
   <div class="flex gap-1 md:gap-4">
+    <div class="grid min-w-15 grid-cols-[auto_1fr] items-center gap-0.5 text-xs leading-none max-md:hidden">
+      <PhArrowUp class="text-primary" />
+      <span class="tabular-nums">{{ formatBytes(networkRate.tx, { short: true, decimals: 1 }) }}/s</span>
+      <PhArrowDown class="text-secondary" />
+      <span class="tabular-nums">{{ formatBytes(networkRate.rx, { short: true, decimals: 1 }) }}/s</span>
+    </div>
     <StatMonitor
       :data="cpuData"
       :icon="PhCpu"
@@ -35,9 +41,10 @@ const { containers } = defineProps<{
   containers: Container[];
 }>();
 
-const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0 });
+const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
+const networkRate = ref({ rx: 0, tx: 0 });
 
 const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.toFixed(1));
 
@@ -65,12 +72,15 @@ watch(
             cpu: acc.cpu + item.cpu / cores,
             memory: acc.memory + item.memory,
             memoryUsage: acc.memoryUsage + item.memoryUsage,
+            networkRxTotal: acc.networkRxTotal + item.networkRxTotal,
+            networkTxTotal: acc.networkTxTotal + item.networkTxTotal,
           };
         },
-        { cpu: 0, memory: 0, memoryUsage: 0 },
+        { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 },
       );
       initial.push(stat);
     }
+    totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
   },
   { immediate: true },
@@ -92,6 +102,7 @@ const limits = computed(() => {
 });
 
 useIntervalFn(() => {
+  const previousStat = totalStat.value;
   totalStat.value = containers.reduce(
     (acc, container) => {
       const cores = toContainerCores(container);
@@ -99,10 +110,17 @@ useIntervalFn(() => {
         cpu: acc.cpu + container.stat.cpu / cores,
         memory: acc.memory + container.stat.memory,
         memoryUsage: acc.memoryUsage + container.stat.memoryUsage,
+        networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
+        networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
       };
     },
-    { cpu: 0, memory: 0, memoryUsage: 0 },
+    { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 },
   );
+
+  networkRate.value = {
+    rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),
+    tx: Math.max(0, totalStat.value.networkTxTotal - previousStat.networkTxTotal),
+  };
 }, 1000);
 
 const cpuData = computed(() =>

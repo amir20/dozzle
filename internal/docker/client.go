@@ -198,6 +198,7 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			mem, memLimit          float64
 			previousCPU            uint64
 			previousSystem         uint64
+			networkRx, networkTx   uint64
 		)
 		daemonOSType := response.OSType
 
@@ -213,15 +214,23 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			mem = float64(v.MemoryStats.PrivateWorkingSet)
 		}
 
+		// Calculate total network bytes across all interfaces
+		for _, netStats := range v.Networks {
+			networkRx += netStats.RxBytes
+			networkTx += netStats.TxBytes
+		}
+
 		if cpuPercent > 0 || mem > 0 {
 			select {
 			case <-ctx.Done():
 				return nil
 			case stats <- container.ContainerStat{
-				ID:            id,
-				CPUPercent:    cpuPercent,
-				MemoryPercent: memPercent,
-				MemoryUsage:   mem,
+				ID:             id,
+				CPUPercent:     cpuPercent,
+				MemoryPercent:  memPercent,
+				MemoryUsage:    mem,
+				NetworkRxTotal: networkRx,
+				NetworkTxTotal: networkTx,
 			}:
 			}
 		}

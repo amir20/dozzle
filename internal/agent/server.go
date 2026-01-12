@@ -171,10 +171,12 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 		case stat := <-stats:
 			out.Send(&pb.StreamStatsResponse{
 				Stat: &pb.ContainerStat{
-					Id:            stat.ID,
-					CpuPercent:    stat.CPUPercent,
-					MemoryPercent: stat.MemoryPercent,
-					MemoryUsage:   stat.MemoryUsage,
+					Id:             stat.ID,
+					CpuPercent:     stat.CPUPercent,
+					MemoryPercent:  stat.MemoryPercent,
+					MemoryUsage:    stat.MemoryUsage,
+					NetworkRxTotal: stat.NetworkRxTotal,
+					NetworkTxTotal: stat.NetworkTxTotal,
 				},
 			})
 		case <-out.Context().Done():

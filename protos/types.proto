@@ -34,6 +34,8 @@ message ContainerStat {
   double cpuPercent = 2;
   double memoryUsage = 3;
   double memoryPercent = 4;
+  uint64 networkRxTotal = 5;
+  uint64 networkTxTotal = 6;
 }
 
 message LogFragment {

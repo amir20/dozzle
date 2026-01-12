@@ -3,6 +3,8 @@ export interface ContainerStat {
   readonly cpu: number;
   readonly memory: number;
   readonly memoryUsage: number;
+  readonly networkRxTotal: number;
+  readonly networkTxTotal: number;
 }
 
 export type ContainerJson = {

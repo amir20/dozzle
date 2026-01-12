@@ -261,13 +261,15 @@ func (x *Container) GetFullyLoaded() bool {
 }
 
 type ContainerStat struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CpuPercent    float64                `protobuf:"fixed64,2,opt,name=cpuPercent,proto3" json:"cpuPercent,omitempty"`
-	MemoryUsage   float64                `protobuf:"fixed64,3,opt,name=memoryUsage,proto3" json:"memoryUsage,omitempty"`
-	MemoryPercent float64                `protobuf:"fixed64,4,opt,name=memoryPercent,proto3" json:"memoryPercent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CpuPercent     float64                `protobuf:"fixed64,2,opt,name=cpuPercent,proto3" json:"cpuPercent,omitempty"`
+	MemoryUsage    float64                `protobuf:"fixed64,3,opt,name=memoryUsage,proto3" json:"memoryUsage,omitempty"`
+	MemoryPercent  float64                `protobuf:"fixed64,4,opt,name=memoryPercent,proto3" json:"memoryPercent,omitempty"`
+	NetworkRxTotal uint64                 `protobuf:"varint,5,opt,name=networkRxTotal,proto3" json:"networkRxTotal,omitempty"`
+	NetworkTxTotal uint64                 `protobuf:"varint,6,opt,name=networkTxTotal,proto3" json:"networkTxTotal,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ContainerStat) Reset() {
@@ -324,6 +326,20 @@ func (x *ContainerStat) GetMemoryUsage() float64 {
 func (x *ContainerStat) GetMemoryPercent() float64 {
 	if x != nil {
 		return x.MemoryPercent
+	}
+	return 0
+}
+
+func (x *ContainerStat) GetNetworkRxTotal() uint64 {
+	if x != nil {
+		return x.NetworkRxTotal
+	}
+	return 0
+}
+
+func (x *ContainerStat) GetNetworkTxTotal() uint64 {
+	if x != nil {
+		return x.NetworkTxTotal
 	}
 	return 0
 }
@@ -832,14 +848,16 @@ const file_types_proto_rawDesc = "" +
 	"\vfullyLoaded\x18\x13 \x01(\bR\vfullyLoaded\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x87\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd7\x01\n" +
 	"\rContainerStat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +
 	"cpuPercent\x18\x02 \x01(\x01R\n" +
 	"cpuPercent\x12 \n" +
 	"\vmemoryUsage\x18\x03 \x01(\x01R\vmemoryUsage\x12$\n" +
-	"\rmemoryPercent\x18\x04 \x01(\x01R\rmemoryPercent\"'\n" +
+	"\rmemoryPercent\x18\x04 \x01(\x01R\rmemoryPercent\x12&\n" +
+	"\x0enetworkRxTotal\x18\x05 \x01(\x04R\x0enetworkRxTotal\x12&\n" +
+	"\x0enetworkTxTotal\x18\x06 \x01(\x04R\x0enetworkTxTotal\"'\n" +
 	"\vLogFragment\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x88\x02\n" +
 	"\bLogEvent\x12\x0e\n" +

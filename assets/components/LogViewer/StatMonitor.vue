@@ -10,7 +10,7 @@
     </div>
     <div class="bg-base-200 flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
       <component :is="icon" class="text-sm" />
-      <div class="font-bold select-none">
+      <div class="font-bold tabular-nums select-none">
         {{ displayValue }}
         <span v-if="limit !== -1 && !mouseOver" class="max-md:hidden"> / {{ limit }} </span>
       </div>
