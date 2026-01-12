@@ -105,9 +105,11 @@ func (sc *K8sStatsCollector) Start(parentCtx context.Context) bool {
 				for _, pod := range metricList.Items {
 					for _, c := range pod.Containers {
 						stat := container.ContainerStat{
-							ID:          pod.Namespace + ":" + pod.Name + ":" + c.Name,
-							CPUPercent:  float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
-							MemoryUsage: c.Usage.Memory().AsApproximateFloat64(),
+							ID:             pod.Namespace + ":" + pod.Name + ":" + c.Name,
+							CPUPercent:     float64(c.Usage.Cpu().MilliValue()) / 1000 * 100,
+							MemoryUsage:    c.Usage.Memory().AsApproximateFloat64(),
+							NetworkRxTotal: 0, // K8s metrics API doesn't expose network stats by default
+							NetworkTxTotal: 0, // Would require custom metrics or cAdvisor integration
 						}
 						log.Trace().Interface("stat", stat).Msg("k8s stats")
 						sc.subscribers.Range(func(c context.Context, stats chan<- container.ContainerStat) bool {

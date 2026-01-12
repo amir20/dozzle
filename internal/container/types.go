@@ -98,10 +98,12 @@ func FromProto(c *pb.Container) Container {
 
 // ContainerStat represent stats instant for a container
 type ContainerStat struct {
-	ID            string  `json:"id"`
-	CPUPercent    float64 `json:"cpu"`
-	MemoryPercent float64 `json:"memory"`
-	MemoryUsage   float64 `json:"memoryUsage"`
+	ID             string  `json:"id"`
+	CPUPercent     float64 `json:"cpu"`
+	MemoryPercent  float64 `json:"memory"`
+	MemoryUsage    float64 `json:"memoryUsage"`
+	NetworkRxTotal uint64  `json:"networkRxTotal"`
+	NetworkTxTotal uint64  `json:"networkTxTotal"`
 }
 
 // ContainerEvent represents events that are triggered

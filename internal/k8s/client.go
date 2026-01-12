@@ -293,7 +293,8 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 }
 
 func (k *K8sClient) ContainerStats(ctx context.Context, id string, stats chan<- container.ContainerStat) error {
-	panic("not implemented")
+	// Stats collection is implemented in stats_collector.go using K8s metrics API
+	panic("not implemented - use K8sStatsCollector instead")
 }
 
 func (k *K8sClient) Ping(ctx context.Context) error {

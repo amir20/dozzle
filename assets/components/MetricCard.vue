@@ -4,8 +4,8 @@
       <component :is="icon" class="text-lg" />
       <span>{{ label }}</span>
     </div>
-    <div class="mb-1.5 text-lg font-semibold">{{ formattedValue }}</div>
-    <div class="text-base-content/60 mb-1 text-xs max-md:hidden">
+    <div class="mb-1.5 text-lg font-semibold tabular-nums">{{ formattedValue }}</div>
+    <div class="text-base-content/60 mb-1 text-xs tabular-nums max-md:hidden">
       avg {{ formatValue(average) }} • pk {{ formatValue(peak) }}
     </div>
     <BarChart class="h-8" :chartData="percentData" :barClass="barClass" />

@@ -122,6 +122,8 @@ declare module 'vue' {
     'Ph:globeSimple': typeof import('~icons/ph/globe-simple')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
+    PhArrowDown: typeof import('~icons/ph/arrow-down')['default']
+    PhArrowUp: typeof import('~icons/ph/arrow-up')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']
     RelativeTime: typeof import('./components/common/RelativeTime.vue')['default']
