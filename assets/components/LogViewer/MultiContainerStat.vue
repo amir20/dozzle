@@ -80,6 +80,7 @@ watch(
       );
       initial.push(stat);
     }
+    totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
   },
   { immediate: true },
@@ -116,13 +117,10 @@ useIntervalFn(() => {
     { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 },
   );
 
-  // Calculate network rates (bytes per second)
-  if (previousStat.networkRxTotal > 0 && previousStat.networkTxTotal > 0) {
-    networkRate.value = {
-      rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),
-      tx: Math.max(0, totalStat.value.networkTxTotal - previousStat.networkTxTotal),
-    };
-  }
+  networkRate.value = {
+    rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),
+    tx: Math.max(0, totalStat.value.networkTxTotal - previousStat.networkTxTotal),
+  };
 }, 1000);
 
 const cpuData = computed(() =>
