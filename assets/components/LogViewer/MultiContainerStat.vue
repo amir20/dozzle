@@ -87,18 +87,53 @@ watch(
 );
 
 const limits = computed(() => {
-  return containers.reduce(
-    (acc, container) => {
-      const cores = toContainerCores(container);
-      const hostInfo = hosts.value[container.host];
+  // Group containers by host
+  const containersByHost = new Map<string, Container[]>();
+  containers.forEach((container) => {
+    if (!containersByHost.has(container.host)) {
+      containersByHost.set(container.host, []);
+    }
+    containersByHost.get(container.host)!.push(container);
+  });
 
-      return {
-        cpu: acc.cpu + cores,
-        memory: acc.memory + (container.memoryLimit || hostInfo?.memTotal || 0),
-      };
-    },
-    { cpu: 0, memory: 0 },
-  );
+  let totalCpu = 0;
+  let totalMemory = 0;
+
+  // Process each host independently
+  containersByHost.forEach((hostContainers, hostId) => {
+    const hostInfo = hosts.value[hostId];
+    const hostTotalMemory = hostInfo?.memTotal || 0;
+    const hostTotalCpu = hostInfo?.nCPU || 0;
+
+    // Check if any container lacks limits
+    const hasUnlimitedCpu = hostContainers.some((c) => !c.cpuLimit || c.cpuLimit <= 0);
+    const hasUnlimitedMemory = hostContainers.some((c) => !c.memoryLimit);
+
+    // Calculate CPU for this host
+    if (hasUnlimitedCpu) {
+      // At least one container has no limit, use host total
+      totalCpu += hostTotalCpu;
+    } else {
+      // All containers have limits, sum them up (capped at host total)
+      const sumCpu = hostContainers.reduce((sum, c) => sum + 1, 0);
+      totalCpu += Math.min(sumCpu, hostTotalCpu);
+    }
+
+    // Calculate Memory for this host
+    if (hasUnlimitedMemory) {
+      // At least one container has no limit, use host total
+      totalMemory += hostTotalMemory;
+    } else {
+      // All containers have limits, sum them up (capped at host total)
+      const sumMemory = hostContainers.reduce((sum, c) => sum + (c.memoryLimit || 0), 0);
+      totalMemory += Math.min(sumMemory, hostTotalMemory);
+    }
+  });
+
+  return {
+    cpu: totalCpu,
+    memory: totalMemory,
+  };
 });
 
 useIntervalFn(() => {
