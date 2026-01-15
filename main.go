@@ -17,6 +17,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
+	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
@@ -108,15 +109,18 @@ func main() {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
-	srv := createServer(args, hostService)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	notificationManager := initializeNotifications(ctx, hostService)
+
+	srv := createServer(args, hostService, notificationManager)
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
 	}()
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 
 	<-ctx.Done()
 	stop()
@@ -137,7 +141,56 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService) *http.Server {
+func initializeSimpleAuth(authTTL string) web.Authorizer {
+	log.Debug().Msg("Using simple authentication")
+
+	userFilePath := "./data/users.yml"
+	if !fileExists(userFilePath) {
+		userFilePath = "./data/users.yaml"
+		if !fileExists(userFilePath) {
+			log.Fatal().Msg("No users.yaml or users.yml file found.")
+		}
+	}
+
+	log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
+
+	db, err := auth.ReadUsersFromFile(userFilePath)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
+	}
+
+	log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
+	ttl := time.Duration(0)
+	if authTTL != "session" {
+		ttl, err = time.ParseDuration(authTTL)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Could not parse auth ttl")
+		}
+	}
+	return auth.NewSimpleAuth(db, ttl)
+}
+
+func initializeNotifications(ctx context.Context, hostService web.HostService) *notification.Manager {
+	notificationsPath := "./data/notifications.yml"
+	manager, err := notification.LoadFromFile(notificationsPath, hostService)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to load notifications config")
+		return nil
+	}
+
+	if manager == nil {
+		return nil // No config file
+	}
+
+	if err := manager.Start(ctx); err != nil {
+		log.Error().Err(err).Msg("failed to start notification manager")
+		return nil
+	}
+
+	return manager
+}
+
+func createServer(args cli.Args, hostService web.HostService, notificationManager *notification.Manager) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -158,33 +211,8 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		provider = web.FORWARD_PROXY
 		authorizer = auth.NewForwardProxyAuth(args.AuthHeaderUser, args.AuthHeaderEmail, args.AuthHeaderName, args.AuthHeaderFilter, args.AuthHeaderRoles)
 	} else if args.AuthProvider == "simple" {
-		log.Debug().Msg("Using simple authentication")
 		provider = web.SIMPLE
-
-		userFilePath := "./data/users.yml"
-		if !fileExists(userFilePath) {
-			userFilePath = "./data/users.yaml"
-			if !fileExists(userFilePath) {
-				log.Fatal().Msg("No users.yaml or users.yml file found.")
-			}
-		}
-
-		log.Debug().Msgf("Reading %s file", filepath.Base(userFilePath))
-
-		db, err := auth.ReadUsersFromFile(userFilePath)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("Could not read users file: %s", userFilePath)
-		}
-
-		log.Debug().Int("users", len(db.Users)).Msg("Loaded users")
-		ttl := time.Duration(0)
-		if args.AuthTTL != "session" {
-			ttl, err = time.ParseDuration(args.AuthTTL)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Could not parse auth ttl")
-			}
-		}
-		authorizer = auth.NewSimpleAuth(db, ttl)
+		authorizer = initializeSimpleAuth(args.AuthTTL)
 	}
 
 	authTTL := time.Duration(0)
@@ -211,11 +239,12 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 			TTL:        authTTL,
 			LogoutUrl:  args.AuthLogoutUrl,
 		},
-		EnableActions:    args.EnableActions,
-		EnableShell:      args.EnableShell,
-		DisableAvatars:   args.DisableAvatars,
-		ReleaseCheckMode: releaseCheckMode,
-		Labels:           args.Filter,
+		EnableActions:       args.EnableActions,
+		EnableShell:         args.EnableShell,
+		DisableAvatars:      args.DisableAvatars,
+		ReleaseCheckMode:    releaseCheckMode,
+		Labels:              args.Filter,
+		NotificationManager: notificationManager,
 	}
 
 	assets, err := fs.Sub(content, "dist")

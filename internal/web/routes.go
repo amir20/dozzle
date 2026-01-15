@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/go-chi/chi/v5"
@@ -34,19 +35,20 @@ const (
 
 // Config is a struct for configuring the web service
 type Config struct {
-	Base             string
-	Addr             string
-	Version          string
-	Hostname         string
-	NoAnalytics      bool
-	Dev              bool
-	Mode             string
-	Authorization    Authorization
-	EnableActions    bool
-	EnableShell      bool
-	DisableAvatars   bool
-	ReleaseCheckMode ReleaseCheckMode
-	Labels           container.ContainerLabels
+	Base                string
+	Addr                string
+	Version             string
+	Hostname            string
+	NoAnalytics         bool
+	Dev                 bool
+	Mode                string
+	Authorization       Authorization
+	EnableActions       bool
+	EnableShell         bool
+	DisableAvatars      bool
+	ReleaseCheckMode    ReleaseCheckMode
+	Labels              container.ContainerLabels
+	NotificationManager *notification.Manager
 }
 
 type Authorization struct {
