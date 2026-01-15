@@ -27,11 +27,10 @@ type ContainerLogListener struct {
 }
 
 // NewContainerLogListener creates a new listener
-func NewContainerLogListener(clientService container_support.ClientService, matcher ContainerMatcher) *ContainerLogListener {
+func NewContainerLogListener(clientService container_support.ClientService) *ContainerLogListener {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ContainerLogListener{
 		clientService: clientService,
-		matcher:       matcher,
 		activeStreams: make(map[string]context.CancelFunc),
 		logChannel:    make(chan *container.LogEvent, 1000),
 		ctx:           ctx,
@@ -40,7 +39,8 @@ func NewContainerLogListener(clientService container_support.ClientService, matc
 }
 
 // Start begins listening for container events and processes log streams
-func (l *ContainerLogListener) Start() error {
+func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
+	l.matcher = matcher
 	// Get all current containers
 	containers, err := l.clientService.ListContainers(l.ctx, nil)
 	if err != nil {
