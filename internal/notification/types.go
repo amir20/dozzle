@@ -94,6 +94,23 @@ type Subscription struct {
 	ContainerProgram    *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
 }
 
+// DispatcherConfig represents a dispatcher configuration
+type DispatcherConfig struct {
+	Type string `json:"type" yaml:"type"` // "webhook", etc.
+	URL  string `json:"url,omitempty" yaml:"url,omitempty"`
+}
+
+// Config represents the persisted notification configuration
+type Config struct {
+	Subscriptions []SubscriptionConfig `json:"subscriptions" yaml:"subscriptions"`
+}
+
+// SubscriptionConfig represents a subscription with its dispatchers
+type SubscriptionConfig struct {
+	Subscription
+	Dispatchers []DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
+}
+
 // MatchesContainer checks if a container matches this subscription's container filter
 func (s *Subscription) MatchesContainer(c Container) bool {
 	if s.ContainerProgram == nil {

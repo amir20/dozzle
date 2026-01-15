@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/expr-lang/expr"
 	"github.com/rs/zerolog/log"
+	"go.yaml.in/yaml/v2"
 )
 
 // Manager manages notification subscriptions and dispatches notifications
@@ -42,7 +44,7 @@ func NewManager(listener *ContainerLogListener) *Manager {
 // Start initializes the manager and starts the log listener
 func (m *Manager) Start() error {
 	if m.listener != nil {
-		return m.listener.Start()
+		return m.listener.Start(m)
 	}
 	return nil
 }
@@ -203,6 +205,81 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notific
 	if err := d.Send(ctx, notification); err != nil {
 		log.Error().Err(err).Str("subscription", name).Msg("Failed to send notification")
 	}
+}
+
+// WriteConfig writes the current configuration to a writer in YAML format
+func (m *Manager) WriteConfig(w io.Writer) error {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	config := Config{
+		Subscriptions: make([]SubscriptionConfig, 0, len(m.subscriptions)),
+	}
+
+	for name, sub := range m.subscriptions {
+		subConfig := SubscriptionConfig{
+			Subscription: *sub,
+		}
+
+		// Add dispatchers for this subscription
+		if dispatchers, exists := m.dispatchers[name]; exists {
+			for _, d := range dispatchers {
+				switch v := d.(type) {
+				case *dispatcher.WebhookDispatcher:
+					subConfig.Dispatchers = append(subConfig.Dispatchers, DispatcherConfig{
+						Type: "webhook",
+						URL:  v.URL,
+					})
+				}
+			}
+		}
+
+		config.Subscriptions = append(config.Subscriptions, subConfig)
+	}
+
+	encoder := yaml.NewEncoder(w)
+	defer encoder.Close()
+
+	return encoder.Encode(config)
+}
+
+// LoadConfig reads configuration from a reader in YAML format and loads it
+func (m *Manager) LoadConfig(r io.Reader) error {
+	var config Config
+
+	decoder := yaml.NewDecoder(r)
+	if err := decoder.Decode(&config); err != nil {
+		return fmt.Errorf("failed to decode config: %w", err)
+	}
+
+	// Load subscriptions and dispatchers
+	for _, subConfig := range config.Subscriptions {
+		// Add subscription
+		if err := m.AddSubscription(&subConfig.Subscription); err != nil {
+			return fmt.Errorf("failed to add subscription %s: %w", subConfig.Name, err)
+		}
+
+		// Add dispatchers
+		for _, dispatcherConfig := range subConfig.Dispatchers {
+			var d dispatcher.Dispatcher
+			switch dispatcherConfig.Type {
+			case "webhook":
+				d = dispatcher.NewWebhookDispatcher(dispatcherConfig.URL)
+			default:
+				return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
+			}
+			m.AddDispatcher(subConfig.Name, d)
+		}
+	}
+
+	// Update listener to start streams for loaded subscriptions
+	if m.listener != nil {
+		if err := m.listener.UpdateStreams(); err != nil {
+			return fmt.Errorf("failed to update listener streams: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // Close stops the manager and all active log streams

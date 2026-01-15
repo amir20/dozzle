@@ -11,14 +11,14 @@ import (
 
 // WebhookDispatcher sends notifications to a webhook URL
 type WebhookDispatcher struct {
-	url    string
+	URL    string
 	client *http.Client
 }
 
 // NewWebhookDispatcher creates a new webhook dispatcher
 func NewWebhookDispatcher(url string) *WebhookDispatcher {
 	return &WebhookDispatcher{
-		url: url,
+		URL: url,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -32,7 +32,7 @@ func (w *WebhookDispatcher) Send(ctx context.Context, notification any) error {
 		return fmt.Errorf("failed to marshal notification: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, w.url, bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, w.URL, bytes.NewReader(payload))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
