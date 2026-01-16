@@ -14,12 +14,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.12.0
+          node-version: 24.13.0
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.12.0
+          node-version: 24.13.0
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -33,7 +33,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.25.5
+          go-version: 1.25.6
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v6
@@ -56,12 +56,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.12.0
+          node-version: 24.13.0
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.12.0
+          node-version: 24.13.0
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
