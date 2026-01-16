@@ -4,22 +4,21 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/expr-lang/expr"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"go.yaml.in/yaml/v2"
 )
 
 // Manager manages notification subscriptions and dispatches notifications
 type Manager struct {
-	subscriptions map[string]*Subscription
-	dispatchers   map[string][]dispatcher.Dispatcher // Multiple dispatchers per subscription
+	subscriptions *xsync.Map[string, *Subscription]
+	dispatchers   *xsync.Map[string, []dispatcher.Dispatcher]
 	listener      *ContainerLogListener
-	mu            sync.RWMutex
 	ctx           context.Context
 	cancel        context.CancelFunc
 }
@@ -28,8 +27,8 @@ type Manager struct {
 func NewManager(listener *ContainerLogListener) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
-		subscriptions: make(map[string]*Subscription),
-		dispatchers:   make(map[string][]dispatcher.Dispatcher),
+		subscriptions: xsync.NewMap[string, *Subscription](),
+		dispatchers:   xsync.NewMap[string, []dispatcher.Dispatcher](),
 		listener:      listener,
 		ctx:           ctx,
 		cancel:        cancel,
@@ -51,24 +50,21 @@ func (m *Manager) Start() error {
 
 // ShouldListenToContainer implements ContainerMatcher interface
 func (m *Manager) ShouldListenToContainer(c container.Container) bool {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
 	notificationContainer := FromContainerModel(c)
 
-	for _, sub := range m.subscriptions {
+	shouldListen := false
+	m.subscriptions.Range(func(_ string, sub *Subscription) bool {
 		if sub.MatchesContainer(notificationContainer) {
-			return true
+			shouldListen = true
+			return false // stop iteration
 		}
-	}
-	return false
+		return true
+	})
+	return shouldListen
 }
 
 // AddSubscription adds a new subscription with compiled expressions
 func (m *Manager) AddSubscription(sub *Subscription) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
 		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
@@ -87,7 +83,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 		sub.LogProgram = program
 	}
 
-	m.subscriptions[sub.Name] = sub
+	m.subscriptions.Store(sub.Name, sub)
 	log.Info().Str("name", sub.Name).Msg("Added subscription")
 
 	// Update listener to start/stop streams based on new subscription
@@ -102,10 +98,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 
 // RemoveSubscription removes a subscription by name
 func (m *Manager) RemoveSubscription(name string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	delete(m.subscriptions, name)
+	m.subscriptions.Delete(name)
 	log.Info().Str("name", name).Msg("Removed subscription")
 
 	// Update listener to stop streams that are no longer needed
@@ -118,20 +111,15 @@ func (m *Manager) RemoveSubscription(name string) {
 
 // AddDispatcher adds a dispatcher for a subscription
 func (m *Manager) AddDispatcher(name string, d dispatcher.Dispatcher) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	m.dispatchers[name] = append(m.dispatchers[name], d)
+	m.dispatchers.Compute(name, func(oldValue []dispatcher.Dispatcher, loaded bool) ([]dispatcher.Dispatcher, xsync.ComputeOp) {
+		return append(oldValue, d), xsync.UpdateOp
+	})
 	log.Info().Str("name", name).Msg("Added dispatcher")
 }
 
 // RemoveDispatcher removes all dispatchers for a subscription
 func (m *Manager) RemoveDispatcher(name string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.dispatchers[name]; exists {
-		delete(m.dispatchers, name)
+	if _, deleted := m.dispatchers.LoadAndDelete(name); deleted {
 		log.Info().Str("name", name).Msg("Removed dispatchers")
 	}
 }
@@ -153,14 +141,11 @@ func (m *Manager) processLogEvents() {
 
 // processLogEvent processes a single log event and sends notifications for matching subscriptions
 func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
 	// Get container from log event's ContainerID
 	ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
 	defer cancel()
 
-	c, err := m.listener.clientService.FindContainer(ctx, logEvent.ContainerID, nil)
+	c, err := m.listener.FindContainer(ctx, logEvent.ContainerID, nil)
 	if err != nil {
 		log.Error().Err(err).Str("containerID", logEvent.ContainerID).Msg("Failed to find container")
 		return
@@ -169,15 +154,15 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	notificationContainer := FromContainerModel(c)
 	notificationLog := FromLogEvent(*logEvent)
 
-	for name, sub := range m.subscriptions {
+	m.subscriptions.Range(func(name string, sub *Subscription) bool {
 		// Check container filter
 		if !sub.MatchesContainer(notificationContainer) {
-			continue
+			return true
 		}
 
 		// Check log filter
 		if !sub.MatchesLog(notificationLog) {
-			continue
+			return true
 		}
 
 		// Create notification
@@ -189,12 +174,14 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		}
 
 		// Send to all dispatchers for this subscription
-		if dispatchers, exists := m.dispatchers[name]; exists {
+		if dispatchers, exists := m.dispatchers.Load(name); exists {
 			for _, d := range dispatchers {
 				go m.sendNotification(d, notification, name)
 			}
 		}
-	}
+
+		return true
+	})
 }
 
 // sendNotification sends a notification using the dispatcher
@@ -209,20 +196,17 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notific
 
 // WriteConfig writes the current configuration to a writer in YAML format
 func (m *Manager) WriteConfig(w io.Writer) error {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
 	config := Config{
-		Subscriptions: make([]SubscriptionConfig, 0, len(m.subscriptions)),
+		Subscriptions: make([]SubscriptionConfig, 0),
 	}
 
-	for name, sub := range m.subscriptions {
+	m.subscriptions.Range(func(name string, sub *Subscription) bool {
 		subConfig := SubscriptionConfig{
 			Subscription: *sub,
 		}
 
 		// Add dispatchers for this subscription
-		if dispatchers, exists := m.dispatchers[name]; exists {
+		if dispatchers, exists := m.dispatchers.Load(name); exists {
 			for _, d := range dispatchers {
 				switch v := d.(type) {
 				case *dispatcher.WebhookDispatcher:
@@ -235,7 +219,8 @@ func (m *Manager) WriteConfig(w io.Writer) error {
 		}
 
 		config.Subscriptions = append(config.Subscriptions, subConfig)
-	}
+		return true
+	})
 
 	encoder := yaml.NewEncoder(w)
 	defer encoder.Close()
