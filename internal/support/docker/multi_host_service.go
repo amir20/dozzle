@@ -201,19 +201,19 @@ func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error
 }
 
 // RemoveSubscription removes a subscription from local manager and broadcasts to agents
-func (m *MultiHostService) RemoveSubscription(name string) {
+func (m *MultiHostService) RemoveSubscription(id int) {
 	// Remove from local manager
-	m.notificationManager.RemoveSubscription(name)
+	m.notificationManager.RemoveSubscription(id)
 
 	// TODO: Broadcast to agents via gRPC when agent notification support is added
 }
 
-// AddDispatcher adds a dispatcher to a subscription
-func (m *MultiHostService) AddDispatcher(name string, d dispatcher.Dispatcher) {
-	m.notificationManager.AddDispatcher(name, d)
+// AddDispatcher adds a dispatcher and returns its auto-generated ID
+func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) int {
+	return m.notificationManager.AddDispatcher(d)
 }
 
-// RemoveDispatcher removes all dispatchers for a subscription
-func (m *MultiHostService) RemoveDispatcher(name string) {
-	m.notificationManager.RemoveDispatcher(name)
+// RemoveDispatcher removes a dispatcher by ID
+func (m *MultiHostService) RemoveDispatcher(id int) {
+	m.notificationManager.RemoveDispatcher(id)
 }
