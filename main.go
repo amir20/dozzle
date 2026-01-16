@@ -55,12 +55,14 @@ func main() {
 
 	var hostService web.HostService
 	if args.Mode == "server" {
-
 		multiHostService := cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
 			log.Fatal().Msg("Could not connect to any Docker Engine")
 		} else {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
+		}
+		if err := multiHostService.StartNotificationManager(); err != nil {
+			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
 	} else if args.Mode == "swarm" {
@@ -74,7 +76,11 @@ func main() {
 		}
 		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
 		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
-		hostService = docker_support.NewMultiHostService(manager, args.Timeout)
+		multiHostService := docker_support.NewMultiHostService(manager, args.Timeout)
+		if err := multiHostService.StartNotificationManager(); err != nil {
+			log.Fatal().Err(err).Msg("Could not start notification manager")
+		}
+		hostService = multiHostService
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {

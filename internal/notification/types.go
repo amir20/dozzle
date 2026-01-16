@@ -19,13 +19,13 @@ type Notification struct {
 
 // Container represents a simplified container structure optimized for expr filtering
 type Container struct {
-	ID     string            `json:"id"`
-	Name   string            `json:"name"`
-	Image  string            `json:"image"`
-	State  string            `json:"state"`
-	Health string            `json:"health"`
-	Host   string            `json:"host"`
-	Labels map[string]string `json:"labels"`
+	ID     string            `json:"id" expr:"id"`
+	Name   string            `json:"name" expr:"name"`
+	Image  string            `json:"image" expr:"image"`
+	State  string            `json:"state" expr:"state"`
+	Health string            `json:"health" expr:"health"`
+	Host   string            `json:"host" expr:"host"`
+	Labels map[string]string `json:"labels" expr:"labels"`
 }
 
 // FromContainerModel converts internal container.Container to notification.Container
@@ -43,12 +43,12 @@ func FromContainerModel(c container.Container) Container {
 
 // Log represents a log entry with message that can be string or object
 type Log struct {
-	ID        uint32 `json:"id"`
-	Message   any    `json:"message"` // string for simple/grouped logs, map for complex logs
-	Timestamp int64  `json:"timestamp"`
-	Level     string `json:"level"`
-	Stream    string `json:"stream"`
-	Type      string `json:"type"`
+	ID        uint32 `json:"id" expr:"id"`
+	Message   any    `json:"message" expr:"message"` // string for simple/grouped logs, map for complex logs
+	Timestamp int64  `json:"timestamp" expr:"timestamp"`
+	Level     string `json:"level" expr:"level"`
+	Stream    string `json:"stream" expr:"stream"`
+	Type      string `json:"type" expr:"type"`
 }
 
 // FromLogEvent converts container.LogEvent to notification.Log
