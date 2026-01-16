@@ -175,17 +175,3 @@ func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, lab
 func (l *ContainerLogListener) LogChannel() <-chan *container.LogEvent {
 	return l.logChannel
 }
-
-// Close stops all active streams
-func (l *ContainerLogListener) Close() {
-	l.cancel()
-
-	l.activeStreams.Range(func(id string, cancel context.CancelFunc) bool {
-		cancel()
-		return true
-	})
-	l.activeStreams.Clear()
-	l.containerClients.Clear()
-
-	close(l.logChannel)
-}

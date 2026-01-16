@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
@@ -31,8 +33,9 @@ type ClientManager interface {
 }
 
 type MultiHostService struct {
-	manager ClientManager
-	timeout time.Duration
+	manager             ClientManager
+	timeout             time.Duration
+	notificationManager *notification.Manager
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -175,4 +178,42 @@ func (m *MultiHostService) LocalClientServices() []container_support.ClientServi
 
 func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
+}
+
+// StartNotificationManager initializes and starts the notification manager
+func (m *MultiHostService) StartNotificationManager() error {
+	clients := m.manager.LocalClientServices()
+	listener := notification.NewContainerLogListener(clients)
+	m.notificationManager = notification.NewManager(listener)
+	return m.notificationManager.Start()
+}
+
+// AddSubscription adds a subscription to local manager and broadcasts to agents
+func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error {
+	// Add to local manager
+	if err := m.notificationManager.AddSubscription(sub); err != nil {
+		return err
+	}
+
+	// TODO: Broadcast to agents via gRPC when agent notification support is added
+
+	return nil
+}
+
+// RemoveSubscription removes a subscription from local manager and broadcasts to agents
+func (m *MultiHostService) RemoveSubscription(name string) {
+	// Remove from local manager
+	m.notificationManager.RemoveSubscription(name)
+
+	// TODO: Broadcast to agents via gRPC when agent notification support is added
+}
+
+// AddDispatcher adds a dispatcher to a subscription
+func (m *MultiHostService) AddDispatcher(name string, d dispatcher.Dispatcher) {
+	m.notificationManager.AddDispatcher(name, d)
+}
+
+// RemoveDispatcher removes all dispatchers for a subscription
+func (m *MultiHostService) RemoveDispatcher(name string) {
+	m.notificationManager.RemoveDispatcher(name)
 }

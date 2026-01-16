@@ -266,11 +266,3 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 
 	return nil
 }
-
-// Close stops the manager and all active log streams
-func (m *Manager) Close() {
-	m.cancel()
-	if m.listener != nil {
-		m.listener.Close()
-	}
-}
