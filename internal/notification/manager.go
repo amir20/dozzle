@@ -128,6 +128,33 @@ func (m *Manager) RemoveDispatcher(id int) {
 	}
 }
 
+// Subscriptions returns all subscriptions
+func (m *Manager) Subscriptions() []Subscription {
+	result := make([]Subscription, 0)
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		result = append(result, *sub)
+		return true
+	})
+	return result
+}
+
+// Dispatchers returns all dispatchers as DispatcherConfig
+func (m *Manager) Dispatchers() []DispatcherConfig {
+	result := make([]DispatcherConfig, 0)
+	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
+		switch v := d.(type) {
+		case *dispatcher.WebhookDispatcher:
+			result = append(result, DispatcherConfig{
+				ID:   id,
+				Type: "webhook",
+				URL:  v.URL,
+			})
+		}
+		return true
+	})
+	return result
+}
+
 // processLogEvents processes log events from the listener channel
 func (m *Manager) processLogEvents() {
 	for {

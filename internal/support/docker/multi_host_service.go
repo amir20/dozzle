@@ -3,6 +3,7 @@ package docker_support
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -180,12 +181,48 @@ func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
 }
 
+const notificationConfigPath = "./data/notifications.yml"
+
 // StartNotificationManager initializes and starts the notification manager
 func (m *MultiHostService) StartNotificationManager() error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(clients)
 	m.notificationManager = notification.NewManager(listener)
-	return m.notificationManager.Start()
+
+	// Start first so matcher is available for LoadConfig
+	if err := m.notificationManager.Start(); err != nil {
+		return err
+	}
+
+	// Load config if exists
+	if file, err := os.Open(notificationConfigPath); err == nil {
+		defer file.Close()
+		if err := m.notificationManager.LoadConfig(file); err != nil {
+			log.Warn().Err(err).Msg("Could not load notification config")
+		} else {
+			log.Debug().Str("path", notificationConfigPath).Msg("Loaded notification config")
+		}
+	}
+
+	return nil
+}
+
+func (m *MultiHostService) saveNotificationConfig() {
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		log.Error().Err(err).Msg("Could not create data directory")
+		return
+	}
+
+	file, err := os.Create(notificationConfigPath)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create notification config file")
+		return
+	}
+	defer file.Close()
+
+	if err := m.notificationManager.WriteConfig(file); err != nil {
+		log.Error().Err(err).Msg("Could not write notification config")
+	}
 }
 
 // AddSubscription adds a subscription to local manager and broadcasts to agents
@@ -197,6 +234,7 @@ func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error
 
 	// TODO: Broadcast to agents via gRPC when agent notification support is added
 
+	m.saveNotificationConfig()
 	return nil
 }
 
@@ -206,14 +244,29 @@ func (m *MultiHostService) RemoveSubscription(id int) {
 	m.notificationManager.RemoveSubscription(id)
 
 	// TODO: Broadcast to agents via gRPC when agent notification support is added
+
+	m.saveNotificationConfig()
 }
 
 // AddDispatcher adds a dispatcher and returns its auto-generated ID
 func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) int {
-	return m.notificationManager.AddDispatcher(d)
+	id := m.notificationManager.AddDispatcher(d)
+	m.saveNotificationConfig()
+	return id
 }
 
 // RemoveDispatcher removes a dispatcher by ID
 func (m *MultiHostService) RemoveDispatcher(id int) {
 	m.notificationManager.RemoveDispatcher(id)
+	m.saveNotificationConfig()
+}
+
+// Subscriptions returns all subscriptions
+func (m *MultiHostService) Subscriptions() []notification.Subscription {
+	return m.notificationManager.Subscriptions()
+}
+
+// Dispatchers returns all dispatchers
+func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
+	return m.notificationManager.Dispatchers()
 }

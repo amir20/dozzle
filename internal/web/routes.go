@@ -10,6 +10,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 
 	"github.com/go-chi/chi/v5"
@@ -73,6 +75,13 @@ type HostService interface {
 	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
 	LocalClients() []container.Client
 	LocalClientServices() []container_support.ClientService
+	// Notification methods
+	AddSubscription(sub *notification.Subscription) error
+	RemoveSubscription(id int)
+	Subscriptions() []notification.Subscription
+	AddDispatcher(d dispatcher.Dispatcher) int
+	RemoveDispatcher(id int)
+	Dispatchers() []notification.DispatcherConfig
 }
 
 type handler struct {
@@ -141,6 +150,15 @@ func createRouter(h *handler) *chi.Mux {
 				if log.Debug().Enabled() {
 					r.Get("/debug/store", h.debugStore)
 				}
+				// Notification routes
+				r.Route("/notifications", func(r chi.Router) {
+					r.Get("/subscriptions", h.listSubscriptions)
+					r.Post("/subscriptions", h.createSubscription)
+					r.Delete("/subscriptions/{id}", h.deleteSubscription)
+					r.Get("/dispatchers", h.listDispatchers)
+					r.Post("/dispatchers", h.createDispatcher)
+					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
+				})
 			})
 
 			// Public API routes
