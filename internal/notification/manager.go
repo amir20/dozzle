@@ -16,8 +16,8 @@ import (
 
 // Manager manages notification subscriptions and dispatches notifications
 type Manager struct {
-	subscriptions *xsync.Map[string, *Subscription]
-	dispatchers   *xsync.Map[string, []dispatcher.Dispatcher]
+	subscriptions *xsync.Map[int, *Subscription]
+	dispatchers   *xsync.Map[int, dispatcher.Dispatcher]
 	listener      *ContainerLogListener
 	ctx           context.Context
 	cancel        context.CancelFunc
@@ -27,8 +27,8 @@ type Manager struct {
 func NewManager(listener *ContainerLogListener) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
-		subscriptions: xsync.NewMap[string, *Subscription](),
-		dispatchers:   xsync.NewMap[string, []dispatcher.Dispatcher](),
+		subscriptions: xsync.NewMap[int, *Subscription](),
+		dispatchers:   xsync.NewMap[int, dispatcher.Dispatcher](),
 		listener:      listener,
 		ctx:           ctx,
 		cancel:        cancel,
@@ -53,10 +53,10 @@ func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 	notificationContainer := FromContainerModel(c)
 
 	shouldListen := false
-	m.subscriptions.Range(func(_ string, sub *Subscription) bool {
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		if sub.MatchesContainer(notificationContainer) {
 			shouldListen = true
-			return false // stop iteration
+			return false
 		}
 		return true
 	})
@@ -65,6 +65,9 @@ func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 
 // AddSubscription adds a new subscription with compiled expressions
 func (m *Manager) AddSubscription(sub *Subscription) error {
+	// Auto-increment ID
+	sub.ID = m.subscriptions.Size() + 1
+
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
 		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
@@ -83,8 +86,8 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 		sub.LogProgram = program
 	}
 
-	m.subscriptions.Store(sub.Name, sub)
-	log.Info().Str("name", sub.Name).Msg("Added subscription")
+	m.subscriptions.Store(sub.ID, sub)
+	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
 
 	// Update listener to start/stop streams based on new subscription
 	if m.listener != nil {
@@ -96,31 +99,32 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	return nil
 }
 
-// RemoveSubscription removes a subscription by name
-func (m *Manager) RemoveSubscription(name string) {
-	m.subscriptions.Delete(name)
-	log.Info().Str("name", name).Msg("Removed subscription")
+// RemoveSubscription removes a subscription by ID
+func (m *Manager) RemoveSubscription(id int) {
+	if sub, ok := m.subscriptions.LoadAndDelete(id); ok {
+		log.Info().Int("id", id).Str("name", sub.Name).Msg("Removed subscription")
 
-	// Update listener to stop streams that are no longer needed
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			log.Error().Err(err).Msg("Failed to update listener streams")
+		// Update listener to stop streams that are no longer needed
+		if m.listener != nil {
+			if err := m.listener.UpdateStreams(); err != nil {
+				log.Error().Err(err).Msg("Failed to update listener streams")
+			}
 		}
 	}
 }
 
-// AddDispatcher adds a dispatcher for a subscription
-func (m *Manager) AddDispatcher(name string, d dispatcher.Dispatcher) {
-	m.dispatchers.Compute(name, func(oldValue []dispatcher.Dispatcher, loaded bool) ([]dispatcher.Dispatcher, xsync.ComputeOp) {
-		return append(oldValue, d), xsync.UpdateOp
-	})
-	log.Info().Str("name", name).Msg("Added dispatcher")
+// AddDispatcher adds a dispatcher and returns its auto-generated ID
+func (m *Manager) AddDispatcher(d dispatcher.Dispatcher) int {
+	id := m.dispatchers.Size() + 1
+	m.dispatchers.Store(id, d)
+	log.Info().Int("id", id).Msg("Added dispatcher")
+	return id
 }
 
-// RemoveDispatcher removes all dispatchers for a subscription
-func (m *Manager) RemoveDispatcher(name string) {
-	if _, deleted := m.dispatchers.LoadAndDelete(name); deleted {
-		log.Info().Str("name", name).Msg("Removed dispatchers")
+// RemoveDispatcher removes a dispatcher by ID
+func (m *Manager) RemoveDispatcher(id int) {
+	if _, ok := m.dispatchers.LoadAndDelete(id); ok {
+		log.Info().Int("id", id).Msg("Removed dispatcher")
 	}
 }
 
@@ -154,7 +158,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	notificationContainer := FromContainerModel(c)
 	notificationLog := FromLogEvent(*logEvent)
 
-	m.subscriptions.Range(func(name string, sub *Subscription) bool {
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		// Check container filter
 		if !sub.MatchesContainer(notificationContainer) {
 			return true
@@ -173,52 +177,46 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			Timestamp: time.Now(),
 		}
 
-		// Send to all dispatchers for this subscription
-		if dispatchers, exists := m.dispatchers.Load(name); exists {
-			for _, d := range dispatchers {
-				go m.sendNotification(d, notification, name)
-			}
-		}
-
+		// Send to all dispatchers
+		m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
+			go m.sendNotification(d, notification, id)
+			return true
+		})
 		return true
 	})
 }
 
 // sendNotification sends a notification using the dispatcher
-func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notification, name string) {
+func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notification, id int) {
 	ctx, cancel := context.WithTimeout(m.ctx, 30*time.Second)
 	defer cancel()
 
 	if err := d.Send(ctx, notification); err != nil {
-		log.Error().Err(err).Str("subscription", name).Msg("Failed to send notification")
+		log.Error().Err(err).Int("subscription", id).Msg("Failed to send notification")
 	}
 }
 
 // WriteConfig writes the current configuration to a writer in YAML format
 func (m *Manager) WriteConfig(w io.Writer) error {
 	config := Config{
-		Subscriptions: make([]SubscriptionConfig, 0),
+		Subscriptions: make([]Subscription, 0),
+		Dispatchers:   make([]DispatcherConfig, 0),
 	}
 
-	m.subscriptions.Range(func(name string, sub *Subscription) bool {
-		subConfig := SubscriptionConfig{
-			Subscription: *sub,
-		}
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		config.Subscriptions = append(config.Subscriptions, *sub)
+		return true
+	})
 
-		// Add dispatchers for this subscription
-		if dispatchers, exists := m.dispatchers.Load(name); exists {
-			for _, d := range dispatchers {
-				switch v := d.(type) {
-				case *dispatcher.WebhookDispatcher:
-					subConfig.Dispatchers = append(subConfig.Dispatchers, DispatcherConfig{
-						Type: "webhook",
-						URL:  v.URL,
-					})
-				}
-			}
+	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
+		switch v := d.(type) {
+		case *dispatcher.WebhookDispatcher:
+			config.Dispatchers = append(config.Dispatchers, DispatcherConfig{
+				ID:   id,
+				Type: "webhook",
+				URL:  v.URL,
+			})
 		}
-
-		config.Subscriptions = append(config.Subscriptions, subConfig)
 		return true
 	})
 
@@ -237,24 +235,24 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		return fmt.Errorf("failed to decode config: %w", err)
 	}
 
-	// Load subscriptions and dispatchers
-	for _, subConfig := range config.Subscriptions {
-		// Add subscription
-		if err := m.AddSubscription(&subConfig.Subscription); err != nil {
-			return fmt.Errorf("failed to add subscription %s: %w", subConfig.Name, err)
+	// Load subscriptions
+	for _, sub := range config.Subscriptions {
+		subCopy := sub
+		if err := m.AddSubscription(&subCopy); err != nil {
+			return fmt.Errorf("failed to add subscription %s: %w", sub.Name, err)
 		}
+	}
 
-		// Add dispatchers
-		for _, dispatcherConfig := range subConfig.Dispatchers {
-			var d dispatcher.Dispatcher
-			switch dispatcherConfig.Type {
-			case "webhook":
-				d = dispatcher.NewWebhookDispatcher(dispatcherConfig.URL)
-			default:
-				return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
-			}
-			m.AddDispatcher(subConfig.Name, d)
+	// Load dispatchers
+	for _, dispatcherConfig := range config.Dispatchers {
+		var d dispatcher.Dispatcher
+		switch dispatcherConfig.Type {
+		case "webhook":
+			d = dispatcher.NewWebhookDispatcher(dispatcherConfig.URL)
+		default:
+			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
 		}
+		m.AddDispatcher(d)
 	}
 
 	// Update listener to start streams for loaded subscriptions

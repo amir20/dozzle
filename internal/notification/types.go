@@ -87,6 +87,7 @@ func extractMessage(l container.LogEvent) any {
 
 // Subscription represents a subscription to log streams with filtering
 type Subscription struct {
+	ID                  int         `json:"id" yaml:"id"`
 	Name                string      `json:"name" yaml:"name"`
 	LogExpression       string      `json:"logExpression" yaml:"logExpression"`
 	LogProgram          *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
@@ -96,19 +97,15 @@ type Subscription struct {
 
 // DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
+	ID   int    `json:"id" yaml:"id"`
 	Type string `json:"type" yaml:"type"` // "webhook", etc.
 	URL  string `json:"url,omitempty" yaml:"url,omitempty"`
 }
 
 // Config represents the persisted notification configuration
 type Config struct {
-	Subscriptions []SubscriptionConfig `json:"subscriptions" yaml:"subscriptions"`
-}
-
-// SubscriptionConfig represents a subscription with its dispatchers
-type SubscriptionConfig struct {
-	Subscription
-	Dispatchers []DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
+	Subscriptions []Subscription     `json:"subscriptions" yaml:"subscriptions"`
+	Dispatchers   []DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
 }
 
 // MatchesContainer checks if a container matches this subscription's container filter
