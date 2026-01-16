@@ -72,6 +72,7 @@ type HostService interface {
 	LocalHost() (container.Host, error)
 	SubscribeAvailableHosts(ctx context.Context, hosts chan<- container.Host)
 	LocalClients() []container.Client
+	LocalClientServices() []container_support.ClientService
 }
 
 type handler struct {

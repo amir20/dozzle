@@ -2,11 +2,12 @@ package notification
 
 import (
 	"context"
-	"sync"
+	"fmt"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,48 +16,55 @@ type ContainerMatcher interface {
 	ShouldListenToContainer(c container.Container) bool
 }
 
-// ContainerLogListener manages active log streams for containers
+// ContainerLogListener manages active log streams for containers across multiple clients
 type ContainerLogListener struct {
-	clientService container_support.ClientService
-	matcher       ContainerMatcher
-	activeStreams map[string]context.CancelFunc // containerID -> cancel function
-	logChannel    chan *container.LogEvent
-	mu            sync.RWMutex
-	ctx           context.Context
-	cancel        context.CancelFunc
+	clients          []container_support.ClientService
+	containerClients *xsync.Map[string, container_support.ClientService] // containerID -> owning client
+	activeStreams    *xsync.Map[string, context.CancelFunc]              // containerID -> cancel function
+	matcher          ContainerMatcher
+	logChannel       chan *container.LogEvent
+	ctx              context.Context
+	cancel           context.CancelFunc
 }
 
-// NewContainerLogListener creates a new listener
-func NewContainerLogListener(clientService container_support.ClientService) *ContainerLogListener {
+// NewContainerLogListener creates a new listener for multiple clients
+func NewContainerLogListener(clients []container_support.ClientService) *ContainerLogListener {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &ContainerLogListener{
-		clientService: clientService,
-		activeStreams: make(map[string]context.CancelFunc),
-		logChannel:    make(chan *container.LogEvent, 1000),
-		ctx:           ctx,
-		cancel:        cancel,
+		clients:          clients,
+		containerClients: xsync.NewMap[string, container_support.ClientService](),
+		activeStreams:    xsync.NewMap[string, context.CancelFunc](),
+		logChannel:       make(chan *container.LogEvent, 1000),
+		ctx:              ctx,
+		cancel:           cancel,
 	}
 }
 
 // Start begins listening for container events and processes log streams
 func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 	l.matcher = matcher
-	// Get all current containers
-	containers, err := l.clientService.ListContainers(l.ctx, nil)
-	if err != nil {
-		return err
-	}
 
-	// Start listening to containers that match
-	for _, c := range containers {
-		if l.matcher.ShouldListenToContainer(c) {
-			l.startListening(c)
-		}
-	}
-
-	// Subscribe to new containers
+	// Subscribe to new containers from all clients
 	containerChan := make(chan container.Container, 10)
-	l.clientService.SubscribeContainersStarted(l.ctx, containerChan)
+
+	// Get all current containers from all clients
+	for _, client := range l.clients {
+		containers, err := client.ListContainers(l.ctx, nil)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to list containers from client")
+			continue
+		}
+
+		// Start listening to containers that match
+		for _, c := range containers {
+			if l.matcher.ShouldListenToContainer(c) {
+				l.startListening(c, client)
+			}
+		}
+
+		// Subscribe to new containers from this client
+		client.SubscribeContainersStarted(l.ctx, containerChan)
+	}
 
 	go func() {
 		for {
@@ -65,7 +73,7 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 				return
 			case c := <-containerChan:
 				if l.matcher.ShouldListenToContainer(c) {
-					l.startListening(c)
+					l.startListeningByID(c)
 				}
 			}
 		}
@@ -76,66 +84,91 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 
 // UpdateStreams updates which containers to listen to based on current matcher rules
 func (l *ContainerLogListener) UpdateStreams() error {
-	// Get all current containers
-	containers, err := l.clientService.ListContainers(l.ctx, nil)
-	if err != nil {
-		return err
-	}
+	// Get all current containers from all clients
+	for _, client := range l.clients {
+		containers, err := client.ListContainers(l.ctx, nil)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to list containers from client")
+			continue
+		}
 
-	// Check each container against matcher
-	for _, c := range containers {
-		shouldListen := l.matcher.ShouldListenToContainer(c)
-		isListening := l.isListening(c.ID)
+		// Check each container against matcher
+		for _, c := range containers {
+			shouldListen := l.matcher.ShouldListenToContainer(c)
+			isListening := l.isListening(c.ID)
 
-		if shouldListen && !isListening {
-			l.startListening(c)
-		} else if !shouldListen && isListening {
-			l.stopListening(c.ID)
+			if shouldListen && !isListening {
+				l.startListening(c, client)
+			} else if !shouldListen && isListening {
+				l.stopListening(c.ID)
+			}
 		}
 	}
 
 	return nil
 }
 
-// startListening starts listening to a container's logs
-func (l *ContainerLogListener) startListening(c container.Container) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+// startListening starts listening to a container's logs with a known client
+func (l *ContainerLogListener) startListening(c container.Container, client container_support.ClientService) {
+	streamCtx, cancel := context.WithCancel(l.ctx)
 
-	// Already listening
-	if _, exists := l.activeStreams[c.ID]; exists {
+	// Only store if not already present
+	_, loaded := l.activeStreams.LoadOrStore(c.ID, cancel)
+	if loaded {
+		cancel() // Already listening, cancel the new context
 		return
 	}
 
-	streamCtx, cancel := context.WithCancel(l.ctx)
-	l.activeStreams[c.ID] = cancel
+	l.containerClients.Store(c.ID, client)
 
 	go func() {
 		log.Info().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
-		if err := l.clientService.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil {
+		if err := client.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil {
 			log.Error().Err(err).Str("containerID", c.ID).Msg("Error streaming logs")
 		}
 	}()
 }
 
+// startListeningByID finds the client for a container and starts listening
+func (l *ContainerLogListener) startListeningByID(c container.Container) {
+	for _, client := range l.clients {
+		containers, err := client.ListContainers(l.ctx, nil)
+		if err != nil {
+			continue
+		}
+		for _, container := range containers {
+			if container.ID == c.ID {
+				l.startListening(c, client)
+				return
+			}
+		}
+	}
+	log.Warn().Str("containerID", c.ID).Msg("Could not find client for container")
+}
+
 // stopListening stops listening to a container's logs
 func (l *ContainerLogListener) stopListening(containerID string) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if cancel, exists := l.activeStreams[containerID]; exists {
+	if cancel, exists := l.activeStreams.LoadAndDelete(containerID); exists {
 		cancel()
-		delete(l.activeStreams, containerID)
+		l.containerClients.Delete(containerID)
 		log.Info().Str("containerID", containerID).Msg("Stopped listening to container")
 	}
 }
 
 // isListening returns true if listening to a container
 func (l *ContainerLogListener) isListening(containerID string) bool {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	_, exists := l.activeStreams[containerID]
+	_, exists := l.activeStreams.Load(containerID)
 	return exists
+}
+
+// FindContainer finds a container by ID using the client that owns it
+func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
+	client, exists := l.containerClients.Load(id)
+	if !exists {
+		return container.Container{}, fmt.Errorf("container %s not found in any client", id)
+	}
+
+	return client.FindContainer(ctx, id, labels)
 }
 
 // LogChannel returns the channel for log events
@@ -147,13 +180,12 @@ func (l *ContainerLogListener) LogChannel() <-chan *container.LogEvent {
 func (l *ContainerLogListener) Close() {
 	l.cancel()
 
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	for id, cancel := range l.activeStreams {
+	l.activeStreams.Range(func(id string, cancel context.CancelFunc) bool {
 		cancel()
-		delete(l.activeStreams, id)
-	}
+		return true
+	})
+	l.activeStreams.Clear()
+	l.containerClients.Clear()
 
 	close(l.logChannel)
 }

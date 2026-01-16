@@ -27,6 +27,7 @@ type ClientManager interface {
 	Subscribe(ctx context.Context, channel chan<- container.Host)
 	Hosts(ctx context.Context) []container.Host
 	LocalClients() []container.Client
+	LocalClientServices() []container_support.ClientService
 }
 
 type MultiHostService struct {
@@ -166,6 +167,10 @@ func (m *MultiHostService) SubscribeAvailableHosts(ctx context.Context, hosts ch
 
 func (m *MultiHostService) LocalClients() []container.Client {
 	return m.manager.LocalClients()
+}
+
+func (m *MultiHostService) LocalClientServices() []container_support.ClientService {
+	return m.manager.LocalClientServices()
 }
 
 func (m *MultiHostService) TotalClients() int {

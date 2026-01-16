@@ -131,3 +131,7 @@ func (m *K8sClusterService) SubscribeAvailableHosts(ctx context.Context, hosts c
 func (m *K8sClusterService) LocalClients() []container.Client {
 	return []container.Client{m.client.client}
 }
+
+func (m *K8sClusterService) LocalClientServices() []container_support.ClientService {
+	return []container_support.ClientService{m.client}
+}
