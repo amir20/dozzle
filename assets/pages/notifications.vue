@@ -1,85 +1,72 @@
 <template>
   <PageWithLinks>
-    <section>
-      <div class="has-underline">
-        <h2>Notifications</h2>
+    <section class="max-w-4xl">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold">Create Alert</h2>
+        <p class="text-base-content/60">Subscribe to log events matching your criteria</p>
       </div>
 
+      <div class="divider"></div>
+
       <div class="space-y-6">
+        <!-- Alert Name -->
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend text-lg">Alert Name</legend>
+          <input
+            v-model="alertName"
+            type="text"
+            class="input input-bordered w-full"
+            placeholder="e.g., Test API Errors"
+          />
+        </fieldset>
+
+        <!-- Container Filter -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend text-lg">Container Filter</legend>
-          <div class="input input-primary w-full overflow-hidden">
+          <div class="input input-bordered w-full overflow-hidden">
             <div ref="containerEditorRef" class="w-full"></div>
           </div>
-          <p class="label">
-            Filter which containers to watch. Available fields: <code>name</code>, <code>id</code>, <code>image</code>,
-            <code>state</code>, <code>health</code>, <code>host</code>, <code>labels</code>
-          </p>
+          <div v-if="containerResult" class="fieldset-label">
+            <span v-if="containerResult.error" class="text-error">{{ containerResult.error }}</span>
+            <span v-else-if="containerResult.containers?.length" class="text-success">
+              <mdi:check class="inline" />
+              {{ containerResult.containers.length }} containers match:
+              {{ containerResult.containers.map((c) => c.name).join(", ") }}
+            </span>
+          </div>
         </fieldset>
 
+        <!-- Log Filter -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend text-lg">Log Filter</legend>
-          <div class="input input-primary w-full overflow-hidden">
+          <div class="input input-bordered w-full overflow-hidden">
             <div ref="logEditorRef" class="w-full"></div>
           </div>
-          <p class="label">
-            Filter which log entries trigger notifications. Available fields: <code>message</code>, <code>level</code>,
-            <code>stream</code>, <code>type</code>, <code>timestamp</code>
-          </p>
+          <div v-if="logError || logMessages.length" class="fieldset-label">
+            <span v-if="logError" class="text-error">{{ logError }}</span>
+            <span v-else-if="logMessages.length" class="text-success">
+              <mdi:check class="inline" />
+              {{ logTotalCount }} logs match
+            </span>
+          </div>
         </fieldset>
-
-        <div class="flex gap-2">
-          <button class="btn btn-primary" @click="testExpressions" :disabled="isLoading">
-            <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
-            Test Expressions
-          </button>
+        <!-- Log Preview -->
+        <div v-if="logMessages.length" class="mt-4">
+          <div class="mb-2 text-lg">Preview</div>
+          <LogList
+            :messages="logMessages"
+            :last-selected-item="undefined"
+            class="border-base-content/50 h-64 overflow-hidden rounded-lg border"
+          />
         </div>
 
-        <div v-if="previewResult" class="space-y-4">
-          <div v-if="previewResult.containerError" class="alert alert-error">
-            <span>Container expression error: {{ previewResult.containerError }}</span>
-          </div>
-          <div v-if="previewResult.logError" class="alert alert-error">
-            <span>Log expression error: {{ previewResult.logError }}</span>
-          </div>
-
-          <div v-if="previewResult.matchedContainers?.length" class="card bg-base-200">
-            <div class="card-body">
-              <h3 class="card-title text-lg">Matched Containers ({{ previewResult.matchedContainers.length }})</h3>
-              <ul class="list-inside list-disc">
-                <li v-for="c in previewResult.matchedContainers" :key="c.id">
-                  {{ c.name }} <span class="text-base-content/60">({{ c.host }})</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div
-            v-if="previewResult.matchedContainers?.length === 0 && !previewResult.containerError"
-            class="alert alert-warning"
-          >
-            <span>No containers matched the expression</span>
-          </div>
-
-          <div v-if="previewResult.matchedLogs?.length" class="card bg-base-200">
-            <div class="card-body">
-              <h3 class="card-title text-lg">
-                Matched Logs ({{ previewResult.matchedLogs.length }}
-                <span v-if="previewResult.totalLogs > previewResult.matchedLogs.length">
-                  of {{ previewResult.totalLogs }} </span
-                >)
-              </h3>
-              <ul class="space-y-2">
-                <li v-for="(log, i) in previewResult.matchedLogs" :key="i" class="bg-base-300 rounded p-2">
-                  <div class="flex items-center gap-2 text-sm">
-                    <span class="badge badge-sm" :class="logLevelClass(log.level)">{{ log.level || "unknown" }}</span>
-                    <span class="text-base-content/60">{{ log.date.toLocaleTimeString() }}</span>
-                  </div>
-                  <div class="mt-1 font-mono text-sm break-all">{{ formatLogMessage(log) }}</div>
-                </li>
-              </ul>
-            </div>
-          </div>
+        <!-- Actions -->
+        <div class="flex justify-end gap-2 pt-4">
+          <button class="btn">Cancel</button>
+          <button class="btn btn-primary" :disabled="isLoading">
+            <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
+            Create Alert
+          </button>
         </div>
       </div>
     </section>
@@ -89,15 +76,7 @@
 <script lang="ts" setup>
 import type { EditorView } from "@codemirror/view";
 import type { Completion } from "@codemirror/autocomplete";
-import {
-  type LogEvent,
-  type LogEntry,
-  type LogMessage,
-  asLogEntry,
-  SimpleLogEntry,
-  GroupedLogEntry,
-  ComplexLogEntry,
-} from "@/models/LogEntry";
+import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 
@@ -107,7 +86,9 @@ const logEditorRef = ref<HTMLElement>();
 const containerStore = useContainerStore();
 const { containers } = storeToRefs(containerStore);
 
-const containerNames = computed(() => [...new Set(containers.value.map((c) => c.name))]);
+const containerNames = computed(() => [
+  ...new Set(containers.value.filter((c) => c.state === "running").map((c) => c.name)),
+]);
 const imageNames = computed(() => [...new Set(containers.value.map((c) => c.image))]);
 const hostNames = computed(() => [...new Set(containers.value.map((c) => c.host))]);
 
@@ -325,6 +306,7 @@ async function initializeEditors() {
 const containerEditorView = shallowRef<EditorView>();
 const logEditorView = shallowRef<EditorView>();
 
+const alertName = ref("");
 const containerExpression = ref("");
 const logExpression = ref("");
 
@@ -336,20 +318,27 @@ interface PreviewResponse {
   totalLogs: number;
 }
 
-interface PreviewResult {
-  containerError?: string;
-  logError?: string;
-  matchedContainers?: Container[];
-  matchedLogs?: LogEntry<LogMessage>[];
-  totalLogs: number;
+interface ContainerResult {
+  error?: string;
+  containers?: Container[];
 }
 
-const previewResult = ref<PreviewResult | null>(null);
+const containerResult = ref<ContainerResult | null>(null);
+const logError = ref<string | null>(null);
+const logTotalCount = ref(0);
+const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const isLoading = ref(false);
 
-async function testExpressions() {
+async function validateExpressions() {
+  if (!containerExpression.value && !logExpression.value) {
+    containerResult.value = null;
+    logError.value = null;
+    logTotalCount.value = 0;
+    logMessages.value = [];
+    return;
+  }
+
   isLoading.value = true;
-  previewResult.value = null;
 
   try {
     const response = await fetch(withBase("/api/notifications/preview"), {
@@ -367,53 +356,38 @@ async function testExpressions() {
 
     const data: PreviewResponse = await response.json();
 
-    // Convert API response to proper types
-    previewResult.value = {
-      containerError: data.containerError,
-      logError: data.logError,
-      matchedContainers: data.matchedContainers?.map(Container.fromJSON),
-      matchedLogs: data.matchedLogs?.map((event) => asLogEntry(event)),
-      totalLogs: data.totalLogs,
-    };
+    // Update container result
+    if (containerExpression.value) {
+      containerResult.value = {
+        error: data.containerError,
+        containers: data.matchedContainers?.map(Container.fromJSON),
+      };
+    } else {
+      containerResult.value = null;
+    }
+
+    // Update log result
+    if (logExpression.value && !data.containerError) {
+      logError.value = data.logError ?? null;
+      logTotalCount.value = data.totalLogs;
+      logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event)) ?? [];
+    } else {
+      logError.value = null;
+      logTotalCount.value = 0;
+      logMessages.value = [];
+    }
   } catch (e) {
-    previewResult.value = {
-      containerError: e instanceof Error ? e.message : "Unknown error",
-      totalLogs: 0,
+    containerResult.value = {
+      error: e instanceof Error ? e.message : "Unknown error",
     };
   } finally {
     isLoading.value = false;
   }
 }
 
-function logLevelClass(level: string | undefined): string {
-  switch (level) {
-    case "error":
-      return "badge-error";
-    case "warn":
-    case "warning":
-      return "badge-warning";
-    case "info":
-      return "badge-info";
-    case "debug":
-    case "trace":
-      return "badge-ghost";
-    default:
-      return "";
-  }
-}
+const debouncedValidate = useDebounceFn(validateExpressions, 1000);
 
-function formatLogMessage(entry: unknown): string {
-  if (entry instanceof SimpleLogEntry) {
-    return entry.message;
-  }
-  if (entry instanceof GroupedLogEntry) {
-    return entry.message.join("\n");
-  }
-  if (entry instanceof ComplexLogEntry) {
-    return JSON.stringify(entry.message);
-  }
-  return "";
-}
+watch([containerExpression, logExpression], () => debouncedValidate());
 
 onMounted(async () => {
   await initializeEditors();
@@ -428,32 +402,12 @@ onScopeDispose(() => {
 <style scoped>
 @reference "@/main.css";
 
-.has-underline {
-  @apply border-base-content/50 mb-4 border-b py-2;
-
-  h2 {
-    @apply text-3xl;
-  }
-}
-
-:deep(a:not(.menu a):not(.btn)) {
-  @apply text-primary underline-offset-4 hover:underline;
-}
-
-.label {
-  @apply text-base-content mb-1 block text-lg font-medium;
-}
-
-.editor :deep(.cm-editor.cm-focused) {
+:deep(.cm-editor.cm-focused) {
   outline: none;
 }
 
-.editor :deep(.cm-scroller) {
-  @apply p-2;
-}
-
-code {
-  @apply bg-base-300 rounded px-1 py-0.5 text-sm;
+:deep(.cm-scroller) {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 </style>
 
