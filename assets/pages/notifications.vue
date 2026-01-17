@@ -23,7 +23,7 @@
         <!-- Container Filter -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend text-lg">Container Filter</legend>
-          <div class="input input-bordered w-full overflow-hidden">
+          <div class="input input-bordered w-full overflow-hidden" :class="{ 'input-error': containerResult?.error }">
             <div ref="containerEditorRef" class="w-full"></div>
           </div>
           <div v-if="containerResult" class="fieldset-label">
@@ -39,7 +39,7 @@
         <!-- Log Filter -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend text-lg">Log Filter</legend>
-          <div class="input input-bordered w-full overflow-hidden">
+          <div class="input input-bordered w-full overflow-hidden" :class="{ 'input-error': logError }">
             <div ref="logEditorRef" class="w-full"></div>
           </div>
           <div v-if="logError || logMessages.length" class="fieldset-label">
