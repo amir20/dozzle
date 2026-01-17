@@ -12,8 +12,8 @@
             Filter which containers to watch. Available fields: <code>name</code>, <code>id</code>, <code>image</code>,
             <code>state</code>, <code>health</code>, <code>host</code>, <code>labels</code>
           </p>
-          <div class="editor-container">
-            <div ref="containerEditorRef" class="editor rounded-lg"></div>
+          <div class="input input-primary w-full overflow-hidden">
+            <div ref="containerEditorRef" class="w-full"></div>
           </div>
         </div>
 
@@ -23,8 +23,8 @@
             Filter which log entries trigger notifications. Available fields: <code>message</code>, <code>level</code>,
             <code>stream</code>, <code>type</code>, <code>timestamp</code>
           </p>
-          <div class="editor-container">
-            <div ref="logEditorRef" class="editor rounded-lg"></div>
+          <div class="input input-primary w-full overflow-hidden">
+            <div ref="logEditorRef" class="w-full"></div>
           </div>
         </div>
       </div>
@@ -33,11 +33,8 @@
 </template>
 
 <script lang="ts" setup>
-import { EditorView, keymap, placeholder } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
-import { autocompletion, completionKeymap, type CompletionContext, type Completion } from "@codemirror/autocomplete";
-import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { tags } from "@lezer/highlight";
+import type { EditorView } from "@codemirror/view";
+import type { Completion } from "@codemirror/autocomplete";
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
@@ -139,7 +136,7 @@ function createLogHints(): Completion[] {
 }
 
 function createAutocomplete(getHints: () => Completion[]) {
-  return (context: CompletionContext) => {
+  return (context: any) => {
     const word = context.matchBefore(/[\w"=!&|]+/);
 
     if (!word && !context.explicit) return null;
@@ -156,78 +153,93 @@ function createAutocomplete(getHints: () => Completion[]) {
   };
 }
 
-// Theme using CSS variables that automatically adapt to light/dark mode
-const editorTheme = EditorView.theme({
-  "&": {
-    backgroundColor: "var(--color-base-100)",
-    color: "var(--color-base-content)",
-  },
-  ".cm-content": {
-    caretColor: "var(--color-primary)",
-  },
-  ".cm-cursor": {
-    borderLeftColor: "var(--color-primary)",
-  },
-  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {
-    backgroundColor: "var(--color-base-300)",
-  },
-  ".cm-activeLine": {
-    backgroundColor: "color-mix(in oklch, var(--color-base-200) 50%, transparent)",
-  },
-  ".cm-gutters": {
-    backgroundColor: "var(--color-base-200)",
-    color: "color-mix(in oklch, var(--color-base-content) 50%, transparent)",
-    border: "none",
-  },
-  ".cm-activeLineGutter": {
-    backgroundColor: "var(--color-base-300)",
-  },
-});
+async function initializeEditors() {
+  const [
+    { EditorView, keymap, placeholder },
+    { EditorState },
+    { autocompletion, completionKeymap },
+    { HighlightStyle, syntaxHighlighting },
+    { tags },
+  ] = await Promise.all([
+    import("@codemirror/view"),
+    import("@codemirror/state"),
+    import("@codemirror/autocomplete"),
+    import("@codemirror/language"),
+    import("@lezer/highlight"),
+  ]);
 
-// Syntax highlighting using CSS variables
-const highlightStyle = HighlightStyle.define([
-  { tag: tags.keyword, color: "var(--color-primary)" },
-  { tag: tags.operator, color: "var(--color-secondary)" },
-  { tag: tags.string, color: "var(--color-success)" },
-  { tag: tags.number, color: "var(--color-warning)" },
-  { tag: tags.bool, color: "var(--color-warning)" },
-  { tag: tags.propertyName, color: "var(--color-info)" },
-  { tag: tags.variableName, color: "var(--color-base-content)" },
-  { tag: tags.comment, color: "color-mix(in oklch, var(--color-base-content) 50%, transparent)", fontStyle: "italic" },
-]);
-
-function createEditorState(getHints: () => Completion[], placeholderText: string, onChange?: (value: string) => void) {
-  return EditorState.create({
-    doc: "",
-    extensions: [
-      EditorView.lineWrapping,
-      placeholder(placeholderText),
-      autocompletion({
-        override: [createAutocomplete(getHints)],
-        activateOnTyping: true,
-        closeOnBlur: false,
-      }),
-      keymap.of(completionKeymap),
-      editorTheme,
-      syntaxHighlighting(highlightStyle),
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged && onChange) {
-          onChange(update.view.state.doc.toString());
-        }
-      }),
-    ],
+  // Theme using CSS variables that automatically adapt to light/dark mode
+  const editorTheme = EditorView.theme({
+    "&": {
+      backgroundColor: "var(--color-base-100)",
+      color: "var(--color-base-content)",
+    },
+    ".cm-content": {
+      caretColor: "var(--color-primary)",
+    },
+    ".cm-cursor": {
+      borderLeftColor: "var(--color-primary)",
+    },
+    "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {
+      backgroundColor: "var(--color-base-300)",
+    },
+    ".cm-activeLine": {
+      backgroundColor: "color-mix(in oklch, var(--color-base-200) 50%, transparent)",
+    },
+    ".cm-gutters": {
+      backgroundColor: "var(--color-base-200)",
+      color: "color-mix(in oklch, var(--color-base-content) 50%, transparent)",
+      border: "none",
+    },
+    ".cm-activeLineGutter": {
+      backgroundColor: "var(--color-base-300)",
+    },
   });
-}
 
-let containerEditorView: EditorView | null = null;
-let logEditorView: EditorView | null = null;
+  // Syntax highlighting using CSS variables
+  const highlightStyle = HighlightStyle.define([
+    { tag: tags.keyword, color: "var(--color-primary)" },
+    { tag: tags.operator, color: "var(--color-secondary)" },
+    { tag: tags.string, color: "var(--color-success)" },
+    { tag: tags.number, color: "var(--color-warning)" },
+    { tag: tags.bool, color: "var(--color-warning)" },
+    { tag: tags.propertyName, color: "var(--color-info)" },
+    { tag: tags.variableName, color: "var(--color-base-content)" },
+    {
+      tag: tags.comment,
+      color: "color-mix(in oklch, var(--color-base-content) 50%, transparent)",
+      fontStyle: "italic",
+    },
+  ]);
 
-const containerExpression = ref("");
-const logExpression = ref("");
+  function createEditorState(
+    getHints: () => Completion[],
+    placeholderText: string,
+    onChange?: (value: string) => void,
+  ) {
+    return EditorState.create({
+      doc: "",
+      extensions: [
+        EditorView.lineWrapping,
+        placeholder(placeholderText),
+        autocompletion({
+          override: [createAutocomplete(getHints)],
+          activateOnTyping: true,
+        }),
+        keymap.of(completionKeymap),
+        editorTheme,
+        syntaxHighlighting(highlightStyle),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged && onChange) {
+            onChange(update.view.state.doc.toString());
+          }
+        }),
+      ],
+    });
+  }
 
-onMounted(() => {
   if (containerEditorRef.value) {
-    containerEditorView = new EditorView({
+    containerEditorView.value = new EditorView({
       state: createEditorState(createContainerHints, 'name contains "api"', (v) => {
         containerExpression.value = v;
       }),
@@ -236,18 +248,28 @@ onMounted(() => {
   }
 
   if (logEditorRef.value) {
-    logEditorView = new EditorView({
+    logEditorView.value = new EditorView({
       state: createEditorState(createLogHints, 'level == "error" && message contains "timeout"', (v) => {
         logExpression.value = v;
       }),
       parent: logEditorRef.value,
     });
   }
+}
+
+const containerEditorView = shallowRef<EditorView>();
+const logEditorView = shallowRef<EditorView>();
+
+const containerExpression = ref("");
+const logExpression = ref("");
+
+onMounted(async () => {
+  await initializeEditors();
 });
 
-onUnmounted(() => {
-  containerEditorView?.destroy();
-  logEditorView?.destroy();
+onScopeDispose(() => {
+  containerEditorView.value?.destroy();
+  logEditorView.value?.destroy();
 });
 </script>
 
@@ -268,10 +290,6 @@ onUnmounted(() => {
 
 .label {
   @apply text-base-content mb-1 block text-lg font-medium;
-}
-
-.editor-container {
-  @apply border-base-content/20 rounded-lg border;
 }
 
 .editor :deep(.cm-editor.cm-focused) {
