@@ -14,12 +14,12 @@
 </template>
 
 <script lang="ts" setup>
-import { type JSONObject, LogEntry } from "@/models/LogEntry";
+import type { LogEntry, LogMessage } from "@/models/LogEntry";
 
 const { progress, currentDate } = useScrollContext();
 
 const { messages } = defineProps<{
-  messages: LogEntry<string | string[] | JSONObject>[];
+  messages: LogEntry<LogMessage>[];
 }>();
 
 const { containers } = useLoggingContext();
