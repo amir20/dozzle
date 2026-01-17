@@ -86,6 +86,13 @@ declare module 'vue-router/auto-routes' {
       { name: ParamValue<false> },
       | never
     >,
+    '/notifications': RouteRecordInfo<
+      '/notifications',
+      '/notifications',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/owner/[name]': RouteRecordInfo<
       '/owner/[name]',
       '/owner/:name',
@@ -185,6 +192,12 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/namespace/[name].vue': {
       routes:
         | '/namespace/[name]'
+      views:
+        | never
+    }
+    'assets/pages/notifications.vue': {
+      routes:
+        | '/notifications'
       views:
         | never
     }
