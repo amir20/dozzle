@@ -13,7 +13,7 @@
             <code>state</code>, <code>health</code>, <code>host</code>, <code>labels</code>
           </p>
           <div class="editor-container">
-            <div ref="containerEditorRef" class="editor"></div>
+            <div ref="containerEditorRef" class="editor rounded-lg"></div>
           </div>
         </div>
 
@@ -24,7 +24,7 @@
             <code>stream</code>, <code>type</code>, <code>timestamp</code>
           </p>
           <div class="editor-container">
-            <div ref="logEditorRef" class="editor"></div>
+            <div ref="logEditorRef" class="editor rounded-lg"></div>
           </div>
         </div>
       </div>
@@ -273,10 +273,6 @@ onUnmounted(() => {
   @apply border-base-content/20 rounded-lg border;
 }
 
-.editor :deep(.cm-editor) {
-  @apply rounded-lg;
-}
-
 .editor :deep(.cm-editor.cm-focused) {
   outline: none;
 }
@@ -291,46 +287,38 @@ code {
 </style>
 
 <style>
+@reference "@/main.css";
+
 /* Global styles for CodeMirror autocomplete tooltip (rendered outside component) */
 .cm-tooltip {
-  background-color: var(--color-base-200) !important;
-  border: 1px solid color-mix(in oklch, var(--color-base-content) 20%, transparent) !important;
-  border-radius: 0.5rem;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  @apply bg-base-200! border-base-content/20 rounded-sm border shadow-md;
 }
 
 .cm-tooltip-autocomplete ul {
-  font-family: inherit;
+  @apply font-sans;
 }
 
 .cm-tooltip-autocomplete ul li {
-  padding: 0.25rem 0.5rem;
+  @apply px-2 py-1;
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] {
-  background-color: color-mix(in oklch, var(--color-primary) 20%, transparent) !important;
-  color: var(--color-base-content);
+  @apply bg-primary/20 text-base-content;
 }
 
 .cm-completionLabel {
-  color: var(--color-base-content);
+  @apply text-base-content;
 }
 
 .cm-completionDetail {
-  color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
-  margin-left: 0.5rem;
-  font-style: italic;
+  @apply text-base-content/60 ml-2 italic;
 }
 
 .cm-completionMatchedText {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: bold;
+  @apply text-primary font-bold no-underline;
 }
 
 .cm-completionIcon {
-  opacity: 0.7;
+  @apply opacity-70;
 }
 </style>
