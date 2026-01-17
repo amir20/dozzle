@@ -205,6 +205,7 @@ function createEditorState(getHints: () => Completion[], placeholderText: string
       autocompletion({
         override: [createAutocomplete(getHints)],
         activateOnTyping: true,
+        closeOnBlur: false,
       }),
       keymap.of(completionKeymap),
       editorTheme,
@@ -291,7 +292,7 @@ code {
 
 /* Global styles for CodeMirror autocomplete tooltip (rendered outside component) */
 .cm-tooltip {
-  @apply bg-base-200! border-base-content/20 rounded-sm border shadow-md;
+  @apply bg-base-200! border-base-content/40! min-w-96 rounded-sm border shadow-md;
 }
 
 .cm-tooltip-autocomplete ul {
@@ -299,26 +300,26 @@ code {
 }
 
 .cm-tooltip-autocomplete ul li {
-  @apply px-2 py-1;
+  @apply my-1 px-2;
 }
 
 .cm-tooltip-autocomplete ul li[aria-selected] {
-  @apply bg-primary/20 text-base-content;
+  @apply bg-primary/20 text-base-content!;
 }
 
 .cm-completionLabel {
-  @apply text-base-content;
+  @apply text-base-content!;
 }
 
 .cm-completionDetail {
-  @apply text-base-content/60 ml-2 italic;
+  @apply text-base-content/60! ml-2 italic;
 }
 
 .cm-completionMatchedText {
-  @apply text-primary font-bold no-underline;
+  @apply text-primary! font-bold no-underline;
 }
 
 .cm-completionIcon {
-  @apply opacity-70;
+  @apply mr-2 opacity-70;
 }
 </style>
