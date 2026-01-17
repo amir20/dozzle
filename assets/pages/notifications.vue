@@ -387,7 +387,10 @@ async function validateExpressions() {
 
 const debouncedValidate = useDebounceFn(validateExpressions, 1000);
 
-watch([containerExpression, logExpression], () => debouncedValidate());
+watch([containerExpression, logExpression], () => {
+  isLoading.value = true;
+  debouncedValidate();
+});
 
 onMounted(async () => {
   await initializeEditors();
