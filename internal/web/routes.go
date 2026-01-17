@@ -158,6 +158,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/dispatchers", h.listDispatchers)
 					r.Post("/dispatchers", h.createDispatcher)
 					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
+					r.Post("/preview", h.previewExpression)
 				})
 			})
 

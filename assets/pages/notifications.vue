@@ -6,25 +6,79 @@
       </div>
 
       <div class="space-y-6">
-        <div>
-          <label class="label">Container Filter</label>
-          <p class="text-base-content/70 mb-2 text-sm">
-            Filter which containers to watch. Available fields: <code>name</code>, <code>id</code>, <code>image</code>,
-            <code>state</code>, <code>health</code>, <code>host</code>, <code>labels</code>
-          </p>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend text-lg">Container Filter</legend>
           <div class="input input-primary w-full overflow-hidden">
             <div ref="containerEditorRef" class="w-full"></div>
           </div>
-        </div>
+          <p class="label">
+            Filter which containers to watch. Available fields: <code>name</code>, <code>id</code>, <code>image</code>,
+            <code>state</code>, <code>health</code>, <code>host</code>, <code>labels</code>
+          </p>
+        </fieldset>
 
-        <div>
-          <label class="label">Log Filter</label>
-          <p class="text-base-content/70 mb-2 text-sm">
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend text-lg">Log Filter</legend>
+          <div class="input input-primary w-full overflow-hidden">
+            <div ref="logEditorRef" class="w-full"></div>
+          </div>
+          <p class="label">
             Filter which log entries trigger notifications. Available fields: <code>message</code>, <code>level</code>,
             <code>stream</code>, <code>type</code>, <code>timestamp</code>
           </p>
-          <div class="input input-primary w-full overflow-hidden">
-            <div ref="logEditorRef" class="w-full"></div>
+        </fieldset>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary" @click="testExpressions" :disabled="isLoading">
+            <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
+            Test Expressions
+          </button>
+        </div>
+
+        <div v-if="previewResult" class="space-y-4">
+          <div v-if="previewResult.containerError" class="alert alert-error">
+            <span>Container expression error: {{ previewResult.containerError }}</span>
+          </div>
+          <div v-if="previewResult.logError" class="alert alert-error">
+            <span>Log expression error: {{ previewResult.logError }}</span>
+          </div>
+
+          <div v-if="previewResult.matchedContainers?.length" class="card bg-base-200">
+            <div class="card-body">
+              <h3 class="card-title text-lg">Matched Containers ({{ previewResult.matchedContainers.length }})</h3>
+              <ul class="list-inside list-disc">
+                <li v-for="c in previewResult.matchedContainers" :key="c.id">
+                  {{ c.name }} <span class="text-base-content/60">({{ c.host }})</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div
+            v-if="previewResult.matchedContainers?.length === 0 && !previewResult.containerError"
+            class="alert alert-warning"
+          >
+            <span>No containers matched the expression</span>
+          </div>
+
+          <div v-if="previewResult.matchedLogs?.length" class="card bg-base-200">
+            <div class="card-body">
+              <h3 class="card-title text-lg">
+                Matched Logs ({{ previewResult.matchedLogs.length }}
+                <span v-if="previewResult.totalLogs > previewResult.matchedLogs.length">
+                  of {{ previewResult.totalLogs }} </span
+                >)
+              </h3>
+              <ul class="space-y-2">
+                <li v-for="(log, i) in previewResult.matchedLogs" :key="i" class="bg-base-300 rounded p-2">
+                  <div class="flex items-center gap-2 text-sm">
+                    <span class="badge badge-sm" :class="logLevelClass(log.level)">{{ log.level || "unknown" }}</span>
+                    <span class="text-base-content/60">{{ log.date.toLocaleTimeString() }}</span>
+                  </div>
+                  <div class="mt-1 font-mono text-sm break-all">{{ formatLogMessage(log) }}</div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -35,6 +89,17 @@
 <script lang="ts" setup>
 import type { EditorView } from "@codemirror/view";
 import type { Completion } from "@codemirror/autocomplete";
+import {
+  type LogEvent,
+  type LogEntry,
+  type LogMessage,
+  asLogEntry,
+  SimpleLogEntry,
+  GroupedLogEntry,
+  ComplexLogEntry,
+} from "@/models/LogEntry";
+import { Container } from "@/models/Container";
+import type { ContainerJson } from "@/types/Container";
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
@@ -262,6 +327,93 @@ const logEditorView = shallowRef<EditorView>();
 
 const containerExpression = ref("");
 const logExpression = ref("");
+
+interface PreviewResponse {
+  containerError?: string;
+  logError?: string;
+  matchedContainers?: ContainerJson[];
+  matchedLogs?: LogEvent[];
+  totalLogs: number;
+}
+
+interface PreviewResult {
+  containerError?: string;
+  logError?: string;
+  matchedContainers?: Container[];
+  matchedLogs?: LogEntry<LogMessage>[];
+  totalLogs: number;
+}
+
+const previewResult = ref<PreviewResult | null>(null);
+const isLoading = ref(false);
+
+async function testExpressions() {
+  isLoading.value = true;
+  previewResult.value = null;
+
+  try {
+    const response = await fetch(withBase("/api/notifications/preview"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        containerExpression: containerExpression.value,
+        logExpression: logExpression.value,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data: PreviewResponse = await response.json();
+
+    // Convert API response to proper types
+    previewResult.value = {
+      containerError: data.containerError,
+      logError: data.logError,
+      matchedContainers: data.matchedContainers?.map(Container.fromJSON),
+      matchedLogs: data.matchedLogs?.map((event) => asLogEntry(event)),
+      totalLogs: data.totalLogs,
+    };
+  } catch (e) {
+    previewResult.value = {
+      containerError: e instanceof Error ? e.message : "Unknown error",
+      totalLogs: 0,
+    };
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function logLevelClass(level: string | undefined): string {
+  switch (level) {
+    case "error":
+      return "badge-error";
+    case "warn":
+    case "warning":
+      return "badge-warning";
+    case "info":
+      return "badge-info";
+    case "debug":
+    case "trace":
+      return "badge-ghost";
+    default:
+      return "";
+  }
+}
+
+function formatLogMessage(entry: unknown): string {
+  if (entry instanceof SimpleLogEntry) {
+    return entry.message;
+  }
+  if (entry instanceof GroupedLogEntry) {
+    return entry.message.join("\n");
+  }
+  if (entry instanceof ComplexLogEntry) {
+    return JSON.stringify(entry.message);
+  }
+  return "";
+}
 
 onMounted(async () => {
   await initializeEditors();
