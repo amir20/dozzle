@@ -115,7 +115,7 @@ const limits = computed(() => {
       totalCpu += hostTotalCpu;
     } else {
       // All containers have limits, sum them up (capped at host total)
-      const sumCpu = hostContainers.reduce((sum, c) => sum + 1, 0);
+      const sumCpu = hostContainers.reduce((sum, c) => sum + (c.cpuLimit || 0), 0);
       totalCpu += Math.min(sumCpu, hostTotalCpu);
     }
 
