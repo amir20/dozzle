@@ -196,6 +196,8 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
+		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
+
 		// Create notification
 		notification := Notification{
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
