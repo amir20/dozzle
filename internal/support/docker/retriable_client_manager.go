@@ -195,3 +195,17 @@ func (m *RetriableClientManager) LocalClients() []container.Client {
 
 	return clients
 }
+
+func (m *RetriableClientManager) LocalClientServices() []container_support.ClientService {
+	services := m.List()
+
+	result := make([]container_support.ClientService, 0)
+
+	for _, service := range services {
+		if _, ok := service.(*DockerClientService); ok {
+			result = append(result, service)
+		}
+	}
+
+	return result
+}

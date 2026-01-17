@@ -236,3 +236,17 @@ func (m *SwarmClientManager) String() string {
 func (m *SwarmClientManager) LocalClients() []container.Client {
 	return []container.Client{m.localClient}
 }
+
+func (m *SwarmClientManager) LocalClientServices() []container_support.ClientService {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := make([]container_support.ClientService, 0)
+	for _, service := range m.clients {
+		if _, ok := service.(*DockerClientService); ok {
+			result = append(result, service)
+		}
+	}
+
+	return result
+}

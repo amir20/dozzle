@@ -1,4 +1,4 @@
-import type { ContainerHealth, ContainerStat, ContainerState } from "@/types/Container";
+import type { ContainerHealth, ContainerJson, ContainerStat, ContainerState } from "@/types/Container";
 import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
@@ -121,5 +121,25 @@ export class Container {
       // @ts-ignore
       this._stat = stat;
     }
+  }
+
+  static fromJSON(c: ContainerJson): Container {
+    return new Container(
+      c.id,
+      new Date(c.created),
+      new Date(c.startedAt),
+      new Date(c.finishedAt),
+      c.image,
+      c.name,
+      c.command,
+      c.host,
+      c.labels,
+      c.state,
+      c.cpuLimit,
+      c.memoryLimit,
+      c.stats ?? [],
+      c.group,
+      c.health,
+    );
   }
 }

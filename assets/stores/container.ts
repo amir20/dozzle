@@ -140,28 +140,7 @@ export const useContainerStore = defineStore("container", () => {
       existing.name = c.name;
     });
 
-    containers.value = [
-      ...containers.value,
-      ...newContainers.map((c) => {
-        return new Container(
-          c.id,
-          new Date(c.created),
-          new Date(c.startedAt),
-          new Date(c.finishedAt),
-          c.image,
-          c.name,
-          c.command,
-          c.host,
-          c.labels,
-          c.state,
-          c.cpuLimit,
-          c.memoryLimit,
-          c.stats,
-          c.group,
-          c.health,
-        );
-      }),
-    ];
+    containers.value = [...containers.value, ...newContainers.map(Container.fromJSON)];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);
