@@ -60,7 +60,7 @@
     </template>
     <template #right>
       <ul class="containers menu w-full p-0 [&_li.menu-title]:px-0">
-        <li v-for="{ label, containers, icon } in menuItems" :key="label">
+        <li v-for="{ label, containers, icon, isNamespaceGroup } in menuItems" :key="label">
           <details :open="!collapsedGroups.has(label)" @toggle="updateCollapsedGroups($event, label)">
             <summary class="text-base-content/80 font-light">
               <component :is="icon" />
@@ -93,7 +93,7 @@
                       :data-state="item.state"
                     ></div>
                     <div class="truncate">
-                      {{ item.name }}
+                      {{ isNamespaceGroup && item.serviceName ? item.serviceName : item.name }}
                     </div>
                     <ContainerHealth :health="item.health" />
                     <span
@@ -195,14 +195,14 @@ const menuItems = computed(() => {
 
   const items = [];
   if (pinned.length) {
-    items.push({ label: "label.pinned", containers: pinned, icon: Pin });
+    items.push({ label: "label.pinned", containers: pinned, icon: Pin, isNamespaceGroup: false });
   }
   for (const [label, containers] of Object.entries(namespaced).sort(([a], [b]) => a.localeCompare(b))) {
     const shouldGroup =
       groupContainers.value === "always" || (groupContainers.value === "at-least-2" && containers.length > 1);
 
     if (shouldGroup) {
-      items.push({ label, containers, icon: Stack });
+      items.push({ label, containers, icon: Stack, isNamespaceGroup: true });
     } else {
       for (const container of containers) {
         singular.push(container);
@@ -217,6 +217,7 @@ const menuItems = computed(() => {
       label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
       containers: singular,
       icon: Containers,
+      isNamespaceGroup: false,
     });
   }
 

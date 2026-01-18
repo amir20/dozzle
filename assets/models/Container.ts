@@ -90,6 +90,10 @@ export class Container {
     );
   }
 
+  get serviceName() {
+    return this.labels["com.docker.compose.service"];
+  }
+
   get customGroup() {
     return this.group;
   }
