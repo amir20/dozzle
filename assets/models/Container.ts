@@ -90,10 +90,6 @@ export class Container {
     );
   }
 
-  get serviceName() {
-    return this.labels["com.docker.compose.service"];
-  }
-
   get customGroup() {
     return this.group;
   }
@@ -104,10 +100,8 @@ export class Container {
 
   get name() {
     return this.isSwarm
-      ? this.labels["com.docker.swarm.task.name"]
-          .replace(`.${this.labels["com.docker.swarm.task.id"]}`, "")
-          .replace(`.${this.labels["com.docker.swarm.node.id"]}`, "")
-      : this._name;
+      ? this.labels["com.docker.swarm.service.name"]
+      : this.labels["com.docker.compose.service"] || this._name;
   }
 
   get swarmId() {
