@@ -252,6 +252,11 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
+		if sub.TriggeredContainerIDs == nil {
+			sub.TriggeredContainerIDs = make(map[string]struct{})
+		}
+		sub.TriggeredContainerIDs[notificationContainer.ID] = struct{}{}
+
 		// Check log filter
 		if !sub.MatchesLog(notificationLog) {
 			return true
@@ -260,10 +265,6 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		// Update stats
 		sub.TriggerCount++
 		sub.LastTriggeredAt = time.Now()
-		if sub.TriggeredContainerIDs == nil {
-			sub.TriggeredContainerIDs = make(map[string]struct{})
-		}
-		sub.TriggeredContainerIDs[notificationContainer.ID] = struct{}{}
 
 		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
 

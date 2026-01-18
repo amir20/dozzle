@@ -87,7 +87,7 @@ import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/mod
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 
-const { close } = defineProps<{ close?: () => void }>();
+const { close, onCreated } = defineProps<{ close?: () => void; onCreated?: () => void }>();
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
@@ -349,6 +349,7 @@ async function createAlert() {
       throw new Error(text || `HTTP ${response.status}`);
     }
 
+    onCreated?.();
     close?.();
   } catch (e) {
     createError.value = e instanceof Error ? e.message : "Failed to create alert";
