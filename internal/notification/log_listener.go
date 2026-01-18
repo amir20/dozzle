@@ -24,19 +24,16 @@ type ContainerLogListener struct {
 	matcher          ContainerMatcher
 	logChannel       chan *container.LogEvent
 	ctx              context.Context
-	cancel           context.CancelFunc
 }
 
 // NewContainerLogListener creates a new listener for multiple clients
-func NewContainerLogListener(clients []container_support.ClientService) *ContainerLogListener {
-	ctx, cancel := context.WithCancel(context.Background())
+func NewContainerLogListener(ctx context.Context, clients []container_support.ClientService) *ContainerLogListener {
 	return &ContainerLogListener{
 		clients:          clients,
 		containerClients: xsync.NewMap[string, container_support.ClientService](),
 		activeStreams:    xsync.NewMap[string, context.CancelFunc](),
 		logChannel:       make(chan *container.LogEvent, 1000),
 		ctx:              ctx,
-		cancel:           cancel,
 	}
 }
 

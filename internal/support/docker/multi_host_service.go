@@ -184,9 +184,9 @@ func (m *MultiHostService) TotalClients() int {
 const notificationConfigPath = "./data/notifications.yml"
 
 // StartNotificationManager initializes and starts the notification manager
-func (m *MultiHostService) StartNotificationManager() error {
+func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
-	listener := notification.NewContainerLogListener(clients)
+	listener := notification.NewContainerLogListener(ctx, clients)
 	m.notificationManager = notification.NewManager(listener)
 
 	// Start first so matcher is available for LoadConfig

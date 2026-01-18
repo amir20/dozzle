@@ -146,6 +146,10 @@ func (m *K8sClusterService) AddSubscription(sub *notification.Subscription) erro
 func (m *K8sClusterService) RemoveSubscription(id int) {
 }
 
+func (m *K8sClusterService) UpdateSubscription(id int, updates map[string]any) error {
+	return fmt.Errorf("notifications not supported in k8s mode")
+}
+
 func (m *K8sClusterService) Subscriptions() []notification.Subscription {
 	return []notification.Subscription{}
 }

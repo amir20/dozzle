@@ -53,6 +53,9 @@ func main() {
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	var hostService web.HostService
 	if args.Mode == "server" {
 		multiHostService := cli.CreateMultiHostService(certs, args)
@@ -61,7 +64,7 @@ func main() {
 		} else {
 			log.Info().Int("clients", multiHostService.TotalClients()).Msg("Connected to Docker")
 		}
-		if err := multiHostService.StartNotificationManager(); err != nil {
+		if err := multiHostService.StartNotificationManager(ctx); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
@@ -77,7 +80,7 @@ func main() {
 		agentManager := docker_support.NewRetriableClientManager(args.RemoteAgent, args.Timeout, certs)
 		manager := docker_support.NewSwarmClientManager(localClient, certs, args.Timeout, agentManager, args.Filter)
 		multiHostService := docker_support.NewMultiHostService(manager, args.Timeout)
-		if err := multiHostService.StartNotificationManager(); err != nil {
+		if err := multiHostService.StartNotificationManager(ctx); err != nil {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
@@ -121,8 +124,6 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
 	}()
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 
 	<-ctx.Done()
 	stop()
