@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -16,11 +17,13 @@ import (
 
 // Manager manages notification subscriptions and dispatches notifications
 type Manager struct {
-	subscriptions *xsync.Map[int, *Subscription]
-	dispatchers   *xsync.Map[int, dispatcher.Dispatcher]
-	listener      *ContainerLogListener
-	ctx           context.Context
-	cancel        context.CancelFunc
+	subscriptions       *xsync.Map[int, *Subscription]
+	dispatchers         *xsync.Map[int, dispatcher.Dispatcher]
+	subscriptionCounter atomic.Int32
+	dispatcherCounter   atomic.Int32
+	listener            *ContainerLogListener
+	ctx                 context.Context
+	cancel              context.CancelFunc
 }
 
 // NewManager creates a new notification manager
@@ -65,8 +68,8 @@ func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 
 // AddSubscription adds a new subscription with compiled expressions
 func (m *Manager) AddSubscription(sub *Subscription) error {
-	// Auto-increment ID
-	sub.ID = m.subscriptions.Size() + 1
+	// Auto-increment ID using atomic counter
+	sub.ID = int(m.subscriptionCounter.Add(1))
 
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
@@ -115,7 +118,7 @@ func (m *Manager) RemoveSubscription(id int) {
 
 // AddDispatcher adds a dispatcher and returns its auto-generated ID
 func (m *Manager) AddDispatcher(d dispatcher.Dispatcher) int {
-	id := m.dispatchers.Size() + 1
+	id := int(m.dispatcherCounter.Add(1))
 	m.dispatchers.Store(id, d)
 	log.Info().Int("id", id).Msg("Added dispatcher")
 	return id
@@ -264,10 +267,25 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		return fmt.Errorf("failed to decode config: %w", err)
 	}
 
+	// Find max IDs to initialize counters
+	var maxSubID, maxDispatcherID int
+	for _, sub := range config.Subscriptions {
+		if sub.ID > maxSubID {
+			maxSubID = sub.ID
+		}
+	}
+	for _, d := range config.Dispatchers {
+		if d.ID > maxDispatcherID {
+			maxDispatcherID = d.ID
+		}
+	}
+	m.subscriptionCounter.Store(int32(maxSubID))
+	m.dispatcherCounter.Store(int32(maxDispatcherID))
+
 	// Load subscriptions
 	for _, sub := range config.Subscriptions {
 		subCopy := sub
-		if err := m.AddSubscription(&subCopy); err != nil {
+		if err := m.loadSubscription(&subCopy); err != nil {
 			return fmt.Errorf("failed to add subscription %s: %w", sub.Name, err)
 		}
 	}
@@ -281,7 +299,8 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		default:
 			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
 		}
-		m.AddDispatcher(d)
+		m.dispatchers.Store(dispatcherConfig.ID, d)
+		log.Info().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher")
 	}
 
 	// Update listener to start streams for loaded subscriptions
@@ -291,5 +310,30 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		}
 	}
 
+	return nil
+}
+
+// loadSubscription loads a subscription with its existing ID (used when loading from config)
+func (m *Manager) loadSubscription(sub *Subscription) error {
+	// Compile container expression if provided
+	if sub.ContainerExpression != "" {
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile container expression: %w", err)
+		}
+		sub.ContainerProgram = program
+	}
+
+	// Compile log expression if provided
+	if sub.LogExpression != "" {
+		program, err := expr.Compile(sub.LogExpression, expr.Env(Log{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile log expression: %w", err)
+		}
+		sub.LogProgram = program
+	}
+
+	m.subscriptions.Store(sub.ID, sub)
+	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Loaded subscription")
 	return nil
 }
