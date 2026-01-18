@@ -8,13 +8,18 @@
     <!-- Alert Name -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Alert Name</legend>
-      <input v-model="alertName" type="text" class="input input-bordered w-full" placeholder="e.g., Test API Errors" />
+      <input
+        v-model="alertName"
+        type="text"
+        class="input focus:input-primary w-full"
+        placeholder="e.g., Test API Errors"
+      />
     </fieldset>
 
     <!-- Container Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Container Filter</legend>
-      <div class="input input-bordered w-full overflow-hidden" :class="{ 'input-error': containerResult?.error }">
+      <div class="input focus-within:input-primary w-full" :class="{ 'input-error!': containerResult?.error }">
         <div ref="containerEditorRef" class="w-full"></div>
       </div>
       <div v-if="containerResult" class="fieldset-label">
@@ -24,20 +29,28 @@
           {{ containerResult.containers.length }} containers match:
           {{ containerResult.containers.map((c) => c.name).join(", ") }}
         </span>
+        <span v-else class="text-warning">
+          <mdi:alert class="inline" />
+          No containers match this filter
+        </span>
       </div>
     </fieldset>
 
     <!-- Log Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Log Filter</legend>
-      <div class="input input-bordered w-full overflow-hidden" :class="{ 'input-error': logError }">
+      <div class="input focus-within:input-primary w-full" :class="{ 'input-error!': logError }">
         <div ref="logEditorRef" class="w-full"></div>
       </div>
-      <div v-if="logError || logMessages.length" class="fieldset-label">
+      <div v-if="logError || logExpression" class="fieldset-label">
         <span v-if="logError" class="text-error">{{ logError }}</span>
         <span v-else-if="logMessages.length" class="text-success">
           <mdi:check class="inline" />
           {{ logTotalCount }} logs match
+        </span>
+        <span v-else-if="!isLoading" class="text-warning">
+          <mdi:alert class="inline" />
+          No logs match this filter
         </span>
       </div>
     </fieldset>
@@ -52,11 +65,16 @@
       />
     </div>
 
+    <!-- Error -->
+    <div v-if="createError" class="alert alert-error">
+      <span>{{ createError }}</span>
+    </div>
+
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-4">
       <button class="btn" @click="close?.()">Cancel</button>
-      <button class="btn btn-primary" :disabled="isLoading">
-        <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
+      <button class="btn btn-primary" :disabled="!canCreate" @click="createAlert">
+        <span v-if="isCreating" class="loading loading-spinner loading-sm"></span>
         Create Alert
       </button>
     </div>
@@ -296,6 +314,48 @@ const logError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const isLoading = ref(false);
+const isCreating = ref(false);
+const createError = ref<string | null>(null);
+
+const canCreate = computed(() => {
+  return (
+    alertName.value.trim() &&
+    containerExpression.value.trim() &&
+    !containerResult.value?.error &&
+    !logError.value &&
+    !isCreating.value
+  );
+});
+
+async function createAlert() {
+  if (!canCreate.value) return;
+
+  isCreating.value = true;
+  createError.value = null;
+
+  try {
+    const response = await fetch(withBase("/api/notifications/subscriptions"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: alertName.value.trim(),
+        containerExpression: containerExpression.value,
+        logExpression: logExpression.value,
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `HTTP ${response.status}`);
+    }
+
+    close?.();
+  } catch (e) {
+    createError.value = e instanceof Error ? e.message : "Failed to create alert";
+  } finally {
+    isCreating.value = false;
+  }
+}
 
 async function validateExpressions() {
   if (!containerExpression.value && !logExpression.value) {
@@ -353,7 +413,7 @@ async function validateExpressions() {
   }
 }
 
-const debouncedValidate = useDebounceFn(validateExpressions, 1000);
+const debouncedValidate = useDebounceFn(validateExpressions, 500);
 
 watch([containerExpression, logExpression], () => {
   isLoading.value = true;

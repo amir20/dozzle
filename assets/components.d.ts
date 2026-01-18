@@ -81,6 +81,7 @@ declare module 'vue' {
     'MaterialSymbols:terminal': typeof import('~icons/material-symbols/terminal')['default']
     'MaterialSymbolsLight:collapseAll': typeof import('~icons/material-symbols-light/collapse-all')['default']
     'Mdi:account': typeof import('~icons/mdi/account')['default']
+    'Mdi:alert': typeof import('~icons/mdi/alert')['default']
     'Mdi:announcement': typeof import('~icons/mdi/announcement')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:beer': typeof import('~icons/mdi/beer')['default']
