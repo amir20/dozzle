@@ -10,10 +10,22 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type subscriptionResponse struct {
+	notification.Subscription
+	TriggeredContainers int `json:"triggeredContainers"`
+}
+
 func (h *handler) listSubscriptions(w http.ResponseWriter, r *http.Request) {
 	subscriptions := h.hostService.Subscriptions()
+	response := make([]subscriptionResponse, len(subscriptions))
+	for i, sub := range subscriptions {
+		response[i] = subscriptionResponse{
+			Subscription:        sub,
+			TriggeredContainers: sub.TriggeredContainersCount(),
+		}
+	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(subscriptions)
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *handler) createSubscription(w http.ResponseWriter, r *http.Request) {
@@ -42,6 +54,28 @@ func (h *handler) deleteSubscription(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.hostService.RemoveSubscription(id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *handler) updateSubscription(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var updates map[string]any
+	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.hostService.UpdateSubscription(id, updates); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 

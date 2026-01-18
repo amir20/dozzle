@@ -57,7 +57,7 @@ func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 
 	shouldListen := false
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
-		if sub.MatchesContainer(notificationContainer) {
+		if sub.Enabled && sub.MatchesContainer(notificationContainer) {
 			shouldListen = true
 			return false
 		}
@@ -70,6 +70,7 @@ func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 func (m *Manager) AddSubscription(sub *Subscription) error {
 	// Auto-increment ID using atomic counter
 	sub.ID = int(m.subscriptionCounter.Add(1))
+	sub.Enabled = true
 
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
@@ -114,6 +115,58 @@ func (m *Manager) RemoveSubscription(id int) {
 			}
 		}
 	}
+}
+
+// UpdateSubscription updates a subscription with the provided fields
+func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
+	sub, ok := m.subscriptions.Load(id)
+	if !ok {
+		return fmt.Errorf("subscription not found")
+	}
+
+	for key, value := range updates {
+		switch key {
+		case "name":
+			if name, ok := value.(string); ok {
+				sub.Name = name
+			}
+		case "enabled":
+			if enabled, ok := value.(bool); ok {
+				sub.Enabled = enabled
+			}
+		case "containerExpression":
+			if exprStr, ok := value.(string); ok {
+				program, err := expr.Compile(exprStr, expr.Env(Container{}))
+				if err != nil {
+					return fmt.Errorf("failed to compile container expression: %w", err)
+				}
+				sub.ContainerExpression = exprStr
+				sub.ContainerProgram = program
+			}
+		case "logExpression":
+			if exprStr, ok := value.(string); ok {
+				if exprStr != "" {
+					program, err := expr.Compile(exprStr, expr.Env(Log{}))
+					if err != nil {
+						return fmt.Errorf("failed to compile log expression: %w", err)
+					}
+					sub.LogExpression = exprStr
+					sub.LogProgram = program
+				}
+			}
+		}
+	}
+
+	log.Debug().Int("id", id).Interface("updates", updates).Msg("Updated subscription")
+
+	// Update listener streams in case expressions changed
+	if m.listener != nil {
+		if err := m.listener.UpdateStreams(); err != nil {
+			log.Error().Err(err).Msg("Failed to update listener streams")
+		}
+	}
+
+	return nil
 }
 
 // AddDispatcher adds a dispatcher and returns its auto-generated ID
@@ -189,6 +242,11 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	notificationLog := FromLogEvent(*logEvent)
 
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		// Skip disabled subscriptions
+		if !sub.Enabled {
+			return true
+		}
+
 		// Check container filter
 		if !sub.MatchesContainer(notificationContainer) {
 			return true
@@ -198,6 +256,14 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		if !sub.MatchesLog(notificationLog) {
 			return true
 		}
+
+		// Update stats
+		sub.TriggerCount++
+		sub.LastTriggeredAt = time.Now()
+		if sub.TriggeredContainerIDs == nil {
+			sub.TriggeredContainerIDs = make(map[string]struct{})
+		}
+		sub.TriggeredContainerIDs[notificationContainer.ID] = struct{}{}
 
 		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
 

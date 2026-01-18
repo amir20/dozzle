@@ -175,3 +175,17 @@ func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, lab
 func (l *ContainerLogListener) LogChannel() <-chan *container.LogEvent {
 	return l.logChannel
 }
+
+// ListContainers returns all containers from all clients
+func (l *ContainerLogListener) ListContainers() []container.Container {
+	var result []container.Container
+	for _, client := range l.clients {
+		containers, err := client.ListContainers(l.ctx, nil)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to list containers from client")
+			continue
+		}
+		result = append(result, containers...)
+	}
+	return result
+}

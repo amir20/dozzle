@@ -89,10 +89,21 @@ func extractMessage(l container.LogEvent) any {
 type Subscription struct {
 	ID                  int         `json:"id" yaml:"id"`
 	Name                string      `json:"name" yaml:"name"`
+	Enabled             bool        `json:"enabled" yaml:"enabled"`
 	LogExpression       string      `json:"logExpression" yaml:"logExpression"`
 	LogProgram          *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
 	ContainerExpression string      `json:"containerExpression" yaml:"containerExpression"`
 	ContainerProgram    *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
+
+	// Runtime stats (not persisted)
+	TriggerCount          int64               `json:"triggerCount" yaml:"-"`
+	LastTriggeredAt       time.Time           `json:"lastTriggeredAt,omitempty" yaml:"-"`
+	TriggeredContainerIDs map[string]struct{} `json:"-" yaml:"-"` // unique container IDs that triggered
+}
+
+// TriggeredContainersCount returns the number of unique containers that triggered this subscription
+func (s *Subscription) TriggeredContainersCount() int {
+	return len(s.TriggeredContainerIDs)
 }
 
 // DispatcherConfig represents a dispatcher configuration
