@@ -45,7 +45,7 @@
   <SideDrawer ref="drawer" :width="drawerWidth" v-slot="{ close }">
     <Suspense :timeout="0">
       <component :is="drawerComponent" v-bind="drawerProperties" :close="close" />
-      <template #fallback> Loading dependencies... </template>
+      <template #fallback> <span class="loading loading-spinner loading-sm"></span></template>
     </Suspense>
   </SideDrawer>
   <ToastModal />
