@@ -12,7 +12,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
-	"go.yaml.in/yaml/v2"
+	"go.yaml.in/yaml/v3"
 )
 
 // Manager manages notification subscriptions and dispatches notifications
