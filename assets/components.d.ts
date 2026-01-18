@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddDestination: typeof import('./components/Notification/AddDestination.vue')['default']
     Announcements: typeof import('./components/Announcements.vue')['default']
     BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
@@ -42,6 +43,7 @@ declare module 'vue' {
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
     CreateAlert: typeof import('./components/Notification/CreateAlert.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
+    DestinationCard: typeof import('./components/Notification/DestinationCard.vue')['default']
     Dropdown: typeof import('./components/common/Dropdown.vue')['default']
     DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
     EventSource: typeof import('./components/LogViewer/EventSource.vue')['default']
@@ -93,6 +95,7 @@ declare module 'vue' {
     'Mdi:chevronRight': typeof import('~icons/mdi/chevron-right')['default']
     'Mdi:clockOutline': typeof import('~icons/mdi/clock-outline')['default']
     'Mdi:close': typeof import('~icons/mdi/close')['default']
+    'Mdi:cloud': typeof import('~icons/mdi/cloud')['default']
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
     'Mdi:delete': typeof import('~icons/mdi/delete')['default']
     'Mdi:deleteOutline': typeof import('~icons/mdi/delete-outline')['default']
@@ -129,6 +132,7 @@ declare module 'vue' {
     'Ph:dotsThreeVerticalBold': typeof import('~icons/ph/dots-three-vertical-bold')['default']
     'Ph:fileSql': typeof import('~icons/ph/file-sql')['default']
     'Ph:globeSimple': typeof import('~icons/ph/globe-simple')['default']
+    'Ph:linkSimpleBold': typeof import('~icons/ph/link-simple-bold')['default']
     'Ph:stack': typeof import('~icons/ph/stack')['default']
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     PhArrowDown: typeof import('~icons/ph/arrow-down')['default']

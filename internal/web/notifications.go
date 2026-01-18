@@ -86,6 +86,7 @@ func (h *handler) listDispatchers(w http.ResponseWriter, r *http.Request) {
 }
 
 type createDispatcherRequest struct {
+	Name string `json:"name"`
 	Type string `json:"type"`
 	URL  string `json:"url"`
 }
@@ -114,6 +115,7 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 
 	response := notification.DispatcherConfig{
 		ID:   id,
+		Name: req.Name,
 		Type: req.Type,
 		URL:  req.URL,
 	}

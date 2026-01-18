@@ -109,6 +109,7 @@ func (s *Subscription) TriggeredContainersCount() int {
 // DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
 	ID   int    `json:"id" yaml:"id"`
+	Name string `json:"name" yaml:"name"`
 	Type string `json:"type" yaml:"type"` // "webhook", etc.
 	URL  string `json:"url,omitempty" yaml:"url,omitempty"`
 }
