@@ -42,9 +42,9 @@
       <button>close</button>
     </form>
   </dialog>
-  <SideDrawer ref="drawer" :width="drawerWidth">
+  <SideDrawer ref="drawer" :width="drawerWidth" v-slot="{ close }">
     <Suspense :timeout="0">
-      <component :is="drawerComponent" v-bind="drawerProperties" />
+      <component :is="drawerComponent" v-bind="drawerProperties" :close="close" />
       <template #fallback> Loading dependencies... </template>
     </Suspense>
   </SideDrawer>

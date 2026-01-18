@@ -54,7 +54,7 @@
 
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-4">
-      <button class="btn">Cancel</button>
+      <button class="btn" @click="close?.()">Cancel</button>
       <button class="btn btn-primary" :disabled="isLoading">
         <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
         Create Alert
@@ -69,6 +69,8 @@ import type { Completion } from "@codemirror/autocomplete";
 import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
+
+const { close } = defineProps<{ close?: () => void }>();
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
