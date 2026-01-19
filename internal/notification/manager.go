@@ -140,9 +140,6 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	// Preserve enabled state from existing subscription if it exists
 	if existing, ok := m.subscriptions.Load(sub.ID); ok {
 		sub.Enabled = existing.Enabled
-		sub.TriggerCount = existing.TriggerCount
-		sub.LastTriggeredAt = existing.LastTriggeredAt
-		sub.TriggeredContainerIDs = existing.TriggeredContainerIDs
 	} else {
 		sub.Enabled = true
 	}
@@ -302,10 +299,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
-		if sub.TriggeredContainerIDs == nil {
-			sub.TriggeredContainerIDs = make(map[string]struct{})
-		}
-		sub.TriggeredContainerIDs[notificationContainer.ID] = struct{}{}
+		sub.AddTriggeredContainer(notificationContainer.ID)
 
 		// Check log filter
 		if !sub.MatchesLog(notificationLog) {
@@ -313,8 +307,9 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		}
 
 		// Update stats
-		sub.TriggerCount++
-		sub.LastTriggeredAt = time.Now()
+		sub.TriggerCount.Add(1)
+		now := time.Now()
+		sub.LastTriggeredAt.Store(&now)
 
 		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
 

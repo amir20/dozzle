@@ -2,11 +2,13 @@ package notification
 
 import (
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // Notification represents a notification event that can be filtered and sent
@@ -87,24 +89,37 @@ func extractMessage(l container.LogEvent) any {
 
 // Subscription represents a subscription to log streams with filtering
 type Subscription struct {
-	ID                  int         `json:"id" yaml:"id"`
-	Name                string      `json:"name" yaml:"name"`
-	Enabled             bool        `json:"enabled" yaml:"enabled"`
-	DispatcherID        int         `json:"dispatcherId" yaml:"dispatcherId"`
-	LogExpression       string      `json:"logExpression" yaml:"logExpression"`
-	LogProgram          *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
-	ContainerExpression string      `json:"containerExpression" yaml:"containerExpression"`
-	ContainerProgram    *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
+	ID                  int    `json:"id" yaml:"id"`
+	Name                string `json:"name" yaml:"name"`
+	Enabled             bool   `json:"enabled" yaml:"enabled"`
+	DispatcherID        int    `json:"dispatcherId" yaml:"dispatcherId"`
+	LogExpression       string `json:"logExpression" yaml:"logExpression"`
+	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
+
+	// Compiled log filter expression
+	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
+	ContainerProgram *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
 
 	// Runtime stats (not persisted)
-	TriggerCount          int64               `json:"triggerCount" yaml:"-"`
-	LastTriggeredAt       time.Time           `json:"lastTriggeredAt,omitempty" yaml:"-"`
-	TriggeredContainerIDs map[string]struct{} `json:"-" yaml:"-"` // unique container IDs that triggered
+	TriggerCount          atomic.Int64                 `json:"-" yaml:"-"`
+	LastTriggeredAt       atomic.Pointer[time.Time]    `json:"-" yaml:"-"`
+	TriggeredContainerIDs *xsync.Map[string, struct{}] `json:"-" yaml:"-"` // unique container IDs that triggered
 }
 
 // TriggeredContainersCount returns the number of unique containers that triggered this subscription
 func (s *Subscription) TriggeredContainersCount() int {
-	return len(s.TriggeredContainerIDs)
+	if s.TriggeredContainerIDs == nil {
+		return 0
+	}
+	return s.TriggeredContainerIDs.Size()
+}
+
+// AddTriggeredContainer adds a container ID to the triggered set
+func (s *Subscription) AddTriggeredContainer(id string) {
+	if s.TriggeredContainerIDs == nil {
+		s.TriggeredContainerIDs = xsync.NewMap[string, struct{}]()
+	}
+	s.TriggeredContainerIDs.Store(id, struct{}{})
 }
 
 // DispatcherConfig represents a dispatcher configuration

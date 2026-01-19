@@ -9,8 +9,8 @@ import (
 
 func subscriptionToNotificationRule(sub *notification.Subscription, dispatchers []notification.DispatcherConfig) *model.NotificationRule {
 	var lastTriggeredAt *time.Time
-	if !sub.LastTriggeredAt.IsZero() {
-		lastTriggeredAt = &sub.LastTriggeredAt
+	if t := sub.LastTriggeredAt.Load(); t != nil && !t.IsZero() {
+		lastTriggeredAt = t
 	}
 
 	// Find the dispatcher
@@ -29,7 +29,7 @@ func subscriptionToNotificationRule(sub *notification.Subscription, dispatchers 
 		Dispatcher:          dispatcher,
 		LogExpression:       sub.LogExpression,
 		ContainerExpression: sub.ContainerExpression,
-		TriggerCount:        int(sub.TriggerCount),
+		TriggerCount:        int(sub.TriggerCount.Load()),
 		LastTriggeredAt:     lastTriggeredAt,
 		TriggeredContainers: int32(sub.TriggeredContainersCount()),
 	}
