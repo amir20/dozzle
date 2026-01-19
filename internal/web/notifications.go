@@ -105,7 +105,7 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "url is required for webhook dispatcher", http.StatusBadRequest)
 			return
 		}
-		d = dispatcher.NewWebhookDispatcher(req.URL)
+		d = dispatcher.NewWebhookDispatcher(req.Name, req.URL)
 	default:
 		http.Error(w, "unknown dispatcher type", http.StatusBadRequest)
 		return

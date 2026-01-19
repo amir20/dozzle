@@ -11,14 +11,16 @@ import (
 
 // WebhookDispatcher sends notifications to a webhook URL
 type WebhookDispatcher struct {
+	Name   string
 	URL    string
 	client *http.Client
 }
 
 // NewWebhookDispatcher creates a new webhook dispatcher
-func NewWebhookDispatcher(url string) *WebhookDispatcher {
+func NewWebhookDispatcher(name, url string) *WebhookDispatcher {
 	return &WebhookDispatcher{
-		URL: url,
+		Name: name,
+		URL:  url,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},

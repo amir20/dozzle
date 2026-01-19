@@ -202,6 +202,7 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 		case *dispatcher.WebhookDispatcher:
 			result = append(result, DispatcherConfig{
 				ID:   id,
+				Name: v.Name,
 				Type: "webhook",
 				URL:  v.URL,
 			})
@@ -312,6 +313,7 @@ func (m *Manager) WriteConfig(w io.Writer) error {
 		case *dispatcher.WebhookDispatcher:
 			config.Dispatchers = append(config.Dispatchers, DispatcherConfig{
 				ID:   id,
+				Name: v.Name,
 				Type: "webhook",
 				URL:  v.URL,
 			})
@@ -362,7 +364,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		var d dispatcher.Dispatcher
 		switch dispatcherConfig.Type {
 		case "webhook":
-			d = dispatcher.NewWebhookDispatcher(dispatcherConfig.URL)
+			d = dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL)
 		default:
 			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
 		}
