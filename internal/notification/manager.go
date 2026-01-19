@@ -160,42 +160,74 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 
 // UpdateSubscription updates a subscription with the provided fields
 func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
-	sub, ok := m.subscriptions.Load(id)
-	if !ok {
-		return fmt.Errorf("subscription not found")
-	}
+	var updateErr error
+	_, ok := m.subscriptions.Compute(id, func(sub *Subscription, loaded bool) (*Subscription, xsync.ComputeOp) {
+		if !loaded {
+			updateErr = fmt.Errorf("subscription not found")
+			return nil, xsync.CancelOp
+		}
 
-	for key, value := range updates {
-		switch key {
-		case "name":
-			if name, ok := value.(string); ok {
-				sub.Name = name
-			}
-		case "enabled":
-			if enabled, ok := value.(bool); ok {
-				sub.Enabled = enabled
-			}
-		case "containerExpression":
-			if exprStr, ok := value.(string); ok {
-				program, err := expr.Compile(exprStr, expr.Env(Container{}))
-				if err != nil {
-					return fmt.Errorf("failed to compile container expression: %w", err)
+		// Clone the subscription
+		updated := &Subscription{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			ContainerExpression: sub.ContainerExpression,
+			ContainerProgram:    sub.ContainerProgram,
+			LogExpression:       sub.LogExpression,
+			LogProgram:          sub.LogProgram,
+		}
+
+		// Apply updates to the clone
+		for key, value := range updates {
+			switch key {
+			case "name":
+				if name, ok := value.(string); ok {
+					updated.Name = name
 				}
-				sub.ContainerExpression = exprStr
-				sub.ContainerProgram = program
-			}
-		case "logExpression":
-			if exprStr, ok := value.(string); ok {
-				if exprStr != "" {
-					program, err := expr.Compile(exprStr, expr.Env(Log{}))
+			case "enabled":
+				if enabled, ok := value.(bool); ok {
+					updated.Enabled = enabled
+				}
+			case "dispatcherId":
+				if dispatcherID, ok := value.(int); ok {
+					updated.DispatcherID = dispatcherID
+				}
+			case "containerExpression":
+				if exprStr, ok := value.(string); ok {
+					program, err := expr.Compile(exprStr, expr.Env(Container{}))
 					if err != nil {
-						return fmt.Errorf("failed to compile log expression: %w", err)
+						updateErr = fmt.Errorf("failed to compile container expression: %w", err)
+						return nil, xsync.CancelOp
 					}
-					sub.LogExpression = exprStr
-					sub.LogProgram = program
+					updated.ContainerExpression = exprStr
+					updated.ContainerProgram = program
+				}
+			case "logExpression":
+				if exprStr, ok := value.(string); ok {
+					if exprStr != "" {
+						program, err := expr.Compile(exprStr, expr.Env(Log{}))
+						if err != nil {
+							updateErr = fmt.Errorf("failed to compile log expression: %w", err)
+							return nil, xsync.CancelOp
+						}
+						updated.LogExpression = exprStr
+						updated.LogProgram = program
+					}
 				}
 			}
 		}
+
+		return updated, xsync.UpdateOp
+	})
+
+	if updateErr != nil {
+		return updateErr
+	}
+
+	if !ok {
+		return fmt.Errorf("subscription not found")
 	}
 
 	log.Debug().Int("id", id).Interface("updates", updates).Msg("Updated subscription")
