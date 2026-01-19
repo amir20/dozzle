@@ -158,6 +158,9 @@ func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) int {
 	return 0
 }
 
+func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+}
+
 func (m *K8sClusterService) RemoveDispatcher(id int) {
 }
 

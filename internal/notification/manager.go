@@ -177,6 +177,12 @@ func (m *Manager) AddDispatcher(d dispatcher.Dispatcher) int {
 	return id
 }
 
+// UpdateDispatcher updates a dispatcher by ID
+func (m *Manager) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+	m.dispatchers.Store(id, d)
+	log.Info().Int("id", id).Msg("Updated dispatcher")
+}
+
 // RemoveDispatcher removes a dispatcher by ID
 func (m *Manager) RemoveDispatcher(id int) {
 	if _, ok := m.dispatchers.LoadAndDelete(id); ok {

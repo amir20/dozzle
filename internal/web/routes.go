@@ -81,6 +81,7 @@ type HostService interface {
 	UpdateSubscription(id int, updates map[string]any) error
 	Subscriptions() []notification.Subscription
 	AddDispatcher(d dispatcher.Dispatcher) int
+	UpdateDispatcher(id int, d dispatcher.Dispatcher)
 	RemoveDispatcher(id int)
 	Dispatchers() []notification.DispatcherConfig
 }
@@ -159,6 +160,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Patch("/subscriptions/{id}", h.updateSubscription)
 					r.Get("/dispatchers", h.listDispatchers)
 					r.Post("/dispatchers", h.createDispatcher)
+					r.Put("/dispatchers/{id}", h.updateDispatcher)
 					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
 					r.Post("/preview", h.previewExpression)
 				})

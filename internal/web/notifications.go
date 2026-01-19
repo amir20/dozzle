@@ -125,6 +125,46 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var req createDispatcherRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var d dispatcher.Dispatcher
+	switch req.Type {
+	case "webhook":
+		if req.URL == "" {
+			http.Error(w, "url is required for webhook dispatcher", http.StatusBadRequest)
+			return
+		}
+		d = dispatcher.NewWebhookDispatcher(req.Name, req.URL)
+	default:
+		http.Error(w, "unknown dispatcher type", http.StatusBadRequest)
+		return
+	}
+
+	h.hostService.UpdateDispatcher(id, d)
+
+	response := notification.DispatcherConfig{
+		ID:   id,
+		Name: req.Name,
+		Type: req.Type,
+		URL:  req.URL,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func (h *handler) deleteDispatcher(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)

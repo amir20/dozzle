@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddDestination: typeof import('./components/Notification/AddDestination.vue')['default']
+    AlertForm: typeof import('./components/Notification/AlertForm.vue')['default']
     Announcements: typeof import('./components/Announcements.vue')['default']
     BarChart: typeof import('./components/BarChart.vue')['default']
     'Carbon:caretDown': typeof import('~icons/carbon/caret-down')['default']
@@ -44,6 +45,7 @@ declare module 'vue' {
     CreateAlert: typeof import('./components/Notification/CreateAlert.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DestinationCard: typeof import('./components/Notification/DestinationCard.vue')['default']
+    DestinationForm: typeof import('./components/Notification/DestinationForm.vue')['default']
     Dropdown: typeof import('./components/common/Dropdown.vue')['default']
     DropdownMenu: typeof import('./components/common/DropdownMenu.vue')['default']
     EventSource: typeof import('./components/LogViewer/EventSource.vue')['default']

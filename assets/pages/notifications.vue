@@ -146,8 +146,8 @@
 </template>
 
 <script lang="ts" setup>
-import CreateAlert from "@/components/Notification/CreateAlert.vue";
-import AddDestination from "@/components/Notification/AddDestination.vue";
+import AlertForm from "@/components/Notification/AlertForm.vue";
+import DestinationForm from "@/components/Notification/DestinationForm.vue";
 import DestinationCard, { type Destination } from "@/components/Notification/DestinationCard.vue";
 
 interface Alert {
@@ -237,7 +237,7 @@ function editAlert(alert: Alert) {
 }
 
 function openCreateAlert() {
-  showDrawer(CreateAlert, { onCreated: fetchAlerts }, "lg");
+  showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
 }
 
 // Destination functions
@@ -253,12 +253,11 @@ async function fetchDestinations() {
 }
 
 function openAddDestination() {
-  showDrawer(AddDestination, { onCreated: fetchDestinations }, "md");
+  showDrawer(DestinationForm, { onCreated: fetchDestinations }, "md");
 }
 
 function editDestination(destination: Destination) {
-  // TODO: Open edit drawer
-  console.log("Edit destination", destination.id);
+  showDrawer(DestinationForm, { destination, onCreated: fetchDestinations }, "md");
 }
 
 async function deleteDestination(destination: Destination) {

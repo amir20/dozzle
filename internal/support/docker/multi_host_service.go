@@ -255,6 +255,12 @@ func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) int {
 	return id
 }
 
+// UpdateDispatcher updates a dispatcher by ID
+func (m *MultiHostService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+	m.notificationManager.UpdateDispatcher(id, d)
+	m.saveNotificationConfig()
+}
+
 // RemoveDispatcher removes a dispatcher by ID
 func (m *MultiHostService) RemoveDispatcher(id int) {
 	m.notificationManager.RemoveDispatcher(id)

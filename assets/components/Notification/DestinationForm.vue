@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 p-4">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold">Add Destination</h2>
+      <h2 class="text-2xl font-bold">{{ isEditing ? "Edit Destination" : "Add Destination" }}</h2>
       <p class="text-base-content/60">Where should notifications be sent?</p>
     </div>
 
@@ -66,25 +66,30 @@
       </button>
       <div class="flex-1"></div>
       <button class="btn" @click="close?.()">Cancel</button>
-      <button class="btn btn-primary" :disabled="!canAdd" @click="addDestination">
-        <span v-if="isAdding" class="loading loading-spinner loading-sm"></span>
-        Add Destination
+      <button class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
+        <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
+        {{ isEditing ? "Save" : "Add Destination" }}
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-const { close, onCreated } = defineProps<{
+import type { Destination } from "./DestinationCard.vue";
+
+const { close, onCreated, destination } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
+  destination?: Destination;
 }>();
 
-const name = ref("");
-const type = ref<"webhook" | "cloud">("webhook");
-const webhookUrl = ref("");
+const isEditing = computed(() => !!destination);
+
+const name = ref(destination?.name ?? "");
+const type = ref<"webhook" | "cloud">(destination?.type ?? "webhook");
+const webhookUrl = ref(destination?.url ?? "");
 const isTesting = ref(false);
-const isAdding = ref(false);
+const isSaving = ref(false);
 const error = ref<string | null>(null);
 
 const canTest = computed(() => {
@@ -94,8 +99,8 @@ const canTest = computed(() => {
   return false;
 });
 
-const canAdd = computed(() => {
-  if (isAdding.value) return false;
+const canSave = computed(() => {
+  if (isSaving.value) return false;
   if (!name.value.trim()) return false;
   if (type.value === "webhook" && !webhookUrl.value.trim()) return false;
   return true;
@@ -108,15 +113,19 @@ async function testDestination() {
   isTesting.value = false;
 }
 
-async function addDestination() {
-  if (!canAdd.value) return;
+async function saveDestination() {
+  if (!canSave.value) return;
 
-  isAdding.value = true;
+  isSaving.value = true;
   error.value = null;
 
   try {
-    const response = await fetch(withBase("/api/notifications/dispatchers"), {
-      method: "POST",
+    const url = isEditing.value
+      ? withBase(`/api/notifications/dispatchers/${destination!.id}`)
+      : withBase("/api/notifications/dispatchers");
+
+    const response = await fetch(url, {
+      method: isEditing.value ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: name.value.trim(),
@@ -133,9 +142,9 @@ async function addDestination() {
     onCreated?.();
     close?.();
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "Failed to add destination";
+    error.value = e instanceof Error ? e.message : "Failed to save destination";
   } finally {
-    isAdding.value = false;
+    isSaving.value = false;
   }
 }
 </script>
