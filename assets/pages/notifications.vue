@@ -90,10 +90,14 @@ const filteredAlerts = computed(() => {
 });
 
 function openCreateAlert() {
-  showDrawer(AlertForm, {}, "lg");
+  showDrawer(AlertForm, { onCreated: () => alertsQuery.executeQuery({ requestPolicy: "network-only" }) }, "lg");
 }
 
 function openAddDestination() {
-  showDrawer(DestinationForm, {}, "md");
+  showDrawer(
+    DestinationForm,
+    { onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
+    "md",
+  );
 }
 </script>
