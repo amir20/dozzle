@@ -140,6 +140,8 @@ func (m *K8sClusterService) LocalClientServices() []container_support.ClientServ
 
 // Notification methods - not yet implemented for k8s
 func (m *K8sClusterService) AddSubscription(sub *notification.Subscription) error {
+
+	// TODO Implement notification subscription for k8s mode
 	return fmt.Errorf("notifications not supported in k8s mode")
 }
 

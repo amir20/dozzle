@@ -35,7 +35,7 @@ export default defineConfig(() => ({
         src: "./assets/pages",
       },
       dts: "./assets/typed-router.d.ts",
-      importMode: "async",
+      importMode: "sync", // this can't be async because it won't work with custom base
     }),
     VueMacros({
       plugins: {
