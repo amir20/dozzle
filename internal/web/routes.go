@@ -129,6 +129,8 @@ func createRouter(h *handler) *chi.Mux {
 				if h.config.Authorization.Provider != NONE {
 					r.Use(auth.RequireAuthentication)
 				}
+
+				// Log streams
 				r.Get("/hosts/{host}/containers/{id}/logs/stream", h.streamContainerLogs)
 				r.Get("/hosts/{host}/logs/stream", h.streamHostLogs)
 				r.Get("/hosts/{host}/containers/{id}/logs", h.fetchLogsBetweenDates)
@@ -137,6 +139,8 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/labels/{labels}/logs/stream", h.streamLogsWithLabels)
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
 				r.Get("/events/stream", h.streamEvents)
+
+				// Action
 				if h.config.EnableActions {
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 				}
@@ -144,6 +148,7 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/hosts/{host}/containers/{id}/attach", h.attach)
 					r.Get("/hosts/{host}/containers/{id}/exec", h.exec)
 				}
+
 				r.Get("/releases", h.releases)
 				if !h.config.DisableAvatars {
 					r.Get("/profile/avatar", h.avatar)
@@ -166,6 +171,12 @@ func createRouter(h *handler) *chi.Mux {
 					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
 					r.Post("/preview", h.previewExpression)
 				})
+
+				// GraphQL endpoint
+				r.Handle("/graphql", h.graphqlHandler())
+				if h.config.Dev {
+					r.Handle("/graphql/playground", h.graphqlPlaygroundHandler())
+				}
 			})
 
 			// Public API routes

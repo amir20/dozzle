@@ -1,0 +1,107 @@
+scalar Time
+scalar Int64
+scalar Any
+scalar Map
+
+# Reuse existing domain types
+type Container {
+  id: String!
+  name: String!
+  image: String!
+  command: String!
+  created: Time!
+  startedAt: Time!
+  state: String!
+  health: String
+  host: String
+  labels: Map
+  group: String
+}
+
+type LogEvent {
+  id: Int!
+  type: String
+  message: Any
+  timestamp: Int64!
+  level: String
+  stream: String
+  containerId: String
+}
+
+# Notification-specific types
+type NotificationRule {
+  id: Int!
+  name: String!
+  enabled: Boolean!
+  dispatcher: Dispatcher!
+  logExpression: String!
+  containerExpression: String!
+  triggerCount: Int64!
+  lastTriggeredAt: Time
+  triggeredContainers: Int!
+}
+
+type Dispatcher {
+  id: Int!
+  name: String!
+  type: String!
+  url: String
+}
+
+type PreviewResult {
+  containerError: String
+  logError: String
+  matchedContainers: [Container!]!
+  matchedLogs: [LogEvent!]!
+  totalLogs: Int!
+}
+
+# Inputs
+input NotificationRuleInput {
+  name: String!
+  enabled: Boolean!
+  dispatcherId: Int!
+  logExpression: String!
+  containerExpression: String!
+}
+
+input NotificationRuleUpdateInput {
+  name: String
+  enabled: Boolean
+  dispatcherId: Int
+  logExpression: String
+  containerExpression: String
+}
+
+input DispatcherInput {
+  name: String!
+  type: String!
+  url: String
+}
+
+input PreviewInput {
+  containerExpression: String!
+  logExpression: String
+}
+
+# Queries
+type Query {
+  notificationRules: [NotificationRule!]!
+  notificationRule(id: Int!): NotificationRule
+  dispatchers: [Dispatcher!]!
+  dispatcher(id: Int!): Dispatcher
+}
+
+# Mutations
+type Mutation {
+  createNotificationRule(input: NotificationRuleInput!): NotificationRule!
+  updateNotificationRule(id: Int!, input: NotificationRuleUpdateInput!): NotificationRule!
+  replaceNotificationRule(id: Int!, input: NotificationRuleInput!): NotificationRule!
+  deleteNotificationRule(id: Int!): Boolean!
+
+  createDispatcher(input: DispatcherInput!): Dispatcher!
+  updateDispatcher(id: Int!, input: DispatcherInput!): Dispatcher!
+  deleteDispatcher(id: Int!): Boolean!
+
+  previewExpression(input: PreviewInput!): PreviewResult!
+}
