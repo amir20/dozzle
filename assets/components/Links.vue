@@ -4,6 +4,15 @@
     <Announcements />
 
     <router-link
+      :to="{ name: '/notifications' }"
+      :aria-label="$t('title.notifications')"
+      data-testid="notifications"
+      class="btn btn-circle btn-sm"
+    >
+      <mdi:bell class="size-6" />
+    </router-link>
+
+    <router-link
       :to="{ name: '/settings' }"
       :aria-label="$t('title.settings')"
       data-testid="settings"

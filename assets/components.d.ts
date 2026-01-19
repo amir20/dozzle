@@ -88,6 +88,7 @@ declare module 'vue' {
     'Mdi:announcement': typeof import('~icons/mdi/announcement')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:beer': typeof import('~icons/mdi/beer')['default']
+    'Mdi:bell': typeof import('~icons/mdi/bell')['default']
     'Mdi:bellOutline': typeof import('~icons/mdi/bell-outline')['default']
     'Mdi:check': typeof import('~icons/mdi/check')['default']
     'Mdi:chevronDoubleDown': typeof import('~icons/mdi/chevron-double-down')['default']
