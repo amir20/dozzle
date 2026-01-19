@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-100 w-72">
+  <div class="card bg-base-100">
     <div class="card-body gap-2 p-4">
       <div class="flex items-start gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-lg">
