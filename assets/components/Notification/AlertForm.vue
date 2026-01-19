@@ -23,7 +23,7 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Container Filter</legend>
       <div
-        class="input focus-within:input-primary w-full"
+        class="input focus-within:input-primary w-full focus-within:z-50"
         :class="
           containerExpression.trim() && !containerResult?.error
             ? 'input-primary'
@@ -50,7 +50,7 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Log Filter</legend>
       <div
-        class="input focus-within:input-primary w-full"
+        class="input focus-within:input-primary w-full focus-within:z-50"
         :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
       >
         <div ref="logEditorRef" class="w-full"></div>

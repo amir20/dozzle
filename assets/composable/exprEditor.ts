@@ -61,7 +61,6 @@ export function createLogHints(): Completion[] {
     ...exprOperators,
     { label: '"error"', detail: "level value", type: "string" },
     { label: '"warn"', detail: "level value", type: "string" },
-    { label: '"warning"', detail: "level value", type: "string" },
     { label: '"info"', detail: "level value", type: "string" },
     { label: '"debug"', detail: "level value", type: "string" },
     { label: '"trace"', detail: "level value", type: "string" },
