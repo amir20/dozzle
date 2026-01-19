@@ -158,19 +158,6 @@ func createRouter(h *handler) *chi.Mux {
 				if log.Debug().Enabled() {
 					r.Get("/debug/store", h.debugStore)
 				}
-				// Notification routes
-				r.Route("/notifications", func(r chi.Router) {
-					r.Get("/subscriptions", h.listSubscriptions)
-					r.Post("/subscriptions", h.createSubscription)
-					r.Put("/subscriptions/{id}", h.replaceSubscription)
-					r.Delete("/subscriptions/{id}", h.deleteSubscription)
-					r.Patch("/subscriptions/{id}", h.updateSubscription)
-					r.Get("/dispatchers", h.listDispatchers)
-					r.Post("/dispatchers", h.createDispatcher)
-					r.Put("/dispatchers/{id}", h.updateDispatcher)
-					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
-					r.Post("/preview", h.previewExpression)
-				})
 
 				// GraphQL endpoint
 				r.Handle("/graphql", h.graphqlHandler())

@@ -132,7 +132,13 @@ import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/mod
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 
-import type { Destination } from "./DestinationCard.vue";
+import { useQuery, useMutation } from "@urql/vue";
+import {
+  GetDispatchersDocument,
+  CreateNotificationRuleDocument,
+  ReplaceNotificationRuleDocument,
+  PreviewExpressionDocument,
+} from "@/types/graphql";
 
 export interface AlertData {
   id: number;
@@ -150,20 +156,13 @@ const { close, onCreated, alert } = defineProps<{
 
 const isEditing = computed(() => !!alert);
 
-// Fetch destinations
-const destinations = ref<Destination[]>([]);
+// GraphQL queries and mutations
+const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
+const createMutation = useMutation(CreateNotificationRuleDocument);
+const replaceMutation = useMutation(ReplaceNotificationRuleDocument);
+const previewMutation = useMutation(PreviewExpressionDocument);
 
-async function fetchDestinations() {
-  try {
-    const response = await fetch(withBase("/api/notifications/dispatchers"));
-    if (response.ok) {
-      destinations.value = await response.json();
-    }
-  } catch {
-    // Ignore fetch errors
-  }
-}
-fetchDestinations();
+const destinations = computed(() => dispatchersQuery.data.value?.dispatchers ?? []);
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
@@ -385,14 +384,6 @@ function selectDestination(id: number) {
   destinationDropdown.value?.removeAttribute("open");
 }
 
-interface PreviewResponse {
-  containerError?: string;
-  logError?: string;
-  matchedContainers?: ContainerJson[];
-  matchedLogs?: LogEvent[];
-  totalLogs: number;
-}
-
 interface ContainerResult {
   error?: string;
   containers?: Container[];
@@ -424,24 +415,20 @@ async function saveAlert() {
   saveError.value = null;
 
   try {
-    const url = isEditing.value
-      ? withBase(`/api/notifications/subscriptions/${alert!.id}`)
-      : withBase("/api/notifications/subscriptions");
+    const input = {
+      name: alertName.value.trim(),
+      containerExpression: containerExpression.value,
+      logExpression: logExpression.value,
+      dispatcherId: dispatcherId.value!,
+      enabled: true,
+    };
 
-    const response = await fetch(url, {
-      method: isEditing.value ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: alertName.value.trim(),
-        containerExpression: containerExpression.value,
-        logExpression: logExpression.value,
-        dispatcherId: dispatcherId.value,
-      }),
-    });
+    const result = isEditing.value
+      ? await replaceMutation.executeMutation({ id: alert!.id, input })
+      : await createMutation.executeMutation({ input });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || `HTTP ${response.status}`);
+    if (result.error) {
+      throw new Error(result.error.message);
     }
 
     onCreated?.();
@@ -465,26 +452,27 @@ async function validateExpressions() {
   isLoading.value = true;
 
   try {
-    const response = await fetch(withBase("/api/notifications/preview"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const result = await previewMutation.executeMutation({
+      input: {
         containerExpression: containerExpression.value,
-        logExpression: logExpression.value,
-      }),
+        logExpression: logExpression.value || undefined,
+      },
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (result.error) {
+      throw new Error(result.error.message);
     }
 
-    const data: PreviewResponse = await response.json();
+    const data = result.data?.previewExpression;
+    if (!data) {
+      throw new Error("No data returned");
+    }
 
     // Update container result
     if (containerExpression.value) {
       containerResult.value = {
-        error: data.containerError,
-        containers: data.matchedContainers?.map(Container.fromJSON),
+        error: data.containerError ?? undefined,
+        containers: data.matchedContainers?.map((c) => Container.fromJSON(c as ContainerJson)),
       };
     } else {
       containerResult.value = null;
@@ -494,7 +482,19 @@ async function validateExpressions() {
     if (logExpression.value && !data.containerError) {
       logError.value = data.logError ?? null;
       logTotalCount.value = data.totalLogs;
-      logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event)) ?? [];
+      logMessages.value =
+        data.matchedLogs?.map((event) =>
+          asLogEntry({
+            t: (event.type as LogEvent["t"]) ?? "single",
+            m: event.message as LogEvent["m"],
+            ts: event.timestamp,
+            id: event.id,
+            l: (event.level as LogEvent["l"]) ?? "unknown",
+            s: (event.stream as LogEvent["s"]) ?? "unknown",
+            c: "",
+            rm: "",
+          }),
+        ) ?? [];
     } else {
       logError.value = null;
       logTotalCount.value = 0;

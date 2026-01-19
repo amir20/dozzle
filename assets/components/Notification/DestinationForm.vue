@@ -80,18 +80,22 @@
 </template>
 
 <script lang="ts" setup>
-import type { Destination } from "./DestinationCard.vue";
+import { useMutation } from "@urql/vue";
+import { CreateDispatcherDocument, UpdateDispatcherDocument, type Dispatcher } from "@/types/graphql";
 
 const { close, onCreated, destination } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
-  destination?: Destination;
+  destination?: Dispatcher;
 }>();
+
+const createMutation = useMutation(CreateDispatcherDocument);
+const updateMutation = useMutation(UpdateDispatcherDocument);
 
 const isEditing = computed(() => !!destination);
 
 const name = ref(destination?.name ?? "");
-const type = ref<"webhook" | "cloud">(destination?.type ?? "webhook");
+const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
 const webhookUrl = ref(destination?.url ?? "");
 const isTesting = ref(false);
 const isSaving = ref(false);
@@ -125,23 +129,18 @@ async function saveDestination() {
   error.value = null;
 
   try {
-    const url = isEditing.value
-      ? withBase(`/api/notifications/dispatchers/${destination!.id}`)
-      : withBase("/api/notifications/dispatchers");
+    const input = {
+      name: name.value.trim(),
+      type: type.value,
+      url: type.value === "webhook" ? webhookUrl.value.trim() : undefined,
+    };
 
-    const response = await fetch(url, {
-      method: isEditing.value ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: name.value.trim(),
-        type: type.value,
-        url: type.value === "webhook" ? webhookUrl.value.trim() : undefined,
-      }),
-    });
+    const result = isEditing.value
+      ? await updateMutation.executeMutation({ id: destination!.id, input })
+      : await createMutation.executeMutation({ input });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || `HTTP ${response.status}`);
+    if (result.error) {
+      throw new Error(result.error.message);
     }
 
     onCreated?.();

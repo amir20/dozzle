@@ -12,11 +12,11 @@
         <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">Destinations</h3>
         <div class="flex flex-wrap gap-4">
           <DestinationCard
-            v-for="dest in destinations"
+            v-for="dest in dispatchers"
             :key="dest.id"
             :destination="dest"
             @edit="editDestination"
-            @delete="deleteDestination"
+            @delete="handleDeleteDispatcher"
           />
           <!-- Add Destination Card -->
           <button
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Alerts List -->
-        <div v-if="isLoading" class="flex justify-center py-8">
+        <div v-if="alertsQuery.fetching.value" class="flex justify-center py-8">
           <span class="loading loading-spinner loading-md"></span>
         </div>
         <div v-else-if="!alerts.length" class="text-base-content/60 py-4">
@@ -95,9 +95,9 @@
                 }}</code>
                 <span>Destination</span>
                 <span class="flex items-center gap-1.5">
-                  <mdi:webhook v-if="getDestinationById(alert.dispatcherId)?.type === 'webhook'" />
+                  <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
                   <mdi:cloud v-else />
-                  {{ getDestinationById(alert.dispatcherId)?.name || "Unknown" }}
+                  {{ alert.dispatcher.name }}
                 </span>
               </div>
 
@@ -125,7 +125,7 @@
                   </button>
                   <button
                     class="btn btn-ghost btn-square text-error"
-                    @click="deleteAlert(alert.id)"
+                    @click="handleDeleteAlert(alert.id)"
                     :disabled="deletingId === alert.id"
                   >
                     <span v-if="deletingId === alert.id" class="loading loading-spinner loading-xs"></span>
@@ -142,45 +142,47 @@
 </template>
 
 <script lang="ts" setup>
+import { useQuery, useMutation } from "@urql/vue";
+import {
+  GetNotificationRulesDocument,
+  GetDispatchersDocument,
+  DeleteNotificationRuleDocument,
+  UpdateNotificationRuleDocument,
+  DeleteDispatcherDocument,
+  type NotificationRule,
+  type Dispatcher,
+} from "@/types/graphql";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
-import DestinationCard, { type Destination } from "@/components/Notification/DestinationCard.vue";
-
-interface Alert {
-  id: number;
-  name: string;
-  enabled: boolean;
-  containerExpression: string;
-  logExpression: string;
-  triggerCount: number;
-  triggeredContainers: number;
-  lastTriggeredAt: string | null;
-  dispatcherId: number;
-}
+import DestinationCard from "@/components/Notification/DestinationCard.vue";
 
 const showDrawer = useDrawer();
 
-// Destinations state (mock data for now)
-const destinations = ref<Destination[]>([]);
+// GraphQL queries
+const alertsQuery = useQuery({ query: GetNotificationRulesDocument });
+const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
 
-// Alerts state (renamed from subscriptions)
-const alerts = ref<Alert[]>([]);
-const isLoading = ref(true);
+// GraphQL mutations
+const deleteAlertMutation = useMutation(DeleteNotificationRuleDocument);
+const updateAlertMutation = useMutation(UpdateNotificationRuleDocument);
+const deleteDispatcherMutation = useMutation(DeleteDispatcherDocument);
+
+// Computed data from queries
+const alerts = computed(() => alertsQuery.data.value?.notificationRules ?? []);
+const dispatchers = computed(() => dispatchersQuery.data.value?.dispatchers ?? []);
+
+// Local state
 const deletingId = ref<number | null>(null);
 const filter = ref<"all" | "enabled" | "paused">("all");
 
-const enabledCount = computed(() => alerts.value.filter((a) => a.enabled).length);
-const pausedCount = computed(() => alerts.value.filter((a) => !a.enabled).length);
+const enabledCount = computed(() => alerts.value.filter((a: NotificationRule) => a.enabled).length);
+const pausedCount = computed(() => alerts.value.filter((a: NotificationRule) => !a.enabled).length);
 
 const filteredAlerts = computed(() => {
-  if (filter.value === "enabled") return alerts.value.filter((a) => a.enabled);
-  if (filter.value === "paused") return alerts.value.filter((a) => !a.enabled);
+  if (filter.value === "enabled") return alerts.value.filter((a: NotificationRule) => a.enabled);
+  if (filter.value === "paused") return alerts.value.filter((a: NotificationRule) => !a.enabled);
   return alerts.value;
 });
-
-function getDestinationById(id: number): Destination | undefined {
-  return destinations.value.find((d) => d.id === id);
-}
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -188,84 +190,50 @@ function formatTimeAgo(dateStr: string): string {
   return toRelativeTime(date, undefined);
 }
 
-async function fetchAlerts() {
-  try {
-    const response = await fetch(withBase("/api/notifications/subscriptions"));
-    if (response.ok) {
-      alerts.value = await response.json();
-    }
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-async function deleteAlert(id: number) {
+async function handleDeleteAlert(id: number) {
   deletingId.value = id;
   try {
-    const response = await fetch(withBase(`/api/notifications/subscriptions/${id}`), {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      alerts.value = alerts.value.filter((a) => a.id !== id);
-    }
+    await deleteAlertMutation.executeMutation({ id });
+    alertsQuery.executeQuery({ requestPolicy: "network-only" });
   } finally {
     deletingId.value = null;
   }
 }
 
-async function toggleEnabled(alert: Alert) {
-  const newEnabled = !alert.enabled;
-  const response = await fetch(withBase(`/api/notifications/subscriptions/${alert.id}`), {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enabled: newEnabled }),
+async function toggleEnabled(alert: NotificationRule) {
+  await updateAlertMutation.executeMutation({
+    id: alert.id,
+    input: { enabled: !alert.enabled },
   });
-  if (response.ok) {
-    alert.enabled = newEnabled;
-  }
+  alertsQuery.executeQuery({ requestPolicy: "network-only" });
 }
 
-function editAlert(alert: Alert) {
-  showDrawer(AlertForm, { alert, onCreated: fetchAlerts }, "lg");
+function editAlert(alert: NotificationRule) {
+  showDrawer(AlertForm, { alert, onCreated: () => alertsQuery.executeQuery({ requestPolicy: "network-only" }) }, "lg");
 }
 
 function openCreateAlert() {
-  showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
-}
-
-// Destination functions
-async function fetchDestinations() {
-  try {
-    const response = await fetch(withBase("/api/notifications/dispatchers"));
-    if (response.ok) {
-      destinations.value = await response.json();
-    }
-  } catch {
-    // Ignore fetch errors
-  }
+  showDrawer(AlertForm, { onCreated: () => alertsQuery.executeQuery({ requestPolicy: "network-only" }) }, "lg");
 }
 
 function openAddDestination() {
-  showDrawer(DestinationForm, { onCreated: fetchDestinations }, "md");
+  showDrawer(
+    DestinationForm,
+    { onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
+    "md",
+  );
 }
 
-function editDestination(destination: Destination) {
-  showDrawer(DestinationForm, { destination, onCreated: fetchDestinations }, "md");
+function editDestination(destination: Dispatcher) {
+  showDrawer(
+    DestinationForm,
+    { destination, onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
+    "md",
+  );
 }
 
-async function deleteDestination(destination: Destination) {
-  try {
-    const response = await fetch(withBase(`/api/notifications/dispatchers/${destination.id}`), {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      destinations.value = destinations.value.filter((d) => d.id !== destination.id);
-    }
-  } catch {
-    // Ignore delete errors
-  }
+async function handleDeleteDispatcher(destination: Dispatcher) {
+  await deleteDispatcherMutation.executeMutation({ id: destination.id });
+  dispatchersQuery.executeQuery({ requestPolicy: "network-only" });
 }
-
-fetchAlerts();
-fetchDestinations();
 </script>

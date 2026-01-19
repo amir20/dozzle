@@ -30,19 +30,14 @@
 </template>
 
 <script lang="ts" setup>
-export interface Destination {
-  id: number;
-  name: string;
-  type: "webhook" | "cloud";
-  url?: string;
-}
+import type { Dispatcher } from "@/types/graphql";
 
 defineProps<{
-  destination: Destination;
+  destination: Dispatcher;
 }>();
 
 defineEmits<{
-  edit: [destination: Destination];
-  delete: [destination: Destination];
+  edit: [destination: Dispatcher];
+  delete: [destination: Dispatcher];
 }>();
 </script>
