@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 p-4">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold">Create Alert</h2>
+      <h2 class="text-2xl font-bold">{{ isEditing ? "Edit Alert" : "Create Alert" }}</h2>
       <p class="text-base-content/60">Subscribe to log events matching your criteria</p>
     </div>
 
@@ -11,7 +11,9 @@
       <input
         v-model="alertName"
         type="text"
-        class="input focus:input-primary w-full"
+        class="input w-full text-base"
+        :class="alertName.trim() ? 'input-primary' : ''"
+        required
         placeholder="e.g., Test API Errors"
       />
     </fieldset>
@@ -19,7 +21,14 @@
     <!-- Container Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Container Filter</legend>
-      <div class="input focus-within:input-primary w-full" :class="{ 'input-error!': containerResult?.error }">
+      <div
+        class="input w-full"
+        :class="
+          containerExpression.trim() && !containerResult?.error
+            ? 'input-primary'
+            : { 'input-error!': containerResult?.error }
+        "
+      >
         <div ref="containerEditorRef" class="w-full"></div>
       </div>
       <div v-if="containerResult" class="fieldset-label">
@@ -39,7 +48,10 @@
     <!-- Log Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Log Filter</legend>
-      <div class="input focus-within:input-primary w-full" :class="{ 'input-error!': logError }">
+      <div
+        class="input w-full"
+        :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
+      >
         <div ref="logEditorRef" class="w-full"></div>
       </div>
       <div v-if="logError || logExpression" class="fieldset-label">
@@ -55,6 +67,39 @@
       </div>
     </fieldset>
 
+    <!-- Destination -->
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend text-lg">Destination</legend>
+      <details class="dropdown w-full" ref="destinationDropdown">
+        <summary class="btn btn-outline w-full justify-between" :class="{ 'btn-primary': selectedDestination }">
+          <span class="flex items-center gap-2">
+            <template v-if="selectedDestination">
+              <mdi:webhook v-if="selectedDestination.type === 'webhook'" />
+              <mdi:cloud v-else />
+              {{ selectedDestination.name }}
+            </template>
+            <span v-else class="text-base-content/60">Select a destination</span>
+          </span>
+          <carbon:caret-down />
+        </summary>
+        <ul class="dropdown-content menu bg-base-200 rounded-box z-50 mt-1 w-full border p-2 shadow-sm">
+          <li v-for="dest in destinations" :key="dest.id">
+            <a @click="selectDestination(dest.id)" :class="{ active: dispatcherId === dest.id }">
+              <mdi:webhook v-if="dest.type === 'webhook'" />
+              <mdi:cloud v-else />
+              {{ dest.name }}
+            </a>
+          </li>
+        </ul>
+      </details>
+      <div v-if="!destinations.length" class="fieldset-label">
+        <span class="text-warning">
+          <mdi:alert class="inline" />
+          No destinations configured. Add one first.
+        </span>
+      </div>
+    </fieldset>
+
     <!-- Log Preview -->
     <div v-if="logMessages.length" class="mt-4">
       <div class="mb-2 text-lg">Preview</div>
@@ -66,16 +111,16 @@
     </div>
 
     <!-- Error -->
-    <div v-if="createError" class="alert alert-error">
-      <span>{{ createError }}</span>
+    <div v-if="saveError" class="alert alert-error">
+      <span>{{ saveError }}</span>
     </div>
 
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-4">
       <button class="btn" @click="close?.()">Cancel</button>
-      <button class="btn btn-primary" :disabled="!canCreate" @click="createAlert">
-        <span v-if="isCreating" class="loading loading-spinner loading-sm"></span>
-        Create Alert
+      <button class="btn btn-primary" :disabled="!canSave" @click="saveAlert">
+        <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
+        {{ isEditing ? "Save" : "Create Alert" }}
       </button>
     </div>
   </div>
@@ -87,7 +132,38 @@ import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/mod
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 
-const { close, onCreated } = defineProps<{ close?: () => void; onCreated?: () => void }>();
+import type { Destination } from "./DestinationCard.vue";
+
+export interface AlertData {
+  id: number;
+  name: string;
+  containerExpression: string;
+  logExpression: string;
+  dispatcherId: number;
+}
+
+const { close, onCreated, alert } = defineProps<{
+  close?: () => void;
+  onCreated?: () => void;
+  alert?: AlertData;
+}>();
+
+const isEditing = computed(() => !!alert);
+
+// Fetch destinations
+const destinations = ref<Destination[]>([]);
+
+async function fetchDestinations() {
+  try {
+    const response = await fetch(withBase("/api/notifications/dispatchers"));
+    if (response.ok) {
+      destinations.value = await response.json();
+    }
+  } catch {
+    // Ignore fetch errors
+  }
+}
+fetchDestinations();
 
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
@@ -267,9 +343,14 @@ const highlightStyle = HighlightStyle.define([
   },
 ]);
 
-function createEditorState(getHints: () => Completion[], placeholderText: string, onChange?: (value: string) => void) {
+function createEditorState(
+  getHints: () => Completion[],
+  placeholderText: string,
+  initialValue: string,
+  onChange?: (value: string) => void,
+) {
   return EditorState.create({
-    doc: "",
+    doc: initialValue,
     extensions: [
       EditorView.lineWrapping,
       placeholder(placeholderText),
@@ -292,9 +373,17 @@ function createEditorState(getHints: () => Completion[], placeholderText: string
 const containerEditorView = shallowRef<InstanceType<typeof EditorView>>();
 const logEditorView = shallowRef<InstanceType<typeof EditorView>>();
 
-const alertName = ref("");
-const containerExpression = ref("");
-const logExpression = ref("");
+const alertName = ref(alert?.name ?? "");
+const containerExpression = ref(alert?.containerExpression ?? "");
+const logExpression = ref(alert?.logExpression ?? "");
+const dispatcherId = ref(alert?.dispatcherId ?? 0);
+const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
+const destinationDropdown = ref<HTMLDetailsElement>();
+
+function selectDestination(id: number) {
+  dispatcherId.value = id;
+  destinationDropdown.value?.removeAttribute("open");
+}
 
 interface PreviewResponse {
   containerError?: string;
@@ -314,33 +403,39 @@ const logError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const isLoading = ref(false);
-const isCreating = ref(false);
-const createError = ref<string | null>(null);
+const isSaving = ref(false);
+const saveError = ref<string | null>(null);
 
-const canCreate = computed(() => {
+const canSave = computed(() => {
   return (
     alertName.value.trim() &&
     containerExpression.value.trim() &&
+    dispatcherId.value > 0 &&
     !containerResult.value?.error &&
     !logError.value &&
-    !isCreating.value
+    !isSaving.value
   );
 });
 
-async function createAlert() {
-  if (!canCreate.value) return;
+async function saveAlert() {
+  if (!canSave.value) return;
 
-  isCreating.value = true;
-  createError.value = null;
+  isSaving.value = true;
+  saveError.value = null;
 
   try {
-    const response = await fetch(withBase("/api/notifications/subscriptions"), {
-      method: "POST",
+    const url = isEditing.value
+      ? withBase(`/api/notifications/subscriptions/${alert!.id}`)
+      : withBase("/api/notifications/subscriptions");
+
+    const response = await fetch(url, {
+      method: isEditing.value ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: alertName.value.trim(),
         containerExpression: containerExpression.value,
         logExpression: logExpression.value,
+        dispatcherId: dispatcherId.value,
       }),
     });
 
@@ -352,9 +447,9 @@ async function createAlert() {
     onCreated?.();
     close?.();
   } catch (e) {
-    createError.value = e instanceof Error ? e.message : "Failed to create alert";
+    saveError.value = e instanceof Error ? e.message : "Failed to save alert";
   } finally {
-    isCreating.value = false;
+    isSaving.value = false;
   }
 }
 
@@ -424,7 +519,7 @@ watch([containerExpression, logExpression], () => {
 onMounted(() => {
   if (containerEditorRef.value) {
     containerEditorView.value = new EditorView({
-      state: createEditorState(createContainerHints, 'name contains "api"', (v) => {
+      state: createEditorState(createContainerHints, 'name contains "api"', alert?.containerExpression ?? "", (v) => {
         containerExpression.value = v;
       }),
       parent: containerEditorRef.value,
@@ -434,9 +529,14 @@ onMounted(() => {
 
   if (logEditorRef.value) {
     logEditorView.value = new EditorView({
-      state: createEditorState(createLogHints, 'level == "error" && message contains "timeout"', (v) => {
-        logExpression.value = v;
-      }),
+      state: createEditorState(
+        createLogHints,
+        'level == "error" && message contains "timeout"',
+        alert?.logExpression ?? "",
+        (v) => {
+          logExpression.value = v;
+        },
+      ),
       parent: logEditorRef.value,
     });
   }

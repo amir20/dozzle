@@ -8,7 +8,12 @@
     <!-- Name -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Name</legend>
-      <input v-model="name" type="text" class="input focus:input-primary w-full" placeholder="e.g., Production Slack" />
+      <input
+        v-model="name"
+        type="text"
+        class="input focus:input-primary w-full text-base"
+        placeholder="e.g., Production Slack"
+      />
     </fieldset>
 
     <!-- Type Selection -->
@@ -48,7 +53,7 @@
       <input
         v-model="webhookUrl"
         type="url"
-        class="input focus:input-primary w-full"
+        class="input focus:input-primary w-full text-base"
         placeholder="https://hooks.foo.com/services/..."
       />
     </fieldset>

@@ -117,6 +117,49 @@ func (m *Manager) RemoveSubscription(id int) {
 	}
 }
 
+// ReplaceSubscription replaces a subscription with new data
+func (m *Manager) ReplaceSubscription(sub *Subscription) error {
+	// Compile container expression if provided
+	if sub.ContainerExpression != "" {
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile container expression: %w", err)
+		}
+		sub.ContainerProgram = program
+	}
+
+	// Compile log expression if provided
+	if sub.LogExpression != "" {
+		program, err := expr.Compile(sub.LogExpression, expr.Env(Log{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile log expression: %w", err)
+		}
+		sub.LogProgram = program
+	}
+
+	// Preserve enabled state from existing subscription if it exists
+	if existing, ok := m.subscriptions.Load(sub.ID); ok {
+		sub.Enabled = existing.Enabled
+		sub.TriggerCount = existing.TriggerCount
+		sub.LastTriggeredAt = existing.LastTriggeredAt
+		sub.TriggeredContainerIDs = existing.TriggeredContainerIDs
+	} else {
+		sub.Enabled = true
+	}
+
+	m.subscriptions.Store(sub.ID, sub)
+	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Replaced subscription")
+
+	// Update listener to start/stop streams based on new subscription
+	if m.listener != nil {
+		if err := m.listener.UpdateStreams(); err != nil {
+			log.Error().Err(err).Msg("Failed to update listener streams")
+		}
+	}
+
+	return nil
+}
+
 // UpdateSubscription updates a subscription with the provided fields
 func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 	sub, ok := m.subscriptions.Load(id)
@@ -283,11 +326,10 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			Timestamp: time.Now(),
 		}
 
-		// Send to all dispatchers
-		m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
-			go m.sendNotification(d, notification, id)
-			return true
-		})
+		// Send to the subscription's dispatcher
+		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+			go m.sendNotification(d, notification, sub.DispatcherID)
+		}
 		return true
 	})
 }

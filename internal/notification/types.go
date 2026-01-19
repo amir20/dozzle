@@ -90,6 +90,7 @@ type Subscription struct {
 	ID                  int         `json:"id" yaml:"id"`
 	Name                string      `json:"name" yaml:"name"`
 	Enabled             bool        `json:"enabled" yaml:"enabled"`
+	DispatcherID        int         `json:"dispatcherId" yaml:"dispatcherId"`
 	LogExpression       string      `json:"logExpression" yaml:"logExpression"`
 	LogProgram          *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
 	ContainerExpression string      `json:"containerExpression" yaml:"containerExpression"`

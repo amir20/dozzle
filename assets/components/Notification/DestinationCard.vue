@@ -2,11 +2,8 @@
   <div class="card bg-base-100 w-72">
     <div class="card-body gap-2 p-4">
       <div class="flex items-start gap-3">
-        <div
-          class="flex h-10 w-10 items-center justify-center rounded-lg"
-          :class="destination.type === 'webhook' ? 'bg-base-300' : 'bg-primary'"
-        >
-          <ph:link-simple-bold v-if="destination.type === 'webhook'" class="text-lg" />
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg">
+          <mdi:webhook v-if="destination.type === 'webhook'" class="text-lg" />
           <mdi:cloud v-else class="text-primary-content text-lg" />
         </div>
         <div class="flex-1">

@@ -267,6 +267,15 @@ func (m *MultiHostService) RemoveDispatcher(id int) {
 	m.saveNotificationConfig()
 }
 
+// ReplaceSubscription replaces a subscription with new data
+func (m *MultiHostService) ReplaceSubscription(sub *notification.Subscription) error {
+	if err := m.notificationManager.ReplaceSubscription(sub); err != nil {
+		return err
+	}
+	m.saveNotificationConfig()
+	return nil
+}
+
 // UpdateSubscription updates a subscription with the provided fields
 func (m *MultiHostService) UpdateSubscription(id int, updates map[string]any) error {
 	if err := m.notificationManager.UpdateSubscription(id, updates); err != nil {

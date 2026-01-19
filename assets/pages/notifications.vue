@@ -95,13 +95,9 @@
                 }}</code>
                 <span>Destination</span>
                 <span class="flex items-center gap-1.5">
-                  <span
-                    class="inline-block h-2 w-2 rounded-full"
-                    :class="
-                      getDestinationById(alert.destinationId)?.type === 'cloud' ? 'bg-primary' : 'bg-base-content'
-                    "
-                  ></span>
-                  {{ getDestinationById(alert.destinationId)?.name || "Unknown" }}
+                  <mdi:webhook v-if="getDestinationById(alert.dispatcherId)?.type === 'webhook'" />
+                  <mdi:cloud v-else />
+                  {{ getDestinationById(alert.dispatcherId)?.name || "Unknown" }}
                 </span>
               </div>
 
@@ -159,7 +155,7 @@ interface Alert {
   triggerCount: number;
   triggeredContainers: number;
   lastTriggeredAt: string | null;
-  destinationId: number;
+  dispatcherId: number;
 }
 
 const showDrawer = useDrawer();
@@ -219,21 +215,18 @@ async function deleteAlert(id: number) {
 
 async function toggleEnabled(alert: Alert) {
   const newEnabled = !alert.enabled;
-  alert.enabled = newEnabled; // Optimistic update
-  try {
-    await fetch(withBase(`/api/notifications/subscriptions/${alert.id}`), {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: newEnabled }),
-    });
-  } catch {
-    alert.enabled = !newEnabled; // Revert on error
+  const response = await fetch(withBase(`/api/notifications/subscriptions/${alert.id}`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled: newEnabled }),
+  });
+  if (response.ok) {
+    alert.enabled = newEnabled;
   }
 }
 
 function editAlert(alert: Alert) {
-  // TODO: Open edit drawer
-  console.log("Edit alert", alert.id);
+  showDrawer(AlertForm, { alert, onCreated: fetchAlerts }, "lg");
 }
 
 function openCreateAlert() {

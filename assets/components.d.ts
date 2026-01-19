@@ -11,7 +11,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddDestination: typeof import('./components/Notification/AddDestination.vue')['default']
     AlertForm: typeof import('./components/Notification/AlertForm.vue')['default']
     Announcements: typeof import('./components/Announcements.vue')['default']
     BarChart: typeof import('./components/BarChart.vue')['default']
@@ -42,7 +41,6 @@ declare module 'vue' {
     ContainerStatCell: typeof import('./components/ContainerStatCell.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
-    CreateAlert: typeof import('./components/Notification/CreateAlert.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DestinationCard: typeof import('./components/Notification/DestinationCard.vue')['default']
     DestinationForm: typeof import('./components/Notification/DestinationForm.vue')['default']
@@ -99,7 +97,6 @@ declare module 'vue' {
     'Mdi:close': typeof import('~icons/mdi/close')['default']
     'Mdi:cloud': typeof import('~icons/mdi/cloud')['default']
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
-    'Mdi:delete': typeof import('~icons/mdi/delete')['default']
     'Mdi:deleteOutline': typeof import('~icons/mdi/delete-outline')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
     'Mdi:gauge': typeof import('~icons/mdi/gauge')['default']
@@ -116,6 +113,7 @@ declare module 'vue' {
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     'Mdi:trashCan': typeof import('~icons/mdi/trash-can')['default']
     'Mdi:trashCanOutline': typeof import('~icons/mdi/trash-can-outline')['default']
+    'Mdi:webhook': typeof import('~icons/mdi/webhook')['default']
     MetricCard: typeof import('./components/MetricCard.vue')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']
