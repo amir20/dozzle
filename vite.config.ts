@@ -28,6 +28,7 @@ export default defineConfig(() => ({
       polyfill: false,
     },
     target: "esnext",
+    chunkSizeWarningLimit: 600,
   },
   plugins: [
     VueRouter({
