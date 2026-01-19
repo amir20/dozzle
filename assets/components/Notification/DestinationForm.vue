@@ -9,9 +9,12 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Name</legend>
       <input
+        ref="nameInput"
         v-model="name"
         type="text"
         class="input focus:input-primary w-full text-base"
+        required
+        :class="{ 'input-primary': name.trim().length > 0 }"
         placeholder="e.g., Production Slack"
       />
     </fieldset>
@@ -53,7 +56,7 @@
       <input
         v-model="webhookUrl"
         type="url"
-        class="input focus:input-primary w-full text-base"
+        class="input focus:input-primary validator valid:input-primary w-full text-base"
         placeholder="https://hooks.foo.com/services/..."
       />
     </fieldset>
@@ -94,7 +97,9 @@ const updateMutation = useMutation(UpdateDispatcherDocument);
 
 const isEditing = computed(() => !!destination);
 
+const nameInput = ref<HTMLInputElement>();
 const name = ref(destination?.name ?? "");
+useFocus(nameInput, { initialValue: true });
 const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
 const webhookUrl = ref(destination?.url ?? "");
 const isTesting = ref(false);

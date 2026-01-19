@@ -9,9 +9,10 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Alert Name</legend>
       <input
+        ref="alertNameInput"
         v-model="alertName"
         type="text"
-        class="input w-full text-base"
+        class="input focus:input-primary w-full text-base"
         :class="alertName.trim() ? 'input-primary' : ''"
         required
         placeholder="e.g., Test API Errors"
@@ -22,7 +23,7 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Container Filter</legend>
       <div
-        class="input w-full"
+        class="input focus-within:input-primary w-full"
         :class="
           containerExpression.trim() && !containerResult?.error
             ? 'input-primary'
@@ -49,7 +50,7 @@
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">Log Filter</legend>
       <div
-        class="input w-full"
+        class="input focus-within:input-primary w-full"
         :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
       >
         <div ref="logEditorRef" class="w-full"></div>
@@ -372,7 +373,9 @@ function createEditorState(
 const containerEditorView = shallowRef<InstanceType<typeof EditorView>>();
 const logEditorView = shallowRef<InstanceType<typeof EditorView>>();
 
+const alertNameInput = ref<HTMLInputElement>();
 const alertName = ref(alert?.name ?? "");
+useFocus(alertNameInput, { initialValue: true });
 const containerExpression = ref(alert?.containerExpression ?? "");
 const logExpression = ref(alert?.logExpression ?? "");
 const dispatcherId = ref(alert?.dispatcherId ?? 0);
@@ -524,7 +527,6 @@ onMounted(() => {
       }),
       parent: containerEditorRef.value,
     });
-    containerEditorView.value.focus();
   }
 
   if (logEditorRef.value) {
