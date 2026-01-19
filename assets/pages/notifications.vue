@@ -55,10 +55,7 @@
         </div>
 
         <!-- Alerts List -->
-        <div v-if="alertsQuery.fetching.value" class="flex justify-center py-8">
-          <span class="loading loading-spinner loading-md"></span>
-        </div>
-        <div v-else-if="!alerts.length" class="text-base-content/60 py-4">
+        <div v-if="!alerts.length" class="text-base-content/60 py-4">
           No alerts configured yet. Create one to get started.
         </div>
         <div v-else class="space-y-4">
@@ -73,7 +70,7 @@
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-2">
                   <h4 class="text-lg font-semibold">{{ alert.name }}</h4>
-                  <span v-if="!alert.enabled" class="badge badge-ghost badge-sm">Paused</span>
+                  <span v-if="!alert.enabled" class="badge badge-warning badge-sm">Paused</span>
                 </div>
                 <input
                   type="checkbox"
