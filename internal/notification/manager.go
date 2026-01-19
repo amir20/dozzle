@@ -349,27 +349,9 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notific
 // WriteConfig writes the current configuration to a writer in YAML format
 func (m *Manager) WriteConfig(w io.Writer) error {
 	config := Config{
-		Subscriptions: make([]*Subscription, 0),
-		Dispatchers:   make([]DispatcherConfig, 0),
+		Subscriptions: m.Subscriptions(),
+		Dispatchers:   m.Dispatchers(),
 	}
-
-	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
-		config.Subscriptions = append(config.Subscriptions, sub)
-		return true
-	})
-
-	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
-		switch v := d.(type) {
-		case *dispatcher.WebhookDispatcher:
-			config.Dispatchers = append(config.Dispatchers, DispatcherConfig{
-				ID:   id,
-				Name: v.Name,
-				Type: "webhook",
-				URL:  v.URL,
-			})
-		}
-		return true
-	})
 
 	encoder := yaml.NewEncoder(w)
 	defer encoder.Close()
