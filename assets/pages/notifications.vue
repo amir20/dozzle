@@ -11,13 +11,7 @@
       <div class="mb-8">
         <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">Destinations</h3>
         <div class="flex flex-wrap gap-4">
-          <DestinationCard
-            v-for="dest in dispatchers"
-            :key="dest.id"
-            :destination="dest"
-            @edit="editDestination"
-            @delete="handleDeleteDispatcher"
-          />
+          <DestinationCard v-for="dest in dispatchers" :key="dest.id" :destination="dest" />
           <!-- Add Destination Card -->
           <button
             class="card card-border border-base-content/30 hover:border-base-content/50 w-72 cursor-pointer border-dashed transition-colors"
@@ -145,9 +139,7 @@ import {
   GetDispatchersDocument,
   DeleteNotificationRuleDocument,
   UpdateNotificationRuleDocument,
-  DeleteDispatcherDocument,
   type NotificationRule,
-  type Dispatcher,
 } from "@/types/graphql";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
@@ -162,7 +154,6 @@ const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
 // GraphQL mutations
 const deleteAlertMutation = useMutation(DeleteNotificationRuleDocument);
 const updateAlertMutation = useMutation(UpdateNotificationRuleDocument);
-const deleteDispatcherMutation = useMutation(DeleteDispatcherDocument);
 
 // Computed data from queries
 const alerts = computed(() => alertsQuery.data.value?.notificationRules ?? []);
@@ -219,18 +210,5 @@ function openAddDestination() {
     { onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
     "md",
   );
-}
-
-function editDestination(destination: Dispatcher) {
-  showDrawer(
-    DestinationForm,
-    { destination, onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
-    "md",
-  );
-}
-
-async function handleDeleteDispatcher(destination: Dispatcher) {
-  await deleteDispatcherMutation.executeMutation({ id: destination.id });
-  dispatchersQuery.executeQuery({ requestPolicy: "network-only" });
 }
 </script>

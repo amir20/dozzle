@@ -27,10 +27,13 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
+  const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDrawer: typeof import('./composable/drawer').createDrawer
   const createEventHook: typeof import('@vueuse/core').createEventHook
+  const createExprEditor: typeof import('./composable/exprEditor').createExprEditor
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
+  const createLogHints: typeof import('./composable/exprEditor').createLogHints
   const createPinia: typeof import('pinia').createPinia
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef

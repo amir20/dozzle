@@ -20,8 +20,8 @@
             tabindex="0"
             class="menu dropdown-content rounded-box bg-base-100 border-base-content/20 z-50 w-40 border p-1 shadow-sm"
           >
-            <li><a @click="$emit('edit', destination)">Edit</a></li>
-            <li><a class="text-error" @click="$emit('delete', destination)">Delete</a></li>
+            <li><a @click="editDestination">Edit</a></li>
+            <li><a class="text-error" @click="deleteDestination">Delete</a></li>
           </ul>
         </div>
       </div>
@@ -30,14 +30,31 @@
 </template>
 
 <script lang="ts" setup>
-import type { Dispatcher } from "@/types/graphql";
+import { useMutation, useQuery } from "@urql/vue";
+import { DeleteDispatcherDocument, GetDispatchersDocument, type Dispatcher } from "@/types/graphql";
+import DestinationForm from "./DestinationForm.vue";
 
-defineProps<{
+const { destination } = defineProps<{
   destination: Dispatcher;
 }>();
 
-defineEmits<{
-  edit: [destination: Dispatcher];
-  delete: [destination: Dispatcher];
-}>();
+const showDrawer = useDrawer();
+const deleteMutation = useMutation(DeleteDispatcherDocument);
+const dispatchersQuery = useQuery({ query: GetDispatchersDocument, pause: true });
+
+function editDestination() {
+  showDrawer(
+    DestinationForm,
+    {
+      destination,
+      onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+    },
+    "md",
+  );
+}
+
+async function deleteDestination() {
+  await deleteMutation.executeMutation({ id: destination.id });
+  dispatchersQuery.executeQuery({ requestPolicy: "network-only" });
+}
 </script>
