@@ -232,13 +232,13 @@ func (m *Manager) RemoveDispatcher(id int) {
 }
 
 // Subscriptions returns all subscriptions sorted by ID
-func (m *Manager) Subscriptions() []Subscription {
-	result := make([]Subscription, 0)
+func (m *Manager) Subscriptions() []*Subscription {
+	result := make([]*Subscription, 0)
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
-		result = append(result, *sub)
+		result = append(result, sub)
 		return true
 	})
-	slices.SortFunc(result, func(a, b Subscription) int {
+	slices.SortFunc(result, func(a, b *Subscription) int {
 		return a.ID - b.ID
 	})
 	return result
@@ -349,12 +349,12 @@ func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notific
 // WriteConfig writes the current configuration to a writer in YAML format
 func (m *Manager) WriteConfig(w io.Writer) error {
 	config := Config{
-		Subscriptions: make([]Subscription, 0),
+		Subscriptions: make([]*Subscription, 0),
 		Dispatchers:   make([]DispatcherConfig, 0),
 	}
 
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
-		config.Subscriptions = append(config.Subscriptions, *sub)
+		config.Subscriptions = append(config.Subscriptions, sub)
 		return true
 	})
 
@@ -403,8 +403,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 
 	// Load subscriptions
 	for _, sub := range config.Subscriptions {
-		subCopy := sub
-		if err := m.loadSubscription(&subCopy); err != nil {
+		if err := m.loadSubscription(sub); err != nil {
 			return fmt.Errorf("failed to add subscription %s: %w", sub.Name, err)
 		}
 	}

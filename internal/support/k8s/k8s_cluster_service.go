@@ -156,8 +156,8 @@ func (m *K8sClusterService) UpdateSubscription(id int, updates map[string]any) e
 	return fmt.Errorf("notifications not supported in k8s mode")
 }
 
-func (m *K8sClusterService) Subscriptions() []notification.Subscription {
-	return []notification.Subscription{}
+func (m *K8sClusterService) Subscriptions() []*notification.Subscription {
+	return []*notification.Subscription{}
 }
 
 func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) int {

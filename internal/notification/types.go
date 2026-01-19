@@ -132,7 +132,7 @@ type DispatcherConfig struct {
 
 // Config represents the persisted notification configuration
 type Config struct {
-	Subscriptions []Subscription     `json:"subscriptions" yaml:"subscriptions"`
+	Subscriptions []*Subscription    `json:"subscriptions" yaml:"subscriptions"`
 	Dispatchers   []DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
 }
 

@@ -81,7 +81,7 @@ func (r *mutationResolver) UpdateNotificationRule(ctx context.Context, id int32,
 	dispatchers := r.HostService.Dispatchers()
 	for _, sub := range r.HostService.Subscriptions() {
 		if sub.ID == int(id) {
-			return subscriptionToNotificationRule(&sub, dispatchers), nil
+			return subscriptionToNotificationRule(sub, dispatchers), nil
 		}
 	}
 
@@ -276,7 +276,7 @@ func (r *queryResolver) NotificationRules(ctx context.Context) ([]*model.Notific
 	dispatchers := r.HostService.Dispatchers()
 	rules := make([]*model.NotificationRule, len(subscriptions))
 	for i, sub := range subscriptions {
-		rules[i] = subscriptionToNotificationRule(&sub, dispatchers)
+		rules[i] = subscriptionToNotificationRule(sub, dispatchers)
 	}
 	return rules, nil
 }
@@ -286,7 +286,7 @@ func (r *queryResolver) NotificationRule(ctx context.Context, id int32) (*model.
 	dispatchers := r.HostService.Dispatchers()
 	for _, sub := range r.HostService.Subscriptions() {
 		if sub.ID == int(id) {
-			return subscriptionToNotificationRule(&sub, dispatchers), nil
+			return subscriptionToNotificationRule(sub, dispatchers), nil
 		}
 	}
 	return nil, nil

@@ -286,7 +286,7 @@ func (m *MultiHostService) UpdateSubscription(id int, updates map[string]any) er
 }
 
 // Subscriptions returns all subscriptions
-func (m *MultiHostService) Subscriptions() []notification.Subscription {
+func (m *MultiHostService) Subscriptions() []*notification.Subscription {
 	return m.notificationManager.Subscriptions()
 }
 

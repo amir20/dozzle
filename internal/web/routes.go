@@ -80,7 +80,7 @@ type HostService interface {
 	RemoveSubscription(id int)
 	ReplaceSubscription(sub *notification.Subscription) error
 	UpdateSubscription(id int, updates map[string]any) error
-	Subscriptions() []notification.Subscription
+	Subscriptions() []*notification.Subscription
 	AddDispatcher(d dispatcher.Dispatcher) int
 	UpdateDispatcher(id int, d dispatcher.Dispatcher)
 	RemoveDispatcher(id int)

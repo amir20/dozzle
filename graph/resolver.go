@@ -13,7 +13,7 @@ import (
 
 type HostService interface {
 	// Notification rules (subscriptions)
-	Subscriptions() []notification.Subscription
+	Subscriptions() []*notification.Subscription
 	AddSubscription(sub *notification.Subscription) error
 	ReplaceSubscription(sub *notification.Subscription) error
 	UpdateSubscription(id int, updates map[string]any) error
