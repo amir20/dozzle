@@ -112,6 +112,8 @@ declare module 'vue' {
     'Mdi:pencilOutline': typeof import('~icons/mdi/pencil-outline')['default']
     'Mdi:plus': typeof import('~icons/mdi/plus')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
+    'Mdi:trashCan': typeof import('~icons/mdi/trash-can')['default']
+    'Mdi:trashCanOutline': typeof import('~icons/mdi/trash-can-outline')['default']
     MetricCard: typeof import('./components/MetricCard.vue')['default']
     MobileMenu: typeof import('./components/common/MobileMenu.vue')['default']
     MultiContainerActionToolbar: typeof import('./components/LogViewer/MultiContainerActionToolbar.vue')['default']

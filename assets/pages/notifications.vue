@@ -133,7 +133,7 @@
                     :disabled="deletingId === alert.id"
                   >
                     <span v-if="deletingId === alert.id" class="loading loading-spinner loading-xs"></span>
-                    <mdi:close v-else />
+                    <mdi:trash-can-outline v-else />
                   </button>
                 </div>
               </div>
