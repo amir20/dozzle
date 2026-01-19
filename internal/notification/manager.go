@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"sync/atomic"
 	"time"
 
@@ -230,17 +231,20 @@ func (m *Manager) RemoveDispatcher(id int) {
 	}
 }
 
-// Subscriptions returns all subscriptions
+// Subscriptions returns all subscriptions sorted by ID
 func (m *Manager) Subscriptions() []Subscription {
 	result := make([]Subscription, 0)
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		result = append(result, *sub)
 		return true
 	})
+	slices.SortFunc(result, func(a, b Subscription) int {
+		return a.ID - b.ID
+	})
 	return result
 }
 
-// Dispatchers returns all dispatchers as DispatcherConfig
+// Dispatchers returns all dispatchers as DispatcherConfig sorted by ID
 func (m *Manager) Dispatchers() []DispatcherConfig {
 	result := make([]DispatcherConfig, 0)
 	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
@@ -254,6 +258,9 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 			})
 		}
 		return true
+	})
+	slices.SortFunc(result, func(a, b DispatcherConfig) int {
+		return a.ID - b.ID
 	})
 	return result
 }
