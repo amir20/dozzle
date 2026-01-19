@@ -56,7 +56,8 @@
       <input
         v-model="webhookUrl"
         type="url"
-        class="input focus:input-primary validator valid:input-primary w-full text-base"
+        class="input focus:input-primary w-full text-base"
+        :class="{ 'input-primary': isValidUrl, 'input-error': webhookUrl.trim() && !isValidUrl }"
         placeholder="https://hooks.foo.com/services/..."
       />
     </fieldset>
@@ -113,10 +114,19 @@ const canTest = computed(() => {
   return false;
 });
 
+const isValidUrl = computed(() => {
+  try {
+    new URL(webhookUrl.value.trim());
+    return true;
+  } catch {
+    return false;
+  }
+});
+
 const canSave = computed(() => {
   if (isSaving.value) return false;
   if (!name.value.trim()) return false;
-  if (type.value === "webhook" && !webhookUrl.value.trim()) return false;
+  if (type.value === "webhook" && !isValidUrl.value) return false;
   return true;
 });
 
