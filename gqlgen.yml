@@ -172,3 +172,6 @@ models:
   LogEvent:
     model:
       - github.com/amir20/dozzle/internal/container.LogEvent
+  Release:
+    model:
+      - github.com/amir20/dozzle/internal/releases.Release

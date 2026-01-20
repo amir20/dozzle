@@ -56,6 +56,19 @@ type PreviewResult {
   totalLogs: Int!
 }
 
+type Release {
+  name: String!
+  mentionsCount: Int!
+  tag: String!
+  body: String!
+  createdAt: Time!
+  htmlUrl: String!
+  latest: Boolean!
+  features: Int!
+  bugFixes: Int!
+  breaking: Int!
+}
+
 # Inputs
 input NotificationRuleInput {
   name: String!
@@ -90,6 +103,7 @@ type Query {
   notificationRule(id: Int!): NotificationRule
   dispatchers: [Dispatcher!]!
   dispatcher(id: Int!): Dispatcher
+  releases: [Release!]!
 }
 
 # Mutations

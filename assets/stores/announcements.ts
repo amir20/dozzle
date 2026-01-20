@@ -1,15 +1,9 @@
-type Announcement = {
-  name: string;
+import { client } from "@/modules/urql";
+import { GetReleasesDocument, type Release } from "@/types/graphql";
+
+type Announcement = Omit<Release, "createdAt"> & {
   announcement: boolean;
   createdAt: Date;
-  body: string;
-  tag: string;
-  htmlUrl: string;
-  latest: boolean;
-  mentionsCount: number;
-  features: number;
-  bugFixes: number;
-  breaking: number;
 };
 
 const releases = ref<Announcement[]>([]);
@@ -20,8 +14,13 @@ async function fetchReleases() {
   fetched = true;
 
   try {
-    const { data } = await useFetch(withBase("/api/releases")).get().json<Announcement[]>();
-    releases.value = data.value || [];
+    const { data } = await client.query(GetReleasesDocument, {});
+    releases.value =
+      data?.releases?.map((r) => ({
+        ...r,
+        createdAt: new Date(r.createdAt),
+        announcement: false,
+      })) || [];
   } catch (error) {
     console.error("Error while fetching releases:\n", error);
     fetched = false;
@@ -35,10 +34,7 @@ if (config.releaseCheckMode === "automatic") {
 const otherAnnouncements = [] as Announcement[];
 
 const announcements = computed(() => {
-  const newReleases =
-    releases.value?.map((release) => ({ ...release, createdAt: new Date(release.createdAt), announcement: false })) ??
-    [];
-  return [...newReleases, ...otherAnnouncements].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  return [...releases.value, ...otherAnnouncements].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 });
 
 const mostRecent = computed(() => announcements.value?.[0]);
