@@ -427,7 +427,11 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		var d dispatcher.Dispatcher
 		switch dispatcherConfig.Type {
 		case "webhook":
-			d = dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL)
+			webhook, err := dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL, dispatcherConfig.Template)
+			if err != nil {
+				return fmt.Errorf("failed to create webhook dispatcher %s: %w", dispatcherConfig.Name, err)
+			}
+			d = webhook
 		default:
 			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
 		}

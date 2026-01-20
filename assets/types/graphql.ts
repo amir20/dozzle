@@ -38,12 +38,14 @@ export type Dispatcher = {
   __typename?: 'Dispatcher';
   id: Scalars['Int']['output'];
   name: Scalars['String']['output'];
+  template?: Maybe<Scalars['String']['output']>;
   type: Scalars['String']['output'];
   url?: Maybe<Scalars['String']['output']>;
 };
 
 export type DispatcherInput = {
   name: Scalars['String']['input'];
+  template?: InputMaybe<Scalars['String']['input']>;
   type: Scalars['String']['input'];
   url?: InputMaybe<Scalars['String']['input']>;
 };

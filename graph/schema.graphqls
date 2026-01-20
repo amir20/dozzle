@@ -46,6 +46,7 @@ type Dispatcher {
   name: String!
   type: String!
   url: String
+  template: String
 }
 
 type PreviewResult {
@@ -90,6 +91,7 @@ input DispatcherInput {
   name: String!
   type: String!
   url: String
+  template: String
 }
 
 input PreviewInput {

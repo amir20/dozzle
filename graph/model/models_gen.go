@@ -9,16 +9,18 @@ import (
 )
 
 type Dispatcher struct {
-	ID   int32   `json:"id"`
-	Name string  `json:"name"`
-	Type string  `json:"type"`
-	URL  *string `json:"url,omitempty"`
+	ID       int32   `json:"id"`
+	Name     string  `json:"name"`
+	Type     string  `json:"type"`
+	URL      *string `json:"url,omitempty"`
+	Template *string `json:"template,omitempty"`
 }
 
 type DispatcherInput struct {
-	Name string  `json:"name"`
-	Type string  `json:"type"`
-	URL  *string `json:"url,omitempty"`
+	Name     string  `json:"name"`
+	Type     string  `json:"type"`
+	URL      *string `json:"url,omitempty"`
+	Template *string `json:"template,omitempty"`
 }
 
 type Mutation struct {

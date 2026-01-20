@@ -122,7 +122,15 @@ func (r *mutationResolver) CreateDispatcher(ctx context.Context, input model.Dis
 		if input.URL != nil {
 			url = *input.URL
 		}
-		d = dispatcher.NewWebhookDispatcher(input.Name, url)
+		templateStr := ""
+		if input.Template != nil {
+			templateStr = *input.Template
+		}
+		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr)
+		if err != nil {
+			return nil, &Error{Message: err.Error()}
+		}
+		d = webhook
 	default:
 		return nil, &Error{Message: "unknown dispatcher type"}
 	}
@@ -130,10 +138,11 @@ func (r *mutationResolver) CreateDispatcher(ctx context.Context, input model.Dis
 	id := r.HostService.AddDispatcher(d)
 
 	return &model.Dispatcher{
-		ID:   int32(id),
-		Name: input.Name,
-		Type: input.Type,
-		URL:  input.URL,
+		ID:       int32(id),
+		Name:     input.Name,
+		Type:     input.Type,
+		URL:      input.URL,
+		Template: input.Template,
 	}, nil
 }
 
@@ -146,7 +155,15 @@ func (r *mutationResolver) UpdateDispatcher(ctx context.Context, id int32, input
 		if input.URL != nil {
 			url = *input.URL
 		}
-		d = dispatcher.NewWebhookDispatcher(input.Name, url)
+		templateStr := ""
+		if input.Template != nil {
+			templateStr = *input.Template
+		}
+		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr)
+		if err != nil {
+			return nil, &Error{Message: err.Error()}
+		}
+		d = webhook
 	default:
 		return nil, &Error{Message: "unknown dispatcher type"}
 	}
@@ -154,10 +171,11 @@ func (r *mutationResolver) UpdateDispatcher(ctx context.Context, id int32, input
 	r.HostService.UpdateDispatcher(int(id), d)
 
 	return &model.Dispatcher{
-		ID:   id,
-		Name: input.Name,
-		Type: input.Type,
-		URL:  input.URL,
+		ID:       id,
+		Name:     input.Name,
+		Type:     input.Type,
+		URL:      input.URL,
+		Template: input.Template,
 	}, nil
 }
 

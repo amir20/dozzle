@@ -224,6 +224,13 @@ notifications:
     cloud-description: Push, email, and dashboard
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    payload-format: Payload Format
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Custom
+    template: Template
+    template-hint: Go template syntax
     test: Test
     cancel: Cancel
     save: Save
