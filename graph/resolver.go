@@ -6,6 +6,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/releases"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 )
 
@@ -32,6 +33,9 @@ type HostService interface {
 	FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
 }
 
+type ReleasesFetcher func() ([]releases.Release, error)
+
 type Resolver struct {
-	HostService HostService
+	HostService     HostService
+	ReleasesFetcher ReleasesFetcher
 }

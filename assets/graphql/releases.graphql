@@ -1,0 +1,14 @@
+query GetReleases {
+  releases {
+    name
+    mentionsCount
+    tag
+    body
+    createdAt
+    htmlUrl
+    latest
+    features
+    bugFixes
+    breaking
+  }
+}

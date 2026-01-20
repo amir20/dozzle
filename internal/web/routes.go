@@ -149,7 +149,6 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/hosts/{host}/containers/{id}/exec", h.exec)
 				}
 
-				r.Get("/releases", h.releases)
 				if !h.config.DisableAvatars {
 					r.Get("/profile/avatar", h.avatar)
 				}

@@ -13,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/releases"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 )
@@ -312,6 +313,43 @@ func (r *queryResolver) Dispatcher(ctx context.Context, id int32) (*model.Dispat
 	return nil, nil
 }
 
+// Releases is the resolver for the releases field.
+func (r *queryResolver) Releases(ctx context.Context) ([]*releases.Release, error) {
+	if r.ReleasesFetcher == nil {
+		return nil, nil
+	}
+	result, err := r.ReleasesFetcher()
+	if err != nil {
+		return nil, err
+	}
+	// Convert to pointers
+	releases := make([]*releases.Release, len(result))
+	for i := range result {
+		releases[i] = &result[i]
+	}
+	return releases, nil
+}
+
+// MentionsCount is the resolver for the mentionsCount field.
+func (r *releaseResolver) MentionsCount(ctx context.Context, obj *releases.Release) (int32, error) {
+	return int32(obj.MentionsCount), nil
+}
+
+// Features is the resolver for the features field.
+func (r *releaseResolver) Features(ctx context.Context, obj *releases.Release) (int32, error) {
+	return int32(obj.Features), nil
+}
+
+// BugFixes is the resolver for the bugFixes field.
+func (r *releaseResolver) BugFixes(ctx context.Context, obj *releases.Release) (int32, error) {
+	return int32(obj.BugFixes), nil
+}
+
+// Breaking is the resolver for the breaking field.
+func (r *releaseResolver) Breaking(ctx context.Context, obj *releases.Release) (int32, error) {
+	return int32(obj.Breaking), nil
+}
+
 // Container returns ContainerResolver implementation.
 func (r *Resolver) Container() ContainerResolver { return &containerResolver{r} }
 
@@ -324,7 +362,11 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// Release returns ReleaseResolver implementation.
+func (r *Resolver) Release() ReleaseResolver { return &releaseResolver{r} }
+
 type containerResolver struct{ *Resolver }
 type logEventResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type releaseResolver struct{ *Resolver }
