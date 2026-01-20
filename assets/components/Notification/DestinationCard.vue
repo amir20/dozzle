@@ -9,7 +9,11 @@
         <div class="flex-1">
           <h4 class="font-semibold">{{ destination.name }}</h4>
           <p class="text-base-content/60 text-sm">
-            {{ destination.type === "webhook" ? "HTTP Webhook" : "Dozzle Cloud" }}
+            {{
+              destination.type === "webhook"
+                ? $t("notifications.destination.http-webhook")
+                : $t("notifications.destination.dozzle-cloud")
+            }}
           </p>
         </div>
         <div class="dropdown dropdown-end">
@@ -20,8 +24,12 @@
             tabindex="0"
             class="menu dropdown-content rounded-box bg-base-100 border-base-content/20 z-50 w-40 border p-1 shadow-sm"
           >
-            <li><a @click="editDestination">Edit</a></li>
-            <li><a class="text-error" @click="deleteDestination">Delete</a></li>
+            <li>
+              <a @click="editDestination">{{ $t("notifications.destination.edit") }}</a>
+            </li>
+            <li>
+              <a class="text-error" @click="deleteDestination">{{ $t("notifications.destination.delete") }}</a>
+            </li>
           </ul>
         </div>
       </div>

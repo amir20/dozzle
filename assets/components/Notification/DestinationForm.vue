@@ -1,13 +1,19 @@
 <template>
   <div class="space-y-6 p-4">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold">{{ isEditing ? "Edit Destination" : "Add Destination" }}</h2>
-      <p class="text-base-content/60">Where should notifications be sent?</p>
+      <h2 class="text-2xl font-bold">
+        {{
+          isEditing
+            ? $t("notifications.destination-form.edit-title")
+            : $t("notifications.destination-form.create-title")
+        }}
+      </h2>
+      <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
     </div>
 
     <!-- Name -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Name</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.name") }}</legend>
       <input
         ref="nameInput"
         v-model="name"
@@ -15,13 +21,13 @@
         class="input focus:input-primary w-full text-base"
         required
         :class="{ 'input-primary': name.trim().length > 0 }"
-        placeholder="e.g., Production Slack"
+        :placeholder="$t('notifications.destination-form.name-placeholder')"
       />
     </fieldset>
 
     <!-- Type Selection -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Type</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.type") }}</legend>
       <div class="space-y-3">
         <label
           class="card card-border 20 cursor-pointer transition-colors"
@@ -30,8 +36,10 @@
           <div class="card-body flex-row items-center gap-3 p-4">
             <input type="radio" v-model="type" value="webhook" class="radio radio-primary" />
             <div>
-              <div class="font-semibold">HTTP Webhook</div>
-              <div class="text-base-content/60 text-sm">Slack, Discord, custom endpoint</div>
+              <div class="font-semibold">{{ $t("notifications.destination-form.webhook-title") }}</div>
+              <div class="text-base-content/60 text-sm">
+                {{ $t("notifications.destination-form.webhook-description") }}
+              </div>
             </div>
           </div>
         </label>
@@ -42,8 +50,10 @@
           <div class="card-body flex-row items-center gap-3 p-4">
             <input type="radio" v-model="type" value="cloud" class="radio radio-primary" />
             <div>
-              <div class="font-semibold">Dozzle Cloud</div>
-              <div class="text-base-content/60 text-sm">Push, email, and dashboard</div>
+              <div class="font-semibold">{{ $t("notifications.destination-form.cloud-title") }}</div>
+              <div class="text-base-content/60 text-sm">
+                {{ $t("notifications.destination-form.cloud-description") }}
+              </div>
             </div>
           </div>
         </label>
@@ -52,13 +62,13 @@
 
     <!-- Webhook URL (only for webhook type) -->
     <fieldset v-if="type === 'webhook'" class="fieldset">
-      <legend class="fieldset-legend text-lg">Webhook URL</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.webhook-url") }}</legend>
       <input
         v-model="webhookUrl"
         type="url"
         class="input focus:input-primary w-full text-base"
         :class="{ 'input-primary': isValidUrl, 'input-error': webhookUrl.trim() && !isValidUrl }"
-        placeholder="https://hooks.foo.com/services/..."
+        :placeholder="$t('notifications.destination-form.webhook-url-placeholder')"
       />
     </fieldset>
 
@@ -71,13 +81,13 @@
     <div class="flex items-center gap-2 pt-4">
       <button class="btn" @click="testDestination" :disabled="!canTest || isTesting">
         <span v-if="isTesting" class="loading loading-spinner loading-sm"></span>
-        Test
+        {{ $t("notifications.destination-form.test") }}
       </button>
       <div class="flex-1"></div>
-      <button class="btn" @click="close?.()">Cancel</button>
+      <button class="btn" @click="close?.()">{{ $t("notifications.destination-form.cancel") }}</button>
       <button class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
         <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
-        {{ isEditing ? "Save" : "Add Destination" }}
+        {{ isEditing ? $t("notifications.destination-form.save") : $t("notifications.destination-form.add") }}
       </button>
     </div>
   </div>

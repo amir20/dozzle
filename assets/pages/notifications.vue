@@ -3,13 +3,15 @@
     <section>
       <!-- Header -->
       <div class="mb-8">
-        <h2 class="text-2xl font-bold">Notifications</h2>
-        <p class="text-base-content/60">Configure where and when to receive alerts</p>
+        <h2 class="text-2xl font-bold">{{ $t("notifications.title") }}</h2>
+        <p class="text-base-content/60">{{ $t("notifications.description") }}</p>
       </div>
 
       <!-- Destinations Section -->
       <div class="mb-8">
-        <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">Destinations</h3>
+        <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">
+          {{ $t("notifications.destinations") }}
+        </h3>
         <div class="flex flex-wrap gap-4">
           <DestinationCard v-for="dest in dispatchers" :key="dest.id" :destination="dest" class="w-full md:w-72" />
           <!-- Add Destination Card -->
@@ -19,7 +21,7 @@
           >
             <div class="card-body items-center justify-center gap-1 p-4">
               <mdi:plus class="text-2xl" />
-              <span class="text-base-content/60 text-sm">Add destination</span>
+              <span class="text-base-content/60 text-sm">{{ $t("notifications.add-destination") }}</span>
             </div>
           </button>
         </div>
@@ -28,29 +30,29 @@
       <!-- Alerts Section -->
       <div>
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">Alerts</h3>
+          <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("notifications.alerts") }}</h3>
           <button class="btn btn-ghost text-primary" @click="openCreateAlert">
             <mdi:plus />
-            Add
+            {{ $t("notifications.add") }}
           </button>
         </div>
 
         <!-- Filter Tabs -->
         <div class="tabs tabs-box mb-6">
           <button class="tab" :class="{ 'tab-active': filter === 'all' }" @click="filter = 'all'">
-            All ({{ alerts.length }})
+            {{ $t("notifications.filter.all", { count: alerts.length }) }}
           </button>
           <button class="tab" :class="{ 'tab-active': filter === 'enabled' }" @click="filter = 'enabled'">
-            Enabled ({{ enabledCount }})
+            {{ $t("notifications.filter.enabled", { count: enabledCount }) }}
           </button>
           <button class="tab" :class="{ 'tab-active': filter === 'paused' }" @click="filter = 'paused'">
-            Paused ({{ pausedCount }})
+            {{ $t("notifications.filter.paused", { count: pausedCount }) }}
           </button>
         </div>
 
         <!-- Alerts List -->
         <div v-if="!alerts.length" class="text-base-content/60 py-4">
-          No alerts configured yet. Create one to get started.
+          {{ $t("notifications.no-alerts") }}
         </div>
         <div v-else class="space-y-4">
           <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" />

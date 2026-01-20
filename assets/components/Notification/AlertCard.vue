@@ -5,18 +5,18 @@
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
           <h4 class="text-lg font-semibold">{{ alert.name }}</h4>
-          <span v-if="!alert.enabled" class="badge badge-warning badge-sm">Paused</span>
+          <span v-if="!alert.enabled" class="badge badge-warning badge-sm">{{ $t("notifications.alert.paused") }}</span>
         </div>
         <input type="checkbox" class="toggle toggle-primary" :checked="alert.enabled" @change="toggleEnabled" />
       </div>
 
       <!-- Expressions -->
       <div class="text-base-content/80 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-        <span>Containers</span>
+        <span>{{ $t("notifications.alert.containers") }}</span>
         <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.containerExpression }}</code>
-        <span>Log filter</span>
+        <span>{{ $t("notifications.alert.log-filter") }}</span>
         <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.logExpression }}</code>
-        <span>Destination</span>
+        <span>{{ $t("notifications.alert.destination") }}</span>
         <span v-if="alert.dispatcher" class="flex items-center gap-1.5">
           <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
           <mdi:cloud v-else />
@@ -24,7 +24,7 @@
         </span>
         <span v-else class="text-warning flex items-center gap-1.5">
           <mdi:alert-outline />
-          Dispatcher deleted
+          {{ $t("notifications.alert.dispatcher-deleted") }}
         </span>
       </div>
 
@@ -33,15 +33,15 @@
         <div class="flex items-center gap-4">
           <span class="flex items-center gap-1">
             <mdi:package-variant-closed class="text-base" />
-            {{ alert.triggeredContainers }} containers
+            {{ $t("notifications.alert.containers-count", { count: alert.triggeredContainers }) }}
           </span>
           <span class="flex items-center gap-1">
             <mdi:bell-outline class="text-base" />
-            {{ alert.triggerCount }} triggered
+            {{ $t("notifications.alert.triggered-count", { count: alert.triggerCount }) }}
           </span>
           <span v-if="alert.lastTriggeredAt" class="flex items-center gap-1">
             <mdi:clock-outline class="text-base" />
-            Last: {{ formatTimeAgo(alert.lastTriggeredAt) }}
+            {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
           </span>
         </div>
         <div class="flex items-center gap-1">

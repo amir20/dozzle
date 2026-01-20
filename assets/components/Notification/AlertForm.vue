@@ -1,13 +1,15 @@
 <template>
   <div class="space-y-6 p-4">
     <div class="mb-6">
-      <h2 class="text-2xl font-bold">{{ isEditing ? "Edit Alert" : "Create Alert" }}</h2>
-      <p class="text-base-content/60">Subscribe to log events matching your criteria</p>
+      <h2 class="text-2xl font-bold">
+        {{ isEditing ? $t("notifications.alert-form.edit-title") : $t("notifications.alert-form.create-title") }}
+      </h2>
+      <p class="text-base-content/60">{{ $t("notifications.alert-form.description") }}</p>
     </div>
 
     <!-- Alert Name -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Alert Name</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.alert-name") }}</legend>
       <input
         ref="alertNameInput"
         v-model="alertName"
@@ -15,13 +17,13 @@
         class="input focus:input-primary w-full text-base"
         :class="alertName.trim() ? 'input-primary' : ''"
         required
-        placeholder="e.g., Test API Errors"
+        :placeholder="$t('notifications.alert-form.alert-name-placeholder')"
       />
     </fieldset>
 
     <!-- Container Filter -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Container Filter</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.container-filter") }}</legend>
       <div
         class="input focus-within:input-primary w-full focus-within:z-50"
         :class="
@@ -36,19 +38,23 @@
         <span v-if="containerResult.error" class="text-error">{{ containerResult.error }}</span>
         <span v-else-if="containerResult.containers?.length" class="text-success">
           <mdi:check class="inline" />
-          {{ containerResult.containers.length }} containers match:
-          {{ containerResult.containers.map((c) => c.name).join(", ") }}
+          {{
+            $t("notifications.alert-form.containers-match", {
+              count: containerResult.containers.length,
+              names: containerResult.containers.map((c) => c.name).join(", "),
+            })
+          }}
         </span>
         <span v-else class="text-warning">
           <mdi:alert class="inline" />
-          No containers match this filter
+          {{ $t("notifications.alert-form.no-containers-match") }}
         </span>
       </div>
     </fieldset>
 
     <!-- Log Filter -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Log Filter</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.log-filter") }}</legend>
       <div
         class="input focus-within:input-primary w-full focus-within:z-50"
         :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
@@ -59,18 +65,18 @@
         <span v-if="logError" class="text-error">{{ logError }}</span>
         <span v-else-if="logMessages.length" class="text-success">
           <mdi:check class="inline" />
-          {{ logTotalCount }} logs match
+          {{ $t("notifications.alert-form.logs-match", { count: logTotalCount }) }}
         </span>
         <span v-else-if="!isLoading" class="text-warning">
           <mdi:alert class="inline" />
-          No logs match this filter
+          {{ $t("notifications.alert-form.no-logs-match") }}
         </span>
       </div>
     </fieldset>
 
     <!-- Destination -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">Destination</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.destination") }}</legend>
       <details class="dropdown w-full" ref="destinationDropdown">
         <summary class="btn btn-outline w-full justify-between" :class="{ 'btn-primary': selectedDestination }">
           <span class="flex items-center gap-2">
@@ -79,7 +85,7 @@
               <mdi:cloud v-else />
               {{ selectedDestination.name }}
             </template>
-            <span v-else class="text-base-content/60">Select a destination</span>
+            <span v-else class="text-base-content/60">{{ $t("notifications.alert-form.select-destination") }}</span>
           </span>
           <carbon:caret-down />
         </summary>
@@ -102,14 +108,14 @@
       <div v-if="!destinations.length" class="fieldset-label">
         <span class="text-warning">
           <mdi:alert class="inline" />
-          No destinations configured. Add one first.
+          {{ $t("notifications.alert-form.no-destinations") }}
         </span>
       </div>
     </fieldset>
 
     <!-- Log Preview -->
     <div v-if="logMessages.length" class="mt-4">
-      <div class="mb-2 text-lg">Preview</div>
+      <div class="mb-2 text-lg">{{ $t("notifications.alert-form.preview") }}</div>
       <LogList
         :messages="logMessages"
         :last-selected-item="undefined"
@@ -124,10 +130,10 @@
 
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-4">
-      <button class="btn" @click="close?.()">Cancel</button>
+      <button class="btn" @click="close?.()">{{ $t("notifications.alert-form.cancel") }}</button>
       <button class="btn btn-primary" :disabled="!canSave" @click="saveAlert">
         <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
-        {{ isEditing ? "Save" : "Create Alert" }}
+        {{ isEditing ? $t("notifications.alert-form.save") : $t("notifications.alert-form.create") }}
       </button>
     </div>
   </div>
