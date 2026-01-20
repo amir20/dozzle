@@ -131,15 +131,9 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 // startListeningByID finds the client for a container and starts listening
 func (l *ContainerLogListener) startListeningByID(c container.Container) {
 	for _, client := range l.clients {
-		containers, err := client.ListContainers(l.ctx, nil)
-		if err != nil {
-			continue
-		}
-		for _, container := range containers {
-			if container.ID == c.ID {
-				l.startListening(c, client)
-				return
-			}
+		if found, err := client.FindContainer(l.ctx, c.ID, nil); err == nil {
+			l.startListening(found, client)
+			return
 		}
 	}
 	log.Warn().Str("containerID", c.ID).Msg("Could not find client for container")
@@ -150,7 +144,7 @@ func (l *ContainerLogListener) stopListening(containerID string) {
 	if cancel, exists := l.activeStreams.LoadAndDelete(containerID); exists {
 		cancel()
 		l.containerClients.Delete(containerID)
-		log.Info().Str("containerID", containerID).Msg("Stopped listening to container")
+		log.Debug().Str("containerID", containerID).Msg("Stopped listening to container")
 	}
 }
 

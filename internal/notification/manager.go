@@ -92,7 +92,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
-	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
+	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
 
 	// Update listener to start/stop streams based on new subscription
 	if m.listener != nil {
@@ -107,7 +107,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 // RemoveSubscription removes a subscription by ID
 func (m *Manager) RemoveSubscription(id int) {
 	if sub, ok := m.subscriptions.LoadAndDelete(id); ok {
-		log.Info().Int("id", id).Str("name", sub.Name).Msg("Removed subscription")
+		log.Debug().Int("id", id).Str("name", sub.Name).Msg("Removed subscription")
 
 		// Update listener to stop streams that are no longer needed
 		if m.listener != nil {
@@ -146,7 +146,7 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
-	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Replaced subscription")
+	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Replaced subscription")
 
 	// Update listener to start/stop streams based on new subscription
 	if m.listener != nil {
@@ -246,20 +246,20 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 func (m *Manager) AddDispatcher(d dispatcher.Dispatcher) int {
 	id := int(m.dispatcherCounter.Add(1))
 	m.dispatchers.Store(id, d)
-	log.Info().Int("id", id).Msg("Added dispatcher")
+	log.Debug().Int("id", id).Msg("Added dispatcher")
 	return id
 }
 
 // UpdateDispatcher updates a dispatcher by ID
 func (m *Manager) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
 	m.dispatchers.Store(id, d)
-	log.Info().Int("id", id).Msg("Updated dispatcher")
+	log.Debug().Int("id", id).Msg("Updated dispatcher")
 }
 
 // RemoveDispatcher removes a dispatcher by ID
 func (m *Manager) RemoveDispatcher(id int) {
 	if _, ok := m.dispatchers.LoadAndDelete(id); ok {
-		log.Info().Int("id", id).Msg("Removed dispatcher")
+		log.Debug().Int("id", id).Msg("Removed dispatcher")
 	}
 }
 
@@ -437,7 +437,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
 		}
 		m.dispatchers.Store(dispatcherConfig.ID, d)
-		log.Info().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher")
+		log.Debug().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher")
 	}
 
 	// Update listener to start streams for loaded subscriptions
@@ -471,6 +471,6 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
-	log.Info().Str("name", sub.Name).Int("id", sub.ID).Msg("Loaded subscription")
+	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Loaded subscription")
 	return nil
 }
