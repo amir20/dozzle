@@ -169,12 +169,12 @@ const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
   ntfy: `{
   "topic": "dozzle-{{ .Container.Host }}",
   "title": "{{ .Container.Name }}",
-  "message": "{{ .Log.Message }}",
+  "message": "{{ .Log.Message }}"
 }`,
   custom: `{
   "container": "{{ .Container.Name }}",
   "level": "{{ .Log.Level }}",
-  "message": "{{ .Log.Message }}",
+  "message": "{{ .Log.Message }}"
 }`,
 };
 
@@ -195,7 +195,7 @@ useFocus(nameInput, { initialValue: true });
 const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
 const webhookUrl = ref(destination?.url ?? "");
 const payloadFormat = ref<PayloadFormat>(isEditing ? "custom" : "slack");
-const template = ref(destination?.template ?? PAYLOAD_TEMPLATES[payloadFormat.value]);
+const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLATES[payloadFormat.value]);
 const isTesting = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);

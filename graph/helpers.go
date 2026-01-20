@@ -40,11 +40,16 @@ func dispatcherConfigToDispatcher(d *notification.DispatcherConfig) *model.Dispa
 	if d.URL != "" {
 		url = &d.URL
 	}
+	var template *string
+	if d.Template != "" {
+		template = &d.Template
+	}
 	return &model.Dispatcher{
-		ID:   int32(d.ID),
-		Name: d.Name,
-		Type: d.Type,
-		URL:  url,
+		ID:       int32(d.ID),
+		Name:     d.Name,
+		Type:     d.Type,
+		URL:      url,
+		Template: template,
 	}
 }
 

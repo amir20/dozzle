@@ -283,10 +283,11 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 		switch v := d.(type) {
 		case *dispatcher.WebhookDispatcher:
 			result = append(result, DispatcherConfig{
-				ID:   id,
-				Name: v.Name,
-				Type: "webhook",
-				URL:  v.URL,
+				ID:       id,
+				Name:     v.Name,
+				Type:     "webhook",
+				URL:      v.URL,
+				Template: v.TemplateText,
 			})
 		}
 		return true
