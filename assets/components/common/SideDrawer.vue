@@ -11,7 +11,7 @@
             <mdi:close class="swap-on" />
           </button>
         </form>
-        <slot v-if="open"></slot>
+        <slot v-if="open" :close="close"></slot>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -28,11 +28,16 @@ const { width } = defineProps<{
   width: DrawerWidth;
 }>();
 
+function close() {
+  panel.value?.close();
+}
+
 defineExpose({
   open: () => {
     open.value = true;
     panel.value?.showModal();
   },
+  close,
 });
 
 useEventListener(panel, "close", () => (open.value = false));

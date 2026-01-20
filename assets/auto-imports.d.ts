@@ -27,10 +27,13 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
+  const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDrawer: typeof import('./composable/drawer').createDrawer
   const createEventHook: typeof import('@vueuse/core').createEventHook
+  const createExprEditor: typeof import('./composable/exprEditor').createExprEditor
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
+  const createLogHints: typeof import('./composable/exprEditor').createLogHints
   const createPinia: typeof import('pinia').createPinia
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef
@@ -397,6 +400,9 @@ declare global {
   export type { LogStreamSource } from './composable/eventStreams'
   import('./composable/eventStreams')
   // @ts-ignore
+  export type { ExprEditorOptions } from './composable/exprEditor'
+  import('./composable/exprEditor')
+  // @ts-ignore
   export type { Config, Profile } from './stores/config'
   import('./stores/config')
   // @ts-ignore
@@ -436,10 +442,13 @@ declare module 'vue' {
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
     readonly createDrawer: UnwrapRef<typeof import('./composable/drawer')['createDrawer']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
+    readonly createExprEditor: UnwrapRef<typeof import('./composable/exprEditor')['createExprEditor']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
+    readonly createLogHints: UnwrapRef<typeof import('./composable/exprEditor')['createLogHints']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>

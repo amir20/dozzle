@@ -28,6 +28,7 @@ export default defineConfig(() => ({
       polyfill: false,
     },
     target: "esnext",
+    chunkSizeWarningLimit: 600,
   },
   plugins: [
     VueRouter({
@@ -35,7 +36,7 @@ export default defineConfig(() => ({
         src: "./assets/pages",
       },
       dts: "./assets/typed-router.d.ts",
-      importMode: "sync",
+      importMode: "sync", // this can't be async because it won't work with custom base
     }),
     VueMacros({
       plugins: {

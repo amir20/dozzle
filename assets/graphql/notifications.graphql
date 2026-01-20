@@ -1,0 +1,120 @@
+query GetNotificationRules {
+  notificationRules {
+    id
+    name
+    enabled
+    containerExpression
+    logExpression
+    triggerCount
+    triggeredContainers
+    lastTriggeredAt
+    dispatcher {
+      id
+      name
+      type
+      url
+    }
+  }
+}
+
+query GetDispatchers {
+  dispatchers {
+    id
+    name
+    type
+    url
+  }
+}
+
+mutation CreateNotificationRule($input: NotificationRuleInput!) {
+  createNotificationRule(input: $input) {
+    id
+    name
+    enabled
+    containerExpression
+    logExpression
+    dispatcher {
+      id
+      name
+      type
+    }
+  }
+}
+
+mutation UpdateNotificationRule($id: Int!, $input: NotificationRuleUpdateInput!) {
+  updateNotificationRule(id: $id, input: $input) {
+    id
+    name
+    enabled
+    containerExpression
+    logExpression
+    dispatcher {
+      id
+      name
+      type
+    }
+  }
+}
+
+mutation ReplaceNotificationRule($id: Int!, $input: NotificationRuleInput!) {
+  replaceNotificationRule(id: $id, input: $input) {
+    id
+    name
+    enabled
+    containerExpression
+    logExpression
+    dispatcher {
+      id
+      name
+      type
+    }
+  }
+}
+
+mutation DeleteNotificationRule($id: Int!) {
+  deleteNotificationRule(id: $id)
+}
+
+mutation CreateDispatcher($input: DispatcherInput!) {
+  createDispatcher(input: $input) {
+    id
+    name
+    type
+    url
+  }
+}
+
+mutation UpdateDispatcher($id: Int!, $input: DispatcherInput!) {
+  updateDispatcher(id: $id, input: $input) {
+    id
+    name
+    type
+    url
+  }
+}
+
+mutation DeleteDispatcher($id: Int!) {
+  deleteDispatcher(id: $id)
+}
+
+mutation PreviewExpression($input: PreviewInput!) {
+  previewExpression(input: $input) {
+    containerError
+    logError
+    matchedContainers {
+      id
+      name
+      image
+      host
+    }
+    matchedLogs {
+      id
+      type
+      message
+      timestamp
+      level
+      stream
+    }
+    totalLogs
+  }
+}

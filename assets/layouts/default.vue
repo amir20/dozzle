@@ -42,10 +42,10 @@
       <button>close</button>
     </form>
   </dialog>
-  <SideDrawer ref="drawer" :width="drawerWidth">
+  <SideDrawer ref="drawer" :width="drawerWidth" v-slot="{ close }">
     <Suspense :timeout="0">
-      <component :is="drawerComponent" v-bind="drawerProperties" />
-      <template #fallback> Loading dependencies... </template>
+      <component :is="drawerComponent" v-bind="drawerProperties" :close="close" />
+      <template #fallback> <span class="loading loading-spinner loading-sm"></span></template>
     </Suspense>
   </SideDrawer>
   <ToastModal />

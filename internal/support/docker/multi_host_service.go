@@ -3,9 +3,12 @@ package docker_support
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
@@ -27,11 +30,13 @@ type ClientManager interface {
 	Subscribe(ctx context.Context, channel chan<- container.Host)
 	Hosts(ctx context.Context) []container.Host
 	LocalClients() []container.Client
+	LocalClientServices() []container_support.ClientService
 }
 
 type MultiHostService struct {
-	manager ClientManager
-	timeout time.Duration
+	manager             ClientManager
+	timeout             time.Duration
+	notificationManager *notification.Manager
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -168,6 +173,124 @@ func (m *MultiHostService) LocalClients() []container.Client {
 	return m.manager.LocalClients()
 }
 
+func (m *MultiHostService) LocalClientServices() []container_support.ClientService {
+	return m.manager.LocalClientServices()
+}
+
 func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
+}
+
+const notificationConfigPath = "./data/notifications.yml"
+
+// StartNotificationManager initializes and starts the notification manager
+func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
+	clients := m.manager.LocalClientServices()
+	listener := notification.NewContainerLogListener(ctx, clients)
+	m.notificationManager = notification.NewManager(listener)
+
+	// Start first so matcher is available for LoadConfig
+	if err := m.notificationManager.Start(); err != nil {
+		return err
+	}
+
+	// Load config if exists
+	if file, err := os.Open(notificationConfigPath); err == nil {
+		defer file.Close()
+		if err := m.notificationManager.LoadConfig(file); err != nil {
+			log.Warn().Err(err).Msg("Could not load notification config")
+		} else {
+			log.Debug().Str("path", notificationConfigPath).Msg("Loaded notification config")
+		}
+	}
+
+	return nil
+}
+
+func (m *MultiHostService) saveNotificationConfig() {
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		log.Error().Err(err).Msg("Could not create data directory")
+		return
+	}
+
+	file, err := os.Create(notificationConfigPath)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create notification config file")
+		return
+	}
+	defer file.Close()
+
+	if err := m.notificationManager.WriteConfig(file); err != nil {
+		log.Error().Err(err).Msg("Could not write notification config")
+	}
+}
+
+// AddSubscription adds a subscription to local manager and broadcasts to agents
+func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error {
+	// Add to local manager
+	if err := m.notificationManager.AddSubscription(sub); err != nil {
+		return err
+	}
+
+	// TODO: Broadcast to agents via gRPC when agent notification support is added
+
+	m.saveNotificationConfig()
+	return nil
+}
+
+// RemoveSubscription removes a subscription from local manager and broadcasts to agents
+func (m *MultiHostService) RemoveSubscription(id int) {
+	// Remove from local manager
+	m.notificationManager.RemoveSubscription(id)
+
+	// TODO: Broadcast to agents via gRPC when agent notification support is added
+
+	m.saveNotificationConfig()
+}
+
+// AddDispatcher adds a dispatcher and returns its auto-generated ID
+func (m *MultiHostService) AddDispatcher(d dispatcher.Dispatcher) int {
+	id := m.notificationManager.AddDispatcher(d)
+	m.saveNotificationConfig()
+	return id
+}
+
+// UpdateDispatcher updates a dispatcher by ID
+func (m *MultiHostService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+	m.notificationManager.UpdateDispatcher(id, d)
+	m.saveNotificationConfig()
+}
+
+// RemoveDispatcher removes a dispatcher by ID
+func (m *MultiHostService) RemoveDispatcher(id int) {
+	m.notificationManager.RemoveDispatcher(id)
+	m.saveNotificationConfig()
+}
+
+// ReplaceSubscription replaces a subscription with new data
+func (m *MultiHostService) ReplaceSubscription(sub *notification.Subscription) error {
+	if err := m.notificationManager.ReplaceSubscription(sub); err != nil {
+		return err
+	}
+	m.saveNotificationConfig()
+	return nil
+}
+
+// UpdateSubscription updates a subscription with the provided fields
+func (m *MultiHostService) UpdateSubscription(id int, updates map[string]any) error {
+	if err := m.notificationManager.UpdateSubscription(id, updates); err != nil {
+		return err
+	}
+	m.saveNotificationConfig()
+	return nil
+}
+
+// Subscriptions returns all subscriptions
+func (m *MultiHostService) Subscriptions() []*notification.Subscription {
+	return m.notificationManager.Subscriptions()
+}
+
+// Dispatchers returns all dispatchers
+func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
+	return m.notificationManager.Dispatchers()
 }

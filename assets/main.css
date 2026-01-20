@@ -151,3 +151,44 @@ body {
 .splitpanes--vertical .splitpanes__pane {
   transition: none !important;
 }
+
+/* CodeMirror autocomplete tooltip styles */
+.cm-tooltip {
+  @apply bg-base-200! border-base-content/40! min-w-96 rounded-sm border shadow-md;
+}
+
+.cm-tooltip-autocomplete ul {
+  @apply font-sans;
+}
+
+.cm-tooltip-autocomplete ul li {
+  @apply my-1 px-2;
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
+  @apply bg-primary/20 text-base-content!;
+}
+
+.cm-completionLabel {
+  @apply text-base-content!;
+}
+
+.cm-completionDetail {
+  @apply text-base-content/60! ml-2 italic;
+}
+
+.cm-completionMatchedText {
+  @apply text-primary! font-bold no-underline;
+}
+
+.cm-completionIcon {
+  @apply mr-2 opacity-70;
+}
+
+.cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}

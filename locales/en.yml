@@ -80,6 +80,7 @@ title:
   login: Authentication Required
   dashboard: 1 container | {count} containers
   settings: Settings
+  notifications: Notifications
 button:
   logout: Logout
   login: Login
@@ -163,3 +164,67 @@ analytics:
   evaluating_query: Evaluating query...
   total_records: Total {count} records.
   showing_first: Showing first {count}.
+notifications:
+  title: Notifications
+  description: Configure where and when to receive alerts
+  destinations: Destinations
+  add-destination: Add destination
+  alerts: Alerts
+  add: Add
+  filter:
+    all: All ({count})
+    enabled: Enabled ({count})
+    paused: Paused ({count})
+  no-alerts: No alerts configured yet. Create one to get started.
+  alert:
+    paused: Paused
+    containers: Containers
+    log-filter: Log filter
+    destination: Destination
+    dispatcher-deleted: Dispatcher deleted
+    containers-count: "{count} containers"
+    triggered-count: "{count} triggered"
+    last-triggered: "Last: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Edit
+    delete: Delete
+  alert-form:
+    create-title: Create Alert
+    edit-title: Edit Alert
+    description: Subscribe to log events matching your criteria
+    alert-name: Alert Name
+    alert-name-placeholder: e.g., Test API Errors
+    container-filter: Container Filter
+    container-filter-placeholder: name contains "api"
+    containers-match: "{count} containers match: {names}"
+    no-containers-match: No containers match this filter
+    log-filter: Log Filter
+    log-filter-placeholder: level == "error" && message contains "timeout"
+    logs-match: "{count} logs match"
+    no-logs-match: No logs match this filter
+    destination: Destination
+    select-destination: Select a destination
+    no-destinations: No destinations configured. Add one first.
+    preview: Preview
+    cancel: Cancel
+    save: Save
+    create: Create Alert
+  destination-form:
+    create-title: Add Destination
+    edit-title: Edit Destination
+    description: Where should notifications be sent?
+    name: Name
+    name-placeholder: e.g., Production Slack
+    type: Type
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, custom endpoint
+    cloud-title: Dozzle Cloud
+    cloud-description: Push, email, and dashboard
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    test: Test
+    cancel: Cancel
+    save: Save
+    add: Add Destination

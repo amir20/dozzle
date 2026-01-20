@@ -7,6 +7,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/k8s"
+	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -130,4 +132,44 @@ func (m *K8sClusterService) SubscribeAvailableHosts(ctx context.Context, hosts c
 
 func (m *K8sClusterService) LocalClients() []container.Client {
 	return []container.Client{m.client.client}
+}
+
+func (m *K8sClusterService) LocalClientServices() []container_support.ClientService {
+	return []container_support.ClientService{m.client}
+}
+
+// Notification methods - not yet implemented for k8s
+func (m *K8sClusterService) AddSubscription(sub *notification.Subscription) error {
+
+	// TODO Implement notification subscription for k8s mode
+	return fmt.Errorf("notifications not supported in k8s mode")
+}
+
+func (m *K8sClusterService) RemoveSubscription(id int) {
+}
+
+func (m *K8sClusterService) ReplaceSubscription(sub *notification.Subscription) error {
+	return fmt.Errorf("notifications not supported in k8s mode")
+}
+
+func (m *K8sClusterService) UpdateSubscription(id int, updates map[string]any) error {
+	return fmt.Errorf("notifications not supported in k8s mode")
+}
+
+func (m *K8sClusterService) Subscriptions() []*notification.Subscription {
+	return []*notification.Subscription{}
+}
+
+func (m *K8sClusterService) AddDispatcher(d dispatcher.Dispatcher) int {
+	return 0
+}
+
+func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
+}
+
+func (m *K8sClusterService) RemoveDispatcher(id int) {
+}
+
+func (m *K8sClusterService) Dispatchers() []notification.DispatcherConfig {
+	return []notification.DispatcherConfig{}
 }
