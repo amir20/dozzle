@@ -39,7 +39,12 @@
 
 <script lang="ts" setup>
 import { useMutation, useQuery } from "@urql/vue";
-import { DeleteDispatcherDocument, GetDispatchersDocument, type Dispatcher } from "@/types/graphql";
+import {
+  DeleteDispatcherDocument,
+  GetDispatchersDocument,
+  GetNotificationRulesDocument,
+  type Dispatcher,
+} from "@/types/graphql";
 import DestinationForm from "./DestinationForm.vue";
 
 const { destination } = defineProps<{
@@ -49,6 +54,7 @@ const { destination } = defineProps<{
 const showDrawer = useDrawer();
 const deleteMutation = useMutation(DeleteDispatcherDocument);
 const dispatchersQuery = useQuery({ query: GetDispatchersDocument, pause: true });
+const alertsQuery = useQuery({ query: GetNotificationRulesDocument, pause: true });
 
 function editDestination() {
   showDrawer(
@@ -64,5 +70,6 @@ function editDestination() {
 async function deleteDestination() {
   await deleteMutation.executeMutation({ id: destination.id });
   dispatchersQuery.executeQuery({ requestPolicy: "network-only" });
+  alertsQuery.executeQuery({ requestPolicy: "network-only" });
 }
 </script>

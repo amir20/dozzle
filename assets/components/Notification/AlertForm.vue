@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 p-4">
+  <div class="space-y-4 p-4">
     <div class="mb-6">
       <h2 class="text-2xl font-bold">
         {{ isEditing ? $t("notifications.alert-form.edit-title") : $t("notifications.alert-form.create-title") }}
