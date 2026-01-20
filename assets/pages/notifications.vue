@@ -17,7 +17,7 @@
             class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors md:w-72"
             @click="openAddDestination"
           >
-            <div class="card-body items-center justify-center gap-1">
+            <div class="card-body items-center justify-center gap-1 p-4">
               <mdi:plus class="text-2xl" />
               <span class="text-base-content/60 text-sm">Add destination</span>
             </div>
