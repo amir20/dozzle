@@ -17,10 +17,14 @@
         <span>Log filter</span>
         <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.logExpression }}</code>
         <span>Destination</span>
-        <span class="flex items-center gap-1.5">
+        <span v-if="alert.dispatcher" class="flex items-center gap-1.5">
           <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
           <mdi:cloud v-else />
           {{ alert.dispatcher.name }}
+        </span>
+        <span v-else class="text-warning flex items-center gap-1.5">
+          <mdi:alert-outline />
+          Dispatcher deleted
         </span>
       </div>
 

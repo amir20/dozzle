@@ -109,7 +109,7 @@ export type MutationUpdateNotificationRuleArgs = {
 export type NotificationRule = {
   __typename?: "NotificationRule";
   containerExpression: Scalars["String"]["output"];
-  dispatcher: Dispatcher;
+  dispatcher?: Maybe<Dispatcher>;
   enabled: Scalars["Boolean"]["output"];
   id: Scalars["Int"]["output"];
   lastTriggeredAt?: Maybe<Scalars["Time"]["output"]>;
@@ -179,7 +179,7 @@ export type GetNotificationRulesQuery = {
     triggerCount: number;
     triggeredContainers: number;
     lastTriggeredAt?: string | null;
-    dispatcher: { __typename?: "Dispatcher"; id: number; name: string; type: string; url?: string | null };
+    dispatcher?: { __typename?: "Dispatcher"; id: number; name: string; type: string; url?: string | null } | null;
   }>;
 };
 
@@ -203,7 +203,7 @@ export type CreateNotificationRuleMutation = {
     enabled: boolean;
     containerExpression: string;
     logExpression: string;
-    dispatcher: { __typename?: "Dispatcher"; id: number; name: string; type: string };
+    dispatcher?: { __typename?: "Dispatcher"; id: number; name: string; type: string } | null;
   };
 };
 
@@ -221,7 +221,7 @@ export type UpdateNotificationRuleMutation = {
     enabled: boolean;
     containerExpression: string;
     logExpression: string;
-    dispatcher: { __typename?: "Dispatcher"; id: number; name: string; type: string };
+    dispatcher?: { __typename?: "Dispatcher"; id: number; name: string; type: string } | null;
   };
 };
 
@@ -239,7 +239,7 @@ export type ReplaceNotificationRuleMutation = {
     enabled: boolean;
     containerExpression: string;
     logExpression: string;
-    dispatcher: { __typename?: "Dispatcher"; id: number; name: string; type: string };
+    dispatcher?: { __typename?: "Dispatcher"; id: number; name: string; type: string } | null;
   };
 };
 

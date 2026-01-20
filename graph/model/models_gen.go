@@ -28,7 +28,7 @@ type NotificationRule struct {
 	ID                  int32       `json:"id"`
 	Name                string      `json:"name"`
 	Enabled             bool        `json:"enabled"`
-	Dispatcher          *Dispatcher `json:"dispatcher"`
+	Dispatcher          *Dispatcher `json:"dispatcher,omitempty"`
 	LogExpression       string      `json:"logExpression"`
 	ContainerExpression string      `json:"containerExpression"`
 	TriggerCount        int         `json:"triggerCount"`

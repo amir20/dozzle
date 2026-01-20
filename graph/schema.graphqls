@@ -33,7 +33,7 @@ type NotificationRule {
   id: Int!
   name: String!
   enabled: Boolean!
-  dispatcher: Dispatcher!
+  dispatcher: Dispatcher
   logExpression: String!
   containerExpression: String!
   triggerCount: Int64!

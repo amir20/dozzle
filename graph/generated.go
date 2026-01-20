@@ -1980,9 +1980,9 @@ func (ec *executionContext) _NotificationRule_dispatcher(ctx context.Context, fi
 			return obj.Dispatcher, nil
 		},
 		nil,
-		ec.marshalNDispatcher2ᚖgithubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐDispatcher,
+		ec.marshalODispatcher2ᚖgithubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐDispatcher,
 		true,
-		true,
+		false,
 	)
 }
 
@@ -4687,9 +4687,6 @@ func (ec *executionContext) _NotificationRule(ctx context.Context, sel ast.Selec
 			}
 		case "dispatcher":
 			out.Values[i] = ec._NotificationRule_dispatcher(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "logExpression":
 			out.Values[i] = ec._NotificationRule_logExpression(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
