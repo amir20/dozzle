@@ -119,7 +119,7 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 	l.containerClients.Store(c.ID, client)
 
 	go func() {
-		log.Info().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
+		log.Debug().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
 		if err := client.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil {
 			log.Error().Err(err).Str("containerID", c.ID).Msg("Error streaming logs")
 		}
