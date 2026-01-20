@@ -72,6 +72,38 @@
       />
     </fieldset>
 
+    <!-- Payload Format (only for webhook type) -->
+    <fieldset v-if="type === 'webhook'" class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.payload-format") }}</legend>
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="format in ['slack', 'discord', 'ntfy', 'custom'] as const"
+          :key="format"
+          type="button"
+          class="btn btn-sm"
+          :class="payloadFormat === format ? 'btn-primary' : 'btn-ghost'"
+          @click="selectPayloadFormat(format)"
+        >
+          {{ $t(`notifications.destination-form.format-${format}`) }}
+        </button>
+      </div>
+    </fieldset>
+
+    <!-- Template (only for webhook type) -->
+    <fieldset v-if="type === 'webhook'" class="fieldset">
+      <legend class="fieldset-legend text-lg">
+        {{ $t("notifications.destination-form.template") }}
+        <span class="text-base-content/60 ml-2 text-sm font-normal">{{
+          $t("notifications.destination-form.template-hint")
+        }}</span>
+      </legend>
+      <textarea
+        v-model="template"
+        class="textarea focus:textarea-primary min-h-48 w-full font-mono text-sm"
+        :class="{ 'textarea-primary': template.trim().length > 0 }"
+      ></textarea>
+    </fieldset>
+
     <!-- Error -->
     <div v-if="error" class="alert alert-error">
       <span>{{ error }}</span>
@@ -97,6 +129,55 @@
 import { useMutation } from "@urql/vue";
 import { CreateDispatcherDocument, UpdateDispatcherDocument, type Dispatcher } from "@/types/graphql";
 
+type PayloadFormat = "slack" | "discord" | "ntfy" | "custom";
+
+const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
+  slack: `{
+  "text": "{{ .Container.Name }}",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*{{ .Container.Name }}*\\n{{ .Log.Message }}"
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Host: {{ .Container.Host }} | Image: {{ .Container.Image }}"
+        }
+      ]
+    }
+  ]
+}`,
+  discord: `{
+  "content": "{{ .Container.Name }}",
+  "embeds": [
+    {
+      "title": "{{ .Container.Name }}",
+      "description": "{{ .Log.Message }}",
+      "fields": [
+        { "name": "Host", "value": "{{ .Container.Host }}", "inline": true },
+        { "name": "Image", "value": "{{ .Container.Image }}", "inline": true }
+      ]
+    }
+  ]
+}`,
+  ntfy: `{
+  "topic": "dozzle-{{ .Container.Host }}",
+  "title": "{{ .Container.Name }}",
+  "message": "{{ .Log.Message }}"
+}`,
+  custom: `{
+  "container": "{{ .Container.Name }}",
+  "level": "{{ .Log.Level }}",
+  "message": "{{ .Log.Message }}"
+}`,
+};
+
 const { close, onCreated, destination } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
@@ -106,16 +187,23 @@ const { close, onCreated, destination } = defineProps<{
 const createMutation = useMutation(CreateDispatcherDocument);
 const updateMutation = useMutation(UpdateDispatcherDocument);
 
-const isEditing = computed(() => !!destination);
+const isEditing = !!destination;
 
 const nameInput = ref<HTMLInputElement>();
 const name = ref(destination?.name ?? "");
 useFocus(nameInput, { initialValue: true });
 const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
 const webhookUrl = ref(destination?.url ?? "");
+const payloadFormat = ref<PayloadFormat>(isEditing ? "custom" : "slack");
+const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLATES[payloadFormat.value]);
 const isTesting = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
+
+function selectPayloadFormat(format: PayloadFormat) {
+  payloadFormat.value = format;
+  template.value = PAYLOAD_TEMPLATES[format];
+}
 
 const canTest = computed(() => {
   if (type.value === "webhook") {
@@ -158,9 +246,10 @@ async function saveDestination() {
       name: name.value.trim(),
       type: type.value,
       url: type.value === "webhook" ? webhookUrl.value.trim() : undefined,
+      template: type.value === "webhook" && template.value.trim() ? template.value.trim() : undefined,
     };
 
-    const result = isEditing.value
+    const result = isEditing
       ? await updateMutation.executeMutation({ id: destination!.id, input })
       : await createMutation.executeMutation({ input });
 

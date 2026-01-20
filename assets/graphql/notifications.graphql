@@ -23,6 +23,7 @@ query GetDispatchers {
     name
     type
     url
+    template
   }
 }
 
@@ -90,6 +91,7 @@ mutation UpdateDispatcher($id: Int!, $input: DispatcherInput!) {
     name
     type
     url
+    template
   }
 }
 
