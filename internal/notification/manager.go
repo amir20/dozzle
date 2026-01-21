@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
@@ -75,7 +76,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile container expression: %w", err)
 		}
@@ -84,7 +85,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 
 	// Compile log expression if provided
 	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(Log{}))
+		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile log expression: %w", err)
 		}
@@ -122,7 +123,7 @@ func (m *Manager) RemoveSubscription(id int) {
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile container expression: %w", err)
 		}
@@ -131,7 +132,7 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 
 	// Compile log expression if provided
 	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(Log{}))
+		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile log expression: %w", err)
 		}
@@ -196,7 +197,7 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 				}
 			case "containerExpression":
 				if exprStr, ok := value.(string); ok {
-					program, err := expr.Compile(exprStr, expr.Env(Container{}))
+					program, err := expr.Compile(exprStr, expr.Env(types.NotificationContainer{}))
 					if err != nil {
 						updateErr = fmt.Errorf("failed to compile container expression: %w", err)
 						return nil, xsync.CancelOp
@@ -207,7 +208,7 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			case "logExpression":
 				if exprStr, ok := value.(string); ok {
 					if exprStr != "" {
-						program, err := expr.Compile(exprStr, expr.Env(Log{}))
+						program, err := expr.Compile(exprStr, expr.Env(types.NotificationLog{}))
 						if err != nil {
 							updateErr = fmt.Errorf("failed to compile log expression: %w", err)
 							return nil, xsync.CancelOp
@@ -354,7 +355,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		log.Debug().Str("containerID", notificationContainer.ID).Interface("log", notificationLog.Message).Msg("Matched subscription")
 
 		// Create notification
-		notification := Notification{
+		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
 			Container: notificationContainer,
 			Log:       notificationLog,
@@ -370,7 +371,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 }
 
 // sendNotification sends a notification using the dispatcher
-func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification Notification, id int) {
+func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
 	ctx, cancel := context.WithTimeout(m.ctx, 30*time.Second)
 	defer cancel()
 
@@ -454,7 +455,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 func (m *Manager) loadSubscription(sub *Subscription) error {
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(Container{}))
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile container expression: %w", err)
 		}
@@ -463,7 +464,7 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 
 	// Compile log expression if provided
 	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(Log{}))
+		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
 		if err != nil {
 			return fmt.Errorf("failed to compile log expression: %w", err)
 		}

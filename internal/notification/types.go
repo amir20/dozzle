@@ -6,33 +6,15 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
-// Notification represents a notification event that can be filtered and sent
-type Notification struct {
-	ID        string    `json:"id"`
-	Container Container `json:"container"`
-	Log       Log       `json:"log"`
-	Timestamp time.Time `json:"timestamp"`
-}
-
-// Container represents a simplified container structure optimized for expr filtering
-type Container struct {
-	ID     string            `json:"id" expr:"id"`
-	Name   string            `json:"name" expr:"name"`
-	Image  string            `json:"image" expr:"image"`
-	State  string            `json:"state" expr:"state"`
-	Health string            `json:"health" expr:"health"`
-	Host   string            `json:"host" expr:"host"`
-	Labels map[string]string `json:"labels" expr:"labels"`
-}
-
-// FromContainerModel converts internal container.Container to notification.Container
-func FromContainerModel(c container.Container) Container {
-	return Container{
+// FromContainerModel converts internal container.Container to types.NotificationContainer
+func FromContainerModel(c container.Container) types.NotificationContainer {
+	return types.NotificationContainer{
 		ID:     c.ID,
 		Name:   c.Name,
 		Image:  c.Image,
@@ -43,21 +25,11 @@ func FromContainerModel(c container.Container) Container {
 	}
 }
 
-// Log represents a log entry with message that can be string or object
-type Log struct {
-	ID        uint32 `json:"id" expr:"id"`
-	Message   any    `json:"message" expr:"message"` // string for simple/grouped logs, map for complex logs
-	Timestamp int64  `json:"timestamp" expr:"timestamp"`
-	Level     string `json:"level" expr:"level"`
-	Stream    string `json:"stream" expr:"stream"`
-	Type      string `json:"type" expr:"type"`
-}
-
-// FromLogEvent converts container.LogEvent to notification.Log
-func FromLogEvent(l container.LogEvent) Log {
+// FromLogEvent converts container.LogEvent to types.NotificationLog
+func FromLogEvent(l container.LogEvent) types.NotificationLog {
 	message := extractMessage(l)
 
-	return Log{
+	return types.NotificationLog{
 		ID:        l.Id,
 		Message:   message,
 		Timestamp: l.Timestamp,
@@ -138,7 +110,7 @@ type Config struct {
 }
 
 // MatchesContainer checks if a container matches this subscription's container filter
-func (s *Subscription) MatchesContainer(c Container) bool {
+func (s *Subscription) MatchesContainer(c types.NotificationContainer) bool {
 	if s.ContainerProgram == nil {
 		return false
 	}
@@ -153,7 +125,7 @@ func (s *Subscription) MatchesContainer(c Container) bool {
 }
 
 // MatchesLog checks if a log matches this subscription's log filter
-func (s *Subscription) MatchesLog(l Log) bool {
+func (s *Subscription) MatchesLog(l types.NotificationLog) bool {
 	if s.LogProgram == nil {
 		return false
 	}
