@@ -14,6 +14,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
+	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 )
@@ -195,7 +196,7 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 	// Compile and test container expression
 	var containerProgram *vm.Program
 	if input.ContainerExpression != "" {
-		program, err := expr.Compile(input.ContainerExpression, expr.Env(notification.Container{}))
+		program, err := expr.Compile(input.ContainerExpression, expr.Env(types.NotificationContainer{}))
 		if err != nil {
 			errStr := err.Error()
 			result.ContainerError = &errStr
@@ -207,7 +208,7 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 	// Compile and test log expression
 	var logProgram *vm.Program
 	if input.LogExpression != nil && *input.LogExpression != "" {
-		program, err := expr.Compile(*input.LogExpression, expr.Env(notification.Log{}))
+		program, err := expr.Compile(*input.LogExpression, expr.Env(types.NotificationLog{}))
 		if err != nil {
 			errStr := err.Error()
 			result.LogError = &errStr

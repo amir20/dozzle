@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -46,7 +47,7 @@ func NewWebhookDispatcher(name, url, templateStr string) (*WebhookDispatcher, er
 }
 
 // Send sends a notification to the webhook URL
-func (w *WebhookDispatcher) Send(ctx context.Context, notification any) error {
+func (w *WebhookDispatcher) Send(ctx context.Context, notification types.Notification) error {
 	var payload []byte
 	var err error
 
