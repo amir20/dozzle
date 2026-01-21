@@ -232,6 +232,7 @@ notifications:
     template: Template
     template-hint: Go template syntax
     test: Test
+    test-success: Test successful
     cancel: Cancel
     save: Save
     add: Add Destination

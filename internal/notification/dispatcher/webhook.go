@@ -46,34 +46,50 @@ func NewWebhookDispatcher(name, url, templateStr string) (*WebhookDispatcher, er
 	return w, nil
 }
 
+// TestResult contains the result of a webhook test
+type TestResult struct {
+	Success    bool
+	StatusCode int
+	Error      string
+}
+
 // Send sends a notification to the webhook URL
 func (w *WebhookDispatcher) Send(ctx context.Context, notification types.Notification) error {
+	result := w.SendTest(ctx, notification)
+	if !result.Success {
+		return fmt.Errorf("%s", result.Error)
+	}
+	return nil
+}
+
+// SendTest sends a notification and returns detailed result for testing
+func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Notification) TestResult {
 	var payload []byte
 	var err error
 
 	if w.Template != nil {
 		var buf bytes.Buffer
 		if err := w.Template.Execute(&buf, notification); err != nil {
-			return fmt.Errorf("failed to execute template: %w", err)
+			return TestResult{Success: false, Error: fmt.Sprintf("failed to execute template: %v", err)}
 		}
 		payload = buf.Bytes()
 	} else {
 		payload, err = json.Marshal(notification)
 		if err != nil {
-			return fmt.Errorf("failed to marshal notification: %w", err)
+			return TestResult{Success: false, Error: fmt.Sprintf("failed to marshal notification: %v", err)}
 		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, w.URL, bytes.NewReader(payload))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return TestResult{Success: false, Error: fmt.Sprintf("failed to create request: %v", err)}
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := w.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to send webhook: %w", err)
+		return TestResult{Success: false, Error: fmt.Sprintf("failed to send webhook: %v", err)}
 	}
 	defer resp.Body.Close()
 
@@ -86,8 +102,12 @@ func (w *WebhookDispatcher) Send(ctx context.Context, notification types.Notific
 			Str("payload", string(payload)).
 			Str("response_body", string(responseBody)).
 			Msg("webhook returned non-success status code")
-		return fmt.Errorf("webhook returned non-success status code: %d", resp.StatusCode)
+		return TestResult{
+			Success:    false,
+			StatusCode: resp.StatusCode,
+			Error:      fmt.Sprintf("webhook returned status code %d: %s", resp.StatusCode, string(responseBody)),
+		}
 	}
 
-	return nil
+	return TestResult{Success: true, StatusCode: resp.StatusCode}
 }

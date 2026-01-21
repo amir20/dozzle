@@ -120,3 +120,11 @@ mutation PreviewExpression($input: PreviewInput!) {
     totalLogs
   }
 }
+
+mutation TestWebhook($input: TestWebhookInput!) {
+  testWebhook(input: $input) {
+    success
+    statusCode
+    error
+  }
+}

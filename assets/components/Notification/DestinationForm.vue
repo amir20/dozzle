@@ -109,9 +109,20 @@
       <span>{{ error }}</span>
     </div>
 
+    <!-- Test Result -->
+    <div v-if="testResult" class="alert" :class="testResult.success ? 'alert-success' : 'alert-error'">
+      <span v-if="testResult.success">
+        {{ $t("notifications.destination-form.test-success") }}
+        <span v-if="testResult.statusCode" class="opacity-70">({{ testResult.statusCode }})</span>
+      </span>
+      <span v-else>
+        {{ testResult.error }}
+      </span>
+    </div>
+
     <!-- Actions -->
     <div class="flex items-center gap-2 pt-4">
-      <button class="btn" @click="testDestination" :disabled="!canTest || isTesting">
+      <button class="btn" @click="testDestination" :disabled="!canTest || !isValidUrl || isTesting">
         <span v-if="isTesting" class="loading loading-spinner loading-sm"></span>
         {{ $t("notifications.destination-form.test") }}
       </button>
@@ -127,7 +138,13 @@
 
 <script lang="ts" setup>
 import { useMutation } from "@urql/vue";
-import { CreateDispatcherDocument, UpdateDispatcherDocument, type Dispatcher } from "@/types/graphql";
+import {
+  CreateDispatcherDocument,
+  UpdateDispatcherDocument,
+  TestWebhookDocument,
+  type Dispatcher,
+  type TestWebhookResult,
+} from "@/types/graphql";
 
 type PayloadFormat = "slack" | "discord" | "ntfy" | "custom";
 
@@ -186,6 +203,7 @@ const { close, onCreated, destination } = defineProps<{
 
 const createMutation = useMutation(CreateDispatcherDocument);
 const updateMutation = useMutation(UpdateDispatcherDocument);
+const testMutation = useMutation(TestWebhookDocument);
 
 const isEditing = !!destination;
 
@@ -199,6 +217,7 @@ const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLAT
 const isTesting = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
+const testResult = ref<TestWebhookResult | null>(null);
 
 function selectPayloadFormat(format: PayloadFormat) {
   payloadFormat.value = format;
@@ -229,10 +248,29 @@ const canSave = computed(() => {
 });
 
 async function testDestination() {
+  if (!canTest.value) return;
+
   isTesting.value = true;
-  // TODO: Implement actual test when backend is ready
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  isTesting.value = false;
+  testResult.value = null;
+
+  try {
+    const input = {
+      url: webhookUrl.value.trim(),
+      template: template.value.trim() || undefined,
+    };
+
+    const result = await testMutation.executeMutation({ input });
+
+    if (result.error) {
+      testResult.value = { success: false, error: result.error.message };
+    } else if (result.data?.testWebhook) {
+      testResult.value = result.data.testWebhook;
+    }
+  } catch (e) {
+    testResult.value = { success: false, error: e instanceof Error ? e.message : "Test failed" };
+  } finally {
+    isTesting.value = false;
+  }
 }
 
 async function saveDestination() {

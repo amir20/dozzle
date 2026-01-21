@@ -69,3 +69,14 @@ type PreviewResult struct {
 
 type Query struct {
 }
+
+type TestWebhookInput struct {
+	URL      string  `json:"url"`
+	Template *string `json:"template,omitempty"`
+}
+
+type TestWebhookResult struct {
+	Success    bool    `json:"success"`
+	StatusCode *int32  `json:"statusCode,omitempty"`
+	Error      *string `json:"error,omitempty"`
+}
