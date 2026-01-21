@@ -57,7 +57,7 @@ type TestResult struct {
 func (w *WebhookDispatcher) Send(ctx context.Context, notification types.Notification) error {
 	result := w.SendTest(ctx, notification)
 	if !result.Success {
-		return fmt.Errorf("%s", result.Error)
+		return fmt.Errorf("webhook notification failed: %s", result.Error)
 	}
 	return nil
 }
@@ -94,7 +94,9 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		responseBody, _ := io.ReadAll(resp.Body)
+		// Limit response body to 1MB to prevent memory exhaustion
+		limitedReader := io.LimitReader(resp.Body, 1024*1024)
+		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
 			Str("webhook", w.Name).
 			Str("url", w.URL).
