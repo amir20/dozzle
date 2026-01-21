@@ -290,6 +290,65 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 	return result, nil
 }
 
+// TestWebhook is the resolver for the testWebhook field.
+func (r *mutationResolver) TestWebhook(ctx context.Context, input model.TestWebhookInput) (*model.TestWebhookResult, error) {
+	templateStr := ""
+	if input.Template != nil {
+		templateStr = *input.Template
+	}
+
+	webhook, err := dispatcher.NewWebhookDispatcher("test", input.URL, templateStr)
+	if err != nil {
+		errStr := err.Error()
+		return &model.TestWebhookResult{
+			Success: false,
+			Error:   &errStr,
+		}, nil
+	}
+
+	// Create a mock notification for testing
+	mockNotification := types.Notification{
+		ID:        "test-notification",
+		Timestamp: time.Now(),
+		Container: types.NotificationContainer{
+			ID:     "abc123",
+			Name:   "test-container",
+			Image:  "nginx:latest",
+			State:  "running",
+			Health: "healthy",
+			Host:   "localhost",
+			Labels: map[string]string{"env": "test"},
+		},
+		Log: types.NotificationLog{
+			ID:        1,
+			Message:   "This is a test log message from Dozzle",
+			Timestamp: time.Now().UnixMilli(),
+			Level:     "info",
+			Stream:    "stdout",
+			Type:      "simple",
+		},
+	}
+
+	result := webhook.SendTest(ctx, mockNotification)
+
+	var statusCode *int32
+	if result.StatusCode > 0 {
+		sc := int32(result.StatusCode)
+		statusCode = &sc
+	}
+
+	var errStr *string
+	if result.Error != "" {
+		errStr = &result.Error
+	}
+
+	return &model.TestWebhookResult{
+		Success:    result.Success,
+		StatusCode: statusCode,
+		Error:      errStr,
+	}, nil
+}
+
 // NotificationRules is the resolver for the notificationRules field.
 func (r *queryResolver) NotificationRules(ctx context.Context) ([]*model.NotificationRule, error) {
 	subscriptions := r.HostService.Subscriptions()

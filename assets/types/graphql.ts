@@ -69,6 +69,7 @@ export type Mutation = {
   deleteNotificationRule: Scalars['Boolean']['output'];
   previewExpression: PreviewResult;
   replaceNotificationRule: NotificationRule;
+  testWebhook: TestWebhookResult;
   updateDispatcher: Dispatcher;
   updateNotificationRule: NotificationRule;
 };
@@ -102,6 +103,11 @@ export type MutationPreviewExpressionArgs = {
 export type MutationReplaceNotificationRuleArgs = {
   id: Scalars['Int']['input'];
   input: NotificationRuleInput;
+};
+
+
+export type MutationTestWebhookArgs = {
+  input: TestWebhookInput;
 };
 
 
@@ -192,6 +198,18 @@ export type Release = {
   tag: Scalars['String']['output'];
 };
 
+export type TestWebhookInput = {
+  template?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
+export type TestWebhookResult = {
+  __typename?: 'TestWebhookResult';
+  error?: Maybe<Scalars['String']['output']>;
+  statusCode?: Maybe<Scalars['Int']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type GetNotificationRulesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -261,6 +279,13 @@ export type PreviewExpressionMutationVariables = Exact<{
 
 export type PreviewExpressionMutation = { __typename?: 'Mutation', previewExpression: { __typename?: 'PreviewResult', containerError?: string | null, logError?: string | null, totalLogs: number, matchedContainers: Array<{ __typename?: 'Container', id: string, name: string, image: string, host?: string | null }>, matchedLogs: Array<{ __typename?: 'LogEvent', id: number, type?: string | null, message?: unknown | null, timestamp: number, level?: string | null, stream?: string | null }> } };
 
+export type TestWebhookMutationVariables = Exact<{
+  input: TestWebhookInput;
+}>;
+
+
+export type TestWebhookMutation = { __typename?: 'Mutation', testWebhook: { __typename?: 'TestWebhookResult', success: boolean, statusCode?: number | null, error?: string | null } };
+
 export type GetReleasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -277,4 +302,5 @@ export const CreateDispatcherDocument = {"kind":"Document","definitions":[{"kind
 export const UpdateDispatcherDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateDispatcher"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DispatcherInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateDispatcher"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"template"}}]}}]}}]} as unknown as DocumentNode<UpdateDispatcherMutation, UpdateDispatcherMutationVariables>;
 export const DeleteDispatcherDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteDispatcher"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteDispatcher"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteDispatcherMutation, DeleteDispatcherMutationVariables>;
 export const PreviewExpressionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PreviewExpression"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PreviewInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"previewExpression"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"containerError"}},{"kind":"Field","name":{"kind":"Name","value":"logError"}},{"kind":"Field","name":{"kind":"Name","value":"matchedContainers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"host"}}]}},{"kind":"Field","name":{"kind":"Name","value":"matchedLogs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"stream"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalLogs"}}]}}]}}]} as unknown as DocumentNode<PreviewExpressionMutation, PreviewExpressionMutationVariables>;
+export const TestWebhookDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TestWebhook"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TestWebhookInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"testWebhook"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"statusCode"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<TestWebhookMutation, TestWebhookMutationVariables>;
 export const GetReleasesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetReleases"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"releases"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"mentionsCount"}},{"kind":"Field","name":{"kind":"Name","value":"tag"}},{"kind":"Field","name":{"kind":"Name","value":"body"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"htmlUrl"}},{"kind":"Field","name":{"kind":"Name","value":"latest"}},{"kind":"Field","name":{"kind":"Name","value":"features"}},{"kind":"Field","name":{"kind":"Name","value":"bugFixes"}},{"kind":"Field","name":{"kind":"Name","value":"breaking"}}]}}]}}]} as unknown as DocumentNode<GetReleasesQuery, GetReleasesQueryVariables>;

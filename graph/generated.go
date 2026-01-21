@@ -92,6 +92,7 @@ type ComplexityRoot struct {
 		DeleteNotificationRule  func(childComplexity int, id int32) int
 		PreviewExpression       func(childComplexity int, input model.PreviewInput) int
 		ReplaceNotificationRule func(childComplexity int, id int32, input model.NotificationRuleInput) int
+		TestWebhook             func(childComplexity int, input model.TestWebhookInput) int
 		UpdateDispatcher        func(childComplexity int, id int32, input model.DispatcherInput) int
 		UpdateNotificationRule  func(childComplexity int, id int32, input model.NotificationRuleUpdateInput) int
 	}
@@ -136,6 +137,12 @@ type ComplexityRoot struct {
 		Name          func(childComplexity int) int
 		Tag           func(childComplexity int) int
 	}
+
+	TestWebhookResult struct {
+		Error      func(childComplexity int) int
+		StatusCode func(childComplexity int) int
+		Success    func(childComplexity int) int
+	}
 }
 
 type ContainerResolver interface {
@@ -154,6 +161,7 @@ type MutationResolver interface {
 	UpdateDispatcher(ctx context.Context, id int32, input model.DispatcherInput) (*model.Dispatcher, error)
 	DeleteDispatcher(ctx context.Context, id int32) (bool, error)
 	PreviewExpression(ctx context.Context, input model.PreviewInput) (*model.PreviewResult, error)
+	TestWebhook(ctx context.Context, input model.TestWebhookInput) (*model.TestWebhookResult, error)
 }
 type QueryResolver interface {
 	NotificationRules(ctx context.Context) ([]*model.NotificationRule, error)
@@ -396,6 +404,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.ReplaceNotificationRule(childComplexity, args["id"].(int32), args["input"].(model.NotificationRuleInput)), true
+	case "Mutation.testWebhook":
+		if e.complexity.Mutation.TestWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_testWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TestWebhook(childComplexity, args["input"].(model.TestWebhookInput)), true
 	case "Mutation.updateDispatcher":
 		if e.complexity.Mutation.UpdateDispatcher == nil {
 			break
@@ -607,6 +626,25 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Release.Tag(childComplexity), true
 
+	case "TestWebhookResult.error":
+		if e.complexity.TestWebhookResult.Error == nil {
+			break
+		}
+
+		return e.complexity.TestWebhookResult.Error(childComplexity), true
+	case "TestWebhookResult.statusCode":
+		if e.complexity.TestWebhookResult.StatusCode == nil {
+			break
+		}
+
+		return e.complexity.TestWebhookResult.StatusCode(childComplexity), true
+	case "TestWebhookResult.success":
+		if e.complexity.TestWebhookResult.Success == nil {
+			break
+		}
+
+		return e.complexity.TestWebhookResult.Success(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -619,6 +657,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNotificationRuleInput,
 		ec.unmarshalInputNotificationRuleUpdateInput,
 		ec.unmarshalInputPreviewInput,
+		ec.unmarshalInputTestWebhookInput,
 	)
 	first := true
 
@@ -803,6 +842,17 @@ func (ec *executionContext) field_Mutation_replaceNotificationRule_args(ctx cont
 		return nil, err
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_testWebhook_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNTestWebhookInput2githubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐTestWebhookInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2014,6 +2064,55 @@ func (ec *executionContext) fieldContext_Mutation_previewExpression(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_testWebhook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_testWebhook,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().TestWebhook(ctx, fc.Args["input"].(model.TestWebhookInput))
+		},
+		nil,
+		ec.marshalNTestWebhookResult2ᚖgithubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐTestWebhookResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_testWebhook(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_TestWebhookResult_success(ctx, field)
+			case "statusCode":
+				return ec.fieldContext_TestWebhookResult_statusCode(ctx, field)
+			case "error":
+				return ec.fieldContext_TestWebhookResult_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestWebhookResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_testWebhook_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _NotificationRule_id(ctx context.Context, field graphql.CollectedField, obj *model.NotificationRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3120,6 +3219,93 @@ func (ec *executionContext) fieldContext_Release_breaking(_ context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestWebhookResult_success(ctx context.Context, field graphql.CollectedField, obj *model.TestWebhookResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TestWebhookResult_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_TestWebhookResult_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestWebhookResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestWebhookResult_statusCode(ctx context.Context, field graphql.CollectedField, obj *model.TestWebhookResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TestWebhookResult_statusCode,
+		func(ctx context.Context) (any, error) {
+			return obj.StatusCode, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint32,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_TestWebhookResult_statusCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestWebhookResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestWebhookResult_error(ctx context.Context, field graphql.CollectedField, obj *model.TestWebhookResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_TestWebhookResult_error,
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_TestWebhookResult_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestWebhookResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4763,6 +4949,40 @@ func (ec *executionContext) unmarshalInputPreviewInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTestWebhookInput(ctx context.Context, obj any) (model.TestWebhookInput, error) {
+	var it model.TestWebhookInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"url", "template"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		case "template":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("template"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Template = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -5119,6 +5339,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "previewExpression":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_previewExpression(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "testWebhook":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_testWebhook(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5611,6 +5838,49 @@ func (ec *executionContext) _Release(ctx context.Context, sel ast.SelectionSet, 
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var testWebhookResultImplementors = []string{"TestWebhookResult"}
+
+func (ec *executionContext) _TestWebhookResult(ctx context.Context, sel ast.SelectionSet, obj *model.TestWebhookResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testWebhookResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TestWebhookResult")
+		case "success":
+			out.Values[i] = ec._TestWebhookResult_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "statusCode":
+			out.Values[i] = ec._TestWebhookResult_statusCode(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._TestWebhookResult_error(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6359,6 +6629,25 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNTestWebhookInput2githubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐTestWebhookInput(ctx context.Context, v any) (model.TestWebhookInput, error) {
+	res, err := ec.unmarshalInputTestWebhookInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestWebhookResult2githubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐTestWebhookResult(ctx context.Context, sel ast.SelectionSet, v model.TestWebhookResult) graphql.Marshaler {
+	return ec._TestWebhookResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTestWebhookResult2ᚖgithubᚗcomᚋamir20ᚋdozzleᚋgraphᚋmodelᚐTestWebhookResult(ctx context.Context, sel ast.SelectionSet, v *model.TestWebhookResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TestWebhookResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {

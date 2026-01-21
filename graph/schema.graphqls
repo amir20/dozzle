@@ -99,6 +99,17 @@ input PreviewInput {
   logExpression: String
 }
 
+input TestWebhookInput {
+  url: String!
+  template: String
+}
+
+type TestWebhookResult {
+  success: Boolean!
+  statusCode: Int
+  error: String
+}
+
 # Queries
 type Query {
   notificationRules: [NotificationRule!]!
@@ -120,4 +131,5 @@ type Mutation {
   deleteDispatcher(id: Int!): Boolean!
 
   previewExpression(input: PreviewInput!): PreviewResult!
+  testWebhook(input: TestWebhookInput!): TestWebhookResult!
 }
