@@ -74,6 +74,8 @@ agent-reload: docker
 	@VM_NAME=$${VM_NAME:-dozzle-agent}; \
 	echo "📦 Loading image into VM $$VM_NAME..."; \
 	docker save amir20/dozzle:local | orb exec -m $$VM_NAME docker load; \
-	echo "🔄 Restarting agent..."; \
-	orb exec -m $$VM_NAME docker restart dozzle-agent; \
+	echo "🔄 Recreating agent..."; \
+	orb exec -m $$VM_NAME docker stop dozzle-agent || true; \
+	orb exec -m $$VM_NAME docker rm dozzle-agent || true; \
+	orb exec -m $$VM_NAME docker run -d --name dozzle-agent -p 7007:7007 -v /var/run/docker.sock:/var/run/docker.sock -v /root/dozzle-data:/data -e DOZZLE_LEVEL=debug amir20/dozzle:local agent; \
 	echo "✅ Agent reloaded"

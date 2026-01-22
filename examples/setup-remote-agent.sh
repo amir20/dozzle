@@ -111,13 +111,16 @@ fi
 
 # Step 5: Start Dozzle agent
 echo "🎯 Starting Dozzle agent..."
+orb exec -m "$VM_NAME" bash -c 'mkdir -p ~/dozzle-data'
 if ! orb exec -m "$VM_NAME" bash -c "
 set -e
 docker run -d --name dozzle-agent \
   --restart unless-stopped \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v ~/dozzle-certs:/certs \
+  -v ~/dozzle-data:/data \
   -p $AGENT_PORT:7007 \
+  -e DOZZLE_LEVEL=debug \
   $DOZZLE_IMAGE agent \
   --cert /certs/shared_cert.pem \
   --key /certs/shared_key.pem

@@ -15,11 +15,43 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
 
 type AgentCmd struct {
 	Addr string `arg:"--agent-addr,env:DOZZLE_AGENT_ADDR" default:":7007" help:"sets the host:port to bind for the agent"`
+}
+
+// persistingNotificationHandler wraps a notification manager and saves config to disk after updates
+type persistingNotificationHandler struct {
+	manager    *notification.Manager
+	configPath string
+}
+
+func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	// Update the manager
+	if err := h.manager.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
+		return err
+	}
+
+	// Save to disk
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		return fmt.Errorf("failed to create data directory: %w", err)
+	}
+
+	file, err := os.Create(h.configPath)
+	if err != nil {
+		return fmt.Errorf("failed to create config file: %w", err)
+	}
+	defer file.Close()
+
+	if err := h.manager.WriteConfig(file); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	log.Debug().Str("path", h.configPath).Msg("Saved notification config to disk")
+	return nil
 }
 
 func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
@@ -54,15 +86,32 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	clientService := docker_support.NewDockerClientService(client, args.Filter)
 
 	// Create notification manager using the shared client service
+	const notificationConfigPath = "./data/notifications.yml"
 	clients := []container_support.ClientService{clientService}
-	notifListener := notification.NewContainerLogListener(ctx, clients)
-	notificationManager := notification.NewManager(notifListener)
+	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients))
+
+	// Load existing notification config if available
+	if file, err := os.Open(notificationConfigPath); err == nil {
+		if err := notificationManager.LoadConfig(file); err != nil {
+			log.Warn().Err(err).Msg("Failed to load notification config, starting fresh")
+		} else {
+			log.Info().Str("path", notificationConfigPath).Msg("Loaded notification config from disk")
+		}
+		file.Close()
+	}
+
 	if err := notificationManager.Start(); err != nil {
 		return fmt.Errorf("failed to start notification manager: %w", err)
 	}
 
+	// Create handler that wraps manager and persists config to disk
+	notificationHandler := &persistingNotificationHandler{
+		manager:    notificationManager,
+		configPath: notificationConfigPath,
+	}
+
 	// Create agent server using the same shared client service
-	server, err := agent.NewServer(clientService, certs, args.Version(), notificationManager)
+	server, err := agent.NewServer(clientService, certs, args.Version(), notificationHandler)
 	if err != nil {
 		return fmt.Errorf("failed to create agent server: %w", err)
 	}

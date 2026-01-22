@@ -418,7 +418,7 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		}
 	}
 
-	// Call the handler
+	// Call the handler (handler is responsible for persisting if needed)
 	if err := s.notificationConfigHandler.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
 		log.Error().Err(err).Msg("Failed to handle notification config")
 		return nil, status.Error(codes.Internal, err.Error())
