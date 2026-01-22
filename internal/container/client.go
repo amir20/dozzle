@@ -41,6 +41,11 @@ type ExecEvent struct {
 	Height uint   `json:"height,omitempty"`
 }
 
+// ExecEventReader provides structured exec events (userinput, resize)
+type ExecEventReader interface {
+	ReadEvent() (*ExecEvent, error)
+}
+
 type Client interface {
 	ListContainers(context.Context, ContainerLabels) ([]Container, error)
 	FindContainer(context.Context, string) (Container, error)

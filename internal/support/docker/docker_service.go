@@ -2,7 +2,6 @@ package docker_support
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"sync"
 	"time"
@@ -112,7 +111,7 @@ func (d *DockerClientService) SubscribeContainersStarted(ctx context.Context, co
 	d.store.SubscribeNewContainers(ctx, containers)
 }
 
-func (d *DockerClientService) Attach(ctx context.Context, c container.Container, stdin io.Reader, stdout io.Writer) error {
+func (d *DockerClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := d.client.ContainerAttach(cancelCtx, c.ID)
 	if err != nil {
@@ -123,13 +122,12 @@ func (d *DockerClientService) Attach(ctx context.Context, c container.Container,
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		decoder := json.NewDecoder(stdin)
 	loop:
 		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
+			event, err := events.ReadEvent()
+			if err != nil {
 				if err != io.EOF {
-					log.Error().Err(err).Msg("error while decoding event from ws")
+					log.Error().Err(err).Msg("error while reading event")
 				}
 				break
 			}
@@ -170,7 +168,7 @@ func (d *DockerClientService) Attach(ctx context.Context, c container.Container,
 	return nil
 }
 
-func (d *DockerClientService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (d *DockerClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := d.client.ContainerExec(cancelCtx, c.ID, cmd)
 	if err != nil {
@@ -181,13 +179,12 @@ func (d *DockerClientService) Exec(ctx context.Context, c container.Container, c
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		decoder := json.NewDecoder(stdin)
 	loop:
 		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
+			event, err := events.ReadEvent()
+			if err != nil {
 				if err != io.EOF {
-					log.Error().Err(err).Msg("error while decoding event from ws")
+					log.Error().Err(err).Msg("error while reading event")
 				}
 				break
 			}

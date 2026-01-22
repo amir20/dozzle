@@ -79,13 +79,13 @@ func (m *MockedClientService) StreamLogs(ctx context.Context, c container.Contai
 	return args.Error(0)
 }
 
-func (m *MockedClientService) Attach(ctx context.Context, c container.Container, stdin io.Reader, stdout io.Writer) error {
-	args := m.Called(ctx, c, stdin, stdout)
+func (m *MockedClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
+	args := m.Called(ctx, c, events, stdout)
 	return args.Error(0)
 }
 
-func (m *MockedClientService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
-	args := m.Called(ctx, c, cmd, stdin, stdout)
+func (m *MockedClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
+	args := m.Called(ctx, c, cmd, events, stdout)
 	return args.Error(0)
 }
 

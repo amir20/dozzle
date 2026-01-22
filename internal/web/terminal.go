@@ -1,9 +1,12 @@
 package web
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -48,9 +51,9 @@ func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wsReader := &webSocketReader{conn: conn}
+	eventReader := &jsonEventReader{conn: conn}
 	wsWriter := &webSocketWriter{conn: conn}
-	if err = containerService.Attach(r.Context(), wsReader, wsWriter); err != nil {
+	if err = containerService.Attach(r.Context(), eventReader, wsWriter); err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
 		conn.WriteMessage(websocket.TextMessage, []byte("🚨 Error while trying to attach to container\r\n"))
 		return
@@ -88,9 +91,9 @@ func (h *handler) exec(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wsReader := &webSocketReader{conn: conn}
+	eventReader := &jsonEventReader{conn: conn}
 	wsWriter := &webSocketWriter{conn: conn}
-	if err = containerService.Exec(r.Context(), []string{"sh", "-c", "command -v bash >/dev/null 2>&1 && exec bash || exec sh"}, wsReader, wsWriter); err != nil {
+	if err = containerService.Exec(r.Context(), []string{"sh", "-c", "command -v bash >/dev/null 2>&1 && exec bash || exec sh"}, eventReader, wsWriter); err != nil {
 		log.Error().Err(err).Msg("error while trying to attach to container")
 		conn.WriteMessage(websocket.TextMessage, []byte("🚨 Error while trying to attach to container\r\n"))
 		return
@@ -106,30 +109,21 @@ func (w *webSocketWriter) Write(p []byte) (int, error) {
 	return len(p), err
 }
 
-type webSocketReader struct {
-	conn   *websocket.Conn
-	buffer []byte
+// jsonEventReader reads JSON-encoded ExecEvents from a websocket connection
+type jsonEventReader struct {
+	conn *websocket.Conn
 }
 
-func (r *webSocketReader) Read(p []byte) (n int, err error) {
-	if len(r.buffer) > 0 {
-		n = copy(p, r.buffer)
-		r.buffer = r.buffer[n:]
-		return n, nil
-	}
-
-	// Otherwise, read a new message
+func (r *jsonEventReader) ReadEvent() (*container.ExecEvent, error) {
 	_, message, err := r.conn.ReadMessage()
 	if err != nil {
-		return 0, err
+		return nil, io.EOF
 	}
 
-	n = copy(p, message)
-
-	// If we couldn't copy the entire message, store the rest in our buffer
-	if n < len(message) {
-		r.buffer = message[n:]
+	var event container.ExecEvent
+	if err := json.Unmarshal(message, &event); err != nil {
+		return nil, err
 	}
 
-	return n, nil
+	return &event, nil
 }

@@ -414,7 +414,7 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 	}, nil
 }
 
-func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
 	stream, err := c.client.ContainerExec(ctx)
 	if err != nil {
 		return err
@@ -440,12 +440,11 @@ func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, std
 		}
 	})
 
-	// Read JSON events from stdin and convert to gRPC messages
+	// Read events and convert to gRPC messages
 	wg.Go(func() {
-		decoder := json.NewDecoder(stdin)
 		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
+			event, err := events.ReadEvent()
+			if err != nil {
 				return
 			}
 

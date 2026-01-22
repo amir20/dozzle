@@ -72,12 +72,12 @@ func (a *agentService) ContainerAction(ctx context.Context, container container.
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
 
-func (a *agentService) Attach(ctx context.Context, container container.Container, stdin io.Reader, stdout io.Writer) error {
+func (a *agentService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	panic("not implemented")
 }
 
-func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
-	return a.client.Exec(ctx, c.ID, cmd, stdin, stdout)
+func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
+	return a.client.Exec(ctx, c.ID, cmd, events, stdout)
 }
 
 func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {

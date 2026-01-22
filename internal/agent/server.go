@@ -43,8 +43,8 @@ type ClientService interface {
 	SubscribeEvents(context.Context, chan<- container.ContainerEvent)
 	SubscribeContainersStarted(context.Context, chan<- container.Container)
 	StreamLogs(context.Context, container.Container, time.Time, container.StdType, chan<- *container.LogEvent) error
-	Attach(context.Context, container.Container, io.Reader, io.Writer) error
-	Exec(context.Context, container.Container, []string, io.Reader, io.Writer) error
+	Attach(context.Context, container.Container, container.ExecEventReader, io.Writer) error
+	Exec(context.Context, container.Container, []string, container.ExecEventReader, io.Writer) error
 }
 
 type server struct {
@@ -312,36 +312,25 @@ type terminalMessage interface {
 	GetResize() *pb.ResizePayload
 }
 
-// terminalStreamReader adapts a gRPC terminal stream to io.Reader by converting protobuf messages to JSON ExecEvents
-type terminalStreamReader struct {
+// protoEventReader converts gRPC protobuf messages directly to ExecEvents (no JSON)
+type protoEventReader struct {
 	recv func() (terminalMessage, error)
-	buf  bytes.Buffer
 }
 
-func (r *terminalStreamReader) Read(p []byte) (int, error) {
-	if r.buf.Len() > 0 {
-		return r.buf.Read(p)
-	}
-
+func (r *protoEventReader) ReadEvent() (*container.ExecEvent, error) {
 	msg, err := r.recv()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	var event container.ExecEvent
 	if stdin := msg.GetStdin(); stdin != nil {
-		event = container.ExecEvent{Type: "userinput", Data: string(stdin)}
+		return &container.ExecEvent{Type: "userinput", Data: string(stdin)}, nil
 	} else if resize := msg.GetResize(); resize != nil {
-		event = container.ExecEvent{Type: "resize", Width: uint(resize.Width), Height: uint(resize.Height)}
-	} else {
-		return r.Read(p)
+		return &container.ExecEvent{Type: "resize", Width: uint(resize.Width), Height: uint(resize.Height)}, nil
 	}
 
-	if err := json.NewEncoder(&r.buf).Encode(event); err != nil {
-		return 0, err
-	}
-
-	return r.buf.Read(p)
+	// Skip unknown message types
+	return r.ReadEvent()
 }
 
 // terminalStreamWriter adapts a gRPC terminal stream to io.Writer
@@ -367,7 +356,7 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 		return status.Error(codes.NotFound, err.Error())
 	}
 
-	reader := &terminalStreamReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
+	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
 	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerExecResponse{Stdout: p}) }}
 
 	if err := s.service.Exec(stream.Context(), c, request.Command, reader, writer); err != nil {
@@ -388,7 +377,7 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 		return status.Error(codes.NotFound, err.Error())
 	}
 
-	reader := &terminalStreamReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
+	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
 	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerAttachResponse{Stdout: p}) }}
 
 	if err := s.service.Attach(stream.Context(), c, reader, writer); err != nil {
