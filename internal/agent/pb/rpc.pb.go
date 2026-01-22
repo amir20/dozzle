@@ -1270,11 +1270,99 @@ func (x *ContainerAttachResponse) GetStdout() []byte {
 	return nil
 }
 
+type UpdateNotificationConfigRequest struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Subscriptions []*NotificationSubscription `protobuf:"bytes,1,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
+	Dispatchers   []*NotificationDispatcher   `protobuf:"bytes,2,rep,name=dispatchers,proto3" json:"dispatchers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateNotificationConfigRequest) Reset() {
+	*x = UpdateNotificationConfigRequest{}
+	mi := &file_rpc_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotificationConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotificationConfigRequest) ProtoMessage() {}
+
+func (x *UpdateNotificationConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateNotificationConfigRequest.ProtoReflect.Descriptor instead.
+func (*UpdateNotificationConfigRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *UpdateNotificationConfigRequest) GetSubscriptions() []*NotificationSubscription {
+	if x != nil {
+		return x.Subscriptions
+	}
+	return nil
+}
+
+func (x *UpdateNotificationConfigRequest) GetDispatchers() []*NotificationDispatcher {
+	if x != nil {
+		return x.Dispatchers
+	}
+	return nil
+}
+
+type UpdateNotificationConfigResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateNotificationConfigResponse) Reset() {
+	*x = UpdateNotificationConfigResponse{}
+	mi := &file_rpc_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateNotificationConfigResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateNotificationConfigResponse) ProtoMessage() {}
+
+func (x *UpdateNotificationConfigResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateNotificationConfigResponse.ProtoReflect.Descriptor instead.
+func (*UpdateNotificationConfigResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{26}
+}
+
 var File_rpc_proto protoreflect.FileDescriptor
 
 const file_rpc_proto_rawDesc = "" +
 	"\n" +
-	"\trpc.proto\x12\bprotobuf\x1a\vtypes.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb1\x01\n" +
+	"\trpc.proto\x12\bprotobuf\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\vtypes.proto\"\xb1\x01\n" +
 	"\x15ListContainersRequest\x12C\n" +
 	"\x06filter\x18\x01 \x03(\v2+.protobuf.ListContainersRequest.FilterEntryR\x06filter\x1aS\n" +
 	"\vFilterEntry\x12\x10\n" +
@@ -1345,7 +1433,11 @@ const file_rpc_proto_rawDesc = "" +
 	"\x06resize\x18\x03 \x01(\v2\x17.protobuf.ResizePayloadH\x00R\x06resizeB\t\n" +
 	"\apayload\"1\n" +
 	"\x17ContainerAttachResponse\x12\x16\n" +
-	"\x06stdout\x18\x01 \x01(\fR\x06stdout2\xa1\b\n" +
+	"\x06stdout\x18\x01 \x01(\fR\x06stdout\"\xaf\x01\n" +
+	"\x1fUpdateNotificationConfigRequest\x12H\n" +
+	"\rsubscriptions\x18\x01 \x03(\v2\".protobuf.NotificationSubscriptionR\rsubscriptions\x12B\n" +
+	"\vdispatchers\x18\x02 \x03(\v2 .protobuf.NotificationDispatcherR\vdispatchers\"\"\n" +
+	" UpdateNotificationConfigResponse2\x96\t\n" +
 	"\fAgentService\x12U\n" +
 	"\x0eListContainers\x12\x1f.protobuf.ListContainersRequest\x1a .protobuf.ListContainersResponse\"\x00\x12R\n" +
 	"\rFindContainer\x12\x1e.protobuf.FindContainerRequest\x1a\x1f.protobuf.FindContainerResponse\"\x00\x12K\n" +
@@ -1359,7 +1451,8 @@ const file_rpc_proto_rawDesc = "" +
 	"\bHostInfo\x12\x19.protobuf.HostInfoRequest\x1a\x1a.protobuf.HostInfoResponse\"\x00\x12X\n" +
 	"\x0fContainerAction\x12 .protobuf.ContainerActionRequest\x1a!.protobuf.ContainerActionResponse\"\x00\x12V\n" +
 	"\rContainerExec\x12\x1e.protobuf.ContainerExecRequest\x1a\x1f.protobuf.ContainerExecResponse\"\x00(\x010\x01\x12\\\n" +
-	"\x0fContainerAttach\x12 .protobuf.ContainerAttachRequest\x1a!.protobuf.ContainerAttachResponse\"\x00(\x010\x01B\x13Z\x11internal/agent/pbb\x06proto3"
+	"\x0fContainerAttach\x12 .protobuf.ContainerAttachRequest\x1a!.protobuf.ContainerAttachResponse\"\x00(\x010\x01\x12s\n" +
+	"\x18UpdateNotificationConfig\x12).protobuf.UpdateNotificationConfigRequest\x1a*.protobuf.UpdateNotificationConfigResponse\"\x00B\x13Z\x11internal/agent/pbb\x06proto3"
 
 var (
 	file_rpc_proto_rawDescOnce sync.Once
@@ -1373,92 +1466,100 @@ func file_rpc_proto_rawDescGZIP() []byte {
 	return file_rpc_proto_rawDescData
 }
 
-var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_rpc_proto_goTypes = []any{
-	(*ListContainersRequest)(nil),          // 0: protobuf.ListContainersRequest
-	(*RepeatedString)(nil),                 // 1: protobuf.RepeatedString
-	(*ListContainersResponse)(nil),         // 2: protobuf.ListContainersResponse
-	(*FindContainerRequest)(nil),           // 3: protobuf.FindContainerRequest
-	(*FindContainerResponse)(nil),          // 4: protobuf.FindContainerResponse
-	(*StreamLogsRequest)(nil),              // 5: protobuf.StreamLogsRequest
-	(*StreamLogsResponse)(nil),             // 6: protobuf.StreamLogsResponse
-	(*LogsBetweenDatesRequest)(nil),        // 7: protobuf.LogsBetweenDatesRequest
-	(*StreamRawBytesRequest)(nil),          // 8: protobuf.StreamRawBytesRequest
-	(*StreamRawBytesResponse)(nil),         // 9: protobuf.StreamRawBytesResponse
-	(*StreamEventsRequest)(nil),            // 10: protobuf.StreamEventsRequest
-	(*StreamEventsResponse)(nil),           // 11: protobuf.StreamEventsResponse
-	(*StreamStatsRequest)(nil),             // 12: protobuf.StreamStatsRequest
-	(*StreamStatsResponse)(nil),            // 13: protobuf.StreamStatsResponse
-	(*HostInfoRequest)(nil),                // 14: protobuf.HostInfoRequest
-	(*HostInfoResponse)(nil),               // 15: protobuf.HostInfoResponse
-	(*StreamContainerStartedRequest)(nil),  // 16: protobuf.StreamContainerStartedRequest
-	(*StreamContainerStartedResponse)(nil), // 17: protobuf.StreamContainerStartedResponse
-	(*ContainerActionRequest)(nil),         // 18: protobuf.ContainerActionRequest
-	(*ContainerActionResponse)(nil),        // 19: protobuf.ContainerActionResponse
-	(*ContainerExecRequest)(nil),           // 20: protobuf.ContainerExecRequest
-	(*ResizePayload)(nil),                  // 21: protobuf.ResizePayload
-	(*ContainerExecResponse)(nil),          // 22: protobuf.ContainerExecResponse
-	(*ContainerAttachRequest)(nil),         // 23: protobuf.ContainerAttachRequest
-	(*ContainerAttachResponse)(nil),        // 24: protobuf.ContainerAttachResponse
-	nil,                                    // 25: protobuf.ListContainersRequest.FilterEntry
-	nil,                                    // 26: protobuf.FindContainerRequest.FilterEntry
-	(*Container)(nil),                      // 27: protobuf.Container
-	(*timestamppb.Timestamp)(nil),          // 28: google.protobuf.Timestamp
-	(*LogEvent)(nil),                       // 29: protobuf.LogEvent
-	(*ContainerEvent)(nil),                 // 30: protobuf.ContainerEvent
-	(*ContainerStat)(nil),                  // 31: protobuf.ContainerStat
-	(*Host)(nil),                           // 32: protobuf.Host
-	(ContainerAction)(0),                   // 33: protobuf.ContainerAction
+	(*ListContainersRequest)(nil),            // 0: protobuf.ListContainersRequest
+	(*RepeatedString)(nil),                   // 1: protobuf.RepeatedString
+	(*ListContainersResponse)(nil),           // 2: protobuf.ListContainersResponse
+	(*FindContainerRequest)(nil),             // 3: protobuf.FindContainerRequest
+	(*FindContainerResponse)(nil),            // 4: protobuf.FindContainerResponse
+	(*StreamLogsRequest)(nil),                // 5: protobuf.StreamLogsRequest
+	(*StreamLogsResponse)(nil),               // 6: protobuf.StreamLogsResponse
+	(*LogsBetweenDatesRequest)(nil),          // 7: protobuf.LogsBetweenDatesRequest
+	(*StreamRawBytesRequest)(nil),            // 8: protobuf.StreamRawBytesRequest
+	(*StreamRawBytesResponse)(nil),           // 9: protobuf.StreamRawBytesResponse
+	(*StreamEventsRequest)(nil),              // 10: protobuf.StreamEventsRequest
+	(*StreamEventsResponse)(nil),             // 11: protobuf.StreamEventsResponse
+	(*StreamStatsRequest)(nil),               // 12: protobuf.StreamStatsRequest
+	(*StreamStatsResponse)(nil),              // 13: protobuf.StreamStatsResponse
+	(*HostInfoRequest)(nil),                  // 14: protobuf.HostInfoRequest
+	(*HostInfoResponse)(nil),                 // 15: protobuf.HostInfoResponse
+	(*StreamContainerStartedRequest)(nil),    // 16: protobuf.StreamContainerStartedRequest
+	(*StreamContainerStartedResponse)(nil),   // 17: protobuf.StreamContainerStartedResponse
+	(*ContainerActionRequest)(nil),           // 18: protobuf.ContainerActionRequest
+	(*ContainerActionResponse)(nil),          // 19: protobuf.ContainerActionResponse
+	(*ContainerExecRequest)(nil),             // 20: protobuf.ContainerExecRequest
+	(*ResizePayload)(nil),                    // 21: protobuf.ResizePayload
+	(*ContainerExecResponse)(nil),            // 22: protobuf.ContainerExecResponse
+	(*ContainerAttachRequest)(nil),           // 23: protobuf.ContainerAttachRequest
+	(*ContainerAttachResponse)(nil),          // 24: protobuf.ContainerAttachResponse
+	(*UpdateNotificationConfigRequest)(nil),  // 25: protobuf.UpdateNotificationConfigRequest
+	(*UpdateNotificationConfigResponse)(nil), // 26: protobuf.UpdateNotificationConfigResponse
+	nil,                                      // 27: protobuf.ListContainersRequest.FilterEntry
+	nil,                                      // 28: protobuf.FindContainerRequest.FilterEntry
+	(*Container)(nil),                        // 29: protobuf.Container
+	(*timestamppb.Timestamp)(nil),            // 30: google.protobuf.Timestamp
+	(*LogEvent)(nil),                         // 31: protobuf.LogEvent
+	(*ContainerEvent)(nil),                   // 32: protobuf.ContainerEvent
+	(*ContainerStat)(nil),                    // 33: protobuf.ContainerStat
+	(*Host)(nil),                             // 34: protobuf.Host
+	(ContainerAction)(0),                     // 35: protobuf.ContainerAction
+	(*NotificationSubscription)(nil),         // 36: protobuf.NotificationSubscription
+	(*NotificationDispatcher)(nil),           // 37: protobuf.NotificationDispatcher
 }
 var file_rpc_proto_depIdxs = []int32{
-	25, // 0: protobuf.ListContainersRequest.filter:type_name -> protobuf.ListContainersRequest.FilterEntry
-	27, // 1: protobuf.ListContainersResponse.containers:type_name -> protobuf.Container
-	26, // 2: protobuf.FindContainerRequest.filter:type_name -> protobuf.FindContainerRequest.FilterEntry
-	27, // 3: protobuf.FindContainerResponse.container:type_name -> protobuf.Container
-	28, // 4: protobuf.StreamLogsRequest.since:type_name -> google.protobuf.Timestamp
-	29, // 5: protobuf.StreamLogsResponse.event:type_name -> protobuf.LogEvent
-	28, // 6: protobuf.LogsBetweenDatesRequest.since:type_name -> google.protobuf.Timestamp
-	28, // 7: protobuf.LogsBetweenDatesRequest.until:type_name -> google.protobuf.Timestamp
-	28, // 8: protobuf.StreamRawBytesRequest.since:type_name -> google.protobuf.Timestamp
-	28, // 9: protobuf.StreamRawBytesRequest.until:type_name -> google.protobuf.Timestamp
-	30, // 10: protobuf.StreamEventsResponse.event:type_name -> protobuf.ContainerEvent
-	31, // 11: protobuf.StreamStatsResponse.stat:type_name -> protobuf.ContainerStat
-	32, // 12: protobuf.HostInfoResponse.host:type_name -> protobuf.Host
-	27, // 13: protobuf.StreamContainerStartedResponse.container:type_name -> protobuf.Container
-	33, // 14: protobuf.ContainerActionRequest.action:type_name -> protobuf.ContainerAction
+	27, // 0: protobuf.ListContainersRequest.filter:type_name -> protobuf.ListContainersRequest.FilterEntry
+	29, // 1: protobuf.ListContainersResponse.containers:type_name -> protobuf.Container
+	28, // 2: protobuf.FindContainerRequest.filter:type_name -> protobuf.FindContainerRequest.FilterEntry
+	29, // 3: protobuf.FindContainerResponse.container:type_name -> protobuf.Container
+	30, // 4: protobuf.StreamLogsRequest.since:type_name -> google.protobuf.Timestamp
+	31, // 5: protobuf.StreamLogsResponse.event:type_name -> protobuf.LogEvent
+	30, // 6: protobuf.LogsBetweenDatesRequest.since:type_name -> google.protobuf.Timestamp
+	30, // 7: protobuf.LogsBetweenDatesRequest.until:type_name -> google.protobuf.Timestamp
+	30, // 8: protobuf.StreamRawBytesRequest.since:type_name -> google.protobuf.Timestamp
+	30, // 9: protobuf.StreamRawBytesRequest.until:type_name -> google.protobuf.Timestamp
+	32, // 10: protobuf.StreamEventsResponse.event:type_name -> protobuf.ContainerEvent
+	33, // 11: protobuf.StreamStatsResponse.stat:type_name -> protobuf.ContainerStat
+	34, // 12: protobuf.HostInfoResponse.host:type_name -> protobuf.Host
+	29, // 13: protobuf.StreamContainerStartedResponse.container:type_name -> protobuf.Container
+	35, // 14: protobuf.ContainerActionRequest.action:type_name -> protobuf.ContainerAction
 	21, // 15: protobuf.ContainerExecRequest.resize:type_name -> protobuf.ResizePayload
 	21, // 16: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
-	1,  // 17: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	1,  // 18: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	0,  // 19: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
-	3,  // 20: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
-	5,  // 21: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
-	7,  // 22: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
-	8,  // 23: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
-	10, // 24: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
-	12, // 25: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
-	16, // 26: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
-	14, // 27: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
-	18, // 28: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
-	20, // 29: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
-	23, // 30: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
-	2,  // 31: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
-	4,  // 32: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
-	6,  // 33: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
-	6,  // 34: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
-	9,  // 35: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
-	11, // 36: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
-	13, // 37: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
-	17, // 38: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
-	15, // 39: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
-	19, // 40: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
-	22, // 41: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
-	24, // 42: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
-	31, // [31:43] is the sub-list for method output_type
-	19, // [19:31] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	36, // 17: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
+	37, // 18: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
+	1,  // 19: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	1,  // 20: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	0,  // 21: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
+	3,  // 22: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
+	5,  // 23: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
+	7,  // 24: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
+	8,  // 25: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
+	10, // 26: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
+	12, // 27: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
+	16, // 28: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
+	14, // 29: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
+	18, // 30: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
+	20, // 31: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
+	23, // 32: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
+	25, // 33: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
+	2,  // 34: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
+	4,  // 35: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
+	6,  // 36: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
+	6,  // 37: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
+	9,  // 38: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
+	11, // 39: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
+	13, // 40: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
+	17, // 41: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
+	15, // 42: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
+	19, // 43: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
+	22, // 44: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
+	24, // 45: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
+	26, // 46: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
+	34, // [34:47] is the sub-list for method output_type
+	21, // [21:34] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }
@@ -1481,7 +1582,7 @@ func file_rpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   27,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

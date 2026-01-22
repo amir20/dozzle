@@ -128,3 +128,7 @@ func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []st
 
 	return nil
 }
+
+func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []agent.SubscriptionConfig, dispatchers []agent.DispatcherConfig) error {
+	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
+}

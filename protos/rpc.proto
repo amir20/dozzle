@@ -1,44 +1,48 @@
 syntax = "proto3";
-option go_package = "internal/agent/pb";
 
 package protobuf;
 
-import "types.proto";
 import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+option go_package = "internal/agent/pb";
 
 service AgentService {
   rpc ListContainers(ListContainersRequest) returns (ListContainersResponse) {}
   rpc FindContainer(FindContainerRequest) returns (FindContainerResponse) {}
   rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse) {}
-  rpc LogsBetweenDates(LogsBetweenDatesRequest)
-      returns (stream StreamLogsResponse) {}
-  rpc StreamRawBytes(StreamRawBytesRequest)
-      returns (stream StreamRawBytesResponse) {}
+  rpc LogsBetweenDates(LogsBetweenDatesRequest) returns (stream StreamLogsResponse) {}
+  rpc StreamRawBytes(StreamRawBytesRequest) returns (stream StreamRawBytesResponse) {}
   rpc StreamEvents(StreamEventsRequest) returns (stream StreamEventsResponse) {}
   rpc StreamStats(StreamStatsRequest) returns (stream StreamStatsResponse) {}
-  rpc StreamContainerStarted(StreamContainerStartedRequest)
-      returns (stream StreamContainerStartedResponse) {}
+  rpc StreamContainerStarted(StreamContainerStartedRequest) returns (stream StreamContainerStartedResponse) {}
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
-  rpc ContainerAction(ContainerActionRequest)
-      returns (ContainerActionResponse) {}
-  rpc ContainerExec(stream ContainerExecRequest)
-      returns (stream ContainerExecResponse) {}
-  rpc ContainerAttach(stream ContainerAttachRequest)
-      returns (stream ContainerAttachResponse) {}
+  rpc ContainerAction(ContainerActionRequest) returns (ContainerActionResponse) {}
+  rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
+  rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
+  rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
 }
 
-message ListContainersRequest { map<string, RepeatedString> filter = 1; }
+message ListContainersRequest {
+  map<string, RepeatedString> filter = 1;
+}
 
-message RepeatedString { repeated string values = 1; }
+message RepeatedString {
+  repeated string values = 1;
+}
 
-message ListContainersResponse { repeated Container containers = 1; }
+message ListContainersResponse {
+  repeated Container containers = 1;
+}
 
 message FindContainerRequest {
   string containerId = 1;
   map<string, RepeatedString> filter = 2;
 }
 
-message FindContainerResponse { Container container = 1; }
+message FindContainerResponse {
+  Container container = 1;
+}
 
 message StreamLogsRequest {
   string containerId = 1;
@@ -46,7 +50,9 @@ message StreamLogsRequest {
   int32 streamTypes = 3;
 }
 
-message StreamLogsResponse { LogEvent event = 1; }
+message StreamLogsResponse {
+  LogEvent event = 1;
+}
 
 message LogsBetweenDatesRequest {
   string containerId = 1;
@@ -61,20 +67,30 @@ message StreamRawBytesRequest {
   google.protobuf.Timestamp until = 3;
   int32 streamTypes = 4;
 }
-message StreamRawBytesResponse { bytes data = 1; }
+message StreamRawBytesResponse {
+  bytes data = 1;
+}
 
 message StreamEventsRequest {}
-message StreamEventsResponse { ContainerEvent event = 1; }
+message StreamEventsResponse {
+  ContainerEvent event = 1;
+}
 
 message StreamStatsRequest {}
-message StreamStatsResponse { ContainerStat stat = 1; }
+message StreamStatsResponse {
+  ContainerStat stat = 1;
+}
 
 message HostInfoRequest {}
 
-message HostInfoResponse { Host host = 1; }
+message HostInfoResponse {
+  Host host = 1;
+}
 
 message StreamContainerStartedRequest {}
-message StreamContainerStartedResponse { Container container = 1; }
+message StreamContainerStartedResponse {
+  Container container = 1;
+}
 
 message ContainerActionRequest {
   string containerId = 1;
@@ -97,7 +113,9 @@ message ResizePayload {
   uint32 height = 2;
 }
 
-message ContainerExecResponse { bytes stdout = 1; }
+message ContainerExecResponse {
+  bytes stdout = 1;
+}
 
 message ContainerAttachRequest {
   string containerId = 1;
@@ -107,4 +125,13 @@ message ContainerAttachRequest {
   }
 }
 
-message ContainerAttachResponse { bytes stdout = 1; }
+message ContainerAttachResponse {
+  bytes stdout = 1;
+}
+
+message UpdateNotificationConfigRequest {
+  repeated NotificationSubscription subscriptions = 1;
+  repeated NotificationDispatcher dispatchers = 2;
+}
+
+message UpdateNotificationConfigResponse {}

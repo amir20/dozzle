@@ -12,6 +12,9 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/internal/notification"
+	container_support "github.com/amir20/dozzle/internal/support/container"
+	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -43,7 +46,19 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	io.WriteString(tempFile, listener.Addr().String())
 	log.Debug().Str("file", tempFile.Name()).Msg("Created temp file")
 	go StartEvent(args, "", client, "agent")
-	server, err := agent.NewServer(client, certs, args.Version(), args.Filter)
+
+	// Create notification manager for the agent
+	notifCtx := context.Background()
+	clientService := docker_support.NewDockerClientService(client, args.Filter)
+	clients := []container_support.ClientService{clientService}
+	notifListener := notification.NewContainerLogListener(notifCtx, clients)
+	notificationManager := notification.NewManager(notifListener)
+	if err := notificationManager.Start(); err != nil {
+		log.Error().Err(err).Msg("Failed to start notification manager in agent")
+	}
+	notificationHandler := NewAgentNotificationHandler(notificationManager)
+
+	server, err := agent.NewServer(client, certs, args.Version(), args.Filter, notificationHandler)
 	if err != nil {
 		return fmt.Errorf("failed to create agent server: %w", err)
 	}

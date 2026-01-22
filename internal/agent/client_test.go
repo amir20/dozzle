@@ -124,7 +124,7 @@ func init() {
 	})
 
 	client.On("FindContainer", mock.Anything, "123456").Return(wantedContainer, nil)
-	server, _ := NewServer(client, certs, "test", container.ContainerLabels{})
+	server, _ := NewServer(client, certs, "test", container.ContainerLabels{}, nil)
 	go server.Serve(lis)
 }
 

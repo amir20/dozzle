@@ -19,18 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AgentService_ListContainers_FullMethodName         = "/protobuf.AgentService/ListContainers"
-	AgentService_FindContainer_FullMethodName          = "/protobuf.AgentService/FindContainer"
-	AgentService_StreamLogs_FullMethodName             = "/protobuf.AgentService/StreamLogs"
-	AgentService_LogsBetweenDates_FullMethodName       = "/protobuf.AgentService/LogsBetweenDates"
-	AgentService_StreamRawBytes_FullMethodName         = "/protobuf.AgentService/StreamRawBytes"
-	AgentService_StreamEvents_FullMethodName           = "/protobuf.AgentService/StreamEvents"
-	AgentService_StreamStats_FullMethodName            = "/protobuf.AgentService/StreamStats"
-	AgentService_StreamContainerStarted_FullMethodName = "/protobuf.AgentService/StreamContainerStarted"
-	AgentService_HostInfo_FullMethodName               = "/protobuf.AgentService/HostInfo"
-	AgentService_ContainerAction_FullMethodName        = "/protobuf.AgentService/ContainerAction"
-	AgentService_ContainerExec_FullMethodName          = "/protobuf.AgentService/ContainerExec"
-	AgentService_ContainerAttach_FullMethodName        = "/protobuf.AgentService/ContainerAttach"
+	AgentService_ListContainers_FullMethodName           = "/protobuf.AgentService/ListContainers"
+	AgentService_FindContainer_FullMethodName            = "/protobuf.AgentService/FindContainer"
+	AgentService_StreamLogs_FullMethodName               = "/protobuf.AgentService/StreamLogs"
+	AgentService_LogsBetweenDates_FullMethodName         = "/protobuf.AgentService/LogsBetweenDates"
+	AgentService_StreamRawBytes_FullMethodName           = "/protobuf.AgentService/StreamRawBytes"
+	AgentService_StreamEvents_FullMethodName             = "/protobuf.AgentService/StreamEvents"
+	AgentService_StreamStats_FullMethodName              = "/protobuf.AgentService/StreamStats"
+	AgentService_StreamContainerStarted_FullMethodName   = "/protobuf.AgentService/StreamContainerStarted"
+	AgentService_HostInfo_FullMethodName                 = "/protobuf.AgentService/HostInfo"
+	AgentService_ContainerAction_FullMethodName          = "/protobuf.AgentService/ContainerAction"
+	AgentService_ContainerExec_FullMethodName            = "/protobuf.AgentService/ContainerExec"
+	AgentService_ContainerAttach_FullMethodName          = "/protobuf.AgentService/ContainerAttach"
+	AgentService_UpdateNotificationConfig_FullMethodName = "/protobuf.AgentService/UpdateNotificationConfig"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -49,6 +50,7 @@ type AgentServiceClient interface {
 	ContainerAction(ctx context.Context, in *ContainerActionRequest, opts ...grpc.CallOption) (*ContainerActionResponse, error)
 	ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error)
 	ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error)
+	UpdateNotificationConfig(ctx context.Context, in *UpdateNotificationConfigRequest, opts ...grpc.CallOption) (*UpdateNotificationConfigResponse, error)
 }
 
 type agentServiceClient struct {
@@ -239,6 +241,16 @@ func (c *agentServiceClient) ContainerAttach(ctx context.Context, opts ...grpc.C
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_ContainerAttachClient = grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse]
 
+func (c *agentServiceClient) UpdateNotificationConfig(ctx context.Context, in *UpdateNotificationConfigRequest, opts ...grpc.CallOption) (*UpdateNotificationConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateNotificationConfigResponse)
+	err := c.cc.Invoke(ctx, AgentService_UpdateNotificationConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
@@ -255,6 +267,7 @@ type AgentServiceServer interface {
 	ContainerAction(context.Context, *ContainerActionRequest) (*ContainerActionResponse, error)
 	ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error
 	ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error
+	UpdateNotificationConfig(context.Context, *UpdateNotificationConfigRequest) (*UpdateNotificationConfigResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -300,6 +313,9 @@ func (UnimplementedAgentServiceServer) ContainerExec(grpc.BidiStreamingServer[Co
 }
 func (UnimplementedAgentServiceServer) ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error {
 	return status.Error(codes.Unimplemented, "method ContainerAttach not implemented")
+}
+func (UnimplementedAgentServiceServer) UpdateNotificationConfig(context.Context, *UpdateNotificationConfigRequest) (*UpdateNotificationConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateNotificationConfig not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -474,6 +490,24 @@ func _AgentService_ContainerAttach_Handler(srv interface{}, stream grpc.ServerSt
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AgentService_ContainerAttachServer = grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]
 
+func _AgentService_UpdateNotificationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNotificationConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).UpdateNotificationConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_UpdateNotificationConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).UpdateNotificationConfig(ctx, req.(*UpdateNotificationConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -496,6 +530,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ContainerAction",
 			Handler:    _AgentService_ContainerAction_Handler,
+		},
+		{
+			MethodName: "UpdateNotificationConfig",
+			Handler:    _AgentService_UpdateNotificationConfig_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

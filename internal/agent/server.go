@@ -26,21 +26,29 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// NotificationConfigHandler handles notification config updates received from the main server
+type NotificationConfigHandler interface {
+	HandleNotificationConfig(subscriptions []SubscriptionConfig, dispatchers []DispatcherConfig) error
+}
+
 type server struct {
-	client  container.Client
-	store   *container.ContainerStore
-	version string
+	client                    container.Client
+	store                     *container.ContainerStore
+	version                   string
+	notificationConfigHandler NotificationConfigHandler
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client container.Client, dozzleVersion string, labels container.ContainerLabels) pb.AgentServiceServer {
+func newServer(client container.Client, dozzleVersion string, labels container.ContainerLabels, notificationHandler NotificationConfigHandler) pb.AgentServiceServer {
 	statsCollector := docker.NewDockerStatsCollector(client, labels)
-	return &server{
-		client:  client,
-		version: dozzleVersion,
+	ctx := context.Background()
 
-		store: container.NewContainerStore(context.Background(), client, statsCollector, labels),
+	return &server{
+		client:                    client,
+		version:                   dozzleVersion,
+		store:                     container.NewContainerStore(ctx, client, statsCollector, labels),
+		notificationConfigHandler: notificationHandler,
 	}
 }
 
@@ -404,7 +412,48 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 	return nil
 }
 
-func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
+func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNotificationConfigRequest) (*pb.UpdateNotificationConfigResponse, error) {
+	if s.notificationConfigHandler == nil {
+		log.Warn().Msg("No notification config handler registered, ignoring config update")
+		return &pb.UpdateNotificationConfigResponse{}, nil
+	}
+
+	// Convert proto subscriptions to agent types
+	subscriptions := make([]SubscriptionConfig, len(req.Subscriptions))
+	for i, sub := range req.Subscriptions {
+		subscriptions[i] = SubscriptionConfig{
+			ID:                  int(sub.Id),
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        int(sub.DispatcherId),
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	// Convert proto dispatchers to agent types
+	dispatchers := make([]DispatcherConfig, len(req.Dispatchers))
+	for i, d := range req.Dispatchers {
+		dispatchers[i] = DispatcherConfig{
+			ID:       int(d.Id),
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.Url,
+			Template: d.Template,
+		}
+	}
+
+	// Call the handler
+	if err := s.notificationConfigHandler.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
+		log.Error().Err(err).Msg("Failed to handle notification config")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
+	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -423,7 +472,7 @@ func NewServer(client container.Client, certificates tls.Certificate, dozzleVers
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, labels))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, labels, notificationHandler))
 
 	return grpcServer, nil
 }

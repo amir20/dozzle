@@ -482,6 +482,58 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
+// SubscriptionConfig is a simple struct for notification subscription data without circular dependencies
+type SubscriptionConfig struct {
+	ID                  int
+	Name                string
+	Enabled             bool
+	DispatcherID        int
+	LogExpression       string
+	ContainerExpression string
+}
+
+// DispatcherConfig is a simple struct for dispatcher data without circular dependencies
+type DispatcherConfig struct {
+	ID       int
+	Name     string
+	Type     string
+	URL      string
+	Template string
+}
+
+func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []SubscriptionConfig, dispatchers []DispatcherConfig) error {
+	// Convert to proto
+	pbSubs := make([]*pb.NotificationSubscription, len(subscriptions))
+	for i, sub := range subscriptions {
+		pbSubs[i] = &pb.NotificationSubscription{
+			Id:                  int32(sub.ID),
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherId:        int32(sub.DispatcherID),
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	pbDispatchers := make([]*pb.NotificationDispatcher, len(dispatchers))
+	for i, d := range dispatchers {
+		pbDispatchers[i] = &pb.NotificationDispatcher{
+			Id:       int32(d.ID),
+			Name:     d.Name,
+			Type:     d.Type,
+			Url:      d.URL,
+			Template: d.Template,
+		}
+	}
+
+	_, err := c.client.UpdateNotificationConfig(ctx, &pb.UpdateNotificationConfigRequest{
+		Subscriptions: pbSubs,
+		Dispatchers:   pbDispatchers,
+	})
+
+	return err
+}
+
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
 	var data *orderedmap.OrderedMap[string, any]
 	reader := bytes.NewReader(b)
