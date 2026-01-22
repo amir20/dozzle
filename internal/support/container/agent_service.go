@@ -3,6 +3,7 @@ package container_support
 import (
 	"context"
 	"io"
+	"sync/atomic"
 
 	"time"
 
@@ -14,7 +15,7 @@ import (
 
 type agentService struct {
 	client *agent.Client
-	host   container.Host
+	host   atomic.Pointer[container.Host]
 }
 
 func NewAgentService(client *agent.Client) ClientService {
@@ -47,13 +48,16 @@ func (a *agentService) ListContainers(ctx context.Context, labels container.Cont
 func (a *agentService) Host(ctx context.Context) (container.Host, error) {
 	host, err := a.client.Host(ctx)
 	if err != nil {
-		host := a.host
-		host.Available = false
-		return host, err
+		if cached := a.host.Load(); cached != nil {
+			h := *cached
+			h.Available = false
+			return h, err
+		}
+		return container.Host{Available: false}, err
 	}
 
-	a.host = host
-	return a.host, err
+	a.host.Store(&host)
+	return host, nil
 }
 
 func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
