@@ -15,6 +15,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -28,7 +29,7 @@ import (
 
 // NotificationConfigHandler handles notification config updates received from the main server
 type NotificationConfigHandler interface {
-	HandleNotificationConfig(subscriptions []SubscriptionConfig, dispatchers []DispatcherConfig) error
+	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
 }
 
 type server struct {
@@ -418,10 +419,10 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		return &pb.UpdateNotificationConfigResponse{}, nil
 	}
 
-	// Convert proto subscriptions to agent types
-	subscriptions := make([]SubscriptionConfig, len(req.Subscriptions))
+	// Convert proto subscriptions to types
+	subscriptions := make([]types.SubscriptionConfig, len(req.Subscriptions))
 	for i, sub := range req.Subscriptions {
-		subscriptions[i] = SubscriptionConfig{
+		subscriptions[i] = types.SubscriptionConfig{
 			ID:                  int(sub.Id),
 			Name:                sub.Name,
 			Enabled:             sub.Enabled,
@@ -431,10 +432,10 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		}
 	}
 
-	// Convert proto dispatchers to agent types
-	dispatchers := make([]DispatcherConfig, len(req.Dispatchers))
+	// Convert proto dispatchers to types
+	dispatchers := make([]types.DispatcherConfig, len(req.Dispatchers))
 	for i, d := range req.Dispatchers {
-		dispatchers[i] = DispatcherConfig{
+		dispatchers[i] = types.DispatcherConfig{
 			ID:       int(d.Id),
 			Name:     d.Name,
 			Type:     d.Type,

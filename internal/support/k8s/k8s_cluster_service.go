@@ -10,6 +10,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/amir20/dozzle/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -170,6 +171,6 @@ func (m *K8sClusterService) UpdateDispatcher(id int, d dispatcher.Dispatcher) {
 func (m *K8sClusterService) RemoveDispatcher(id int) {
 }
 
-func (m *K8sClusterService) Dispatchers() []notification.DispatcherConfig {
-	return []notification.DispatcherConfig{}
+func (m *K8sClusterService) Dispatchers() []types.DispatcherConfig {
+	return []types.DispatcherConfig{}
 }

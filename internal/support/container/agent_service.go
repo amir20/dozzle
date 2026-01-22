@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/rs/zerolog/log"
 )
@@ -129,6 +130,6 @@ func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []st
 	return nil
 }
 
-func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []agent.SubscriptionConfig, dispatchers []agent.DispatcherConfig) error {
+func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
 }

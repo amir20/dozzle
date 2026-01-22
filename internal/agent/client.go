@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -482,26 +483,7 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-// SubscriptionConfig is a simple struct for notification subscription data without circular dependencies
-type SubscriptionConfig struct {
-	ID                  int
-	Name                string
-	Enabled             bool
-	DispatcherID        int
-	LogExpression       string
-	ContainerExpression string
-}
-
-// DispatcherConfig is a simple struct for dispatcher data without circular dependencies
-type DispatcherConfig struct {
-	ID       int
-	Name     string
-	Type     string
-	URL      string
-	Template string
-}
-
-func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []SubscriptionConfig, dispatchers []DispatcherConfig) error {
+func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	// Convert to proto
 	pbSubs := make([]*pb.NotificationSubscription, len(subscriptions))
 	for i, sub := range subscriptions {

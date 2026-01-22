@@ -277,13 +277,13 @@ func (m *Manager) Subscriptions() []*Subscription {
 	return result
 }
 
-// Dispatchers returns all dispatchers as DispatcherConfig sorted by ID
-func (m *Manager) Dispatchers() []DispatcherConfig {
-	result := make([]DispatcherConfig, 0)
+// Dispatchers returns all dispatchers as types.DispatcherConfig sorted by ID
+func (m *Manager) Dispatchers() []types.DispatcherConfig {
+	result := make([]types.DispatcherConfig, 0)
 	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
 		switch v := d.(type) {
 		case *dispatcher.WebhookDispatcher:
-			result = append(result, DispatcherConfig{
+			result = append(result, types.DispatcherConfig{
 				ID:       id,
 				Name:     v.Name,
 				Type:     "webhook",
@@ -293,7 +293,7 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 		}
 		return true
 	})
-	slices.SortFunc(result, func(a, b DispatcherConfig) int {
+	slices.SortFunc(result, func(a, b types.DispatcherConfig) int {
 		return a.ID - b.ID
 	})
 	return result
@@ -451,9 +451,9 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 	return nil
 }
 
-// ReplaceState atomically replaces all subscriptions and dispatchers with new state
-// This is used for syncing state from the main server to agents
-func (m *Manager) ReplaceState(subscriptions []*Subscription, dispatchers []DispatcherConfig) error {
+// HandleNotificationConfig implements agent.NotificationConfigHandler interface
+// It atomically replaces all subscriptions and dispatchers with new state from the main server
+func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	// Clear existing state
 	m.subscriptions.Clear()
 	m.dispatchers.Clear()
@@ -473,9 +473,17 @@ func (m *Manager) ReplaceState(subscriptions []*Subscription, dispatchers []Disp
 	m.subscriptionCounter.Store(int32(maxSubID))
 	m.dispatcherCounter.Store(int32(maxDispatcherID))
 
-	// Load subscriptions
+	// Load subscriptions (convert from types.SubscriptionConfig to Subscription)
 	for _, sub := range subscriptions {
-		if err := m.loadSubscription(sub); err != nil {
+		s := &Subscription{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
 		}
 	}

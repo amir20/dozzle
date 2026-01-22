@@ -6,11 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
 )
@@ -231,35 +231,24 @@ func (m *MultiHostService) saveNotificationConfig() {
 
 // NotificationConfigUpdater is an interface for clients that support notification config updates
 type NotificationConfigUpdater interface {
-	UpdateNotificationConfig(ctx context.Context, subscriptions []agent.SubscriptionConfig, dispatchers []agent.DispatcherConfig) error
+	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
 }
 
 // broadcastNotificationConfig sends current notification config to all agent clients
 func (m *MultiHostService) broadcastNotificationConfig() {
 	notifSubs := m.notificationManager.Subscriptions()
-	notifDispatchers := m.notificationManager.Dispatchers()
+	dispatchers := m.notificationManager.Dispatchers()
 
-	// Convert notification types to agent types
-	subscriptions := make([]agent.SubscriptionConfig, len(notifSubs))
+	// Convert notification.Subscription to types.SubscriptionConfig
+	subscriptions := make([]types.SubscriptionConfig, len(notifSubs))
 	for i, sub := range notifSubs {
-		subscriptions[i] = agent.SubscriptionConfig{
+		subscriptions[i] = types.SubscriptionConfig{
 			ID:                  sub.ID,
 			Name:                sub.Name,
 			Enabled:             sub.Enabled,
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
-		}
-	}
-
-	dispatchers := make([]agent.DispatcherConfig, len(notifDispatchers))
-	for i, d := range notifDispatchers {
-		dispatchers[i] = agent.DispatcherConfig{
-			ID:       d.ID,
-			Name:     d.Name,
-			Type:     d.Type,
-			URL:      d.URL,
-			Template: d.Template,
 		}
 	}
 
@@ -337,6 +326,6 @@ func (m *MultiHostService) Subscriptions() []*notification.Subscription {
 }
 
 // Dispatchers returns all dispatchers
-func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
+func (m *MultiHostService) Dispatchers() []types.DispatcherConfig {
 	return m.notificationManager.Dispatchers()
 }

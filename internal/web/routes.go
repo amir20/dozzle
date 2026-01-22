@@ -13,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/amir20/dozzle/types"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -84,7 +85,7 @@ type HostService interface {
 	AddDispatcher(d dispatcher.Dispatcher) int
 	UpdateDispatcher(id int, d dispatcher.Dispatcher)
 	RemoveDispatcher(id int)
-	Dispatchers() []notification.DispatcherConfig
+	Dispatchers() []types.DispatcherConfig
 }
 
 type handler struct {
