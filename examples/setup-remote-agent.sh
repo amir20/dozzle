@@ -1,14 +1,39 @@
 #!/bin/bash
 set -e
 
+# Parse arguments
+USE_LOCAL=false
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --local)
+      USE_LOCAL=true
+      shift
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
 # Configuration
-VM_NAME="${1:-dozzle-agent}"
-DISTRO="${2:-ubuntu}"
-AGENT_PORT="${3:-7007}"
+VM_NAME="${POSITIONAL_ARGS[0]:-dozzle-agent}"
+DISTRO="${POSITIONAL_ARGS[1]:-ubuntu}"
+AGENT_PORT="${POSITIONAL_ARGS[2]:-7007}"
 SHARED_CERT="./shared_cert.pem"
 SHARED_KEY="./shared_key.pem"
+DOZZLE_IMAGE="amir20/dozzle:latest"
+
+if [ "$USE_LOCAL" = true ]; then
+    DOZZLE_IMAGE="amir20/dozzle:local"
+fi
 
 echo "🚀 Setting up Dozzle Agent on OrbStack VM: $VM_NAME"
+if [ "$USE_LOCAL" = true ]; then
+    echo "   Using locally built image"
+fi
 
 # Verify shared certificates exist
 if [ ! -f "$SHARED_CERT" ]; then
@@ -40,10 +65,7 @@ sleep 3
 
 # Step 2: Install Docker in the VM
 echo "🐳 Installing Docker..."
-if ! orb exec -m "$VM_NAME" bash -c '
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $(whoami)
-'; then
+if ! orb exec -m "$VM_NAME" bash -c 'curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker $(whoami)'; then
     echo "❌ Docker installation failed"
     exit 1
 fi
@@ -62,17 +84,41 @@ cat "$SHARED_KEY" | orb exec -m "$VM_NAME" bash -c 'cat > ~/dozzle-certs/shared_
 
 echo "✅ Certificates copied"
 
-# Step 4: Start Dozzle agent
+# Step 4: Load or pull Dozzle image
+if [ "$USE_LOCAL" = true ]; then
+    echo "🔨 Building local Docker image..."
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+    if ! (cd "$PROJECT_ROOT" && make docker); then
+        echo "❌ Failed to build Docker image"
+        exit 1
+    fi
+
+    echo "📦 Loading image into VM..."
+    if ! docker save amir20/dozzle:local | orb exec -m "$VM_NAME" docker load; then
+        echo "❌ Failed to load image into VM"
+        exit 1
+    fi
+    echo "✅ Local image loaded"
+else
+    echo "📥 Pulling Dozzle image..."
+    if ! orb exec -m "$VM_NAME" docker pull amir20/dozzle:latest; then
+        echo "❌ Failed to pull image"
+        exit 1
+    fi
+fi
+
+# Step 5: Start Dozzle agent
 echo "🎯 Starting Dozzle agent..."
 if ! orb exec -m "$VM_NAME" bash -c "
 set -e
-docker pull amir20/dozzle:latest
 docker run -d --name dozzle-agent \
   --restart unless-stopped \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v ~/dozzle-certs:/certs \
   -p $AGENT_PORT:7007 \
-  amir20/dozzle:latest agent \
+  $DOZZLE_IMAGE agent \
   --cert /certs/shared_cert.pem \
   --key /certs/shared_key.pem
 "; then
@@ -82,11 +128,11 @@ fi
 
 echo "✅ Dozzle agent started"
 
-# Step 5: Wait for agent to be ready
+# Step 6: Wait for agent to be ready
 echo "⏳ Waiting for agent to be ready..."
 sleep 3
 
-# Step 6: Verify agent is running
+# Step 7: Verify agent is running
 echo "🧪 Verifying agent is running..."
 if orb exec -m "$VM_NAME" docker ps --filter name=dozzle-agent --format "{{.Status}}" | grep -q "Up"; then
     echo "✅ Agent is running"

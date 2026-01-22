@@ -30,7 +30,7 @@ build: dist generate
 
 .PHONY: docker
 docker: shared_key.pem shared_cert.pem
-	@docker build  --build-arg TAG=local -t amir20/dozzle .
+	@docker build --build-arg TAG=local -t amir20/dozzle:local .
 
 generate: shared_key.pem shared_cert.pem $(GEN_FILES)
 
@@ -64,7 +64,16 @@ tools:
 	go install github.com/air-verse/air@latest
 
 run: docker
-	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:latest
+	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local
 
 preview: build
 	pnpm preview
+
+.PHONY: agent-reload
+agent-reload: docker
+	@VM_NAME=$${VM_NAME:-dozzle-agent}; \
+	echo "📦 Loading image into VM $$VM_NAME..."; \
+	docker save amir20/dozzle:local | orb exec -m $$VM_NAME docker load; \
+	echo "🔄 Restarting agent..."; \
+	orb exec -m $$VM_NAME docker restart dozzle-agent; \
+	echo "✅ Agent reloaded"

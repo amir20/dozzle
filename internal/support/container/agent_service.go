@@ -2,16 +2,13 @@ package container_support
 
 import (
 	"context"
-	"encoding/json"
 	"io"
-	"sync"
 
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/types"
-	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/rs/zerolog/log"
 )
 
@@ -80,54 +77,7 @@ func (a *agentService) Attach(ctx context.Context, container container.Container
 }
 
 func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
-	cancelCtx, cancel := context.WithCancel(ctx)
-	session, err := a.client.ContainerExec(cancelCtx, c.ID, cmd)
-
-	if err != nil {
-		cancel()
-		return err
-	}
-
-	var wg sync.WaitGroup
-
-	wg.Go(func() {
-		decoder := json.NewDecoder(stdin)
-	loop:
-		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
-				if err != io.EOF {
-					log.Error().Err(err).Msg("error decoding event from ws using agent")
-				}
-				break
-			}
-
-			switch event.Type {
-			case "userinput":
-				if _, err := session.Writer.Write([]byte(event.Data)); err != nil {
-					log.Error().Err(err).Msg("error writing to container using agent")
-					break loop
-				}
-			case "resize":
-				if err := session.Resize(event.Width, event.Height); err != nil {
-					log.Error().Err(err).Msg("error resizing terminal using agent")
-				}
-			}
-		}
-		cancel()
-		session.Writer.Close()
-	})
-
-	wg.Go(func() {
-		if _, err := stdcopy.StdCopy(stdout, stdout, session.Reader); err != nil {
-			log.Error().Err(err).Msg("error while writing to ws using agent")
-		}
-		cancel()
-	})
-
-	wg.Wait()
-
-	return nil
+	return a.client.Exec(ctx, c.ID, cmd, stdin, stdout)
 }
 
 func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {

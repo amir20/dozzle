@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 	"time"
 
 	"encoding/json"
@@ -413,70 +414,63 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 	}, nil
 }
 
-func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (*container.ExecSession, error) {
+func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, stdin io.Reader, stdout io.Writer) error {
 	stream, err := c.client.ContainerExec(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = stream.Send(&pb.ContainerExecRequest{
 		ContainerId: containerId,
 		Command:     cmd,
 	}); err != nil {
-		return nil, err
+		return err
 	}
-	stdoutReader, stdoutWriter := io.Pipe()
-	stdinReader, stdinWriter := io.Pipe()
 
-	go func() {
-		defer stdoutWriter.Close()
+	var wg sync.WaitGroup
 
+	// Read from gRPC stream and write to stdout
+	wg.Go(func() {
 		for {
 			msg, err := stream.Recv()
 			if err != nil {
 				return
 			}
-
-			stdoutWriter.Write(msg.Stdout)
+			stdout.Write(msg.Stdout)
 		}
-	}()
+	})
 
-	go func() {
-		buffer := make([]byte, 1024)
-
+	// Read JSON events from stdin and convert to gRPC messages
+	wg.Go(func() {
+		decoder := json.NewDecoder(stdin)
 		for {
-			n, err := stdinReader.Read(buffer)
-			if err != nil {
+			var event container.ExecEvent
+			if err := decoder.Decode(&event); err != nil {
 				return
 			}
 
-			if err := stream.Send(&pb.ContainerExecRequest{
-				Payload: &pb.ContainerExecRequest_Stdin{
-					Stdin: buffer[:n],
-				},
-			}); err != nil {
-				return
+			switch event.Type {
+			case "userinput":
+				stream.Send(&pb.ContainerExecRequest{
+					Payload: &pb.ContainerExecRequest_Stdin{
+						Stdin: []byte(event.Data),
+					},
+				})
+			case "resize":
+				stream.Send(&pb.ContainerExecRequest{
+					Payload: &pb.ContainerExecRequest_Resize{
+						Resize: &pb.ResizePayload{
+							Width:  uint32(event.Width),
+							Height: uint32(event.Height),
+						},
+					},
+				})
 			}
 		}
-	}()
+	})
 
-	// Create resize closure that sends via gRPC
-	resizeFn := func(width uint, height uint) error {
-		return stream.Send(&pb.ContainerExecRequest{
-			Payload: &pb.ContainerExecRequest_Resize{
-				Resize: &pb.ResizePayload{
-					Width:  uint32(width),
-					Height: uint32(height),
-				},
-			},
-		})
-	}
-
-	return &container.ExecSession{
-		Writer: stdinWriter,
-		Reader: stdoutReader,
-		Resize: resizeFn,
-	}, nil
+	wg.Wait()
+	return nil
 }
 
 func (c *Client) Close() error {
