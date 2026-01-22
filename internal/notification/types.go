@@ -10,6 +10,8 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 	"github.com/puzpuzpuz/xsync/v4"
+	"github.com/rs/zerolog/log"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // FromContainerModel converts internal container.Container to types.NotificationContainer
@@ -41,7 +43,7 @@ func FromLogEvent(l container.LogEvent) types.NotificationLog {
 
 // extractMessage extracts and joins message from LogEvent
 // For grouped logs (fragments), joins them into a single string
-// For complex logs (JSON/objects), keeps the original map
+// For complex logs (JSON/objects), converts to a regular map for expr compatibility
 // For simple logs, returns the string as-is
 func extractMessage(l container.LogEvent) any {
 	switch v := l.Message.(type) {
@@ -53,8 +55,22 @@ func extractMessage(l container.LogEvent) any {
 			parts = append(parts, fragment.Message)
 		}
 		return strings.Join(parts, "")
+	case *orderedmap.OrderedMap[string, any]:
+		// Convert OrderedMap to regular map for expr compatibility
+		result := make(map[string]any)
+		for pair := v.Oldest(); pair != nil; pair = pair.Next() {
+			result[pair.Key] = pair.Value
+		}
+		return result
+	case *orderedmap.OrderedMap[string, string]:
+		// Convert OrderedMap[string, string] to regular map for expr compatibility
+		result := make(map[string]any)
+		for pair := v.Oldest(); pair != nil; pair = pair.Next() {
+			result[pair.Key] = pair.Value
+		}
+		return result
 	default:
-		// For complex objects (maps/JSON), keep the original structure
+		// For other complex objects, keep the original structure
 		return v
 	}
 }
@@ -117,6 +133,7 @@ func (s *Subscription) MatchesContainer(c types.NotificationContainer) bool {
 
 	result, err := expr.Run(s.ContainerProgram, c)
 	if err != nil {
+		log.Warn().Err(err).Str("expression", s.ContainerExpression).Msg("container expression evaluation error")
 		return false
 	}
 
@@ -132,6 +149,7 @@ func (s *Subscription) MatchesLog(l types.NotificationLog) bool {
 
 	result, err := expr.Run(s.LogProgram, l)
 	if err != nil {
+		log.Warn().Err(err).Str("expression", s.LogExpression).Msg("log expression evaluation error")
 		return false
 	}
 
