@@ -54,7 +54,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	notifListener := notification.NewContainerLogListener(notifCtx, clients)
 	notificationManager := notification.NewManager(notifListener)
 	if err := notificationManager.Start(); err != nil {
-		log.Error().Err(err).Msg("Failed to start notification manager in agent")
+		return fmt.Errorf("failed to start notification manager: %w", err)
 	}
 
 	server, err := agent.NewServer(client, certs, args.Version(), args.Filter, notificationManager)
