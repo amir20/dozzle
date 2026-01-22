@@ -16,7 +16,6 @@ import (
 	"github.com/amir20/dozzle/internal/releases"
 	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
-	"github.com/expr-lang/expr/vm"
 )
 
 // Labels is the resolver for the labels field.
@@ -193,43 +192,45 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 		MatchedLogs:       []*container.LogEvent{},
 	}
 
-	// Compile and test container expression
-	var containerProgram *vm.Program
-	if input.ContainerExpression != "" {
-		program, err := expr.Compile(input.ContainerExpression, expr.Env(types.NotificationContainer{}))
+	// Create a temporary subscription to use the same code path as the manager
+	sub := &notification.Subscription{
+		ContainerExpression: input.ContainerExpression,
+	}
+	if input.LogExpression != nil {
+		sub.LogExpression = *input.LogExpression
+	}
+
+	// Compile container expression
+	if sub.ContainerExpression != "" {
+		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
 		if err != nil {
 			errStr := err.Error()
 			result.ContainerError = &errStr
 		} else {
-			containerProgram = program
+			sub.ContainerProgram = program
 		}
 	}
 
-	// Compile and test log expression
-	var logProgram *vm.Program
-	if input.LogExpression != nil && *input.LogExpression != "" {
-		program, err := expr.Compile(*input.LogExpression, expr.Env(types.NotificationLog{}))
+	// Compile log expression
+	if sub.LogExpression != "" {
+		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
 		if err != nil {
 			errStr := err.Error()
 			result.LogError = &errStr
 		} else {
-			logProgram = program
+			sub.LogProgram = program
 		}
 	}
 
 	// If container expression is valid, find matching running containers
-	if containerProgram != nil {
+	if sub.ContainerProgram != nil {
 		containers, _ := r.HostService.ListAllContainers(container.ContainerLabels{})
 		for _, c := range containers {
 			if c.State != "running" {
 				continue
 			}
 			nc := notification.FromContainerModel(c)
-			evalResult, err := expr.Run(containerProgram, nc)
-			if err != nil {
-				continue
-			}
-			if match, ok := evalResult.(bool); ok && match {
+			if sub.MatchesContainer(nc) {
 				containerCopy := c
 				result.MatchedContainers = append(result.MatchedContainers, &containerCopy)
 			}
@@ -237,7 +238,7 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 	}
 
 	// If log expression is valid and we have matching containers, fetch real logs
-	if logProgram != nil && len(result.MatchedContainers) > 0 {
+	if sub.LogProgram != nil && len(result.MatchedContainers) > 0 {
 		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 
@@ -268,14 +269,9 @@ func (r *mutationResolver) PreviewExpression(ctx context.Context, input model.Pr
 					continue
 				}
 
-				// Convert to notification.Log for expression evaluation
-				l := notification.FromLogEvent(*logEvent)
-				evalResult, err := expr.Run(logProgram, l)
-				if err != nil {
-					continue
-				}
-
-				if match, ok := evalResult.(bool); ok && match {
+				// Use the same code path as manager.processLogEvent
+				notificationLog := notification.FromLogEvent(*logEvent)
+				if sub.MatchesLog(notificationLog) {
 					totalMatched++
 					if len(result.MatchedLogs) < maxLogs {
 						result.MatchedLogs = append(result.MatchedLogs, logEvent)
