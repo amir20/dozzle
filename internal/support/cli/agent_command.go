@@ -49,8 +49,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	// Create notification manager for the agent
+
+	// Create shared client service (single ContainerStore for both agent server and notifications)
 	clientService := docker_support.NewDockerClientService(client, args.Filter)
+
+	// Create notification manager using the shared client service
 	clients := []container_support.ClientService{clientService}
 	notifListener := notification.NewContainerLogListener(ctx, clients)
 	notificationManager := notification.NewManager(notifListener)
@@ -58,7 +61,8 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		return fmt.Errorf("failed to start notification manager: %w", err)
 	}
 
-	server, err := agent.NewServer(client, certs, args.Version(), args.Filter, notificationManager)
+	// Create agent server using the same shared client service
+	server, err := agent.NewServer(clientService, certs, args.Version(), notificationManager)
 	if err != nil {
 		return fmt.Errorf("failed to create agent server: %w", err)
 	}
