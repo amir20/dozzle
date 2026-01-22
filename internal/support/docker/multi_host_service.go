@@ -237,7 +237,7 @@ type NotificationConfigUpdater interface {
 // broadcastNotificationConfig sends current notification config to all agent clients
 func (m *MultiHostService) broadcastNotificationConfig() {
 	notifSubs := m.notificationManager.Subscriptions()
-	dispatchers := m.notificationManager.Dispatchers()
+	notifDispatchers := m.notificationManager.Dispatchers()
 
 	// Convert notification.Subscription to types.SubscriptionConfig
 	subscriptions := make([]types.SubscriptionConfig, len(notifSubs))
@@ -249,6 +249,18 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	// Convert notification.DispatcherConfig to types.DispatcherConfig
+	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
+	for i, d := range notifDispatchers {
+		dispatchers[i] = types.DispatcherConfig{
+			ID:       d.ID,
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.URL,
+			Template: d.Template,
 		}
 	}
 
@@ -326,6 +338,6 @@ func (m *MultiHostService) Subscriptions() []*notification.Subscription {
 }
 
 // Dispatchers returns all dispatchers
-func (m *MultiHostService) Dispatchers() []types.DispatcherConfig {
+func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
 	return m.notificationManager.Dispatchers()
 }

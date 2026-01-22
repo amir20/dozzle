@@ -5,10 +5,9 @@ import (
 
 	"github.com/amir20/dozzle/graph/model"
 	"github.com/amir20/dozzle/internal/notification"
-	"github.com/amir20/dozzle/types"
 )
 
-func subscriptionToNotificationRule(sub *notification.Subscription, dispatchers []types.DispatcherConfig) *model.NotificationRule {
+func subscriptionToNotificationRule(sub *notification.Subscription, dispatchers []notification.DispatcherConfig) *model.NotificationRule {
 	var lastTriggeredAt *time.Time
 	if t := sub.LastTriggeredAt.Load(); t != nil && !t.IsZero() {
 		lastTriggeredAt = t
@@ -36,7 +35,7 @@ func subscriptionToNotificationRule(sub *notification.Subscription, dispatchers 
 	}
 }
 
-func dispatcherConfigToDispatcher(d *types.DispatcherConfig) *model.Dispatcher {
+func dispatcherConfigToDispatcher(d *notification.DispatcherConfig) *model.Dispatcher {
 	var url *string
 	if d.URL != "" {
 		url = &d.URL

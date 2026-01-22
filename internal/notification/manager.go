@@ -277,13 +277,13 @@ func (m *Manager) Subscriptions() []*Subscription {
 	return result
 }
 
-// Dispatchers returns all dispatchers as types.DispatcherConfig sorted by ID
-func (m *Manager) Dispatchers() []types.DispatcherConfig {
-	result := make([]types.DispatcherConfig, 0)
+// Dispatchers returns all dispatchers as DispatcherConfig sorted by ID
+func (m *Manager) Dispatchers() []DispatcherConfig {
+	result := make([]DispatcherConfig, 0)
 	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
 		switch v := d.(type) {
 		case *dispatcher.WebhookDispatcher:
-			result = append(result, types.DispatcherConfig{
+			result = append(result, DispatcherConfig{
 				ID:       id,
 				Name:     v.Name,
 				Type:     "webhook",
@@ -293,7 +293,7 @@ func (m *Manager) Dispatchers() []types.DispatcherConfig {
 		}
 		return true
 	})
-	slices.SortFunc(result, func(a, b types.DispatcherConfig) int {
+	slices.SortFunc(result, func(a, b DispatcherConfig) int {
 		return a.ID - b.ID
 	})
 	return result

@@ -94,10 +94,19 @@ func (s *Subscription) AddTriggeredContainer(id string) {
 	s.TriggeredContainerIDs.Store(id, struct{}{})
 }
 
+// DispatcherConfig represents a dispatcher configuration
+type DispatcherConfig struct {
+	ID       int    `json:"id" yaml:"id"`
+	Name     string `json:"name" yaml:"name"`
+	Type     string `json:"type" yaml:"type"` // "webhook", etc.
+	URL      string `json:"url,omitempty" yaml:"url,omitempty"`
+	Template string `json:"template,omitempty" yaml:"template,omitempty"` // Go template for custom payload format
+}
+
 // Config represents the persisted notification configuration
 type Config struct {
-	Subscriptions []*Subscription          `json:"subscriptions" yaml:"subscriptions"`
-	Dispatchers   []types.DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
+	Subscriptions []*Subscription    `json:"subscriptions" yaml:"subscriptions"`
+	Dispatchers   []DispatcherConfig `json:"dispatchers" yaml:"dispatchers"`
 }
 
 // MatchesContainer checks if a container matches this subscription's container filter

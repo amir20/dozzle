@@ -8,7 +8,6 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/releases"
 	container_support "github.com/amir20/dozzle/internal/support/container"
-	"github.com/amir20/dozzle/types"
 )
 
 // This file will not be regenerated automatically.
@@ -24,7 +23,7 @@ type HostService interface {
 	RemoveSubscription(id int)
 
 	// Dispatchers
-	Dispatchers() []types.DispatcherConfig
+	Dispatchers() []notification.DispatcherConfig
 	AddDispatcher(d dispatcher.Dispatcher) int
 	UpdateDispatcher(id int, d dispatcher.Dispatcher)
 	RemoveDispatcher(id int)
