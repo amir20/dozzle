@@ -1,7 +1,4 @@
-PROTO_DIR := protos
 GEN_DIR := internal/agent/pb
-PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
-GEN_FILES := $(patsubst $(PROTO_DIR)/%.proto,$(GEN_DIR)/%.pb.go,$(PROTO_FILES))
 
 .PHONY: clean
 clean:
@@ -32,7 +29,9 @@ build: dist generate
 docker: shared_key.pem shared_cert.pem
 	@docker build  --build-arg TAG=local -t amir20/dozzle .
 
-generate: shared_key.pem shared_cert.pem $(GEN_FILES)
+.PHONY: generate
+generate: shared_key.pem shared_cert.pem
+	@go generate ./...
 
 .PHONY: dev
 dev: generate fake_assets
@@ -49,9 +48,6 @@ shared_cert.pem: shared_key.pem
 	@openssl req -new -key shared_key.pem -out shared_request.csr -subj "/C=US/ST=California/L=San Francisco/O=Dozzle"
 	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 1825
 	@rm shared_request.csr
-
-$(GEN_DIR)/%.pb.go: $(PROTO_DIR)/%.proto
-	@go generate
 
 .PHONY: push
 push: docker
