@@ -59,9 +59,9 @@ push: docker
 	@docker push amir20/dozzle:local-test
 
 tools:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	go install github.com/air-verse/air@latest
+	go get -tool google.golang.org/protobuf/cmd/protoc-gen-go
+	go get -tool google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	go get -tool github.com/air-verse/air
 
 run: docker
 	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:latest
