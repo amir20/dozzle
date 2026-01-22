@@ -1,7 +1,7 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:24.13.0-alpine AS node
+FROM --platform=$BUILDPLATFORM node:25-alpine AS node
 
-RUN corepack enable
+RUN npm install -g --force corepack && corepack enable
 
 WORKDIR /build
 
