@@ -25,7 +25,7 @@ RUN pnpm build
 FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
 # install gRPC dependencies
-RUN apk add --no-cache ca-certificates protoc protobuf-dev\
+RUN apk add --no-cache ca-certificates protoc protobuf-dev \
   && mkdir /dozzle \
   && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
   && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
@@ -42,6 +42,7 @@ COPY types ./types
 COPY main.go ./
 COPY protos ./protos
 COPY graph ./graph
+COPY gqlgen.yml ./
 COPY shared_key.pem shared_cert.pem ./
 
 # Copy assets built with node
@@ -51,8 +52,8 @@ COPY --from=node /build/dist ./dist
 ARG TAG=dev
 ARG TARGETOS TARGETARCH
 
-# Generate protos
-RUN go generate
+# Generate protos and graphql
+RUN go generate ./...
 
 # Build binary
 RUN GOEXPERIMENT=jsonv2 GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
