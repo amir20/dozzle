@@ -89,6 +89,7 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
+		// TODO add notification for swarm mode
 		server, err := agent.NewServer(localClient, certs, args.Version(), args.Filter, nil)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")

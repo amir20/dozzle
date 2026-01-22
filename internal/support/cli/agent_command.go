@@ -47,11 +47,12 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	log.Debug().Str("file", tempFile.Name()).Msg("Created temp file")
 	go StartEvent(args, "", client, "agent")
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	// Create notification manager for the agent
-	notifCtx := context.Background()
 	clientService := docker_support.NewDockerClientService(client, args.Filter)
 	clients := []container_support.ClientService{clientService}
-	notifListener := notification.NewContainerLogListener(notifCtx, clients)
+	notifListener := notification.NewContainerLogListener(ctx, clients)
 	notificationManager := notification.NewManager(notifListener)
 	if err := notificationManager.Start(); err != nil {
 		return fmt.Errorf("failed to start notification manager: %w", err)
@@ -61,8 +62,6 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to create agent server: %w", err)
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 	go func() {
 		log.Info().Msgf("Dozzle agent version %s", args.Version())
 		log.Info().Msgf("Agent listening on %s", listener.Addr().String())
