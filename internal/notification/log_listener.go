@@ -122,7 +122,7 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 
 	go func() {
 		log.Debug().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
-		if err := client.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil && !errors.Is(err, io.EOF) {
+		if err := client.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			log.Error().Err(err).Str("containerID", c.ID).Msg("Error streaming logs")
 		}
 	}()

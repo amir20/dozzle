@@ -68,5 +68,5 @@ agent-reload: docker
 	echo "🔄 Recreating agent..."; \
 	orb exec -m $$VM_NAME docker stop dozzle-agent || true; \
 	orb exec -m $$VM_NAME docker rm dozzle-agent || true; \
-	orb exec -m $$VM_NAME docker run -d --name dozzle-agent -p 7007:7007 -v /var/run/docker.sock:/var/run/docker.sock -v /home/amirraminfar/dozzle-data:/data -e DOZZLE_LEVEL=debug amir20/dozzle:local agent; \
+	orb exec -m $$VM_NAME docker run -d --name dozzle-agent -p 7007:7007 -v /var/run/docker.sock:/var/run/docker.sock -v ~/dozzle-certs:/certs -v ~/dozzle-data:/data -e DOZZLE_LEVEL=debug amir20/dozzle:local agent --cert /certs/shared_cert.pem --key /certs/shared_key.pem; \
 	echo "✅ Agent reloaded"
