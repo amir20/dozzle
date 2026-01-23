@@ -116,6 +116,14 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		levels[level] = struct{}{}
 	}
 
+	log.Debug().
+		Str("id", id).
+		Time("from", from).
+		Time("to", to).
+		Interface("levels", r.URL.Query()["levels"]).
+		Int("minimum", minimum).
+		Msg("fetchLogsBetweenDates request")
+
 	lastSeenId := uint32(0)
 	if r.URL.Query().Has("lastSeenId") {
 		to = to.Add(50 * time.Millisecond) // Add a little buffer to ensure we get the last event
@@ -135,6 +143,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		encoder = json.NewEncoder(writer)
 	}
 
+	iteration := 0
 	for {
 		if minimum > 0 && buffer.Len() >= minimum {
 			break
@@ -149,7 +158,11 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
+		totalFromDocker := 0
+		filteredByRegex := 0
+		filteredByLevel := 0
 		for event := range events {
+			totalFromDocker++
 			if everything {
 				if _, ok := event.Message.(string); onlyComplex && ok {
 					continue
@@ -160,11 +173,13 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			} else {
 				if regex != nil {
 					if !support_web.Search(regex, event) {
+						filteredByRegex++
 						continue
 					}
 				}
 
 				if _, ok := levels[event.Level]; !ok {
+					filteredByLevel++
 					continue
 				}
 
@@ -182,6 +197,17 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 
+		log.Debug().
+			Int("iteration", iteration).
+			Time("from", from).
+			Time("to", to).
+			Int("totalFromDocker", totalFromDocker).
+			Int("filteredByRegex", filteredByRegex).
+			Int("filteredByLevel", filteredByLevel).
+			Int("bufferLen", buffer.Len()).
+			Int("minimum", minimum).
+			Msg("fetchLogsBetweenDates iteration stats")
+
 		if everything || from.Before(containerService.Container.Created) {
 			break
 		}
@@ -192,6 +218,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 		from = from.Add(-delta)
 		delta = delta * 2
+		iteration++
 	}
 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
