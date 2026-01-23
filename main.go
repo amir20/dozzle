@@ -89,7 +89,10 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to listen")
 		}
-		server, err := agent.NewServer(localClient, certs, args.Version(), args.Filter)
+		// Create client service for agent server in swarm mode
+		clientService := docker_support.NewDockerClientService(localClient, args.Filter)
+		// TODO add notification for swarm mode
+		server, err := agent.NewServer(clientService, certs, args.Version(), nil)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
 		}

@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	lop "github.com/samber/lo/parallel"
 )
@@ -223,28 +225,76 @@ func (m *MultiHostService) saveNotificationConfig() {
 	if err := m.notificationManager.WriteConfig(file); err != nil {
 		log.Error().Err(err).Msg("Could not write notification config")
 	}
+
+	// Broadcast to all agents
+	m.broadcastNotificationConfig()
+}
+
+// NotificationConfigUpdater is an interface for clients that support notification config updates
+type NotificationConfigUpdater interface {
+	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+}
+
+// broadcastNotificationConfig sends current notification config to all agent clients
+func (m *MultiHostService) broadcastNotificationConfig() {
+	notifSubs := m.notificationManager.Subscriptions()
+	notifDispatchers := m.notificationManager.Dispatchers()
+
+	// Convert notification.Subscription to types.SubscriptionConfig
+	subscriptions := make([]types.SubscriptionConfig, len(notifSubs))
+	for i, sub := range notifSubs {
+		subscriptions[i] = types.SubscriptionConfig{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	// Convert notification.DispatcherConfig to types.DispatcherConfig
+	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
+	for i, d := range notifDispatchers {
+		dispatchers[i] = types.DispatcherConfig{
+			ID:       d.ID,
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.URL,
+			Template: d.Template,
+		}
+	}
+
+	var wg sync.WaitGroup
+	for _, client := range m.manager.List() {
+		// Check if client supports notification config updates (agents do, local docker clients don't)
+		if updater, ok := client.(NotificationConfigUpdater); ok {
+			wg.Go(func() {
+				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+				defer cancel()
+				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers); err != nil {
+					log.Error().Err(err).Msg("Failed to broadcast notification config to agent")
+				} else {
+					log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Broadcasted notification config to agent")
+				}
+			})
+		}
+	}
+	wg.Wait()
 }
 
 // AddSubscription adds a subscription to local manager and broadcasts to agents
 func (m *MultiHostService) AddSubscription(sub *notification.Subscription) error {
-	// Add to local manager
 	if err := m.notificationManager.AddSubscription(sub); err != nil {
 		return err
 	}
-
-	// TODO: Broadcast to agents via gRPC when agent notification support is added
-
 	m.saveNotificationConfig()
 	return nil
 }
 
 // RemoveSubscription removes a subscription from local manager and broadcasts to agents
 func (m *MultiHostService) RemoveSubscription(id int) {
-	// Remove from local manager
 	m.notificationManager.RemoveSubscription(id)
-
-	// TODO: Broadcast to agents via gRPC when agent notification support is added
-
 	m.saveNotificationConfig()
 }
 

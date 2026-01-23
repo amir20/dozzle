@@ -27,7 +27,7 @@ build: dist generate
 
 .PHONY: docker
 docker: shared_key.pem shared_cert.pem
-	@docker build  --build-arg TAG=local -t amir20/dozzle .
+	@docker build --build-arg TAG=local -t amir20/dozzle:local .
 
 .PHONY: generate
 generate: shared_key.pem shared_cert.pem
@@ -55,7 +55,18 @@ push: docker
 	@docker push amir20/dozzle:local-test
 
 run: docker
-	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:latest
+	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local
 
 preview: build
 	pnpm preview
+
+.PHONY: agent-reload
+agent-reload: docker
+	@VM_NAME=$${VM_NAME:-dozzle-agent}; \
+	echo "📦 Loading image into VM $$VM_NAME..."; \
+	docker save amir20/dozzle:local | orb exec -m $$VM_NAME docker load; \
+	echo "🔄 Recreating agent..."; \
+	orb exec -m $$VM_NAME docker stop dozzle-agent || true; \
+	orb exec -m $$VM_NAME docker rm dozzle-agent || true; \
+	orb exec -m $$VM_NAME docker run -d --name dozzle-agent -p 7007:7007 -v /var/run/docker.sock:/var/run/docker.sock -v ~/dozzle-certs:/certs -v ~/dozzle-data:/data -e DOZZLE_LEVEL=debug amir20/dozzle:local agent --cert /certs/shared_cert.pem --key /certs/shared_key.pem; \
+	echo "✅ Agent reloaded"

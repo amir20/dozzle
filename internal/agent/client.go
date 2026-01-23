@@ -8,12 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 	"time"
 
 	"encoding/json"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -365,30 +367,41 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 		defer stdoutWriter.Close()
 
 		for {
-			msg, err := stream.Recv()
-			if err != nil {
+			select {
+			case <-ctx.Done():
 				return
-			}
+			default:
+				msg, err := stream.Recv()
+				if err != nil {
+					return
+				}
 
-			stdoutWriter.Write(msg.Stdout)
+				stdoutWriter.Write(msg.Stdout)
+			}
 		}
 	}()
 
 	go func() {
+		defer stdinReader.Close()
 		buffer := make([]byte, 1024)
 
 		for {
-			n, err := stdinReader.Read(buffer)
-			if err != nil {
+			select {
+			case <-ctx.Done():
 				return
-			}
+			default:
+				n, err := stdinReader.Read(buffer)
+				if err != nil {
+					return
+				}
 
-			if err := stream.Send(&pb.ContainerAttachRequest{
-				Payload: &pb.ContainerAttachRequest_Stdin{
-					Stdin: buffer[:n],
-				},
-			}); err != nil {
-				return
+				if err := stream.Send(&pb.ContainerAttachRequest{
+					Payload: &pb.ContainerAttachRequest_Stdin{
+						Stdin: buffer[:n],
+					},
+				}); err != nil {
+					return
+				}
 			}
 		}
 	}()
@@ -412,74 +425,99 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 	}, nil
 }
 
-func (c *Client) ContainerExec(ctx context.Context, containerId string, cmd []string) (*container.ExecSession, error) {
+func (c *Client) Exec(ctx context.Context, containerId string, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
 	stream, err := c.client.ContainerExec(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = stream.Send(&pb.ContainerExecRequest{
 		ContainerId: containerId,
 		Command:     cmd,
 	}); err != nil {
-		return nil, err
+		return err
 	}
-	stdoutReader, stdoutWriter := io.Pipe()
-	stdinReader, stdinWriter := io.Pipe()
 
-	go func() {
-		defer stdoutWriter.Close()
+	var wg sync.WaitGroup
 
+	// Read from gRPC stream and write to stdout
+	wg.Go(func() {
 		for {
 			msg, err := stream.Recv()
 			if err != nil {
 				return
 			}
-
-			stdoutWriter.Write(msg.Stdout)
+			stdout.Write(msg.Stdout)
 		}
-	}()
+	})
 
-	go func() {
-		buffer := make([]byte, 1024)
-
+	// Read events and convert to gRPC messages
+	wg.Go(func() {
 		for {
-			n, err := stdinReader.Read(buffer)
+			event, err := events.ReadEvent()
 			if err != nil {
 				return
 			}
 
-			if err := stream.Send(&pb.ContainerExecRequest{
-				Payload: &pb.ContainerExecRequest_Stdin{
-					Stdin: buffer[:n],
-				},
-			}); err != nil {
-				return
+			switch event.Type {
+			case "userinput":
+				stream.Send(&pb.ContainerExecRequest{
+					Payload: &pb.ContainerExecRequest_Stdin{
+						Stdin: []byte(event.Data),
+					},
+				})
+			case "resize":
+				stream.Send(&pb.ContainerExecRequest{
+					Payload: &pb.ContainerExecRequest_Resize{
+						Resize: &pb.ResizePayload{
+							Width:  uint32(event.Width),
+							Height: uint32(event.Height),
+						},
+					},
+				})
 			}
 		}
-	}()
+	})
 
-	// Create resize closure that sends via gRPC
-	resizeFn := func(width uint, height uint) error {
-		return stream.Send(&pb.ContainerExecRequest{
-			Payload: &pb.ContainerExecRequest_Resize{
-				Resize: &pb.ResizePayload{
-					Width:  uint32(width),
-					Height: uint32(height),
-				},
-			},
-		})
-	}
-
-	return &container.ExecSession{
-		Writer: stdinWriter,
-		Reader: stdoutReader,
-		Resize: resizeFn,
-	}, nil
+	wg.Wait()
+	return nil
 }
 
 func (c *Client) Close() error {
 	return c.conn.Close()
+}
+
+func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	// Convert to proto
+	pbSubs := make([]*pb.NotificationSubscription, len(subscriptions))
+	for i, sub := range subscriptions {
+		pbSubs[i] = &pb.NotificationSubscription{
+			Id:                  int32(sub.ID),
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherId:        int32(sub.DispatcherID),
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	pbDispatchers := make([]*pb.NotificationDispatcher, len(dispatchers))
+	for i, d := range dispatchers {
+		pbDispatchers[i] = &pb.NotificationDispatcher{
+			Id:       int32(d.ID),
+			Name:     d.Name,
+			Type:     d.Type,
+			Url:      d.URL,
+			Template: d.Template,
+		}
+	}
+
+	_, err := c.client.UpdateNotificationConfig(ctx, &pb.UpdateNotificationConfigRequest{
+		Subscriptions: pbSubs,
+		Dispatchers:   pbDispatchers,
+	})
+
+	return err
 }
 
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {

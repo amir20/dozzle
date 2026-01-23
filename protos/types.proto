@@ -92,3 +92,20 @@ enum ContainerAction {
   Stop = 1;
   Restart = 2;
 }
+
+message NotificationSubscription {
+  int32 id = 1;
+  string name = 2;
+  bool enabled = 3;
+  int32 dispatcherId = 4;
+  string logExpression = 5;
+  string containerExpression = 6;
+}
+
+message NotificationDispatcher {
+  int32 id = 1;
+  string name = 2;
+  string type = 3;
+  string url = 4;
+  string template = 5;
+}

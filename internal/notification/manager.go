@@ -451,6 +451,79 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 	return nil
 }
 
+// HandleNotificationConfig implements agent.NotificationConfigHandler interface
+// It atomically replaces all subscriptions and dispatchers with new state from the main server
+func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	// Clear existing state (with nil checks for defensive programming)
+	if m.subscriptions != nil {
+		m.subscriptions.Clear()
+	} else {
+		m.subscriptions = xsync.NewMap[int, *Subscription]()
+	}
+	if m.dispatchers != nil {
+		m.dispatchers.Clear()
+	} else {
+		m.dispatchers = xsync.NewMap[int, dispatcher.Dispatcher]()
+	}
+
+	// Find max IDs to initialize counters
+	var maxSubID, maxDispatcherID int
+	for _, sub := range subscriptions {
+		if sub.ID > maxSubID {
+			maxSubID = sub.ID
+		}
+	}
+	for _, d := range dispatchers {
+		if d.ID > maxDispatcherID {
+			maxDispatcherID = d.ID
+		}
+	}
+	m.subscriptionCounter.Store(int32(maxSubID))
+	m.dispatcherCounter.Store(int32(maxDispatcherID))
+
+	// Load subscriptions (convert from types.SubscriptionConfig to Subscription)
+	for _, sub := range subscriptions {
+		s := &Subscription{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+		if err := m.loadSubscription(s); err != nil {
+			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
+		}
+	}
+
+	// Load dispatchers
+	for _, dispatcherConfig := range dispatchers {
+		var d dispatcher.Dispatcher
+		switch dispatcherConfig.Type {
+		case "webhook":
+			webhook, err := dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL, dispatcherConfig.Template)
+			if err != nil {
+				return fmt.Errorf("failed to create webhook dispatcher %s: %w", dispatcherConfig.Name, err)
+			}
+			d = webhook
+		default:
+			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
+		}
+		m.dispatchers.Store(dispatcherConfig.ID, d)
+		log.Debug().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher from state sync")
+	}
+
+	// Update listener to start/stop streams based on new subscriptions
+	if m.listener != nil {
+		if err := m.listener.UpdateStreams(); err != nil {
+			return fmt.Errorf("failed to update listener streams: %w", err)
+		}
+	}
+
+	log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Replaced notification state")
+	return nil
+}
+
 // loadSubscription loads a subscription with its existing ID (used when loading from config)
 func (m *Manager) loadSubscription(sub *Subscription) error {
 	// Compile container expression if provided

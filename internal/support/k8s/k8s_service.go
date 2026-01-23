@@ -2,7 +2,6 @@ package k8s_support
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"sync"
 
@@ -93,7 +92,7 @@ func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, conta
 	k.store.SubscribeNewContainers(ctx, containers)
 }
 
-func (k *K8sClientService) Attach(ctx context.Context, c container.Container, stdin io.Reader, stdout io.Writer) error {
+func (k *K8sClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := k.client.ContainerAttach(cancelCtx, c.ID)
 	if err != nil {
@@ -107,13 +106,12 @@ func (k *K8sClientService) Attach(ctx context.Context, c container.Container, st
 		defer session.Writer.Close()
 		defer cancel()
 
-		decoder := json.NewDecoder(stdin)
 	loop:
 		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
+			event, err := events.ReadEvent()
+			if err != nil {
 				if err != io.EOF {
-					log.Error().Err(err).Msg("error decoding event")
+					log.Error().Err(err).Msg("error reading event")
 				}
 				break
 			}
@@ -143,7 +141,7 @@ func (k *K8sClientService) Attach(ctx context.Context, c container.Container, st
 	return nil
 }
 
-func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd []string, stdin io.Reader, stdout io.Writer) error {
+func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
 	cancelCtx, cancel := context.WithCancel(ctx)
 	session, err := k.client.ContainerExec(cancelCtx, c.ID, cmd)
 	if err != nil {
@@ -157,13 +155,12 @@ func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd 
 		defer session.Writer.Close()
 		defer cancel()
 
-		decoder := json.NewDecoder(stdin)
 	loop:
 		for {
-			var event container.ExecEvent
-			if err := decoder.Decode(&event); err != nil {
+			event, err := events.ReadEvent()
+			if err != nil {
 				if err != io.EOF {
-					log.Error().Err(err).Msg("error decoding event")
+					log.Error().Err(err).Msg("error reading event")
 				}
 				break
 			}

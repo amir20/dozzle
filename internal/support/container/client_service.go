@@ -27,6 +27,6 @@ type ClientService interface {
 	StreamLogs(context.Context, container.Container, time.Time, container.StdType, chan<- *container.LogEvent) error
 
 	// Terminal
-	Attach(context.Context, container.Container, io.Reader, io.Writer) error
-	Exec(context.Context, container.Container, []string, io.Reader, io.Writer) error
+	Attach(context.Context, container.Container, container.ExecEventReader, io.Writer) error
+	Exec(context.Context, container.Container, []string, container.ExecEventReader, io.Writer) error
 }

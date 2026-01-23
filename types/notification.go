@@ -30,3 +30,22 @@ type NotificationLog struct {
 	Stream    string `json:"stream" expr:"stream"`
 	Type      string `json:"type" expr:"type"`
 }
+
+// SubscriptionConfig represents a notification subscription configuration
+type SubscriptionConfig struct {
+	ID                  int
+	Name                string
+	Enabled             bool
+	DispatcherID        int
+	LogExpression       string
+	ContainerExpression string
+}
+
+// DispatcherConfig represents a notification dispatcher configuration
+type DispatcherConfig struct {
+	ID       int
+	Name     string
+	Type     string
+	URL      string
+	Template string
+}

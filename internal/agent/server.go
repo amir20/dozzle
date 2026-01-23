@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"sync"
+	"io"
 
 	"encoding/json"
 
@@ -14,7 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/docker"
+	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"google.golang.org/grpc"
@@ -26,21 +26,40 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// NotificationConfigHandler handles notification config updates received from the main server
+type NotificationConfigHandler interface {
+	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+}
+
+// ClientService is the interface for container operations used by the agent server
+type ClientService interface {
+	FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error)
+	ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error)
+	Host(ctx context.Context) (container.Host, error)
+	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
+	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
+	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
+	SubscribeStats(context.Context, chan<- container.ContainerStat)
+	SubscribeEvents(context.Context, chan<- container.ContainerEvent)
+	SubscribeContainersStarted(context.Context, chan<- container.Container)
+	StreamLogs(context.Context, container.Container, time.Time, container.StdType, chan<- *container.LogEvent) error
+	Attach(context.Context, container.Container, container.ExecEventReader, io.Writer) error
+	Exec(context.Context, container.Container, []string, container.ExecEventReader, io.Writer) error
+}
+
 type server struct {
-	client  container.Client
-	store   *container.ContainerStore
-	version string
+	service                   ClientService
+	version                   string
+	notificationConfigHandler NotificationConfigHandler
 
 	pb.UnimplementedAgentServiceServer
 }
 
-func newServer(client container.Client, dozzleVersion string, labels container.ContainerLabels) pb.AgentServiceServer {
-	statsCollector := docker.NewDockerStatsCollector(client, labels)
+func newServer(service ClientService, dozzleVersion string, notificationHandler NotificationConfigHandler) pb.AgentServiceServer {
 	return &server{
-		client:  client,
-		version: dozzleVersion,
-
-		store: container.NewContainerStore(context.Background(), client, statsCollector, labels),
+		service:                   service,
+		version:                   dozzleVersion,
+		notificationConfigHandler: notificationHandler,
 	}
 }
 
@@ -50,20 +69,18 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		since = in.Since.AsTime()
 	}
 
-	c, err := s.store.FindContainer(in.ContainerId, container.ContainerLabels{})
+	c, err := s.service.FindContainer(out.Context(), in.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return err
 	}
 
-	reader, err := s.client.ContainerLogs(out.Context(), in.ContainerId, since, container.StdType(in.StreamTypes))
-	if err != nil {
-		return err
-	}
+	events := make(chan *container.LogEvent)
+	go func() {
+		defer close(events)
+		s.service.StreamLogs(out.Context(), c, since, container.StdType(in.StreamTypes), events)
+	}()
 
-	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(out.Context(), dockerReader, c)
-
-	for event := range g.Events {
+	for event := range events {
 		if event != nil {
 			out.Send(&pb.StreamLogsResponse{
 				Event: logEventToPb(event),
@@ -71,31 +88,23 @@ func (s *server) StreamLogs(in *pb.StreamLogsRequest, out pb.AgentService_Stream
 		}
 	}
 
-	select {
-	case e := <-g.Errors:
-		return e
-	default:
-		return nil
-	}
+	return nil
 }
 
 func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentService_LogsBetweenDatesServer) error {
-	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
+	c, err := s.service.FindContainer(out.Context(), in.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return err
 	}
 
-	c, err := s.client.FindContainer(out.Context(), in.ContainerId)
+	events, err := s.service.LogsBetweenDates(out.Context(), c, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
 	if err != nil {
 		return err
 	}
-
-	dockerReader := docker.NewLogReader(reader, c.Tty)
-	g := container.NewEventGenerator(out.Context(), dockerReader, c)
 
 	for {
 		select {
-		case event, ok := <-g.Events:
+		case event, ok := <-events:
 			if !ok {
 				// Channel closed, exit cleanly
 				return nil
@@ -103,8 +112,6 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 			out.Send(&pb.StreamLogsResponse{
 				Event: logEventToPb(event),
 			})
-		case e := <-g.Errors:
-			return e
 		case <-out.Context().Done():
 			return nil
 		}
@@ -112,16 +119,24 @@ func (s *server) LogsBetweenDates(in *pb.LogsBetweenDatesRequest, out pb.AgentSe
 }
 
 func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentService_StreamRawBytesServer) error {
-	reader, err := s.client.ContainerLogsBetweenDates(out.Context(), in.ContainerId, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
-
+	c, err := s.service.FindContainer(out.Context(), in.ContainerId, container.ContainerLabels{})
 	if err != nil {
 		return err
 	}
+
+	reader, err := s.service.RawLogs(out.Context(), c, in.Since.AsTime(), in.Until.AsTime(), container.StdType(in.StreamTypes))
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
 
 	buf := make([]byte, 1024)
 	for {
 		n, err := reader.Read(buf)
 		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
 			return err
 		}
 
@@ -142,7 +157,7 @@ func (s *server) StreamRawBytes(in *pb.StreamRawBytesRequest, out pb.AgentServic
 func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_StreamEventsServer) error {
 	events := make(chan container.ContainerEvent)
 
-	s.store.SubscribeEvents(out.Context(), events)
+	s.service.SubscribeEvents(out.Context(), events)
 
 	for {
 		select {
@@ -164,7 +179,7 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_StreamStatsServer) error {
 	stats := make(chan container.ContainerStat)
 
-	s.store.SubscribeStats(out.Context(), stats)
+	s.service.SubscribeStats(out.Context(), stats)
 
 	for {
 		select {
@@ -193,13 +208,13 @@ func (s *server) FindContainer(ctx context.Context, in *pb.FindContainerRequest)
 		}
 	}
 
-	container, err := s.store.FindContainer(in.ContainerId, labels)
+	c, err := s.service.FindContainer(ctx, in.ContainerId, labels)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
-	c := container.ToProto()
+	proto := c.ToProto()
 	return &pb.FindContainerResponse{
-		Container: &c,
+		Container: &proto,
 	}, nil
 }
 
@@ -211,15 +226,15 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 		}
 	}
 
-	containers, err := s.store.ListContainers(labels)
+	containers, err := s.service.ListContainers(ctx, labels)
 	if err != nil {
 		return nil, err
 	}
 
 	var pbContainers []*pb.Container
-	for _, container := range containers {
-		c := container.ToProto()
-		pbContainers = append(pbContainers, &c)
+	for _, c := range containers {
+		proto := c.ToProto()
+		pbContainers = append(pbContainers, &proto)
 	}
 
 	return &pb.ListContainersResponse{
@@ -228,7 +243,10 @@ func (s *server) ListContainers(ctx context.Context, in *pb.ListContainersReques
 }
 
 func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.HostInfoResponse, error) {
-	host := s.client.Host()
+	host, err := s.service.Host(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 	return &pb.HostInfoResponse{
 		Host: &pb.Host{
 			Id:            host.ID,
@@ -244,7 +262,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 func (s *server) StreamContainerStarted(in *pb.StreamContainerStartedRequest, out pb.AgentService_StreamContainerStartedServer) error {
 	containers := make(chan container.Container)
 
-	go s.store.SubscribeNewContainers(out.Context(), containers)
+	go s.service.SubscribeContainersStarted(out.Context(), containers)
 
 	for {
 		select {
@@ -275,13 +293,56 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
 	}
 
-	err := s.client.ContainerActions(ctx, action, in.ContainerId)
+	c, err := s.service.FindContainer(ctx, in.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
+	}
 
+	err = s.service.ContainerAction(ctx, c, action)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &pb.ContainerActionResponse{}, nil
+}
+
+// terminalMessage represents a message from a terminal gRPC stream (exec or attach)
+type terminalMessage interface {
+	GetStdin() []byte
+	GetResize() *pb.ResizePayload
+}
+
+// protoEventReader converts gRPC protobuf messages directly to ExecEvents (no JSON)
+type protoEventReader struct {
+	recv func() (terminalMessage, error)
+}
+
+func (r *protoEventReader) ReadEvent() (*container.ExecEvent, error) {
+	msg, err := r.recv()
+	if err != nil {
+		return nil, err
+	}
+
+	if stdin := msg.GetStdin(); stdin != nil {
+		return &container.ExecEvent{Type: "userinput", Data: string(stdin)}, nil
+	} else if resize := msg.GetResize(); resize != nil {
+		return &container.ExecEvent{Type: "resize", Width: uint(resize.Width), Height: uint(resize.Height)}, nil
+	}
+
+	// Skip unknown message types
+	return r.ReadEvent()
+}
+
+// terminalStreamWriter adapts a gRPC terminal stream to io.Writer
+type terminalStreamWriter struct {
+	send func([]byte) error
+}
+
+func (w *terminalStreamWriter) Write(p []byte) (int, error) {
+	if err := w.send(p); err != nil {
+		return 0, err
+	}
+	return len(p), nil
 }
 
 func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error {
@@ -290,56 +351,17 @@ func (s *server) ContainerExec(stream pb.AgentService_ContainerExecServer) error
 		return status.Error(codes.Internal, err.Error())
 	}
 
-	cancelCtx, cancel := context.WithCancel(stream.Context())
-	session, err := s.client.ContainerExec(cancelCtx, request.ContainerId, request.Command)
+	c, err := s.service.FindContainer(stream.Context(), request.ContainerId, container.ContainerLabels{})
 	if err != nil {
-		cancel()
-		return status.Error(codes.Internal, err.Error())
+		return status.Error(codes.NotFound, err.Error())
 	}
 
-	var wg sync.WaitGroup
+	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
+	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerExecResponse{Stdout: p}) }}
 
-	// Read from container and send to client
-	wg.Go(func() {
-		defer cancel()
-		buffer := make([]byte, 1024)
-		for {
-			n, err := session.Reader.Read(buffer)
-			if err != nil {
-				return
-			}
-
-			if err := stream.Send(&pb.ContainerExecResponse{Stdout: buffer[:n]}); err != nil {
-				return
-			}
-		}
-	})
-
-	// Read from client stream and handle stdin/resize
-	wg.Go(func() {
-		defer cancel()
-		defer session.Writer.Close()
-		for {
-			req, err := stream.Recv()
-			if err != nil {
-				return
-			}
-
-			switch payload := req.Payload.(type) {
-			case *pb.ContainerExecRequest_Stdin:
-				if _, err := session.Writer.Write(payload.Stdin); err != nil {
-					log.Error().Err(err).Msg("error writing stdin to container")
-					return
-				}
-			case *pb.ContainerExecRequest_Resize:
-				if err := session.Resize(uint(payload.Resize.Width), uint(payload.Resize.Height)); err != nil {
-					log.Error().Err(err).Msg("error resizing terminal")
-				}
-			}
-		}
-	})
-
-	wg.Wait()
+	if err := s.service.Exec(stream.Context(), c, request.Command, reader, writer); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
 
 	return nil
 }
@@ -350,61 +372,73 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 		return status.Error(codes.Internal, err.Error())
 	}
 
-	cancelCtx, cancel := context.WithCancel(stream.Context())
-	session, err := s.client.ContainerAttach(cancelCtx, request.ContainerId)
+	c, err := s.service.FindContainer(stream.Context(), request.ContainerId, container.ContainerLabels{})
 	if err != nil {
-		cancel()
-		return status.Error(codes.Internal, err.Error())
+		return status.Error(codes.NotFound, err.Error())
 	}
 
-	var wg sync.WaitGroup
+	reader := &protoEventReader{recv: func() (terminalMessage, error) { return stream.Recv() }}
+	writer := &terminalStreamWriter{send: func(p []byte) error { return stream.Send(&pb.ContainerAttachResponse{Stdout: p}) }}
 
-	// Read from container and send to client
-	wg.Go(func() {
-		defer cancel()
-		buffer := make([]byte, 1024)
-		for {
-			n, err := session.Reader.Read(buffer)
-			if err != nil {
-				return
-			}
-
-			if err := stream.Send(&pb.ContainerAttachResponse{Stdout: buffer[:n]}); err != nil {
-				return
-			}
-		}
-	})
-
-	// Read from client stream and handle stdin/resize
-	wg.Go(func() {
-		defer cancel()
-		defer session.Writer.Close()
-		for {
-			req, err := stream.Recv()
-			if err != nil {
-				return
-			}
-
-			switch payload := req.Payload.(type) {
-			case *pb.ContainerAttachRequest_Stdin:
-				if _, err := session.Writer.Write(payload.Stdin); err != nil {
-					log.Error().Err(err).Msg("error writing stdin to container")
-					return
-				}
-			case *pb.ContainerAttachRequest_Resize:
-				if err := session.Resize(uint(payload.Resize.Width), uint(payload.Resize.Height)); err != nil {
-					log.Error().Err(err).Msg("error resizing terminal")
-				}
-			}
-		}
-	})
-
-	wg.Wait()
+	if err := s.service.Attach(stream.Context(), c, reader, writer); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
 
 	return nil
 }
 
-func NewServer(client container.Client, certificates tls.Certificate, dozzleVersion string, labels container.ContainerLabels) (*grpc.Server, error) {
+func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNotificationConfigRequest) (*pb.UpdateNotificationConfigResponse, error) {
+	if s.notificationConfigHandler == nil {
+		log.Warn().Msg("No notification config handler registered, ignoring config update")
+		return &pb.UpdateNotificationConfigResponse{}, nil
+	}
+
+	// Validate request sizes to prevent memory exhaustion
+	const maxSubscriptions = 1000
+	const maxDispatchers = 100
+	if len(req.Subscriptions) > maxSubscriptions {
+		return nil, status.Errorf(codes.InvalidArgument, "too many subscriptions: %d (max %d)", len(req.Subscriptions), maxSubscriptions)
+	}
+	if len(req.Dispatchers) > maxDispatchers {
+		return nil, status.Errorf(codes.InvalidArgument, "too many dispatchers: %d (max %d)", len(req.Dispatchers), maxDispatchers)
+	}
+
+	// Convert proto subscriptions to types
+	subscriptions := make([]types.SubscriptionConfig, len(req.Subscriptions))
+	for i, sub := range req.Subscriptions {
+		subscriptions[i] = types.SubscriptionConfig{
+			ID:                  int(sub.Id),
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        int(sub.DispatcherId),
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
+		}
+	}
+
+	// Convert proto dispatchers to types
+	dispatchers := make([]types.DispatcherConfig, len(req.Dispatchers))
+	for i, d := range req.Dispatchers {
+		dispatchers[i] = types.DispatcherConfig{
+			ID:       int(d.Id),
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.Url,
+			Template: d.Template,
+		}
+	}
+
+	// Call the handler (handler is responsible for persisting if needed)
+	if err := s.notificationConfigHandler.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
+		log.Error().Err(err).Msg("Failed to handle notification config")
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
+	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -423,7 +457,7 @@ func NewServer(client container.Client, certificates tls.Certificate, dozzleVers
 	creds := credentials.NewTLS(tlsConfig)
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterAgentServiceServer(grpcServer, newServer(client, dozzleVersion, labels))
+	pb.RegisterAgentServiceServer(grpcServer, newServer(service, dozzleVersion, notificationHandler))
 
 	return grpcServer, nil
 }

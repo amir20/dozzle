@@ -13,7 +13,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
-	"github.com/docker/docker/api/types/system"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
@@ -27,58 +26,67 @@ const bufSize = 1024 * 1024
 
 var lis *bufconn.Listener
 var certs tls.Certificate
-var client *MockedClient
+var mockService *MockedClientService
 
-type MockedClient struct {
+type MockedClientService struct {
 	mock.Mock
-	container.Client
 }
 
-func (m *MockedClient) FindContainer(ctx context.Context, id string) (container.Container, error) {
-	args := m.Called(ctx, id)
+func (m *MockedClientService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
+	args := m.Called(ctx, id, labels)
 	return args.Get(0).(container.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerActions(ctx context.Context, action container.ContainerAction, containerID string) error {
-	args := m.Called(ctx, action, containerID)
-	return args.Error(0)
-}
-
-func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- container.ContainerEvent) error {
-	args := m.Called(ctx, events)
-	return args.Error(0)
-}
-
-func (m *MockedClient) ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error) {
+func (m *MockedClientService) ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error) {
 	args := m.Called(ctx, filter)
 	return args.Get(0).([]container.Container), args.Error(1)
 }
 
-func (m *MockedClient) ContainerLogs(ctx context.Context, id string, since time.Time, stdType container.StdType) (io.ReadCloser, error) {
-	args := m.Called(ctx, id, since, stdType)
+func (m *MockedClientService) Host(ctx context.Context) (container.Host, error) {
+	args := m.Called(ctx)
+	return args.Get(0).(container.Host), args.Error(1)
+}
+
+func (m *MockedClientService) ContainerAction(ctx context.Context, c container.Container, action container.ContainerAction) error {
+	args := m.Called(ctx, c, action)
+	return args.Error(0)
+}
+
+func (m *MockedClientService) LogsBetweenDates(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error) {
+	args := m.Called(ctx, c, from, to, stdTypes)
+	return args.Get(0).(<-chan *container.LogEvent), args.Error(1)
+}
+
+func (m *MockedClientService) RawLogs(ctx context.Context, c container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
+	args := m.Called(ctx, c, from, to, stdTypes)
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) ContainerStats(context.Context, string, chan<- container.ContainerStat) error {
-	return nil
+func (m *MockedClientService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
+	m.Called(ctx, stats)
 }
 
-func (m *MockedClient) ContainerLogsBetweenDates(ctx context.Context, id string, from time.Time, to time.Time, stdType container.StdType) (io.ReadCloser, error) {
-	args := m.Called(ctx, id, from, to, stdType)
-	return args.Get(0).(io.ReadCloser), args.Error(1)
+func (m *MockedClientService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
+	m.Called(ctx, events)
 }
 
-func (m *MockedClient) Host() container.Host {
-	args := m.Called()
-	return args.Get(0).(container.Host)
+func (m *MockedClientService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+	m.Called(ctx, containers)
 }
 
-func (m *MockedClient) IsSwarmMode() bool {
-	return false
+func (m *MockedClientService) StreamLogs(ctx context.Context, c container.Container, from time.Time, stdTypes container.StdType, events chan<- *container.LogEvent) error {
+	args := m.Called(ctx, c, from, stdTypes, events)
+	return args.Error(0)
 }
 
-func (m *MockedClient) SystemInfo() system.Info {
-	return system.Info{ID: "123"}
+func (m *MockedClientService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
+	args := m.Called(ctx, c, events, stdout)
+	return args.Error(0)
+}
+
+func (m *MockedClientService) Exec(ctx context.Context, c container.Container, cmd []string, events container.ExecEventReader, stdout io.Writer) error {
+	args := m.Called(ctx, c, cmd, events, stdout)
+	return args.Error(0)
 }
 
 var wantedContainer = container.Container{}
@@ -103,28 +111,30 @@ func init() {
 		panic(err)
 	}
 
-	client = &MockedClient{}
-	client.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
-		{
-			ID:    "123456",
-			Name:  "test",
-			Host:  "localhost",
-			State: "running",
-		},
+	mockService = &MockedClientService{}
+	mockService.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		wantedContainer,
 	}, nil)
 
-	client.On("Host").Return(container.Host{
+	mockService.On("Host", mock.Anything).Return(container.Host{
 		ID:       "localhost",
 		Endpoint: "local",
 		Name:     "local",
-	})
+	}, nil)
 
-	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).Run(func(args mock.Arguments) {
+	mockService.On("SubscribeEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return().Run(func(args mock.Arguments) {
 		time.Sleep(5 * time.Second)
 	})
 
-	client.On("FindContainer", mock.Anything, "123456").Return(wantedContainer, nil)
-	server, _ := NewServer(client, certs, "test", container.ContainerLabels{})
+	mockService.On("SubscribeStats", mock.Anything, mock.AnythingOfType("chan<- container.ContainerStat")).Return()
+
+	mockService.On("SubscribeContainersStarted", mock.Anything, mock.AnythingOfType("chan<- container.Container")).Return()
+
+	mockService.On("FindContainer", mock.Anything, "123456", mock.Anything).Return(wantedContainer, nil)
+
+	mockService.On("Client").Return(nil)
+
+	server, _ := NewServer(mockService, certs, "test", nil)
 	go server.Serve(lis)
 }
 
