@@ -367,30 +367,41 @@ func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*cont
 		defer stdoutWriter.Close()
 
 		for {
-			msg, err := stream.Recv()
-			if err != nil {
+			select {
+			case <-ctx.Done():
 				return
-			}
+			default:
+				msg, err := stream.Recv()
+				if err != nil {
+					return
+				}
 
-			stdoutWriter.Write(msg.Stdout)
+				stdoutWriter.Write(msg.Stdout)
+			}
 		}
 	}()
 
 	go func() {
+		defer stdinReader.Close()
 		buffer := make([]byte, 1024)
 
 		for {
-			n, err := stdinReader.Read(buffer)
-			if err != nil {
+			select {
+			case <-ctx.Done():
 				return
-			}
+			default:
+				n, err := stdinReader.Read(buffer)
+				if err != nil {
+					return
+				}
 
-			if err := stream.Send(&pb.ContainerAttachRequest{
-				Payload: &pb.ContainerAttachRequest_Stdin{
-					Stdin: buffer[:n],
-				},
-			}); err != nil {
-				return
+				if err := stream.Send(&pb.ContainerAttachRequest{
+					Payload: &pb.ContainerAttachRequest_Stdin{
+						Stdin: buffer[:n],
+					},
+				}); err != nil {
+					return
+				}
 			}
 		}
 	}()

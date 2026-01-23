@@ -393,6 +393,16 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		return &pb.UpdateNotificationConfigResponse{}, nil
 	}
 
+	// Validate request sizes to prevent memory exhaustion
+	const maxSubscriptions = 1000
+	const maxDispatchers = 100
+	if len(req.Subscriptions) > maxSubscriptions {
+		return nil, status.Errorf(codes.InvalidArgument, "too many subscriptions: %d (max %d)", len(req.Subscriptions), maxSubscriptions)
+	}
+	if len(req.Dispatchers) > maxDispatchers {
+		return nil, status.Errorf(codes.InvalidArgument, "too many dispatchers: %d (max %d)", len(req.Dispatchers), maxDispatchers)
+	}
+
 	// Convert proto subscriptions to types
 	subscriptions := make([]types.SubscriptionConfig, len(req.Subscriptions))
 	for i, sub := range req.Subscriptions {

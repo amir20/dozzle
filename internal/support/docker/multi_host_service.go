@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -264,20 +265,22 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		}
 	}
 
+	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
 		// Check if client supports notification config updates (agents do, local docker clients don't)
 		if updater, ok := client.(NotificationConfigUpdater); ok {
-			go func(u NotificationConfigUpdater) {
+			wg.Go(func() {
 				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 				defer cancel()
-				if err := u.UpdateNotificationConfig(ctx, subscriptions, dispatchers); err != nil {
+				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers); err != nil {
 					log.Error().Err(err).Msg("Failed to broadcast notification config to agent")
 				} else {
 					log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Broadcasted notification config to agent")
 				}
-			}(updater)
+			})
 		}
 	}
+	wg.Wait()
 }
 
 // AddSubscription adds a subscription to local manager and broadcasts to agents
