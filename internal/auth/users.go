@@ -212,7 +212,8 @@ func UserFromContext(ctx context.Context) *User {
 			if filter, ok := claims["filter"].(string); ok {
 				containerFilter, err = container.ParseContainerFilter(filter)
 				if err != nil {
-					log.Fatal().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
+					log.Warn().Err(err).Str("filter", filter).Msg("Failed to parse container filter")
+					return nil
 				}
 			}
 			roles := None
