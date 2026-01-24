@@ -359,6 +359,14 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
 			Container: notificationContainer,
 			Log:       notificationLog,
+			Subscription: types.SubscriptionConfig{
+				ID:                  sub.ID,
+				Name:                sub.Name,
+				Enabled:             sub.Enabled,
+				DispatcherID:        sub.DispatcherID,
+				LogExpression:       sub.LogExpression,
+				ContainerExpression: sub.ContainerExpression,
+			},
 			Timestamp: time.Now(),
 		}
 

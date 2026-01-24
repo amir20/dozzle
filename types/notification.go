@@ -4,10 +4,11 @@ import "time"
 
 // Notification represents a notification event that can be filtered and sent
 type Notification struct {
-	ID        string                `json:"id"`
-	Container NotificationContainer `json:"container"`
-	Log       NotificationLog       `json:"log"`
-	Timestamp time.Time             `json:"timestamp"`
+	ID           string                `json:"id"`
+	Container    NotificationContainer `json:"container"`
+	Log          NotificationLog       `json:"log"`
+	Subscription SubscriptionConfig    `json:"subscription"`
+	Timestamp    time.Time             `json:"timestamp"`
 }
 
 // NotificationContainer represents a simplified container structure for notifications
@@ -33,12 +34,12 @@ type NotificationLog struct {
 
 // SubscriptionConfig represents a notification subscription configuration
 type SubscriptionConfig struct {
-	ID                  int
-	Name                string
-	Enabled             bool
-	DispatcherID        int
-	LogExpression       string
-	ContainerExpression string
+	ID                  int    `json:"id"`
+	Name                string `json:"name"`
+	Enabled             bool   `json:"-"`
+	DispatcherID        int    `json:"-"`
+	LogExpression       string `json:"logExpression"`
+	ContainerExpression string `json:"containerExpression"`
 }
 
 // DispatcherConfig represents a notification dispatcher configuration
