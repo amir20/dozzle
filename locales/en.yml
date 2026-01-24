@@ -224,6 +224,8 @@ notifications:
     cloud-description: Push, email, and dashboard
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Key
+    api-key-placeholder: Enter your Dozzle Cloud API key
     payload-format: Payload Format
     format-slack: Slack
     format-discord: Discord

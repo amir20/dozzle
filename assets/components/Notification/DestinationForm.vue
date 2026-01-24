@@ -11,20 +11,6 @@
       <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
     </div>
 
-    <!-- Name -->
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.name") }}</legend>
-      <input
-        ref="nameInput"
-        v-model="name"
-        type="text"
-        class="input focus:input-primary w-full text-base"
-        required
-        :class="{ 'input-primary': name.trim().length > 0 }"
-        :placeholder="$t('notifications.destination-form.name-placeholder')"
-      />
-    </fieldset>
-
     <!-- Type Selection -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.type") }}</legend>
@@ -58,6 +44,33 @@
           </div>
         </label>
       </div>
+    </fieldset>
+
+    <!-- Name (only for webhook type) -->
+    <fieldset v-if="type === 'webhook'" class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.name") }}</legend>
+      <input
+        ref="nameInput"
+        v-model="name"
+        type="text"
+        class="input focus:input-primary w-full text-base"
+        required
+        :class="{ 'input-primary': name.trim().length > 0 }"
+        :placeholder="$t('notifications.destination-form.name-placeholder')"
+      />
+    </fieldset>
+
+    <!-- API Key (only for cloud type) -->
+    <fieldset v-if="type === 'cloud'" class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.api-key") }}</legend>
+      <input
+        v-model="apiKey"
+        type="password"
+        class="input focus:input-primary w-full text-base"
+        required
+        :class="{ 'input-primary': apiKey.trim().length > 0 }"
+        :placeholder="$t('notifications.destination-form.api-key-placeholder')"
+      />
     </fieldset>
 
     <!-- Webhook URL (only for webhook type) -->
@@ -122,7 +135,12 @@
 
     <!-- Actions -->
     <div class="flex items-center gap-2 pt-4">
-      <button class="btn" @click="testDestination" :disabled="!canTest || !isValidUrl || isTesting">
+      <button
+        v-if="type === 'webhook'"
+        class="btn"
+        @click="testDestination"
+        :disabled="!canTest || !isValidUrl || isTesting"
+      >
         <span v-if="isTesting" class="loading loading-spinner loading-sm"></span>
         {{ $t("notifications.destination-form.test") }}
       </button>
@@ -212,6 +230,7 @@ const name = ref(destination?.name ?? "");
 useFocus(nameInput, { initialValue: true });
 const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
 const webhookUrl = ref(destination?.url ?? "");
+const apiKey = ref(destination?.apiKey ?? "");
 const payloadFormat = ref<PayloadFormat>(isEditing ? "custom" : "slack");
 const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLATES[payloadFormat.value]);
 const isTesting = ref(false);
@@ -242,8 +261,13 @@ const isValidUrl = computed(() => {
 
 const canSave = computed(() => {
   if (isSaving.value) return false;
-  if (!name.value.trim()) return false;
-  if (type.value === "webhook" && !isValidUrl.value) return false;
+  if (type.value === "webhook") {
+    if (!name.value.trim()) return false;
+    if (!isValidUrl.value) return false;
+  }
+  if (type.value === "cloud") {
+    if (!apiKey.value.trim()) return false;
+  }
   return true;
 });
 
@@ -281,10 +305,11 @@ async function saveDestination() {
 
   try {
     const input = {
-      name: name.value.trim(),
+      name: type.value === "webhook" ? name.value.trim() : "Dozzle Cloud",
       type: type.value,
       url: type.value === "webhook" ? webhookUrl.value.trim() : undefined,
       template: type.value === "webhook" && template.value.trim() ? template.value.trim() : undefined,
+      apiKey: type.value === "cloud" ? apiKey.value.trim() : undefined,
     };
 
     const result = isEditing

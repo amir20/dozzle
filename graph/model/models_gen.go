@@ -14,6 +14,7 @@ type Dispatcher struct {
 	Type     string  `json:"type"`
 	URL      *string `json:"url,omitempty"`
 	Template *string `json:"template,omitempty"`
+	APIKey   *string `json:"apiKey,omitempty"`
 }
 
 type DispatcherInput struct {
@@ -21,6 +22,7 @@ type DispatcherInput struct {
 	Type     string  `json:"type"`
 	URL      *string `json:"url,omitempty"`
 	Template *string `json:"template,omitempty"`
+	APIKey   *string `json:"apiKey,omitempty"`
 }
 
 type Mutation struct {

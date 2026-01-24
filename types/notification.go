@@ -49,4 +49,5 @@ type DispatcherConfig struct {
 	Type     string
 	URL      string
 	Template string
+	APIKey   string
 }

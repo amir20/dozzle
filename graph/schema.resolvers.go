@@ -131,6 +131,16 @@ func (r *mutationResolver) CreateDispatcher(ctx context.Context, input model.Dis
 			return nil, &Error{Message: err.Error()}
 		}
 		d = webhook
+	case "cloud":
+		apiKey := ""
+		if input.APIKey != nil {
+			apiKey = *input.APIKey
+		}
+		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
+		if err != nil {
+			return nil, &Error{Message: err.Error()}
+		}
+		d = cloud
 	default:
 		return nil, &Error{Message: "unknown dispatcher type"}
 	}
@@ -164,6 +174,16 @@ func (r *mutationResolver) UpdateDispatcher(ctx context.Context, id int32, input
 			return nil, &Error{Message: err.Error()}
 		}
 		d = webhook
+	case "cloud":
+		apiKey := ""
+		if input.APIKey != nil {
+			apiKey = *input.APIKey
+		}
+		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
+		if err != nil {
+			return nil, &Error{Message: err.Error()}
+		}
+		d = cloud
 	default:
 		return nil, &Error{Message: "unknown dispatcher type"}
 	}

@@ -44,12 +44,17 @@ func dispatcherConfigToDispatcher(d *notification.DispatcherConfig) *model.Dispa
 	if d.Template != "" {
 		template = &d.Template
 	}
+	var apiKey *string
+	if d.APIKey != "" {
+		apiKey = &d.APIKey
+	}
 	return &model.Dispatcher{
 		ID:       int32(d.ID),
 		Name:     d.Name,
 		Type:     d.Type,
 		URL:      url,
 		Template: template,
+		APIKey:   apiKey,
 	}
 }
 
