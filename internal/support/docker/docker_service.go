@@ -208,7 +208,8 @@ func (d *DockerClientService) Exec(ctx context.Context, c container.Container, c
 	})
 
 	wg.Go(func() {
-		if _, err := stdcopy.StdCopy(stdout, stdout, session.Reader); err != nil {
+		// TTY mode outputs raw bytes without Docker's multiplexing headers.
+		if _, err := io.Copy(stdout, session.Reader); err != nil {
 			log.Error().Err(err).Msg("error while writing to ws")
 		}
 		cancel()
