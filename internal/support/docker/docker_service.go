@@ -218,3 +218,7 @@ func (d *DockerClientService) Exec(ctx context.Context, c container.Container, c
 
 	return nil
 }
+
+func (d *DockerClientService) Healthy() bool {
+	return true
+}

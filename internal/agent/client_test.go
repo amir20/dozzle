@@ -89,6 +89,10 @@ func (m *MockedClientService) Exec(ctx context.Context, c container.Container, c
 	return args.Error(0)
 }
 
+func (m *MockedClientService) Healthy() bool {
+	return true
+}
+
 var wantedContainer = container.Container{}
 
 func init() {

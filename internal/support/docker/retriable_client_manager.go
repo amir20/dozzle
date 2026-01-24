@@ -20,6 +20,7 @@ import (
 
 type RetriableClientManager struct {
 	clients      map[string]container_support.ClientService
+	endpoints    map[string]string // hostID -> endpoint for reconnection
 	failedAgents []string
 	certs        tls.Certificate
 	mu           sync.RWMutex
@@ -46,6 +47,7 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 	}
 
 	failed := make([]string, 0)
+	endpoints := make(map[string]string)
 	for _, endpoint := range agents {
 		agent, err := agent.NewClient(endpoint, certs)
 		if err != nil {
@@ -67,11 +69,13 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 			log.Warn().Str("name", host.Name).Str("id", host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
 		} else {
 			clientMap[host.ID] = container_support.NewAgentService(agent)
+			endpoints[host.ID] = endpoint
 		}
 	}
 
 	return &RetriableClientManager{
 		clients:      clientMap,
+		endpoints:    endpoints,
 		failedAgents: failed,
 		certs:        certs,
 		subscribers:  xsync.NewMap[context.Context, chan<- container.Host](),
@@ -91,6 +95,16 @@ func (m *RetriableClientManager) Subscribe(ctx context.Context, channel chan<- c
 func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientService, []error) {
 	m.mu.Lock()
 	errors := make([]error, 0)
+
+	// Check health of existing agents, move unhealthy ones to failedAgents
+	for hostID, endpoint := range m.endpoints {
+		if client, ok := m.clients[hostID]; ok && !client.Healthy() {
+			log.Debug().Str("hostID", hostID).Str("endpoint", endpoint).Msg("agent unhealthy, will reconnect")
+			delete(m.clients, hostID)
+			m.failedAgents = append(m.failedAgents, endpoint)
+		}
+	}
+
 	if len(m.failedAgents) > 0 {
 		newFailed := make([]string, 0)
 		for _, endpoint := range m.failedAgents {
@@ -113,6 +127,7 @@ func (m *RetriableClientManager) RetryAndList() ([]container_support.ClientServi
 			}
 
 			m.clients[host.ID] = container_support.NewAgentService(agent)
+			m.endpoints[host.ID] = endpoint
 			m.subscribers.Range(func(ctx context.Context, channel chan<- container.Host) bool {
 				host.Available = true
 

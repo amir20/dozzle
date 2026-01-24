@@ -189,3 +189,7 @@ func (k *K8sClientService) Exec(ctx context.Context, c container.Container, cmd 
 	wg.Wait()
 	return nil
 }
+
+func (k *K8sClientService) Healthy() bool {
+	return true
+}

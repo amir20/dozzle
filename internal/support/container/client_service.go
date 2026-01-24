@@ -29,4 +29,7 @@ type ClientService interface {
 	// Terminal
 	Attach(context.Context, container.Container, container.ExecEventReader, io.Writer) error
 	Exec(context.Context, container.Container, []string, container.ExecEventReader, io.Writer) error
+
+	// Health
+	Healthy() bool
 }

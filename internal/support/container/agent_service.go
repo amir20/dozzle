@@ -14,14 +14,15 @@ import (
 )
 
 type agentService struct {
-	client *agent.Client
-	host   atomic.Pointer[container.Host]
+	client  *agent.Client
+	host    atomic.Pointer[container.Host]
+	healthy atomic.Bool
 }
 
 func NewAgentService(client *agent.Client) ClientService {
-	return &agentService{
-		client: client,
-	}
+	svc := &agentService{client: client}
+	svc.healthy.Store(true)
+	return svc
 }
 
 func (a *agentService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
@@ -61,15 +62,31 @@ func (a *agentService) Host(ctx context.Context) (container.Host, error) {
 }
 
 func (a *agentService) SubscribeStats(ctx context.Context, stats chan<- container.ContainerStat) {
-	go a.client.StreamStats(ctx, stats)
+	go func() {
+		if err := a.client.StreamStats(ctx, stats); err != nil {
+			a.healthy.Store(false)
+		}
+	}()
 }
 
 func (a *agentService) SubscribeEvents(ctx context.Context, events chan<- container.ContainerEvent) {
-	go a.client.StreamEvents(ctx, events)
+	go func() {
+		if err := a.client.StreamEvents(ctx, events); err != nil {
+			a.healthy.Store(false)
+		}
+	}()
 }
 
-func (d *agentService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
-	go d.client.StreamNewContainers(ctx, containers)
+func (a *agentService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container) {
+	go func() {
+		if err := a.client.StreamNewContainers(ctx, containers); err != nil {
+			a.healthy.Store(false)
+		}
+	}()
+}
+
+func (a *agentService) Healthy() bool {
+	return a.healthy.Load()
 }
 
 func (a *agentService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
