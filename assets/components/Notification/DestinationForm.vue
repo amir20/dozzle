@@ -30,15 +30,27 @@
           </div>
         </label>
         <label
-          class="card card-border border-base-content/20 cursor-pointer transition-colors"
-          :class="type === 'cloud' ? 'border-primary bg-primary/10' : ''"
+          class="card card-border border-base-content/20 transition-colors"
+          :class="[
+            type === 'cloud' ? 'border-primary bg-primary/10' : '',
+            hasExistingCloudDestination && type !== 'cloud' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+          ]"
         >
           <div class="card-body flex-row items-center gap-3 p-4">
-            <input type="radio" v-model="type" value="cloud" class="radio radio-primary" />
+            <input
+              type="radio"
+              v-model="type"
+              value="cloud"
+              class="radio radio-primary"
+              :disabled="hasExistingCloudDestination && type !== 'cloud'"
+            />
             <div>
               <div class="font-semibold">{{ $t("notifications.destination-form.cloud-title") }}</div>
               <div class="text-base-content/60 text-sm">
                 {{ $t("notifications.destination-form.cloud-description") }}
+              </div>
+              <div v-if="hasExistingCloudDestination && type !== 'cloud'" class="text-warning mt-1 text-xs">
+                {{ $t("notifications.destination-form.cloud-exists") }}
               </div>
             </div>
           </div>
@@ -213,11 +225,23 @@ const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
 }`,
 };
 
-const { close, onCreated, destination } = defineProps<{
+const {
+  close,
+  onCreated,
+  destination,
+  existingDispatchers = [],
+} = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   destination?: Dispatcher;
+  existingDispatchers?: Dispatcher[];
 }>();
+
+const hasExistingCloudDestination = computed(() => {
+  // When editing, exclude the current destination from the check
+  const others = isEditing ? existingDispatchers.filter((d) => d.id !== destination!.id) : existingDispatchers;
+  return others.some((d) => d.type === "cloud");
+});
 
 const createMutation = useMutation(CreateDispatcherDocument);
 const updateMutation = useMutation(UpdateDispatcherDocument);

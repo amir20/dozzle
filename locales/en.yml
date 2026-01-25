@@ -238,3 +238,4 @@ notifications:
     cancel: Cancel
     save: Save
     add: Add Destination
+    cloud-exists: Only one Dozzle Cloud destination can be configured

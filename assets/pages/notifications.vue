@@ -98,7 +98,10 @@ function openCreateAlert() {
 function openAddDestination() {
   showDrawer(
     DestinationForm,
-    { onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }) },
+    {
+      onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+      existingDispatchers: dispatchers.value,
+    },
     "md",
   );
 }
