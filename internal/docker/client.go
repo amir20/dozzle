@@ -386,6 +386,8 @@ func newContainer(c docker.Summary, host string) container.Container {
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
+	} else if c.Labels["coolify.resourceName"] != "" {
+		name = c.Labels["coolify.resourceName"]
 	} else if len(c.Names) > 0 {
 		name = strings.TrimPrefix(c.Names[0], "/")
 	}
@@ -393,6 +395,8 @@ func newContainer(c docker.Summary, host string) container.Container {
 	group := ""
 	if c.Labels["dev.dozzle.group"] != "" {
 		group = c.Labels["dev.dozzle.group"]
+	} else if c.Labels["coolify.projectName"] != "" {
+		group = c.Labels["coolify.projectName"]
 	}
 	return container.Container{
 		ID:      c.ID[:12],
@@ -412,6 +416,8 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
+	} else if c.Config.Labels["coolify.resourceName"] != "" {
+		name = c.Config.Labels["coolify.resourceName"]
 	} else if len(c.Name) > 0 {
 		name = strings.TrimPrefix(c.Name, "/")
 	}
@@ -419,6 +425,8 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	group := ""
 	if c.Config.Labels["dev.dozzle.group"] != "" {
 		group = c.Config.Labels["dev.dozzle.group"]
+	} else if c.Config.Labels["coolify.projectName"] != "" {
+		group = c.Config.Labels["coolify.projectName"]
 	}
 
 	container := container.Container{

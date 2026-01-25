@@ -260,3 +260,105 @@ func Test_dockerClient_ContainerActions_error(t *testing.T) {
 
 	proxy.AssertExpectations(t)
 }
+
+func Test_newContainer_labelPriority(t *testing.T) {
+	tests := []struct {
+		name          string
+		labels        map[string]string
+		containerName string
+		expectedName  string
+		expectedGroup string
+	}{
+		{
+			name:          "dozzle labels take priority",
+			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "dozzle-name",
+			expectedGroup: "dozzle-group",
+		},
+		{
+			name:          "coolify labels as fallback",
+			labels:        map[string]string{"coolify.resourceName": "coolify-name", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "coolify-name",
+			expectedGroup: "coolify-project",
+		},
+		{
+			name:          "docker name as final fallback",
+			labels:        map[string]string{},
+			containerName: "/docker-name",
+			expectedName:  "docker-name",
+			expectedGroup: "",
+		},
+		{
+			name:          "coolify name with dozzle group",
+			labels:        map[string]string{"coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group"},
+			containerName: "/docker-name",
+			expectedName:  "coolify-name",
+			expectedGroup: "dozzle-group",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			summary := docker.Summary{
+				ID:     "abcdefghijklmnopqrst",
+				Names:  []string{tt.containerName},
+				Labels: tt.labels,
+			}
+			c := newContainer(summary, "localhost")
+			assert.Equal(t, tt.expectedName, c.Name)
+			assert.Equal(t, tt.expectedGroup, c.Group)
+		})
+	}
+}
+
+func Test_newContainerFromJSON_labelPriority(t *testing.T) {
+	tests := []struct {
+		name          string
+		labels        map[string]string
+		containerName string
+		expectedName  string
+		expectedGroup string
+	}{
+		{
+			name:          "dozzle labels take priority",
+			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "dozzle-name",
+			expectedGroup: "dozzle-group",
+		},
+		{
+			name:          "coolify labels as fallback",
+			labels:        map[string]string{"coolify.resourceName": "coolify-name", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "coolify-name",
+			expectedGroup: "coolify-project",
+		},
+		{
+			name:          "docker name as final fallback",
+			labels:        map[string]string{},
+			containerName: "/docker-name",
+			expectedName:  "docker-name",
+			expectedGroup: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
+			json := docker.InspectResponse{
+				ContainerJSONBase: &docker.ContainerJSONBase{
+					ID:         "abcdefghijklmnopqrst",
+					Name:       tt.containerName,
+					State:      state,
+					HostConfig: &docker.HostConfig{},
+				},
+				Config: &docker.Config{Labels: tt.labels},
+			}
+			c := newContainerFromJSON(json, "localhost")
+			assert.Equal(t, tt.expectedName, c.Name)
+			assert.Equal(t, tt.expectedGroup, c.Group)
+		})
+	}
+}
