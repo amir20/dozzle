@@ -25,7 +25,7 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cloudURL := os.Getenv("DOZZLE_CLOUD_URL")
+	cloudURL := os.Getenv("DOLIGENCE_URL")
 	if cloudURL == "" {
 		cloudURL = "https://doligence.dozzle.dev"
 	}

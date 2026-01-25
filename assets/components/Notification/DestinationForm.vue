@@ -81,12 +81,17 @@
     </fieldset>
 
     <!-- Link Dozzle Cloud (only for cloud type, when creating or not linked) -->
-    <fieldset v-else-if="type === 'cloud'" class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.link-cloud") }}</legend>
-      <a :href="cloudLinkUrl" class="btn btn-primary">
-        {{ $t("notifications.destination-form.link-cloud-button") }}
-      </a>
-    </fieldset>
+    <div v-else-if="type === 'cloud'" class="card card-border border-primary/30 bg-primary/5">
+      <div class="card-body items-center text-center">
+        <mdi:cloud-outline class="text-primary text-4xl" />
+        <h3 class="card-title">{{ $t("notifications.destination-form.link-cloud") }}</h3>
+        <p class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-description") }}</p>
+        <a :href="cloudLinkUrl" class="btn btn-primary btn-lg mt-2">
+          <mdi:link-variant class="text-lg" />
+          {{ $t("notifications.destination-form.link-cloud-button") }}
+        </a>
+      </div>
+    </div>
 
     <!-- Webhook URL (only for webhook type) -->
     <fieldset v-if="type === 'webhook'" class="fieldset">
@@ -266,7 +271,7 @@ const testResult = ref<TestWebhookResult | null>(null);
 
 const cloudLinkUrl = computed(() => {
   const callbackUrl = `${window.location.origin}${withBase("/")}`;
-  return `http://localhost:3000/link?appUrl=${encodeURIComponent(callbackUrl)}`;
+  return `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}`;
 });
 
 function selectPayloadFormat(format: PayloadFormat) {

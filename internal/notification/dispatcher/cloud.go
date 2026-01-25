@@ -24,7 +24,7 @@ type CloudDispatcher struct {
 
 // NewCloudDispatcher creates a new cloud dispatcher
 func NewCloudDispatcher(name string, apiKey string) (*CloudDispatcher, error) {
-	url := os.Getenv("DOZZLE_CLOUD_URL")
+	url := os.Getenv("DOLIGENCE_URL")
 	if url == "" {
 		url = "https://doligence.dozzle.dev"
 	}
