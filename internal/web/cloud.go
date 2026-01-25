@@ -72,9 +72,6 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := "Dozzle Cloud"
-	if tokenResp.Prefix != "" {
-		name = tokenResp.Prefix
-	}
 
 	cloudDispatcher, err := dispatcher.NewCloudDispatcher(name, tokenResp.Key)
 	if err != nil {

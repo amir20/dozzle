@@ -239,3 +239,6 @@ notifications:
     save: Save
     add: Add Destination
     cloud-exists: Only one Dozzle Cloud destination can be configured
+    link-cloud: Link Account
+    link-cloud-button: Link Dozzle Cloud
+    cloud-linked: Your Dozzle Cloud account is linked and ready to receive notifications.
