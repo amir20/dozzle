@@ -148,7 +148,7 @@ func TestFindContainer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c, _ := rpc.FindContainer(context.Background(), "123456")
+	c, _ := rpc.FindContainer(context.Background(), "123456", container.ContainerLabels{})
 
 	assert.Equal(t, wantedContainer, c)
 }

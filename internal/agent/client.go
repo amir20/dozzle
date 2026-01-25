@@ -276,8 +276,17 @@ func (c *Client) StreamNewContainers(ctx context.Context, containers chan<- cont
 	}
 }
 
-func (c *Client) FindContainer(ctx context.Context, containerID string) (container.Container, error) {
-	response, err := c.client.FindContainer(ctx, &pb.FindContainerRequest{ContainerId: containerID})
+func (c *Client) FindContainer(ctx context.Context, containerID string, labels container.ContainerLabels) (container.Container, error) {
+	in := &pb.FindContainerRequest{ContainerId: containerID}
+
+	if labels != nil {
+		in.Filter = make(map[string]*pb.RepeatedString)
+		for k, v := range labels {
+			in.Filter[k] = &pb.RepeatedString{Values: v}
+		}
+	}
+
+	response, err := c.client.FindContainer(ctx, in)
 	if err != nil {
 		return container.Container{}, err
 	}
