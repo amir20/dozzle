@@ -70,10 +70,34 @@ import DestinationForm from "@/components/Notification/DestinationForm.vue";
 import DestinationCard from "@/components/Notification/DestinationCard.vue";
 
 const showDrawer = useDrawer();
+const route = useRoute();
 
 // GraphQL queries
 const alertsQuery = useQuery({ query: GetNotificationRulesDocument });
 const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
+
+// Handle newCloudLink query param
+watch(
+  () => [route.query.newCloudLink, dispatchersQuery.data.value],
+  ([newCloudLink, data]) => {
+    if (newCloudLink && data) {
+      const id = Number(newCloudLink);
+      const destination = dispatchers.value.find((d) => d.id === id);
+      if (destination) {
+        showDrawer(
+          DestinationForm,
+          {
+            destination,
+            onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+            existingDispatchers: dispatchers.value,
+          },
+          "md",
+        );
+      }
+    }
+  },
+  { immediate: true },
+);
 
 // Computed data from queries
 const alerts = computed(() => alertsQuery.data.value?.notificationRules ?? []);

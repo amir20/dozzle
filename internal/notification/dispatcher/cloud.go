@@ -26,8 +26,9 @@ type CloudDispatcher struct {
 func NewCloudDispatcher(name string, apiKey string) (*CloudDispatcher, error) {
 	url := os.Getenv("DOZZLE_CLOUD_URL")
 	if url == "" {
-		url = "https://doligence.dozzle.dev/api/events"
+		url = "https://doligence.dozzle.dev"
 	}
+	url = url + "/api/events"
 
 	if apiKey == "" {
 		return nil, fmt.Errorf("API key is required for cloud dispatcher")
