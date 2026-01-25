@@ -26,7 +26,7 @@ func NewAgentService(client *agent.Client) ClientService {
 }
 
 func (a *agentService) FindContainer(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, error) {
-	return a.client.FindContainer(ctx, id)
+	return a.client.FindContainer(ctx, id, labels)
 }
 
 func (a *agentService) RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error) {
