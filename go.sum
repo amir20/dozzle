@@ -14,8 +14,7 @@ github.com/PuerkitoBio/goquery v1.11.0 h1:jZ7pwMQXIITcUXNH83LLk+txlaEy6NVOfTuP43
 github.com/PuerkitoBio/goquery v1.11.0/go.mod h1:wQHgxUOU3JGuj3oD/QFfxUdlzW6xPHfqyHre6VMY4DQ=
 github.com/agnivade/levenshtein v1.2.1 h1:EHBY3UOn1gwdy/VbFwgo4cxecRznFk7fKWN1KOX7eoM=
 github.com/agnivade/levenshtein v1.2.1/go.mod h1:QVVI16kDrtSuwcpd0p1+xMC6Z/VfhtCyDIjcwga4/DU=
-github.com/air-verse/air v1.64.3 h1:bCLjOVQUvHd7e8FjQjYNDQsSSeXa6/S2s7uYhAVogdk=
-github.com/air-verse/air v1.64.3/go.mod h1:SOwv08NTvKextanAY819AK0FK6XzQO5/tC6s1R+rk8o=
+github.com/air-verse/air v1.64.4 h1:P0alz5Jia5NucZew1HYZy69lzPWZHFjLTCKo0VhxME8=
 github.com/air-verse/air v1.64.4/go.mod h1:OaJZSfZqf7wyjS2oP/CcEVyIt0JmZuPh5x1gdtklmmY=
 github.com/alecthomas/chroma/v2 v2.20.0 h1:sfIHpxPyR07/Oylvmcai3X/exDlE8+FA820NTz+9sGw=
 github.com/alecthomas/chroma/v2 v2.20.0/go.mod h1:e7tViK0xh/Nf4BYHl00ycY6rV7b8iXBksI9E359yNmA=

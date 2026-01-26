@@ -11,20 +11,6 @@
       <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
     </div>
 
-    <!-- Name -->
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.name") }}</legend>
-      <input
-        ref="nameInput"
-        v-model="name"
-        type="text"
-        class="input focus:input-primary w-full text-base"
-        required
-        :class="{ 'input-primary': name.trim().length > 0 }"
-        :placeholder="$t('notifications.destination-form.name-placeholder')"
-      />
-    </fieldset>
-
     <!-- Type Selection -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.type") }}</legend>
@@ -44,21 +30,68 @@
           </div>
         </label>
         <label
-          class="card card-border border-base-content/20 cursor-pointer transition-colors"
-          :class="type === 'cloud' ? 'border-primary bg-primary/10' : ''"
+          class="card card-border border-base-content/20 transition-colors"
+          :class="[
+            type === 'cloud' ? 'border-primary bg-primary/10' : '',
+            hasExistingCloudDestination && type !== 'cloud' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+          ]"
         >
           <div class="card-body flex-row items-center gap-3 p-4">
-            <input type="radio" v-model="type" value="cloud" class="radio radio-primary" />
+            <input
+              type="radio"
+              v-model="type"
+              value="cloud"
+              class="radio radio-primary"
+              :disabled="hasExistingCloudDestination && type !== 'cloud'"
+            />
             <div>
               <div class="font-semibold">{{ $t("notifications.destination-form.cloud-title") }}</div>
               <div class="text-base-content/60 text-sm">
                 {{ $t("notifications.destination-form.cloud-description") }}
+              </div>
+              <div v-if="hasExistingCloudDestination && type !== 'cloud'" class="text-warning mt-1 text-xs">
+                {{ $t("notifications.destination-form.cloud-exists") }}
               </div>
             </div>
           </div>
         </label>
       </div>
     </fieldset>
+
+    <!-- Name (only for webhook type) -->
+    <fieldset v-if="type === 'webhook'" class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.name") }}</legend>
+      <input
+        ref="nameInput"
+        v-model="name"
+        type="text"
+        class="input focus:input-primary w-full text-base"
+        required
+        :class="{ 'input-primary': name.trim().length > 0 }"
+        :placeholder="$t('notifications.destination-form.name-placeholder')"
+      />
+    </fieldset>
+
+    <!-- Cloud linked success (when editing cloud with apiKey) -->
+    <fieldset v-if="type === 'cloud' && destination?.apiKey" class="fieldset">
+      <div class="alert alert-success">
+        <mdi:check-circle class="text-xl" />
+        <span>{{ $t("notifications.destination-form.cloud-linked") }}</span>
+      </div>
+    </fieldset>
+
+    <!-- Link Dozzle Cloud (only for cloud type, when creating or not linked) -->
+    <div v-else-if="type === 'cloud'" class="card card-border border-primary/30 bg-primary/5">
+      <div class="card-body items-center text-center">
+        <mdi:cloud-outline class="text-primary text-4xl" />
+        <h3 class="card-title">{{ $t("notifications.destination-form.link-cloud") }}</h3>
+        <p class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-description") }}</p>
+        <a :href="cloudLinkUrl" class="btn btn-primary btn-lg mt-2">
+          <mdi:link-variant class="text-lg" />
+          {{ $t("notifications.destination-form.link-cloud-button") }}
+        </a>
+      </div>
+    </div>
 
     <!-- Webhook URL (only for webhook type) -->
     <fieldset v-if="type === 'webhook'" class="fieldset">
@@ -122,7 +155,12 @@
 
     <!-- Actions -->
     <div class="flex items-center gap-2 pt-4">
-      <button class="btn" @click="testDestination" :disabled="!canTest || !isValidUrl || isTesting">
+      <button
+        v-if="type === 'webhook'"
+        class="btn"
+        @click="testDestination"
+        :disabled="!canTest || !isValidUrl || isTesting"
+      >
         <span v-if="isTesting" class="loading loading-spinner loading-sm"></span>
         {{ $t("notifications.destination-form.test") }}
       </button>
@@ -195,11 +233,23 @@ const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
 }`,
 };
 
-const { close, onCreated, destination } = defineProps<{
+const {
+  close,
+  onCreated,
+  destination,
+  existingDispatchers = [],
+} = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   destination?: Dispatcher;
+  existingDispatchers?: Dispatcher[];
 }>();
+
+const hasExistingCloudDestination = computed(() => {
+  // When editing, exclude the current destination from the check
+  const others = isEditing ? existingDispatchers.filter((d) => d.id !== destination!.id) : existingDispatchers;
+  return others.some((d) => d.type === "cloud");
+});
 
 const createMutation = useMutation(CreateDispatcherDocument);
 const updateMutation = useMutation(UpdateDispatcherDocument);
@@ -218,6 +268,11 @@ const isTesting = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
 const testResult = ref<TestWebhookResult | null>(null);
+
+const cloudLinkUrl = computed(() => {
+  const callbackUrl = `${window.location.origin}${withBase("/")}`;
+  return `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}`;
+});
 
 function selectPayloadFormat(format: PayloadFormat) {
   payloadFormat.value = format;
@@ -242,8 +297,11 @@ const isValidUrl = computed(() => {
 
 const canSave = computed(() => {
   if (isSaving.value) return false;
-  if (!name.value.trim()) return false;
-  if (type.value === "webhook" && !isValidUrl.value) return false;
+  if (type.value === "cloud") return false;
+  if (type.value === "webhook") {
+    if (!name.value.trim()) return false;
+    if (!isValidUrl.value) return false;
+  }
   return true;
 });
 
@@ -283,8 +341,8 @@ async function saveDestination() {
     const input = {
       name: name.value.trim(),
       type: type.value,
-      url: type.value === "webhook" ? webhookUrl.value.trim() : undefined,
-      template: type.value === "webhook" && template.value.trim() ? template.value.trim() : undefined,
+      url: webhookUrl.value.trim(),
+      template: template.value.trim() || undefined,
     };
 
     const result = isEditing

@@ -14,6 +14,9 @@ import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(() => ({
+  define: {
+    __CLOUD_URL__: JSON.stringify(process.env.CLOUD_URL || "https://cloud.dozzle.dev"),
+  },
   resolve: {
     alias: {
       "@/": `${path.resolve(__dirname, "assets")}/`,

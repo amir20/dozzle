@@ -170,6 +170,9 @@ func createRouter(h *handler) *chi.Mux {
 				r.Post("/token", h.createToken)
 				r.Delete("/token", h.deleteToken)
 			}
+
+			// Cloud callback (public, handles OAuth-style code exchange)
+			r.Get("/cloud/callback", h.cloudCallback)
 		})
 
 		r.Get("/healthcheck", h.healthcheck)

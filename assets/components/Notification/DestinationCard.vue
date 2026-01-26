@@ -53,7 +53,7 @@ const { destination } = defineProps<{
 
 const showDrawer = useDrawer();
 const deleteMutation = useMutation(DeleteDispatcherDocument);
-const dispatchersQuery = useQuery({ query: GetDispatchersDocument, pause: true });
+const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
 const alertsQuery = useQuery({ query: GetNotificationRulesDocument, pause: true });
 
 function editDestination() {
@@ -62,6 +62,7 @@ function editDestination() {
     {
       destination,
       onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+      existingDispatchers: dispatchersQuery.data.value?.dispatchers ?? [],
     },
     "md",
   );

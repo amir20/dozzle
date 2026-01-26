@@ -224,6 +224,8 @@ notifications:
     cloud-description: Push, email, and dashboard
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Key
+    api-key-placeholder: Enter your Dozzle Cloud API key
     payload-format: Payload Format
     format-slack: Slack
     format-discord: Discord
@@ -236,3 +238,7 @@ notifications:
     cancel: Cancel
     save: Save
     add: Add Destination
+    cloud-exists: Only one Dozzle Cloud destination can be configured
+    link-cloud: Link Account
+    link-cloud-button: Link Dozzle Cloud
+    cloud-linked: Your Dozzle Cloud account is linked and ready to receive notifications.

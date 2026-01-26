@@ -68,6 +68,7 @@ type ComplexityRoot struct {
 	}
 
 	Dispatcher struct {
+		APIKey   func(childComplexity int) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
 		Template func(childComplexity int) int
@@ -264,6 +265,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Container.State(childComplexity), true
 
+	case "Dispatcher.apiKey":
+		if e.complexity.Dispatcher.APIKey == nil {
+			break
+		}
+
+		return e.complexity.Dispatcher.APIKey(childComplexity), true
 	case "Dispatcher.id":
 		if e.complexity.Dispatcher.ID == nil {
 			break
@@ -1437,6 +1444,35 @@ func (ec *executionContext) fieldContext_Dispatcher_template(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Dispatcher_apiKey(ctx context.Context, field graphql.CollectedField, obj *model.Dispatcher) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Dispatcher_apiKey,
+		func(ctx context.Context) (any, error) {
+			return obj.APIKey, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Dispatcher_apiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Dispatcher",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LogEvent_id(ctx context.Context, field graphql.CollectedField, obj *container.LogEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1899,6 +1935,8 @@ func (ec *executionContext) fieldContext_Mutation_createDispatcher(ctx context.C
 				return ec.fieldContext_Dispatcher_url(ctx, field)
 			case "template":
 				return ec.fieldContext_Dispatcher_template(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_Dispatcher_apiKey(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Dispatcher", field.Name)
 		},
@@ -1952,6 +1990,8 @@ func (ec *executionContext) fieldContext_Mutation_updateDispatcher(ctx context.C
 				return ec.fieldContext_Dispatcher_url(ctx, field)
 			case "template":
 				return ec.fieldContext_Dispatcher_template(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_Dispatcher_apiKey(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Dispatcher", field.Name)
 		},
@@ -2234,6 +2274,8 @@ func (ec *executionContext) fieldContext_NotificationRule_dispatcher(_ context.C
 				return ec.fieldContext_Dispatcher_url(ctx, field)
 			case "template":
 				return ec.fieldContext_Dispatcher_template(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_Dispatcher_apiKey(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Dispatcher", field.Name)
 		},
@@ -2715,6 +2757,8 @@ func (ec *executionContext) fieldContext_Query_dispatchers(_ context.Context, fi
 				return ec.fieldContext_Dispatcher_url(ctx, field)
 			case "template":
 				return ec.fieldContext_Dispatcher_template(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_Dispatcher_apiKey(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Dispatcher", field.Name)
 		},
@@ -2757,6 +2801,8 @@ func (ec *executionContext) fieldContext_Query_dispatcher(ctx context.Context, f
 				return ec.fieldContext_Dispatcher_url(ctx, field)
 			case "template":
 				return ec.fieldContext_Dispatcher_template(ctx, field)
+			case "apiKey":
+				return ec.fieldContext_Dispatcher_apiKey(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Dispatcher", field.Name)
 		},
@@ -4764,7 +4810,7 @@ func (ec *executionContext) unmarshalInputDispatcherInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "type", "url", "template"}
+	fieldsInOrder := [...]string{"name", "type", "url", "template", "apiKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4799,6 +4845,13 @@ func (ec *executionContext) unmarshalInputDispatcherInput(ctx context.Context, o
 				return it, err
 			}
 			it.Template = data
+		case "apiKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.APIKey = data
 		}
 	}
 
@@ -5129,6 +5182,8 @@ func (ec *executionContext) _Dispatcher(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._Dispatcher_url(ctx, field, obj)
 		case "template":
 			out.Values[i] = ec._Dispatcher_template(ctx, field, obj)
+		case "apiKey":
+			out.Values[i] = ec._Dispatcher_apiKey(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

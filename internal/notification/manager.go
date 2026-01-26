@@ -290,6 +290,13 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 				URL:      v.URL,
 				Template: v.TemplateText,
 			})
+		case *dispatcher.CloudDispatcher:
+			result = append(result, DispatcherConfig{
+				ID:     id,
+				Name:   v.Name,
+				Type:   "cloud",
+				APIKey: v.APIKey,
+			})
 		}
 		return true
 	})
@@ -410,53 +417,32 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 		return fmt.Errorf("failed to decode config: %w", err)
 	}
 
-	// Find max IDs to initialize counters
-	var maxSubID, maxDispatcherID int
-	for _, sub := range config.Subscriptions {
-		if sub.ID > maxSubID {
-			maxSubID = sub.ID
-		}
-	}
-	for _, d := range config.Dispatchers {
-		if d.ID > maxDispatcherID {
-			maxDispatcherID = d.ID
-		}
-	}
-	m.subscriptionCounter.Store(int32(maxSubID))
-	m.dispatcherCounter.Store(int32(maxDispatcherID))
-
-	// Load subscriptions
-	for _, sub := range config.Subscriptions {
-		if err := m.loadSubscription(sub); err != nil {
-			return fmt.Errorf("failed to add subscription %s: %w", sub.Name, err)
+	// Convert to types for HandleNotificationConfig
+	subscriptions := make([]types.SubscriptionConfig, len(config.Subscriptions))
+	for i, sub := range config.Subscriptions {
+		subscriptions[i] = types.SubscriptionConfig{
+			ID:                  sub.ID,
+			Name:                sub.Name,
+			Enabled:             sub.Enabled,
+			DispatcherID:        sub.DispatcherID,
+			LogExpression:       sub.LogExpression,
+			ContainerExpression: sub.ContainerExpression,
 		}
 	}
 
-	// Load dispatchers
-	for _, dispatcherConfig := range config.Dispatchers {
-		var d dispatcher.Dispatcher
-		switch dispatcherConfig.Type {
-		case "webhook":
-			webhook, err := dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL, dispatcherConfig.Template)
-			if err != nil {
-				return fmt.Errorf("failed to create webhook dispatcher %s: %w", dispatcherConfig.Name, err)
-			}
-			d = webhook
-		default:
-			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
-		}
-		m.dispatchers.Store(dispatcherConfig.ID, d)
-		log.Debug().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher")
-	}
-
-	// Update listener to start streams for loaded subscriptions
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			return fmt.Errorf("failed to update listener streams: %w", err)
+	dispatchers := make([]types.DispatcherConfig, len(config.Dispatchers))
+	for i, d := range config.Dispatchers {
+		dispatchers[i] = types.DispatcherConfig{
+			ID:       d.ID,
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.URL,
+			Template: d.Template,
+			APIKey:   d.APIKey,
 		}
 	}
 
-	return nil
+	return m.HandleNotificationConfig(subscriptions, dispatchers)
 }
 
 // HandleNotificationConfig implements agent.NotificationConfigHandler interface
@@ -505,20 +491,20 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 	}
 
 	// Load dispatchers
-	for _, dispatcherConfig := range dispatchers {
-		var d dispatcher.Dispatcher
-		switch dispatcherConfig.Type {
-		case "webhook":
-			webhook, err := dispatcher.NewWebhookDispatcher(dispatcherConfig.Name, dispatcherConfig.URL, dispatcherConfig.Template)
-			if err != nil {
-				return fmt.Errorf("failed to create webhook dispatcher %s: %w", dispatcherConfig.Name, err)
-			}
-			d = webhook
-		default:
-			return fmt.Errorf("unknown dispatcher type: %s", dispatcherConfig.Type)
+	for _, dc := range dispatchers {
+		d, err := createDispatcher(DispatcherConfig{
+			ID:       dc.ID,
+			Name:     dc.Name,
+			Type:     dc.Type,
+			URL:      dc.URL,
+			Template: dc.Template,
+			APIKey:   dc.APIKey,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create dispatcher %s: %w", dc.Name, err)
 		}
-		m.dispatchers.Store(dispatcherConfig.ID, d)
-		log.Debug().Int("id", dispatcherConfig.ID).Msg("Loaded dispatcher from state sync")
+		m.dispatchers.Store(dc.ID, d)
+		log.Debug().Int("id", dc.ID).Msg("Loaded dispatcher from state sync")
 	}
 
 	// Update listener to start/stop streams based on new subscriptions
@@ -530,6 +516,18 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 
 	log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Replaced notification state")
 	return nil
+}
+
+// createDispatcher creates a dispatcher from a DispatcherConfig
+func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
+	switch config.Type {
+	case "webhook":
+		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template)
+	case "cloud":
+		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey)
+	default:
+		return nil, fmt.Errorf("unknown dispatcher type: %s", config.Type)
+	}
 }
 
 // loadSubscription loads a subscription with its existing ID (used when loading from config)

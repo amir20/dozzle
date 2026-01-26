@@ -24,6 +24,7 @@ query GetDispatchers {
     type
     url
     template
+    apiKey
   }
 }
 

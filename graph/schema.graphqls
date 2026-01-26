@@ -47,6 +47,7 @@ type Dispatcher {
   type: String!
   url: String
   template: String
+  apiKey: String
 }
 
 type PreviewResult {
@@ -92,6 +93,7 @@ input DispatcherInput {
   type: String!
   url: String
   template: String
+  apiKey: String
 }
 
 input PreviewInput {

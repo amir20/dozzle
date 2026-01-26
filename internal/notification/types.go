@@ -114,9 +114,10 @@ func (s *Subscription) AddTriggeredContainer(id string) {
 type DispatcherConfig struct {
 	ID       int    `json:"id" yaml:"id"`
 	Name     string `json:"name" yaml:"name"`
-	Type     string `json:"type" yaml:"type"` // "webhook", etc.
+	Type     string `json:"type" yaml:"type"` // "webhook", "cloud"
 	URL      string `json:"url,omitempty" yaml:"url,omitempty"`
 	Template string `json:"template,omitempty" yaml:"template,omitempty"` // Go template for custom payload format
+	APIKey   string `json:"apiKey,omitempty" yaml:"apiKey,omitempty"`     // API key for cloud dispatcher
 }
 
 // Config represents the persisted notification configuration
