@@ -92,10 +92,8 @@ async function fetchDispatchers() {
   dispatchers.value = await res.json();
 }
 
-onMounted(() => {
-  fetchAlerts();
-  fetchDispatchers();
-});
+fetchAlerts();
+fetchDispatchers();
 
 // Handle newCloudLink query param
 watch(
