@@ -38,39 +38,31 @@
 </template>
 
 <script lang="ts" setup>
-import { useMutation, useQuery } from "@urql/vue";
-import {
-  DeleteDispatcherDocument,
-  GetDispatchersDocument,
-  GetNotificationRulesDocument,
-  type Dispatcher,
-} from "@/types/graphql";
+import type { Dispatcher } from "@/types/notifications";
 import DestinationForm from "./DestinationForm.vue";
 
-const { destination } = defineProps<{
+const { destination, onUpdated, existingDispatchers } = defineProps<{
   destination: Dispatcher;
+  onUpdated?: () => void;
+  existingDispatchers: Dispatcher[];
 }>();
 
 const showDrawer = useDrawer();
-const deleteMutation = useMutation(DeleteDispatcherDocument);
-const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
-const alertsQuery = useQuery({ query: GetNotificationRulesDocument, pause: true });
 
 function editDestination() {
   showDrawer(
     DestinationForm,
     {
       destination,
-      onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
-      existingDispatchers: dispatchersQuery.data.value?.dispatchers ?? [],
+      onCreated: onUpdated,
+      existingDispatchers,
     },
     "md",
   );
 }
 
 async function deleteDestination() {
-  await deleteMutation.executeMutation({ id: destination.id });
-  dispatchersQuery.executeQuery({ requestPolicy: "network-only" });
-  alertsQuery.executeQuery({ requestPolicy: "network-only" });
+  await fetch(withBase(`/api/notifications/dispatchers/${destination.id}`), { method: "DELETE" });
+  onUpdated?.();
 }
 </script>

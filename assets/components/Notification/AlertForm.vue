@@ -145,13 +145,7 @@ import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 import { createExprEditor, createContainerHints, createLogHints } from "@/composable/exprEditor";
 
-import { useQuery, useMutation } from "@urql/vue";
-import {
-  GetDispatchersDocument,
-  CreateNotificationRuleDocument,
-  ReplaceNotificationRuleDocument,
-  PreviewExpressionDocument,
-} from "@/types/graphql";
+import type { Dispatcher, PreviewResult } from "@/types/notifications";
 
 export interface AlertData {
   id: number;
@@ -167,11 +161,12 @@ const { close, onCreated, alert } = defineProps<{
   alert?: AlertData;
 }>();
 
-// GraphQL
-const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
-const createMutation = useMutation(CreateNotificationRuleDocument);
-const replaceMutation = useMutation(ReplaceNotificationRuleDocument);
-const previewMutation = useMutation(PreviewExpressionDocument);
+// Fetch dispatchers
+const destinations = ref<Dispatcher[]>([]);
+onMounted(async () => {
+  const res = await fetch(withBase("/api/notifications/dispatchers"));
+  destinations.value = await res.json();
+});
 
 // Container store for autocomplete hints
 const containerStore = useContainerStore();
@@ -194,7 +189,6 @@ const alertName = ref(alert?.name ?? "");
 const containerExpression = ref(alert?.containerExpression ?? "");
 const logExpression = ref(alert?.logExpression ?? "");
 const dispatcherId = ref(alert?.dispatcherId ?? 0);
-const destinations = computed(() => dispatchersQuery.data.value?.dispatchers ?? []);
 const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 useFocus(alertNameInput, { initialValue: true });
 
@@ -236,12 +230,19 @@ async function saveAlert() {
       enabled: true,
     };
 
-    const result = isEditing.value
-      ? await replaceMutation.executeMutation({ id: alert!.id, input })
-      : await createMutation.executeMutation({ input });
+    const url = isEditing.value
+      ? withBase(`/api/notifications/rules/${alert!.id}`)
+      : withBase("/api/notifications/rules");
 
-    if (result.error) {
-      throw new Error(result.error.message);
+    const res = await fetch(url, {
+      method: isEditing.value ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to save alert");
     }
 
     onCreated?.();
@@ -265,17 +266,21 @@ async function validateExpressions() {
   isLoading.value = true;
 
   try {
-    const result = await previewMutation.executeMutation({
-      input: {
+    const res = await fetch(withBase("/api/notifications/preview"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         containerExpression: containerExpression.value,
         logExpression: logExpression.value || undefined,
-      },
+      }),
     });
 
-    if (result.error) throw new Error(result.error.message);
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || "Preview failed");
+    }
 
-    const data = result.data?.previewExpression;
-    if (!data) throw new Error("No data returned");
+    const data: PreviewResult = await res.json();
 
     // Update container result
     containerResult.value = containerExpression.value

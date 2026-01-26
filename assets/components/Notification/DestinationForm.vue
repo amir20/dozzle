@@ -175,14 +175,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useMutation } from "@urql/vue";
-import {
-  CreateDispatcherDocument,
-  UpdateDispatcherDocument,
-  TestWebhookDocument,
-  type Dispatcher,
-  type TestWebhookResult,
-} from "@/types/graphql";
+import type { Dispatcher, TestWebhookResult } from "@/types/notifications";
 
 type PayloadFormat = "slack" | "discord" | "ntfy" | "custom";
 
@@ -251,10 +244,6 @@ const hasExistingCloudDestination = computed(() => {
   return others.some((d) => d.type === "cloud");
 });
 
-const createMutation = useMutation(CreateDispatcherDocument);
-const updateMutation = useMutation(UpdateDispatcherDocument);
-const testMutation = useMutation(TestWebhookDocument);
-
 const isEditing = !!destination;
 
 const nameInput = ref<HTMLInputElement>();
@@ -312,18 +301,17 @@ async function testDestination() {
   testResult.value = null;
 
   try {
-    const input = {
-      url: webhookUrl.value.trim(),
-      template: template.value.trim() || undefined,
-    };
+    const res = await fetch(withBase("/api/notifications/test-webhook"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: webhookUrl.value.trim(),
+        template: template.value.trim() || undefined,
+      }),
+    });
 
-    const result = await testMutation.executeMutation({ input });
-
-    if (result.error) {
-      testResult.value = { success: false, error: result.error.message };
-    } else if (result.data?.testWebhook) {
-      testResult.value = result.data.testWebhook;
-    }
+    const data: TestWebhookResult = await res.json();
+    testResult.value = data;
   } catch (e) {
     testResult.value = { success: false, error: e instanceof Error ? e.message : "Test failed" };
   } finally {
@@ -345,12 +333,19 @@ async function saveDestination() {
       template: template.value.trim() || undefined,
     };
 
-    const result = isEditing
-      ? await updateMutation.executeMutation({ id: destination!.id, input })
-      : await createMutation.executeMutation({ input });
+    const url = isEditing
+      ? withBase(`/api/notifications/dispatchers/${destination!.id}`)
+      : withBase("/api/notifications/dispatchers");
 
-    if (result.error) {
-      throw new Error(result.error.message);
+    const res = await fetch(url, {
+      method: isEditing ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to save destination");
     }
 
     onCreated?.();
