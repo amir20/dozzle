@@ -171,47 +171,52 @@ func (s *ContainerStore) FindContainer(id string, labels ContainerLabels) (Conta
 		}
 	}
 
-	if container, ok := s.containers.Load(id); ok {
-		if !container.FullyLoaded {
-			log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
-			if newContainer, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
-				if loaded {
-					ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-					defer cancel()
-					if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
-						return &newContainer, xsync.UpdateOp
-					} else {
-						log.Error().Err(err).Msg("failed to fetch container")
-						return c, xsync.CancelOp
-					}
-				}
-				return c, xsync.CancelOp
-			}); ok {
-				go func() {
-					event := ContainerEvent{
-						Name:      "update",
-						Host:      newContainer.Host,
-						ActorID:   id,
-						Container: newContainer,
-					}
-
-					s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
-						select {
-						case events <- event:
-						case <-c.Done():
-							s.subscribers.Delete(c)
-						}
-						return true
-					})
-				}()
-				return *newContainer, nil
-			}
+	var updated bool
+	container, found := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+		if !loaded {
+			return nil, xsync.CancelOp
 		}
-		return *container, nil
-	} else {
+		if c.FullyLoaded {
+			return c, xsync.CancelOp
+		}
+		log.Debug().Str("id", id).Msg("container is not fully loaded, fetching it")
+		ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+		defer cancel()
+		if newContainer, err := s.client.FindContainer(ctx, id); err == nil {
+			updated = true
+			return &newContainer, xsync.UpdateOp
+		} else {
+			log.Error().Err(err).Msg("failed to fetch container")
+			return c, xsync.CancelOp
+		}
+	})
+
+	if !found {
 		log.Warn().Str("id", id).Msg("container not found")
 		return Container{}, ErrContainerNotFound
 	}
+
+	if updated {
+		go func() {
+			event := ContainerEvent{
+				Name:      "update",
+				Host:      container.Host,
+				ActorID:   id,
+				Container: container,
+			}
+
+			s.subscribers.Range(func(c context.Context, events chan<- ContainerEvent) bool {
+				select {
+				case events <- event:
+				case <-c.Done():
+					s.subscribers.Delete(c)
+				}
+				return true
+			})
+		}()
+	}
+
+	return *container, nil
 }
 
 func (s *ContainerStore) Client() Client {

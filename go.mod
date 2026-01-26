@@ -30,7 +30,7 @@ require (
 	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/go-faker/faker/v4 v4.7.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
-	github.com/puzpuzpuz/xsync/v4 v4.3.0
+	github.com/puzpuzpuz/xsync/v4 v4.4.0
 	github.com/rs/zerolog v1.34.0
 	github.com/samber/lo v1.52.0
 	github.com/vektah/gqlparser/v2 v2.5.31
