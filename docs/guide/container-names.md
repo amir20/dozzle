@@ -27,3 +27,12 @@ services:
 ```
 
 :::
+
+## Coolify Integration
+
+If you're using [Coolify](https://coolify.io/), Dozzle automatically recognizes Coolify's labels as fallbacks:
+
+- `coolify.resourceName` → Used as container name if `dev.dozzle.name` is not set
+- `coolify.projectName` → Used for grouping if `dev.dozzle.group` is not set
+
+No additional configuration is needed for Coolify deployments.
