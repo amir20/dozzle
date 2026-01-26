@@ -59,24 +59,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useMutation, useQuery } from "@urql/vue";
-import {
-  GetNotificationRulesDocument,
-  DeleteNotificationRuleDocument,
-  UpdateNotificationRuleDocument,
-  type NotificationRule,
-} from "@/types/graphql";
+import type { NotificationRule } from "@/types/notifications";
 import AlertForm from "./AlertForm.vue";
 
-const { alert } = defineProps<{
+const { alert, onUpdated } = defineProps<{
   alert: NotificationRule;
+  onUpdated?: () => void;
 }>();
 
 const showDrawer = useDrawer();
-const deleteMutation = useMutation(DeleteNotificationRuleDocument);
-const updateMutation = useMutation(UpdateNotificationRuleDocument);
-const alertsQuery = useQuery({ query: GetNotificationRulesDocument, pause: true });
-
 const isDeleting = ref(false);
 
 function formatTimeAgo(dateStr: string): string {
@@ -86,22 +77,23 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 async function toggleEnabled() {
-  await updateMutation.executeMutation({
-    id: alert.id,
-    input: { enabled: !alert.enabled },
+  await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled: !alert.enabled }),
   });
-  alertsQuery.executeQuery({ requestPolicy: "network-only" });
+  onUpdated?.();
 }
 
 function editAlert() {
-  showDrawer(AlertForm, { alert, onCreated: () => alertsQuery.executeQuery({ requestPolicy: "network-only" }) }, "lg");
+  showDrawer(AlertForm, { alert, onCreated: onUpdated }, "lg");
 }
 
 async function deleteAlert() {
   isDeleting.value = true;
   try {
-    await deleteMutation.executeMutation({ id: alert.id });
-    alertsQuery.executeQuery({ requestPolicy: "network-only" });
+    await fetch(withBase(`/api/notifications/rules/${alert.id}`), { method: "DELETE" });
+    onUpdated?.();
   } finally {
     isDeleting.value = false;
   }

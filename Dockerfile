@@ -41,8 +41,6 @@ COPY internal ./internal
 COPY types ./types
 COPY main.go ./
 COPY protos ./protos
-COPY graph ./graph
-COPY gqlgen.yml ./
 COPY shared_key.pem shared_cert.pem ./
 
 # Copy assets built with node

@@ -158,11 +158,27 @@ func createRouter(h *handler) *chi.Mux {
 					r.Get("/debug/store", h.debugStore)
 				}
 
-				// GraphQL endpoint
-				r.Handle("/graphql", h.graphqlHandler())
-				if h.config.Dev {
-					r.Handle("/graphql/playground", h.graphqlPlaygroundHandler())
-				}
+				// Notifications API
+				r.Route("/notifications", func(r chi.Router) {
+					r.Get("/rules", h.listNotificationRules)
+					r.Post("/rules", h.createNotificationRule)
+					r.Get("/rules/{id}", h.getNotificationRule)
+					r.Put("/rules/{id}", h.replaceNotificationRule)
+					r.Patch("/rules/{id}", h.updateNotificationRule)
+					r.Delete("/rules/{id}", h.deleteNotificationRule)
+
+					r.Get("/dispatchers", h.listDispatchers)
+					r.Post("/dispatchers", h.createDispatcher)
+					r.Get("/dispatchers/{id}", h.getDispatcher)
+					r.Put("/dispatchers/{id}", h.updateDispatcher)
+					r.Delete("/dispatchers/{id}", h.deleteDispatcher)
+
+					r.Post("/preview", h.previewExpression)
+					r.Post("/test-webhook", h.testWebhook)
+				})
+
+				// Releases API
+				r.Get("/releases", h.getReleases)
 			})
 
 			// Public API routes

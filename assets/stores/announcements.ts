@@ -1,5 +1,15 @@
-import { client } from "@/modules/urql";
-import { GetReleasesDocument, type Release } from "@/types/graphql";
+interface Release {
+  name: string;
+  mentionsCount: number;
+  tag: string;
+  body: string;
+  createdAt: string;
+  htmlUrl: string;
+  latest: boolean;
+  features: number;
+  bugFixes: number;
+  breaking: number;
+}
 
 type Announcement = Omit<Release, "createdAt"> & {
   announcement: boolean;
@@ -14,9 +24,10 @@ async function fetchReleases() {
   fetched = true;
 
   try {
-    const { data } = await client.query(GetReleasesDocument, {});
+    const res = await fetch(withBase("/api/releases"));
+    const data: Release[] = await res.json();
     releases.value =
-      data?.releases?.map((r) => ({
+      data?.map((r) => ({
         ...r,
         createdAt: new Date(r.createdAt),
         announcement: false,

@@ -13,7 +13,14 @@
           {{ $t("notifications.destinations") }}
         </h3>
         <div class="flex flex-wrap gap-4">
-          <DestinationCard v-for="dest in dispatchers" :key="dest.id" :destination="dest" class="w-full md:w-72" />
+          <DestinationCard
+            v-for="dest in dispatchers"
+            :key="dest.id"
+            :destination="dest"
+            :on-updated="fetchDispatchers"
+            :existing-dispatchers="dispatchers"
+            class="w-full md:w-72"
+          />
           <!-- Add Destination Card -->
           <button
             class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors md:w-72"
@@ -55,7 +62,7 @@
           {{ $t("notifications.no-alerts") }}
         </div>
         <div v-else class="space-y-4">
-          <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" />
+          <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" :on-updated="fetchAlerts" />
         </div>
       </div>
     </section>
@@ -63,8 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useQuery } from "@urql/vue";
-import { GetNotificationRulesDocument, GetDispatchersDocument, type NotificationRule } from "@/types/graphql";
+import type { NotificationRule, Dispatcher } from "@/types/notifications";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
 import DestinationCard from "@/components/Notification/DestinationCard.vue";
@@ -72,15 +78,28 @@ import DestinationCard from "@/components/Notification/DestinationCard.vue";
 const showDrawer = useDrawer();
 const route = useRoute();
 
-// GraphQL queries
-const alertsQuery = useQuery({ query: GetNotificationRulesDocument });
-const dispatchersQuery = useQuery({ query: GetDispatchersDocument });
+// State
+const alerts = ref<NotificationRule[]>([]);
+const dispatchers = ref<Dispatcher[]>([]);
+
+async function fetchAlerts() {
+  const res = await fetch(withBase("/api/notifications/rules"));
+  alerts.value = await res.json();
+}
+
+async function fetchDispatchers() {
+  const res = await fetch(withBase("/api/notifications/dispatchers"));
+  dispatchers.value = await res.json();
+}
+
+fetchAlerts();
+fetchDispatchers();
 
 // Handle newCloudLink query param
 watch(
-  () => [route.query.newCloudLink, dispatchersQuery.data.value],
+  () => [route.query.newCloudLink, dispatchers.value] as const,
   ([newCloudLink, data]) => {
-    if (newCloudLink && data) {
+    if (newCloudLink && data?.length) {
       const id = Number(newCloudLink);
       const destination = dispatchers.value.find((d) => d.id === id);
       if (destination) {
@@ -88,7 +107,7 @@ watch(
           DestinationForm,
           {
             destination,
-            onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+            onCreated: fetchDispatchers,
             existingDispatchers: dispatchers.value,
           },
           "md",
@@ -99,31 +118,27 @@ watch(
   { immediate: true },
 );
 
-// Computed data from queries
-const alerts = computed(() => alertsQuery.data.value?.notificationRules ?? []);
-const dispatchers = computed(() => dispatchersQuery.data.value?.dispatchers ?? []);
-
 // Local state
 const filter = ref<"all" | "enabled" | "paused">("all");
 
-const enabledCount = computed(() => alerts.value.filter((a: NotificationRule) => a.enabled).length);
-const pausedCount = computed(() => alerts.value.filter((a: NotificationRule) => !a.enabled).length);
+const enabledCount = computed(() => alerts.value.filter((a) => a.enabled).length);
+const pausedCount = computed(() => alerts.value.filter((a) => !a.enabled).length);
 
 const filteredAlerts = computed(() => {
-  if (filter.value === "enabled") return alerts.value.filter((a: NotificationRule) => a.enabled);
-  if (filter.value === "paused") return alerts.value.filter((a: NotificationRule) => !a.enabled);
+  if (filter.value === "enabled") return alerts.value.filter((a) => a.enabled);
+  if (filter.value === "paused") return alerts.value.filter((a) => !a.enabled);
   return alerts.value;
 });
 
 function openCreateAlert() {
-  showDrawer(AlertForm, { onCreated: () => alertsQuery.executeQuery({ requestPolicy: "network-only" }) }, "lg");
+  showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
 }
 
 function openAddDestination() {
   showDrawer(
     DestinationForm,
     {
-      onCreated: () => dispatchersQuery.executeQuery({ requestPolicy: "network-only" }),
+      onCreated: fetchDispatchers,
       existingDispatchers: dispatchers.value,
     },
     "md",
