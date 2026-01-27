@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.28.1",
+  "packageManager": "pnpm@10.28.2",
   "type": "module",
   "repository": {
     "type": "git",
@@ -103,8 +103,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
-    "vue-component-type-helpers": "3.2.3",
-    "vue-tsc": "3.2.3"
+    "vue-component-type-helpers": "3.2.4",
+    "vue-tsc": "3.2.4"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
