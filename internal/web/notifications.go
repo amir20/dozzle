@@ -37,7 +37,6 @@ type DispatcherResponse struct {
 	Type      string     `json:"type"`
 	URL       *string    `json:"url,omitempty"`
 	Template  *string    `json:"template,omitempty"`
-	APIKey    *string    `json:"apiKey,omitempty"`
 	Prefix    *string    `json:"prefix,omitempty"`
 	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
 }
@@ -59,13 +58,10 @@ type NotificationRuleUpdateInput struct {
 }
 
 type DispatcherInput struct {
-	Name      string     `json:"name"`
-	Type      string     `json:"type"`
-	URL       *string    `json:"url,omitempty"`
-	Template  *string    `json:"template,omitempty"`
-	APIKey    *string    `json:"apiKey,omitempty"`
-	Prefix    *string    `json:"prefix,omitempty"`
-	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+	Name     string  `json:"name"`
+	Type     string  `json:"type"`
+	URL      *string `json:"url,omitempty"`
+	Template *string `json:"template,omitempty"`
 }
 
 type PreviewInput struct {
@@ -347,21 +343,6 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d = webhook
-	case "cloud":
-		apiKey := ""
-		if input.APIKey != nil {
-			apiKey = *input.APIKey
-		}
-		prefix := ""
-		if input.Prefix != nil {
-			prefix = *input.Prefix
-		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey, prefix, input.ExpiresAt)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		d = cloud
 	default:
 		writeError(w, http.StatusBadRequest, "unknown dispatcher type")
 		return
@@ -370,14 +351,11 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 	id := h.hostService.AddDispatcher(d)
 
 	writeJSON(w, http.StatusCreated, &DispatcherResponse{
-		ID:        id,
-		Name:      input.Name,
-		Type:      input.Type,
-		URL:       input.URL,
-		Template:  input.Template,
-		APIKey:    input.APIKey,
-		Prefix:    input.Prefix,
-		ExpiresAt: input.ExpiresAt,
+		ID:       id,
+		Name:     input.Name,
+		Type:     input.Type,
+		URL:      input.URL,
+		Template: input.Template,
 	})
 }
 
@@ -411,21 +389,6 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d = webhook
-	case "cloud":
-		apiKey := ""
-		if input.APIKey != nil {
-			apiKey = *input.APIKey
-		}
-		prefix := ""
-		if input.Prefix != nil {
-			prefix = *input.Prefix
-		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey, prefix, input.ExpiresAt)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		d = cloud
 	default:
 		writeError(w, http.StatusBadRequest, "unknown dispatcher type")
 		return
@@ -434,14 +397,11 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 	h.hostService.UpdateDispatcher(id, d)
 
 	writeJSON(w, http.StatusOK, &DispatcherResponse{
-		ID:        id,
-		Name:      input.Name,
-		Type:      input.Type,
-		URL:       input.URL,
-		Template:  input.Template,
-		APIKey:    input.APIKey,
-		Prefix:    input.Prefix,
-		ExpiresAt: input.ExpiresAt,
+		ID:       id,
+		Name:     input.Name,
+		Type:     input.Type,
+		URL:      input.URL,
+		Template: input.Template,
 	})
 }
 
