@@ -71,9 +71,19 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var expiresAt *time.Time
+	if tokenResp.ExpiresAt != nil {
+		parsed, err := time.Parse(time.RFC3339, *tokenResp.ExpiresAt)
+		if err != nil {
+			log.Warn().Err(err).Str("expiresAt", *tokenResp.ExpiresAt).Msg("Failed to parse expiresAt, ignoring")
+		} else {
+			expiresAt = &parsed
+		}
+	}
+
 	name := "Dozzle Cloud"
 
-	cloudDispatcher, err := dispatcher.NewCloudDispatcher(name, tokenResp.Key)
+	cloudDispatcher, err := dispatcher.NewCloudDispatcher(name, tokenResp.Key, tokenResp.Prefix, expiresAt)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create cloud dispatcher")
 		http.Error(w, "failed to create cloud dispatcher", http.StatusInternalServerError)
@@ -86,6 +96,6 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	if base == "/" {
 		base = ""
 	}
-	redirectURL := fmt.Sprintf("%s/notifications?newCloudLink=%d", base, id)
+	redirectURL := fmt.Sprintf("%s/notifications#cloudLinkSuccess=%d", base, id)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }

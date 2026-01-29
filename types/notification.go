@@ -44,10 +44,12 @@ type SubscriptionConfig struct {
 
 // DispatcherConfig represents a notification dispatcher configuration
 type DispatcherConfig struct {
-	ID       int
-	Name     string
-	Type     string
-	URL      string
-	Template string
-	APIKey   string
+	ID        int
+	Name      string
+	Type      string
+	URL       string
+	Template  string
+	APIKey    string
+	Prefix    string
+	ExpiresAt *time.Time
 }

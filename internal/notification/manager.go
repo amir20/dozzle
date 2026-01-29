@@ -292,10 +292,12 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 			})
 		case *dispatcher.CloudDispatcher:
 			result = append(result, DispatcherConfig{
-				ID:     id,
-				Name:   v.Name,
-				Type:   "cloud",
-				APIKey: v.APIKey,
+				ID:        id,
+				Name:      v.Name,
+				Type:      "cloud",
+				APIKey:    v.APIKey,
+				Prefix:    v.Prefix,
+				ExpiresAt: v.ExpiresAt,
 			})
 		}
 		return true
@@ -433,12 +435,14 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 	dispatchers := make([]types.DispatcherConfig, len(config.Dispatchers))
 	for i, d := range config.Dispatchers {
 		dispatchers[i] = types.DispatcherConfig{
-			ID:       d.ID,
-			Name:     d.Name,
-			Type:     d.Type,
-			URL:      d.URL,
-			Template: d.Template,
-			APIKey:   d.APIKey,
+			ID:        d.ID,
+			Name:      d.Name,
+			Type:      d.Type,
+			URL:       d.URL,
+			Template:  d.Template,
+			APIKey:    d.APIKey,
+			Prefix:    d.Prefix,
+			ExpiresAt: d.ExpiresAt,
 		}
 	}
 
@@ -493,12 +497,14 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 	// Load dispatchers
 	for _, dc := range dispatchers {
 		d, err := createDispatcher(DispatcherConfig{
-			ID:       dc.ID,
-			Name:     dc.Name,
-			Type:     dc.Type,
-			URL:      dc.URL,
-			Template: dc.Template,
-			APIKey:   dc.APIKey,
+			ID:        dc.ID,
+			Name:      dc.Name,
+			Type:      dc.Type,
+			URL:       dc.URL,
+			Template:  dc.Template,
+			APIKey:    dc.APIKey,
+			Prefix:    dc.Prefix,
+			ExpiresAt: dc.ExpiresAt,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create dispatcher %s: %w", dc.Name, err)
@@ -524,7 +530,7 @@ func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 	case "webhook":
 		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template)
 	case "cloud":
-		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey)
+		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey, config.Prefix, config.ExpiresAt)
 	default:
 		return nil, fmt.Errorf("unknown dispatcher type: %s", config.Type)
 	}

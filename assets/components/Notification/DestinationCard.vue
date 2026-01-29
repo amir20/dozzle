@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-100">
+  <div class="card bg-base-100 hover:border-primary cursor-pointer border border-transparent" @click="editDestination">
     <div class="card-body gap-2 p-4">
       <div class="flex items-start gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-lg">
@@ -16,7 +16,7 @@
             }}
           </p>
         </div>
-        <div class="dropdown dropdown-end">
+        <div class="dropdown dropdown-end" @click.stop>
           <label tabindex="0" class="btn btn-ghost btn-sm btn-square">
             <ion:ellipsis-vertical />
           </label>

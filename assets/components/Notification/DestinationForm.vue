@@ -72,12 +72,21 @@
       />
     </fieldset>
 
-    <!-- Cloud linked success (when editing cloud with apiKey) -->
-    <fieldset v-if="type === 'cloud' && destination?.apiKey" class="fieldset">
-      <div class="alert alert-success">
-        <mdi:check-circle class="text-xl" />
-        <span>{{ $t("notifications.destination-form.cloud-linked") }}</span>
+    <!-- Cloud linked success (when editing cloud with prefix) -->
+    <fieldset v-if="type === 'cloud' && destination?.prefix" class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.api-key") }}</legend>
+      <div class="join w-full">
+        <input type="text" :value="destination.prefix + '...'" readonly class="input join-item input-success w-full" />
+        <span class="join-item btn btn-success pointer-events-none">
+          <mdi:check class="text-lg" />
+        </span>
       </div>
+      <p class="text-base-content/60 mt-2 text-sm">
+        {{ $t("notifications.destination-form.cloud-settings-hint") }}
+        <a :href="cloudSettingsUrl" target="_blank" class="link link-primary">
+          {{ $t("notifications.destination-form.cloud-settings-link") }}
+        </a>
+      </p>
     </fieldset>
 
     <!-- Link Dozzle Cloud (only for cloud type, when creating or not linked) -->
@@ -258,10 +267,9 @@ const isSaving = ref(false);
 const error = ref<string | null>(null);
 const testResult = ref<TestWebhookResult | null>(null);
 
-const cloudLinkUrl = computed(() => {
-  const callbackUrl = `${window.location.origin}${withBase("/")}`;
-  return `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}`;
-});
+const callbackUrl = `${window.location.origin}${withBase("/")}`;
+const cloudLinkUrl = `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}`;
+const cloudSettingsUrl = `${__CLOUD_URL__}/settings`;
 
 function selectPayloadFormat(format: PayloadFormat) {
   payloadFormat.value = format;

@@ -16,7 +16,8 @@ export interface Dispatcher {
   type: string;
   url?: string;
   template?: string;
-  apiKey?: string;
+  prefix?: string;
+  expiresAt?: string;
 }
 
 export interface NotificationRuleInput {
@@ -25,14 +26,6 @@ export interface NotificationRuleInput {
   dispatcherId: number;
   logExpression: string;
   containerExpression: string;
-}
-
-export interface DispatcherInput {
-  name: string;
-  type: string;
-  url?: string;
-  template?: string;
-  apiKey?: string;
 }
 
 export interface PreviewResult {

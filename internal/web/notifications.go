@@ -32,12 +32,13 @@ type NotificationRuleResponse struct {
 }
 
 type DispatcherResponse struct {
-	ID       int     `json:"id"`
-	Name     string  `json:"name"`
-	Type     string  `json:"type"`
-	URL      *string `json:"url,omitempty"`
-	Template *string `json:"template,omitempty"`
-	APIKey   *string `json:"apiKey,omitempty"`
+	ID        int        `json:"id"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"`
+	URL       *string    `json:"url,omitempty"`
+	Template  *string    `json:"template,omitempty"`
+	Prefix    *string    `json:"prefix,omitempty"`
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -61,7 +62,6 @@ type DispatcherInput struct {
 	Type     string  `json:"type"`
 	URL      *string `json:"url,omitempty"`
 	Template *string `json:"template,omitempty"`
-	APIKey   *string `json:"apiKey,omitempty"`
 }
 
 type PreviewInput struct {
@@ -125,17 +125,18 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 	if d.Template != "" {
 		template = &d.Template
 	}
-	var apiKey *string
-	if d.APIKey != "" {
-		apiKey = &d.APIKey
+	var prefix *string
+	if d.Prefix != "" {
+		prefix = &d.Prefix
 	}
 	return &DispatcherResponse{
-		ID:       d.ID,
-		Name:     d.Name,
-		Type:     d.Type,
-		URL:      url,
-		Template: template,
-		APIKey:   apiKey,
+		ID:        d.ID,
+		Name:      d.Name,
+		Type:      d.Type,
+		URL:       url,
+		Template:  template,
+		Prefix:    prefix,
+		ExpiresAt: d.ExpiresAt,
 	}
 }
 
@@ -342,17 +343,6 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d = webhook
-	case "cloud":
-		apiKey := ""
-		if input.APIKey != nil {
-			apiKey = *input.APIKey
-		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		d = cloud
 	default:
 		writeError(w, http.StatusBadRequest, "unknown dispatcher type")
 		return
@@ -366,7 +356,6 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 		Type:     input.Type,
 		URL:      input.URL,
 		Template: input.Template,
-		APIKey:   input.APIKey,
 	})
 }
 
@@ -400,17 +389,6 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d = webhook
-	case "cloud":
-		apiKey := ""
-		if input.APIKey != nil {
-			apiKey = *input.APIKey
-		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
-		if err != nil {
-			writeError(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		d = cloud
 	default:
 		writeError(w, http.StatusBadRequest, "unknown dispatcher type")
 		return
@@ -424,7 +402,6 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 		Type:     input.Type,
 		URL:      input.URL,
 		Template: input.Template,
-		APIKey:   input.APIKey,
 	})
 }
 
