@@ -17,7 +17,7 @@
             v-for="dest in dispatchers"
             :key="dest.id"
             :destination="dest"
-            :on-updated="fetchDispatchers"
+            :on-updated="fetchAll"
             :existing-dispatchers="dispatchers"
             class="w-full md:w-72"
           />
@@ -76,7 +76,9 @@ import DestinationForm from "@/components/Notification/DestinationForm.vue";
 import DestinationCard from "@/components/Notification/DestinationCard.vue";
 
 const showDrawer = useDrawer();
-const route = useRoute();
+const router = useRouter();
+const { t } = useI18n();
+const { showToast } = useToast();
 
 // State
 const alerts = ref<NotificationRule[]>([]);
@@ -92,31 +94,28 @@ async function fetchDispatchers() {
   dispatchers.value = await res.json();
 }
 
-fetchAlerts();
-fetchDispatchers();
+async function fetchAll() {
+  await fetchAlerts();
+  await fetchDispatchers();
+}
 
-// Handle newCloudLink query param
-watch(
-  () => [route.query.newCloudLink, dispatchers.value] as const,
-  ([newCloudLink, data]) => {
-    if (newCloudLink && data?.length) {
-      const id = Number(newCloudLink);
-      const destination = dispatchers.value.find((d) => d.id === id);
-      if (destination) {
-        showDrawer(
-          DestinationForm,
-          {
-            destination,
-            onCreated: fetchDispatchers,
-            existingDispatchers: dispatchers.value,
-          },
-          "md",
-        );
-      }
+fetchAll();
+
+// Handle cloudLinkSuccess hash param
+onMounted(() => {
+  const hash = window.location.hash;
+  if (hash.startsWith("#cloudLinkSuccess=")) {
+    const id = Number(hash.replace("#cloudLinkSuccess=", ""));
+    if (!isNaN(id)) {
+      showToast({
+        title: t("notifications.cloud-link-success.title"),
+        message: t("notifications.cloud-link-success.message"),
+        type: "info",
+      });
     }
-  },
-  { immediate: true },
-);
+    router.replace({ hash: "" });
+  }
+});
 
 // Local state
 const filter = ref<"all" | "enabled" | "paused">("all");

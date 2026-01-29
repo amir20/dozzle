@@ -3,7 +3,7 @@ type Toast = {
   createdAt: Date;
   title?: string;
   message: string;
-  type: "success" | "error" | "warning" | "info";
+  type: "error" | "warning" | "info";
   action?: {
     label: string;
     handler: () => void;

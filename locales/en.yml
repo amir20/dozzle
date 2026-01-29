@@ -221,7 +221,7 @@ notifications:
     webhook-title: HTTP Webhook
     webhook-description: Slack, Discord, custom endpoint
     cloud-title: Dozzle Cloud
-    cloud-description: Push, email, and dashboard
+    cloud-description: Push notifications, email alerts, and AI-powered summaries
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
     api-key: API Key
@@ -242,3 +242,8 @@ notifications:
     link-cloud: Link Account
     link-cloud-button: Link Dozzle Cloud
     cloud-linked: Your Dozzle Cloud account is linked and ready to receive notifications.
+    cloud-settings-hint: To configure your managed channels, go to
+    cloud-settings-link: Dozzle Cloud Settings
+  cloud-link-success:
+    title: Dozzle Cloud Linked
+    message: Your account has been successfully linked to Dozzle Cloud.

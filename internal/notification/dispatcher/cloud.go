@@ -16,14 +16,16 @@ import (
 
 // CloudDispatcher sends notifications to Dozzle Cloud
 type CloudDispatcher struct {
-	Name   string
-	URL    string
-	APIKey string
-	client *http.Client
+	Name      string
+	URL       string
+	APIKey    string
+	Prefix    string
+	ExpiresAt *time.Time
+	client    *http.Client
 }
 
 // NewCloudDispatcher creates a new cloud dispatcher
-func NewCloudDispatcher(name string, apiKey string) (*CloudDispatcher, error) {
+func NewCloudDispatcher(name string, apiKey string, prefix string, expiresAt *time.Time) (*CloudDispatcher, error) {
 	url := os.Getenv("DOLIGENCE_URL")
 	if url == "" {
 		url = "https://doligence.dozzle.dev"
@@ -35,9 +37,11 @@ func NewCloudDispatcher(name string, apiKey string) (*CloudDispatcher, error) {
 	}
 
 	return &CloudDispatcher{
-		Name:   name,
-		URL:    url,
-		APIKey: apiKey,
+		Name:      name,
+		URL:       url,
+		APIKey:    apiKey,
+		Prefix:    prefix,
+		ExpiresAt: expiresAt,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
