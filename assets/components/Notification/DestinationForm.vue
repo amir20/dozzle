@@ -76,7 +76,13 @@
     <fieldset v-if="type === 'cloud' && destination?.prefix" class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.api-key") }}</legend>
       <div class="join w-full">
-        <input type="text" :value="destination.prefix + '...'" readonly class="input join-item input-success w-full" />
+        <input
+          type="text"
+          :value="destination.prefix + '**************************************'"
+          readonly
+          disabled
+          class="input join-item input-success w-full"
+        />
         <span class="join-item btn btn-success pointer-events-none">
           <mdi:check class="text-lg" />
         </span>
