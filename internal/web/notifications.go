@@ -32,12 +32,14 @@ type NotificationRuleResponse struct {
 }
 
 type DispatcherResponse struct {
-	ID       int     `json:"id"`
-	Name     string  `json:"name"`
-	Type     string  `json:"type"`
-	URL      *string `json:"url,omitempty"`
-	Template *string `json:"template,omitempty"`
-	APIKey   *string `json:"apiKey,omitempty"`
+	ID        int        `json:"id"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"`
+	URL       *string    `json:"url,omitempty"`
+	Template  *string    `json:"template,omitempty"`
+	APIKey    *string    `json:"apiKey,omitempty"`
+	Prefix    *string    `json:"prefix,omitempty"`
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -57,11 +59,13 @@ type NotificationRuleUpdateInput struct {
 }
 
 type DispatcherInput struct {
-	Name     string  `json:"name"`
-	Type     string  `json:"type"`
-	URL      *string `json:"url,omitempty"`
-	Template *string `json:"template,omitempty"`
-	APIKey   *string `json:"apiKey,omitempty"`
+	Name      string     `json:"name"`
+	Type      string     `json:"type"`
+	URL       *string    `json:"url,omitempty"`
+	Template  *string    `json:"template,omitempty"`
+	APIKey    *string    `json:"apiKey,omitempty"`
+	Prefix    *string    `json:"prefix,omitempty"`
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
 }
 
 type PreviewInput struct {
@@ -125,17 +129,18 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 	if d.Template != "" {
 		template = &d.Template
 	}
-	var apiKey *string
-	if d.APIKey != "" {
-		apiKey = &d.APIKey
+	var prefix *string
+	if d.Prefix != "" {
+		prefix = &d.Prefix
 	}
 	return &DispatcherResponse{
-		ID:       d.ID,
-		Name:     d.Name,
-		Type:     d.Type,
-		URL:      url,
-		Template: template,
-		APIKey:   apiKey,
+		ID:        d.ID,
+		Name:      d.Name,
+		Type:      d.Type,
+		URL:       url,
+		Template:  template,
+		Prefix:    prefix,
+		ExpiresAt: d.ExpiresAt,
 	}
 }
 
@@ -347,7 +352,11 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 		if input.APIKey != nil {
 			apiKey = *input.APIKey
 		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
+		prefix := ""
+		if input.Prefix != nil {
+			prefix = *input.Prefix
+		}
+		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey, prefix, input.ExpiresAt)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -361,12 +370,14 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 	id := h.hostService.AddDispatcher(d)
 
 	writeJSON(w, http.StatusCreated, &DispatcherResponse{
-		ID:       id,
-		Name:     input.Name,
-		Type:     input.Type,
-		URL:      input.URL,
-		Template: input.Template,
-		APIKey:   input.APIKey,
+		ID:        id,
+		Name:      input.Name,
+		Type:      input.Type,
+		URL:       input.URL,
+		Template:  input.Template,
+		APIKey:    input.APIKey,
+		Prefix:    input.Prefix,
+		ExpiresAt: input.ExpiresAt,
 	})
 }
 
@@ -405,7 +416,11 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 		if input.APIKey != nil {
 			apiKey = *input.APIKey
 		}
-		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey)
+		prefix := ""
+		if input.Prefix != nil {
+			prefix = *input.Prefix
+		}
+		cloud, err := dispatcher.NewCloudDispatcher(input.Name, apiKey, prefix, input.ExpiresAt)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -419,12 +434,14 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 	h.hostService.UpdateDispatcher(id, d)
 
 	writeJSON(w, http.StatusOK, &DispatcherResponse{
-		ID:       id,
-		Name:     input.Name,
-		Type:     input.Type,
-		URL:      input.URL,
-		Template: input.Template,
-		APIKey:   input.APIKey,
+		ID:        id,
+		Name:      input.Name,
+		Type:      input.Type,
+		URL:       input.URL,
+		Template:  input.Template,
+		APIKey:    input.APIKey,
+		Prefix:    input.Prefix,
+		ExpiresAt: input.ExpiresAt,
 	})
 }
 
