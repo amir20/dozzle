@@ -17,7 +17,7 @@
             v-for="dest in dispatchers"
             :key="dest.id"
             :destination="dest"
-            :on-updated="fetchDispatchers"
+            :on-updated="fetchAll"
             :existing-dispatchers="dispatchers"
             class="w-full md:w-72"
           />
@@ -94,8 +94,12 @@ async function fetchDispatchers() {
   dispatchers.value = await res.json();
 }
 
-fetchAlerts();
-fetchDispatchers();
+async function fetchAll() {
+  await fetchAlerts();
+  await fetchDispatchers();
+}
+
+fetchAll();
 
 // Handle cloudLinkSuccess hash param
 onMounted(() => {
