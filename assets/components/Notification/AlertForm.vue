@@ -294,19 +294,7 @@ async function validateExpressions() {
     if (logExpression.value && !data.containerError) {
       logError.value = data.logError ?? null;
       logTotalCount.value = data.totalLogs;
-      logMessages.value =
-        data.matchedLogs?.map((event) =>
-          asLogEntry({
-            t: (event.type as LogEvent["t"]) ?? "single",
-            m: event.message as LogEvent["m"],
-            ts: event.timestamp,
-            id: event.id,
-            l: (event.level as LogEvent["l"]) ?? "unknown",
-            s: (event.stream as LogEvent["s"]) ?? "unknown",
-            c: "",
-            rm: "",
-          }),
-        ) ?? [];
+      logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event as LogEvent)) ?? [];
     } else {
       logError.value = null;
       logTotalCount.value = 0;
