@@ -155,3 +155,83 @@ analytics:
   evaluating_query: Evaluerer forespørgsel...
   total_records: I alt {count} poster.
   showing_first: Viser de første {count}.
+notifications:
+  title: Notifikationer
+  description: Konfigurer hvor og hvornår du vil modtage alarmer
+  destinations: Destinationer
+  add-destination: Tilføj destination
+  alerts: Alarmer
+  add: Tilføj
+  filter:
+    all: Alle ({count})
+    enabled: Aktiveret ({count})
+    paused: Pauset ({count})
+  no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
+  alert:
+    paused: Pauset
+    containers: Containere
+    log-filter: Log filter
+    destination: Destination
+    dispatcher-deleted: Dispatcher slettet
+    containers-count: "{count} containere"
+    triggered-count: "{count} udløst"
+    last-triggered: "Sidst: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Rediger
+    delete: Slet
+  alert-form:
+    create-title: Opret Alarm
+    edit-title: Rediger Alarm
+    description: Abonner på log hændelser der matcher dine kriterier
+    alert-name: Alarm Navn
+    alert-name-placeholder: f.eks. Test API Fejl
+    container-filter: Container Filter
+    containers-match: "{count} containere matcher: {names}"
+    no-containers-match: Ingen containere matcher dette filter
+    log-filter: Log Filter
+    logs-match: "{count} logs matcher"
+    no-logs-match: Ingen logs matcher dette filter
+    destination: Destination
+    select-destination: Vælg en destination
+    no-destinations: Ingen destinationer konfigureret. Tilføj en først.
+    preview: Forhåndsvisning
+    cancel: Annuller
+    save: Gem
+    create: Opret Alarm
+  destination-form:
+    create-title: Tilføj Destination
+    edit-title: Rediger Destination
+    description: Hvor skal notifikationer sendes til?
+    name: Navn
+    name-placeholder: f.eks. Produktion Slack
+    type: Type
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, brugerdefineret endpoint
+    cloud-title: Dozzle Cloud
+    cloud-description: Push notifikationer, email alarmer og AI-drevne resuméer
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Nøgle
+    payload-format: Payload Format
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Brugerdefineret
+    template: Skabelon
+    template-hint: Go skabelon syntaks
+    test: Test
+    test-success: Test succesfuld
+    cancel: Annuller
+    close: Luk
+    save: Gem
+    add: Tilføj Destination
+    cloud-exists: Kun én Dozzle Cloud destination kan konfigureres
+    link-cloud: Link Konto
+    link-cloud-button: Link Dozzle Cloud
+    cloud-settings-hint: For at konfigurere dine administrerede kanaler, gå til
+    cloud-settings-link: Dozzle Cloud Indstillinger
+  cloud-link-success:
+    title: Dozzle Cloud Linket
+    message: Din konto er blevet succesfuldt linket til Dozzle Cloud.

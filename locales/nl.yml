@@ -156,3 +156,83 @@ analytics:
   evaluating_query: Query wordt geëvalueerd...
   total_records: In totaal {count} resultaten.
   showing_first: Eerste {count} worden weergegeven.
+notifications:
+  title: Meldingen
+  description: Configureer waar en wanneer je waarschuwingen ontvangt
+  destinations: Bestemmingen
+  add-destination: Bestemming toevoegen
+  alerts: Waarschuwingen
+  add: Toevoegen
+  filter:
+    all: Alle ({count})
+    enabled: Ingeschakeld ({count})
+    paused: Gepauzeerd ({count})
+  no-alerts: Nog geen waarschuwingen geconfigureerd. Maak er een om te beginnen.
+  alert:
+    paused: Gepauzeerd
+    containers: Containers
+    log-filter: Logfilter
+    destination: Bestemming
+    dispatcher-deleted: Dispatcher verwijderd
+    containers-count: "{count} containers"
+    triggered-count: "{count} geactiveerd"
+    last-triggered: "Laatst: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Bewerken
+    delete: Verwijderen
+  alert-form:
+    create-title: Waarschuwing aanmaken
+    edit-title: Waarschuwing bewerken
+    description: Abonneer op loggebeurtenissen die voldoen aan je criteria
+    alert-name: Waarschuwingsnaam
+    alert-name-placeholder: bijv. Test API-fouten
+    container-filter: Containerfilter
+    containers-match: "{count} containers komen overeen: {names}"
+    no-containers-match: Geen containers komen overeen met dit filter
+    log-filter: Logfilter
+    logs-match: "{count} logs komen overeen"
+    no-logs-match: Geen logs komen overeen met dit filter
+    destination: Bestemming
+    select-destination: Selecteer een bestemming
+    no-destinations: Geen bestemmingen geconfigureerd. Voeg er eerst een toe.
+    preview: Voorbeeld
+    cancel: Annuleren
+    save: Opslaan
+    create: Waarschuwing aanmaken
+  destination-form:
+    create-title: Bestemming toevoegen
+    edit-title: Bestemming bewerken
+    description: Waar moeten meldingen naartoe worden gestuurd?
+    name: Naam
+    name-placeholder: bijv. Productie Slack
+    type: Type
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, aangepast eindpunt
+    cloud-title: Dozzle Cloud
+    cloud-description: Pushmeldingen, e-mailwaarschuwingen en AI-samenvattingen
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API-sleutel
+    payload-format: Payload-formaat
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Aangepast
+    template: Sjabloon
+    template-hint: Go-sjabloonsyntaxis
+    test: Testen
+    test-success: Test geslaagd
+    cancel: Annuleren
+    close: Sluiten
+    save: Opslaan
+    add: Bestemming toevoegen
+    cloud-exists: Er kan slechts één Dozzle Cloud-bestemming worden geconfigureerd
+    link-cloud: Account koppelen
+    link-cloud-button: Dozzle Cloud koppelen
+    cloud-settings-hint: Om je beheerde kanalen te configureren, ga naar
+    cloud-settings-link: Dozzle Cloud-instellingen
+  cloud-link-success:
+    title: Dozzle Cloud gekoppeld
+    message: Je account is succesvol gekoppeld aan Dozzle Cloud.

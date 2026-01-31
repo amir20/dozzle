@@ -145,20 +145,12 @@ import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 import { createExprEditor, createContainerHints, createLogHints } from "@/composable/exprEditor";
 
-import type { Dispatcher, PreviewResult } from "@/types/notifications";
-
-export interface AlertData {
-  id: number;
-  name: string;
-  containerExpression: string;
-  logExpression: string;
-  dispatcherId: number;
-}
+import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
 
 const { close, onCreated, alert } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
-  alert?: AlertData;
+  alert?: NotificationRule;
 }>();
 
 // Fetch dispatchers
@@ -188,7 +180,7 @@ const isEditing = computed(() => !!alert);
 const alertName = ref(alert?.name ?? "");
 const containerExpression = ref(alert?.containerExpression ?? "");
 const logExpression = ref(alert?.logExpression ?? "");
-const dispatcherId = ref(alert?.dispatcherId ?? 0);
+const dispatcherId = ref(alert?.dispatcher?.id ?? 0);
 const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 useFocus(alertNameInput, { initialValue: true });
 
@@ -294,19 +286,7 @@ async function validateExpressions() {
     if (logExpression.value && !data.containerError) {
       logError.value = data.logError ?? null;
       logTotalCount.value = data.totalLogs;
-      logMessages.value =
-        data.matchedLogs?.map((event) =>
-          asLogEntry({
-            t: (event.type as LogEvent["t"]) ?? "single",
-            m: event.message as LogEvent["m"],
-            ts: event.timestamp,
-            id: event.id,
-            l: (event.level as LogEvent["l"]) ?? "unknown",
-            s: (event.stream as LogEvent["s"]) ?? "unknown",
-            c: "",
-            rm: "",
-          }),
-        ) ?? [];
+      logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event as LogEvent)) ?? [];
     } else {
       logError.value = null;
       logTotalCount.value = 0;

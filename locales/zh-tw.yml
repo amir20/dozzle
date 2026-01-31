@@ -158,3 +158,83 @@ analytics:
   evaluating_query: 正在評估查詢...
   total_records: 共計 {count} 筆記錄。
   showing_first: 顯示前 {count} 筆。
+notifications:
+  title: 通知
+  description: 設定接收警報的位置和時間
+  destinations: 目標
+  add-destination: 新增目標
+  alerts: 警報
+  add: 新增
+  filter:
+    all: 全部 ({count})
+    enabled: 已啟用 ({count})
+    paused: 已暫停 ({count})
+  no-alerts: 尚未設定任何警報。建立一個以開始使用。
+  alert:
+    paused: 已暫停
+    containers: 容器
+    log-filter: 日誌篩選器
+    destination: 目標
+    dispatcher-deleted: 發送器已刪除
+    containers-count: "{count} 個容器"
+    triggered-count: "{count} 次觸發"
+    last-triggered: "最後觸發: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: 編輯
+    delete: 刪除
+  alert-form:
+    create-title: 建立警報
+    edit-title: 編輯警報
+    description: 訂閱符合您條件的日誌事件
+    alert-name: 警報名稱
+    alert-name-placeholder: 例如，測試 API 錯誤
+    container-filter: 容器篩選器
+    containers-match: "{count} 個容器符合: {names}"
+    no-containers-match: 沒有容器符合此篩選器
+    log-filter: 日誌篩選器
+    logs-match: "{count} 筆日誌符合"
+    no-logs-match: 沒有日誌符合此篩選器
+    destination: 目標
+    select-destination: 選擇目標
+    no-destinations: 尚未設定目標。請先新增一個。
+    preview: 預覽
+    cancel: 取消
+    save: 儲存
+    create: 建立警報
+  destination-form:
+    create-title: 新增目標
+    edit-title: 編輯目標
+    description: 通知應發送到哪裡？
+    name: 名稱
+    name-placeholder: 例如，正式環境 Slack
+    type: 類型
+    webhook-title: HTTP Webhook
+    webhook-description: Slack、Discord、自訂端點
+    cloud-title: Dozzle Cloud
+    cloud-description: 推送通知、電子郵件警報和 AI 摘要
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API 金鑰
+    payload-format: Payload 格式
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: 自訂
+    template: 範本
+    template-hint: Go 範本語法
+    test: 測試
+    test-success: 測試成功
+    cancel: 取消
+    close: 關閉
+    save: 儲存
+    add: 新增目標
+    cloud-exists: 只能設定一個 Dozzle Cloud 目標
+    link-cloud: 連結帳戶
+    link-cloud-button: 連結 Dozzle Cloud
+    cloud-settings-hint: 若要設定您的管理頻道，請前往
+    cloud-settings-link: Dozzle Cloud 設定
+  cloud-link-success:
+    title: Dozzle Cloud 已連結
+    message: 您的帳戶已成功連結至 Dozzle Cloud。

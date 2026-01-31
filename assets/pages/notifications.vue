@@ -95,23 +95,28 @@ async function fetchDispatchers() {
 }
 
 async function fetchAll() {
-  await fetchAlerts();
-  await fetchDispatchers();
+  await Promise.all([fetchAlerts(), fetchDispatchers()]);
 }
 
-fetchAll();
-
 // Handle cloudLinkSuccess hash param
-onMounted(() => {
+onMounted(async () => {
+  await fetchAll();
   const hash = window.location.hash;
   if (hash.startsWith("#cloudLinkSuccess=")) {
     const id = Number(hash.replace("#cloudLinkSuccess=", ""));
     if (!isNaN(id)) {
-      showToast({
-        title: t("notifications.cloud-link-success.title"),
-        message: t("notifications.cloud-link-success.message"),
-        type: "info",
-      });
+      const destination = dispatchers.value.find((d) => d.id === id);
+      if (destination) {
+        showDrawer(
+          DestinationForm,
+          {
+            destination,
+            existingDispatchers: dispatchers.value,
+            showLinkSuccess: true,
+          },
+          "md",
+        );
+      }
     }
     router.replace({ hash: "" });
   }

@@ -197,11 +197,9 @@ notifications:
     alert-name: Alert Name
     alert-name-placeholder: e.g., Test API Errors
     container-filter: Container Filter
-    container-filter-placeholder: name contains "api"
     containers-match: "{count} containers match: {names}"
     no-containers-match: No containers match this filter
     log-filter: Log Filter
-    log-filter-placeholder: level == "error" && message contains "timeout"
     logs-match: "{count} logs match"
     no-logs-match: No logs match this filter
     destination: Destination
@@ -225,7 +223,6 @@ notifications:
     webhook-url: Webhook URL
     webhook-url-placeholder: https://hooks.foo.com/services/...
     api-key: API Key
-    api-key-placeholder: Enter your Dozzle Cloud API key
     payload-format: Payload Format
     format-slack: Slack
     format-discord: Discord
@@ -236,12 +233,12 @@ notifications:
     test: Test
     test-success: Test successful
     cancel: Cancel
+    close: Close
     save: Save
     add: Add Destination
     cloud-exists: Only one Dozzle Cloud destination can be configured
     link-cloud: Link Account
     link-cloud-button: Link Dozzle Cloud
-    cloud-linked: Your Dozzle Cloud account is linked and ready to receive notifications.
     cloud-settings-hint: To configure your managed channels, go to
     cloud-settings-link: Dozzle Cloud Settings
   cloud-link-success:

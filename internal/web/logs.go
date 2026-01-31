@@ -127,6 +127,17 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		lastSeenId = uint32(num)
 	}
 
+	startId := uint32(0)
+	if r.URL.Query().Has("startId") {
+		from = from.Add(-50 * time.Millisecond) // Add a little buffer to ensure we find the start event
+		num, err := strconv.ParseUint(r.URL.Query().Get("startId"), 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		startId = uint32(num)
+	}
+
 	encoder := json.NewEncoder(w)
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Encoding", "gzip")
@@ -135,6 +146,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		encoder = json.NewEncoder(writer)
 	}
 
+	startIdFound := startId == 0 // If no startId, consider it already found
 	for {
 		if minimum > 0 && buffer.Len() >= minimum {
 			break
@@ -165,6 +177,14 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				}
 
 				if _, ok := levels[event.Level]; !ok {
+					continue
+				}
+
+				if !startIdFound {
+					if event.Id == startId {
+						log.Debug().Uint32("startId", startId).Msg("found start id, will include subsequent events")
+						startIdFound = true
+					}
 					continue
 				}
 

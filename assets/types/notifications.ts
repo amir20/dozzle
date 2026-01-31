@@ -39,11 +39,12 @@ export interface PreviewResult {
   }[];
   matchedLogs: {
     id: number;
-    type: string;
-    message: unknown;
-    timestamp: number;
-    level: string;
-    stream: string;
+    t: string;
+    m: unknown;
+    rm: string;
+    ts: number;
+    l: string;
+    s: string;
   }[];
   totalLogs: number;
 }

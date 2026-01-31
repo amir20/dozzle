@@ -155,3 +155,83 @@ analytics:
   evaluating_query: Sorgu değerlendiriliyor...
   total_records: Toplam {count} kayıt.
   showing_first: İlk {count} gösteriliyor.
+notifications:
+  title: Bildirimler
+  description: Uyarıları nerede ve ne zaman alacağınızı yapılandırın
+  destinations: Hedefler
+  add-destination: Hedef ekle
+  alerts: Uyarılar
+  add: Ekle
+  filter:
+    all: Tümü ({count})
+    enabled: Etkin ({count})
+    paused: Duraklatılmış ({count})
+  no-alerts: Henüz uyarı yapılandırılmadı. Başlamak için bir tane oluşturun.
+  alert:
+    paused: Duraklatıldı
+    containers: Konteynerler
+    log-filter: Günlük filtresi
+    destination: Hedef
+    dispatcher-deleted: Dağıtıcı silindi
+    containers-count: "{count} konteyner"
+    triggered-count: "{count} tetiklendi"
+    last-triggered: "Son: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Düzenle
+    delete: Sil
+  alert-form:
+    create-title: Uyarı Oluştur
+    edit-title: Uyarıyı Düzenle
+    description: Kriterlerinize uyan günlük olaylarına abone olun
+    alert-name: Uyarı Adı
+    alert-name-placeholder: ör., Test API Hataları
+    container-filter: Konteyner Filtresi
+    containers-match: "{count} konteyner eşleşiyor: {names}"
+    no-containers-match: Bu filtreyle eşleşen konteyner yok
+    log-filter: Günlük Filtresi
+    logs-match: "{count} günlük eşleşiyor"
+    no-logs-match: Bu filtreyle eşleşen günlük yok
+    destination: Hedef
+    select-destination: Bir hedef seçin
+    no-destinations: Yapılandırılmış hedef yok. Önce bir tane ekleyin.
+    preview: Önizleme
+    cancel: İptal
+    save: Kaydet
+    create: Uyarı Oluştur
+  destination-form:
+    create-title: Hedef Ekle
+    edit-title: Hedefi Düzenle
+    description: Bildirimler nereye gönderilmeli?
+    name: Ad
+    name-placeholder: ör., Prodüksiyon Slack
+    type: Tür
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, özel uç nokta
+    cloud-title: Dozzle Cloud
+    cloud-description: Push bildirimleri, e-posta uyarıları ve yapay zeka destekli özetler
+    webhook-url: Webhook URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Anahtarı
+    payload-format: Payload Formatı
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Özel
+    template: Şablon
+    template-hint: Go şablon söz dizimi
+    test: Test
+    test-success: Test başarılı
+    cancel: İptal
+    close: Kapat
+    save: Kaydet
+    add: Hedef Ekle
+    cloud-exists: Yalnızca bir Dozzle Cloud hedefi yapılandırılabilir
+    link-cloud: Hesabı Bağla
+    link-cloud-button: Dozzle Cloud'u Bağla
+    cloud-settings-hint: Yönetilen kanallarınızı yapılandırmak için şuraya gidin
+    cloud-settings-link: Dozzle Cloud Ayarları
+  cloud-link-success:
+    title: Dozzle Cloud Bağlandı
+    message: Hesabınız Dozzle Cloud'a başarıyla bağlandı.

@@ -158,3 +158,83 @@ analytics:
   evaluating_query: 쿼리를 실행하고 있습니다...
   total_records: 총 {count}개 기록
   showing_first: 처음 {count}개 표시
+notifications:
+  title: 알림
+  description: 알림을 받을 위치와 시간을 설정합니다
+  destinations: 목적지
+  add-destination: 목적지 추가
+  alerts: 알림
+  add: 추가
+  filter:
+    all: 전체 ({count})
+    enabled: 활성화됨 ({count})
+    paused: 일시정지됨 ({count})
+  no-alerts: 아직 설정된 알림이 없습니다. 시작하려면 하나를 만드세요.
+  alert:
+    paused: 일시정지됨
+    containers: 컨테이너
+    log-filter: 로그 필터
+    destination: 목적지
+    dispatcher-deleted: 디스패처 삭제됨
+    containers-count: "컨테이너 {count}개"
+    triggered-count: "{count}회 트리거됨"
+    last-triggered: "마지막: {time}"
+  destination:
+    http-webhook: HTTP 웹훅
+    dozzle-cloud: Dozzle Cloud
+    edit: 편집
+    delete: 삭제
+  alert-form:
+    create-title: 알림 만들기
+    edit-title: 알림 편집
+    description: 기준에 맞는 로그 이벤트를 구독합니다
+    alert-name: 알림 이름
+    alert-name-placeholder: "예: 테스트 API 오류"
+    container-filter: 컨테이너 필터
+    containers-match: "컨테이너 {count}개 일치: {names}"
+    no-containers-match: 이 필터와 일치하는 컨테이너가 없습니다
+    log-filter: 로그 필터
+    logs-match: "로그 {count}개 일치"
+    no-logs-match: 이 필터와 일치하는 로그가 없습니다
+    destination: 목적지
+    select-destination: 목적지 선택
+    no-destinations: 설정된 목적지가 없습니다. 먼저 하나를 추가하세요.
+    preview: 미리보기
+    cancel: 취소
+    save: 저장
+    create: 알림 만들기
+  destination-form:
+    create-title: 목적지 추가
+    edit-title: 목적지 편집
+    description: 알림을 어디로 보낼까요?
+    name: 이름
+    name-placeholder: "예: 프로덕션 Slack"
+    type: 유형
+    webhook-title: HTTP 웹훅
+    webhook-description: Slack, Discord, 사용자 정의 엔드포인트
+    cloud-title: Dozzle Cloud
+    cloud-description: 푸시 알림, 이메일 알림 및 AI 기반 요약
+    webhook-url: 웹훅 URL
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API 키
+    payload-format: 페이로드 형식
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: 사용자 정의
+    template: 템플릿
+    template-hint: Go 템플릿 구문
+    test: 테스트
+    test-success: 테스트 성공
+    cancel: 취소
+    close: 닫기
+    save: 저장
+    add: 목적지 추가
+    cloud-exists: Dozzle Cloud 목적지는 하나만 설정할 수 있습니다
+    link-cloud: 계정 연결
+    link-cloud-button: Dozzle Cloud 연결
+    cloud-settings-hint: 관리 채널을 설정하려면 다음으로 이동하세요
+    cloud-settings-link: Dozzle Cloud 설정
+  cloud-link-success:
+    title: Dozzle Cloud 연결됨
+    message: 계정이 Dozzle Cloud에 성공적으로 연결되었습니다.

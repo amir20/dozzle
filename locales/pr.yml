@@ -164,3 +164,83 @@ analytics:
   evaluating_query: A avaliar consulta...
   total_records: Total de {count} registos.
   showing_first: A mostrar os primeiros {count}.
+notifications:
+  title: Notificações
+  description: Configure onde e quando receber alertas
+  destinations: Destinos
+  add-destination: Adicionar destino
+  alerts: Alertas
+  add: Adicionar
+  filter:
+    all: Todos ({count})
+    enabled: Ativados ({count})
+    paused: Pausados ({count})
+  no-alerts: Ainda não há alertas configurados. Crie um para começar.
+  alert:
+    paused: Pausado
+    containers: Contentores
+    log-filter: Filtro de registo
+    destination: Destino
+    dispatcher-deleted: Dispatcher eliminado
+    containers-count: "{count} contentores"
+    triggered-count: "{count} acionados"
+    last-triggered: "Último: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Editar
+    delete: Eliminar
+  alert-form:
+    create-title: Criar Alerta
+    edit-title: Editar Alerta
+    description: Subscreva eventos de registo que correspondam aos seus critérios
+    alert-name: Nome do Alerta
+    alert-name-placeholder: ex., Erros de API de Teste
+    container-filter: Filtro de Contentor
+    containers-match: "{count} contentores correspondem: {names}"
+    no-containers-match: Nenhum contentor corresponde a este filtro
+    log-filter: Filtro de Registo
+    logs-match: "{count} registos correspondem"
+    no-logs-match: Nenhum registo corresponde a este filtro
+    destination: Destino
+    select-destination: Selecione um destino
+    no-destinations: Nenhum destino configurado. Adicione um primeiro.
+    preview: Pré-visualização
+    cancel: Cancelar
+    save: Guardar
+    create: Criar Alerta
+  destination-form:
+    create-title: Adicionar Destino
+    edit-title: Editar Destino
+    description: Para onde devem ser enviadas as notificações?
+    name: Nome
+    name-placeholder: ex., Slack de Produção
+    type: Tipo
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, endpoint personalizado
+    cloud-title: Dozzle Cloud
+    cloud-description: Notificações push, alertas por email e resumos com IA
+    webhook-url: URL do Webhook
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: Chave API
+    payload-format: Formato do Payload
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Personalizado
+    template: Modelo
+    template-hint: Sintaxe de modelo Go
+    test: Testar
+    test-success: Teste bem-sucedido
+    cancel: Cancelar
+    close: Fechar
+    save: Guardar
+    add: Adicionar Destino
+    cloud-exists: Apenas um destino Dozzle Cloud pode ser configurado
+    link-cloud: Ligar Conta
+    link-cloud-button: Ligar Dozzle Cloud
+    cloud-settings-hint: Para configurar os seus canais geridos, vá a
+    cloud-settings-link: Definições do Dozzle Cloud
+  cloud-link-success:
+    title: Dozzle Cloud Ligado
+    message: A sua conta foi ligada com sucesso ao Dozzle Cloud.

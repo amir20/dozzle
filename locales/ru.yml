@@ -155,3 +155,83 @@ analytics:
   evaluating_query: Выполнение запроса...
   total_records: Всего {count} записей.
   showing_first: Показаны первые {count}.
+notifications:
+  title: Уведомления
+  description: Настройте где и когда получать оповещения
+  destinations: Назначения
+  add-destination: Добавить назначение
+  alerts: Оповещения
+  add: Добавить
+  filter:
+    all: Все ({count})
+    enabled: Включены ({count})
+    paused: Приостановлены ({count})
+  no-alerts: Оповещения ещё не настроены. Создайте одно для начала.
+  alert:
+    paused: Приостановлено
+    containers: Контейнеры
+    log-filter: Фильтр логов
+    destination: Назначение
+    dispatcher-deleted: Диспетчер удалён
+    containers-count: "{count} контейнеров"
+    triggered-count: "{count} сработало"
+    last-triggered: "Последнее: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Редактировать
+    delete: Удалить
+  alert-form:
+    create-title: Создать Оповещение
+    edit-title: Редактировать Оповещение
+    description: Подпишитесь на события логов, соответствующие вашим критериям
+    alert-name: Имя Оповещения
+    alert-name-placeholder: напр., Ошибки Тестового API
+    container-filter: Фильтр Контейнеров
+    containers-match: "{count} контейнеров соответствует: {names}"
+    no-containers-match: Нет контейнеров, соответствующих этому фильтру
+    log-filter: Фильтр Логов
+    logs-match: "{count} логов соответствует"
+    no-logs-match: Нет логов, соответствующих этому фильтру
+    destination: Назначение
+    select-destination: Выберите назначение
+    no-destinations: Назначения не настроены. Сначала добавьте одно.
+    preview: Предпросмотр
+    cancel: Отмена
+    save: Сохранить
+    create: Создать Оповещение
+  destination-form:
+    create-title: Добавить Назначение
+    edit-title: Редактировать Назначение
+    description: Куда отправлять уведомления?
+    name: Имя
+    name-placeholder: напр., Продакшн Slack
+    type: Тип
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, пользовательская конечная точка
+    cloud-title: Dozzle Cloud
+    cloud-description: Push-уведомления, email-оповещения и сводки на основе ИИ
+    webhook-url: URL Webhook
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Ключ
+    payload-format: Формат Payload
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Пользовательский
+    template: Шаблон
+    template-hint: Синтаксис шаблона Go
+    test: Тест
+    test-success: Тест успешен
+    cancel: Отмена
+    close: Закрыть
+    save: Сохранить
+    add: Добавить Назначение
+    cloud-exists: Можно настроить только одно назначение Dozzle Cloud
+    link-cloud: Связать Аккаунт
+    link-cloud-button: Связать Dozzle Cloud
+    cloud-settings-hint: Чтобы настроить управляемые каналы, перейдите в
+    cloud-settings-link: Настройки Dozzle Cloud
+  cloud-link-success:
+    title: Dozzle Cloud Связан
+    message: Ваш аккаунт успешно связан с Dozzle Cloud.
