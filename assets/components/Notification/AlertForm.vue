@@ -145,20 +145,12 @@ import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 import { createExprEditor, createContainerHints, createLogHints } from "@/composable/exprEditor";
 
-import type { Dispatcher, PreviewResult } from "@/types/notifications";
-
-export interface AlertData {
-  id: number;
-  name: string;
-  containerExpression: string;
-  logExpression: string;
-  dispatcherId: number;
-}
+import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
 
 const { close, onCreated, alert } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
-  alert?: AlertData;
+  alert?: NotificationRule;
 }>();
 
 // Fetch dispatchers
@@ -188,7 +180,7 @@ const isEditing = computed(() => !!alert);
 const alertName = ref(alert?.name ?? "");
 const containerExpression = ref(alert?.containerExpression ?? "");
 const logExpression = ref(alert?.logExpression ?? "");
-const dispatcherId = ref(alert?.dispatcherId ?? 0);
+const dispatcherId = ref(alert?.dispatcher?.id ?? 0);
 const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 useFocus(alertNameInput, { initialValue: true });
 
