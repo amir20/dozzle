@@ -90,7 +90,7 @@
           :value="destination.prefix + '**************************************'"
           readonly
           disabled
-          class="input join-item input-success w-full"
+          class="input join-item input-success w-full font-mono"
         />
         <span class="join-item btn btn-success pointer-events-none">
           <mdi:check class="text-lg" />
