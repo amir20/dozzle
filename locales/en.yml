@@ -236,6 +236,7 @@ notifications:
     test: Test
     test-success: Test successful
     cancel: Cancel
+    close: Close
     save: Save
     add: Add Destination
     cloud-exists: Only one Dozzle Cloud destination can be configured

@@ -180,8 +180,12 @@
         {{ $t("notifications.destination-form.test") }}
       </button>
       <div class="flex-1"></div>
-      <button class="btn" @click="close?.()">{{ $t("notifications.destination-form.cancel") }}</button>
-      <button class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
+      <button class="btn" :class="{ 'btn-primary': type === 'cloud' }" @click="close?.()">
+        {{
+          type === "cloud" ? $t("notifications.destination-form.close") : $t("notifications.destination-form.cancel")
+        }}
+      </button>
+      <button v-if="type === 'webhook'" class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
         <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
         {{ isEditing ? $t("notifications.destination-form.save") : $t("notifications.destination-form.add") }}
       </button>
