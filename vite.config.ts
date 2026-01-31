@@ -6,10 +6,9 @@ import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
-import VueRouter from "unplugin-vue-router/vite";
+import VueRouter from "vue-router/vite";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
-import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
 

@@ -16,14 +16,7 @@
       "@/*": ["./assets/*"],
     },
     "jsx": "preserve",
-    "types": [
-      "vitest",
-      "vite/client",
-      "vite-plugin-vue-layouts/client",
-      "unplugin-vue-macros/macros-global",
-      "unplugin-vue-router/client",
-    ],
+    "types": ["vitest", "vite/client", "unplugin-vue-macros/macros-global", "vite-plugin-vue-layouts/client"],
   },
-  "include": ["assets/typed-router.d.ts", "assets/**/*.ts", "assets/**/*.vue"],
   "exclude": ["dist", "node_modules", "e2e"],
 }

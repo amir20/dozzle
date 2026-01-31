@@ -70,7 +70,6 @@
     "unplugin-icons": "^23.0.1",
     "unplugin-vue-components": "^31.0.0",
     "unplugin-vue-macros": "^2.14.5",
-    "unplugin-vue-router": "^0.19.2",
     "vite": "7.3.1",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-svg-loader": "^5.1.0",
