@@ -52,7 +52,9 @@ export class Container {
   ) {
     const defaultStat = { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat;
     this._stat = ref(stats.at(-1) || defaultStat);
-    this._statsHistory = ref(stats.length > 0 ? stats.slice(-300) : []);
+    const recentStats = stats.slice(-300);
+    const padding = Array(300 - recentStats.length).fill(defaultStat);
+    this._statsHistory = ref([...padding, ...recentStats]);
     this.movingAverageStat = ref(stats.at(-1) || defaultStat);
 
     this._name = name;
