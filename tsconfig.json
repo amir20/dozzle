@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "module": "ESNext",
     "target": "ESNext",
     "lib": ["DOM", "ESNext"],
@@ -14,7 +13,7 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["assets/*"],
+      "@/*": ["./assets/*"],
     },
     "jsx": "preserve",
     "types": [
@@ -25,6 +24,6 @@
       "unplugin-vue-router/client",
     ],
   },
-  "include": ["assets/typed-router.d.ts"],
+  "include": ["assets/typed-router.d.ts", "assets/**/*.ts", "assets/**/*.vue"],
   "exclude": ["dist", "node_modules", "e2e"],
 }

@@ -64,7 +64,18 @@ export default defineConfig(() => ({
       dts: "assets/components.d.ts",
     }),
     AutoImport({
-      imports: ["vue", VueRouterAutoImports, "vue-i18n", "pinia", "@vueuse/head", "@vueuse/core"],
+      imports: [
+        "vue",
+        // Replace VueRouterAutoImports with explicit imports:
+        {
+          "vue-router/auto": ["useRoute", "useRouter", "useLink"],
+          "vue-router": ["onBeforeRouteLeave", "onBeforeRouteUpdate"],
+        },
+        "vue-i18n",
+        "pinia",
+        "@vueuse/head",
+        "@vueuse/core",
+      ],
       dts: "assets/auto-imports.d.ts",
       dirs: ["assets/composable", "assets/stores", "assets/utils"],
       vueTemplate: true,

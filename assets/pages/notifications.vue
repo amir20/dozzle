@@ -77,8 +77,6 @@ import DestinationCard from "@/components/Notification/DestinationCard.vue";
 
 const showDrawer = useDrawer();
 const router = useRouter();
-const { t } = useI18n();
-const { showToast } = useToast();
 
 // State
 const alerts = ref<NotificationRule[]>([]);
