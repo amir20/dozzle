@@ -11,6 +11,15 @@
       <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
     </div>
 
+    <!-- Link Success Alert -->
+    <div v-if="showLinkSuccess" class="alert alert-success">
+      <mdi:check-circle class="text-lg" />
+      <div>
+        <div class="font-semibold">{{ $t("notifications.cloud-link-success.title") }}</div>
+        <div class="text-sm">{{ $t("notifications.cloud-link-success.message") }}</div>
+      </div>
+    </div>
+
     <!-- Type Selection -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.type") }}</legend>
@@ -81,7 +90,7 @@
           :value="destination.prefix + '**************************************'"
           readonly
           disabled
-          class="input join-item input-success w-full"
+          class="input join-item input-success w-full font-mono"
         />
         <span class="join-item btn btn-success pointer-events-none">
           <mdi:check class="text-lg" />
@@ -180,8 +189,12 @@
         {{ $t("notifications.destination-form.test") }}
       </button>
       <div class="flex-1"></div>
-      <button class="btn" @click="close?.()">{{ $t("notifications.destination-form.cancel") }}</button>
-      <button class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
+      <button class="btn" :class="{ 'btn-primary': type === 'cloud' }" @click="close?.()">
+        {{
+          type === "cloud" ? $t("notifications.destination-form.close") : $t("notifications.destination-form.cancel")
+        }}
+      </button>
+      <button v-if="type === 'webhook'" class="btn btn-primary" :disabled="!canSave" @click="saveDestination">
         <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
         {{ isEditing ? $t("notifications.destination-form.save") : $t("notifications.destination-form.add") }}
       </button>
@@ -246,11 +259,13 @@ const {
   onCreated,
   destination,
   existingDispatchers = [],
+  showLinkSuccess = false,
 } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   destination?: Dispatcher;
   existingDispatchers?: Dispatcher[];
+  showLinkSuccess?: boolean;
 }>();
 
 const hasExistingCloudDestination = computed(() => {

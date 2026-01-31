@@ -167,3 +167,83 @@ analytics:
   evaluating_query: Mengevaluasi kueri...
   total_records: Total {count} entri.
   showing_first: Menampilkan {count} pertama.
+notifications:
+  title: Notifikasi
+  description: Konfigurasikan di mana dan kapan menerima peringatan
+  destinations: Tujuan
+  add-destination: Tambah tujuan
+  alerts: Peringatan
+  add: Tambah
+  filter:
+    all: Semua ({count})
+    enabled: Diaktifkan ({count})
+    paused: Dijeda ({count})
+  no-alerts: Belum ada peringatan yang dikonfigurasi. Buat satu untuk memulai.
+  alert:
+    paused: Dijeda
+    containers: Kontainer
+    log-filter: Filter log
+    destination: Tujuan
+    dispatcher-deleted: Dispatcher dihapus
+    containers-count: "{count} kontainer"
+    triggered-count: "{count} terpicu"
+    last-triggered: "Terakhir: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Edit
+    delete: Hapus
+  alert-form:
+    create-title: Buat Peringatan
+    edit-title: Edit Peringatan
+    description: Berlangganan ke event log yang sesuai dengan kriteria Anda
+    alert-name: Nama Peringatan
+    alert-name-placeholder: mis., Kesalahan API Test
+    container-filter: Filter Kontainer
+    containers-match: "{count} kontainer cocok: {names}"
+    no-containers-match: Tidak ada kontainer yang cocok dengan filter ini
+    log-filter: Filter Log
+    logs-match: "{count} log cocok"
+    no-logs-match: Tidak ada log yang cocok dengan filter ini
+    destination: Tujuan
+    select-destination: Pilih tujuan
+    no-destinations: Tidak ada tujuan yang dikonfigurasi. Tambahkan satu terlebih dahulu.
+    preview: Pratinjau
+    cancel: Batal
+    save: Simpan
+    create: Buat Peringatan
+  destination-form:
+    create-title: Tambah Tujuan
+    edit-title: Edit Tujuan
+    description: Ke mana notifikasi harus dikirim?
+    name: Nama
+    name-placeholder: mis., Slack Produksi
+    type: Tipe
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, endpoint kustom
+    cloud-title: Dozzle Cloud
+    cloud-description: Notifikasi push, peringatan email, dan ringkasan bertenaga AI
+    webhook-url: URL Webhook
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: Kunci API
+    payload-format: Format Payload
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Kustom
+    template: Template
+    template-hint: Sintaks template Go
+    test: Test
+    test-success: Test berhasil
+    cancel: Batal
+    close: Tutup
+    save: Simpan
+    add: Tambah Tujuan
+    cloud-exists: Hanya satu tujuan Dozzle Cloud yang dapat dikonfigurasi
+    link-cloud: Tautkan Akun
+    link-cloud-button: Tautkan Dozzle Cloud
+    cloud-settings-hint: Untuk mengonfigurasi saluran terkelola Anda, buka
+    cloud-settings-link: Pengaturan Dozzle Cloud
+  cloud-link-success:
+    title: Dozzle Cloud Tertaut
+    message: Akun Anda telah berhasil ditautkan ke Dozzle Cloud.

@@ -160,3 +160,83 @@ analytics:
   total_records: Skupaj zapisov {count}.
   showing_first: Prikaz prvih {count}.
   creating_table: Ustvarjanje začasne tabele...
+notifications:
+  title: Obvestila
+  description: Nastavite kje in kdaj prejemati opozorila
+  destinations: Cilji
+  add-destination: Dodaj cilj
+  alerts: Opozorila
+  add: Dodaj
+  filter:
+    all: Vsi ({count})
+    enabled: Omogočeni ({count})
+    paused: Ustavljeni ({count})
+  no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
+  alert:
+    paused: Ustavljeno
+    containers: Zabojniki
+    log-filter: Filter dnevnika
+    destination: Cilj
+    dispatcher-deleted: Pošiljatelj izbrisan
+    containers-count: "{count} zabojnikov"
+    triggered-count: "{count} sproženih"
+    last-triggered: "Zadnje: {time}"
+  destination:
+    http-webhook: HTTP Webhook
+    dozzle-cloud: Dozzle Cloud
+    edit: Uredi
+    delete: Izbriši
+  alert-form:
+    create-title: Ustvari Opozorilo
+    edit-title: Uredi Opozorilo
+    description: Naročite se na dogodke dnevnika, ki ustrezajo vašim kriterijem
+    alert-name: Ime Opozorila
+    alert-name-placeholder: npr., Napake Testnega API-ja
+    container-filter: Filter Zabojnikov
+    containers-match: "{count} zabojnikov ustreza: {names}"
+    no-containers-match: Noben zabojnik ne ustreza temu filtru
+    log-filter: Filter Dnevnika
+    logs-match: "{count} dnevnikov ustreza"
+    no-logs-match: Noben dnevnik ne ustreza temu filtru
+    destination: Cilj
+    select-destination: Izberite cilj
+    no-destinations: Cilji niso nastavljeni. Najprej dodajte enega.
+    preview: Predogled
+    cancel: Prekliči
+    save: Shrani
+    create: Ustvari Opozorilo
+  destination-form:
+    create-title: Dodaj Cilj
+    edit-title: Uredi Cilj
+    description: Kam naj se pošiljajo obvestila?
+    name: Ime
+    name-placeholder: npr., Produkcijski Slack
+    type: Tip
+    webhook-title: HTTP Webhook
+    webhook-description: Slack, Discord, končna točka po meri
+    cloud-title: Dozzle Cloud
+    cloud-description: Push obvestila, e-poštna opozorila in povzetki z umetno inteligenco
+    webhook-url: URL Webhook
+    webhook-url-placeholder: https://hooks.foo.com/services/...
+    api-key: API Ključ
+    payload-format: Format Payload
+    format-slack: Slack
+    format-discord: Discord
+    format-ntfy: ntfy
+    format-custom: Po meri
+    template: Predloga
+    template-hint: Sintaksa predloge Go
+    test: Test
+    test-success: Test uspešen
+    cancel: Prekliči
+    close: Zapri
+    save: Shrani
+    add: Dodaj Cilj
+    cloud-exists: Nastavljen je lahko samo en cilj Dozzle Cloud
+    link-cloud: Poveži Račun
+    link-cloud-button: Poveži Dozzle Cloud
+    cloud-settings-hint: Za nastavitev upravljanih kanalov pojdite na
+    cloud-settings-link: Nastavitve Dozzle Cloud
+  cloud-link-success:
+    title: Dozzle Cloud Povezan
+    message: Vaš račun je bil uspešno povezan z Dozzle Cloud.
