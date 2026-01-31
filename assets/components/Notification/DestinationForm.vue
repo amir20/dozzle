@@ -11,6 +11,15 @@
       <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
     </div>
 
+    <!-- Link Success Alert -->
+    <div v-if="showLinkSuccess" class="alert alert-success">
+      <mdi:check-circle class="text-lg" />
+      <div>
+        <div class="font-semibold">{{ $t("notifications.cloud-link-success.title") }}</div>
+        <div class="text-sm">{{ $t("notifications.cloud-link-success.message") }}</div>
+      </div>
+    </div>
+
     <!-- Type Selection -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.type") }}</legend>
@@ -250,11 +259,13 @@ const {
   onCreated,
   destination,
   existingDispatchers = [],
+  showLinkSuccess = false,
 } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   destination?: Dispatcher;
   existingDispatchers?: Dispatcher[];
+  showLinkSuccess?: boolean;
 }>();
 
 const hasExistingCloudDestination = computed(() => {

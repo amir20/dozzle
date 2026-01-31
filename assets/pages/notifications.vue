@@ -107,16 +107,12 @@ onMounted(async () => {
     if (!isNaN(id)) {
       const destination = dispatchers.value.find((d) => d.id === id);
       if (destination) {
-        showToast({
-          title: t("notifications.cloud-link-success.title"),
-          message: t("notifications.cloud-link-success.message"),
-          type: "info",
-        });
         showDrawer(
           DestinationForm,
           {
             destination,
             existingDispatchers: dispatchers.value,
+            showLinkSuccess: true,
           },
           "md",
         );
