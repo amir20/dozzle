@@ -1,12 +1,12 @@
 <template>
-  <div class="@container flex flex-1 items-center gap-1.5 md:gap-2">
+  <div class="@container flex min-w-0 flex-1 items-center gap-1.5 md:gap-2">
     <label class="swap swap-rotate size-4">
       <input type="checkbox" v-model="pinned" />
       <carbon:star-filled class="swap-on text-secondary" />
       <carbon:star class="swap-off" />
     </label>
-    <div class="inline-flex items-center text-sm">
-      <div class="breadcrumbs overflow-x-visible p-0 font-mono">
+    <div class="inline-flex min-w-0 items-center text-sm">
+      <div class="breadcrumbs min-w-0 overflow-x-visible p-0 font-mono">
         <ul>
           <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
