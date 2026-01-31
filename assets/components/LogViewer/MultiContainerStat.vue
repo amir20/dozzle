@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-1 md:gap-4">
     <div
-      class="grid min-w-15 grid-cols-[auto_1fr_auto_1fr] items-center gap-0.5 text-xs leading-none md:grid-cols-[auto_1fr]"
+      class="grid hidden min-w-15 grid-cols-[auto_1fr_auto_1fr] items-center gap-0.5 text-xs leading-none sm:grid md:grid-cols-[auto_1fr]"
     >
       <PhArrowUp class="text-primary" />
       <span class="tabular-nums">{{ formatBytes(networkRate.tx, { short: true, decimals: 1 }) }}/s</span>
