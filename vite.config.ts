@@ -6,10 +6,9 @@ import Icons from "unplugin-icons/vite";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
-import VueRouter from "unplugin-vue-router/vite";
+import VueRouter from "vue-router/vite";
 import Layouts from "vite-plugin-vue-layouts";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
-import { VueRouterAutoImports } from "unplugin-vue-router";
 import svgLoader from "vite-svg-loader";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -64,7 +63,18 @@ export default defineConfig(() => ({
       dts: "assets/components.d.ts",
     }),
     AutoImport({
-      imports: ["vue", VueRouterAutoImports, "vue-i18n", "pinia", "@vueuse/head", "@vueuse/core"],
+      imports: [
+        "vue",
+        // Replace VueRouterAutoImports with explicit imports:
+        {
+          "vue-router/auto": ["useRoute", "useRouter", "useLink"],
+          "vue-router": ["onBeforeRouteLeave", "onBeforeRouteUpdate"],
+        },
+        "vue-i18n",
+        "pinia",
+        "@vueuse/head",
+        "@vueuse/core",
+      ],
       dts: "assets/auto-imports.d.ts",
       dirs: ["assets/composable", "assets/stores", "assets/utils"],
       vueTemplate: true,
