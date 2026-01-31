@@ -260,7 +260,12 @@ export async function loadBetween(
   params: Ref<URLSearchParams>,
   from: Date,
   to: Date,
-  { lastSeenId, min, maxStart }: { lastSeenId?: number; min?: number; maxStart?: number } = {},
+  {
+    lastSeenId,
+    startId,
+    min,
+    maxStart,
+  }: { lastSeenId?: number; startId?: number; min?: number; maxStart?: number } = {},
 ) {
   const url = computed(() => `/api/hosts/${container.value.host}/containers/${container.value.id}/logs`);
   const abortController = new AbortController();
@@ -278,6 +283,9 @@ export async function loadBetween(
     }
     if (lastSeenId) {
       loadMoreParams.append("lastSeenId", String(lastSeenId));
+    }
+    if (startId) {
+      loadMoreParams.append("startId", String(startId));
     }
     return withBase(`${url.value}?${loadMoreParams.toString()}`);
   });
