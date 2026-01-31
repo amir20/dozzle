@@ -14,7 +14,7 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["assets/*"]
+      "@/*": ["assets/*"],
     },
     "jsx": "preserve",
     "types": [
@@ -22,9 +22,9 @@
       "vite/client",
       "vite-plugin-vue-layouts/client",
       "unplugin-vue-macros/macros-global",
-      "unplugin-vue-router/client"
-    ]
+      "unplugin-vue-router/client",
+    ],
   },
-
-  "exclude": ["dist", "node_modules", "e2e"]
+  "include": ["assets/typed-router.d.ts"],
+  "exclude": ["dist", "node_modules", "e2e"],
 }
