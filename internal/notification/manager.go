@@ -15,6 +15,7 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"go.yaml.in/yaml/v3"
+	"golang.org/x/sync/semaphore"
 )
 
 // Manager manages notification subscriptions and dispatches notifications
@@ -26,6 +27,7 @@ type Manager struct {
 	listener            *ContainerLogListener
 	ctx                 context.Context
 	cancel              context.CancelFunc
+	sendSem             *semaphore.Weighted
 }
 
 // NewManager creates a new notification manager
@@ -37,6 +39,7 @@ func NewManager(listener *ContainerLogListener) *Manager {
 		listener:      listener,
 		ctx:           ctx,
 		cancel:        cancel,
+		sendSem:       semaphore.NewWeighted(5),
 	}
 
 	// Start processing log events from the listener
@@ -55,7 +58,8 @@ func (m *Manager) Start() error {
 
 // ShouldListenToContainer implements ContainerMatcher interface
 func (m *Manager) ShouldListenToContainer(c container.Container) bool {
-	notificationContainer := FromContainerModel(c)
+	// Pass empty host for matching - host fields aren't used in container expressions
+	notificationContainer := FromContainerModel(c, container.Host{})
 
 	shouldListen := false
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
@@ -325,17 +329,17 @@ func (m *Manager) processLogEvents() {
 
 // processLogEvent processes a single log event and sends notifications for matching subscriptions
 func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
-	// Get container from log event's ContainerID
+	// Get container and host from log event's ContainerID
 	ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
 	defer cancel()
 
-	c, err := m.listener.FindContainer(ctx, logEvent.ContainerID, nil)
+	c, host, err := m.listener.FindContainerWithHost(ctx, logEvent.ContainerID, nil)
 	if err != nil {
 		log.Error().Err(err).Str("containerID", logEvent.ContainerID).Msg("Failed to find container")
 		return
 	}
 
-	notificationContainer := FromContainerModel(c)
+	notificationContainer := FromContainerModel(c, host)
 	notificationLog := FromLogEvent(*logEvent)
 
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
@@ -389,6 +393,14 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 
 // sendNotification sends a notification using the dispatcher
 func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
+	acquireCtx, acquireCancel := context.WithTimeout(m.ctx, time.Minute)
+	defer acquireCancel()
+	if err := m.sendSem.Acquire(acquireCtx, 1); err != nil {
+		log.Warn().Err(err).Int("subscription", id).Msg("Notification dropped: too many pending")
+		return
+	}
+	defer m.sendSem.Release(1)
+
 	ctx, cancel := context.WithTimeout(m.ctx, 30*time.Second)
 	defer cancel()
 
