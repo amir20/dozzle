@@ -15,6 +15,7 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"go.yaml.in/yaml/v3"
+	"golang.org/x/sync/semaphore"
 )
 
 // Manager manages notification subscriptions and dispatches notifications
@@ -26,6 +27,7 @@ type Manager struct {
 	listener            *ContainerLogListener
 	ctx                 context.Context
 	cancel              context.CancelFunc
+	sendSem             *semaphore.Weighted
 }
 
 // NewManager creates a new notification manager
@@ -37,6 +39,7 @@ func NewManager(listener *ContainerLogListener) *Manager {
 		listener:      listener,
 		ctx:           ctx,
 		cancel:        cancel,
+		sendSem:       semaphore.NewWeighted(5),
 	}
 
 	// Start processing log events from the listener
@@ -389,6 +392,14 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 
 // sendNotification sends a notification using the dispatcher
 func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
+	acquireCtx, acquireCancel := context.WithTimeout(m.ctx, time.Minute)
+	defer acquireCancel()
+	if err := m.sendSem.Acquire(acquireCtx, 1); err != nil {
+		log.Warn().Err(err).Int("subscription", id).Msg("Notification dropped: too many pending")
+		return
+	}
+	defer m.sendSem.Release(1)
+
 	ctx, cancel := context.WithTimeout(m.ctx, 30*time.Second)
 	defer cancel()
 
