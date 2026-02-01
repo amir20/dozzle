@@ -164,6 +164,26 @@ func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, lab
 	return client.FindContainer(ctx, id, labels)
 }
 
+// FindContainerWithHost finds a container and its host by container ID
+func (l *ContainerLogListener) FindContainerWithHost(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, container.Host, error) {
+	client, exists := l.containerClients.Load(id)
+	if !exists {
+		return container.Container{}, container.Host{}, fmt.Errorf("container %s not found in any client", id)
+	}
+
+	c, err := client.FindContainer(ctx, id, labels)
+	if err != nil {
+		return container.Container{}, container.Host{}, err
+	}
+
+	host, err := client.Host(ctx)
+	if err != nil {
+		return container.Container{}, container.Host{}, fmt.Errorf("failed to get host for container %s: %w", id, err)
+	}
+
+	return c, host, nil
+}
+
 // LogChannel returns the channel for log events
 func (l *ContainerLogListener) LogChannel() <-chan *container.LogEvent {
 	return l.logChannel

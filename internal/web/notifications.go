@@ -465,7 +465,8 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 			if c.State != "running" {
 				continue
 			}
-			nc := notification.FromContainerModel(c)
+			// Pass empty host for matching - host fields aren't used in container expressions
+			nc := notification.FromContainerModel(c, container.Host{})
 			if sub.MatchesContainer(nc) {
 				result.MatchedContainers = append(result.MatchedContainers, c)
 			}
@@ -545,13 +546,14 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 		ID:        "test-notification",
 		Timestamp: time.Now(),
 		Container: types.NotificationContainer{
-			ID:     "abc123",
-			Name:   "test-container",
-			Image:  "nginx:latest",
-			State:  "running",
-			Health: "healthy",
-			Host:   "localhost",
-			Labels: map[string]string{"env": "test"},
+			ID:       "abc123",
+			Name:     "test-container",
+			Image:    "nginx:latest",
+			State:    "running",
+			Health:   "healthy",
+			HostID:   "localhost",
+			HostName: "localhost",
+			Labels:   map[string]string{"env": "test"},
 		},
 		Log: types.NotificationLog{
 			ID:        1,
