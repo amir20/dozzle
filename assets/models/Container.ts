@@ -1,5 +1,4 @@
 import type { ContainerHealth, ContainerJson, ContainerStat, ContainerState } from "@/types/Container";
-import { useExponentialMovingAverage, useSimpleRefHistory } from "@/utils";
 import { Ref } from "vue";
 
 export type Stat = Omit<ContainerStat, "id">;
@@ -51,13 +50,12 @@ export class Container {
     public readonly group?: string,
     public health?: ContainerHealth,
   ) {
-    this._stat = ref(
-      stats.at(-1) || ({ cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat),
-    );
-    const { history } = useSimpleRefHistory(this._stat, { capacity: 300, deep: true, initial: stats });
-    this._statsHistory = history;
-    const { movingAverage } = useExponentialMovingAverage(this._stat, 0.2);
-    this.movingAverageStat = movingAverage;
+    const defaultStat = { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat;
+    this._stat = ref(stats.at(-1) || defaultStat);
+    const recentStats = stats.slice(-300);
+    const padding = Array(300 - recentStats.length).fill(defaultStat);
+    this._statsHistory = ref([...padding, ...recentStats]);
+    this.movingAverageStat = ref(stats.at(-1) || defaultStat);
 
     this._name = name;
   }
@@ -116,11 +114,36 @@ export class Container {
   }
 
   public updateStat(stat: Stat) {
+    // When Container is inside a reactive array, refs get unwrapped
     if (isRef(this._stat)) {
       this._stat.value = stat;
     } else {
-      // @ts-ignore
-      this._stat = stat;
+      (this._stat as unknown as Stat) = stat;
+    }
+
+    // Update history directly (no watcher needed)
+    const history = isRef(this._statsHistory) ? this._statsHistory.value : (this._statsHistory as unknown as Stat[]);
+    history.push(stat);
+    if (history.length > 300) {
+      history.shift();
+    }
+
+    // Calculate EMA directly (no watcher needed)
+    const alpha = 0.2;
+    const prev = isRef(this.movingAverageStat)
+      ? this.movingAverageStat.value
+      : (this.movingAverageStat as unknown as Stat);
+    const newEma = {
+      cpu: alpha * stat.cpu + (1 - alpha) * prev.cpu,
+      memory: alpha * stat.memory + (1 - alpha) * prev.memory,
+      memoryUsage: alpha * stat.memoryUsage + (1 - alpha) * prev.memoryUsage,
+      networkRxTotal: stat.networkRxTotal,
+      networkTxTotal: stat.networkTxTotal,
+    };
+    if (isRef(this.movingAverageStat)) {
+      this.movingAverageStat.value = newEma;
+    } else {
+      (this.movingAverageStat as unknown as Stat) = newEma;
     }
   }
 
