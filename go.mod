@@ -25,7 +25,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.11.0
 	github.com/andybalholm/brotli v1.2.0
 	github.com/expr-lang/expr v1.17.7
-	github.com/go-chi/chi/v5 v5.2.4
+	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/go-faker/faker/v4 v4.7.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
@@ -47,7 +47,7 @@ require (
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
-	github.com/air-verse/air v1.64.4 // indirect
+	github.com/air-verse/air v1.64.5 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
@@ -116,7 +116,7 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.1 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gotest.tools/v3 v3.0.3 // indirect
@@ -129,7 +129,7 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-go 1.25.6
+go 1.25.7
 
 tool (
 	github.com/air-verse/air
