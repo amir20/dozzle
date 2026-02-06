@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/types"
@@ -23,7 +24,7 @@ type CloudDispatcher struct {
 	Prefix       string
 	ExpiresAt    *time.Time
 	client       *http.Client
-	blockedUntil time.Time
+	blockedUntil atomic.Int64
 }
 
 // NewCloudDispatcher creates a new cloud dispatcher
@@ -54,12 +55,13 @@ const defaultRetryAfter = 60 * time.Second
 
 // Send sends a notification to Dozzle Cloud
 func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notification) error {
-	if time.Now().Before(c.blockedUntil) {
+	if blockedUntil := c.blockedUntil.Load(); blockedUntil > 0 && time.Now().UnixNano() < blockedUntil {
+		t := time.Unix(0, blockedUntil)
 		log.Debug().
 			Str("cloud", c.Name).
-			Time("blocked_until", c.blockedUntil).
+			Time("blocked_until", t).
 			Msg("circuit breaker open, skipping cloud request")
-		return fmt.Errorf("cloud dispatcher rate limited, retry after %s", c.blockedUntil.Format(time.RFC3339))
+		return fmt.Errorf("cloud dispatcher rate limited, retry after %s", t.Format(time.RFC3339))
 	}
 
 	payload, err := json.Marshal(notification)
@@ -88,7 +90,7 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 				retryAfter = time.Duration(seconds) * time.Second
 			}
 		}
-		c.blockedUntil = time.Now().Add(retryAfter)
+		c.blockedUntil.Store(time.Now().Add(retryAfter).UnixNano())
 		log.Warn().
 			Str("cloud", c.Name).
 			Dur("retry_after", retryAfter).
