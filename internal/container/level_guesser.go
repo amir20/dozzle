@@ -16,7 +16,7 @@ var logLevels = [][]string{
 	{"warn", "warning", "wrn"},
 	{"info", "inf"},
 	{"debug", "dbg"},
-	{"trace"},
+	{"trace", "verbose", "ver", "vbs"},
 	{"fatal", "sev", "severe", "crit", "critical"},
 }
 
