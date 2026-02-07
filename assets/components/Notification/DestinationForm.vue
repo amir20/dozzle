@@ -154,11 +154,10 @@
           $t("notifications.destination-form.template-hint")
         }}</span>
       </legend>
-      <textarea
-        v-model="template"
-        class="textarea focus:textarea-primary min-h-48 w-full font-mono text-sm"
-        :class="{ 'textarea-primary': template.trim().length > 0 }"
-      ></textarea>
+      <div
+        ref="templateEditorRef"
+        class="border-base-content/20 focus-within:border-primary min-h-48 w-full overflow-auto rounded-lg border"
+      ></div>
     </fieldset>
 
     <!-- Error -->
@@ -204,6 +203,7 @@
 
 <script lang="ts" setup>
 import type { Dispatcher, TestWebhookResult } from "@/types/notifications";
+import { createTemplateEditor } from "@/composable/templateEditor";
 
 type PayloadFormat = "slack" | "discord" | "ntfy" | "custom";
 
@@ -277,6 +277,7 @@ const hasExistingCloudDestination = computed(() => {
 const isEditing = !!destination;
 
 const nameInput = ref<HTMLInputElement>();
+const templateEditorRef = ref<HTMLElement>();
 const name = ref(destination?.name ?? "");
 useFocus(nameInput, { initialValue: true });
 const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
@@ -292,10 +293,33 @@ const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}`;
 const cloudSettingsUrl = `${__CLOUD_URL__}/settings`;
 
+let templateEditorView: Awaited<ReturnType<typeof createTemplateEditor>> | undefined;
+
 function selectPayloadFormat(format: PayloadFormat) {
   payloadFormat.value = format;
   template.value = PAYLOAD_TEMPLATES[format];
+  setEditorContent(template.value);
 }
+
+function setEditorContent(value: string) {
+  if (!templateEditorView) return;
+  templateEditorView.dispatch({
+    changes: { from: 0, to: templateEditorView.state.doc.length, insert: value },
+  });
+}
+
+onMounted(async () => {
+  if (!templateEditorRef.value) return;
+  templateEditorView = await createTemplateEditor({
+    parent: templateEditorRef.value,
+    initialValue: template.value,
+    onChange: (v) => (template.value = v),
+  });
+});
+
+onScopeDispose(() => {
+  templateEditorView?.destroy();
+});
 
 const canTest = computed(() => {
   if (type.value === "webhook") {
