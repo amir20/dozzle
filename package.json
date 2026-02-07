@@ -84,7 +84,7 @@
     "@iconify-json/material-symbols-light": "^1.2.54",
     "@iconify-json/ri": "^1.2.9",
     "@pinia/testing": "^1.0.3",
-    "@playwright/test": "^1.58.1",
+    "@playwright/test": "^1.58.2",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^25.2.1",
     "@vitejs/plugin-vue": "6.0.4",
