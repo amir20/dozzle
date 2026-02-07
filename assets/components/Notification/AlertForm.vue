@@ -147,10 +147,11 @@ import { createExprEditor, createContainerHints, createLogHints } from "@/compos
 
 import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
 
-const { close, onCreated, alert } = defineProps<{
+const { close, onCreated, alert, prefill } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
+  prefill?: { name?: string; containerExpression?: string; logExpression?: string };
 }>();
 
 // Fetch dispatchers
@@ -177,9 +178,9 @@ const destinationDropdown = ref<HTMLDetailsElement>();
 
 // Form state
 const isEditing = computed(() => !!alert);
-const alertName = ref(alert?.name ?? "");
-const containerExpression = ref(alert?.containerExpression ?? "");
-const logExpression = ref(alert?.logExpression ?? "");
+const alertName = ref(alert?.name ?? prefill?.name ?? "");
+const containerExpression = ref(alert?.containerExpression ?? prefill?.containerExpression ?? "");
+const logExpression = ref(alert?.logExpression ?? prefill?.logExpression ?? "");
 const dispatcherId = ref(alert?.dispatcher?.id ?? 0);
 const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 useFocus(alertNameInput, { initialValue: true });
@@ -301,10 +302,14 @@ async function validateExpressions() {
 
 const debouncedValidate = useDebounceFn(validateExpressions, 500);
 
-watch([containerExpression, logExpression], () => {
-  isLoading.value = true;
-  debouncedValidate();
-});
+watch(
+  [containerExpression, logExpression],
+  () => {
+    isLoading.value = true;
+    debouncedValidate();
+  },
+  { immediate: true },
+);
 
 let containerEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
 let logEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
@@ -314,7 +319,7 @@ onMounted(async () => {
     containerEditorView = await createExprEditor({
       parent: containerEditorRef.value,
       placeholder: 'name contains "api"',
-      initialValue: alert?.containerExpression ?? "",
+      initialValue: alert?.containerExpression ?? prefill?.containerExpression ?? "",
       getHints: () => createContainerHints(containerNames.value, imageNames.value, hostNames.value),
       onChange: (v) => (containerExpression.value = v),
     });
@@ -324,7 +329,7 @@ onMounted(async () => {
     logEditorView = await createExprEditor({
       parent: logEditorRef.value,
       placeholder: 'level == "error" && message contains "timeout"',
-      initialValue: alert?.logExpression ?? "",
+      initialValue: alert?.logExpression ?? prefill?.logExpression ?? "",
       getHints: createLogHints,
       onChange: (v) => (logExpression.value = v),
     });

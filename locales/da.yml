@@ -17,6 +17,7 @@ action:
   copy-link: Kopier permalink
   see-in-context: Se i kontekst
   show-details: Vis detaljer
+  create-alert: Opret advarsel
 label:
   containers: Containere
   container: Ingen containere | 1 container | {count} containere

@@ -17,6 +17,7 @@ action:
   copy-link: Копировать постоянную ссылку
   see-in-context: Посмотреть в контексте
   show-details: Показать детали
+  create-alert: Создать оповещение
 label:
   containers: Контейнеры
   container: Нет контейнеров | 1 контейнер | {count} контейнеров

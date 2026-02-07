@@ -17,6 +17,7 @@ action:
   copy-link: Copia permalink
   see-in-context: Vedi nel contesto
   show-details: Mostra dettagli
+  create-alert: Crea avviso
 label:
   containers: Container
   container: Nessun container | 1 container | {count} container

@@ -17,6 +17,7 @@ action:
   copy-link: 複製永久連結
   see-in-context: 在內容中查看
   show-details: 顯示詳細資訊
+  create-alert: 建立警報
 label:
   containers: 容器
   container: 無容器 | 1 個容器 | {count} 個容器

@@ -17,6 +17,7 @@ action:
   copy-link: Kopiraj trajno povezavo
   see-in-context: Glej v kontekstu
   show-details: Prikaži podrobnosti
+  create-alert: Ustvari opozorilo
 label:
   containers: Zabojniki
   host-count: Ni Gostiteljev | 1 Gostitelj | {count} Gostiteljev

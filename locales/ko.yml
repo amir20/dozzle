@@ -17,6 +17,7 @@ action:
   copy-link: 영구 링크 복사
   see-in-context: 컨텍스트에서 보기
   show-details: 세부 정보 표시
+  create-alert: 알림 생성
 label:
   containers: 컨테이너
   container: 컨테이너가 없습니다 | 컨테이너 1개 | 컨테이너 {count}개

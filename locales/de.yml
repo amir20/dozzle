@@ -17,6 +17,7 @@ action:
   copy-link: Permalink kopieren
   see-in-context: Im Kontext anzeigen
   show-details: Details anzeigen
+  create-alert: Alarm erstellen
 label:
   containers: Container
   container: Keine Container | 1 Container | {count} Container
