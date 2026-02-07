@@ -17,6 +17,7 @@ action:
   copy-link: Copier le permalien
   see-in-context: Voir dans le contexte
   show-details: Afficher les détails
+  create-alert: Créer une alerte
 label:
   containers: Conteneurs
   container: Pas de conteneur | 1 conteneur | {count} conteneurs

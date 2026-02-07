@@ -17,6 +17,7 @@ action:
   copy-link: Kalıcı bağlantıyı kopyala
   see-in-context: Bağlamda gör
   show-details: Detayları göster
+  create-alert: Uyarı oluştur
 label:
   containers: Konteynerlar
   container: Konteyner yok | 1 konteyner | {count} konteyner

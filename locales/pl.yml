@@ -17,6 +17,7 @@ action:
   copy-link: Skopiuj permalink
   see-in-context: Zobacz w kontekście
   show-details: Pokaż szczegóły
+  create-alert: Utwórz alert
 label:
   service: Brak usług | 1 usługa | {count} usług
   host-count: Brak Hostów | 1 Host | {count} Hostów

@@ -17,6 +17,7 @@ action:
   copy-link: Copiar enlace permanente
   see-in-context: Ver en contexto
   show-details: Mostrar detalles
+  create-alert: Crear alerta
 label:
   containers: Contenedores
   container: No contenedores | 1 contenedor | {count} contenedores

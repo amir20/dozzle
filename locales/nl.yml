@@ -17,6 +17,7 @@ action:
   copy-link: Permalink kopiëren
   see-in-context: Bekijk in context
   show-details: Toon details
+  create-alert: Waarschuwing aanmaken
 label:
   containers: Containers
   container: Geen containers | 1 container | {count} containers

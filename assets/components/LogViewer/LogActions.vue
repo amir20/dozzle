@@ -73,6 +73,12 @@
           {{ $t("action.show-details") }}
         </a>
       </li>
+      <li>
+        <a @click="createAlert()">
+          <mdi:bell />
+          {{ $t("action.create-alert") }}
+        </a>
+      </li>
     </ul>
   </div>
 </template>
@@ -82,6 +88,7 @@ import stripAnsi from "strip-ansi";
 import { Container } from "@/models/Container";
 import { LogEntry, SimpleLogEntry, ComplexLogEntry, GroupedLogEntry, JSONObject } from "@/models/LogEntry";
 import LogDetails from "./LogDetails.vue";
+import AlertForm from "@/components/Notification/AlertForm.vue";
 
 const { logEntry, container } = defineProps<{
   logEntry: LogEntry<string | JSONObject>;
@@ -145,6 +152,22 @@ async function copyPermalink() {
       { expire: 2000 },
     );
   }
+}
+
+function createAlert() {
+  const containerExpr = `name contains "${container.name}"`;
+  let logExpr = "";
+  if (logEntry.level && logEntry.level !== "unknown") {
+    logExpr = `level == "${logEntry.level}"`;
+  }
+
+  const nameParts = [container.name];
+  if (logEntry.level && logEntry.level !== "unknown") {
+    nameParts.push(logEntry.level);
+  }
+  const name = nameParts.join(" ");
+
+  showDrawer(AlertForm, { prefill: { name, containerExpression: containerExpr, logExpression: logExpr } }, "lg");
 }
 
 function hideMenu(e: MouseEvent) {

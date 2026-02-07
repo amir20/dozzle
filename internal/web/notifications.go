@@ -491,7 +491,7 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			from := time.Now().Add(-5 * time.Minute)
+			from := time.Now().Add(-2 * time.Hour)
 			to := time.Now()
 
 			logChan, err := containerService.LogsBetweenDates(ctx, from, to, container.STDALL)

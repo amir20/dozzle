@@ -17,6 +17,7 @@ action:
   copy-link: Salin permalink
   see-in-context: Lihat dalam konteks
   show-details: Tampilkan detail
+  create-alert: Buat peringatan
 
 label:
   containers: Kontainer
