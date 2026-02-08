@@ -17,7 +17,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
           elements: [
             {
               type: "mrkdwn",
-              text: "Host: {{ .Container.Host }} | Image: {{ .Container.Image }}",
+              text: "Host: {{ .Container.HostName }} | Image: {{ .Container.Image }}",
             },
           ],
         },
@@ -34,7 +34,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
           title: "{{ .Container.Name }}",
           description: "{{ .Log.Message }}",
           fields: [
-            { name: "Host", value: "{{ .Container.Host }}", inline: true },
+            { name: "Host", value: "{{ .Container.HostName }}", inline: true },
             { name: "Image", value: "{{ .Container.Image }}", inline: true },
           ],
         },
@@ -45,7 +45,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
   ),
   ntfy: JSON.stringify(
     {
-      topic: "dozzle-{{ .Container.Host }}",
+      topic: "dozzle-{{ .Container.HostName }}",
       title: "{{ .Container.Name }}",
       message: "{{ .Log.Message }}",
     },
