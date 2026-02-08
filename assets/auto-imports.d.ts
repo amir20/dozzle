@@ -39,6 +39,7 @@ declare global {
   const createRef: typeof import('@vueuse/core').createRef
   const createReusableTemplate: typeof import('@vueuse/core').createReusableTemplate
   const createSharedComposable: typeof import('@vueuse/core').createSharedComposable
+  const createTemplateEditor: typeof import('./composable/templateEditor').createTemplateEditor
   const createTemplatePromise: typeof import('@vueuse/core').createTemplatePromise
   const createUnrefFn: typeof import('@vueuse/core').createUnrefFn
   const customRef: typeof import('vue').customRef
@@ -403,6 +404,9 @@ declare global {
   export type { ExprEditorOptions } from './composable/exprEditor'
   import('./composable/exprEditor')
   // @ts-ignore
+  export type { TemplateEditorOptions } from './composable/templateEditor'
+  import('./composable/templateEditor')
+  // @ts-ignore
   export type { Config, Profile } from './stores/config'
   import('./stores/config')
   // @ts-ignore
@@ -454,6 +458,7 @@ declare module 'vue' {
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
     readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
     readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
+    readonly createTemplateEditor: UnwrapRef<typeof import('./composable/templateEditor')['createTemplateEditor']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
