@@ -130,7 +130,7 @@
     </fieldset>
 
     <!-- Payload Format (only for webhook type) -->
-    <fieldset v-if="type === 'webhook'" class="fieldset">
+    <fieldset v-if="type === 'webhook' && !isEditing" class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.destination-form.payload-format") }}</legend>
       <div class="flex flex-wrap gap-2">
         <button
@@ -204,55 +204,7 @@
 <script lang="ts" setup>
 import type { Dispatcher, TestWebhookResult } from "@/types/notifications";
 import { createTemplateEditor } from "@/composable/templateEditor";
-
-type PayloadFormat = "slack" | "discord" | "ntfy" | "custom";
-
-const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
-  slack: `{
-  "text": "{{ .Container.Name }}",
-  "blocks": [
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": "*{{ .Container.Name }}*\\n{{ .Log.Message }}"
-      }
-    },
-    {
-      "type": "context",
-      "elements": [
-        {
-          "type": "mrkdwn",
-          "text": "Host: {{ .Container.Host }} | Image: {{ .Container.Image }}"
-        }
-      ]
-    }
-  ]
-}`,
-  discord: `{
-  "content": "{{ .Container.Name }}",
-  "embeds": [
-    {
-      "title": "{{ .Container.Name }}",
-      "description": "{{ .Log.Message }}",
-      "fields": [
-        { "name": "Host", "value": "{{ .Container.Host }}", "inline": true },
-        { "name": "Image", "value": "{{ .Container.Image }}", "inline": true }
-      ]
-    }
-  ]
-}`,
-  ntfy: `{
-  "topic": "dozzle-{{ .Container.Host }}",
-  "title": "{{ .Container.Name }}",
-  "message": "{{ .Log.Message }}"
-}`,
-  custom: `{
-  "container": "{{ .Container.Name }}",
-  "level": "{{ .Log.Level }}",
-  "message": "{{ .Log.Message }}"
-}`,
-};
+import { PAYLOAD_TEMPLATES, type PayloadFormat } from "./payloadTemplates";
 
 const {
   close,
