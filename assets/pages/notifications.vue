@@ -38,7 +38,7 @@
       <div>
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("notifications.alerts") }}</h3>
-          <button class="btn btn-ghost text-primary" @click="openCreateAlert">
+          <button class="btn btn-primary btn-sm" @click="openCreateAlert">
             <mdi:plus />
             {{ $t("notifications.add") }}
           </button>
