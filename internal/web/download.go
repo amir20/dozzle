@@ -17,6 +17,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// sanitizeFilename replaces characters that are invalid in filenames
+func sanitizeFilename(name string) string {
+	replacer := strings.NewReplacer(
+		"/", "_", "\\", "_", ":", "_", "?", "_",
+		"*", "_", "|", "_", "<", "_", ">", "_", "\"", "_",
+	)
+	return replacer.Replace(name)
+}
+
 func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	hostIds := strings.Split(chi.URLParam(r, "hostIds"), ",")
 	if len(hostIds) == 0 {
@@ -110,8 +119,17 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Determine zip filename based on container count
+	var zipFilename string
+	if len(containers) == 1 {
+		name := sanitizeFilename(containers[0].containerService.Container.Name)
+		zipFilename = fmt.Sprintf("%s-logs-%s.zip", name, nowFmt)
+	} else {
+		zipFilename = fmt.Sprintf("%d-containers-logs-%s.zip", len(containers), nowFmt)
+	}
+
 	// Set headers for zip file
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=container-logs-%s.zip", nowFmt))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", zipFilename))
 	w.Header().Set("Content-Type", "application/zip")
 
 	// Create zip writer
