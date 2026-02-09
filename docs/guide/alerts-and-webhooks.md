@@ -17,6 +17,28 @@ Alerts are configured with two expressions:
 
 When a log entry matches both filters, Dozzle sends a notification to the configured destination.
 
+> [!IMPORTANT]
+> Alert and destination configurations are stored in the `/data` directory. You must mount this directory as a volume to persist your notification settings across container restarts.
+
+::: code-group
+
+```sh
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v /path/to/data:/data -p 8080:8080 amir20/dozzle:latest
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/data:/data
+    ports:
+      - 8080:8080
+```
+
+:::
+
 ## Setting Up a Destination
 
 Before creating alerts, you need to configure at least one notification destination. Navigate to the **Notifications** page in Dozzle and click **Add Destination**.
