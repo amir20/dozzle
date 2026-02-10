@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -336,6 +337,11 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	c, host, err := m.listener.FindContainerWithHost(ctx, logEvent.ContainerID, nil)
 	if err != nil {
 		log.Error().Err(err).Str("containerID", logEvent.ContainerID).Msg("Failed to find container")
+		return
+	}
+
+	// Skip logs from Dozzle itself to avoid feedback loops
+	if strings.Contains(c.Image, "dozzle") {
 		return
 	}
 
