@@ -10,7 +10,7 @@
           </ContainerDropdown>
         </div>
         <MultiContainerStat class="ml-auto" :containers="owner.containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar class="max-md:hidden" :name="owner.name" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

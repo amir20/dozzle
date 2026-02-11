@@ -5,6 +5,7 @@ export function useDownloadUrl(
   containers: Ref<Container[]> | ComputedRef<Container[]>,
   streamConfig: { stdout: boolean; stderr: boolean } | Ref<{ stdout: boolean; stderr: boolean }>,
   levels: Ref<Set<string>>,
+  name?: Ref<string> | ComputedRef<string> | string,
 ) {
   const { debouncedSearchFilter } = useSearchFilter();
 
@@ -25,6 +26,11 @@ export function useDownloadUrl(
     const selectedLevels = Array.from(levels.value);
     if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
       selectedLevels.forEach((level) => params.append("levels", level));
+    }
+
+    const nameValue = toValue(name);
+    if (nameValue) {
+      params.append("name", nameValue);
     }
 
     const containerIds = toValue(containers)

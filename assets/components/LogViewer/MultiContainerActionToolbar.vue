@@ -94,9 +94,11 @@ const { showSearch } = useSearchFilter();
 const { enableDownload } = config;
 const clear = defineEmit();
 
+const { name } = defineProps<{ name?: string }>();
+
 const { streamConfig, showHostname, showContainerName, containers, levels } = useLoggingContext();
 
-const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels);
+const { downloadUrl, isFiltered } = useDownloadUrl(containers, streamConfig, levels, name);
 
 const hideMenu = (e: MouseEvent) => {
   if (e.target instanceof HTMLAnchorElement) {
