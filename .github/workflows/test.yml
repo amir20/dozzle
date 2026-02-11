@@ -17,12 +17,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -40,7 +40,7 @@ jobs:
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -54,7 +54,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.7"
+          go-version: "1.26.0"
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v6
@@ -77,7 +77,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.7"
+          go-version: "1.26.0"
           check-latest: true
       - name: Generate dependencies
         run: make fake_assets shared_key.pem shared_cert.pem
@@ -96,12 +96,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
