@@ -3,15 +3,8 @@
     class="banner fixed top-0 right-0 left-0 z-(--vp-z-index-layout-top) flex items-center overflow-hidden bg-[oklch(74%_0.16_232.661)] p-4 font-bold text-gray-800 dark:bg-[oklch(60%_0.126_221.723)] dark:text-white"
   >
     <div class="mx-auto flex items-center gap-2 lg:gap-4">
-      <span class="animate-bounce">🚀</span>K8s users, I need your help! I have added K8s support to Dozzle and I need
-      your feedback! 🙏
-      <a
-        href="https://github.com/amir20/dozzle/discussions/3614"
-        target="_blank"
-        class="btn btn-sm btn-primary text-white!"
-      >
-        See the discussion
-      </a>
+      <span class="animate-bounce">🎉</span>Dozzle v10 is here! Alerts, webhooks, and Dozzle Cloud are now available.
+      <a href="/guide/alerts-and-webhooks" class="btn btn-sm btn-primary text-white!"> Learn more </a>
     </div>
     <button class="btn btn-circle btn-ghost btn-xs ml-auto" @click="dismiss">
       <svg class="swap-on fill-current" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512">

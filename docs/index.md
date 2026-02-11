@@ -35,6 +35,11 @@ features:
     link: /guide/remote-hosts
     linkText: Learn More
     icon: 🌐
+  - title: Alerts & Webhooks
+    details: Set up customizable alerts with powerful expressions to monitor container logs and receive notifications via Slack, Discord, ntfy, or webhooks.
+    icon: 🔔
+    linkText: Learn More
+    link: /guide/alerts-and-webhooks
   - title: SQL Engine
     details: Use SQL queries to analyze logs inside your browser with WebAssembly and DuckDB.
     icon: 📊

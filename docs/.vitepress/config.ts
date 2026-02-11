@@ -37,6 +37,7 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "Guide", link: "/guide/what-is-dozzle", activeMatch: "/guide/" },
+      { text: "Dozzle Cloud", link: "https://cloud.dozzle.dev" },
       {
         text: `v${pkg.version}`,
         items: [
@@ -66,6 +67,13 @@ export default defineConfig({
           { text: "Swarm", link: "/guide/swarm-mode" },
           { text: "K8s", link: "/guide/k8s" },
           { text: "Podman", link: "/guide/podman" },
+        ],
+      },
+      {
+        text: "Notifications",
+        items: [
+          { text: "Alerts & Webhooks", link: "/guide/alerts-and-webhooks" },
+          { text: "Dozzle Cloud", link: "/guide/dozzle-cloud" },
         ],
       },
       {
