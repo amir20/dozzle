@@ -3,8 +3,6 @@ package auth
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -172,15 +170,9 @@ func (u *UserDatabase) FindByPassword(username, password string) *User {
 	return user
 }
 
-func sha256sum(s string) string {
-	bytes := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(bytes[:])
-}
-
 func CompareHashAndPassword(hash, password string) bool {
 	if len(hash) == 64 {
-		log.Warn().Msg("Using sha256sum for password comparison. Consider using a more secure hash algorithm to protected against brute-force attacks. See https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35 for more details.")
-		return hash == sha256sum(password)
+		log.Fatal().Msg("sha256 passwords are no longer supported. Please use bcrypt. See https://github.com/amir20/dozzle/security/advisories/GHSA-w7qr-q9fh-fj35 for more details.")
 	}
 
 	if len(hash) == 60 {
