@@ -44,7 +44,7 @@ func init() {
 func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
-		value = stripANSI(value)
+		value = StripANSI(value)
 		value = timestampRegex.ReplaceAllString(value, "")
 		for _, levelGroup := range logLevels {
 			first := levelGroup[0]
@@ -125,7 +125,7 @@ func guessLogLevel(logEvent *LogEvent) string {
 }
 
 func normalizeLogLevel(level string) string {
-	level = stripANSI(level)
+	level = StripANSI(level)
 	level = strings.ToLower(level)
 	if _, ok := SupportedLogLevels[level]; ok {
 		return level

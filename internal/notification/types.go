@@ -49,11 +49,11 @@ func FromLogEvent(l container.LogEvent) types.NotificationLog {
 func extractMessage(l container.LogEvent) any {
 	switch v := l.Message.(type) {
 	case string:
-		return v
+		return container.StripANSI(v)
 	case []container.LogFragment:
 		var parts []string
 		for _, fragment := range v {
-			parts = append(parts, fragment.Message)
+			parts = append(parts, container.StripANSI(fragment.Message))
 		}
 		return strings.Join(parts, "")
 	case *orderedmap.OrderedMap[string, any]:
