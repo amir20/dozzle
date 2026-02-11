@@ -203,7 +203,12 @@ if (enableShell) {
 }
 
 const containerRef = computed(() => [container]);
-const { downloadUrl, isFiltered } = useDownloadUrl(containerRef, streamConfig, levels);
+const { downloadUrl, isFiltered } = useDownloadUrl(
+  containerRef,
+  streamConfig,
+  levels,
+  toRef(() => container.name),
+);
 
 const disableRestart = computed(() => actionStates.stop || actionStates.start || actionStates.restart);
 

@@ -5,7 +5,7 @@
         <ph:stack-simple />
         <ContainerDropdown :containers="service.containers">{{ service.name }}</ContainerDropdown>
         <MultiContainerStat class="ml-auto" :containers="service.containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar class="max-md:hidden" :name="service.name" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

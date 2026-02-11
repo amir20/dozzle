@@ -12,7 +12,7 @@
           </Tag>
         </div>
         <MultiContainerStat class="ml-auto" :containers="containers" />
-        <MultiContainerActionToolbar class="max-md:hidden" @clear="viewer?.clear()" />
+        <MultiContainerActionToolbar class="max-md:hidden" :name="host.name" @clear="viewer?.clear()" />
       </div>
     </template>
     <template #default>

@@ -110,8 +110,23 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Determine zip filename from optional name param or default
+	zipName := "container-logs"
+	if name := r.URL.Query().Get("name"); name != "" {
+		// Sanitize: keep only alphanumeric, hyphens, underscores, dots
+		sanitized := strings.Map(func(r rune) rune {
+			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' || r == '.' {
+				return r
+			}
+			return '-'
+		}, name)
+		if sanitized != "" {
+			zipName = sanitized
+		}
+	}
+
 	// Set headers for zip file
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=container-logs-%s.zip", nowFmt))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s-%s.zip", zipName, nowFmt))
 	w.Header().Set("Content-Type", "application/zip")
 
 	// Create zip writer
