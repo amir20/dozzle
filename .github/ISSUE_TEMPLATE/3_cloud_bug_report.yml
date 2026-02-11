@@ -1,0 +1,30 @@
+name: "\u2601\uFE0F Dozzle Cloud Bug Report"
+labels: ["bug", "cloud"]
+description: |
+  Use this template for issues related to Dozzle Cloud.
+body:
+  - type: checkboxes
+    attributes:
+      label: Check for existing issues
+      description: Check the backlog of issues to reduce the chances of creating duplicates; if an issue already exists, place a `+1` on it.
+      options:
+        - label: Completed
+          required: true
+  - type: input
+    attributes:
+      label: Dozzle version
+      description: The version of Dozzle connected to Dozzle Cloud.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the bug / provide steps to reproduce it
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Screenshots or logs
+      description: Drag screenshots or paste logs into the text input below.
+    validations:
+      required: false
