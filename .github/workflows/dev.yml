@@ -6,6 +6,11 @@ on:
     branches:
       - master
 name: Push container
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   buildx:
     name: Push branches and PRs

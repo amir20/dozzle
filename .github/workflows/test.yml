@@ -6,6 +6,10 @@ on:
     branches:
       - master
 name: Test
+
+permissions:
+  contents: read
+
 jobs:
   typecheck:
     name: Typecheck
