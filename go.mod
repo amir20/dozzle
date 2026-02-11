@@ -39,10 +39,10 @@ require (
 	golang.org/x/sync v0.19.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
-	k8s.io/api v0.35.0
-	k8s.io/apimachinery v0.35.0
-	k8s.io/client-go v0.35.0
-	k8s.io/metrics v0.35.0
+	k8s.io/api v0.35.1
+	k8s.io/apimachinery v0.35.1
+	k8s.io/client-go v0.35.1
+	k8s.io/metrics v0.35.1
 )
 
 require (
@@ -129,7 +129,7 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-go 1.25.7
+go 1.26.0
 
 tool (
 	github.com/air-verse/air

@@ -14,12 +14,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -33,7 +33,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.25.7
+          go-version: 1.26.0
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v6
@@ -56,12 +56,12 @@ jobs:
       - uses: actions/setup-node@v6
         name: Install Node
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
       - run: corepack enable
       - run: pnpm --version
       - uses: actions/setup-node@v6
         with:
-          node-version: 24.13.0
+          node-version: 24.13.1
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: Install dependencies
@@ -125,7 +125,7 @@ jobs:
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
           echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build and push
-        uses: docker/build-push-action@v6.18.0
+        uses: docker/build-push-action@v6.19.0
         with:
           push: true
           context: .
