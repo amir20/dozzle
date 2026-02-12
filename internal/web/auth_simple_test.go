@@ -30,7 +30,7 @@ func Test_createRoutes_simple_redirect(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
 			}, time.Second*100),
@@ -55,7 +55,7 @@ func Test_createRoutes_simple_valid_token(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
 			}, time.Second*100),
@@ -100,7 +100,7 @@ func Test_createRoutes_simple_bad_password(t *testing.T) {
 				Users: map[string]*auth.User{
 					"amir": {
 						Username: "amir",
-						Password: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+						Password: "$2a$10$4Tvzu0ms9shlv4B8pIfqI.TM9CoqsamsAznP91A1NGuwg/68SGS1m",
 					},
 				},
 			}, time.Second*100),
