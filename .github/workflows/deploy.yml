@@ -3,6 +3,10 @@ on:
     tags:
       - "v*"
 name: Test and Release
+
+permissions:
+  contents: read
+
 jobs:
   npm-test:
     name: JavaScript Tests
@@ -92,6 +96,9 @@ jobs:
     needs: [go-test, npm-test, int-test]
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
@@ -139,6 +146,8 @@ jobs:
     needs: [buildx]
     name: Github Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
