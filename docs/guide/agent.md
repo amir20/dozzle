@@ -49,7 +49,7 @@ To connect to an agent, you need to provide the agent's IP address and port. Her
 ::: code-group
 
 ```sh
-docker run -p 8080:8080 amir20/dozzle:latest --remote-agent agent-ip:7007
+docker run -p 8080:8080 amir20/dozzle:latest --remote-agent agent:7007
 ```
 
 ```yaml [docker-compose.yml]
@@ -64,7 +64,10 @@ services:
 
 :::
 
-Note that when connecting remotely, you don't need to mount local Docker socket. The UI will only show the containers that are available on the agent.
+Note that it is not necessary to mount the local Docker socket when connecting to agents, in which case the UI will only show the containers that are available on the agents.
+
+> [!TIP]
+> If you want to include the host containers in the UI as well, mount the `docker.sock` socket as shown in the [getting started](/guide/getting-started) example.
 
 > [!TIP]
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
