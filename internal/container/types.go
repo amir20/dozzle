@@ -29,7 +29,7 @@ type Container struct {
 	MemoryLimit uint64                           `json:"memoryLimit"`
 	CPULimit    float64                          `json:"cpuLimit"`
 	Group       string                           `json:"group,omitempty"`
-	FullyLoaded bool                             `json:"-,omitempty"`
+	FullyLoaded bool                             `json:"-"`
 }
 
 func (container Container) ToProto() pb.Container {
