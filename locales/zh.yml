@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: 关联 Dozzle Cloud
     cloud-settings-hint: 要配置您的托管频道，请前往
     cloud-settings-link: Dozzle Cloud 设置
+    cloud-checking: 正在检查云状态...
+    cloud-relink: 您的 API 密钥无效或已过期。请删除并重新关联您的账户。
+    cloud-plan: 计划
+    cloud-usage: 本期事件数
   cloud-link-success:
     title: Dozzle Cloud 已关联
     message: 您的账户已成功关联到 Dozzle Cloud。

@@ -32,6 +32,7 @@ declare module 'vue' {
     'Cil:circle': typeof import('~icons/cil/circle')['default']
     'Cil:columns': typeof import('~icons/cil/columns')['default']
     'Cil:xCircle': typeof import('~icons/cil/x-circle')['default']
+    CloudDestinationForm: typeof import('./components/Notification/CloudDestinationForm.vue')['default']
     ComplexLogItem: typeof import('./components/LogViewer/ComplexLogItem.vue')['default']
     ContainerActionsToolbar: typeof import('./components/ContainerViewer/ContainerActionsToolbar.vue')['default']
     ContainerDropdown: typeof import('./components/ContainerDropdown.vue')['default']
@@ -85,6 +86,7 @@ declare module 'vue' {
     'MaterialSymbolsLight:collapseAll': typeof import('~icons/material-symbols-light/collapse-all')['default']
     'Mdi:account': typeof import('~icons/mdi/account')['default']
     'Mdi:alert': typeof import('~icons/mdi/alert')['default']
+    'Mdi:alertCircle': typeof import('~icons/mdi/alert-circle')['default']
     'Mdi:alertOutline': typeof import('~icons/mdi/alert-outline')['default']
     'Mdi:announcement': typeof import('~icons/mdi/announcement')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
@@ -165,6 +167,7 @@ declare module 'vue' {
     ToastModal: typeof import('./components/common/ToastModal.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
     ViewerWithSource: typeof import('./components/LogViewer/ViewerWithSource.vue')['default']
+    WebhookDestinationForm: typeof import('./components/Notification/WebhookDestinationForm.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }

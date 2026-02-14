@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: For at konfigurere dine administrerede kanaler, gå til
     cloud-settings-link: Dozzle Cloud Indstillinger
+    cloud-checking: Kontrollerer cloud-status...
+    cloud-relink: Din API-nøgle er ugyldig eller udløbet. Slet venligst og link din konto igen.
+    cloud-plan: Plan
+    cloud-usage: Begivenheder i denne periode
   cloud-link-success:
     title: Dozzle Cloud Linket
     message: Din konto er blevet succesfuldt linket til Dozzle Cloud.

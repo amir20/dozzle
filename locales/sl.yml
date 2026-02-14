@@ -238,6 +238,10 @@ notifications:
     link-cloud-button: Poveži Dozzle Cloud
     cloud-settings-hint: Za nastavitev upravljanih kanalov pojdite na
     cloud-settings-link: Nastavitve Dozzle Cloud
+    cloud-checking: Preverjanje stanja oblaka...
+    cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
+    cloud-plan: Načrt
+    cloud-usage: Dogodki v tem obdobju
   cloud-link-success:
     title: Dozzle Cloud Povezan
     message: Vaš račun je bil uspešno povezan z Dozzle Cloud.

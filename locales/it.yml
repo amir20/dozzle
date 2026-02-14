@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: Collega Dozzle Cloud
     cloud-settings-hint: Per configurare i tuoi canali gestiti, vai a
     cloud-settings-link: Impostazioni Dozzle Cloud
+    cloud-checking: Verifica dello stato cloud...
+    cloud-relink: La tua chiave API non è valida o è scaduta. Elimina e collega nuovamente il tuo account.
+    cloud-plan: Piano
+    cloud-usage: Eventi in questo periodo
   cloud-link-success:
     title: Dozzle Cloud Collegato
     message: Il tuo account è stato collegato con successo a Dozzle Cloud.

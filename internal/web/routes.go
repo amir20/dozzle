@@ -179,6 +179,9 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Releases API
 				r.Get("/releases", h.getReleases)
+
+				// Cloud API
+				r.Get("/cloud/status", h.cloudStatus)
 			})
 
 			// Public API routes

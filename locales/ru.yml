@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: Связать Dozzle Cloud
     cloud-settings-hint: Чтобы настроить управляемые каналы, перейдите в
     cloud-settings-link: Настройки Dozzle Cloud
+    cloud-checking: Проверка статуса облака...
+    cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
+    cloud-plan: План
+    cloud-usage: События за этот период
   cloud-link-success:
     title: Dozzle Cloud Связан
     message: Ваш аккаунт успешно связан с Dozzle Cloud.

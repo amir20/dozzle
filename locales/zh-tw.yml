@@ -236,6 +236,10 @@ notifications:
     link-cloud-button: 連結 Dozzle Cloud
     cloud-settings-hint: 若要設定您的管理頻道，請前往
     cloud-settings-link: Dozzle Cloud 設定
+    cloud-checking: 正在檢查雲端狀態...
+    cloud-relink: 您的 API 金鑰無效或已過期。請刪除並重新關聯您的帳戶。
+    cloud-plan: 方案
+    cloud-usage: 本期事件數
   cloud-link-success:
     title: Dozzle Cloud 已連結
     message: 您的帳戶已成功連結至 Dozzle Cloud。

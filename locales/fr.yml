@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: Lier Dozzle Cloud
     cloud-settings-hint: Pour configurer vos canaux gérés, allez à
     cloud-settings-link: Paramètres Dozzle Cloud
+    cloud-checking: Vérification du statut cloud...
+    cloud-relink: Votre clé API est invalide ou expirée. Veuillez supprimer et relier votre compte.
+    cloud-plan: Plan
+    cloud-usage: Événements pour cette période
   cloud-link-success:
     title: Dozzle Cloud Lié
     message: Votre compte a été lié avec succès à Dozzle Cloud.

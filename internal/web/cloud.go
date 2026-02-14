@@ -99,3 +99,54 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	redirectURL := fmt.Sprintf("%s/notifications#cloudLinkSuccess=%d", base, id)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
+
+func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
+	// Find the cloud dispatcher to get the API key
+	var apiKey string
+	for _, d := range h.hostService.Dispatchers() {
+		if d.Type == "cloud" && d.APIKey != "" {
+			apiKey = d.APIKey
+			break
+		}
+	}
+
+	if apiKey == "" {
+		writeError(w, http.StatusNotFound, "no cloud dispatcher configured")
+		return
+	}
+
+	cloudURL := os.Getenv("DOLIGENCE_URL")
+	if cloudURL == "" {
+		cloudURL = "https://doligence.dozzle.dev"
+	}
+
+	statusURL := fmt.Sprintf("%s/api/status", cloudURL)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, statusURL, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create cloud status request")
+		writeError(w, http.StatusInternalServerError, "failed to create request")
+		return
+	}
+	req.Header.Set("X-API-Key", apiKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to fetch cloud status")
+		writeError(w, http.StatusBadGateway, "failed to fetch cloud status")
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		log.Warn().Int("status", resp.StatusCode).Str("body", string(body)).Msg("Cloud status check failed")
+		writeError(w, resp.StatusCode, "cloud API key is invalid or expired")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	io.Copy(w, resp.Body)
+}
