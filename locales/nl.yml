@@ -234,6 +234,10 @@ notifications:
     link-cloud-button: Dozzle Cloud koppelen
     cloud-settings-hint: Om je beheerde kanalen te configureren, ga naar
     cloud-settings-link: Dozzle Cloud-instellingen
+    cloud-checking: Cloudstatus controleren...
+    cloud-relink: Uw API-sleutel is ongeldig of verlopen. Verwijder en koppel uw account opnieuw.
+    cloud-plan: Plan
+    cloud-usage: Gebeurtenissen deze periode
   cloud-link-success:
     title: Dozzle Cloud gekoppeld
     message: Je account is succesvol gekoppeld aan Dozzle Cloud.

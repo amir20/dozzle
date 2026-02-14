@@ -245,6 +245,10 @@ notifications:
     link-cloud-button: Tautkan Dozzle Cloud
     cloud-settings-hint: Untuk mengonfigurasi saluran terkelola Anda, buka
     cloud-settings-link: Pengaturan Dozzle Cloud
+    cloud-checking: Memeriksa status cloud...
+    cloud-relink: Kunci API Anda tidak valid atau kedaluwarsa. Silakan hapus dan hubungkan akun Anda lagi.
+    cloud-plan: Paket
+    cloud-usage: Event periode ini
   cloud-link-success:
     title: Dozzle Cloud Tertaut
     message: Akun Anda telah berhasil ditautkan ke Dozzle Cloud.

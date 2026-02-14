@@ -233,6 +233,10 @@ notifications:
     link-cloud-button: Dozzle Cloud verknüpfen
     cloud-settings-hint: Um Ihre verwalteten Kanäle zu konfigurieren, gehen Sie zu
     cloud-settings-link: Dozzle Cloud Einstellungen
+    cloud-checking: Cloud-Status wird überprüft...
+    cloud-relink: Ihr API-Schlüssel ist ungültig oder abgelaufen. Bitte löschen und verknüpfen Sie Ihr Konto erneut.
+    cloud-plan: Plan
+    cloud-usage: Ereignisse in diesem Zeitraum
   cloud-link-success:
     title: Dozzle Cloud verknüpft
     message: Ihr Konto wurde erfolgreich mit Dozzle Cloud verknüpft.
