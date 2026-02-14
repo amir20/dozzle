@@ -47,6 +47,7 @@ export interface PreviewResult {
     s: string;
   }[];
   totalLogs: number;
+  messageKeys?: string[];
 }
 
 export interface TestWebhookResult {

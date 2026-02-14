@@ -194,6 +194,7 @@ const containerResult = ref<ContainerResult | null>(null);
 const logError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
+const messageKeys = ref<string[]>([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
 const saveError = ref<string | null>(null);
@@ -253,6 +254,7 @@ async function validateExpressions() {
     logError.value = null;
     logTotalCount.value = 0;
     logMessages.value = [];
+    messageKeys.value = [];
     return;
   }
 
@@ -282,6 +284,9 @@ async function validateExpressions() {
           containers: data.matchedContainers?.map((c) => Container.fromJSON(c as ContainerJson)),
         }
       : null;
+
+    // Update message keys for autocomplete
+    messageKeys.value = data.messageKeys ?? [];
 
     // Update log result
     if (logExpression.value && !data.containerError) {
@@ -330,7 +335,7 @@ onMounted(async () => {
       parent: logEditorRef.value,
       placeholder: 'level == "error" && message contains "timeout"',
       initialValue: alert?.logExpression ?? prefill?.logExpression ?? "",
-      getHints: createLogHints,
+      getHints: () => createLogHints(messageKeys.value),
       onChange: (v) => (logExpression.value = v),
     });
   }
