@@ -242,6 +242,10 @@ notifications:
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: To configure your managed channels, go to
     cloud-settings-link: Dozzle Cloud Settings
+    cloud-checking: Checking cloud status...
+    cloud-relink: Your API key is invalid or expired. Please delete and link your account again.
+    cloud-plan: Plan
+    cloud-usage: Events this period
   cloud-link-success:
     title: Dozzle Cloud Linked
     message: Your account has been successfully linked to Dozzle Cloud.
