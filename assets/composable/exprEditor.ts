@@ -50,7 +50,7 @@ export function createContainerHints(
   ];
 }
 
-export function createLogHints(): Completion[] {
+export function createLogHints(messageKeys?: string[]): Completion[] {
   return [
     { label: "message", detail: "log message content", type: "property" },
     { label: "level", detail: "log level", type: "property" },
@@ -58,6 +58,9 @@ export function createLogHints(): Completion[] {
     { label: "type", detail: "log type", type: "property" },
     { label: "timestamp", detail: "unix timestamp", type: "property" },
     { label: "id", detail: "log entry ID", type: "property" },
+    ...(messageKeys ?? []).map(
+      (key) => ({ label: `message.${key}`, detail: "message field", type: "property" }) as Completion,
+    ),
     ...exprOperators,
     { label: '"error"', detail: "level value", type: "string" },
     { label: '"warn"', detail: "level value", type: "string" },

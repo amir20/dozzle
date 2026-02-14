@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // Response types for JSON serialization
@@ -75,6 +77,7 @@ type PreviewResult struct {
 	MatchedContainers []container.Container `json:"matchedContainers"`
 	MatchedLogs       []container.LogEvent  `json:"matchedLogs"`
 	TotalLogs         int                   `json:"totalLogs"`
+	MessageKeys       []string              `json:"messageKeys,omitempty"`
 }
 
 type TestWebhookInput struct {
@@ -474,18 +477,15 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch real logs from matched containers
-	if sub.LogProgram != nil && len(result.MatchedContainers) > 0 {
+	if len(result.MatchedContainers) > 0 {
 		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 		defer cancel()
 
 		const maxLogs = 10
 		totalMatched := 0
+		keySet := make(map[string]struct{})
 
 		for _, c := range result.MatchedContainers {
-			if len(result.MatchedLogs) >= maxLogs {
-				break
-			}
-
 			containerService, err := h.hostService.FindContainer(c.Host, c.ID, container.ContainerLabels{})
 			if err != nil {
 				continue
@@ -504,17 +504,40 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 
-				notificationLog := notification.FromLogEvent(*logEvent)
-				if sub.MatchesLog(notificationLog) {
-					totalMatched++
-					if len(result.MatchedLogs) < maxLogs {
-						result.MatchedLogs = append(result.MatchedLogs, *logEvent)
+				// Collect message keys from structured logs
+				switch m := logEvent.Message.(type) {
+				case *orderedmap.OrderedMap[string, any]:
+					for pair := m.Oldest(); pair != nil; pair = pair.Next() {
+						keySet[pair.Key] = struct{}{}
+					}
+				case *orderedmap.OrderedMap[string, string]:
+					for pair := m.Oldest(); pair != nil; pair = pair.Next() {
+						keySet[pair.Key] = struct{}{}
+					}
+				}
+
+				if sub.LogProgram != nil {
+					notificationLog := notification.FromLogEvent(*logEvent)
+					if sub.MatchesLog(notificationLog) {
+						totalMatched++
+						if len(result.MatchedLogs) < maxLogs {
+							result.MatchedLogs = append(result.MatchedLogs, *logEvent)
+						}
 					}
 				}
 			}
 		}
 
 		result.TotalLogs = totalMatched
+
+		if len(keySet) > 0 {
+			keys := make([]string, 0, len(keySet))
+			for k := range keySet {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			result.MessageKeys = keys
+		}
 	}
 
 	writeJSON(w, http.StatusOK, result)
