@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Mostrar nome do container
   shell: Shell
   attach: Anexar
+  copy-permalink: Copiar link permanente
 action:
   copy-log: Copiar log
   copy-link: Copiar permalink
@@ -51,6 +52,7 @@ error:
   page-not-found: Esta página não existe
   invalid-auth: Usuário ou senha inválidos
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
+  copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Container não encontrado
   events-stream:

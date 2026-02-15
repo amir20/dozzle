@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Tampilkan nama kontainer
   shell: Shell
   attach: Lampirkan
+  copy-permalink: Salin tautan permanen
 action:
   copy-log: Salin log
   copy-link: Salin permalink
@@ -55,6 +56,7 @@ error:
   page-not-found: Halaman ini tidak ada
   invalid-auth: Nama pengguna atau kata sandi tidak valid
   copy-not-supported: Salin ke clipboard tidak didukung di browser Anda
+  copy-not-supported-hint: Clipboard tidak tersedia. Salin tautan di bawah ini
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
   events-stream:

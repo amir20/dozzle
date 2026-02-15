@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Vis containernavn
   shell: Shell
   attach: Tilknyt
+  copy-permalink: Kopiér permanent link
 action:
   copy-log: Kopier log
   copy-link: Kopier permalink
@@ -52,6 +53,7 @@ error:
   page-not-found: Denne side eksisterer ikke
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
   copy-not-supported: Kopiering til udklipsholder understøttes ikke i din browser
+  copy-not-supported-hint: Udklipsholder ikke tilgængelig. Kopiér linket nedenfor
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
   events-stream:

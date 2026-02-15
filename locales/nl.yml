@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Toon containernaam
   shell: Shell
   attach: Koppelen
+  copy-permalink: Permanente link kopiëren
 action:
   copy-log: Log kopiëren
   copy-link: Permalink kopiëren
@@ -52,6 +53,7 @@ error:
   page-not-found: Deze pagina bestaat niet
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
   copy-not-supported: Kopiëren naar klembord wordt niet ondersteund in je browser
+  copy-not-supported-hint: Klembord niet beschikbaar. Kopieer de link hieronder
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
   events-stream:

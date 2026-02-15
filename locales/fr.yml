@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Afficher le nom du conteneur
   shell: Shell
   attach: Attacher
+  copy-permalink: Copier le lien permanent
 action:
   copy-log: Copier le journal
   copy-link: Copier le permalien
@@ -52,6 +53,7 @@ error:
   page-not-found: Cette page n'existe pas
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
   copy-not-supported: La copie dans le presse-papiers n'est pas prise en charge par votre navigateur
+  copy-not-supported-hint: Presse-papiers indisponible. Copiez le lien ci-dessous
   logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
   events-stream:

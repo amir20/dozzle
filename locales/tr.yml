@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Konteyner adını göster
   shell: Kabuk
   attach: Bağla
+  copy-permalink: Kalıcı bağlantıyı kopyala
 action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala
@@ -57,6 +58,7 @@ error:
   page-not-found: Bu sayfa bulunamadı
   invalid-auth: Kullanıcı adı veya şifre geçersiz
   copy-not-supported: Panoya kopyalama tarayıcınızda desteklenmiyor
+  copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
   events-stream:

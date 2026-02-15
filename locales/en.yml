@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Show container name
   shell: Shell
   attach: Attach
+  copy-permalink: Copy permanent link
 action:
   copy-log: Copy log
   copy-link: Copy permalink
@@ -54,6 +55,7 @@ error:
   page-not-found: This page does not exist
   invalid-auth: Username or password are not valid
   copy-not-supported: Copy to clipboard is not supported in your browser
+  copy-not-supported-hint: Clipboard unavailable. Copy the link below
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
   events-stream:
