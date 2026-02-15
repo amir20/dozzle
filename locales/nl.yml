@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Toon containernaam
   shell: Shell
   attach: Koppelen
+  copy-permalink: Permanente link kopiëren
 action:
   copy-log: Log kopiëren
   copy-link: Permalink kopiëren

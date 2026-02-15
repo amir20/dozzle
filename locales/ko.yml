@@ -12,6 +12,7 @@ toolbar:
   show-container-name: 컨테이너 이름 보기
   shell: 셸
   attach: 연결
+  copy-permalink: 영구 링크 복사
 action:
   copy-log: 로그 복사
   copy-link: 영구 링크 복사

@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Tampilkan nama kontainer
   shell: Shell
   attach: Lampirkan
+  copy-permalink: Salin tautan permanen
 action:
   copy-log: Salin log
   copy-link: Salin permalink

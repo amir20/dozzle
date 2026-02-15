@@ -3,16 +3,20 @@ const router = useRouter();
 const route = useRoute();
 
 const store = useContainerStore();
-const { visibleContainers } = storeToRefs(store);
+const { containers } = storeToRefs(store);
 
-watch(visibleContainers, (newValue) => {
+watch(containers, (newValue) => {
   if (newValue) {
     if (route.query.name) {
-      const [container, _] = visibleContainers.value.filter((c) => c.name == route.query.name);
-      if (container) {
-        router.push({ name: "/container/[id]", params: { id: container.id } });
+      const name = route.query.name as string;
+      const host = route.query.host as string | undefined;
+      const matches = containers.value
+        .filter((c) => c.name == name && (!host || c.host == host))
+        .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
+      if (matches.length > 0) {
+        router.push({ name: "/container/[id]", params: { id: matches[0].id } });
       } else {
-        console.error(`No containers found matching name=${route.query.name}. Redirecting to /`);
+        console.error(`No containers found matching name=${name}${host ? ` host=${host}` : ""}. Redirecting to /`);
         router.push({ name: "/" });
       }
     } else {

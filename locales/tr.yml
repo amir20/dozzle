@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Konteyner adını göster
   shell: Kabuk
   attach: Bağla
+  copy-permalink: Kalıcı bağlantıyı kopyala
 action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala

@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Показать имя контейнера
   shell: Оболочка
   attach: Подключить
+  copy-permalink: Скопировать постоянную ссылку
 action:
   copy-log: Копировать лог
   copy-link: Копировать постоянную ссылку

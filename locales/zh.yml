@@ -12,6 +12,7 @@ toolbar:
   show-container-name: 显示容器名称
   shell: 终端
   attach: 附加
+  copy-permalink: 复制永久链接
 action:
   copy-log: 复制日志
   copy-link: 复制永久链接

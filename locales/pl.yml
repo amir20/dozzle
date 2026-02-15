@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Pokaż nazwę kontenera
   shell: Shell
   attach: Dołącz
+  copy-permalink: Kopiuj link stały
 action:
   copy-log: Skopiuj log
   copy-link: Skopiuj permalink

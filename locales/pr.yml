@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Mostrar nome do contentor
   shell: Shell
   attach: Anexar
+  copy-permalink: Copiar link permanente
 action:
   copy-log: Copiar registo
   copy-link: Copiar hiperligação permanente

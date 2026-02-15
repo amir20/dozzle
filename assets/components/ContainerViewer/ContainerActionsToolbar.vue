@@ -10,21 +10,15 @@
       @click="hideMenu"
     >
       <li v-if="!historical">
-        <a @click="clear()">
-          <octicon:trash-24 /> {{ $t("toolbar.clear") }}
-          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
-        </a>
-      </li>
-      <li v-if="enableDownload">
-        <a :href="downloadUrl" download>
-          <octicon:download-24 />
-          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
-        </a>
-      </li>
-      <li v-if="!historical">
         <a @click="showSearch = true">
           <mdi:magnify /> {{ $t("toolbar.search") }}
           <KeyShortcut char="f" />
+        </a>
+      </li>
+      <li v-if="!historical">
+        <a @click="clear()">
+          <octicon:trash-24 /> {{ $t("toolbar.clear") }}
+          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
         </a>
       </li>
       <li v-if="hasComplexLogs">
@@ -109,6 +103,20 @@
         </details>
       </li>
 
+      <li class="line"></li>
+      <li v-if="enableDownload">
+        <a :href="downloadUrl" download>
+          <octicon:download-24 />
+          {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
+        </a>
+      </li>
+      <li>
+        <a @click="copyPermalink()">
+          <material-symbols:link />
+          {{ $t("toolbar.copy-permalink") }}
+        </a>
+      </li>
+
       <!-- Container Actions (Enabled via config) -->
       <template v-if="enableActions && !historical">
         <li class="line"></li>
@@ -177,6 +185,32 @@ const showDrawer = useDrawer();
 const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
 const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
+
+const router = useRouter();
+const { copy, copied } = useClipboard();
+const { t } = useI18n();
+const { showToast } = useToast();
+
+async function copyPermalink() {
+  const url = router.resolve({
+    name: "/show",
+    query: { name: container.name, host: container.host },
+  }).href;
+
+  const resolved = new URL(url, window.location.origin);
+  await copy(resolved.href);
+
+  if (copied.value) {
+    showToast(
+      {
+        title: t("toasts.copied.title"),
+        message: t("toasts.copied.message"),
+        type: "info",
+      },
+      { expire: 2000 },
+    );
+  }
+}
 
 onKeyStroke("f", (e) => {
   if (hasComplexLogs.value) {

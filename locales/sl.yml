@@ -10,6 +10,7 @@ toolbar:
   show-container-name: Prikaži ime zabojnika
   shell: Lupina
   attach: Priloži
+  copy-permalink: Kopiraj trajno povezavo
   restart: Ponovni zagon
   show-hostname: Prikaži ime gostitelja
 action:

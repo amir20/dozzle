@@ -12,6 +12,7 @@ toolbar:
   show-container-name: Vis containernavn
   shell: Shell
   attach: Tilknyt
+  copy-permalink: Kopiér permanent link
 action:
   copy-log: Kopier log
   copy-link: Kopier permalink
