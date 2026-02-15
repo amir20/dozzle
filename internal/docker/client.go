@@ -354,7 +354,7 @@ func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []strin
 		return nil, err
 	}
 
-	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{})
+	waiter, err := d.cli.ContainerExecAttach(ctx, execID.ID, docker.ExecAttachOptions{Tty: true})
 	if err != nil {
 		return nil, err
 	}
