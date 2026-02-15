@@ -187,7 +187,7 @@ const clear = defineEmit();
 const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
 
 const router = useRouter();
-const { copy, copied } = useClipboard();
+const { copy, copied, isSupported } = useClipboard();
 const { t } = useI18n();
 const { showToast } = useToast();
 
@@ -198,6 +198,19 @@ async function copyPermalink() {
   }).href;
 
   const resolved = new URL(url, window.location.origin);
+
+  if (!isSupported.value) {
+    showToast(
+      {
+        title: t("error.copy-not-supported-hint"),
+        message: resolved.href,
+        type: "info",
+      },
+      { expire: 10000 },
+    );
+    return;
+  }
+
   await copy(resolved.href);
 
   if (copied.value) {

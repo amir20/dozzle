@@ -52,6 +52,7 @@ error:
   page-not-found: 페이지를 찾을 수 없습니다
   invalid-auth: 사용자 이름 또는 비밀번호가 올바르지 않습니다
   copy-not-supported: 클립보드 복사는 브라우저에서 지원되지 않습니다
+  copy-not-supported-hint: 클립보드를 사용할 수 없습니다. 아래 링크를 복사하세요
   logs-skipped: 숨겨진 항목 {total}개 보기
   container-not-found: 컨테이너를 찾을 수 없습니다
   events-stream:

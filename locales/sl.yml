@@ -52,6 +52,7 @@ error:
   page-not-found: Ta stran ne obstaja
   invalid-auth: Uporabniško ime ali geslo nista veljavna
   copy-not-supported: Kopiranje v odložišče ni podprto v vašem brskalniku
+  copy-not-supported-hint: Odložišče ni na voljo. Kopirajte spodnjo povezavo
   logs-skipped: Prikaži {total} skritih vnosov
   events-stream:
     title: Nepričakovana napaka

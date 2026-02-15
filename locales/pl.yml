@@ -57,6 +57,7 @@ error:
   page-not-found: Ta strona nie istnieje
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
   copy-not-supported: Kopiowanie do schowka nie jest obsługiwane w twojej przeglądarce
+  copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link
   logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
   events-stream:

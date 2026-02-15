@@ -53,6 +53,7 @@ error:
   page-not-found: 此頁面不存在
   invalid-auth: 使用者名稱或密碼不正確
   copy-not-supported: 您的瀏覽器不支援複製到剪貼簿
+  copy-not-supported-hint: 剪貼簿不可用。請複製下方連結
   logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
   events-stream:
