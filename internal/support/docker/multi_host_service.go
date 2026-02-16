@@ -197,9 +197,6 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 		return err
 	}
 
-	// Start stats listener for metric-based alerts
-	statsListener.Start()
-
 	// Load config if exists
 	if file, err := os.Open(notificationConfigPath); err == nil {
 		defer file.Close()
