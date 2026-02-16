@@ -124,12 +124,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 		log.Debug().Int("id", dc.ID).Msg("Loaded dispatcher from state sync")
 	}
 
-	// Update listener to start/stop streams based on new subscriptions
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			return fmt.Errorf("failed to update listener streams: %w", err)
-		}
-	}
+	m.updateListeners()
 
 	log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Replaced notification state")
 	return nil

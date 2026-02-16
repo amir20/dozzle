@@ -46,19 +46,14 @@ func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsLis
 	go m.processLogEvents()
 
 	// Start processing stat events from the stats listener
-	if statsListener != nil {
-		go m.processStatEvents()
-	}
+	go m.processStatEvents()
 
 	return m
 }
 
 // Start initializes the manager and starts the log listener
 func (m *Manager) Start() error {
-	if m.listener != nil {
-		return m.listener.Start(m)
-	}
-	return nil
+	return m.listener.Start(m)
 }
 
 // ShouldListenToContainer implements ContainerMatcher interface
@@ -92,12 +87,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	m.subscriptions.Store(sub.ID, sub)
 	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
 
-	// Update listener to start/stop streams based on new subscription
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			log.Error().Err(err).Msg("Failed to update listener streams")
-		}
-	}
+	m.updateListeners()
 
 	return nil
 }
@@ -107,12 +97,7 @@ func (m *Manager) RemoveSubscription(id int) {
 	if sub, ok := m.subscriptions.LoadAndDelete(id); ok {
 		log.Debug().Int("id", id).Str("name", sub.Name).Msg("Removed subscription")
 
-		// Update listener to stop streams that are no longer needed
-		if m.listener != nil {
-			if err := m.listener.UpdateStreams(); err != nil {
-				log.Error().Err(err).Msg("Failed to update listener streams")
-			}
-		}
+		m.updateListeners()
 	}
 }
 
@@ -134,12 +119,7 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	m.subscriptions.Store(sub.ID, sub)
 	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Replaced subscription")
 
-	// Update listener to start/stop streams based on new subscription
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			log.Error().Err(err).Msg("Failed to update listener streams")
-		}
-	}
+	m.updateListeners()
 
 	return nil
 }
@@ -244,14 +224,29 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 
 	log.Debug().Int("id", id).Interface("updates", updates).Msg("Updated subscription")
 
-	// Update listener streams in case expressions changed
-	if m.listener != nil {
-		if err := m.listener.UpdateStreams(); err != nil {
-			log.Error().Err(err).Msg("Failed to update listener streams")
-		}
-	}
+	m.updateListeners()
 
 	return nil
+}
+
+// updateListeners updates log and stats listeners based on current subscriptions
+func (m *Manager) updateListeners() {
+	m.listener.UpdateStreams()
+
+	hasMetric := false
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		if sub.Enabled && sub.IsMetricAlert() {
+			hasMetric = true
+			return false
+		}
+		return true
+	})
+
+	if hasMetric {
+		m.statsListener.Start()
+	} else {
+		m.statsListener.Stop()
+	}
 }
 
 // AddDispatcher adds a dispatcher and returns its auto-generated ID

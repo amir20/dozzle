@@ -84,7 +84,7 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 }
 
 // UpdateStreams updates which containers to listen to based on current matcher rules
-func (l *ContainerLogListener) UpdateStreams() error {
+func (l *ContainerLogListener) UpdateStreams() {
 	// Get all current containers from all clients
 	for _, client := range l.clients {
 		containers, err := client.ListContainers(l.ctx, nil)
@@ -105,8 +105,6 @@ func (l *ContainerLogListener) UpdateStreams() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 // startListening starts listening to a container's logs with a known client

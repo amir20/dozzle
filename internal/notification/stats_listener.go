@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -26,38 +27,72 @@ type cachedContainerInfo struct {
 // ContainerStatsListener subscribes to container stats from all clients,
 // enriches each stat with container and host metadata, and forwards them to a channel.
 type ContainerStatsListener struct {
-	clients []container_support.ClientService
-	channel chan ContainerStatEvent
-	ctx     context.Context
-	cache   *xsync.Map[string, cachedContainerInfo]
+	clients    []container_support.ClientService
+	channel    chan ContainerStatEvent
+	parentCtx  context.Context
+	cache      *xsync.Map[string, cachedContainerInfo]
+	mu         sync.Mutex
+	cancelFunc context.CancelFunc
 }
 
-// NewContainerStatsListener creates a new listener that subscribes to stats from the given clients.
+// NewContainerStatsListener creates a new listener that can subscribe to stats from the given clients.
+// Call Start() to begin receiving stats.
 func NewContainerStatsListener(ctx context.Context, clients []container_support.ClientService) *ContainerStatsListener {
-	l := &ContainerStatsListener{
-		clients: clients,
-		channel: make(chan ContainerStatEvent, 1000),
-		ctx:     ctx,
-		cache:   xsync.NewMap[string, cachedContainerInfo](),
+	return &ContainerStatsListener{
+		clients:   clients,
+		channel:   make(chan ContainerStatEvent, 1000),
+		parentCtx: ctx,
+		cache:     xsync.NewMap[string, cachedContainerInfo](),
+	}
+}
+
+// Start subscribes to stats from all clients and begins enriching events.
+// No-op if already running.
+func (l *ContainerStatsListener) Start() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.cancelFunc != nil {
+		return
 	}
 
+	ctx, cancel := context.WithCancel(l.parentCtx)
+	l.cancelFunc = cancel
+
 	rawStats := make(chan container.ContainerStat, 1000)
-	for _, client := range clients {
+	for _, client := range l.clients {
 		client.SubscribeStats(ctx, rawStats)
 	}
 
-	go l.enrich(rawStats)
+	go l.enrich(ctx, rawStats)
 
-	log.Debug().Msg("Subscribed to container stats for metric alerts")
+	log.Debug().Msg("Started container stats listener for metric alerts")
+}
 
-	return l
+// Stop unsubscribes from all clients' stats by cancelling the subscription context.
+// No-op if not running.
+func (l *ContainerStatsListener) Stop() {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.cancelFunc == nil {
+		return
+	}
+	l.cancelFunc()
+	l.cancelFunc = nil
+	log.Debug().Msg("Stopped container stats listener for metric alerts")
+}
+
+// IsRunning returns whether the listener is currently subscribed to stats.
+func (l *ContainerStatsListener) IsRunning() bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.cancelFunc != nil
 }
 
 // enrich reads raw stats, resolves container+host, and sends enriched events.
-func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat) {
+func (l *ContainerStatsListener) enrich(ctx context.Context, rawStats <-chan container.ContainerStat) {
 	for {
 		select {
-		case <-l.ctx.Done():
+		case <-ctx.Done():
 			return
 		case stat := <-rawStats:
 			c, host, err := l.resolveContainer(stat.ID)
@@ -72,7 +107,7 @@ func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat)
 
 			select {
 			case l.channel <- ContainerStatEvent{Stat: stat, Container: c, Host: host}:
-			case <-l.ctx.Done():
+			case <-ctx.Done():
 				return
 			default:
 				log.Warn().Str("containerID", stat.ID).Msg("Metric stats channel full, dropping stat event")
@@ -87,7 +122,7 @@ func (l *ContainerStatsListener) resolveContainer(containerID string) (container
 		return cached.container, cached.host, nil
 	}
 
-	ctx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(l.parentCtx, 5*time.Second)
 	defer cancel()
 
 	c, host, err := l.findContainerWithHost(ctx, containerID)
