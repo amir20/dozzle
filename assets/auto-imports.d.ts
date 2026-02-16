@@ -174,6 +174,7 @@ declare global {
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
+  const useAlertForm: typeof import('./composable/alertForm').useAlertForm
   const useAnimate: typeof import('@vueuse/core').useAnimate
   const useAnnouncements: typeof import('./stores/announcements').useAnnouncements
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
@@ -396,6 +397,9 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
+  import('./composable/alertForm')
+  // @ts-ignore
   export type { DrawerWidth } from './composable/drawer'
   import('./composable/drawer')
   // @ts-ignore
@@ -594,6 +598,7 @@ declare module 'vue' {
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
+    readonly useAlertForm: UnwrapRef<typeof import('./composable/alertForm')['useAlertForm']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useAnnouncements: UnwrapRef<typeof import('./stores/announcements')['useAnnouncements']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
