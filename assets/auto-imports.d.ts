@@ -34,6 +34,7 @@ declare global {
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
   const createLogHints: typeof import('./composable/exprEditor').createLogHints
+  const createMetricHints: typeof import('./composable/exprEditor').createMetricHints
   const createPinia: typeof import('pinia').createPinia
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef
@@ -453,6 +454,7 @@ declare module 'vue' {
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createLogHints: UnwrapRef<typeof import('./composable/exprEditor')['createLogHints']>
+    readonly createMetricHints: UnwrapRef<typeof import('./composable/exprEditor')['createMetricHints']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
