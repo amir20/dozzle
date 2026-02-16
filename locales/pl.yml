@@ -184,6 +184,8 @@ notifications:
     paused: Wstrzymany
     containers: Kontenery
     log-filter: Filtr logów
+    metric-filter: Metryka
+    cooldown: Czas oczekiwania
     destination: Miejsce docelowe
     dispatcher-deleted: Dispatcher usunięty
     containers-count: "{count} kontenerów"
@@ -213,6 +215,14 @@ notifications:
     cancel: Anuluj
     save: Zapisz
     create: Utwórz Alert
+    metric-filter: Wyrażenie metryki
+    expression-valid: Wyrażenie jest poprawne
+    metric-fields-hint: "Dostępne pola: {fields}"
+    cooldown-label: Czas oczekiwania
+    cooldown-hint: "{duration} między alertami na kontener"
+    alert-type: Typ alertu
+    log-alert: Alert logów
+    metric-alert: Alert metryki
   destination-form:
     create-title: Dodaj Miejsce Docelowe
     edit-title: Edytuj Miejsce Docelowe

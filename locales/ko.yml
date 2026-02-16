@@ -180,6 +180,8 @@ notifications:
     paused: 일시정지됨
     containers: 컨테이너
     log-filter: 로그 필터
+    metric-filter: 메트릭
+    cooldown: 대기 시간
     destination: 목적지
     dispatcher-deleted: 디스패처 삭제됨
     containers-count: "컨테이너 {count}개"
@@ -209,6 +211,14 @@ notifications:
     cancel: 취소
     save: 저장
     create: 알림 만들기
+    metric-filter: 메트릭 표현식
+    expression-valid: 표현식이 유효합니다
+    metric-fields-hint: "사용 가능한 필드: {fields}"
+    cooldown-label: 대기 시간
+    cooldown-hint: "컨테이너당 알림 간격 {duration}"
+    alert-type: 알림 유형
+    log-alert: 로그 알림
+    metric-alert: 메트릭 알림
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집

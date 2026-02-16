@@ -21,6 +21,29 @@
       />
     </fieldset>
 
+    <!-- Alert Type Toggle -->
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend text-lg">{{ $t("alert-form.alert-type") }}</legend>
+      <div class="flex gap-2">
+        <button
+          class="btn btn-sm"
+          :class="alertType === 'log' ? 'btn-primary' : 'btn-outline'"
+          @click="alertType = 'log'"
+        >
+          <mdi:text-box-outline class="mr-1" />
+          {{ $t("alert-form.log-alert") }}
+        </button>
+        <button
+          class="btn btn-sm"
+          :class="alertType === 'metric' ? 'btn-primary' : 'btn-outline'"
+          @click="alertType = 'metric'"
+        >
+          <mdi:chart-line class="mr-1" />
+          {{ $t("alert-form.metric-alert") }}
+        </button>
+      </div>
+    </fieldset>
+
     <!-- Container Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.container-filter") }}</legend>
@@ -52,27 +75,27 @@
       </div>
     </fieldset>
 
-    <!-- Log Filter -->
-    <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.log-filter") }}</legend>
-      <div
-        class="input focus-within:input-primary w-full focus-within:z-50"
-        :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
-      >
-        <div ref="logEditorRef" class="w-full"></div>
-      </div>
-      <div v-if="logError || logExpression" class="fieldset-label">
-        <span v-if="logError" class="text-error">{{ logError }}</span>
-        <span v-else-if="logMessages.length" class="text-success">
-          <mdi:check class="inline" />
-          {{ $t("notifications.alert-form.logs-match", { count: logTotalCount }) }}
-        </span>
-        <span v-else-if="!isLoading" class="text-warning">
-          <mdi:alert class="inline" />
-          {{ $t("notifications.alert-form.no-logs-match") }}
-        </span>
-      </div>
-    </fieldset>
+    <!-- Type-specific fields -->
+    <KeepAlive>
+      <LogAlertFields
+        v-if="alertType === 'log'"
+        ref="fieldsRef"
+        :alert="alert"
+        :prefill="prefill"
+        :container-expression="containerExpression"
+        :is-loading="isLoading"
+        :validate-preview="validatePreview"
+      />
+      <MetricAlertFields
+        v-else
+        ref="fieldsRef"
+        :alert="alert"
+        :prefill="prefill"
+        :container-expression="containerExpression"
+        :is-loading="isLoading"
+        :validate-preview="validatePreview"
+      />
+    </KeepAlive>
 
     <!-- Destination -->
     <fieldset class="fieldset">
@@ -113,16 +136,6 @@
       </div>
     </fieldset>
 
-    <!-- Log Preview -->
-    <div v-if="logMessages.length" class="mt-4">
-      <div class="mb-2 text-lg">{{ $t("notifications.alert-form.preview") }}</div>
-      <LogList
-        :messages="logMessages"
-        :last-selected-item="undefined"
-        class="border-base-content/50 h-64 overflow-hidden rounded-lg border"
-      />
-    </div>
-
     <!-- Error -->
     <div v-if="saveError" class="alert alert-error">
       <span>{{ saveError }}</span>
@@ -131,7 +144,7 @@
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-4">
       <button class="btn" @click="close?.()">{{ $t("notifications.alert-form.cancel") }}</button>
-      <button class="btn btn-primary" :disabled="!canSave" @click="saveAlert">
+      <button class="btn btn-primary" :disabled="!canSave" @click="save">
         <span v-if="isSaving" class="loading loading-spinner loading-sm"></span>
         {{ isEditing ? $t("notifications.alert-form.save") : $t("notifications.alert-form.create") }}
       </button>
@@ -140,209 +153,62 @@
 </template>
 
 <script lang="ts" setup>
-import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
-import { Container } from "@/models/Container";
-import type { ContainerJson } from "@/types/Container";
-import { createExprEditor, createContainerHints, createLogHints } from "@/composable/exprEditor";
+import { useAlertForm } from "@/composable/alertForm";
+import LogAlertFields from "./LogAlertFields.vue";
+import MetricAlertFields from "./MetricAlertFields.vue";
+import type { NotificationRule } from "@/types/notifications";
 
-import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
-
-const { close, onCreated, alert, prefill } = defineProps<{
+const props = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: { name?: string; containerExpression?: string; logExpression?: string };
+  prefill?: { name?: string; containerExpression?: string; logExpression?: string; metricExpression?: string };
 }>();
 
-// Fetch dispatchers
-const destinations = ref<Dispatcher[]>([]);
-onMounted(async () => {
-  const res = await fetch(withBase("/api/notifications/dispatchers"));
-  destinations.value = await res.json();
-});
-
-// Container store for autocomplete hints
-const containerStore = useContainerStore();
-const { containers } = storeToRefs(containerStore);
-const containerNames = computed(() => [
-  ...new Set(containers.value.filter((c) => c.state === "running").map((c) => c.name)),
-]);
-const imageNames = computed(() => [...new Set(containers.value.map((c) => c.image))]);
-const hostNames = computed(() => [...new Set(containers.value.map((c) => c.host))]);
+const {
+  isEditing,
+  alertName,
+  containerExpression,
+  dispatcherId,
+  destinations,
+  selectedDestination,
+  containerResult,
+  isLoading,
+  isSaving,
+  saveError,
+  baseCanSave,
+  initContainerEditor,
+  saveAlert,
+  validatePreview,
+} = useAlertForm(props);
 
 // Template refs
 const alertNameInput = ref<HTMLInputElement>();
 const containerEditorRef = ref<HTMLElement>();
-const logEditorRef = ref<HTMLElement>();
 const destinationDropdown = ref<HTMLDetailsElement>();
-
-// Form state
-const isEditing = computed(() => !!alert);
-const alertName = ref(alert?.name ?? prefill?.name ?? "");
-const containerExpression = ref(alert?.containerExpression ?? prefill?.containerExpression ?? "");
-const logExpression = ref(alert?.logExpression ?? prefill?.logExpression ?? "");
-const dispatcherId = ref(alert?.dispatcher?.id ?? 0);
-const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
+const fieldsRef = ref<InstanceType<typeof LogAlertFields> | InstanceType<typeof MetricAlertFields>>();
 useFocus(alertNameInput, { initialValue: true });
 
-// Validation state
-interface ContainerResult {
-  error?: string;
-  containers?: Container[];
-}
-const containerResult = ref<ContainerResult | null>(null);
-const logError = ref<string | null>(null);
-const logTotalCount = ref(0);
-const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
-const messageKeys = ref<string[]>([]);
-const isLoading = ref(false);
-const isSaving = ref(false);
-const saveError = ref<string | null>(null);
+// Alert type
+const alertType = ref<"log" | "metric">(props.alert?.metricExpression ? "metric" : "log");
 
-const canSave = computed(
-  () =>
-    alertName.value.trim() &&
-    containerExpression.value.trim() &&
-    dispatcherId.value > 0 &&
-    !containerResult.value?.error &&
-    !logError.value &&
-    !isSaving.value,
-);
+const canSave = computed(() => baseCanSave.value && (fieldsRef.value?.canSave ?? false));
 
-async function saveAlert() {
-  if (!canSave.value) return;
-
-  isSaving.value = true;
-  saveError.value = null;
-
-  try {
-    const input = {
-      name: alertName.value.trim(),
-      containerExpression: containerExpression.value,
-      logExpression: logExpression.value,
-      dispatcherId: dispatcherId.value!,
-      enabled: true,
-    };
-
-    const url = isEditing.value
-      ? withBase(`/api/notifications/rules/${alert!.id}`)
-      : withBase("/api/notifications/rules");
-
-    const res = await fetch(url, {
-      method: isEditing.value ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || "Failed to save alert");
-    }
-
-    onCreated?.();
-    close?.();
-  } catch (e) {
-    saveError.value = e instanceof Error ? e.message : "Failed to save alert";
-  } finally {
-    isSaving.value = false;
-  }
+async function save() {
+  if (!canSave.value || !fieldsRef.value) return;
+  await saveAlert(fieldsRef.value.typeFields);
 }
 
-async function validateExpressions() {
-  if (!containerExpression.value && !logExpression.value) {
-    containerResult.value = null;
-    logError.value = null;
-    logTotalCount.value = 0;
-    logMessages.value = [];
-    messageKeys.value = [];
-    return;
-  }
-
-  isLoading.value = true;
-
-  try {
-    const res = await fetch(withBase("/api/notifications/preview"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        containerExpression: containerExpression.value,
-        logExpression: logExpression.value || undefined,
-      }),
-    });
-
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || "Preview failed");
-    }
-
-    const data: PreviewResult = await res.json();
-
-    // Update container result
-    containerResult.value = containerExpression.value
-      ? {
-          error: data.containerError ?? undefined,
-          containers: data.matchedContainers?.map((c) => Container.fromJSON(c as ContainerJson)),
-        }
-      : null;
-
-    // Update message keys for autocomplete
-    messageKeys.value = data.messageKeys ?? [];
-
-    // Update log result
-    if (logExpression.value && !data.containerError) {
-      logError.value = data.logError ?? null;
-      logTotalCount.value = data.totalLogs;
-      logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event as LogEvent)) ?? [];
-    } else {
-      logError.value = null;
-      logTotalCount.value = 0;
-      logMessages.value = [];
-    }
-  } catch (e) {
-    containerResult.value = { error: e instanceof Error ? e.message : "Unknown error" };
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const debouncedValidate = useDebounceFn(validateExpressions, 500);
-
-watch(
-  [containerExpression, logExpression],
-  () => {
-    isLoading.value = true;
-    debouncedValidate();
-  },
-  { immediate: true },
-);
-
-let containerEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
-let logEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
+// Container editor
+let containerEditorView: Awaited<ReturnType<typeof initContainerEditor>> | undefined;
 
 onMounted(async () => {
   if (containerEditorRef.value) {
-    containerEditorView = await createExprEditor({
-      parent: containerEditorRef.value,
-      placeholder: 'name contains "api"',
-      initialValue: alert?.containerExpression ?? prefill?.containerExpression ?? "",
-      getHints: () => createContainerHints(containerNames.value, imageNames.value, hostNames.value),
-      onChange: (v) => (containerExpression.value = v),
-    });
-  }
-
-  if (logEditorRef.value) {
-    logEditorView = await createExprEditor({
-      parent: logEditorRef.value,
-      placeholder: 'level == "error" && message contains "timeout"',
-      initialValue: alert?.logExpression ?? prefill?.logExpression ?? "",
-      getHints: () => createLogHints(messageKeys.value),
-      onChange: (v) => (logExpression.value = v),
-    });
+    containerEditorView = await initContainerEditor(containerEditorRef.value);
   }
 });
 
 onScopeDispose(() => {
   containerEditorView?.destroy();
-  logEditorView?.destroy();
 });
 </script>

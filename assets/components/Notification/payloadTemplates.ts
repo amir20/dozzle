@@ -9,7 +9,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*{{ .Container.Name }}*\n{{ .Log.Message }}",
+            text: "*{{ .Container.Name }}*\n{{ .Detail }}",
           },
         },
         {
@@ -32,7 +32,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
       embeds: [
         {
           title: "{{ .Container.Name }}",
-          description: "{{ .Log.Message }}",
+          description: "{{ .Detail }}",
           fields: [
             { name: "Host", value: "{{ .Container.HostName }}", inline: true },
             { name: "Image", value: "{{ .Container.Image }}", inline: true },
@@ -47,7 +47,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
     {
       topic: "dozzle-{{ .Container.HostName }}",
       title: "{{ .Container.Name }}",
-      message: "{{ .Log.Message }}",
+      message: "{{ .Detail }}",
     },
     null,
     2,
@@ -55,8 +55,7 @@ export const PAYLOAD_TEMPLATES: Record<PayloadFormat, string> = {
   custom: JSON.stringify(
     {
       container: "{{ .Container.Name }}",
-      level: "{{ .Log.Level }}",
-      message: "{{ .Log.Message }}",
+      message: "{{ .Detail }}",
     },
     null,
     2,

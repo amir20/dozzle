@@ -177,6 +177,8 @@ notifications:
     paused: Pauset
     containers: Containere
     log-filter: Log filter
+    metric-filter: Metrik
+    cooldown: Afkøling
     destination: Destination
     dispatcher-deleted: Dispatcher slettet
     containers-count: "{count} containere"
@@ -206,6 +208,14 @@ notifications:
     cancel: Annuller
     save: Gem
     create: Opret Alarm
+    metric-filter: Metrikudtryk
+    expression-valid: Udtryk er gyldigt
+    metric-fields-hint: "Tilgængelige felter: {fields}"
+    cooldown-label: Afkøling
+    cooldown-hint: "{duration} mellem alarmer pr. container"
+    alert-type: Alarmtype
+    log-alert: Logalarm
+    metric-alert: Metrikalarm
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination

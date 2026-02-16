@@ -15,4 +15,3 @@ coverage.out
 *.pem
 *.csr
 tmp
-.claude

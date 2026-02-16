@@ -189,7 +189,8 @@ const notificationConfigPath = "./data/notifications.yml"
 func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
-	m.notificationManager = notification.NewManager(listener)
+	statsListener := notification.NewContainerStatsListener(ctx, clients)
+	m.notificationManager = notification.NewManager(listener, statsListener)
 
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {
@@ -250,6 +251,8 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            sub.Cooldown,
 		}
 	}
 
@@ -257,11 +260,14 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
 	for i, d := range notifDispatchers {
 		dispatchers[i] = types.DispatcherConfig{
-			ID:       d.ID,
-			Name:     d.Name,
-			Type:     d.Type,
-			URL:      d.URL,
-			Template: d.Template,
+			ID:        d.ID,
+			Name:      d.Name,
+			Type:      d.Type,
+			URL:       d.URL,
+			Template:  d.Template,
+			APIKey:    d.APIKey,
+			Prefix:    d.Prefix,
+			ExpiresAt: d.ExpiresAt,
 		}
 	}
 
