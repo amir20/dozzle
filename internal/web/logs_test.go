@@ -330,7 +330,6 @@ func Test_handler_between_dates_with_everything_complex(t *testing.T) {
 	q.Add("stdout", "true")
 	q.Add("stderr", "true")
 	q.Add("everything", "true")
-	q.Add("levels", "info")
 
 	req.URL.RawQuery = q.Encode()
 
