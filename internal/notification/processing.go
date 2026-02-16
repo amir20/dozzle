@@ -57,14 +57,13 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 			return true
 		}
 
-		sub.AddTriggeredContainer(notificationContainer.ID)
-
 		// Check log filter
 		if !sub.MatchesLog(notificationLog) {
 			return true
 		}
 
 		// Update stats
+		sub.AddTriggeredContainer(notificationContainer.ID)
 		sub.TriggerCount.Add(1)
 		now := time.Now()
 		sub.LastTriggeredAt.Store(&now)

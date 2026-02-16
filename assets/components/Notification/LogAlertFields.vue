@@ -13,7 +13,7 @@
         <mdi:check class="inline" />
         {{ $t("notifications.alert-form.logs-match", { count: logTotalCount }) }}
       </span>
-      <span v-else-if="!isLoading" class="text-warning">
+      <span v-else-if="!props.isLoading" class="text-warning">
         <mdi:alert class="inline" />
         {{ $t("notifications.alert-form.no-logs-match") }}
       </span>
@@ -49,8 +49,6 @@ const logError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const messageKeys = ref<string[]>([]);
-
-const isLoading = computed(() => props.isLoading);
 
 const canSave = computed(() => !logError.value);
 const typeFields = computed(() => ({ logExpression: logExpression.value, metricExpression: "", cooldown: 0 }));

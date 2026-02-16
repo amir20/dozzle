@@ -76,24 +76,26 @@
     </fieldset>
 
     <!-- Type-specific fields -->
-    <LogAlertFields
-      v-if="alertType === 'log'"
-      ref="fieldsRef"
-      :alert="alert"
-      :prefill="prefill"
-      :container-expression="containerExpression"
-      :is-loading="isLoading"
-      :validate-preview="validatePreview"
-    />
-    <MetricAlertFields
-      v-if="alertType === 'metric'"
-      ref="fieldsRef"
-      :alert="alert"
-      :prefill="prefill"
-      :container-expression="containerExpression"
-      :is-loading="isLoading"
-      :validate-preview="validatePreview"
-    />
+    <KeepAlive>
+      <LogAlertFields
+        v-if="alertType === 'log'"
+        ref="fieldsRef"
+        :alert="alert"
+        :prefill="prefill"
+        :container-expression="containerExpression"
+        :is-loading="isLoading"
+        :validate-preview="validatePreview"
+      />
+      <MetricAlertFields
+        v-else
+        ref="fieldsRef"
+        :alert="alert"
+        :prefill="prefill"
+        :container-expression="containerExpression"
+        :is-loading="isLoading"
+        :validate-preview="validatePreview"
+      />
+    </KeepAlive>
 
     <!-- Destination -->
     <fieldset class="fieldset">
