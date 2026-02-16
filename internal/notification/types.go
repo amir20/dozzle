@@ -84,15 +84,21 @@ type Subscription struct {
 	DispatcherID        int    `json:"dispatcherId" yaml:"dispatcherId"`
 	LogExpression       string `json:"logExpression" yaml:"logExpression"`
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
+	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
+	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"` // seconds between metric notifications, default 300
 
-	// Compiled log filter expression
+	// Compiled filter expressions
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
 	ContainerProgram *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
+	MetricProgram    *vm.Program `json:"-" yaml:"-"` // Compiled metric filter expression
 
 	// Runtime stats (not persisted)
 	TriggerCount          atomic.Int64                 `json:"-" yaml:"-"`
 	LastTriggeredAt       atomic.Pointer[time.Time]    `json:"-" yaml:"-"`
 	TriggeredContainerIDs *xsync.Map[string, struct{}] `json:"-" yaml:"-"` // unique container IDs that triggered
+
+	// Per-container cooldown tracking for metric alerts (containerID -> last triggered time)
+	MetricCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
 }
 
 // TriggeredContainersCount returns the number of unique containers that triggered this subscription
@@ -161,4 +167,53 @@ func (s *Subscription) MatchesLog(l types.NotificationLog) bool {
 
 	match, ok := result.(bool)
 	return ok && match
+}
+
+// IsMetricAlert returns true if this subscription is a metric-based alert
+func (s *Subscription) IsMetricAlert() bool {
+	return s.MetricExpression != "" && s.MetricProgram != nil
+}
+
+// MatchesMetric checks if a stat matches this subscription's metric filter
+func (s *Subscription) MatchesMetric(stat types.NotificationStat) bool {
+	if s.MetricProgram == nil {
+		return false
+	}
+
+	result, err := expr.Run(s.MetricProgram, stat)
+	if err != nil {
+		log.Debug().Err(err).Str("expression", s.MetricExpression).Msg("metric expression evaluation error")
+		return false
+	}
+
+	match, ok := result.(bool)
+	return ok && match
+}
+
+// GetCooldownSeconds returns the cooldown in seconds, defaulting to 300 (5 min)
+func (s *Subscription) GetCooldownSeconds() int {
+	if s.Cooldown <= 0 {
+		return 300
+	}
+	return s.Cooldown
+}
+
+// IsMetricCooldownActive checks if the cooldown is still active for a given container
+func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
+	if s.MetricCooldowns == nil {
+		return false
+	}
+	lastTriggered, ok := s.MetricCooldowns.Load(containerID)
+	if !ok {
+		return false
+	}
+	return time.Since(lastTriggered) < time.Duration(s.GetCooldownSeconds())*time.Second
+}
+
+// SetMetricCooldown records the current time as the last triggered time for a container
+func (s *Subscription) SetMetricCooldown(containerID string) {
+	if s.MetricCooldowns == nil {
+		s.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	}
+	s.MetricCooldowns.Store(containerID, time.Now())
 }

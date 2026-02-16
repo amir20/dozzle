@@ -21,6 +21,29 @@
       />
     </fieldset>
 
+    <!-- Alert Type Toggle -->
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend text-lg">Alert Type</legend>
+      <div class="flex gap-2">
+        <button
+          class="btn btn-sm"
+          :class="alertType === 'log' ? 'btn-primary' : 'btn-outline'"
+          @click="alertType = 'log'"
+        >
+          <mdi:text-box-outline class="mr-1" />
+          Log Alert
+        </button>
+        <button
+          class="btn btn-sm"
+          :class="alertType === 'metric' ? 'btn-primary' : 'btn-outline'"
+          @click="alertType = 'metric'"
+        >
+          <mdi:chart-line class="mr-1" />
+          Metric Alert
+        </button>
+      </div>
+    </fieldset>
+
     <!-- Container Filter -->
     <fieldset class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.container-filter") }}</legend>
@@ -52,8 +75,8 @@
       </div>
     </fieldset>
 
-    <!-- Log Filter -->
-    <fieldset class="fieldset">
+    <!-- Log Filter (shown for log alerts) -->
+    <fieldset v-if="alertType === 'log'" class="fieldset">
       <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.log-filter") }}</legend>
       <div
         class="input focus-within:input-primary w-full focus-within:z-50"
@@ -72,6 +95,45 @@
           {{ $t("notifications.alert-form.no-logs-match") }}
         </span>
       </div>
+    </fieldset>
+
+    <!-- Metric Filter (shown for metric alerts) -->
+    <fieldset v-if="alertType === 'metric'" class="fieldset">
+      <legend class="fieldset-legend text-lg">Metric Expression</legend>
+      <div
+        class="input focus-within:input-primary w-full focus-within:z-50"
+        :class="
+          metricExpression.trim() && !metricError ? 'input-primary' : { 'input-error!': metricError }
+        "
+      >
+        <div ref="metricEditorRef" class="w-full"></div>
+      </div>
+      <div v-if="metricError || metricExpression" class="fieldset-label">
+        <span v-if="metricError" class="text-error">{{ metricError }}</span>
+        <span v-else class="text-success">
+          <mdi:check class="inline" />
+          Expression is valid
+        </span>
+      </div>
+      <p class="text-base-content/50 mt-1 text-xs">
+        Available fields: <code>cpu</code> (CPU %), <code>memory</code> (memory %), <code>memoryUsage</code> (bytes)
+      </p>
+    </fieldset>
+
+    <!-- Cooldown (shown for metric alerts) -->
+    <fieldset v-if="alertType === 'metric'" class="fieldset">
+      <legend class="fieldset-legend text-lg">Cooldown (seconds)</legend>
+      <input
+        v-model.number="cooldown"
+        type="number"
+        min="10"
+        class="input focus:input-primary w-full text-base"
+        :class="cooldown > 0 ? 'input-primary' : ''"
+        placeholder="300"
+      />
+      <p class="text-base-content/50 mt-1 text-xs">
+        Minimum time between alerts per container. Default: 300s (5 min)
+      </p>
     </fieldset>
 
     <!-- Destination -->
@@ -143,7 +205,7 @@
 import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
-import { createExprEditor, createContainerHints, createLogHints } from "@/composable/exprEditor";
+import { createExprEditor, createContainerHints, createLogHints, createMetricHints } from "@/composable/exprEditor";
 
 import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
 
@@ -151,7 +213,7 @@ const { close, onCreated, alert, prefill } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: { name?: string; containerExpression?: string; logExpression?: string };
+  prefill?: { name?: string; containerExpression?: string; logExpression?: string; metricExpression?: string };
 }>();
 
 // Fetch dispatchers
@@ -174,13 +236,17 @@ const hostNames = computed(() => [...new Set(containers.value.map((c) => c.host)
 const alertNameInput = ref<HTMLInputElement>();
 const containerEditorRef = ref<HTMLElement>();
 const logEditorRef = ref<HTMLElement>();
+const metricEditorRef = ref<HTMLElement>();
 const destinationDropdown = ref<HTMLDetailsElement>();
 
 // Form state
 const isEditing = computed(() => !!alert);
+const alertType = ref<"log" | "metric">(alert?.metricExpression ? "metric" : "log");
 const alertName = ref(alert?.name ?? prefill?.name ?? "");
 const containerExpression = ref(alert?.containerExpression ?? prefill?.containerExpression ?? "");
 const logExpression = ref(alert?.logExpression ?? prefill?.logExpression ?? "");
+const metricExpression = ref(alert?.metricExpression ?? prefill?.metricExpression ?? "");
+const cooldown = ref(alert?.cooldown ?? 300);
 const dispatcherId = ref(alert?.dispatcher?.id ?? 0);
 const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 useFocus(alertNameInput, { initialValue: true });
@@ -192,6 +258,7 @@ interface ContainerResult {
 }
 const containerResult = ref<ContainerResult | null>(null);
 const logError = ref<string | null>(null);
+const metricError = ref<string | null>(null);
 const logTotalCount = ref(0);
 const logMessages = shallowRef<LogEntry<LogMessage>[]>([]);
 const messageKeys = ref<string[]>([]);
@@ -199,15 +266,18 @@ const isLoading = ref(false);
 const isSaving = ref(false);
 const saveError = ref<string | null>(null);
 
-const canSave = computed(
-  () =>
+const canSave = computed(() => {
+  const base =
     alertName.value.trim() &&
     containerExpression.value.trim() &&
     dispatcherId.value > 0 &&
     !containerResult.value?.error &&
-    !logError.value &&
-    !isSaving.value,
-);
+    !isSaving.value;
+  if (alertType.value === "metric") {
+    return base && metricExpression.value.trim() && !metricError.value;
+  }
+  return base && !logError.value;
+});
 
 async function saveAlert() {
   if (!canSave.value) return;
@@ -216,12 +286,14 @@ async function saveAlert() {
   saveError.value = null;
 
   try {
-    const input = {
+    const input: Record<string, unknown> = {
       name: alertName.value.trim(),
       containerExpression: containerExpression.value,
-      logExpression: logExpression.value,
       dispatcherId: dispatcherId.value!,
       enabled: true,
+      logExpression: alertType.value === "log" ? logExpression.value : "",
+      metricExpression: alertType.value === "metric" ? metricExpression.value : "",
+      cooldown: alertType.value === "metric" ? cooldown.value : 0,
     };
 
     const url = isEditing.value
@@ -249,9 +321,10 @@ async function saveAlert() {
 }
 
 async function validateExpressions() {
-  if (!containerExpression.value && !logExpression.value) {
+  if (!containerExpression.value && !logExpression.value && !metricExpression.value) {
     containerResult.value = null;
     logError.value = null;
+    metricError.value = null;
     logTotalCount.value = 0;
     logMessages.value = [];
     messageKeys.value = [];
@@ -266,7 +339,8 @@ async function validateExpressions() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         containerExpression: containerExpression.value,
-        logExpression: logExpression.value || undefined,
+        logExpression: alertType.value === "log" ? logExpression.value || undefined : undefined,
+        metricExpression: alertType.value === "metric" ? metricExpression.value || undefined : undefined,
       }),
     });
 
@@ -288,8 +362,11 @@ async function validateExpressions() {
     // Update message keys for autocomplete
     messageKeys.value = data.messageKeys ?? [];
 
+    // Update metric result
+    metricError.value = data.metricError ?? null;
+
     // Update log result
-    if (logExpression.value && !data.containerError) {
+    if (logExpression.value && alertType.value === "log" && !data.containerError) {
       logError.value = data.logError ?? null;
       logTotalCount.value = data.totalLogs;
       logMessages.value = data.matchedLogs?.map((event) => asLogEntry(event as LogEvent)) ?? [];
@@ -308,7 +385,7 @@ async function validateExpressions() {
 const debouncedValidate = useDebounceFn(validateExpressions, 500);
 
 watch(
-  [containerExpression, logExpression],
+  [containerExpression, logExpression, metricExpression, alertType],
   () => {
     isLoading.value = true;
     debouncedValidate();
@@ -318,6 +395,7 @@ watch(
 
 let containerEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
 let logEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
+let metricEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
 
 onMounted(async () => {
   if (containerEditorRef.value) {
@@ -341,8 +419,25 @@ onMounted(async () => {
   }
 });
 
+// Initialize metric editor when alert type switches to metric
+watch(alertType, async (type) => {
+  if (type === "metric") {
+    await nextTick();
+    if (metricEditorRef.value && !metricEditorView) {
+      metricEditorView = await createExprEditor({
+        parent: metricEditorRef.value,
+        placeholder: "cpu > 80 || memory > 90",
+        initialValue: alert?.metricExpression ?? prefill?.metricExpression ?? "",
+        getHints: () => createMetricHints(),
+        onChange: (v) => (metricExpression.value = v),
+      });
+    }
+  }
+}, { immediate: true });
+
 onScopeDispose(() => {
   containerEditorView?.destroy();
   logEditorView?.destroy();
+  metricEditorView?.destroy();
 });
 </script>

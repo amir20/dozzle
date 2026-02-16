@@ -27,8 +27,19 @@
       <div class="text-base-content/80 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
         <span>{{ $t("notifications.alert.containers") }}</span>
         <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.containerExpression }}</code>
-        <span>{{ $t("notifications.alert.log-filter") }}</span>
-        <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.logExpression }}</code>
+        <template v-if="alert.metricExpression">
+          <span class="flex items-center gap-1">
+            <mdi:chart-line class="text-info" />
+            Metric
+          </span>
+          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.metricExpression }}</code>
+          <span>Cooldown</span>
+          <span>{{ alert.cooldown || 300 }}s</span>
+        </template>
+        <template v-else>
+          <span>{{ $t("notifications.alert.log-filter") }}</span>
+          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.logExpression }}</code>
+        </template>
       </div>
 
       <!-- Footer -->

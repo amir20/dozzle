@@ -189,12 +189,16 @@ const notificationConfigPath = "./data/notifications.yml"
 func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
-	m.notificationManager = notification.NewManager(listener)
+	statsListener := notification.NewContainerStatsListener(ctx, clients)
+	m.notificationManager = notification.NewManager(listener, statsListener)
 
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {
 		return err
 	}
+
+	// Start stats listener for metric-based alerts
+	statsListener.Start()
 
 	// Load config if exists
 	if file, err := os.Open(notificationConfigPath); err == nil {
@@ -250,6 +254,8 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            sub.Cooldown,
 		}
 	}
 

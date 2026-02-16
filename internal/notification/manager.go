@@ -26,18 +26,20 @@ type Manager struct {
 	subscriptionCounter atomic.Int32
 	dispatcherCounter   atomic.Int32
 	listener            *ContainerLogListener
+	statsListener       *ContainerStatsListener
 	ctx                 context.Context
 	cancel              context.CancelFunc
 	sendSem             *semaphore.Weighted
 }
 
 // NewManager creates a new notification manager
-func NewManager(listener *ContainerLogListener) *Manager {
+func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsListener) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
 		subscriptions: xsync.NewMap[int, *Subscription](),
 		dispatchers:   xsync.NewMap[int, dispatcher.Dispatcher](),
 		listener:      listener,
+		statsListener: statsListener,
 		ctx:           ctx,
 		cancel:        cancel,
 		sendSem:       semaphore.NewWeighted(5),
@@ -45,6 +47,11 @@ func NewManager(listener *ContainerLogListener) *Manager {
 
 	// Start processing log events from the listener
 	go m.processLogEvents()
+
+	// Start processing stat events from the stats listener
+	if statsListener != nil {
+		go m.processStatEvents()
+	}
 
 	return m
 }
@@ -58,13 +65,14 @@ func (m *Manager) Start() error {
 }
 
 // ShouldListenToContainer implements ContainerMatcher interface
+// Only matches log-based subscriptions (metric-only subscriptions don't need log streaming)
 func (m *Manager) ShouldListenToContainer(c container.Container) bool {
 	// Pass empty host for matching - host fields aren't used in container expressions
 	notificationContainer := FromContainerModel(c, container.Host{})
 
 	shouldListen := false
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
-		if sub.Enabled && sub.MatchesContainer(notificationContainer) {
+		if sub.Enabled && sub.LogExpression != "" && sub.MatchesContainer(notificationContainer) {
 			shouldListen = true
 			return false
 		}
@@ -95,6 +103,15 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 			return fmt.Errorf("failed to compile log expression: %w", err)
 		}
 		sub.LogProgram = program
+	}
+
+	// Compile metric expression if provided
+	if sub.MetricExpression != "" {
+		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile metric expression: %w", err)
+		}
+		sub.MetricProgram = program
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
@@ -144,6 +161,15 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 		sub.LogProgram = program
 	}
 
+	// Compile metric expression if provided
+	if sub.MetricExpression != "" {
+		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile metric expression: %w", err)
+		}
+		sub.MetricProgram = program
+	}
+
 	// Preserve enabled state from existing subscription if it exists
 	if existing, ok := m.subscriptions.Load(sub.ID); ok {
 		sub.Enabled = existing.Enabled
@@ -183,6 +209,9 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			ContainerProgram:    sub.ContainerProgram,
 			LogExpression:       sub.LogExpression,
 			LogProgram:          sub.LogProgram,
+			MetricExpression:    sub.MetricExpression,
+			MetricProgram:       sub.MetricProgram,
+			Cooldown:            sub.Cooldown,
 		}
 
 		// Apply updates to the clone
@@ -221,6 +250,25 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 						updated.LogExpression = exprStr
 						updated.LogProgram = program
 					}
+				}
+			case "metricExpression":
+				if exprStr, ok := value.(string); ok {
+					if exprStr != "" {
+						program, err := expr.Compile(exprStr, expr.Env(types.NotificationStat{}))
+						if err != nil {
+							updateErr = fmt.Errorf("failed to compile metric expression: %w", err)
+							return nil, xsync.CancelOp
+						}
+						updated.MetricExpression = exprStr
+						updated.MetricProgram = program
+					} else {
+						updated.MetricExpression = ""
+						updated.MetricProgram = nil
+					}
+				}
+			case "cooldown":
+				if cd, ok := value.(int); ok {
+					updated.Cooldown = cd
 				}
 			}
 		}
@@ -397,6 +445,100 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	})
 }
 
+// processStatEvents processes stat events from the stats listener channel
+func (m *Manager) processStatEvents() {
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case stat := <-m.statsListener.StatChannel():
+			m.processStatEvent(stat)
+		}
+	}
+}
+
+// processStatEvent processes a single stat event and sends notifications for matching metric subscriptions
+func (m *Manager) processStatEvent(stat container.ContainerStat) {
+	notificationStat := types.NotificationStat{
+		CPUPercent:    stat.CPUPercent,
+		MemoryPercent: stat.MemoryPercent,
+		MemoryUsage:   stat.MemoryUsage,
+	}
+
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		// Skip disabled or non-metric subscriptions
+		if !sub.Enabled || !sub.IsMetricAlert() {
+			return true
+		}
+
+		// Check metric expression
+		if !sub.MatchesMetric(notificationStat) {
+			return true
+		}
+
+		// Check per-container cooldown
+		if sub.IsMetricCooldownActive(stat.ID) {
+			return true
+		}
+
+		// Find the container to check container expression and get metadata
+		ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
+		defer cancel()
+
+		c, host, err := m.statsListener.FindContainerWithHost(ctx, stat.ID)
+		if err != nil {
+			return true
+		}
+
+		// Skip stats from Dozzle itself
+		if strings.Contains(c.Image, "dozzle") {
+			return true
+		}
+
+		notificationContainer := FromContainerModel(c, host)
+
+		// Check container filter
+		if !sub.MatchesContainer(notificationContainer) {
+			return true
+		}
+
+		// Set cooldown and update stats
+		sub.SetMetricCooldown(stat.ID)
+		sub.AddTriggeredContainer(stat.ID)
+		sub.TriggerCount.Add(1)
+		now := time.Now()
+		sub.LastTriggeredAt.Store(&now)
+
+		log.Debug().
+			Str("containerID", stat.ID).
+			Float64("cpu", stat.CPUPercent).
+			Float64("memory", stat.MemoryPercent).
+			Str("subscription", sub.Name).
+			Msg("Metric alert triggered")
+
+		notification := types.Notification{
+			ID:        fmt.Sprintf("%s-metric-%d", stat.ID, time.Now().UnixNano()),
+			Container: notificationContainer,
+			Stat:      &notificationStat,
+			Subscription: types.SubscriptionConfig{
+				ID:                  sub.ID,
+				Name:                sub.Name,
+				Enabled:             sub.Enabled,
+				DispatcherID:        sub.DispatcherID,
+				MetricExpression:    sub.MetricExpression,
+				ContainerExpression: sub.ContainerExpression,
+				Cooldown:            sub.Cooldown,
+			},
+			Timestamp: time.Now(),
+		}
+
+		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+			go m.sendNotification(d, notification, sub.DispatcherID)
+		}
+		return true
+	})
+}
+
 // sendNotification sends a notification using the dispatcher
 func (m *Manager) sendNotification(d dispatcher.Dispatcher, notification types.Notification, id int) {
 	acquireCtx, acquireCancel := context.WithTimeout(m.ctx, time.Minute)
@@ -447,6 +589,8 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            sub.Cooldown,
 		}
 	}
 
@@ -506,6 +650,8 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			DispatcherID:        sub.DispatcherID,
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            sub.Cooldown,
 		}
 		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
@@ -572,6 +718,15 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 			return fmt.Errorf("failed to compile log expression: %w", err)
 		}
 		sub.LogProgram = program
+	}
+
+	// Compile metric expression if provided
+	if sub.MetricExpression != "" {
+		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile metric expression: %w", err)
+		}
+		sub.MetricProgram = program
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

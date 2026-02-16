@@ -7,6 +7,7 @@ type Notification struct {
 	ID           string                `json:"id"`
 	Container    NotificationContainer `json:"container"`
 	Log          NotificationLog       `json:"log"`
+	Stat         *NotificationStat     `json:"stat,omitempty"`
 	Subscription SubscriptionConfig    `json:"subscription"`
 	Timestamp    time.Time             `json:"timestamp"`
 }
@@ -33,6 +34,13 @@ type NotificationLog struct {
 	Type      string `json:"type" expr:"type"`
 }
 
+// NotificationStat represents container resource metrics for metric-based alerts
+type NotificationStat struct {
+	CPUPercent    float64 `json:"cpu" expr:"cpu"`
+	MemoryPercent float64 `json:"memory" expr:"memory"`
+	MemoryUsage   float64 `json:"memoryUsage" expr:"memoryUsage"`
+}
+
 // SubscriptionConfig represents a notification subscription configuration
 type SubscriptionConfig struct {
 	ID                  int    `json:"id"`
@@ -41,6 +49,8 @@ type SubscriptionConfig struct {
 	DispatcherID        int    `json:"-"`
 	LogExpression       string `json:"logExpression"`
 	ContainerExpression string `json:"containerExpression"`
+	MetricExpression    string `json:"metricExpression,omitempty"`
+	Cooldown            int    `json:"cooldown,omitempty"`
 }
 
 // DispatcherConfig represents a notification dispatcher configuration
