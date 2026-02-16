@@ -169,6 +169,11 @@ func (s *Subscription) MatchesLog(l types.NotificationLog) bool {
 	return ok && match
 }
 
+// IsLogAlert returns true if this subscription is a log-based alert
+func (s *Subscription) IsLogAlert() bool {
+	return s.LogExpression != "" && s.LogProgram != nil
+}
+
 // IsMetricAlert returns true if this subscription is a metric-based alert
 func (s *Subscription) IsMetricAlert() bool {
 	return s.MetricExpression != "" && s.MetricProgram != nil

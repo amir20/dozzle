@@ -20,16 +20,9 @@
   </fieldset>
 
   <fieldset class="fieldset">
-    <legend class="fieldset-legend text-lg">Cooldown (seconds)</legend>
-    <input
-      v-model.number="cooldown"
-      type="number"
-      min="10"
-      class="input focus:input-primary w-full text-base"
-      :class="cooldown > 0 ? 'input-primary' : ''"
-      placeholder="300"
-    />
-    <p class="text-base-content/50 mt-1 text-xs">Minimum time between alerts per container. Default: 300s (5 min)</p>
+    <legend class="fieldset-legend text-lg">Cooldown</legend>
+    <input v-model.number="cooldown" type="range" min="10" max="3600" step="10" class="range range-primary" />
+    <p class="text-base-content/50 mt-1 text-xs">{{ formatCooldown(cooldown) }} between alerts per container</p>
   </fieldset>
 </template>
 
@@ -57,6 +50,12 @@ const typeFields = computed(() => ({
 }));
 
 defineExpose({ canSave, typeFields });
+
+function formatCooldown(seconds: number): string {
+  if (seconds >= 3600) return `${seconds / 3600}h`;
+  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${seconds % 60 ? `${seconds % 60}s` : ""}`.trim();
+  return `${seconds}s`;
+}
 
 // Validation
 async function validate() {
