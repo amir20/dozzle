@@ -84,7 +84,8 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     return params;
   });
 
-  const { loadOlderLogs, loadSkippedLogs } = useLogLoader(messages, container, containers, params, loadingMore);
+  const allContainers = computed(() => (container ? [container.value] : containers.value));
+  const { loadOlderLogs, loadSkippedLogs } = useLogLoader(messages, allContainers, params, loadingMore);
 
   function flushNow() {
     if (messages.value.length + buffer.value.length > config.maxLogs) {
