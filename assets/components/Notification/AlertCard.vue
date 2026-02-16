@@ -5,6 +5,8 @@
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
           <h4 class="flex items-center gap-2 text-lg font-semibold">
+            <mdi:chart-line v-if="alert.metricExpression" class="text-info" />
+            <mdi:text-box-outline v-else class="text-info" />
             <span>{{ alert.name }}</span> <span class="text-sm font-light">→</span>
             <span class="flex gap-1 text-xs font-light" :class="{ 'text-warning': !alert.dispatcher }">
               <template v-if="alert.dispatcher">
@@ -28,10 +30,7 @@
         <span>{{ $t("notifications.alert.containers") }}</span>
         <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.containerExpression }}</code>
         <template v-if="alert.metricExpression">
-          <span class="flex items-center gap-1">
-            <mdi:chart-line class="text-info" />
-            Metric
-          </span>
+          <span>Metric</span>
           <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.metricExpression }}</code>
           <span>Cooldown</span>
           <span>{{ alert.cooldown || 300 }}s</span>
