@@ -102,7 +102,10 @@ func (m *Manager) processStatEvents() {
 		select {
 		case <-m.ctx.Done():
 			return
-		case event := <-m.statsListener.Channel():
+		case event, ok := <-m.statsListener.Channel():
+			if !ok || event == nil {
+				return
+			}
 			m.processStatEvent(event)
 		}
 	}

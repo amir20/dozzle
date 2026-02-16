@@ -260,11 +260,14 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
 	for i, d := range notifDispatchers {
 		dispatchers[i] = types.DispatcherConfig{
-			ID:       d.ID,
-			Name:     d.Name,
-			Type:     d.Type,
-			URL:      d.URL,
-			Template: d.Template,
+			ID:        d.ID,
+			Name:      d.Name,
+			Type:      d.Type,
+			URL:       d.URL,
+			Template:  d.Template,
+			APIKey:    d.APIKey,
+			Prefix:    d.Prefix,
+			ExpiresAt: d.ExpiresAt,
 		}
 	}
 

@@ -92,7 +92,10 @@ func (l *ContainerStatsListener) enrich(ctx context.Context, rawStats <-chan con
 		select {
 		case <-ctx.Done():
 			return
-		case stat := <-rawStats:
+		case stat, ok := <-rawStats:
+			if !ok {
+				return
+			}
 			c, host, err := l.resolveContainer(stat.ID)
 			if err != nil {
 				continue

@@ -72,7 +72,10 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 			select {
 			case <-l.ctx.Done():
 				return
-			case c := <-containerChan:
+			case c, ok := <-containerChan:
+				if !ok {
+					return
+				}
 				if l.matcher.ShouldListenToContainer(c) {
 					l.startListeningByID(c)
 				}
