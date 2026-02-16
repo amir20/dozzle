@@ -220,6 +220,9 @@ notifications:
     metric-fields-hint: "Dostępne pola: {fields}"
     cooldown-label: Czas oczekiwania
     cooldown-hint: "{duration} między alertami na kontener"
+    alert-type: Typ alertu
+    log-alert: Alert logów
+    metric-alert: Alert metryki
   destination-form:
     create-title: Dodaj Miejsce Docelowe
     edit-title: Edytuj Miejsce Docelowe

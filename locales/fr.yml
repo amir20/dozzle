@@ -213,6 +213,9 @@ notifications:
     metric-fields-hint: "Champs disponibles : {fields}"
     cooldown-label: Temps d'attente
     cooldown-hint: "{duration} entre les alertes par conteneur"
+    alert-type: Type d'alerte
+    log-alert: Alerte de journal
+    metric-alert: Alerte de métrique
   destination-form:
     create-title: Ajouter une Destination
     edit-title: Modifier la Destination

@@ -213,6 +213,9 @@ notifications:
     metric-fields-hint: "Tilgængelige felter: {fields}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
+    alert-type: Alarmtype
+    log-alert: Logalarm
+    metric-alert: Metrikalarm
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination

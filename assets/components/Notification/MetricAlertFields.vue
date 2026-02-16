@@ -27,7 +27,7 @@
     <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.cooldown-label") }}</legend>
     <input v-model.number="cooldown" type="range" min="10" max="3600" step="10" class="range range-primary" />
     <p class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.cooldown-hint", { duration: formatCooldown(cooldown) }) }}
+      {{ $t("notifications.alert-form.cooldown-hint", { duration: formatDuration(cooldown, locale || undefined) }) }}
     </p>
   </fieldset>
 </template>
@@ -56,12 +56,6 @@ const typeFields = computed(() => ({
 }));
 
 defineExpose({ canSave, typeFields });
-
-function formatCooldown(seconds: number): string {
-  if (seconds >= 3600) return `${seconds / 3600}h`;
-  if (seconds >= 60) return `${Math.floor(seconds / 60)}m ${seconds % 60 ? `${seconds % 60}s` : ""}`.trim();
-  return `${seconds}s`;
-}
 
 // Validation
 async function validate() {

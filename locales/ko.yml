@@ -216,6 +216,9 @@ notifications:
     metric-fields-hint: "사용 가능한 필드: {fields}"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
+    alert-type: 알림 유형
+    log-alert: 로그 알림
+    metric-alert: 메트릭 알림
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집

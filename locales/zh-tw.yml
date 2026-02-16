@@ -216,6 +216,9 @@ notifications:
     metric-fields-hint: "可用欄位：{fields}"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
+    alert-type: 警報類型
+    log-alert: 日誌警報
+    metric-alert: 指標警報
   destination-form:
     create-title: 新增目標
     edit-title: 編輯目標

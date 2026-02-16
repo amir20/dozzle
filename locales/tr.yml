@@ -213,6 +213,9 @@ notifications:
     metric-fields-hint: "Kullanılabilir alanlar: {fields}"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
+    alert-type: Uyarı Türü
+    log-alert: Günlük Uyarısı
+    metric-alert: Metrik Uyarısı
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle

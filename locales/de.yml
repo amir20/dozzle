@@ -213,6 +213,9 @@ notifications:
     metric-fields-hint: "Verfügbare Felder: {fields}"
     cooldown-label: Abklingzeit
     cooldown-hint: "{duration} zwischen Alarmen pro Container"
+    alert-type: Alarmtyp
+    log-alert: Log-Alarm
+    metric-alert: Metrik-Alarm
   destination-form:
     create-title: Ziel hinzufügen
     edit-title: Ziel bearbeiten

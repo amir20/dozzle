@@ -33,7 +33,7 @@
           <span>{{ $t("notifications.alert.metric-filter") }}</span>
           <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.metricExpression }}</code>
           <span>{{ $t("notifications.alert.cooldown") }}</span>
-          <span>{{ alert.cooldown || 300 }}s</span>
+          <span>{{ formatDuration(alert.cooldown || 300, locale || undefined) }}</span>
         </template>
         <template v-else>
           <span>{{ $t("notifications.alert.log-filter") }}</span>

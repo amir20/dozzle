@@ -76,7 +76,7 @@ export default defineConfig(() => ({
         "@vueuse/core",
       ],
       dts: "assets/auto-imports.d.ts",
-      dirs: ["assets/composable", "assets/stores", "assets/utils"],
+      dirs: ["assets/composable", "assets/stores", "assets/utils/index.ts"],
       vueTemplate: true,
     }),
     VueI18nPlugin({

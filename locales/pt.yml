@@ -212,6 +212,9 @@ notifications:
     metric-fields-hint: "Campos disponíveis: {fields}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
+    alert-type: Tipo de alerta
+    log-alert: Alerta de log
+    metric-alert: Alerta de métrica
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino

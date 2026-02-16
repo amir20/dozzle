@@ -218,6 +218,9 @@ notifications:
     metric-fields-hint: "Razpoložljiva polja: {fields}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
+    alert-type: Vrsta opozorila
+    log-alert: Opozorilo dnevnika
+    metric-alert: Opozorilo metrike
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj

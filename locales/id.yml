@@ -225,6 +225,9 @@ notifications:
     metric-fields-hint: "Field tersedia: {fields}"
     cooldown-label: Jeda
     cooldown-hint: "{duration} antara peringatan per kontainer"
+    alert-type: Jenis Peringatan
+    log-alert: Peringatan Log
+    metric-alert: Peringatan Metrik
   destination-form:
     create-title: Tambah Tujuan
     edit-title: Edit Tujuan

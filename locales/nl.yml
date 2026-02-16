@@ -214,6 +214,9 @@ notifications:
     metric-fields-hint: "Beschikbare velden: {fields}"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
+    alert-type: Waarschuwingstype
+    log-alert: Logwaarschuwing
+    metric-alert: Metrikwaarschuwing
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken

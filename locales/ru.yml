@@ -213,6 +213,9 @@ notifications:
     metric-fields-hint: "Доступные поля: {fields}"
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
+    alert-type: Тип оповещения
+    log-alert: Оповещение журнала
+    metric-alert: Оповещение метрики
   destination-form:
     create-title: Добавить Назначение
     edit-title: Редактировать Назначение
