@@ -73,7 +73,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const loading = ref(true);
   const error = ref(false);
   const { paused: scrollingPaused } = useScrollContext();
-  const { streamConfig, hasComplexLogs, levels, loadingMore } = useLoggingContext();
+  const { streamConfig, hasComplexLogs, levels, loadingMore, containers } = useLoggingContext();
   let initial = true;
 
   function flushNow() {
@@ -105,7 +105,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         // sort the buffer the very first time because of multiple logs in parallel
         buffer.value.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        if (container) {
+        if (container || containers.value.length > 0) {
           const loadMoreItem = new LoadMoreLogEntry(new Date(), loadOlderLogs);
           messages.value = [loadMoreItem];
         }
@@ -196,27 +196,78 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
 
   async function loadOlderLogs(entry: LoadMoreLogEntry) {
     if (!(messages.value[0] instanceof LoadMoreLogEntry)) throw new Error("No loadMoreLogEntry on first item");
-    if (!container) throw new Error("No container");
 
     const [loader, ...existingLogs] = messages.value;
-    const to = existingLogs[0].date;
-    const lastSeenId = existingLogs[0].id;
-    const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
-    const delta = to.getTime() - last.getTime();
-    const from = new Date(to.getTime() + delta);
-    try {
-      loadingMore.value = true;
-      const { logs: newLogs, signal } = await loadBetween(container, params, from, to, {
-        min: 100,
-        lastSeenId,
-      });
-      if (newLogs && signal.aborted === false) {
-        messages.value = [loader, ...newLogs, ...existingLogs];
+
+    if (container) {
+      const to = existingLogs[0].date;
+      const lastSeenId = existingLogs[0].id;
+      const last = messages.value[Math.min(messages.value.length - 1, 300)].date;
+      const delta = to.getTime() - last.getTime();
+      const from = new Date(to.getTime() + delta);
+      try {
+        loadingMore.value = true;
+        const { logs: newLogs, signal } = await loadBetween(container, params, from, to, {
+          min: 100,
+          lastSeenId,
+        });
+        if (newLogs && signal.aborted === false) {
+          messages.value = [loader, ...newLogs, ...existingLogs];
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        loadingMore.value = false;
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      loadingMore.value = false;
+    } else if (containers.value.length > 0) {
+      const earliestByContainer = new Map<string, LogEntry<LogMessage>>();
+      for (const log of existingLogs) {
+        if (!log.containerID) continue;
+        const current = earliestByContainer.get(log.containerID);
+        if (!current || log.date < current.date) {
+          earliestByContainer.set(log.containerID, log);
+        }
+      }
+
+      const firstDate = existingLogs[0].date;
+      const lastDate = existingLogs[Math.min(existingLogs.length - 1, 300)].date;
+      const delta = firstDate.getTime() - lastDate.getTime();
+
+      try {
+        loadingMore.value = true;
+        const minPerContainer = Math.ceil(100 / containers.value.length);
+
+        const results = await Promise.all(
+          containers.value.map((c) => {
+            const earliest = earliestByContainer.get(c.id);
+            const to = earliest?.date ?? existingLogs[0].date;
+            const from = new Date(to.getTime() + delta);
+            return loadBetween(
+              computed(() => c),
+              params,
+              from,
+              to,
+              {
+                min: minPerContainer,
+                lastSeenId: earliest?.id,
+              },
+            );
+          }),
+        );
+
+        const allNewLogs = results
+          .filter(({ signal }) => !signal.aborted)
+          .flatMap(({ logs }) => logs)
+          .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        if (allNewLogs.length > 0) {
+          messages.value = [loader, ...allNewLogs, ...existingLogs];
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        loadingMore.value = false;
+      }
     }
   }
 
