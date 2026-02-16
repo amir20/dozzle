@@ -220,12 +220,13 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
         loadingMore.value = false;
       }
     } else if (containers.value.length > 0) {
+      const containerIDs = new Set(containers.value.map((c) => c.id));
       const earliestByContainer = new Map<string, LogEntry<LogMessage>>();
       for (const log of existingLogs) {
-        if (!log.containerID) continue;
-        const current = earliestByContainer.get(log.containerID);
-        if (!current || log.date < current.date) {
+        if (!log.containerID || !containerIDs.has(log.containerID)) continue;
+        if (!earliestByContainer.has(log.containerID)) {
           earliestByContainer.set(log.containerID, log);
+          if (earliestByContainer.size === containerIDs.size) break;
         }
       }
 
