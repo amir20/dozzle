@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"sort"
@@ -59,7 +60,12 @@ func (h *handler) resolveLabels(r *http.Request) container.ContainerLabels {
 }
 
 func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
+	plainText := strings.Contains(r.Header.Get("Accept"), "text/plain")
+	if plainText {
+		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
+	} else {
+		w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
+	}
 
 	from, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("from"))
 	to, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("to"))
@@ -150,13 +156,14 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		startId = uint32(num)
 	}
 
-	encoder := json.NewEncoder(w)
+	var writer io.Writer = w
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Encoding", "gzip")
-		writer := gzip.NewWriter(w)
-		defer writer.Close()
-		encoder = json.NewEncoder(writer)
+		gzWriter := gzip.NewWriter(w)
+		defer gzWriter.Close()
+		writer = gzWriter
 	}
+	encoder := json.NewEncoder(writer)
 
 	startIdFound := startId == 0
 	for {
@@ -178,7 +185,17 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				if _, ok := event.Message.(string); onlyComplex && ok {
 					continue
 				}
-				if err := encoder.Encode(event); err != nil {
+				if regex != nil && !support_web.Search(regex, event) {
+					continue
+				}
+				if len(levels) > 0 {
+					if _, ok := levels[event.Level]; !ok {
+						continue
+					}
+				}
+				if plainText {
+					fmt.Fprintf(writer, "%s\n", event.RawMessage)
+				} else if err := encoder.Encode(event); err != nil {
 					log.Error().Err(err).Msg("error encoding log event")
 				}
 				continue

@@ -13,6 +13,9 @@ toolbar:
   shell: 셸
   attach: 연결
   copy-permalink: 영구 링크 복사
+  copy-logs: 로그 복사
+  copy-filtered-logs: 필터된 로그 복사
+  copying-logs: 로그 복사 중...
 action:
   copy-log: 로그 복사
   copy-link: 영구 링크 복사

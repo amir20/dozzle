@@ -13,6 +13,9 @@ toolbar:
   shell: Shell
   attach: Lampirkan
   copy-permalink: Salin tautan permanen
+  copy-logs: Salin log
+  copy-filtered-logs: Salin log terfilter
+  copying-logs: Menyalin log...
 action:
   copy-log: Salin log
   copy-link: Salin permalink

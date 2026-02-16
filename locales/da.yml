@@ -13,6 +13,9 @@ toolbar:
   shell: Shell
   attach: Tilknyt
   copy-permalink: Kopiér permanent link
+  copy-logs: Kopiér logs
+  copy-filtered-logs: Kopiér filtrerede logs
+  copying-logs: Kopierer logs...
 action:
   copy-log: Kopier log
   copy-link: Kopier permalink

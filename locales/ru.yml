@@ -13,6 +13,9 @@ toolbar:
   shell: Оболочка
   attach: Подключить
   copy-permalink: Скопировать постоянную ссылку
+  copy-logs: Скопировать логи
+  copy-filtered-logs: Скопировать отфильтрованные логи
+  copying-logs: Копирование логов...
 action:
   copy-log: Копировать лог
   copy-link: Копировать постоянную ссылку

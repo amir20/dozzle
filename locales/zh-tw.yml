@@ -13,6 +13,9 @@ toolbar:
   shell: 終端機
   attach: 附加
   copy-permalink: 複製永久連結
+  copy-logs: 複製日誌
+  copy-filtered-logs: 複製篩選日誌
+  copying-logs: 正在複製日誌...
 action:
   copy-log: 複製日誌
   copy-link: 複製永久連結

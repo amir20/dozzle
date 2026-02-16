@@ -110,6 +110,12 @@
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
         </a>
       </li>
+      <li v-if="isSupported">
+        <a @click="copyLogs()">
+          <mdi:content-copy />
+          {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
+        </a>
+      </li>
       <li>
         <a @click="copyPermalink()">
           <material-symbols:link />
@@ -189,7 +195,7 @@ const { actionStates, start, stop, restart } = useContainerActions(toRef(() => c
 const router = useRouter();
 const { copy, copied, isSupported } = useClipboard();
 const { t } = useI18n();
-const { showToast } = useToast();
+const { showToast, removeToast } = useToast();
 
 async function copyPermalink() {
   const url = router.resolve({
@@ -223,6 +229,68 @@ async function copyPermalink() {
       { expire: 2000 },
     );
   }
+}
+
+async function copyLogs() {
+  const params = new URLSearchParams();
+  if (streamConfig.value.stdout) params.append("stdout", "1");
+  if (streamConfig.value.stderr) params.append("stderr", "1");
+  params.append("everything", "1");
+
+  const { debouncedSearchFilter } = useSearchFilter();
+  if (debouncedSearchFilter.value) {
+    params.append("filter", debouncedSearchFilter.value);
+  }
+
+  const selectedLevels = Array.from(levels.value);
+  if (selectedLevels.length > 0 && selectedLevels.length < allLevels.length) {
+    selectedLevels.forEach((level) => params.append("levels", level));
+  }
+
+  const url = withBase(`/api/hosts/${container.host}/containers/${container.id}/logs?${params.toString()}`);
+
+  const toastId = "copy-logs";
+  showToast(
+    {
+      id: toastId,
+      title: t("toolbar.copying-logs"),
+      message: "",
+      type: "info",
+    },
+    { once: true },
+  );
+
+  const blobPromise = fetch(url, { headers: { Accept: "text/plain" } })
+    .then((response) => {
+      if (!response.ok) throw new Error(response.statusText);
+      return response.blob();
+    })
+    .then((blob) => {
+      removeToast(toastId);
+      showToast(
+        {
+          title: t("toasts.copied.title"),
+          message: t("toasts.copied.message"),
+          type: "info",
+        },
+        { expire: 2000 },
+      );
+      return blob;
+    })
+    .catch((err) => {
+      removeToast(toastId);
+      showToast(
+        {
+          title: "Error",
+          message: err.message,
+          type: "error",
+        },
+        { expire: 5000 },
+      );
+      throw err;
+    });
+
+  await navigator.clipboard.write([new ClipboardItem({ "text/plain": blobPromise })]);
 }
 
 onKeyStroke("f", (e) => {

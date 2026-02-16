@@ -11,6 +11,9 @@ toolbar:
   shell: Lupina
   attach: Priloži
   copy-permalink: Kopiraj trajno povezavo
+  copy-logs: Kopiraj dnevnike
+  copy-filtered-logs: Kopiraj filtrirane dnevnike
+  copying-logs: Kopiranje dnevnikov...
   restart: Ponovni zagon
   show-hostname: Prikaži ime gostitelja
 action:
