@@ -37,8 +37,10 @@ func (l *ContainerStatsListener) Start() {
 				select {
 				case <-l.ctx.Done():
 					return
-				case <-dummyEvents:
-					// Drain events, we only need stats
+				case _, ok := <-dummyEvents:
+					if !ok {
+						return
+					}
 				}
 			}
 		}()

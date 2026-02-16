@@ -200,9 +200,6 @@ func (s *Subscription) GetCooldownSeconds() int {
 
 // IsMetricCooldownActive checks if the cooldown is still active for a given container
 func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
-	if s.MetricCooldowns == nil {
-		return false
-	}
 	lastTriggered, ok := s.MetricCooldowns.Load(containerID)
 	if !ok {
 		return false
@@ -212,8 +209,5 @@ func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
 
 // SetMetricCooldown records the current time as the last triggered time for a container
 func (s *Subscription) SetMetricCooldown(containerID string) {
-	if s.MetricCooldowns == nil {
-		s.MetricCooldowns = xsync.NewMap[string, time.Time]()
-	}
 	s.MetricCooldowns.Store(containerID, time.Now())
 }

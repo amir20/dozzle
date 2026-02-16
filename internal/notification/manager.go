@@ -114,6 +114,8 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 		sub.MetricProgram = program
 	}
 
+	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+
 	m.subscriptions.Store(sub.ID, sub)
 	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
 
@@ -170,6 +172,8 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 		sub.MetricProgram = program
 	}
 
+	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+
 	// Preserve enabled state from existing subscription if it exists
 	if existing, ok := m.subscriptions.Load(sub.ID); ok {
 		sub.Enabled = existing.Enabled
@@ -212,6 +216,7 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			MetricExpression:    sub.MetricExpression,
 			MetricProgram:       sub.MetricProgram,
 			Cooldown:            sub.Cooldown,
+			MetricCooldowns:     sub.MetricCooldowns,
 		}
 
 		// Apply updates to the clone
@@ -388,8 +393,8 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		return
 	}
 
-	// Skip logs from Dozzle itself to avoid feedback loops
-	if strings.Contains(c.Image, "dozzle") {
+	// Skip logs from Dozzle's own containers to avoid feedback loops
+	if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
 		return
 	}
 
@@ -465,13 +470,16 @@ func (m *Manager) processStatEvent(stat container.ContainerStat) {
 		MemoryUsage:   stat.MemoryUsage,
 	}
 
+	// Lazily resolved once per stat event, shared across all subscriptions
+	var notificationContainer *types.NotificationContainer
+
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		// Skip disabled or non-metric subscriptions
 		if !sub.Enabled || !sub.IsMetricAlert() {
 			return true
 		}
 
-		// Check metric expression
+		// Check metric expression first (cheap, no I/O)
 		if !sub.MatchesMetric(notificationStat) {
 			return true
 		}
@@ -481,24 +489,27 @@ func (m *Manager) processStatEvent(stat container.ContainerStat) {
 			return true
 		}
 
-		// Find the container to check container expression and get metadata
-		ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
-		defer cancel()
+		// Resolve container metadata once per stat event
+		if notificationContainer == nil {
+			ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
+			defer cancel()
 
-		c, host, err := m.statsListener.FindContainerWithHost(ctx, stat.ID)
-		if err != nil {
-			return true
+			c, host, err := m.statsListener.FindContainerWithHost(ctx, stat.ID)
+			if err != nil {
+				return true
+			}
+
+			// Skip stats from Dozzle's own containers
+			if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
+				return false // stop iterating, no subscription should match dozzle
+			}
+
+			nc := FromContainerModel(c, host)
+			notificationContainer = &nc
 		}
-
-		// Skip stats from Dozzle itself
-		if strings.Contains(c.Image, "dozzle") {
-			return true
-		}
-
-		notificationContainer := FromContainerModel(c, host)
 
 		// Check container filter
-		if !sub.MatchesContainer(notificationContainer) {
+		if !sub.MatchesContainer(*notificationContainer) {
 			return true
 		}
 
@@ -518,7 +529,7 @@ func (m *Manager) processStatEvent(stat container.ContainerStat) {
 
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-metric-%d", stat.ID, time.Now().UnixNano()),
-			Container: notificationContainer,
+			Container: *notificationContainer,
 			Stat:      &notificationStat,
 			Subscription: types.SubscriptionConfig{
 				ID:                  sub.ID,
@@ -727,6 +738,10 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 			return fmt.Errorf("failed to compile metric expression: %w", err)
 		}
 		sub.MetricProgram = program
+	}
+
+	if sub.MetricCooldowns == nil {
+		sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
