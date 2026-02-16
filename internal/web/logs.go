@@ -3,14 +3,13 @@ package web
 import (
 	"compress/gzip"
 	"context"
+	"encoding/json"
 	"errors"
 	"math"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
-
-	"encoding/json"
 
 	"io"
 	"net/http"
@@ -29,13 +28,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
-
-	from, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("from"))
-	to, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("to"))
-	id := chi.URLParam(r, "id")
-
+func parseStdTypes(r *http.Request) container.StdType {
 	var stdTypes container.StdType
 	if r.URL.Query().Has("stdout") {
 		stdTypes |= container.STDOUT
@@ -43,21 +36,42 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 	if r.URL.Query().Has("stderr") {
 		stdTypes |= container.STDERR
 	}
+	return stdTypes
+}
 
+func matchesFilter(event *container.LogEvent, regex *regexp.Regexp, levels map[string]struct{}) bool {
+	if regex != nil && !support_web.Search(regex, event) {
+		return false
+	}
+	_, ok := levels[event.Level]
+	return ok
+}
+
+func (h *handler) resolveLabels(r *http.Request) container.ContainerLabels {
+	labels := h.config.Labels
+	if h.config.Authorization.Provider != NONE {
+		user := auth.UserFromContext(r.Context())
+		if user.ContainerLabels.Exists() {
+			labels = user.ContainerLabels
+		}
+	}
+	return labels
+}
+
+func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/x-jsonl; charset=UTF-8")
+
+	from, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("from"))
+	to, _ := time.Parse(time.RFC3339Nano, r.URL.Query().Get("to"))
+	id := chi.URLParam(r, "id")
+
+	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
 		return
 	}
 
-	usersLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
-		user := auth.UserFromContext(r.Context())
-		if user.ContainerLabels.Exists() {
-			usersLabels = user.ContainerLabels
-		}
-	}
-
-	containerService, err := h.hostService.FindContainer(hostKey(r), id, usersLabels)
+	containerService, err := h.hostService.FindContainer(hostKey(r), id, h.resolveLabels(r))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -89,9 +103,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if minimum < 0 || minimum > buffer.Size {
-			http.Error(w, errors.New("minimum must be between 0 and buffer size").Error(), http.StatusBadRequest)
+			http.Error(w, "minimum must be between 0 and buffer size", http.StatusBadRequest)
 			return
 		}
 		buffer = utils.NewRingBuffer[*container.LogEvent](minimum)
@@ -104,9 +117,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if maxStart < 1 || maxStart > buffer.Size {
-			http.Error(w, errors.New("invalid maxStart").Error(), http.StatusBadRequest)
+			http.Error(w, "invalid maxStart", http.StatusBadRequest)
 			return
 		}
 	}
@@ -118,7 +130,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	lastSeenId := uint32(0)
 	if r.URL.Query().Has("lastSeenId") {
-		to = to.Add(50 * time.Millisecond) // Add a little buffer to ensure we get the last event
+		to = to.Add(50 * time.Millisecond)
 		num, err := strconv.ParseUint(r.URL.Query().Get("lastSeenId"), 10, 32)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -129,7 +141,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	startId := uint32(0)
 	if r.URL.Query().Has("startId") {
-		from = from.Add(-50 * time.Millisecond) // Add a little buffer to ensure we find the start event
+		from = from.Add(-50 * time.Millisecond)
 		num, err := strconv.ParseUint(r.URL.Query().Get("startId"), 10, 32)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -146,7 +158,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 		encoder = json.NewEncoder(writer)
 	}
 
-	startIdFound := startId == 0 // If no startId, consider it already found
+	startIdFound := startId == 0
 	for {
 		if minimum > 0 && buffer.Len() >= minimum {
 			break
@@ -169,44 +181,35 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				if err := encoder.Encode(event); err != nil {
 					log.Error().Err(err).Msg("error encoding log event")
 				}
-			} else {
-				if regex != nil {
-					if !support_web.Search(regex, event) {
-						continue
-					}
-				}
-
-				if _, ok := levels[event.Level]; !ok {
-					continue
-				}
-
-				if !startIdFound {
-					if event.Id == startId {
-						log.Debug().Uint32("startId", startId).Msg("found start id, will include subsequent events")
-						startIdFound = true
-					}
-					continue
-				}
-
-				if lastSeenId != 0 && event.Id == lastSeenId {
-					log.Debug().Uint32("lastSeenId", lastSeenId).Msg("found last seen id")
-					break
-				}
-
-				if buffer.Len() >= maxStart {
-					break
-				}
-
-				support_web.EscapeHTMLValues(event)
-				buffer.Push(event)
+				continue
 			}
+
+			if !matchesFilter(event, regex, levels) {
+				continue
+			}
+
+			if !startIdFound {
+				if event.Id == startId {
+					log.Debug().Uint32("startId", startId).Msg("found start id, will include subsequent events")
+					startIdFound = true
+				}
+				continue
+			}
+
+			if lastSeenId != 0 && event.Id == lastSeenId {
+				log.Debug().Uint32("lastSeenId", lastSeenId).Msg("found last seen id")
+				break
+			}
+
+			if buffer.Len() >= maxStart {
+				break
+			}
+
+			support_web.EscapeHTMLValues(event)
+			buffer.Push(event)
 		}
 
-		if everything || from.Before(containerService.Container.Created) {
-			break
-		}
-
-		if minimum == 0 {
+		if everything || from.Before(containerService.Container.Created) || minimum == 0 {
 			break
 		}
 
@@ -216,9 +219,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 
 	log.Debug().Int("buffer_size", buffer.Len()).Msg("sending logs to client")
 
-	data := buffer.Data()
-
-	for _, event := range data {
+	for _, event := range buffer.Data() {
 		if err := encoder.Encode(event); err != nil {
 			log.Error().Err(err).Msg("error encoding log event")
 			return
@@ -235,10 +236,8 @@ func (h *handler) streamContainerLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamLogsMerged(w http.ResponseWriter, r *http.Request) {
-	idsSplit := strings.Split(chi.URLParam(r, "ids"), ",")
-
 	ids := make(map[string]bool)
-	for _, id := range idsSplit {
+	for _, id := range strings.Split(chi.URLParam(r, "ids"), ",") {
 		ids[id] = true
 	}
 
@@ -294,14 +293,7 @@ func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request, containerFilter container_support.ContainerFilter) {
-	var stdTypes container.StdType
-	if r.URL.Query().Has("stdout") {
-		stdTypes |= container.STDOUT
-	}
-	if r.URL.Query().Has("stderr") {
-		stdTypes |= container.STDERR
-	}
-
+	stdTypes := parseStdTypes(r)
 	if stdTypes == 0 {
 		http.Error(w, "stdout or stderr is required", http.StatusBadRequest)
 		return
@@ -315,13 +307,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 	defer sseWriter.Close()
 
-	userLabels := h.config.Labels
-	if h.config.Authorization.Provider != NONE {
-		user := auth.UserFromContext(r.Context())
-		if user.ContainerLabels.Exists() {
-			userLabels = user.ContainerLabels
-		}
-	}
+	userLabels := h.resolveLabels(r)
 
 	existingContainers, errs := h.hostService.ListAllContainersFiltered(userLabels, containerFilter)
 	if len(errs) > 0 {
@@ -329,7 +315,6 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 	}
 
 	absoluteTime := time.Time{}
-	var regex *regexp.Regexp
 	liveLogs := make(chan *container.LogEvent)
 	events := make(chan *container.ContainerEvent, 1)
 	backfill := make(chan []*container.LogEvent)
@@ -346,6 +331,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	var regex *regexp.Regexp
 	if r.URL.Query().Has("filter") {
 		var err error
 		regex, err = support_web.ParseRegex(r.URL.Query().Get("filter"))
@@ -384,10 +370,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 					}
 
 					for log := range logs {
-						if _, ok := levels[log.Level]; !ok {
-							continue
-						}
-						if regex != nil && !support_web.Search(regex, log) {
+						if !matchesFilter(log, regex, levels) {
 							continue
 						}
 						events = append(events, log)
@@ -454,13 +437,7 @@ loop:
 	for {
 		select {
 		case logEvent := <-liveLogs:
-			if regex != nil {
-				if !support_web.Search(regex, logEvent) {
-					continue
-				}
-			}
-
-			if _, ok := levels[logEvent.Level]; !ok {
+			if !matchesFilter(logEvent, regex, levels) {
 				continue
 			}
 
