@@ -74,6 +74,8 @@ func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat)
 			case l.channel <- ContainerStatEvent{Stat: stat, Container: c, Host: host}:
 			case <-l.ctx.Done():
 				return
+			default:
+				log.Warn().Str("containerID", stat.ID).Msg("Metric stats channel full, dropping stat event")
 			}
 		}
 	}

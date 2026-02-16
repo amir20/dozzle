@@ -48,7 +48,7 @@ type SubscriptionConfig struct {
 	Name                string `json:"name"`
 	Enabled             bool   `json:"-"`
 	DispatcherID        int    `json:"-"`
-	LogExpression       string `json:"logExpression"`
+	LogExpression       string `json:"logExpression,omitempty"`
 	ContainerExpression string `json:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
