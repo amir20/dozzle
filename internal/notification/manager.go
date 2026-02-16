@@ -204,6 +204,9 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 						}
 						updated.LogExpression = exprStr
 						updated.LogProgram = program
+					} else {
+						updated.LogExpression = ""
+						updated.LogProgram = nil
 					}
 				}
 			case "metricExpression":
