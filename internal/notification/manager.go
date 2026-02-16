@@ -430,7 +430,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
 			Container: notificationContainer,
-			Log:       notificationLog,
+			Log:       &notificationLog,
 			Subscription: types.SubscriptionConfig{
 				ID:                  sub.ID,
 				Name:                sub.Name,
@@ -456,22 +456,21 @@ func (m *Manager) processStatEvents() {
 		select {
 		case <-m.ctx.Done():
 			return
-		case stat := <-m.statsListener.StatChannel():
-			m.processStatEvent(stat)
+		case event := <-m.statsListener.Channel():
+			m.processStatEvent(event)
 		}
 	}
 }
 
 // processStatEvent processes a single stat event and sends notifications for matching metric subscriptions
-func (m *Manager) processStatEvent(stat container.ContainerStat) {
+func (m *Manager) processStatEvent(event ContainerStatEvent) {
 	notificationStat := types.NotificationStat{
-		CPUPercent:    stat.CPUPercent,
-		MemoryPercent: stat.MemoryPercent,
-		MemoryUsage:   stat.MemoryUsage,
+		CPUPercent:    event.Stat.CPUPercent,
+		MemoryPercent: event.Stat.MemoryPercent,
+		MemoryUsage:   event.Stat.MemoryUsage,
 	}
 
-	// Lazily resolved once per stat event, shared across all subscriptions
-	var notificationContainer *types.NotificationContainer
+	notificationContainer := FromContainerModel(event.Container, event.Host)
 
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		// Skip disabled or non-metric subscriptions
@@ -479,57 +478,38 @@ func (m *Manager) processStatEvent(stat container.ContainerStat) {
 			return true
 		}
 
-		// Check metric expression first (cheap, no I/O)
+		// Check container filter first
+		if !sub.MatchesContainer(notificationContainer) {
+			return true
+		}
+
+		// Check metric expression
 		if !sub.MatchesMetric(notificationStat) {
 			return true
 		}
 
 		// Check per-container cooldown
-		if sub.IsMetricCooldownActive(stat.ID) {
-			return true
-		}
-
-		// Resolve container metadata once per stat event
-		if notificationContainer == nil {
-			ctx, cancel := context.WithTimeout(m.ctx, 5*time.Second)
-			defer cancel()
-
-			c, host, err := m.statsListener.FindContainerWithHost(ctx, stat.ID)
-			if err != nil {
-				return true
-			}
-
-			// Skip stats from Dozzle's own containers
-			if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
-				return false // stop iterating, no subscription should match dozzle
-			}
-
-			nc := FromContainerModel(c, host)
-			notificationContainer = &nc
-		}
-
-		// Check container filter
-		if !sub.MatchesContainer(*notificationContainer) {
+		if sub.IsMetricCooldownActive(event.Stat.ID) {
 			return true
 		}
 
 		// Set cooldown and update stats
-		sub.SetMetricCooldown(stat.ID)
-		sub.AddTriggeredContainer(stat.ID)
+		sub.SetMetricCooldown(event.Stat.ID)
+		sub.AddTriggeredContainer(event.Stat.ID)
 		sub.TriggerCount.Add(1)
 		now := time.Now()
 		sub.LastTriggeredAt.Store(&now)
 
 		log.Debug().
-			Str("containerID", stat.ID).
-			Float64("cpu", stat.CPUPercent).
-			Float64("memory", stat.MemoryPercent).
+			Str("containerID", event.Stat.ID).
+			Float64("cpu", event.Stat.CPUPercent).
+			Float64("memory", event.Stat.MemoryPercent).
 			Str("subscription", sub.Name).
 			Msg("Metric alert triggered")
 
 		notification := types.Notification{
-			ID:        fmt.Sprintf("%s-metric-%d", stat.ID, time.Now().UnixNano()),
-			Container: *notificationContainer,
+			ID:        fmt.Sprintf("%s-metric-%d", event.Stat.ID, time.Now().UnixNano()),
+			Container: notificationContainer,
 			Stat:      &notificationStat,
 			Subscription: types.SubscriptionConfig{
 				ID:                  sub.ID,
