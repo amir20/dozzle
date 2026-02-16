@@ -182,6 +182,8 @@ notifications:
     paused: Ustavljeno
     containers: Zabojniki
     log-filter: Filter dnevnika
+    metric-filter: Metrika
+    cooldown: Čas mirovanja
     destination: Cilj
     dispatcher-deleted: Pošiljatelj izbrisan
     containers-count: "{count} zabojnikov"
@@ -211,6 +213,11 @@ notifications:
     cancel: Prekliči
     save: Shrani
     create: Ustvari Opozorilo
+    metric-filter: Izraz metrike
+    expression-valid: Izraz je veljaven
+    metric-fields-hint: "Razpoložljiva polja: {fields}"
+    cooldown-label: Čas mirovanja
+    cooldown-hint: "{duration} med opozorili na zabojnik"
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj

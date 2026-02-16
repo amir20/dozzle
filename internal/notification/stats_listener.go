@@ -6,6 +6,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -16,12 +17,19 @@ type ContainerStatEvent struct {
 	Host      container.Host
 }
 
+type cachedContainerInfo struct {
+	container container.Container
+	host      container.Host
+	expiresAt time.Time
+}
+
 // ContainerStatsListener subscribes to container stats from all clients,
 // enriches each stat with container and host metadata, and forwards them to a channel.
 type ContainerStatsListener struct {
 	clients []container_support.ClientService
 	channel chan ContainerStatEvent
 	ctx     context.Context
+	cache   *xsync.Map[string, cachedContainerInfo]
 }
 
 // NewContainerStatsListener creates a new listener that subscribes to stats from the given clients.
@@ -30,6 +38,7 @@ func NewContainerStatsListener(ctx context.Context, clients []container_support.
 		clients: clients,
 		channel: make(chan ContainerStatEvent, 1000),
 		ctx:     ctx,
+		cache:   xsync.NewMap[string, cachedContainerInfo](),
 	}
 
 	rawStats := make(chan container.ContainerStat, 1000)
@@ -51,9 +60,7 @@ func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat)
 		case <-l.ctx.Done():
 			return
 		case stat := <-rawStats:
-			ctx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
-			c, host, err := l.findContainerWithHost(ctx, stat.ID)
-			cancel()
+			c, host, err := l.resolveContainer(stat.ID)
 			if err != nil {
 				continue
 			}
@@ -70,6 +77,29 @@ func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat)
 			}
 		}
 	}
+}
+
+// resolveContainer looks up container+host, using a TTL cache to avoid repeated API calls.
+func (l *ContainerStatsListener) resolveContainer(containerID string) (container.Container, container.Host, error) {
+	if cached, ok := l.cache.Load(containerID); ok && time.Now().Before(cached.expiresAt) {
+		return cached.container, cached.host, nil
+	}
+
+	ctx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
+	defer cancel()
+
+	c, host, err := l.findContainerWithHost(ctx, containerID)
+	if err != nil {
+		return c, host, err
+	}
+
+	l.cache.Store(containerID, cachedContainerInfo{
+		container: c,
+		host:      host,
+		expiresAt: time.Now().Add(30 * time.Second),
+	})
+
+	return c, host, nil
 }
 
 // Channel returns the channel for enriched stat events.

@@ -178,6 +178,8 @@ notifications:
     paused: Gepauzeerd
     containers: Containers
     log-filter: Logfilter
+    metric-filter: Metriek
+    cooldown: Wachttijd
     destination: Bestemming
     dispatcher-deleted: Dispatcher verwijderd
     containers-count: "{count} containers"
@@ -207,6 +209,11 @@ notifications:
     cancel: Annuleren
     save: Opslaan
     create: Waarschuwing aanmaken
+    metric-filter: Metriekexpressie
+    expression-valid: Expressie is geldig
+    metric-fields-hint: "Beschikbare velden: {fields}"
+    cooldown-label: Wachttijd
+    cooldown-hint: "{duration} tussen waarschuwingen per container"
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken

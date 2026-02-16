@@ -177,6 +177,8 @@ notifications:
     paused: Pausiert
     containers: Container
     log-filter: Log-Filter
+    metric-filter: Metrik
+    cooldown: Abklingzeit
     destination: Ziel
     dispatcher-deleted: Dispatcher gelöscht
     containers-count: "{count} Container"
@@ -206,6 +208,11 @@ notifications:
     cancel: Abbrechen
     save: Speichern
     create: Alarm erstellen
+    metric-filter: Metrik-Ausdruck
+    expression-valid: Ausdruck ist gültig
+    metric-fields-hint: "Verfügbare Felder: {fields}"
+    cooldown-label: Abklingzeit
+    cooldown-hint: "{duration} zwischen Alarmen pro Container"
   destination-form:
     create-title: Ziel hinzufügen
     edit-title: Ziel bearbeiten

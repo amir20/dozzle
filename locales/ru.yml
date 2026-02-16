@@ -177,6 +177,8 @@ notifications:
     paused: Приостановлено
     containers: Контейнеры
     log-filter: Фильтр логов
+    metric-filter: Метрика
+    cooldown: Период ожидания
     destination: Назначение
     dispatcher-deleted: Диспетчер удалён
     containers-count: "{count} контейнеров"
@@ -206,6 +208,11 @@ notifications:
     cancel: Отмена
     save: Сохранить
     create: Создать Оповещение
+    metric-filter: Выражение метрики
+    expression-valid: Выражение корректно
+    metric-fields-hint: "Доступные поля: {fields}"
+    cooldown-label: Период ожидания
+    cooldown-hint: "{duration} между оповещениями на контейнер"
   destination-form:
     create-title: Добавить Назначение
     edit-title: Редактировать Назначение

@@ -177,6 +177,8 @@ notifications:
     paused: In pausa
     containers: Container
     log-filter: Filtro log
+    metric-filter: Metrica
+    cooldown: Tempo di attesa
     destination: Destinazione
     dispatcher-deleted: Dispatcher eliminato
     containers-count: "{count} container"
@@ -206,6 +208,11 @@ notifications:
     cancel: Annulla
     save: Salva
     create: Crea Avviso
+    metric-filter: Espressione Metrica
+    expression-valid: L'espressione è valida
+    metric-fields-hint: "Campi disponibili: {fields}"
+    cooldown-label: Tempo di attesa
+    cooldown-hint: "{duration} tra gli avvisi per container"
   destination-form:
     create-title: Aggiungi Destinazione
     edit-title: Modifica Destinazione

@@ -177,6 +177,8 @@ notifications:
     paused: 已暂停
     containers: 容器
     log-filter: 日志筛选器
+    metric-filter: 指标
+    cooldown: 冷却时间
     destination: 目标
     dispatcher-deleted: 发送器已删除
     containers-count: "{count} 个容器"
@@ -206,6 +208,11 @@ notifications:
     cancel: 取消
     save: 保存
     create: 创建警报
+    metric-filter: 指标表达式
+    expression-valid: 表达式有效
+    metric-fields-hint: "可用字段：{fields}"
+    cooldown-label: 冷却时间
+    cooldown-hint: "每个容器警报间隔 {duration}"
   destination-form:
     create-title: 添加目标
     edit-title: 编辑目标

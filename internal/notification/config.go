@@ -3,12 +3,10 @@ package notification
 import (
 	"fmt"
 	"io"
-
 	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
-	"github.com/expr-lang/expr"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 	"go.yaml.in/yaml/v3"
@@ -151,31 +149,8 @@ func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 
 // loadSubscription loads a subscription with its existing ID (used when loading from config)
 func (m *Manager) loadSubscription(sub *Subscription) error {
-	// Compile container expression if provided
-	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile container expression: %w", err)
-		}
-		sub.ContainerProgram = program
-	}
-
-	// Compile log expression if provided
-	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile log expression: %w", err)
-		}
-		sub.LogProgram = program
-	}
-
-	// Compile metric expression if provided
-	if sub.MetricExpression != "" {
-		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile metric expression: %w", err)
-		}
-		sub.MetricProgram = program
+	if err := sub.CompileExpressions(); err != nil {
+		return err
 	}
 
 	if sub.MetricCooldowns == nil {

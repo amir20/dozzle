@@ -186,6 +186,8 @@ notifications:
     paused: Pausado
     containers: Contentores
     log-filter: Filtro de registo
+    metric-filter: Métrica
+    cooldown: Tempo de espera
     destination: Destino
     dispatcher-deleted: Dispatcher eliminado
     containers-count: "{count} contentores"
@@ -215,6 +217,11 @@ notifications:
     cancel: Cancelar
     save: Guardar
     create: Criar Alerta
+    metric-filter: Expressão de Métrica
+    expression-valid: A expressão é válida
+    metric-fields-hint: "Campos disponíveis: {fields}"
+    cooldown-label: Tempo de espera
+    cooldown-hint: "{duration} entre alertas por contentor"
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino

@@ -85,31 +85,8 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	sub.Enabled = true
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 
-	// Compile container expression if provided
-	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile container expression: %w", err)
-		}
-		sub.ContainerProgram = program
-	}
-
-	// Compile log expression if provided
-	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile log expression: %w", err)
-		}
-		sub.LogProgram = program
-	}
-
-	// Compile metric expression if provided
-	if sub.MetricExpression != "" {
-		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile metric expression: %w", err)
-		}
-		sub.MetricProgram = program
+	if err := sub.CompileExpressions(); err != nil {
+		return err
 	}
 
 	m.subscriptions.Store(sub.ID, sub)
@@ -143,31 +120,8 @@ func (m *Manager) RemoveSubscription(id int) {
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 
-	// Compile container expression if provided
-	if sub.ContainerExpression != "" {
-		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile container expression: %w", err)
-		}
-		sub.ContainerProgram = program
-	}
-
-	// Compile log expression if provided
-	if sub.LogExpression != "" {
-		program, err := expr.Compile(sub.LogExpression, expr.Env(types.NotificationLog{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile log expression: %w", err)
-		}
-		sub.LogProgram = program
-	}
-
-	// Compile metric expression if provided
-	if sub.MetricExpression != "" {
-		program, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
-		if err != nil {
-			return fmt.Errorf("failed to compile metric expression: %w", err)
-		}
-		sub.MetricProgram = program
+	if err := sub.CompileExpressions(); err != nil {
+		return err
 	}
 
 	// Preserve enabled state from existing subscription if it exists

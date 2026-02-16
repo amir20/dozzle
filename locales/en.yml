@@ -186,6 +186,8 @@ notifications:
     paused: Paused
     containers: Containers
     log-filter: Log filter
+    metric-filter: Metric
+    cooldown: Cooldown
     destination: Destination
     dispatcher-deleted: Dispatcher deleted
     containers-count: "{count} containers"
@@ -215,6 +217,11 @@ notifications:
     cancel: Cancel
     save: Save
     create: Create Alert
+    metric-filter: Metric Expression
+    expression-valid: Expression is valid
+    metric-fields-hint: "Available fields: {fields}"
+    cooldown-label: Cooldown
+    cooldown-hint: "{duration} between alerts per container"
   destination-form:
     create-title: Add Destination
     edit-title: Edit Destination

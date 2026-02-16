@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"fmt"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -122,6 +123,36 @@ func (s *Subscription) AddTriggeredContainer(id string) {
 	s.TriggeredContainerIDs.Store(id, struct{}{})
 }
 
+// CompileExpressions compiles all expression strings into executable programs.
+// Returns an error describing which expression failed to compile.
+func (s *Subscription) CompileExpressions() error {
+	if s.ContainerExpression != "" {
+		program, err := expr.Compile(s.ContainerExpression, expr.Env(types.NotificationContainer{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile container expression: %w", err)
+		}
+		s.ContainerProgram = program
+	}
+
+	if s.LogExpression != "" {
+		program, err := expr.Compile(s.LogExpression, expr.Env(types.NotificationLog{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile log expression: %w", err)
+		}
+		s.LogProgram = program
+	}
+
+	if s.MetricExpression != "" {
+		program, err := expr.Compile(s.MetricExpression, expr.Env(types.NotificationStat{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile metric expression: %w", err)
+		}
+		s.MetricProgram = program
+	}
+
+	return nil
+}
+
 // DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
 	ID        int        `json:"id" yaml:"id"`
@@ -220,7 +251,8 @@ func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
 	if !ok {
 		return false
 	}
-	return time.Since(lastTriggered) < time.Duration(s.GetCooldownSeconds())*time.Second
+	cooldown := time.Duration(s.GetCooldownSeconds()) * time.Second
+	return time.Now().Before(lastTriggered.Add(cooldown))
 }
 
 // SetMetricCooldown records the current time as the last triggered time for a container

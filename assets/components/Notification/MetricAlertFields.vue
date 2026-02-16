@@ -1,6 +1,6 @@
 <template>
   <fieldset class="fieldset">
-    <legend class="fieldset-legend text-lg">Metric Expression</legend>
+    <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.metric-filter") }}</legend>
     <div
       class="input focus-within:input-primary w-full focus-within:z-50"
       :class="metricExpression.trim() && !metricError ? 'input-primary' : { 'input-error!': metricError }"
@@ -11,18 +11,24 @@
       <span v-if="metricError" class="text-error">{{ metricError }}</span>
       <span v-else class="text-success">
         <mdi:check class="inline" />
-        Expression is valid
+        {{ $t("notifications.alert-form.expression-valid") }}
       </span>
     </div>
     <p class="text-base-content/50 mt-1 text-xs">
-      Available fields: <code>cpu</code> (CPU %), <code>memory</code> (memory %), <code>memoryUsage</code> (bytes)
+      {{
+        $t("notifications.alert-form.metric-fields-hint", {
+          fields: "cpu (CPU %), memory (memory %), memoryUsage (bytes)",
+        })
+      }}
     </p>
   </fieldset>
 
   <fieldset class="fieldset">
-    <legend class="fieldset-legend text-lg">Cooldown</legend>
+    <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.cooldown-label") }}</legend>
     <input v-model.number="cooldown" type="range" min="10" max="3600" step="10" class="range range-primary" />
-    <p class="text-base-content/50 mt-1 text-xs">{{ formatCooldown(cooldown) }} between alerts per container</p>
+    <p class="text-base-content/50 mt-1 text-xs">
+      {{ $t("notifications.alert-form.cooldown-hint", { duration: formatCooldown(cooldown) }) }}
+    </p>
   </fieldset>
 </template>
 

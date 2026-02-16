@@ -189,6 +189,8 @@ notifications:
     paused: Dijeda
     containers: Kontainer
     log-filter: Filter log
+    metric-filter: Metrik
+    cooldown: Jeda
     destination: Tujuan
     dispatcher-deleted: Dispatcher dihapus
     containers-count: "{count} kontainer"
@@ -218,6 +220,11 @@ notifications:
     cancel: Batal
     save: Simpan
     create: Buat Peringatan
+    metric-filter: Ekspresi Metrik
+    expression-valid: Ekspresi valid
+    metric-fields-hint: "Field tersedia: {fields}"
+    cooldown-label: Jeda
+    cooldown-hint: "{duration} antara peringatan per kontainer"
   destination-form:
     create-title: Tambah Tujuan
     edit-title: Edit Tujuan

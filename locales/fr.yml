@@ -177,6 +177,8 @@ notifications:
     paused: En pause
     containers: Conteneurs
     log-filter: Filtre de journal
+    metric-filter: Métrique
+    cooldown: Temps d'attente
     destination: Destination
     dispatcher-deleted: Dispatcher supprimé
     containers-count: "{count} conteneurs"
@@ -206,6 +208,11 @@ notifications:
     cancel: Annuler
     save: Enregistrer
     create: Créer l'Alerte
+    metric-filter: Expression de Métrique
+    expression-valid: L'expression est valide
+    metric-fields-hint: "Champs disponibles : {fields}"
+    cooldown-label: Temps d'attente
+    cooldown-hint: "{duration} entre les alertes par conteneur"
   destination-form:
     create-title: Ajouter une Destination
     edit-title: Modifier la Destination
