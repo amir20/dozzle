@@ -110,7 +110,7 @@
           {{ isFiltered ? $t("toolbar.download-filtered") : $t("toolbar.download") }}
         </a>
       </li>
-      <li>
+      <li v-if="isSupported">
         <a @click="copyLogs()">
           <mdi:content-copy />
           {{ isFiltered ? $t("toolbar.copy-filtered-logs") : $t("toolbar.copy-logs") }}
