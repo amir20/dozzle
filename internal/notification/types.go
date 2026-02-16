@@ -14,6 +14,11 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
+// isDozzleContainer returns true if the container is a Dozzle instance (to avoid feedback loops)
+func isDozzleContainer(c container.Container) bool {
+	return c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:")
+}
+
 // FromContainerModel converts internal container.Container to types.NotificationContainer
 func FromContainerModel(c container.Container, host container.Host) types.NotificationContainer {
 	return types.NotificationContainer{
@@ -195,10 +200,16 @@ func (s *Subscription) MatchesMetric(stat types.NotificationStat) bool {
 	return ok && match
 }
 
-// GetCooldownSeconds returns the cooldown in seconds, defaulting to 300 (5 min)
+// GetCooldownSeconds returns the cooldown in seconds, clamped to [10, 3600], defaulting to 300 (5 min)
 func (s *Subscription) GetCooldownSeconds() int {
 	if s.Cooldown <= 0 {
 		return 300
+	}
+	if s.Cooldown < 10 {
+		return 10
+	}
+	if s.Cooldown > 3600 {
+		return 3600
 	}
 	return s.Cooldown
 }

@@ -3,7 +3,6 @@ package notification
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -40,7 +39,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 	}
 
 	// Skip logs from Dozzle's own containers to avoid feedback loops
-	if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
+	if isDozzleContainer(c) {
 		return
 	}
 

@@ -83,6 +83,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	// Auto-increment ID using atomic counter
 	sub.ID = int(m.subscriptionCounter.Add(1))
 	sub.Enabled = true
+	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
@@ -110,8 +111,6 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 		}
 		sub.MetricProgram = program
 	}
-
-	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 
 	m.subscriptions.Store(sub.ID, sub)
 	log.Debug().Str("name", sub.Name).Int("id", sub.ID).Msg("Added subscription")
@@ -142,6 +141,8 @@ func (m *Manager) RemoveSubscription(id int) {
 
 // ReplaceSubscription replaces a subscription with new data
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
+	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+
 	// Compile container expression if provided
 	if sub.ContainerExpression != "" {
 		program, err := expr.Compile(sub.ContainerExpression, expr.Env(types.NotificationContainer{}))
@@ -168,8 +169,6 @@ func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 		}
 		sub.MetricProgram = program
 	}
-
-	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 
 	// Preserve enabled state from existing subscription if it exists
 	if existing, ok := m.subscriptions.Load(sub.ID); ok {

@@ -71,17 +71,9 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 // HandleNotificationConfig implements agent.NotificationConfigHandler interface
 // It atomically replaces all subscriptions and dispatchers with new state from the main server
 func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
-	// Clear existing state (with nil checks for defensive programming)
-	if m.subscriptions != nil {
-		m.subscriptions.Clear()
-	} else {
-		m.subscriptions = xsync.NewMap[int, *Subscription]()
-	}
-	if m.dispatchers != nil {
-		m.dispatchers.Clear()
-	} else {
-		m.dispatchers = xsync.NewMap[int, dispatcher.Dispatcher]()
-	}
+	// Clear existing state
+	m.subscriptions.Clear()
+	m.dispatchers.Clear()
 
 	// Find max IDs to initialize counters
 	var maxSubID, maxDispatcherID int

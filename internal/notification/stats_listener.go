@@ -2,7 +2,6 @@ package notification
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -60,7 +59,7 @@ func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat)
 			}
 
 			// Skip stats from Dozzle's own containers
-			if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
+			if isDozzleContainer(c) {
 				continue
 			}
 
