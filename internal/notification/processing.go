@@ -109,7 +109,7 @@ func (m *Manager) processStatEvents() {
 }
 
 // processStatEvent processes a single stat event and sends notifications for matching metric subscriptions
-func (m *Manager) processStatEvent(event ContainerStatEvent) {
+func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 	notificationStat := types.NotificationStat{
 		CPUPercent:    event.Stat.CPUPercent,
 		MemoryPercent: event.Stat.MemoryPercent,

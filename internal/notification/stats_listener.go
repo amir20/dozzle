@@ -7,7 +7,6 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
-	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -18,19 +17,18 @@ type ContainerStatEvent struct {
 	Host      container.Host
 }
 
-type cachedContainerInfo struct {
+type containerInfo struct {
 	container container.Container
 	host      container.Host
-	expiresAt time.Time
 }
 
 // ContainerStatsListener subscribes to container stats from all clients,
 // enriches each stat with container and host metadata, and forwards them to a channel.
 type ContainerStatsListener struct {
 	clients    []container_support.ClientService
-	channel    chan ContainerStatEvent
+	channel    chan *ContainerStatEvent
 	parentCtx  context.Context
-	cache      *xsync.Map[string, cachedContainerInfo]
+	cache      *TTLCache[string, containerInfo]
 	mu         sync.Mutex
 	cancelFunc context.CancelFunc
 }
@@ -40,9 +38,9 @@ type ContainerStatsListener struct {
 func NewContainerStatsListener(ctx context.Context, clients []container_support.ClientService) *ContainerStatsListener {
 	return &ContainerStatsListener{
 		clients:   clients,
-		channel:   make(chan ContainerStatEvent, 1000),
+		channel:   make(chan *ContainerStatEvent, 1000),
 		parentCtx: ctx,
-		cache:     xsync.NewMap[string, cachedContainerInfo](),
+		cache:     NewTTLCache[string, containerInfo](ctx, 30*time.Second),
 	}
 }
 
@@ -106,7 +104,7 @@ func (l *ContainerStatsListener) enrich(ctx context.Context, rawStats <-chan con
 			}
 
 			select {
-			case l.channel <- ContainerStatEvent{Stat: stat, Container: c, Host: host}:
+			case l.channel <- &ContainerStatEvent{Stat: stat, Container: c, Host: host}:
 			case <-ctx.Done():
 				return
 			default:
@@ -118,7 +116,7 @@ func (l *ContainerStatsListener) enrich(ctx context.Context, rawStats <-chan con
 
 // resolveContainer looks up container+host, using a TTL cache to avoid repeated API calls.
 func (l *ContainerStatsListener) resolveContainer(containerID string) (container.Container, container.Host, error) {
-	if cached, ok := l.cache.Load(containerID); ok && time.Now().Before(cached.expiresAt) {
+	if cached, ok := l.cache.Load(containerID); ok {
 		return cached.container, cached.host, nil
 	}
 
@@ -130,17 +128,16 @@ func (l *ContainerStatsListener) resolveContainer(containerID string) (container
 		return c, host, err
 	}
 
-	l.cache.Store(containerID, cachedContainerInfo{
+	l.cache.Store(containerID, containerInfo{
 		container: c,
 		host:      host,
-		expiresAt: time.Now().Add(30 * time.Second),
 	})
 
 	return c, host, nil
 }
 
 // Channel returns the channel for enriched stat events.
-func (l *ContainerStatsListener) Channel() <-chan ContainerStatEvent {
+func (l *ContainerStatsListener) Channel() <-chan *ContainerStatEvent {
 	return l.channel
 }
 
