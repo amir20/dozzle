@@ -27,6 +27,8 @@ type NotificationRuleResponse struct {
 	Enabled             bool                `json:"enabled"`
 	ContainerExpression string              `json:"containerExpression"`
 	LogExpression       string              `json:"logExpression"`
+	MetricExpression    string              `json:"metricExpression,omitempty"`
+	Cooldown            int                 `json:"cooldown,omitempty"`
 	TriggerCount        int64               `json:"triggerCount"`
 	TriggeredContainers int                 `json:"triggeredContainers"`
 	LastTriggeredAt     *time.Time          `json:"lastTriggeredAt"`
@@ -49,6 +51,8 @@ type NotificationRuleInput struct {
 	DispatcherID        int    `json:"dispatcherId"`
 	LogExpression       string `json:"logExpression"`
 	ContainerExpression string `json:"containerExpression"`
+	MetricExpression    string `json:"metricExpression,omitempty"`
+	Cooldown            int    `json:"cooldown,omitempty"`
 }
 
 type NotificationRuleUpdateInput struct {
@@ -57,6 +61,8 @@ type NotificationRuleUpdateInput struct {
 	DispatcherID        *int    `json:"dispatcherId,omitempty"`
 	LogExpression       *string `json:"logExpression,omitempty"`
 	ContainerExpression *string `json:"containerExpression,omitempty"`
+	MetricExpression    *string `json:"metricExpression,omitempty"`
+	Cooldown            *int    `json:"cooldown,omitempty"`
 }
 
 type DispatcherInput struct {
@@ -69,11 +75,13 @@ type DispatcherInput struct {
 type PreviewInput struct {
 	ContainerExpression string  `json:"containerExpression"`
 	LogExpression       *string `json:"logExpression,omitempty"`
+	MetricExpression    *string `json:"metricExpression,omitempty"`
 }
 
 type PreviewResult struct {
 	ContainerError    *string               `json:"containerError,omitempty"`
 	LogError          *string               `json:"logError,omitempty"`
+	MetricError       *string               `json:"metricError,omitempty"`
 	MatchedContainers []container.Container `json:"matchedContainers"`
 	MatchedLogs       []container.LogEvent  `json:"matchedLogs"`
 	TotalLogs         int                   `json:"totalLogs"`
@@ -113,6 +121,8 @@ func subscriptionToResponse(sub *notification.Subscription, dispatchers []notifi
 		Dispatcher:          disp,
 		LogExpression:       sub.LogExpression,
 		ContainerExpression: sub.ContainerExpression,
+		MetricExpression:    sub.MetricExpression,
+		Cooldown:            sub.Cooldown,
 		TriggerCount:        sub.TriggerCount.Load(),
 		LastTriggeredAt:     lastTriggeredAt,
 		TriggeredContainers: sub.TriggeredContainersCount(),
@@ -198,6 +208,8 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		DispatcherID:        input.DispatcherID,
 		LogExpression:       input.LogExpression,
 		ContainerExpression: input.ContainerExpression,
+		MetricExpression:    input.MetricExpression,
+		Cooldown:            input.Cooldown,
 	}
 
 	if err := h.hostService.AddSubscription(sub); err != nil {
@@ -228,6 +240,8 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		DispatcherID:        input.DispatcherID,
 		LogExpression:       input.LogExpression,
 		ContainerExpression: input.ContainerExpression,
+		MetricExpression:    input.MetricExpression,
+		Cooldown:            input.Cooldown,
 	}
 
 	if err := h.hostService.ReplaceSubscription(sub); err != nil {
@@ -266,6 +280,12 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	}
 	if input.ContainerExpression != nil {
 		updates["containerExpression"] = *input.ContainerExpression
+	}
+	if input.MetricExpression != nil {
+		updates["metricExpression"] = *input.MetricExpression
+	}
+	if input.Cooldown != nil {
+		updates["cooldown"] = *input.Cooldown
 	}
 
 	if err := h.hostService.UpdateSubscription(id, updates); err != nil {
@@ -438,6 +458,9 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	if input.LogExpression != nil {
 		sub.LogExpression = *input.LogExpression
 	}
+	if input.MetricExpression != nil {
+		sub.MetricExpression = *input.MetricExpression
+	}
 
 	// Compile container expression
 	if sub.ContainerExpression != "" {
@@ -458,6 +481,15 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 			result.LogError = &errStr
 		} else {
 			sub.LogProgram = program
+		}
+	}
+
+	// Compile metric expression
+	if sub.MetricExpression != "" {
+		_, err := expr.Compile(sub.MetricExpression, expr.Env(types.NotificationStat{}))
+		if err != nil {
+			errStr := err.Error()
+			result.MetricError = &errStr
 		}
 	}
 
