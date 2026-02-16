@@ -9,45 +9,29 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// ContainerStatsListener subscribes to container stats from all clients and forwards them to a channel
+// ContainerStatsListener subscribes to container stats from all clients and forwards them to a channel.
+// It handles subscribing to both events (to start the stats collector) and stats internally.
 type ContainerStatsListener struct {
 	clients     []container_support.ClientService
 	statChannel chan container.ContainerStat
 	ctx         context.Context
 }
 
-// NewContainerStatsListener creates a new listener for container stats
+// NewContainerStatsListener creates a new listener that subscribes to stats from the given clients.
 func NewContainerStatsListener(ctx context.Context, clients []container_support.ClientService) *ContainerStatsListener {
-	return &ContainerStatsListener{
+	l := &ContainerStatsListener{
 		clients:     clients,
 		statChannel: make(chan container.ContainerStat, 1000),
 		ctx:         ctx,
 	}
-}
 
-// Start subscribes to events (to trigger stats collector start) and stats from all clients
-func (l *ContainerStatsListener) Start() {
-	for _, client := range l.clients {
-		// Subscribe to events to ensure the stats collector is started
-		// (stats collector only runs when there are event subscribers)
-		dummyEvents := make(chan container.ContainerEvent, 100)
-		client.SubscribeEvents(l.ctx, dummyEvents)
-		go func() {
-			for {
-				select {
-				case <-l.ctx.Done():
-					return
-				case _, ok := <-dummyEvents:
-					if !ok {
-						return
-					}
-				}
-			}
-		}()
-
-		client.SubscribeStats(l.ctx, l.statChannel)
-		log.Debug().Msg("Subscribed to container stats for metric alerts")
+	for _, client := range clients {
+		client.SubscribeStats(ctx, l.statChannel)
 	}
+
+	log.Debug().Msg("Subscribed to container stats for metric alerts")
+
+	return l
 }
 
 // StatChannel returns the channel for stat events
