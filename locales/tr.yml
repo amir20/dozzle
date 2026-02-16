@@ -13,6 +13,9 @@ toolbar:
   shell: Kabuk
   attach: Bağla
   copy-permalink: Kalıcı bağlantıyı kopyala
+  copy-logs: Günlükleri kopyala
+  copy-filtered-logs: Filtrelenmiş günlükleri kopyala
+  copying-logs: Günlükler kopyalanıyor...
 action:
   copy-log: Günlüğü kopyala
   copy-link: Kalıcı bağlantıyı kopyala

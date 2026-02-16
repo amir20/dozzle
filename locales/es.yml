@@ -13,6 +13,9 @@ toolbar:
   shell: Shell
   attach: Conectar
   copy-permalink: Copiar enlace permanente
+  copy-logs: Copiar registros
+  copy-filtered-logs: Copiar registros filtrados
+  copying-logs: Copiando registros...
 action:
   copy-log: Copiar registro
   copy-link: Copiar enlace permanente
