@@ -56,17 +56,21 @@ You can also write your own payload template using Go's `text/template` syntax. 
 
 <div v-pre>
 
-| Variable                  | Description                 |
-| ------------------------- | --------------------------- |
-| `{{.Container.Name}}`     | Container name              |
-| `{{.Container.Image}}`    | Container image             |
-| `{{.Container.HostName}}` | Docker host name            |
-| `{{.Container.State}}`    | Container state             |
-| `{{.Log.Message}}`        | Log message content         |
-| `{{.Log.Level}}`          | Log level                   |
-| `{{.Log.Timestamp}}`      | Log timestamp               |
-| `{{.Log.Stream}}`         | Stream type (stdout/stderr) |
-| `{{.Subscription.Name}}`  | Alert rule name             |
+| Variable                  | Description                            |
+| ------------------------- | -------------------------------------- |
+| `{{.Detail}}`             | Summary (log message or metric values) |
+| `{{.Container.Name}}`     | Container name                         |
+| `{{.Container.Image}}`    | Container image                        |
+| `{{.Container.HostName}}` | Docker host name                       |
+| `{{.Container.State}}`    | Container state                        |
+| `{{.Log.Message}}`        | Log message content                    |
+| `{{.Log.Level}}`          | Log level                              |
+| `{{.Log.Timestamp}}`      | Log timestamp                          |
+| `{{.Log.Stream}}`         | Stream type (stdout/stderr)            |
+| `{{.Stat.CPUPercent}}`    | CPU usage percentage                   |
+| `{{.Stat.MemoryPercent}}` | Memory usage percentage                |
+| `{{.Stat.MemoryUsage}}`   | Memory usage in bytes                  |
+| `{{.Subscription.Name}}`  | Alert rule name                        |
 
 </div>
 

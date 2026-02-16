@@ -5,9 +5,10 @@ import "time"
 // Notification represents a notification event that can be filtered and sent
 type Notification struct {
 	ID           string                `json:"id"`
+	Detail       string                `json:"detail"`
 	Container    NotificationContainer `json:"container"`
-	Log          *NotificationLog      `json:"log,omitempty"`
-	Stat         *NotificationStat     `json:"stat,omitempty"`
+	Log          *NotificationLog      `json:"log"`
+	Stat         *NotificationStat     `json:"stat"`
 	Subscription SubscriptionConfig    `json:"subscription"`
 	Timestamp    time.Time             `json:"timestamp"`
 }
