@@ -26,6 +26,7 @@ type ContainerLogListener struct {
 	matcher          ContainerMatcher
 	logChannel       chan *container.LogEvent
 	ctx              context.Context
+	cache            *xsync.Map[string, cachedContainerInfo]
 }
 
 // NewContainerLogListener creates a new listener for multiple clients
@@ -36,6 +37,7 @@ func NewContainerLogListener(ctx context.Context, clients []container_support.Cl
 		activeStreams:    xsync.NewMap[string, context.CancelFunc](),
 		logChannel:       make(chan *container.LogEvent, 1000),
 		ctx:              ctx,
+		cache:            xsync.NewMap[string, cachedContainerInfo](),
 	}
 }
 
@@ -164,8 +166,12 @@ func (l *ContainerLogListener) FindContainer(ctx context.Context, id string, lab
 	return client.FindContainer(ctx, id, labels)
 }
 
-// FindContainerWithHost finds a container and its host by container ID
+// FindContainerWithHost finds a container and its host by container ID, using a TTL cache.
 func (l *ContainerLogListener) FindContainerWithHost(ctx context.Context, id string, labels container.ContainerLabels) (container.Container, container.Host, error) {
+	if cached, ok := l.cache.Load(id); ok && time.Now().Before(cached.expiresAt) {
+		return cached.container, cached.host, nil
+	}
+
 	client, exists := l.containerClients.Load(id)
 	if !exists {
 		return container.Container{}, container.Host{}, fmt.Errorf("container %s not found in any client", id)
@@ -180,6 +186,12 @@ func (l *ContainerLogListener) FindContainerWithHost(ctx context.Context, id str
 	if err != nil {
 		return container.Container{}, container.Host{}, fmt.Errorf("failed to get host for container %s: %w", id, err)
 	}
+
+	l.cache.Store(id, cachedContainerInfo{
+		container: c,
+		host:      host,
+		expiresAt: time.Now().Add(30 * time.Second),
+	})
 
 	return c, host, nil
 }
