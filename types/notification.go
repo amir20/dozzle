@@ -6,7 +6,7 @@ import "time"
 type Notification struct {
 	ID           string                `json:"id"`
 	Container    NotificationContainer `json:"container"`
-	Log          NotificationLog       `json:"log"`
+	Log          *NotificationLog      `json:"log,omitempty"`
 	Stat         *NotificationStat     `json:"stat,omitempty"`
 	Subscription SubscriptionConfig    `json:"subscription"`
 	Timestamp    time.Time             `json:"timestamp"`

@@ -2,45 +2,83 @@ package notification
 
 import (
 	"context"
-	"fmt"
+	"strings"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/rs/zerolog/log"
 )
 
-// ContainerStatsListener subscribes to container stats from all clients and forwards them to a channel.
-// It handles subscribing to both events (to start the stats collector) and stats internally.
+// ContainerStatEvent pairs a stat with its resolved container and host metadata.
+type ContainerStatEvent struct {
+	Stat      container.ContainerStat
+	Container container.Container
+	Host      container.Host
+}
+
+// ContainerStatsListener subscribes to container stats from all clients,
+// enriches each stat with container and host metadata, and forwards them to a channel.
 type ContainerStatsListener struct {
-	clients     []container_support.ClientService
-	statChannel chan container.ContainerStat
-	ctx         context.Context
+	clients []container_support.ClientService
+	channel chan ContainerStatEvent
+	ctx     context.Context
 }
 
 // NewContainerStatsListener creates a new listener that subscribes to stats from the given clients.
 func NewContainerStatsListener(ctx context.Context, clients []container_support.ClientService) *ContainerStatsListener {
 	l := &ContainerStatsListener{
-		clients:     clients,
-		statChannel: make(chan container.ContainerStat, 1000),
-		ctx:         ctx,
+		clients: clients,
+		channel: make(chan ContainerStatEvent, 1000),
+		ctx:     ctx,
 	}
 
+	rawStats := make(chan container.ContainerStat, 1000)
 	for _, client := range clients {
-		client.SubscribeStats(ctx, l.statChannel)
+		client.SubscribeStats(ctx, rawStats)
 	}
+
+	go l.enrich(rawStats)
 
 	log.Debug().Msg("Subscribed to container stats for metric alerts")
 
 	return l
 }
 
-// StatChannel returns the channel for stat events
-func (l *ContainerStatsListener) StatChannel() <-chan container.ContainerStat {
-	return l.statChannel
+// enrich reads raw stats, resolves container+host, and sends enriched events.
+func (l *ContainerStatsListener) enrich(rawStats <-chan container.ContainerStat) {
+	for {
+		select {
+		case <-l.ctx.Done():
+			return
+		case stat := <-rawStats:
+			ctx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
+			c, host, err := l.findContainerWithHost(ctx, stat.ID)
+			cancel()
+			if err != nil {
+				continue
+			}
+
+			// Skip stats from Dozzle's own containers
+			if c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:") {
+				continue
+			}
+
+			select {
+			case l.channel <- ContainerStatEvent{Stat: stat, Container: c, Host: host}:
+			case <-l.ctx.Done():
+				return
+			}
+		}
+	}
 }
 
-// FindContainerWithHost finds a container and its host by container ID
-func (l *ContainerStatsListener) FindContainerWithHost(ctx context.Context, containerID string) (container.Container, container.Host, error) {
+// Channel returns the channel for enriched stat events.
+func (l *ContainerStatsListener) Channel() <-chan ContainerStatEvent {
+	return l.channel
+}
+
+func (l *ContainerStatsListener) findContainerWithHost(ctx context.Context, containerID string) (container.Container, container.Host, error) {
 	for _, client := range l.clients {
 		c, err := client.FindContainer(ctx, containerID, nil)
 		if err != nil {
@@ -52,5 +90,5 @@ func (l *ContainerStatsListener) FindContainerWithHost(ctx context.Context, cont
 		}
 		return c, host, nil
 	}
-	return container.Container{}, container.Host{}, fmt.Errorf("container %s not found in any client", containerID)
+	return container.Container{}, container.Host{}, container.ErrContainerNotFound
 }

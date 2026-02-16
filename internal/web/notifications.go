@@ -610,7 +610,7 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 			HostName: "localhost",
 			Labels:   map[string]string{"env": "test"},
 		},
-		Log: types.NotificationLog{
+		Log: &types.NotificationLog{
 			ID:        1,
 			Message:   "This is a test log message from Dozzle",
 			Timestamp: time.Now().UnixMilli(),
