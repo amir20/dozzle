@@ -89,5 +89,6 @@ export default defineConfig(() => ({
   ],
   test: {
     include: ["assets/**/*.spec.ts"],
+    setupFiles: ["./assets/test-setup.ts"],
   },
 }));
