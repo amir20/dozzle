@@ -73,7 +73,6 @@
 import type { NotificationRule, Dispatcher } from "@/types/notifications";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
-import DestinationCard from "@/components/Notification/DestinationCard.vue";
 
 const showDrawer = useDrawer();
 const router = useRouter();

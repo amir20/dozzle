@@ -177,6 +177,8 @@ notifications:
     paused: Duraklatıldı
     containers: Konteynerler
     log-filter: Günlük filtresi
+    metric-filter: Metrik
+    cooldown: Bekleme süresi
     destination: Hedef
     dispatcher-deleted: Dağıtıcı silindi
     containers-count: "{count} konteyner"
@@ -206,6 +208,14 @@ notifications:
     cancel: İptal
     save: Kaydet
     create: Uyarı Oluştur
+    metric-filter: Metrik İfadesi
+    expression-valid: İfade geçerli
+    metric-fields-hint: "Kullanılabilir alanlar: {fields}"
+    cooldown-label: Bekleme süresi
+    cooldown-hint: "Konteyner başına uyarılar arası {duration}"
+    alert-type: Uyarı Türü
+    log-alert: Günlük Uyarısı
+    metric-alert: Metrik Uyarısı
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle

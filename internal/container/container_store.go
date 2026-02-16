@@ -242,7 +242,20 @@ func (s *ContainerStore) SubscribeEvents(ctx context.Context, events chan<- Cont
 }
 
 func (s *ContainerStore) SubscribeStats(ctx context.Context, stats chan<- ContainerStat) {
+	go func() {
+		if s.statsCollector.Start(s.ctx) {
+			s.containers.Range(func(_ string, c *Container) bool {
+				c.Stats.Clear()
+				return true
+			})
+		}
+	}()
+
 	s.statsCollector.Subscribe(ctx, stats)
+	go func() {
+		<-ctx.Done()
+		s.statsCollector.Stop()
+	}()
 }
 
 func (s *ContainerStore) SubscribeNewContainers(ctx context.Context, containers chan<- Container) {

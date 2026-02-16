@@ -4,6 +4,8 @@ export interface NotificationRule {
   enabled: boolean;
   containerExpression: string;
   logExpression: string;
+  metricExpression?: string;
+  cooldown?: number;
   triggerCount: number;
   triggeredContainers: number;
   lastTriggeredAt: string | null;
@@ -26,11 +28,14 @@ export interface NotificationRuleInput {
   dispatcherId: number;
   logExpression: string;
   containerExpression: string;
+  metricExpression?: string;
+  cooldown?: number;
 }
 
 export interface PreviewResult {
   containerError?: string;
   logError?: string;
+  metricError?: string;
   matchedContainers: {
     id: string;
     name: string;

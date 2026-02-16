@@ -88,7 +88,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	// Create notification manager using the shared client service
 	const notificationConfigPath = "./data/notifications.yml"
 	clients := []container_support.ClientService{clientService}
-	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients))
+	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients), notification.NewContainerStatsListener(ctx, clients))
 
 	// Load existing notification config if available
 	if file, err := os.Open(notificationConfigPath); err == nil {

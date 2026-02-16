@@ -34,6 +34,7 @@ declare global {
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
   const createInjectionState: typeof import('@vueuse/core').createInjectionState
   const createLogHints: typeof import('./composable/exprEditor').createLogHints
+  const createMetricHints: typeof import('./composable/exprEditor').createMetricHints
   const createPinia: typeof import('pinia').createPinia
   const createReactiveFn: typeof import('@vueuse/core').createReactiveFn
   const createRef: typeof import('@vueuse/core').createRef
@@ -56,6 +57,7 @@ declare global {
   const flattenJSON: typeof import('./utils/index').flattenJSON
   const flattenJSONToMap: typeof import('./utils/index').flattenJSONToMap
   const formatBytes: typeof import('./utils/index').formatBytes
+  const formatDuration: typeof import('./utils/index').formatDuration
   const getActivePinia: typeof import('pinia').getActivePinia
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
@@ -174,6 +176,7 @@ declare global {
   const unrefElement: typeof import('@vueuse/core').unrefElement
   const until: typeof import('@vueuse/core').until
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
+  const useAlertForm: typeof import('./composable/alertForm').useAlertForm
   const useAnimate: typeof import('@vueuse/core').useAnimate
   const useAnnouncements: typeof import('./stores/announcements').useAnnouncements
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
@@ -397,6 +400,9 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
+  import('./composable/alertForm')
+  // @ts-ignore
   export type { DrawerWidth } from './composable/drawer'
   import('./composable/drawer')
   // @ts-ignore
@@ -455,6 +461,7 @@ declare module 'vue' {
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
     readonly createInjectionState: UnwrapRef<typeof import('@vueuse/core')['createInjectionState']>
     readonly createLogHints: UnwrapRef<typeof import('./composable/exprEditor')['createLogHints']>
+    readonly createMetricHints: UnwrapRef<typeof import('./composable/exprEditor')['createMetricHints']>
     readonly createPinia: UnwrapRef<typeof import('pinia')['createPinia']>
     readonly createReactiveFn: UnwrapRef<typeof import('@vueuse/core')['createReactiveFn']>
     readonly createRef: UnwrapRef<typeof import('@vueuse/core')['createRef']>
@@ -477,6 +484,7 @@ declare module 'vue' {
     readonly flattenJSON: UnwrapRef<typeof import('./utils/index')['flattenJSON']>
     readonly flattenJSONToMap: UnwrapRef<typeof import('./utils/index')['flattenJSONToMap']>
     readonly formatBytes: UnwrapRef<typeof import('./utils/index')['formatBytes']>
+    readonly formatDuration: UnwrapRef<typeof import('./utils/index')['formatDuration']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -595,6 +603,7 @@ declare module 'vue' {
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
+    readonly useAlertForm: UnwrapRef<typeof import('./composable/alertForm')['useAlertForm']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useAnnouncements: UnwrapRef<typeof import('./stores/announcements')['useAnnouncements']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>

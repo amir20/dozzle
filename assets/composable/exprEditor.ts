@@ -75,6 +75,22 @@ export function createLogHints(messageKeys?: string[]): Completion[] {
   ];
 }
 
+export function createMetricHints(): Completion[] {
+  return [
+    { label: "cpu", detail: "CPU usage percent", type: "property" },
+    { label: "memory", detail: "memory usage percent", type: "property" },
+    { label: "memoryUsage", detail: "memory usage bytes", type: "property" },
+    ...exprOperators,
+    { label: ">", detail: "greater than", type: "operator" },
+    { label: "<", detail: "less than", type: "operator" },
+    { label: ">=", detail: "greater or equal", type: "operator" },
+    { label: "<=", detail: "less or equal", type: "operator" },
+    { label: "cpu > 80", detail: "CPU over 80%", type: "text", boost: 10 },
+    { label: "memory > 90", detail: "memory over 90%", type: "text", boost: 10 },
+    { label: "cpu > 80 || memory > 90", detail: "CPU or memory high", type: "text", boost: 10 },
+  ];
+}
+
 function createAutocomplete(getHints: () => Completion[]) {
   return (context: any) => {
     const word = context.matchBefore(/[\w"=!&|]+/);
