@@ -2,13 +2,22 @@ package types
 
 import "time"
 
+// NotificationType indicates whether a notification was triggered by a log event or a metric threshold
+type NotificationType string
+
+const (
+	LogNotification    NotificationType = "log"
+	MetricNotification NotificationType = "metric"
+)
+
 // Notification represents a notification event that can be filtered and sent
 type Notification struct {
 	ID           string                `json:"id"`
+	Type         NotificationType      `json:"type"`
 	Detail       string                `json:"detail"`
 	Container    NotificationContainer `json:"container"`
-	Log          *NotificationLog      `json:"log"`
-	Stat         *NotificationStat     `json:"stat"`
+	Log          *NotificationLog      `json:"log,omitempty"`
+	Stat         *NotificationStat     `json:"stat,omitempty"`
 	Subscription SubscriptionConfig    `json:"subscription"`
 	Timestamp    time.Time             `json:"timestamp"`
 }
