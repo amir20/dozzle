@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -74,7 +75,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
 			Type:      types.LogNotification,
-			Detail:    fmt.Sprintf("%v", notificationLog.Message),
+			Detail:    formatLogMessage(notificationLog.Message),
 			Container: notificationContainer,
 			Log:       &notificationLog,
 			Subscription: types.SubscriptionConfig{
@@ -179,6 +180,19 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 		}
 		return true
 	})
+}
+
+func formatLogMessage(message any) string {
+	switch v := message.(type) {
+	case string:
+		return v
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprintf("%v", v)
+		}
+		return string(b)
+	}
 }
 
 // sendNotification sends a notification using the dispatcher
