@@ -73,10 +73,10 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		// Create notification
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-%d", c.ID, time.Now().UnixNano()),
+			Type:      types.LogNotification,
 			Detail:    fmt.Sprintf("%v", notificationLog.Message),
 			Container: notificationContainer,
 			Log:       &notificationLog,
-			Stat:      &types.NotificationStat{},
 			Subscription: types.SubscriptionConfig{
 				ID:                  sub.ID,
 				Name:                sub.Name,
@@ -158,9 +158,9 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 
 		notification := types.Notification{
 			ID:        fmt.Sprintf("%s-metric-%d", event.Stat.ID, time.Now().UnixNano()),
+			Type:      types.MetricNotification,
 			Detail:    fmt.Sprintf("CPU: %.1f%%, Memory: %.1f%%", notificationStat.CPUPercent, notificationStat.MemoryPercent),
 			Container: notificationContainer,
-			Log:       &types.NotificationLog{},
 			Stat:      &notificationStat,
 			Subscription: types.SubscriptionConfig{
 				ID:                  sub.ID,

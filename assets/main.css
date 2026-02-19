@@ -8,7 +8,7 @@
   --color-red: oklch(64% 0.218 28.85);
   --color-purple: oklch(51.49% 0.215 321.03);
   --color-blue: oklch(65% 0.171 249.5);
-  --color-orange: oklch(70% 0.186 48.13);
+  --color-orange: oklch(85% 0.186 48.13);
 }
 
 @utility pt-safe {

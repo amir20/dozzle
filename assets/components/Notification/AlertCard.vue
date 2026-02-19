@@ -8,17 +8,38 @@
             <mdi:chart-line v-if="alert.metricExpression" class="text-info" />
             <mdi:text-box-outline v-else class="text-info" />
             <span>{{ alert.name }}</span> <span class="text-sm font-light">→</span>
-            <span class="flex gap-1 text-xs font-light" :class="{ 'text-warning': !alert.dispatcher }">
-              <template v-if="alert.dispatcher">
-                <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
-                <mdi:cloud v-else />
-                {{ alert.dispatcher.name }}
-              </template>
-              <template v-else>
-                <mdi:alert-outline />
-                {{ $t("notifications.alert.dispatcher-deleted") }}
-              </template>
-            </span>
+            <div class="group/dispatch dropdown dropdown-hover">
+              <div
+                tabindex="0"
+                role="button"
+                class="border-base-content/0 hover:border-base-content/20 flex cursor-pointer items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-light transition-colors"
+                :class="{ 'text-warning': !alert.dispatcher }"
+              >
+                <template v-if="alert.dispatcher">
+                  <mdi:webhook v-if="alert.dispatcher.type === 'webhook'" />
+                  <mdi:cloud v-else />
+                  {{ alert.dispatcher.name }}
+                </template>
+                <template v-else>
+                  <mdi:alert-outline />
+                  {{ $t("notifications.alert.dispatcher-deleted") }}
+                </template>
+                <mdi:chevron-down class="text-[0.6rem] opacity-0 transition-opacity group-hover/dispatch:opacity-100" />
+              </div>
+              <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-50 w-48 p-2 shadow-lg">
+                <li v-for="dest in dispatchers" :key="dest.id">
+                  <a
+                    class="flex items-center gap-2"
+                    :class="{ active: dest.id === alert.dispatcher?.id }"
+                    @click="changeDispatcher(dest.id)"
+                  >
+                    <mdi:webhook v-if="dest.type === 'webhook'" />
+                    <mdi:cloud v-else />
+                    {{ dest.name }}
+                  </a>
+                </li>
+              </ul>
+            </div>
           </h4>
           <span v-if="!alert.enabled" class="badge badge-warning badge-sm">{{ $t("notifications.alert.paused") }}</span>
         </div>
@@ -69,7 +90,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { NotificationRule } from "@/types/notifications";
+import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import AlertForm from "./AlertForm.vue";
 
 const { alert, onUpdated } = defineProps<{
@@ -79,6 +100,21 @@ const { alert, onUpdated } = defineProps<{
 
 const showDrawer = useDrawer();
 const isDeleting = ref(false);
+const dispatchers = ref<Dispatcher[]>([]);
+
+onMounted(async () => {
+  const res = await fetch(withBase("/api/notifications/dispatchers"));
+  dispatchers.value = await res.json();
+});
+
+async function changeDispatcher(id: number) {
+  await fetch(withBase(`/api/notifications/rules/${alert.id}`), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dispatcherId: id }),
+  });
+  onUpdated?.();
+}
 
 function formatTimeAgo(dateStr: string): string {
   const date = new Date(dateStr);

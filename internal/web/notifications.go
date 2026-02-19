@@ -599,6 +599,7 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 
 	mockNotification := types.Notification{
 		ID:        "test-notification",
+		Type:      types.LogNotification,
 		Detail:    "This is a test log message from Dozzle",
 		Timestamp: time.Now(),
 		Container: types.NotificationContainer{
@@ -619,7 +620,6 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 			Stream:    "stdout",
 			Type:      "simple",
 		},
-		Stat: &types.NotificationStat{},
 	}
 
 	result := webhook.SendTest(r.Context(), mockNotification)

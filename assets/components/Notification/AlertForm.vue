@@ -23,7 +23,7 @@
 
     <!-- Alert Type Toggle -->
     <fieldset class="fieldset">
-      <legend class="fieldset-legend text-lg">{{ $t("alert-form.alert-type") }}</legend>
+      <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.alert-type") }}</legend>
       <div class="flex gap-2">
         <button
           class="btn btn-sm"
@@ -31,7 +31,7 @@
           @click="alertType = 'log'"
         >
           <mdi:text-box-outline class="mr-1" />
-          {{ $t("alert-form.log-alert") }}
+          {{ $t("notifications.alert-form.log-alert") }}
         </button>
         <button
           class="btn btn-sm"
@@ -39,7 +39,7 @@
           @click="alertType = 'metric'"
         >
           <mdi:chart-line class="mr-1" />
-          {{ $t("alert-form.metric-alert") }}
+          {{ $t("notifications.alert-form.metric-alert") }}
         </button>
       </div>
     </fieldset>
