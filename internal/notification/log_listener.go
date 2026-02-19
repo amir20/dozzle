@@ -59,7 +59,7 @@ func (l *ContainerLogListener) Start(matcher ContainerMatcher) error {
 		// Start listening to containers that match
 		for _, c := range containers {
 			if l.matcher.ShouldListenToContainer(c) {
-				l.startListening(c, client)
+				l.startListening(c, client, time.Now())
 			}
 		}
 
@@ -102,7 +102,7 @@ func (l *ContainerLogListener) UpdateStreams() {
 			isListening := l.isListening(c.ID)
 
 			if shouldListen && !isListening {
-				l.startListening(c, client)
+				l.startListening(c, client, time.Now())
 			} else if !shouldListen && isListening {
 				l.stopListening(c.ID)
 			}
@@ -111,7 +111,7 @@ func (l *ContainerLogListener) UpdateStreams() {
 }
 
 // startListening starts listening to a container's logs with a known client
-func (l *ContainerLogListener) startListening(c container.Container, client container_support.ClientService) {
+func (l *ContainerLogListener) startListening(c container.Container, client container_support.ClientService, since time.Time) {
 	streamCtx, cancel := context.WithCancel(l.ctx)
 
 	// Only store if not already present
@@ -125,7 +125,7 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 
 	go func() {
 		log.Debug().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
-		if err := client.StreamLogs(streamCtx, c, time.Now(), container.STDALL, l.logChannel); err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
+		if err := client.StreamLogs(streamCtx, c, since, container.STDALL, l.logChannel); err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			log.Error().Err(err).Str("containerID", c.ID).Msg("Error streaming logs")
 		}
 	}()
@@ -135,7 +135,7 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 func (l *ContainerLogListener) startListeningByID(c container.Container) {
 	for _, client := range l.clients {
 		if found, err := client.FindContainer(l.ctx, c.ID, nil); err == nil {
-			l.startListening(found, client)
+			l.startListening(found, client, c.StartedAt)
 			return
 		}
 	}
