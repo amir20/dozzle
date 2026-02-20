@@ -17,7 +17,7 @@ const { container, type, host } = defineProps<{
 
 function totalCores(): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return 1;
+    return container.cpuLimit;
   }
   return host.nCPU ?? 1;
 }

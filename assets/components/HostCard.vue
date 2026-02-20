@@ -80,7 +80,7 @@ const hostContainers = computed(() =>
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return 1;
+    return container.cpuLimit;
   }
   return props.host.nCPU ?? 1;
 }
