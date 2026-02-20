@@ -5,7 +5,7 @@
       :key="i"
       class="bar min-h-px flex-1 rounded-t-sm"
       :class="barClass"
-      :style="{ '--height': `${Math.min(dataPoint, 100)}%` }"
+      :style="{ '--height': `${maxValue > 0 ? (dataPoint / maxValue) * 100 : 0}%` }"
     ></div>
   </div>
 </template>
@@ -19,9 +19,14 @@
 </style>
 
 <script setup lang="ts">
-const { chartData, barClass = "" } = defineProps<{
+const {
+  chartData,
+  barClass = "",
+  maxCeiling = 10,
+} = defineProps<{
   chartData: number[];
   barClass?: string;
+  maxCeiling?: number;
 }>();
 
 const hoverIndex = defineEmit<[startIndex: number, endIndex: number]>();
@@ -36,6 +41,10 @@ const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP))
 const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
 
 const downsampledData = ref<number[]>([]);
+const maxValue = computed(() => {
+  const dataMax = Math.max(0, ...downsampledData.value);
+  return Math.max(dataMax * 1.2, maxCeiling);
+});
 const changeCounter = ref(-1);
 
 // Watch chartData changes
