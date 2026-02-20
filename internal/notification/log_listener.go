@@ -121,13 +121,14 @@ func (l *ContainerLogListener) startListening(c container.Container, client cont
 	streamCtx, cancel := context.WithCancel(l.ctx)
 	entry := &streamEntry{ctx: streamCtx, cancel: cancel}
 
-	// Cancel any existing stream for this container (handles restarts where old stream left a stale entry)
-	if old, loaded := l.activeStreams.Load(c.ID); loaded {
-		old.cancel()
-		log.Debug().Str("containerID", c.ID).Msg("Cancelled stale stream for container")
-	}
-
-	l.activeStreams.Store(c.ID, entry)
+	// Atomically cancel any existing stream and store the new one (handles restarts where old stream left a stale entry)
+	l.activeStreams.Compute(c.ID, func(old *streamEntry, loaded bool) (*streamEntry, xsync.ComputeOp) {
+		if loaded {
+			old.cancel()
+			log.Debug().Str("containerID", c.ID).Msg("Cancelled stale stream for container")
+		}
+		return entry, xsync.UpdateOp
+	})
 	l.containerClients.Store(c.ID, client)
 
 	go func() {
