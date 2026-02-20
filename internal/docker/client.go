@@ -386,8 +386,8 @@ func newContainer(c docker.Summary, host string) container.Container {
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
-	} else if c.Labels["coolify.resourceName"] != "" {
-		name = c.Labels["coolify.resourceName"]
+	} else if c.Labels["coolify.serviceName"] != "" {
+		name = c.Labels["coolify.serviceName"]
 	} else if len(c.Names) > 0 {
 		name = strings.TrimPrefix(c.Names[0], "/")
 	}
@@ -416,8 +416,8 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
-	} else if c.Config.Labels["coolify.resourceName"] != "" {
-		name = c.Config.Labels["coolify.resourceName"]
+	} else if c.Config.Labels["coolify.serviceName"] != "" {
+		name = c.Config.Labels["coolify.serviceName"]
 	} else if len(c.Name) > 0 {
 		name = strings.TrimPrefix(c.Name, "/")
 	}

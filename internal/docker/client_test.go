@@ -271,14 +271,14 @@ func Test_newContainer_labelPriority(t *testing.T) {
 	}{
 		{
 			name:          "dozzle labels take priority",
-			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
+			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.serviceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
 			containerName: "/docker-name",
 			expectedName:  "dozzle-name",
 			expectedGroup: "dozzle-group",
 		},
 		{
 			name:          "coolify labels as fallback",
-			labels:        map[string]string{"coolify.resourceName": "coolify-name", "coolify.projectName": "coolify-project"},
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.projectName": "coolify-project"},
 			containerName: "/docker-name",
 			expectedName:  "coolify-name",
 			expectedGroup: "coolify-project",
@@ -292,7 +292,7 @@ func Test_newContainer_labelPriority(t *testing.T) {
 		},
 		{
 			name:          "coolify name with dozzle group",
-			labels:        map[string]string{"coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group"},
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "dev.dozzle.group": "dozzle-group"},
 			containerName: "/docker-name",
 			expectedName:  "coolify-name",
 			expectedGroup: "dozzle-group",
@@ -323,14 +323,14 @@ func Test_newContainerFromJSON_labelPriority(t *testing.T) {
 	}{
 		{
 			name:          "dozzle labels take priority",
-			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.resourceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
+			labels:        map[string]string{"dev.dozzle.name": "dozzle-name", "coolify.serviceName": "coolify-name", "dev.dozzle.group": "dozzle-group", "coolify.projectName": "coolify-project"},
 			containerName: "/docker-name",
 			expectedName:  "dozzle-name",
 			expectedGroup: "dozzle-group",
 		},
 		{
 			name:          "coolify labels as fallback",
-			labels:        map[string]string{"coolify.resourceName": "coolify-name", "coolify.projectName": "coolify-project"},
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.projectName": "coolify-project"},
 			containerName: "/docker-name",
 			expectedName:  "coolify-name",
 			expectedGroup: "coolify-project",
