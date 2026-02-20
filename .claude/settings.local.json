@@ -19,7 +19,8 @@
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
       "Bash(pnpm build:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(gh issue view:*)"
     ]
   }
 }
