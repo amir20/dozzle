@@ -69,7 +69,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			log.Debug().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
+			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
 			switch event.Name {
 			case "start", "die", "destroy", "rename":
 				if event.Name == "start" || event.Name == "rename" {
