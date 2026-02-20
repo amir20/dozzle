@@ -18,11 +18,17 @@ type ContainerMatcher interface {
 	ShouldListenToContainer(c container.Container) bool
 }
 
+// streamEntry tracks an active log stream with its context for identity comparison
+type streamEntry struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
+
 // ContainerLogListener manages active log streams for containers across multiple clients
 type ContainerLogListener struct {
 	clients          []container_support.ClientService
 	containerClients *xsync.Map[string, container_support.ClientService] // containerID -> owning client
-	activeStreams    *xsync.Map[string, context.CancelFunc]              // containerID -> cancel function
+	activeStreams    *xsync.Map[string, *streamEntry]                    // containerID -> active stream
 	matcher          ContainerMatcher
 	logChannel       chan *container.LogEvent
 	ctx              context.Context
@@ -34,7 +40,7 @@ func NewContainerLogListener(ctx context.Context, clients []container_support.Cl
 	return &ContainerLogListener{
 		clients:          clients,
 		containerClients: xsync.NewMap[string, container_support.ClientService](),
-		activeStreams:    xsync.NewMap[string, context.CancelFunc](),
+		activeStreams:    xsync.NewMap[string, *streamEntry](),
 		logChannel:       make(chan *container.LogEvent, 1000),
 		ctx:              ctx,
 		cache:            NewTTLCache[string, containerInfo](ctx, 30*time.Second),
@@ -113,22 +119,37 @@ func (l *ContainerLogListener) UpdateStreams() {
 // startListening starts listening to a container's logs with a known client
 func (l *ContainerLogListener) startListening(c container.Container, client container_support.ClientService, since time.Time) {
 	streamCtx, cancel := context.WithCancel(l.ctx)
+	entry := &streamEntry{ctx: streamCtx, cancel: cancel}
 
-	// Only store if not already present
-	_, loaded := l.activeStreams.LoadOrStore(c.ID, cancel)
-	if loaded {
-		cancel() // Already listening, cancel the new context
-		return
-	}
-
+	// Atomically cancel any existing stream and store the new one (handles restarts where old stream left a stale entry)
+	l.activeStreams.Compute(c.ID, func(old *streamEntry, loaded bool) (*streamEntry, xsync.ComputeOp) {
+		if loaded {
+			old.cancel()
+			log.Debug().Str("containerID", c.ID).Msg("Cancelled stale stream for container")
+		}
+		return entry, xsync.UpdateOp
+	})
 	l.containerClients.Store(c.ID, client)
 
 	go func() {
+		defer l.cleanupStream(c.ID, streamCtx)
 		log.Debug().Str("containerID", c.ID).Str("name", c.Name).Msg("Started listening to container")
 		if err := client.StreamLogs(streamCtx, c, since, container.STDALL, l.logChannel); err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			log.Error().Err(err).Str("containerID", c.ID).Msg("Error streaming logs")
 		}
 	}()
+}
+
+// cleanupStream removes the activeStreams entry only if it still belongs to this stream
+func (l *ContainerLogListener) cleanupStream(containerID string, streamCtx context.Context) {
+	l.activeStreams.Compute(containerID, func(entry *streamEntry, loaded bool) (*streamEntry, xsync.ComputeOp) {
+		if loaded && entry.ctx == streamCtx {
+			l.containerClients.Delete(containerID)
+			log.Debug().Str("containerID", containerID).Msg("Stream ended, cleaned up listener")
+			return nil, xsync.DeleteOp
+		}
+		return entry, xsync.CancelOp
+	})
 }
 
 // startListeningByID finds the client for a container and starts listening
@@ -144,8 +165,8 @@ func (l *ContainerLogListener) startListeningByID(c container.Container) {
 
 // stopListening stops listening to a container's logs
 func (l *ContainerLogListener) stopListening(containerID string) {
-	if cancel, exists := l.activeStreams.LoadAndDelete(containerID); exists {
-		cancel()
+	if entry, exists := l.activeStreams.LoadAndDelete(containerID); exists {
+		entry.cancel()
 		l.containerClients.Delete(containerID)
 		log.Debug().Str("containerID", containerID).Msg("Stopped listening to container")
 	}

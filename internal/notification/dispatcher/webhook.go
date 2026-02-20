@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"text/template"
 	"time"
 
@@ -68,11 +69,10 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	var err error
 
 	if w.Template != nil {
-		var buf bytes.Buffer
-		if err := w.Template.Execute(&buf, notification); err != nil {
+		payload, err = executeJSONTemplate(w.TemplateText, notification)
+		if err != nil {
 			return TestResult{Success: false, Error: fmt.Sprintf("failed to execute template: %v", err)}
 		}
-		payload = buf.Bytes()
 	} else {
 		payload, err = json.Marshal(notification)
 		if err != nil {
@@ -112,4 +112,72 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	}
 
 	return TestResult{Success: true, StatusCode: resp.StatusCode}
+}
+
+// executeJSONTemplate parses the template as JSON, resolves Go template placeholders
+// in string values, and marshals back to JSON. This ensures all values are properly
+// JSON-escaped regardless of their content (e.g., log messages containing quotes or braces).
+func executeJSONTemplate(templateText string, data any) ([]byte, error) {
+	var structure any
+	if err := json.Unmarshal([]byte(templateText), &structure); err != nil {
+		// Not valid JSON — fall back to raw text/template execution
+		tmpl, parseErr := template.New("webhook").Parse(templateText)
+		if parseErr != nil {
+			return nil, fmt.Errorf("failed to parse template: %w", parseErr)
+		}
+		var buf bytes.Buffer
+		if execErr := tmpl.Execute(&buf, data); execErr != nil {
+			return nil, fmt.Errorf("failed to execute template: %w", execErr)
+		}
+		return buf.Bytes(), nil
+	}
+
+	resolved, err := resolveTemplateValues(structure, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(resolved)
+}
+
+// resolveTemplateValues recursively walks a JSON structure and executes
+// Go template expressions found in string values.
+func resolveTemplateValues(v any, data any) (any, error) {
+	switch val := v.(type) {
+	case map[string]any:
+		result := make(map[string]any, len(val))
+		for k, child := range val {
+			resolved, err := resolveTemplateValues(child, data)
+			if err != nil {
+				return nil, err
+			}
+			result[k] = resolved
+		}
+		return result, nil
+	case []any:
+		result := make([]any, len(val))
+		for i, child := range val {
+			resolved, err := resolveTemplateValues(child, data)
+			if err != nil {
+				return nil, err
+			}
+			result[i] = resolved
+		}
+		return result, nil
+	case string:
+		if !strings.Contains(val, "{{") {
+			return val, nil
+		}
+		tmpl, err := template.New("field").Parse(val)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse template field %q: %w", val, err)
+		}
+		var buf bytes.Buffer
+		if err := tmpl.Execute(&buf, data); err != nil {
+			return nil, fmt.Errorf("failed to execute template field %q: %w", val, err)
+		}
+		return buf.String(), nil
+	default:
+		return val, nil
+	}
 }

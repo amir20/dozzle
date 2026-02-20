@@ -20,7 +20,9 @@
       "Bash(git checkout:*)",
       "Bash(pnpm build:*)",
       "Bash(go build:*)",
-      "Bash(gh issue view:*)"
+      "Bash(gh issue view:*)",
+      "Bash(xargs ls:*)",
+      "Bash(gh pr list:*)"
     ]
   }
 }
