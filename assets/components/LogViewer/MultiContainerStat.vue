@@ -52,7 +52,7 @@ const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return 1;
+    return container.cpuLimit;
   }
   const hostInfo = hosts.value[container.host];
   return hostInfo?.nCPU ?? 1;
