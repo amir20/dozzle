@@ -22,7 +22,13 @@
       "Bash(go build:*)",
       "Bash(gh issue view:*)",
       "Bash(xargs ls:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(docker run:*)",
+      "Bash(docker stats:*)",
+      "Bash(curl:*)",
+      "Bash(docker rm:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(git push:*)"
     ]
   }
 }

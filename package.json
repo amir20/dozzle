@@ -1,12 +1,12 @@
 {
   "name": "dozzle",
-  "version": "10.0.3",
+  "version": "10.0.4",
   "description": "Realtime log viewer for docker containers.",
   "homepage": "https://github.com/amir20/dozzle#readme",
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.30.0",
+  "packageManager": "pnpm@10.30.1",
   "type": "module",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "@codemirror/language": "^6.12.1",
     "@codemirror/state": "^6.5.4",
     "@codemirror/theme-one-dark": "^6.1.3",
-    "@codemirror/view": "^6.39.14",
+    "@codemirror/view": "^6.39.15",
     "@duckdb/duckdb-wasm": "1.33.1-dev18.0",
     "@iconify-json/carbon": "^1.2.18",
     "@iconify-json/cil": "^1.2.3",
@@ -58,7 +58,7 @@
     "@xterm/xterm": "^6.0.0",
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
-    "daisyui": "5.5.18",
+    "daisyui": "5.5.19",
     "entities": "^7.0.1",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
