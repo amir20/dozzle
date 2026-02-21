@@ -90,6 +90,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	clients := []container_support.ClientService{clientService}
 	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients), notification.NewContainerStatsListener(ctx, clients))
 
+	// Start first so matcher is available for LoadConfig
+	if err := notificationManager.Start(); err != nil {
+		return fmt.Errorf("failed to start notification manager: %w", err)
+	}
+
 	// Load existing notification config if available
 	if file, err := os.Open(notificationConfigPath); err == nil {
 		if err := notificationManager.LoadConfig(file); err != nil {
@@ -98,10 +103,6 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 			log.Info().Str("path", notificationConfigPath).Msg("Loaded notification config from disk")
 		}
 		file.Close()
-	}
-
-	if err := notificationManager.Start(); err != nil {
-		return fmt.Errorf("failed to start notification manager: %w", err)
 	}
 
 	// Create handler that wraps manager and persists config to disk
