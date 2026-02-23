@@ -75,6 +75,7 @@ services:
       start_interval: 5s
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./e2e/data/notifications.yml:/data/notifications.yml:ro
     build:
       context: .
   proxy:
