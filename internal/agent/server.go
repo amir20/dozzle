@@ -459,13 +459,6 @@ func NewServer(service ClientService, certificates tls.Certificate, dozzleVersio
 
 	grpcServer := grpc.NewServer(
 		grpc.Creds(creds),
-		grpc.KeepaliveParams(keepalive.ServerParameters{
-			MaxConnectionIdle:     15 * time.Minute,
-			MaxConnectionAge:      2 * time.Hour,
-			MaxConnectionAgeGrace: 5 * time.Minute,
-			Time:                  30 * time.Second,
-			Timeout:               10 * time.Second,
-		}),
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			MinTime:             15 * time.Second,
 			PermitWithoutStream: true,
