@@ -16,3 +16,4 @@ coverage.out
 *.csr
 tmp
 .claude/settings.local.json
+.claude/worktrees/
