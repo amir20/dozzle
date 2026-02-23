@@ -1,0 +1,12 @@
+subscriptions:
+  - id: 1
+    name: test-alert
+    enabled: true
+    dispatcherId: 1
+    logExpression: 'message contains "error"'
+    containerExpression: 'name contains "dozzle"'
+dispatchers:
+  - id: 1
+    name: test-webhook
+    type: webhook
+    url: http://localhost:9999/webhook
