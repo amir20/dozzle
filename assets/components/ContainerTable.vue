@@ -35,14 +35,32 @@
           v-else
         />
       </div>
-      <div class="flex-1 text-right" v-show="containers.length > pageSizes[0]">
-        {{ $t("label.per-page") }}
+      <div class="flex flex-1 items-center justify-end gap-2">
+        <div v-show="containers.length > pageSizes[0]">
+          {{ $t("label.per-page") }}
 
-        <DropdownMenu
-          class="dropdown-left btn-xs md:btn-sm"
-          v-model="perPage"
-          :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
-        />
+          <DropdownMenu
+            class="dropdown-left btn-xs md:btn-sm"
+            v-model="perPage"
+            :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
+          />
+        </div>
+        <div class="join">
+          <button
+            class="btn join-item btn-xs md:btn-sm"
+            :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"
+            @click="statMode = 'chart'"
+          >
+            <mdi:chart-bar />
+          </button>
+          <button
+            class="btn join-item btn-xs md:btn-sm"
+            :class="statMode === 'progress' ? 'btn-active' : 'btn-ghost'"
+            @click="statMode = 'progress'"
+          >
+            <mdi:poll class="scale-x-[-1] rotate-90" />
+          </button>
+        </div>
       </div>
     </div>
     <div class="rounded-box border-base-content/10 overflow-x-auto border">
@@ -66,7 +84,12 @@
           </tr>
         </thead>
         <tbody class="bg-base-300/30">
-          <tr v-for="container in paginated" :key="container.id" v-memo="[container.id]" class="hover:bg-base-100/80!">
+          <tr
+            v-for="container in paginated"
+            :key="container.id"
+            v-memo="[container.id, statMode]"
+            class="hover:bg-base-100/80!"
+          >
             <td v-if="isVisible('name')" class="max-w-80 truncate">
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
@@ -78,10 +101,10 @@
               <RelativeTime :date="container.created" />
             </td>
             <td v-if="isVisible('cpu')">
-              <ContainerStatCell :container="container" type="cpu" :host="hosts[container.host]" />
+              <ContainerStatCell :container="container" type="cpu" :host="hosts[container.host]" :mode="statMode" />
             </td>
             <td v-if="isVisible('mem')">
-              <ContainerStatCell :container="container" type="mem" :host="hosts[container.host]" />
+              <ContainerStatCell :container="container" type="mem" :host="hosts[container.host]" :mode="statMode" />
             </td>
           </tr>
         </tbody>
@@ -167,6 +190,7 @@ const { containers } = defineProps<{
 }>();
 type keys = keyof typeof fields;
 
+const statMode = useStorage<"chart" | "progress">("DOZZLE_TABLE_STAT_MODE", "chart");
 const perPage = useStorage("DOZZLE_TABLE_PAGE_SIZE", 15);
 const pageSizes = [15, 30, 50, 100];
 

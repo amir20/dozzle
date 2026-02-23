@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-row items-center gap-2">
-    <BarChart class="h-4 flex-1" :chart-data="chartData" :bar-class="barClass" />
+    <template v-if="mode === 'chart'">
+      <BarChart class="h-4 flex-1" :chart-data="chartData" :bar-class="barClass" />
+    </template>
+    <template v-else>
+      <progress class="progress flex-1" :class="progressClass" :value="averageValue" max="100"></progress>
+    </template>
     <span class="w-fit text-right text-sm">{{ displayValue }}</span>
   </div>
 </template>
@@ -9,15 +14,21 @@
 import type { Container } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
 
-const { container, type, host } = defineProps<{
+const {
+  container,
+  type,
+  host,
+  mode = "chart",
+} = defineProps<{
   container: Container;
   type: "cpu" | "mem";
   host: Host;
+  mode?: "chart" | "progress";
 }>();
 
 function totalCores(): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
-    return 1;
+    return container.cpuLimit;
   }
   return host.nCPU ?? 1;
 }
@@ -51,5 +62,13 @@ const barClass = computed(() => {
   if (value <= 70) return "bg-secondary";
   if (value <= 90) return "bg-warning";
   return "bg-error";
+});
+
+const progressClass = computed(() => {
+  const value = averageValue.value;
+  if (value <= 50) return "progress-success";
+  if (value <= 70) return "progress-secondary";
+  if (value <= 90) return "progress-warning";
+  return "progress-error";
 });
 </script>
