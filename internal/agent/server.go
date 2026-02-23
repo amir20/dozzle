@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -456,7 +457,20 @@ func NewServer(service ClientService, certificates tls.Certificate, dozzleVersio
 	// Create the gRPC server with the credentials
 	creds := credentials.NewTLS(tlsConfig)
 
-	grpcServer := grpc.NewServer(grpc.Creds(creds))
+	grpcServer := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			MaxConnectionIdle:     15 * time.Minute,
+			MaxConnectionAge:      2 * time.Hour,
+			MaxConnectionAgeGrace: 5 * time.Minute,
+			Time:                  30 * time.Second,
+			Timeout:               10 * time.Second,
+		}),
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             15 * time.Second,
+			PermitWithoutStream: true,
+		}),
+	)
 	pb.RegisterAgentServiceServer(grpcServer, newServer(service, dozzleVersion, notificationHandler))
 
 	return grpcServer, nil
