@@ -19,14 +19,9 @@
 </style>
 
 <script setup lang="ts">
-const {
-  chartData,
-  barClass = "",
-  maxCeiling = 10,
-} = defineProps<{
+const { chartData, barClass = "" } = defineProps<{
   chartData: number[];
   barClass?: string;
-  maxCeiling?: number;
 }>();
 
 const hoverIndex = defineEmit<[startIndex: number, endIndex: number]>();
@@ -41,9 +36,12 @@ const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP))
 const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
 
 const downsampledData = ref<number[]>([]);
+const STEPS = [3, 5, 10, 25, 50, 100];
+
 const maxValue = computed(() => {
   const dataMax = Math.max(0, ...downsampledData.value);
-  return Math.max(dataMax * 1.2, maxCeiling);
+  const step = STEPS.find((s) => dataMax <= s) ?? dataMax * 1.2;
+  return step;
 });
 const changeCounter = ref(-1);
 
