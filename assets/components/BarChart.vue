@@ -1,11 +1,11 @@
 <template>
   <div ref="chartContainer" class="flex items-end gap-[2px]" @mousemove="onContainerHover">
     <div
-      v-for="(dataPoint, i) in downsampledData"
+      v-for="(bar, i) in downsampledBars"
       :key="i"
       class="bar min-h-px flex-1 rounded-t-sm"
       :class="barClass"
-      :style="{ '--height': `${maxValue > 0 ? (dataPoint / maxValue) * 100 : 0}%` }"
+      :style="{ '--height': `${maxValue > 0 ? (bar.percent / maxValue) * 100 : 0}%` }"
     ></div>
   </div>
 </template>
@@ -19,17 +19,17 @@
 </style>
 
 <script setup lang="ts">
-const {
-  chartData,
-  barClass = "",
-  maxCeiling = 10,
-} = defineProps<{
-  chartData: number[];
+export interface BarDataPoint {
+  percent: number;
+  value: number;
+}
+
+const { chartData, barClass = "" } = defineProps<{
+  chartData: BarDataPoint[];
   barClass?: string;
-  maxCeiling?: number;
 }>();
 
-const hoverIndex = defineEmit<[startIndex: number, endIndex: number]>();
+const hoverValue = defineEmit<[value: number]>();
 
 const chartContainer = ref<HTMLElement | null>(null);
 const { width } = useElementSize(chartContainer);
@@ -40,78 +40,85 @@ const GAP = 2;
 const availableBars = computed(() => Math.floor(width.value / (BAR_WIDTH + GAP)));
 const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.value));
 
-const downsampledData = ref<number[]>([]);
+const downsampledBars = ref<BarDataPoint[]>([]);
 const maxValue = computed(() => {
-  const dataMax = Math.max(0, ...downsampledData.value);
-  return Math.max(dataMax * 1.2, maxCeiling);
+  const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
+  return Math.min(Math.max(dataMax * 1.25, 1), 100);
 });
-const changeCounter = ref(-1);
+// Full recalculate when width/bucket size changes
+watch([availableBars, bucketSize], () => {
+  recalculate();
+});
 
-// Watch chartData changes
+// On data changes, only update the last bar unless a new bucket boundary is crossed
+const changeCounter = ref(0);
 watch(
-  () => chartData,
+  () => chartData.at(-1),
   () => {
-    // If changeCounter is -1, it means this is the first time the data is loaded
-    if (changeCounter.value === -1) {
-      recalculate();
-    }
     changeCounter.value++;
     if (changeCounter.value >= bucketSize.value) {
-      // Recalculate when counter reaches bucket size
       recalculate();
       changeCounter.value = 0;
+    } else {
+      updateLastBar();
     }
   },
 );
 
-// Recalculate when width changes
-watch([availableBars, bucketSize], () => {
-  recalculate();
-  changeCounter.value = -1;
-});
+function averageBucket(bucket: BarDataPoint[]): BarDataPoint {
+  const percent = bucket.reduce((sum, d) => sum + d.percent, 0) / bucket.length;
+  const value = bucket.reduce((sum, d) => sum + d.value, 0) / bucket.length;
+  return { percent, value };
+}
 
 function recalculate() {
   if (chartData.length <= availableBars.value || availableBars.value === 0) {
-    downsampledData.value = [...chartData];
+    downsampledBars.value = [...chartData];
     return;
   }
 
   const size = bucketSize.value;
-  const result = [];
+  const result: BarDataPoint[] = [];
+  const numBuckets = Math.ceil(chartData.length / size);
 
-  // Create complete buckets
-  const numCompleteBuckets = Math.floor(chartData.length / size);
-
-  for (let i = 0; i < numCompleteBuckets; i++) {
+  for (let i = 0; i < numBuckets; i++) {
     const start = i * size;
-    const end = start + size;
-    const bucket = chartData.slice(start, end);
-    const avg = bucket.reduce((sum, val) => sum + val, 0) / bucket.length;
-    result.push(avg);
+    const end = Math.min(start + size, chartData.length);
+    result.push(averageBucket(chartData.slice(start, end)));
   }
 
-  // Show only the last N bars that fit on screen
-  downsampledData.value = result.slice(-availableBars.value);
+  downsampledBars.value = result.slice(-availableBars.value);
+}
+
+function updateLastBar() {
+  if (downsampledBars.value.length === 0) return;
+
+  const size = bucketSize.value;
+  const lastBucketStart = (Math.ceil(chartData.length / size) - 1) * size;
+  const bucket = chartData.slice(lastBucketStart);
+
+  downsampledBars.value[downsampledBars.value.length - 1] = averageBucket(bucket);
 }
 
 function onContainerHover(event: MouseEvent) {
   if (!chartContainer.value) return;
 
-  const rect = chartContainer.value.getBoundingClientRect();
-  const x = event.clientX - rect.left;
+  const bars = chartContainer.value.children;
+  if (bars.length === 0) return;
 
-  // Calculate which bar the mouse is over based on position
-  const barWidth = width.value / downsampledData.value.length;
-  const index = Math.floor(x / barWidth);
+  const mouseX = event.clientX;
+  let index = 0;
 
-  // Ensure index is within bounds
-  if (index < 0 || index >= downsampledData.value.length) return;
+  // Find the bar whose column contains the mouse x position
+  for (let i = 0; i < bars.length; i++) {
+    const rect = bars[i].getBoundingClientRect();
+    if (mouseX >= rect.left) {
+      index = i;
+    } else {
+      break;
+    }
+  }
 
-  // Map downsampled index back to original data index range
-  const numCompleteBuckets = Math.floor(chartData.length / bucketSize.value);
-  const offset = Math.max(0, numCompleteBuckets - availableBars.value);
-  const startIndex = (offset + index) * bucketSize.value;
-  const endIndex = Math.min(startIndex + bucketSize.value - 1, chartData.length - 1);
-  hoverIndex(startIndex, endIndex);
+  hoverValue(downsampledBars.value[index].value);
 }
 </script>

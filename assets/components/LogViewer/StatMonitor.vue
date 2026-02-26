@@ -1,11 +1,19 @@
 <template>
-  <div class="relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false" :class="textClass">
+  <div
+    class="relative"
+    @mouseenter="mouseOver = true"
+    @mouseleave="
+      mouseOver = false;
+      hoveredValue = null;
+    "
+    :class="textClass"
+  >
     <div class="overflow-hidden rounded-xs border px-px pt-1 pb-px max-md:hidden" :class="containerClass">
       <BarChart
         :chart-data="chartData"
         :bar-class="`${barClass} opacity-70 hover:opacity-100`"
         class="h-8 w-44"
-        @hover-index="(startIndex: number, endIndex: number) => onHoverIndexChange(startIndex, endIndex)"
+        @hover-value="(value: number) => (hoveredValue = value)"
       />
     </div>
     <div class="bg-base-200 flex gap-1 rounded-sm p-px text-xs md:absolute md:-top-2 md:-left-0.5">
@@ -31,7 +39,7 @@ const {
   barClass = "bg-primary",
   formatter,
 } = defineProps<{
-  data: Point<unknown>[];
+  data: Point<number>[];
   icon: Component;
   statValue: string | number;
   limit?: string | number;
@@ -41,25 +49,21 @@ const {
   formatter?: (value: number) => string;
 }>();
 
-const chartData = computed(() => data.map((point) => (point.y as number) ?? 0));
+const chartData = computed(() =>
+  data.map((point) => ({
+    percent: point.y ?? 0,
+    value: point.value ?? point.y ?? 0,
+  })),
+);
 const mouseOver = ref(false);
-const hoveredRange = ref<{ start: number; end: number } | null>(null);
-
-function onHoverIndexChange(startIndex: number, endIndex: number) {
-  hoveredRange.value = { start: startIndex, end: endIndex };
-}
+const hoveredValue = ref<number | null>(null);
 
 const displayValue = computed(() => {
-  if (mouseOver.value && hoveredRange.value !== null) {
-    const { start, end } = hoveredRange.value;
-    const points = data.slice(start, end + 1);
-    const sum = points.reduce((acc, point) => acc + ((point.value as number) ?? (point.y as number) ?? 0), 0);
-    const avg = sum / points.length;
-
+  if (mouseOver.value && hoveredValue.value !== null) {
     if (formatter) {
-      return formatter(avg);
+      return formatter(hoveredValue.value);
     }
-    return avg.toFixed(2);
+    return hoveredValue.value.toFixed(2);
   }
   return statValue;
 });

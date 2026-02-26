@@ -6,7 +6,7 @@
     <template v-else>
       <progress class="progress flex-1" :class="progressClass" :value="averageValue" max="100"></progress>
     </template>
-    <span class="w-fit text-right text-sm">{{ displayValue }}</span>
+    <span class="min-w-12 text-right text-sm tabular-nums">{{ displayValue }}</span>
   </div>
 </template>
 
@@ -36,9 +36,15 @@ function totalCores(): number {
 const chartData = computed(() => {
   if (type === "cpu") {
     const cores = totalCores();
-    return container.statsHistory.map((stat) => Math.min(stat.cpu / cores, 100));
+    return container.statsHistory.map((stat) => {
+      const percent = Math.min(stat.cpu / cores, 100);
+      return { percent, value: stat.cpu };
+    });
   }
-  return container.statsHistory.map((stat) => Math.min(stat.memory, 100));
+  return container.statsHistory.map((stat) => {
+    const percent = Math.min(stat.memory, 100);
+    return { percent, value: stat.memoryUsage };
+  });
 });
 
 const averageValue = computed(() => {
