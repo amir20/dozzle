@@ -43,7 +43,7 @@ const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.val
 const downsampledBars = ref<BarDataPoint[]>([]);
 const maxValue = computed(() => {
   const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
-  return Math.max(dataMax * 1.25, 1);
+  return Math.min(Math.max(dataMax * 1.25, 1), 100);
 });
 // Full recalculate when width/bucket size changes
 watch([availableBars, bucketSize], () => {

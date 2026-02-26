@@ -6,7 +6,7 @@
     <template v-else>
       <progress class="progress flex-1" :class="progressClass" :value="averageValue" max="100"></progress>
     </template>
-    <span class="w-fit text-right text-sm">{{ displayValue }}</span>
+    <span class="min-w-12 text-right text-sm tabular-nums">{{ displayValue }}</span>
   </div>
 </template>
 
