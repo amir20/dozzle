@@ -237,10 +237,12 @@ func (c *Client) StreamStats(ctx context.Context, stats chan<- container.Contain
 		}
 
 		stats <- container.ContainerStat{
-			CPUPercent:    resp.Stat.CpuPercent,
-			MemoryPercent: resp.Stat.MemoryPercent,
-			MemoryUsage:   resp.Stat.MemoryUsage,
-			ID:            resp.Stat.Id,
+			CPUPercent:     resp.Stat.CpuPercent,
+			MemoryPercent:  resp.Stat.MemoryPercent,
+			MemoryUsage:    resp.Stat.MemoryUsage,
+			ID:             resp.Stat.Id,
+			NetworkRxTotal: resp.Stat.NetworkRxTotal,
+			NetworkTxTotal: resp.Stat.NetworkTxTotal,
 		}
 	}
 }
