@@ -8,7 +8,7 @@
     <div class="text-base-content/60 mb-1 text-xs tabular-nums max-md:hidden">
       avg {{ formatValue(average) }} • pk {{ formatValue(peak) }}
     </div>
-    <BarChart class="h-8" :chartData="percentData" :barClass="barClass" />
+    <BarChart class="h-8" :chart-data="chartData" :bar-class="barClass" />
   </div>
 </template>
 
@@ -39,8 +39,6 @@ const {
   barClass?: string;
   formatValue?: (value: number) => string;
 }>();
-
-const percentData = computed(() => chartData.map((d) => d.percent));
 
 const peak = computed(() => (chartData.length > 0 ? Math.max(...chartData.map((d) => d.value)) : 0));
 

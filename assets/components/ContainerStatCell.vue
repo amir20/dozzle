@@ -36,9 +36,15 @@ function totalCores(): number {
 const chartData = computed(() => {
   if (type === "cpu") {
     const cores = totalCores();
-    return container.statsHistory.map((stat) => Math.min(stat.cpu / cores, 100));
+    return container.statsHistory.map((stat) => {
+      const percent = Math.min(stat.cpu / cores, 100);
+      return { percent, value: percent };
+    });
   }
-  return container.statsHistory.map((stat) => Math.min(stat.memory, 100));
+  return container.statsHistory.map((stat) => {
+    const percent = Math.min(stat.memory, 100);
+    return { percent, value: percent };
+  });
 });
 
 const averageValue = computed(() => {
