@@ -14,11 +14,7 @@
 
 <script setup lang="ts">
 import type { Component } from "vue";
-
-export interface MetricDataPoint {
-  percent: number; // value 0 - 100
-  value: number;
-}
+import type { BarDataPoint } from "@/components/BarChart.vue";
 
 const {
   label,
@@ -33,7 +29,7 @@ const {
   label: string;
   icon: Component;
   value: string | number;
-  chartData: MetricDataPoint[];
+  chartData: BarDataPoint[];
   containerClass?: string;
   textClass?: string;
   barClass?: string;

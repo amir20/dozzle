@@ -1,5 +1,13 @@
 <template>
-  <div class="relative" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false" :class="textClass">
+  <div
+    class="relative"
+    @mouseenter="mouseOver = true"
+    @mouseleave="
+      mouseOver = false;
+      hoveredValue = null;
+    "
+    :class="textClass"
+  >
     <div class="overflow-hidden rounded-xs border px-px pt-1 pb-px max-md:hidden" :class="containerClass">
       <BarChart
         :chart-data="chartData"
@@ -31,7 +39,7 @@ const {
   barClass = "bg-primary",
   formatter,
 } = defineProps<{
-  data: Point<unknown>[];
+  data: Point<number>[];
   icon: Component;
   statValue: string | number;
   limit?: string | number;
@@ -43,8 +51,8 @@ const {
 
 const chartData = computed(() =>
   data.map((point) => ({
-    percent: (point.y as number) ?? 0,
-    value: (point.value as number) ?? (point.y as number) ?? 0,
+    percent: point.y ?? 0,
+    value: point.value ?? point.y ?? 0,
   })),
 );
 const mouseOver = ref(false);

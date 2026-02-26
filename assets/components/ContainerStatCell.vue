@@ -38,12 +38,12 @@ const chartData = computed(() => {
     const cores = totalCores();
     return container.statsHistory.map((stat) => {
       const percent = Math.min(stat.cpu / cores, 100);
-      return { percent, value: percent };
+      return { percent, value: stat.cpu };
     });
   }
   return container.statsHistory.map((stat) => {
     const percent = Math.min(stat.memory, 100);
-    return { percent, value: percent };
+    return { percent, value: stat.memoryUsage };
   });
 });
 
