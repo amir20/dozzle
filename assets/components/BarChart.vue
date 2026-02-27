@@ -43,18 +43,25 @@ const bucketSize = computed(() => Math.ceil(chartData.length / availableBars.val
 const downsampledBars = ref<BarDataPoint[]>([]);
 const maxValue = computed(() => {
   const dataMax = Math.max(0, ...downsampledBars.value.map((b) => b.percent));
-  return Math.min(Math.max(dataMax * 1.25, 1), 100);
+  return Math.max(dataMax * 1.25, 1);
 });
 // Full recalculate when width/bucket size changes
 watch([availableBars, bucketSize], () => {
   recalculate();
+  changeCounter.value = 0;
 });
 
 // On data changes, only update the last bar unless a new bucket boundary is crossed
 const changeCounter = ref(0);
+let initialized = false;
 watch(
   () => chartData.at(-1),
   () => {
+    if (!initialized) {
+      initialized = true;
+      recalculate();
+      return;
+    }
     changeCounter.value++;
     if (changeCounter.value >= bucketSize.value) {
       recalculate();
@@ -65,6 +72,8 @@ watch(
   },
 );
 
+defineExpose({ recalculate });
+
 function averageBucket(bucket: BarDataPoint[]): BarDataPoint {
   const percent = bucket.reduce((sum, d) => sum + d.percent, 0) / bucket.length;
   const value = bucket.reduce((sum, d) => sum + d.value, 0) / bucket.length;
@@ -72,7 +81,9 @@ function averageBucket(bucket: BarDataPoint[]): BarDataPoint {
 }
 
 function recalculate() {
-  if (chartData.length <= availableBars.value || availableBars.value === 0) {
+  if (availableBars.value === 0) return;
+
+  if (chartData.length <= availableBars.value) {
     downsampledBars.value = [...chartData];
     return;
   }

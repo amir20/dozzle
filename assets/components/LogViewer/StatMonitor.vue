@@ -10,6 +10,7 @@
   >
     <div class="overflow-hidden rounded-xs border px-px pt-1 pb-px max-md:hidden" :class="containerClass">
       <BarChart
+        ref="barChartRef"
         :chart-data="chartData"
         :bar-class="`${barClass} opacity-70 hover:opacity-100`"
         class="h-8 w-44"
@@ -28,6 +29,7 @@
 
 <script lang="ts" setup>
 import type { Component } from "vue";
+import BarChart from "@/components/BarChart.vue";
 
 const {
   data,
@@ -55,8 +57,11 @@ const chartData = computed(() =>
     value: point.value ?? point.y ?? 0,
   })),
 );
+const barChartRef = ref<InstanceType<typeof BarChart> | null>(null);
 const mouseOver = ref(false);
 const hoveredValue = ref<number | null>(null);
+
+defineExpose({ recalculate: () => barChartRef.value?.recalculate() });
 
 const displayValue = computed(() => {
   if (mouseOver.value && hoveredValue.value !== null) {
