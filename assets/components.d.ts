@@ -122,7 +122,6 @@ declare module 'vue' {
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
     'Mdi:textBoxOutline': typeof import('~icons/mdi/text-box-outline')['default']
     'Mdi:trashCanOutline': typeof import('~icons/mdi/trash-can-outline')['default']
-    'Mdi:viewSequential': typeof import('~icons/mdi/view-sequential')['default']
     'Mdi:webhook': typeof import('~icons/mdi/webhook')['default']
     MetricAlertFields: typeof import('./components/Notification/MetricAlertFields.vue')['default']
     MetricCard: typeof import('./components/MetricCard.vue')['default']
