@@ -72,6 +72,8 @@ watch(
   },
 );
 
+defineExpose({ recalculate });
+
 function averageBucket(bucket: BarDataPoint[]): BarDataPoint {
   const percent = bucket.reduce((sum, d) => sum + d.percent, 0) / bucket.length;
   const value = bucket.reduce((sum, d) => sum + d.value, 0) / bucket.length;

@@ -9,6 +9,7 @@
       <span class="tabular-nums">{{ formatBytes(networkRate.rx, { short: true, decimals: 1 }) }}/s</span>
     </div>
     <StatMonitor
+      ref="cpuMonitorRef"
       :data="cpuData"
       :icon="PhCpu"
       :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
@@ -19,6 +20,7 @@
       :formatter="(value: number) => value.toFixed(2) + '%'"
     />
     <StatMonitor
+      ref="memoryMonitorRef"
       :data="memoryData"
       :icon="PhMemory"
       :stat-value="formatBytes(totalStat.memoryUsage)"
@@ -43,6 +45,8 @@ const { containers } = defineProps<{
   containers: Container[];
 }>();
 
+const cpuMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
+const memoryMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
 const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 });
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
@@ -84,6 +88,10 @@ watch(
     }
     totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
+    nextTick(() => {
+      cpuMonitorRef.value?.recalculate();
+      memoryMonitorRef.value?.recalculate();
+    });
   },
   { immediate: true },
 );
