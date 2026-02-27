@@ -226,6 +226,9 @@ The frontend uses file-based routing with these conventions:
   - `BarChart.vue`: Self-contained bar chart with responsive downsampling
   - Downsampling algorithm: Averages data into buckets based on available screen width
   - All stat history tracked in `Container.statsHistory` (max 300 items via rolling window)
+  - `chartData` is always a rolling window of max 300 items — array length stays constant
+  - Uses `ref` (not `computed`) for `downsampledBars` to enable in-place mutation of the last bar, avoiding full re-renders
+  - Component instance is reused when switching containers; parent must call exposed `recalculate()` to force refresh
 
 ### Backend
 
