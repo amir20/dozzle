@@ -36,6 +36,7 @@
 <script lang="ts" setup>
 import { Stat } from "@/models/Container";
 import { Container } from "@/models/Container";
+import StatMonitor from "@/components/LogViewer/StatMonitor.vue";
 // @ts-ignore
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore

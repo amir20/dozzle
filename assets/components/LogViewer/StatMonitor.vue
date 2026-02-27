@@ -29,6 +29,7 @@
 
 <script lang="ts" setup>
 import type { Component } from "vue";
+import BarChart from "@/components/BarChart.vue";
 
 const {
   data,
