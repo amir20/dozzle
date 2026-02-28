@@ -39,6 +39,7 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to create request", http.StatusInternalServerError)
 		return
 	}
+	req.Header.Set("User-Agent", dispatcher.UserAgent)
 	q := req.URL.Query()
 	q.Set("token", token)
 	req.URL.RawQuery = q.Encode()
@@ -129,6 +130,7 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "failed to create request")
 		return
 	}
+	req.Header.Set("User-Agent", dispatcher.UserAgent)
 	req.Header.Set("X-API-Key", apiKey)
 
 	resp, err := client.Do(req)
