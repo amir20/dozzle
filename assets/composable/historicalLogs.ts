@@ -1,7 +1,7 @@
 import { HistoricalContainer } from "@/models/Container";
 import { LogMessage, LoadMoreLogEntry, LogEntry } from "@/models/LogEntry";
 import { ShallowRef } from "vue";
-import { loadBetween } from "@/composable/eventStreams";
+import { loadBetween } from "@/composable/loadBetween";
 
 export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalContainer>): LogStreamSource {
   const messages: ShallowRef<LogEntry<LogMessage>[]> = shallowRef([]);

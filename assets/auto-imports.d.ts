@@ -80,7 +80,7 @@ declare global {
   const isRef: typeof import('vue').isRef
   const isShallow: typeof import('vue').isShallow
   const lightTheme: typeof import('./stores/settings').lightTheme
-  const loadBetween: typeof import('./composable/eventStreams').loadBetween
+  const loadBetween: typeof import('./composable/loadBetween').loadBetween
   const locale: typeof import('./stores/settings').locale
   const loggingContextKey: typeof import('./composable/logContext').loggingContextKey
   const makeDestructurable: typeof import('@vueuse/core').makeDestructurable
@@ -113,6 +113,7 @@ declare global {
   const onUnmounted: typeof import('vue').onUnmounted
   const onUpdated: typeof import('vue').onUpdated
   const onWatcherCleanup: typeof import('vue').onWatcherCleanup
+  const parseMessage: typeof import('./composable/loadBetween').parseMessage
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const persistentVisibleKeysForContainer: typeof import('./composable/storage').persistentVisibleKeysForContainer
   const pinnedContainers: typeof import('./composable/storage').pinnedContainers
@@ -270,6 +271,7 @@ declare global {
   const useLastChanged: typeof import('@vueuse/core').useLastChanged
   const useLink: typeof import('vue-router/auto').useLink
   const useLocalStorage: typeof import('@vueuse/core').useLocalStorage
+  const useLogLoader: typeof import('./composable/logLoader').useLogLoader
   const useLoggingContext: typeof import('./composable/logContext').useLoggingContext
   const useMagicKeys: typeof import('@vueuse/core').useMagicKeys
   const useManualRefHistory: typeof import('@vueuse/core').useManualRefHistory
@@ -505,7 +507,7 @@ declare module 'vue' {
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly lightTheme: UnwrapRef<typeof import('./stores/settings')['lightTheme']>
-    readonly loadBetween: UnwrapRef<typeof import('./composable/eventStreams')['loadBetween']>
+    readonly loadBetween: UnwrapRef<typeof import('./composable/loadBetween')['loadBetween']>
     readonly locale: UnwrapRef<typeof import('./stores/settings')['locale']>
     readonly loggingContextKey: UnwrapRef<typeof import('./composable/logContext')['loggingContextKey']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
@@ -538,6 +540,7 @@ declare module 'vue' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
+    readonly parseMessage: UnwrapRef<typeof import('./composable/loadBetween')['parseMessage']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>
     readonly pinnedContainers: UnwrapRef<typeof import('./composable/storage')['pinnedContainers']>
@@ -695,6 +698,7 @@ declare module 'vue' {
     readonly useLastChanged: UnwrapRef<typeof import('@vueuse/core')['useLastChanged']>
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
+    readonly useLogLoader: UnwrapRef<typeof import('./composable/logLoader')['useLogLoader']>
     readonly useLoggingContext: UnwrapRef<typeof import('./composable/logContext')['useLoggingContext']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
