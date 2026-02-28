@@ -49,6 +49,7 @@ export class Container {
     stats: Stat[],
     public readonly group?: string,
     public health?: ContainerHealth,
+    public isNew: boolean = false,
   ) {
     const defaultStat = { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat;
     this._stat = ref(stats.at(-1) || defaultStat);
