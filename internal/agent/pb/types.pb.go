@@ -828,6 +828,9 @@ type NotificationSubscription struct {
 	DispatcherId        int32                  `protobuf:"varint,4,opt,name=dispatcherId,proto3" json:"dispatcherId,omitempty"`
 	LogExpression       string                 `protobuf:"bytes,5,opt,name=logExpression,proto3" json:"logExpression,omitempty"`
 	ContainerExpression string                 `protobuf:"bytes,6,opt,name=containerExpression,proto3" json:"containerExpression,omitempty"`
+	MetricExpression    string                 `protobuf:"bytes,7,opt,name=metricExpression,proto3" json:"metricExpression,omitempty"`
+	Cooldown            int32                  `protobuf:"varint,8,opt,name=cooldown,proto3" json:"cooldown,omitempty"`
+	SampleWindow        int32                  `protobuf:"varint,9,opt,name=sampleWindow,proto3" json:"sampleWindow,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -902,6 +905,27 @@ func (x *NotificationSubscription) GetContainerExpression() string {
 		return x.ContainerExpression
 	}
 	return ""
+}
+
+func (x *NotificationSubscription) GetMetricExpression() string {
+	if x != nil {
+		return x.MetricExpression
+	}
+	return ""
+}
+
+func (x *NotificationSubscription) GetCooldown() int32 {
+	if x != nil {
+		return x.Cooldown
+	}
+	return 0
+}
+
+func (x *NotificationSubscription) GetSampleWindow() int32 {
+	if x != nil {
+		return x.SampleWindow
+	}
+	return 0
 }
 
 type NotificationDispatcher struct {
@@ -1058,14 +1082,17 @@ const file_types_proto_rawDesc = "" +
 	"\rdockerVersion\x18\f \x01(\tR\rdockerVersion\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd4\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x02\n" +
 	"\x18NotificationSubscription\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
 	"\aenabled\x18\x03 \x01(\bR\aenabled\x12\"\n" +
 	"\fdispatcherId\x18\x04 \x01(\x05R\fdispatcherId\x12$\n" +
 	"\rlogExpression\x18\x05 \x01(\tR\rlogExpression\x120\n" +
-	"\x13containerExpression\x18\x06 \x01(\tR\x13containerExpression\"~\n" +
+	"\x13containerExpression\x18\x06 \x01(\tR\x13containerExpression\x12*\n" +
+	"\x10metricExpression\x18\a \x01(\tR\x10metricExpression\x12\x1a\n" +
+	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
+	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\"~\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +

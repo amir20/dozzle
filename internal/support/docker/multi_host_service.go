@@ -253,6 +253,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 	}
 

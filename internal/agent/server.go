@@ -414,6 +414,9 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			DispatcherID:        int(sub.DispatcherId),
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            int(sub.Cooldown),
+			SampleWindow:        int(sub.SampleWindow),
 		}
 	}
 

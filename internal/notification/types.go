@@ -93,7 +93,7 @@ type Subscription struct {
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`       // seconds between metric notifications, default 300
-	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 1
+	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 
 	// Compiled filter expressions
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
@@ -265,10 +265,10 @@ func (s *Subscription) SetMetricCooldown(containerID string) {
 	s.MetricCooldowns.Store(containerID, time.Now())
 }
 
-// GetSampleWindowSeconds returns the sample window in seconds, defaulting to 1
+// GetSampleWindowSeconds returns the sample window in seconds, defaulting to 15
 func (s *Subscription) GetSampleWindowSeconds() int {
-	if s.SampleWindow <= 1 {
-		return 1
+	if s.SampleWindow <= 0 {
+		return 15
 	}
 	return s.SampleWindow
 }
