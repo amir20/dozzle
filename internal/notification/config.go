@@ -46,6 +46,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 	}
 
@@ -99,6 +100,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)

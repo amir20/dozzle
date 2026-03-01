@@ -146,7 +146,9 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			MetricExpression:    sub.MetricExpression,
 			MetricProgram:       sub.MetricProgram,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 			MetricCooldowns:     sub.MetricCooldowns,
+			MetricSampleBuffers: sub.MetricSampleBuffers,
 		}
 
 		// Apply updates to the clone
@@ -207,6 +209,10 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			case "cooldown":
 				if cd, ok := value.(int); ok {
 					updated.Cooldown = cd
+				}
+			case "sampleWindow":
+				if sw, ok := value.(int); ok {
+					updated.SampleWindow = sw
 				}
 			}
 		}

@@ -61,6 +61,7 @@ type SubscriptionConfig struct {
 	ContainerExpression string `json:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
+	SampleWindow        int    `json:"sampleWindow,omitempty"`
 }
 
 // DispatcherConfig represents a notification dispatcher configuration
