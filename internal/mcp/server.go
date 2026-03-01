@@ -48,9 +48,10 @@ func NewServer(hostService HostService, labels container.ContainerLabels, versio
 	return s
 }
 
-// ServeStdio starts the MCP server on stdin/stdout.
-func (s *Server) ServeStdio() error {
-	return server.ServeStdio(s.mcpServer)
+// ServeHTTP starts the MCP server as a Streamable HTTP server on the given address.
+func (s *Server) ServeHTTP(addr string) error {
+	httpServer := server.NewStreamableHTTPServer(s.mcpServer)
+	return httpServer.Start(addr)
 }
 
 func (s *Server) registerTools() {
