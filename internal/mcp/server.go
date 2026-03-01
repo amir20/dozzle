@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -77,7 +76,7 @@ func listContainersTool() mcp.Tool {
 
 func getContainerLogsTool() mcp.Tool {
 	return mcp.NewTool("get_container_logs",
-		mcp.WithDescription("Fetch logs from a Docker container. Returns the most recent log lines."),
+		mcp.WithDescription("Fetch processed logs from a Docker container. Returns structured log entries with detected log levels, JSON parsing, and multi-line grouping. Each entry includes timestamp, level, stream (stdout/stderr), message type (single/complex/group), and the parsed message content."),
 		mcp.WithString("host",
 			mcp.Description("The host ID where the container is running. Use list_containers to find this."),
 			mcp.Required(),
@@ -215,26 +214,74 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, request mcp.CallToo
 	}
 
 	since := time.Now().Add(-time.Duration(sinceMinutes) * time.Minute)
-	reader, err := containerSvc.RawLogs(ctx, since, time.Time{}, stdType)
+	events, err := containerSvc.LogsBetweenDates(ctx, since, time.Now(), stdType)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("failed to read logs: %v", err)), nil
 	}
-	defer reader.Close()
 
-	data, err := io.ReadAll(io.LimitReader(reader, 1024*1024)) // 1MB limit
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to read log data: %v", err)), nil
+	type logEntry struct {
+		Timestamp string `json:"timestamp"`
+		Level     string `json:"level,omitempty"`
+		Stream    string `json:"stream,omitempty"`
+		Type      string `json:"type"`
+		Message   any    `json:"message"`
 	}
 
-	logText := string(data)
-	if logText == "" {
-		logText = "(no logs in the specified time range)"
+	var entries []logEntry
+	totalSize := 0
+	const maxSize = 1024 * 1024 // 1MB limit
+
+	for event := range events {
+		var msg any
+		switch event.Type {
+		case container.LogTypeGroup:
+			if fragments, ok := event.Message.([]container.LogFragment); ok {
+				lines := make([]string, len(fragments))
+				for i, f := range fragments {
+					lines[i] = f.Message
+				}
+				msg = lines
+			} else {
+				msg = event.RawMessage
+			}
+		case container.LogTypeComplex:
+			msg = event.Message
+		default:
+			msg = event.RawMessage
+		}
+
+		entry := logEntry{
+			Timestamp: time.UnixMilli(event.Timestamp).UTC().Format(time.RFC3339Nano),
+			Level:     event.Level,
+			Stream:    event.Stream,
+			Type:      string(event.Type),
+			Message:   msg,
+		}
+
+		line, err := json.Marshal(entry)
+		if err != nil {
+			continue
+		}
+
+		totalSize += len(line) + 1
+		if totalSize > maxSize {
+			break
+		}
+
+		entries = append(entries, entry)
 	}
 
-	// Trim trailing newlines for cleaner output
-	logText = strings.TrimRight(logText, "\n")
+	if len(entries) == 0 {
+		return mcp.NewToolResultText("(no logs in the specified time range)"), nil
+	}
 
-	return mcp.NewToolResultText(logText), nil
+	var sb strings.Builder
+	encoder := json.NewEncoder(&sb)
+	for _, entry := range entries {
+		encoder.Encode(entry)
+	}
+
+	return mcp.NewToolResultText(strings.TrimRight(sb.String(), "\n")), nil
 }
 
 func (s *Server) handleContainerAction(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
