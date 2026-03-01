@@ -59,6 +59,7 @@ func (s *Server) registerTools() {
 	s.mcpServer.AddTool(getContainerLogsTool(), s.handleGetContainerLogs)
 	s.mcpServer.AddTool(containerActionTool(), s.handleContainerAction)
 	s.mcpServer.AddTool(listHostsTool(), s.handleListHosts)
+	s.mcpServer.AddTool(getContainerStatsTool(), s.handleGetContainerStats)
 }
 
 // --- Tool Definitions ---
@@ -119,6 +120,21 @@ func containerActionTool() mcp.Tool {
 func listHostsTool() mcp.Tool {
 	return mcp.NewTool("list_hosts",
 		mcp.WithDescription("List all Docker hosts connected to Dozzle."),
+		mcp.WithReadOnlyHintAnnotation(true),
+	)
+}
+
+func getContainerStatsTool() mcp.Tool {
+	return mcp.NewTool("get_container_stats",
+		mcp.WithDescription("Get CPU and memory usage stats for a Docker container. Returns the last ~5 minutes of stats history (up to 300 data points) with CPU percentage, memory percentage, and memory usage in bytes."),
+		mcp.WithString("host",
+			mcp.Description("The host ID where the container is running. Use list_containers to find this."),
+			mcp.Required(),
+		),
+		mcp.WithString("container_id",
+			mcp.Description("The container ID to get stats for. Use list_containers to find this."),
+			mcp.Required(),
+		),
 		mcp.WithReadOnlyHintAnnotation(true),
 	)
 }
@@ -276,6 +292,64 @@ func (s *Server) handleListHosts(ctx context.Context, request mcp.CallToolReques
 	data, err := json.Marshal(results)
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal hosts: %v", err)), nil
+	}
+
+	return mcp.NewToolResultText(string(data)), nil
+}
+
+func (s *Server) handleGetContainerStats(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	host := mcp.ParseString(request, "host", "")
+	containerID := mcp.ParseString(request, "container_id", "")
+
+	if host == "" || containerID == "" {
+		return mcp.NewToolResultError("host and container_id are required"), nil
+	}
+
+	containerSvc, err := s.hostService.FindContainer(host, containerID, s.labels)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("container not found: %v", err)), nil
+	}
+
+	c := containerSvc.Container
+
+	type statEntry struct {
+		CPUPercent    float64 `json:"cpuPercent"`
+		MemoryPercent float64 `json:"memoryPercent"`
+		MemoryUsage   float64 `json:"memoryUsageBytes"`
+	}
+
+	type statsResponse struct {
+		ContainerID   string      `json:"containerId"`
+		ContainerName string      `json:"containerName"`
+		MemoryLimit   uint64      `json:"memoryLimitBytes,omitempty"`
+		CPULimit      float64     `json:"cpuLimit,omitempty"`
+		DataPoints    int         `json:"dataPoints"`
+		Stats         []statEntry `json:"stats"`
+	}
+
+	var entries []statEntry
+	if c.Stats != nil {
+		for _, stat := range c.Stats.Data() {
+			entries = append(entries, statEntry{
+				CPUPercent:    stat.CPUPercent,
+				MemoryPercent: stat.MemoryPercent,
+				MemoryUsage:   stat.MemoryUsage,
+			})
+		}
+	}
+
+	resp := statsResponse{
+		ContainerID:   c.ID,
+		ContainerName: c.Name,
+		MemoryLimit:   c.MemoryLimit,
+		CPULimit:      c.CPULimit,
+		DataPoints:    len(entries),
+		Stats:         entries,
+	}
+
+	data, err := json.Marshal(resp)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal stats: %v", err)), nil
 	}
 
 	return mcp.NewToolResultText(string(data)), nil
