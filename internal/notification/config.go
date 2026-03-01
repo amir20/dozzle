@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
@@ -152,6 +153,9 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 
 	if sub.MetricCooldowns == nil {
 		sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	}
+	if sub.MetricSampleBuffers == nil {
+		sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

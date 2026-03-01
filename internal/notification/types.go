@@ -265,10 +265,16 @@ func (s *Subscription) SetMetricCooldown(containerID string) {
 	s.MetricCooldowns.Store(containerID, time.Now())
 }
 
-// GetSampleWindowSeconds returns the sample window in seconds, defaulting to 15
+// GetSampleWindowSeconds returns the sample window in seconds, clamped to [1, 300], defaulting to 15
 func (s *Subscription) GetSampleWindowSeconds() int {
 	if s.SampleWindow <= 0 {
 		return 15
+	}
+	if s.SampleWindow < 1 {
+		return 1
+	}
+	if s.SampleWindow > 300 {
+		return 300
 	}
 	return s.SampleWindow
 }
@@ -281,10 +287,6 @@ func (s *Subscription) RecordMetricSample(containerID string, matched bool) bool
 	// For window size of 1, just return the match result directly
 	if windowSize <= 1 {
 		return matched
-	}
-
-	if s.MetricSampleBuffers == nil {
-		s.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	}
 
 	buf, _ := s.MetricSampleBuffers.LoadOrCompute(containerID, func() (*utils.RingBuffer[bool], bool) {

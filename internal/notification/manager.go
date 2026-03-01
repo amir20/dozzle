@@ -9,6 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/puzpuzpuz/xsync/v4"
@@ -79,6 +80,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	sub.ID = int(m.subscriptionCounter.Add(1))
 	sub.Enabled = true
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -104,6 +106,7 @@ func (m *Manager) RemoveSubscription(id int) {
 // ReplaceSubscription replaces a subscription with new data
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -213,6 +216,7 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			case "sampleWindow":
 				if sw, ok := value.(int); ok {
 					updated.SampleWindow = sw
+					updated.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 				}
 			}
 		}
