@@ -179,6 +179,7 @@ notifications:
     log-filter: Log-Filter
     metric-filter: Metrik
     cooldown: Abklingzeit
+    sample-window: Zeitfenster
     destination: Ziel
     dispatcher-deleted: Dispatcher gelöscht
     containers-count: "{count} Container"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Metrik-Ausdruck
     expression-valid: Ausdruck ist gültig
     metric-fields-hint: "Verfügbare Felder: {fields}"
+    sample-window-label: Zeitfenster
+    sample-window-hint: "Alarm wird ausgelöst, wenn Bedingung für {duration} erfüllt ist"
     cooldown-label: Abklingzeit
     cooldown-hint: "{duration} zwischen Alarmen pro Container"
     alert-type: Alarmtyp
