@@ -14,7 +14,7 @@ COPY package.json ./
 RUN pnpm install --offline --ignore-scripts --no-optional
 
 # Copy assets and translations to build
-COPY .* *.config.ts *.config.js *.config.cjs ./
+COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
@@ -24,17 +24,13 @@ RUN pnpm build
 
 FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 
-# install gRPC dependencies
-RUN apk add --no-cache ca-certificates protoc protobuf-dev \
-  && mkdir /dozzle \
-  && go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-  && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+RUN apk add --no-cache ca-certificates && mkdir /dozzle
 
 WORKDIR /dozzle
 
 # Copy go mod files
 COPY go.* ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy all other files
 COPY internal ./internal
@@ -50,11 +46,9 @@ COPY --from=node /build/dist ./dist
 ARG TAG=dev
 ARG TARGETOS TARGETARCH
 
-# Generate protos and graphql
-RUN go generate ./...
-
 # Build binary
-RUN GOEXPERIMENT=jsonv2 GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+  GOEXPERIMENT=jsonv2 GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
 
 RUN mkdir /data
 
