@@ -93,7 +93,7 @@
                     :title="item.name"
                     class="group auto-cols-[content_max_auto_max-content_max-content]"
                   >
-                    <mdi:creation v-if="item.isNew" class="text-secondary w-2" />
+                    <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary w-2" />
                     <div
                       v-else
                       class="status data-[state=exited]:status-error data-[state=running]:status-success"

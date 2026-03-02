@@ -169,6 +169,7 @@ declare module 'vue' {
     SQLTable: typeof import('./components/LogViewer/SQLTable.vue')['default']
     StackLog: typeof import('./components/StackViewer/StackLog.vue')['default']
     StatMonitor: typeof import('./components/LogViewer/StatMonitor.vue')['default']
+    'SvgSpinners:ringResize': typeof import('~icons/svg-spinners/ring-resize')['default']
     SwarmMenu: typeof import('./components/SwarmMenu.vue')['default']
     Tag: typeof import('./components/common/Tag.vue')['default']
     Terminal: typeof import('./components/Terminal.vue')['default']
