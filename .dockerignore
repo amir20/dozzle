@@ -6,4 +6,3 @@ dist
 .git
 e2e
 docs
-internal/agent/pb/
