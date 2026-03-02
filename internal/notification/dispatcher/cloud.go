@@ -75,6 +75,7 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", UserAgent)
 	req.Header.Set("X-API-Key", c.APIKey)
 
 	resp, err := c.client.Do(req)

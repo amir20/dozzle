@@ -15,6 +15,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// UserAgent is set by the application at startup
+var UserAgent = "Dozzle/head"
+
 // WebhookDispatcher sends notifications to a webhook URL
 type WebhookDispatcher struct {
 	Name         string
@@ -86,6 +89,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", UserAgent)
 
 	resp, err := w.client.Do(req)
 	if err != nil {

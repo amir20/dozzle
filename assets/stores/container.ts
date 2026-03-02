@@ -135,12 +135,23 @@ export const useContainerStore = defineStore("container", () => {
 
     existingContainers.forEach((c) => {
       const existing = allContainersById.value[c.id];
+      if (ready.value && existing.state !== "running" && c.state === "running") {
+        existing.isNew = true;
+      }
       existing.state = c.state;
       existing.health = c.health;
       existing.name = c.name;
     });
 
-    containers.value = [...containers.value, ...newContainers.map(Container.fromJSON)];
+    const mapped = newContainers.map((c) => {
+      const container = Container.fromJSON(c);
+      if (ready.value) {
+        container.isNew = true;
+      }
+      return container;
+    });
+
+    containers.value = [...containers.value, ...mapped];
   };
 
   const currentContainer = (id: Ref<string>) => computed(() => allContainersById.value[id.value]);

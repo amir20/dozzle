@@ -19,13 +19,9 @@ jobs:
         name: Install Node
         with:
           node-version: 24.14.0
-      - run: corepack enable
-      - run: pnpm --version
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24.14.0
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: corepack enable
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Run Tests
@@ -61,13 +57,9 @@ jobs:
         name: Install Node
         with:
           node-version: 24.14.0
-      - run: corepack enable
-      - run: pnpm --version
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24.14.0
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
+      - run: corepack enable
       - name: Install dependencies
         run: pnpm install
       - name: Set up Docker Buildx

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 
 	"net"
@@ -17,6 +18,7 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
@@ -52,6 +54,7 @@ func main() {
 	}
 
 	log.Info().Msgf("Dozzle version %s", args.Version())
+	dispatcher.UserAgent = fmt.Sprintf("Dozzle/%s", args.Version())
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

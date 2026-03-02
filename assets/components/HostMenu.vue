@@ -79,7 +79,12 @@
               </router-link>
             </summary>
             <ul>
-              <li v-for="item in containers" :class="item.state" :key="item.id">
+              <li
+                v-for="item in containers"
+                :class="[item.state, { 'highlight-new': item.isNew }]"
+                :key="item.id"
+                @animationend="item.isNew = false"
+              >
                 <Popup>
                   <router-link
                     :to="{ name: '/container/[id]', params: { id: item.id } }"
@@ -247,5 +252,18 @@ li.exited {
 
 li.deleted {
   @apply hidden;
+}
+
+li.highlight-new {
+  animation: highlight-fade 3s ease-out;
+}
+
+@keyframes highlight-fade {
+  from {
+    background-color: oklch(from var(--color-secondary) l c h / 0.25);
+  }
+  to {
+    background-color: transparent;
+  }
 }
 </style>
