@@ -2,7 +2,7 @@
   <div class="tag grid overflow-hidden rounded-sm text-center text-sm text-white">
     <div class="random-color col-start-1 row-start-1 brightness-75"></div>
     <div class="col-start-1 row-start-1 truncate px-2 brightness-100" :class="truncateRight ? '[direction:rtl]' : ''">
-      {{ value }}
+      <slot>{{ value }}</slot>
     </div>
   </div>
 </template>

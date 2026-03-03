@@ -9,9 +9,11 @@
       <RandomColorTag
         v-if="showContainerName"
         class="w-30 shrink-0 select-none group-[.compact]:flex-1 md:w-40"
-        :value="container.name"
+        :value="container.id"
         truncateRight
-      />
+      >
+        {{ container.name }}
+      </RandomColorTag>
       <LogDate
         v-if="showTimestamp"
         :date="logEntry.date"

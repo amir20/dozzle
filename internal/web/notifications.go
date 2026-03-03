@@ -29,6 +29,7 @@ type NotificationRuleResponse struct {
 	LogExpression       string              `json:"logExpression"`
 	MetricExpression    string              `json:"metricExpression,omitempty"`
 	Cooldown            int                 `json:"cooldown,omitempty"`
+	SampleWindow        int                 `json:"sampleWindow,omitempty"`
 	TriggerCount        int64               `json:"triggerCount"`
 	TriggeredContainers int                 `json:"triggeredContainers"`
 	LastTriggeredAt     *time.Time          `json:"lastTriggeredAt"`
@@ -53,6 +54,7 @@ type NotificationRuleInput struct {
 	ContainerExpression string `json:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
+	SampleWindow        int    `json:"sampleWindow,omitempty"`
 }
 
 type NotificationRuleUpdateInput struct {
@@ -63,6 +65,7 @@ type NotificationRuleUpdateInput struct {
 	ContainerExpression *string `json:"containerExpression,omitempty"`
 	MetricExpression    *string `json:"metricExpression,omitempty"`
 	Cooldown            *int    `json:"cooldown,omitempty"`
+	SampleWindow        *int    `json:"sampleWindow,omitempty"`
 }
 
 type DispatcherInput struct {
@@ -123,6 +126,7 @@ func subscriptionToResponse(sub *notification.Subscription, dispatchers []notifi
 		ContainerExpression: sub.ContainerExpression,
 		MetricExpression:    sub.MetricExpression,
 		Cooldown:            sub.Cooldown,
+		SampleWindow:        sub.SampleWindow,
 		TriggerCount:        sub.TriggerCount.Load(),
 		LastTriggeredAt:     lastTriggeredAt,
 		TriggeredContainers: sub.TriggeredContainersCount(),
@@ -210,6 +214,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
 		Cooldown:            input.Cooldown,
+		SampleWindow:        input.SampleWindow,
 	}
 
 	if err := h.hostService.AddSubscription(sub); err != nil {
@@ -242,6 +247,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
 		Cooldown:            input.Cooldown,
+		SampleWindow:        input.SampleWindow,
 	}
 
 	if err := h.hostService.ReplaceSubscription(sub); err != nil {
@@ -286,6 +292,9 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	}
 	if input.Cooldown != nil {
 		updates["cooldown"] = *input.Cooldown
+	}
+	if input.SampleWindow != nil {
+		updates["sampleWindow"] = *input.SampleWindow
 	}
 
 	if err := h.hostService.UpdateSubscription(id, updates); err != nil {

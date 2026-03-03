@@ -180,6 +180,7 @@ notifications:
     log-filter: Logfilter
     metric-filter: Metriek
     cooldown: Wachttijd
+    sample-window: Steekproefvenster
     destination: Bestemming
     dispatcher-deleted: Dispatcher verwijderd
     containers-count: "{count} containers"
@@ -212,6 +213,8 @@ notifications:
     metric-filter: Metriekexpressie
     expression-valid: Expressie is geldig
     metric-fields-hint: "Beschikbare velden: {fields}"
+    sample-window-label: Steekproefvenster
+    sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
     alert-type: Waarschuwingstype

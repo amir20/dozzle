@@ -188,6 +188,7 @@ notifications:
     log-filter: Filtro de registo
     metric-filter: Métrica
     cooldown: Tempo de espera
+    sample-window: Janela de amostragem
     destination: Destino
     dispatcher-deleted: Dispatcher eliminado
     containers-count: "{count} contentores"
@@ -220,6 +221,8 @@ notifications:
     metric-filter: Expressão de Métrica
     expression-valid: A expressão é válida
     metric-fields-hint: "Campos disponíveis: {fields}"
+    sample-window-label: Janela de amostragem
+    sample-window-hint: "O alerta é ativado quando a condição é cumprida durante {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por contentor"
     alert-type: Tipo de alerta

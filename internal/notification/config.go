@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
@@ -46,6 +47,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 	}
 
@@ -99,6 +101,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
@@ -150,6 +153,9 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 
 	if sub.MetricCooldowns == nil {
 		sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	}
+	if sub.MetricSampleBuffers == nil {
+		sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

@@ -186,6 +186,7 @@ notifications:
     log-filter: Filtr logów
     metric-filter: Metryka
     cooldown: Czas oczekiwania
+    sample-window: Okno próbkowania
     destination: Miejsce docelowe
     dispatcher-deleted: Dispatcher usunięty
     containers-count: "{count} kontenerów"
@@ -218,6 +219,8 @@ notifications:
     metric-filter: Wyrażenie metryki
     expression-valid: Wyrażenie jest poprawne
     metric-fields-hint: "Dostępne pola: {fields}"
+    sample-window-label: Okno próbkowania
+    sample-window-hint: "Alert jest wyzwalany, gdy warunek jest spełniony przez {duration}"
     cooldown-label: Czas oczekiwania
     cooldown-hint: "{duration} między alertami na kontener"
     alert-type: Typ alertu

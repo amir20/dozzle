@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
@@ -91,7 +92,8 @@ type Subscription struct {
 	LogExpression       string `json:"logExpression" yaml:"logExpression"`
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
-	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"` // seconds between metric notifications, default 300
+	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`       // seconds between metric notifications, default 300
+	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 
 	// Compiled filter expressions
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
@@ -105,6 +107,9 @@ type Subscription struct {
 
 	// Per-container cooldown tracking for metric alerts (containerID -> last triggered time)
 	MetricCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
+
+	// Per-container sample buffers for windowed metric evaluation (containerID -> ring buffer of match results)
+	MetricSampleBuffers *xsync.Map[string, *utils.RingBuffer[bool]] `json:"-" yaml:"-"`
 }
 
 // TriggeredContainersCount returns the number of unique containers that triggered this subscription
@@ -258,4 +263,48 @@ func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
 // SetMetricCooldown records the current time as the last triggered time for a container
 func (s *Subscription) SetMetricCooldown(containerID string) {
 	s.MetricCooldowns.Store(containerID, time.Now())
+}
+
+// GetSampleWindowSeconds returns the sample window in seconds, clamped to [1, 300], defaulting to 15
+func (s *Subscription) GetSampleWindowSeconds() int {
+	if s.SampleWindow <= 0 {
+		return 15
+	}
+	if s.SampleWindow < 1 {
+		return 1
+	}
+	if s.SampleWindow > 300 {
+		return 300
+	}
+	return s.SampleWindow
+}
+
+// RecordMetricSample records a metric evaluation result and returns true if the window threshold is met.
+// The alert fires when the buffer is full and >=80% of samples matched.
+func (s *Subscription) RecordMetricSample(containerID string, matched bool) bool {
+	windowSize := s.GetSampleWindowSeconds()
+
+	// For window size of 1, just return the match result directly
+	if windowSize <= 1 {
+		return matched
+	}
+
+	buf, _ := s.MetricSampleBuffers.LoadOrCompute(containerID, func() (*utils.RingBuffer[bool], bool) {
+		return utils.NewRingBuffer[bool](windowSize), false
+	})
+
+	buf.Push(matched)
+
+	if buf.Len() < windowSize {
+		return false
+	}
+
+	trueCount := 0
+	for _, v := range buf.Data() {
+		if v {
+			trueCount++
+		}
+	}
+
+	return float64(trueCount)/float64(buf.Len()) >= 0.8
 }
