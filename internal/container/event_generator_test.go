@@ -240,6 +240,114 @@ func TestEventGenerator_MixedLogs(t *testing.T) {
 	assert.Equal(t, LogTypeSingle, event2.Type)
 }
 
+func TestEventGenerator_SkipsLeadingOrphanedContinuationLines(t *testing.T) {
+	// Simulate a pagination boundary where orphaned continuation lines
+	// (no level, with timestamp) appear before the first real log entry.
+	// These should be skipped as they belong to a group from a prior fetch.
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	messages := []string{
+		baseTime + " at line 42",          // orphan continuation (no level)
+		baseTime + " in function foo",     // orphan continuation (no level)
+		baseTime + " ERROR: Next error",   // real entry with level
+		baseTime + " at line 99",          // continuation of the real entry
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, LogTypeGroup, event.Type)
+
+	fragments, ok := event.Message.([]LogFragment)
+	require.True(t, ok, "Expected Message to be []LogFragment")
+	assert.Len(t, fragments, 2)
+	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
+	assert.Equal(t, "at line 99", fragments[1].Message)
+}
+
+func TestEventGenerator_DoesNotSkipLeadingLevellessLogsWithTimestampGap(t *testing.T) {
+	// Leading lines without levels but far apart in time should NOT be skipped.
+	// They are standalone logs, not orphaned group continuations.
+	messages := []string{
+		"2020-05-13T18:55:37.000Z some log without level",
+		"2020-05-13T18:55:38.000Z another log without level",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDOUT, STDOUT},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+
+	// First line is skipped (potential orphan), but the second is too far in time
+	// so it should be emitted.
+	event1 := <-g.Events
+	require.NotNil(t, event1, "Expected event to not be nil")
+	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, "another log without level", event1.Message)
+}
+
+func TestEventGenerator_AllOrphanedLinesProducesNoEvents(t *testing.T) {
+	// If all lines are orphaned continuations, no events should be emitted.
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	messages := []string{
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+		baseTime + " in function bar",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	event, ok := <-g.Events
+
+	assert.False(t, ok, "Expected channel to be closed with no events")
+	assert.Nil(t, event)
+}
+
+func TestEventGenerator_OrphanedLinesFollowedByComplexLog(t *testing.T) {
+	// Orphaned continuation lines should be skipped even when followed by a complex log.
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	messages := []string{
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+		baseTime + " {\"level\": \"info\", \"message\": \"test\"}",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDOUT},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, LogTypeComplex, event.Type)
+}
+
+func TestEventGenerator_DoesNotSkipLeadingLinesWithoutTimestamp(t *testing.T) {
+	// Lines without timestamps (e.g., tty/raw input) should not be skipped
+	// even if they lack a level.
+	input := "some raw output"
+
+	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
+	event := <-g.Events
+
+	require.NotNil(t, event, "Expected event to not be nil")
+	assert.Equal(t, input, event.Message)
+	assert.Equal(t, LogTypeSingle, event.Type)
+}
+
 func TestEventGenerator_NoGroupingWhenTimestampGap(t *testing.T) {
 	// Messages with different timestamps (too far apart to group)
 	messages := []string{

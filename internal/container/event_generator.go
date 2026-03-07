@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -86,6 +87,9 @@ func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
 
 func (g *EventGenerator) processBuffer() {
 	var pendingGroup []*LogEvent
+	seenFirst := false
+	var lastOrphanTimestamp int64
+	orphanCount := 0
 
 loop:
 	for {
@@ -95,8 +99,9 @@ loop:
 			break loop
 		}
 
-		// Complex logs are emitted immediately
+		// Complex logs are emitted immediately and always mark seenFirst
 		if !current.IsSimple() {
+			seenFirst = true
 			if !g.flushGroup(pendingGroup) {
 				break loop
 			}
@@ -105,6 +110,24 @@ loop:
 				break loop
 			}
 			continue
+		}
+
+		// Skip leading simple events without a level that look like orphaned
+		// continuation lines from a group already emitted in a prior fetch.
+		// Only skip if they have a timestamp and are close in time, matching
+		// the group continuation criteria.
+		if !seenFirst && !current.HasLevel() && current.Timestamp > 0 {
+			if lastOrphanTimestamp == 0 || math.Abs(float64(lastOrphanTimestamp-current.Timestamp)) < maxGroupTimeDelta {
+				lastOrphanTimestamp = current.Timestamp
+				orphanCount++
+				continue
+			}
+		}
+		if !seenFirst {
+			if orphanCount > 0 {
+				log.Debug().Int("count", orphanCount).Str("container", g.containerID).Msg("skipped orphaned continuation lines")
+			}
+			seenFirst = true
 		}
 
 		// Simple log - peek ahead to decide grouping
@@ -125,7 +148,7 @@ loop:
 
 		pendingGroup = append(pendingGroup, current)
 
-		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[0], next) {
+		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[len(pendingGroup)-1], next) {
 			if !g.flushGroup(pendingGroup) {
 				break loop
 			}
@@ -154,32 +177,12 @@ func (g *EventGenerator) nextEvent() *LogEvent {
 
 // canStartGroup checks if current can start a group with next
 func canStartGroup(current, next *LogEvent) bool {
-	// Current must have a known level
-	if !current.HasLevel() {
-		return false
-	}
-	// Next must not have its own level (continuation)
-	if next.HasLevel() {
-		return false
-	}
-	// Must be close in time
-	if !current.IsCloseToTime(next) {
-		return false
-	}
-	return true
+	return current.HasLevel() && canContinueGroup(current, next)
 }
 
-// canContinueGroup checks if next can be added to a group started by first
-func canContinueGroup(first, next *LogEvent) bool {
-	// Next must not have its own level (continuation)
-	if next.HasLevel() {
-		return false
-	}
-	// Must be close in time to the group leader
-	if !first.IsCloseToTime(next) {
-		return false
-	}
-	return true
+// canContinueGroup checks if next can be appended after prev in a group
+func canContinueGroup(prev, next *LogEvent) bool {
+	return !next.HasLevel() && prev.IsCloseToTime(next)
 }
 
 func (g *EventGenerator) consumeReader() {
@@ -220,9 +223,8 @@ func createEvent(message string, streamType StdType) *LogEvent {
 	h := fnv.New32a()
 	h.Write([]byte(message))
 	logEvent := &LogEvent{Id: h.Sum32(), Message: message, Stream: streamType.String(), Type: LogTypeSingle}
-	if index := strings.IndexAny(message, " "); index != -1 {
-		logId := message[:index]
-		if timestamp, err := time.Parse(time.RFC3339Nano, logId); err == nil {
+	if index := strings.IndexByte(message, ' '); index != -1 {
+		if timestamp, err := time.Parse(time.RFC3339Nano, message[:index]); err == nil {
 			logEvent.Timestamp = timestamp.UnixMilli()
 			message = strings.TrimSuffix(message[index+1:], "\n")
 			logEvent.Message = message
