@@ -240,6 +240,11 @@ notifications:
     format-custom: Personnalisé
     template: Modèle
     template-hint: Syntaxe de modèle Go
+    headers: En-têtes Personnalisés
+    headers-hint: En-têtes HTTP optionnels (ex. Authorization)
+    header-name: Nom de l'en-tête
+    header-value: Valeur de l'en-tête
+    add-header: Ajouter un En-tête
     test: Tester
     test-success: Test réussi
     cancel: Annuler

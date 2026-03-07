@@ -71,6 +71,7 @@ type DispatcherConfig struct {
 	Type      string
 	URL       string
 	Template  string
+	Headers   map[string]string
 	APIKey    string
 	Prefix    string
 	ExpiresAt *time.Time

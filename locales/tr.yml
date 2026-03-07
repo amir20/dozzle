@@ -240,6 +240,11 @@ notifications:
     format-custom: Özel
     template: Şablon
     template-hint: Go şablon söz dizimi
+    headers: Özel Başlıklar
+    headers-hint: İsteğe bağlı HTTP başlıkları (ör. Authorization)
+    header-name: Başlık adı
+    header-value: Başlık değeri
+    add-header: Başlık Ekle
     test: Test
     test-success: Test başarılı
     cancel: İptal

@@ -57,6 +57,43 @@
       ></div>
     </fieldset>
 
+    <!-- Custom Headers -->
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend text-lg">
+        {{ $t("notifications.destination-form.headers") }}
+        <span class="text-base-content/60 ml-2 text-sm font-normal">{{
+          $t("notifications.destination-form.headers-hint")
+        }}</span>
+      </legend>
+      <div class="space-y-2">
+        <div v-for="(header, index) in headers" :key="header.key" class="flex items-center gap-2">
+          <input
+            v-model="header.name"
+            type="text"
+            class="input focus:input-primary flex-1 text-base"
+            :placeholder="$t('notifications.destination-form.header-name')"
+          />
+          <input
+            v-model="header.value"
+            type="text"
+            class="input focus:input-primary flex-1 text-base"
+            :placeholder="$t('notifications.destination-form.header-value')"
+          />
+          <button type="button" class="btn btn-ghost btn-sm btn-square" @click="headers.splice(index, 1)">
+            <carbon:close />
+          </button>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          @click="headers.push({ name: '', value: '', key: headerKeyCounter++ })"
+        >
+          <carbon:add />
+          {{ $t("notifications.destination-form.add-header") }}
+        </button>
+      </div>
+    </fieldset>
+
     <!-- Error -->
     <div v-if="error" class="alert alert-error">
       <span>{{ error }}</span>
@@ -110,6 +147,12 @@ useFocus(nameInput, { initialValue: true });
 const webhookUrl = ref(destination?.url ?? "");
 const payloadFormat = ref<PayloadFormat>(isEditing ? "custom" : "slack");
 const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLATES[payloadFormat.value]);
+let headerKeyCounter = 0;
+const headers = ref<{ name: string; value: string; key: number }[]>(
+  destination?.headers
+    ? Object.entries(destination.headers).map(([name, value]) => ({ name, value, key: headerKeyCounter++ }))
+    : [],
+);
 const isTesting = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
@@ -143,6 +186,12 @@ onScopeDispose(() => {
   templateEditorView?.destroy();
 });
 
+function headersToRecord(): Record<string, string> | undefined {
+  const filtered = headers.value.filter((h) => h.name.trim() && h.value.trim());
+  if (filtered.length === 0) return undefined;
+  return Object.fromEntries(filtered.map((h) => [h.name.trim(), h.value.trim()]));
+}
+
 const canTest = computed(() => webhookUrl.value.trim().length > 0);
 
 const isValidUrl = computed(() => {
@@ -174,6 +223,7 @@ async function testDestination() {
       body: JSON.stringify({
         url: webhookUrl.value.trim(),
         template: template.value.trim() || undefined,
+        headers: headersToRecord(),
       }),
     });
 
@@ -198,6 +248,7 @@ async function saveDestination() {
       type: "webhook",
       url: webhookUrl.value.trim(),
       template: template.value.trim() || undefined,
+      headers: headersToRecord(),
     };
 
     const url = isEditing

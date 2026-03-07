@@ -243,6 +243,11 @@ notifications:
     format-custom: 自訂
     template: 範本
     template-hint: Go 範本語法
+    headers: 自訂標頭
+    headers-hint: 選填的 HTTP 標頭（例如 Authorization）
+    header-name: 標頭名稱
+    header-value: 標頭值
+    add-header: 新增標頭
     test: 測試
     test-success: 測試成功
     cancel: 取消

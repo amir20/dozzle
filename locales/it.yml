@@ -240,6 +240,11 @@ notifications:
     format-custom: Personalizzato
     template: Template
     template-hint: Sintassi template Go
+    headers: Header Personalizzati
+    headers-hint: Header HTTP opzionali (es. Authorization)
+    header-name: Nome header
+    header-value: Valore header
+    add-header: Aggiungi Header
     test: Test
     test-success: Test riuscito
     cancel: Annulla

@@ -305,6 +305,7 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 				Type:     "webhook",
 				URL:      v.URL,
 				Template: v.TemplateText,
+				Headers:  v.Headers,
 			})
 		case *dispatcher.CloudDispatcher:
 			result = append(result, DispatcherConfig{

@@ -59,6 +59,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			Type:      d.Type,
 			URL:       d.URL,
 			Template:  d.Template,
+			Headers:   d.Headers,
 			APIKey:    d.APIKey,
 			Prefix:    d.Prefix,
 			ExpiresAt: d.ExpiresAt,
@@ -116,6 +117,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			Type:      dc.Type,
 			URL:       dc.URL,
 			Template:  dc.Template,
+			Headers:   dc.Headers,
 			APIKey:    dc.APIKey,
 			Prefix:    dc.Prefix,
 			ExpiresAt: dc.ExpiresAt,
@@ -137,7 +139,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 	switch config.Type {
 	case "webhook":
-		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template)
+		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template, config.Headers)
 	case "cloud":
 		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey, config.Prefix, config.ExpiresAt)
 	default:
