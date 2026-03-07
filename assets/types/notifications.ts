@@ -19,6 +19,7 @@ export interface Dispatcher {
   type: string;
   url?: string;
   template?: string;
+  headers?: Record<string, string>;
   prefix?: string;
   expiresAt?: string;
 }

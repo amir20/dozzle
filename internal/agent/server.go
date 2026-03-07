@@ -429,6 +429,7 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			Type:     d.Type,
 			URL:      d.Url,
 			Template: d.Template,
+			Headers:  d.Headers,
 		}
 	}
 

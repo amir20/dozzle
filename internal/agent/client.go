@@ -529,6 +529,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			Type:     d.Type,
 			Url:      d.URL,
 			Template: d.Template,
+			Headers:  d.Headers,
 		}
 	}
 
