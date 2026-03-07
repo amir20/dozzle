@@ -137,7 +137,11 @@ func (h *handler) downloadLogs(w http.ResponseWriter, r *http.Request) {
 	for _, c := range containers {
 		// Create new file in zip for this container's logs
 		fileName := fmt.Sprintf("%s-%s.log", c.containerService.Container.Name, nowFmt)
-		f, err := zw.Create(fileName)
+		f, err := zw.CreateHeader(&zip.FileHeader{
+			Name:     fileName,
+			Modified: now,
+			Method:   zip.Deflate,
+		})
 		if err != nil {
 			log.Error().Err(err).Msgf("error creating zip entry for container %s", c.id)
 			return
