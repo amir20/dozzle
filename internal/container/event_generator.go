@@ -114,10 +114,10 @@ loop:
 
 		// Skip leading simple events without a level that look like orphaned
 		// continuation lines from a group already emitted in a prior fetch.
-		// Only skip if they have a timestamp and are close in time (within 10ms)
-		// to each other, matching the group continuation criteria.
+		// Only skip if they have a timestamp and are close in time, matching
+		// the group continuation criteria.
 		if !seenFirst && !current.HasLevel() && current.Timestamp > 0 {
-			if lastOrphanTimestamp == 0 || math.Abs(float64(lastOrphanTimestamp-current.Timestamp)) < 10 {
+			if lastOrphanTimestamp == 0 || math.Abs(float64(lastOrphanTimestamp-current.Timestamp)) < maxGroupTimeDelta {
 				lastOrphanTimestamp = current.Timestamp
 				orphanCount++
 				continue
