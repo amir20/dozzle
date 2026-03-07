@@ -244,7 +244,7 @@ notifications:
     template: 템플릿
     template-hint: Go 템플릿 구문
     headers: 사용자 정의 헤더
-    headers-hint: 선택적 HTTP 헤더 (예: Authorization)
+    headers-hint: "선택적 HTTP 헤더 (예: Authorization)"
     header-name: 헤더 이름
     header-value: 헤더 값
     add-header: 헤더 추가

@@ -42,7 +42,7 @@ type DispatcherResponse struct {
 	Type      string             `json:"type"`
 	URL       *string            `json:"url,omitempty"`
 	Template  *string            `json:"template,omitempty"`
-	Headers   *map[string]string `json:"headers,omitempty"`
+	Headers   map[string]string `json:"headers,omitempty"`
 	Prefix    *string            `json:"prefix,omitempty"`
 	ExpiresAt *time.Time         `json:"expiresAt,omitempty"`
 }
@@ -145,9 +145,9 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 	if d.Template != "" {
 		template = &d.Template
 	}
-	var headers *map[string]string
+	var headers map[string]string
 	if len(d.Headers) > 0 {
-		headers = &d.Headers
+		headers = d.Headers
 	}
 	var prefix *string
 	if d.Prefix != "" {
@@ -398,7 +398,7 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 		Template: input.Template,
 	}
 	if len(input.Headers) > 0 {
-		resp.Headers = &input.Headers
+		resp.Headers = input.Headers
 	}
 	writeJSON(w, http.StatusCreated, resp)
 }
@@ -448,7 +448,7 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 		Template: input.Template,
 	}
 	if len(input.Headers) > 0 {
-		resp.Headers = &input.Headers
+		resp.Headers = input.Headers
 	}
 	writeJSON(w, http.StatusOK, resp)
 }

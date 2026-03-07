@@ -66,7 +66,7 @@
         }}</span>
       </legend>
       <div class="space-y-2">
-        <div v-for="(header, index) in headers" :key="index" class="flex items-center gap-2">
+        <div v-for="(header, index) in headers" :key="header.key" class="flex items-center gap-2">
           <input
             v-model="header.name"
             type="text"
@@ -83,7 +83,11 @@
             <carbon:close />
           </button>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" @click="headers.push({ name: '', value: '' })">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          @click="headers.push({ name: '', value: '', key: headerKeyCounter++ })"
+        >
           <carbon:add />
           {{ $t("notifications.destination-form.add-header") }}
         </button>
@@ -143,8 +147,11 @@ useFocus(nameInput, { initialValue: true });
 const webhookUrl = ref(destination?.url ?? "");
 const payloadFormat = ref<PayloadFormat>(isEditing ? "custom" : "slack");
 const template = ref(isEditing ? (destination?.template ?? "") : PAYLOAD_TEMPLATES[payloadFormat.value]);
-const headers = ref<{ name: string; value: string }[]>(
-  destination?.headers ? Object.entries(destination.headers).map(([name, value]) => ({ name, value })) : [],
+let headerKeyCounter = 0;
+const headers = ref<{ name: string; value: string; key: number }[]>(
+  destination?.headers
+    ? Object.entries(destination.headers).map(([name, value]) => ({ name, value, key: headerKeyCounter++ }))
+    : [],
 );
 const isTesting = ref(false);
 const isSaving = ref(false);
