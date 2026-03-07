@@ -243,6 +243,11 @@ notifications:
     format-custom: 사용자 정의
     template: 템플릿
     template-hint: Go 템플릿 구문
+    headers: 사용자 정의 헤더
+    headers-hint: 선택적 HTTP 헤더 (예: Authorization)
+    header-name: 헤더 이름
+    header-value: 헤더 값
+    add-header: 헤더 추가
     test: 테스트
     test-success: 테스트 성공
     cancel: 취소

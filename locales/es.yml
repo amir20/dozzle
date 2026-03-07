@@ -240,6 +240,11 @@ notifications:
     format-custom: Personalizado
     template: Plantilla
     template-hint: Sintaxis de plantilla Go
+    headers: Encabezados Personalizados
+    headers-hint: Encabezados HTTP opcionales (ej. Authorization)
+    header-name: Nombre del encabezado
+    header-value: Valor del encabezado
+    add-header: Añadir Encabezado
     test: Probar
     test-success: Prueba exitosa
     cancel: Cancelar

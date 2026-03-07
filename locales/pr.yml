@@ -249,6 +249,11 @@ notifications:
     format-custom: Personalizado
     template: Modelo
     template-hint: Sintaxe de modelo Go
+    headers: Cabeçalhos Personalizados
+    headers-hint: Cabeçalhos HTTP opcionais (ex. Authorization)
+    header-name: Nome do cabeçalho
+    header-value: Valor do cabeçalho
+    add-header: Adicionar Cabeçalho
     test: Testar
     test-success: Teste bem-sucedido
     cancel: Cancelar

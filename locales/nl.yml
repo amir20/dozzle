@@ -241,6 +241,11 @@ notifications:
     format-custom: Aangepast
     template: Sjabloon
     template-hint: Go-sjabloonsyntaxis
+    headers: Aangepaste Headers
+    headers-hint: Optionele HTTP-headers (bijv. Authorization)
+    header-name: Headernaam
+    header-value: Headerwaarde
+    add-header: Header toevoegen
     test: Testen
     test-success: Test geslaagd
     cancel: Annuleren

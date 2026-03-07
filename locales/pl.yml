@@ -247,6 +247,11 @@ notifications:
     format-custom: Własny
     template: Szablon
     template-hint: Składnia szablonu Go
+    headers: Niestandardowe Nagłówki
+    headers-hint: Opcjonalne nagłówki HTTP (np. Authorization)
+    header-name: Nazwa nagłówka
+    header-value: Wartość nagłówka
+    add-header: Dodaj Nagłówek
     test: Test
     test-success: Test zakończony pomyślnie
     cancel: Anuluj

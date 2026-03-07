@@ -240,6 +240,11 @@ notifications:
     format-custom: Brugerdefineret
     template: Skabelon
     template-hint: Go skabelon syntaks
+    headers: Brugerdefinerede Headers
+    headers-hint: Valgfrie HTTP-headers (f.eks. Authorization)
+    header-name: Header-navn
+    header-value: Header-værdi
+    add-header: Tilføj Header
     test: Test
     test-success: Test succesfuld
     cancel: Annuller

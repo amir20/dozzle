@@ -252,6 +252,11 @@ notifications:
     format-custom: Kustom
     template: Template
     template-hint: Sintaks template Go
+    headers: Header Kustom
+    headers-hint: Header HTTP opsional (mis. Authorization)
+    header-name: Nama header
+    header-value: Nilai header
+    add-header: Tambah Header
     test: Test
     test-success: Test berhasil
     cancel: Batal
