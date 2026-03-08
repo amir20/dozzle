@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@10.31.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -76,7 +76,7 @@
     "vite-svg-loader": "^5.1.1",
     "vitepress": "1.6.4",
     "vue": "^3.5.29",
-    "vue-i18n": "^11.2.8",
+    "vue-i18n": "^11.3.0",
     "vue-router": "^5.0.3"
   },
   "devDependencies": {
