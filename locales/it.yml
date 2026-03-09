@@ -179,6 +179,7 @@ notifications:
     log-filter: Filtro log
     metric-filter: Metrica
     cooldown: Tempo di attesa
+    sample-window: Finestra di campionamento
     destination: Destinazione
     dispatcher-deleted: Dispatcher eliminato
     containers-count: "{count} container"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Espressione Metrica
     expression-valid: L'espressione è valida
     metric-fields-hint: "Campi disponibili: {fields}"
+    sample-window-label: Finestra di campionamento
+    sample-window-hint: "L'avviso si attiva quando la condizione è soddisfatta per {duration}"
     cooldown-label: Tempo di attesa
     cooldown-hint: "{duration} tra gli avvisi per container"
     alert-type: Tipo di avviso
@@ -237,6 +240,11 @@ notifications:
     format-custom: Personalizzato
     template: Template
     template-hint: Sintassi template Go
+    headers: Header Personalizzati
+    headers-hint: Header HTTP opzionali (es. Authorization)
+    header-name: Nome header
+    header-value: Valore header
+    add-header: Aggiungi Header
     test: Test
     test-success: Test riuscito
     cancel: Annulla

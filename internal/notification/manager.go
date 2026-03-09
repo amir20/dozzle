@@ -9,6 +9,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/expr-lang/expr"
 	"github.com/puzpuzpuz/xsync/v4"
@@ -79,6 +80,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	sub.ID = int(m.subscriptionCounter.Add(1))
 	sub.Enabled = true
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -104,6 +106,7 @@ func (m *Manager) RemoveSubscription(id int) {
 // ReplaceSubscription replaces a subscription with new data
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -146,8 +149,15 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			MetricExpression:    sub.MetricExpression,
 			MetricProgram:       sub.MetricProgram,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 			MetricCooldowns:     sub.MetricCooldowns,
+			MetricSampleBuffers: sub.MetricSampleBuffers,
+			TriggeredContainerIDs: sub.TriggeredContainerIDs,
 		}
+
+		// Preserve runtime stats (atomics can't be copied in struct literal)
+		updated.TriggerCount.Store(sub.TriggerCount.Load())
+		updated.LastTriggeredAt.Store(sub.LastTriggeredAt.Load())
 
 		// Apply updates to the clone
 		for key, value := range updates {
@@ -207,6 +217,11 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			case "cooldown":
 				if cd, ok := value.(int); ok {
 					updated.Cooldown = cd
+				}
+			case "sampleWindow":
+				if sw, ok := value.(int); ok {
+					updated.SampleWindow = sw
+					updated.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 				}
 			}
 		}
@@ -295,6 +310,7 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 				Type:     "webhook",
 				URL:      v.URL,
 				Template: v.TemplateText,
+				Headers:  v.Headers,
 			})
 		case *dispatcher.CloudDispatcher:
 			result = append(result, DispatcherConfig{

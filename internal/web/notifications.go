@@ -29,6 +29,7 @@ type NotificationRuleResponse struct {
 	LogExpression       string              `json:"logExpression"`
 	MetricExpression    string              `json:"metricExpression,omitempty"`
 	Cooldown            int                 `json:"cooldown,omitempty"`
+	SampleWindow        int                 `json:"sampleWindow,omitempty"`
 	TriggerCount        int64               `json:"triggerCount"`
 	TriggeredContainers int                 `json:"triggeredContainers"`
 	LastTriggeredAt     *time.Time          `json:"lastTriggeredAt"`
@@ -36,13 +37,14 @@ type NotificationRuleResponse struct {
 }
 
 type DispatcherResponse struct {
-	ID        int        `json:"id"`
-	Name      string     `json:"name"`
-	Type      string     `json:"type"`
-	URL       *string    `json:"url,omitempty"`
-	Template  *string    `json:"template,omitempty"`
-	Prefix    *string    `json:"prefix,omitempty"`
-	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+	ID        int                `json:"id"`
+	Name      string             `json:"name"`
+	Type      string             `json:"type"`
+	URL       *string            `json:"url,omitempty"`
+	Template  *string            `json:"template,omitempty"`
+	Headers   map[string]string `json:"headers,omitempty"`
+	Prefix    *string            `json:"prefix,omitempty"`
+	ExpiresAt *time.Time         `json:"expiresAt,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -53,6 +55,7 @@ type NotificationRuleInput struct {
 	ContainerExpression string `json:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
+	SampleWindow        int    `json:"sampleWindow,omitempty"`
 }
 
 type NotificationRuleUpdateInput struct {
@@ -63,13 +66,15 @@ type NotificationRuleUpdateInput struct {
 	ContainerExpression *string `json:"containerExpression,omitempty"`
 	MetricExpression    *string `json:"metricExpression,omitempty"`
 	Cooldown            *int    `json:"cooldown,omitempty"`
+	SampleWindow        *int    `json:"sampleWindow,omitempty"`
 }
 
 type DispatcherInput struct {
-	Name     string  `json:"name"`
-	Type     string  `json:"type"`
-	URL      *string `json:"url,omitempty"`
-	Template *string `json:"template,omitempty"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`
+	URL      *string           `json:"url,omitempty"`
+	Template *string           `json:"template,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
 }
 
 type PreviewInput struct {
@@ -89,8 +94,9 @@ type PreviewResult struct {
 }
 
 type TestWebhookInput struct {
-	URL      string  `json:"url"`
-	Template *string `json:"template,omitempty"`
+	URL      string            `json:"url"`
+	Template *string           `json:"template,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
 }
 
 type TestWebhookResult struct {
@@ -123,6 +129,7 @@ func subscriptionToResponse(sub *notification.Subscription, dispatchers []notifi
 		ContainerExpression: sub.ContainerExpression,
 		MetricExpression:    sub.MetricExpression,
 		Cooldown:            sub.Cooldown,
+		SampleWindow:        sub.SampleWindow,
 		TriggerCount:        sub.TriggerCount.Load(),
 		LastTriggeredAt:     lastTriggeredAt,
 		TriggeredContainers: sub.TriggeredContainersCount(),
@@ -138,6 +145,10 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 	if d.Template != "" {
 		template = &d.Template
 	}
+	var headers map[string]string
+	if len(d.Headers) > 0 {
+		headers = d.Headers
+	}
 	var prefix *string
 	if d.Prefix != "" {
 		prefix = &d.Prefix
@@ -148,6 +159,7 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 		Type:      d.Type,
 		URL:       url,
 		Template:  template,
+		Headers:   headers,
 		Prefix:    prefix,
 		ExpiresAt: d.ExpiresAt,
 	}
@@ -210,6 +222,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
 		Cooldown:            input.Cooldown,
+		SampleWindow:        input.SampleWindow,
 	}
 
 	if err := h.hostService.AddSubscription(sub); err != nil {
@@ -242,6 +255,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
 		Cooldown:            input.Cooldown,
+		SampleWindow:        input.SampleWindow,
 	}
 
 	if err := h.hostService.ReplaceSubscription(sub); err != nil {
@@ -286,6 +300,9 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	}
 	if input.Cooldown != nil {
 		updates["cooldown"] = *input.Cooldown
+	}
+	if input.SampleWindow != nil {
+		updates["sampleWindow"] = *input.SampleWindow
 	}
 
 	if err := h.hostService.UpdateSubscription(id, updates); err != nil {
@@ -360,7 +377,7 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 		if input.Template != nil {
 			templateStr = *input.Template
 		}
-		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr)
+		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr, input.Headers)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -373,13 +390,17 @@ func (h *handler) createDispatcher(w http.ResponseWriter, r *http.Request) {
 
 	id := h.hostService.AddDispatcher(d)
 
-	writeJSON(w, http.StatusCreated, &DispatcherResponse{
+	resp := &DispatcherResponse{
 		ID:       id,
 		Name:     input.Name,
 		Type:     input.Type,
 		URL:      input.URL,
 		Template: input.Template,
-	})
+	}
+	if len(input.Headers) > 0 {
+		resp.Headers = input.Headers
+	}
+	writeJSON(w, http.StatusCreated, resp)
 }
 
 func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
@@ -406,7 +427,7 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 		if input.Template != nil {
 			templateStr = *input.Template
 		}
-		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr)
+		webhook, err := dispatcher.NewWebhookDispatcher(input.Name, url, templateStr, input.Headers)
 		if err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -419,13 +440,17 @@ func (h *handler) updateDispatcher(w http.ResponseWriter, r *http.Request) {
 
 	h.hostService.UpdateDispatcher(id, d)
 
-	writeJSON(w, http.StatusOK, &DispatcherResponse{
+	resp := &DispatcherResponse{
 		ID:       id,
 		Name:     input.Name,
 		Type:     input.Type,
 		URL:      input.URL,
 		Template: input.Template,
-	})
+	}
+	if len(input.Headers) > 0 {
+		resp.Headers = input.Headers
+	}
+	writeJSON(w, http.StatusOK, resp)
 }
 
 func (h *handler) deleteDispatcher(w http.ResponseWriter, r *http.Request) {
@@ -587,7 +612,7 @@ func (h *handler) testWebhook(w http.ResponseWriter, r *http.Request) {
 		templateStr = *input.Template
 	}
 
-	webhook, err := dispatcher.NewWebhookDispatcher("test", input.URL, templateStr)
+	webhook, err := dispatcher.NewWebhookDispatcher("test", input.URL, templateStr, input.Headers)
 	if err != nil {
 		errStr := err.Error()
 		writeJSON(w, http.StatusOK, &TestWebhookResult{

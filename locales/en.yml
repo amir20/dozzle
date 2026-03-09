@@ -188,6 +188,7 @@ notifications:
     log-filter: Log filter
     metric-filter: Metric
     cooldown: Cooldown
+    sample-window: Sample window
     destination: Destination
     dispatcher-deleted: Dispatcher deleted
     containers-count: "{count} containers"
@@ -220,6 +221,8 @@ notifications:
     metric-filter: Metric Expression
     expression-valid: Expression is valid
     metric-fields-hint: "Available fields: {fields}"
+    sample-window-label: Sample Window
+    sample-window-hint: "Alert triggers when condition is met for {duration}"
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
     alert-type: Alert Type
@@ -246,6 +249,11 @@ notifications:
     format-custom: Custom
     template: Template
     template-hint: Go template syntax
+    headers: Custom Headers
+    headers-hint: Optional HTTP headers (e.g., Authorization)
+    header-name: Header name
+    header-value: Header value
+    add-header: Add Header
     test: Test
     test-success: Test successful
     cancel: Cancel

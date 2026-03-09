@@ -179,6 +179,7 @@ notifications:
     log-filter: Günlük filtresi
     metric-filter: Metrik
     cooldown: Bekleme süresi
+    sample-window: Örnek penceresi
     destination: Hedef
     dispatcher-deleted: Dağıtıcı silindi
     containers-count: "{count} konteyner"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Metrik İfadesi
     expression-valid: İfade geçerli
     metric-fields-hint: "Kullanılabilir alanlar: {fields}"
+    sample-window-label: Örnek Penceresi
+    sample-window-hint: "Koşul {duration} boyunca karşılandığında uyarı tetiklenir"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
     alert-type: Uyarı Türü
@@ -237,6 +240,11 @@ notifications:
     format-custom: Özel
     template: Şablon
     template-hint: Go şablon söz dizimi
+    headers: Özel Başlıklar
+    headers-hint: İsteğe bağlı HTTP başlıkları (ör. Authorization)
+    header-name: Başlık adı
+    header-value: Başlık değeri
+    add-header: Başlık Ekle
     test: Test
     test-success: Test başarılı
     cancel: İptal

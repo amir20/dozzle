@@ -182,6 +182,7 @@ notifications:
     log-filter: 로그 필터
     metric-filter: 메트릭
     cooldown: 대기 시간
+    sample-window: 샘플 창
     destination: 목적지
     dispatcher-deleted: 디스패처 삭제됨
     containers-count: "컨테이너 {count}개"
@@ -214,6 +215,8 @@ notifications:
     metric-filter: 메트릭 표현식
     expression-valid: 표현식이 유효합니다
     metric-fields-hint: "사용 가능한 필드: {fields}"
+    sample-window-label: 샘플 창
+    sample-window-hint: "조건이 {duration} 동안 충족되면 알림이 트리거됩니다"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
     alert-type: 알림 유형
@@ -240,6 +243,11 @@ notifications:
     format-custom: 사용자 정의
     template: 템플릿
     template-hint: Go 템플릿 구문
+    headers: 사용자 정의 헤더
+    headers-hint: "선택적 HTTP 헤더 (예: Authorization)"
+    header-name: 헤더 이름
+    header-value: 헤더 값
+    add-header: 헤더 추가
     test: 테스트
     test-success: 테스트 성공
     cancel: 취소

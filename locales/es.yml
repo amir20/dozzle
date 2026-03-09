@@ -179,6 +179,7 @@ notifications:
     log-filter: Filtro de registro
     metric-filter: Métrica
     cooldown: Tiempo de espera
+    sample-window: Ventana de muestreo
     destination: Destino
     dispatcher-deleted: Dispatcher eliminado
     containers-count: "{count} contenedores"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Expresión de Métrica
     expression-valid: La expresión es válida
     metric-fields-hint: "Campos disponibles: {fields}"
+    sample-window-label: Ventana de muestreo
+    sample-window-hint: "La alerta se activa cuando la condición se cumple durante {duration}"
     cooldown-label: Tiempo de espera
     cooldown-hint: "{duration} entre alertas por contenedor"
     alert-type: Tipo de alerta
@@ -237,6 +240,11 @@ notifications:
     format-custom: Personalizado
     template: Plantilla
     template-hint: Sintaxis de plantilla Go
+    headers: Encabezados Personalizados
+    headers-hint: Encabezados HTTP opcionales (ej. Authorization)
+    header-name: Nombre del encabezado
+    header-value: Valor del encabezado
+    add-header: Añadir Encabezado
     test: Probar
     test-success: Prueba exitosa
     cancel: Cancelar

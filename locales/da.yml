@@ -179,6 +179,7 @@ notifications:
     log-filter: Log filter
     metric-filter: Metrik
     cooldown: Afkøling
+    sample-window: Prøvevindue
     destination: Destination
     dispatcher-deleted: Dispatcher slettet
     containers-count: "{count} containere"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Metrikudtryk
     expression-valid: Udtryk er gyldigt
     metric-fields-hint: "Tilgængelige felter: {fields}"
+    sample-window-label: Prøvevindue
+    sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
     alert-type: Alarmtype
@@ -237,6 +240,11 @@ notifications:
     format-custom: Brugerdefineret
     template: Skabelon
     template-hint: Go skabelon syntaks
+    headers: Brugerdefinerede Headers
+    headers-hint: Valgfrie HTTP-headers (f.eks. Authorization)
+    header-name: Header-navn
+    header-value: Header-værdi
+    add-header: Tilføj Header
     test: Test
     test-success: Test succesfuld
     cancel: Annuller

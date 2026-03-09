@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/rs/zerolog/log"
@@ -46,6 +47,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 	}
 
@@ -57,6 +59,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			Type:      d.Type,
 			URL:       d.URL,
 			Template:  d.Template,
+			Headers:   d.Headers,
 			APIKey:    d.APIKey,
 			Prefix:    d.Prefix,
 			ExpiresAt: d.ExpiresAt,
@@ -99,6 +102,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            sub.Cooldown,
+			SampleWindow:        sub.SampleWindow,
 		}
 		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
@@ -113,6 +117,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			Type:      dc.Type,
 			URL:       dc.URL,
 			Template:  dc.Template,
+			Headers:   dc.Headers,
 			APIKey:    dc.APIKey,
 			Prefix:    dc.Prefix,
 			ExpiresAt: dc.ExpiresAt,
@@ -134,7 +139,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 	switch config.Type {
 	case "webhook":
-		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template)
+		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template, config.Headers)
 	case "cloud":
 		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey, config.Prefix, config.ExpiresAt)
 	default:
@@ -150,6 +155,9 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 
 	if sub.MetricCooldowns == nil {
 		sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
+	}
+	if sub.MetricSampleBuffers == nil {
+		sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

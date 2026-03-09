@@ -179,6 +179,7 @@ notifications:
     log-filter: Фильтр логов
     metric-filter: Метрика
     cooldown: Период ожидания
+    sample-window: Окно выборки
     destination: Назначение
     dispatcher-deleted: Диспетчер удалён
     containers-count: "{count} контейнеров"
@@ -211,6 +212,8 @@ notifications:
     metric-filter: Выражение метрики
     expression-valid: Выражение корректно
     metric-fields-hint: "Доступные поля: {fields}"
+    sample-window-label: Окно выборки
+    sample-window-hint: "Оповещение срабатывает, когда условие выполняется в течение {duration}"
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
     alert-type: Тип оповещения
@@ -237,6 +240,11 @@ notifications:
     format-custom: Пользовательский
     template: Шаблон
     template-hint: Синтаксис шаблона Go
+    headers: Пользовательские Заголовки
+    headers-hint: Необязательные HTTP-заголовки (напр. Authorization)
+    header-name: Имя заголовка
+    header-value: Значение заголовка
+    add-header: Добавить Заголовок
     test: Тест
     test-success: Тест успешен
     cancel: Отмена

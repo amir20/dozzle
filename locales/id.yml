@@ -191,6 +191,7 @@ notifications:
     log-filter: Filter log
     metric-filter: Metrik
     cooldown: Jeda
+    sample-window: Jendela sampel
     destination: Tujuan
     dispatcher-deleted: Dispatcher dihapus
     containers-count: "{count} kontainer"
@@ -223,6 +224,8 @@ notifications:
     metric-filter: Ekspresi Metrik
     expression-valid: Ekspresi valid
     metric-fields-hint: "Field tersedia: {fields}"
+    sample-window-label: Jendela Sampel
+    sample-window-hint: "Peringatan dipicu ketika kondisi terpenuhi selama {duration}"
     cooldown-label: Jeda
     cooldown-hint: "{duration} antara peringatan per kontainer"
     alert-type: Jenis Peringatan
@@ -249,6 +252,11 @@ notifications:
     format-custom: Kustom
     template: Template
     template-hint: Sintaks template Go
+    headers: Header Kustom
+    headers-hint: Header HTTP opsional (mis. Authorization)
+    header-name: Nama header
+    header-value: Nilai header
+    add-header: Tambah Header
     test: Test
     test-success: Test berhasil
     cancel: Batal

@@ -182,6 +182,7 @@ notifications:
     log-filter: 日誌篩選器
     metric-filter: 指標
     cooldown: 冷卻時間
+    sample-window: 取樣視窗
     destination: 目標
     dispatcher-deleted: 發送器已刪除
     containers-count: "{count} 個容器"
@@ -214,6 +215,8 @@ notifications:
     metric-filter: 指標表達式
     expression-valid: 表達式有效
     metric-fields-hint: "可用欄位：{fields}"
+    sample-window-label: 取樣視窗
+    sample-window-hint: "當條件在 {duration} 內滿足時觸發警報"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
     alert-type: 警報類型
@@ -240,6 +243,11 @@ notifications:
     format-custom: 自訂
     template: 範本
     template-hint: Go 範本語法
+    headers: 自訂標頭
+    headers-hint: 選填的 HTTP 標頭（例如 Authorization）
+    header-name: 標頭名稱
+    header-value: 標頭值
+    add-header: 新增標頭
     test: 測試
     test-success: 測試成功
     cancel: 取消

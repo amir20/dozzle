@@ -133,8 +133,9 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 			return true
 		}
 
-		// Check metric expression
-		if !sub.MatchesMetric(notificationStat) {
+		// Evaluate metric expression and record in sample window
+		matched := sub.MatchesMetric(notificationStat)
+		if !sub.RecordMetricSample(event.Stat.ID, matched) {
 			return true
 		}
 
@@ -171,6 +172,7 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 				MetricExpression:    sub.MetricExpression,
 				ContainerExpression: sub.ContainerExpression,
 				Cooldown:            sub.Cooldown,
+				SampleWindow:        sub.SampleWindow,
 			},
 			Timestamp: time.Now(),
 		}

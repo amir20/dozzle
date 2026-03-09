@@ -100,6 +100,9 @@ message NotificationSubscription {
   int32 dispatcherId = 4;
   string logExpression = 5;
   string containerExpression = 6;
+  string metricExpression = 7;
+  int32 cooldown = 8;
+  int32 sampleWindow = 9;
 }
 
 message NotificationDispatcher {
@@ -108,4 +111,5 @@ message NotificationDispatcher {
   string type = 3;
   string url = 4;
   string template = 5;
+  map<string, string> headers = 6;
 }

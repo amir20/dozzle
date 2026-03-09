@@ -24,16 +24,18 @@ type WebhookDispatcher struct {
 	URL          string
 	Template     *template.Template
 	TemplateText string // Original template string for serialization
+	Headers      map[string]string
 	client       *http.Client
 }
 
 // NewWebhookDispatcher creates a new webhook dispatcher
 // If templateStr is empty, the notification will be marshaled as JSON directly
-func NewWebhookDispatcher(name, url, templateStr string) (*WebhookDispatcher, error) {
+func NewWebhookDispatcher(name, url, templateStr string, headers map[string]string) (*WebhookDispatcher, error) {
 	w := &WebhookDispatcher{
 		Name:         name,
 		URL:          url,
 		TemplateText: templateStr,
+		Headers:      headers,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -88,6 +90,9 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		return TestResult{Success: false, Error: fmt.Sprintf("failed to create request: %v", err)}
 	}
 
+	for k, v := range w.Headers {
+		req.Header.Set(k, v)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", UserAgent)
 

@@ -515,6 +515,9 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			DispatcherId:        int32(sub.DispatcherID),
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
+			MetricExpression:    sub.MetricExpression,
+			Cooldown:            int32(sub.Cooldown),
+			SampleWindow:        int32(sub.SampleWindow),
 		}
 	}
 
@@ -526,6 +529,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			Type:     d.Type,
 			Url:      d.URL,
 			Template: d.Template,
+			Headers:  d.Headers,
 		}
 	}
 

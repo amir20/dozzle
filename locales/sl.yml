@@ -184,6 +184,7 @@ notifications:
     log-filter: Filter dnevnika
     metric-filter: Metrika
     cooldown: Čas mirovanja
+    sample-window: Vzorčno okno
     destination: Cilj
     dispatcher-deleted: Pošiljatelj izbrisan
     containers-count: "{count} zabojnikov"
@@ -216,6 +217,8 @@ notifications:
     metric-filter: Izraz metrike
     expression-valid: Izraz je veljaven
     metric-fields-hint: "Razpoložljiva polja: {fields}"
+    sample-window-label: Vzorčno okno
+    sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
     alert-type: Vrsta opozorila
@@ -242,6 +245,11 @@ notifications:
     format-custom: Po meri
     template: Predloga
     template-hint: Sintaksa predloge Go
+    headers: Prilagojene Glave
+    headers-hint: Neobvezne HTTP glave (npr. Authorization)
+    header-name: Ime glave
+    header-value: Vrednost glave
+    add-header: Dodaj Glavo
     test: Test
     test-success: Test uspešen
     cancel: Prekliči

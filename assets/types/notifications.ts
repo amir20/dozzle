@@ -6,6 +6,7 @@ export interface NotificationRule {
   logExpression: string;
   metricExpression?: string;
   cooldown?: number;
+  sampleWindow?: number;
   triggerCount: number;
   triggeredContainers: number;
   lastTriggeredAt: string | null;
@@ -18,6 +19,7 @@ export interface Dispatcher {
   type: string;
   url?: string;
   template?: string;
+  headers?: Record<string, string>;
   prefix?: string;
   expiresAt?: string;
 }
@@ -30,6 +32,7 @@ export interface NotificationRuleInput {
   containerExpression: string;
   metricExpression?: string;
   cooldown?: number;
+  sampleWindow?: number;
 }
 
 export interface PreviewResult {
