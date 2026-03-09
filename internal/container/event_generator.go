@@ -85,11 +85,76 @@ func (g *EventGenerator) flushGroup(pendingGroup []*LogEvent) bool {
 	})
 }
 
+// emitAsSingles emits each event individually as LogTypeSingle.
+func (g *EventGenerator) emitAsSingles(events []*LogEvent) bool {
+	for _, e := range events {
+		e.Type = LogTypeSingle
+		if !g.emit(e) {
+			return false
+		}
+	}
+	return true
+}
+
+// skipOrphanedLines drains leading simple events without a level that look
+// like orphaned continuation lines from a group already emitted in a prior
+// fetch. Returns the first non-orphan event (or nil if the stream ends).
+// If no non-orphan event arrives (stream ends or times out waiting), the
+// buffered events are emitted as singles — they weren't really orphans.
+func (g *EventGenerator) skipOrphanedLines() *LogEvent {
+	var orphanBuffer []*LogEvent
+	var lastTimestamp int64
+
+	// First event must block — we need at least one event to start.
+	current := g.nextEvent()
+	if current == nil {
+		return nil
+	}
+
+	for {
+		isOrphan := current.IsSimple() && !current.HasLevel() && current.Timestamp > 0 &&
+			(lastTimestamp == 0 || math.Abs(float64(lastTimestamp-current.Timestamp)) < maxGroupTimeDelta)
+
+		if !isOrphan {
+			if len(orphanBuffer) > 0 {
+				log.Debug().Int("count", len(orphanBuffer)).Str("container", g.containerID).Msg("skipped orphaned continuation lines")
+			}
+			return current
+		}
+
+		lastTimestamp = current.Timestamp
+		orphanBuffer = append(orphanBuffer, current)
+
+		// Use peek (with timeout) so we don't block forever on a live stream.
+		if next := g.peek(); next == nil {
+			// No more events within the timeout — these aren't orphans.
+			// Emit them as singles, then block for the next event so the
+			// stream continues processing.
+			g.emitAsSingles(orphanBuffer)
+			return g.nextEvent()
+		}
+		if current = g.nextEvent(); current == nil {
+			g.emitAsSingles(orphanBuffer)
+			return nil
+		}
+	}
+}
+
 func (g *EventGenerator) processBuffer() {
+	defer func() {
+		close(g.Events)
+		g.wg.Done()
+	}()
+
 	var pendingGroup []*LogEvent
-	seenFirst := false
-	var lastOrphanTimestamp int64
-	orphanCount := 0
+
+	// Skip leading orphaned continuation lines from a prior fetch.
+	first := g.skipOrphanedLines()
+	if first == nil {
+		return
+	}
+	// Put the first real event back so the main loop picks it up.
+	g.next = first
 
 loop:
 	for {
@@ -99,9 +164,8 @@ loop:
 			break loop
 		}
 
-		// Complex logs are emitted immediately and always mark seenFirst
+		// Complex logs are emitted immediately
 		if !current.IsSimple() {
-			seenFirst = true
 			if !g.flushGroup(pendingGroup) {
 				break loop
 			}
@@ -110,24 +174,6 @@ loop:
 				break loop
 			}
 			continue
-		}
-
-		// Skip leading simple events without a level that look like orphaned
-		// continuation lines from a group already emitted in a prior fetch.
-		// Only skip if they have a timestamp and are close in time, matching
-		// the group continuation criteria.
-		if !seenFirst && !current.HasLevel() && current.Timestamp > 0 {
-			if lastOrphanTimestamp == 0 || math.Abs(float64(lastOrphanTimestamp-current.Timestamp)) < maxGroupTimeDelta {
-				lastOrphanTimestamp = current.Timestamp
-				orphanCount++
-				continue
-			}
-		}
-		if !seenFirst {
-			if orphanCount > 0 {
-				log.Debug().Int("count", orphanCount).Str("container", g.containerID).Msg("skipped orphaned continuation lines")
-			}
-			seenFirst = true
 		}
 
 		// Simple log - peek ahead to decide grouping
@@ -157,9 +203,6 @@ loop:
 			next.Level = pendingGroup[0].Level
 		}
 	}
-
-	close(g.Events)
-	g.wg.Done()
 }
 
 func (g *EventGenerator) nextEvent() *LogEvent {
