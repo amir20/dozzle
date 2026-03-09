@@ -125,9 +125,26 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 		if old, ok := existing[sub.ID]; ok {
 			s.TriggerCount.Store(old.TriggerCount.Load())
 			s.LastTriggeredAt.Store(old.LastTriggeredAt.Load())
-			s.TriggeredContainerIDs = old.TriggeredContainerIDs
-			s.MetricCooldowns = old.MetricCooldowns
-			s.MetricSampleBuffers = old.MetricSampleBuffers
+
+			// Clone TriggeredContainerIDs to avoid sharing with old subscription
+			s.TriggeredContainerIDs = xsync.NewMap[string, struct{}]()
+			if old.TriggeredContainerIDs != nil {
+				old.TriggeredContainerIDs.Range(func(id string, v struct{}) bool {
+					s.TriggeredContainerIDs.Store(id, v)
+					return true
+				})
+			}
+
+			// Clone MetricCooldowns to avoid sharing with old subscription
+			s.MetricCooldowns = xsync.NewMap[string, time.Time]()
+			if old.MetricCooldowns != nil {
+				old.MetricCooldowns.Range(func(id string, t time.Time) bool {
+					s.MetricCooldowns.Store(id, t)
+					return true
+				})
+			}
+
+			// MetricSampleBuffers: start fresh since ring buffers can't be safely cloned
 		}
 
 		if err := m.loadSubscription(s); err != nil {

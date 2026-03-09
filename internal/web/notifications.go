@@ -225,9 +225,10 @@ func (h *handler) getNotificationRule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, nil))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, agentStats))
 			return
 		}
 	}
@@ -339,9 +340,10 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 
 	// Fetch the updated subscription
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, nil))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, agentStats))
 			return
 		}
 	}
