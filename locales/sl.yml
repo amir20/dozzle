@@ -245,6 +245,11 @@ notifications:
     format-custom: Po meri
     template: Predloga
     template-hint: Sintaksa predloge Go
+    headers: Prilagojene Glave
+    headers-hint: Neobvezne HTTP glave (npr. Authorization)
+    header-name: Ime glave
+    header-value: Vrednost glave
+    add-header: Dodaj Glavo
     test: Test
     test-success: Test uspešen
     cancel: Prekliči

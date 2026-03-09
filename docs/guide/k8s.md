@@ -84,6 +84,8 @@ spec:
 ```
 
 This configuration creates a service account, a cluster role, and a cluster role binding to allow Dozzle to access the necessary Kubernetes resources. It also creates a deployment for Dozzle and exposes it via a service.
+> [!WARNING]
+> When deploying this with any GitOps tool (like Flux CD or Argo CD) in a specific namespace apart from `default`, make sure to change the **namespace** in the **ClusterRoleBinding Subject**
 
 All other features are supported as well, including authentication, filtering, and more. You can use the same environment variables as you would in Docker to configure Dozzle in Kubernetes.
 

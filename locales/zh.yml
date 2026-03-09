@@ -240,6 +240,11 @@ notifications:
     format-custom: 自定义
     template: 模板
     template-hint: Go 模板语法
+    headers: 自定义请求头
+    headers-hint: 可选的 HTTP 请求头（如 Authorization）
+    header-name: 请求头名称
+    header-value: 请求头值
+    add-header: 添加请求头
     test: 测试
     test-success: 测试成功
     cancel: 取消

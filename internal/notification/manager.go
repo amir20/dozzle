@@ -152,7 +152,12 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			SampleWindow:        sub.SampleWindow,
 			MetricCooldowns:     sub.MetricCooldowns,
 			MetricSampleBuffers: sub.MetricSampleBuffers,
+			TriggeredContainerIDs: sub.TriggeredContainerIDs,
 		}
+
+		// Preserve runtime stats (atomics can't be copied in struct literal)
+		updated.TriggerCount.Store(sub.TriggerCount.Load())
+		updated.LastTriggeredAt.Store(sub.LastTriggeredAt.Load())
 
 		// Apply updates to the clone
 		for key, value := range updates {
@@ -305,6 +310,7 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 				Type:     "webhook",
 				URL:      v.URL,
 				Template: v.TemplateText,
+				Headers:  v.Headers,
 			})
 		case *dispatcher.CloudDispatcher:
 			result = append(result, DispatcherConfig{

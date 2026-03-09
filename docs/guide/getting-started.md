@@ -16,7 +16,7 @@ The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file.
 ::: code-group
 
 ```sh
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 ```
 
 ```yaml [docker-compose.yml]
@@ -26,6 +26,7 @@ services:
     image: amir20/dozzle:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle_data:/data
     ports:
       - 8080:8080
     environment:
@@ -37,6 +38,8 @@ services:
       #
       # Uncomment to enable authentication. See https://dozzle.dev/guide/authentication
       # - DOZZLE_AUTH_PROVIDER=simple
+volumes:
+  dozzle_data:
 ```
 
 :::
@@ -44,6 +47,9 @@ services:
 > [!TIP]
 > Dozzle supports actions, such as stopping, starting, and restarting containers, or attaching to container shells. But they are disabled by default for security reasons. To enable them, uncomment the corresponding environment variables.
 > Dozzle also supports connecting to remote agents to monitor multiple Docker hosts. See [agent](/guide/agent) to learn more.
+
+> [!IMPORTANT]
+> Dozzle stores notification settings and other data in `/data` inside the container. To persist these settings across container restarts, you need to mount a volume to `/data`. Without this mount, notification settings will be lost when the container is recreated. See the Docker Compose example above for the recommended volume configuration.
 
 ## Docker Swarm
 

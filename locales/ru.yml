@@ -240,6 +240,11 @@ notifications:
     format-custom: Пользовательский
     template: Шаблон
     template-hint: Синтаксис шаблона Go
+    headers: Пользовательские Заголовки
+    headers-hint: Необязательные HTTP-заголовки (напр. Authorization)
+    header-name: Имя заголовка
+    header-value: Значение заголовка
+    add-header: Добавить Заголовок
     test: Тест
     test-success: Тест успешен
     cancel: Отмена

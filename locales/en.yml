@@ -249,6 +249,11 @@ notifications:
     format-custom: Custom
     template: Template
     template-hint: Go template syntax
+    headers: Custom Headers
+    headers-hint: Optional HTTP headers (e.g., Authorization)
+    header-name: Header name
+    header-value: Header value
+    add-header: Add Header
     test: Test
     test-success: Test successful
     cancel: Cancel
