@@ -106,10 +106,36 @@ type TestWebhookResult struct {
 }
 
 // Helper functions
-func subscriptionToResponse(sub *notification.Subscription, dispatchers []notification.DispatcherConfig) *NotificationRuleResponse {
+func subscriptionToResponse(sub *notification.Subscription, dispatchers []notification.DispatcherConfig, agentStats map[int]types.SubscriptionStats) *NotificationRuleResponse {
 	var lastTriggeredAt *time.Time
 	if t := sub.LastTriggeredAt.Load(); t != nil && !t.IsZero() {
 		lastTriggeredAt = t
+	}
+
+	triggerCount := sub.TriggerCount.Load()
+	triggeredContainers := sub.TriggeredContainersCount()
+
+	// Merge agent stats if available
+	if as, ok := agentStats[sub.ID]; ok {
+		triggerCount += as.TriggerCount
+
+		if as.LastTriggeredAt != nil && (lastTriggeredAt == nil || as.LastTriggeredAt.After(*lastTriggeredAt)) {
+			lastTriggeredAt = as.LastTriggeredAt
+		}
+
+		// Count unique container IDs from agents (deduplicated with local)
+		agentContainerSet := make(map[string]struct{}, len(as.TriggeredContainerIDs))
+		for _, id := range as.TriggeredContainerIDs {
+			agentContainerSet[id] = struct{}{}
+		}
+		// Subtract containers already counted locally
+		if sub.TriggeredContainerIDs != nil {
+			sub.TriggeredContainerIDs.Range(func(id string, _ struct{}) bool {
+				delete(agentContainerSet, id)
+				return true
+			})
+		}
+		triggeredContainers += len(agentContainerSet)
 	}
 
 	var disp *DispatcherResponse
@@ -130,9 +156,9 @@ func subscriptionToResponse(sub *notification.Subscription, dispatchers []notifi
 		MetricExpression:    sub.MetricExpression,
 		Cooldown:            sub.Cooldown,
 		SampleWindow:        sub.SampleWindow,
-		TriggerCount:        sub.TriggerCount.Load(),
+		TriggerCount:        triggerCount,
 		LastTriggeredAt:     lastTriggeredAt,
-		TriggeredContainers: sub.TriggeredContainersCount(),
+		TriggeredContainers: triggeredContainers,
 	}
 }
 
@@ -183,9 +209,10 @@ func writeError(w http.ResponseWriter, status int, message string) {
 func (h *handler) listNotificationRules(w http.ResponseWriter, r *http.Request) {
 	subscriptions := h.hostService.Subscriptions()
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	rules := make([]*NotificationRuleResponse, len(subscriptions))
 	for i, sub := range subscriptions {
-		rules[i] = subscriptionToResponse(sub, dispatchers)
+		rules[i] = subscriptionToResponse(sub, dispatchers, agentStats)
 	}
 	writeJSON(w, http.StatusOK, rules)
 }
@@ -200,7 +227,7 @@ func (h *handler) getNotificationRule(w http.ResponseWriter, r *http.Request) {
 	dispatchers := h.hostService.Dispatchers()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, nil))
 			return
 		}
 	}
@@ -230,7 +257,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, subscriptionToResponse(sub, h.hostService.Dispatchers()))
+	writeJSON(w, http.StatusCreated, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
 func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request) {
@@ -263,7 +290,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	writeJSON(w, http.StatusOK, subscriptionToResponse(sub, h.hostService.Dispatchers()))
+	writeJSON(w, http.StatusOK, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
 func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request) {
@@ -314,7 +341,7 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	dispatchers := h.hostService.Dispatchers()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, nil))
 			return
 		}
 	}

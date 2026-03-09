@@ -72,8 +72,25 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 // HandleNotificationConfig implements agent.NotificationConfigHandler interface
 // It atomically replaces all subscriptions and dispatchers with new state from the main server
 func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
-	// Clear existing state
-	m.subscriptions.Clear()
+	// Snapshot existing subscriptions to preserve runtime stats
+	existing := make(map[int]*Subscription)
+	m.subscriptions.Range(func(id int, sub *Subscription) bool {
+		existing[id] = sub
+		return true
+	})
+
+	// Build set of incoming IDs and remove stale subscriptions
+	incomingIDs := make(map[int]struct{}, len(subscriptions))
+	for _, sub := range subscriptions {
+		incomingIDs[sub.ID] = struct{}{}
+	}
+	for id := range existing {
+		if _, ok := incomingIDs[id]; !ok {
+			m.subscriptions.Delete(id)
+		}
+	}
+
+	// Clear dispatchers (no stats to preserve)
 	m.dispatchers.Clear()
 
 	// Find max IDs to initialize counters
@@ -91,7 +108,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 	m.subscriptionCounter.Store(int32(maxSubID))
 	m.dispatcherCounter.Store(int32(maxDispatcherID))
 
-	// Load subscriptions (convert from types.SubscriptionConfig to Subscription)
+	// Load subscriptions, preserving runtime stats from existing ones
 	for _, sub := range subscriptions {
 		s := &Subscription{
 			ID:                  sub.ID,
@@ -104,6 +121,15 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
 		}
+
+		if old, ok := existing[sub.ID]; ok {
+			s.TriggerCount.Store(old.TriggerCount.Load())
+			s.LastTriggeredAt.Store(old.LastTriggeredAt.Load())
+			s.TriggeredContainerIDs = old.TriggeredContainerIDs
+			s.MetricCooldowns = old.MetricCooldowns
+			s.MetricSampleBuffers = old.MetricSampleBuffers
+		}
+
 		if err := m.loadSubscription(s); err != nil {
 			return fmt.Errorf("failed to load subscription %s: %w", sub.Name, err)
 		}

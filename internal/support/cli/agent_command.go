@@ -29,6 +29,10 @@ type persistingNotificationHandler struct {
 	configPath string
 }
 
+func (h *persistingNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
+	return h.manager.GetNotificationStats()
+}
+
 func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	// Update the manager
 	if err := h.manager.HandleNotificationConfig(subscriptions, dispatchers); err != nil {

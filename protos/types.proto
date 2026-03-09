@@ -113,3 +113,10 @@ message NotificationDispatcher {
   string template = 5;
   map<string, string> headers = 6;
 }
+
+message NotificationSubscriptionStats {
+  int32 subscriptionId = 1;
+  int64 triggerCount = 2;
+  google.protobuf.Timestamp lastTriggeredAt = 3;
+  repeated string triggeredContainerIds = 4;
+}
