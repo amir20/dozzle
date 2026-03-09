@@ -1012,6 +1012,74 @@ func (x *NotificationDispatcher) GetHeaders() map[string]string {
 	return nil
 }
 
+type NotificationSubscriptionStats struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	SubscriptionId        int32                  `protobuf:"varint,1,opt,name=subscriptionId,proto3" json:"subscriptionId,omitempty"`
+	TriggerCount          int64                  `protobuf:"varint,2,opt,name=triggerCount,proto3" json:"triggerCount,omitempty"`
+	LastTriggeredAt       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=lastTriggeredAt,proto3" json:"lastTriggeredAt,omitempty"`
+	TriggeredContainerIds []string               `protobuf:"bytes,4,rep,name=triggeredContainerIds,proto3" json:"triggeredContainerIds,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *NotificationSubscriptionStats) Reset() {
+	*x = NotificationSubscriptionStats{}
+	mi := &file_types_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationSubscriptionStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationSubscriptionStats) ProtoMessage() {}
+
+func (x *NotificationSubscriptionStats) ProtoReflect() protoreflect.Message {
+	mi := &file_types_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationSubscriptionStats.ProtoReflect.Descriptor instead.
+func (*NotificationSubscriptionStats) Descriptor() ([]byte, []int) {
+	return file_types_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NotificationSubscriptionStats) GetSubscriptionId() int32 {
+	if x != nil {
+		return x.SubscriptionId
+	}
+	return 0
+}
+
+func (x *NotificationSubscriptionStats) GetTriggerCount() int64 {
+	if x != nil {
+		return x.TriggerCount
+	}
+	return 0
+}
+
+func (x *NotificationSubscriptionStats) GetLastTriggeredAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastTriggeredAt
+	}
+	return nil
+}
+
+func (x *NotificationSubscriptionStats) GetTriggeredContainerIds() []string {
+	if x != nil {
+		return x.TriggeredContainerIds
+	}
+	return nil
+}
+
 var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
@@ -1110,7 +1178,12 @@ const file_types_proto_rawDesc = "" +
 	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*3\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x01\n" +
+	"\x1dNotificationSubscriptionStats\x12&\n" +
+	"\x0esubscriptionId\x18\x01 \x01(\x05R\x0esubscriptionId\x12\"\n" +
+	"\ftriggerCount\x18\x02 \x01(\x03R\ftriggerCount\x12D\n" +
+	"\x0flastTriggeredAt\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x0flastTriggeredAt\x124\n" +
+	"\x15triggeredContainerIds\x18\x04 \x03(\tR\x15triggeredContainerIds*3\n" +
 	"\x0fContainerAction\x12\t\n" +
 	"\x05Start\x10\x00\x12\b\n" +
 	"\x04Stop\x10\x01\x12\v\n" +
@@ -1129,43 +1202,45 @@ func file_types_proto_rawDescGZIP() []byte {
 }
 
 var file_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_types_proto_goTypes = []any{
-	(ContainerAction)(0),             // 0: protobuf.ContainerAction
-	(*Container)(nil),                // 1: protobuf.Container
-	(*ContainerStat)(nil),            // 2: protobuf.ContainerStat
-	(*LogFragment)(nil),              // 3: protobuf.LogFragment
-	(*LogEvent)(nil),                 // 4: protobuf.LogEvent
-	(*SingleMessage)(nil),            // 5: protobuf.SingleMessage
-	(*GroupMessage)(nil),             // 6: protobuf.GroupMessage
-	(*ComplexMessage)(nil),           // 7: protobuf.ComplexMessage
-	(*ContainerEvent)(nil),           // 8: protobuf.ContainerEvent
-	(*Host)(nil),                     // 9: protobuf.Host
-	(*NotificationSubscription)(nil), // 10: protobuf.NotificationSubscription
-	(*NotificationDispatcher)(nil),   // 11: protobuf.NotificationDispatcher
-	nil,                              // 12: protobuf.Container.LabelsEntry
-	nil,                              // 13: protobuf.Host.LabelsEntry
-	nil,                              // 14: protobuf.NotificationDispatcher.HeadersEntry
-	(*timestamppb.Timestamp)(nil),    // 15: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                // 16: google.protobuf.Any
+	(ContainerAction)(0),                  // 0: protobuf.ContainerAction
+	(*Container)(nil),                     // 1: protobuf.Container
+	(*ContainerStat)(nil),                 // 2: protobuf.ContainerStat
+	(*LogFragment)(nil),                   // 3: protobuf.LogFragment
+	(*LogEvent)(nil),                      // 4: protobuf.LogEvent
+	(*SingleMessage)(nil),                 // 5: protobuf.SingleMessage
+	(*GroupMessage)(nil),                  // 6: protobuf.GroupMessage
+	(*ComplexMessage)(nil),                // 7: protobuf.ComplexMessage
+	(*ContainerEvent)(nil),                // 8: protobuf.ContainerEvent
+	(*Host)(nil),                          // 9: protobuf.Host
+	(*NotificationSubscription)(nil),      // 10: protobuf.NotificationSubscription
+	(*NotificationDispatcher)(nil),        // 11: protobuf.NotificationDispatcher
+	(*NotificationSubscriptionStats)(nil), // 12: protobuf.NotificationSubscriptionStats
+	nil,                                   // 13: protobuf.Container.LabelsEntry
+	nil,                                   // 14: protobuf.Host.LabelsEntry
+	nil,                                   // 15: protobuf.NotificationDispatcher.HeadersEntry
+	(*timestamppb.Timestamp)(nil),         // 16: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                     // 17: google.protobuf.Any
 }
 var file_types_proto_depIdxs = []int32{
-	15, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
-	15, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
-	12, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
+	16, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
+	16, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
+	13, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
 	2,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
-	15, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
-	16, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
-	15, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
+	16, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
+	17, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
+	16, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
 	3,  // 7: protobuf.GroupMessage.fragments:type_name -> protobuf.LogFragment
-	15, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
-	13, // 9: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
-	14, // 10: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	16, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
+	14, // 9: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
+	15, // 10: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
+	16, // 11: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_types_proto_init() }
@@ -1179,7 +1254,7 @@ func file_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_proto_rawDesc), len(file_types_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

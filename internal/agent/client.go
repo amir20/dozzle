@@ -541,6 +541,31 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 	return err
 }
 
+func (c *Client) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
+	resp, err := c.client.GetNotificationStats(ctx, &pb.GetNotificationStatsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]types.SubscriptionStats, len(resp.Stats))
+	for i, s := range resp.Stats {
+		var lastTriggered *time.Time
+		if s.LastTriggeredAt != nil {
+			t := s.LastTriggeredAt.AsTime()
+			if !t.IsZero() {
+				lastTriggered = &t
+			}
+		}
+		stats[i] = types.SubscriptionStats{
+			SubscriptionID:        int(s.SubscriptionId),
+			TriggerCount:          s.TriggerCount,
+			LastTriggeredAt:       lastTriggered,
+			TriggeredContainerIDs: s.TriggeredContainerIds,
+		}
+	}
+	return stats, nil
+}
+
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {
 	var data *orderedmap.OrderedMap[string, any]
 	reader := bytes.NewReader(b)

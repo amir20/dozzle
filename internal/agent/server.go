@@ -30,6 +30,7 @@ import (
 // NotificationConfigHandler handles notification config updates received from the main server
 type NotificationConfigHandler interface {
 	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+	GetNotificationStats() []types.SubscriptionStats
 }
 
 // ClientService is the interface for container operations used by the agent server
@@ -441,6 +442,29 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 
 	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
 	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificationStatsRequest) (*pb.GetNotificationStatsResponse, error) {
+	if s.notificationConfigHandler == nil {
+		return &pb.GetNotificationStatsResponse{}, nil
+	}
+
+	stats := s.notificationConfigHandler.GetNotificationStats()
+
+	pbStats := make([]*pb.NotificationSubscriptionStats, len(stats))
+	for i, s := range stats {
+		pbStat := &pb.NotificationSubscriptionStats{
+			SubscriptionId:       int32(s.SubscriptionID),
+			TriggerCount:         s.TriggerCount,
+			TriggeredContainerIds: s.TriggeredContainerIDs,
+		}
+		if s.LastTriggeredAt != nil {
+			pbStat.LastTriggeredAt = timestamppb.New(*s.LastTriggeredAt)
+		}
+		pbStats[i] = pbStat
+	}
+
+	return &pb.GetNotificationStatsResponse{Stats: pbStats}, nil
 }
 
 func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {

@@ -64,6 +64,14 @@ type SubscriptionConfig struct {
 	SampleWindow        int    `json:"sampleWindow,omitempty"`
 }
 
+// SubscriptionStats represents runtime stats for a notification subscription
+type SubscriptionStats struct {
+	SubscriptionID        int        `json:"subscriptionId"`
+	TriggerCount          int64      `json:"triggerCount"`
+	LastTriggeredAt       *time.Time `json:"lastTriggeredAt,omitempty"`
+	TriggeredContainerIDs []string   `json:"triggeredContainerIds"`
+}
+
 // DispatcherConfig represents a notification dispatcher configuration
 type DispatcherConfig struct {
 	ID        int

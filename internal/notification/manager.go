@@ -298,6 +298,34 @@ func (m *Manager) Subscriptions() []*Subscription {
 	return result
 }
 
+// GetNotificationStats returns runtime stats for all subscriptions
+func (m *Manager) GetNotificationStats() []types.SubscriptionStats {
+	var stats []types.SubscriptionStats
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		var containerIDs []string
+		if sub.TriggeredContainerIDs != nil {
+			sub.TriggeredContainerIDs.Range(func(id string, _ struct{}) bool {
+				containerIDs = append(containerIDs, id)
+				return true
+			})
+		}
+
+		var lastTriggered *time.Time
+		if t := sub.LastTriggeredAt.Load(); t != nil && !t.IsZero() {
+			lastTriggered = t
+		}
+
+		stats = append(stats, types.SubscriptionStats{
+			SubscriptionID:        sub.ID,
+			TriggerCount:          sub.TriggerCount.Load(),
+			LastTriggeredAt:       lastTriggered,
+			TriggeredContainerIDs: containerIDs,
+		})
+		return true
+	})
+	return stats
+}
+
 // Dispatchers returns all dispatchers as DispatcherConfig sorted by ID
 func (m *Manager) Dispatchers() []DispatcherConfig {
 	result := make([]DispatcherConfig, 0)

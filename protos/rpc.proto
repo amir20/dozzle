@@ -21,6 +21,7 @@ service AgentService {
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
   rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
+  rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
 }
 
 message ListContainersRequest {
@@ -135,3 +136,9 @@ message UpdateNotificationConfigRequest {
 }
 
 message UpdateNotificationConfigResponse {}
+
+message GetNotificationStatsRequest {}
+
+message GetNotificationStatsResponse {
+  repeated NotificationSubscriptionStats stats = 1;
+}

@@ -87,3 +87,7 @@ func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []st
 func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
 }
+
+func (a *agentService) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
+	return a.client.GetNotificationStats(ctx)
+}
