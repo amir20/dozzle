@@ -240,12 +240,15 @@ func TestEventGenerator_MixedLogs(t *testing.T) {
 	assert.Equal(t, LogTypeSingle, event2.Type)
 }
 
-// Tests for orphan skipping: leading levelless lines ARE skipped when real logs follow.
+// Tests for orphan skipping: leading levelless lines ARE skipped when container
+// started well before (simulating a load-more / scroll-to-top fetch).
 func TestEventGenerator_OrphanSkipped_FollowedByLeveledLog(t *testing.T) {
 	baseTime := "2020-05-13T18:55:37.772853839Z"
+	// Container started hours before the logs — this is a mid-stream fetch.
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
-		baseTime + " at line 42",        // orphan (no level)
-		baseTime + " in function foo",   // orphan (no level)
+		baseTime + " at line 42",        // orphan (no level, container started long ago)
+		baseTime + " in function foo",   // orphan
 		baseTime + " ERROR: Next error", // real entry with level
 		baseTime + " at line 99",        // continuation of real entry
 	}
@@ -255,7 +258,7 @@ func TestEventGenerator_OrphanSkipped_FollowedByLeveledLog(t *testing.T) {
 		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 	event := <-g.Events
 
 	require.NotNil(t, event)
@@ -269,6 +272,7 @@ func TestEventGenerator_OrphanSkipped_FollowedByLeveledLog(t *testing.T) {
 
 func TestEventGenerator_OrphanSkipped_FollowedByComplexLog(t *testing.T) {
 	baseTime := "2020-05-13T18:55:37.772853839Z"
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
 		baseTime + " at line 42",
 		baseTime + " in function foo",
@@ -280,11 +284,52 @@ func TestEventGenerator_OrphanSkipped_FollowedByComplexLog(t *testing.T) {
 		types:    []StdType{STDERR, STDERR, STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 	event := <-g.Events
 
 	require.NotNil(t, event)
 	assert.Equal(t, LogTypeComplex, event.Type)
+}
+
+// When the first log is near the container start, nothing can precede it — no orphan skipping.
+func TestEventGenerator_OrphanNotSkipped_NearContainerStart(t *testing.T) {
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	// Container started at the same time as the first log.
+	containerStart := time.Date(2020, 5, 13, 18, 55, 37, 772853839, time.UTC)
+	messages := []string{
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+		baseTime + " ERROR: Next error",
+		baseTime + " at line 99",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+
+	// Leading lines emitted as singles since we're at the container start
+	event1 := <-g.Events
+	require.NotNil(t, event1)
+	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, "at line 42", event1.Message)
+
+	event2 := <-g.Events
+	require.NotNil(t, event2)
+	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, "in function foo", event2.Message)
+
+	// Then the real grouped entry
+	event3 := <-g.Events
+	require.NotNil(t, event3)
+	assert.Equal(t, LogTypeGroup, event3.Type)
+	fragments, ok := event3.Message.([]LogFragment)
+	require.True(t, ok)
+	assert.Len(t, fragments, 2)
+	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
+	assert.Equal(t, "at line 99", fragments[1].Message)
 }
 
 // Tests for orphan NOT skipped: leading levelless lines are emitted when no real logs follow.
@@ -315,7 +360,9 @@ func TestEventGenerator_OrphanNotSkipped_AllLevellessLines(t *testing.T) {
 }
 
 func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *testing.T) {
-	// Lines far apart in time are not orphans — the gap breaks the detection.
+	// Lines far apart in time — first is buffered as orphan candidate, but the
+	// gap breaks the chain so it's treated as non-orphan.
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
 		"2020-05-13T18:55:37.000Z some log without level",
 		"2020-05-13T18:55:38.000Z another log without level",
@@ -326,7 +373,7 @@ func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *te
 		types:    []StdType{STDOUT, STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 
 	// First line is buffered as orphan candidate, but the second has a timestamp
 	// gap so it's not an orphan — first is skipped, second is emitted.
