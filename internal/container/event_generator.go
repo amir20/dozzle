@@ -25,6 +25,7 @@ type EventGenerator struct {
 	buffer      chan *LogEvent
 	wg          sync.WaitGroup
 	containerID string
+	startedAt   time.Time
 	ctx         context.Context
 }
 
@@ -41,6 +42,7 @@ func NewEventGenerator(ctx context.Context, reader LogReader, container Containe
 		Errors:      make(chan error, 1),
 		Events:      make(chan *LogEvent),
 		containerID: container.ID,
+		startedAt:   container.StartedAt,
 		ctx:         ctx,
 	}
 	generator.wg.Add(2)
@@ -101,6 +103,8 @@ func (g *EventGenerator) emitAsSingles(events []*LogEvent) bool {
 // fetch. Returns the first non-orphan event (or nil if the stream ends).
 // If no non-orphan event arrives (stream ends or times out waiting), the
 // buffered events are emitted as singles — they weren't really orphans.
+// Lines near the container start time are never skipped since nothing can
+// precede them.
 func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 	var orphanBuffer []*LogEvent
 	var lastTimestamp int64
@@ -109,6 +113,13 @@ func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 	current := g.nextEvent()
 	if current == nil {
 		return nil
+	}
+
+	// If the first event is near the container start, there can't be prior
+	// logs so nothing is orphaned — return immediately.
+	if !g.startedAt.IsZero() && current.Timestamp > 0 &&
+		math.Abs(float64(g.startedAt.UnixMilli()-current.Timestamp)) < 5000 {
+		return current
 	}
 
 	for {
