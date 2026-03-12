@@ -20,23 +20,47 @@ var logLevels = [][]string{
 	{"fatal", "sev", "severe", "crit", "critical"},
 }
 
-var plainLevels = map[string]*regexp.Regexp{}
-var bracketLevels = map[string]*regexp.Regexp{}
-var separatorLevels = map[string]*regexp.Regexp{}
+// aliasToCanonical maps every alias to its canonical level name.
+var aliasToCanonical = map[string]string{}
+
+type levelPatterns struct {
+	plain     *regexp.Regexp // e.g. ^error[^a-z]
+	bracket   *regexp.Regexp // e.g. [ error ]
+	separator *regexp.Regexp // e.g. " error/"
+	quoted    *regexp.Regexp // e.g. "ERROR"
+	spaced    *regexp.Regexp // e.g. " ERROR "
+}
+
+var levelRegexes = map[string]levelPatterns{}
+
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
-func init() {
-	for _, levelGroup := range logLevels {
-		first := levelGroup[0]
-		levelsGroup := "(?:" + strings.Join(levelGroup, "|") + ")"
-		plainLevels[first] = regexp.MustCompile("(?i)^" + levelsGroup + "[^a-z]")
-		bracketLevels[first] = regexp.MustCompile("(?i)\\[ ?" + levelsGroup + " ?\\]")
-		separatorLevels[first] = regexp.MustCompile("(?i) " + levelsGroup + "[/-]")
-	}
+// JSON keys to check for log level (in priority order).
+var levelKeys = []string{"@l", "level", "severity"}
 
+func init() {
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
-	for _, levelGroup := range logLevels {
-		SupportedLogLevels[levelGroup[0]] = struct{}{}
+	for _, group := range logLevels {
+		canonical := group[0]
+		SupportedLogLevels[canonical] = struct{}{}
+		for _, alias := range group {
+			aliasToCanonical[alias] = canonical
+		}
+
+		alt := "(?:" + strings.Join(group, "|") + ")"
+		upperAlt := make([]string, len(group))
+		for i, l := range group {
+			upperAlt[i] = strings.ToUpper(l)
+		}
+		upperGroup := "(?:" + strings.Join(upperAlt, "|") + ")"
+
+		levelRegexes[canonical] = levelPatterns{
+			plain:     regexp.MustCompile("(?i)^" + alt + "[^a-z]"),
+			bracket:   regexp.MustCompile("(?i)\\[ ?" + alt + " ?\\]"),
+			separator: regexp.MustCompile("(?i) " + alt + "[/-]"),
+			quoted:    regexp.MustCompile("\"" + upperGroup + "\""),
+			spaced:    regexp.MustCompile(" " + upperGroup + " "),
+		}
 	}
 	SupportedLogLevels["unknown"] = struct{}{}
 }
@@ -44,58 +68,17 @@ func init() {
 func guessLogLevel(logEvent *LogEvent) string {
 	switch value := logEvent.Message.(type) {
 	case string:
-		value = StripANSI(value)
-		value = timestampRegex.ReplaceAllString(value, "")
-		for _, levelGroup := range logLevels {
-			first := levelGroup[0]
-			// Look for the level at the beginning of the message
-			if plainLevels[first].MatchString(value) {
-				return first
-			}
-
-			// Look for the level in brackets
-			if bracketLevels[first].MatchString(value) {
-				return first
-			}
-
-			// Look for the level with a separator after
-			if separatorLevels[first].MatchString(value) {
-				return first
-			}
-
-			// Look for the level in the middle of the message that are uppercase and surrounded by quotes
-			for _, level := range levelGroup {
-				if strings.Contains(value, "\""+strings.ToUpper(level)+"\"") {
-					return first
-				}
-			}
-
-			// Look for the level in the middle of the message that are uppercase
-			for _, level := range levelGroup {
-				if strings.Contains(value, " "+strings.ToUpper(level)+" ") {
-					return first
-				}
-			}
-		}
-
-		return "unknown"
+		return guessFromString(value)
 
 	case *orderedmap.OrderedMap[string, any]:
 		if value == nil {
 			return "unknown"
 		}
-
-		if level, ok := value.Get("@l"); ok {
-			if level, ok := level.(string); ok {
-				return normalizeLogLevel(level)
-			}
-		} else if level, ok := value.Get("level"); ok {
-			if level, ok := level.(string); ok {
-				return normalizeLogLevel(level)
-			}
-		} else if severity, ok := value.Get("severity"); ok {
-			if severity, ok := severity.(string); ok {
-				return normalizeLogLevel(severity)
+		for _, key := range levelKeys {
+			if v, ok := value.Get(key); ok {
+				if s, ok := v.(string); ok {
+					return normalizeLogLevel(s)
+				}
 			}
 		}
 
@@ -103,15 +86,13 @@ func guessLogLevel(logEvent *LogEvent) string {
 		if value == nil {
 			return "unknown"
 		}
-		if level, ok := value.Get("@l"); ok {
-			return normalizeLogLevel(level)
-		} else if level, ok := value.Get("level"); ok {
-			return normalizeLogLevel(level)
-		} else if severity, ok := value.Get("severity"); ok {
-			return normalizeLogLevel(severity)
+		for _, key := range levelKeys {
+			if v, ok := value.Get(key); ok {
+				return normalizeLogLevel(v)
+			}
 		}
 
-	case map[string]interface{}:
+	case map[string]any:
 		panic("not implemented")
 
 	case map[string]string:
@@ -124,12 +105,26 @@ func guessLogLevel(logEvent *LogEvent) string {
 	return "unknown"
 }
 
+func guessFromString(value string) string {
+	value = StripANSI(value)
+	value = timestampRegex.ReplaceAllString(value, "")
+	for _, group := range logLevels {
+		p := levelRegexes[group[0]]
+		if p.plain.MatchString(value) || p.bracket.MatchString(value) || p.separator.MatchString(value) || p.quoted.MatchString(value) || p.spaced.MatchString(value) {
+			return group[0]
+		}
+	}
+	return "unknown"
+}
+
 func normalizeLogLevel(level string) string {
 	level = StripANSI(level)
 	level = strings.ToLower(level)
+	if canonical, ok := aliasToCanonical[level]; ok {
+		return canonical
+	}
 	if _, ok := SupportedLogLevels[level]; ok {
 		return level
 	}
-
 	return "unknown"
 }
