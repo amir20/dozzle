@@ -33,6 +33,9 @@ type levelPatterns struct {
 
 var levelRegexes = map[string]levelPatterns{}
 
+// singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
+var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
+
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 // JSON keys to check for log level (in priority order).
@@ -57,7 +60,7 @@ func init() {
 		levelRegexes[canonical] = levelPatterns{
 			plain:     regexp.MustCompile("(?i)^" + alt + "[^a-z]"),
 			bracket:   regexp.MustCompile("(?i)\\[ ?" + alt + " ?\\]"),
-			separator: regexp.MustCompile("(?i) " + alt + "[/-]"),
+			separator: regexp.MustCompile("(?i) " + alt + "[/|-]"),
 			quoted:    regexp.MustCompile("\"" + upperGroup + "\""),
 			spaced:    regexp.MustCompile(" " + upperGroup + " "),
 		}
@@ -105,6 +108,16 @@ func guessLogLevel(logEvent *LogEvent) string {
 	return "unknown"
 }
 
+var singleLetterToLevel = map[byte]string{
+	'E': "error",
+	'W': "warn",
+	'I': "info",
+	'D': "debug",
+	'T': "trace",
+	'F': "fatal",
+	'V': "trace",
+}
+
 func guessFromString(value string) string {
 	value = StripANSI(value)
 	value = timestampRegex.ReplaceAllString(value, "")
@@ -114,6 +127,11 @@ func guessFromString(value string) string {
 			return group[0]
 		}
 	}
+
+	if m := singleLetterBracket.FindStringSubmatch(value); m != nil {
+		return singleLetterToLevel[m[1][0]]
+	}
+
 	return "unknown"
 }
 
