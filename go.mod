@@ -46,6 +46,11 @@ require (
 )
 
 require (
+	github.com/invopop/jsonschema v0.13.0 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
+)
+
+require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/air-verse/air v1.64.5 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
@@ -89,6 +94,7 @@ require (
 	github.com/lestrrat-go/jwx/v3 v3.0.2 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
+	github.com/mark3labs/mcp-go v0.44.1
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
