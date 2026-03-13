@@ -1,5 +1,5 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:25.8.0-alpine AS node
+FROM --platform=$BUILDPLATFORM node:25.8.1-alpine AS node
 
 RUN npm install -g --force corepack && corepack enable
 
