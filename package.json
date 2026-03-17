@@ -59,7 +59,7 @@
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
     "daisyui": "5.5.19",
-    "entities": "^7.0.1",
+    "entities": "^8.0.0",
     "fuse.js": "^7.1.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^3.0.4",
