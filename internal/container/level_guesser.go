@@ -131,7 +131,6 @@ func guessFromString(value string) string {
 	if m := singleLetterBracket.FindStringSubmatch(value); m != nil {
 		return singleLetterToLevel[m[1][0]]
 	}
-
 	return "unknown"
 }
 

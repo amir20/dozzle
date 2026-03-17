@@ -98,6 +98,12 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[T] trace message", "trace"},
 		{"[V] verbose message", "trace"},
 		{"12:00:00 [I] starting up", "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, any]{Key: "level", Value: "warning"},
+			),
+		), "warn"},
 		{nilOrderedMap, "unknown"},
 		{nil, "unknown"},
 	}
