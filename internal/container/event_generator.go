@@ -205,7 +205,7 @@ loop:
 
 		pendingGroup = append(pendingGroup, current)
 
-		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[len(pendingGroup)-1], next) {
+		if next == nil || !next.IsSimple() || !canContinueGroup(pendingGroup[len(pendingGroup)-1], next, pendingGroup[0].Level) {
 			if !g.flushGroup(pendingGroup) {
 				break loop
 			}
@@ -231,12 +231,14 @@ func (g *EventGenerator) nextEvent() *LogEvent {
 
 // canStartGroup checks if current can start a group with next
 func canStartGroup(current, next *LogEvent) bool {
-	return current.HasLevel() && canContinueGroup(current, next)
+	return current.HasLevel() && canContinueGroup(current, next, current.Level)
 }
 
-// canContinueGroup checks if next can be appended after prev in a group
-func canContinueGroup(prev, next *LogEvent) bool {
-	return !next.HasLevel() && prev.IsCloseToTime(next)
+// canContinueGroup checks if next can be appended after prev in a group.
+// Lines without a level always continue the group. Lines with the same level
+// as the group also continue it (e.g. repeated error lines in a stack trace).
+func canContinueGroup(prev, next *LogEvent, groupLevel string) bool {
+	return (!next.HasLevel() || next.Level == groupLevel) && prev.IsCloseToTime(next)
 }
 
 func (g *EventGenerator) consumeReader() {
