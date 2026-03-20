@@ -10,13 +10,12 @@ import (
 )
 
 func (h *handler) updateProfile(w http.ResponseWriter, r *http.Request) {
-	user := auth.UserFromContext(r.Context())
-	if user == nil {
-		http.Error(w, "Unable to find user", http.StatusInternalServerError)
-		return
+	username := "default"
+	if user := auth.UserFromContext(r.Context()); user != nil {
+		username = user.Username
 	}
 
-	if err := profile.UpdateFromReader(*user, r.Body); err != nil {
+	if err := profile.UpdateFromReader(username, r.Body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Error().Err(err).Msg("Failed to update profile")
 		return

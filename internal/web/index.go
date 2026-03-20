@@ -68,14 +68,19 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
 	}
 
+	profileUsername := "default"
 	if user != nil {
-		if profile, err := profile.Load(*user); err == nil {
-			config["profile"] = profile
-		} else {
-			config["profile"] = struct{}{}
-		}
+		profileUsername = user.Username
 		config["user"] = user
-	} else if h.config.Authorization.Provider == FORWARD_PROXY {
+	}
+
+	if loadedProfile, err := profile.Load(profileUsername); err == nil {
+		config["profile"] = loadedProfile
+	} else {
+		config["profile"] = struct{}{}
+	}
+
+	if user == nil && h.config.Authorization.Provider == FORWARD_PROXY {
 		log.Error().Msg("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
 		log.Debug().Str("url", req.URL.String()).Msg("Dumping all headers for request")
 		for k, v := range req.Header {

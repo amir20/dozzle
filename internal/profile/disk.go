@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/amir20/dozzle/internal/auth"
 	"github.com/rs/zerolog/log"
 )
 
@@ -64,10 +63,10 @@ func init() {
 	dataPath = path
 }
 
-func UpdateFromReader(user auth.User, reader io.Reader) error {
+func UpdateFromReader(username string, reader io.Reader) error {
 	mux.Lock()
 	defer mux.Unlock()
-	existingProfile, err := Load(user)
+	existingProfile, err := Load(username)
 	if err != nil && err != errMissingProfileErr {
 		log.Error().Err(err).Msg("Unable to load profile. Overwriting it.")
 	}
@@ -76,11 +75,11 @@ func UpdateFromReader(user auth.User, reader io.Reader) error {
 		return err
 	}
 
-	return save(user, existingProfile)
+	return save(username, existingProfile)
 }
 
-func save(user auth.User, profile Profile) error {
-	path := filepath.Join(dataPath, user.Username)
+func save(username string, profile Profile) error {
+	path := filepath.Join(dataPath, username)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
 			return err
@@ -109,8 +108,8 @@ func save(user auth.User, profile Profile) error {
 	return f.Sync()
 }
 
-func Load(user auth.User) (Profile, error) {
-	path := filepath.Join(dataPath, user.Username)
+func Load(username string) (Profile, error) {
+	path := filepath.Join(dataPath, username)
 	profilePath := filepath.Join(path, profileFilename)
 
 	if _, err := os.Stat(profilePath); os.IsNotExist(err) {

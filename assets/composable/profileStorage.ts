@@ -39,28 +39,26 @@ export function useProfileStorage<K extends keyof Profile>(
     }
   }
 
-  if (config.user) {
-    watch(
-      storage,
-      (value) => {
-        const transformedValue = transformer ? transformer.to(value) : value;
+  watch(
+    storage,
+    (value) => {
+      const transformedValue = transformer ? transformer.to(value) : value;
 
-        fetch(withBase("/api/profile"), {
-          method: "PATCH",
-          body: JSON.stringify({ [key]: transformedValue }, (_, value) => {
-            if (value instanceof Set) {
-              return Array.from(value);
-            } else if (value instanceof Map) {
-              return Array.from(value.entries());
-            } else {
-              return value;
-            }
-          }),
-        });
-      },
-      { deep: true },
-    );
-  }
+      fetch(withBase("/api/profile"), {
+        method: "PATCH",
+        body: JSON.stringify({ [key]: transformedValue }, (_, value) => {
+          if (value instanceof Set) {
+            return Array.from(value);
+          } else if (value instanceof Map) {
+            return Array.from(value.entries());
+          } else {
+            return value;
+          }
+        }),
+      });
+    },
+    { deep: true },
+  );
 
   return storage;
 }
