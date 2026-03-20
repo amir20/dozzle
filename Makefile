@@ -26,7 +26,7 @@ build: dist generate
 	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
 
 .PHONY: docker
-docker: shared_key.pem shared_cert.pem
+docker: generate
 	@docker build --build-arg TAG=local -t amir20/dozzle:local .
 
 .PHONY: generate
@@ -51,12 +51,14 @@ shared_cert.pem: shared_key.pem
 
 .PHONY: push
 push: docker
-	@docker tag amir20/dozzle:latest amir20/dozzle:local-test
+	@docker tag amir20/dozzle:local amir20/dozzle:local-test
 	@docker push amir20/dozzle:local-test
 
+.PHONY: run
 run: docker
 	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local
 
+.PHONY: preview
 preview: build
 	pnpm preview
 
