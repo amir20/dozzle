@@ -68,7 +68,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
 	}
 
-	profileUsername := "default"
+	profileUsername := "__default__"
 	if user != nil {
 		profileUsername = user.Username
 		config["user"] = user

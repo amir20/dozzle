@@ -39,26 +39,30 @@ export function useProfileStorage<K extends keyof Profile>(
     }
   }
 
-  watch(
-    storage,
-    (value) => {
-      const transformedValue = transformer ? transformer.to(value) : value;
+  if (config.user || config.authProvider === "none") {
+    watch(
+      storage,
+      (value) => {
+        const transformedValue = transformer ? transformer.to(value) : value;
 
-      fetch(withBase("/api/profile"), {
-        method: "PATCH",
-        body: JSON.stringify({ [key]: transformedValue }, (_, value) => {
-          if (value instanceof Set) {
-            return Array.from(value);
-          } else if (value instanceof Map) {
-            return Array.from(value.entries());
-          } else {
-            return value;
-          }
-        }),
-      });
-    },
-    { deep: true },
-  );
+        fetch(withBase("/api/profile"), {
+          method: "PATCH",
+          body: JSON.stringify({ [key]: transformedValue }, (_, value) => {
+            if (value instanceof Set) {
+              return Array.from(value);
+            } else if (value instanceof Map) {
+              return Array.from(value.entries());
+            } else {
+              return value;
+            }
+          }),
+        }).catch((e) => {
+          console.error(`Failed to sync ${key} to profile`, e);
+        });
+      },
+      { deep: true },
+    );
+  }
 
   return storage;
 }
