@@ -103,6 +103,7 @@ message NotificationSubscription {
   string metricExpression = 7;
   int32 cooldown = 8;
   int32 sampleWindow = 9;
+  string eventExpression = 10;
 }
 
 message NotificationDispatcher {
