@@ -41,6 +41,14 @@
           <mdi:chart-line class="mr-1" />
           {{ $t("notifications.alert-form.metric-alert") }}
         </button>
+        <button
+          class="btn btn-sm"
+          :class="alertType === 'event' ? 'btn-primary' : 'btn-outline'"
+          @click="alertType = 'event'"
+        >
+          <mdi:bell-ring-outline class="mr-1" />
+          {{ $t("notifications.alert-form.event-alert") }}
+        </button>
       </div>
     </fieldset>
 
@@ -87,6 +95,15 @@
         :validate-preview="validatePreview"
       />
       <MetricAlertFields
+        v-else-if="alertType === 'metric'"
+        ref="fieldsRef"
+        :alert="alert"
+        :prefill="prefill"
+        :container-expression="containerExpression"
+        :is-loading="isLoading"
+        :validate-preview="validatePreview"
+      />
+      <EventAlertFields
         v-else
         ref="fieldsRef"
         :alert="alert"
@@ -156,13 +173,20 @@
 import { useAlertForm } from "@/composable/alertForm";
 import LogAlertFields from "./LogAlertFields.vue";
 import MetricAlertFields from "./MetricAlertFields.vue";
+import EventAlertFields from "./EventAlertFields.vue";
 import type { NotificationRule } from "@/types/notifications";
 
 const props = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: { name?: string; containerExpression?: string; logExpression?: string; metricExpression?: string };
+  prefill?: {
+    name?: string;
+    containerExpression?: string;
+    logExpression?: string;
+    metricExpression?: string;
+    eventExpression?: string;
+  };
 }>();
 
 const {
@@ -186,11 +210,15 @@ const {
 const alertNameInput = ref<HTMLInputElement>();
 const containerEditorRef = ref<HTMLElement>();
 const destinationDropdown = ref<HTMLDetailsElement>();
-const fieldsRef = ref<InstanceType<typeof LogAlertFields> | InstanceType<typeof MetricAlertFields>>();
+const fieldsRef = ref<
+  InstanceType<typeof LogAlertFields> | InstanceType<typeof MetricAlertFields> | InstanceType<typeof EventAlertFields>
+>();
 useFocus(alertNameInput, { initialValue: true });
 
 // Alert type
-const alertType = ref<"log" | "metric">(props.alert?.metricExpression ? "metric" : "log");
+const alertType = ref<"log" | "metric" | "event">(
+  props.alert?.metricExpression ? "metric" : props.alert?.eventExpression ? "event" : "log",
+);
 
 const canSave = computed(() => baseCanSave.value && (fieldsRef.value?.canSave ?? false));
 

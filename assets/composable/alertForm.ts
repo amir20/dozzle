@@ -7,7 +7,13 @@ export interface AlertFormOptions {
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: { name?: string; containerExpression?: string; logExpression?: string; metricExpression?: string };
+  prefill?: {
+    name?: string;
+    containerExpression?: string;
+    logExpression?: string;
+    metricExpression?: string;
+    eventExpression?: string;
+  };
 }
 
 export interface ContainerResult {
