@@ -25,19 +25,21 @@ type Manager struct {
 	dispatcherCounter   atomic.Int32
 	listener            *ContainerLogListener
 	statsListener       *ContainerStatsListener
+	eventListener       *ContainerEventListener
 	ctx                 context.Context
 	cancel              context.CancelFunc
 	sendSem             *semaphore.Weighted
 }
 
 // NewManager creates a new notification manager
-func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsListener) *Manager {
+func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsListener, eventListener *ContainerEventListener) *Manager {
 	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
 		subscriptions: xsync.NewMap[int, *Subscription](),
 		dispatchers:   xsync.NewMap[int, dispatcher.Dispatcher](),
 		listener:      listener,
 		statsListener: statsListener,
+		eventListener: eventListener,
 		ctx:           ctx,
 		cancel:        cancel,
 		sendSem:       semaphore.NewWeighted(5),
@@ -48,6 +50,9 @@ func NewManager(listener *ContainerLogListener, statsListener *ContainerStatsLis
 
 	// Start processing stat events from the stats listener
 	go m.processStatEvents()
+
+	// Start processing Docker events from the event listener
+	go m.processDockerEvents()
 
 	return m
 }
@@ -81,6 +86,7 @@ func (m *Manager) AddSubscription(sub *Subscription) error {
 	sub.Enabled = true
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
+	sub.EventCooldowns = xsync.NewMap[string, time.Time]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -107,6 +113,7 @@ func (m *Manager) RemoveSubscription(id int) {
 func (m *Manager) ReplaceSubscription(sub *Subscription) error {
 	sub.MetricCooldowns = xsync.NewMap[string, time.Time]()
 	sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
+	sub.EventCooldowns = xsync.NewMap[string, time.Time]()
 
 	if err := sub.CompileExpressions(); err != nil {
 		return err
@@ -148,6 +155,9 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 			LogProgram:          sub.LogProgram,
 			MetricExpression:    sub.MetricExpression,
 			MetricProgram:       sub.MetricProgram,
+			EventExpression:     sub.EventExpression,
+			EventProgram:        sub.EventProgram,
+			EventCooldowns:      sub.EventCooldowns,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
 			MetricCooldowns:     sub.MetricCooldowns,
@@ -214,6 +224,21 @@ func (m *Manager) UpdateSubscription(id int, updates map[string]any) error {
 						updated.MetricProgram = nil
 					}
 				}
+			case "eventExpression":
+				if exprStr, ok := value.(string); ok {
+					if exprStr != "" {
+						program, err := expr.Compile(exprStr, expr.Env(types.NotificationEvent{}))
+						if err != nil {
+							updateErr = fmt.Errorf("failed to compile event expression: %w", err)
+							return nil, xsync.CancelOp
+						}
+						updated.EventExpression = exprStr
+						updated.EventProgram = program
+					} else {
+						updated.EventExpression = ""
+						updated.EventProgram = nil
+					}
+				}
 			case "cooldown":
 				if cd, ok := value.(int); ok {
 					updated.Cooldown = cd
@@ -249,9 +274,15 @@ func (m *Manager) updateListeners() {
 	m.listener.UpdateStreams()
 
 	hasMetric := false
+	hasEvent := false
 	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
 		if sub.Enabled && sub.IsMetricAlert() {
 			hasMetric = true
+		}
+		if sub.Enabled && sub.IsEventAlert() {
+			hasEvent = true
+		}
+		if hasMetric && hasEvent {
 			return false
 		}
 		return true
@@ -261,6 +292,12 @@ func (m *Manager) updateListeners() {
 		m.statsListener.Start()
 	} else {
 		m.statsListener.Stop()
+	}
+
+	if hasEvent {
+		m.eventListener.Start()
+	} else {
+		m.eventListener.Stop()
 	}
 }
 
