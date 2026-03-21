@@ -92,6 +92,7 @@ type Subscription struct {
 	LogExpression       string `json:"logExpression" yaml:"logExpression"`
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
+	EventExpression     string `json:"eventExpression,omitempty" yaml:"eventExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`       // seconds between metric notifications, default 300
 	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 
@@ -99,6 +100,7 @@ type Subscription struct {
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
 	ContainerProgram *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
 	MetricProgram    *vm.Program `json:"-" yaml:"-"` // Compiled metric filter expression
+	EventProgram     *vm.Program `json:"-" yaml:"-"` // Compiled event filter expression
 
 	// Runtime stats (not persisted)
 	TriggerCount          atomic.Int64                 `json:"-" yaml:"-"`
@@ -107,6 +109,9 @@ type Subscription struct {
 
 	// Per-container cooldown tracking for metric alerts (containerID -> last triggered time)
 	MetricCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
+
+	// Per-container cooldown tracking for event alerts (containerID -> last triggered time)
+	EventCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
 
 	// Per-container sample buffers for windowed metric evaluation (containerID -> ring buffer of match results)
 	MetricSampleBuffers *xsync.Map[string, *utils.RingBuffer[bool]] `json:"-" yaml:"-"`
@@ -153,6 +158,14 @@ func (s *Subscription) CompileExpressions() error {
 			return fmt.Errorf("failed to compile metric expression: %w", err)
 		}
 		s.MetricProgram = program
+	}
+
+	if s.EventExpression != "" {
+		program, err := expr.Compile(s.EventExpression, expr.Env(types.NotificationEvent{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile event expression: %w", err)
+		}
+		s.EventProgram = program
 	}
 
 	return nil
@@ -219,6 +232,43 @@ func (s *Subscription) IsLogAlert() bool {
 // IsMetricAlert returns true if this subscription is a metric-based alert
 func (s *Subscription) IsMetricAlert() bool {
 	return s.MetricExpression != "" && s.MetricProgram != nil
+}
+
+// IsEventAlert returns true if this subscription is an event-based alert
+func (s *Subscription) IsEventAlert() bool {
+	return s.EventExpression != "" && s.EventProgram != nil
+}
+
+// MatchesEvent checks if a Docker event matches this subscription's event filter
+func (s *Subscription) MatchesEvent(event types.NotificationEvent) bool {
+	if s.EventProgram == nil {
+		return false
+	}
+	result, err := expr.Run(s.EventProgram, event)
+	if err != nil {
+		log.Debug().Err(err).Str("expression", s.EventExpression).Msg("event expression evaluation error")
+		return false
+	}
+	match, ok := result.(bool)
+	return ok && match
+}
+
+// IsEventCooldownActive checks if the cooldown is still active for a given container
+func (s *Subscription) IsEventCooldownActive(containerID string) bool {
+	if s.Cooldown == 0 {
+		return false
+	}
+	lastTriggered, ok := s.EventCooldowns.Load(containerID)
+	if !ok {
+		return false
+	}
+	cooldown := time.Duration(s.Cooldown) * time.Second
+	return time.Now().Before(lastTriggered.Add(cooldown))
+}
+
+// SetEventCooldown records the current time as the last triggered time for a container
+func (s *Subscription) SetEventCooldown(containerID string) {
+	s.EventCooldowns.Store(containerID, time.Now())
 }
 
 // MatchesMetric checks if a stat matches this subscription's metric filter
