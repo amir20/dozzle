@@ -5,7 +5,7 @@
       class="input focus-within:input-primary w-full focus-within:z-50"
       :class="eventExpression.trim() && !eventError ? 'input-primary' : { 'input-error!': eventError }"
     >
-      <div ref="eventEditorRef" class="w-full"></div>
+      <div ref="editorRef" class="w-full"></div>
     </div>
     <div v-if="eventError || eventExpression" class="fieldset-label">
       <span v-if="eventError" class="text-error">{{ eventError }}</span>
@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import { createExprEditor, createEventHints } from "@/composable/exprEditor";
+import { createEventHints } from "@/composable/exprEditor";
 import type { NotificationRule, PreviewResult } from "@/types/notifications";
 
 const props = defineProps<{
@@ -92,22 +92,11 @@ watch(
 );
 
 // Editor
-const eventEditorRef = ref<HTMLElement>();
-let eventEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
-
-onMounted(async () => {
-  if (eventEditorRef.value) {
-    eventEditorView = await createExprEditor({
-      parent: eventEditorRef.value,
-      placeholder: 'name == "die"',
-      initialValue: props.alert?.eventExpression ?? props.prefill?.eventExpression ?? "",
-      getHints: () => createEventHints(),
-      onChange: (v) => (eventExpression.value = v),
-    });
-  }
-});
-
-onScopeDispose(() => {
-  eventEditorView?.destroy();
+const editorRef = ref<HTMLElement>();
+useExprEditorField(editorRef, {
+  placeholder: 'name == "die"',
+  initialValue: props.alert?.eventExpression ?? props.prefill?.eventExpression ?? "",
+  getHints: () => createEventHints(),
+  onChange: (v) => (eventExpression.value = v),
 });
 </script>

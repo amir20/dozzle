@@ -5,7 +5,7 @@
       class="input focus-within:input-primary w-full focus-within:z-50"
       :class="metricExpression.trim() && !metricError ? 'input-primary' : { 'input-error!': metricError }"
     >
-      <div ref="metricEditorRef" class="w-full"></div>
+      <div ref="editorRef" class="w-full"></div>
     </div>
     <div v-if="metricError || metricExpression" class="fieldset-label">
       <span v-if="metricError" class="text-error">{{ metricError }}</span>
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { createExprEditor, createMetricHints } from "@/composable/exprEditor";
+import { createMetricHints } from "@/composable/exprEditor";
 import type { NotificationRule, PreviewResult } from "@/types/notifications";
 
 const props = defineProps<{
@@ -97,22 +97,11 @@ watch(
 );
 
 // Editor
-const metricEditorRef = ref<HTMLElement>();
-let metricEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
-
-onMounted(async () => {
-  if (metricEditorRef.value) {
-    metricEditorView = await createExprEditor({
-      parent: metricEditorRef.value,
-      placeholder: "cpu > 80 || memory > 90",
-      initialValue: props.alert?.metricExpression ?? props.prefill?.metricExpression ?? "",
-      getHints: () => createMetricHints(),
-      onChange: (v) => (metricExpression.value = v),
-    });
-  }
-});
-
-onScopeDispose(() => {
-  metricEditorView?.destroy();
+const editorRef = ref<HTMLElement>();
+useExprEditorField(editorRef, {
+  placeholder: "cpu > 80 || memory > 90",
+  initialValue: props.alert?.metricExpression ?? props.prefill?.metricExpression ?? "",
+  getHints: () => createMetricHints(),
+  onChange: (v) => (metricExpression.value = v),
 });
 </script>

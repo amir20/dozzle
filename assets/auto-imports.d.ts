@@ -29,6 +29,7 @@ declare global {
   const createApp: typeof import('vue').createApp
   const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDrawer: typeof import('./composable/drawer').createDrawer
+  const createEventHints: typeof import('./composable/exprEditor').createEventHints
   const createEventHook: typeof import('@vueuse/core').createEventHook
   const createExprEditor: typeof import('./composable/exprEditor').createExprEditor
   const createGlobalState: typeof import('@vueuse/core').createGlobalState
@@ -241,6 +242,7 @@ declare global {
   const useEventListener: typeof import('@vueuse/core').useEventListener
   const useEventSource: typeof import('@vueuse/core').useEventSource
   const useExponentialMovingAverage: typeof import('./utils/index').useExponentialMovingAverage
+  const useExprEditorField: typeof import('./composable/useExprEditorField').useExprEditorField
   const useEyeDropper: typeof import('@vueuse/core').useEyeDropper
   const useFavicon: typeof import('@vueuse/core').useFavicon
   const useFetch: typeof import('@vueuse/core').useFetch
@@ -454,6 +456,7 @@ declare module 'vue' {
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
     readonly createDrawer: UnwrapRef<typeof import('./composable/drawer')['createDrawer']>
+    readonly createEventHints: UnwrapRef<typeof import('./composable/exprEditor')['createEventHints']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
     readonly createExprEditor: UnwrapRef<typeof import('./composable/exprEditor')['createExprEditor']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
@@ -666,6 +669,7 @@ declare module 'vue' {
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
     readonly useEventSource: UnwrapRef<typeof import('@vueuse/core')['useEventSource']>
     readonly useExponentialMovingAverage: UnwrapRef<typeof import('./utils/index')['useExponentialMovingAverage']>
+    readonly useExprEditorField: UnwrapRef<typeof import('./composable/useExprEditorField')['useExprEditorField']>
     readonly useEyeDropper: UnwrapRef<typeof import('@vueuse/core')['useEyeDropper']>
     readonly useFavicon: UnwrapRef<typeof import('@vueuse/core')['useFavicon']>
     readonly useFetch: UnwrapRef<typeof import('@vueuse/core')['useFetch']>

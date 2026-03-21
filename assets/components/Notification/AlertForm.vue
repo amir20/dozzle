@@ -201,7 +201,7 @@ const {
   isSaving,
   saveError,
   baseCanSave,
-  initContainerEditor,
+  setupContainerEditor,
   saveAlert,
   validatePreview,
 } = useAlertForm(props);
@@ -228,15 +228,5 @@ async function save() {
 }
 
 // Container editor
-let containerEditorView: Awaited<ReturnType<typeof initContainerEditor>> | undefined;
-
-onMounted(async () => {
-  if (containerEditorRef.value) {
-    containerEditorView = await initContainerEditor(containerEditorRef.value);
-  }
-});
-
-onScopeDispose(() => {
-  containerEditorView?.destroy();
-});
+setupContainerEditor(containerEditorRef);
 </script>

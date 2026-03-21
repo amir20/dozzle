@@ -1,7 +1,7 @@
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
-import { createExprEditor, createContainerHints } from "@/composable/exprEditor";
+import { createContainerHints } from "@/composable/exprEditor";
 
 export interface AlertFormOptions {
   close?: () => void;
@@ -59,9 +59,8 @@ export function useAlertForm(options: AlertFormOptions) {
       !isSaving.value,
   );
 
-  async function initContainerEditor(el: HTMLElement) {
-    return await createExprEditor({
-      parent: el,
+  function setupContainerEditor(editorRef: Ref<HTMLElement | undefined>) {
+    useExprEditorField(editorRef, {
       placeholder: 'name contains "api"',
       initialValue: options.alert?.containerExpression ?? options.prefill?.containerExpression ?? "",
       getHints: () => createContainerHints(containerNames.value, imageNames.value, hostNames.value),
@@ -149,7 +148,7 @@ export function useAlertForm(options: AlertFormOptions) {
     isSaving,
     saveError,
     baseCanSave,
-    initContainerEditor,
+    setupContainerEditor,
     saveAlert,
     validatePreview,
   };
