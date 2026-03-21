@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	profileFilename = "profile.json"
+	profileFilename   = "profile.json"
+	DefaultUsername   = "__default__"
 )
 
 var errMissingProfileErr = errors.New("Profile file does not exist")
@@ -47,6 +48,7 @@ type Profile struct {
 
 var dataPath string
 var mux = &sync.Mutex{}
+var errInvalidUsername = errors.New("invalid username: contains path separator or traversal")
 
 func init() {
 	path, err := filepath.Abs("./data")
@@ -61,6 +63,14 @@ func init() {
 		}
 	}
 	dataPath = path
+}
+
+func safePath(username string) (string, error) {
+	clean := filepath.Base(username)
+	if clean != username || clean == "." || clean == ".." {
+		return "", errInvalidUsername
+	}
+	return filepath.Join(dataPath, clean), nil
 }
 
 func UpdateFromReader(username string, reader io.Reader) error {
@@ -79,7 +89,10 @@ func UpdateFromReader(username string, reader io.Reader) error {
 }
 
 func save(username string, profile Profile) error {
-	path := filepath.Join(dataPath, username)
+	path, err := safePath(username)
+	if err != nil {
+		return err
+	}
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
 			return err
@@ -109,7 +122,10 @@ func save(username string, profile Profile) error {
 }
 
 func Load(username string) (Profile, error) {
-	path := filepath.Join(dataPath, username)
+	path, err := safePath(username)
+	if err != nil {
+		return Profile{}, err
+	}
 	profilePath := filepath.Join(path, profileFilename)
 
 	if _, err := os.Stat(profilePath); os.IsNotExist(err) {

@@ -10,7 +10,7 @@ import (
 )
 
 func (h *handler) updateProfile(w http.ResponseWriter, r *http.Request) {
-	username := "__default__"
+	username := profile.DefaultUsername
 	if user := auth.UserFromContext(r.Context()); user != nil {
 		username = user.Username
 	}

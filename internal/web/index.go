@@ -89,7 +89,7 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	profileUsername := "__default__"
+	profileUsername := profile.DefaultUsername
 	if user != nil {
 		profileUsername = user.Username
 	}
