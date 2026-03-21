@@ -33,31 +33,38 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		base = h.config.Base
 	}
 
-	hosts := h.hostService.Hosts()
-	sort.Slice(hosts, func(i, j int) bool {
-		return hosts[i].Name < hosts[j].Name
-	})
+	user := auth.UserFromContext(req.Context())
+
+	// Handle unauthorized cases early
+	if user == nil {
+		switch h.config.Authorization.Provider {
+		case FORWARD_PROXY:
+			log.Error().Msg("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
+			log.Debug().Str("url", req.URL.String()).Msg("Dumping all headers for request")
+			for k, v := range req.Header {
+				log.Debug().Strs(k, v).Send()
+			}
+			http.Error(w, "Unauthorized user", http.StatusUnauthorized)
+			return
+		case SIMPLE:
+			if req.URL.Path != "login" {
+				log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
+				http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
+				return
+			}
+		}
+	}
 
 	config := map[string]interface{}{
 		"base": base,
 	}
 
-	user := auth.UserFromContext(req.Context())
-
+	// Build full config when authorized (no auth or authenticated user)
 	if h.config.Authorization.Provider == NONE || user != nil {
-		if user != nil {
-			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
-			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
-			config["enableDownload"] = user.Roles.Has(auth.Download)
-		} else {
-			config["enableShell"] = h.config.EnableShell
-			config["enableActions"] = h.config.EnableActions
-			config["enableDownload"] = true
-		}
-
-		if h.config.Authorization.Provider == FORWARD_PROXY && strings.TrimSpace(h.config.Authorization.LogoutUrl) != "" {
-			config["logoutUrl"] = strings.TrimSpace(h.config.Authorization.LogoutUrl)
-		}
+		hosts := h.hostService.Hosts()
+		sort.Slice(hosts, func(i, j int) bool {
+			return hosts[i].Name < hosts[j].Name
+		})
 
 		config["authProvider"] = h.config.Authorization.Provider
 		config["version"] = h.config.Version
@@ -66,32 +73,31 @@ func (h *handler) executeTemplate(w http.ResponseWriter, req *http.Request) {
 		config["hosts"] = hosts
 		config["disableAvatars"] = h.config.DisableAvatars
 		config["releaseCheckMode"] = h.config.ReleaseCheckMode
+		config["enableShell"] = h.config.EnableShell
+		config["enableActions"] = h.config.EnableActions
+		config["enableDownload"] = true
+
+		if user != nil {
+			config["enableShell"] = h.config.EnableShell && user.Roles.Has(auth.Shell)
+			config["enableActions"] = h.config.EnableActions && user.Roles.Has(auth.Actions)
+			config["enableDownload"] = user.Roles.Has(auth.Download)
+			config["user"] = user
+		}
+
+		if h.config.Authorization.Provider == FORWARD_PROXY && strings.TrimSpace(h.config.Authorization.LogoutUrl) != "" {
+			config["logoutUrl"] = strings.TrimSpace(h.config.Authorization.LogoutUrl)
+		}
 	}
 
 	profileUsername := "__default__"
 	if user != nil {
 		profileUsername = user.Username
-		config["user"] = user
 	}
 
 	if loadedProfile, err := profile.Load(profileUsername); err == nil {
 		config["profile"] = loadedProfile
 	} else {
 		config["profile"] = struct{}{}
-	}
-
-	if user == nil && h.config.Authorization.Provider == FORWARD_PROXY {
-		log.Error().Msg("Unable to find remote user. Please check your proxy configuration. Expecting headers Remote-Email, Remote-User, Remote-Name.")
-		log.Debug().Str("url", req.URL.String()).Msg("Dumping all headers for request")
-		for k, v := range req.Header {
-			log.Debug().Strs(k, v).Send()
-		}
-		http.Error(w, "Unauthorized user", http.StatusUnauthorized)
-		return
-	} else if user == nil && h.config.Authorization.Provider == SIMPLE && req.URL.Path != "login" {
-		log.Debug().Str("url", req.URL.String()).Msg("Redirecting to login page")
-		http.Redirect(w, req, path.Clean(h.config.Base+"/login")+"?redirectUrl=/"+req.URL.String(), http.StatusTemporaryRedirect)
-		return
 	}
 
 	data := map[string]interface{}{
