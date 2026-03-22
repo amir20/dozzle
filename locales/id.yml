@@ -229,6 +229,7 @@ notifications:
     sample-window-hint: "Peringatan dipicu ketika kondisi terpenuhi selama {duration}"
     cooldown-label: Jeda
     cooldown-hint: "{duration} antara peringatan per kontainer"
+    no-cooldown: No cooldown
     alert-type: Jenis Peringatan
     log-alert: Peringatan Log
     metric-alert: Peringatan Metrik

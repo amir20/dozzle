@@ -220,6 +220,7 @@ notifications:
     sample-window-hint: "조건이 {duration} 동안 충족되면 알림이 트리거됩니다"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
+    no-cooldown: No cooldown
     alert-type: 알림 유형
     log-alert: 로그 알림
     metric-alert: 메트릭 알림

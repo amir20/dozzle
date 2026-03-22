@@ -218,6 +218,7 @@ notifications:
     sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
+    no-cooldown: No cooldown
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing

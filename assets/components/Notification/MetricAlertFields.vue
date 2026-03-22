@@ -35,13 +35,7 @@
     </p>
   </fieldset>
 
-  <fieldset class="fieldset">
-    <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.cooldown-label") }}</legend>
-    <input v-model.number="cooldown" type="range" min="10" max="3600" step="10" class="range range-primary" />
-    <p class="text-base-content/50 mt-1 text-xs">
-      {{ $t("notifications.alert-form.cooldown-hint", { duration: formatDuration(cooldown, locale || undefined) }) }}
-    </p>
-  </fieldset>
+  <CooldownField v-model="cooldown" />
 </template>
 
 <script lang="ts" setup>

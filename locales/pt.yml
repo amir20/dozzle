@@ -216,6 +216,7 @@ notifications:
     sample-window-hint: "O alerta é acionado quando a condição é atendida por {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
+    no-cooldown: No cooldown
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica

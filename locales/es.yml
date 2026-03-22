@@ -217,6 +217,7 @@ notifications:
     sample-window-hint: "La alerta se activa cuando la condición se cumple durante {duration}"
     cooldown-label: Tiempo de espera
     cooldown-hint: "{duration} entre alertas por contenedor"
+    no-cooldown: No cooldown
     alert-type: Tipo de alerta
     log-alert: Alerta de registro
     metric-alert: Alerta de métrica

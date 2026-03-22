@@ -45,6 +45,7 @@ declare module 'vue' {
     ContainerStatCell: typeof import('./components/ContainerStatCell.vue')['default']
     ContainerTable: typeof import('./components/ContainerTable.vue')['default']
     ContainerTitle: typeof import('./components/ContainerViewer/ContainerTitle.vue')['default']
+    CooldownField: typeof import('./components/Notification/CooldownField.vue')['default']
     DateTime: typeof import('./components/common/DateTime.vue')['default']
     DestinationCard: typeof import('./components/Notification/DestinationCard.vue')['default']
     DestinationForm: typeof import('./components/Notification/DestinationForm.vue')['default']

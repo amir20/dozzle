@@ -217,6 +217,7 @@ notifications:
     sample-window-hint: "Alarm wird ausgelöst, wenn Bedingung für {duration} erfüllt ist"
     cooldown-label: Abklingzeit
     cooldown-hint: "{duration} zwischen Alarmen pro Container"
+    no-cooldown: No cooldown
     alert-type: Alarmtyp
     log-alert: Log-Alarm
     metric-alert: Metrik-Alarm

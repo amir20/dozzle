@@ -226,6 +226,7 @@ notifications:
     sample-window-hint: "Alert triggers when condition is met for {duration}"
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
+    no-cooldown: No cooldown
     alert-type: Alert Type
     log-alert: Log Alert
     metric-alert: Metric Alert

@@ -220,6 +220,7 @@ notifications:
     sample-window-hint: "當條件在 {duration} 內滿足時觸發警報"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
+    no-cooldown: No cooldown
     alert-type: 警報類型
     log-alert: 日誌警報
     metric-alert: 指標警報

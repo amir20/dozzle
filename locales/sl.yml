@@ -222,6 +222,7 @@ notifications:
     sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
+    no-cooldown: No cooldown
     alert-type: Vrsta opozorila
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike

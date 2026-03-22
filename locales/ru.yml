@@ -217,6 +217,7 @@ notifications:
     sample-window-hint: "Оповещение срабатывает, когда условие выполняется в течение {duration}"
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
+    no-cooldown: No cooldown
     alert-type: Тип оповещения
     log-alert: Оповещение журнала
     metric-alert: Оповещение метрики

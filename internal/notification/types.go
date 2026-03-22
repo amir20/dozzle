@@ -287,13 +287,10 @@ func (s *Subscription) MatchesMetric(stat types.NotificationStat) bool {
 	return ok && match
 }
 
-// GetCooldownSeconds returns the cooldown in seconds, clamped to [10, 3600], defaulting to 300 (5 min)
+// GetCooldownSeconds returns the cooldown in seconds, clamped to [0, 3600]
 func (s *Subscription) GetCooldownSeconds() int {
 	if s.Cooldown <= 0 {
-		return 300
-	}
-	if s.Cooldown < 10 {
-		return 10
+		return 0
 	}
 	if s.Cooldown > 3600 {
 		return 3600
@@ -303,6 +300,9 @@ func (s *Subscription) GetCooldownSeconds() int {
 
 // IsMetricCooldownActive checks if the cooldown is still active for a given container
 func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
+	if s.Cooldown == 0 {
+		return false
+	}
 	lastTriggered, ok := s.MetricCooldowns.Load(containerID)
 	if !ok {
 		return false

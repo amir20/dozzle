@@ -217,6 +217,7 @@ notifications:
     sample-window-hint: "L'avviso si attiva quando la condizione è soddisfatta per {duration}"
     cooldown-label: Tempo di attesa
     cooldown-hint: "{duration} tra gli avvisi per container"
+    no-cooldown: No cooldown
     alert-type: Tipo di avviso
     log-alert: Avviso log
     metric-alert: Avviso metrica
