@@ -190,6 +190,7 @@ notifications:
     containers: Kontainer
     log-filter: Filter log
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Jeda
     sample-window: Jendela sampel
     destination: Tujuan
@@ -231,6 +232,9 @@ notifications:
     alert-type: Jenis Peringatan
     log-alert: Peringatan Log
     metric-alert: Peringatan Metrik
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Tambah Tujuan
     edit-title: Edit Tujuan

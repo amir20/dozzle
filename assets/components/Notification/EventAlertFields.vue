@@ -25,16 +25,10 @@
 
   <fieldset class="fieldset">
     <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.cooldown-label") }}</legend>
-    <label class="label cursor-pointer justify-start gap-2">
-      <input v-model="cooldownEnabled" type="checkbox" class="checkbox checkbox-primary" />
-      <span>{{ $t("notifications.alert-form.cooldown-enabled") }}</span>
-    </label>
-    <template v-if="cooldownEnabled">
-      <input v-model.number="cooldown" type="range" min="10" max="3600" step="10" class="range range-primary" />
-      <p class="text-base-content/50 mt-1 text-xs">
-        {{ $t("notifications.alert-form.cooldown-hint", { duration: formatDuration(cooldown, locale || undefined) }) }}
-      </p>
-    </template>
+    <input v-model.number="cooldown" type="range" min="0" max="3600" step="10" class="range range-primary" />
+    <p class="text-base-content/50 mt-1 text-xs">
+      {{ $t("notifications.alert-form.cooldown-hint", { duration: formatDuration(cooldown, locale || undefined) }) }}
+    </p>
   </fieldset>
 </template>
 
@@ -52,15 +46,14 @@ const props = defineProps<{
 
 const eventExpression = ref(props.alert?.eventExpression ?? props.prefill?.eventExpression ?? "");
 const eventError = ref<string | null>(null);
-const cooldownEnabled = ref((props.alert?.cooldown ?? 300) > 0);
-const cooldown = ref(props.alert?.cooldown || 300);
+const cooldown = ref(props.alert?.cooldown ?? 10);
 
 const canSave = computed(() => !!eventExpression.value.trim() && !eventError.value);
 const typeFields = computed(() => ({
   eventExpression: eventExpression.value,
   logExpression: "",
   metricExpression: "",
-  cooldown: cooldownEnabled.value ? cooldown.value : 0,
+  cooldown: cooldown.value,
   sampleWindow: 0,
 }));
 

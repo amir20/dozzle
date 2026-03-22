@@ -178,6 +178,7 @@ notifications:
     containers: Konteynerler
     log-filter: Günlük filtresi
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Bekleme süresi
     sample-window: Örnek penceresi
     destination: Hedef
@@ -219,6 +220,9 @@ notifications:
     alert-type: Uyarı Türü
     log-alert: Günlük Uyarısı
     metric-alert: Metrik Uyarısı
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle

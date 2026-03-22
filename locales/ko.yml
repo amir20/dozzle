@@ -181,6 +181,7 @@ notifications:
     containers: 컨테이너
     log-filter: 로그 필터
     metric-filter: 메트릭
+    event-filter: Event
     cooldown: 대기 시간
     sample-window: 샘플 창
     destination: 목적지
@@ -222,6 +223,9 @@ notifications:
     alert-type: 알림 유형
     log-alert: 로그 알림
     metric-alert: 메트릭 알림
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집

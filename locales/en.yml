@@ -232,7 +232,6 @@ notifications:
     event-alert: Event Alert
     event-filter: Event Expression
     event-fields-hint: "Available fields: {fields}"
-    cooldown-enabled: Enable cooldown
   destination-form:
     create-title: Add Destination
     edit-title: Edit Destination

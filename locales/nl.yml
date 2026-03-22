@@ -179,6 +179,7 @@ notifications:
     containers: Containers
     log-filter: Logfilter
     metric-filter: Metriek
+    event-filter: Event
     cooldown: Wachttijd
     sample-window: Steekproefvenster
     destination: Bestemming
@@ -220,6 +221,9 @@ notifications:
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken

@@ -178,6 +178,7 @@ notifications:
     containers: Контейнеры
     log-filter: Фильтр логов
     metric-filter: Метрика
+    event-filter: Event
     cooldown: Период ожидания
     sample-window: Окно выборки
     destination: Назначение
@@ -219,6 +220,9 @@ notifications:
     alert-type: Тип оповещения
     log-alert: Оповещение журнала
     metric-alert: Оповещение метрики
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Добавить Назначение
     edit-title: Редактировать Назначение

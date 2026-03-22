@@ -178,6 +178,7 @@ notifications:
     containers: Contenedores
     log-filter: Filtro de registro
     metric-filter: Métrica
+    event-filter: Event
     cooldown: Tiempo de espera
     sample-window: Ventana de muestreo
     destination: Destino
@@ -219,6 +220,9 @@ notifications:
     alert-type: Tipo de alerta
     log-alert: Alerta de registro
     metric-alert: Alerta de métrica
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Añadir Destino
     edit-title: Editar Destino

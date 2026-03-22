@@ -178,6 +178,7 @@ notifications:
     containers: Container
     log-filter: Log-Filter
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Abklingzeit
     sample-window: Zeitfenster
     destination: Ziel
@@ -219,6 +220,9 @@ notifications:
     alert-type: Alarmtyp
     log-alert: Log-Alarm
     metric-alert: Metrik-Alarm
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Ziel hinzufügen
     edit-title: Ziel bearbeiten
