@@ -94,9 +94,7 @@ export function createMetricHints(): Completion[] {
 export function createEventHints(): Completion[] {
   return [
     { label: "name", detail: "event name", type: "property" },
-    { label: "actorId", detail: "container ID", type: "property" },
     { label: "attributes", detail: "event attributes map", type: "property" },
-    { label: "timestamp", detail: "event timestamp", type: "property" },
     ...exprOperators,
     { label: '"start"', detail: "container started", type: "string" },
     { label: '"stop"', detail: "container stopped", type: "string" },
