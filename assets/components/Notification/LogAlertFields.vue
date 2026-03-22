@@ -5,7 +5,7 @@
       class="input focus-within:input-primary w-full focus-within:z-50"
       :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
     >
-      <div ref="logEditorRef" class="w-full"></div>
+      <div ref="editorRef" class="w-full"></div>
     </div>
     <div v-if="logError || logExpression" class="fieldset-label">
       <span v-if="logError" class="text-error">{{ logError }}</span>
@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { type LogEvent, type LogEntry, type LogMessage, asLogEntry } from "@/models/LogEntry";
-import { createExprEditor, createLogHints } from "@/composable/exprEditor";
+import { createLogHints } from "@/composable/exprEditor";
 import type { NotificationRule, PreviewResult } from "@/types/notifications";
 
 const props = defineProps<{
@@ -93,22 +93,11 @@ watch(
 );
 
 // Editor
-const logEditorRef = ref<HTMLElement>();
-let logEditorView: Awaited<ReturnType<typeof createExprEditor>> | undefined;
-
-onMounted(async () => {
-  if (logEditorRef.value) {
-    logEditorView = await createExprEditor({
-      parent: logEditorRef.value,
-      placeholder: 'level == "error" && message contains "timeout"',
-      initialValue: props.alert?.logExpression ?? props.prefill?.logExpression ?? "",
-      getHints: () => createLogHints(messageKeys.value),
-      onChange: (v) => (logExpression.value = v),
-    });
-  }
-});
-
-onScopeDispose(() => {
-  logEditorView?.destroy();
+const editorRef = ref<HTMLElement>();
+useExprEditorField(editorRef, {
+  placeholder: 'level == "error" && message contains "timeout"',
+  initialValue: props.alert?.logExpression ?? props.prefill?.logExpression ?? "",
+  getHints: () => createLogHints(messageKeys.value),
+  onChange: (v) => (logExpression.value = v),
 });
 </script>

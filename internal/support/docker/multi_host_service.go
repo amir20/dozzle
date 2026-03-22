@@ -190,7 +190,8 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
-	m.notificationManager = notification.NewManager(listener, statsListener)
+	eventListener := notification.NewContainerEventListener(ctx, clients)
+	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {

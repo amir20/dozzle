@@ -46,6 +46,7 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
+			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
 		}
@@ -118,6 +119,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
+			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
 		}
@@ -140,6 +142,14 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 			if old.MetricCooldowns != nil {
 				old.MetricCooldowns.Range(func(id string, t time.Time) bool {
 					s.MetricCooldowns.Store(id, t)
+					return true
+				})
+			}
+
+			s.EventCooldowns = xsync.NewMap[string, time.Time]()
+			if old.EventCooldowns != nil {
+				old.EventCooldowns.Range(func(id string, t time.Time) bool {
+					s.EventCooldowns.Store(id, t)
 					return true
 				})
 			}
@@ -201,6 +211,9 @@ func (m *Manager) loadSubscription(sub *Subscription) error {
 	}
 	if sub.MetricSampleBuffers == nil {
 		sub.MetricSampleBuffers = xsync.NewMap[string, *utils.RingBuffer[bool]]()
+	}
+	if sub.EventCooldowns == nil {
+		sub.EventCooldowns = xsync.NewMap[string, time.Time]()
 	}
 
 	m.subscriptions.Store(sub.ID, sub)

@@ -831,6 +831,7 @@ type NotificationSubscription struct {
 	MetricExpression    string                 `protobuf:"bytes,7,opt,name=metricExpression,proto3" json:"metricExpression,omitempty"`
 	Cooldown            int32                  `protobuf:"varint,8,opt,name=cooldown,proto3" json:"cooldown,omitempty"`
 	SampleWindow        int32                  `protobuf:"varint,9,opt,name=sampleWindow,proto3" json:"sampleWindow,omitempty"`
+	EventExpression     string                 `protobuf:"bytes,10,opt,name=eventExpression,proto3" json:"eventExpression,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -926,6 +927,13 @@ func (x *NotificationSubscription) GetSampleWindow() int32 {
 		return x.SampleWindow
 	}
 	return 0
+}
+
+func (x *NotificationSubscription) GetEventExpression() string {
+	if x != nil {
+		return x.EventExpression
+	}
+	return ""
 }
 
 type NotificationDispatcher struct {
@@ -1158,7 +1166,7 @@ const file_types_proto_rawDesc = "" +
 	"\rdockerVersion\x18\f \x01(\tR\rdockerVersion\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xea\x02\n" +
 	"\x18NotificationSubscription\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -1168,7 +1176,9 @@ const file_types_proto_rawDesc = "" +
 	"\x13containerExpression\x18\x06 \x01(\tR\x13containerExpression\x12*\n" +
 	"\x10metricExpression\x18\a \x01(\tR\x10metricExpression\x12\x1a\n" +
 	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
-	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\"\x83\x02\n" +
+	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\x12(\n" +
+	"\x0feventExpression\x18\n" +
+	" \x01(\tR\x0feventExpression\"\x83\x02\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +

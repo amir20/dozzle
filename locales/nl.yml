@@ -179,6 +179,7 @@ notifications:
     containers: Containers
     log-filter: Logfilter
     metric-filter: Metriek
+    event-filter: Event
     cooldown: Wachttijd
     sample-window: Steekproefvenster
     destination: Bestemming
@@ -217,9 +218,13 @@ notifications:
     sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
+    no-cooldown: No cooldown
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken

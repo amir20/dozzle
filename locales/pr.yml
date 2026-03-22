@@ -187,6 +187,7 @@ notifications:
     containers: Contentores
     log-filter: Filtro de registo
     metric-filter: Métrica
+    event-filter: Event
     cooldown: Tempo de espera
     sample-window: Janela de amostragem
     destination: Destino
@@ -225,9 +226,13 @@ notifications:
     sample-window-hint: "O alerta é ativado quando a condição é cumprida durante {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por contentor"
+    no-cooldown: No cooldown
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino

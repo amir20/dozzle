@@ -178,6 +178,7 @@ notifications:
     containers: Containere
     log-filter: Log filter
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Afkøling
     sample-window: Prøvevindue
     destination: Destination
@@ -216,9 +217,13 @@ notifications:
     sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
+    no-cooldown: No cooldown
     alert-type: Alarmtype
     log-alert: Logalarm
     metric-alert: Metrikalarm
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination

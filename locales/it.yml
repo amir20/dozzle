@@ -178,6 +178,7 @@ notifications:
     containers: Container
     log-filter: Filtro log
     metric-filter: Metrica
+    event-filter: Event
     cooldown: Tempo di attesa
     sample-window: Finestra di campionamento
     destination: Destinazione
@@ -216,9 +217,13 @@ notifications:
     sample-window-hint: "L'avviso si attiva quando la condizione è soddisfatta per {duration}"
     cooldown-label: Tempo di attesa
     cooldown-hint: "{duration} tra gli avvisi per container"
+    no-cooldown: No cooldown
     alert-type: Tipo di avviso
     log-alert: Avviso log
     metric-alert: Avviso metrica
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Aggiungi Destinazione
     edit-title: Modifica Destinazione

@@ -185,6 +185,7 @@ notifications:
     containers: Kontenery
     log-filter: Filtr logów
     metric-filter: Metryka
+    event-filter: Event
     cooldown: Czas oczekiwania
     sample-window: Okno próbkowania
     destination: Miejsce docelowe
@@ -223,9 +224,13 @@ notifications:
     sample-window-hint: "Alert jest wyzwalany, gdy warunek jest spełniony przez {duration}"
     cooldown-label: Czas oczekiwania
     cooldown-hint: "{duration} między alertami na kontener"
+    no-cooldown: No cooldown
     alert-type: Typ alertu
     log-alert: Alert logów
     metric-alert: Alert metryki
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Dodaj Miejsce Docelowe
     edit-title: Edytuj Miejsce Docelowe
