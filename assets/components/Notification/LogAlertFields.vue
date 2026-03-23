@@ -2,7 +2,7 @@
   <fieldset class="fieldset">
     <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.log-filter") }}</legend>
     <div
-      class="input focus-within:input-primary w-full focus-within:z-50"
+      class="input focus-within:input-primary h-auto w-full focus-within:z-50"
       :class="logExpression.trim() && !logError ? 'input-primary' : { 'input-error!': logError }"
     >
       <div ref="editorRef" class="w-full"></div>

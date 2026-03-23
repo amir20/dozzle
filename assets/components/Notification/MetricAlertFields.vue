@@ -2,7 +2,7 @@
   <fieldset class="fieldset">
     <legend class="fieldset-legend text-lg">{{ $t("notifications.alert-form.metric-filter") }}</legend>
     <div
-      class="input focus-within:input-primary w-full focus-within:z-50"
+      class="input focus-within:input-primary h-auto w-full focus-within:z-50"
       :class="metricExpression.trim() && !metricError ? 'input-primary' : { 'input-error!': metricError }"
     >
       <div ref="editorRef" class="w-full"></div>
