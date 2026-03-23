@@ -179,6 +179,7 @@ notifications:
   destinations: Tujuan
   add-destination: Tambah tujuan
   alerts: Peringatan
+  add-alert: Tambah peringatan
   add: Tambah
   filter:
     all: Semua ({count})

@@ -167,6 +167,7 @@ notifications:
   destinations: Destinationer
   add-destination: Tilføj destination
   alerts: Alarmer
+  add-alert: Tilføj alarm
   add: Tilføj
   filter:
     all: Alle ({count})

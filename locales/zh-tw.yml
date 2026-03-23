@@ -170,6 +170,7 @@ notifications:
   destinations: 目標
   add-destination: 新增目標
   alerts: 警報
+  add-alert: 新增警報
   add: 新增
   filter:
     all: 全部 ({count})

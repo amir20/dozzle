@@ -172,6 +172,7 @@ notifications:
   destinations: Cilji
   add-destination: Dodaj cilj
   alerts: Opozorila
+  add-alert: Dodaj opozorilo
   add: Dodaj
   filter:
     all: Vsi ({count})

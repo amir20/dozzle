@@ -177,6 +177,7 @@ notifications:
   add-destination: Add destination
   alerts: Alerts
   add: Add
+  add-alert: Add alert
   filter:
     all: All ({count})
     enabled: Enabled ({count})

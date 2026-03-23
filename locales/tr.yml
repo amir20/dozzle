@@ -167,6 +167,7 @@ notifications:
   destinations: Hedefler
   add-destination: Hedef ekle
   alerts: Uyarılar
+  add-alert: Uyarı ekle
   add: Ekle
   filter:
     all: Tümü ({count})

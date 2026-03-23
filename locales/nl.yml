@@ -168,6 +168,7 @@ notifications:
   destinations: Bestemmingen
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
+  add-alert: Waarschuwing toevoegen
   add: Toevoegen
   filter:
     all: Alle ({count})

@@ -167,6 +167,7 @@ notifications:
   destinations: 目标
   add-destination: 添加目标
   alerts: 警报
+  add-alert: 添加警报
   add: 添加
   filter:
     all: 全部 ({count})

@@ -170,6 +170,7 @@ notifications:
   destinations: 목적지
   add-destination: 목적지 추가
   alerts: 알림
+  add-alert: 알림 추가
   add: 추가
   filter:
     all: 전체 ({count})

@@ -36,12 +36,8 @@
 
       <!-- Alerts Section -->
       <div>
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4">
           <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("notifications.alerts") }}</h3>
-          <button class="btn btn-primary btn-sm" @click="openCreateAlert">
-            <mdi:plus />
-            {{ $t("notifications.add") }}
-          </button>
         </div>
 
         <!-- Filter Tabs -->
@@ -58,11 +54,17 @@
         </div>
 
         <!-- Alerts List -->
-        <div v-if="!alerts.length" class="text-base-content/60 py-4">
-          {{ $t("notifications.no-alerts") }}
-        </div>
-        <div v-else class="space-y-4">
+        <div class="space-y-4">
           <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" :on-updated="fetchAlerts" />
+          <button
+            class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors"
+            @click="openCreateAlert"
+          >
+            <div class="card-body items-center justify-center gap-1 p-4">
+              <mdi:plus class="text-2xl" />
+              <span class="text-base-content/60 text-sm">{{ $t("notifications.add-alert") }}</span>
+            </div>
+          </button>
         </div>
       </div>
     </section>

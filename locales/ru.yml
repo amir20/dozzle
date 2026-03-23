@@ -167,6 +167,7 @@ notifications:
   destinations: Назначения
   add-destination: Добавить назначение
   alerts: Оповещения
+  add-alert: Добавить оповещение
   add: Добавить
   filter:
     all: Все ({count})
