@@ -69,7 +69,7 @@
     "tailwindcss": "4.2.2",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-icons": "^23.0.1",
-    "unplugin-vue-components": "^31.1.0",
+    "unplugin-vue-components": "^32.0.0",
     "unplugin-vue-macros": "^2.14.5",
     "vite": "8.0.2",
     "vite-plugin-vue-layouts": "^0.11.0",
