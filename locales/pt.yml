@@ -166,6 +166,7 @@ notifications:
   destinations: Destinos
   add-destination: Adicionar destino
   alerts: Alertas
+  add-alert: Adicionar alerta
   add: Adicionar
   filter:
     all: Todos ({count})
