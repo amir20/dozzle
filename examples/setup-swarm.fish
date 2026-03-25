@@ -1,11 +1,13 @@
 #!/usr/bin/env fish
 
-# docker network create --driver bridge swarm-net
+echo "🧹 Removing existing containers and network"
+docker rm -f manager worker-1 worker-2 2>/dev/null
+docker network rm swarm-net 2>/dev/null
 
-echo "Removing existing containers"
-docker rm -f manager worker-1 worker-2
+echo "🌐 Creating bridge network"
+docker network create --driver bridge swarm-net
 
-echo "Creating manager"
+echo "🖥️ Creating manager"
 docker run -d --name manager \
     --privileged \
     --network swarm-net \
@@ -13,16 +15,25 @@ docker run -d --name manager \
     -p 2377:2377 \
     -p 7946:7946 \
     -p 4789:4789 \
-    -p 8000-9000:8000-9000 \
+    -p 8080:8080 \
     -v ./examples:/examples \
     docker
 
-# Store join command in a variable
-sleep 2
-echo "Initializing swarm"
-set JOIN_COMMAND (docker exec manager docker swarm init | grep "swarm join --token")
+# Wait for dockerd to be ready inside manager
+echo "⏳ Waiting for manager dockerd to start..."
+while not docker exec manager docker info >/dev/null 2>&1
+    sleep 1
+end
 
-echo "Creating workers"
+echo "🐝 Initializing swarm"
+set MANAGER_IP (docker exec manager hostname -i | string trim)
+set JOIN_TOKEN (docker exec manager docker swarm init --advertise-addr $MANAGER_IP 2>&1 | string match -r 'SWMTKN-\S+')
+if test -z "$JOIN_TOKEN"
+    echo "❌ Failed to get swarm join token"
+    exit 1
+end
+
+echo "👷 Creating workers"
 for i in 1 2
     docker run -d --name worker-$i \
         --privileged \
@@ -31,17 +42,54 @@ for i in 1 2
         docker
 end
 
-sleep 2
-
+# Wait for worker dockerd to be ready
 for i in 1 2
-    echo "Joining worker-$i to swarm"
-    docker exec worker-$i sh -c "$JOIN_COMMAND"
+    echo "⏳ Waiting for worker-$i dockerd to start..."
+    while not docker exec worker-$i docker info >/dev/null 2>&1
+        sleep 1
+    end
 end
 
-function cleanup
+for i in 1 2
+    echo "🔗 Joining worker-$i to swarm"
+    docker exec worker-$i docker swarm join --token $JOIN_TOKEN $MANAGER_IP:2377
+end
+
+echo "✅ Swarm is ready. Deploying Dozzle..."
+
+# Create the stack file inside the manager
+docker exec manager sh -c 'cat > /dozzle-stack.yml << "EOF"
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_MODE=swarm
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080
+    networks:
+      - dozzle
+    deploy:
+      mode: global
+networks:
+  dozzle:
+    driver: overlay
+EOF'
+
+docker exec manager docker stack deploy -c /dozzle-stack.yml dozzle
+echo "🚀 Dozzle deployed! Access at http://localhost:8080"
+
+function swarm-cleanup
+    docker exec manager docker stack rm dozzle 2>/dev/null
     docker rm -f manager worker-1 worker-2
+    docker network rm swarm-net 2>/dev/null
+    functions -e swarm-cleanup
+    functions -e swarm
 end
 
 function swarm
     docker exec manager docker $argv
 end
+
+echo "💡 Functions 'swarm' and 'swarm-cleanup' are available in this session."
