@@ -391,8 +391,7 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 
 func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNotificationConfigRequest) (*pb.UpdateNotificationConfigResponse, error) {
 	if s.notificationConfigHandler == nil {
-		log.Warn().Msg("No notification config handler registered, ignoring config update")
-		return &pb.UpdateNotificationConfigResponse{}, nil
+		log.Fatal().Msg("No notification config handler registered")
 	}
 
 	// Validate request sizes to prevent memory exhaustion
@@ -447,7 +446,7 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 
 func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificationStatsRequest) (*pb.GetNotificationStatsResponse, error) {
 	if s.notificationConfigHandler == nil {
-		return &pb.GetNotificationStatsResponse{}, nil
+		log.Fatal().Msg("No notification config handler registered")
 	}
 
 	stats := s.notificationConfigHandler.GetNotificationStats()
@@ -455,8 +454,8 @@ func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificati
 	pbStats := make([]*pb.NotificationSubscriptionStats, len(stats))
 	for i, s := range stats {
 		pbStat := &pb.NotificationSubscriptionStats{
-			SubscriptionId:       int32(s.SubscriptionID),
-			TriggerCount:         s.TriggerCount,
+			SubscriptionId:        int32(s.SubscriptionID),
+			TriggerCount:          s.TriggerCount,
 			TriggeredContainerIds: s.TriggeredContainerIDs,
 		}
 		if s.LastTriggeredAt != nil {
