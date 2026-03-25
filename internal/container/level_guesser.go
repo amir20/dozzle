@@ -39,7 +39,7 @@ var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
 var timestampRegex = regexp.MustCompile(`^(?:\d{4}[-/]\d{2}[-/]\d{2}(?:[T ](?:\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?|\d{2}:\d{2}(?:AM|PM)))?\s+)`)
 
 // JSON keys to check for log level (in priority order).
-var levelKeys = []string{"@l", "level", "severity"}
+var levelKeys = []string{"@l", "level", "log.level", "severity"}
 
 func init() {
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
