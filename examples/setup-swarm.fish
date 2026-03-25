@@ -61,7 +61,7 @@ echo "✅ Swarm is ready. Deploying Dozzle..."
 docker exec manager sh -c 'cat > /dozzle-stack.yml << "EOF"
 services:
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:local
     environment:
       - DOZZLE_MODE=swarm
     volumes:
@@ -86,10 +86,25 @@ function swarm-cleanup
     docker network rm swarm-net 2>/dev/null
     functions -e swarm-cleanup
     functions -e swarm
+    functions -e swarm-deploy
 end
 
 function swarm
     docker exec manager docker $argv
 end
 
-echo "💡 Functions 'swarm' and 'swarm-cleanup' are available in this session."
+function swarm-deploy
+    echo "🔨 Building local image..."
+    make -C (git rev-parse --show-toplevel) docker
+    echo "📦 Loading image into swarm nodes..."
+    for node in manager worker-1 worker-2
+        docker save amir20/dozzle:local | docker exec -i $node docker load
+    end
+    echo "🚀 Redeploying stack..."
+    docker exec manager docker stack rm dozzle 2>/dev/null
+    sleep 2
+    docker exec manager docker stack deploy -c /dozzle-stack.yml dozzle
+    echo "✅ Deployed local changes!"
+end
+
+echo "💡 Functions 'swarm', 'swarm-deploy', and 'swarm-cleanup' are available in this session."
