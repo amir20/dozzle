@@ -75,11 +75,16 @@ func FromProto(c *pb.Container) Container {
 		})
 	}
 
+	labels := c.Labels
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+
 	return Container{
 		ID:          c.Id,
 		Name:        c.Name,
 		Image:       c.Image,
-		Labels:      c.Labels,
+		Labels:      labels,
 		Group:       c.Group,
 		Created:     c.Created.AsTime(),
 		State:       c.State,
