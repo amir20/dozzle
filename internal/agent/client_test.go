@@ -13,6 +13,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
+	"github.com/amir20/dozzle/types"
 	"github.com/go-faker/faker/v4"
 	"github.com/go-faker/faker/v4/pkg/options"
 	"github.com/stretchr/testify/assert"
@@ -27,6 +28,16 @@ const bufSize = 1024 * 1024
 var lis *bufconn.Listener
 var certs tls.Certificate
 var mockService *MockedClientService
+
+type mockNotificationHandler struct{}
+
+func (m *mockNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	return nil
+}
+
+func (m *mockNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
+	return nil
+}
 
 type MockedClientService struct {
 	mock.Mock
@@ -134,7 +145,7 @@ func init() {
 
 	mockService.On("Client").Return(nil)
 
-	server, _ := NewServer(mockService, certs, "test", nil)
+	server, _ := NewServer(mockService, certs, "test", &mockNotificationHandler{})
 	go server.Serve(lis)
 }
 
