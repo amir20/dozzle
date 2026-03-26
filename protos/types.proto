@@ -113,6 +113,9 @@ message NotificationDispatcher {
   string url = 4;
   string template = 5;
   map<string, string> headers = 6;
+  string apiKey = 7;
+  string prefix = 8;
+  google.protobuf.Timestamp expiresAt = 9;
 }
 
 message NotificationSubscriptionStats {

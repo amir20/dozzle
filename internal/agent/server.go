@@ -431,6 +431,12 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			URL:      d.Url,
 			Template: d.Template,
 			Headers:  d.Headers,
+			APIKey:   d.ApiKey,
+			Prefix:   d.Prefix,
+		}
+		if d.ExpiresAt != nil {
+			t := d.ExpiresAt.AsTime()
+			dispatchers[i].ExpiresAt = &t
 		}
 	}
 

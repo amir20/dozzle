@@ -944,6 +944,9 @@ type NotificationDispatcher struct {
 	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
 	Template      string                 `protobuf:"bytes,5,opt,name=template,proto3" json:"template,omitempty"`
 	Headers       map[string]string      `protobuf:"bytes,6,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ApiKey        string                 `protobuf:"bytes,7,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
+	Prefix        string                 `protobuf:"bytes,8,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiresAt,proto3" json:"expiresAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1016,6 +1019,27 @@ func (x *NotificationDispatcher) GetTemplate() string {
 func (x *NotificationDispatcher) GetHeaders() map[string]string {
 	if x != nil {
 		return x.Headers
+	}
+	return nil
+}
+
+func (x *NotificationDispatcher) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *NotificationDispatcher) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *NotificationDispatcher) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
 	}
 	return nil
 }
@@ -1178,14 +1202,17 @@ const file_types_proto_rawDesc = "" +
 	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
 	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\x12(\n" +
 	"\x0feventExpression\x18\n" +
-	" \x01(\tR\x0feventExpression\"\x83\x02\n" +
+	" \x01(\tR\x0feventExpression\"\xed\x02\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x10\n" +
 	"\x03url\x18\x04 \x01(\tR\x03url\x12\x1a\n" +
 	"\btemplate\x18\x05 \x01(\tR\btemplate\x12G\n" +
-	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x1a:\n" +
+	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x12\x16\n" +
+	"\x06apiKey\x18\a \x01(\tR\x06apiKey\x12\x16\n" +
+	"\x06prefix\x18\b \x01(\tR\x06prefix\x128\n" +
+	"\texpiresAt\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x01\n" +
@@ -1245,12 +1272,13 @@ var file_types_proto_depIdxs = []int32{
 	16, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
 	14, // 9: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
 	15, // 10: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
-	16, // 11: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	16, // 11: protobuf.NotificationDispatcher.expiresAt:type_name -> google.protobuf.Timestamp
+	16, // 12: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_types_proto_init() }

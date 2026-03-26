@@ -531,6 +531,11 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			Url:      d.URL,
 			Template: d.Template,
 			Headers:  d.Headers,
+			ApiKey:   d.APIKey,
+			Prefix:   d.Prefix,
+		}
+		if d.ExpiresAt != nil {
+			pbDispatchers[i].ExpiresAt = timestamppb.New(*d.ExpiresAt)
 		}
 	}
 
