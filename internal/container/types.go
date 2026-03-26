@@ -36,10 +36,12 @@ func (container Container) ToProto() pb.Container {
 	var pbStats []*pb.ContainerStat
 	for _, stat := range container.Stats.Data() {
 		pbStats = append(pbStats, &pb.ContainerStat{
-			Id:            stat.ID,
-			CpuPercent:    stat.CPUPercent,
-			MemoryPercent: stat.MemoryPercent,
-			MemoryUsage:   stat.MemoryUsage,
+			Id:             stat.ID,
+			CpuPercent:     stat.CPUPercent,
+			MemoryPercent:  stat.MemoryPercent,
+			MemoryUsage:    stat.MemoryUsage,
+			NetworkRxTotal: stat.NetworkRxTotal,
+			NetworkTxTotal: stat.NetworkTxTotal,
 		})
 	}
 
@@ -68,10 +70,12 @@ func FromProto(c *pb.Container) Container {
 	var stats []ContainerStat
 	for _, stat := range c.Stats {
 		stats = append(stats, ContainerStat{
-			ID:            stat.Id,
-			CPUPercent:    stat.CpuPercent,
-			MemoryPercent: stat.MemoryPercent,
-			MemoryUsage:   stat.MemoryUsage,
+			ID:             stat.Id,
+			CPUPercent:     stat.CpuPercent,
+			MemoryPercent:  stat.MemoryPercent,
+			MemoryUsage:    stat.MemoryUsage,
+			NetworkRxTotal: stat.NetworkRxTotal,
+			NetworkTxTotal: stat.NetworkTxTotal,
 		})
 	}
 

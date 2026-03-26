@@ -170,10 +170,11 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 		case event := <-events:
 			out.Send(&pb.StreamEventsResponse{
 				Event: &pb.ContainerEvent{
-					ActorId:   event.ActorID,
-					Name:      event.Name,
-					Host:      event.Host,
-					Timestamp: timestamppb.New(event.Time),
+					ActorId:         event.ActorID,
+					Name:            event.Name,
+					Host:            event.Host,
+					Timestamp:       timestamppb.New(event.Time),
+					ActorAttributes: event.ActorAttributes,
 				},
 			})
 		case <-out.Context().Done():
@@ -431,6 +432,12 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			URL:      d.Url,
 			Template: d.Template,
 			Headers:  d.Headers,
+			APIKey:   d.ApiKey,
+			Prefix:   d.Prefix,
+		}
+		if d.ExpiresAt != nil {
+			t := d.ExpiresAt.AsTime()
+			dispatchers[i].ExpiresAt = &t
 		}
 	}
 

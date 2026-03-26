@@ -621,13 +621,14 @@ func (x *ComplexMessage) GetData() []byte {
 }
 
 type ContainerEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ActorId       string                 `protobuf:"bytes,1,opt,name=actorId,proto3" json:"actorId,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Host          string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ActorId         string                 `protobuf:"bytes,1,opt,name=actorId,proto3" json:"actorId,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Host            string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
+	Timestamp       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	ActorAttributes map[string]string      `protobuf:"bytes,5,rep,name=actorAttributes,proto3" json:"actorAttributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ContainerEvent) Reset() {
@@ -684,6 +685,13 @@ func (x *ContainerEvent) GetHost() string {
 func (x *ContainerEvent) GetTimestamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Timestamp
+	}
+	return nil
+}
+
+func (x *ContainerEvent) GetActorAttributes() map[string]string {
+	if x != nil {
+		return x.ActorAttributes
 	}
 	return nil
 }
@@ -944,6 +952,9 @@ type NotificationDispatcher struct {
 	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
 	Template      string                 `protobuf:"bytes,5,opt,name=template,proto3" json:"template,omitempty"`
 	Headers       map[string]string      `protobuf:"bytes,6,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ApiKey        string                 `protobuf:"bytes,7,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
+	Prefix        string                 `protobuf:"bytes,8,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiresAt,proto3" json:"expiresAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1016,6 +1027,27 @@ func (x *NotificationDispatcher) GetTemplate() string {
 func (x *NotificationDispatcher) GetHeaders() map[string]string {
 	if x != nil {
 		return x.Headers
+	}
+	return nil
+}
+
+func (x *NotificationDispatcher) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *NotificationDispatcher) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *NotificationDispatcher) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
 	}
 	return nil
 }
@@ -1144,12 +1176,16 @@ const file_types_proto_rawDesc = "" +
 	"\fGroupMessage\x123\n" +
 	"\tfragments\x18\x01 \x03(\v2\x15.protobuf.LogFragmentR\tfragments\"$\n" +
 	"\x0eComplexMessage\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\"\x8c\x01\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\"\xa9\x02\n" +
 	"\x0eContainerEvent\x12\x18\n" +
 	"\aactorId\x18\x01 \x01(\tR\aactorId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04host\x18\x03 \x01(\tR\x04host\x128\n" +
-	"\ttimestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xaf\x03\n" +
+	"\ttimestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12W\n" +
+	"\x0factorAttributes\x18\x05 \x03(\v2-.protobuf.ContainerEvent.ActorAttributesEntryR\x0factorAttributes\x1aB\n" +
+	"\x14ActorAttributesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xaf\x03\n" +
 	"\x04Host\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1178,14 +1214,17 @@ const file_types_proto_rawDesc = "" +
 	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
 	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\x12(\n" +
 	"\x0feventExpression\x18\n" +
-	" \x01(\tR\x0feventExpression\"\x83\x02\n" +
+	" \x01(\tR\x0feventExpression\"\xed\x02\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x10\n" +
 	"\x03url\x18\x04 \x01(\tR\x03url\x12\x1a\n" +
 	"\btemplate\x18\x05 \x01(\tR\btemplate\x12G\n" +
-	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x1a:\n" +
+	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x12\x16\n" +
+	"\x06apiKey\x18\a \x01(\tR\x06apiKey\x12\x16\n" +
+	"\x06prefix\x18\b \x01(\tR\x06prefix\x128\n" +
+	"\texpiresAt\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x01\n" +
@@ -1212,7 +1251,7 @@ func file_types_proto_rawDescGZIP() []byte {
 }
 
 var file_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_types_proto_goTypes = []any{
 	(ContainerAction)(0),                  // 0: protobuf.ContainerAction
 	(*Container)(nil),                     // 1: protobuf.Container
@@ -1228,29 +1267,32 @@ var file_types_proto_goTypes = []any{
 	(*NotificationDispatcher)(nil),        // 11: protobuf.NotificationDispatcher
 	(*NotificationSubscriptionStats)(nil), // 12: protobuf.NotificationSubscriptionStats
 	nil,                                   // 13: protobuf.Container.LabelsEntry
-	nil,                                   // 14: protobuf.Host.LabelsEntry
-	nil,                                   // 15: protobuf.NotificationDispatcher.HeadersEntry
-	(*timestamppb.Timestamp)(nil),         // 16: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                     // 17: google.protobuf.Any
+	nil,                                   // 14: protobuf.ContainerEvent.ActorAttributesEntry
+	nil,                                   // 15: protobuf.Host.LabelsEntry
+	nil,                                   // 16: protobuf.NotificationDispatcher.HeadersEntry
+	(*timestamppb.Timestamp)(nil),         // 17: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                     // 18: google.protobuf.Any
 }
 var file_types_proto_depIdxs = []int32{
-	16, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
-	16, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
+	17, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
+	17, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
 	13, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
 	2,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
-	16, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
-	17, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
-	16, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
+	17, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
+	18, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
+	17, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
 	3,  // 7: protobuf.GroupMessage.fragments:type_name -> protobuf.LogFragment
-	16, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
-	14, // 9: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
-	15, // 10: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
-	16, // 11: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	17, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
+	14, // 9: protobuf.ContainerEvent.actorAttributes:type_name -> protobuf.ContainerEvent.ActorAttributesEntry
+	15, // 10: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
+	16, // 11: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
+	17, // 12: protobuf.NotificationDispatcher.expiresAt:type_name -> google.protobuf.Timestamp
+	17, // 13: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_types_proto_init() }
@@ -1264,7 +1306,7 @@ func file_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_proto_rawDesc), len(file_types_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
