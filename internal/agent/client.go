@@ -260,10 +260,11 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 		}
 
 		events <- container.ContainerEvent{
-			ActorID: resp.Event.ActorId,
-			Name:    resp.Event.Name,
-			Host:    resp.Event.Host,
-			Time:    resp.Event.Timestamp.AsTime(),
+			ActorID:         resp.Event.ActorId,
+			Name:            resp.Event.Name,
+			Host:            resp.Event.Host,
+			Time:            resp.Event.Timestamp.AsTime(),
+			ActorAttributes: resp.Event.ActorAttributes,
 		}
 	}
 }

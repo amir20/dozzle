@@ -170,10 +170,11 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 		case event := <-events:
 			out.Send(&pb.StreamEventsResponse{
 				Event: &pb.ContainerEvent{
-					ActorId:   event.ActorID,
-					Name:      event.Name,
-					Host:      event.Host,
-					Timestamp: timestamppb.New(event.Time),
+					ActorId:         event.ActorID,
+					Name:            event.Name,
+					Host:            event.Host,
+					Timestamp:       timestamppb.New(event.Time),
+					ActorAttributes: event.ActorAttributes,
 				},
 			})
 		case <-out.Context().Done():
