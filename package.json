@@ -40,7 +40,7 @@
     "@iconify-json/carbon": "^1.2.20",
     "@iconify-json/cil": "^1.2.3",
     "@iconify-json/ic": "^1.2.4",
-    "@iconify-json/material-symbols": "^1.2.63",
+    "@iconify-json/material-symbols": "^1.2.64",
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/mdi-light": "^1.2.2",
     "@iconify-json/octicon": "^1.2.22",
@@ -82,7 +82,7 @@
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^21.1.0",
     "@iconify-json/ion": "^1.2.7",
-    "@iconify-json/material-symbols-light": "^1.2.63",
+    "@iconify-json/material-symbols-light": "^1.2.64",
     "@iconify-json/ri": "^1.2.10",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@pinia/testing": "^1.0.3",
