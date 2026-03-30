@@ -58,11 +58,11 @@ func extractMessage(l container.LogEvent) any {
 	case string:
 		return container.StripANSI(v)
 	case []container.LogFragment:
-		var parts []string
-		for _, fragment := range v {
-			parts = append(parts, container.StripANSI(fragment.Message))
+		cleaned := make([]container.LogFragment, len(v))
+		for i, fragment := range v {
+			cleaned[i] = container.LogFragment{Message: container.StripANSI(fragment.Message)}
 		}
-		return strings.Join(parts, "")
+		return cleaned
 	case *orderedmap.OrderedMap[string, any]:
 		// Convert OrderedMap to regular map for expr compatibility
 		result := make(map[string]any)
