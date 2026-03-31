@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/amir20/dozzle/types"
+	"github.com/rs/zerolog/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -24,23 +25,29 @@ func NewK8sClusterService(client *k8s.K8sClient, timeout time.Duration) (*K8sClu
 	hosts := make([]container.Host, 0)
 	nodes, err := client.Clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
-	}
-
-	if len(nodes.Items) == 0 {
-		return nil, fmt.Errorf("nodes not found")
-	}
-
-	for _, node := range nodes.Items {
-		hosts = append(hosts, container.Host{
-			ID:            node.Name,
-			Name:          node.Name,
-			MemTotal:      node.Status.Capacity.Memory().Value(),
-			NCPU:          int(node.Status.Capacity.Cpu().Value()),
-			DockerVersion: node.Status.NodeInfo.ContainerRuntimeVersion,
-			Type:          "k8s",
-			Available:     true,
-		})
+		log.Warn().Err(err).Msg("Could not list nodes, using fallback host")
+		fallback := client.Host()
+		fallback.Type = "k8s"
+		fallback.Available = true
+		hosts = append(hosts, fallback)
+	} else if len(nodes.Items) == 0 {
+		log.Warn().Msg("No nodes found, using fallback host")
+		fallback := client.Host()
+		fallback.Type = "k8s"
+		fallback.Available = true
+		hosts = append(hosts, fallback)
+	} else {
+		for _, node := range nodes.Items {
+			hosts = append(hosts, container.Host{
+				ID:            node.Name,
+				Name:          node.Name,
+				MemTotal:      node.Status.Capacity.Memory().Value(),
+				NCPU:          int(node.Status.Capacity.Cpu().Value()),
+				DockerVersion: node.Status.NodeInfo.ContainerRuntimeVersion,
+				Type:          "k8s",
+				Available:     true,
+			})
+		}
 	}
 
 	return &K8sClusterService{

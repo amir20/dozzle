@@ -69,23 +69,41 @@ func NewK8sClient(namespace []string) (*K8sClient, error) {
 		return nil, err
 	}
 
+	var host container.Host
 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		log.Warn().Err(err).Msg("Could not list nodes, falling back to hostname")
+		hostname, _ := os.Hostname()
+		if hostname == "" {
+			hostname = "unknown"
+		}
+		host = container.Host{
+			ID:   hostname,
+			Name: hostname,
+		}
+	} else if len(nodes.Items) == 0 {
+		log.Warn().Msg("No nodes found, falling back to hostname")
+		hostname, _ := os.Hostname()
+		if hostname == "" {
+			hostname = "unknown"
+		}
+		host = container.Host{
+			ID:   hostname,
+			Name: hostname,
+		}
+	} else {
+		node := nodes.Items[0]
+		host = container.Host{
+			ID:   node.Status.NodeInfo.MachineID,
+			Name: node.Name,
+		}
 	}
-	if len(nodes.Items) == 0 {
-		return nil, fmt.Errorf("nodes not found")
-	}
-	node := nodes.Items[0]
 
 	return &K8sClient{
 		Clientset: clientset,
 		namespace: namespace,
 		config:    config,
-		host: container.Host{
-			ID:   node.Status.NodeInfo.MachineID,
-			Name: node.Name,
-		},
+		host:      host,
 	}, nil
 }
 
