@@ -36,7 +36,7 @@
           </button>
         </UseClipboard>
       </div>
-      <div class="bg-base-200 max-h-48 overflow-scroll rounded-sm border border-white/20 p-2">
+      <div class="bg-base-200 max-h-125 overflow-scroll rounded-sm border border-white/20 p-2">
         <pre v-html="syntaxHighlight(entry.rawMessage)"></pre>
       </div>
     </section>
