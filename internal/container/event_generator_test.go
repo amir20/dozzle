@@ -240,16 +240,17 @@ func TestEventGenerator_MixedLogs(t *testing.T) {
 	assert.Equal(t, LogTypeSingle, event2.Type)
 }
 
-func TestEventGenerator_SkipsLeadingOrphanedContinuationLines(t *testing.T) {
-	// Simulate a pagination boundary where orphaned continuation lines
-	// (no level, with timestamp) appear before the first real log entry.
-	// These should be skipped as they belong to a group from a prior fetch.
+// Tests for orphan skipping: leading levelless lines ARE skipped when container
+// started well before (simulating a load-more / scroll-to-top fetch).
+func TestEventGenerator_OrphanSkipped_FollowedByLeveledLog(t *testing.T) {
 	baseTime := "2020-05-13T18:55:37.772853839Z"
+	// Container started hours before the logs — this is a mid-stream fetch.
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
-		baseTime + " at line 42",          // orphan continuation (no level)
-		baseTime + " in function foo",     // orphan continuation (no level)
-		baseTime + " ERROR: Next error",   // real entry with level
-		baseTime + " at line 99",          // continuation of the real entry
+		baseTime + " at line 42",        // orphan (no level, container started long ago)
+		baseTime + " in function foo",   // orphan
+		baseTime + " ERROR: Next error", // real entry with level
+		baseTime + " at line 99",        // continuation of real entry
 	}
 
 	reader := &mockLogReader{
@@ -257,44 +258,82 @@ func TestEventGenerator_SkipsLeadingOrphanedContinuationLines(t *testing.T) {
 		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 	event := <-g.Events
 
-	require.NotNil(t, event, "Expected event to not be nil")
+	require.NotNil(t, event)
 	assert.Equal(t, LogTypeGroup, event.Type)
-
 	fragments, ok := event.Message.([]LogFragment)
-	require.True(t, ok, "Expected Message to be []LogFragment")
+	require.True(t, ok)
 	assert.Len(t, fragments, 2)
 	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
 	assert.Equal(t, "at line 99", fragments[1].Message)
 }
 
-func TestEventGenerator_DoesNotSkipLeadingLevellessLogsWithTimestampGap(t *testing.T) {
-	// Leading lines without levels but far apart in time should NOT be skipped.
-	// They are standalone logs, not orphaned group continuations.
+func TestEventGenerator_OrphanSkipped_FollowedByComplexLog(t *testing.T) {
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
-		"2020-05-13T18:55:37.000Z some log without level",
-		"2020-05-13T18:55:38.000Z another log without level",
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+		baseTime + " {\"level\": \"info\", \"message\": \"test\"}",
 	}
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDOUT, STDOUT},
+		types:    []StdType{STDERR, STDERR, STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+	event := <-g.Events
 
-	// First line is skipped (potential orphan), but the second is too far in time
-	// so it should be emitted.
-	event1 := <-g.Events
-	require.NotNil(t, event1, "Expected event to not be nil")
-	assert.Equal(t, LogTypeSingle, event1.Type)
-	assert.Equal(t, "another log without level", event1.Message)
+	require.NotNil(t, event)
+	assert.Equal(t, LogTypeComplex, event.Type)
 }
 
-func TestEventGenerator_AllOrphanedLinesProducesNoEvents(t *testing.T) {
-	// If all lines are orphaned continuations, no events should be emitted.
+// When the first log is near the container start, nothing can precede it — no orphan skipping.
+func TestEventGenerator_OrphanNotSkipped_NearContainerStart(t *testing.T) {
+	baseTime := "2020-05-13T18:55:37.772853839Z"
+	// Container started at the same time as the first log.
+	containerStart := time.Date(2020, 5, 13, 18, 55, 37, 772853839, time.UTC)
+	messages := []string{
+		baseTime + " at line 42",
+		baseTime + " in function foo",
+		baseTime + " ERROR: Next error",
+		baseTime + " at line 99",
+	}
+
+	reader := &mockLogReader{
+		messages: messages,
+		types:    []StdType{STDERR, STDERR, STDERR, STDERR},
+	}
+
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
+
+	// Leading lines emitted as singles since we're at the container start
+	event1 := <-g.Events
+	require.NotNil(t, event1)
+	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, "at line 42", event1.Message)
+
+	event2 := <-g.Events
+	require.NotNil(t, event2)
+	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, "in function foo", event2.Message)
+
+	// Then the real grouped entry
+	event3 := <-g.Events
+	require.NotNil(t, event3)
+	assert.Equal(t, LogTypeGroup, event3.Type)
+	fragments, ok := event3.Message.([]LogFragment)
+	require.True(t, ok)
+	assert.Len(t, fragments, 2)
+	assert.Equal(t, "ERROR: Next error", fragments[0].Message)
+	assert.Equal(t, "at line 99", fragments[1].Message)
+}
+
+// Tests for orphan NOT skipped: leading levelless lines are emitted when no real logs follow.
+func TestEventGenerator_OrphanNotSkipped_AllLevellessLines(t *testing.T) {
 	baseTime := "2020-05-13T18:55:37.772853839Z"
 	messages := []string{
 		baseTime + " at line 42",
@@ -308,42 +347,50 @@ func TestEventGenerator_AllOrphanedLinesProducesNoEvents(t *testing.T) {
 	}
 
 	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
-	event, ok := <-g.Events
 
-	assert.False(t, ok, "Expected channel to be closed with no events")
-	assert.Nil(t, event)
+	var events []*LogEvent
+	for event := range g.Events {
+		events = append(events, event)
+	}
+
+	assert.Len(t, events, 3)
+	for _, event := range events {
+		assert.Equal(t, LogTypeSingle, event.Type)
+	}
 }
 
-func TestEventGenerator_OrphanedLinesFollowedByComplexLog(t *testing.T) {
-	// Orphaned continuation lines should be skipped even when followed by a complex log.
-	baseTime := "2020-05-13T18:55:37.772853839Z"
+func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *testing.T) {
+	// Lines far apart in time — first is buffered as orphan candidate, but the
+	// gap breaks the chain so it's treated as non-orphan.
+	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
-		baseTime + " at line 42",
-		baseTime + " in function foo",
-		baseTime + " {\"level\": \"info\", \"message\": \"test\"}",
+		"2020-05-13T18:55:37.000Z some log without level",
+		"2020-05-13T18:55:38.000Z another log without level",
 	}
 
 	reader := &mockLogReader{
 		messages: messages,
-		types:    []StdType{STDERR, STDERR, STDOUT},
+		types:    []StdType{STDOUT, STDOUT},
 	}
 
-	g := NewEventGenerator(context.Background(), reader, Container{Tty: false})
-	event := <-g.Events
+	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 
-	require.NotNil(t, event, "Expected event to not be nil")
-	assert.Equal(t, LogTypeComplex, event.Type)
+	// First line is buffered as orphan candidate, but the second has a timestamp
+	// gap so it's not an orphan — first is skipped, second is emitted.
+	event1 := <-g.Events
+	require.NotNil(t, event1)
+	assert.Equal(t, LogTypeSingle, event1.Type)
+	assert.Equal(t, "another log without level", event1.Message)
 }
 
-func TestEventGenerator_DoesNotSkipLeadingLinesWithoutTimestamp(t *testing.T) {
-	// Lines without timestamps (e.g., tty/raw input) should not be skipped
-	// even if they lack a level.
+func TestEventGenerator_OrphanNotSkipped_NoTimestamp(t *testing.T) {
+	// Lines without timestamps (e.g., tty/raw input) are never treated as orphans.
 	input := "some raw output"
 
 	g := NewEventGenerator(context.Background(), makeFakeReader(input, STDOUT), Container{Tty: true})
 	event := <-g.Events
 
-	require.NotNil(t, event, "Expected event to not be nil")
+	require.NotNil(t, event)
 	assert.Equal(t, input, event.Message)
 	assert.Equal(t, LogTypeSingle, event.Type)
 }

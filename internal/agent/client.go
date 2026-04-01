@@ -260,10 +260,11 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 		}
 
 		events <- container.ContainerEvent{
-			ActorID: resp.Event.ActorId,
-			Name:    resp.Event.Name,
-			Host:    resp.Event.Host,
-			Time:    resp.Event.Timestamp.AsTime(),
+			ActorID:         resp.Event.ActorId,
+			Name:            resp.Event.Name,
+			Host:            resp.Event.Host,
+			Time:            resp.Event.Timestamp.AsTime(),
+			ActorAttributes: resp.Event.ActorAttributes,
 		}
 	}
 }
@@ -518,6 +519,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            int32(sub.Cooldown),
 			SampleWindow:        int32(sub.SampleWindow),
+			EventExpression:     sub.EventExpression,
 		}
 	}
 
@@ -530,6 +532,11 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			Url:      d.URL,
 			Template: d.Template,
 			Headers:  d.Headers,
+			ApiKey:   d.APIKey,
+			Prefix:   d.Prefix,
+		}
+		if d.ExpiresAt != nil {
+			pbDispatchers[i].ExpiresAt = timestamppb.New(*d.ExpiresAt)
 		}
 	}
 
@@ -539,6 +546,31 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 	})
 
 	return err
+}
+
+func (c *Client) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
+	resp, err := c.client.GetNotificationStats(ctx, &pb.GetNotificationStatsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]types.SubscriptionStats, len(resp.Stats))
+	for i, s := range resp.Stats {
+		var lastTriggered *time.Time
+		if s.LastTriggeredAt != nil {
+			t := s.LastTriggeredAt.AsTime()
+			if !t.IsZero() {
+				lastTriggered = &t
+			}
+		}
+		stats[i] = types.SubscriptionStats{
+			SubscriptionID:        int(s.SubscriptionId),
+			TriggerCount:          s.TriggerCount,
+			LastTriggeredAt:       lastTriggered,
+			TriggeredContainerIDs: s.TriggeredContainerIds,
+		}
+	}
+	return stats, nil
 }
 
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {

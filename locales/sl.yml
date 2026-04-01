@@ -172,6 +172,7 @@ notifications:
   destinations: Cilji
   add-destination: Dodaj cilj
   alerts: Opozorila
+  add-alert: Dodaj opozorilo
   add: Dodaj
   filter:
     all: Vsi ({count})
@@ -183,6 +184,7 @@ notifications:
     containers: Zabojniki
     log-filter: Filter dnevnika
     metric-filter: Metrika
+    event-filter: Event
     cooldown: Čas mirovanja
     sample-window: Vzorčno okno
     destination: Cilj
@@ -221,9 +223,13 @@ notifications:
     sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
+    no-cooldown: No cooldown
     alert-type: Vrsta opozorila
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj

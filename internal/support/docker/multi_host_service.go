@@ -190,7 +190,8 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
 	listener := notification.NewContainerLogListener(ctx, clients)
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
-	m.notificationManager = notification.NewManager(listener, statsListener)
+	eventListener := notification.NewContainerEventListener(ctx, clients)
+	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {
@@ -252,6 +253,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			LogExpression:       sub.LogExpression,
 			ContainerExpression: sub.ContainerExpression,
 			MetricExpression:    sub.MetricExpression,
+			EventExpression:     sub.EventExpression,
 			Cooldown:            sub.Cooldown,
 			SampleWindow:        sub.SampleWindow,
 		}
@@ -266,6 +268,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			Type:      d.Type,
 			URL:       d.URL,
 			Template:  d.Template,
+			Headers:   d.Headers,
 			APIKey:    d.APIKey,
 			Prefix:    d.Prefix,
 			ExpiresAt: d.ExpiresAt,
@@ -288,6 +291,12 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		}
 	}
 	wg.Wait()
+}
+
+// NotificationHandler returns the notification manager as an agent.NotificationConfigHandler.
+// This is used in swarm mode to pass the handler to the local agent server.
+func (m *MultiHostService) NotificationHandler() *notification.Manager {
+	return m.notificationManager
 }
 
 // AddSubscription adds a subscription to local manager and broadcasts to agents
@@ -350,4 +359,79 @@ func (m *MultiHostService) Subscriptions() []*notification.Subscription {
 // Dispatchers returns all dispatchers
 func (m *MultiHostService) Dispatchers() []notification.DispatcherConfig {
 	return m.notificationManager.Dispatchers()
+}
+
+// NotificationStatsProvider is an interface for clients that can report notification stats
+type NotificationStatsProvider interface {
+	GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error)
+}
+
+// FetchAgentNotificationStats fetches and aggregates notification stats from all agent clients
+func (m *MultiHostService) FetchAgentNotificationStats() map[int]types.SubscriptionStats {
+	// Collect providers
+	var providers []NotificationStatsProvider
+	for _, client := range m.manager.List() {
+		if provider, ok := client.(NotificationStatsProvider); ok {
+			providers = append(providers, provider)
+		}
+	}
+
+	if len(providers) == 0 {
+		return nil
+	}
+
+	// Fetch stats from all agents in parallel
+	allStats := lop.Map(providers, func(provider NotificationStatsProvider, _ int) []types.SubscriptionStats {
+		ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+		defer cancel()
+		stats, err := provider.GetNotificationStats(ctx)
+		if err != nil {
+			log.Debug().Err(err).Msg("Failed to fetch notification stats from agent")
+			return nil
+		}
+		return stats
+	})
+
+	// Aggregate sequentially
+	aggregated := make(map[int]types.SubscriptionStats)
+	for _, stats := range allStats {
+		for _, s := range stats {
+			existing, ok := aggregated[s.SubscriptionID]
+			if !ok {
+				// Dedup container IDs from this agent
+				seen := make(map[string]struct{}, len(s.TriggeredContainerIDs))
+				deduped := make([]string, 0, len(s.TriggeredContainerIDs))
+				for _, id := range s.TriggeredContainerIDs {
+					if _, exists := seen[id]; !exists {
+						seen[id] = struct{}{}
+						deduped = append(deduped, id)
+					}
+				}
+				s.TriggeredContainerIDs = deduped
+				aggregated[s.SubscriptionID] = s
+				continue
+			}
+
+			existing.TriggerCount += s.TriggerCount
+
+			if s.LastTriggeredAt != nil && (existing.LastTriggeredAt == nil || s.LastTriggeredAt.After(*existing.LastTriggeredAt)) {
+				existing.LastTriggeredAt = s.LastTriggeredAt
+			}
+
+			// Dedup container IDs across agents
+			seen := make(map[string]struct{}, len(existing.TriggeredContainerIDs))
+			for _, id := range existing.TriggeredContainerIDs {
+				seen[id] = struct{}{}
+			}
+			for _, id := range s.TriggeredContainerIDs {
+				if _, exists := seen[id]; !exists {
+					seen[id] = struct{}{}
+					existing.TriggeredContainerIDs = append(existing.TriggeredContainerIDs, id)
+				}
+			}
+			aggregated[s.SubscriptionID] = existing
+		}
+	}
+
+	return aggregated
 }

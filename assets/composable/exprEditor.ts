@@ -91,6 +91,22 @@ export function createMetricHints(): Completion[] {
   ];
 }
 
+export function createEventHints(): Completion[] {
+  return [
+    { label: "name", detail: "event name", type: "property" },
+    { label: "attributes", detail: "event attributes map", type: "property" },
+    ...exprOperators,
+    { label: '"start"', detail: "container started", type: "string" },
+    { label: '"stop"', detail: "container stopped", type: "string" },
+    { label: '"die"', detail: "container died", type: "string" },
+    { label: '"restart"', detail: "container restarted", type: "string" },
+    { label: '"health_status"', detail: "health check changed", type: "string" },
+    { label: 'name == "die"', detail: "match container death", type: "text", boost: 10 },
+    { label: 'name == "health_status"', detail: "match health changes", type: "text", boost: 10 },
+    { label: 'name in ["stop", "die"]', detail: "match stop or death", type: "text", boost: 10 },
+  ];
+}
+
 function createAutocomplete(getHints: () => Completion[]) {
   return (context: any) => {
     const word = context.matchBefore(/[\w"=!&|]+/);

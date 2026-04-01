@@ -85,6 +85,25 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, string]{Key: "@t", Value: "2024-01-01T00:00:00Z"},
 			),
 		), "error"},
+		// Pipe-delimited
+		{"2024-01-01 12:00:00 | ERROR | something went wrong", "error"},
+		{"2024-01-01 12:00:00 | INFO | starting up", "info"},
+		{"app INFO| starting up", "info"},
+		// Single-letter bracket levels
+		{"[I] starting up", "info"},
+		{"[E] something went wrong", "error"},
+		{"[W] something might be wrong", "warn"},
+		{"[D] debugging info", "debug"},
+		{"[F] fatal error", "fatal"},
+		{"[T] trace message", "trace"},
+		{"[V] verbose message", "trace"},
+		{"12:00:00 [I] starting up", "info"},
+		{orderedmap.New[string, any](
+			orderedmap.WithInitialData(
+				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
+				orderedmap.Pair[string, any]{Key: "level", Value: "warning"},
+			),
+		), "warn"},
 		{nilOrderedMap, "unknown"},
 		{nil, "unknown"},
 	}

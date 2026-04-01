@@ -6,6 +6,7 @@
         <div class="flex items-center gap-2">
           <h4 class="flex items-center gap-2 text-lg font-semibold">
             <mdi:chart-line v-if="alert.metricExpression" class="text-info" />
+            <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="text-info" />
             <mdi:text-box-outline v-else class="text-info" />
             <span>{{ alert.name }}</span> <span class="text-sm font-light">→</span>
             <div class="group/dispatch dropdown dropdown-hover">
@@ -57,6 +58,14 @@
           <span>{{ formatDuration(alert.sampleWindow || 15, locale || undefined) }}</span>
           <span>{{ $t("notifications.alert.cooldown") }}</span>
           <span>{{ formatDuration(alert.cooldown || 300, locale || undefined) }}</span>
+        </template>
+        <template v-else-if="alert.eventExpression">
+          <span>{{ $t("notifications.alert.event-filter") }}</span>
+          <code class="bg-base-200 text-base-content rounded px-2 py-0.5 font-mono">{{ alert.eventExpression }}</code>
+          <template v-if="alert.cooldown">
+            <span>{{ $t("notifications.alert.cooldown") }}</span>
+            <span>{{ formatDuration(alert.cooldown, locale || undefined) }}</span>
+          </template>
         </template>
         <template v-else>
           <span>{{ $t("notifications.alert.log-filter") }}</span>

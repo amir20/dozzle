@@ -29,6 +29,10 @@ type persistingNotificationHandler struct {
 	configPath string
 }
 
+func (h *persistingNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
+	return h.manager.GetNotificationStats()
+}
+
 func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	// Update the manager
 	if err := h.manager.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
@@ -88,7 +92,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	// Create notification manager using the shared client service
 	const notificationConfigPath = "./data/notifications.yml"
 	clients := []container_support.ClientService{clientService}
-	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients), notification.NewContainerStatsListener(ctx, clients))
+	notificationManager := notification.NewManager(
+		notification.NewContainerLogListener(ctx, clients),
+		notification.NewContainerStatsListener(ctx, clients),
+		notification.NewContainerEventListener(ctx, clients),
+	)
 
 	// Start first so matcher is available for LoadConfig
 	if err := notificationManager.Start(); err != nil {

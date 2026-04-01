@@ -184,6 +184,93 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 	})
 }
 
+// processDockerEvents processes Docker events from the event listener channel
+func (m *Manager) processDockerEvents() {
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case event, ok := <-m.eventListener.Channel():
+			if !ok || event == nil {
+				return
+			}
+			m.processDockerEvent(event)
+		}
+	}
+}
+
+// processDockerEvent processes a single Docker event and sends notifications for matching event subscriptions
+func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
+	notificationContainer := FromContainerModel(event.Container, event.Host)
+	notificationEvent := types.NotificationEvent{
+		Name:       event.Event.Name,
+		ActorID:    event.Event.ActorID,
+		Attributes: event.Event.ActorAttributes,
+		Timestamp:  event.Event.Time,
+	}
+
+	m.subscriptions.Range(func(_ int, sub *Subscription) bool {
+		if !sub.Enabled || !sub.IsEventAlert() {
+			return true
+		}
+
+		if !sub.MatchesContainer(notificationContainer) {
+			return true
+		}
+
+		if !sub.MatchesEvent(notificationEvent) {
+			return true
+		}
+
+		if sub.IsEventCooldownActive(event.Event.ActorID) {
+			return true
+		}
+
+		if sub.Cooldown > 0 {
+			sub.SetEventCooldown(event.Event.ActorID)
+		}
+
+		sub.AddTriggeredContainer(event.Event.ActorID)
+		sub.TriggerCount.Add(1)
+		now := time.Now()
+		sub.LastTriggeredAt.Store(&now)
+
+		log.Debug().
+			Str("containerID", event.Event.ActorID).
+			Str("event", event.Event.Name).
+			Str("subscription", sub.Name).
+			Msg("Event alert triggered")
+
+		detail := fmt.Sprintf("Container event: %s", event.Event.Name)
+		if exitCode, ok := event.Event.ActorAttributes["exitCode"]; ok && event.Event.Name == "die" {
+			detail = fmt.Sprintf("Container event: %s (exit code %s)", event.Event.Name, exitCode)
+		}
+
+		notification := types.Notification{
+			ID:        fmt.Sprintf("%s-event-%d", event.Event.ActorID, time.Now().UnixNano()),
+			Type:      types.EventNotification,
+			Detail:    detail,
+			Container: notificationContainer,
+			Event:     &notificationEvent,
+			Subscription: types.SubscriptionConfig{
+				ID:                  sub.ID,
+				Name:                sub.Name,
+				Enabled:             sub.Enabled,
+				DispatcherID:        sub.DispatcherID,
+				EventExpression:     sub.EventExpression,
+				ContainerExpression: sub.ContainerExpression,
+				Cooldown:            sub.Cooldown,
+			},
+			Timestamp: time.Now(),
+		}
+
+		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+			go m.sendNotification(d, notification, sub.DispatcherID)
+		}
+		return true
+	})
+}
+
 func formatLogMessage(message any) string {
 	switch v := message.(type) {
 	case string:

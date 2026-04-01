@@ -5,7 +5,6 @@ export function formatDuration(seconds: number, locale: string | undefined): str
   const duration = { hours, minutes, seconds: secs };
 
   if (typeof Intl !== "undefined" && "DurationFormat" in Intl) {
-    // @ts-expect-error DurationFormat is not yet in all TS lib types
     return new Intl.DurationFormat(locale, { style: "narrow" }).format(duration);
   }
 

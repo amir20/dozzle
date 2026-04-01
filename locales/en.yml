@@ -177,6 +177,7 @@ notifications:
   add-destination: Add destination
   alerts: Alerts
   add: Add
+  add-alert: Add alert
   filter:
     all: All ({count})
     enabled: Enabled ({count})
@@ -187,6 +188,7 @@ notifications:
     containers: Containers
     log-filter: Log filter
     metric-filter: Metric
+    event-filter: Event
     cooldown: Cooldown
     sample-window: Sample window
     destination: Destination
@@ -225,9 +227,13 @@ notifications:
     sample-window-hint: "Alert triggers when condition is met for {duration}"
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
+    no-cooldown: No cooldown
     alert-type: Alert Type
     log-alert: Log Alert
     metric-alert: Metric Alert
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Add Destination
     edit-title: Edit Destination

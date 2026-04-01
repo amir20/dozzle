@@ -30,6 +30,7 @@ import (
 // NotificationConfigHandler handles notification config updates received from the main server
 type NotificationConfigHandler interface {
 	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+	GetNotificationStats() []types.SubscriptionStats
 }
 
 // ClientService is the interface for container operations used by the agent server
@@ -57,6 +58,10 @@ type server struct {
 }
 
 func newServer(service ClientService, dozzleVersion string, notificationHandler NotificationConfigHandler) pb.AgentServiceServer {
+	if notificationHandler == nil {
+		log.Fatal().Msg("No notification config handler registered")
+	}
+
 	return &server{
 		service:                   service,
 		version:                   dozzleVersion,
@@ -165,10 +170,11 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 		case event := <-events:
 			out.Send(&pb.StreamEventsResponse{
 				Event: &pb.ContainerEvent{
-					ActorId:   event.ActorID,
-					Name:      event.Name,
-					Host:      event.Host,
-					Timestamp: timestamppb.New(event.Time),
+					ActorId:         event.ActorID,
+					Name:            event.Name,
+					Host:            event.Host,
+					Timestamp:       timestamppb.New(event.Time),
+					ActorAttributes: event.ActorAttributes,
 				},
 			})
 		case <-out.Context().Done():
@@ -389,11 +395,6 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 }
 
 func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNotificationConfigRequest) (*pb.UpdateNotificationConfigResponse, error) {
-	if s.notificationConfigHandler == nil {
-		log.Warn().Msg("No notification config handler registered, ignoring config update")
-		return &pb.UpdateNotificationConfigResponse{}, nil
-	}
-
 	// Validate request sizes to prevent memory exhaustion
 	const maxSubscriptions = 1000
 	const maxDispatchers = 100
@@ -417,6 +418,7 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            int(sub.Cooldown),
 			SampleWindow:        int(sub.SampleWindow),
+			EventExpression:     sub.EventExpression,
 		}
 	}
 
@@ -430,6 +432,12 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			URL:      d.Url,
 			Template: d.Template,
 			Headers:  d.Headers,
+			APIKey:   d.ApiKey,
+			Prefix:   d.Prefix,
+		}
+		if d.ExpiresAt != nil {
+			t := d.ExpiresAt.AsTime()
+			dispatchers[i].ExpiresAt = &t
 		}
 	}
 
@@ -441,6 +449,25 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 
 	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
 	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificationStatsRequest) (*pb.GetNotificationStatsResponse, error) {
+	stats := s.notificationConfigHandler.GetNotificationStats()
+
+	pbStats := make([]*pb.NotificationSubscriptionStats, len(stats))
+	for i, s := range stats {
+		pbStat := &pb.NotificationSubscriptionStats{
+			SubscriptionId:        int32(s.SubscriptionID),
+			TriggerCount:          s.TriggerCount,
+			TriggeredContainerIds: s.TriggeredContainerIDs,
+		}
+		if s.LastTriggeredAt != nil {
+			pbStat.LastTriggeredAt = timestamppb.New(*s.LastTriggeredAt)
+		}
+		pbStats[i] = pbStat
+	}
+
+	return &pb.GetNotificationStatsResponse{Stats: pbStats}, nil
 }
 
 func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {

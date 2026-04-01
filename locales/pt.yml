@@ -166,6 +166,7 @@ notifications:
   destinations: Destinos
   add-destination: Adicionar destino
   alerts: Alertas
+  add-alert: Adicionar alerta
   add: Adicionar
   filter:
     all: Todos ({count})
@@ -177,6 +178,7 @@ notifications:
     containers: Containers
     log-filter: Filtro de log
     metric-filter: Métrica
+    event-filter: Event
     cooldown: Tempo de espera
     sample-window: Janela de amostragem
     destination: Destino
@@ -215,9 +217,13 @@ notifications:
     sample-window-hint: "O alerta é acionado quando a condição é atendida por {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por container"
+    no-cooldown: No cooldown
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino

@@ -167,6 +167,7 @@ notifications:
   destinations: 目标
   add-destination: 添加目标
   alerts: 警报
+  add-alert: 添加警报
   add: 添加
   filter:
     all: 全部 ({count})
@@ -178,6 +179,7 @@ notifications:
     containers: 容器
     log-filter: 日志筛选器
     metric-filter: 指标
+    event-filter: Event
     cooldown: 冷却时间
     sample-window: 采样窗口
     destination: 目标
@@ -216,9 +218,13 @@ notifications:
     sample-window-hint: "当条件在 {duration} 内满足时触发警报"
     cooldown-label: 冷却时间
     cooldown-hint: "每个容器警报间隔 {duration}"
+    no-cooldown: No cooldown
     alert-type: 警报类型
     log-alert: 日志警报
     metric-alert: 指标警报
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: 添加目标
     edit-title: 编辑目标

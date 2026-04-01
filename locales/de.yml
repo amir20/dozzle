@@ -167,6 +167,7 @@ notifications:
   destinations: Ziele
   add-destination: Ziel hinzufügen
   alerts: Alarme
+  add-alert: Alarm hinzufügen
   add: Hinzufügen
   filter:
     all: Alle ({count})
@@ -178,6 +179,7 @@ notifications:
     containers: Container
     log-filter: Log-Filter
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Abklingzeit
     sample-window: Zeitfenster
     destination: Ziel
@@ -216,9 +218,13 @@ notifications:
     sample-window-hint: "Alarm wird ausgelöst, wenn Bedingung für {duration} erfüllt ist"
     cooldown-label: Abklingzeit
     cooldown-hint: "{duration} zwischen Alarmen pro Container"
+    no-cooldown: No cooldown
     alert-type: Alarmtyp
     log-alert: Log-Alarm
     metric-alert: Metrik-Alarm
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Ziel hinzufügen
     edit-title: Ziel bearbeiten

@@ -70,6 +70,7 @@ message ContainerEvent {
   string name = 2;
   string host = 3;
   google.protobuf.Timestamp timestamp = 4;
+  map<string, string> actorAttributes = 5;
 }
 
 message Host {
@@ -103,6 +104,7 @@ message NotificationSubscription {
   string metricExpression = 7;
   int32 cooldown = 8;
   int32 sampleWindow = 9;
+  string eventExpression = 10;
 }
 
 message NotificationDispatcher {
@@ -112,4 +114,14 @@ message NotificationDispatcher {
   string url = 4;
   string template = 5;
   map<string, string> headers = 6;
+  string apiKey = 7;
+  string prefix = 8;
+  google.protobuf.Timestamp expiresAt = 9;
+}
+
+message NotificationSubscriptionStats {
+  int32 subscriptionId = 1;
+  int64 triggerCount = 2;
+  google.protobuf.Timestamp lastTriggeredAt = 3;
+  repeated string triggeredContainerIds = 4;
 }

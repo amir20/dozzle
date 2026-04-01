@@ -167,6 +167,7 @@ notifications:
   destinations: Hedefler
   add-destination: Hedef ekle
   alerts: Uyarılar
+  add-alert: Uyarı ekle
   add: Ekle
   filter:
     all: Tümü ({count})
@@ -178,6 +179,7 @@ notifications:
     containers: Konteynerler
     log-filter: Günlük filtresi
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Bekleme süresi
     sample-window: Örnek penceresi
     destination: Hedef
@@ -216,9 +218,13 @@ notifications:
     sample-window-hint: "Koşul {duration} boyunca karşılandığında uyarı tetiklenir"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
+    no-cooldown: No cooldown
     alert-type: Uyarı Türü
     log-alert: Günlük Uyarısı
     metric-alert: Metrik Uyarısı
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle
