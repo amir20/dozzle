@@ -32,7 +32,7 @@ var content embed.FS
 //go:embed shared_cert.pem shared_key.pem
 var certs embed.FS
 
-//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto ./protos/cloud.proto
 func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
