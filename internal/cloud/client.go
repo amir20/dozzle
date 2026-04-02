@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/amir20/dozzle/internal/agent/pb"
+	"github.com/amir20/dozzle/internal/cloud/pb"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/rs/zerolog/log"
@@ -20,23 +19,26 @@ import (
 )
 
 const (
-	initialBackoff = 1 * time.Second
-	maxBackoff     = 30 * time.Second
-	backoffFactor  = 2
-	jitterFraction = 0.1
+	initialBackoff  = 1 * time.Second
+	maxBackoff      = 30 * time.Second
+	backoffFactor   = 2
+	jitterFraction  = 0.1
+	apiKeyPollDelay = 30 * time.Second
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	apiKey        string
 	enableActions bool
 	labels        container.ContainerLabels
 	hostService   ToolHostService
+	apiKeyFunc    func() string
 	target        string
 }
 
-// NewClient creates a new cloud gRPC client
-func NewClient(apiKey string, enableActions bool, labels container.ContainerLabels, hostService ToolHostService) *Client {
+// NewClient creates a new cloud gRPC client.
+// apiKeyFunc is called to get the current cloud API key — it may return ""
+// if no cloud dispatcher is configured yet, in which case the client waits.
+func NewClient(enableActions bool, labels container.ContainerLabels, hostService ToolHostService, apiKeyFunc func() string) *Client {
 	cloudURL := os.Getenv("DOLIGENCE_URL")
 	if cloudURL == "" {
 		cloudURL = "https://doligence.dozzle.dev"
@@ -51,32 +53,47 @@ func NewClient(apiKey string, enableActions bool, labels container.ContainerLabe
 	}
 
 	return &Client{
-		apiKey:        apiKey,
 		enableActions: enableActions,
 		labels:        labels,
 		hostService:   hostService,
+		apiKeyFunc:    apiKeyFunc,
 		target:        target,
 	}
 }
 
 // Run starts the cloud client loop. It connects to the cloud gRPC endpoint
 // and processes tool requests. Reconnects automatically on failure.
+// If no cloud API key is configured, it polls until one appears.
 // Blocks until ctx is cancelled.
 func (c *Client) Run(ctx context.Context) {
 	backoff := initialBackoff
 
 	for {
-		err := c.connect(ctx)
+		apiKey := c.apiKeyFunc()
+		if apiKey == "" {
+			// No cloud dispatcher configured yet, wait and check again
+			log.Debug().Msg("no cloud API key found, waiting for cloud setup")
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(apiKeyPollDelay):
+			}
+			continue
+		}
+
+		wasConnected, err := c.connect(ctx, apiKey)
 		if ctx.Err() != nil {
 			log.Debug().Msg("cloud client stopped")
 			return
 		}
 
-		if err != nil {
-			log.Warn().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
-		} else {
-			// Reset backoff after a successful connection that later disconnected
+		if wasConnected {
+			// Was connected and then disconnected — reset backoff
 			backoff = initialBackoff
+		}
+
+		if err != nil {
+			log.Debug().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
 		}
 
 		jitter := time.Duration(float64(backoff) * jitterFraction * rand.Float64())
@@ -90,27 +107,31 @@ func (c *Client) Run(ctx context.Context) {
 	}
 }
 
-func (c *Client) connect(ctx context.Context) error {
+// connect establishes a gRPC stream to the cloud and processes requests.
+// Returns wasConnected=true if the stream was successfully established and
+// at least one message was received before disconnecting.
+func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool, err error) {
+	// Uses system cert pool for TLS to the public cloud endpoint
 	conn, err := grpc.NewClient(c.target,
 		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")),
 		grpc.WithUserAgent(dispatcher.UserAgent),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to dial cloud: %w", err)
+		return false, fmt.Errorf("failed to dial cloud: %w", err)
 	}
 	defer conn.Close()
 
 	client := pb.NewCloudToolServiceClient(conn)
 
-	md := metadata.Pairs("x-api-key", c.apiKey)
+	md := metadata.Pairs("x-api-key", apiKey)
 	streamCtx := metadata.NewOutgoingContext(ctx, md)
 
 	stream, err := client.ToolStream(streamCtx)
 	if err != nil {
-		return fmt.Errorf("failed to open tool stream: %w", err)
+		return false, fmt.Errorf("failed to open tool stream: %w", err)
 	}
 
-	log.Info().Str("target", c.target).Msg("connected to cloud tool service")
+	log.Debug().Str("target", c.target).Msg("connected to cloud tool service")
 
 	// Use stream context so tool executions are tied to the stream lifetime
 	streamLifetime := stream.Context()
@@ -118,51 +139,16 @@ func (c *Client) connect(ctx context.Context) error {
 	for {
 		req, err := stream.Recv()
 		if err != nil {
-			return fmt.Errorf("stream recv error: %w", err)
+			return wasConnected, fmt.Errorf("stream recv error: %w", err)
 		}
+		wasConnected = true
 
 		resp := c.handleRequest(streamLifetime, req)
 
 		if err := stream.Send(resp); err != nil {
-			return fmt.Errorf("stream send error: %w", err)
+			return wasConnected, fmt.Errorf("stream send error: %w", err)
 		}
 	}
-}
-
-// CheckProPlan checks if the cloud API key has a pro plan by calling the status endpoint.
-func CheckProPlan(ctx context.Context, apiKey string) (bool, error) {
-	cloudURL := os.Getenv("DOLIGENCE_URL")
-	if cloudURL == "" {
-		cloudURL = "https://doligence.dozzle.dev"
-	}
-
-	statusURL := fmt.Sprintf("%s/api/status", cloudURL)
-	client := &http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, statusURL, nil)
-	if err != nil {
-		return false, fmt.Errorf("failed to create status request: %w", err)
-	}
-	req.Header.Set("User-Agent", dispatcher.UserAgent)
-	req.Header.Set("X-API-Key", apiKey)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return false, fmt.Errorf("failed to check cloud status: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return false, nil
-	}
-
-	var status struct {
-		Plan string `json:"plan"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {
-		return false, fmt.Errorf("failed to decode status response: %w", err)
-	}
-
-	return status.Plan == "pro", nil
 }
 
 func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.ToolResponse {
@@ -173,14 +159,14 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 	switch t := req.Type.(type) {
 	case *pb.ToolRequest_ListTools:
 		tools := AvailableTools(c.enableActions)
-		toolsJSON := make([]string, len(tools))
-		for i, tool := range tools {
+		var toolsJSON []string
+		for _, tool := range tools {
 			data, err := json.Marshal(tool)
 			if err != nil {
 				log.Error().Err(err).Str("tool", tool.Name).Msg("failed to marshal tool definition")
 				continue
 			}
-			toolsJSON[i] = string(data)
+			toolsJSON = append(toolsJSON, string(data))
 		}
 		resp.Type = &pb.ToolResponse_ListTools{
 			ListTools: &pb.ListToolsResponse{

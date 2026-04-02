@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protobuf;
 
-option go_package = "internal/agent/pb";
+option go_package = "internal/cloud/pb";
 
 service CloudToolService {
   // Dozzle sends ToolResponse, cloud sends ToolRequest

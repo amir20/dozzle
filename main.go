@@ -33,7 +33,8 @@ var content embed.FS
 //go:embed shared_cert.pem shared_key.pem
 var certs embed.FS
 
-//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto ./protos/cloud.proto
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/cloud.proto
 func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
@@ -125,40 +126,21 @@ func main() {
 
 	srv := createServer(args, hostService)
 
-	// Start cloud tool client if a cloud dispatcher is configured with pro plan
-	go func() {
-		dispatchers := hostService.Dispatchers()
-		var apiKey string
-		for _, d := range dispatchers {
+	// Start cloud tool client — polls for cloud API key if not yet configured
+	adapter := &cloud.HostServiceAdapter{
+		ListAllContainersFunc: hostService.ListAllContainers,
+		FindContainerFunc:     hostService.FindContainer,
+	}
+	apiKeyFunc := func() string {
+		for _, d := range hostService.Dispatchers() {
 			if d.Type == "cloud" && d.APIKey != "" {
-				apiKey = d.APIKey
-				break
+				return d.APIKey
 			}
 		}
-
-		if apiKey == "" {
-			return
-		}
-
-		isPro, err := cloud.CheckProPlan(ctx, apiKey)
-		if err != nil {
-			log.Warn().Err(err).Msg("failed to check cloud pro plan status")
-			return
-		}
-
-		if !isPro {
-			log.Info().Msg("cloud account is not on pro plan, skipping tool service")
-			return
-		}
-
-		log.Info().Msg("starting cloud tool service client")
-		adapter := &cloud.HostServiceAdapter{
-			ListAllContainersFunc: hostService.ListAllContainers,
-			FindContainerFunc:     hostService.FindContainer,
-		}
-		cloudClient := cloud.NewClient(apiKey, args.EnableActions, args.Filter, adapter)
-		cloudClient.Run(ctx)
-	}()
+		return ""
+	}
+	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, adapter, apiKeyFunc)
+	go cloudClient.Run(ctx)
 
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)

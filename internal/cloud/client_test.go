@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/amir20/dozzle/internal/agent/pb"
+	"github.com/amir20/dozzle/internal/cloud/pb"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -12,13 +12,13 @@ import (
 
 func TestNewClient_DefaultURL(t *testing.T) {
 	t.Setenv("DOLIGENCE_URL", "")
-	client := NewClient("test-key", true, nil, nil)
+	client := NewClient(true, nil, nil, func() string { return "test-key" })
 	assert.Equal(t, "doligence.dozzle.dev:443", client.target)
 }
 
 func TestNewClient_CustomURL(t *testing.T) {
 	t.Setenv("DOLIGENCE_URL", "https://custom.cloud.dev")
-	client := NewClient("test-key", true, nil, nil)
+	client := NewClient(true, nil, nil, func() string { return "test-key" })
 	assert.Equal(t, "custom.cloud.dev:443", client.target)
 }
 

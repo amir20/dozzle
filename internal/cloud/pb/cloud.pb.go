@@ -426,7 +426,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05error\x18\x03 \x01(\tR\x05error2S\n" +
 	"\x10CloudToolService\x12?\n" +
 	"\n" +
-	"ToolStream\x12\x16.protobuf.ToolResponse\x1a\x15.protobuf.ToolRequest(\x010\x01B\x13Z\x11internal/agent/pbb\x06proto3"
+	"ToolStream\x12\x16.protobuf.ToolResponse\x1a\x15.protobuf.ToolRequest(\x010\x01B\x13Z\x11internal/cloud/pbb\x06proto3"
 
 var (
 	file_cloud_proto_rawDescOnce sync.Once
