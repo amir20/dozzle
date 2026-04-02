@@ -7,6 +7,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
 )
@@ -141,7 +142,12 @@ func ExecuteTool(ctx context.Context, name string, argsJSON string, hostService 
 }
 
 func executeListContainers(hostService ToolHostService, labels container.ContainerLabels) (string, error) {
-	containers, _ := hostService.ListAllContainers(labels)
+	containers, errs := hostService.ListAllContainers(labels)
+	for _, err := range errs {
+		if err != nil {
+			log.Warn().Err(err).Msg("error listing containers from host")
+		}
+	}
 
 	results := make([]containerResult, len(containers))
 	for i, c := range containers {

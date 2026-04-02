@@ -74,6 +74,9 @@ func (c *Client) Run(ctx context.Context) {
 
 		if err != nil {
 			log.Warn().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
+		} else {
+			// Reset backoff after a successful connection that later disconnected
+			backoff = initialBackoff
 		}
 
 		jitter := time.Duration(float64(backoff) * jitterFraction * rand.Float64())
@@ -109,13 +112,16 @@ func (c *Client) connect(ctx context.Context) error {
 
 	log.Info().Str("target", c.target).Msg("connected to cloud tool service")
 
+	// Use stream context so tool executions are tied to the stream lifetime
+	streamLifetime := stream.Context()
+
 	for {
 		req, err := stream.Recv()
 		if err != nil {
 			return fmt.Errorf("stream recv error: %w", err)
 		}
 
-		resp := c.handleRequest(ctx, req)
+		resp := c.handleRequest(streamLifetime, req)
 
 		if err := stream.Send(resp); err != nil {
 			return fmt.Errorf("stream send error: %w", err)
