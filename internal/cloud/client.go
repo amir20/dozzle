@@ -3,6 +3,7 @@ package cloud
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"os"
@@ -16,9 +17,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -105,6 +108,10 @@ func (c *Client) Run(ctx context.Context) {
 		}
 
 		if err != nil {
+			if isPermissionDenied(err) {
+				log.Debug().Msg("cloud account does not have pro plan, stopping cloud client")
+				return
+			}
 			log.Debug().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
 		}
 
@@ -246,4 +253,13 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 	}
 
 	return resp
+}
+
+func isPermissionDenied(err error) bool {
+	for e := err; e != nil; e = errors.Unwrap(e) {
+		if s, ok := status.FromError(e); ok && s.Code() == codes.PermissionDenied {
+			return true
+		}
+	}
+	return false
 }

@@ -180,6 +180,8 @@ func executeContainerAction(ctx context.Context, argsJSON string, action contain
 		return "", fmt.Errorf("container_id is required")
 	}
 
+	log.Debug().Str("action", string(action)).Str("container", args.ContainerID).Msg("executing cloud container action")
+
 	// FindContainer searches across all hosts when host is empty
 	cs, err := hostService.FindContainer("", args.ContainerID, labels)
 	if err != nil {
