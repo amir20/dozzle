@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package protobuf;
+package cloud;
 
 option go_package = "internal/cloud/pb";
 

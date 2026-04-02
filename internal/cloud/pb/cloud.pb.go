@@ -397,20 +397,20 @@ var File_cloud_proto protoreflect.FileDescriptor
 
 const file_cloud_proto_rawDesc = "" +
 	"\n" +
-	"\vcloud.proto\x12\bprotobuf\"\xab\x01\n" +
+	"\vcloud.proto\x12\x05cloud\"\xa5\x01\n" +
 	"\vToolRequest\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12;\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x128\n" +
 	"\n" +
-	"list_tools\x18\x02 \x01(\v2\x1a.protobuf.ListToolsRequestH\x00R\tlistTools\x128\n" +
-	"\tcall_tool\x18\x03 \x01(\v2\x19.protobuf.CallToolRequestH\x00R\bcallToolB\x06\n" +
-	"\x04type\"\xae\x01\n" +
+	"list_tools\x18\x02 \x01(\v2\x17.cloud.ListToolsRequestH\x00R\tlistTools\x125\n" +
+	"\tcall_tool\x18\x03 \x01(\v2\x16.cloud.CallToolRequestH\x00R\bcallToolB\x06\n" +
+	"\x04type\"\xa8\x01\n" +
 	"\fToolResponse\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x01 \x01(\tR\trequestId\x12<\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x129\n" +
 	"\n" +
-	"list_tools\x18\x02 \x01(\v2\x1b.protobuf.ListToolsResponseH\x00R\tlistTools\x129\n" +
-	"\tcall_tool\x18\x03 \x01(\v2\x1a.protobuf.CallToolResponseH\x00R\bcallToolB\x06\n" +
+	"list_tools\x18\x02 \x01(\v2\x18.cloud.ListToolsResponseH\x00R\tlistTools\x126\n" +
+	"\tcall_tool\x18\x03 \x01(\v2\x17.cloud.CallToolResponseH\x00R\bcallToolB\x06\n" +
 	"\x04type\"\x12\n" +
 	"\x10ListToolsRequest\"2\n" +
 	"\x11ListToolsResponse\x12\x1d\n" +
@@ -423,10 +423,10 @@ const file_cloud_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1f\n" +
 	"\vresult_json\x18\x02 \x01(\tR\n" +
 	"resultJson\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error2S\n" +
-	"\x10CloudToolService\x12?\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error2M\n" +
+	"\x10CloudToolService\x129\n" +
 	"\n" +
-	"ToolStream\x12\x16.protobuf.ToolResponse\x1a\x15.protobuf.ToolRequest(\x010\x01B\x13Z\x11internal/cloud/pbb\x06proto3"
+	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B\x13Z\x11internal/cloud/pbb\x06proto3"
 
 var (
 	file_cloud_proto_rawDescOnce sync.Once
@@ -442,20 +442,20 @@ func file_cloud_proto_rawDescGZIP() []byte {
 
 var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_cloud_proto_goTypes = []any{
-	(*ToolRequest)(nil),       // 0: protobuf.ToolRequest
-	(*ToolResponse)(nil),      // 1: protobuf.ToolResponse
-	(*ListToolsRequest)(nil),  // 2: protobuf.ListToolsRequest
-	(*ListToolsResponse)(nil), // 3: protobuf.ListToolsResponse
-	(*CallToolRequest)(nil),   // 4: protobuf.CallToolRequest
-	(*CallToolResponse)(nil),  // 5: protobuf.CallToolResponse
+	(*ToolRequest)(nil),       // 0: cloud.ToolRequest
+	(*ToolResponse)(nil),      // 1: cloud.ToolResponse
+	(*ListToolsRequest)(nil),  // 2: cloud.ListToolsRequest
+	(*ListToolsResponse)(nil), // 3: cloud.ListToolsResponse
+	(*CallToolRequest)(nil),   // 4: cloud.CallToolRequest
+	(*CallToolResponse)(nil),  // 5: cloud.CallToolResponse
 }
 var file_cloud_proto_depIdxs = []int32{
-	2, // 0: protobuf.ToolRequest.list_tools:type_name -> protobuf.ListToolsRequest
-	4, // 1: protobuf.ToolRequest.call_tool:type_name -> protobuf.CallToolRequest
-	3, // 2: protobuf.ToolResponse.list_tools:type_name -> protobuf.ListToolsResponse
-	5, // 3: protobuf.ToolResponse.call_tool:type_name -> protobuf.CallToolResponse
-	1, // 4: protobuf.CloudToolService.ToolStream:input_type -> protobuf.ToolResponse
-	0, // 5: protobuf.CloudToolService.ToolStream:output_type -> protobuf.ToolRequest
+	2, // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
+	4, // 1: cloud.ToolRequest.call_tool:type_name -> cloud.CallToolRequest
+	3, // 2: cloud.ToolResponse.list_tools:type_name -> cloud.ListToolsResponse
+	5, // 3: cloud.ToolResponse.call_tool:type_name -> cloud.CallToolResponse
+	1, // 4: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	0, // 5: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
 	5, // [5:6] is the sub-list for method output_type
 	4, // [4:5] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

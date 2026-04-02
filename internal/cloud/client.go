@@ -13,8 +13,10 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -24,6 +26,7 @@ const (
 	backoffFactor   = 2
 	jitterFraction  = 0.1
 	apiKeyPollDelay = 30 * time.Second
+	maxConcurrent   = 5
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -33,6 +36,8 @@ type Client struct {
 	hostService   ToolHostService
 	apiKeyFunc    func() string
 	target        string
+	plaintext     bool
+	toolSem       *semaphore.Weighted
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -44,12 +49,18 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 		cloudURL = "https://doligence.dozzle.dev"
 	}
 
-	// Convert https://host to host:443 for gRPC dial target
+	// Support plaintext for local dev (DOLIGENCE_URL=http://localhost:7008)
+	plaintext := strings.HasPrefix(cloudURL, "http://")
+
 	target := cloudURL
 	target = strings.TrimPrefix(target, "https://")
 	target = strings.TrimPrefix(target, "http://")
 	if !strings.Contains(target, ":") {
-		target = target + ":443"
+		if plaintext {
+			target = target + ":80"
+		} else {
+			target = target + ":443"
+		}
 	}
 
 	return &Client{
@@ -58,6 +69,8 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 		hostService:   hostService,
 		apiKeyFunc:    apiKeyFunc,
 		target:        target,
+		plaintext:     plaintext,
+		toolSem:       semaphore.NewWeighted(maxConcurrent),
 	}
 }
 
@@ -71,7 +84,6 @@ func (c *Client) Run(ctx context.Context) {
 	for {
 		apiKey := c.apiKeyFunc()
 		if apiKey == "" {
-			// No cloud dispatcher configured yet, wait and check again
 			log.Debug().Msg("no cloud API key found, waiting for cloud setup")
 			select {
 			case <-ctx.Done():
@@ -88,7 +100,6 @@ func (c *Client) Run(ctx context.Context) {
 		}
 
 		if wasConnected {
-			// Was connected and then disconnected — reset backoff
 			backoff = initialBackoff
 		}
 
@@ -111,11 +122,14 @@ func (c *Client) Run(ctx context.Context) {
 // Returns wasConnected=true if the stream was successfully established and
 // at least one message was received before disconnecting.
 func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool, err error) {
-	// Uses system cert pool for TLS to the public cloud endpoint
-	conn, err := grpc.NewClient(c.target,
-		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")),
-		grpc.WithUserAgent(dispatcher.UserAgent),
-	)
+	var creds grpc.DialOption
+	if c.plaintext {
+		creds = grpc.WithTransportCredentials(insecure.NewCredentials())
+	} else {
+		creds = grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))
+	}
+
+	conn, err := grpc.NewClient(c.target, creds, grpc.WithUserAgent(dispatcher.UserAgent))
 	if err != nil {
 		return false, fmt.Errorf("failed to dial cloud: %w", err)
 	}
@@ -133,7 +147,6 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 
 	log.Debug().Str("target", c.target).Msg("connected to cloud tool service")
 
-	// Use stream context so tool executions are tied to the stream lifetime
 	streamLifetime := stream.Context()
 
 	for {
@@ -143,10 +156,35 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		}
 		wasConnected = true
 
-		resp := c.handleRequest(streamLifetime, req)
-
-		if err := stream.Send(resp); err != nil {
-			return wasConnected, fmt.Errorf("stream send error: %w", err)
+		// List tools is fast — handle inline. Tool calls run concurrently with a semaphore.
+		if _, ok := req.Type.(*pb.ToolRequest_CallTool); ok {
+			if !c.toolSem.TryAcquire(1) {
+				resp := &pb.ToolResponse{
+					RequestId: req.RequestId,
+					Type: &pb.ToolResponse_CallTool{
+						CallTool: &pb.CallToolResponse{
+							Success: false,
+							Error:   "too many concurrent tool calls",
+						},
+					},
+				}
+				if err := stream.Send(resp); err != nil {
+					return wasConnected, fmt.Errorf("stream send error: %w", err)
+				}
+				continue
+			}
+			go func() {
+				defer c.toolSem.Release(1)
+				resp := c.handleRequest(streamLifetime, req)
+				if err := stream.Send(resp); err != nil {
+					log.Debug().Err(err).Msg("failed to send tool response")
+				}
+			}()
+		} else {
+			resp := c.handleRequest(streamLifetime, req)
+			if err := stream.Send(resp); err != nil {
+				return wasConnected, fmt.Errorf("stream send error: %w", err)
+			}
 		}
 	}
 }

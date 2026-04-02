@@ -20,6 +20,14 @@ func TestNewClient_CustomURL(t *testing.T) {
 	t.Setenv("DOLIGENCE_URL", "https://custom.cloud.dev")
 	client := NewClient(true, nil, nil, func() string { return "test-key" })
 	assert.Equal(t, "custom.cloud.dev:443", client.target)
+	assert.False(t, client.plaintext)
+}
+
+func TestNewClient_PlaintextURL(t *testing.T) {
+	t.Setenv("DOLIGENCE_URL", "http://localhost:7008")
+	client := NewClient(true, nil, nil, func() string { return "test-key" })
+	assert.Equal(t, "localhost:7008", client.target)
+	assert.True(t, client.plaintext)
 }
 
 func TestHandleRequest_ListTools(t *testing.T) {

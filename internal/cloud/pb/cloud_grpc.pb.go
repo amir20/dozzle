@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CloudToolService_ToolStream_FullMethodName = "/protobuf.CloudToolService/ToolStream"
+	CloudToolService_ToolStream_FullMethodName = "/cloud.CloudToolService/ToolStream"
 )
 
 // CloudToolServiceClient is the client API for CloudToolService service.
@@ -102,7 +102,7 @@ type CloudToolService_ToolStreamServer = grpc.BidiStreamingServer[ToolResponse, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CloudToolService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protobuf.CloudToolService",
+	ServiceName: "cloud.CloudToolService",
 	HandlerType: (*CloudToolServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

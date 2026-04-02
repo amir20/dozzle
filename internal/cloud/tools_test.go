@@ -3,6 +3,7 @@ package cloud
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -54,7 +55,12 @@ type MockHostService struct {
 
 func (m *MockHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
 	args := m.Called(labels)
-	return args.Get(0).([]container.Container), nil
+	containers := args.Get(0).([]container.Container)
+	var errs []error
+	if args.Get(1) != nil {
+		errs = args.Get(1).([]error)
+	}
+	return containers, errs
 }
 
 func (m *MockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (ContainerActioner, error) {
@@ -105,6 +111,24 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	assert.Contains(t, result, "success")
 
 	mockActioner.AssertCalled(t, "Action", mock.Anything, container.Restart)
+}
+
+func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {
+	mockHost := &MockHostService{}
+	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return(
+		[]container.Container{
+			{ID: "abc123", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
+		},
+		[]error{fmt.Errorf("host2 unreachable")},
+	)
+
+	result, err := ExecuteTool(context.Background(), "list_containers", "", mockHost, nil)
+	assert.NoError(t, err)
+
+	var containers []map[string]any
+	err = json.Unmarshal([]byte(result), &containers)
+	assert.NoError(t, err)
+	assert.Len(t, containers, 1)
 }
 
 func TestExecuteTool_UnknownTool(t *testing.T) {
