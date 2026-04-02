@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand/v2"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -120,6 +121,42 @@ func (c *Client) connect(ctx context.Context) error {
 			return fmt.Errorf("stream send error: %w", err)
 		}
 	}
+}
+
+// CheckProPlan checks if the cloud API key has a pro plan by calling the status endpoint.
+func CheckProPlan(ctx context.Context, apiKey string) (bool, error) {
+	cloudURL := os.Getenv("DOLIGENCE_URL")
+	if cloudURL == "" {
+		cloudURL = "https://doligence.dozzle.dev"
+	}
+
+	statusURL := fmt.Sprintf("%s/api/status", cloudURL)
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, statusURL, nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to create status request: %w", err)
+	}
+	req.Header.Set("User-Agent", dispatcher.UserAgent)
+	req.Header.Set("X-API-Key", apiKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("failed to check cloud status: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, nil
+	}
+
+	var status struct {
+		Plan string `json:"plan"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {
+		return false, fmt.Errorf("failed to decode status response: %w", err)
+	}
+
+	return status.Plan == "pro", nil
 }
 
 func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.ToolResponse {

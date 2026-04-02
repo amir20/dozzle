@@ -16,6 +16,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -123,6 +124,42 @@ func main() {
 	}
 
 	srv := createServer(args, hostService)
+
+	// Start cloud tool client if a cloud dispatcher is configured with pro plan
+	go func() {
+		dispatchers := hostService.Dispatchers()
+		var apiKey string
+		for _, d := range dispatchers {
+			if d.Type == "cloud" && d.APIKey != "" {
+				apiKey = d.APIKey
+				break
+			}
+		}
+
+		if apiKey == "" {
+			return
+		}
+
+		isPro, err := cloud.CheckProPlan(ctx, apiKey)
+		if err != nil {
+			log.Warn().Err(err).Msg("failed to check cloud pro plan status")
+			return
+		}
+
+		if !isPro {
+			log.Info().Msg("cloud account is not on pro plan, skipping tool service")
+			return
+		}
+
+		log.Info().Msg("starting cloud tool service client")
+		adapter := &cloud.HostServiceAdapter{
+			ListAllContainersFunc: hostService.ListAllContainers,
+			FindContainerFunc:     hostService.FindContainer,
+		}
+		cloudClient := cloud.NewClient(apiKey, args.EnableActions, args.Filter, adapter)
+		cloudClient.Run(ctx)
+	}()
+
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {

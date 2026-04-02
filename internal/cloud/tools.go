@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
 )
@@ -19,6 +20,24 @@ type ContainerActioner interface {
 type ToolHostService interface {
 	ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error)
 	FindContainer(host string, id string, labels container.ContainerLabels) (ContainerActioner, error)
+}
+
+// HostServiceAdapter wraps the web.HostService to satisfy ToolHostService
+type HostServiceAdapter struct {
+	ListAllContainersFunc func(labels container.ContainerLabels) ([]container.Container, []error)
+	FindContainerFunc     func(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error)
+}
+
+func (a *HostServiceAdapter) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+	return a.ListAllContainersFunc(labels)
+}
+
+func (a *HostServiceAdapter) FindContainer(host string, id string, labels container.ContainerLabels) (ContainerActioner, error) {
+	cs, err := a.FindContainerFunc(host, id, labels)
+	if err != nil {
+		return nil, err
+	}
+	return cs, nil
 }
 
 type containerResult struct {
