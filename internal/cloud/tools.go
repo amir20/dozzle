@@ -121,17 +121,22 @@ func AvailableTools(enableActions bool) []FunctionDefinition {
 	return tools
 }
 
-// ExecuteTool dispatches a tool call by name and returns JSON result
-func ExecuteTool(ctx context.Context, name string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (string, error) {
+// ExecuteTool dispatches a tool call by name and returns JSON result.
+// enableActions must be true for action tools (start/stop/restart) to execute.
+func ExecuteTool(ctx context.Context, name string, argsJSON string, enableActions bool, hostService ToolHostService, labels container.ContainerLabels) (string, error) {
 	switch name {
 	case "find_containers":
 		return executeListContainers(hostService, labels)
-	case "start_container":
-		return executeContainerAction(ctx, argsJSON, container.Start, hostService, labels)
-	case "stop_container":
-		return executeContainerAction(ctx, argsJSON, container.Stop, hostService, labels)
-	case "restart_container":
-		return executeContainerAction(ctx, argsJSON, container.Restart, hostService, labels)
+	case "start_container", "stop_container", "restart_container":
+		if !enableActions {
+			return "", fmt.Errorf("container actions are not enabled")
+		}
+		actionMap := map[string]container.ContainerAction{
+			"start_container":   container.Start,
+			"stop_container":    container.Stop,
+			"restart_container": container.Restart,
+		}
+		return executeContainerAction(ctx, argsJSON, actionMap[name], hostService, labels)
 	default:
 		return "", fmt.Errorf("unknown tool: %s", name)
 	}

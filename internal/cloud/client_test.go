@@ -12,20 +12,20 @@ import (
 )
 
 func TestNewClient_DefaultURL(t *testing.T) {
-	t.Setenv("DOLIGENCE_URL", "")
+	t.Setenv("AGENT_URL", "")
 	client := NewClient(true, nil, nil, func() string { return "test-key" })
-	assert.Equal(t, "doligence.dozzle.dev:443", client.target)
+	assert.Equal(t, "agent.doligence.dozzle.dev:443", client.target)
 }
 
 func TestNewClient_CustomURL(t *testing.T) {
-	t.Setenv("DOLIGENCE_URL", "https://custom.cloud.dev")
+	t.Setenv("AGENT_URL", "https://custom.cloud.dev")
 	client := NewClient(true, nil, nil, func() string { return "test-key" })
 	assert.Equal(t, "custom.cloud.dev:443", client.target)
 	assert.False(t, client.plaintext)
 }
 
 func TestNewClient_PlaintextURL(t *testing.T) {
-	t.Setenv("DOLIGENCE_URL", "http://localhost:7008")
+	t.Setenv("AGENT_URL", "http://localhost:7008")
 	client := NewClient(true, nil, nil, func() string { return "test-key" })
 	assert.Equal(t, "localhost:7008", client.target)
 	assert.True(t, client.plaintext)
@@ -130,7 +130,8 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	client := &Client{
-		hostService: mockHost,
+		hostService:   mockHost,
+		enableActions: true,
 	}
 
 	req := &pb.ToolRequest{

@@ -119,7 +119,7 @@ func TestExecuteTool_ListContainers(t *testing.T) {
 		{ID: "def456", Name: "redis", Image: "redis:7", State: "running", Host: "local"},
 	}, nil)
 
-	result, err := ExecuteTool(context.Background(), "find_containers", "", mockHost, nil)
+	result, err := ExecuteTool(context.Background(), "find_containers", "", false, mockHost, nil)
 	assert.NoError(t, err)
 
 	var containers []map[string]any
@@ -140,11 +140,20 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123"}`
-	result, err := ExecuteTool(context.Background(), "restart_container", argsJSON, mockHost, nil)
+	result, err := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
 	assert.NoError(t, err)
 	assert.Contains(t, result, "success")
 
 	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
+}
+
+func TestExecuteTool_RestartContainer_ActionsDisabled(t *testing.T) {
+	mockHost := &MockHostService{}
+
+	argsJSON := `{"container_id": "abc123"}`
+	_, err := ExecuteTool(context.Background(), "restart_container", argsJSON, false, mockHost, nil)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "container actions are not enabled")
 }
 
 func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {
@@ -156,7 +165,7 @@ func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {
 		[]error{fmt.Errorf("host2 unreachable")},
 	)
 
-	result, err := ExecuteTool(context.Background(), "find_containers", "", mockHost, nil)
+	result, err := ExecuteTool(context.Background(), "find_containers", "", false, mockHost, nil)
 	assert.NoError(t, err)
 
 	var containers []map[string]any
@@ -168,7 +177,7 @@ func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {
 func TestExecuteTool_UnknownTool(t *testing.T) {
 	mockHost := &MockHostService{}
 
-	_, err := ExecuteTool(context.Background(), "unknown_tool", "", mockHost, nil)
+	_, err := ExecuteTool(context.Background(), "unknown_tool", "", false, mockHost, nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unknown tool")
 }

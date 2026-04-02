@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/cloud/pb"
@@ -44,12 +45,12 @@ type Client struct {
 // apiKeyFunc is called to get the current cloud API key — it may return ""
 // if no cloud dispatcher is configured yet, in which case the client waits.
 func NewClient(enableActions bool, labels container.ContainerLabels, hostService ToolHostService, apiKeyFunc func() string) *Client {
-	cloudURL := os.Getenv("DOLIGENCE_URL")
+	cloudURL := os.Getenv("AGENT_URL")
 	if cloudURL == "" {
-		cloudURL = "https://doligence.dozzle.dev"
+		cloudURL = "https://agent.doligence.dozzle.dev"
 	}
 
-	// Support plaintext for local dev (DOLIGENCE_URL=http://localhost:7008)
+	// Support plaintext for local dev (AGENT_URL=http://localhost:7008)
 	plaintext := strings.HasPrefix(cloudURL, "http://")
 
 	target := cloudURL
@@ -148,6 +149,13 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	log.Debug().Str("target", c.target).Msg("connected to cloud tool service")
 
 	streamLifetime := stream.Context()
+	var sendMu sync.Mutex
+
+	sendResp := func(resp *pb.ToolResponse) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		return stream.Send(resp)
+	}
 
 	for {
 		req, err := stream.Recv()
@@ -168,7 +176,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 						},
 					},
 				}
-				if err := stream.Send(resp); err != nil {
+				if err := sendResp(resp); err != nil {
 					return wasConnected, fmt.Errorf("stream send error: %w", err)
 				}
 				continue
@@ -179,13 +187,13 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 				if streamLifetime.Err() != nil {
 					return
 				}
-				if err := stream.Send(resp); err != nil {
+				if err := sendResp(resp); err != nil {
 					log.Debug().Err(err).Msg("failed to send tool response")
 				}
 			}()
 		} else {
 			resp := c.handleRequest(streamLifetime, req)
-			if err := stream.Send(resp); err != nil {
+			if err := sendResp(resp); err != nil {
 				return wasConnected, fmt.Errorf("stream send error: %w", err)
 			}
 		}
@@ -216,7 +224,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 		}
 
 	case *pb.ToolRequest_CallTool:
-		result, err := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.hostService, c.labels)
+		result, err := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.enableActions, c.hostService, c.labels)
 		if err != nil {
 			resp.Type = &pb.ToolResponse_CallTool{
 				CallTool: &pb.CallToolResponse{
