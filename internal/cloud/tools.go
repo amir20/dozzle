@@ -62,7 +62,7 @@ type containerActionArgs struct {
 func AvailableTools(enableActions bool) []FunctionDefinition {
 	tools := []FunctionDefinition{
 		{
-			Name:        "list_containers",
+			Name:        "find_containers",
 			Description: "List all Docker containers with their current state, name, image, and host",
 			Parameters: ParameterDefinition{
 				Type:       "object",
@@ -124,7 +124,7 @@ func AvailableTools(enableActions bool) []FunctionDefinition {
 // ExecuteTool dispatches a tool call by name and returns JSON result
 func ExecuteTool(ctx context.Context, name string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (string, error) {
 	switch name {
-	case "list_containers":
+	case "find_containers":
 		return executeListContainers(hostService, labels)
 	case "start_container":
 		return executeContainerAction(ctx, argsJSON, container.Start, hostService, labels)

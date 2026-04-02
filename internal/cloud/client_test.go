@@ -83,7 +83,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 		RequestId: "req-3",
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
-				Name:          "list_containers",
+				Name:          "find_containers",
 				ArgumentsJson: "",
 			},
 		},

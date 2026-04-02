@@ -22,7 +22,7 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 		names[i] = tool.Name
 	}
 
-	assert.Contains(t, names, "list_containers")
+	assert.Contains(t, names, "find_containers")
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
@@ -37,7 +37,7 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 		names[i] = tool.Name
 	}
 
-	assert.Contains(t, names, "list_containers")
+	assert.Contains(t, names, "find_containers")
 	assert.Len(t, tools, 1)
 }
 
@@ -119,7 +119,7 @@ func TestExecuteTool_ListContainers(t *testing.T) {
 		{ID: "def456", Name: "redis", Image: "redis:7", State: "running", Host: "local"},
 	}, nil)
 
-	result, err := ExecuteTool(context.Background(), "list_containers", "", mockHost, nil)
+	result, err := ExecuteTool(context.Background(), "find_containers", "", mockHost, nil)
 	assert.NoError(t, err)
 
 	var containers []map[string]any
@@ -156,7 +156,7 @@ func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {
 		[]error{fmt.Errorf("host2 unreachable")},
 	)
 
-	result, err := ExecuteTool(context.Background(), "list_containers", "", mockHost, nil)
+	result, err := ExecuteTool(context.Background(), "find_containers", "", mockHost, nil)
 	assert.NoError(t, err)
 
 	var containers []map[string]any
