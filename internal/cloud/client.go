@@ -214,6 +214,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 
 	switch t := req.Type.(type) {
 	case *pb.ToolRequest_ListTools:
+		log.Debug().Str("request_id", req.RequestId).Msg("cloud requested tool list")
 		tools := AvailableTools(c.enableActions)
 		var toolsJSON []string
 		for _, tool := range tools {
@@ -231,8 +232,10 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 		}
 
 	case *pb.ToolRequest_CallTool:
+		log.Debug().Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Str("args", t.CallTool.ArgumentsJson).Msg("cloud tool call received")
 		result, err := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.enableActions, c.hostService, c.labels)
 		if err != nil {
+			log.Debug().Err(err).Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call failed")
 			resp.Type = &pb.ToolResponse_CallTool{
 				CallTool: &pb.CallToolResponse{
 					Success: false,
@@ -240,6 +243,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 				},
 			}
 		} else {
+			log.Debug().Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call completed")
 			resp.Type = &pb.ToolResponse_CallTool{
 				CallTool: &pb.CallToolResponse{
 					Success:    true,
