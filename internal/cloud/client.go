@@ -176,6 +176,9 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 			go func() {
 				defer c.toolSem.Release(1)
 				resp := c.handleRequest(streamLifetime, req)
+				if streamLifetime.Err() != nil {
+					return
+				}
 				if err := stream.Send(resp); err != nil {
 					log.Debug().Err(err).Msg("failed to send tool response")
 				}

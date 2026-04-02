@@ -6,6 +6,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/cloud/pb"
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -120,11 +121,13 @@ func TestHandleRequest_CallTool_UnknownTool(t *testing.T) {
 }
 
 func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
-	mockActioner := &MockContainerActioner{}
-	mockActioner.On("Action", mock.Anything, container.Restart).Return(nil)
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
 
 	mockHost := &MockHostService{}
-	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(mockActioner, nil)
+	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	client := &Client{
 		hostService: mockHost,
@@ -144,5 +147,5 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 
 	callResp := resp.GetCallTool()
 	assert.True(t, callResp.Success)
-	mockActioner.AssertCalled(t, "Action", mock.Anything, container.Restart)
+	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
 }

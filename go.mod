@@ -32,7 +32,6 @@ require (
 	github.com/puzpuzpuz/xsync/v4 v4.4.0
 	github.com/rs/zerolog v1.35.0
 	github.com/samber/lo v1.53.0
-	github.com/sashabaranov/go-openai v1.41.2
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/yuin/goldmark v1.8.2
 	go.yaml.in/yaml/v3 v3.0.4

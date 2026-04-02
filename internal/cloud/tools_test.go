@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -63,21 +66,50 @@ func (m *MockHostService) ListAllContainers(labels container.ContainerLabels) ([
 	return containers, errs
 }
 
-func (m *MockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (ContainerActioner, error) {
+func (m *MockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
 	args := m.Called(host, id, labels)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(ContainerActioner), args.Error(1)
+	return args.Get(0).(*container_support.ContainerService), args.Error(1)
 }
 
-type MockContainerActioner struct {
+type MockClientService struct {
 	mock.Mock
 }
 
-func (m *MockContainerActioner) Action(ctx context.Context, action container.ContainerAction) error {
-	args := m.Called(ctx, action)
+func (m *MockClientService) FindContainer(_ context.Context, _ string, _ container.ContainerLabels) (container.Container, error) {
+	return container.Container{}, nil
+}
+func (m *MockClientService) ListContainers(_ context.Context, _ container.ContainerLabels) ([]container.Container, error) {
+	return nil, nil
+}
+func (m *MockClientService) Host(_ context.Context) (container.Host, error) {
+	return container.Host{}, nil
+}
+func (m *MockClientService) ContainerAction(ctx context.Context, c container.Container, action container.ContainerAction) error {
+	args := m.Called(ctx, c, action)
 	return args.Error(0)
+}
+func (m *MockClientService) LogsBetweenDates(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
+	return nil, nil
+}
+func (m *MockClientService) RawLogs(_ context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (io.ReadCloser, error) {
+	return nil, nil
+}
+func (m *MockClientService) SubscribeStats(_ context.Context, _ chan<- container.ContainerStat) {}
+func (m *MockClientService) SubscribeEvents(_ context.Context, _ chan<- container.ContainerEvent) {
+}
+func (m *MockClientService) SubscribeContainersStarted(_ context.Context, _ chan<- container.Container) {
+}
+func (m *MockClientService) StreamLogs(_ context.Context, _ container.Container, _ time.Time, _ container.StdType, _ chan<- *container.LogEvent) error {
+	return nil
+}
+func (m *MockClientService) Attach(_ context.Context, _ container.Container, _ container.ExecEventReader, _ io.Writer) error {
+	return nil
+}
+func (m *MockClientService) Exec(_ context.Context, _ container.Container, _ []string, _ container.ExecEventReader, _ io.Writer) error {
+	return nil
 }
 
 func TestExecuteTool_ListContainers(t *testing.T) {
@@ -99,18 +131,20 @@ func TestExecuteTool_ListContainers(t *testing.T) {
 }
 
 func TestExecuteTool_RestartContainer(t *testing.T) {
-	mockActioner := &MockContainerActioner{}
-	mockActioner.On("Action", mock.Anything, container.Restart).Return(nil)
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
 
 	mockHost := &MockHostService{}
-	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(mockActioner, nil)
+	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123"}`
 	result, err := ExecuteTool(context.Background(), "restart_container", argsJSON, mockHost, nil)
 	assert.NoError(t, err)
 	assert.Contains(t, result, "success")
 
-	mockActioner.AssertCalled(t, "Action", mock.Anything, container.Restart)
+	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
 }
 
 func TestExecuteTool_ListContainers_PartialHostError(t *testing.T) {

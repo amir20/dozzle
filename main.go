@@ -127,10 +127,6 @@ func main() {
 	srv := createServer(args, hostService)
 
 	// Start cloud tool client — polls for cloud API key if not yet configured
-	adapter := &cloud.HostServiceAdapter{
-		ListAllContainersFunc: hostService.ListAllContainers,
-		FindContainerFunc:     hostService.FindContainer,
-	}
 	apiKeyFunc := func() string {
 		for _, d := range hostService.Dispatchers() {
 			if d.Type == "cloud" && d.APIKey != "" {
@@ -139,7 +135,7 @@ func main() {
 		}
 		return ""
 	}
-	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, adapter, apiKeyFunc)
+	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, hostService, apiKeyFunc)
 	go cloudClient.Run(ctx)
 
 	go func() {
