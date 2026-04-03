@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package cloud;
 
-option go_package = "internal/cloud/pb";
+option go_package = "github.com/amir20/dozzle/proto/cloud";
 
 service CloudToolService {
   // Dozzle sends ToolResponse, cloud sends ToolRequest

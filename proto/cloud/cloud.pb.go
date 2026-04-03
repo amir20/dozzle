@@ -4,7 +4,7 @@
 // 	protoc        v7.34.1
 // source: cloud.proto
 
-package pb
+package cloud
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -426,7 +426,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05error\x18\x03 \x01(\tR\x05error2M\n" +
 	"\x10CloudToolService\x129\n" +
 	"\n" +
-	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B\x13Z\x11internal/cloud/pbb\x06proto3"
+	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
 
 var (
 	file_cloud_proto_rawDescOnce sync.Once

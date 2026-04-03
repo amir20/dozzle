@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/amir20/dozzle/internal/cloud/pb"
+	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/stretchr/testify/assert"
