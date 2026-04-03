@@ -151,7 +151,7 @@ func executeListContainers(hostService ToolHostService, labels container.Contain
 			Command:    c.Command,
 			Created:    c.Created.UTC().Format(time.RFC3339),
 			StartedAt:  c.StartedAt.UTC().Format(time.RFC3339),
-			FinishedAt: c.FinishedAt.UTC().Format(time.RFC3339),
+			FinishedAt: formatTimeOrEmpty(c.FinishedAt),
 			State:      c.State,
 			Health:     c.Health,
 			Host:       c.Host,
@@ -164,6 +164,13 @@ func executeListContainers(hostService ToolHostService, labels container.Contain
 		return "", fmt.Errorf("failed to marshal containers: %w", err)
 	}
 	return string(data), nil
+}
+
+func formatTimeOrEmpty(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
 }
 
 func executeContainerAction(ctx context.Context, argsJSON string, action container.ContainerAction, hostService ToolHostService, labels container.ContainerLabels) (string, error) {
