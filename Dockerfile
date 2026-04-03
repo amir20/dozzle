@@ -34,6 +34,7 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy all other files
 COPY internal ./internal
+COPY proto ./proto
 COPY types ./types
 COPY main.go ./
 COPY protos ./protos
