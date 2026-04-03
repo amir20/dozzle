@@ -2,7 +2,6 @@ package cloud
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -35,13 +34,15 @@ const (
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	enableActions bool
-	labels        container.ContainerLabels
-	hostService   ToolHostService
-	apiKeyFunc    func() string
-	target        string
-	plaintext     bool
-	toolSem       *semaphore.Weighted
+	enableActions    bool
+	labels           container.ContainerLabels
+	hostService      ToolHostService
+	apiKeyFunc       func() string
+	target           string
+	plaintext        bool
+	toolSem         *semaphore.Weighted
+	cachedToolsJSON []string
+	cachedToolsOnce sync.Once
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -85,14 +86,23 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 func (c *Client) Run(ctx context.Context) {
 	backoff := initialBackoff
 
+	pollTimer := time.NewTimer(apiKeyPollDelay)
+	pollTimer.Stop()
+	defer pollTimer.Stop()
+
+	backoffTimer := time.NewTimer(0)
+	backoffTimer.Stop()
+	defer backoffTimer.Stop()
+
 	for {
 		apiKey := c.apiKeyFunc()
 		if apiKey == "" {
 			log.Debug().Msg("no cloud API key found, waiting for cloud setup")
+			pollTimer.Reset(apiKeyPollDelay)
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(apiKeyPollDelay):
+			case <-pollTimer.C:
 			}
 			continue
 		}
@@ -116,10 +126,11 @@ func (c *Client) Run(ctx context.Context) {
 		}
 
 		jitter := time.Duration(float64(backoff) * jitterFraction * rand.Float64())
+		backoffTimer.Reset(backoff + jitter)
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(backoff + jitter):
+		case <-backoffTimer.C:
 		}
 
 		backoff = min(backoff*backoffFactor, maxBackoff)
@@ -155,14 +166,20 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 
 	log.Debug().Str("target", c.target).Msg("connected to cloud tool service")
 
-	streamLifetime := stream.Context()
+	streamLifetime, streamCancel := context.WithCancel(stream.Context())
 	var sendMu sync.Mutex
+	var wg sync.WaitGroup
 
 	sendResp := func(resp *pb.ToolResponse) error {
 		sendMu.Lock()
 		defer sendMu.Unlock()
 		return stream.Send(resp)
 	}
+
+	defer func() {
+		streamCancel()
+		wg.Wait()
+	}()
 
 	for {
 		req, err := stream.Recv()
@@ -188,7 +205,9 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 				}
 				continue
 			}
+			wg.Add(1)
 			go func() {
+				defer wg.Done()
 				defer c.toolSem.Release(1)
 				resp := c.handleRequest(streamLifetime, req)
 				if streamLifetime.Err() != nil {
@@ -215,19 +234,9 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 	switch t := req.Type.(type) {
 	case *pb.ToolRequest_ListTools:
 		log.Debug().Str("request_id", req.RequestId).Msg("cloud requested tool list")
-		tools := AvailableTools(c.enableActions)
-		var toolsJSON []string
-		for _, tool := range tools {
-			data, err := json.Marshal(tool)
-			if err != nil {
-				log.Error().Err(err).Str("tool", tool.Name).Msg("failed to marshal tool definition")
-				continue
-			}
-			toolsJSON = append(toolsJSON, string(data))
-		}
 		resp.Type = &pb.ToolResponse_ListTools{
 			ListTools: &pb.ListToolsResponse{
-				ToolsJson: toolsJSON,
+				ToolsJson: c.toolsJSON(),
 			},
 		}
 
@@ -254,9 +263,22 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 
 	default:
 		log.Warn().Msg("received unknown tool request type")
+		resp.Type = &pb.ToolResponse_CallTool{
+			CallTool: &pb.CallToolResponse{
+				Success: false,
+				Error:   "unknown request type",
+			},
+		}
 	}
 
 	return resp
+}
+
+func (c *Client) toolsJSON() []string {
+	c.cachedToolsOnce.Do(func() {
+		c.cachedToolsJSON = marshalTools(c.enableActions)
+	})
+	return c.cachedToolsJSON
 }
 
 func isPermissionDenied(err error) bool {

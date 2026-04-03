@@ -51,6 +51,12 @@ type containerResult struct {
 	Group      string `json:"group,omitempty"`
 }
 
+var actionMap = map[string]container.ContainerAction{
+	"start_container":   container.Start,
+	"stop_container":    container.Stop,
+	"restart_container": container.Restart,
+}
+
 type actionResult struct {
 	Success     bool   `json:"success"`
 	ContainerID string `json:"containerId"`
@@ -113,20 +119,33 @@ func AvailableTools(enableActions bool) []FunctionDefinition {
 	return tools
 }
 
+// marshalTools serializes tool definitions to JSON strings for the gRPC response.
+func marshalTools(enableActions bool) []string {
+	tools := AvailableTools(enableActions)
+	result := make([]string, 0, len(tools))
+	for _, tool := range tools {
+		data, err := json.Marshal(tool)
+		if err != nil {
+			log.Error().Err(err).Str("tool", tool.Name).Msg("failed to marshal tool definition")
+			continue
+		}
+		result = append(result, string(data))
+	}
+	return result
+}
+
 // ExecuteTool dispatches a tool call by name and returns JSON result.
 // enableActions must be true for action tools (start/stop/restart) to execute.
 func ExecuteTool(ctx context.Context, name string, argsJSON string, enableActions bool, hostService ToolHostService, labels container.ContainerLabels) (string, error) {
 	switch name {
 	case "find_containers":
+		if ctx.Err() != nil {
+			return "", ctx.Err()
+		}
 		return executeListContainers(hostService, labels)
 	case "start_container", "stop_container", "restart_container":
 		if !enableActions {
 			return "", fmt.Errorf("container actions are not enabled")
-		}
-		actionMap := map[string]container.ContainerAction{
-			"start_container":   container.Start,
-			"stop_container":    container.Stop,
-			"restart_container": container.Restart,
 		}
 		return executeContainerAction(ctx, argsJSON, actionMap[name], hostService, labels)
 	default:
