@@ -50,6 +50,7 @@ type Config struct {
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
+	OnCloudSetup     func()
 }
 
 type Authorization struct {

@@ -16,6 +16,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -33,6 +34,7 @@ var content embed.FS
 var certs embed.FS
 
 //go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos --go_opt=module=github.com/amir20/dozzle --go-grpc_opt=module=github.com/amir20/dozzle ./protos/cloud.proto
 func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
@@ -122,7 +124,25 @@ func main() {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
-	srv := createServer(args, hostService)
+	// Create cloud tool client — does nothing until Notify() is called
+	apiKeyFunc := func() string {
+		for _, d := range hostService.Dispatchers() {
+			if d.Type == "cloud" && d.APIKey != "" {
+				return d.APIKey
+			}
+		}
+		return ""
+	}
+	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, hostService, apiKeyFunc)
+	go cloudClient.Run(ctx)
+
+	// If cloud is already configured at startup, start the client immediately
+	if apiKeyFunc() != "" {
+		cloudClient.Notify()
+	}
+
+	srv := createServer(args, hostService, cloudClient.Notify)
+
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -149,7 +169,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, onCloudSetup func()) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -228,6 +248,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
+		OnCloudSetup:     onCloudSetup,
 	}
 
 	assets, err := fs.Sub(content, "dist")

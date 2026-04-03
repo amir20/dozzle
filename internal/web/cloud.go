@@ -93,6 +93,10 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 
 	id := h.hostService.AddDispatcher(cloudDispatcher)
 
+	if h.config.OnCloudSetup != nil {
+		h.config.OnCloudSetup()
+	}
+
 	base := h.config.Base
 	if base == "/" {
 		base = ""
@@ -146,6 +150,10 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 		log.Warn().Int("status", resp.StatusCode).Str("body", string(body)).Msg("Cloud status check failed")
 		writeError(w, resp.StatusCode, "cloud API key is invalid or expired")
 		return
+	}
+
+	if h.config.OnCloudSetup != nil {
+		h.config.OnCloudSetup()
 	}
 
 	w.Header().Set("Content-Type", "application/json")
