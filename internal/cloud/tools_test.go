@@ -137,9 +137,9 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
 
 	mockHost := &MockHostService{}
-	mockHost.On("FindContainer", "", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
-	argsJSON := `{"container_id": "abc123"}`
+	argsJSON := `{"container_id": "abc123", "host": "local"}`
 	result, err := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
 	assert.NoError(t, err)
 	assert.Contains(t, result, "success")

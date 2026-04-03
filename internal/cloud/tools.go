@@ -38,13 +38,17 @@ type PropertyDefinition struct {
 }
 
 type containerResult struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Image     string `json:"image"`
-	State     string `json:"state"`
-	Host      string `json:"host"`
-	Created   string `json:"created"`
-	StartedAt string `json:"startedAt"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Image      string `json:"image"`
+	Command    string `json:"command"`
+	Created    string `json:"created"`
+	StartedAt  string `json:"startedAt"`
+	FinishedAt string `json:"finishedAt,omitempty"`
+	State      string `json:"state"`
+	Health     string `json:"health,omitempty"`
+	Host       string `json:"host,omitempty"`
+	Group      string `json:"group,omitempty"`
 }
 
 type actionResult struct {
@@ -55,6 +59,7 @@ type actionResult struct {
 
 type containerActionArgs struct {
 	ContainerID string `json:"container_id"`
+	Host        string `json:"host"`
 }
 
 // AvailableTools returns the list of tool definitions based on configuration.
@@ -72,48 +77,35 @@ func AvailableTools(enableActions bool) []FunctionDefinition {
 	}
 
 	if enableActions {
+		actionParams := ParameterDefinition{
+				Type: "object",
+				Properties: map[string]PropertyDefinition{
+					"container_id": {
+						Type:        "string",
+						Description: "The container ID",
+					},
+					"host": {
+						Type:        "string",
+						Description: "The host name where the container is running",
+					},
+				},
+				Required: []string{"container_id", "host"},
+			}
 		tools = append(tools,
 			FunctionDefinition{
 				Name:        "start_container",
 				Description: "Start a stopped Docker container",
-				Parameters: ParameterDefinition{
-					Type: "object",
-					Properties: map[string]PropertyDefinition{
-						"container_id": {
-							Type:        "string",
-							Description: "The container ID to start",
-						},
-					},
-					Required: []string{"container_id"},
-				},
+				Parameters:  actionParams,
 			},
 			FunctionDefinition{
 				Name:        "stop_container",
 				Description: "Stop a running Docker container",
-				Parameters: ParameterDefinition{
-					Type: "object",
-					Properties: map[string]PropertyDefinition{
-						"container_id": {
-							Type:        "string",
-							Description: "The container ID to stop",
-						},
-					},
-					Required: []string{"container_id"},
-				},
+				Parameters:  actionParams,
 			},
 			FunctionDefinition{
 				Name:        "restart_container",
 				Description: "Restart a Docker container",
-				Parameters: ParameterDefinition{
-					Type: "object",
-					Properties: map[string]PropertyDefinition{
-						"container_id": {
-							Type:        "string",
-							Description: "The container ID to restart",
-						},
-					},
-					Required: []string{"container_id"},
-				},
+				Parameters:  actionParams,
 			},
 		)
 	}
@@ -153,13 +145,17 @@ func executeListContainers(hostService ToolHostService, labels container.Contain
 	results := make([]containerResult, len(containers))
 	for i, c := range containers {
 		results[i] = containerResult{
-			ID:        c.ID,
-			Name:      c.Name,
-			Image:     c.Image,
-			State:     c.State,
-			Host:      c.Host,
-			Created:   c.Created.UTC().Format(time.RFC3339),
-			StartedAt: c.StartedAt.UTC().Format(time.RFC3339),
+			ID:         c.ID,
+			Name:       c.Name,
+			Image:      c.Image,
+			Command:    c.Command,
+			Created:    c.Created.UTC().Format(time.RFC3339),
+			StartedAt:  c.StartedAt.UTC().Format(time.RFC3339),
+			FinishedAt: c.FinishedAt.UTC().Format(time.RFC3339),
+			State:      c.State,
+			Health:     c.Health,
+			Host:       c.Host,
+			Group:      c.Group,
 		}
 	}
 
@@ -180,8 +176,11 @@ func executeContainerAction(ctx context.Context, argsJSON string, action contain
 		return "", fmt.Errorf("container_id is required")
 	}
 
-	// FindContainer searches across all hosts when host is empty
-	cs, err := hostService.FindContainer("", args.ContainerID, labels)
+	if args.Host == "" {
+		return "", fmt.Errorf("host is required")
+	}
+
+	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
 	if err != nil {
 		return "", fmt.Errorf("container not found: %w", err)
 	}
