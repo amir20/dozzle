@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amir20/dozzle/internal/cloud/pb"
+	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/rs/zerolog/log"

@@ -4,7 +4,7 @@
 // - protoc             v7.34.1
 // source: cloud.proto
 
-package pb
+package cloud
 
 import (
 	context "context"
