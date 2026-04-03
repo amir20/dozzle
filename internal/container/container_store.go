@@ -277,7 +277,7 @@ func (s *ContainerStore) init() {
 	for {
 		select {
 		case event := <-s.events:
-			log.Debug().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
+			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("received container event")
 			switch event.Name {
 			case "create":
 				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

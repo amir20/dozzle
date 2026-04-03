@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package cloud;
+
+option go_package = "internal/cloud/pb";
+
+service CloudToolService {
+  // Dozzle sends ToolResponse, cloud sends ToolRequest
+  rpc ToolStream(stream ToolResponse) returns (stream ToolRequest);
+}
+
+message ToolRequest {
+  string request_id = 1;
+  oneof type {
+    ListToolsRequest list_tools = 2;
+    CallToolRequest call_tool = 3;
+  }
+}
+
+message ToolResponse {
+  string request_id = 1;
+  oneof type {
+    ListToolsResponse list_tools = 2;
+    CallToolResponse call_tool = 3;
+  }
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  repeated string tools_json = 1;
+}
+
+message CallToolRequest {
+  string name = 1;
+  string arguments_json = 2;
+}
+
+message CallToolResponse {
+  bool success = 1;
+  string result_json = 2;
+  string error = 3;
+}
