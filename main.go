@@ -124,9 +124,7 @@ func main() {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
-	srv := createServer(args, hostService)
-
-	// Start cloud tool client — polls for cloud API key if not yet configured
+	// Create cloud tool client — does nothing until Notify() is called
 	apiKeyFunc := func() string {
 		for _, d := range hostService.Dispatchers() {
 			if d.Type == "cloud" && d.APIKey != "" {
@@ -137,6 +135,13 @@ func main() {
 	}
 	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, hostService, apiKeyFunc)
 	go cloudClient.Run(ctx)
+
+	// If cloud is already configured at startup, start the client immediately
+	if apiKeyFunc() != "" {
+		cloudClient.Notify()
+	}
+
+	srv := createServer(args, hostService, cloudClient.Notify)
 
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
@@ -164,7 +169,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, onCloudSetup func()) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -243,6 +248,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
+		OnCloudSetup:     onCloudSetup,
 	}
 
 	assets, err := fs.Sub(content, "dist")

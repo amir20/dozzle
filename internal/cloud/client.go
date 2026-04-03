@@ -24,12 +24,11 @@ import (
 )
 
 const (
-	initialBackoff  = 1 * time.Second
-	maxBackoff      = 30 * time.Second
-	backoffFactor   = 2
-	jitterFraction  = 0.1
-	apiKeyPollDelay = 30 * time.Second
-	maxConcurrent   = 5
+	initialBackoff = 1 * time.Second
+	maxBackoff     = 30 * time.Second
+	backoffFactor  = 2
+	jitterFraction = 0.1
+	maxConcurrent  = 5
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -40,9 +39,10 @@ type Client struct {
 	apiKeyFunc       func() string
 	target           string
 	plaintext        bool
-	toolSem         *semaphore.Weighted
-	cachedToolsJSON []string
-	cachedToolsOnce sync.Once
+	toolSem          *semaphore.Weighted
+	cachedToolsJSON  []string
+	cachedToolsOnce  sync.Once
+	startCh          chan struct{}
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -76,19 +76,32 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 		target:        target,
 		plaintext:     plaintext,
 		toolSem:       semaphore.NewWeighted(maxConcurrent),
+		startCh:       make(chan struct{}, 1),
 	}
 }
 
-// Run starts the cloud client loop. It connects to the cloud gRPC endpoint
+// Notify signals the client to attempt a connection. Safe to call multiple times.
+// Use this when a cloud dispatcher is added or when the status page is viewed.
+func (c *Client) Notify() {
+	select {
+	case c.startCh <- struct{}{}:
+	default:
+	}
+}
+
+// Run blocks until signaled via Notify(), then connects to the cloud gRPC endpoint
 // and processes tool requests. Reconnects automatically on failure.
-// If no cloud API key is configured, it polls until one appears.
+// Does nothing until Notify() is called — zero overhead for non-cloud users.
 // Blocks until ctx is cancelled.
 func (c *Client) Run(ctx context.Context) {
-	backoff := initialBackoff
+	// Wait for signal to start
+	select {
+	case <-ctx.Done():
+		return
+	case <-c.startCh:
+	}
 
-	pollTimer := time.NewTimer(apiKeyPollDelay)
-	pollTimer.Stop()
-	defer pollTimer.Stop()
+	backoff := initialBackoff
 
 	backoffTimer := time.NewTimer(0)
 	backoffTimer.Stop()
@@ -97,19 +110,17 @@ func (c *Client) Run(ctx context.Context) {
 	for {
 		apiKey := c.apiKeyFunc()
 		if apiKey == "" {
-			log.Debug().Msg("no cloud API key found, waiting for cloud setup")
-			pollTimer.Reset(apiKeyPollDelay)
+			// Cloud dispatcher was removed — go back to waiting for signal
 			select {
 			case <-ctx.Done():
 				return
-			case <-pollTimer.C:
+			case <-c.startCh:
 			}
 			continue
 		}
 
 		wasConnected, err := c.connect(ctx, apiKey)
 		if ctx.Err() != nil {
-			log.Debug().Msg("cloud client stopped")
 			return
 		}
 

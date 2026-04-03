@@ -38,17 +38,21 @@ type PropertyDefinition struct {
 }
 
 type containerResult struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Image      string `json:"image"`
-	Command    string `json:"command"`
-	Created    string `json:"created"`
-	StartedAt  string `json:"startedAt"`
-	FinishedAt string `json:"finishedAt,omitempty"`
-	State      string `json:"state"`
-	Health     string `json:"health,omitempty"`
-	Host       string `json:"host,omitempty"`
-	Group      string `json:"group,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Image         string   `json:"image"`
+	Command       string   `json:"command"`
+	Created       string   `json:"created"`
+	StartedAt     string   `json:"startedAt"`
+	FinishedAt    string   `json:"finishedAt,omitempty"`
+	State         string   `json:"state"`
+	Health        string   `json:"health,omitempty"`
+	Host          string   `json:"host,omitempty"`
+	Group         string   `json:"group,omitempty"`
+	CPUPercent    *float64 `json:"cpuPercent,omitempty"`
+	MaxCPU5Min    *float64 `json:"maxCpu5Min,omitempty"`
+	MemoryPercent *float64 `json:"memoryPercent,omitempty"`
+	MaxMemory5Min *float64 `json:"maxMemory5Min,omitempty"`
 }
 
 var actionMap = map[string]container.ContainerAction{
@@ -163,7 +167,7 @@ func executeListContainers(hostService ToolHostService, labels container.Contain
 
 	results := make([]containerResult, len(containers))
 	for i, c := range containers {
-		results[i] = containerResult{
+		r := containerResult{
 			ID:         c.ID,
 			Name:       c.Name,
 			Image:      c.Image,
@@ -176,6 +180,23 @@ func executeListContainers(hostService ToolHostService, labels container.Contain
 			Host:       c.Host,
 			Group:      c.Group,
 		}
+
+		if c.Stats != nil && c.Stats.Len() > 0 {
+			stats := c.Stats.Data()
+			latest := stats[len(stats)-1]
+			r.CPUPercent = &latest.CPUPercent
+			r.MemoryPercent = &latest.MemoryPercent
+
+			var maxCPU, maxMem float64
+			for _, s := range stats {
+				maxCPU = max(maxCPU, s.CPUPercent)
+				maxMem = max(maxMem, s.MemoryPercent)
+			}
+			r.MaxCPU5Min = &maxCPU
+			r.MaxMemory5Min = &maxMem
+		}
+
+		results[i] = r
 	}
 
 	data, err := json.Marshal(results)
