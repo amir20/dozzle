@@ -10,15 +10,16 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
@@ -33,16 +34,16 @@ const (
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	enableActions    bool
-	labels           container.ContainerLabels
-	hostService      ToolHostService
-	apiKeyFunc       func() string
-	target           string
-	plaintext        bool
-	toolSem          *semaphore.Weighted
-	cachedToolsJSON  []string
-	cachedToolsOnce  sync.Once
-	startCh          chan struct{}
+	enableActions   bool
+	labels          container.ContainerLabels
+	hostService     ToolHostService
+	apiKeyFunc      func() string
+	target          string
+	plaintext       bool
+	toolSem         *semaphore.Weighted
+	cachedToolsJSON []string
+	cachedToolsOnce sync.Once
+	startCh         chan struct{}
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -133,7 +134,7 @@ func (c *Client) Run(ctx context.Context) {
 				log.Debug().Msg("cloud account does not have pro plan, stopping cloud client")
 				return
 			}
-			log.Debug().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
+			log.Warn().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
 		}
 
 		jitter := time.Duration(float64(backoff) * jitterFraction * rand.Float64())
@@ -159,7 +160,13 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		creds = grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	}
 
-	conn, err := grpc.NewClient(c.target, creds, grpc.WithUserAgent(dispatcher.UserAgent))
+	conn, err := grpc.NewClient(c.target, creds, grpc.WithUserAgent(dispatcher.UserAgent),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                30 * time.Second,
+			Timeout:             10 * time.Second,
+			PermitWithoutStream: true,
+		}),
+	)
 	if err != nil {
 		return false, fmt.Errorf("failed to dial cloud: %w", err)
 	}
