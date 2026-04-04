@@ -22,13 +22,14 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	}
 
 	assert.Contains(t, names, "list_hosts")
+	assert.Contains(t, names, "find_containers")
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 7)
+	assert.Len(t, tools, 8)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -40,10 +41,11 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 	}
 
 	assert.Contains(t, names, "list_hosts")
+	assert.Contains(t, names, "find_containers")
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
-	assert.Len(t, tools, 4)
+	assert.Len(t, tools, 5)
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
@@ -129,6 +131,7 @@ func TestExecuteTool_ListRunningContainers(t *testing.T) {
 		{ID: "def456", Name: "redis", Image: "redis:7", State: "running", Host: "local"},
 		{ID: "ghi789", Name: "stopped", Image: "alpine:latest", State: "exited", Host: "local"},
 	}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	resp := ExecuteTool(context.Background(), "list_running_containers", "", false, mockHost, nil)
 	assert.True(t, resp.Success)
@@ -138,6 +141,7 @@ func TestExecuteTool_ListRunningContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "nginx", result.Containers[0].Name)
+	assert.Equal(t, "my-server", result.Containers[0].Host)
 }
 
 func TestExecuteTool_ListAllContainers(t *testing.T) {
@@ -146,6 +150,7 @@ func TestExecuteTool_ListAllContainers(t *testing.T) {
 		{ID: "abc123", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
 		{ID: "def456", Name: "redis", Image: "redis:7", State: "exited", Host: "local"},
 	}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	resp := ExecuteTool(context.Background(), "list_all_containers", "", false, mockHost, nil)
 	assert.True(t, resp.Success)
@@ -155,6 +160,7 @@ func TestExecuteTool_ListAllContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "def456", result.Containers[1].Id)
+	assert.Equal(t, "my-server", result.Containers[0].Host)
 }
 
 func TestExecuteTool_RestartContainer(t *testing.T) {
@@ -195,6 +201,7 @@ func TestExecuteTool_ListRunningContainers_PartialHostError(t *testing.T) {
 		},
 		[]error{fmt.Errorf("host2 unreachable")},
 	)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	resp := ExecuteTool(context.Background(), "list_running_containers", "", false, mockHost, nil)
 	assert.True(t, resp.Success)

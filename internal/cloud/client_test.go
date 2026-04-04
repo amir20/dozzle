@@ -48,7 +48,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 	assert.Equal(t, "req-1", resp.RequestId)
 	listResp := resp.GetListTools()
 	assert.NotNil(t, listResp)
-	assert.Len(t, listResp.Tools, 7) // list_hosts + list_running_containers + list_all_containers + get_running_container_stats + 3 actions
+	assert.Len(t, listResp.Tools, 8) // list_hosts + find_containers + list_running_containers + list_all_containers + get_running_container_stats + 3 actions
 }
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
@@ -66,7 +66,7 @@ func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
 	resp := client.handleRequest(context.Background(), req)
 
 	listResp := resp.GetListTools()
-	assert.Len(t, listResp.Tools, 4) // list_hosts + list_running_containers + list_all_containers + get_running_container_stats
+	assert.Len(t, listResp.Tools, 5) // list_hosts + find_containers + list_running_containers + list_all_containers + get_running_container_stats
 }
 
 func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
@@ -74,6 +74,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{
 		{ID: "abc", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
 	}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	client := &Client{
 		hostService: mockHost,

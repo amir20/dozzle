@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -24,9 +25,18 @@ type containerActionArgs struct {
 	Host        string `json:"host"`
 }
 
+type findContainersArgs struct {
+	Name   string `json:"name"`
+	Image  string `json:"image"`
+	State  string `json:"state"`
+	Health string `json:"health"`
+}
+
 // AvailableTools returns the list of tool definitions based on configuration.
 func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	noParams := `{"type":"object","properties":{}}`
+
+	findContainerParams := `{"type":"object","properties":{"name":{"type":"string","description":"Optional container name to search for (partial match supported)"},"image":{"type":"string","description":"Optional image name to filter by (partial match supported)"},"state":{"type":"string","description":"Optional state filter (e.g. running, exited, created)"},"health":{"type":"string","description":"Optional health status filter (e.g. healthy, unhealthy, none)"}}}`
 
 	tools := []*pb.ToolDefinition{
 		{
@@ -35,13 +45,18 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			ParametersJson: noParams,
 		},
 		{
+			Name:           "find_containers",
+			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. Use this before start/stop/restart actions to get the container ID and host.",
+			ParametersJson: findContainerParams,
+		},
+		{
 			Name:           "list_running_containers",
-			Description:    "List currently running Docker containers with their name, image, state, health status, and host. Only returns containers that are actively running.",
+			Description:    "List all currently running Docker containers. Use find_containers instead if you need to filter by name or health status.",
 			ParametersJson: noParams,
 		},
 		{
 			Name:           "list_all_containers",
-			Description:    "List all Docker containers including stopped, exited, and previously run containers. Includes finished time for non-running containers.",
+			Description:    "List all Docker containers including stopped, exited, and previously run containers.",
 			ParametersJson: noParams,
 		},
 		{
@@ -114,16 +129,50 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 			Result:  &pb.CallToolResponse_ListHosts{ListHosts: &pb.ListHostsResult{Hosts: result}},
 		}, nil
 
+	case "find_containers":
+		var args findContainersArgs
+		if argsJSON != "" {
+			if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
+				return nil, fmt.Errorf("failed to parse arguments: %w", err)
+			}
+		}
+
+		containers, errs := hostService.ListAllContainers(labels)
+		logHostErrors(errs)
+
+		result := make([]*pb.ContainerInfo, 0, len(containers))
+		for _, c := range containers {
+			if args.Name != "" && !containsIgnoreCase(c.Name, args.Name) {
+				continue
+			}
+			if args.Image != "" && !containsIgnoreCase(c.Image, args.Image) {
+				continue
+			}
+			if args.State != "" && !strings.EqualFold(c.State, args.State) {
+				continue
+			}
+			if args.Health != "" && !strings.EqualFold(c.Health, args.Health) {
+				continue
+			}
+			// Keep raw host ID so action tools can use it directly
+			result = append(result, containerToProto(c, nil))
+		}
+		return &pb.CallToolResponse{
+			Success: true,
+			Result:  &pb.CallToolResponse_ListContainers{ListContainers: &pb.ListContainersResult{Containers: result}},
+		}, nil
+
 	case "list_running_containers":
 		containers, errs := hostService.ListAllContainers(labels)
 		logHostErrors(errs)
+		hostNames := buildHostNameMap(hostService)
 
 		result := make([]*pb.ContainerInfo, 0, len(containers))
 		for _, c := range containers {
 			if c.State != "running" {
 				continue
 			}
-			result = append(result, containerToProto(c))
+			result = append(result, containerToProto(c, hostNames))
 		}
 		return &pb.CallToolResponse{
 			Success: true,
@@ -133,10 +182,11 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 	case "list_all_containers":
 		containers, errs := hostService.ListAllContainers(labels)
 		logHostErrors(errs)
+		hostNames := buildHostNameMap(hostService)
 
 		result := make([]*pb.ContainerInfo, 0, len(containers))
 		for _, c := range containers {
-			result = append(result, containerToProto(c))
+			result = append(result, containerToProto(c, hostNames))
 		}
 		return &pb.CallToolResponse{
 			Success: true,
@@ -146,6 +196,7 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 	case "get_running_container_stats":
 		containers, errs := hostService.ListAllContainers(labels)
 		logHostErrors(errs)
+		hostNames := buildHostNameMap(hostService)
 
 		result := make([]*pb.ContainerStatEntry, 0, len(containers))
 		for _, c := range containers {
@@ -166,13 +217,13 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 			}
 
 			result = append(result, &pb.ContainerStatEntry{
-				Id:            c.ID,
-				Name:          c.Name,
-				Host:          c.Host,
-				CpuPercent:    latest.CPUPercent,
-				MemoryPercent: latest.MemoryPercent,
-				MemoryUsage:   latest.MemoryUsage,
-				MaxCpu_5Min:   maxCPU,
+				Id:             c.ID,
+				Name:           c.Name,
+				Host:           resolveHostName(c.Host, hostNames),
+				CpuPercent:     latest.CPUPercent,
+				MemoryPercent:  latest.MemoryPercent,
+				MemoryUsage:    latest.MemoryUsage,
+				MaxCpu_5Min:    maxCPU,
 				MaxMemory_5Min: maxMem,
 			})
 		}
@@ -247,7 +298,25 @@ func executeAction(ctx context.Context, host, containerID string, action contain
 	}, nil
 }
 
-func containerToProto(c container.Container) *pb.ContainerInfo {
+// buildHostNameMap creates a mapping from host ID to host name.
+func buildHostNameMap(hostService ToolHostService) map[string]string {
+	hosts := hostService.Hosts()
+	m := make(map[string]string, len(hosts))
+	for _, h := range hosts {
+		m[h.ID] = h.Name
+	}
+	return m
+}
+
+// resolveHostName returns the host name for a given host ID, falling back to the ID itself.
+func resolveHostName(hostID string, hostNames map[string]string) string {
+	if name, ok := hostNames[hostID]; ok {
+		return name
+	}
+	return hostID
+}
+
+func containerToProto(c container.Container, hostNames map[string]string) *pb.ContainerInfo {
 	return &pb.ContainerInfo{
 		Id:         c.ID,
 		Name:       c.Name,
@@ -258,7 +327,7 @@ func containerToProto(c container.Container) *pb.ContainerInfo {
 		FinishedAt: formatTimeOrEmpty(c.FinishedAt),
 		State:      c.State,
 		Health:     c.Health,
-		Host:       c.Host,
+		Host:       resolveHostName(c.Host, hostNames),
 		Group:      c.Group,
 	}
 }
@@ -268,6 +337,10 @@ func formatTimeOrEmpty(t time.Time) string {
 		return ""
 	}
 	return t.UTC().Format(time.RFC3339)
+}
+
+func containsIgnoreCase(s, substr string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
 }
 
 func logHostErrors(errs []error) {
