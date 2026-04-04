@@ -40,10 +40,10 @@ type Client struct {
 	apiKeyFunc      func() string
 	target          string
 	plaintext       bool
-	toolSem         *semaphore.Weighted
-	cachedToolsJSON []string
-	cachedToolsOnce sync.Once
-	startCh         chan struct{}
+	toolSem     *semaphore.Weighted
+	cachedTools []*pb.ToolDefinition
+	toolsOnce   sync.Once
+	startCh     chan struct{}
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -254,29 +254,20 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 		log.Debug().Str("request_id", req.RequestId).Msg("cloud requested tool list")
 		resp.Type = &pb.ToolResponse_ListTools{
 			ListTools: &pb.ListToolsResponse{
-				ToolsJson: c.toolsJSON(),
+				Tools: c.tools(),
 			},
 		}
 
 	case *pb.ToolRequest_CallTool:
 		log.Debug().Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Str("args", t.CallTool.ArgumentsJson).Msg("cloud tool call received")
-		result, err := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.enableActions, c.hostService, c.labels)
-		if err != nil {
-			log.Debug().Err(err).Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call failed")
-			resp.Type = &pb.ToolResponse_CallTool{
-				CallTool: &pb.CallToolResponse{
-					Success: false,
-					Error:   err.Error(),
-				},
-			}
+		callResp := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.enableActions, c.hostService, c.labels)
+		if !callResp.Success {
+			log.Debug().Str("error", callResp.Error).Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call failed")
 		} else {
 			log.Debug().Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call completed")
-			resp.Type = &pb.ToolResponse_CallTool{
-				CallTool: &pb.CallToolResponse{
-					Success:    true,
-					ResultJson: result,
-				},
-			}
+		}
+		resp.Type = &pb.ToolResponse_CallTool{
+			CallTool: callResp,
 		}
 
 	default:
@@ -292,11 +283,11 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 	return resp
 }
 
-func (c *Client) toolsJSON() []string {
-	c.cachedToolsOnce.Do(func() {
-		c.cachedToolsJSON = marshalTools(c.enableActions)
+func (c *Client) tools() []*pb.ToolDefinition {
+	c.toolsOnce.Do(func() {
+		c.cachedTools = AvailableTools(c.enableActions)
 	})
-	return c.cachedToolsJSON
+	return c.cachedTools
 }
 
 func isPermissionDenied(err error) bool {
