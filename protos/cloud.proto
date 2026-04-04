@@ -50,6 +50,8 @@ message CallToolResponse {
     ListContainersResult list_containers = 4;
     ContainerStatsResult container_stats = 5;
     ActionResult action = 6;
+    FetchLogsResult fetch_logs = 7;
+    InspectContainerResult inspect_container = 8;
   }
 }
 
@@ -102,6 +104,41 @@ message ContainerStatEntry {
 
 message ContainerStatsResult {
   repeated ContainerStatEntry stats = 1;
+}
+
+// Container logs
+message LogEntry {
+  int64 timestamp = 1;
+  string message = 2;
+  string stream = 3;  // "stdout" or "stderr"
+  string level = 4;   // "info", "warn", "error", etc.
+}
+
+message FetchLogsResult {
+  string container_name = 1;
+  repeated LogEntry entries = 2;
+}
+
+// Container inspect result
+message InspectContainerResult {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string command = 4;
+  string created = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string state = 8;
+  string health = 9;
+  string host = 10;
+  map<string, string> labels = 11;
+  uint64 memory_limit = 12;
+  double cpu_limit = 13;
+  repeated string env = 14;
+  repeated string ports = 15;
+  repeated string mounts = 16;
+  string restart_policy = 17;
+  string network_mode = 18;
 }
 
 // Container action result

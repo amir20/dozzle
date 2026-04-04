@@ -429,20 +429,48 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		group = c.Config.Labels["coolify.projectName"]
 	}
 
+	// Format port bindings as readable strings
+	var ports []string
+	for port, bindings := range c.HostConfig.PortBindings {
+		for _, b := range bindings {
+			if b.HostPort != "" {
+				ports = append(ports, fmt.Sprintf("%s:%s->%s", b.HostIP, b.HostPort, port))
+			} else {
+				ports = append(ports, string(port))
+			}
+		}
+	}
+
+	// Format mounts as readable strings
+	var mounts []string
+	for _, m := range c.Mounts {
+		mounts = append(mounts, fmt.Sprintf("%s:%s (%s)", m.Source, m.Destination, m.Type))
+	}
+
+	restartPolicy := ""
+	if c.HostConfig.RestartPolicy.Name != "" {
+		restartPolicy = string(c.HostConfig.RestartPolicy.Name)
+	}
+
 	container := container.Container{
-		ID:          c.ID[:12],
-		Name:        name,
-		Image:       c.Config.Image,
-		Command:     strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
-		State:       c.State.Status,
-		Host:        host,
-		Labels:      c.Config.Labels,
-		Stats:       utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
-		Group:       group,
-		Tty:         c.Config.Tty,
-		MemoryLimit: uint64(c.HostConfig.Memory),
-		CPULimit:    float64(c.HostConfig.NanoCPUs) / 1e9,
-		FullyLoaded: true,
+		ID:            c.ID[:12],
+		Name:          name,
+		Image:         c.Config.Image,
+		Command:       strings.Join(c.Config.Entrypoint, " ") + " " + strings.Join(c.Config.Cmd, " "),
+		State:         c.State.Status,
+		Host:          host,
+		Labels:        c.Config.Labels,
+		Stats:         utils.NewRingBuffer[container.ContainerStat](300), // 300 seconds of stats
+		Group:         group,
+		Tty:           c.Config.Tty,
+		MemoryLimit:   uint64(c.HostConfig.Memory),
+		CPULimit:      float64(c.HostConfig.NanoCPUs) / 1e9,
+		Env:           c.Config.Env,
+		Ports:         ports,
+		Mounts:        mounts,
+		RestartPolicy: restartPolicy,
+		NetworkMode:   string(c.HostConfig.NetworkMode),
+		FullyLoaded:   true,
 	}
 
 	if createdAt, err := time.Parse(time.RFC3339Nano, c.Created); err == nil {

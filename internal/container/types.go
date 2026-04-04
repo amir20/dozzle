@@ -28,8 +28,13 @@ type Container struct {
 	Stats       *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
 	MemoryLimit uint64                           `json:"memoryLimit"`
 	CPULimit    float64                          `json:"cpuLimit"`
-	Group       string                           `json:"group,omitempty"`
-	FullyLoaded bool                             `json:"-"`
+	Group         string                           `json:"group,omitempty"`
+	Env           []string                         `json:"-"`
+	Ports         []string                         `json:"-"`
+	Mounts        []string                         `json:"-"`
+	RestartPolicy string                           `json:"-"`
+	NetworkMode   string                           `json:"-"`
+	FullyLoaded   bool                             `json:"-"`
 }
 
 func (container Container) ToProto() pb.Container {

@@ -26,10 +26,11 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
+	assert.Contains(t, names, "fetch_container_logs")
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 8)
+	assert.Len(t, tools, 10)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -45,7 +46,8 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
-	assert.Len(t, tools, 5)
+	assert.Contains(t, names, "fetch_container_logs")
+	assert.Len(t, tools, 7)
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
