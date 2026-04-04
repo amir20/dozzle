@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -48,7 +48,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 	assert.Equal(t, "req-1", resp.RequestId)
 	listResp := resp.GetListTools()
 	assert.NotNil(t, listResp)
-	assert.Len(t, listResp.ToolsJson, 4) // find_containers + 3 actions
+	assert.Len(t, listResp.Tools, 7) // list_hosts + list_running_containers + list_all_containers + get_running_container_stats + 3 actions
 }
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
@@ -66,7 +66,7 @@ func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
 	resp := client.handleRequest(context.Background(), req)
 
 	listResp := resp.GetListTools()
-	assert.Len(t, listResp.ToolsJson, 1) // only list_containers
+	assert.Len(t, listResp.Tools, 4) // list_hosts + list_running_containers + list_all_containers + get_running_container_stats
 }
 
 func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
@@ -83,7 +83,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 		RequestId: "req-3",
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
-				Name:          "find_containers",
+				Name:          "list_running_containers",
 				ArgumentsJson: "",
 			},
 		},
@@ -93,7 +93,10 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 
 	callResp := resp.GetCallTool()
 	assert.True(t, callResp.Success)
-	assert.Contains(t, callResp.ResultJson, "nginx")
+	result := callResp.GetListContainers()
+	assert.NotNil(t, result)
+	assert.Len(t, result.Containers, 1)
+	assert.Equal(t, "nginx", result.Containers[0].Name)
 }
 
 func TestHandleRequest_CallTool_UnknownTool(t *testing.T) {
