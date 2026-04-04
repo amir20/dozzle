@@ -11,7 +11,7 @@ import (
 
 type containerActionArgs struct {
 	ContainerID string `json:"container_id"`
-	Host        string `json:"host"`
+	Host        string `json:"host_id"`
 }
 
 func executeContainerAction(ctx context.Context, name string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {

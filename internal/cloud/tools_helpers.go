@@ -38,7 +38,8 @@ func containerToProto(c container.Container, hostNames map[string]string) *pb.Co
 		FinishedAt: formatTimeOrEmpty(c.FinishedAt),
 		State:      c.State,
 		Health:     c.Health,
-		Host:       resolveHostName(c.Host, hostNames),
+		HostName:   resolveHostName(c.Host, hostNames),
+		HostId:     c.Host,
 		Group:      c.Group,
 	}
 }

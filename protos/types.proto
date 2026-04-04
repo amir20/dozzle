@@ -27,6 +27,11 @@ message Container {
   uint64 memoryLimit = 17;
   double cpuLimit = 18;
   bool fullyLoaded = 19;
+  repeated string env = 20;
+  repeated string ports = 21;
+  repeated string mounts = 22;
+  string restartPolicy = 23;
+  string networkMode = 24;
 }
 
 message ContainerStat {

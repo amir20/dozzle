@@ -12,7 +12,7 @@ import (
 
 type inspectContainerArgs struct {
 	ContainerID string `json:"container_id"`
-	Host        string `json:"host"`
+	Host        string `json:"host_id"`
 }
 
 type findContainersArgs struct {
@@ -177,7 +177,8 @@ func executeInspectContainer(argsJSON string, hostService ToolHostService, label
 			FinishedAt:    formatTimeOrEmpty(c.FinishedAt),
 			State:         c.State,
 			Health:        c.Health,
-			Host:          resolveHostName(c.Host, buildHostNameMap(hostService)),
+			HostName:      resolveHostName(c.Host, buildHostNameMap(hostService)),
+			HostId:        c.Host,
 			Labels:        c.Labels,
 			MemoryLimit:   c.MemoryLimit,
 			CpuLimit:      c.CPULimit,

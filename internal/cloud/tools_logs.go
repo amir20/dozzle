@@ -14,7 +14,7 @@ import (
 
 type fetchLogsArgs struct {
 	ContainerID string `json:"container_id"`
-	Host        string `json:"host"`
+	Host        string `json:"host_id"`
 	Start       string `json:"start"`
 	End         string `json:"end"`
 	Level       string `json:"level"`

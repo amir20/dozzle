@@ -13,21 +13,21 @@ import (
 
 // Container represents an internal representation of docker containers
 type Container struct {
-	ID          string                           `json:"id"`
-	Name        string                           `json:"name"`
-	Image       string                           `json:"image"`
-	Command     string                           `json:"command"`
-	Created     time.Time                        `json:"created"`
-	StartedAt   time.Time                        `json:"startedAt"`
-	FinishedAt  time.Time                        `json:"finishedAt"`
-	State       string                           `json:"state"`
-	Health      string                           `json:"health,omitempty"`
-	Host        string                           `json:"host,omitempty"`
-	Tty         bool                             `json:"-"`
-	Labels      map[string]string                `json:"labels,omitempty"`
-	Stats       *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
-	MemoryLimit uint64                           `json:"memoryLimit"`
-	CPULimit    float64                          `json:"cpuLimit"`
+	ID            string                           `json:"id"`
+	Name          string                           `json:"name"`
+	Image         string                           `json:"image"`
+	Command       string                           `json:"command"`
+	Created       time.Time                        `json:"created"`
+	StartedAt     time.Time                        `json:"startedAt"`
+	FinishedAt    time.Time                        `json:"finishedAt"`
+	State         string                           `json:"state"`
+	Health        string                           `json:"health,omitempty"`
+	Host          string                           `json:"host,omitempty"`
+	Tty           bool                             `json:"-"`
+	Labels        map[string]string                `json:"labels,omitempty"`
+	Stats         *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	MemoryLimit   uint64                           `json:"memoryLimit"`
+	CPULimit      float64                          `json:"cpuLimit"`
 	Group         string                           `json:"group,omitempty"`
 	Env           []string                         `json:"-"`
 	Ports         []string                         `json:"-"`
@@ -64,10 +64,15 @@ func (container Container) ToProto() pb.Container {
 		Started:     timestamppb.New(container.StartedAt),
 		Finished:    timestamppb.New(container.FinishedAt),
 		Stats:       pbStats,
-		Command:     container.Command,
-		MemoryLimit: container.MemoryLimit,
-		CpuLimit:    container.CPULimit,
-		FullyLoaded: container.FullyLoaded,
+		Command:       container.Command,
+		MemoryLimit:   container.MemoryLimit,
+		CpuLimit:      container.CPULimit,
+		FullyLoaded:   container.FullyLoaded,
+		Env:           container.Env,
+		Ports:         container.Ports,
+		Mounts:        container.Mounts,
+		RestartPolicy: container.RestartPolicy,
+		NetworkMode:   container.NetworkMode,
 	}
 }
 
@@ -104,9 +109,14 @@ func FromProto(c *pb.Container) Container {
 		StartedAt:   c.Started.AsTime(),
 		FinishedAt:  c.Finished.AsTime(),
 		Stats:       utils.RingBufferFrom(300, stats),
-		MemoryLimit: c.MemoryLimit,
-		CPULimit:    c.CpuLimit,
-		FullyLoaded: c.FullyLoaded,
+		MemoryLimit:   c.MemoryLimit,
+		CPULimit:      c.CpuLimit,
+		FullyLoaded:   c.FullyLoaded,
+		Env:           c.Env,
+		Ports:         c.Ports,
+		Mounts:        c.Mounts,
+		RestartPolicy: c.RestartPolicy,
+		NetworkMode:   c.NetworkMode,
 	}
 }
 

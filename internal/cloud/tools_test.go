@@ -143,7 +143,7 @@ func TestExecuteTool_ListRunningContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "nginx", result.Containers[0].Name)
-	assert.Equal(t, "my-server", result.Containers[0].Host)
+	assert.Equal(t, "my-server", result.Containers[0].HostName)
 }
 
 func TestExecuteTool_ListAllContainers(t *testing.T) {
@@ -162,7 +162,7 @@ func TestExecuteTool_ListAllContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "def456", result.Containers[1].Id)
-	assert.Equal(t, "my-server", result.Containers[0].Host)
+	assert.Equal(t, "my-server", result.Containers[0].HostName)
 }
 
 func TestExecuteTool_RestartContainer(t *testing.T) {
@@ -174,7 +174,7 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockHost := &MockHostService{}
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
-	argsJSON := `{"container_id": "abc123", "host": "local"}`
+	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
 	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
 	assert.True(t, resp.Success)
 

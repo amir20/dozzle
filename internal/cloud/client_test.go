@@ -143,7 +143,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
 				Name:          "restart_container",
-				ArgumentsJson: `{"container_id": "abc123", "host": "local"}`,
+				ArgumentsJson: `{"container_id": "abc123", "host_id": "local"}`,
 			},
 		},
 	}

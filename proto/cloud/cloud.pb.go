@@ -712,7 +712,8 @@ type ContainerInfo struct {
 	FinishedAt    string                 `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	State         string                 `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
 	Health        string                 `protobuf:"bytes,9,opt,name=health,proto3" json:"health,omitempty"`
-	Host          string                 `protobuf:"bytes,10,opt,name=host,proto3" json:"host,omitempty"`
+	HostName      string                 `protobuf:"bytes,10,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	HostId        string                 `protobuf:"bytes,12,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	Group         string                 `protobuf:"bytes,11,opt,name=group,proto3" json:"group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -811,9 +812,16 @@ func (x *ContainerInfo) GetHealth() string {
 	return ""
 }
 
-func (x *ContainerInfo) GetHost() string {
+func (x *ContainerInfo) GetHostName() string {
 	if x != nil {
-		return x.Host
+		return x.HostName
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetHostId() string {
+	if x != nil {
+		return x.HostId
 	}
 	return ""
 }
@@ -1147,7 +1155,8 @@ type InspectContainerResult struct {
 	FinishedAt    string                 `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	State         string                 `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
 	Health        string                 `protobuf:"bytes,9,opt,name=health,proto3" json:"health,omitempty"`
-	Host          string                 `protobuf:"bytes,10,opt,name=host,proto3" json:"host,omitempty"`
+	HostName      string                 `protobuf:"bytes,10,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	HostId        string                 `protobuf:"bytes,19,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	Labels        map[string]string      `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	MemoryLimit   uint64                 `protobuf:"varint,12,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
 	CpuLimit      float64                `protobuf:"fixed64,13,opt,name=cpu_limit,json=cpuLimit,proto3" json:"cpu_limit,omitempty"`
@@ -1253,9 +1262,16 @@ func (x *InspectContainerResult) GetHealth() string {
 	return ""
 }
 
-func (x *InspectContainerResult) GetHost() string {
+func (x *InspectContainerResult) GetHostName() string {
 	if x != nil {
-		return x.Host
+		return x.HostName
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetHostId() string {
+	if x != nil {
+		return x.HostId
 	}
 	return ""
 }
@@ -1428,7 +1444,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x04type\x18\a \x01(\tR\x04type\x12\x1c\n" +
 	"\tavailable\x18\b \x01(\bR\tavailable\"8\n" +
 	"\x0fListHostsResult\x12%\n" +
-	"\x05hosts\x18\x01 \x03(\v2\x0f.cloud.HostInfoR\x05hosts\"\x95\x02\n" +
+	"\x05hosts\x18\x01 \x03(\v2\x0f.cloud.HostInfoR\x05hosts\"\xb7\x02\n" +
 	"\rContainerInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1440,9 +1456,10 @@ const file_cloud_proto_rawDesc = "" +
 	"\vfinished_at\x18\a \x01(\tR\n" +
 	"finishedAt\x12\x14\n" +
 	"\x05state\x18\b \x01(\tR\x05state\x12\x16\n" +
-	"\x06health\x18\t \x01(\tR\x06health\x12\x12\n" +
-	"\x04host\x18\n" +
-	" \x01(\tR\x04host\x12\x14\n" +
+	"\x06health\x18\t \x01(\tR\x06health\x12\x1b\n" +
+	"\thost_name\x18\n" +
+	" \x01(\tR\bhostName\x12\x17\n" +
+	"\ahost_id\x18\f \x01(\tR\x06hostId\x12\x14\n" +
 	"\x05group\x18\v \x01(\tR\x05group\"L\n" +
 	"\x14ListContainersResult\x124\n" +
 	"\n" +
@@ -1468,7 +1485,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05level\x18\x04 \x01(\tR\x05level\"c\n" +
 	"\x0fFetchLogsResult\x12%\n" +
 	"\x0econtainer_name\x18\x01 \x01(\tR\rcontainerName\x12)\n" +
-	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xd0\x04\n" +
+	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xf2\x04\n" +
 	"\x16InspectContainerResult\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1480,9 +1497,10 @@ const file_cloud_proto_rawDesc = "" +
 	"\vfinished_at\x18\a \x01(\tR\n" +
 	"finishedAt\x12\x14\n" +
 	"\x05state\x18\b \x01(\tR\x05state\x12\x16\n" +
-	"\x06health\x18\t \x01(\tR\x06health\x12\x12\n" +
-	"\x04host\x18\n" +
-	" \x01(\tR\x04host\x12A\n" +
+	"\x06health\x18\t \x01(\tR\x06health\x12\x1b\n" +
+	"\thost_name\x18\n" +
+	" \x01(\tR\bhostName\x12\x17\n" +
+	"\ahost_id\x18\x13 \x01(\tR\x06hostId\x12A\n" +
 	"\x06labels\x18\v \x03(\v2).cloud.InspectContainerResult.LabelsEntryR\x06labels\x12!\n" +
 	"\fmemory_limit\x18\f \x01(\x04R\vmemoryLimit\x12\x1b\n" +
 	"\tcpu_limit\x18\r \x01(\x01R\bcpuLimit\x12\x10\n" +

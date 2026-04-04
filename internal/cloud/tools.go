@@ -51,11 +51,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		{
 			Name:           "fetch_container_logs",
 			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
-			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host":{"type":"string","description":"The host ID where the container is running (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id","host"]}`,
+			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id","host_id"]}`,
 		},
 	}
 
-	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host"]}`
+	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
 	tools = append(tools, &pb.ToolDefinition{
 		Name:           "inspect_container",
 		Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
@@ -63,7 +63,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	})
 
 	if enableActions {
-		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID"},"host":{"type":"string","description":"The host name where the container is running"}},"required":["container_id","host"]}`
+		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
 		tools = append(tools,
 			&pb.ToolDefinition{
 				Name:           "start_container",

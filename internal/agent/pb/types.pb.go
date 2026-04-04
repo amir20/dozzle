@@ -93,6 +93,11 @@ type Container struct {
 	MemoryLimit   uint64                 `protobuf:"varint,17,opt,name=memoryLimit,proto3" json:"memoryLimit,omitempty"`
 	CpuLimit      float64                `protobuf:"fixed64,18,opt,name=cpuLimit,proto3" json:"cpuLimit,omitempty"`
 	FullyLoaded   bool                   `protobuf:"varint,19,opt,name=fullyLoaded,proto3" json:"fullyLoaded,omitempty"`
+	Env           []string               `protobuf:"bytes,20,rep,name=env,proto3" json:"env,omitempty"`
+	Ports         []string               `protobuf:"bytes,21,rep,name=ports,proto3" json:"ports,omitempty"`
+	Mounts        []string               `protobuf:"bytes,22,rep,name=mounts,proto3" json:"mounts,omitempty"`
+	RestartPolicy string                 `protobuf:"bytes,23,opt,name=restartPolicy,proto3" json:"restartPolicy,omitempty"`
+	NetworkMode   string                 `protobuf:"bytes,24,opt,name=networkMode,proto3" json:"networkMode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -258,6 +263,41 @@ func (x *Container) GetFullyLoaded() bool {
 		return x.FullyLoaded
 	}
 	return false
+}
+
+func (x *Container) GetEnv() []string {
+	if x != nil {
+		return x.Env
+	}
+	return nil
+}
+
+func (x *Container) GetPorts() []string {
+	if x != nil {
+		return x.Ports
+	}
+	return nil
+}
+
+func (x *Container) GetMounts() []string {
+	if x != nil {
+		return x.Mounts
+	}
+	return nil
+}
+
+func (x *Container) GetRestartPolicy() string {
+	if x != nil {
+		return x.RestartPolicy
+	}
+	return ""
+}
+
+func (x *Container) GetNetworkMode() string {
+	if x != nil {
+		return x.NetworkMode
+	}
+	return ""
 }
 
 type ContainerStat struct {
@@ -1124,7 +1164,7 @@ var File_types_proto protoreflect.FileDescriptor
 
 const file_types_proto_rawDesc = "" +
 	"\n" +
-	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x05\n" +
+	"\vtypes.proto\x12\bprotobuf\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xaa\x06\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1145,7 +1185,12 @@ const file_types_proto_rawDesc = "" +
 	"\bfinished\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\bfinished\x12 \n" +
 	"\vmemoryLimit\x18\x11 \x01(\x04R\vmemoryLimit\x12\x1a\n" +
 	"\bcpuLimit\x18\x12 \x01(\x01R\bcpuLimit\x12 \n" +
-	"\vfullyLoaded\x18\x13 \x01(\bR\vfullyLoaded\x1a9\n" +
+	"\vfullyLoaded\x18\x13 \x01(\bR\vfullyLoaded\x12\x10\n" +
+	"\x03env\x18\x14 \x03(\tR\x03env\x12\x14\n" +
+	"\x05ports\x18\x15 \x03(\tR\x05ports\x12\x16\n" +
+	"\x06mounts\x18\x16 \x03(\tR\x06mounts\x12$\n" +
+	"\rrestartPolicy\x18\x17 \x01(\tR\rrestartPolicy\x12 \n" +
+	"\vnetworkMode\x18\x18 \x01(\tR\vnetworkMode\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd7\x01\n" +

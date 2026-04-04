@@ -82,7 +82,8 @@ message ContainerInfo {
   string finished_at = 7;
   string state = 8;
   string health = 9;
-  string host = 10;
+  string host_name = 10;
+  string host_id = 12;
   string group = 11;
 }
 
@@ -130,7 +131,8 @@ message InspectContainerResult {
   string finished_at = 7;
   string state = 8;
   string health = 9;
-  string host = 10;
+  string host_name = 10;
+  string host_id = 19;
   map<string, string> labels = 11;
   uint64 memory_limit = 12;
   double cpu_limit = 13;
