@@ -176,10 +176,20 @@ func (d *DockerClient) ContainerCreate(ctx context.Context, details any, name st
 		return "", fmt.Errorf("invalid container details type")
 	}
 
+	// Build clean EndpointsConfig with only network names and aliases,
+	// stripping runtime state (IPs, gateways, MAC addresses) that can
+	// cause conflicts when recreating.
+	endpointsConfig := make(map[string]*network.EndpointSettings, len(inspectResp.NetworkSettings.Networks))
+	for netName, ep := range inspectResp.NetworkSettings.Networks {
+		endpointsConfig[netName] = &network.EndpointSettings{
+			Aliases: ep.Aliases,
+		}
+	}
+
 	resp, err := d.cli.ContainerCreate(ctx,
 		inspectResp.Config,
 		inspectResp.HostConfig,
-		&network.NetworkingConfig{EndpointsConfig: inspectResp.NetworkSettings.Networks},
+		&network.NetworkingConfig{EndpointsConfig: endpointsConfig},
 		nil,
 		name,
 	)
