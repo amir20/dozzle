@@ -80,6 +80,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 				Description:    "Restart a Docker container",
 				ParametersJson: actionParams,
 			},
+			&pb.ToolDefinition{
+				Name:           "update_container",
+				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
+				ParametersJson: actionParams,
+			},
 		)
 	}
 
@@ -124,6 +129,11 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
 		return executeContainerAction(ctx, name, argsJSON, hostService, labels)
+	case "update_container":
+		if !enableActions {
+			return nil, fmt.Errorf("container actions are not enabled")
+		}
+		return executeUpdateContainer(ctx, argsJSON, hostService, labels)
 	default:
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}
