@@ -104,7 +104,8 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	}
 	mockedClient.On("ContainerInspectRaw", mock.Anything, "123").Return(inspectResp, nil)
 
-	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n"
+	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
+		`{"status":"Status: Image is up to date for test:v1"}` + "\n"
 	mockedClient.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
 
 	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
@@ -115,6 +116,43 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 200, rr.Code)
 	assert.Contains(t, rr.Body.String(), `"up-to-date"`)
+}
+
+func Test_handler_containerUpdate_new_image(t *testing.T) {
+	m := new(MockedClient)
+	c := container.Container{ID: "123"}
+
+	m.On("FindContainer", mock.Anything, "123").Return(c, nil)
+	m.On("ContainerActions", mock.Anything, container.Start, "new-123").Return(nil)
+	m.On("Host").Return(container.Host{ID: "localhost"})
+	m.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{c}, nil)
+	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
+
+	inspectResp := docker_types.InspectResponse{
+		ContainerJSONBase: &docker_types.ContainerJSONBase{
+			Name: "/test-container",
+		},
+		Config: &docker_types.Config{
+			Image: "test:v1",
+		},
+		NetworkSettings: &docker_types.NetworkSettings{},
+	}
+	m.On("ContainerInspectRaw", mock.Anything, "123").Return(inspectResp, nil)
+
+	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
+		`{"status":"Status: Downloaded newer image for test:v1"}` + "\n"
+	m.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
+	m.On("ContainerRemove", mock.Anything, "123").Return(nil)
+	m.On("ContainerCreate", mock.Anything, mock.Anything, "test-container").Return("new-123", nil)
+
+	handler := createHandler(m, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"done"`)
 }
 
 func Test_handler_containerUpdate_not_found(t *testing.T) {

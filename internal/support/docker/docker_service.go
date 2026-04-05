@@ -149,7 +149,7 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 			Total:   event.ProgressDetail.Total,
 		}
 
-		if event.Status == "Download complete" || event.Status == "Pull complete" {
+		if strings.HasPrefix(event.Status, "Status: Downloaded newer image") {
 			updated = true
 		}
 	}
