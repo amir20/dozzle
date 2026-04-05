@@ -41,12 +41,15 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, h
 		return nil, fmt.Errorf("action failed: %w", err)
 	}
 
+	message := fmt.Sprintf("Successfully %s container %s.", pastTense(action), args.ContainerID)
+
 	return &pb.CallToolResponse{
 		Success: true,
 		Result: &pb.CallToolResponse_Action{Action: &pb.ActionResult{
 			Success:     true,
 			ContainerId: args.ContainerID,
 			Action:      string(action),
+			Message:     message,
 		}},
 	}, nil
 }
@@ -69,33 +72,24 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, hostService To
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
 
-	progressCh := make(chan container.UpdateProgress, 100)
-	errCh := make(chan error, 1)
-
+	progressCh := make(chan container.UpdateProgress)
+	var updated bool
+	var updateErr error
+	done := make(chan struct{})
 	go func() {
-		errCh <- cs.Update(ctx, progressCh)
+		updated, updateErr = cs.Update(ctx, progressCh)
+		close(done)
 	}()
-
-	// Drain progress channel and capture final status
-	var lastStatus string
-	var lastError string
-	for progress := range progressCh {
-		lastStatus = progress.Status
-		if progress.Error != "" {
-			lastError = progress.Error
-		}
+	for range progressCh {
+	}
+	<-done
+	if updateErr != nil {
+		return nil, fmt.Errorf("update failed: %w", updateErr)
 	}
 
-	if err := <-errCh; err != nil {
-		return nil, fmt.Errorf("update failed: %w", err)
-	}
-
-	action := "update"
-	if lastStatus == "up-to-date" {
-		action = "update (already up-to-date)"
-	}
-	if lastError != "" {
-		return nil, fmt.Errorf("update failed: %s", lastError)
+	message := fmt.Sprintf("Successfully updated container %s by pulling the latest image and recreating it.", args.ContainerID)
+	if !updated {
+		message = fmt.Sprintf("Container %s is already running the latest image. No update was needed.", args.ContainerID)
 	}
 
 	return &pb.CallToolResponse{
@@ -103,9 +97,23 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, hostService To
 		Result: &pb.CallToolResponse_Action{Action: &pb.ActionResult{
 			Success:     true,
 			ContainerId: args.ContainerID,
-			Action:      action,
+			Action:      "update",
+			Message:     message,
 		}},
 	}, nil
+}
+
+func pastTense(action container.ContainerAction) string {
+	switch action {
+	case container.Start:
+		return "started"
+	case container.Stop:
+		return "stopped"
+	case container.Restart:
+		return "restarted"
+	default:
+		return string(action) + "ed"
+	}
 }
 
 func resolveAction(name string) (container.ContainerAction, error) {

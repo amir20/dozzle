@@ -367,21 +367,26 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
-func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) error {
+func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
 	defer close(progressCh)
 
 	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
 	if err != nil {
-		return err
+		return false, err
 	}
 
+	updated := false
 	for {
 		progress, err := stream.Recv()
 		if err == io.EOF {
-			return nil
+			return updated, nil
 		}
 		if err != nil {
-			return err
+			return false, err
+		}
+
+		if progress.Status == "done" {
+			updated = true
 		}
 
 		progressCh <- container.UpdateProgress{

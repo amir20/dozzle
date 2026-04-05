@@ -76,7 +76,7 @@ func (a *agentService) ContainerAction(ctx context.Context, container container.
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
 
-func (a *agentService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) error {
+func (a *agentService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return a.client.UpdateContainer(ctx, c.ID, progressCh)
 }
 

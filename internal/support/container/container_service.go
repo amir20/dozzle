@@ -36,7 +36,7 @@ func (c *ContainerService) Action(ctx context.Context, action container.Containe
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
 
-func (c *ContainerService) Update(ctx context.Context, progressCh chan<- container.UpdateProgress) error {
+func (c *ContainerService) Update(ctx context.Context, progressCh chan<- container.UpdateProgress) (bool, error) {
 	return c.clientService.UpdateContainer(ctx, c.Container, progressCh)
 }
 
