@@ -27,6 +27,7 @@ declare module 'vue' {
     'Carbon:star': typeof import('~icons/carbon/star')['default']
     'Carbon:starFilled': typeof import('~icons/carbon/star-filled')['default']
     'Carbon:stopFilledAlt': typeof import('~icons/carbon/stop-filled-alt')['default']
+    'Carbon:upgrade': typeof import('~icons/carbon/upgrade')['default']
     'Carbon:warning': typeof import('~icons/carbon/warning')['default']
     Carousel: typeof import('./components/common/Carousel.vue')['default']
     CarouselItem: typeof import('./components/common/CarouselItem.vue')['default']

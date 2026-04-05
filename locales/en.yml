@@ -8,6 +8,11 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  update: Update
+  update-pulling: Pulling latest image...
+  update-recreating: Recreating container...
+  update-done: Container updated successfully
+  update-up-to-date: Already up to date
   show-hostname: Show hostname
   show-container-name: Show container name
   shell: Shell
