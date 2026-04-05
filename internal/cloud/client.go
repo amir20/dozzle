@@ -223,9 +223,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 				}
 				continue
 			}
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			wg.Go(func() {
 				defer c.toolSem.Release(1)
 				resp := c.handleRequest(streamLifetime, req)
 				if streamLifetime.Err() != nil {
@@ -234,7 +232,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 				if err := sendResp(resp); err != nil {
 					log.Debug().Err(err).Msg("failed to send tool response")
 				}
-			}()
+			})
 		} else {
 			resp := c.handleRequest(streamLifetime, req)
 			if err := sendResp(resp); err != nil {
