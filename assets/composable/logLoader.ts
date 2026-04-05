@@ -17,6 +17,7 @@ export function useLogLoader(
     if (containers.value.length === 0) return;
 
     const [loader, ...existingLogs] = messages.value;
+    if (existingLogs.length === 0) return;
 
     const containerIDs = new Set(containers.value.map((c) => c.id));
     const earliestByContainer = new Map<string, LogEntry<LogMessage>>();
