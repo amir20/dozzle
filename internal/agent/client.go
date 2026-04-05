@@ -367,6 +367,33 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	return err
 }
 
+func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
+
+	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
+	if err != nil {
+		return err
+	}
+
+	for {
+		progress, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		progressCh <- container.UpdateProgress{
+			Status:  progress.Status,
+			Layer:   progress.Layer,
+			Current: progress.Current,
+			Total:   progress.Total,
+			Error:   progress.Error,
+		}
+	}
+}
+
 func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*container.ExecSession, error) {
 	stream, err := c.client.ContainerAttach(ctx)
 	if err != nil {
