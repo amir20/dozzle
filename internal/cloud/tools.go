@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -17,12 +18,74 @@ type ToolHostService interface {
 	Hosts() []container.Host
 }
 
+type paramProperty struct {
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
+type paramSchema struct {
+	Type                 string                   `json:"type"`
+	Properties           map[string]paramProperty `json:"properties"`
+	Required             []string                 `json:"required,omitempty"`
+	AdditionalProperties *bool                    `json:"additionalProperties,omitempty"`
+}
+
+func mustSchema(s paramSchema) string {
+	b, err := json.Marshal(s)
+	if err != nil {
+		panic(fmt.Sprintf("failed to marshal schema: %v", err))
+	}
+	return string(b)
+}
+
+var (
+	noParams = mustSchema(paramSchema{
+		Type:       "object",
+		Properties: map[string]paramProperty{},
+	})
+
+	containerIDParam = paramProperty{Type: "string", Description: "The container ID (from find_containers)"}
+	hostIDParam      = paramProperty{Type: "string", Description: "The host ID where the container is running (from find_containers)"}
+	boolFalse        = false
+
+	targetedParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"container_id": containerIDParam,
+			"host_id":      hostIDParam,
+		},
+		Required:             []string{"container_id", "host_id"},
+		AdditionalProperties: &boolFalse,
+	})
+
+	findContainerParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"name":   {Type: "string", Description: "Optional container name to search for (partial match supported)"},
+			"image":  {Type: "string", Description: "Optional image name to filter by (partial match supported)"},
+			"state":  {Type: "string", Description: "Optional state filter (e.g. running, exited, created)"},
+			"health": {Type: "string", Description: "Optional health status filter (e.g. healthy, unhealthy, none)"},
+		},
+	})
+
+	fetchLogsParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"container_id": containerIDParam,
+			"host_id":      hostIDParam,
+			"start":        {Type: "string", Description: "Optional ISO 8601 start time for log range"},
+			"end":          {Type: "string", Description: "Optional ISO 8601 end time for log range"},
+			"level":        {Type: "string", Description: "Optional log level filter (e.g. error, warn, info)"},
+			"query":        {Type: "string", Description: "Optional text search query (case-insensitive substring match)"},
+			"regex":        {Type: "string", Description: "Optional regex pattern to match against log messages"},
+		},
+		Required:             []string{"container_id", "host_id"},
+		AdditionalProperties: &boolFalse,
+	})
+)
+
 // AvailableTools returns the list of tool definitions based on configuration.
 func AvailableTools(enableActions bool) []*pb.ToolDefinition {
-	noParams := `{"type":"object","properties":{}}`
-
-	findContainerParams := `{"type":"object","properties":{"name":{"type":"string","description":"Optional container name to search for (partial match supported)"},"image":{"type":"string","description":"Optional image name to filter by (partial match supported)"},"state":{"type":"string","description":"Optional state filter (e.g. running, exited, created)"},"health":{"type":"string","description":"Optional health status filter (e.g. healthy, unhealthy, none)"}}}`
-
 	tools := []*pb.ToolDefinition{
 		{
 			Name:           "list_hosts",
@@ -52,39 +115,36 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		{
 			Name:           "fetch_container_logs",
 			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
-			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id","host_id"]}`,
+			ParametersJson: fetchLogsParams,
+		},
+		{
+			Name:           "inspect_container",
+			Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
+			ParametersJson: targetedParams,
 		},
 	}
 
-	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
-	tools = append(tools, &pb.ToolDefinition{
-		Name:           "inspect_container",
-		Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
-		ParametersJson: inspectParams,
-	})
-
 	if enableActions {
-		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
 		tools = append(tools,
 			&pb.ToolDefinition{
 				Name:           "start_container",
 				Description:    "Start a stopped Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: targetedParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "stop_container",
 				Description:    "Stop a running Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: targetedParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "restart_container",
 				Description:    "Restart a Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: targetedParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "update_container",
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
-				ParametersJson: actionParams,
+				ParametersJson: targetedParams,
 			},
 		)
 	}
