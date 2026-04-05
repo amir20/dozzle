@@ -3,6 +3,9 @@ import { type LogMessage, LogEntry, LoadMoreLogEntry, SkippedLogsEntry } from "@
 import { Container } from "@/models/Container";
 import { loadBetween } from "@/composable/loadBetween";
 
+// Matches the rolling window size used for stats history
+const LOG_WINDOW_FOR_DELTA = 300;
+
 export function useLogLoader(
   messages: ShallowRef<LogEntry<LogMessage>[]>,
   containers: Ref<Container[]>,
@@ -20,14 +23,14 @@ export function useLogLoader(
     const countByContainer = new Map<string, number>();
     const nthByContainer = new Map<string, LogEntry<LogMessage>>();
     for (const log of existingLogs) {
-      const id = log.containerID || containerIDs.values().next().value!;
-      if (!containerIDs.has(id)) continue;
+      const id = log.containerID;
+      if (!id || !containerIDs.has(id)) continue;
       if (!earliestByContainer.has(id)) {
         earliestByContainer.set(id, log);
       }
       const count = (countByContainer.get(id) ?? 0) + 1;
       countByContainer.set(id, count);
-      if (count <= 300) {
+      if (count <= LOG_WINDOW_FOR_DELTA) {
         nthByContainer.set(id, log);
       }
     }
@@ -43,8 +46,7 @@ export function useLogLoader(
           const nth = nthByContainer.get(c.id);
           const delta = to.getTime() - (nth?.date ?? to).getTime();
           const from = new Date(to.getTime() + (delta !== 0 ? delta : -60_000));
-          const containerRef = shallowRef(c);
-          return loadBetween(containerRef, params, from, to, {
+          return loadBetween(c, params, from, to, {
             min: minPerContainer,
             lastSeenId: earliest?.id,
           });
@@ -71,14 +73,14 @@ export function useLogLoader(
 
     const from = entry.firstSkipped.date;
     const to = entry.lastSkippedLog.date;
-    const lastSeenId = entry.lastSkippedLog.id;
+    const ownerContainerID = entry.lastSkippedLog.containerID;
 
     try {
       loadingMore.value = true;
       const results = await Promise.all(
         containers.value.map((c) => {
-          const containerRef = shallowRef(c);
-          return loadBetween(containerRef, params, from, to, { lastSeenId });
+          const lastSeenId = c.id === ownerContainerID ? entry.lastSkippedLog.id : undefined;
+          return loadBetween(c, params, from, to, { lastSeenId });
         }),
       );
       const allLogs = results
@@ -87,7 +89,8 @@ export function useLogLoader(
         .sort((a, b) => a.date.getTime() - b.date.getTime());
 
       if (allLogs.length > 0) {
-        messages.value = messages.value.flatMap((log) => (log === entry ? allLogs : [log]));
+        const updated = messages.value.flatMap((log) => (log === entry ? allLogs : [log]));
+        messages.value = updated.length > config.maxLogs ? updated.slice(-config.maxLogs) : updated;
       }
     } catch (err) {
       console.error(err);
