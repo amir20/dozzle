@@ -33,6 +33,31 @@ func (m *MockedClient) ContainerActions(ctx context.Context, action container.Co
 	return args.Error(0)
 }
 
+func (m *MockedClient) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
+	args := m.Called(ctx, imageName)
+	return args.Get(0).(io.ReadCloser), args.Error(1)
+}
+
+func (m *MockedClient) ContainerInspectRaw(ctx context.Context, containerID string) (any, error) {
+	args := m.Called(ctx, containerID)
+	return args.Get(0), args.Error(1)
+}
+
+func (m *MockedClient) ContainerRemove(ctx context.Context, containerID string) error {
+	args := m.Called(ctx, containerID)
+	return args.Error(0)
+}
+
+func (m *MockedClient) ContainerCreate(ctx context.Context, details any, name string) (string, error) {
+	args := m.Called(ctx, details, name)
+	return args.Get(0).(string), args.Error(1)
+}
+
+func (m *MockedClient) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
+	args := m.Called(ctx, serviceID, imageName)
+	return args.Error(0)
+}
+
 func (m *MockedClient) ContainerEvents(ctx context.Context, events chan<- container.ContainerEvent) error {
 	args := m.Called(ctx, events)
 	return args.Error(0)

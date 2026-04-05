@@ -2,12 +2,15 @@ package web
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	docker_types "github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -89,4 +92,39 @@ func Test_handler_containerActions_start(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	assert.Equal(t, 204, rr.Code)
+}
+
+func Test_handler_containerUpdate_up_to_date(t *testing.T) {
+	mockedClient := mockedClient()
+
+	inspectResp := docker_types.InspectResponse{
+		Config: &docker_types.Config{
+			Image: "test:v1",
+		},
+	}
+	mockedClient.On("ContainerInspectRaw", mock.Anything, "123").Return(inspectResp, nil)
+
+	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n"
+	mockedClient.On("ImagePull", mock.Anything, "test:v1").Return(io.NopCloser(strings.NewReader(pullResp)), nil)
+
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/123/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 200, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"up-to-date"`)
+}
+
+func Test_handler_containerUpdate_not_found(t *testing.T) {
+	mockedClient := mockedClient()
+
+	handler := createHandler(mockedClient, nil, Config{Base: "/", EnableActions: true, Authorization: Authorization{Provider: NONE}})
+	req, err := http.NewRequest("POST", "/api/hosts/localhost/containers/456/actions/update", nil)
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	assert.Equal(t, 404, rr.Code)
 }
