@@ -53,6 +53,7 @@ func executeFindContainers(argsJSON string, hostService ToolHostService, labels 
 
 	containers, errs := hostService.ListAllContainers(labels)
 	logHostErrors(errs)
+	hostNames := buildHostNameMap(hostService)
 
 	result := make([]*pb.ContainerInfo, 0, len(containers))
 	for _, c := range containers {
@@ -68,8 +69,7 @@ func executeFindContainers(argsJSON string, hostService ToolHostService, labels 
 		if args.Health != "" && !strings.EqualFold(c.Health, args.Health) {
 			continue
 		}
-		// Keep raw host ID so action tools can use it directly
-		result = append(result, containerToProto(c, nil))
+		result = append(result, containerToProto(c, hostNames))
 	}
 	return &pb.CallToolResponse{
 		Success: true,

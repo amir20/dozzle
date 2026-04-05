@@ -39,14 +39,18 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 	start := time.Now().Add(-1 * time.Hour)
 	end := time.Now()
 	if args.Start != "" {
-		if t, err := time.Parse(time.RFC3339, args.Start); err == nil {
-			start = t
+		t, err := time.Parse(time.RFC3339, args.Start)
+		if err != nil {
+			return nil, fmt.Errorf("invalid start time format (expected RFC3339): %w", err)
 		}
+		start = t
 	}
 	if args.End != "" {
-		if t, err := time.Parse(time.RFC3339, args.End); err == nil {
-			end = t
+		t, err := time.Parse(time.RFC3339, args.End)
+		if err != nil {
+			return nil, fmt.Errorf("invalid end time format (expected RFC3339): %w", err)
 		}
+		end = t
 	}
 
 	var re *regexp.Regexp
@@ -57,6 +61,9 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 			return nil, fmt.Errorf("invalid regex pattern: %w", err)
 		}
 	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
 	logCh, err := cs.LogsBetweenDates(ctx, start, end, container.STDOUT|container.STDERR)
 	if err != nil {
