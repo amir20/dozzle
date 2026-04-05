@@ -88,7 +88,7 @@ func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	defer sse.Close()
 
-	progressCh := make(chan container.UpdateProgress)
+	progressCh := make(chan container.UpdateProgress, 50)
 	errCh := make(chan error, 1)
 
 	go func() {

@@ -179,17 +179,21 @@ func (d *DockerClient) ContainerCreate(ctx context.Context, details any, name st
 	// Build clean EndpointsConfig with only network names and aliases,
 	// stripping runtime state (IPs, gateways, MAC addresses) that can
 	// cause conflicts when recreating.
-	endpointsConfig := make(map[string]*network.EndpointSettings, len(inspectResp.NetworkSettings.Networks))
-	for netName, ep := range inspectResp.NetworkSettings.Networks {
-		endpointsConfig[netName] = &network.EndpointSettings{
-			Aliases: ep.Aliases,
+	var networkingConfig *network.NetworkingConfig
+	if inspectResp.NetworkSettings != nil && len(inspectResp.NetworkSettings.Networks) > 0 {
+		endpointsConfig := make(map[string]*network.EndpointSettings, len(inspectResp.NetworkSettings.Networks))
+		for netName, ep := range inspectResp.NetworkSettings.Networks {
+			endpointsConfig[netName] = &network.EndpointSettings{
+				Aliases: ep.Aliases,
+			}
 		}
+		networkingConfig = &network.NetworkingConfig{EndpointsConfig: endpointsConfig}
 	}
 
 	resp, err := d.cli.ContainerCreate(ctx,
 		inspectResp.Config,
 		inspectResp.HostConfig,
-		&network.NetworkingConfig{EndpointsConfig: endpointsConfig},
+		networkingConfig,
 		nil,
 		name,
 	)

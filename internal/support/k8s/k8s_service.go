@@ -94,6 +94,7 @@ func (k *K8sClientService) SubscribeContainersStarted(ctx context.Context, conta
 }
 
 func (k *K8sClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
 	return fmt.Errorf("update container is not supported in Kubernetes mode")
 }
 
