@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
+	docker_types "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/system"
 	"github.com/go-chi/chi/v5"
 
@@ -38,9 +39,9 @@ func (m *MockedClient) ImagePull(ctx context.Context, imageName string) (io.Read
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func (m *MockedClient) ContainerInspectRaw(ctx context.Context, containerID string) (any, error) {
+func (m *MockedClient) ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error) {
 	args := m.Called(ctx, containerID)
-	return args.Get(0), args.Error(1)
+	return args.Get(0).(docker_types.InspectResponse), args.Error(1)
 }
 
 func (m *MockedClient) ContainerRemove(ctx context.Context, containerID string) error {
@@ -48,8 +49,8 @@ func (m *MockedClient) ContainerRemove(ctx context.Context, containerID string) 
 	return args.Error(0)
 }
 
-func (m *MockedClient) ContainerCreate(ctx context.Context, details any, name string) (string, error) {
-	args := m.Called(ctx, details, name)
+func (m *MockedClient) ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error) {
+	args := m.Called(ctx, inspectResp, name)
 	return args.Get(0).(string), args.Error(1)
 }
 

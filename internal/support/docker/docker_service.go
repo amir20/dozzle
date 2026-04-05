@@ -21,9 +21,9 @@ import (
 type DockerUpdateClient interface {
 	container.Client
 	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
-	ContainerInspectRaw(ctx context.Context, containerID string) (any, error)
+	ContainerInspect(ctx context.Context, containerID string) (docker_types.InspectResponse, error)
 	ContainerRemove(ctx context.Context, containerID string) error
-	ContainerCreate(ctx context.Context, details any, name string) (string, error)
+	ContainerCreate(ctx context.Context, inspectResp docker_types.InspectResponse, name string) (string, error)
 	ServiceUpdate(ctx context.Context, serviceID string, image string) error
 }
 
@@ -118,16 +118,9 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	defer close(progressCh)
 
 	// 1. Inspect container to get full config
-	rawDetails, err := d.client.ContainerInspectRaw(ctx, c.ID)
+	inspectResp, err := d.client.ContainerInspect(ctx, c.ID)
 	if err != nil {
 		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("inspect failed: %v", err)}
-		return err
-	}
-
-	inspectResp, ok := rawDetails.(docker_types.InspectResponse)
-	if !ok {
-		err := fmt.Errorf("unexpected inspect response type")
-		progressCh <- container.UpdateProgress{Status: "error", Error: err.Error()}
 		return err
 	}
 
@@ -203,7 +196,7 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	}
 
 	// Create with same config
-	newID, err := d.client.ContainerCreate(ctx, rawDetails, containerName)
+	newID, err := d.client.ContainerCreate(ctx, inspectResp, containerName)
 	if err != nil {
 		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("create failed: %v", err)}
 		return err

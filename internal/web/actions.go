@@ -5,13 +5,13 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )
 
-func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
-	action := chi.URLParam(r, "action")
+func (h *handler) findContainerWithActions(w http.ResponseWriter, r *http.Request) (*container_support.ContainerService, bool) {
 	id := chi.URLParam(r, "id")
 
 	userLabels := h.config.Labels
@@ -27,13 +27,24 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 	if !permit {
 		log.Warn().Msg("user is not permitted to perform actions on container")
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
+		return nil, false
 	}
 
 	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
 	if err != nil {
 		log.Error().Err(err).Msg("error while trying to find container")
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return nil, false
+	}
+
+	return containerService, true
+}
+
+func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
+	action := chi.URLParam(r, "action")
+
+	containerService, ok := h.findContainerWithActions(w, r)
+	if !ok {
 		return
 	}
 
@@ -55,28 +66,8 @@ func (h *handler) containerActions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) containerUpdate(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	userLabels := h.config.Labels
-	permit := true
-	if h.config.Authorization.Provider != NONE {
-		user := auth.UserFromContext(r.Context())
-		if user.ContainerLabels.Exists() {
-			userLabels = user.ContainerLabels
-		}
-		permit = user.Roles.Has(auth.Actions)
-	}
-
-	if !permit {
-		log.Warn().Msg("user is not permitted to update container")
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
-	}
-
-	containerService, err := h.hostService.FindContainer(hostKey(r), id, userLabels)
-	if err != nil {
-		log.Error().Err(err).Msg("error while trying to find container")
-		http.Error(w, err.Error(), http.StatusNotFound)
+	containerService, ok := h.findContainerWithActions(w, r)
+	if !ok {
 		return
 	}
 

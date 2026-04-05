@@ -102,7 +102,7 @@ func Test_handler_containerUpdate_up_to_date(t *testing.T) {
 			Image: "test:v1",
 		},
 	}
-	mockedClient.On("ContainerInspectRaw", mock.Anything, "123").Return(inspectResp, nil)
+	mockedClient.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
 
 	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
 		`{"status":"Status: Image is up to date for test:v1"}` + "\n"
@@ -137,7 +137,7 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 		},
 		NetworkSettings: &docker_types.NetworkSettings{},
 	}
-	m.On("ContainerInspectRaw", mock.Anything, "123").Return(inspectResp, nil)
+	m.On("ContainerInspect", mock.Anything, "123").Return(inspectResp, nil)
 
 	pullResp := `{"status":"Already exists","id":"abc123"}` + "\n" +
 		`{"status":"Status: Downloaded newer image for test:v1"}` + "\n"

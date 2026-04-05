@@ -104,22 +104,12 @@ export const useContainerActions = (container: Ref<Container>) => {
               );
               break;
             case "done":
-              removeToast(toastId);
-              showToast(
-                {
-                  title: t("toolbar.update"),
-                  message: t("toolbar.update-done"),
-                  type: "info",
-                },
-                { expire: 3000 },
-              );
-              break;
             case "up-to-date":
               removeToast(toastId);
               showToast(
                 {
                   title: t("toolbar.update"),
-                  message: t("toolbar.update-up-to-date"),
+                  message: t(`toolbar.update-${data.status}`),
                   type: "info",
                 },
                 { expire: 3000 },

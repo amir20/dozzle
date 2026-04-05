@@ -162,7 +162,7 @@ func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.Read
 	return d.cli.ImagePull(ctx, imageName, image.PullOptions{})
 }
 
-func (d *DockerClient) ContainerInspectRaw(ctx context.Context, containerID string) (any, error) {
+func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {
 	return d.cli.ContainerInspect(ctx, containerID)
 }
 
@@ -170,12 +170,7 @@ func (d *DockerClient) ContainerRemove(ctx context.Context, containerID string) 
 	return d.cli.ContainerRemove(ctx, containerID, docker.RemoveOptions{})
 }
 
-func (d *DockerClient) ContainerCreate(ctx context.Context, details any, name string) (string, error) {
-	inspectResp, ok := details.(docker.InspectResponse)
-	if !ok {
-		return "", fmt.Errorf("invalid container details type")
-	}
-
+func (d *DockerClient) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
 	// Build clean EndpointsConfig with only network names and aliases,
 	// stripping runtime state (IPs, gateways, MAC addresses) that can
 	// cause conflicts when recreating.
