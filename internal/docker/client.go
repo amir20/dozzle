@@ -17,8 +17,12 @@ import (
 	docker "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/api/types/system"
 	"github.com/docker/docker/client"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/rs/zerolog/log"
 )
@@ -38,6 +42,11 @@ type DockerCLI interface {
 	ContainerExecAttach(ctx context.Context, execID string, config docker.ExecAttachOptions) (types.HijackedResponse, error)
 	ContainerExecResize(ctx context.Context, execID string, options docker.ResizeOptions) error
 	Info(ctx context.Context) (system.Info, error)
+	ImagePull(ctx context.Context, refStr string, options image.PullOptions) (io.ReadCloser, error)
+	ContainerRemove(ctx context.Context, containerID string, options docker.RemoveOptions) error
+	ContainerCreate(ctx context.Context, config *docker.Config, hostConfig *docker.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (docker.CreateResponse, error)
+	ServiceInspectWithRaw(ctx context.Context, serviceID string, opts swarm.ServiceInspectOptions) (swarm.Service, []byte, error)
+	ServiceUpdate(ctx context.Context, serviceID string, version swarm.Version, service swarm.ServiceSpec, opts swarm.ServiceUpdateOptions) (swarm.ServiceUpdateResponse, error)
 }
 
 type DockerClient struct {
@@ -147,6 +156,48 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
+}
+
+func (d *DockerClient) ImagePull(ctx context.Context, imageName string) (io.ReadCloser, error) {
+	return d.cli.ImagePull(ctx, imageName, image.PullOptions{})
+}
+
+func (d *DockerClient) ContainerInspectRaw(ctx context.Context, containerID string) (any, error) {
+	return d.cli.ContainerInspect(ctx, containerID)
+}
+
+func (d *DockerClient) ContainerRemove(ctx context.Context, containerID string) error {
+	return d.cli.ContainerRemove(ctx, containerID, docker.RemoveOptions{})
+}
+
+func (d *DockerClient) ContainerCreate(ctx context.Context, details any, name string) (string, error) {
+	inspectResp, ok := details.(docker.InspectResponse)
+	if !ok {
+		return "", fmt.Errorf("invalid container details type")
+	}
+
+	resp, err := d.cli.ContainerCreate(ctx,
+		inspectResp.Config,
+		inspectResp.HostConfig,
+		&network.NetworkingConfig{EndpointsConfig: inspectResp.NetworkSettings.Networks},
+		nil,
+		name,
+	)
+	if err != nil {
+		return "", err
+	}
+	return resp.ID, nil
+}
+
+func (d *DockerClient) ServiceUpdate(ctx context.Context, serviceID string, imageName string) error {
+	svc, _, err := d.cli.ServiceInspectWithRaw(ctx, serviceID, swarm.ServiceInspectOptions{})
+	if err != nil {
+		return err
+	}
+	svc.Spec.TaskTemplate.ContainerSpec.Image = imageName
+	svc.Spec.TaskTemplate.ForceUpdate++
+	_, err = d.cli.ServiceUpdate(ctx, serviceID, svc.Version, svc.Spec, swarm.ServiceUpdateOptions{})
+	return err
 }
 
 func (d *DockerClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {

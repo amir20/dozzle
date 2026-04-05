@@ -204,6 +204,14 @@ func ParseContainerAction(input string) (ContainerAction, error) {
 	}
 }
 
+type UpdateProgress struct {
+	Status  string `json:"status"`  // "pulling", "recreating", "done", "error", "up-to-date"
+	Layer   string `json:"layer"`   // Docker layer ID (pull events only)
+	Current int64  `json:"current"` // Bytes downloaded
+	Total   int64  `json:"total"`   // Total bytes for layer
+	Error   string `json:"error"`   // Only when Status="error"
+}
+
 type LogEvent struct {
 	Type        LogType `json:"t,omitempty"`
 	Message     any     `json:"m,omitempty"`

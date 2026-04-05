@@ -2,13 +2,17 @@ package docker_support
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 
+	docker_types "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/rs/zerolog/log"
 )
@@ -89,6 +93,120 @@ func (d *DockerClientService) FindContainer(ctx context.Context, id string, labe
 
 func (d *DockerClientService) ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error {
 	return d.client.ContainerActions(ctx, action, container.ID)
+}
+
+type pullEvent struct {
+	Status         string `json:"status"`
+	ProgressDetail struct {
+		Current int64 `json:"current"`
+		Total   int64 `json:"total"`
+	} `json:"progressDetail"`
+	ID string `json:"id"`
+}
+
+func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) error {
+	defer close(progressCh)
+
+	// 1. Inspect container to get full config
+	rawDetails, err := d.client.ContainerInspectRaw(ctx, c.ID)
+	if err != nil {
+		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("inspect failed: %v", err)}
+		return err
+	}
+
+	inspectResp, ok := rawDetails.(docker_types.InspectResponse)
+	if !ok {
+		err := fmt.Errorf("unexpected inspect response type")
+		progressCh <- container.UpdateProgress{Status: "error", Error: err.Error()}
+		return err
+	}
+
+	imageName := inspectResp.Config.Image
+
+	// 2. Pull image with progress
+	reader, err := d.client.ImagePull(ctx, imageName)
+	if err != nil {
+		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull failed: %v", err)}
+		return err
+	}
+	defer reader.Close()
+
+	updated := false
+	decoder := json.NewDecoder(reader)
+	for {
+		var event pullEvent
+		if err := decoder.Decode(&event); err == io.EOF {
+			break
+		} else if err != nil {
+			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("pull decode failed: %v", err)}
+			return err
+		}
+
+		progressCh <- container.UpdateProgress{
+			Status:  "pulling",
+			Layer:   event.ID,
+			Current: event.ProgressDetail.Current,
+			Total:   event.ProgressDetail.Total,
+		}
+
+		if event.Status == "Download complete" || event.Status == "Pull complete" {
+			updated = true
+		}
+	}
+
+	// 3. If no new layers, report up-to-date
+	if !updated {
+		progressCh <- container.UpdateProgress{Status: "up-to-date"}
+		return nil
+	}
+
+	// 4. Check if this is a swarm service
+	serviceName := c.Labels["com.docker.swarm.service.name"]
+	if serviceName != "" {
+		progressCh <- container.UpdateProgress{Status: "recreating"}
+		serviceID := c.Labels["com.docker.swarm.service.id"]
+		if err := d.client.ServiceUpdate(ctx, serviceID, imageName); err != nil {
+			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("service update failed: %v", err)}
+			return err
+		}
+		progressCh <- container.UpdateProgress{Status: "done"}
+		return nil
+	}
+
+	// 5. Standalone container: stop -> remove -> create -> start
+	progressCh <- container.UpdateProgress{Status: "recreating"}
+
+	containerName := strings.TrimPrefix(inspectResp.Name, "/")
+
+	// Stop if running
+	if c.State == "running" {
+		if err := d.client.ContainerActions(ctx, container.Stop, c.ID); err != nil {
+			progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("stop failed: %v", err)}
+			return err
+		}
+	}
+
+	// Remove
+	if err := d.client.ContainerRemove(ctx, c.ID); err != nil {
+		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("remove failed: %v", err)}
+		return err
+	}
+
+	// Create with same config
+	newID, err := d.client.ContainerCreate(ctx, rawDetails, containerName)
+	if err != nil {
+		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("create failed: %v", err)}
+		return err
+	}
+
+	// Start
+	if err := d.client.ContainerActions(ctx, container.Start, newID); err != nil {
+		progressCh <- container.UpdateProgress{Status: "error", Error: fmt.Sprintf("start failed: %v", err)}
+		return err
+	}
+
+	progressCh <- container.UpdateProgress{Status: "done"}
+	return nil
 }
 
 func (d *DockerClientService) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {

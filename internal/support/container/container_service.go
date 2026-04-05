@@ -36,6 +36,10 @@ func (c *ContainerService) Action(ctx context.Context, action container.Containe
 	return c.clientService.ContainerAction(ctx, c.Container, action)
 }
 
+func (c *ContainerService) Update(ctx context.Context, progressCh chan<- container.UpdateProgress) error {
+	return c.clientService.UpdateContainer(ctx, c.Container, progressCh)
+}
+
 func (c *ContainerService) Attach(ctx context.Context, events container.ExecEventReader, stdout io.Writer) error {
 	return c.clientService.Attach(ctx, c.Container, events, stdout)
 }
