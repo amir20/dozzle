@@ -31,7 +31,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           "find_containers",
-			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. Use this before start/stop/restart actions to get the container ID and host.",
+			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. Use this before other container tools to get the container ID.",
 			ParametersJson: findContainerParams,
 		},
 		{
@@ -51,40 +51,39 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           "fetch_container_logs",
-			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
-			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id","host_id"]}`,
+			Description:    "Fetch raw logs from a Docker container. Requires container_id from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
+			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id"]}`,
 		},
 	}
 
-	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
+	containerIDParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"}},"required":["container_id"]}`
 	tools = append(tools, &pb.ToolDefinition{
 		Name:           "inspect_container",
 		Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
-		ParametersJson: inspectParams,
+		ParametersJson: containerIDParams,
 	})
 
 	if enableActions {
-		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
 		tools = append(tools,
 			&pb.ToolDefinition{
 				Name:           "start_container",
 				Description:    "Start a stopped Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: containerIDParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "stop_container",
 				Description:    "Stop a running Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: containerIDParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "restart_container",
 				Description:    "Restart a Docker container",
-				ParametersJson: actionParams,
+				ParametersJson: containerIDParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "update_container",
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
-				ParametersJson: actionParams,
+				ParametersJson: containerIDParams,
 			},
 		)
 	}

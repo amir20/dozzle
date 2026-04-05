@@ -128,9 +128,13 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Host: "local"})
 
 	mockHost := &MockHostService{}
+	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{
+		{ID: "abc123", Name: "nginx", Host: "local", State: "running"},
+	}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	client := &Client{
@@ -143,7 +147,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
 				Name:          "restart_container",
-				ArgumentsJson: `{"container_id": "abc123", "host_id": "local"}`,
+				ArgumentsJson: `{"container_id": "abc123"}`,
 			},
 		},
 	}

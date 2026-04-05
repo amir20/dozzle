@@ -1,10 +1,12 @@
 package cloud
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
@@ -61,4 +63,17 @@ func logHostErrors(errs []error) {
 			log.Warn().Err(err).Msg("error listing containers from host")
 		}
 	}
+}
+
+// findContainerByID searches across all hosts to find a container by ID and returns its ContainerService.
+func findContainerByID(containerID string, hostService ToolHostService, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	containers, errs := hostService.ListAllContainers(labels)
+	logHostErrors(errs)
+
+	for _, c := range containers {
+		if c.ID == containerID {
+			return hostService.FindContainer(c.Host, c.ID, labels)
+		}
+	}
+	return nil, fmt.Errorf("container %s not found on any host", containerID)
 }

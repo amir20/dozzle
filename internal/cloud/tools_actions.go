@@ -11,7 +11,6 @@ import (
 
 type containerActionArgs struct {
 	ContainerID string `json:"container_id"`
-	Host        string `json:"host_id"`
 }
 
 func executeContainerAction(ctx context.Context, name string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
@@ -28,13 +27,10 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, h
 	if args.ContainerID == "" {
 		return nil, fmt.Errorf("container_id is required")
 	}
-	if args.Host == "" {
-		return nil, fmt.Errorf("host is required")
-	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := findContainerByID(args.ContainerID, hostService, labels)
 	if err != nil {
-		return nil, fmt.Errorf("container not found: %w", err)
+		return nil, err
 	}
 
 	if err := cs.Action(ctx, action); err != nil {
@@ -60,13 +56,10 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, hostService To
 	if args.ContainerID == "" {
 		return nil, fmt.Errorf("container_id is required")
 	}
-	if args.Host == "" {
-		return nil, fmt.Errorf("host is required")
-	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := findContainerByID(args.ContainerID, hostService, labels)
 	if err != nil {
-		return nil, fmt.Errorf("container not found: %w", err)
+		return nil, err
 	}
 
 	progressCh := make(chan container.UpdateProgress, 100)
