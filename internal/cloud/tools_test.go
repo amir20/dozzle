@@ -209,16 +209,18 @@ func TestExecuteTool_RestartContainer_WithoutHostID(t *testing.T) {
 	assert.Equal(t, "abc123", action.ContainerId)
 }
 
-func TestExecuteTool_RestartContainer_WithHostName(t *testing.T) {
+func TestExecuteTool_RestartContainer_WithWrongHost(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
 	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
 
 	mockHost := &MockHostService{}
-	// First FindContainer with host name "my-server" fails, then we resolve name to ID
+	// LLM passes wrong host value, direct lookup fails, falls back to searching all hosts
 	mockHost.On("FindContainer", "my-server", "abc123", container.ContainerLabels(nil)).Return(nil, fmt.Errorf("host not found"))
-	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
+	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{
+		{ID: "abc123", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
+	}, nil)
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123", "host_id": "my-server"}`

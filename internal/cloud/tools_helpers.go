@@ -66,32 +66,22 @@ func logHostErrors(errs []error) {
 }
 
 // findContainerFlexible finds a container by ID, optionally scoped to a specific host.
-// When hostID is empty, it searches across all hosts by listing all containers and matching by ID.
-// When hostID is provided, it also tries to resolve host names to host IDs for LLM-friendliness.
+// When hostID is provided and valid, it uses direct lookup for efficiency.
+// Otherwise it searches across all hosts since container IDs are unique.
 func findContainerFlexible(hostID string, containerID string, hostService ToolHostService, labels container.ContainerLabels) (*container_support.ContainerService, error) {
 	if containerID == "" {
 		return nil, fmt.Errorf("container_id is required")
 	}
 
-	// If host is provided, try direct lookup first, then try resolving name to ID
+	// Try direct lookup if host is provided
 	if hostID != "" {
 		cs, err := hostService.FindContainer(hostID, containerID, labels)
 		if err == nil {
 			return cs, nil
 		}
-
-		// Try treating hostID as a host name and resolve to actual ID
-		for _, h := range hostService.Hosts() {
-			if strings.EqualFold(h.Name, hostID) {
-				cs, err := hostService.FindContainer(h.ID, containerID, labels)
-				if err == nil {
-					return cs, nil
-				}
-			}
-		}
 	}
 
-	// Search across all hosts by listing all containers
+	// Fall back to searching across all hosts
 	containers, errs := hostService.ListAllContainers(labels)
 	logHostErrors(errs)
 
@@ -101,8 +91,5 @@ func findContainerFlexible(hostID string, containerID string, hostService ToolHo
 		}
 	}
 
-	if hostID != "" {
-		return nil, fmt.Errorf("container %s not found on host %s", containerID, hostID)
-	}
-	return nil, fmt.Errorf("container %s not found on any host", containerID)
+	return nil, fmt.Errorf("container %s not found", containerID)
 }
