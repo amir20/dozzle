@@ -42,6 +42,7 @@ export const useContainerActions = (container: Ref<Container>) => {
   async function update() {
     const updateUrl = `/api/hosts/${container.value.host}/containers/${container.value.id}/actions/update`;
     const toastId = "container-update";
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
 
     actionStates.update = true;
 
@@ -60,16 +61,11 @@ export const useContainerActions = (container: Ref<Container>) => {
       if (!response.ok) {
         removeToast(toastId);
         showToast({ type: "error", message: t("error.unable-to-update"), title: t("error.update-failed") });
-        actionStates.update = false;
         return;
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        removeToast(toastId);
-        actionStates.update = false;
-        return;
-      }
+      reader = response.body?.getReader();
+      if (!reader) return;
 
       const decoder = new TextDecoder();
       let buffer = "";
@@ -129,9 +125,10 @@ export const useContainerActions = (container: Ref<Container>) => {
     } catch (error) {
       removeToast(toastId);
       showToast({ type: "error", message: t("error.something-went-wrong"), title: t("error.update-failed") });
+    } finally {
+      reader?.cancel();
+      actionStates.update = false;
     }
-
-    actionStates.update = false;
   }
 
   return {
