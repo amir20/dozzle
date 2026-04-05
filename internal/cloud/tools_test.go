@@ -30,7 +30,7 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 10)
+	assert.Len(t, tools, 11)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -123,6 +123,11 @@ func (m *MockClientService) Attach(_ context.Context, _ container.Container, _ c
 	return nil
 }
 func (m *MockClientService) Exec(_ context.Context, _ container.Container, _ []string, _ container.ExecEventReader, _ io.Writer) error {
+	return nil
+}
+
+func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) error {
+	close(progressCh)
 	return nil
 }
 
