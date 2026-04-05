@@ -45,8 +45,8 @@ importers:
         specifier: ^1.2.4
         version: 1.2.4
       '@iconify-json/material-symbols':
-        specifier: ^1.2.64
-        version: 1.2.64
+        specifier: ^1.2.65
+        version: 1.2.65
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -79,7 +79,7 @@ importers:
         version: 14.2.1(vue@3.5.32(typescript@6.0.2))
       '@vueuse/integrations':
         specifier: ^14.2.1
-        version: 14.2.1(focus-trap@7.6.4)(fuse.js@7.2.0)(sortablejs@1.15.7)(vue@3.5.32(typescript@6.0.2))
+        version: 14.2.1(focus-trap@7.6.4)(fuse.js@7.3.0)(sortablejs@1.15.7)(vue@3.5.32(typescript@6.0.2))
       '@vueuse/router':
         specifier: 14.2.1
         version: 14.2.1(vue-router@5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
@@ -105,8 +105,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       fuse.js:
-        specifier: ^7.2.0
-        version: 7.2.0
+        specifier: ^7.3.0
+        version: 7.3.0
       lodash.debounce:
         specifier: ^4.0.8
         version: 4.0.8
@@ -148,7 +148,7 @@ importers:
         version: 5.1.1(vue@3.5.32(typescript@6.0.2))
       vitepress:
         specifier: 1.6.4
-        version: 1.6.4(@algolia/client-search@5.23.4)(@types/node@25.5.2)(fuse.js@7.2.0)(lightningcss@1.32.0)(postcss@8.5.8)(react@18.3.1)(search-insights@2.17.3)(sortablejs@1.15.7)(terser@5.39.0)(typescript@6.0.2)
+        version: 1.6.4(@algolia/client-search@5.23.4)(@types/node@25.5.2)(fuse.js@7.3.0)(lightningcss@1.32.0)(postcss@8.5.8)(react@18.3.1)(search-insights@2.17.3)(sortablejs@1.15.7)(terser@5.39.0)(typescript@6.0.2)
       vue:
         specifier: ^3.5.32
         version: 3.5.32(typescript@6.0.2)
@@ -166,8 +166,8 @@ importers:
         specifier: ^1.2.7
         version: 1.2.7
       '@iconify-json/material-symbols-light':
-        specifier: ^1.2.64
-        version: 1.2.64
+        specifier: ^1.2.65
+        version: 1.2.65
       '@iconify-json/ri':
         specifier: ^1.2.10
         version: 1.2.10
@@ -1007,11 +1007,11 @@ packages:
   '@iconify-json/ion@1.2.7':
     resolution: {integrity: sha512-ZJNG5kLCbTPr68mdP0jx6Q3lB9AMEQKO2+VvIjuJ2llGFICBLD+cvESn/qGDRIqSfk2D3PrFMf/Qg8WKIUV7cg==}
 
-  '@iconify-json/material-symbols-light@1.2.64':
-    resolution: {integrity: sha512-ufBvLngMPY42m4TaxHjSqQFdqMGbzVtUMrPPBG/crofJOVh6+EmtTfBcn4y5IPR+r+7EM/CmtuDG83QMj9Kfdg==}
+  '@iconify-json/material-symbols-light@1.2.65':
+    resolution: {integrity: sha512-+Py3yPCNv+hYlDTs3InxIexZKZb/taN5BOvhpCJWg7AdV4tiV5Du9gq9QfJklBj/Lb/d0IzW/rTDrti1qV2Zxg==}
 
-  '@iconify-json/material-symbols@1.2.64':
-    resolution: {integrity: sha512-80iGXJ/rsCE2zbEBWrLeOcyBNRD7v15EyaflUolgiAtaevSpTLBXlz+M53Bs2K/RkV/I4tOMMxyXVjQwKhTA9w==}
+  '@iconify-json/material-symbols@1.2.65':
+    resolution: {integrity: sha512-0kGO7z+yuWjn4de2gAz1hrOpDHN1rvnb1Lr3YnkmZr/pJ9bfLSv2bRXQo/nKx6oODXKcoYuFLcLvg2xPxMq5Pg==}
 
   '@iconify-json/mdi-light@1.2.2':
     resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
@@ -2947,8 +2947,8 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
-  fuse.js@7.2.0:
-    resolution: {integrity: sha512-zf4vdcIGpjNKTuXwug33Hm2okqX6a0t2ZEbez+o9oBJQSNhVJ5AqERfeiRD3r8HcLqP66MrjdkmzxrncbAOTUQ==}
+  fuse.js@7.3.0:
+    resolution: {integrity: sha512-plz8RVjfcDedTGfVngWH1jmJvBvAwi1v2jecfDerbEnMcmOYUEEwKFTHbNoCiYyzaK2Ws8lABkTCcRSqCY1q4w==}
     engines: {node: '>=10'}
 
   get-caller-file@2.0.5:
@@ -5017,11 +5017,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols-light@1.2.64':
+  '@iconify-json/material-symbols-light@1.2.65':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/material-symbols@1.2.64':
+  '@iconify-json/material-symbols@1.2.65':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -6207,26 +6207,26 @@ snapshots:
       '@vueuse/shared': 14.2.1(vue@3.5.32(typescript@6.0.2))
       vue: 3.5.32(typescript@6.0.2)
 
-  '@vueuse/integrations@12.8.2(focus-trap@7.6.4)(fuse.js@7.2.0)(sortablejs@1.15.7)(typescript@6.0.2)':
+  '@vueuse/integrations@12.8.2(focus-trap@7.6.4)(fuse.js@7.3.0)(sortablejs@1.15.7)(typescript@6.0.2)':
     dependencies:
       '@vueuse/core': 12.8.2(typescript@6.0.2)
       '@vueuse/shared': 12.8.2(typescript@6.0.2)
       vue: 3.5.32(typescript@6.0.2)
     optionalDependencies:
       focus-trap: 7.6.4
-      fuse.js: 7.2.0
+      fuse.js: 7.3.0
       sortablejs: 1.15.7
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@14.2.1(focus-trap@7.6.4)(fuse.js@7.2.0)(sortablejs@1.15.7)(vue@3.5.32(typescript@6.0.2))':
+  '@vueuse/integrations@14.2.1(focus-trap@7.6.4)(fuse.js@7.3.0)(sortablejs@1.15.7)(vue@3.5.32(typescript@6.0.2))':
     dependencies:
       '@vueuse/core': 14.2.1(vue@3.5.32(typescript@6.0.2))
       '@vueuse/shared': 14.2.1(vue@3.5.32(typescript@6.0.2))
       vue: 3.5.32(typescript@6.0.2)
     optionalDependencies:
       focus-trap: 7.6.4
-      fuse.js: 7.2.0
+      fuse.js: 7.3.0
       sortablejs: 1.15.7
 
   '@vueuse/metadata@12.8.2': {}
@@ -6959,7 +6959,7 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  fuse.js@7.2.0: {}
+  fuse.js@7.3.0: {}
 
   get-caller-file@2.0.5: {}
 
@@ -8232,7 +8232,7 @@ snapshots:
       tsx: 4.19.2
       yaml: 2.8.2
 
-  vitepress@1.6.4(@algolia/client-search@5.23.4)(@types/node@25.5.2)(fuse.js@7.2.0)(lightningcss@1.32.0)(postcss@8.5.8)(react@18.3.1)(search-insights@2.17.3)(sortablejs@1.15.7)(terser@5.39.0)(typescript@6.0.2):
+  vitepress@1.6.4(@algolia/client-search@5.23.4)(@types/node@25.5.2)(fuse.js@7.3.0)(lightningcss@1.32.0)(postcss@8.5.8)(react@18.3.1)(search-insights@2.17.3)(sortablejs@1.15.7)(terser@5.39.0)(typescript@6.0.2):
     dependencies:
       '@docsearch/css': 3.8.2
       '@docsearch/js': 3.8.2(@algolia/client-search@5.23.4)(react@18.3.1)(search-insights@2.17.3)
@@ -8245,7 +8245,7 @@ snapshots:
       '@vue/devtools-api': 7.7.2
       '@vue/shared': 3.5.18
       '@vueuse/core': 12.8.2(typescript@6.0.2)
-      '@vueuse/integrations': 12.8.2(focus-trap@7.6.4)(fuse.js@7.2.0)(sortablejs@1.15.7)(typescript@6.0.2)
+      '@vueuse/integrations': 12.8.2(focus-trap@7.6.4)(fuse.js@7.3.0)(sortablejs@1.15.7)(typescript@6.0.2)
       focus-trap: 7.6.4
       mark.js: 8.11.1
       minisearch: 7.1.2

@@ -239,7 +239,7 @@ func (*ListToolsRequest) Descriptor() ([]byte, []int) {
 
 type ListToolsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ToolsJson     []string               `protobuf:"bytes,1,rep,name=tools_json,json=toolsJson,proto3" json:"tools_json,omitempty"`
+	Tools         []*ToolDefinition      `protobuf:"bytes,1,rep,name=tools,proto3" json:"tools,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -274,11 +274,71 @@ func (*ListToolsResponse) Descriptor() ([]byte, []int) {
 	return file_cloud_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListToolsResponse) GetToolsJson() []string {
+func (x *ListToolsResponse) GetTools() []*ToolDefinition {
 	if x != nil {
-		return x.ToolsJson
+		return x.Tools
 	}
 	return nil
+}
+
+type ToolDefinition struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description    string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	ParametersJson string                 `protobuf:"bytes,3,opt,name=parameters_json,json=parametersJson,proto3" json:"parameters_json,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ToolDefinition) Reset() {
+	*x = ToolDefinition{}
+	mi := &file_cloud_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToolDefinition) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToolDefinition) ProtoMessage() {}
+
+func (x *ToolDefinition) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToolDefinition.ProtoReflect.Descriptor instead.
+func (*ToolDefinition) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ToolDefinition) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ToolDefinition) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ToolDefinition) GetParametersJson() string {
+	if x != nil {
+		return x.ParametersJson
+	}
+	return ""
 }
 
 type CallToolRequest struct {
@@ -291,7 +351,7 @@ type CallToolRequest struct {
 
 func (x *CallToolRequest) Reset() {
 	*x = CallToolRequest{}
-	mi := &file_cloud_proto_msgTypes[4]
+	mi := &file_cloud_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +363,7 @@ func (x *CallToolRequest) String() string {
 func (*CallToolRequest) ProtoMessage() {}
 
 func (x *CallToolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[4]
+	mi := &file_cloud_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +376,7 @@ func (x *CallToolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallToolRequest.ProtoReflect.Descriptor instead.
 func (*CallToolRequest) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{4}
+	return file_cloud_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CallToolRequest) GetName() string {
@@ -334,17 +394,25 @@ func (x *CallToolRequest) GetArgumentsJson() string {
 }
 
 type CallToolResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	ResultJson    string                 `protobuf:"bytes,2,opt,name=result_json,json=resultJson,proto3" json:"result_json,omitempty"`
-	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Error   string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	// Types that are valid to be assigned to Result:
+	//
+	//	*CallToolResponse_ListHosts
+	//	*CallToolResponse_ListContainers
+	//	*CallToolResponse_ContainerStats
+	//	*CallToolResponse_Action
+	//	*CallToolResponse_FetchLogs
+	//	*CallToolResponse_InspectContainer
+	Result        isCallToolResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CallToolResponse) Reset() {
 	*x = CallToolResponse{}
-	mi := &file_cloud_proto_msgTypes[5]
+	mi := &file_cloud_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -356,7 +424,7 @@ func (x *CallToolResponse) String() string {
 func (*CallToolResponse) ProtoMessage() {}
 
 func (x *CallToolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_cloud_proto_msgTypes[5]
+	mi := &file_cloud_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,7 +437,7 @@ func (x *CallToolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallToolResponse.ProtoReflect.Descriptor instead.
 func (*CallToolResponse) Descriptor() ([]byte, []int) {
-	return file_cloud_proto_rawDescGZIP(), []int{5}
+	return file_cloud_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CallToolResponse) GetSuccess() bool {
@@ -379,16 +447,948 @@ func (x *CallToolResponse) GetSuccess() bool {
 	return false
 }
 
-func (x *CallToolResponse) GetResultJson() string {
+func (x *CallToolResponse) GetError() string {
 	if x != nil {
-		return x.ResultJson
+		return x.Error
 	}
 	return ""
 }
 
-func (x *CallToolResponse) GetError() string {
+func (x *CallToolResponse) GetResult() isCallToolResponse_Result {
 	if x != nil {
-		return x.Error
+		return x.Result
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetListHosts() *ListHostsResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_ListHosts); ok {
+			return x.ListHosts
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetListContainers() *ListContainersResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_ListContainers); ok {
+			return x.ListContainers
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetContainerStats() *ContainerStatsResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_ContainerStats); ok {
+			return x.ContainerStats
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetAction() *ActionResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_Action); ok {
+			return x.Action
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetFetchLogs() *FetchLogsResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_FetchLogs); ok {
+			return x.FetchLogs
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetInspectContainer() *InspectContainerResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_InspectContainer); ok {
+			return x.InspectContainer
+		}
+	}
+	return nil
+}
+
+type isCallToolResponse_Result interface {
+	isCallToolResponse_Result()
+}
+
+type CallToolResponse_ListHosts struct {
+	ListHosts *ListHostsResult `protobuf:"bytes,3,opt,name=list_hosts,json=listHosts,proto3,oneof"`
+}
+
+type CallToolResponse_ListContainers struct {
+	ListContainers *ListContainersResult `protobuf:"bytes,4,opt,name=list_containers,json=listContainers,proto3,oneof"`
+}
+
+type CallToolResponse_ContainerStats struct {
+	ContainerStats *ContainerStatsResult `protobuf:"bytes,5,opt,name=container_stats,json=containerStats,proto3,oneof"`
+}
+
+type CallToolResponse_Action struct {
+	Action *ActionResult `protobuf:"bytes,6,opt,name=action,proto3,oneof"`
+}
+
+type CallToolResponse_FetchLogs struct {
+	FetchLogs *FetchLogsResult `protobuf:"bytes,7,opt,name=fetch_logs,json=fetchLogs,proto3,oneof"`
+}
+
+type CallToolResponse_InspectContainer struct {
+	InspectContainer *InspectContainerResult `protobuf:"bytes,8,opt,name=inspect_container,json=inspectContainer,proto3,oneof"`
+}
+
+func (*CallToolResponse_ListHosts) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_ListContainers) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_ContainerStats) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_Action) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_FetchLogs) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_InspectContainer) isCallToolResponse_Result() {}
+
+// Host information
+type HostInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	NCpu          int32                  `protobuf:"varint,3,opt,name=n_cpu,json=nCpu,proto3" json:"n_cpu,omitempty"`
+	MemTotal      int64                  `protobuf:"varint,4,opt,name=mem_total,json=memTotal,proto3" json:"mem_total,omitempty"`
+	DockerVersion string                 `protobuf:"bytes,5,opt,name=docker_version,json=dockerVersion,proto3" json:"docker_version,omitempty"`
+	AgentVersion  string                 `protobuf:"bytes,6,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
+	Type          string                 `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`
+	Available     bool                   `protobuf:"varint,8,opt,name=available,proto3" json:"available,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HostInfo) Reset() {
+	*x = HostInfo{}
+	mi := &file_cloud_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HostInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HostInfo) ProtoMessage() {}
+
+func (x *HostInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HostInfo.ProtoReflect.Descriptor instead.
+func (*HostInfo) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *HostInfo) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *HostInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *HostInfo) GetNCpu() int32 {
+	if x != nil {
+		return x.NCpu
+	}
+	return 0
+}
+
+func (x *HostInfo) GetMemTotal() int64 {
+	if x != nil {
+		return x.MemTotal
+	}
+	return 0
+}
+
+func (x *HostInfo) GetDockerVersion() string {
+	if x != nil {
+		return x.DockerVersion
+	}
+	return ""
+}
+
+func (x *HostInfo) GetAgentVersion() string {
+	if x != nil {
+		return x.AgentVersion
+	}
+	return ""
+}
+
+func (x *HostInfo) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *HostInfo) GetAvailable() bool {
+	if x != nil {
+		return x.Available
+	}
+	return false
+}
+
+type ListHostsResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Hosts         []*HostInfo            `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListHostsResult) Reset() {
+	*x = ListHostsResult{}
+	mi := &file_cloud_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListHostsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListHostsResult) ProtoMessage() {}
+
+func (x *ListHostsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListHostsResult.ProtoReflect.Descriptor instead.
+func (*ListHostsResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListHostsResult) GetHosts() []*HostInfo {
+	if x != nil {
+		return x.Hosts
+	}
+	return nil
+}
+
+// Container information
+type ContainerInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Image         string                 `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
+	Command       string                 `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
+	Created       string                 `protobuf:"bytes,5,opt,name=created,proto3" json:"created,omitempty"`
+	StartedAt     string                 `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt    string                 `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	State         string                 `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
+	Health        string                 `protobuf:"bytes,9,opt,name=health,proto3" json:"health,omitempty"`
+	HostName      string                 `protobuf:"bytes,10,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	HostId        string                 `protobuf:"bytes,12,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	Group         string                 `protobuf:"bytes,11,opt,name=group,proto3" json:"group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContainerInfo) Reset() {
+	*x = ContainerInfo{}
+	mi := &file_cloud_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContainerInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContainerInfo) ProtoMessage() {}
+
+func (x *ContainerInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContainerInfo.ProtoReflect.Descriptor instead.
+func (*ContainerInfo) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ContainerInfo) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetCreated() string {
+	if x != nil {
+		return x.Created
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetHealth() string {
+	if x != nil {
+		return x.Health
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetHostName() string {
+	if x != nil {
+		return x.HostName
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *ContainerInfo) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
+}
+
+type ListContainersResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Containers    []*ContainerInfo       `protobuf:"bytes,1,rep,name=containers,proto3" json:"containers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListContainersResult) Reset() {
+	*x = ListContainersResult{}
+	mi := &file_cloud_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListContainersResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListContainersResult) ProtoMessage() {}
+
+func (x *ListContainersResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListContainersResult.ProtoReflect.Descriptor instead.
+func (*ListContainersResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListContainersResult) GetContainers() []*ContainerInfo {
+	if x != nil {
+		return x.Containers
+	}
+	return nil
+}
+
+// Container stats
+type ContainerStatEntry struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Host           string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
+	CpuPercent     float64                `protobuf:"fixed64,4,opt,name=cpu_percent,json=cpuPercent,proto3" json:"cpu_percent,omitempty"`
+	MemoryPercent  float64                `protobuf:"fixed64,5,opt,name=memory_percent,json=memoryPercent,proto3" json:"memory_percent,omitempty"`
+	MemoryUsage    float64                `protobuf:"fixed64,6,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
+	MaxCpu_5Min    float64                `protobuf:"fixed64,7,opt,name=max_cpu_5min,json=maxCpu5min,proto3" json:"max_cpu_5min,omitempty"`
+	MaxMemory_5Min float64                `protobuf:"fixed64,8,opt,name=max_memory_5min,json=maxMemory5min,proto3" json:"max_memory_5min,omitempty"`
+	HostId         string                 `protobuf:"bytes,9,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ContainerStatEntry) Reset() {
+	*x = ContainerStatEntry{}
+	mi := &file_cloud_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContainerStatEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContainerStatEntry) ProtoMessage() {}
+
+func (x *ContainerStatEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContainerStatEntry.ProtoReflect.Descriptor instead.
+func (*ContainerStatEntry) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ContainerStatEntry) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ContainerStatEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ContainerStatEntry) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *ContainerStatEntry) GetCpuPercent() float64 {
+	if x != nil {
+		return x.CpuPercent
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetMemoryPercent() float64 {
+	if x != nil {
+		return x.MemoryPercent
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetMemoryUsage() float64 {
+	if x != nil {
+		return x.MemoryUsage
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetMaxCpu_5Min() float64 {
+	if x != nil {
+		return x.MaxCpu_5Min
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetMaxMemory_5Min() float64 {
+	if x != nil {
+		return x.MaxMemory_5Min
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+type ContainerStatsResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Stats         []*ContainerStatEntry  `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContainerStatsResult) Reset() {
+	*x = ContainerStatsResult{}
+	mi := &file_cloud_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContainerStatsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContainerStatsResult) ProtoMessage() {}
+
+func (x *ContainerStatsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContainerStatsResult.ProtoReflect.Descriptor instead.
+func (*ContainerStatsResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ContainerStatsResult) GetStats() []*ContainerStatEntry {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+// Container logs
+type LogEntry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Timestamp     int64                  `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Stream        string                 `protobuf:"bytes,3,opt,name=stream,proto3" json:"stream,omitempty"` // "stdout" or "stderr"
+	Level         string                 `protobuf:"bytes,4,opt,name=level,proto3" json:"level,omitempty"`   // "info", "warn", "error", etc.
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogEntry) Reset() {
+	*x = LogEntry{}
+	mi := &file_cloud_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogEntry) ProtoMessage() {}
+
+func (x *LogEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogEntry.ProtoReflect.Descriptor instead.
+func (*LogEntry) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *LogEntry) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *LogEntry) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *LogEntry) GetStream() string {
+	if x != nil {
+		return x.Stream
+	}
+	return ""
+}
+
+func (x *LogEntry) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
+type FetchLogsResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContainerName string                 `protobuf:"bytes,1,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
+	Entries       []*LogEntry            `protobuf:"bytes,2,rep,name=entries,proto3" json:"entries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FetchLogsResult) Reset() {
+	*x = FetchLogsResult{}
+	mi := &file_cloud_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FetchLogsResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FetchLogsResult) ProtoMessage() {}
+
+func (x *FetchLogsResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FetchLogsResult.ProtoReflect.Descriptor instead.
+func (*FetchLogsResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *FetchLogsResult) GetContainerName() string {
+	if x != nil {
+		return x.ContainerName
+	}
+	return ""
+}
+
+func (x *FetchLogsResult) GetEntries() []*LogEntry {
+	if x != nil {
+		return x.Entries
+	}
+	return nil
+}
+
+// Container inspect result
+type InspectContainerResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Image         string                 `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
+	Command       string                 `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
+	Created       string                 `protobuf:"bytes,5,opt,name=created,proto3" json:"created,omitempty"`
+	StartedAt     string                 `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt    string                 `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	State         string                 `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
+	Health        string                 `protobuf:"bytes,9,opt,name=health,proto3" json:"health,omitempty"`
+	HostName      string                 `protobuf:"bytes,10,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	HostId        string                 `protobuf:"bytes,19,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	Labels        map[string]string      `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	MemoryLimit   uint64                 `protobuf:"varint,12,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
+	CpuLimit      float64                `protobuf:"fixed64,13,opt,name=cpu_limit,json=cpuLimit,proto3" json:"cpu_limit,omitempty"`
+	Ports         []string               `protobuf:"bytes,15,rep,name=ports,proto3" json:"ports,omitempty"`
+	Mounts        []string               `protobuf:"bytes,16,rep,name=mounts,proto3" json:"mounts,omitempty"`
+	RestartPolicy string                 `protobuf:"bytes,17,opt,name=restart_policy,json=restartPolicy,proto3" json:"restart_policy,omitempty"`
+	NetworkMode   string                 `protobuf:"bytes,18,opt,name=network_mode,json=networkMode,proto3" json:"network_mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InspectContainerResult) Reset() {
+	*x = InspectContainerResult{}
+	mi := &file_cloud_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InspectContainerResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InspectContainerResult) ProtoMessage() {}
+
+func (x *InspectContainerResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InspectContainerResult.ProtoReflect.Descriptor instead.
+func (*InspectContainerResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *InspectContainerResult) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetCreated() string {
+	if x != nil {
+		return x.Created
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetFinishedAt() string {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetHealth() string {
+	if x != nil {
+		return x.Health
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetHostName() string {
+	if x != nil {
+		return x.HostName
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *InspectContainerResult) GetMemoryLimit() uint64 {
+	if x != nil {
+		return x.MemoryLimit
+	}
+	return 0
+}
+
+func (x *InspectContainerResult) GetCpuLimit() float64 {
+	if x != nil {
+		return x.CpuLimit
+	}
+	return 0
+}
+
+func (x *InspectContainerResult) GetPorts() []string {
+	if x != nil {
+		return x.Ports
+	}
+	return nil
+}
+
+func (x *InspectContainerResult) GetMounts() []string {
+	if x != nil {
+		return x.Mounts
+	}
+	return nil
+}
+
+func (x *InspectContainerResult) GetRestartPolicy() string {
+	if x != nil {
+		return x.RestartPolicy
+	}
+	return ""
+}
+
+func (x *InspectContainerResult) GetNetworkMode() string {
+	if x != nil {
+		return x.NetworkMode
+	}
+	return ""
+}
+
+// Container action result
+type ActionResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	ContainerId   string                 `protobuf:"bytes,2,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	Action        string                 `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActionResult) Reset() {
+	*x = ActionResult{}
+	mi := &file_cloud_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActionResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActionResult) ProtoMessage() {}
+
+func (x *ActionResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActionResult.ProtoReflect.Descriptor instead.
+func (*ActionResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ActionResult) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ActionResult) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *ActionResult) GetAction() string {
+	if x != nil {
+		return x.Action
 	}
 	return ""
 }
@@ -412,18 +1412,110 @@ const file_cloud_proto_rawDesc = "" +
 	"list_tools\x18\x02 \x01(\v2\x18.cloud.ListToolsResponseH\x00R\tlistTools\x126\n" +
 	"\tcall_tool\x18\x03 \x01(\v2\x17.cloud.CallToolResponseH\x00R\bcallToolB\x06\n" +
 	"\x04type\"\x12\n" +
-	"\x10ListToolsRequest\"2\n" +
-	"\x11ListToolsResponse\x12\x1d\n" +
-	"\n" +
-	"tools_json\x18\x01 \x03(\tR\ttoolsJson\"L\n" +
+	"\x10ListToolsRequest\"@\n" +
+	"\x11ListToolsResponse\x12+\n" +
+	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\"o\n" +
+	"\x0eToolDefinition\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12'\n" +
+	"\x0fparameters_json\x18\x03 \x01(\tR\x0eparametersJson\"L\n" +
 	"\x0fCallToolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"c\n" +
+	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\xcb\x03\n" +
 	"\x10CallToolResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1f\n" +
-	"\vresult_json\x18\x02 \x01(\tR\n" +
-	"resultJson\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error2M\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x127\n" +
+	"\n" +
+	"list_hosts\x18\x03 \x01(\v2\x16.cloud.ListHostsResultH\x00R\tlistHosts\x12F\n" +
+	"\x0flist_containers\x18\x04 \x01(\v2\x1b.cloud.ListContainersResultH\x00R\x0elistContainers\x12F\n" +
+	"\x0fcontainer_stats\x18\x05 \x01(\v2\x1b.cloud.ContainerStatsResultH\x00R\x0econtainerStats\x12-\n" +
+	"\x06action\x18\x06 \x01(\v2\x13.cloud.ActionResultH\x00R\x06action\x127\n" +
+	"\n" +
+	"fetch_logs\x18\a \x01(\v2\x16.cloud.FetchLogsResultH\x00R\tfetchLogs\x12L\n" +
+	"\x11inspect_container\x18\b \x01(\v2\x1d.cloud.InspectContainerResultH\x00R\x10inspectContainerB\b\n" +
+	"\x06result\"\xde\x01\n" +
+	"\bHostInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x13\n" +
+	"\x05n_cpu\x18\x03 \x01(\x05R\x04nCpu\x12\x1b\n" +
+	"\tmem_total\x18\x04 \x01(\x03R\bmemTotal\x12%\n" +
+	"\x0edocker_version\x18\x05 \x01(\tR\rdockerVersion\x12#\n" +
+	"\ragent_version\x18\x06 \x01(\tR\fagentVersion\x12\x12\n" +
+	"\x04type\x18\a \x01(\tR\x04type\x12\x1c\n" +
+	"\tavailable\x18\b \x01(\bR\tavailable\"8\n" +
+	"\x0fListHostsResult\x12%\n" +
+	"\x05hosts\x18\x01 \x03(\v2\x0f.cloud.HostInfoR\x05hosts\"\xb7\x02\n" +
+	"\rContainerInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05image\x18\x03 \x01(\tR\x05image\x12\x18\n" +
+	"\acommand\x18\x04 \x01(\tR\acommand\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\tR\acreated\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\x06 \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\a \x01(\tR\n" +
+	"finishedAt\x12\x14\n" +
+	"\x05state\x18\b \x01(\tR\x05state\x12\x16\n" +
+	"\x06health\x18\t \x01(\tR\x06health\x12\x1b\n" +
+	"\thost_name\x18\n" +
+	" \x01(\tR\bhostName\x12\x17\n" +
+	"\ahost_id\x18\f \x01(\tR\x06hostId\x12\x14\n" +
+	"\x05group\x18\v \x01(\tR\x05group\"L\n" +
+	"\x14ListContainersResult\x124\n" +
+	"\n" +
+	"containers\x18\x01 \x03(\v2\x14.cloud.ContainerInfoR\n" +
+	"containers\"\x9a\x02\n" +
+	"\x12ContainerStatEntry\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04host\x18\x03 \x01(\tR\x04host\x12\x1f\n" +
+	"\vcpu_percent\x18\x04 \x01(\x01R\n" +
+	"cpuPercent\x12%\n" +
+	"\x0ememory_percent\x18\x05 \x01(\x01R\rmemoryPercent\x12!\n" +
+	"\fmemory_usage\x18\x06 \x01(\x01R\vmemoryUsage\x12 \n" +
+	"\fmax_cpu_5min\x18\a \x01(\x01R\n" +
+	"maxCpu5min\x12&\n" +
+	"\x0fmax_memory_5min\x18\b \x01(\x01R\rmaxMemory5min\x12\x17\n" +
+	"\ahost_id\x18\t \x01(\tR\x06hostId\"G\n" +
+	"\x14ContainerStatsResult\x12/\n" +
+	"\x05stats\x18\x01 \x03(\v2\x19.cloud.ContainerStatEntryR\x05stats\"p\n" +
+	"\bLogEntry\x12\x1c\n" +
+	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x16\n" +
+	"\x06stream\x18\x03 \x01(\tR\x06stream\x12\x14\n" +
+	"\x05level\x18\x04 \x01(\tR\x05level\"c\n" +
+	"\x0fFetchLogsResult\x12%\n" +
+	"\x0econtainer_name\x18\x01 \x01(\tR\rcontainerName\x12)\n" +
+	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xeb\x04\n" +
+	"\x16InspectContainerResult\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05image\x18\x03 \x01(\tR\x05image\x12\x18\n" +
+	"\acommand\x18\x04 \x01(\tR\acommand\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\tR\acreated\x12\x1d\n" +
+	"\n" +
+	"started_at\x18\x06 \x01(\tR\tstartedAt\x12\x1f\n" +
+	"\vfinished_at\x18\a \x01(\tR\n" +
+	"finishedAt\x12\x14\n" +
+	"\x05state\x18\b \x01(\tR\x05state\x12\x16\n" +
+	"\x06health\x18\t \x01(\tR\x06health\x12\x1b\n" +
+	"\thost_name\x18\n" +
+	" \x01(\tR\bhostName\x12\x17\n" +
+	"\ahost_id\x18\x13 \x01(\tR\x06hostId\x12A\n" +
+	"\x06labels\x18\v \x03(\v2).cloud.InspectContainerResult.LabelsEntryR\x06labels\x12!\n" +
+	"\fmemory_limit\x18\f \x01(\x04R\vmemoryLimit\x12\x1b\n" +
+	"\tcpu_limit\x18\r \x01(\x01R\bcpuLimit\x12\x14\n" +
+	"\x05ports\x18\x0f \x03(\tR\x05ports\x12\x16\n" +
+	"\x06mounts\x18\x10 \x03(\tR\x06mounts\x12%\n" +
+	"\x0erestart_policy\x18\x11 \x01(\tR\rrestartPolicy\x12!\n" +
+	"\fnetwork_mode\x18\x12 \x01(\tR\vnetworkMode\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x0e\x10\x0fR\x03env\"c\n" +
+	"\fActionResult\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12!\n" +
+	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action2M\n" +
 	"\x10CloudToolService\x129\n" +
 	"\n" +
 	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
@@ -440,27 +1532,51 @@ func file_cloud_proto_rawDescGZIP() []byte {
 	return file_cloud_proto_rawDescData
 }
 
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_cloud_proto_goTypes = []any{
-	(*ToolRequest)(nil),       // 0: cloud.ToolRequest
-	(*ToolResponse)(nil),      // 1: cloud.ToolResponse
-	(*ListToolsRequest)(nil),  // 2: cloud.ListToolsRequest
-	(*ListToolsResponse)(nil), // 3: cloud.ListToolsResponse
-	(*CallToolRequest)(nil),   // 4: cloud.CallToolRequest
-	(*CallToolResponse)(nil),  // 5: cloud.CallToolResponse
+	(*ToolRequest)(nil),            // 0: cloud.ToolRequest
+	(*ToolResponse)(nil),           // 1: cloud.ToolResponse
+	(*ListToolsRequest)(nil),       // 2: cloud.ListToolsRequest
+	(*ListToolsResponse)(nil),      // 3: cloud.ListToolsResponse
+	(*ToolDefinition)(nil),         // 4: cloud.ToolDefinition
+	(*CallToolRequest)(nil),        // 5: cloud.CallToolRequest
+	(*CallToolResponse)(nil),       // 6: cloud.CallToolResponse
+	(*HostInfo)(nil),               // 7: cloud.HostInfo
+	(*ListHostsResult)(nil),        // 8: cloud.ListHostsResult
+	(*ContainerInfo)(nil),          // 9: cloud.ContainerInfo
+	(*ListContainersResult)(nil),   // 10: cloud.ListContainersResult
+	(*ContainerStatEntry)(nil),     // 11: cloud.ContainerStatEntry
+	(*ContainerStatsResult)(nil),   // 12: cloud.ContainerStatsResult
+	(*LogEntry)(nil),               // 13: cloud.LogEntry
+	(*FetchLogsResult)(nil),        // 14: cloud.FetchLogsResult
+	(*InspectContainerResult)(nil), // 15: cloud.InspectContainerResult
+	(*ActionResult)(nil),           // 16: cloud.ActionResult
+	nil,                            // 17: cloud.InspectContainerResult.LabelsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
-	2, // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
-	4, // 1: cloud.ToolRequest.call_tool:type_name -> cloud.CallToolRequest
-	3, // 2: cloud.ToolResponse.list_tools:type_name -> cloud.ListToolsResponse
-	5, // 3: cloud.ToolResponse.call_tool:type_name -> cloud.CallToolResponse
-	1, // 4: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	0, // 5: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	5, // [5:6] is the sub-list for method output_type
-	4, // [4:5] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2,  // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
+	5,  // 1: cloud.ToolRequest.call_tool:type_name -> cloud.CallToolRequest
+	3,  // 2: cloud.ToolResponse.list_tools:type_name -> cloud.ListToolsResponse
+	6,  // 3: cloud.ToolResponse.call_tool:type_name -> cloud.CallToolResponse
+	4,  // 4: cloud.ListToolsResponse.tools:type_name -> cloud.ToolDefinition
+	8,  // 5: cloud.CallToolResponse.list_hosts:type_name -> cloud.ListHostsResult
+	10, // 6: cloud.CallToolResponse.list_containers:type_name -> cloud.ListContainersResult
+	12, // 7: cloud.CallToolResponse.container_stats:type_name -> cloud.ContainerStatsResult
+	16, // 8: cloud.CallToolResponse.action:type_name -> cloud.ActionResult
+	14, // 9: cloud.CallToolResponse.fetch_logs:type_name -> cloud.FetchLogsResult
+	15, // 10: cloud.CallToolResponse.inspect_container:type_name -> cloud.InspectContainerResult
+	7,  // 11: cloud.ListHostsResult.hosts:type_name -> cloud.HostInfo
+	9,  // 12: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
+	11, // 13: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
+	13, // 14: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
+	17, // 15: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	1,  // 16: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	0,  // 17: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	17, // [17:18] is the sub-list for method output_type
+	16, // [16:17] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -476,13 +1592,21 @@ func file_cloud_proto_init() {
 		(*ToolResponse_ListTools)(nil),
 		(*ToolResponse_CallTool)(nil),
 	}
+	file_cloud_proto_msgTypes[6].OneofWrappers = []any{
+		(*CallToolResponse_ListHosts)(nil),
+		(*CallToolResponse_ListContainers)(nil),
+		(*CallToolResponse_ContainerStats)(nil),
+		(*CallToolResponse_Action)(nil),
+		(*CallToolResponse_FetchLogs)(nil),
+		(*CallToolResponse_InspectContainer)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

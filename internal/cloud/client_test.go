@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -48,7 +48,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 	assert.Equal(t, "req-1", resp.RequestId)
 	listResp := resp.GetListTools()
 	assert.NotNil(t, listResp)
-	assert.Len(t, listResp.ToolsJson, 4) // find_containers + 3 actions
+	assert.Len(t, listResp.Tools, 10) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container + 3 actions
 }
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
@@ -66,7 +66,7 @@ func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
 	resp := client.handleRequest(context.Background(), req)
 
 	listResp := resp.GetListTools()
-	assert.Len(t, listResp.ToolsJson, 1) // only list_containers
+	assert.Len(t, listResp.Tools, 7) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container
 }
 
 func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
@@ -74,6 +74,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{
 		{ID: "abc", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
 	}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	client := &Client{
 		hostService: mockHost,
@@ -83,7 +84,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 		RequestId: "req-3",
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
-				Name:          "find_containers",
+				Name:          "list_running_containers",
 				ArgumentsJson: "",
 			},
 		},
@@ -93,7 +94,10 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 
 	callResp := resp.GetCallTool()
 	assert.True(t, callResp.Success)
-	assert.Contains(t, callResp.ResultJson, "nginx")
+	result := callResp.GetListContainers()
+	assert.NotNil(t, result)
+	assert.Len(t, result.Containers, 1)
+	assert.Equal(t, "nginx", result.Containers[0].Name)
 }
 
 func TestHandleRequest_CallTool_UnknownTool(t *testing.T) {
@@ -139,7 +143,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
 				Name:          "restart_container",
-				ArgumentsJson: `{"container_id": "abc123", "host": "local"}`,
+				ArgumentsJson: `{"container_id": "abc123", "host_id": "local"}`,
 			},
 		},
 	}

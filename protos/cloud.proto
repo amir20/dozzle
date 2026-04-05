@@ -28,7 +28,13 @@ message ToolResponse {
 message ListToolsRequest {}
 
 message ListToolsResponse {
-  repeated string tools_json = 1;
+  repeated ToolDefinition tools = 1;
+}
+
+message ToolDefinition {
+  string name = 1;
+  string description = 2;
+  string parameters_json = 3;
 }
 
 message CallToolRequest {
@@ -38,6 +44,110 @@ message CallToolRequest {
 
 message CallToolResponse {
   bool success = 1;
-  string result_json = 2;
-  string error = 3;
+  string error = 2;
+  oneof result {
+    ListHostsResult list_hosts = 3;
+    ListContainersResult list_containers = 4;
+    ContainerStatsResult container_stats = 5;
+    ActionResult action = 6;
+    FetchLogsResult fetch_logs = 7;
+    InspectContainerResult inspect_container = 8;
+  }
+}
+
+// Host information
+message HostInfo {
+  string id = 1;
+  string name = 2;
+  int32 n_cpu = 3;
+  int64 mem_total = 4;
+  string docker_version = 5;
+  string agent_version = 6;
+  string type = 7;
+  bool available = 8;
+}
+
+message ListHostsResult {
+  repeated HostInfo hosts = 1;
+}
+
+// Container information
+message ContainerInfo {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string command = 4;
+  string created = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string state = 8;
+  string health = 9;
+  string host_name = 10;
+  string host_id = 12;
+  string group = 11;
+}
+
+message ListContainersResult {
+  repeated ContainerInfo containers = 1;
+}
+
+// Container stats
+message ContainerStatEntry {
+  string id = 1;
+  string name = 2;
+  string host = 3;
+  double cpu_percent = 4;
+  double memory_percent = 5;
+  double memory_usage = 6;
+  double max_cpu_5min = 7;
+  double max_memory_5min = 8;
+  string host_id = 9;
+}
+
+message ContainerStatsResult {
+  repeated ContainerStatEntry stats = 1;
+}
+
+// Container logs
+message LogEntry {
+  int64 timestamp = 1;
+  string message = 2;
+  string stream = 3;  // "stdout" or "stderr"
+  string level = 4;   // "info", "warn", "error", etc.
+}
+
+message FetchLogsResult {
+  string container_name = 1;
+  repeated LogEntry entries = 2;
+}
+
+// Container inspect result
+message InspectContainerResult {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string command = 4;
+  string created = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string state = 8;
+  string health = 9;
+  string host_name = 10;
+  string host_id = 19;
+  map<string, string> labels = 11;
+  uint64 memory_limit = 12;
+  double cpu_limit = 13;
+  reserved 14;
+  reserved "env";
+  repeated string ports = 15;
+  repeated string mounts = 16;
+  string restart_policy = 17;
+  string network_mode = 18;
+}
+
+// Container action result
+message ActionResult {
+  bool success = 1;
+  string container_id = 2;
+  string action = 3;
 }
