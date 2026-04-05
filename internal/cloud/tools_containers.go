@@ -137,6 +137,7 @@ func executeGetRunningContainerStats(hostService ToolHostService, labels contain
 			Id:             c.ID,
 			Name:           c.Name,
 			Host:           resolveHostName(c.Host, hostNames),
+			HostId:         c.Host,
 			CpuPercent:     latest.CPUPercent,
 			MemoryPercent:  latest.MemoryPercent,
 			MemoryUsage:    latest.MemoryUsage,

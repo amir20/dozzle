@@ -888,6 +888,7 @@ type ContainerStatEntry struct {
 	MemoryUsage    float64                `protobuf:"fixed64,6,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
 	MaxCpu_5Min    float64                `protobuf:"fixed64,7,opt,name=max_cpu_5min,json=maxCpu5min,proto3" json:"max_cpu_5min,omitempty"`
 	MaxMemory_5Min float64                `protobuf:"fixed64,8,opt,name=max_memory_5min,json=maxMemory5min,proto3" json:"max_memory_5min,omitempty"`
+	HostId         string                 `protobuf:"bytes,9,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -976,6 +977,13 @@ func (x *ContainerStatEntry) GetMaxMemory_5Min() float64 {
 		return x.MaxMemory_5Min
 	}
 	return 0
+}
+
+func (x *ContainerStatEntry) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
 }
 
 type ContainerStatsResult struct {
@@ -1456,7 +1464,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x14ListContainersResult\x124\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2\x14.cloud.ContainerInfoR\n" +
-	"containers\"\x81\x02\n" +
+	"containers\"\x9a\x02\n" +
 	"\x12ContainerStatEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -1467,7 +1475,8 @@ const file_cloud_proto_rawDesc = "" +
 	"\fmemory_usage\x18\x06 \x01(\x01R\vmemoryUsage\x12 \n" +
 	"\fmax_cpu_5min\x18\a \x01(\x01R\n" +
 	"maxCpu5min\x12&\n" +
-	"\x0fmax_memory_5min\x18\b \x01(\x01R\rmaxMemory5min\"G\n" +
+	"\x0fmax_memory_5min\x18\b \x01(\x01R\rmaxMemory5min\x12\x17\n" +
+	"\ahost_id\x18\t \x01(\tR\x06hostId\"G\n" +
 	"\x14ContainerStatsResult\x12/\n" +
 	"\x05stats\x18\x01 \x03(\v2\x19.cloud.ContainerStatEntryR\x05stats\"p\n" +
 	"\bLogEntry\x12\x1c\n" +

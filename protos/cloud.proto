@@ -101,6 +101,7 @@ message ContainerStatEntry {
   double memory_usage = 6;
   double max_cpu_5min = 7;
   double max_memory_5min = 8;
+  string host_id = 9;
 }
 
 message ContainerStatsResult {
