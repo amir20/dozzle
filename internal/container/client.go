@@ -56,11 +56,6 @@ type Client interface {
 	Ping(context.Context) error
 	Host() Host
 	ContainerActions(ctx context.Context, action ContainerAction, containerID string) error
-	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
-	ContainerInspectRaw(ctx context.Context, containerID string) (any, error)
-	ContainerRemove(ctx context.Context, containerID string) error
-	ContainerCreate(ctx context.Context, details any, name string) (string, error)
-	ServiceUpdate(ctx context.Context, serviceID string, image string) error
 	ContainerAttach(ctx context.Context, id string) (*ExecSession, error)
 	ContainerExec(ctx context.Context, id string, cmd []string) (*ExecSession, error)
 }

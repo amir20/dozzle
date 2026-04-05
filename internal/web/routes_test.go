@@ -95,7 +95,7 @@ func (m *MockedClient) SystemInfo() system.Info {
 	return system.Info{ID: "123"}
 }
 
-func createHandler(client container.Client, content fs.FS, config Config) *chi.Mux {
+func createHandler(client docker_support.DockerUpdateClient, content fs.FS, config Config) *chi.Mux {
 	if client == nil {
 		client = new(MockedClient)
 		client.(*MockedClient).On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{}, nil)
@@ -120,6 +120,6 @@ func createHandler(client container.Client, content fs.FS, config Config) *chi.M
 	})
 }
 
-func createDefaultHandler(client container.Client) *chi.Mux {
+func createDefaultHandler(client docker_support.DockerUpdateClient) *chi.Mux {
 	return createHandler(client, nil, Config{Base: "/", Authorization: Authorization{Provider: NONE}})
 }

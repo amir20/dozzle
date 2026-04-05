@@ -17,12 +17,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// DockerUpdateClient extends container.Client with Docker-specific update operations.
+type DockerUpdateClient interface {
+	container.Client
+	ImagePull(ctx context.Context, image string) (io.ReadCloser, error)
+	ContainerInspectRaw(ctx context.Context, containerID string) (any, error)
+	ContainerRemove(ctx context.Context, containerID string) error
+	ContainerCreate(ctx context.Context, details any, name string) (string, error)
+	ServiceUpdate(ctx context.Context, serviceID string, image string) error
+}
+
 type DockerClientService struct {
-	client container.Client
+	client DockerUpdateClient
 	store  *container.ContainerStore
 }
 
-func NewDockerClientService(client container.Client, labels container.ContainerLabels) *DockerClientService {
+func NewDockerClientService(client DockerUpdateClient, labels container.ContainerLabels) *DockerClientService {
 	statsCollector := docker.NewDockerStatsCollector(client, labels)
 	return &DockerClientService{
 		client: client,

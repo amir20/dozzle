@@ -452,26 +452,6 @@ func (k *K8sClient) ContainerExec(ctx context.Context, id string, cmd []string) 
 	}, nil
 }
 
-func (k *K8sClient) ImagePull(ctx context.Context, image string) (io.ReadCloser, error) {
-	return nil, fmt.Errorf("image pull is not supported in Kubernetes mode")
-}
-
-func (k *K8sClient) ContainerInspectRaw(ctx context.Context, containerID string) (any, error) {
-	return nil, fmt.Errorf("container inspect raw is not supported in Kubernetes mode")
-}
-
-func (k *K8sClient) ContainerRemove(ctx context.Context, containerID string) error {
-	return fmt.Errorf("container remove is not supported in Kubernetes mode")
-}
-
-func (k *K8sClient) ContainerCreate(ctx context.Context, details any, name string) (string, error) {
-	return "", fmt.Errorf("container create is not supported in Kubernetes mode")
-}
-
-func (k *K8sClient) ServiceUpdate(ctx context.Context, serviceID string, image string) error {
-	return fmt.Errorf("service update is not supported in Kubernetes mode")
-}
-
 // Helper function to parse pod and container names from container ID
 func parsePodContainerID(id string) (string, string, string) {
 	parts := strings.Split(id, ":")
