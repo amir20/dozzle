@@ -182,7 +182,6 @@ func executeInspectContainer(argsJSON string, hostService ToolHostService, label
 			Labels:        c.Labels,
 			MemoryLimit:   c.MemoryLimit,
 			CpuLimit:      c.CPULimit,
-			Env:           c.Env,
 			Ports:         c.Ports,
 			Mounts:        c.Mounts,
 			RestartPolicy: c.RestartPolicy,

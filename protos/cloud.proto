@@ -136,7 +136,8 @@ message InspectContainerResult {
   map<string, string> labels = 11;
   uint64 memory_limit = 12;
   double cpu_limit = 13;
-  repeated string env = 14;
+  reserved 14;
+  reserved "env";
   repeated string ports = 15;
   repeated string mounts = 16;
   string restart_policy = 17;

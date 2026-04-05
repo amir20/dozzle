@@ -1160,7 +1160,6 @@ type InspectContainerResult struct {
 	Labels        map[string]string      `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	MemoryLimit   uint64                 `protobuf:"varint,12,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
 	CpuLimit      float64                `protobuf:"fixed64,13,opt,name=cpu_limit,json=cpuLimit,proto3" json:"cpu_limit,omitempty"`
-	Env           []string               `protobuf:"bytes,14,rep,name=env,proto3" json:"env,omitempty"`
 	Ports         []string               `protobuf:"bytes,15,rep,name=ports,proto3" json:"ports,omitempty"`
 	Mounts        []string               `protobuf:"bytes,16,rep,name=mounts,proto3" json:"mounts,omitempty"`
 	RestartPolicy string                 `protobuf:"bytes,17,opt,name=restart_policy,json=restartPolicy,proto3" json:"restart_policy,omitempty"`
@@ -1295,13 +1294,6 @@ func (x *InspectContainerResult) GetCpuLimit() float64 {
 		return x.CpuLimit
 	}
 	return 0
-}
-
-func (x *InspectContainerResult) GetEnv() []string {
-	if x != nil {
-		return x.Env
-	}
-	return nil
 }
 
 func (x *InspectContainerResult) GetPorts() []string {
@@ -1485,7 +1477,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x05level\x18\x04 \x01(\tR\x05level\"c\n" +
 	"\x0fFetchLogsResult\x12%\n" +
 	"\x0econtainer_name\x18\x01 \x01(\tR\rcontainerName\x12)\n" +
-	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xf2\x04\n" +
+	"\aentries\x18\x02 \x03(\v2\x0f.cloud.LogEntryR\aentries\"\xeb\x04\n" +
 	"\x16InspectContainerResult\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1503,15 +1495,14 @@ const file_cloud_proto_rawDesc = "" +
 	"\ahost_id\x18\x13 \x01(\tR\x06hostId\x12A\n" +
 	"\x06labels\x18\v \x03(\v2).cloud.InspectContainerResult.LabelsEntryR\x06labels\x12!\n" +
 	"\fmemory_limit\x18\f \x01(\x04R\vmemoryLimit\x12\x1b\n" +
-	"\tcpu_limit\x18\r \x01(\x01R\bcpuLimit\x12\x10\n" +
-	"\x03env\x18\x0e \x03(\tR\x03env\x12\x14\n" +
+	"\tcpu_limit\x18\r \x01(\x01R\bcpuLimit\x12\x14\n" +
 	"\x05ports\x18\x0f \x03(\tR\x05ports\x12\x16\n" +
 	"\x06mounts\x18\x10 \x03(\tR\x06mounts\x12%\n" +
 	"\x0erestart_policy\x18\x11 \x01(\tR\rrestartPolicy\x12!\n" +
 	"\fnetwork_mode\x18\x12 \x01(\tR\vnetworkMode\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"c\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x0e\x10\x0fR\x03env\"c\n" +
 	"\fActionResult\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x16\n" +
