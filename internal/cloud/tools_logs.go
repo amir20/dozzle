@@ -27,11 +27,11 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
-	if args.ContainerID == "" || args.Host == "" {
-		return nil, fmt.Errorf("container_id and host are required")
+	if args.ContainerID == "" {
+		return nil, fmt.Errorf("container_id is required")
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := findContainerFlexible(args.Host, args.ContainerID, hostService, labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

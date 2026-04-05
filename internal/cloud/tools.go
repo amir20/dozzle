@@ -50,12 +50,12 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           "fetch_container_logs",
-			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
-			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id","host_id"]}`,
+			Description:    "Fetch raw logs from a running Docker container. Requires container_id from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
+			ParametersJson: `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID returned in the 'id' field from find_containers or list_running_containers. This is a Docker container ID (e.g. 'abc123def456'), NOT the container name."},"host_id":{"type":"string","description":"Optional. The host ID returned in the 'host_id' field from find_containers. This is a host identifier (e.g. 'localhost' or a hash), NOT the host display name. If omitted, all hosts are searched."},"start":{"type":"string","description":"Optional ISO 8601 start time for log range"},"end":{"type":"string","description":"Optional ISO 8601 end time for log range"},"level":{"type":"string","description":"Optional log level filter (e.g. error, warn, info)"},"query":{"type":"string","description":"Optional text search query (case-insensitive substring match)"},"regex":{"type":"string","description":"Optional regex pattern to match against log messages"}},"required":["container_id"]}`,
 		},
 	}
 
-	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
+	inspectParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID returned in the 'id' field from find_containers or list_running_containers. This is a Docker container ID (e.g. 'abc123def456'), NOT the container name."},"host_id":{"type":"string","description":"Optional. The host ID returned in the 'host_id' field from find_containers. This is a host identifier (e.g. 'localhost' or a hash), NOT the host display name. If omitted, all hosts are searched."}},"required":["container_id"]}`
 	tools = append(tools, &pb.ToolDefinition{
 		Name:           "inspect_container",
 		Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
@@ -63,7 +63,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	})
 
 	if enableActions {
-		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID (from find_containers)"},"host_id":{"type":"string","description":"The host ID where the container is running (from find_containers)"}},"required":["container_id","host_id"]}`
+		actionParams := `{"type":"object","properties":{"container_id":{"type":"string","description":"The container ID returned in the 'id' field from find_containers. This is a Docker container ID, NOT the container name."},"host_id":{"type":"string","description":"Optional. The host ID returned in the 'host_id' field from find_containers. This is a host identifier, NOT the host display name. If omitted, all hosts are searched."}},"required":["container_id"]}`
 		tools = append(tools,
 			&pb.ToolDefinition{
 				Name:           "start_container",

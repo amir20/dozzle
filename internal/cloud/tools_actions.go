@@ -28,11 +28,8 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, h
 	if args.ContainerID == "" {
 		return nil, fmt.Errorf("container_id is required")
 	}
-	if args.Host == "" {
-		return nil, fmt.Errorf("host is required")
-	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := findContainerFlexible(args.Host, args.ContainerID, hostService, labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

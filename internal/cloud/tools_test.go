@@ -186,6 +186,50 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
 }
 
+func TestExecuteTool_RestartContainer_WithoutHostID(t *testing.T) {
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+
+	mockHost := &MockHostService{}
+	// First call with empty host fails, then ListAllContainers finds the container on "local"
+	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{
+		{ID: "abc123", Name: "nginx", Image: "nginx:latest", State: "running", Host: "local"},
+	}, nil)
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
+
+	argsJSON := `{"container_id": "abc123"}`
+	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
+	assert.True(t, resp.Success)
+
+	action := resp.GetAction()
+	assert.NotNil(t, action)
+	assert.True(t, action.Success)
+	assert.Equal(t, "abc123", action.ContainerId)
+}
+
+func TestExecuteTool_RestartContainer_WithHostName(t *testing.T) {
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+
+	mockHost := &MockHostService{}
+	// First FindContainer with host name "my-server" fails, then we resolve name to ID
+	mockHost.On("FindContainer", "my-server", "abc123", container.ContainerLabels(nil)).Return(nil, fmt.Errorf("host not found"))
+	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
+
+	argsJSON := `{"container_id": "abc123", "host_id": "my-server"}`
+	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
+	assert.True(t, resp.Success)
+
+	action := resp.GetAction()
+	assert.NotNil(t, action)
+	assert.True(t, action.Success)
+}
+
 func TestExecuteTool_RestartContainer_ActionsDisabled(t *testing.T) {
 	mockHost := &MockHostService{}
 

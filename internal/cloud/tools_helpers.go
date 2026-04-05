@@ -1,10 +1,12 @@
 package cloud
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
@@ -61,4 +63,46 @@ func logHostErrors(errs []error) {
 			log.Warn().Err(err).Msg("error listing containers from host")
 		}
 	}
+}
+
+// findContainerFlexible finds a container by ID, optionally scoped to a specific host.
+// When hostID is empty, it searches across all hosts by listing all containers and matching by ID.
+// When hostID is provided, it also tries to resolve host names to host IDs for LLM-friendliness.
+func findContainerFlexible(hostID string, containerID string, hostService ToolHostService, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	if containerID == "" {
+		return nil, fmt.Errorf("container_id is required")
+	}
+
+	// If host is provided, try direct lookup first, then try resolving name to ID
+	if hostID != "" {
+		cs, err := hostService.FindContainer(hostID, containerID, labels)
+		if err == nil {
+			return cs, nil
+		}
+
+		// Try treating hostID as a host name and resolve to actual ID
+		for _, h := range hostService.Hosts() {
+			if strings.EqualFold(h.Name, hostID) {
+				cs, err := hostService.FindContainer(h.ID, containerID, labels)
+				if err == nil {
+					return cs, nil
+				}
+			}
+		}
+	}
+
+	// Search across all hosts by listing all containers
+	containers, errs := hostService.ListAllContainers(labels)
+	logHostErrors(errs)
+
+	for _, c := range containers {
+		if c.ID == containerID {
+			return hostService.FindContainer(c.Host, containerID, labels)
+		}
+	}
+
+	if hostID != "" {
+		return nil, fmt.Errorf("container %s not found on host %s", containerID, hostID)
+	}
+	return nil, fmt.Errorf("container %s not found on any host", containerID)
 }
