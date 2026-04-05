@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Neustarten
+  update: Aktualisieren
+  update-service: Service Aktualisieren
+  update-pulling: Neuestes Image wird geladen...
+  update-recreating: Container wird neu erstellt...
+  update-done: Container erfolgreich aktualisiert
+  update-up-to-date: Bereits aktuell
   show-hostname: Host-Name anzeigen
   show-container-name: Container-Name anzeigen
   shell: Shell
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: Zwischenablage nicht verfügbar. Link unten kopieren
   logs-skipped: Zeige {total} versteckte Einträge
   container-not-found: Container nicht gefunden.
+  action-failed: Aktion fehlgeschlagen
+  update-failed: Aktualisierung fehlgeschlagen
+  unable-to-complete-action: Aktion konnte nicht abgeschlossen werden
+  invalid-action: Ungültige Aktion
+  unable-to-update: Container konnte nicht aktualisiert werden
+  something-went-wrong: Etwas ist schiefgelaufen
+  unknown-error: Unbekannter Fehler
   events-stream:
     title: Unerwarteter Fehler
     message: >-

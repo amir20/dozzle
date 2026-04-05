@@ -154,6 +154,17 @@
             {{ $t("toolbar.restart") }}
           </button>
         </li>
+        <li>
+          <button @click="update()" :disabled="actionStates.update">
+            <carbon:upgrade
+              :class="{
+                'animate-spin': actionStates.update,
+                'text-secondary': actionStates.update,
+              }"
+            />
+            {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
+          </button>
+        </li>
       </template>
 
       <template v-if="enableShell && !historical">
@@ -190,7 +201,7 @@ const showDrawer = useDrawer();
 
 const { container, historical = false } = defineProps<{ container: Container; historical?: boolean }>();
 const clear = defineEmit();
-const { actionStates, start, stop, restart } = useContainerActions(toRef(() => container));
+const { actionStates, start, stop, restart, update } = useContainerActions(toRef(() => container));
 
 const router = useRouter();
 const { copy, copied, isSupported } = useClipboard();

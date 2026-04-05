@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  update: Aktualizuj
+  update-service: Aktualizuj Usługę
+  update-pulling: Pobieranie najnowszego obrazu...
+  update-recreating: Tworzenie kontenera od nowa...
+  update-done: Kontener zaktualizowany pomyślnie
+  update-up-to-date: Już aktualny
   show-hostname: Pokaż nazwę hosta
   show-container-name: Pokaż nazwę kontenera
   shell: Shell
@@ -63,6 +69,13 @@ error:
   copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link
   logs-skipped: Pokaż {total} ukrytych wpisów
   container-not-found: Kontener nie został znaleziony
+  action-failed: Akcja Nieudana
+  update-failed: Aktualizacja Nieudana
+  unable-to-complete-action: Nie można ukończyć akcji
+  invalid-action: Nieprawidłowa akcja
+  unable-to-update: Nie można zaktualizować kontenera
+  something-went-wrong: Coś poszło nie tak
+  unknown-error: Nieznany błąd
   events-stream:
     title: Niespodziewany błąd
     message: >-

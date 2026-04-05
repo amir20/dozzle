@@ -8,6 +8,12 @@ toolbar:
   stop: Hentikan
   start: Mulai
   restart: Mulai ulang
+  update: Perbarui
+  update-service: Perbarui Layanan
+  update-pulling: Mengunduh image terbaru...
+  update-recreating: Membuat ulang kontainer...
+  update-done: Kontainer berhasil diperbarui
+  update-up-to-date: Sudah versi terbaru
   show-hostname: Tampilkan nama host
   show-container-name: Tampilkan nama kontainer
   shell: Shell
@@ -62,6 +68,13 @@ error:
   copy-not-supported-hint: Clipboard tidak tersedia. Salin tautan di bawah ini
   logs-skipped: Tampilkan {total} entri tersembunyi
   container-not-found: Kontainer tidak ditemukan
+  action-failed: Tindakan Gagal
+  update-failed: Pembaruan Gagal
+  unable-to-complete-action: Tidak dapat menyelesaikan tindakan
+  invalid-action: Tindakan tidak valid
+  unable-to-update: Tidak dapat memperbarui kontainer
+  something-went-wrong: Terjadi kesalahan
+  unknown-error: Kesalahan tidak diketahui
   events-stream:
     title: Kesalahan Tak Terduga
     message: >-

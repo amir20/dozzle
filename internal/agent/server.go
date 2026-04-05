@@ -39,6 +39,7 @@ type ClientService interface {
 	ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error)
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
+	UpdateContainer(ctx context.Context, container container.Container, progressCh chan<- container.UpdateProgress) error
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
 	SubscribeStats(context.Context, chan<- container.ContainerStat)
@@ -311,6 +312,34 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	}
 
 	return &pb.ContainerActionResponse{}, nil
+}
+
+func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentService_UpdateContainerServer) error {
+	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return status.Error(codes.NotFound, err.Error())
+	}
+
+	progressCh := make(chan container.UpdateProgress)
+	errCh := make(chan error, 1)
+
+	go func() {
+		errCh <- s.service.UpdateContainer(out.Context(), c, progressCh)
+	}()
+
+	for progress := range progressCh {
+		if err := out.Send(&pb.UpdateContainerProgress{
+			Status:  progress.Status,
+			Layer:   progress.Layer,
+			Current: progress.Current,
+			Total:   progress.Total,
+			Error:   progress.Error,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return <-errCh
 }
 
 // terminalMessage represents a message from a terminal gRPC stream (exec or attach)

@@ -8,6 +8,12 @@ toolbar:
   stop: Остановить
   start: Запустить
   restart: Перезапустить
+  update: Обновить
+  update-service: Обновить Сервис
+  update-pulling: Загрузка последнего образа...
+  update-recreating: Пересоздание контейнера...
+  update-done: Контейнер успешно обновлён
+  update-up-to-date: Уже обновлён
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
   shell: Оболочка
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: Буфер обмена недоступен. Скопируйте ссылку ниже
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
+  action-failed: Действие не выполнено
+  update-failed: Обновление не выполнено
+  unable-to-complete-action: Не удалось выполнить действие
+  invalid-action: Недопустимое действие
+  unable-to-update: Не удалось обновить контейнер
+  something-went-wrong: Что-то пошло не так
+  unknown-error: Неизвестная ошибка
   events-stream:
     title: Неожиданная ошибка
     message: >-

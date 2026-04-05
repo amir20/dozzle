@@ -8,6 +8,12 @@ toolbar:
   stop: 중지
   start: 시작
   restart: 다시 시작
+  update: 업데이트
+  update-service: 서비스 업데이트
+  update-pulling: 최신 이미지 가져오는 중...
+  update-recreating: 컨테이너 재생성 중...
+  update-done: 컨테이너가 성공적으로 업데이트되었습니다
+  update-up-to-date: 이미 최신 버전입니다
   show-hostname: 호스트 이름 보기
   show-container-name: 컨테이너 이름 보기
   shell: 셸
@@ -58,6 +64,13 @@ error:
   copy-not-supported-hint: 클립보드를 사용할 수 없습니다. 아래 링크를 복사하세요
   logs-skipped: 숨겨진 항목 {total}개 보기
   container-not-found: 컨테이너를 찾을 수 없습니다
+  action-failed: 작업 실패
+  update-failed: 업데이트 실패
+  unable-to-complete-action: 작업을 완료할 수 없습니다
+  invalid-action: 잘못된 작업
+  unable-to-update: 컨테이너를 업데이트할 수 없습니다
+  something-went-wrong: 문제가 발생했습니다
+  unknown-error: 알 수 없는 오류
   events-stream:
     title: 예상치 못한 오류
     message: >-

@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  update: Update
+  update-service: Update Service
+  update-pulling: Pulling latest image...
+  update-recreating: Recreating container...
+  update-done: Container updated successfully
+  update-up-to-date: Already up to date
   show-hostname: Show hostname
   show-container-name: Show container name
   shell: Shell
@@ -61,6 +67,13 @@ error:
   copy-not-supported-hint: Clipboard unavailable. Copy the link below
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
+  action-failed: Action Failed
+  update-failed: Update Failed
+  unable-to-complete-action: Unable to complete action
+  invalid-action: Invalid action
+  unable-to-update: Unable to update container
+  something-went-wrong: Something went wrong
+  unknown-error: Unknown error
   events-stream:
     title: Unexpected Error
     message: >-

@@ -8,6 +8,12 @@ toolbar:
   stop: 停止
   start: 啟動
   restart: 重新啟動
+  update: 更新
+  update-service: 更新服務
+  update-pulling: 正在拉取最新映像檔...
+  update-recreating: 正在重新建立容器...
+  update-done: 容器更新成功
+  update-up-to-date: 已是最新版本
   show-hostname: 顯示主機名稱
   show-container-name: 顯示容器名稱
   shell: 終端機
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: 剪貼簿不可用。請複製下方連結
   logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
+  action-failed: 操作失敗
+  update-failed: 更新失敗
+  unable-to-complete-action: 無法完成操作
+  invalid-action: 無效的操作
+  unable-to-update: 無法更新容器
+  something-went-wrong: 發生錯誤
+  unknown-error: 未知錯誤
   events-stream:
     title: 意外錯誤
     message: >-

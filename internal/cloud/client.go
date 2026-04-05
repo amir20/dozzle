@@ -25,11 +25,12 @@ import (
 )
 
 const (
-	initialBackoff = 1 * time.Second
-	maxBackoff     = 30 * time.Second
-	backoffFactor  = 2
-	jitterFraction = 0.1
-	maxConcurrent  = 5
+	initialBackoff        = 1 * time.Second
+	maxBackoff            = 30 * time.Second
+	backoffFactor         = 2
+	jitterFraction        = 0.1
+	maxConcurrent         = 5
+	unauthenticatedPause  = 1 * time.Hour
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -133,6 +134,17 @@ func (c *Client) Run(ctx context.Context) {
 			if isPermissionDenied(err) {
 				log.Debug().Msg("cloud account does not have pro plan, stopping cloud client")
 				return
+			}
+			if isUnauthenticated(err) {
+				log.Warn().Err(err).Dur("pause", unauthenticatedPause).Msg("invalid API key, pausing before retry")
+				backoffTimer.Reset(unauthenticatedPause)
+				select {
+				case <-ctx.Done():
+					return
+				case <-backoffTimer.C:
+				}
+				backoff = initialBackoff
+				continue
 			}
 			log.Warn().Err(err).Dur("backoff", backoff).Msg("cloud connection failed, reconnecting")
 		}
@@ -289,8 +301,16 @@ func (c *Client) tools() []*pb.ToolDefinition {
 }
 
 func isPermissionDenied(err error) bool {
+	return hasGRPCCode(err, codes.PermissionDenied)
+}
+
+func isUnauthenticated(err error) bool {
+	return hasGRPCCode(err, codes.Unauthenticated)
+}
+
+func hasGRPCCode(err error, code codes.Code) bool {
 	for e := err; e != nil; e = errors.Unwrap(e) {
-		if s, ok := status.FromError(e); ok && s.Code() == codes.PermissionDenied {
+		if s, ok := status.FromError(e); ok && s.Code() == code {
 			return true
 		}
 	}

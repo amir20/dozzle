@@ -48,7 +48,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 	assert.Equal(t, "req-1", resp.RequestId)
 	listResp := resp.GetListTools()
 	assert.NotNil(t, listResp)
-	assert.Len(t, listResp.Tools, 10) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container + 3 actions
+	assert.Len(t, listResp.Tools, 11) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container + 3 actions + update
 }
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {

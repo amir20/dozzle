@@ -8,6 +8,12 @@ toolbar:
   stop: Parar
   start: Iniciar
   restart: Reiniciar
+  update: Atualizar
+  update-service: Atualizar Serviço
+  update-pulling: Baixando imagem mais recente...
+  update-recreating: Recriando container...
+  update-done: Container atualizado com sucesso
+  update-up-to-date: Já está atualizado
   show-hostname: Mostrar nome do host
   show-container-name: Mostrar nome do container
   shell: Shell
@@ -58,6 +64,13 @@ error:
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Container não encontrado
+  action-failed: Ação Falhou
+  update-failed: Atualização Falhou
+  unable-to-complete-action: Não foi possível completar a ação
+  invalid-action: Ação inválida
+  unable-to-update: Não foi possível atualizar o container
+  something-went-wrong: Algo deu errado
+  unknown-error: Erro desconhecido
   events-stream:
     title: Erro Inesperado
     message: >-

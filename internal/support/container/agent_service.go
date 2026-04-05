@@ -76,6 +76,10 @@ func (a *agentService) ContainerAction(ctx context.Context, container container.
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
 
+func (a *agentService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) error {
+	return a.client.UpdateContainer(ctx, c.ID, progressCh)
+}
+
 func (a *agentService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	panic("not implemented")
 }

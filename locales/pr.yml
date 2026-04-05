@@ -8,6 +8,12 @@ toolbar:
   stop: Parar
   start: Iniciar
   restart: Reiniciar
+  update: Swab the Decks
+  update-service: Update th' Service
+  update-pulling: Haulin' the latest image...
+  update-recreating: Rebuildin' the vessel...
+  update-done: Container updated, arr!
+  update-up-to-date: Already shipshape, cap'n!
   show-hostname: Mostrar nome do anfitrião
   show-container-name: Mostrar nome do contentor
   shell: Shell
@@ -62,6 +68,13 @@ error:
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contentor não encontrado.
+  action-failed: Action Be Cursed!
+  update-failed: Update Be Scuttled!
+  unable-to-complete-action: Can't finish the deed, matey
+  invalid-action: That be no proper action
+  unable-to-update: Can't swab this container
+  something-went-wrong: Blimey, somethin' went wrong!
+  unknown-error: Unknown curse upon us
   events-stream:
     title: Erro inesperado
     message: >-

@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Démarrer
   restart: Redémarrer
+  update: Mettre à jour
+  update-service: Mettre à jour le Service
+  update-pulling: Téléchargement de la dernière image...
+  update-recreating: Recréation du conteneur...
+  update-done: Conteneur mis à jour avec succès
+  update-up-to-date: Déjà à jour
   show-hostname: Afficher le nom d'hôte
   show-container-name: Afficher le nom du conteneur
   shell: Shell
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: Presse-papiers indisponible. Copiez le lien ci-dessous
   logs-skipped: Afficher {total} entrées cachées
   container-not-found: Conteneur non trouvé
+  action-failed: Action Échouée
+  update-failed: Mise à jour Échouée
+  unable-to-complete-action: Impossible de terminer l'action
+  invalid-action: Action non valide
+  unable-to-update: Impossible de mettre à jour le conteneur
+  something-went-wrong: Quelque chose s'est mal passé
+  unknown-error: Erreur inconnue
   events-stream:
     title: Erreur inattendue
     message: >-
