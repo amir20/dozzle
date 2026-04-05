@@ -81,10 +81,12 @@ func TestContainerStore_die(t *testing.T) {
 		},
 	}, nil)
 
+	ready := make(chan struct{})
 	client.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil).
 		Run(func(args mock.Arguments) {
 			ctx := args.Get(0).(context.Context)
 			events := args.Get(1).(chan<- ContainerEvent)
+			<-ready
 			events <- ContainerEvent{
 				Name:    "die",
 				ActorID: "1234",
@@ -110,6 +112,7 @@ func TestContainerStore_die(t *testing.T) {
 	// Wait until we get the event
 	events := make(chan ContainerEvent)
 	store.SubscribeEvents(t.Context(), events)
+	close(ready)
 	<-events
 
 	containers, _ := store.ListContainers(ContainerLabels{})
