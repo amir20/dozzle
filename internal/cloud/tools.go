@@ -7,6 +7,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
+	"github.com/rs/zerolog/log"
 )
 
 // ToolHostService is the subset of HostService needed by tool execution.
@@ -96,6 +97,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 func ExecuteTool(ctx context.Context, name string, argsJSON string, enableActions bool, hostService ToolHostService, labels container.ContainerLabels) *pb.CallToolResponse {
 	resp, err := executeTool(ctx, name, argsJSON, enableActions, hostService, labels)
 	if err != nil {
+		log.Warn().Err(err).Str("tool", name).Str("args", argsJSON).Msg("tool execution failed")
 		return &pb.CallToolResponse{
 			Success: false,
 			Error:   err.Error(),
