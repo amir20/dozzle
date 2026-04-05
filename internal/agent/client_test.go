@@ -100,6 +100,11 @@ func (m *MockedClientService) Exec(ctx context.Context, c container.Container, c
 	return args.Error(0)
 }
 
+func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) error {
+	args := m.Called(ctx, c, progressCh)
+	return args.Error(0)
+}
+
 var wantedContainer = container.Container{}
 
 func init() {
