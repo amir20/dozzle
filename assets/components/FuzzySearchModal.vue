@@ -144,7 +144,7 @@ const list = computed(() => {
   return items;
 });
 
-const { results } = useFuse(query, list, {
+const { results: fuseResults } = useFuse(query, list, {
   fuseOptions: {
     keys: ["name", "host"],
     includeScore: true,
@@ -153,6 +153,8 @@ const { results } = useFuse(query, list, {
     includeMatches: true,
   },
 });
+
+const results = computed(() => (query.value ? fuseResults.value : []));
 
 const data = computed(() => {
   return [...results.value].sort((a: FuseResult<Item>, b: FuseResult<Item>) => {
