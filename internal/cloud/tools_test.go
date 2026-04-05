@@ -26,10 +26,11 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
+	assert.Contains(t, names, "fetch_container_logs")
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 8)
+	assert.Len(t, tools, 10)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -45,7 +46,8 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 	assert.Contains(t, names, "list_running_containers")
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
-	assert.Len(t, tools, 5)
+	assert.Contains(t, names, "fetch_container_logs")
+	assert.Len(t, tools, 7)
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
@@ -141,7 +143,7 @@ func TestExecuteTool_ListRunningContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "nginx", result.Containers[0].Name)
-	assert.Equal(t, "my-server", result.Containers[0].Host)
+	assert.Equal(t, "my-server", result.Containers[0].HostName)
 }
 
 func TestExecuteTool_ListAllContainers(t *testing.T) {
@@ -160,7 +162,7 @@ func TestExecuteTool_ListAllContainers(t *testing.T) {
 	assert.Len(t, result.Containers, 2)
 	assert.Equal(t, "abc123", result.Containers[0].Id)
 	assert.Equal(t, "def456", result.Containers[1].Id)
-	assert.Equal(t, "my-server", result.Containers[0].Host)
+	assert.Equal(t, "my-server", result.Containers[0].HostName)
 }
 
 func TestExecuteTool_RestartContainer(t *testing.T) {
@@ -172,7 +174,7 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockHost := &MockHostService{}
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
-	argsJSON := `{"container_id": "abc123", "host": "local"}`
+	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
 	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
 	assert.True(t, resp.Success)
 

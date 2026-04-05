@@ -48,7 +48,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 	assert.Equal(t, "req-1", resp.RequestId)
 	listResp := resp.GetListTools()
 	assert.NotNil(t, listResp)
-	assert.Len(t, listResp.Tools, 8) // list_hosts + find_containers + list_running_containers + list_all_containers + get_running_container_stats + 3 actions
+	assert.Len(t, listResp.Tools, 10) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container + 3 actions
 }
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
@@ -66,7 +66,7 @@ func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
 	resp := client.handleRequest(context.Background(), req)
 
 	listResp := resp.GetListTools()
-	assert.Len(t, listResp.Tools, 5) // list_hosts + find_containers + list_running_containers + list_all_containers + get_running_container_stats
+	assert.Len(t, listResp.Tools, 7) // list_hosts + find_containers + list_running/all + get_stats + fetch_logs + inspect_container
 }
 
 func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
@@ -143,7 +143,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 		Type: &pb.ToolRequest_CallTool{
 			CallTool: &pb.CallToolRequest{
 				Name:          "restart_container",
-				ArgumentsJson: `{"container_id": "abc123", "host": "local"}`,
+				ArgumentsJson: `{"container_id": "abc123", "host_id": "local"}`,
 			},
 		},
 	}
