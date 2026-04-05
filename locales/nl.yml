@@ -8,6 +8,12 @@ toolbar:
   stop: Stoppen
   start: Starten
   restart: Herstarten
+  update: Bijwerken
+  update-service: Service Bijwerken
+  update-pulling: Laatste image ophalen...
+  update-recreating: Container opnieuw aanmaken...
+  update-done: Container succesvol bijgewerkt
+  update-up-to-date: Al bijgewerkt
   show-hostname: Toon hostnaam
   show-container-name: Toon containernaam
   shell: Shell
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: Klembord niet beschikbaar. Kopieer de link hieronder
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
+  action-failed: Actie Mislukt
+  update-failed: Update Mislukt
+  unable-to-complete-action: Kan actie niet voltooien
+  invalid-action: Ongeldige actie
+  unable-to-update: Kan container niet bijwerken
+  something-went-wrong: Er is iets misgegaan
+  unknown-error: Onbekende fout
   events-stream:
     title: Onverwachte fout
     message: >-

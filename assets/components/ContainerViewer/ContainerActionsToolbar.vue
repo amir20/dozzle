@@ -162,7 +162,7 @@
                 'text-secondary': actionStates.update,
               }"
             />
-            {{ $t("toolbar.update") }}
+            {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
           </button>
         </li>
       </template>

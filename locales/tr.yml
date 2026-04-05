@@ -8,6 +8,12 @@ toolbar:
   stop: Durdur
   start: Başlat
   restart: Yeniden Başlat
+  update: Güncelle
+  update-service: Servisi Güncelle
+  update-pulling: En son imaj indiriliyor...
+  update-recreating: Konteyner yeniden oluşturuluyor...
+  update-done: Konteyner başarıyla güncellendi
+  update-up-to-date: Zaten güncel
   show-hostname: Sunucu adını göster
   show-container-name: Konteyner adını göster
   shell: Kabuk
@@ -64,6 +70,13 @@ error:
   copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
+  action-failed: İşlem Başarısız
+  update-failed: Güncelleme Başarısız
+  unable-to-complete-action: İşlem tamamlanamadı
+  invalid-action: Geçersiz işlem
+  unable-to-update: Konteyner güncellenemedi
+  something-went-wrong: Bir şeyler ters gitti
+  unknown-error: Bilinmeyen hata
   events-stream:
     title: Beklenmeyen Hata
     message: >-

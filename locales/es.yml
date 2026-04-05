@@ -8,6 +8,12 @@ toolbar:
   stop: Detener
   start: Iniciar
   restart: Reiniciar
+  update: Actualizar
+  update-service: Actualizar Servicio
+  update-pulling: Descargando última imagen...
+  update-recreating: Recreando contenedor...
+  update-done: Contenedor actualizado correctamente
+  update-up-to-date: Ya está actualizado
   show-hostname: Mostrar nombre del host
   show-container-name: Mostrar nombre del contenedor
   shell: Shell
@@ -59,6 +65,13 @@ error:
   copy-not-supported-hint: Portapapeles no disponible. Copie el enlace a continuación
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contenedor no encontrado.
+  action-failed: Acción Fallida
+  update-failed: Actualización Fallida
+  unable-to-complete-action: No se pudo completar la acción
+  invalid-action: Acción no válida
+  unable-to-update: No se pudo actualizar el contenedor
+  something-went-wrong: Algo salió mal
+  unknown-error: Error desconocido
   events-stream:
     title: Error inesperado
     message: >-

@@ -9,6 +9,7 @@ toolbar:
   start: Start
   restart: Restart
   update: Update
+  update-service: Update Service
   update-pulling: Pulling latest image...
   update-recreating: Recreating container...
   update-done: Container updated successfully
