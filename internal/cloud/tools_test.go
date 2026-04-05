@@ -126,9 +126,9 @@ func (m *MockClientService) Exec(_ context.Context, _ container.Container, _ []s
 	return nil
 }
 
-func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) error {
+func (m *MockClientService) UpdateContainer(_ context.Context, _ container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
 	close(progressCh)
-	return nil
+	return false, nil
 }
 
 func TestExecuteTool_ListRunningContainers(t *testing.T) {
