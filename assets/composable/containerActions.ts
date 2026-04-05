@@ -16,13 +16,13 @@ export const useContainerActions = (container: Ref<Container>) => {
     const actionUrl = `/api/hosts/${container.value.host}/containers/${container.value.id}/actions/${action}`;
 
     const errors = {
-      404: "container not found",
-      500: "unable to complete action",
-      400: "invalid action",
+      404: t("error.container-not-found"),
+      500: t("error.unable-to-complete-action"),
+      400: t("error.invalid-action"),
     } as Record<number, string>;
 
-    const defaultError = "something went wrong";
-    const toastTitle = "Action Failed";
+    const defaultError = t("error.something-went-wrong");
+    const toastTitle = t("error.action-failed");
 
     actionStates[action] = true;
 
@@ -59,7 +59,7 @@ export const useContainerActions = (container: Ref<Container>) => {
       const response = await fetch(withBase(updateUrl), { method: "POST" });
       if (!response.ok) {
         removeToast(toastId);
-        showToast({ type: "error", message: "unable to update container", title: "Update Failed" });
+        showToast({ type: "error", message: t("error.unable-to-update"), title: t("error.update-failed") });
         actionStates.update = false;
         return;
       }
@@ -129,8 +129,8 @@ export const useContainerActions = (container: Ref<Container>) => {
               removeToast(toastId);
               showToast({
                 type: "error",
-                message: data.error || "unknown error",
-                title: "Update Failed",
+                message: data.error || t("error.unknown-error"),
+                title: t("error.update-failed"),
               });
               break;
           }
@@ -138,7 +138,7 @@ export const useContainerActions = (container: Ref<Container>) => {
       }
     } catch (error) {
       removeToast(toastId);
-      showToast({ type: "error", message: "something went wrong", title: "Update Failed" });
+      showToast({ type: "error", message: t("error.something-went-wrong"), title: t("error.update-failed") });
     }
 
     actionStates.update = false;
