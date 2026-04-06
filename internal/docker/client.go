@@ -171,6 +171,16 @@ func (d *DockerClient) ContainerRemove(ctx context.Context, containerID string) 
 }
 
 func (d *DockerClient) ContainerCreate(ctx context.Context, inspectResp docker.InspectResponse, name string) (string, error) {
+	// Clear hostname when using network modes that don't support it (host, container:*)
+	// Docker always populates Hostname in inspect responses, but rejects it on create
+	// for these network modes.
+	if inspectResp.HostConfig != nil {
+		mode := string(inspectResp.HostConfig.NetworkMode)
+		if mode == "host" || strings.HasPrefix(mode, "container:") {
+			inspectResp.Config.Hostname = ""
+		}
+	}
+
 	// Build clean EndpointsConfig with only network names and aliases,
 	// stripping runtime state (IPs, gateways, MAC addresses) that can
 	// cause conflicts when recreating.
