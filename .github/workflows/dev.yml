@@ -39,6 +39,11 @@ jobs:
           images: |
             amir20/dozzle
             ghcr.io/amir20/dozzle
+          tags: |
+            type=sha,prefix=master-,format=short,enable={{is_default_branch}}
+            type=sha,prefix=pr-${{ github.event.number }}-,format=short,enable=${{ github.event_name == 'pull_request' }}
+            type=ref,event=branch
+            type=ref,event=pr
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
