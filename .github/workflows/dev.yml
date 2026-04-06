@@ -39,11 +39,9 @@ jobs:
           images: |
             amir20/dozzle
             ghcr.io/amir20/dozzle
-          tags: |
-            type=sha,prefix=master-,format=short,enable={{is_default_branch}}
-            type=sha,prefix=pr-${{ github.event.number }}-,format=short,enable=${{ github.event_name == 'pull_request' }}
-            type=ref,event=branch
-            type=ref,event=pr
+      - name: Short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - name: Writing certs to file
         run: |
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
@@ -55,7 +53,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: TAG=${{ steps.meta.outputs.version }}
+          build-args: TAG=${{ steps.meta.outputs.version }}-${{ steps.sha.outputs.short }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
