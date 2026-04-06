@@ -156,12 +156,7 @@
         </li>
         <li>
           <button @click="update()" :disabled="actionStates.update">
-            <carbon:upgrade
-              :class="{
-                'animate-spin': actionStates.update,
-                'text-secondary': actionStates.update,
-              }"
-            />
+            <carbon:upgrade />
             {{ container.isSwarm ? $t("toolbar.update-service") : $t("toolbar.update") }}
           </button>
         </li>
