@@ -29,6 +29,7 @@ message ListToolsRequest {}
 
 message ListToolsResponse {
   repeated ToolDefinition tools = 1;
+  string version = 2;
 }
 
 message ToolDefinition {
