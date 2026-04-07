@@ -240,6 +240,7 @@ func (*ListToolsRequest) Descriptor() ([]byte, []int) {
 type ListToolsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tools         []*ToolDefinition      `protobuf:"bytes,1,rep,name=tools,proto3" json:"tools,omitempty"`
+	Version       string                 `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -279,6 +280,13 @@ func (x *ListToolsResponse) GetTools() []*ToolDefinition {
 		return x.Tools
 	}
 	return nil
+}
+
+func (x *ListToolsResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
 }
 
 type ToolDefinition struct {
@@ -1420,9 +1428,10 @@ const file_cloud_proto_rawDesc = "" +
 	"list_tools\x18\x02 \x01(\v2\x18.cloud.ListToolsResponseH\x00R\tlistTools\x126\n" +
 	"\tcall_tool\x18\x03 \x01(\v2\x17.cloud.CallToolResponseH\x00R\bcallToolB\x06\n" +
 	"\x04type\"\x12\n" +
-	"\x10ListToolsRequest\"@\n" +
+	"\x10ListToolsRequest\"Z\n" +
 	"\x11ListToolsResponse\x12+\n" +
-	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\"o\n" +
+	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\"o\n" +
 	"\x0eToolDefinition\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12'\n" +

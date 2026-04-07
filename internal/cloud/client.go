@@ -12,6 +12,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
+	"github.com/amir20/dozzle/internal/support/cli"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/semaphore"
@@ -264,7 +265,8 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 		log.Debug().Str("request_id", req.RequestId).Msg("cloud requested tool list")
 		resp.Type = &pb.ToolResponse_ListTools{
 			ListTools: &pb.ListToolsResponse{
-				Tools: c.tools(),
+				Tools:   c.tools(),
+				Version: cli.Version,
 			},
 		}
 
