@@ -177,7 +177,7 @@ func (d *DockerClientService) UpdateContainer(ctx context.Context, c container.C
 	}
 
 	// 5. Standalone container: check for self-update
-	if c.Image == "amir20/dozzle" {
+	if strings.Contains(imageName, "amir20/dozzle") {
 		progressCh <- container.UpdateProgress{Status: "error", Error: "Dozzle cannot update itself. Please restart manually."}
 		return false, fmt.Errorf("cannot self-update: stopping Dozzle would terminate the update process")
 	}

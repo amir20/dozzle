@@ -18,7 +18,7 @@ import (
 
 // isDozzleContainer returns true if the container is a Dozzle instance (to avoid feedback loops)
 func isDozzleContainer(c container.Container) bool {
-	return c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:")
+	return strings.Contains(c.Image, "amir20/dozzle")
 }
 
 // FromContainerModel converts internal container.Container to types.NotificationContainer
