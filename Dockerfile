@@ -23,7 +23,7 @@ COPY public ./public
 RUN pnpm build
 
 # Grab docker-compose binary
-FROM docker/compose-bin:v2.36.0 AS compose
+FROM --platform=$TARGETPLATFORM docker/compose-bin:v2.36.0 AS compose
 
 FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 
