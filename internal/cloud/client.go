@@ -42,10 +42,11 @@ type Client struct {
 	apiKeyFunc      func() string
 	target          string
 	plaintext       bool
-	toolSem     *semaphore.Weighted
-	cachedTools []*pb.ToolDefinition
-	toolsOnce   sync.Once
-	startCh     chan struct{}
+	toolSem         *semaphore.Weighted
+	cachedTools     []*pb.ToolDefinition
+	toolsOnce       sync.Once
+	startCh         chan struct{}
+	activeStreams    sync.Map // requestID -> context.CancelFunc
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -208,6 +209,14 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	}
 
 	defer func() {
+		// Cancel all active log streams before shutting down
+		c.activeStreams.Range(func(key, value any) bool {
+			if cancel, ok := value.(context.CancelFunc); ok {
+				cancel()
+			}
+			c.activeStreams.Delete(key)
+			return true
+		})
 		streamCancel()
 		wg.Wait()
 	}()
@@ -218,6 +227,39 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 			return wasConnected, fmt.Errorf("stream recv error: %w", err)
 		}
 		wasConnected = true
+
+		// Handle cancel stream request
+		if cancelReq, ok := req.Type.(*pb.ToolRequest_CancelStream); ok {
+			streamReqID := cancelReq.CancelStream.StreamRequestId
+			if cancel, loaded := c.activeStreams.LoadAndDelete(streamReqID); loaded {
+				if cancelFn, ok := cancel.(context.CancelFunc); ok {
+					cancelFn()
+				}
+			}
+			continue
+		}
+
+		// Handle stream_logs specially — long-lived, not subject to the semaphore
+		if callReq, ok := req.Type.(*pb.ToolRequest_CallTool); ok && callReq.CallTool.Name == "stream_logs" {
+			streamCtx, streamCancel := context.WithCancel(streamLifetime)
+			c.activeStreams.Store(req.RequestId, streamCancel)
+			reqID := req.RequestId
+			argsJSON := callReq.CallTool.ArgumentsJson
+			wg.Go(func() {
+				defer func() {
+					c.activeStreams.Delete(reqID)
+					streamCancel()
+				}()
+				log.Debug().Str("request_id", reqID).Msg("starting stream_logs")
+				if err := executeStreamLogs(streamCtx, reqID, argsJSON, c.hostService, c.labels, sendResp); err != nil {
+					if streamLifetime.Err() != nil {
+						return
+					}
+					log.Debug().Err(err).Str("request_id", reqID).Msg("stream_logs ended")
+				}
+			})
+			continue
+		}
 
 		// List tools is fast — handle inline. Tool calls run concurrently with a semaphore.
 		if _, ok := req.Type.(*pb.ToolRequest_CallTool); ok {

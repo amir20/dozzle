@@ -118,6 +118,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			ParametersJson: fetchLogsParams,
 		},
 		{
+			Name:           "stream_logs",
+			Description:    "Stream live logs from a running Docker container in real time. Requires container_id and host_id from find_containers. Optionally filter by log level, text search, or regex pattern. Streams continuously until cancelled.",
+			ParametersJson: fetchLogsParams, // same params as fetch_container_logs
+		},
+		{
 			Name:           "inspect_container",
 			Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
 			ParametersJson: targetedParams,
