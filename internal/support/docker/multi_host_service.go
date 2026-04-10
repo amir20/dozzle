@@ -39,6 +39,7 @@ type MultiHostService struct {
 	manager             ClientManager
 	timeout             time.Duration
 	notificationManager *notification.Manager
+	cloudConfig         *notification.CloudConfig
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -184,6 +185,7 @@ func (m *MultiHostService) TotalClients() int {
 }
 
 const notificationConfigPath = "./data/notifications.yml"
+const cloudConfigPath = "./data/cloud.yml"
 
 // StartNotificationManager initializes and starts the notification manager
 func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
@@ -205,6 +207,38 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 			log.Warn().Err(err).Msg("Could not load notification config")
 		} else {
 			log.Debug().Str("path", notificationConfigPath).Msg("Loaded notification config")
+		}
+	}
+
+	// Load cloud config if it exists; otherwise attempt migration from dispatchers
+	if file, err := os.Open(cloudConfigPath); err == nil {
+		defer file.Close()
+		cc, err := notification.LoadCloudConfig(file)
+		if err != nil {
+			log.Warn().Err(err).Msg("Could not load cloud config")
+		} else {
+			m.cloudConfig = &cc
+			log.Debug().Str("path", cloudConfigPath).Msg("Loaded cloud config")
+		}
+	} else {
+		// Try to migrate cloud dispatcher from notifications.yml
+		dispatchers := m.notificationManager.Dispatchers()
+		if cc, remaining, ok := notification.MigrateCloudFromDispatchers(dispatchers); ok {
+			m.cloudConfig = &cc
+			log.Info().Msg("Migrated cloud config from dispatchers")
+
+			// Save dedicated cloud.yml
+			m.saveCloudConfig()
+
+			// Re-save notifications.yml without the cloud dispatcher
+			// Rebuild dispatcher objects so the manager reflects the cleaned list
+			for _, d := range dispatchers {
+				if d.Type == "cloud" {
+					m.notificationManager.RemoveDispatcher(d.ID)
+				}
+			}
+			_ = remaining // consumed by RemoveDispatcher calls above
+			m.saveNotificationConfig()
 		}
 	}
 
@@ -230,6 +264,48 @@ func (m *MultiHostService) saveNotificationConfig() {
 
 	// Broadcast to all agents
 	m.broadcastNotificationConfig()
+}
+
+// saveCloudConfig writes the current cloud config to cloudConfigPath.
+func (m *MultiHostService) saveCloudConfig() {
+	if m.cloudConfig == nil {
+		return
+	}
+
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		log.Error().Err(err).Msg("Could not create data directory")
+		return
+	}
+
+	file, err := os.Create(cloudConfigPath)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create cloud config file")
+		return
+	}
+	defer file.Close()
+
+	if err := notification.WriteCloudConfig(file, *m.cloudConfig); err != nil {
+		log.Error().Err(err).Msg("Could not write cloud config")
+	}
+}
+
+// CloudConfig returns the current cloud config, or nil if not set.
+func (m *MultiHostService) CloudConfig() *notification.CloudConfig {
+	return m.cloudConfig
+}
+
+// SetCloudConfig sets the cloud config and persists it to disk.
+func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
+	m.cloudConfig = cc
+	m.saveCloudConfig()
+}
+
+// RemoveCloudConfig clears the cloud config and deletes the file from disk.
+func (m *MultiHostService) RemoveCloudConfig() {
+	m.cloudConfig = nil
+	if err := os.Remove(cloudConfigPath); err != nil && !os.IsNotExist(err) {
+		log.Error().Err(err).Msg("Could not remove cloud config file")
+	}
 }
 
 // NotificationConfigUpdater is an interface for clients that support notification config updates
