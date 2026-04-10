@@ -21,6 +21,7 @@ import (
 type Manager struct {
 	subscriptions       *xsync.Map[int, *Subscription]
 	dispatchers         *xsync.Map[int, dispatcher.Dispatcher]
+	cloudDispatcher     atomic.Pointer[dispatcher.Dispatcher]
 	subscriptionCounter atomic.Int32
 	dispatcherCounter   atomic.Int32
 	listener            *ContainerLogListener
@@ -322,6 +323,31 @@ func (m *Manager) RemoveDispatcher(id int) {
 	}
 }
 
+// SetCloudDispatcher sets the dedicated cloud dispatcher used for subscriptions with DispatcherID == 0.
+func (m *Manager) SetCloudDispatcher(d dispatcher.Dispatcher) {
+	m.cloudDispatcher.Store(&d)
+	log.Debug().Msg("Set cloud dispatcher")
+}
+
+// ClearCloudDispatcher removes the cloud dispatcher.
+func (m *Manager) ClearCloudDispatcher() {
+	m.cloudDispatcher.Store(nil)
+	log.Debug().Msg("Cleared cloud dispatcher")
+}
+
+
+// getDispatcher resolves a dispatcher by subscription's DispatcherID.
+// DispatcherID == 0 means the cloud dispatcher; otherwise lookup in the dispatchers map.
+func (m *Manager) getDispatcher(id int) (dispatcher.Dispatcher, bool) {
+	if id == 0 {
+		if p := m.cloudDispatcher.Load(); p != nil {
+			return *p, true
+		}
+		return nil, false
+	}
+	return m.dispatchers.Load(id)
+}
+
 // Subscriptions returns all subscriptions sorted by ID
 func (m *Manager) Subscriptions() []*Subscription {
 	result := make([]*Subscription, 0)
@@ -363,9 +389,23 @@ func (m *Manager) GetNotificationStats() []types.SubscriptionStats {
 	return stats
 }
 
-// Dispatchers returns all dispatchers as DispatcherConfig sorted by ID
+// Dispatchers returns all dispatchers as DispatcherConfig sorted by ID.
+// Includes the cloud dispatcher (ID 0) when configured.
 func (m *Manager) Dispatchers() []DispatcherConfig {
 	result := make([]DispatcherConfig, 0)
+
+	// Include cloud dispatcher if configured
+	if p := m.cloudDispatcher.Load(); p != nil {
+		if cd, ok := (*p).(*dispatcher.CloudDispatcher); ok {
+			result = append(result, DispatcherConfig{
+				ID:     0,
+				Name:   cd.Name,
+				Type:   "cloud",
+				Prefix: cd.Prefix,
+			})
+		}
+	}
+
 	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
 		switch v := d.(type) {
 		case *dispatcher.WebhookDispatcher:
@@ -376,15 +416,6 @@ func (m *Manager) Dispatchers() []DispatcherConfig {
 				URL:      v.URL,
 				Template: v.TemplateText,
 				Headers:  v.Headers,
-			})
-		case *dispatcher.CloudDispatcher:
-			result = append(result, DispatcherConfig{
-				ID:        id,
-				Name:      v.Name,
-				Type:      "cloud",
-				APIKey:    v.APIKey,
-				Prefix:    v.Prefix,
-				ExpiresAt: v.ExpiresAt,
 			})
 		}
 		return true

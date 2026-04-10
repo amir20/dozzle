@@ -90,7 +90,7 @@ func (m *Manager) processLogEvent(logEvent *container.LogEvent) {
 		}
 
 		// Send to the subscription's dispatcher
-		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
 			go m.sendNotification(d, notification, sub.DispatcherID)
 		}
 		return true
@@ -177,7 +177,7 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 			Timestamp: time.Now(),
 		}
 
-		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
 			go m.sendNotification(d, notification, sub.DispatcherID)
 		}
 		return true
@@ -264,7 +264,7 @@ func (m *Manager) processDockerEvent(event *ContainerEventEntry) {
 			Timestamp: time.Now(),
 		}
 
-		if d, ok := m.dispatchers.Load(sub.DispatcherID); ok {
+		if d, ok := m.getDispatcher(sub.DispatcherID); ok {
 			go m.sendNotification(d, notification, sub.DispatcherID)
 		}
 		return true

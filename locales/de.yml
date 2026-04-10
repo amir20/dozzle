@@ -270,7 +270,7 @@ notifications:
     close: Schließen
     save: Speichern
     add: Ziel hinzufügen
-    cloud-exists: Es kann nur ein Dozzle Cloud Ziel konfiguriert werden
+    cloud-exists: Dozzle Cloud ist bereits verknüpft
     link-cloud: Konto verknüpfen
     link-cloud-button: Dozzle Cloud verknüpfen
     cloud-settings-hint: Um Ihre verwalteten Kanäle zu konfigurieren, gehen Sie zu
@@ -279,6 +279,23 @@ notifications:
     cloud-relink: Ihr API-Schlüssel ist ungültig oder abgelaufen. Bitte löschen und verknüpfen Sie Ihr Konto erneut.
     cloud-plan: Plan
     cloud-usage: Ereignisse in diesem Zeitraum
+  empty-state:
+    title: Erste Schritte mit Benachrichtigungen
+    description: Wählen Sie aus, wie Sie Alarme erhalten möchten, wenn Ihre Container Aufmerksamkeit benötigen.
   cloud-link-success:
     title: Dozzle Cloud verknüpft
-    message: Ihr Konto wurde erfolgreich mit Dozzle Cloud verknüpft.
+    message: Ihre Instanz wurde erfolgreich verbunden. Sie können die Verknüpfung in den Einstellungen aufheben oder Ihre Nutzung jederzeit einsehen.
+cloud:
+  title: Dozzle Cloud
+  description: Steuern Sie Ihre Container aus der Ferne und nutzen Sie KI, um Probleme in Ihrem Cluster zu untersuchen.
+  learn-more: Mehr erfahren
+  link-instance: Instanz verknüpfen
+  relink-instance: Instanz erneut verknüpfen
+  connected: Verbunden
+  plan: Plan
+  usage: Ereignisse in diesem Zeitraum
+  dashboard: Dashboard
+  settings: Einstellungen
+  error: Verbindungsfehler. Bitte verknüpfen Sie Ihre Instanz erneut.
+  unlink: Verknüpfung aufheben
+  unlink-confirm: Sind Sie sicher, dass Sie die Verknüpfung mit Dozzle Cloud aufheben möchten? Dies entfernt alle Cloud-Benachrichtigungsziele.

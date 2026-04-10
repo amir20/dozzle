@@ -27,7 +27,7 @@
             <li>
               <a @click="editDestination">{{ $t("notifications.destination.edit") }}</a>
             </li>
-            <li>
+            <li v-if="destination.type !== 'cloud'">
               <a class="text-error" @click="deleteDestination">{{ $t("notifications.destination.delete") }}</a>
             </li>
           </ul>

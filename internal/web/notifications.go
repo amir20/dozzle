@@ -38,14 +38,13 @@ type NotificationRuleResponse struct {
 }
 
 type DispatcherResponse struct {
-	ID        int                `json:"id"`
-	Name      string             `json:"name"`
-	Type      string             `json:"type"`
-	URL       *string            `json:"url,omitempty"`
-	Template  *string            `json:"template,omitempty"`
-	Headers   map[string]string `json:"headers,omitempty"`
-	Prefix    *string            `json:"prefix,omitempty"`
-	ExpiresAt *time.Time         `json:"expiresAt,omitempty"`
+	ID       int               `json:"id"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`
+	URL      *string           `json:"url,omitempty"`
+	Template *string           `json:"template,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Prefix   *string           `json:"prefix,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -186,14 +185,13 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 		prefix = &d.Prefix
 	}
 	return &DispatcherResponse{
-		ID:        d.ID,
-		Name:      d.Name,
-		Type:      d.Type,
-		URL:       url,
-		Template:  template,
-		Headers:   headers,
-		Prefix:    prefix,
-		ExpiresAt: d.ExpiresAt,
+		ID:       d.ID,
+		Name:     d.Name,
+		Type:     d.Type,
+		URL:      url,
+		Template: template,
+		Headers:  headers,
+		Prefix:   prefix,
 	}
 }
 

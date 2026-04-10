@@ -279,7 +279,7 @@ notifications:
     close: Close
     save: Save
     add: Add Destination
-    cloud-exists: Only one Dozzle Cloud destination can be configured
+    cloud-exists: Dozzle Cloud is already linked
     link-cloud: Link Account
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: To configure your managed channels, go to
@@ -288,6 +288,25 @@ notifications:
     cloud-relink: Your API key is invalid or expired. Please delete and link your account again.
     cloud-plan: Plan
     cloud-usage: Events this period
+  empty-state:
+    title: Get started with notifications
+    description: Choose how you want to receive alerts when your containers need attention.
+    cloud-subtitle: AI summaries, remote control & more
+    webhook-subtitle: Send alerts to any endpoint
   cloud-link-success:
     title: Dozzle Cloud Linked
-    message: Your account has been successfully linked to Dozzle Cloud.
+    message: Your instance has been connected successfully. You can unlink it in settings or check your usage anytime.
+cloud:
+  title: Dozzle Cloud
+  description: Control your containers remotely and use AI to investigate issues across your cluster.
+  learn-more: Learn more
+  link-instance: Link instance
+  relink-instance: Re-link instance
+  connected: Connected
+  plan: Plan
+  usage: Events this period
+  dashboard: Dashboard
+  settings: Settings
+  error: Connection error. Please re-link your instance.
+  unlink: Unlink
+  unlink-confirm: Are you sure you want to unlink from Dozzle Cloud? This will remove all cloud notification destinations.

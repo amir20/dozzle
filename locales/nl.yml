@@ -271,7 +271,7 @@ notifications:
     close: Sluiten
     save: Opslaan
     add: Bestemming toevoegen
-    cloud-exists: Er kan slechts één Dozzle Cloud-bestemming worden geconfigureerd
+    cloud-exists: Dozzle Cloud is al gekoppeld
     link-cloud: Account koppelen
     link-cloud-button: Dozzle Cloud koppelen
     cloud-settings-hint: Om je beheerde kanalen te configureren, ga naar
@@ -280,6 +280,23 @@ notifications:
     cloud-relink: Uw API-sleutel is ongeldig of verlopen. Verwijder en koppel uw account opnieuw.
     cloud-plan: Plan
     cloud-usage: Gebeurtenissen deze periode
+  empty-state:
+    title: Aan de slag met meldingen
+    description: Kies hoe je waarschuwingen wilt ontvangen wanneer je containers aandacht nodig hebben.
   cloud-link-success:
     title: Dozzle Cloud gekoppeld
-    message: Je account is succesvol gekoppeld aan Dozzle Cloud.
+    message: Je instantie is succesvol verbonden. Je kunt de koppeling ongedaan maken in de instellingen of je gebruik op elk moment bekijken.
+cloud:
+  title: Dozzle Cloud
+  description: Beheer je containers op afstand en gebruik AI om problemen in je cluster te onderzoeken.
+  learn-more: Meer informatie
+  link-instance: Instantie koppelen
+  relink-instance: Instantie opnieuw koppelen
+  connected: Verbonden
+  plan: Plan
+  usage: Gebeurtenissen deze periode
+  dashboard: Dashboard
+  settings: Instellingen
+  error: Verbindingsfout. Koppel je instantie opnieuw.
+  unlink: Ontkoppelen
+  unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.

@@ -273,7 +273,7 @@ notifications:
     close: 關閉
     save: 儲存
     add: 新增目標
-    cloud-exists: 只能設定一個 Dozzle Cloud 目標
+    cloud-exists: Dozzle Cloud 已連結
     link-cloud: 連結帳戶
     link-cloud-button: 連結 Dozzle Cloud
     cloud-settings-hint: 若要設定您的管理頻道，請前往
@@ -282,6 +282,23 @@ notifications:
     cloud-relink: 您的 API 金鑰無效或已過期。請刪除並重新關聯您的帳戶。
     cloud-plan: 方案
     cloud-usage: 本期事件數
+  empty-state:
+    title: 開始使用通知
+    description: 選擇當您的容器需要關注時，您希望如何接收警報。
   cloud-link-success:
     title: Dozzle Cloud 已連結
-    message: 您的帳戶已成功連結至 Dozzle Cloud。
+    message: 您的實例已成功連線。您可以在設定中取消連結，或隨時查看使用量。
+cloud:
+  title: Dozzle Cloud
+  description: 遠端控制您的容器，並使用 AI 調查叢集中的問題。
+  learn-more: 瞭解更多
+  link-instance: 連結實例
+  relink-instance: 重新連結實例
+  connected: 已連線
+  plan: 方案
+  usage: 本期事件數
+  dashboard: 儀表板
+  settings: 設定
+  error: 連線錯誤。請重新連結您的實例。
+  unlink: 取消連結
+  unlink-confirm: 確定要取消與 Dozzle Cloud 的連結嗎？這將移除所有雲端通知目標。

@@ -270,7 +270,7 @@ notifications:
     close: Kapat
     save: Kaydet
     add: Hedef Ekle
-    cloud-exists: Yalnızca bir Dozzle Cloud hedefi yapılandırılabilir
+    cloud-exists: Dozzle Cloud zaten bağlı
     link-cloud: Hesabı Bağla
     link-cloud-button: Dozzle Cloud'u Bağla
     cloud-settings-hint: Yönetilen kanallarınızı yapılandırmak için şuraya gidin
@@ -279,6 +279,23 @@ notifications:
     cloud-relink: API anahtarınız geçersiz veya süresi dolmuş. Lütfen silin ve hesabınızı tekrar bağlayın.
     cloud-plan: Plan
     cloud-usage: Bu dönemdeki olaylar
+  empty-state:
+    title: Bildirimlerle başlayın
+    description: Konteynerleriniz dikkat gerektirdiğinde nasıl uyarı almak istediğinizi seçin.
   cloud-link-success:
     title: Dozzle Cloud Bağlandı
-    message: Hesabınız Dozzle Cloud'a başarıyla bağlandı.
+    message: Örneğiniz başarıyla bağlandı. Ayarlardan bağlantıyı kaldırabilir veya kullanımınızı istediğiniz zaman kontrol edebilirsiniz.
+cloud:
+  title: Dozzle Cloud
+  description: Konteynerlerinizi uzaktan kontrol edin ve kümenizde sorunları araştırmak için yapay zeka kullanın.
+  learn-more: Daha fazla bilgi
+  link-instance: Örneği bağla
+  relink-instance: Örneği yeniden bağla
+  connected: Bağlı
+  plan: Plan
+  usage: Bu dönemdeki olaylar
+  dashboard: Pano
+  settings: Ayarlar
+  error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.
+  unlink: Bağlantıyı kaldır
+  unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.
