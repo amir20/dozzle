@@ -88,8 +88,12 @@ func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []st
 	return a.client.Exec(ctx, c.ID, cmd, events, stdout)
 }
 
-func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig, cloudConfig *types.CloudConfig) error {
-	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers, cloudConfig)
+func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
+}
+
+func (a *agentService) UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error {
+	return a.client.UpdateCloudConfig(ctx, cloudConfig)
 }
 
 func (a *agentService) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {

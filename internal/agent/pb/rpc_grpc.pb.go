@@ -33,6 +33,7 @@ const (
 	AgentService_ContainerExec_FullMethodName            = "/protobuf.AgentService/ContainerExec"
 	AgentService_ContainerAttach_FullMethodName          = "/protobuf.AgentService/ContainerAttach"
 	AgentService_UpdateNotificationConfig_FullMethodName = "/protobuf.AgentService/UpdateNotificationConfig"
+	AgentService_UpdateCloudConfig_FullMethodName        = "/protobuf.AgentService/UpdateCloudConfig"
 	AgentService_GetNotificationStats_FullMethodName     = "/protobuf.AgentService/GetNotificationStats"
 )
 
@@ -54,6 +55,7 @@ type AgentServiceClient interface {
 	ContainerExec(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerExecRequest, ContainerExecResponse], error)
 	ContainerAttach(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ContainerAttachRequest, ContainerAttachResponse], error)
 	UpdateNotificationConfig(ctx context.Context, in *UpdateNotificationConfigRequest, opts ...grpc.CallOption) (*UpdateNotificationConfigResponse, error)
+	UpdateCloudConfig(ctx context.Context, in *UpdateCloudConfigRequest, opts ...grpc.CallOption) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error)
 }
 
@@ -274,6 +276,16 @@ func (c *agentServiceClient) UpdateNotificationConfig(ctx context.Context, in *U
 	return out, nil
 }
 
+func (c *agentServiceClient) UpdateCloudConfig(ctx context.Context, in *UpdateCloudConfigRequest, opts ...grpc.CallOption) (*UpdateCloudConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateCloudConfigResponse)
+	err := c.cc.Invoke(ctx, AgentService_UpdateCloudConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentServiceClient) GetNotificationStats(ctx context.Context, in *GetNotificationStatsRequest, opts ...grpc.CallOption) (*GetNotificationStatsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetNotificationStatsResponse)
@@ -302,6 +314,7 @@ type AgentServiceServer interface {
 	ContainerExec(grpc.BidiStreamingServer[ContainerExecRequest, ContainerExecResponse]) error
 	ContainerAttach(grpc.BidiStreamingServer[ContainerAttachRequest, ContainerAttachResponse]) error
 	UpdateNotificationConfig(context.Context, *UpdateNotificationConfigRequest) (*UpdateNotificationConfigResponse, error)
+	UpdateCloudConfig(context.Context, *UpdateCloudConfigRequest) (*UpdateCloudConfigResponse, error)
 	GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
@@ -354,6 +367,9 @@ func (UnimplementedAgentServiceServer) ContainerAttach(grpc.BidiStreamingServer[
 }
 func (UnimplementedAgentServiceServer) UpdateNotificationConfig(context.Context, *UpdateNotificationConfigRequest) (*UpdateNotificationConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateNotificationConfig not implemented")
+}
+func (UnimplementedAgentServiceServer) UpdateCloudConfig(context.Context, *UpdateCloudConfigRequest) (*UpdateCloudConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateCloudConfig not implemented")
 }
 func (UnimplementedAgentServiceServer) GetNotificationStats(context.Context, *GetNotificationStatsRequest) (*GetNotificationStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNotificationStats not implemented")
@@ -560,6 +576,24 @@ func _AgentService_UpdateNotificationConfig_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentService_UpdateCloudConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCloudConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServiceServer).UpdateCloudConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AgentService_UpdateCloudConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServiceServer).UpdateCloudConfig(ctx, req.(*UpdateCloudConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AgentService_GetNotificationStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetNotificationStatsRequest)
 	if err := dec(in); err != nil {
@@ -604,6 +638,10 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateNotificationConfig",
 			Handler:    _AgentService_UpdateNotificationConfig_Handler,
+		},
+		{
+			MethodName: "UpdateCloudConfig",
+			Handler:    _AgentService_UpdateCloudConfig_Handler,
 		},
 		{
 			MethodName: "GetNotificationStats",

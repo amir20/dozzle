@@ -230,6 +230,7 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 
 	// Broadcast loaded config to any already-connected agents
 	m.broadcastNotificationConfig()
+	m.broadcastCloudConfig()
 
 	// Re-broadcast when new agents connect so they receive the current config
 	hostCh := make(chan container.Host, 1)
@@ -241,8 +242,9 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 				return
 			case host := <-hostCh:
 				if host.Available {
-					log.Debug().Str("host", host.Name).Msg("New host available, broadcasting notification config")
+					log.Debug().Str("host", host.Name).Msg("New host available, broadcasting config")
 					m.broadcastNotificationConfig()
+					m.broadcastCloudConfig()
 				}
 			}
 		}
@@ -299,7 +301,7 @@ func (m *MultiHostService) saveCloudConfig() {
 		log.Error().Err(err).Msg("Could not write cloud config")
 	}
 
-	m.broadcastNotificationConfig()
+	m.broadcastCloudConfig()
 }
 
 // CloudConfig returns the current cloud config, or nil if not set.
@@ -328,7 +330,7 @@ func (m *MultiHostService) RemoveCloudConfig() {
 	if err := os.Remove(cloudConfigPath); err != nil && !os.IsNotExist(err) {
 		log.Error().Err(err).Msg("Could not remove cloud config file")
 	}
-	m.broadcastNotificationConfig()
+	m.broadcastCloudConfig()
 }
 
 // setCloudDispatcherFromConfig creates a CloudDispatcher from the given config and sets it on the manager.
@@ -343,7 +345,8 @@ func (m *MultiHostService) setCloudDispatcherFromConfig(cc *notification.CloudCo
 
 // NotificationConfigUpdater is an interface for clients that support notification config updates
 type NotificationConfigUpdater interface {
-	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig, cloudConfig *types.CloudConfig) error
+	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+	UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error
 }
 
 // broadcastNotificationConfig sends current notification config to all agent clients
@@ -351,7 +354,6 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 	notifSubs := m.notificationManager.Subscriptions()
 	notifDispatchers := m.notificationManager.Dispatchers()
 
-	// Convert notification.Subscription to types.SubscriptionConfig
 	subscriptions := make([]types.SubscriptionConfig, len(notifSubs))
 	for i, sub := range notifSubs {
 		subscriptions[i] = types.SubscriptionConfig{
@@ -368,8 +370,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		}
 	}
 
-	// Convert notification.DispatcherConfig to types.DispatcherConfig
-	// Cloud dispatchers are excluded; cloud config is sent separately via CloudConfig.
+	// Cloud dispatchers are excluded; cloud config is broadcast separately.
 	dispatchers := make([]types.DispatcherConfig, 0, len(notifDispatchers))
 	for _, d := range notifDispatchers {
 		if d.Type == "cloud" {
@@ -385,7 +386,23 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 		})
 	}
 
-	// Get cloud config for broadcasting to agents
+	var wg sync.WaitGroup
+	for _, client := range m.manager.List() {
+		if updater, ok := client.(NotificationConfigUpdater); ok {
+			wg.Go(func() {
+				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+				defer cancel()
+				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers); err != nil {
+					log.Error().Err(err).Msg("Failed to broadcast notification config to agent")
+				}
+			})
+		}
+	}
+	wg.Wait()
+}
+
+// broadcastCloudConfig sends current cloud config to all agent clients
+func (m *MultiHostService) broadcastCloudConfig() {
 	m.cloudMu.RLock()
 	ncc := m.cloudConfig
 	m.cloudMu.RUnlock()
@@ -401,15 +418,12 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
-		// Check if client supports notification config updates (agents do, local docker clients don't)
 		if updater, ok := client.(NotificationConfigUpdater); ok {
 			wg.Go(func() {
 				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 				defer cancel()
-				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers, cc); err != nil {
-					log.Error().Err(err).Msg("Failed to broadcast notification config to agent")
-				} else {
-					log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Broadcasted notification config to agent")
+				if err := updater.UpdateCloudConfig(ctx, cc); err != nil {
+					log.Error().Err(err).Msg("Failed to broadcast cloud config to agent")
 				}
 			})
 		}

@@ -474,7 +474,11 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	// Set up cloud dispatcher from broadcast config
+	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
+	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func (s *server) UpdateCloudConfig(ctx context.Context, req *pb.UpdateCloudConfigRequest) (*pb.UpdateCloudConfigResponse, error) {
 	if cc := req.CloudConfig; cc != nil && cc.ApiKey != "" {
 		var expiresAt *time.Time
 		if cc.ExpiresAt != nil {
@@ -484,15 +488,15 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 		d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.ApiKey, cc.Prefix, expiresAt)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to create cloud dispatcher from broadcast config")
-		} else {
-			s.notificationConfigHandler.SetCloudDispatcher(d)
+			return nil, status.Error(codes.Internal, err.Error())
 		}
+		s.notificationConfigHandler.SetCloudDispatcher(d)
+		log.Info().Msg("Updated cloud config from main server")
 	} else {
 		s.notificationConfigHandler.ClearCloudDispatcher()
+		log.Info().Msg("Cleared cloud config from main server")
 	}
-
-	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
-	return &pb.UpdateNotificationConfigResponse{}, nil
+	return &pb.UpdateCloudConfigResponse{}, nil
 }
 
 func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificationStatsRequest) (*pb.GetNotificationStatsResponse, error) {

@@ -537,8 +537,7 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig, cloudConfig *types.CloudConfig) error {
-	// Convert to proto
+func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	pbSubs := make([]*pb.NotificationSubscription, len(subscriptions))
 	for i, sub := range subscriptions {
 		pbSubs[i] = &pb.NotificationSubscription{
@@ -567,11 +566,15 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 		}
 	}
 
-	req := &pb.UpdateNotificationConfigRequest{
+	_, err := c.client.UpdateNotificationConfig(ctx, &pb.UpdateNotificationConfigRequest{
 		Subscriptions: pbSubs,
 		Dispatchers:   pbDispatchers,
-	}
+	})
+	return err
+}
 
+func (c *Client) UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error {
+	req := &pb.UpdateCloudConfigRequest{}
 	if cloudConfig != nil {
 		req.CloudConfig = &pb.NotificationCloudConfig{
 			ApiKey: cloudConfig.APIKey,
@@ -581,8 +584,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			req.CloudConfig.ExpiresAt = timestamppb.New(*cloudConfig.ExpiresAt)
 		}
 	}
-
-	_, err := c.client.UpdateNotificationConfig(ctx, req)
+	_, err := c.client.UpdateCloudConfig(ctx, req)
 	return err
 }
 
