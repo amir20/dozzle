@@ -291,3 +291,17 @@ notifications:
   cloud-link-success:
     title: Dozzle Cloud Linked
     message: Your account has been successfully linked to Dozzle Cloud.
+cloud:
+  title: Dozzle Cloud
+  description: Control your containers remotely and use AI to investigate issues across your cluster.
+  learn-more: Learn more
+  link-instance: Link instance
+  relink-instance: Re-link instance
+  connected: Connected
+  plan: Plan
+  usage: Events this period
+  open-dashboard: Open Dashboard
+  settings: Settings
+  error: Connection error. Please re-link your instance.
+  unlink: Unlink
+  unlink-confirm: Are you sure you want to unlink from Dozzle Cloud? This will remove all cloud notification destinations.
