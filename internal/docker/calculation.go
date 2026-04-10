@@ -15,6 +15,12 @@ func calculateMemUsageUnixNoCache(mem container.MemoryStats) float64 {
 	if v := mem.Stats["inactive_file"]; v < mem.Usage {
 		return float64(mem.Usage - v)
 	}
+	// cgroup v2 fallback: Usage may be 0 on some kernels; use anon memory
+	if mem.Usage == 0 {
+		if anon, ok := mem.Stats["anon"]; ok {
+			return float64(anon)
+		}
+	}
 	return float64(mem.Usage)
 }
 
