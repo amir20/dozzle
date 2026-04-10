@@ -14,6 +14,7 @@ message ToolRequest {
   oneof type {
     ListToolsRequest list_tools = 2;
     CallToolRequest call_tool = 3;
+    CancelStreamRequest cancel_stream = 4;
   }
 }
 
@@ -46,6 +47,8 @@ message CallToolRequest {
 message CallToolResponse {
   bool success = 1;
   string error = 2;
+  bool stream = 9;
+  bool end_stream = 10;
   oneof result {
     ListHostsResult list_hosts = 3;
     ListContainersResult list_containers = 4;
@@ -54,6 +57,10 @@ message CallToolResponse {
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
   }
+}
+
+message CancelStreamRequest {
+  string stream_request_id = 1;
 }
 
 // Host information

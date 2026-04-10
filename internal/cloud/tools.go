@@ -82,6 +82,19 @@ var (
 		Required:             []string{"container_id", "host_id"},
 		AdditionalProperties: &boolFalse,
 	})
+
+	streamLogsParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"container_id": containerIDParam,
+			"host_id":      hostIDParam,
+			"level":        {Type: "string", Description: "Optional log level filter (e.g. error, warn, info)"},
+			"query":        {Type: "string", Description: "Optional text search query (case-insensitive substring match)"},
+			"regex":        {Type: "string", Description: "Optional regex pattern to match against log messages"},
+		},
+		Required:             []string{"container_id", "host_id"},
+		AdditionalProperties: &boolFalse,
+	})
 )
 
 // AvailableTools returns the list of tool definitions based on configuration.
@@ -116,6 +129,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			Name:           "fetch_container_logs",
 			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
 			ParametersJson: fetchLogsParams,
+		},
+		{
+			Name:           "stream_logs",
+			Description:    "Stream live logs from a running Docker container in real time. Requires container_id and host_id from find_containers. Optionally filter by log level, text search, or regex pattern. Streams continuously until cancelled.",
+			ParametersJson: streamLogsParams,
 		},
 		{
 			Name:           "inspect_container",

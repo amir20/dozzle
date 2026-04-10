@@ -26,12 +26,13 @@ import (
 )
 
 const (
-	initialBackoff        = 1 * time.Second
-	maxBackoff            = 30 * time.Second
-	backoffFactor         = 2
-	jitterFraction        = 0.1
-	maxConcurrent         = 5
-	unauthenticatedPause  = 1 * time.Hour
+	initialBackoff         = 1 * time.Second
+	maxBackoff             = 30 * time.Second
+	backoffFactor          = 2
+	jitterFraction         = 0.1
+	maxConcurrent          = 5
+	maxConcurrentStreams   = 10
+	unauthenticatedPause   = 1 * time.Hour
 )
 
 // Client manages the gRPC connection to Dozzle Cloud
@@ -42,10 +43,12 @@ type Client struct {
 	apiKeyFunc      func() string
 	target          string
 	plaintext       bool
-	toolSem     *semaphore.Weighted
-	cachedTools []*pb.ToolDefinition
-	toolsOnce   sync.Once
-	startCh     chan struct{}
+	toolSem         *semaphore.Weighted
+	streamSem       *semaphore.Weighted
+	cachedTools     []*pb.ToolDefinition
+	toolsOnce       sync.Once
+	startCh         chan struct{}
+	activeStreams    sync.Map // requestID -> context.CancelFunc
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -79,6 +82,7 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 		target:        target,
 		plaintext:     plaintext,
 		toolSem:       semaphore.NewWeighted(maxConcurrent),
+		streamSem:     semaphore.NewWeighted(maxConcurrentStreams),
 		startCh:       make(chan struct{}, 1),
 	}
 }
@@ -208,6 +212,14 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 	}
 
 	defer func() {
+		// Cancel all active log streams before shutting down
+		c.activeStreams.Range(func(key, value any) bool {
+			if cancel, ok := value.(context.CancelFunc); ok {
+				cancel()
+			}
+			c.activeStreams.Delete(key)
+			return true
+		})
 		streamCancel()
 		wg.Wait()
 	}()
@@ -218,6 +230,55 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 			return wasConnected, fmt.Errorf("stream recv error: %w", err)
 		}
 		wasConnected = true
+
+		// Handle cancel stream request
+		if cancelReq, ok := req.Type.(*pb.ToolRequest_CancelStream); ok {
+			streamReqID := cancelReq.CancelStream.StreamRequestId
+			if cancel, loaded := c.activeStreams.LoadAndDelete(streamReqID); loaded {
+				if cancelFn, ok := cancel.(context.CancelFunc); ok {
+					cancelFn()
+				}
+			}
+			continue
+		}
+
+		// Handle stream_logs specially — long-lived, separate semaphore from tool calls
+		if callReq, ok := req.Type.(*pb.ToolRequest_CallTool); ok && callReq.CallTool.Name == "stream_logs" {
+			if !c.streamSem.TryAcquire(1) {
+				resp := &pb.ToolResponse{
+					RequestId: req.RequestId,
+					Type: &pb.ToolResponse_CallTool{
+						CallTool: &pb.CallToolResponse{
+							Success: false,
+							Error:   "too many concurrent log streams",
+						},
+					},
+				}
+				if err := sendResp(resp); err != nil {
+					return wasConnected, fmt.Errorf("stream send error: %w", err)
+				}
+				continue
+			}
+			logStreamCtx, logStreamCancel := context.WithCancel(streamLifetime)
+			c.activeStreams.Store(req.RequestId, logStreamCancel)
+			reqID := req.RequestId
+			argsJSON := callReq.CallTool.ArgumentsJson
+			wg.Go(func() {
+				defer func() {
+					c.streamSem.Release(1)
+					c.activeStreams.Delete(reqID)
+					logStreamCancel()
+				}()
+				log.Debug().Str("request_id", reqID).Msg("starting stream_logs")
+				if err := executeStreamLogs(logStreamCtx, reqID, argsJSON, c.hostService, c.labels, sendResp); err != nil {
+					if streamLifetime.Err() != nil {
+						return
+					}
+					log.Debug().Err(err).Str("request_id", reqID).Msg("stream_logs ended")
+				}
+			})
+			continue
+		}
 
 		// List tools is fast — handle inline. Tool calls run concurrently with a semaphore.
 		if _, ok := req.Type.(*pb.ToolRequest_CallTool); ok {
