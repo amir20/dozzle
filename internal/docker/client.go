@@ -290,19 +290,17 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			networkTx += netStats.TxBytes
 		}
 
-		if cpuPercent > 0 || mem > 0 {
-			select {
-			case <-ctx.Done():
-				return nil
-			case stats <- container.ContainerStat{
-				ID:             id,
-				CPUPercent:     cpuPercent,
-				MemoryPercent:  memPercent,
-				MemoryUsage:    mem,
-				NetworkRxTotal: networkRx,
-				NetworkTxTotal: networkTx,
-			}:
-			}
+		select {
+		case <-ctx.Done():
+			return nil
+		case stats <- container.ContainerStat{
+			ID:             id,
+			CPUPercent:     cpuPercent,
+			MemoryPercent:  memPercent,
+			MemoryUsage:    mem,
+			NetworkRxTotal: networkRx,
+			NetworkTxTotal: networkTx,
+		}:
 		}
 	}
 }
