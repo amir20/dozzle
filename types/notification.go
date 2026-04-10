@@ -83,15 +83,19 @@ type SubscriptionStats struct {
 	TriggeredContainerIDs []string   `json:"triggeredContainerIds"`
 }
 
-// DispatcherConfig represents a notification dispatcher configuration
-type DispatcherConfig struct {
-	ID        int
-	Name      string
-	Type      string
-	URL       string
-	Template  string
-	Headers   map[string]string
+// CloudConfig holds the cloud API key and metadata for broadcasting to agents.
+type CloudConfig struct {
 	APIKey    string
 	Prefix    string
 	ExpiresAt *time.Time
+}
+
+// DispatcherConfig represents a dispatcher configuration
+type DispatcherConfig struct {
+	ID       int
+	Name     string
+	Type     string
+	URL      string
+	Template string
+	Headers  map[string]string
 }

@@ -126,10 +126,8 @@ func main() {
 
 	// Create cloud tool client — does nothing until Notify() is called
 	apiKeyFunc := func() string {
-		for _, d := range hostService.Dispatchers() {
-			if d.Type == "cloud" && d.APIKey != "" {
-				return d.APIKey
-			}
+		if cc := hostService.CloudConfig(); cc != nil {
+			return cc.APIKey
 		}
 		return ""
 	}

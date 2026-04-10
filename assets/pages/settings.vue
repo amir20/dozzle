@@ -37,6 +37,13 @@
       </div>
     </section>
 
+    <section>
+      <div class="has-underline">
+        <h2>{{ $t("cloud.title") }}</h2>
+      </div>
+      <CloudSettingsCard />
+    </section>
+
     <section class="@container flex flex-col">
       <div class="has-underline">
         <h2>{{ $t("settings.display") }}</h2>

@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/rs/zerolog/log"
 )
@@ -20,6 +21,7 @@ type exchangeTokenResponse struct {
 
 func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
+	from := r.URL.Query().Get("from")
 	if token == "" {
 		http.Error(w, "missing token parameter", http.StatusBadRequest)
 		return
@@ -82,16 +84,13 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	name := "Dozzle Cloud"
-
-	cloudDispatcher, err := dispatcher.NewCloudDispatcher(name, tokenResp.Key, tokenResp.Prefix, expiresAt)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to create cloud dispatcher")
-		http.Error(w, "failed to create cloud dispatcher", http.StatusInternalServerError)
-		return
+	// Save cloud config (also creates the cloud dispatcher and broadcasts to agents)
+	cc := &notification.CloudConfig{
+		APIKey:    tokenResp.Key,
+		Prefix:    tokenResp.Prefix,
+		ExpiresAt: expiresAt,
 	}
-
-	id := h.hostService.AddDispatcher(cloudDispatcher)
+	h.hostService.SetCloudConfig(cc)
 
 	if h.config.OnCloudSetup != nil {
 		h.config.OnCloudSetup()
@@ -101,24 +100,23 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	if base == "/" {
 		base = ""
 	}
-	redirectURL := fmt.Sprintf("%s/notifications#cloudLinkSuccess=%d", base, id)
+
+	var redirectURL string
+	if from == "notifications" {
+		redirectURL = fmt.Sprintf("%s/notifications#cloudLinked", base)
+	} else {
+		redirectURL = fmt.Sprintf("%s/#cloudLinked", base)
+	}
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
 func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
-	// Find the cloud dispatcher to get the API key
-	var apiKey string
-	for _, d := range h.hostService.Dispatchers() {
-		if d.Type == "cloud" && d.APIKey != "" {
-			apiKey = d.APIKey
-			break
-		}
-	}
-
-	if apiKey == "" {
-		writeError(w, http.StatusNotFound, "no cloud dispatcher configured")
+	cc := h.hostService.CloudConfig()
+	if cc == nil || cc.APIKey == "" {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
 		return
 	}
+	apiKey := cc.APIKey
 
 	cloudURL := os.Getenv("DOLIGENCE_URL")
 	if cloudURL == "" {
@@ -159,4 +157,36 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	io.Copy(w, resp.Body)
+}
+
+type cloudConfigResponse struct {
+	Prefix    string  `json:"prefix"`
+	ExpiresAt *string `json:"expiresAt,omitempty"`
+	Linked    bool    `json:"linked"`
+}
+
+func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
+	cc := h.hostService.CloudConfig()
+	if cc == nil {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
+		return
+	}
+
+	resp := cloudConfigResponse{
+		Prefix: cc.Prefix,
+		Linked: true,
+	}
+	if cc.ExpiresAt != nil {
+		s := cc.ExpiresAt.Format(time.RFC3339)
+		resp.ExpiresAt = &s
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
+}
+
+func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
+	h.hostService.RemoveCloudConfig()
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -277,7 +277,7 @@ notifications:
     close: Zamknij
     save: Zapisz
     add: Dodaj Miejsce Docelowe
-    cloud-exists: Można skonfigurować tylko jedno miejsce docelowe Dozzle Cloud
+    cloud-exists: Dozzle Cloud jest już połączony
     link-cloud: Połącz Konto
     link-cloud-button: Połącz Dozzle Cloud
     cloud-settings-hint: Aby skonfigurować zarządzane kanały, przejdź do
@@ -286,6 +286,23 @@ notifications:
     cloud-relink: Twój klucz API jest nieprawidłowy lub wygasł. Usuń i połącz swoje konto ponownie.
     cloud-plan: Plan
     cloud-usage: Zdarzenia w tym okresie
+  empty-state:
+    title: Zacznij korzystać z powiadomień
+    description: Wybierz, jak chcesz otrzymywać alerty, gdy Twoje kontenery wymagają uwagi.
   cloud-link-success:
     title: Dozzle Cloud Połączony
-    message: Twoje konto zostało pomyślnie połączone z Dozzle Cloud.
+    message: Twoja instancja została pomyślnie połączona. Możesz rozłączyć ją w ustawieniach lub sprawdzić swoje użycie w dowolnym momencie.
+cloud:
+  title: Dozzle Cloud
+  description: Zarządzaj kontenerami zdalnie i wykorzystuj AI do badania problemów w całym klastrze.
+  learn-more: Dowiedz się więcej
+  link-instance: Połącz instancję
+  relink-instance: Połącz ponownie instancję
+  connected: Połączony
+  plan: Plan
+  usage: Zdarzenia w tym okresie
+  dashboard: Panel
+  settings: Ustawienia
+  error: Błąd połączenia. Połącz ponownie swoją instancję.
+  unlink: Rozłącz
+  unlink-confirm: Czy na pewno chcesz rozłączyć się z Dozzle Cloud? Spowoduje to usunięcie wszystkich miejsc docelowych powiadomień w chmurze.

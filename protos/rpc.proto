@@ -22,6 +22,7 @@ service AgentService {
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
   rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
+  rpc UpdateCloudConfig(UpdateCloudConfigRequest) returns (UpdateCloudConfigResponse) {}
   rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
 }
 
@@ -149,6 +150,12 @@ message UpdateNotificationConfigRequest {
 }
 
 message UpdateNotificationConfigResponse {}
+
+message UpdateCloudConfigRequest {
+  NotificationCloudConfig cloudConfig = 1;
+}
+
+message UpdateCloudConfigResponse {}
 
 message GetNotificationStatsRequest {}
 

@@ -270,7 +270,7 @@ notifications:
     close: Закрыть
     save: Сохранить
     add: Добавить Назначение
-    cloud-exists: Можно настроить только одно назначение Dozzle Cloud
+    cloud-exists: Dozzle Cloud уже привязан
     link-cloud: Связать Аккаунт
     link-cloud-button: Связать Dozzle Cloud
     cloud-settings-hint: Чтобы настроить управляемые каналы, перейдите в
@@ -279,6 +279,23 @@ notifications:
     cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
     cloud-plan: План
     cloud-usage: События за этот период
+  empty-state:
+    title: Начните с уведомлений
+    description: Выберите, как вы хотите получать оповещения, когда ваши контейнеры требуют внимания.
   cloud-link-success:
     title: Dozzle Cloud Связан
-    message: Ваш аккаунт успешно связан с Dozzle Cloud.
+    message: Ваш экземпляр успешно подключён. Вы можете отвязать его в настройках или проверить использование в любое время.
+cloud:
+  title: Dozzle Cloud
+  description: Управляйте контейнерами удалённо и используйте ИИ для расследования проблем в вашем кластере.
+  learn-more: Узнать больше
+  link-instance: Привязать экземпляр
+  relink-instance: Привязать повторно
+  connected: Подключён
+  plan: План
+  usage: События за этот период
+  dashboard: Панель управления
+  settings: Настройки
+  error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
+  unlink: Отвязать
+  unlink-confirm: Вы уверены, что хотите отвязать от Dozzle Cloud? Это удалит все облачные назначения уведомлений.

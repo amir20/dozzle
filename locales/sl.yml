@@ -275,7 +275,7 @@ notifications:
     close: Zapri
     save: Shrani
     add: Dodaj Cilj
-    cloud-exists: Nastavljen je lahko samo en cilj Dozzle Cloud
+    cloud-exists: Dozzle Cloud je že povezan
     link-cloud: Poveži Račun
     link-cloud-button: Poveži Dozzle Cloud
     cloud-settings-hint: Za nastavitev upravljanih kanalov pojdite na
@@ -284,6 +284,23 @@ notifications:
     cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
     cloud-plan: Načrt
     cloud-usage: Dogodki v tem obdobju
+  empty-state:
+    title: Začnite z obvestili
+    description: Izberite, kako želite prejemati opozorila, ko vaši zabojniki potrebujejo pozornost.
   cloud-link-success:
     title: Dozzle Cloud Povezan
-    message: Vaš račun je bil uspešno povezan z Dozzle Cloud.
+    message: Vaša instanca je bila uspešno povezana. Povezavo lahko prekinete v nastavitvah ali kadar koli preverite svojo uporabo.
+cloud:
+  title: Dozzle Cloud
+  description: Upravljajte svoje zabojnike na daljavo in uporabite UI za preiskovanje težav v vašem grozdu.
+  learn-more: Več o tem
+  link-instance: Poveži instanco
+  relink-instance: Ponovno poveži instanco
+  connected: Povezano
+  plan: Načrt
+  usage: Dogodki v tem obdobju
+  dashboard: Nadzorna plošča
+  settings: Nastavitve
+  error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
+  unlink: Prekini povezavo
+  unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.

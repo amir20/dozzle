@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/utils"
 	"github.com/amir20/dozzle/types"
 	"github.com/go-faker/faker/v4"
@@ -34,6 +35,9 @@ type mockNotificationHandler struct{}
 func (m *mockNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	return nil
 }
+
+func (m *mockNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {}
+func (m *mockNotificationHandler) ClearCloudDispatcher()                       {}
 
 func (m *mockNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
 	return nil

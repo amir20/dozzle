@@ -12,6 +12,8 @@
       <mdi:bell class="size-6" />
     </router-link>
 
+    <CloudPopover />
+
     <router-link
       :to="{ name: '/settings' }"
       :aria-label="$t('title.settings')"

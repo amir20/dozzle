@@ -282,7 +282,7 @@ notifications:
     close: Tutup
     save: Simpan
     add: Tambah Tujuan
-    cloud-exists: Hanya satu tujuan Dozzle Cloud yang dapat dikonfigurasi
+    cloud-exists: Dozzle Cloud sudah tertaut
     link-cloud: Tautkan Akun
     link-cloud-button: Tautkan Dozzle Cloud
     cloud-settings-hint: Untuk mengonfigurasi saluran terkelola Anda, buka
@@ -291,6 +291,23 @@ notifications:
     cloud-relink: Kunci API Anda tidak valid atau kedaluwarsa. Silakan hapus dan hubungkan akun Anda lagi.
     cloud-plan: Paket
     cloud-usage: Event periode ini
+  empty-state:
+    title: Mulai dengan notifikasi
+    description: Pilih cara Anda ingin menerima peringatan saat kontainer Anda membutuhkan perhatian.
   cloud-link-success:
     title: Dozzle Cloud Tertaut
-    message: Akun Anda telah berhasil ditautkan ke Dozzle Cloud.
+    message: Instans Anda telah berhasil terhubung. Anda dapat melepaskan tautan di pengaturan atau memeriksa penggunaan Anda kapan saja.
+cloud:
+  title: Dozzle Cloud
+  description: Kendalikan kontainer Anda dari jarak jauh dan gunakan AI untuk menyelidiki masalah di seluruh kluster Anda.
+  learn-more: Pelajari lebih lanjut
+  link-instance: Tautkan instans
+  relink-instance: Tautkan ulang instans
+  connected: Terhubung
+  plan: Paket
+  usage: Event periode ini
+  dashboard: Dasbor
+  settings: Pengaturan
+  error: Kesalahan koneksi. Silakan tautkan ulang instans Anda.
+  unlink: Lepaskan tautan
+  unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.

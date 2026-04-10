@@ -270,7 +270,7 @@ notifications:
     close: Luk
     save: Gem
     add: Tilføj Destination
-    cloud-exists: Kun én Dozzle Cloud destination kan konfigureres
+    cloud-exists: Dozzle Cloud er allerede tilknyttet
     link-cloud: Link Konto
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: For at konfigurere dine administrerede kanaler, gå til
@@ -279,6 +279,23 @@ notifications:
     cloud-relink: Din API-nøgle er ugyldig eller udløbet. Slet venligst og link din konto igen.
     cloud-plan: Plan
     cloud-usage: Begivenheder i denne periode
+  empty-state:
+    title: Kom i gang med notifikationer
+    description: Vælg hvordan du vil modtage alarmer, når dine containere kræver opmærksomhed.
   cloud-link-success:
     title: Dozzle Cloud Linket
-    message: Din konto er blevet succesfuldt linket til Dozzle Cloud.
+    message: Din instans er blevet tilsluttet. Du kan fjerne tilknytningen i indstillinger eller tjekke dit forbrug når som helst.
+cloud:
+  title: Dozzle Cloud
+  description: Styr dine containere eksternt og brug AI til at undersøge problemer på tværs af din klynge.
+  learn-more: Læs mere
+  link-instance: Tilknyt instans
+  relink-instance: Gentilknyt instans
+  connected: Tilsluttet
+  plan: Plan
+  usage: Begivenheder i denne periode
+  dashboard: Dashboard
+  settings: Indstillinger
+  error: Forbindelsesfejl. Gentilknyt venligst din instans.
+  unlink: Fjern tilknytning
+  unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.

@@ -92,6 +92,10 @@ func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptio
 	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
 }
 
+func (a *agentService) UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error {
+	return a.client.UpdateCloudConfig(ctx, cloudConfig)
+}
+
 func (a *agentService) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
 	return a.client.GetNotificationStats(ctx)
 }

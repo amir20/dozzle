@@ -270,7 +270,7 @@ notifications:
     close: Cerrar
     save: Guardar
     add: Añadir Destino
-    cloud-exists: Solo se puede configurar un destino de Dozzle Cloud
+    cloud-exists: Dozzle Cloud ya está vinculado
     link-cloud: Vincular Cuenta
     link-cloud-button: Vincular Dozzle Cloud
     cloud-settings-hint: Para configurar sus canales administrados, vaya a
@@ -279,6 +279,23 @@ notifications:
     cloud-relink: Su clave API es inválida o ha expirado. Por favor, elimine y vincule su cuenta de nuevo.
     cloud-plan: Plan
     cloud-usage: Eventos en este período
+  empty-state:
+    title: Comenzar con las notificaciones
+    description: Elija cómo desea recibir alertas cuando sus contenedores necesiten atención.
   cloud-link-success:
     title: Dozzle Cloud Vinculado
-    message: Su cuenta se ha vinculado correctamente a Dozzle Cloud.
+    message: Su instancia se ha conectado correctamente. Puede desvincularla en la configuración o consultar su uso en cualquier momento.
+cloud:
+  title: Dozzle Cloud
+  description: Controle sus contenedores de forma remota y use IA para investigar problemas en su clúster.
+  learn-more: Más información
+  link-instance: Vincular instancia
+  relink-instance: Revincular instancia
+  connected: Conectado
+  plan: Plan
+  usage: Eventos en este período
+  dashboard: Panel
+  settings: Configuración
+  error: Error de conexión. Por favor, revincule su instancia.
+  unlink: Desvincular
+  unlink-confirm: ¿Está seguro de que desea desvincular de Dozzle Cloud? Esto eliminará todos los destinos de notificación en la nube.

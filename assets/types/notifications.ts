@@ -66,3 +66,15 @@ export interface TestWebhookResult {
   statusCode?: number;
   error?: string;
 }
+
+export interface CloudConfig {
+  prefix: string;
+  expiresAt?: string;
+  linked: boolean;
+}
+
+export interface CloudStatus {
+  user: { email: string; name: string };
+  plan: { name: string; events_per_month: number; retention_days: number };
+  usage: { events_used: number; events_limit: number; period: string };
+}
