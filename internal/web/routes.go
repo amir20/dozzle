@@ -204,6 +204,8 @@ func createRouter(h *handler) *chi.Mux {
 		})
 
 		r.Get("/healthcheck", h.healthcheck)
+		r.Get("/manifest.webmanifest", h.manifest)
+		r.Get("/sw.js", h.serviceWorker)
 
 		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
 		r.With(Brotli).Get("/*", func(w http.ResponseWriter, req *http.Request) {

@@ -7,3 +7,7 @@ Object.values(import.meta.glob<{ install: (app: VueApp) => void }>("./modules/*.
   i.install?.(app),
 );
 app.mount("#app");
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register(withBase("/sw.js"));
+}
