@@ -106,8 +106,15 @@ const cloudUrl = __CLOUD_URL__;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
-  useCloudConfig();
+const {
+  cloudConfig,
+  cloudStatus,
+  cloudStatusError,
+  isLoadingCloudStatus,
+  fetchCloudConfig,
+  fetchCloudStatus,
+  clearCloudState,
+} = useCloudConfig();
 const isUnlinking = ref(false);
 const unlinkModal = ref<HTMLDialogElement | null>(null);
 
@@ -128,9 +135,7 @@ async function doUnlink() {
       cloudStatusError.value = true;
       return;
     }
-    cloudConfig.value = null;
-    cloudStatus.value = null;
-    cloudStatusError.value = false;
+    clearCloudState();
     unlinkModal.value?.close();
   } finally {
     isUnlinking.value = false;

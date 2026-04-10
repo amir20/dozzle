@@ -295,7 +295,7 @@ notifications:
     webhook-subtitle: Send alerts to any endpoint
   cloud-link-success:
     title: Dozzle Cloud Linked
-    message: Your account has been successfully linked to Dozzle Cloud.
+    message: Your instance has been connected successfully. You can unlink it in settings or check your usage anytime.
 cloud:
   title: Dozzle Cloud
   description: Control your containers remotely and use AI to investigate issues across your cluster.

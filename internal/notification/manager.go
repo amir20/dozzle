@@ -335,6 +335,7 @@ func (m *Manager) ClearCloudDispatcher() {
 	log.Debug().Msg("Cleared cloud dispatcher")
 }
 
+
 // getDispatcher resolves a dispatcher by subscription's DispatcherID.
 // DispatcherID == 0 means the cloud dispatcher; otherwise lookup in the dispatchers map.
 func (m *Manager) getDispatcher(id int) (dispatcher.Dispatcher, bool) {
@@ -389,9 +390,22 @@ func (m *Manager) GetNotificationStats() []types.SubscriptionStats {
 }
 
 // Dispatchers returns all dispatchers as DispatcherConfig sorted by ID.
-// Cloud dispatchers are not included; they are managed separately via CloudConfig.
+// Includes the cloud dispatcher (ID 0) when configured.
 func (m *Manager) Dispatchers() []DispatcherConfig {
 	result := make([]DispatcherConfig, 0)
+
+	// Include cloud dispatcher if configured
+	if p := m.cloudDispatcher.Load(); p != nil {
+		if cd, ok := (*p).(*dispatcher.CloudDispatcher); ok {
+			result = append(result, DispatcherConfig{
+				ID:     0,
+				Name:   cd.Name,
+				Type:   "cloud",
+				Prefix: cd.Prefix,
+			})
+		}
+	}
+
 	m.dispatchers.Range(func(id int, d dispatcher.Dispatcher) bool {
 		switch v := d.(type) {
 		case *dispatcher.WebhookDispatcher:

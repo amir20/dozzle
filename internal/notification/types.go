@@ -171,14 +171,15 @@ func (s *Subscription) CompileExpressions() error {
 	return nil
 }
 
-// DispatcherConfig represents a webhook dispatcher configuration
+// DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
 	ID       int               `json:"id" yaml:"id"`
 	Name     string            `json:"name" yaml:"name"`
-	Type     string            `json:"type" yaml:"type"` // "webhook"
+	Type     string            `json:"type" yaml:"type"` // "webhook" or "cloud"
 	URL      string            `json:"url,omitempty" yaml:"url,omitempty"`
 	Template string            `json:"template,omitempty" yaml:"template,omitempty"` // Go template for custom payload format
 	Headers  map[string]string `json:"headers,omitempty" yaml:"headers,omitempty"`   // Custom HTTP headers
+	Prefix   string            `json:"prefix,omitempty" yaml:"-"`                    // Cloud dispatcher API key prefix (not persisted)
 }
 
 // Config represents the persisted notification configuration

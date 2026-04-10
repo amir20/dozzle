@@ -13,11 +13,20 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-// WriteConfig writes the current configuration to a writer in YAML format
+// WriteConfig writes the current configuration to a writer in YAML format.
+// Cloud dispatchers are excluded because they are persisted separately in cloud.yml.
 func (m *Manager) WriteConfig(w io.Writer) error {
+	allDispatchers := m.Dispatchers()
+	dispatchers := make([]DispatcherConfig, 0, len(allDispatchers))
+	for _, d := range allDispatchers {
+		if d.Type != "cloud" {
+			dispatchers = append(dispatchers, d)
+		}
+	}
+
 	config := Config{
 		Subscriptions: m.Subscriptions(),
-		Dispatchers:   m.Dispatchers(),
+		Dispatchers:   dispatchers,
 	}
 
 	encoder := yaml.NewEncoder(w)
@@ -159,8 +168,11 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 		}
 	}
 
-	// Load dispatchers (cloud dispatchers are handled separately via SetCloudDispatcher)
+	// Load dispatchers (cloud dispatchers are skipped; they are managed via cloud.yml)
 	for _, dc := range dispatchers {
+		if dc.Type == "cloud" {
+			continue
+		}
 		d, err := createDispatcher(DispatcherConfig{
 			ID:       dc.ID,
 			Name:     dc.Name,
@@ -184,7 +196,7 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 }
 
 // createDispatcher creates a dispatcher from a DispatcherConfig.
-// Cloud dispatchers are not created here; they are managed separately via Manager.SetCloudDispatcher.
+// Cloud dispatchers are not created here; they are managed via cloud.yml and SetCloudDispatcher.
 func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 	switch config.Type {
 	case "webhook":

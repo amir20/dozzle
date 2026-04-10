@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/migration"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
@@ -196,12 +197,15 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	eventListener := notification.NewContainerEventListener(ctx, clients)
 	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
 
+	// Migrate old config format before loading (splits cloud into cloud.yml)
+	migration.MigrateCloudConfig(notificationConfigPath, cloudConfigPath)
+
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {
 		return err
 	}
 
-	// Load config if exists
+	// Load notification config
 	if file, err := os.Open(notificationConfigPath); err == nil {
 		defer file.Close()
 		if err := m.notificationManager.LoadConfig(file); err != nil {
@@ -211,7 +215,7 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 		}
 	}
 
-	// Load cloud config and set up the cloud dispatcher on the notification manager
+	// Load cloud config
 	if file, err := os.Open(cloudConfigPath); err == nil {
 		defer file.Close()
 		cc, err := notification.LoadCloudConfig(file)
@@ -223,6 +227,26 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 			log.Debug().Str("path", cloudConfigPath).Msg("Loaded cloud config")
 		}
 	}
+
+	// Broadcast loaded config to any already-connected agents
+	m.broadcastNotificationConfig()
+
+	// Re-broadcast when new agents connect so they receive the current config
+	hostCh := make(chan container.Host, 1)
+	m.manager.Subscribe(ctx, hostCh)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case host := <-hostCh:
+				if host.Available {
+					log.Debug().Str("host", host.Name).Msg("New host available, broadcasting notification config")
+					m.broadcastNotificationConfig()
+				}
+			}
+		}
+	}()
 
 	return nil
 }
@@ -294,7 +318,8 @@ func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
 	m.saveCloudConfig()
 }
 
-// RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, and deletes the file.
+// RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, deletes the file,
+// and broadcasts the change to all agents so they stop sending to cloud.
 func (m *MultiHostService) RemoveCloudConfig() {
 	m.cloudMu.Lock()
 	m.cloudConfig = nil
@@ -303,6 +328,7 @@ func (m *MultiHostService) RemoveCloudConfig() {
 	if err := os.Remove(cloudConfigPath); err != nil && !os.IsNotExist(err) {
 		log.Error().Err(err).Msg("Could not remove cloud config file")
 	}
+	m.broadcastNotificationConfig()
 }
 
 // setCloudDispatcherFromConfig creates a CloudDispatcher from the given config and sets it on the manager.
@@ -343,16 +369,20 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 	}
 
 	// Convert notification.DispatcherConfig to types.DispatcherConfig
-	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
-	for i, d := range notifDispatchers {
-		dispatchers[i] = types.DispatcherConfig{
+	// Cloud dispatchers are excluded; cloud config is sent separately via CloudConfig.
+	dispatchers := make([]types.DispatcherConfig, 0, len(notifDispatchers))
+	for _, d := range notifDispatchers {
+		if d.Type == "cloud" {
+			continue
+		}
+		dispatchers = append(dispatchers, types.DispatcherConfig{
 			ID:       d.ID,
 			Name:     d.Name,
 			Type:     d.Type,
 			URL:      d.URL,
 			Template: d.Template,
 			Headers:  d.Headers,
-		}
+		})
 	}
 
 	// Get cloud config for broadcasting to agents

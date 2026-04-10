@@ -44,6 +44,7 @@ type DispatcherResponse struct {
 	URL      *string           `json:"url,omitempty"`
 	Template *string           `json:"template,omitempty"`
 	Headers  map[string]string `json:"headers,omitempty"`
+	Prefix   *string           `json:"prefix,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -179,6 +180,10 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 	if len(d.Headers) > 0 {
 		headers = d.Headers
 	}
+	var prefix *string
+	if d.Prefix != "" {
+		prefix = &d.Prefix
+	}
 	return &DispatcherResponse{
 		ID:       d.ID,
 		Name:     d.Name,
@@ -186,6 +191,7 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 		URL:      url,
 		Template: template,
 		Headers:  headers,
+		Prefix:   prefix,
 	}
 }
 

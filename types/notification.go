@@ -90,7 +90,7 @@ type CloudConfig struct {
 	ExpiresAt *time.Time
 }
 
-// DispatcherConfig represents a webhook dispatcher configuration
+// DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
 	ID       int
 	Name     string

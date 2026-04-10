@@ -94,38 +94,12 @@ const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${__CLOUD_URL__}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=notifications`;
 const cloudSettingsUrl = `${__CLOUD_URL__}/settings`;
 
-// Cloud status
-interface CloudStatus {
-  user: { email: string; name: string };
-  plan: { name: string; events_per_month: number; retention_days: number };
-  usage: { events_used: number; events_limit: number; period: string };
-}
-
-const cloudStatus = ref<CloudStatus | null>(null);
-const cloudStatusError = ref(false);
-const isLoadingCloudStatus = ref(false);
+const { cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudStatus } = useCloudConfig();
 
 const usagePercent = computed(() => {
   if (!cloudStatus.value) return 0;
   return (cloudStatus.value.usage.events_used / cloudStatus.value.usage.events_limit) * 100;
 });
-
-async function fetchCloudStatus() {
-  isLoadingCloudStatus.value = true;
-  cloudStatusError.value = false;
-  try {
-    const res = await fetch(withBase("/api/cloud/status"));
-    if (!res.ok) {
-      cloudStatusError.value = true;
-      return;
-    }
-    cloudStatus.value = await res.json();
-  } catch {
-    cloudStatusError.value = true;
-  } finally {
-    isLoadingCloudStatus.value = false;
-  }
-}
 
 if (destination?.prefix) {
   fetchCloudStatus();

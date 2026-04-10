@@ -2,13 +2,25 @@
   <div class="space-y-4 p-4">
     <div class="mb-6">
       <h2 class="text-2xl font-bold">
-        {{
-          isEditing
-            ? $t("notifications.destination-form.edit-title")
-            : $t("notifications.destination-form.create-title")
-        }}
+        <template v-if="type === 'cloud'">
+          {{ $t("notifications.destination-form.cloud-title") }}
+        </template>
+        <template v-else>
+          {{
+            isEditing
+              ? $t("notifications.destination-form.edit-title")
+              : $t("notifications.destination-form.create-title")
+          }}
+        </template>
       </h2>
-      <p class="text-base-content/60">{{ $t("notifications.destination-form.description") }}</p>
+      <p class="text-base-content/60">
+        <template v-if="type === 'cloud'">
+          {{ $t("notifications.destination-form.cloud-description") }}
+        </template>
+        <template v-else>
+          {{ $t("notifications.destination-form.description") }}
+        </template>
+      </p>
     </div>
 
     <!-- Type Selection (only when creating) -->
@@ -61,7 +73,7 @@
       :on-created="onCreated"
       :is-editing="isEditing"
     />
-    <CloudDestinationForm v-else :close="close" />
+    <CloudDestinationForm v-else :destination="destination" :close="close" />
   </div>
 </template>
 

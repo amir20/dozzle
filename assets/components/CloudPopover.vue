@@ -95,14 +95,6 @@
       </div>
     </template>
   </Dropdown>
-
-  <!-- Success toast after OAuth return -->
-  <div v-if="showLinkedToast" class="toast toast-top toast-end z-[100]">
-    <div class="alert alert-success">
-      <mdi:check class="text-lg" />
-      <span>{{ $t("cloud.connected") }}</span>
-    </div>
-  </div>
 </template>
 
 <script lang="ts" setup>
@@ -112,7 +104,8 @@ const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}
 
 const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
   useCloudConfig();
-const showLinkedToast = ref(false);
+const { showToast } = useToast();
+const { t } = useI18n();
 
 const usagePercent = computed(() => {
   if (!cloudStatus.value) return 0;
@@ -128,13 +121,21 @@ function onOpen() {
 onMounted(async () => {
   await fetchCloudConfig();
 
+  if (cloudConfig.value?.linked) {
+    fetchCloudStatus();
+  }
+
   // Handle successful OAuth return
   if (window.location.hash === "#cloudLinked") {
-    showLinkedToast.value = true;
+    showToast(
+      {
+        type: "info",
+        title: t("notifications.cloud-link-success.title"),
+        message: t("notifications.cloud-link-success.message"),
+      },
+      { expire: 6000 },
+    );
     history.replaceState(null, "", window.location.pathname + window.location.search);
-    setTimeout(() => {
-      showLinkedToast.value = false;
-    }, 4000);
   }
 });
 </script>

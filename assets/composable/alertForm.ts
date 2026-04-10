@@ -29,17 +29,11 @@ export function useAlertForm(options: AlertFormOptions) {
   const isSaving = ref(false);
   const saveError = ref<string | null>(null);
 
-  // Destinations (includes Dozzle Cloud with id=0 when cloud is configured)
+  // Destinations (cloud dispatcher with id=0 is included by the backend when configured)
   const destinations = ref<Dispatcher[]>([]);
-  const { cloudConfig, fetchCloudConfig } = useCloudConfig();
   onMounted(async () => {
-    const [dispatchersRes] = await Promise.all([fetch(withBase("/api/notifications/dispatchers")), fetchCloudConfig()]);
-    const dispatchers: Dispatcher[] = await dispatchersRes.json();
-    if (cloudConfig.value?.linked) {
-      destinations.value = [{ id: 0, name: "Dozzle Cloud", type: "cloud" }, ...dispatchers];
-    } else {
-      destinations.value = dispatchers;
-    }
+    const res = await fetch(withBase("/api/notifications/dispatchers"));
+    destinations.value = await res.json();
   });
   const selectedDestination = computed(() => destinations.value.find((d) => d.id === dispatcherId.value));
 
