@@ -374,7 +374,6 @@ func (d *DockerClient) Ping(ctx context.Context) error {
 }
 
 func (d *DockerClient) Host() container.Host {
-	log.Debug().Str("host", d.host.Name).Msg("Fetching host")
 	return d.host
 }
 
