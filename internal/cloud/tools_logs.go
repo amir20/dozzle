@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -28,7 +27,7 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
 	if args.ContainerID == "" || args.Host == "" {
-		return nil, fmt.Errorf("container_id and host are required")
+		return nil, fmt.Errorf("container_id and host_id are required")
 	}
 
 	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
@@ -73,19 +72,8 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 	const maxLines = 100
 	entries := make([]*pb.LogEntry, 0, maxLines)
 	for event := range logCh {
-		if args.Level != "" && !strings.EqualFold(event.Level, args.Level) {
-			continue
-		}
-
-		msg := event.RawMessage
-		if msg == "" {
-			msg = fmt.Sprintf("%v", event.Message)
-		}
-
-		if args.Query != "" && !containsIgnoreCase(msg, args.Query) {
-			continue
-		}
-		if re != nil && !re.MatchString(msg) {
+		msg, matches := matchesFilters(event, &args, re)
+		if !matches {
 			continue
 		}
 

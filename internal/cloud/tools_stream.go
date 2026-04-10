@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
+	"github.com/rs/zerolog/log"
 )
 
 // streamSender is a function that sends a ToolResponse to the cloud.
@@ -68,9 +69,11 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, h
 
 	events := make(chan *container.LogEvent, 100)
 
-	streamErr := make(chan error, 1)
 	go func() {
-		streamErr <- cs.StreamLogs(ctx, time.Now(), container.STDOUT|container.STDERR, events)
+		defer close(events)
+		if err := cs.StreamLogs(ctx, time.Now(), container.STDOUT|container.STDERR, events); err != nil {
+			log.Debug().Err(err).Str("container", cs.Container.Name).Msg("StreamLogs ended with error")
+		}
 	}()
 
 	sendBatch := func(entries []*pb.LogEntry, endStream bool) error {
@@ -141,7 +144,9 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, h
 			}
 
 		case <-ctx.Done():
-			_ = flush(true)
+			if err := flush(true); err != nil {
+				log.Debug().Err(err).Msg("failed to send end_stream on cancel")
+			}
 			return ctx.Err()
 		}
 	}
