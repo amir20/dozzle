@@ -49,6 +49,31 @@ func Test_calculateMemUsageUnixNoCache(t *testing.T) {
 			},
 			want: 100,
 		},
+		{
+			name: "cgroup v2 with zero Usage falls back to anon",
+			args: args{
+				mem: container.MemoryStats{
+					Usage: 0,
+					Stats: map[string]uint64{
+						"inactive_file": 0,
+						"anon":          50,
+					},
+				},
+			},
+			want: 50,
+		},
+		{
+			name: "cgroup v2 with zero Usage and no anon returns 0",
+			args: args{
+				mem: container.MemoryStats{
+					Usage: 0,
+					Stats: map[string]uint64{
+						"inactive_file": 0,
+					},
+				},
+			},
+			want: 0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
