@@ -288,6 +288,11 @@ notifications:
     cloud-relink: Your API key is invalid or expired. Please delete and link your account again.
     cloud-plan: Plan
     cloud-usage: Events this period
+  empty-state:
+    title: Get started with notifications
+    description: Choose how you want to receive alerts when your containers need attention.
+    cloud-subtitle: AI summaries, remote control & more
+    webhook-subtitle: Send alerts to any endpoint
   cloud-link-success:
     title: Dozzle Cloud Linked
     message: Your account has been successfully linked to Dozzle Cloud.

@@ -90,16 +90,18 @@ const {
   destination,
   existingDispatchers = [],
   showLinkSuccess = false,
+  defaultType,
 } = defineProps<{
   close?: () => void;
   onCreated?: () => void;
   destination?: Dispatcher;
   existingDispatchers?: Dispatcher[];
   showLinkSuccess?: boolean;
+  defaultType?: "webhook" | "cloud";
 }>();
 
 const isEditing = !!destination;
-const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? "webhook");
+const type = ref<"webhook" | "cloud">((destination?.type as "webhook" | "cloud") ?? defaultType ?? "webhook");
 
 const hasExistingCloudDestination = computed(() => {
   const others = isEditing ? existingDispatchers.filter((d) => d.id !== destination!.id) : existingDispatchers;
