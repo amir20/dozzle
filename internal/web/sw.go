@@ -1,9 +1,12 @@
 package web
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
-const serviceWorkerJS = `
-const CACHE_NAME = "dozzle-v1";
+const serviceWorkerTemplate = `
+const CACHE_NAME = "dozzle-%s";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -47,5 +50,5 @@ self.addEventListener("fetch", (event) => {
 func (h *handler) serviceWorker(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Header().Set("Cache-Control", "no-cache")
-	w.Write([]byte(serviceWorkerJS))
+	fmt.Fprintf(w, serviceWorkerTemplate, h.config.Version)
 }
