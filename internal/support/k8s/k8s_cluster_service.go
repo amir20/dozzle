@@ -178,3 +178,15 @@ func (m *K8sClusterService) Dispatchers() []notification.DispatcherConfig {
 func (m *K8sClusterService) FetchAgentNotificationStats() map[int]types.SubscriptionStats {
 	return nil
 }
+
+func (m *K8sClusterService) CloudConfig() *notification.CloudConfig {
+	return nil
+}
+
+func (m *K8sClusterService) SetCloudConfig(cc *notification.CloudConfig) {
+	// Not supported in k8s mode
+}
+
+func (m *K8sClusterService) RemoveCloudConfig() {
+	// Not supported in k8s mode
+}

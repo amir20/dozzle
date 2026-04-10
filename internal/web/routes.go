@@ -88,6 +88,9 @@ type HostService interface {
 	RemoveDispatcher(id int)
 	Dispatchers() []notification.DispatcherConfig
 	FetchAgentNotificationStats() map[int]types.SubscriptionStats
+	CloudConfig() *notification.CloudConfig
+	SetCloudConfig(cc *notification.CloudConfig)
+	RemoveCloudConfig()
 }
 
 type handler struct {
@@ -186,6 +189,8 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
+				r.Get("/cloud/config", h.cloudConfig)
+				r.Delete("/cloud/config", h.deleteCloudConfig)
 			})
 
 			// Public API routes
