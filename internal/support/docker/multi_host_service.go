@@ -416,9 +416,11 @@ func (m *MultiHostService) broadcastCloudConfig() {
 		}
 	}
 
+	var count int
 	var wg sync.WaitGroup
 	for _, client := range m.manager.List() {
 		if updater, ok := client.(NotificationConfigUpdater); ok {
+			count++
 			wg.Go(func() {
 				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 				defer cancel()
@@ -429,6 +431,7 @@ func (m *MultiHostService) broadcastCloudConfig() {
 		}
 	}
 	wg.Wait()
+	log.Debug().Int("agents", count).Bool("hasCloud", cc != nil).Msg("Broadcasted cloud config")
 }
 
 // NotificationHandler returns the notification manager as an agent.NotificationConfigHandler.
