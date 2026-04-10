@@ -13,6 +13,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/types"
@@ -56,6 +57,14 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 
 	log.Debug().Str("path", h.configPath).Msg("Saved notification config to disk")
 	return nil
+}
+
+func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
+	h.manager.SetCloudDispatcher(d)
+}
+
+func (h *persistingNotificationHandler) ClearCloudDispatcher() {
+	h.manager.ClearCloudDispatcher()
 }
 
 func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {

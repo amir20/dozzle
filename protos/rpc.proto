@@ -146,6 +146,7 @@ message ContainerAttachResponse {
 message UpdateNotificationConfigRequest {
   repeated NotificationSubscription subscriptions = 1;
   repeated NotificationDispatcher dispatchers = 2;
+  NotificationCloudConfig cloudConfig = 3;
 }
 
 message UpdateNotificationConfigResponse {}

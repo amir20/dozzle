@@ -1,5 +1,5 @@
 <template>
-  <Dropdown class="dropdown-end" @click="onOpen" @closed="onClosed">
+  <Dropdown class="dropdown-end" @click="onOpen">
     <template #trigger>
       <div class="relative">
         <mdi:cloud
@@ -16,7 +16,7 @@
       </div>
     </template>
     <template #content>
-      <div class="w-72 space-y-3 p-1">
+      <div class="w-80 space-y-3 p-1">
         <!-- Not linked -->
         <template v-if="!cloudConfig">
           <div class="flex flex-col items-center gap-2 p-2 text-center">
@@ -24,8 +24,7 @@
             <h3 class="text-base font-bold">{{ $t("cloud.title") }}</h3>
             <p class="text-base-content/60 text-sm">{{ $t("cloud.description") }}</p>
             <div class="mt-2 flex w-full gap-2">
-              <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-outline btn-sm flex-1">
-                <mdi:open-in-new class="text-base" />
+              <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
                 {{ $t("cloud.learn-more") }}
               </a>
               <a :href="cloudLinkUrl" class="btn btn-primary btn-sm flex-1">
@@ -84,14 +83,8 @@
             </div>
 
             <div class="flex gap-2">
-              <a
-                :href="`${cloudUrl}/dashboard`"
-                target="_blank"
-                rel="noreferrer noopener"
-                class="btn btn-outline btn-sm flex-1"
-              >
-                <mdi:open-in-new class="text-base" />
-                {{ $t("cloud.open-dashboard") }}
+              <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
+                {{ $t("cloud.dashboard") }}
               </a>
               <a :href="`${cloudUrl}/settings`" target="_blank" rel="noreferrer noopener" class="btn btn-sm flex-1">
                 {{ $t("cloud.settings") }}
@@ -113,16 +106,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { CloudConfig, CloudStatus } from "@/types/notifications";
-
 const cloudUrl = __CLOUD_URL__;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const cloudConfig = ref<CloudConfig | null>(null);
-const cloudStatus = ref<CloudStatus | null>(null);
-const cloudStatusError = ref(false);
-const isLoadingCloudStatus = ref(false);
+const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
+  useCloudConfig();
 const showLinkedToast = ref(false);
 
 const usagePercent = computed(() => {
@@ -130,45 +119,10 @@ const usagePercent = computed(() => {
   return (cloudStatus.value.usage.events_used / cloudStatus.value.usage.events_limit) * 100;
 });
 
-async function fetchCloudConfig() {
-  try {
-    const res = await fetch(withBase("/api/cloud/config"));
-    if (!res.ok) {
-      cloudConfig.value = null;
-      return;
-    }
-    cloudConfig.value = await res.json();
-  } catch {
-    cloudConfig.value = null;
-  }
-}
-
-async function fetchCloudStatus() {
-  if (!cloudConfig.value?.linked) return;
-  isLoadingCloudStatus.value = true;
-  cloudStatusError.value = false;
-  try {
-    const res = await fetch(withBase("/api/cloud/status"));
-    if (!res.ok) {
-      cloudStatusError.value = true;
-      return;
-    }
-    cloudStatus.value = await res.json();
-  } catch {
-    cloudStatusError.value = true;
-  } finally {
-    isLoadingCloudStatus.value = false;
-  }
-}
-
 function onOpen() {
   if (cloudConfig.value?.linked && !cloudStatus.value && !isLoadingCloudStatus.value) {
     fetchCloudStatus();
   }
-}
-
-function onClosed() {
-  // nothing needed on close
 }
 
 onMounted(async () => {

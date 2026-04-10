@@ -84,24 +84,13 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Save cloud config
+	// Save cloud config (also creates the cloud dispatcher and broadcasts to agents)
 	cc := &notification.CloudConfig{
 		APIKey:    tokenResp.Key,
 		Prefix:    tokenResp.Prefix,
 		ExpiresAt: expiresAt,
 	}
 	h.hostService.SetCloudConfig(cc)
-
-	name := "Dozzle Cloud"
-
-	cloudDispatcher, err := dispatcher.NewCloudDispatcher(name, tokenResp.Key, tokenResp.Prefix, expiresAt)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to create cloud dispatcher")
-		http.Error(w, "failed to create cloud dispatcher", http.StatusInternalServerError)
-		return
-	}
-
-	id := h.hostService.AddDispatcher(cloudDispatcher)
 
 	if h.config.OnCloudSetup != nil {
 		h.config.OnCloudSetup()
@@ -114,7 +103,7 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 
 	var redirectURL string
 	if from == "notifications" {
-		redirectURL = fmt.Sprintf("%s/notifications#cloudLinkSuccess=%d", base, id)
+		redirectURL = fmt.Sprintf("%s/notifications#cloudLinked", base)
 	} else {
 		redirectURL = fmt.Sprintf("%s/#cloudLinked", base)
 	}
@@ -122,24 +111,12 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
-	// Try cloud config first
-	var apiKey string
-	if cc := h.hostService.CloudConfig(); cc != nil && cc.APIKey != "" {
-		apiKey = cc.APIKey
-	} else {
-		// Fall back to iterating dispatchers for backward compat
-		for _, d := range h.hostService.Dispatchers() {
-			if d.Type == "cloud" && d.APIKey != "" {
-				apiKey = d.APIKey
-				break
-			}
-		}
-	}
-
-	if apiKey == "" {
-		writeError(w, http.StatusNotFound, "no cloud dispatcher configured")
+	cc := h.hostService.CloudConfig()
+	if cc == nil || cc.APIKey == "" {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
 		return
 	}
+	apiKey := cc.APIKey
 
 	cloudURL := os.Getenv("DOLIGENCE_URL")
 	if cloudURL == "" {
@@ -211,13 +188,5 @@ func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
 	h.hostService.RemoveCloudConfig()
-
-	// Also remove any cloud dispatchers from notifications
-	for _, d := range h.hostService.Dispatchers() {
-		if d.Type == "cloud" {
-			h.hostService.RemoveDispatcher(d.ID)
-		}
-	}
-
 	w.WriteHeader(http.StatusNoContent)
 }

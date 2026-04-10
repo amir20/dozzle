@@ -40,6 +40,7 @@ type MultiHostService struct {
 	timeout             time.Duration
 	notificationManager *notification.Manager
 	cloudConfig         *notification.CloudConfig
+	cloudMu             sync.RWMutex
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -210,7 +211,7 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 		}
 	}
 
-	// Load cloud config if it exists; otherwise attempt migration from dispatchers
+	// Load cloud config and set up the cloud dispatcher on the notification manager
 	if file, err := os.Open(cloudConfigPath); err == nil {
 		defer file.Close()
 		cc, err := notification.LoadCloudConfig(file)
@@ -218,27 +219,8 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 			log.Warn().Err(err).Msg("Could not load cloud config")
 		} else {
 			m.cloudConfig = &cc
+			m.setCloudDispatcherFromConfig(&cc)
 			log.Debug().Str("path", cloudConfigPath).Msg("Loaded cloud config")
-		}
-	} else {
-		// Try to migrate cloud dispatcher from notifications.yml
-		dispatchers := m.notificationManager.Dispatchers()
-		if cc, remaining, ok := notification.MigrateCloudFromDispatchers(dispatchers); ok {
-			m.cloudConfig = &cc
-			log.Info().Msg("Migrated cloud config from dispatchers")
-
-			// Save dedicated cloud.yml
-			m.saveCloudConfig()
-
-			// Re-save notifications.yml without the cloud dispatcher
-			// Rebuild dispatcher objects so the manager reflects the cleaned list
-			for _, d := range dispatchers {
-				if d.Type == "cloud" {
-					m.notificationManager.RemoveDispatcher(d.ID)
-				}
-			}
-			_ = remaining // consumed by RemoveDispatcher calls above
-			m.saveNotificationConfig()
 		}
 	}
 
@@ -266,9 +248,14 @@ func (m *MultiHostService) saveNotificationConfig() {
 	m.broadcastNotificationConfig()
 }
 
-// saveCloudConfig writes the current cloud config to cloudConfigPath.
+// saveCloudConfig writes the current cloud config to cloudConfigPath and
+// broadcasts the notification config to all agents so they receive the API key.
 func (m *MultiHostService) saveCloudConfig() {
-	if m.cloudConfig == nil {
+	m.cloudMu.RLock()
+	cc := m.cloudConfig
+	m.cloudMu.RUnlock()
+
+	if cc == nil {
 		return
 	}
 
@@ -284,33 +271,53 @@ func (m *MultiHostService) saveCloudConfig() {
 	}
 	defer file.Close()
 
-	if err := notification.WriteCloudConfig(file, *m.cloudConfig); err != nil {
+	if err := notification.WriteCloudConfig(file, *cc); err != nil {
 		log.Error().Err(err).Msg("Could not write cloud config")
 	}
+
+	m.broadcastNotificationConfig()
 }
 
 // CloudConfig returns the current cloud config, or nil if not set.
 func (m *MultiHostService) CloudConfig() *notification.CloudConfig {
+	m.cloudMu.RLock()
+	defer m.cloudMu.RUnlock()
 	return m.cloudConfig
 }
 
-// SetCloudConfig sets the cloud config and persists it to disk.
+// SetCloudConfig sets the cloud config, creates the cloud dispatcher, and persists to disk.
 func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
+	m.cloudMu.Lock()
 	m.cloudConfig = cc
+	m.cloudMu.Unlock()
+	m.setCloudDispatcherFromConfig(cc)
 	m.saveCloudConfig()
 }
 
-// RemoveCloudConfig clears the cloud config and deletes the file from disk.
+// RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, and deletes the file.
 func (m *MultiHostService) RemoveCloudConfig() {
+	m.cloudMu.Lock()
 	m.cloudConfig = nil
+	m.cloudMu.Unlock()
+	m.notificationManager.ClearCloudDispatcher()
 	if err := os.Remove(cloudConfigPath); err != nil && !os.IsNotExist(err) {
 		log.Error().Err(err).Msg("Could not remove cloud config file")
 	}
 }
 
+// setCloudDispatcherFromConfig creates a CloudDispatcher from the given config and sets it on the manager.
+func (m *MultiHostService) setCloudDispatcherFromConfig(cc *notification.CloudConfig) {
+	d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.APIKey, cc.Prefix, cc.ExpiresAt)
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create cloud dispatcher from config")
+		return
+	}
+	m.notificationManager.SetCloudDispatcher(d)
+}
+
 // NotificationConfigUpdater is an interface for clients that support notification config updates
 type NotificationConfigUpdater interface {
-	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+	UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig, cloudConfig *types.CloudConfig) error
 }
 
 // broadcastNotificationConfig sends current notification config to all agent clients
@@ -339,15 +346,26 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 	dispatchers := make([]types.DispatcherConfig, len(notifDispatchers))
 	for i, d := range notifDispatchers {
 		dispatchers[i] = types.DispatcherConfig{
-			ID:        d.ID,
-			Name:      d.Name,
-			Type:      d.Type,
-			URL:       d.URL,
-			Template:  d.Template,
-			Headers:   d.Headers,
-			APIKey:    d.APIKey,
-			Prefix:    d.Prefix,
-			ExpiresAt: d.ExpiresAt,
+			ID:       d.ID,
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.URL,
+			Template: d.Template,
+			Headers:  d.Headers,
+		}
+	}
+
+	// Get cloud config for broadcasting to agents
+	m.cloudMu.RLock()
+	ncc := m.cloudConfig
+	m.cloudMu.RUnlock()
+
+	var cc *types.CloudConfig
+	if ncc != nil {
+		cc = &types.CloudConfig{
+			APIKey:    ncc.APIKey,
+			Prefix:    ncc.Prefix,
+			ExpiresAt: ncc.ExpiresAt,
 		}
 	}
 
@@ -358,7 +376,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 			wg.Go(func() {
 				ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
 				defer cancel()
-				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers); err != nil {
+				if err := updater.UpdateNotificationConfig(ctx, subscriptions, dispatchers, cc); err != nil {
 					log.Error().Err(err).Msg("Failed to broadcast notification config to agent")
 				} else {
 					log.Debug().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Broadcasted notification config to agent")

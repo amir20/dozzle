@@ -279,7 +279,7 @@ notifications:
     close: Close
     save: Save
     add: Add Destination
-    cloud-exists: Only one Dozzle Cloud destination can be configured
+    cloud-exists: Dozzle Cloud is already linked
     link-cloud: Link Account
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: To configure your managed channels, go to
@@ -305,7 +305,7 @@ cloud:
   connected: Connected
   plan: Plan
   usage: Events this period
-  open-dashboard: Open Dashboard
+  dashboard: Dashboard
   settings: Settings
   error: Connection error. Please re-link your instance.
   unlink: Unlink

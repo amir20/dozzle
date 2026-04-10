@@ -7,8 +7,7 @@
         <div class="flex flex-col gap-1">
           <p class="text-base-content/70 text-sm">{{ $t("cloud.description") }}</p>
           <div class="mt-3 flex gap-2">
-            <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-outline btn-sm">
-              <mdi:open-in-new class="text-base" />
+            <a :href="`${cloudUrl}`" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
               {{ $t("cloud.learn-more") }}
             </a>
             <a :href="cloudLinkUrl" class="btn btn-primary btn-sm">
@@ -70,12 +69,10 @@
         </div>
 
         <div class="flex gap-2">
-          <a :href="`${cloudUrl}/dashboard`" target="_blank" rel="noreferrer noopener" class="btn btn-outline btn-sm">
-            <mdi:open-in-new class="text-base" />
-            {{ $t("cloud.open-dashboard") }}
+          <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
+            {{ $t("cloud.dashboard") }}
           </a>
-          <button class="btn btn-sm btn-error btn-outline" @click="confirmUnlink">
-            <mdi:link-variant-off class="text-base" />
+          <button class="btn btn-sm btn-error" @click="confirmUnlink">
             {{ $t("cloud.unlink") }}
           </button>
         </div>
@@ -105,16 +102,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { CloudConfig, CloudStatus } from "@/types/notifications";
-
 const cloudUrl = __CLOUD_URL__;
 const callbackUrl = `${window.location.origin}${withBase("/")}`;
 const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}&from=cloud`;
 
-const cloudConfig = ref<CloudConfig | null>(null);
-const cloudStatus = ref<CloudStatus | null>(null);
-const cloudStatusError = ref(false);
-const isLoadingCloudStatus = ref(false);
+const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
+  useCloudConfig();
 const isUnlinking = ref(false);
 const unlinkModal = ref<HTMLDialogElement | null>(null);
 
@@ -123,37 +116,6 @@ const usagePercent = computed(() => {
   return (cloudStatus.value.usage.events_used / cloudStatus.value.usage.events_limit) * 100;
 });
 
-async function fetchCloudConfig() {
-  try {
-    const res = await fetch(withBase("/api/cloud/config"));
-    if (!res.ok) {
-      cloudConfig.value = null;
-      return;
-    }
-    cloudConfig.value = await res.json();
-  } catch {
-    cloudConfig.value = null;
-  }
-}
-
-async function fetchCloudStatus() {
-  if (!cloudConfig.value?.linked) return;
-  isLoadingCloudStatus.value = true;
-  cloudStatusError.value = false;
-  try {
-    const res = await fetch(withBase("/api/cloud/status"));
-    if (!res.ok) {
-      cloudStatusError.value = true;
-      return;
-    }
-    cloudStatus.value = await res.json();
-  } catch {
-    cloudStatusError.value = true;
-  } finally {
-    isLoadingCloudStatus.value = false;
-  }
-}
-
 function confirmUnlink() {
   unlinkModal.value?.showModal();
 }
@@ -161,7 +123,11 @@ function confirmUnlink() {
 async function doUnlink() {
   isUnlinking.value = true;
   try {
-    await fetch(withBase("/api/cloud/config"), { method: "DELETE" });
+    const res = await fetch(withBase("/api/cloud/config"), { method: "DELETE" });
+    if (!res.ok) {
+      cloudStatusError.value = true;
+      return;
+    }
     cloudConfig.value = null;
     cloudStatus.value = null;
     cloudStatusError.value = false;

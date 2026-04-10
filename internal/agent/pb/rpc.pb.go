@@ -1394,6 +1394,7 @@ type UpdateNotificationConfigRequest struct {
 	state         protoimpl.MessageState      `protogen:"open.v1"`
 	Subscriptions []*NotificationSubscription `protobuf:"bytes,1,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
 	Dispatchers   []*NotificationDispatcher   `protobuf:"bytes,2,rep,name=dispatchers,proto3" json:"dispatchers,omitempty"`
+	CloudConfig   *NotificationCloudConfig    `protobuf:"bytes,3,opt,name=cloudConfig,proto3" json:"cloudConfig,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1438,6 +1439,13 @@ func (x *UpdateNotificationConfigRequest) GetSubscriptions() []*NotificationSubs
 func (x *UpdateNotificationConfigRequest) GetDispatchers() []*NotificationDispatcher {
 	if x != nil {
 		return x.Dispatchers
+	}
+	return nil
+}
+
+func (x *UpdateNotificationConfigRequest) GetCloudConfig() *NotificationCloudConfig {
+	if x != nil {
+		return x.CloudConfig
 	}
 	return nil
 }
@@ -1641,10 +1649,11 @@ const file_rpc_proto_rawDesc = "" +
 	"\x06resize\x18\x03 \x01(\v2\x17.protobuf.ResizePayloadH\x00R\x06resizeB\t\n" +
 	"\apayload\"1\n" +
 	"\x17ContainerAttachResponse\x12\x16\n" +
-	"\x06stdout\x18\x01 \x01(\fR\x06stdout\"\xaf\x01\n" +
+	"\x06stdout\x18\x01 \x01(\fR\x06stdout\"\xf4\x01\n" +
 	"\x1fUpdateNotificationConfigRequest\x12H\n" +
 	"\rsubscriptions\x18\x01 \x03(\v2\".protobuf.NotificationSubscriptionR\rsubscriptions\x12B\n" +
-	"\vdispatchers\x18\x02 \x03(\v2 .protobuf.NotificationDispatcherR\vdispatchers\"\"\n" +
+	"\vdispatchers\x18\x02 \x03(\v2 .protobuf.NotificationDispatcherR\vdispatchers\x12C\n" +
+	"\vcloudConfig\x18\x03 \x01(\v2!.protobuf.NotificationCloudConfigR\vcloudConfig\"\"\n" +
 	" UpdateNotificationConfigResponse\"\x1d\n" +
 	"\x1bGetNotificationStatsRequest\"]\n" +
 	"\x1cGetNotificationStatsResponse\x12=\n" +
@@ -1724,7 +1733,8 @@ var file_rpc_proto_goTypes = []any{
 	(ContainerAction)(0),                     // 39: protobuf.ContainerAction
 	(*NotificationSubscription)(nil),         // 40: protobuf.NotificationSubscription
 	(*NotificationDispatcher)(nil),           // 41: protobuf.NotificationDispatcher
-	(*NotificationSubscriptionStats)(nil),    // 42: protobuf.NotificationSubscriptionStats
+	(*NotificationCloudConfig)(nil),          // 42: protobuf.NotificationCloudConfig
+	(*NotificationSubscriptionStats)(nil),    // 43: protobuf.NotificationSubscriptionStats
 }
 var file_rpc_proto_depIdxs = []int32{
 	31, // 0: protobuf.ListContainersRequest.filter:type_name -> protobuf.ListContainersRequest.FilterEntry
@@ -1746,44 +1756,45 @@ var file_rpc_proto_depIdxs = []int32{
 	23, // 16: protobuf.ContainerAttachRequest.resize:type_name -> protobuf.ResizePayload
 	40, // 17: protobuf.UpdateNotificationConfigRequest.subscriptions:type_name -> protobuf.NotificationSubscription
 	41, // 18: protobuf.UpdateNotificationConfigRequest.dispatchers:type_name -> protobuf.NotificationDispatcher
-	42, // 19: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
-	1,  // 20: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	1,  // 21: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
-	0,  // 22: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
-	3,  // 23: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
-	5,  // 24: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
-	7,  // 25: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
-	8,  // 26: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
-	10, // 27: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
-	12, // 28: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
-	16, // 29: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
-	14, // 30: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
-	18, // 31: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
-	20, // 32: protobuf.AgentService.UpdateContainer:input_type -> protobuf.UpdateContainerRequest
-	22, // 33: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
-	25, // 34: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
-	27, // 35: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
-	29, // 36: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
-	2,  // 37: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
-	4,  // 38: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
-	6,  // 39: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
-	6,  // 40: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
-	9,  // 41: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
-	11, // 42: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
-	13, // 43: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
-	17, // 44: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
-	15, // 45: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
-	19, // 46: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
-	21, // 47: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
-	24, // 48: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
-	26, // 49: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
-	28, // 50: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
-	30, // 51: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
-	37, // [37:52] is the sub-list for method output_type
-	22, // [22:37] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	42, // 19: protobuf.UpdateNotificationConfigRequest.cloudConfig:type_name -> protobuf.NotificationCloudConfig
+	43, // 20: protobuf.GetNotificationStatsResponse.stats:type_name -> protobuf.NotificationSubscriptionStats
+	1,  // 21: protobuf.ListContainersRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	1,  // 22: protobuf.FindContainerRequest.FilterEntry.value:type_name -> protobuf.RepeatedString
+	0,  // 23: protobuf.AgentService.ListContainers:input_type -> protobuf.ListContainersRequest
+	3,  // 24: protobuf.AgentService.FindContainer:input_type -> protobuf.FindContainerRequest
+	5,  // 25: protobuf.AgentService.StreamLogs:input_type -> protobuf.StreamLogsRequest
+	7,  // 26: protobuf.AgentService.LogsBetweenDates:input_type -> protobuf.LogsBetweenDatesRequest
+	8,  // 27: protobuf.AgentService.StreamRawBytes:input_type -> protobuf.StreamRawBytesRequest
+	10, // 28: protobuf.AgentService.StreamEvents:input_type -> protobuf.StreamEventsRequest
+	12, // 29: protobuf.AgentService.StreamStats:input_type -> protobuf.StreamStatsRequest
+	16, // 30: protobuf.AgentService.StreamContainerStarted:input_type -> protobuf.StreamContainerStartedRequest
+	14, // 31: protobuf.AgentService.HostInfo:input_type -> protobuf.HostInfoRequest
+	18, // 32: protobuf.AgentService.ContainerAction:input_type -> protobuf.ContainerActionRequest
+	20, // 33: protobuf.AgentService.UpdateContainer:input_type -> protobuf.UpdateContainerRequest
+	22, // 34: protobuf.AgentService.ContainerExec:input_type -> protobuf.ContainerExecRequest
+	25, // 35: protobuf.AgentService.ContainerAttach:input_type -> protobuf.ContainerAttachRequest
+	27, // 36: protobuf.AgentService.UpdateNotificationConfig:input_type -> protobuf.UpdateNotificationConfigRequest
+	29, // 37: protobuf.AgentService.GetNotificationStats:input_type -> protobuf.GetNotificationStatsRequest
+	2,  // 38: protobuf.AgentService.ListContainers:output_type -> protobuf.ListContainersResponse
+	4,  // 39: protobuf.AgentService.FindContainer:output_type -> protobuf.FindContainerResponse
+	6,  // 40: protobuf.AgentService.StreamLogs:output_type -> protobuf.StreamLogsResponse
+	6,  // 41: protobuf.AgentService.LogsBetweenDates:output_type -> protobuf.StreamLogsResponse
+	9,  // 42: protobuf.AgentService.StreamRawBytes:output_type -> protobuf.StreamRawBytesResponse
+	11, // 43: protobuf.AgentService.StreamEvents:output_type -> protobuf.StreamEventsResponse
+	13, // 44: protobuf.AgentService.StreamStats:output_type -> protobuf.StreamStatsResponse
+	17, // 45: protobuf.AgentService.StreamContainerStarted:output_type -> protobuf.StreamContainerStartedResponse
+	15, // 46: protobuf.AgentService.HostInfo:output_type -> protobuf.HostInfoResponse
+	19, // 47: protobuf.AgentService.ContainerAction:output_type -> protobuf.ContainerActionResponse
+	21, // 48: protobuf.AgentService.UpdateContainer:output_type -> protobuf.UpdateContainerProgress
+	24, // 49: protobuf.AgentService.ContainerExec:output_type -> protobuf.ContainerExecResponse
+	26, // 50: protobuf.AgentService.ContainerAttach:output_type -> protobuf.ContainerAttachResponse
+	28, // 51: protobuf.AgentService.UpdateNotificationConfig:output_type -> protobuf.UpdateNotificationConfigResponse
+	30, // 52: protobuf.AgentService.GetNotificationStats:output_type -> protobuf.GetNotificationStatsResponse
+	38, // [38:53] is the sub-list for method output_type
+	23, // [23:38] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }

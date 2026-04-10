@@ -55,15 +55,12 @@ func (m *Manager) LoadConfig(r io.Reader) error {
 	dispatchers := make([]types.DispatcherConfig, len(config.Dispatchers))
 	for i, d := range config.Dispatchers {
 		dispatchers[i] = types.DispatcherConfig{
-			ID:        d.ID,
-			Name:      d.Name,
-			Type:      d.Type,
-			URL:       d.URL,
-			Template:  d.Template,
-			Headers:   d.Headers,
-			APIKey:    d.APIKey,
-			Prefix:    d.Prefix,
-			ExpiresAt: d.ExpiresAt,
+			ID:       d.ID,
+			Name:     d.Name,
+			Type:     d.Type,
+			URL:      d.URL,
+			Template: d.Template,
+			Headers:  d.Headers,
 		}
 	}
 
@@ -162,21 +159,19 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 		}
 	}
 
-	// Load dispatchers
+	// Load dispatchers (cloud dispatchers are handled separately via SetCloudDispatcher)
 	for _, dc := range dispatchers {
 		d, err := createDispatcher(DispatcherConfig{
-			ID:        dc.ID,
-			Name:      dc.Name,
-			Type:      dc.Type,
-			URL:       dc.URL,
-			Template:  dc.Template,
-			Headers:   dc.Headers,
-			APIKey:    dc.APIKey,
-			Prefix:    dc.Prefix,
-			ExpiresAt: dc.ExpiresAt,
+			ID:       dc.ID,
+			Name:     dc.Name,
+			Type:     dc.Type,
+			URL:      dc.URL,
+			Template: dc.Template,
+			Headers:  dc.Headers,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to create dispatcher %s: %w", dc.Name, err)
+			log.Warn().Err(err).Str("name", dc.Name).Str("type", dc.Type).Msg("Skipping unknown dispatcher type")
+			continue
 		}
 		m.dispatchers.Store(dc.ID, d)
 		log.Debug().Int("id", dc.ID).Msg("Loaded dispatcher from state sync")
@@ -188,13 +183,12 @@ func (m *Manager) HandleNotificationConfig(subscriptions []types.SubscriptionCon
 	return nil
 }
 
-// createDispatcher creates a dispatcher from a DispatcherConfig
+// createDispatcher creates a dispatcher from a DispatcherConfig.
+// Cloud dispatchers are not created here; they are managed separately via Manager.SetCloudDispatcher.
 func createDispatcher(config DispatcherConfig) (dispatcher.Dispatcher, error) {
 	switch config.Type {
 	case "webhook":
 		return dispatcher.NewWebhookDispatcher(config.Name, config.URL, config.Template, config.Headers)
-	case "cloud":
-		return dispatcher.NewCloudDispatcher(config.Name, config.APIKey, config.Prefix, config.ExpiresAt)
 	default:
 		return nil, fmt.Errorf("unknown dispatcher type: %s", config.Type)
 	}

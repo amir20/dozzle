@@ -992,9 +992,6 @@ type NotificationDispatcher struct {
 	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
 	Template      string                 `protobuf:"bytes,5,opt,name=template,proto3" json:"template,omitempty"`
 	Headers       map[string]string      `protobuf:"bytes,6,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ApiKey        string                 `protobuf:"bytes,7,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
-	Prefix        string                 `protobuf:"bytes,8,opt,name=prefix,proto3" json:"prefix,omitempty"`
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expiresAt,proto3" json:"expiresAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1071,21 +1068,60 @@ func (x *NotificationDispatcher) GetHeaders() map[string]string {
 	return nil
 }
 
-func (x *NotificationDispatcher) GetApiKey() string {
+type NotificationCloudConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ApiKey        string                 `protobuf:"bytes,1,opt,name=apiKey,proto3" json:"apiKey,omitempty"`
+	Prefix        string                 `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expiresAt,proto3" json:"expiresAt,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotificationCloudConfig) Reset() {
+	*x = NotificationCloudConfig{}
+	mi := &file_types_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationCloudConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationCloudConfig) ProtoMessage() {}
+
+func (x *NotificationCloudConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_types_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationCloudConfig.ProtoReflect.Descriptor instead.
+func (*NotificationCloudConfig) Descriptor() ([]byte, []int) {
+	return file_types_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NotificationCloudConfig) GetApiKey() string {
 	if x != nil {
 		return x.ApiKey
 	}
 	return ""
 }
 
-func (x *NotificationDispatcher) GetPrefix() string {
+func (x *NotificationCloudConfig) GetPrefix() string {
 	if x != nil {
 		return x.Prefix
 	}
 	return ""
 }
 
-func (x *NotificationDispatcher) GetExpiresAt() *timestamppb.Timestamp {
+func (x *NotificationCloudConfig) GetExpiresAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpiresAt
 	}
@@ -1104,7 +1140,7 @@ type NotificationSubscriptionStats struct {
 
 func (x *NotificationSubscriptionStats) Reset() {
 	*x = NotificationSubscriptionStats{}
-	mi := &file_types_proto_msgTypes[11]
+	mi := &file_types_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1116,7 +1152,7 @@ func (x *NotificationSubscriptionStats) String() string {
 func (*NotificationSubscriptionStats) ProtoMessage() {}
 
 func (x *NotificationSubscriptionStats) ProtoReflect() protoreflect.Message {
-	mi := &file_types_proto_msgTypes[11]
+	mi := &file_types_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1129,7 +1165,7 @@ func (x *NotificationSubscriptionStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationSubscriptionStats.ProtoReflect.Descriptor instead.
 func (*NotificationSubscriptionStats) Descriptor() ([]byte, []int) {
-	return file_types_proto_rawDescGZIP(), []int{11}
+	return file_types_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *NotificationSubscriptionStats) GetSubscriptionId() int32 {
@@ -1259,20 +1295,22 @@ const file_types_proto_rawDesc = "" +
 	"\bcooldown\x18\b \x01(\x05R\bcooldown\x12\"\n" +
 	"\fsampleWindow\x18\t \x01(\x05R\fsampleWindow\x12(\n" +
 	"\x0feventExpression\x18\n" +
-	" \x01(\tR\x0feventExpression\"\xed\x02\n" +
+	" \x01(\tR\x0feventExpression\"\x95\x02\n" +
 	"\x16NotificationDispatcher\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x10\n" +
 	"\x03url\x18\x04 \x01(\tR\x03url\x12\x1a\n" +
 	"\btemplate\x18\x05 \x01(\tR\btemplate\x12G\n" +
-	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x12\x16\n" +
-	"\x06apiKey\x18\a \x01(\tR\x06apiKey\x12\x16\n" +
-	"\x06prefix\x18\b \x01(\tR\x06prefix\x128\n" +
-	"\texpiresAt\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a:\n" +
+	"\aheaders\x18\x06 \x03(\v2-.protobuf.NotificationDispatcher.HeadersEntryR\aheaders\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe7\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"\"\x83\x01\n" +
+	"\x17NotificationCloudConfig\x12\x16\n" +
+	"\x06apiKey\x18\x01 \x01(\tR\x06apiKey\x12\x16\n" +
+	"\x06prefix\x18\x02 \x01(\tR\x06prefix\x128\n" +
+	"\texpiresAt\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xe7\x01\n" +
 	"\x1dNotificationSubscriptionStats\x12&\n" +
 	"\x0esubscriptionId\x18\x01 \x01(\x05R\x0esubscriptionId\x12\"\n" +
 	"\ftriggerCount\x18\x02 \x01(\x03R\ftriggerCount\x12D\n" +
@@ -1296,7 +1334,7 @@ func file_types_proto_rawDescGZIP() []byte {
 }
 
 var file_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_types_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_types_proto_goTypes = []any{
 	(ContainerAction)(0),                  // 0: protobuf.ContainerAction
 	(*Container)(nil),                     // 1: protobuf.Container
@@ -1310,29 +1348,30 @@ var file_types_proto_goTypes = []any{
 	(*Host)(nil),                          // 9: protobuf.Host
 	(*NotificationSubscription)(nil),      // 10: protobuf.NotificationSubscription
 	(*NotificationDispatcher)(nil),        // 11: protobuf.NotificationDispatcher
-	(*NotificationSubscriptionStats)(nil), // 12: protobuf.NotificationSubscriptionStats
-	nil,                                   // 13: protobuf.Container.LabelsEntry
-	nil,                                   // 14: protobuf.ContainerEvent.ActorAttributesEntry
-	nil,                                   // 15: protobuf.Host.LabelsEntry
-	nil,                                   // 16: protobuf.NotificationDispatcher.HeadersEntry
-	(*timestamppb.Timestamp)(nil),         // 17: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                     // 18: google.protobuf.Any
+	(*NotificationCloudConfig)(nil),       // 12: protobuf.NotificationCloudConfig
+	(*NotificationSubscriptionStats)(nil), // 13: protobuf.NotificationSubscriptionStats
+	nil,                                   // 14: protobuf.Container.LabelsEntry
+	nil,                                   // 15: protobuf.ContainerEvent.ActorAttributesEntry
+	nil,                                   // 16: protobuf.Host.LabelsEntry
+	nil,                                   // 17: protobuf.NotificationDispatcher.HeadersEntry
+	(*timestamppb.Timestamp)(nil),         // 18: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                     // 19: google.protobuf.Any
 }
 var file_types_proto_depIdxs = []int32{
-	17, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
-	17, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
-	13, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
+	18, // 0: protobuf.Container.created:type_name -> google.protobuf.Timestamp
+	18, // 1: protobuf.Container.started:type_name -> google.protobuf.Timestamp
+	14, // 2: protobuf.Container.labels:type_name -> protobuf.Container.LabelsEntry
 	2,  // 3: protobuf.Container.stats:type_name -> protobuf.ContainerStat
-	17, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
-	18, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
-	17, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
+	18, // 4: protobuf.Container.finished:type_name -> google.protobuf.Timestamp
+	19, // 5: protobuf.LogEvent.message:type_name -> google.protobuf.Any
+	18, // 6: protobuf.LogEvent.timestamp:type_name -> google.protobuf.Timestamp
 	3,  // 7: protobuf.GroupMessage.fragments:type_name -> protobuf.LogFragment
-	17, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
-	14, // 9: protobuf.ContainerEvent.actorAttributes:type_name -> protobuf.ContainerEvent.ActorAttributesEntry
-	15, // 10: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
-	16, // 11: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
-	17, // 12: protobuf.NotificationDispatcher.expiresAt:type_name -> google.protobuf.Timestamp
-	17, // 13: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
+	18, // 8: protobuf.ContainerEvent.timestamp:type_name -> google.protobuf.Timestamp
+	15, // 9: protobuf.ContainerEvent.actorAttributes:type_name -> protobuf.ContainerEvent.ActorAttributesEntry
+	16, // 10: protobuf.Host.labels:type_name -> protobuf.Host.LabelsEntry
+	17, // 11: protobuf.NotificationDispatcher.headers:type_name -> protobuf.NotificationDispatcher.HeadersEntry
+	18, // 12: protobuf.NotificationCloudConfig.expiresAt:type_name -> google.protobuf.Timestamp
+	18, // 13: protobuf.NotificationSubscriptionStats.lastTriggeredAt:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -1351,7 +1390,7 @@ func file_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_types_proto_rawDesc), len(file_types_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

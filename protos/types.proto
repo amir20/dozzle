@@ -119,9 +119,14 @@ message NotificationDispatcher {
   string url = 4;
   string template = 5;
   map<string, string> headers = 6;
-  string apiKey = 7;
-  string prefix = 8;
-  google.protobuf.Timestamp expiresAt = 9;
+  // Fields 7-9 removed (cloud fields moved to NotificationCloudConfig)
+  reserved 7, 8, 9;
+}
+
+message NotificationCloudConfig {
+  string apiKey = 1;
+  string prefix = 2;
+  google.protobuf.Timestamp expiresAt = 3;
 }
 
 message NotificationSubscriptionStats {
