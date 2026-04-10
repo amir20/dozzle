@@ -63,25 +63,30 @@ func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatch
 	h.manager.SetCloudDispatcher(d)
 
 	// Persist cloud config to disk so it survives agent restarts
-	if cd, ok := d.(*dispatcher.CloudDispatcher); ok {
-		cc := notification.CloudConfig{
-			APIKey:    cd.APIKey,
-			Prefix:    cd.Prefix,
-			ExpiresAt: cd.ExpiresAt,
-		}
-		if err := os.MkdirAll("./data", 0755); err != nil {
-			log.Error().Err(err).Msg("Could not create data directory for cloud config")
-			return
-		}
-		file, err := os.Create("./data/cloud.yml")
-		if err != nil {
-			log.Error().Err(err).Msg("Could not create cloud.yml on agent")
-			return
-		}
-		defer file.Close()
-		if err := notification.WriteCloudConfig(file, cc); err != nil {
-			log.Error().Err(err).Msg("Could not write cloud.yml on agent")
-		}
+	cd, ok := d.(*dispatcher.CloudDispatcher)
+	if !ok {
+		log.Warn().Str("type", fmt.Sprintf("%T", d)).Msg("Cloud dispatcher type assertion failed, cannot persist")
+		return
+	}
+	cc := notification.CloudConfig{
+		APIKey:    cd.APIKey,
+		Prefix:    cd.Prefix,
+		ExpiresAt: cd.ExpiresAt,
+	}
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		log.Error().Err(err).Msg("Could not create data directory for cloud config")
+		return
+	}
+	file, err := os.Create("./data/cloud.yml")
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create cloud.yml on agent")
+		return
+	}
+	defer file.Close()
+	if err := notification.WriteCloudConfig(file, cc); err != nil {
+		log.Error().Err(err).Msg("Could not write cloud.yml on agent")
+	} else {
+		log.Debug().Msg("Persisted cloud.yml on agent")
 	}
 }
 
