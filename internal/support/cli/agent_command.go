@@ -61,10 +61,35 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 
 func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
 	h.manager.SetCloudDispatcher(d)
+
+	// Persist cloud config to disk so it survives agent restarts
+	if cd, ok := d.(*dispatcher.CloudDispatcher); ok {
+		cc := notification.CloudConfig{
+			APIKey:    cd.APIKey,
+			Prefix:    cd.Prefix,
+			ExpiresAt: cd.ExpiresAt,
+		}
+		if err := os.MkdirAll("./data", 0755); err != nil {
+			log.Error().Err(err).Msg("Could not create data directory for cloud config")
+			return
+		}
+		file, err := os.Create("./data/cloud.yml")
+		if err != nil {
+			log.Error().Err(err).Msg("Could not create cloud.yml on agent")
+			return
+		}
+		defer file.Close()
+		if err := notification.WriteCloudConfig(file, cc); err != nil {
+			log.Error().Err(err).Msg("Could not write cloud.yml on agent")
+		}
+	}
 }
 
 func (h *persistingNotificationHandler) ClearCloudDispatcher() {
 	h.manager.ClearCloudDispatcher()
+	if err := os.Remove("./data/cloud.yml"); err != nil && !os.IsNotExist(err) {
+		log.Error().Err(err).Msg("Could not remove cloud.yml on agent")
+	}
 }
 
 func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
@@ -120,6 +145,23 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 			log.Info().Str("path", notificationConfigPath).Msg("Loaded notification config from disk")
 		}
 		file.Close()
+	}
+
+	// Load cloud config if available
+	if file, err := os.Open("./data/cloud.yml"); err == nil {
+		cc, err := notification.LoadCloudConfig(file)
+		file.Close()
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to load cloud config on agent")
+		} else {
+			d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.APIKey, cc.Prefix, cc.ExpiresAt)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to create cloud dispatcher on agent")
+			} else {
+				notificationManager.SetCloudDispatcher(d)
+				log.Info().Msg("Loaded cloud config from disk")
+			}
+		}
 	}
 
 	// Create handler that wraps manager and persists config to disk
