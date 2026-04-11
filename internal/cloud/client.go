@@ -236,8 +236,11 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 			streamReqID := cancelReq.CancelStream.StreamRequestId
 			if cancel, loaded := c.activeStreams.LoadAndDelete(streamReqID); loaded {
 				if cancelFn, ok := cancel.(context.CancelFunc); ok {
+					log.Debug().Str("request_id", streamReqID).Msg("cancelling active stream")
 					cancelFn()
 				}
+			} else {
+				log.Warn().Str("request_id", streamReqID).Msg("cancel_stream: no active stream found")
 			}
 			continue
 		}
