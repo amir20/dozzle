@@ -285,6 +285,71 @@ func TestSubscription_EventCooldown(t *testing.T) {
 	})
 }
 
+func TestFromLogEvent_GroupedLogFragments(t *testing.T) {
+	tests := []struct {
+		name       string
+		expression string
+		logEvent   container.LogEvent
+		want       bool
+	}{
+		{
+			name:       "grouped log fragments - matches contains",
+			expression: `message contains "error"`,
+			logEvent: container.LogEvent{
+				Type: container.LogTypeGroup,
+				Message: []container.LogFragment{
+					{Message: "first line"},
+					{Message: "error occurred here"},
+					{Message: "third line"},
+				},
+			},
+			want: true,
+		},
+		{
+			name:       "grouped log fragments - does not match",
+			expression: `message contains "fatal"`,
+			logEvent: container.LogEvent{
+				Type: container.LogTypeGroup,
+				Message: []container.LogFragment{
+					{Message: "first line"},
+					{Message: "second line"},
+				},
+			},
+			want: false,
+		},
+		{
+			name:       "grouped log fragments - single fragment matches",
+			expression: `message contains "info"`,
+			logEvent: container.LogEvent{
+				Type: container.LogTypeGroup,
+				Message: []container.LogFragment{
+					{Message: "info: something happened"},
+				},
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			notificationLog := FromLogEvent(tt.logEvent)
+
+			_, isString := notificationLog.Message.(string)
+			assert.True(t, isString, "grouped log message should be converted to string")
+
+			program, err := expr.Compile(tt.expression, expr.Env(types.NotificationLog{}), expr.AsBool())
+			require.NoError(t, err, "failed to compile expression")
+
+			sub := &Subscription{
+				LogProgram: program,
+			}
+
+			got := sub.MatchesLog(notificationLog)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func TestFromLogEvent_OrderedMapConversion(t *testing.T) {
 	tests := []struct {
 		name       string
