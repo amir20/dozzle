@@ -71,7 +71,7 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, h
 
 	go func() {
 		defer close(events)
-		if err := cs.StreamLogs(ctx, time.Now(), container.STDOUT|container.STDERR, events); err != nil {
+		if err := cs.StreamLogs(ctx, time.Now().Add(-30*time.Second), container.STDOUT|container.STDERR, events); err != nil {
 			log.Debug().Err(err).Str("container", cs.Container.Name).Msg("StreamLogs ended with error")
 		}
 	}()
