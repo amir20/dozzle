@@ -33,7 +33,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: 1.26.1
+          go-version: 1.26.2
           check-latest: true
       - name: Checkout code
         uses: actions/checkout@v6
@@ -124,7 +124,7 @@ jobs:
           echo "${{ secrets.TTL_KEY }}" > shared_key.pem
           echo "${{ secrets.TTL_CERT }}" > shared_cert.pem
       - name: Build and push
-        uses: docker/build-push-action@v7.0.0
+        uses: docker/build-push-action@v7.1.0
         with:
           push: true
           context: .
