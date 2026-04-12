@@ -146,6 +146,20 @@ Container: image startsWith "myapp/"
 Log:       stream == "stderr"
 ```
 
+**Alert on slow API responses from production:**
+
+```
+Container: name contains "api" && labels["env"] == "production"
+Log:       message.duration > 5000 && message.path contains "/api"
+```
+
+**Alert on authentication failures using regex:**
+
+```
+Container: name contains "auth" || name contains "gateway"
+Log:       message matches "(?i)(unauthorized|forbidden|invalid token)"
+```
+
 > [!NOTE]
 > The alert editor includes autocomplete and real-time validation. You can preview matched containers and logs before saving.
 
