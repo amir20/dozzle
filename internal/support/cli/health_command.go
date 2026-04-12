@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/amir20/dozzle/internal/healthcheck"
 	"github.com/rs/zerolog/log"
@@ -14,11 +13,8 @@ import (
 type HealthcheckCmd struct{}
 
 func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
-	if matches, err := filepath.Glob("/tmp/agent-*.addr"); err == nil && len(matches) == 1 {
-		data, err := os.ReadFile(matches[0])
-		if err != nil {
-			return fmt.Errorf("failed to read file: %w", err)
-		}
+	const agentAddrFile = "/tmp/dozzle-agent.addr"
+	if data, err := os.ReadFile(agentAddrFile); err == nil {
 		agentAddress := string(data)
 		certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 		if err != nil {

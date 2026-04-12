@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"os/signal"
@@ -114,12 +113,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
-	tempFile, err := os.CreateTemp("", "agent-*.addr")
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
+	const agentAddrFile = "/tmp/dozzle-agent.addr"
+	if err := os.WriteFile(agentAddrFile, []byte(listener.Addr().String()), 0644); err != nil {
+		return fmt.Errorf("failed to write agent address file: %w", err)
 	}
-	io.WriteString(tempFile, listener.Addr().String())
-	log.Debug().Str("file", tempFile.Name()).Msg("Created temp file")
+	log.Debug().Str("file", agentAddrFile).Msg("Created agent address file")
 	go StartEvent(args, "", client, "agent")
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -192,7 +190,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	stop()
 	log.Info().Msg("Shutting down agent")
 	server.Stop()
-	log.Debug().Str("file", tempFile.Name()).Msg("Removing temp file")
-	os.Remove(tempFile.Name())
+	log.Debug().Str("file", agentAddrFile).Msg("Removing agent address file")
+	os.Remove(agentAddrFile)
 	return nil
 }
