@@ -114,7 +114,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 	const agentAddrFile = "/tmp/dozzle-agent.addr"
-	if err := os.WriteFile(agentAddrFile, []byte(listener.Addr().String()), 0644); err != nil {
+	agentAddr := listener.Addr().String()
+	if host, port, err := net.SplitHostPort(agentAddr); err == nil && (host == "" || host == "::" || host == "0.0.0.0") {
+		agentAddr = "localhost:" + port
+	}
+	if err := os.WriteFile(agentAddrFile, []byte(agentAddr), 0644); err != nil {
 		return fmt.Errorf("failed to write agent address file: %w", err)
 	}
 	log.Debug().Str("file", agentAddrFile).Msg("Created agent address file")
