@@ -137,8 +137,14 @@ func (c *Client) Run(ctx context.Context) {
 
 		if err != nil {
 			if isPermissionDenied(err) {
-				log.Debug().Msg("cloud account does not have pro plan, stopping cloud client")
-				return
+				log.Debug().Msg("cloud account does not have pro plan, waiting for upgrade")
+				select {
+				case <-ctx.Done():
+					return
+				case <-c.startCh:
+				}
+				backoff = initialBackoff
+				continue
 			}
 			if isUnauthenticated(err) {
 				log.Warn().Err(err).Dur("pause", unauthenticatedPause).Msg("invalid API key, pausing before retry")
