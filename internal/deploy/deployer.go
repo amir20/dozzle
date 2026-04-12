@@ -6,6 +6,7 @@ import (
 	"io"
 	"maps"
 	"strconv"
+	"time"
 
 	composetypes "github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/docker/api/types/container"
@@ -13,8 +14,10 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
+	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/docker/go-units"
 	"github.com/rs/zerolog/log"
 )
 
@@ -296,6 +299,73 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 	// Extra hosts
 	extraHosts := svc.ExtraHosts.AsList(":")
 
+	// Healthcheck
+	var healthcheck *dockerspec.HealthcheckConfig
+	if svc.HealthCheck != nil {
+		if svc.HealthCheck.Disable {
+			healthcheck = &dockerspec.HealthcheckConfig{
+				Test: []string{"NONE"},
+			}
+		} else {
+			healthcheck = &dockerspec.HealthcheckConfig{
+				Test: []string(svc.HealthCheck.Test),
+			}
+			if svc.HealthCheck.Interval != nil {
+				healthcheck.Interval = time.Duration(*svc.HealthCheck.Interval)
+			}
+			if svc.HealthCheck.Timeout != nil {
+				healthcheck.Timeout = time.Duration(*svc.HealthCheck.Timeout)
+			}
+			if svc.HealthCheck.StartPeriod != nil {
+				healthcheck.StartPeriod = time.Duration(*svc.HealthCheck.StartPeriod)
+			}
+			if svc.HealthCheck.StartInterval != nil {
+				healthcheck.StartInterval = time.Duration(*svc.HealthCheck.StartInterval)
+			}
+			if svc.HealthCheck.Retries != nil {
+				healthcheck.Retries = int(*svc.HealthCheck.Retries)
+			}
+		}
+	}
+
+	// Logging
+	var logConfig container.LogConfig
+	if svc.Logging != nil {
+		logConfig.Type = svc.Logging.Driver
+		logConfig.Config = make(map[string]string)
+		for k, v := range svc.Logging.Options {
+			logConfig.Config[k] = v
+		}
+	}
+
+	// Devices
+	devices := make([]container.DeviceMapping, 0, len(svc.Devices))
+	for _, dev := range svc.Devices {
+		devices = append(devices, container.DeviceMapping{
+			PathOnHost:        dev.Source,
+			PathInContainer:   dev.Target,
+			CgroupPermissions: dev.Permissions,
+		})
+	}
+
+	// Ulimits
+	var ulimits []*units.Ulimit
+	for name, ul := range svc.Ulimits {
+		if ul.Single != 0 {
+			ulimits = append(ulimits, &units.Ulimit{
+				Name: name,
+				Hard: int64(ul.Single),
+				Soft: int64(ul.Single),
+			})
+		} else {
+			ulimits = append(ulimits, &units.Ulimit{
+				Name: name,
+				Soft: int64(ul.Soft),
+				Hard: int64(ul.Hard),
+			})
+		}
+	}
+
 	config := &container.Config{
 		Image:        svc.Image,
 		Env:          env,
@@ -306,6 +376,12 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		User:         svc.User,
 		Tty:          svc.Tty,
 		StdinOnce:    svc.StdinOpen,
+		StopSignal:   svc.StopSignal,
+		Healthcheck:  healthcheck,
+	}
+	if svc.StopGracePeriod != nil {
+		timeout := int(time.Duration(*svc.StopGracePeriod).Seconds())
+		config.StopTimeout = &timeout
 	}
 	if len(svc.Command) > 0 {
 		config.Cmd = []string(svc.Command)
@@ -319,19 +395,26 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		RestartPolicy: restartPolicy,
 		Mounts:        mounts,
 		Privileged:    svc.Privileged,
+		ReadonlyRootfs: svc.ReadOnly,
 		ExtraHosts:    extraHosts,
 		DNS:           svc.DNS,
 		CapAdd:        svc.CapAdd,
 		CapDrop:       svc.CapDrop,
 		NetworkMode:   networkMode,
+		PidMode:       container.PidMode(svc.Pid),
+		IpcMode:       container.IpcMode(svc.Ipc),
 		Tmpfs:         tmpfs,
 		ShmSize:       int64(svc.ShmSize),
 		Init:          svc.Init,
 		SecurityOpt:   svc.SecurityOpt,
 		Sysctls:       svc.Sysctls,
+		LogConfig:     logConfig,
+		Runtime:       svc.Runtime,
 		Resources: container.Resources{
 			NanoCPUs: int64(svc.CPUS * 1e9),
 			Memory:   int64(svc.MemLimit),
+			Ulimits:  ulimits,
+			Devices:  devices,
 		},
 	}
 
