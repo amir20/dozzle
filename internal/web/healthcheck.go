@@ -16,25 +16,25 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	clients := h.hostService.LocalClients()
 
 	var (
-		healthy atomic.Bool
-		wg      sync.WaitGroup
+		anyHealthy atomic.Bool
+		wg         sync.WaitGroup
 	)
-	healthy.Store(true)
 
 	for _, client := range clients {
 		wg.Go(func() {
 			ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 			defer cancel()
 			if err := client.Ping(ctx); err != nil {
-				log.Error().Err(err).Str("host", client.Host().Name).Msg("error pinging host")
-				healthy.Store(false)
+				log.Warn().Err(err).Str("host", client.Host().Name).Msg("error pinging host")
+			} else {
+				anyHealthy.Store(true)
 			}
 		})
 	}
 
 	wg.Wait()
 
-	if !healthy.Load() {
+	if !anyHealthy.Load() {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
