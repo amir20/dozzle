@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -15,10 +16,10 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 	clients := h.hostService.LocalClients()
 
 	var (
-		mu      sync.Mutex
-		healthy = true
+		healthy atomic.Bool
 		wg      sync.WaitGroup
 	)
+	healthy.Store(true)
 
 	for _, client := range clients {
 		wg.Go(func() {
@@ -26,16 +27,14 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 			defer cancel()
 			if err := client.Ping(ctx); err != nil {
 				log.Error().Err(err).Str("host", client.Host().Name).Msg("error pinging host")
-				mu.Lock()
-				healthy = false
-				mu.Unlock()
+				healthy.Store(false)
 			}
 		})
 	}
 
 	wg.Wait()
 
-	if !healthy {
+	if !healthy.Load() {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
