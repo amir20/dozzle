@@ -311,3 +311,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Desligar
   unlink-confirm: Tem a certeza de que pretende desligar do Dozzle Cloud? Isto irá remover todos os destinos de notificação na nuvem.
+  welcome:
+    title: "Ahoy! Yer ship be connected!"
+    subtitle: "Ye be ready to receive alerts, daily summaries, and more from Dozzle Cloud, ye scallywag."
+    question: "One quick question before we set sail — what be ye hopin' Cloud helps with most?"
+    placeholder: "e.g. I want to know when me Plex container capsizes overnight..."
+    or-pick: "Or pick one, matey:"
+    chip-alerts: Alert me when things go overboard
+    chip-summary: Daily ship's log
+    chip-hosts: Watch over multiple vessels
+    chip-other: Somethin' else
+    get-started: Set Sail
+    skip: Skip fer now
+    step2-title: "Thanks, matey! Here be how to get the most outta Cloud."
+    step2-subtitle: "I read every message in a bottle and it shapes what I build next. These steps will get ye sailin'."
+    checklist-alert-title: Create yer first alert
+    checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. Ye'll get a summary when somethin' goes wrong."
+    checklist-notify-title: Choose how ye get notified
+    checklist-notify-desc: "Email be on by default. Add push, Telegram, or Discord fer faster alerts."
+    checklist-agent-title: Try the AI first mate
+    checklist-agent-desc: "Connect Telegram or Discord and chat with yer containers. Diagnose errors, check the ship's health, and take actions like restartin' services."
+    create-alert: Create Yer First Alert
+    later: "I'll do this later, arrr"

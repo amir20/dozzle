@@ -331,7 +331,7 @@ cloud:
     checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. You'll get a summary when something breaks."
     checklist-notify-title: Choose how to get notified
     checklist-notify-desc: "Email is on by default. Add push, Telegram, or Discord for faster alerts."
-    checklist-agent-title: Try the AI agent
-    checklist-agent-desc: "Connect Telegram or Discord and ask the agent about your containers. Search logs, get answers, and troubleshoot through chat."
+    checklist-agent-title: Try the AI assistant
+    checklist-agent-desc: "Connect Telegram or Discord and chat with your containers. Diagnose errors, check health, and take actions like restarting services."
     create-alert: Create Your First Alert
     later: "I'll do this later"

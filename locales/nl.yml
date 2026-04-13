@@ -303,3 +303,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Ontkoppelen
   unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.
+  welcome:
+    title: "Je instantie is verbonden!"
+    subtitle: "Je kunt nu meldingen, dagelijkse samenvattingen en meer ontvangen van Dozzle Cloud."
+    question: "Een snelle vraag voordat we beginnen — waarvoor wil je Cloud het meest gebruiken?"
+    placeholder: "bijv. Ik wil weten wanneer mijn Plex-container 's nachts crasht..."
+    or-pick: "Of kies er een:"
+    chip-alerts: Waarschuw me bij problemen
+    chip-summary: Dagelijkse samenvatting
+    chip-hosts: Meerdere hosts monitoren
+    chip-other: Iets anders
+    get-started: Aan de slag
+    skip: Nu overslaan
+    step2-title: "Bedankt! Zo haal je het meeste uit Cloud."
+    step2-subtitle: "Ik lees elk antwoord en het bepaalt wat ik hierna bouw. Deze stappen helpen je op weg."
+    checklist-alert-title: Maak je eerste melding
+    checklist-alert-desc: "Stel een regel in Dozzle in zodat Cloud weet waar het op moet letten. Je krijgt een samenvatting als er iets misgaat."
+    checklist-notify-title: Kies hoe je meldingen ontvangt
+    checklist-notify-desc: "E-mail is standaard ingeschakeld. Voeg push, Telegram of Discord toe voor snellere meldingen."
+    checklist-agent-title: Probeer de AI-assistent
+    checklist-agent-desc: "Verbind Telegram of Discord en chat met je containers. Diagnosticeer fouten, controleer de status en voer acties uit zoals het herstarten van services."
+    create-alert: Maak je eerste melding
+    later: "Dat doe ik later"
