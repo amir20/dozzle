@@ -123,7 +123,7 @@ onMounted(async () => {
 
   if (route.query.action === "create-alert") {
     router.replace({ query: {} });
-    openCreateAlert();
+    openCreateAlertPrefilled();
   }
 });
 
@@ -141,6 +141,22 @@ const filteredAlerts = computed(() => {
 
 function openCreateAlert() {
   showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
+}
+
+function openCreateAlertPrefilled() {
+  const cloudDispatcher = dispatchers.value.find((d) => d.type === "cloud");
+  showDrawer(
+    AlertForm,
+    {
+      onCreated: fetchAlerts,
+      prefill: {
+        name: "Error alerts",
+        logExpression: 'level == "error"',
+        ...(cloudDispatcher ? { dispatcherId: cloudDispatcher.id } : {}),
+      },
+    },
+    "lg",
+  );
 }
 
 function openAddDestination() {
