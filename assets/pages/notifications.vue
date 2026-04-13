@@ -127,6 +127,16 @@ onMounted(async () => {
   }
 });
 
+watch(
+  () => route.query.action,
+  (action) => {
+    if (action === "create-alert") {
+      router.replace({ query: {} });
+      openCreateAlertPrefilled();
+    }
+  },
+);
+
 // Local state
 const filter = ref<"all" | "enabled" | "paused">("all");
 

@@ -152,7 +152,7 @@ onMounted(async () => {
   if (window.location.hash === "#cloudLinked" && !cloudWelcomeShown.value) {
     cloudWelcomeShown.value = true;
     nextTick(() => welcomeModal.value?.open());
-    history.replaceState(null, "", window.location.pathname + window.location.search);
+    history.replaceState(history.state, "", window.location.pathname + window.location.search);
   }
 });
 </script>

@@ -89,6 +89,7 @@
 const cloudUrl = __CLOUD_URL__;
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
 const modal = ref<HTMLDialogElement>();
 const step = ref<"step1" | "step2">("step1");
@@ -145,18 +146,28 @@ async function postFeedback(skipped: boolean) {
   }
 }
 
+const onNotificationsPage = computed(() => route.path === "/notifications");
+
 async function submitFeedback() {
   submitting.value = true;
   await postFeedback(false);
   submitting.value = false;
-  step.value = "step2";
+  if (onNotificationsPage.value) {
+    createFirstAlert();
+  } else {
+    step.value = "step2";
+  }
 }
 
 async function skipFeedback() {
   submitting.value = true;
   await postFeedback(true);
   submitting.value = false;
-  step.value = "step2";
+  if (onNotificationsPage.value) {
+    createFirstAlert();
+  } else {
+    step.value = "step2";
+  }
 }
 
 function createFirstAlert() {
