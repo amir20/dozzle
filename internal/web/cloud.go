@@ -150,13 +150,27 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if h.config.OnCloudSetup != nil {
-		h.config.OnCloudSetup()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read cloud status response")
+		writeError(w, http.StatusBadGateway, "failed to read cloud status")
+		return
+	}
+
+	var statusResp struct {
+		Plan struct {
+			Name string `json:"name"`
+		} `json:"plan"`
+	}
+	if json.Unmarshal(body, &statusResp) == nil && statusResp.Plan.Name == "pro" {
+		if h.config.OnCloudSetup != nil {
+			h.config.OnCloudSetup()
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	io.Copy(w, resp.Body)
+	w.Write(body)
 }
 
 type cloudConfigResponse struct {
