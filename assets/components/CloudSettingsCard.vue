@@ -39,7 +39,7 @@
             <mdi:refresh class="text-base" />
             {{ $t("button.retry") }}
           </button>
-          <button class="btn btn-outline btn-sm btn-error" @click="confirmUnlink">
+          <button class="btn btn-sm btn-error" @click="confirmUnlink">
             <mdi:link-variant-off class="text-base" />
             {{ $t("cloud.unlink") }}
           </button>
