@@ -94,6 +94,7 @@ import DestinationForm from "@/components/Notification/DestinationForm.vue";
 
 const showDrawer = useDrawer();
 const router = useRouter();
+const route = useRoute();
 
 // State
 const alerts = ref<NotificationRule[]>([]);
@@ -118,6 +119,11 @@ onMounted(async () => {
   const hash = window.location.hash;
   if (hash === "#cloudLinked") {
     router.replace({ hash: "" });
+  }
+
+  if (route.query.action === "create-alert") {
+    router.replace({ query: {} });
+    openCreateAlert();
   }
 });
 

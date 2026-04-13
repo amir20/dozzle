@@ -191,6 +191,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/cloud/status", h.cloudStatus)
 				r.Get("/cloud/config", h.cloudConfig)
 				r.Delete("/cloud/config", h.deleteCloudConfig)
+				r.Post("/cloud/feedback", h.cloudFeedback)
 			})
 
 			// Public API routes

@@ -208,3 +208,39 @@ func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
 	h.hostService.RemoveCloudConfig()
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *handler) cloudFeedback(w http.ResponseWriter, r *http.Request) {
+	cc := h.hostService.CloudConfig()
+	if cc == nil || cc.APIKey == "" {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
+		return
+	}
+
+	cloudURL := os.Getenv("DOLIGENCE_URL")
+	if cloudURL == "" {
+		cloudURL = "https://doligence.dozzle.dev"
+	}
+
+	feedbackURL := fmt.Sprintf("%s/api/feedback", cloudURL)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, feedbackURL, r.Body)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create feedback request")
+		writeError(w, http.StatusInternalServerError, "failed to create request")
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", dispatcher.UserAgent)
+	req.Header.Set("X-API-Key", cc.APIKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to send feedback")
+		writeError(w, http.StatusBadGateway, "failed to send feedback")
+		return
+	}
+	defer resp.Body.Close()
+
+	w.WriteHeader(resp.StatusCode)
+}

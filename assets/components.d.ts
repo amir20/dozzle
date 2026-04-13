@@ -104,6 +104,7 @@ declare module 'vue' {
     'Mdi:chartBar': typeof import('~icons/mdi/chart-bar')['default']
     'Mdi:chartLine': typeof import('~icons/mdi/chart-line')['default']
     'Mdi:check': typeof import('~icons/mdi/check')['default']
+    'Mdi:checkCircle': typeof import('~icons/mdi/check-circle')['default']
     'Mdi:chevronDoubleDown': typeof import('~icons/mdi/chevron-double-down')['default']
     'Mdi:chevronDown': typeof import('~icons/mdi/chevron-down')['default']
     'Mdi:chevronLeft': typeof import('~icons/mdi/chevron-left')['default']
@@ -184,6 +185,7 @@ declare module 'vue' {
     Toggle: typeof import('./components/common/Toggle.vue')['default']
     ViewerWithSource: typeof import('./components/LogViewer/ViewerWithSource.vue')['default']
     WebhookDestinationForm: typeof import('./components/Notification/WebhookDestinationForm.vue')['default']
+    WelcomeModal: typeof import('./components/WelcomeModal.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']
   }
 }
