@@ -98,6 +98,7 @@ button:
   logout: Odjava
   cancel: Prekliči
   redirect: Preusmeritev
+  retry: Retry
   login: Prijava
   settings: Nastavitve
 placeholder:
@@ -282,6 +283,7 @@ notifications:
     cloud-settings-link: Nastavitve Dozzle Cloud
     cloud-checking: Preverjanje stanja oblaka...
     cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Načrt
     cloud-usage: Dogodki v tem obdobju
   empty-state:
@@ -302,5 +304,6 @@ cloud:
   dashboard: Nadzorna plošča
   settings: Nastavitve
   error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.

@@ -99,6 +99,7 @@ button:
   settings: Indstillinger
   cancel: Annuller
   redirect: Omdiriger
+  retry: Retry
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud Indstillinger
     cloud-checking: Kontrollerer cloud-status...
     cloud-relink: Din API-nøgle er ugyldig eller udløbet. Slet venligst og link din konto igen.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Begivenheder i denne periode
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: Dashboard
   settings: Indstillinger
   error: Forbindelsesfejl. Gentilknyt venligst din instans.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.

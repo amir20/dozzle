@@ -10,10 +10,26 @@
           readonly
           disabled
           class="input join-item w-full font-mono"
-          :class="cloudStatusError ? 'input-error' : 'input-success'"
+          :class="
+            cloudStatusError === 'auth'
+              ? 'input-error'
+              : cloudStatusError === 'unavailable'
+                ? 'input-warning'
+                : 'input-success'
+          "
         />
-        <span class="join-item btn pointer-events-none" :class="cloudStatusError ? 'btn-error' : 'btn-success'">
-          <mdi:alert-circle v-if="cloudStatusError" class="text-lg" />
+        <span
+          class="join-item btn pointer-events-none"
+          :class="
+            cloudStatusError === 'auth'
+              ? 'btn-error'
+              : cloudStatusError === 'unavailable'
+                ? 'btn-warning'
+                : 'btn-success'
+          "
+        >
+          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
+          <mdi:cloud-off-outline v-else-if="cloudStatusError === 'unavailable'" class="text-lg" />
           <mdi:check v-else class="text-lg" />
         </span>
       </div>
@@ -24,9 +40,14 @@
         <span class="text-base-content/60 text-sm">{{ $t("notifications.destination-form.cloud-checking") }}</span>
       </div>
       <div v-else-if="cloudStatusError" class="mt-3">
-        <div class="alert alert-error">
-          <mdi:alert-circle class="text-lg" />
-          <span>{{ $t("notifications.destination-form.cloud-relink") }}</span>
+        <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
+          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
+          <mdi:cloud-off-outline v-else class="text-lg" />
+          <span>{{
+            cloudStatusError === "auth"
+              ? $t("notifications.destination-form.cloud-relink")
+              : $t("notifications.destination-form.cloud-unavailable")
+          }}</span>
         </div>
       </div>
       <div v-else-if="cloudStatus" class="mt-3 space-y-3">

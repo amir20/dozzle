@@ -99,6 +99,7 @@ button:
   settings: 设置
   cancel: 取消
   redirect: 重定向
+  retry: Retry
 placeholder:
   search-containers: 搜索容器 (⌘ + k, ⌃k)
   search: 搜索
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud 设置
     cloud-checking: 正在检查云状态...
     cloud-relink: 您的 API 密钥无效或已过期。请删除并重新关联您的账户。
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: 计划
     cloud-usage: 本期事件数
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: 仪表盘
   settings: 设置
   error: 连接错误。请重新关联您的实例。
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 取消关联
   unlink-confirm: 确定要取消与 Dozzle Cloud 的关联吗？这将移除所有云通知目标。

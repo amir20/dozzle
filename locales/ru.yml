@@ -99,6 +99,7 @@ button:
   settings: Настройки
   cancel: Отмена
   redirect: Перенаправить
+  retry: Retry
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Настройки Dozzle Cloud
     cloud-checking: Проверка статуса облака...
     cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: План
     cloud-usage: События за этот период
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: Панель управления
   settings: Настройки
   error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Отвязать
   unlink-confirm: Вы уверены, что хотите отвязать от Dozzle Cloud? Это удалит все облачные назначения уведомлений.
