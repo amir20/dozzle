@@ -100,6 +100,7 @@ button:
   settings: 설정
   cancel: 취소
   redirect: 이동
+  retry: Retry
 placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색
@@ -280,6 +281,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud 설정
     cloud-checking: 클라우드 상태 확인 중...
     cloud-relink: API 키가 유효하지 않거나 만료되었습니다. 삭제 후 계정을 다시 연결해 주세요.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: 플랜
     cloud-usage: 이번 기간 이벤트
   empty-state:
@@ -300,5 +302,6 @@ cloud:
   dashboard: 대시보드
   settings: 설정
   error: 연결 오류. 인스턴스를 다시 연결해 주세요.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 연결 해제
   unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.

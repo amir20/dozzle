@@ -146,7 +146,11 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
 		log.Warn().Int("status", resp.StatusCode).Str("body", string(body)).Msg("Cloud status check failed")
-		writeError(w, resp.StatusCode, "cloud API key is invalid or expired")
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			writeError(w, resp.StatusCode, "cloud API key is invalid or expired")
+		} else {
+			writeError(w, http.StatusBadGateway, "cloud service is temporarily unavailable")
+		}
 		return
 	}
 

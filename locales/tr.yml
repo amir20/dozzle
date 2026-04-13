@@ -107,6 +107,7 @@ button:
   settings: Ayarlar
   cancel: İptal
   redirect: Yönlendir
+  retry: Retry
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud Ayarları
     cloud-checking: Bulut durumu kontrol ediliyor...
     cloud-relink: API anahtarınız geçersiz veya süresi dolmuş. Lütfen silin ve hesabınızı tekrar bağlayın.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Bu dönemdeki olaylar
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: Pano
   settings: Ayarlar
   error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Bağlantıyı kaldır
   unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.

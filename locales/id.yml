@@ -105,6 +105,7 @@ button:
   settings: Pengaturan
   cancel: Batal
   redirect: Alihkan
+  retry: Retry
 
 placeholder:
   search-containers: Cari kontainer (⌘ + k, ⌃k)
@@ -289,6 +290,7 @@ notifications:
     cloud-settings-link: Pengaturan Dozzle Cloud
     cloud-checking: Memeriksa status cloud...
     cloud-relink: Kunci API Anda tidak valid atau kedaluwarsa. Silakan hapus dan hubungkan akun Anda lagi.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Paket
     cloud-usage: Event periode ini
   empty-state:
@@ -309,5 +311,6 @@ cloud:
   dashboard: Dasbor
   settings: Pengaturan
   error: Kesalahan koneksi. Silakan tautkan ulang instans Anda.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Lepaskan tautan
   unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.

@@ -99,6 +99,7 @@ button:
   settings: Impostazioni
   cancel: Annulla
   redirect: Reindirizza
+  retry: Retry
 placeholder:
   search-containers: Ricerca container (⌘ + k, ⌃k)
   search: Cerca
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Impostazioni Dozzle Cloud
     cloud-checking: Verifica dello stato cloud...
     cloud-relink: La tua chiave API non è valida o è scaduta. Elimina e collega nuovamente il tuo account.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Piano
     cloud-usage: Eventi in questo periodo
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: Dashboard
   settings: Impostazioni
   error: Errore di connessione. Ricollega la tua istanza.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Scollega
   unlink-confirm: Sei sicuro di voler scollegare da Dozzle Cloud? Questo rimuoverà tutte le destinazioni di notifica cloud.

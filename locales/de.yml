@@ -99,6 +99,7 @@ button:
   settings: Einstellungen
   cancel: Abbruch
   redirect: Umleiten
+  retry: Retry
 placeholder:
   search-containers: Suche Container (⌘ + k, ⌃k)
   search: Suche
@@ -277,6 +278,7 @@ notifications:
     cloud-settings-link: Dozzle Cloud Einstellungen
     cloud-checking: Cloud-Status wird überprüft...
     cloud-relink: Ihr API-Schlüssel ist ungültig oder abgelaufen. Bitte löschen und verknüpfen Sie Ihr Konto erneut.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Ereignisse in diesem Zeitraum
   empty-state:
@@ -297,5 +299,6 @@ cloud:
   dashboard: Dashboard
   settings: Einstellungen
   error: Verbindungsfehler. Bitte verknüpfen Sie Ihre Instanz erneut.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Verknüpfung aufheben
   unlink-confirm: Sind Sie sicher, dass Sie die Verknüpfung mit Dozzle Cloud aufheben möchten? Dies entfernt alle Cloud-Benachrichtigungsziele.

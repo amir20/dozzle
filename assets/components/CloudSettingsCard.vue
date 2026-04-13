@@ -23,15 +23,22 @@
     <template v-else-if="cloudConfig.linked">
       <!-- Error state -->
       <div v-if="cloudStatusError" class="space-y-3">
-        <div class="alert alert-error">
-          <mdi:alert-circle class="text-lg" />
-          <span class="text-sm">{{ $t("cloud.error") }}</span>
+        <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
+          <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
+          <mdi:cloud-off-outline v-else class="text-lg" />
+          <span class="text-sm">{{
+            cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable")
+          }}</span>
         </div>
         <div class="flex gap-2">
-          <a :href="cloudLinkUrl" class="btn btn-primary btn-sm">
+          <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm">
             <mdi:link-variant class="text-base" />
             {{ $t("cloud.relink-instance") }}
           </a>
+          <button v-else class="btn btn-sm" @click="fetchCloudStatus">
+            <mdi:refresh class="text-base" />
+            {{ $t("button.retry") }}
+          </button>
           <button class="btn btn-outline btn-sm btn-error" @click="confirmUnlink">
             <mdi:link-variant-off class="text-base" />
             {{ $t("cloud.unlink") }}
@@ -132,7 +139,7 @@ async function doUnlink() {
   try {
     const res = await fetch(withBase("/api/cloud/config"), { method: "DELETE" });
     if (!res.ok) {
-      cloudStatusError.value = true;
+      cloudStatusError.value = "unavailable";
       return;
     }
     clearCloudState();

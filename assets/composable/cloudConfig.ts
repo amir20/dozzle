@@ -3,7 +3,7 @@ import type { CloudConfig, CloudStatus } from "@/types/notifications";
 // Shared state across all component instances
 const cloudConfig = ref<CloudConfig | null>(null);
 const cloudStatus = ref<CloudStatus | null>(null);
-const cloudStatusError = ref(false);
+const cloudStatusError = ref<"auth" | "unavailable" | false>(false);
 const isLoadingCloudStatus = ref(false);
 
 async function fetchCloudConfig() {
@@ -26,12 +26,12 @@ async function fetchCloudStatus() {
   try {
     const res = await fetch(withBase("/api/cloud/status"));
     if (!res.ok) {
-      cloudStatusError.value = true;
+      cloudStatusError.value = res.status === 401 || res.status === 403 ? "auth" : "unavailable";
       return;
     }
     cloudStatus.value = await res.json();
   } catch {
-    cloudStatusError.value = true;
+    cloudStatusError.value = "unavailable";
   } finally {
     isLoadingCloudStatus.value = false;
   }

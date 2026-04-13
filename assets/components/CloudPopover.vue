@@ -5,13 +5,27 @@
         <mdi:cloud
           class="size-6"
           :class="
-            !cloudConfig ? 'text-base-content/40' : cloudConfig.linked && !cloudStatusError ? 'text-info' : 'text-error'
+            !cloudConfig
+              ? 'text-base-content/40'
+              : cloudConfig.linked && !cloudStatusError
+                ? 'text-info'
+                : cloudStatusError === 'unavailable'
+                  ? 'text-warning'
+                  : 'text-error'
           "
         />
         <span
           v-if="cloudConfig?.linked"
           class="absolute -top-0.5 -right-0.5 size-2 rounded-full"
-          :class="cloudStatusError ? 'bg-error' : 'bg-success'"
+          :class="
+            cloudStatusError === 'auth'
+              ? 'bg-error'
+              : cloudStatusError === 'unavailable'
+                ? 'bg-warning'
+                : cloudStatusError
+                  ? 'bg-error'
+                  : 'bg-success'
+          "
         ></span>
       </div>
     </template>
@@ -39,14 +53,21 @@
         <template v-else-if="cloudConfig.linked">
           <!-- Error state -->
           <div v-if="cloudStatusError" class="space-y-3">
-            <div class="alert alert-error">
-              <mdi:alert-circle class="text-lg" />
-              <span class="text-sm">{{ $t("cloud.error") }}</span>
+            <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
+              <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
+              <mdi:cloud-off-outline v-else class="text-lg" />
+              <span class="text-sm">{{
+                cloudStatusError === "auth" ? $t("cloud.error") : $t("cloud.error-unavailable")
+              }}</span>
             </div>
-            <a :href="cloudLinkUrl" class="btn btn-primary btn-sm w-full">
+            <a v-if="cloudStatusError === 'auth'" :href="cloudLinkUrl" class="btn btn-primary btn-sm w-full">
               <mdi:link-variant class="text-base" />
               {{ $t("cloud.relink-instance") }}
             </a>
+            <button v-else class="btn btn-sm w-full" @click="fetchCloudStatus">
+              <mdi:refresh class="text-base" />
+              {{ $t("button.retry") }}
+            </button>
           </div>
 
           <!-- Loading -->
