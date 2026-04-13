@@ -116,7 +116,7 @@ const checklistItems = computed(() => [
   {
     title: t("cloud.welcome.checklist-agent-title"),
     description: t("cloud.welcome.checklist-agent-desc"),
-    href: `${cloudUrl}/settings`,
+    href: `${cloudUrl}/agents`,
   },
 ]);
 
