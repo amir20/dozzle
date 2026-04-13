@@ -302,3 +302,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Scollega
   unlink-confirm: Sei sicuro di voler scollegare da Dozzle Cloud? Questo rimuoverà tutte le destinazioni di notifica cloud.
+  welcome:
+    title: "La tua istanza è connessa!"
+    subtitle: "Sei pronto per ricevere avvisi, riepiloghi giornalieri e altro da Dozzle Cloud."
+    question: "Una domanda veloce prima di iniziare — per cosa vorresti usare Cloud principalmente?"
+    placeholder: "es. Voglio sapere quando il mio container Plex si blocca di notte..."
+    or-pick: "Oppure scegli:"
+    chip-alerts: Avvisami quando qualcosa si rompe
+    chip-summary: Riepilogo giornaliero
+    chip-hosts: Monitorare più host
+    chip-other: Altro
+    get-started: Inizia
+    skip: Salta per ora
+    step2-title: "Grazie! Ecco come ottenere il massimo da Cloud."
+    step2-subtitle: "Leggo ogni risposta e influenza ciò che costruisco dopo. Questi passaggi ti aiuteranno a iniziare."
+    checklist-alert-title: Crea il tuo primo avviso
+    checklist-alert-desc: "Imposta una regola in Dozzle così Cloud sa cosa monitorare. Riceverai un riepilogo quando qualcosa non va."
+    checklist-notify-title: Scegli come essere notificato
+    checklist-notify-desc: "L'email è attiva per impostazione predefinita. Aggiungi push, Telegram o Discord per avvisi più rapidi."
+    checklist-agent-title: Prova l'assistente IA
+    checklist-agent-desc: "Collega Telegram o Discord e chatta con i tuoi container. Diagnostica errori, controlla lo stato ed esegui azioni come il riavvio dei servizi."
+    create-alert: Crea il tuo primo avviso
+    later: "Lo farò dopo"

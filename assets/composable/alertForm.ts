@@ -13,6 +13,7 @@ export interface AlertFormOptions {
     logExpression?: string;
     metricExpression?: string;
     eventExpression?: string;
+    dispatcherId?: number;
   };
 }
 
@@ -25,7 +26,7 @@ export function useAlertForm(options: AlertFormOptions) {
   const isEditing = computed(() => !!options.alert);
   const alertName = ref(options.alert?.name ?? options.prefill?.name ?? "");
   const containerExpression = ref(options.alert?.containerExpression ?? options.prefill?.containerExpression ?? "");
-  const dispatcherId = ref(options.alert?.dispatcher?.id ?? -1);
+  const dispatcherId = ref(options.alert?.dispatcher?.id ?? options.prefill?.dispatcherId ?? -1);
   const isSaving = ref(false);
   const saveError = ref<string | null>(null);
 

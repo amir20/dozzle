@@ -314,3 +314,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Lepaskan tautan
   unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.
+  welcome:
+    title: "Instans Anda terhubung!"
+    subtitle: "Anda siap menerima peringatan, ringkasan harian, dan lainnya dari Dozzle Cloud."
+    question: "Satu pertanyaan cepat sebelum mulai — apa yang paling Anda harapkan dari Cloud?"
+    placeholder: "mis. Saya ingin tahu ketika kontainer Plex saya crash di malam hari..."
+    or-pick: "Atau pilih satu:"
+    chip-alerts: Beri tahu saya saat ada masalah
+    chip-summary: Ringkasan harian
+    chip-hosts: Pantau beberapa host
+    chip-other: Lainnya
+    get-started: Mulai
+    skip: Lewati untuk sekarang
+    step2-title: "Terima kasih! Berikut cara memaksimalkan Cloud."
+    step2-subtitle: "Saya membaca setiap respons dan itu membentuk apa yang saya bangun selanjutnya. Langkah-langkah ini akan membantu Anda memulai."
+    checklist-alert-title: Buat peringatan pertama Anda
+    checklist-alert-desc: "Atur aturan di Dozzle agar Cloud tahu apa yang harus dipantau. Anda akan mendapat ringkasan saat terjadi masalah."
+    checklist-notify-title: Pilih cara menerima notifikasi
+    checklist-notify-desc: "Email aktif secara default. Tambahkan push, Telegram, atau Discord untuk peringatan lebih cepat."
+    checklist-agent-title: Coba asisten AI
+    checklist-agent-desc: "Hubungkan Telegram atau Discord dan ngobrol dengan kontainer Anda. Diagnosis error, periksa kesehatan, dan lakukan tindakan seperti restart layanan."
+    create-alert: Buat peringatan pertama Anda
+    later: "Nanti saja"

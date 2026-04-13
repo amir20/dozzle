@@ -13,6 +13,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var cloudHTTPClient = &http.Client{Timeout: 10 * time.Second}
+
 type exchangeTokenResponse struct {
 	Key       string  `json:"key"`
 	Prefix    string  `json:"prefix"`
@@ -34,7 +36,7 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 
 	exchangeURL := fmt.Sprintf("%s/api/exchange-token", cloudURL)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := cloudHTTPClient
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, exchangeURL, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create request")
@@ -125,7 +127,7 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 
 	statusURL := fmt.Sprintf("%s/api/status", cloudURL)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := cloudHTTPClient
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, statusURL, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create cloud status request")
@@ -207,4 +209,43 @@ func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
 func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
 	h.hostService.RemoveCloudConfig()
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *handler) cloudFeedback(w http.ResponseWriter, r *http.Request) {
+	cc := h.hostService.CloudConfig()
+	if cc == nil || cc.APIKey == "" {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
+		return
+	}
+
+	cloudURL := os.Getenv("DOLIGENCE_URL")
+	if cloudURL == "" {
+		cloudURL = "https://doligence.dozzle.dev"
+	}
+
+	feedbackURL := fmt.Sprintf("%s/api/feedback", cloudURL)
+
+	r.Body = http.MaxBytesReader(w, r.Body, 8<<10) // 8 KB limit
+
+	client := cloudHTTPClient
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, feedbackURL, r.Body)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create feedback request")
+		writeError(w, http.StatusInternalServerError, "failed to create request")
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", dispatcher.UserAgent)
+	req.Header.Set("X-API-Key", cc.APIKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to send feedback")
+		writeError(w, http.StatusBadGateway, "failed to send feedback")
+		return
+	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body)
+
+	w.WriteHeader(resp.StatusCode)
 }

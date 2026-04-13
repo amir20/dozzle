@@ -186,6 +186,7 @@ const props = defineProps<{
     logExpression?: string;
     metricExpression?: string;
     eventExpression?: string;
+    dispatcherId?: number;
   };
 }>();
 

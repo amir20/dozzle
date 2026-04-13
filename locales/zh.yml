@@ -302,3 +302,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 取消关联
   unlink-confirm: 确定要取消与 Dozzle Cloud 的关联吗？这将移除所有云通知目标。
+  welcome:
+    title: "您的实例已连接！"
+    subtitle: "您现在可以从 Dozzle Cloud 接收警报、每日摘要等。"
+    question: "开始之前问个小问题——您最希望 Cloud 帮您做什么？"
+    placeholder: "例如：我想知道我的 Plex 容器是否在夜间崩溃..."
+    or-pick: "或选择一项："
+    chip-alerts: 出现故障时通知我
+    chip-summary: 每日摘要
+    chip-hosts: 监控多个主机
+    chip-other: 其他
+    get-started: 开始使用
+    skip: 暂时跳过
+    step2-title: "谢谢！以下是充分利用 Cloud 的方法。"
+    step2-subtitle: "我会阅读每条回复，它会影响我接下来构建什么。以下步骤将帮助您快速上手。"
+    checklist-alert-title: 创建您的第一个警报
+    checklist-alert-desc: "在 Dozzle 中设置一条规则，让 Cloud 知道要监控什么。当出现问题时，您将收到摘要。"
+    checklist-notify-title: 选择通知方式
+    checklist-notify-desc: "邮件默认开启。添加推送、Telegram 或 Discord 以获得更快的警报。"
+    checklist-agent-title: 试试 AI 助手
+    checklist-agent-desc: "连接 Telegram 或 Discord，与您的容器对话。诊断错误、检查健康状态并执行重启服务等操作。"
+    create-alert: 创建您的第一个警报
+    later: "稍后再说"

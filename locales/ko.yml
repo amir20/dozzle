@@ -305,3 +305,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 연결 해제
   unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.
+  welcome:
+    title: "인스턴스가 연결되었습니다!"
+    subtitle: "이제 Dozzle Cloud에서 알림, 일일 요약 등을 받을 수 있습니다."
+    question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
+    placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
+    or-pick: "또는 하나를 선택하세요:"
+    chip-alerts: 문제 발생 시 알림
+    chip-summary: 일일 요약
+    chip-hosts: 여러 호스트 모니터링
+    chip-other: 기타
+    get-started: 시작하기
+    skip: 나중에 하기
+    step2-title: "감사합니다! Cloud를 최대한 활용하는 방법입니다."
+    step2-subtitle: "모든 응답을 읽고 다음에 무엇을 만들지 결정합니다. 다음 단계로 시작해 보세요."
+    checklist-alert-title: 첫 번째 알림 만들기
+    checklist-alert-desc: "Dozzle에서 규칙을 설정하여 Cloud가 무엇을 모니터링할지 알려주세요. 문제가 발생하면 요약을 받게 됩니다."
+    checklist-notify-title: 알림 받는 방법 선택
+    checklist-notify-desc: "이메일은 기본으로 활성화되어 있습니다. 더 빠른 알림을 위해 푸시, Telegram 또는 Discord를 추가하세요."
+    checklist-agent-title: AI 어시스턴트 사용해 보기
+    checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
+    create-alert: 첫 번째 알림 만들기
+    later: "나중에 할게요"

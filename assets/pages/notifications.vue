@@ -92,8 +92,10 @@ import type { NotificationRule, Dispatcher } from "@/types/notifications";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
 
+const { t } = useI18n();
 const showDrawer = useDrawer();
 const router = useRouter();
+const route = useRoute();
 
 // State
 const alerts = ref<NotificationRule[]>([]);
@@ -119,7 +121,22 @@ onMounted(async () => {
   if (hash === "#cloudLinked") {
     router.replace({ hash: "" });
   }
+
+  if (route.query.action === "create-alert") {
+    router.replace({ query: {} });
+    openCreateAlertPrefilled();
+  }
 });
+
+watch(
+  () => route.query.action,
+  (action) => {
+    if (action === "create-alert") {
+      router.replace({ query: {} });
+      openCreateAlertPrefilled();
+    }
+  },
+);
 
 // Local state
 const filter = ref<"all" | "enabled" | "paused">("all");
@@ -135,6 +152,22 @@ const filteredAlerts = computed(() => {
 
 function openCreateAlert() {
   showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
+}
+
+function openCreateAlertPrefilled() {
+  const cloudDispatcher = dispatchers.value.find((d) => d.type === "cloud");
+  showDrawer(
+    AlertForm,
+    {
+      onCreated: fetchAlerts,
+      prefill: {
+        name: t("notifications.prefill-name"),
+        logExpression: t("notifications.prefill-expression"),
+        ...(cloudDispatcher ? { dispatcherId: cloudDispatcher.id } : {}),
+      },
+    },
+    "lg",
+  );
 }
 
 function openAddDestination() {

@@ -302,3 +302,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Bağlantıyı kaldır
   unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.
+  welcome:
+    title: "Örneğiniz bağlandı!"
+    subtitle: "Artık Dozzle Cloud'dan uyarılar, günlük özetler ve daha fazlasını alabilirsiniz."
+    question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
+    placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
+    or-pick: "Veya birini seçin:"
+    chip-alerts: Sorun olduğunda uyar
+    chip-summary: Günlük özet
+    chip-hosts: Birden fazla sunucu izle
+    chip-other: Başka bir şey
+    get-started: Başla
+    skip: Şimdilik geç
+    step2-title: "Teşekkürler! Cloud'dan en iyi şekilde yararlanmanın yolu."
+    step2-subtitle: "Her yanıtı okuyorum ve bir sonraki adımı şekillendiriyor. Bu adımlar başlamanıza yardımcı olacak."
+    checklist-alert-title: İlk uyarınızı oluşturun
+    checklist-alert-desc: "Dozzle'da bir kural oluşturun, böylece Cloud neyi izleyeceğini bilsin. Bir şey ters gittiğinde özet alırsınız."
+    checklist-notify-title: Bildirim şeklinizi seçin
+    checklist-notify-desc: "E-posta varsayılan olarak açıktır. Daha hızlı uyarılar için push, Telegram veya Discord ekleyin."
+    checklist-agent-title: Yapay zeka asistanını deneyin
+    checklist-agent-desc: "Telegram veya Discord'u bağlayın ve konteynerlerinizle sohbet edin. Hataları teşhis edin, durumu kontrol edin ve servis yeniden başlatma gibi işlemler yapın."
+    create-alert: İlk uyarınızı oluşturun
+    later: "Bunu daha sonra yapacağım"

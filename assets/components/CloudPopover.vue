@@ -116,6 +116,7 @@
       </div>
     </template>
   </Dropdown>
+  <WelcomeModal ref="welcomeModal" />
 </template>
 
 <script lang="ts" setup>
@@ -125,8 +126,9 @@ const cloudLinkUrl = `${cloudUrl}/link?appUrl=${encodeURIComponent(callbackUrl)}
 
 const { cloudConfig, cloudStatus, cloudStatusError, isLoadingCloudStatus, fetchCloudConfig, fetchCloudStatus } =
   useCloudConfig();
-const { showToast } = useToast();
-const { t } = useI18n();
+
+const welcomeModal = ref<{ open: () => void }>();
+const cloudWelcomeShown = useProfileStorage("cloudWelcomeShown", false);
 
 const usagePercent = computed(() => {
   if (!cloudStatus.value) return 0;
@@ -146,17 +148,11 @@ onMounted(async () => {
     fetchCloudStatus();
   }
 
-  // Handle successful OAuth return
-  if (window.location.hash === "#cloudLinked") {
-    showToast(
-      {
-        type: "info",
-        title: t("notifications.cloud-link-success.title"),
-        message: t("notifications.cloud-link-success.message"),
-      },
-      { expire: 6000 },
-    );
-    history.replaceState(null, "", window.location.pathname + window.location.search);
+  // Handle successful OAuth return — show welcome modal
+  if (window.location.hash === "#cloudLinked" && !cloudWelcomeShown.value) {
+    cloudWelcomeShown.value = true;
+    nextTick(() => welcomeModal.value?.open());
+    history.replaceState(history.state, "", window.location.pathname + window.location.search);
   }
 });
 </script>

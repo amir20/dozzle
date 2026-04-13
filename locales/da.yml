@@ -302,3 +302,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
+  welcome:
+    title: "Din instans er forbundet!"
+    subtitle: "Du er klar til at modtage advarsler, daglige resuméer og mere fra Dozzle Cloud."
+    question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
+    placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
+    or-pick: "Eller vælg en:"
+    chip-alerts: Advar mig ved problemer
+    chip-summary: Dagligt resumé
+    chip-hosts: Overvåg flere værter
+    chip-other: Noget andet
+    get-started: Kom i gang
+    skip: Spring over for nu
+    step2-title: "Tak! Sådan får du mest ud af Cloud."
+    step2-subtitle: "Jeg læser hvert svar, og det former hvad jeg bygger næste gang. Disse trin hjælper dig i gang."
+    checklist-alert-title: Opret din første advarsel
+    checklist-alert-desc: "Opsæt en regel i Dozzle, så Cloud ved hvad den skal holde øje med. Du får et resumé, når noget går galt."
+    checklist-notify-title: Vælg hvordan du vil notificeres
+    checklist-notify-desc: "E-mail er aktiveret som standard. Tilføj push, Telegram eller Discord for hurtigere advarsler."
+    checklist-agent-title: Prøv AI-assistenten
+    checklist-agent-desc: "Forbind Telegram eller Discord og chat med dine containere. Diagnosticér fejl, tjek tilstand og udfør handlinger som genstart af tjenester."
+    create-alert: Opret din første advarsel
+    later: "Det gør jeg senere"

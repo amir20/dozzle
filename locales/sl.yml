@@ -307,3 +307,25 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
+  welcome:
+    title: "Vaša instanca je povezana!"
+    subtitle: "Zdaj lahko prejemate opozorila, dnevne povzetke in več iz Dozzle Cloud."
+    question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
+    placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
+    or-pick: "Ali izberite:"
+    chip-alerts: Opozori me ob težavah
+    chip-summary: Dnevni povzetek
+    chip-hosts: Spremljanje več gostiteljev
+    chip-other: Nekaj drugega
+    get-started: Začni
+    skip: Preskoči za zdaj
+    step2-title: "Hvala! Tako izkoristite Cloud v celoti."
+    step2-subtitle: "Preberem vsak odgovor in vpliva na to, kaj zgradim naslednjič. Ti koraki vam bodo pomagali začeti."
+    checklist-alert-title: Ustvarite prvo opozorilo
+    checklist-alert-desc: "Nastavite pravilo v Dozzle, da Cloud ve, kaj spremljati. Ko gre kaj narobe, boste prejeli povzetek."
+    checklist-notify-title: Izberite način obveščanja
+    checklist-notify-desc: "E-pošta je privzeto omogočena. Dodajte push, Telegram ali Discord za hitrejša opozorila."
+    checklist-agent-title: Preizkusite AI pomočnika
+    checklist-agent-desc: "Povežite Telegram ali Discord in klepetajte s svojimi vsebniki. Diagnosticirajte napake, preverite stanje in izvajajte dejanja kot ponovni zagon storitev."
+    create-alert: Ustvarite prvo opozorilo
+    later: "To bom naredil pozneje"
