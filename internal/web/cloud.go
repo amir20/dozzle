@@ -13,6 +13,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var cloudHTTPClient = &http.Client{Timeout: 10 * time.Second}
+
 type exchangeTokenResponse struct {
 	Key       string  `json:"key"`
 	Prefix    string  `json:"prefix"`
@@ -34,7 +36,7 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 
 	exchangeURL := fmt.Sprintf("%s/api/exchange-token", cloudURL)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := cloudHTTPClient
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, exchangeURL, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create request")
@@ -125,7 +127,7 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 
 	statusURL := fmt.Sprintf("%s/api/status", cloudURL)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := cloudHTTPClient
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, statusURL, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create cloud status request")
@@ -223,7 +225,9 @@ func (h *handler) cloudFeedback(w http.ResponseWriter, r *http.Request) {
 
 	feedbackURL := fmt.Sprintf("%s/api/feedback", cloudURL)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	r.Body = http.MaxBytesReader(w, r.Body, 8<<10) // 8 KB limit
+
+	client := cloudHTTPClient
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, feedbackURL, r.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create feedback request")
@@ -241,6 +245,7 @@ func (h *handler) cloudFeedback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body)
 
 	w.WriteHeader(resp.StatusCode)
 }

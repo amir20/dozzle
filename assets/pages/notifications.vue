@@ -92,6 +92,7 @@ import type { NotificationRule, Dispatcher } from "@/types/notifications";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
 
+const { t } = useI18n();
 const showDrawer = useDrawer();
 const router = useRouter();
 const route = useRoute();
@@ -160,8 +161,8 @@ function openCreateAlertPrefilled() {
     {
       onCreated: fetchAlerts,
       prefill: {
-        name: "Error alerts",
-        logExpression: 'level == "error"',
+        name: t("notifications.prefill-name"),
+        logExpression: t("notifications.prefill-expression"),
         ...(cloudDispatcher ? { dispatcherId: cloudDispatcher.id } : {}),
       },
     },

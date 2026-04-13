@@ -96,6 +96,7 @@ const step = ref<"step1" | "step2">("step1");
 const intent = ref("");
 const selectedOptions = ref(new Set<string>());
 const submitting = ref(false);
+let feedbackSent = false;
 
 const chipOptions = [
   { value: "alerts", label: t("cloud.welcome.chip-alerts") },
@@ -122,11 +123,13 @@ const checklistItems = computed(() => [
 ]);
 
 function toggleOption(value: string) {
-  if (selectedOptions.value.has(value)) {
-    selectedOptions.value.delete(value);
+  const next = new Set(selectedOptions.value);
+  if (next.has(value)) {
+    next.delete(value);
   } else {
-    selectedOptions.value.add(value);
+    next.add(value);
   }
+  selectedOptions.value = next;
 }
 
 async function postFeedback(skipped: boolean) {
@@ -150,6 +153,7 @@ const onNotificationsPage = computed(() => route.path === "/notifications");
 
 async function submitFeedback() {
   submitting.value = true;
+  feedbackSent = true;
   await postFeedback(false);
   submitting.value = false;
   if (onNotificationsPage.value) {
@@ -161,6 +165,7 @@ async function submitFeedback() {
 
 async function skipFeedback() {
   submitting.value = true;
+  feedbackSent = true;
   await postFeedback(true);
   submitting.value = false;
   if (onNotificationsPage.value) {
@@ -176,6 +181,10 @@ function createFirstAlert() {
 }
 
 function open() {
+  step.value = "step1";
+  intent.value = "";
+  selectedOptions.value = new Set();
+  feedbackSent = false;
   modal.value?.showModal();
 }
 
@@ -184,7 +193,8 @@ function close() {
 }
 
 function onClose() {
-  if (step.value === "step1") {
+  if (step.value === "step1" && !feedbackSent) {
+    feedbackSent = true;
     postFeedback(true);
   }
 }

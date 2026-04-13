@@ -192,6 +192,8 @@ notifications:
   alerts: Alerts
   add: Add
   add-alert: Add alert
+  prefill-name: Error alerts
+  prefill-expression: level == "error"
   filter:
     all: All ({count})
     enabled: Enabled ({count})
