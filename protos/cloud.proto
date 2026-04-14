@@ -56,6 +56,7 @@ message CallToolResponse {
     ActionResult action = 6;
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
+    DeployResult deploy = 11;
   }
 }
 
@@ -159,4 +160,11 @@ message ActionResult {
   string container_id = 2;
   string action = 3;
   string message = 4;
+}
+
+// Deploy compose result
+message DeployResult {
+  bool success = 1;
+  string project = 2;
+  string message = 3;
 }
