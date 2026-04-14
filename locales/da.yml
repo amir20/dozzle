@@ -308,9 +308,10 @@ cloud:
     question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
     placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
     or-pick: "Eller vælg en:"
-    chip-alerts: Advar mig ved problemer
-    chip-summary: Dagligt resumé
-    chip-hosts: Overvåg flere værter
+    chip-alerts: Modtage fejlalarmer
+    chip-failure-analysis: Forstå fejl
+    chip-hosts: Overvåge flere værter
+    chip-remote-access: Tilgå logs eksternt
     chip-other: Noget andet
     get-started: Kom i gang
     skip: Spring over for nu

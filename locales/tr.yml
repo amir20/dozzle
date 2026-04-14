@@ -308,9 +308,10 @@ cloud:
     question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
     placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
     or-pick: "Veya birini seçin:"
-    chip-alerts: Sorun olduğunda uyar
-    chip-summary: Günlük özet
-    chip-hosts: Birden fazla sunucu izle
+    chip-alerts: Hata uyarıları almak
+    chip-failure-analysis: Arızaları anlamak
+    chip-hosts: Birden fazla sunucu izlemek
+    chip-remote-access: Loglara uzaktan erişmek
     chip-other: Başka bir şey
     get-started: Başla
     skip: Şimdilik geç
