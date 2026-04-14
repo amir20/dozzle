@@ -317,10 +317,10 @@ cloud:
     question: "One quick question before we set sail — what be ye hopin' Cloud helps with most?"
     placeholder: "e.g. I want to know when me Plex container capsizes overnight..."
     or-pick: "Or pick one, matey:"
-    chip-alerts: Error signals
-    chip-failure-analysis: Wreck investigation
-    chip-hosts: Multiple vessels
-    chip-remote-access: Sail from afar
+    chip-alerts: Get error signals
+    chip-failure-analysis: Understand wrecks
+    chip-hosts: Watch multiple vessels
+    chip-remote-access: Read logs from afar
     chip-other: Somethin' else
     get-started: Set Sail
     skip: Skip fer now
