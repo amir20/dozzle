@@ -320,10 +320,11 @@ cloud:
     question: "Satu pertanyaan cepat sebelum mulai — apa yang paling Anda harapkan dari Cloud?"
     placeholder: "mis. Saya ingin tahu ketika kontainer Plex saya crash di malam hari..."
     or-pick: "Atau pilih satu:"
-    chip-alerts: Dapatkan peringatan error
-    chip-failure-analysis: Pahami kegagalan
+    chip-alerts: Dapatkan notifikasi masalah
+    chip-assistant: Tanya Asisten tentang log saya
     chip-hosts: Pantau beberapa host
     chip-remote-access: Akses log dari jarak jauh
+    chip-digests: Dapatkan ringkasan log harian
     chip-other: Lainnya
     get-started: Mulai
     skip: Lewati untuk sekarang

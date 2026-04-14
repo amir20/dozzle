@@ -313,10 +313,11 @@ cloud:
     question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
     placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
     or-pick: "Ali izberite:"
-    chip-alerts: Prejemati opozorila o napakah
-    chip-failure-analysis: Razumeti okvare
+    chip-alerts: Prejemati obvestila o težavah
+    chip-assistant: Vprašaj pomočnika o mojih dnevnikih
     chip-hosts: Spremljati več gostiteljev
     chip-remote-access: Dostop do dnevnikov na daljavo
+    chip-digests: Prejemati dnevne povzetke dnevnikov
     chip-other: Nekaj drugega
     get-started: Začni
     skip: Preskoči za zdaj

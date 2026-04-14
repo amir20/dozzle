@@ -321,10 +321,11 @@ cloud:
     question: "One quick question before we get started — what's the main thing you're hoping Cloud helps with?"
     placeholder: "e.g. I want to know when my Plex container crashes overnight..."
     or-pick: "Or pick one:"
-    chip-alerts: Get error alerts
-    chip-failure-analysis: Understand failures
+    chip-alerts: Get notified about issues
+    chip-assistant: Ask Assistant about my logs
     chip-hosts: Monitor multiple hosts
     chip-remote-access: Access logs remotely
+    chip-digests: Get daily log digests
     chip-other: Something else
     get-started: Get Started
     skip: Skip for now

@@ -309,10 +309,11 @@ cloud:
     question: "Een snelle vraag voordat we beginnen — waarvoor wil je Cloud het meest gebruiken?"
     placeholder: "bijv. Ik wil weten wanneer mijn Plex-container 's nachts crasht..."
     or-pick: "Of kies er een:"
-    chip-alerts: Foutwaarschuwingen ontvangen
-    chip-failure-analysis: Fouten begrijpen
+    chip-alerts: Meldingen over problemen ontvangen
+    chip-assistant: Vraag de Assistent over mijn logs
     chip-hosts: Meerdere hosts monitoren
     chip-remote-access: Logs op afstand bekijken
+    chip-digests: Dagelijkse logoverzichten ontvangen
     chip-other: Iets anders
     get-started: Aan de slag
     skip: Nu overslaan

@@ -311,10 +311,11 @@ cloud:
     question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
     placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
     or-pick: "또는 하나를 선택하세요:"
-    chip-alerts: 오류 알림 받기
-    chip-failure-analysis: 장애 원인 파악
+    chip-alerts: 문제 알림 받기
+    chip-assistant: 어시스턴트에게 로그 질문하기
     chip-hosts: 여러 호스트 모니터링
     chip-remote-access: 원격으로 로그 접근
+    chip-digests: 일일 로그 요약 받기
     chip-other: 기타
     get-started: 시작하기
     skip: 나중에 하기
