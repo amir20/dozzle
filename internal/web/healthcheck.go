@@ -15,6 +15,16 @@ func (h *handler) healthcheck(w http.ResponseWriter, r *http.Request) {
 
 	clients := h.hostService.LocalClients()
 
+	if len(clients) == 0 {
+		// No local Docker clients, but if there are any hosts (agents), consider healthy
+		if len(h.hostService.Hosts()) > 0 {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var (
 		anyHealthy atomic.Bool
 		wg         sync.WaitGroup
