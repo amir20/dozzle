@@ -308,9 +308,10 @@ cloud:
     question: "Una pregunta rápida antes de empezar — ¿para qué quieres usar Cloud principalmente?"
     placeholder: "ej. Quiero saber cuando mi contenedor Plex se cae por la noche..."
     or-pick: "O elige una opción:"
-    chip-alerts: Avisarme cuando algo falle
-    chip-summary: Resumen diario
-    chip-hosts: Monitorear varios hosts
+    chip-alerts: Alertas de errores
+    chip-failure-analysis: Análisis de fallos
+    chip-hosts: Varios hosts
+    chip-remote-access: Acceso remoto
     chip-other: Otra cosa
     get-started: Empezar
     skip: Saltar por ahora

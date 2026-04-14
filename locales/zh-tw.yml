@@ -311,9 +311,10 @@ cloud:
     question: "開始之前問個小問題——您最希望 Cloud 幫您做什麼？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜間當機..."
     or-pick: "或選擇一項："
-    chip-alerts: 出現故障時通知我
-    chip-summary: 每日摘要
-    chip-hosts: 監控多個主機
+    chip-alerts: 錯誤告警
+    chip-failure-analysis: 故障分析
+    chip-hosts: 多主機
+    chip-remote-access: 遠端存取
     chip-other: 其他
     get-started: 開始使用
     skip: 暫時跳過
