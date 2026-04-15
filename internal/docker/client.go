@@ -377,6 +377,21 @@ func (d *DockerClient) Host() container.Host {
 	return d.host
 }
 
+// CLI returns the underlying Docker API client.
+func (d *DockerClient) CLI() DockerCLI {
+	return d.cli
+}
+
+// RawClient returns the underlying *client.Client if the DockerCLI is one.
+// This is needed for operations like network/volume management that aren't
+// covered by the DockerCLI interface.
+func (d *DockerClient) RawClient() *client.Client {
+	if c, ok := d.cli.(*client.Client); ok {
+		return c
+	}
+	return nil
+}
+
 func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {
 	log.Debug().Str("id", id).Str("host", d.host.Name).Msg("Attaching to container")
 	options := docker.AttachOptions{

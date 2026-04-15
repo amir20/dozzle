@@ -10,67 +10,125 @@ import (
 
 	composetypes "github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
-	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
-	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"github.com/docker/go-units"
+	units "github.com/docker/go-units"
+	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/rs/zerolog/log"
 )
 
+// StatusUpdate reports progress during deployment.
+type StatusUpdate struct {
+	Service string
+	Action  string
+}
+
+func sendStatus(ch chan<- StatusUpdate, service, action string) {
+	if ch != nil {
+		ch <- StatusUpdate{Service: service, Action: action}
+	}
+}
+
+// DockerClient is the subset of the Docker API needed for deployment.
+type DockerClient interface {
+	ImagePull(ctx context.Context, refStr string, options image.PullOptions) (io.ReadCloser, error)
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
+	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
+	ContainerList(ctx context.Context, options container.ListOptions) ([]container.Summary, error)
+	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerRemove(ctx context.Context, containerID string, options container.RemoveOptions) error
+	NetworkList(ctx context.Context, options network.ListOptions) ([]network.Summary, error)
+	NetworkCreate(ctx context.Context, name string, options network.CreateOptions) (network.CreateResponse, error)
+	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
+	VolumeCreate(ctx context.Context, options volume.CreateOptions) (volume.Volume, error)
+}
+
 // Deployer deploys a parsed compose project using the Docker API directly.
 type Deployer struct {
-	cli *client.Client
+	cli DockerClient
 }
 
 // NewDeployer creates a deployer that uses the given Docker client.
-func NewDeployer(cli *client.Client) *Deployer {
+func NewDeployer(cli DockerClient) *Deployer {
 	return &Deployer{cli: cli}
 }
 
-// Deploy creates all resources defined in the project: networks, volumes,
-// then pulls images and creates+starts containers in dependency order.
-func (d *Deployer) Deploy(ctx context.Context, project *composetypes.Project) error {
-	networkIDs, err := d.createNetworks(ctx, project)
+// Deploy removes existing project containers, ensures networks and volumes
+// exist, then pulls images and creates+starts containers in dependency order.
+// Status updates are sent to the optional status channel.
+func (d *Deployer) Deploy(ctx context.Context, project *composetypes.Project, status chan<- StatusUpdate) error {
+	if err := d.removeProjectContainers(ctx, project.Name, status); err != nil {
+		return fmt.Errorf("removing existing containers: %w", err)
+	}
+
+	networkIDs, err := d.ensureNetworks(ctx, project)
 	if err != nil {
-		return fmt.Errorf("creating networks: %w", err)
+		return fmt.Errorf("ensuring networks: %w", err)
 	}
 
 	if err := d.createVolumes(ctx, project); err != nil {
 		return fmt.Errorf("creating volumes: %w", err)
 	}
 
-	// ForEachService walks services in dependency order.
 	return project.ForEachService(nil, func(name string, svc *composetypes.ServiceConfig) error {
-		return d.deployService(ctx, project.Name, name, *svc, networkIDs)
+		return d.deployService(ctx, project.Name, name, *svc, networkIDs, status)
 	})
 }
 
-func (d *Deployer) createNetworks(ctx context.Context, project *composetypes.Project) (map[string]string, error) {
+func (d *Deployer) removeProjectContainers(ctx context.Context, projectName string, status chan<- StatusUpdate) error {
+	containers, err := d.cli.ContainerList(ctx, container.ListOptions{
+		All: true,
+		Filters: filters.NewArgs(
+			filters.Arg("label", "com.docker.compose.project="+projectName),
+		),
+	})
+	if err != nil {
+		return fmt.Errorf("listing containers: %w", err)
+	}
+
+	for _, c := range containers {
+		service := c.Labels["com.docker.compose.service"]
+
+		sendStatus(status, service, "stopping")
+		if err := d.cli.ContainerStop(ctx, c.ID, container.StopOptions{}); err != nil {
+			log.Warn().Err(err).Str("container", c.ID[:12]).Msg("Failed to stop container")
+		}
+
+		sendStatus(status, service, "removing")
+		if err := d.cli.ContainerRemove(ctx, c.ID, container.RemoveOptions{}); err != nil {
+			return fmt.Errorf("removing container %s: %w", c.ID[:12], err)
+		}
+		log.Info().Str("service", service).Str("container", c.ID[:12]).Msg("Removed container")
+	}
+	return nil
+}
+
+func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Project) (map[string]string, error) {
 	ids := make(map[string]string)
+
+	existing, err := d.cli.NetworkList(ctx, network.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("listing networks: %w", err)
+	}
+	existingByName := make(map[string]string)
+	for _, n := range existing {
+		existingByName[n.Name] = n.ID
+	}
 
 	for name, netCfg := range project.Networks {
 		if bool(netCfg.External) {
-			list, err := d.cli.NetworkList(ctx, network.ListOptions{})
-			if err != nil {
-				return nil, fmt.Errorf("listing networks: %w", err)
-			}
 			extName := netCfg.Name
 			if extName == "" {
 				extName = name
 			}
-			found := false
-			for _, n := range list {
-				if n.Name == extName {
-					ids[name] = n.ID
-					found = true
-					break
-				}
-			}
-			if !found {
+			if id, ok := existingByName[extName]; ok {
+				ids[name] = id
+			} else {
 				return nil, fmt.Errorf("external network %q not found", extName)
 			}
 			continue
@@ -80,6 +138,13 @@ func (d *Deployer) createNetworks(ctx context.Context, project *composetypes.Pro
 		if fullName == "" {
 			fullName = project.Name + "_" + name
 		}
+
+		if id, ok := existingByName[fullName]; ok {
+			ids[name] = id
+			log.Info().Str("network", fullName).Msg("Network already exists, skipping")
+			continue
+		}
+
 		driver := netCfg.Driver
 		if driver == "" {
 			driver = "bridge"
@@ -136,16 +201,17 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 		if err != nil {
 			return fmt.Errorf("creating volume %q: %w", fullName, err)
 		}
-		log.Info().Str("volume", fullName).Msg("Created volume")
+		log.Info().Str("volume", fullName).Msg("Ensured volume")
 	}
 	return nil
 }
 
-func (d *Deployer) deployService(ctx context.Context, projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string) error {
+func (d *Deployer) deployService(ctx context.Context, projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string, status chan<- StatusUpdate) error {
 	if svc.Image == "" {
 		return fmt.Errorf("service %q has no image (build is not supported)", name)
 	}
 
+	sendStatus(status, name, "pulling")
 	log.Info().Str("service", name).Str("image", svc.Image).Msg("Pulling image")
 	reader, err := d.cli.ImagePull(ctx, svc.Image, image.PullOptions{})
 	if err != nil {
@@ -161,6 +227,7 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 		containerName = projectName + "-" + name + "-1"
 	}
 
+	sendStatus(status, name, "creating")
 	resp, err := d.cli.ContainerCreate(ctx, config, hostConfig, networkingConfig, nil, containerName)
 	if err != nil {
 		return fmt.Errorf("creating container %q: %w", containerName, err)
@@ -190,6 +257,7 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 		}
 	}
 
+	sendStatus(status, name, "starting")
 	if err := d.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
 		return fmt.Errorf("starting container %q: %w", containerName, err)
 	}
@@ -391,25 +459,25 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 	}
 
 	hostConfig := &container.HostConfig{
-		PortBindings:  portBindings,
-		RestartPolicy: restartPolicy,
-		Mounts:        mounts,
-		Privileged:    svc.Privileged,
+		PortBindings:   portBindings,
+		RestartPolicy:  restartPolicy,
+		Mounts:         mounts,
+		Privileged:     svc.Privileged,
 		ReadonlyRootfs: svc.ReadOnly,
-		ExtraHosts:    extraHosts,
-		DNS:           svc.DNS,
-		CapAdd:        svc.CapAdd,
-		CapDrop:       svc.CapDrop,
-		NetworkMode:   networkMode,
-		PidMode:       container.PidMode(svc.Pid),
-		IpcMode:       container.IpcMode(svc.Ipc),
-		Tmpfs:         tmpfs,
-		ShmSize:       int64(svc.ShmSize),
-		Init:          svc.Init,
-		SecurityOpt:   svc.SecurityOpt,
-		Sysctls:       svc.Sysctls,
-		LogConfig:     logConfig,
-		Runtime:       svc.Runtime,
+		ExtraHosts:     extraHosts,
+		DNS:            svc.DNS,
+		CapAdd:         svc.CapAdd,
+		CapDrop:        svc.CapDrop,
+		NetworkMode:    networkMode,
+		PidMode:        container.PidMode(svc.Pid),
+		IpcMode:        container.IpcMode(svc.Ipc),
+		Tmpfs:          tmpfs,
+		ShmSize:        int64(svc.ShmSize),
+		Init:           svc.Init,
+		SecurityOpt:    svc.SecurityOpt,
+		Sysctls:        svc.Sysctls,
+		LogConfig:      logConfig,
+		Runtime:        svc.Runtime,
 		Resources: container.Resources{
 			NanoCPUs: int64(svc.CPUS * 1e9),
 			Memory:   int64(svc.MemLimit),

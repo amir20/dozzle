@@ -78,6 +78,25 @@ var (
 		AdditionalProperties: &boolFalse,
 	})
 
+	listDeployVersionsParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"project": {Type: "string", Description: "Project name to list version history for"},
+		},
+		Required:             []string{"project"},
+		AdditionalProperties: &boolFalse,
+	})
+
+	rollbackDeployParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"project":     {Type: "string", Description: "Project name to roll back"},
+			"commit_hash": {Type: "string", Description: "Git commit hash (full or short) to roll back to. Use list_deploy_versions to find available hashes."},
+		},
+		Required:             []string{"project", "commit_hash"},
+		AdditionalProperties: &boolFalse,
+	})
+
 	fetchLogsParams = mustSchema(paramSchema{
 		Type: "object",
 		Properties: map[string]paramProperty{
@@ -176,8 +195,18 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			},
 			&pb.ToolDefinition{
 				Name:           "deploy_compose",
-				Description:    "Deploy a Docker Compose file. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Requires a project name and the raw YAML content of the compose file.",
+				Description:    "Deploy a Docker Compose file. Creates or updates a project under data/stacks/{project}. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Each deployment is tracked in git for version history and rollback.",
 				ParametersJson: deployComposeParams,
+			},
+			&pb.ToolDefinition{
+				Name:           "list_deploy_versions",
+				Description:    "List the deployment version history for a project. Returns commit hashes, timestamps, and messages. Use the commit hash with rollback_deploy to revert to a previous configuration.",
+				ParametersJson: listDeployVersionsParams,
+			},
+			&pb.ToolDefinition{
+				Name:           "rollback_deploy",
+				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified commit, creates a new rollback commit, and redeploys. Use list_deploy_versions to find available commit hashes.",
+				ParametersJson: rollbackDeployParams,
 			},
 		)
 	}
@@ -234,6 +263,16 @@ func executeTool(ctx context.Context, name string, argsJSON string, enableAction
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
 		return executeDeployCompose(ctx, argsJSON)
+	case "list_deploy_versions":
+		if !enableActions {
+			return nil, fmt.Errorf("container actions are not enabled")
+		}
+		return executeListDeployVersions(ctx, argsJSON)
+	case "rollback_deploy":
+		if !enableActions {
+			return nil, fmt.Errorf("container actions are not enabled")
+		}
+		return executeRollbackDeploy(ctx, argsJSON)
 	default:
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}

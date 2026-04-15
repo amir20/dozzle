@@ -30,7 +30,10 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 12)
+	assert.Contains(t, names, "deploy_compose")
+	assert.Contains(t, names, "list_deploy_versions")
+	assert.Contains(t, names, "rollback_deploy")
+	assert.Len(t, tools, 15)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {

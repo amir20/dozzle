@@ -23,12 +23,7 @@ func (dc *DeployCmd) Run(args Args, _ embed.FS) error {
 		return fmt.Errorf("reading compose file: %w", err)
 	}
 
-	project, err := deploy.ParseCompose(data, dc.Project)
-	if err != nil {
-		return fmt.Errorf("parsing compose file: %w", err)
-	}
-
-	log.Info().Str("project", project.Name).Int("services", len(project.Services)).Msg("Parsed compose file")
+	log.Info().Str("project", dc.Project).Str("file", dc.File).Msg("Deploying compose file")
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -36,7 +31,6 @@ func (dc *DeployCmd) Run(args Args, _ embed.FS) error {
 	}
 	defer cli.Close()
 
-	deployer := deploy.NewDeployer(cli)
 	timeout := args.Timeout
 	if timeout < 10*time.Minute {
 		timeout = 10 * time.Minute
@@ -44,10 +38,14 @@ func (dc *DeployCmd) Run(args Args, _ embed.FS) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	if err := deployer.Deploy(ctx, project); err != nil {
-		return fmt.Errorf("deploying: %w", err)
+	mgr := deploy.NewManager(cli, "./data/stacks")
+	if err := mgr.UpdateConfig(ctx, dc.Project, data, nil); err != nil {
+		// If project doesn't exist yet, create it
+		if err := mgr.CreateProject(ctx, dc.Project, data); err != nil {
+			return fmt.Errorf("deploying: %w", err)
+		}
 	}
 
-	log.Info().Str("project", project.Name).Msg("Deployment complete")
+	log.Info().Str("project", dc.Project).Msg("Deployment complete")
 	return nil
 }
