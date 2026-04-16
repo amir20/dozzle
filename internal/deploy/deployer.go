@@ -45,7 +45,10 @@ type DockerClient interface {
 	NetworkList(ctx context.Context, options network.ListOptions) ([]network.Summary, error)
 	NetworkCreate(ctx context.Context, name string, options network.CreateOptions) (network.CreateResponse, error)
 	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
+	NetworkRemove(ctx context.Context, networkID string) error
 	VolumeCreate(ctx context.Context, options volume.CreateOptions) (volume.Volume, error)
+	VolumeList(ctx context.Context, options volume.ListOptions) (volume.ListResponse, error)
+	VolumeRemove(ctx context.Context, volumeID string, force bool) error
 }
 
 // Deployer deploys a parsed compose project using the Docker API directly.
@@ -78,6 +81,61 @@ func (d *Deployer) Deploy(ctx context.Context, project *composetypes.Project, st
 	return project.ForEachService(nil, func(name string, svc *composetypes.ServiceConfig) error {
 		return d.deployService(ctx, project.Name, name, *svc, networkIDs, status)
 	})
+}
+
+// Remove stops and removes all containers and project-labeled networks for
+// the given project. Volumes are preserved unless removeVolumes is true —
+// volumes typically hold user data, so they opt in explicitly.
+func (d *Deployer) Remove(ctx context.Context, project *composetypes.Project, removeVolumes bool, status chan<- StatusUpdate) error {
+	if err := d.removeProjectContainers(ctx, project.Name, status); err != nil {
+		return fmt.Errorf("removing containers: %w", err)
+	}
+	if err := d.removeProjectNetworks(ctx, project.Name); err != nil {
+		return fmt.Errorf("removing networks: %w", err)
+	}
+	if removeVolumes {
+		if err := d.removeProjectVolumes(ctx, project.Name); err != nil {
+			return fmt.Errorf("removing volumes: %w", err)
+		}
+	}
+	return nil
+}
+
+func (d *Deployer) removeProjectNetworks(ctx context.Context, projectName string) error {
+	networks, err := d.cli.NetworkList(ctx, network.ListOptions{
+		Filters: filters.NewArgs(filters.Arg("label", "com.docker.compose.project="+projectName)),
+	})
+	if err != nil {
+		return fmt.Errorf("listing networks: %w", err)
+	}
+	for _, n := range networks {
+		if err := d.cli.NetworkRemove(ctx, n.ID); err != nil {
+			log.Warn().Err(err).Str("network", n.Name).Msg("Failed to remove network")
+			continue
+		}
+		log.Info().Str("network", n.Name).Msg("Removed network")
+	}
+	return nil
+}
+
+func (d *Deployer) removeProjectVolumes(ctx context.Context, projectName string) error {
+	vols, err := d.cli.VolumeList(ctx, volume.ListOptions{
+		Filters: filters.NewArgs(filters.Arg("label", "com.docker.compose.project="+projectName)),
+	})
+	if err != nil {
+		return fmt.Errorf("listing volumes: %w", err)
+	}
+	for _, v := range vols.Volumes {
+		if v == nil {
+			continue
+		}
+		if err := d.cli.VolumeRemove(ctx, v.Name, false); err != nil {
+			log.Warn().Err(err).Str("volume", v.Name).Msg("Failed to remove volume")
+			continue
+		}
+		log.Info().Str("volume", v.Name).Msg("Removed volume")
+	}
+	return nil
 }
 
 func (d *Deployer) removeProjectContainers(ctx context.Context, projectName string, status chan<- StatusUpdate) error {

@@ -33,7 +33,9 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "deploy_compose")
 	assert.Contains(t, names, "list_deploy_versions")
 	assert.Contains(t, names, "rollback_deploy")
-	assert.Len(t, tools, 15)
+	assert.Contains(t, names, "remove_deploy")
+	assert.Contains(t, names, "remove_container")
+	assert.Len(t, tools, 17)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -192,6 +194,28 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	assert.Equal(t, "abc123", action.ContainerId)
 
 	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
+}
+
+func TestExecuteTool_RemoveContainer(t *testing.T) {
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Remove).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+
+	mockHost := &MockHostService{}
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
+
+	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
+	resp := ExecuteTool(context.Background(), "remove_container", argsJSON, ToolDeps{HostService: mockHost, EnableActions: true})
+	assert.True(t, resp.Success)
+
+	action := resp.GetAction()
+	assert.NotNil(t, action)
+	assert.True(t, action.Success)
+	assert.Equal(t, "abc123", action.ContainerId)
+	assert.Equal(t, "remove", action.Action)
+
+	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Remove)
 }
 
 func TestExecuteTool_RestartContainer_ActionsDisabled(t *testing.T) {

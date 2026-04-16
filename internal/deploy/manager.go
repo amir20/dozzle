@@ -181,6 +181,41 @@ func (m *Manager) updateLocked(ctx context.Context, name string, composeYAML []b
 	return nil
 }
 
+// Remove tears down a deployed project: stops and removes all containers,
+// removes project-labeled networks, and deletes the on-disk project directory
+// (including git history). If removeVolumes is true, project-labeled named
+// volumes are also deleted — this is destructive and should be opt-in.
+func (m *Manager) Remove(ctx context.Context, name string, removeVolumes bool, status chan<- StatusUpdate) error {
+	defer m.lockProject(name)()
+
+	dir := m.projectDir(name)
+	if _, err := os.Stat(dir); errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("project %q does not exist", name)
+	} else if err != nil {
+		return fmt.Errorf("stat project %q: %w", name, err)
+	}
+
+	composeYAML, err := os.ReadFile(filepath.Join(dir, composeFilename))
+	if err != nil {
+		return fmt.Errorf("reading compose file: %w", err)
+	}
+	project, err := ParseCompose(composeYAML, name)
+	if err != nil {
+		return fmt.Errorf("parsing compose file: %w", err)
+	}
+
+	if err := m.deployer.Remove(ctx, project, removeVolumes, status); err != nil {
+		return fmt.Errorf("removing project: %w", err)
+	}
+
+	if err := os.RemoveAll(dir); err != nil {
+		return fmt.Errorf("removing project directory: %w", err)
+	}
+
+	log.Info().Str("project", name).Bool("removed_volumes", removeVolumes).Msg("Project removed")
+	return nil
+}
+
 // ListVersions returns the git commit history for a project, newest first.
 func (m *Manager) ListVersions(name string) ([]Version, error) {
 	defer m.lockProject(name)()

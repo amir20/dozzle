@@ -104,6 +104,44 @@ type rollbackArgs struct {
 	CommitHash string `json:"commit_hash"`
 }
 
+type removeDeployArgs struct {
+	Project       string `json:"project"`
+	RemoveVolumes bool   `json:"remove_volumes"`
+}
+
+func executeRemoveDeploy(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+	if deps.DeployManager == nil {
+		return nil, errDeployManagerNotConfigured
+	}
+
+	var args removeDeployArgs
+	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
+		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	}
+
+	if args.Project == "" {
+		return nil, fmt.Errorf("project is required")
+	}
+
+	if err := deps.DeployManager.Remove(ctx, args.Project, args.RemoveVolumes, nil); err != nil {
+		return nil, fmt.Errorf("removing: %w", err)
+	}
+
+	msg := fmt.Sprintf("Removed project %q (containers and networks).", args.Project)
+	if args.RemoveVolumes {
+		msg = fmt.Sprintf("Removed project %q (containers, networks, and volumes).", args.Project)
+	}
+
+	return &pb.CallToolResponse{
+		Success: true,
+		Result: &pb.CallToolResponse_Deploy{Deploy: &pb.DeployResult{
+			Success: true,
+			Project: args.Project,
+			Message: msg,
+		}},
+	}, nil
+}
+
 func executeRollbackDeploy(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	if deps.DeployManager == nil {
 		return nil, errDeployManagerNotConfigured

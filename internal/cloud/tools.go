@@ -101,6 +101,17 @@ var (
 		AdditionalProperties: &boolFalse,
 	})
 
+	removeDeployParams = mustSchema(paramSchema{
+		Type: "object",
+		Properties: map[string]paramProperty{
+			"project":        {Type: "string", Description: "Project name to tear down"},
+			"host_id":        {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
+			"remove_volumes": {Type: "boolean", Description: "Optional. If true, also delete project-labeled named volumes (destructive — user data is lost). Defaults to false."},
+		},
+		Required:             []string{"project", "host_id"},
+		AdditionalProperties: &boolFalse,
+	})
+
 	fetchLogsParams = mustSchema(paramSchema{
 		Type: "object",
 		Properties: map[string]paramProperty{
@@ -193,6 +204,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 				ParametersJson: targetedParams,
 			},
 			&pb.ToolDefinition{
+				Name:           "remove_container",
+				Description:    "Remove a Docker container. The container must be stopped first — call stop_container if it is still running. Confirm with the user before removing, since the container is gone permanently (its config is kept only if it was created by a deploy_compose project).",
+				ParametersJson: targetedParams,
+			},
+			&pb.ToolDefinition{
 				Name:           "update_container",
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
 				ParametersJson: targetedParams,
@@ -211,6 +227,11 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 				Name:           "rollback_deploy",
 				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified version and redeploys. Use list_deploy_versions to find available version IDs.",
 				ParametersJson: rollbackDeployParams,
+			},
+			&pb.ToolDefinition{
+				Name:           "remove_deploy",
+				Description:    "Tear down a deployed project: stops and removes its containers, removes project-labeled networks, and deletes the stored version history for the project. Named volumes are preserved by default — set remove_volumes=true to also delete them (destructive — user data is lost). Ask the user to confirm before setting remove_volumes=true.",
+				ParametersJson: removeDeployParams,
 			},
 		)
 	}
@@ -261,7 +282,7 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeFetchContainerLogs(ctx, argsJSON, deps)
 	case "inspect_container":
 		return executeInspectContainer(argsJSON, deps)
-	case "start_container", "stop_container", "restart_container":
+	case "start_container", "stop_container", "restart_container", "remove_container":
 		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
@@ -286,6 +307,11 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
 		return executeRollbackDeploy(ctx, argsJSON, deps)
+	case "remove_deploy":
+		if !deps.EnableActions {
+			return nil, fmt.Errorf("container actions are not enabled")
+		}
+		return executeRemoveDeploy(ctx, argsJSON, deps)
 	default:
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}

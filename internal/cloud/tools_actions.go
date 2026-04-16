@@ -111,6 +111,8 @@ func pastTense(action container.ContainerAction) string {
 		return "stopped"
 	case container.Restart:
 		return "restarted"
+	case container.Remove:
+		return "removed"
 	default:
 		return string(action) + "ed"
 	}
@@ -124,6 +126,8 @@ func resolveAction(name string) (container.ContainerAction, error) {
 		return container.Stop, nil
 	case "restart_container":
 		return container.Restart, nil
+	case "remove_container":
+		return container.Remove, nil
 	default:
 		return "", fmt.Errorf("unknown action: %s", name)
 	}

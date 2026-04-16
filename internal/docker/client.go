@@ -153,6 +153,8 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 		return d.cli.ContainerStop(ctx, containerID, docker.StopOptions{})
 	case container.Restart:
 		return d.cli.ContainerRestart(ctx, containerID, docker.StopOptions{})
+	case container.Remove:
+		return d.cli.ContainerRemove(ctx, containerID, docker.RemoveOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}

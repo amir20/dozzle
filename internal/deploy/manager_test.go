@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -44,8 +45,15 @@ type fakeDockerClient struct {
 	mu sync.Mutex
 
 	onContainerList func(ctx context.Context) error
-	pullCalls       atomic.Int64
-	startCalls      atomic.Int64
+	// networksOnList / volumesOnList are returned by NetworkList / VolumeList
+	// respectively. Tests set these to simulate existing resources.
+	networksOnList []network.Summary
+	volumesOnList  []*volume.Volume
+
+	pullCalls          atomic.Int64
+	startCalls         atomic.Int64
+	networkRemoveCalls atomic.Int64
+	volumeRemoveCalls  atomic.Int64
 }
 
 func (f *fakeDockerClient) ImagePull(_ context.Context, _ string, _ image.PullOptions) (io.ReadCloser, error) {
@@ -82,8 +90,16 @@ func (f *fakeDockerClient) ContainerRemove(_ context.Context, _ string, _ contai
 	return nil
 }
 
-func (f *fakeDockerClient) NetworkList(_ context.Context, _ network.ListOptions) ([]network.Summary, error) {
-	return nil, nil
+func (f *fakeDockerClient) NetworkList(_ context.Context, opts network.ListOptions) ([]network.Summary, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var out []network.Summary
+	for _, n := range f.networksOnList {
+		if matchesLabelFilter(opts.Filters.Get("label"), n.Labels) {
+			out = append(out, n)
+		}
+	}
+	return out, nil
 }
 
 func (f *fakeDockerClient) NetworkCreate(_ context.Context, _ string, _ network.CreateOptions) (network.CreateResponse, error) {
@@ -94,8 +110,99 @@ func (f *fakeDockerClient) NetworkConnect(_ context.Context, _ string, _ string,
 	return nil
 }
 
+func (f *fakeDockerClient) NetworkRemove(_ context.Context, _ string) error {
+	f.networkRemoveCalls.Add(1)
+	return nil
+}
+
 func (f *fakeDockerClient) VolumeCreate(_ context.Context, _ volume.CreateOptions) (volume.Volume, error) {
 	return volume.Volume{}, nil
+}
+
+func (f *fakeDockerClient) VolumeList(_ context.Context, opts volume.ListOptions) (volume.ListResponse, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var out []*volume.Volume
+	for _, v := range f.volumesOnList {
+		if v != nil && matchesLabelFilter(opts.Filters.Get("label"), v.Labels) {
+			out = append(out, v)
+		}
+	}
+	return volume.ListResponse{Volumes: out}, nil
+}
+
+// matchesLabelFilter mimics Docker's label filter: every requested "k=v"
+// must exist in the resource's labels.
+func matchesLabelFilter(wanted []string, labels map[string]string) bool {
+	for _, w := range wanted {
+		k, v, ok := strings.Cut(w, "=")
+		if !ok {
+			if _, present := labels[w]; !present {
+				return false
+			}
+			continue
+		}
+		if labels[k] != v {
+			return false
+		}
+	}
+	return true
+}
+
+func (f *fakeDockerClient) VolumeRemove(_ context.Context, _ string, _ bool) error {
+	f.volumeRemoveCalls.Add(1)
+	return nil
+}
+
+func TestManager_Remove_DeletesProjectAndCleansNetworks(t *testing.T) {
+	dir := t.TempDir()
+	cli := &fakeDockerClient{
+		networksOnList: []network.Summary{
+			{ID: "net-1", Name: "myapp_default", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
+		},
+		volumesOnList: []*volume.Volume{
+			{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
+		},
+	}
+	mgr := NewManager(cli, dir)
+	ctx := context.Background()
+
+	require.NoError(t, mgr.Deploy(ctx, "myapp", []byte(testCompose), nil))
+	require.DirExists(t, filepath.Join(dir, "myapp"))
+
+	require.NoError(t, mgr.Remove(ctx, "myapp", false, nil))
+
+	assert.NoDirExists(t, filepath.Join(dir, "myapp"))
+	assert.Equal(t, int64(1), cli.networkRemoveCalls.Load(), "project-labeled network should be removed")
+	assert.Equal(t, int64(0), cli.volumeRemoveCalls.Load(), "volumes must be preserved by default")
+
+	_, err := mgr.ListVersions("myapp")
+	assert.Error(t, err, "ListVersions on a removed project should error")
+}
+
+func TestManager_Remove_WithVolumes(t *testing.T) {
+	dir := t.TempDir()
+	cli := &fakeDockerClient{
+		volumesOnList: []*volume.Volume{
+			{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
+			{Name: "other_project_data", Labels: map[string]string{"com.docker.compose.project": "other"}},
+		},
+	}
+	mgr := NewManager(cli, dir)
+	ctx := context.Background()
+
+	require.NoError(t, mgr.Deploy(ctx, "myapp", []byte(testCompose), nil))
+	require.NoError(t, mgr.Remove(ctx, "myapp", true, nil))
+
+	assert.Equal(t, int64(1), cli.volumeRemoveCalls.Load(), "only myapp's volume should be removed")
+}
+
+func TestManager_Remove_NonexistentProject(t *testing.T) {
+	dir := t.TempDir()
+	mgr := NewManager(&fakeDockerClient{}, dir)
+
+	err := mgr.Remove(context.Background(), "ghost", false, nil)
+	require.Error(t, err)
 }
 
 func TestManager_Deploy_CreatesNewProject(t *testing.T) {
