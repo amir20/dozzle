@@ -44,6 +44,13 @@ message ToolDefinition {
   // whole Dozzle instance (in which case the router injects an instance_id
   // argument into the LLM-facing schema and strips it before forwarding).
   ToolScope scope = 4;
+  // read_only = true means the tool has no side effects and is safe to fan
+  // out across every connected Dozzle instance when the scope's routing
+  // argument is missing (e.g. list_notifications without instance_id queries
+  // all instances and merges results). Mutating tools (create/delete/deploy/
+  // restart/etc.) must leave this false — the router will require the scope
+  // argument and error if it's missing, so a write never fans out by mistake.
+  bool read_only = 5;
 }
 
 enum ToolScope {

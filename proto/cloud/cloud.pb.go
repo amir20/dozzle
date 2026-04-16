@@ -377,7 +377,14 @@ type ToolDefinition struct {
 	// inferred from the existing host_id/container_id params, or target the
 	// whole Dozzle instance (in which case the router injects an instance_id
 	// argument into the LLM-facing schema and strips it before forwarding).
-	Scope         ToolScope `protobuf:"varint,4,opt,name=scope,proto3,enum=cloud.ToolScope" json:"scope,omitempty"`
+	Scope ToolScope `protobuf:"varint,4,opt,name=scope,proto3,enum=cloud.ToolScope" json:"scope,omitempty"`
+	// read_only = true means the tool has no side effects and is safe to fan
+	// out across every connected Dozzle instance when the scope's routing
+	// argument is missing (e.g. list_notifications without instance_id queries
+	// all instances and merges results). Mutating tools (create/delete/deploy/
+	// restart/etc.) must leave this false — the router will require the scope
+	// argument and error if it's missing, so a write never fans out by mistake.
+	ReadOnly      bool `protobuf:"varint,5,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -438,6 +445,13 @@ func (x *ToolDefinition) GetScope() ToolScope {
 		return x.Scope
 	}
 	return ToolScope_TOOL_SCOPE_UNSPECIFIED
+}
+
+func (x *ToolDefinition) GetReadOnly() bool {
+	if x != nil {
+		return x.ReadOnly
+	}
+	return false
 }
 
 type CallToolRequest struct {
@@ -1660,12 +1674,13 @@ const file_cloud_proto_rawDesc = "" +
 	"\x10ListToolsRequest\"Z\n" +
 	"\x11ListToolsResponse\x12+\n" +
 	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\"\x97\x01\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\"\xb4\x01\n" +
 	"\x0eToolDefinition\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12'\n" +
 	"\x0fparameters_json\x18\x03 \x01(\tR\x0eparametersJson\x12&\n" +
-	"\x05scope\x18\x04 \x01(\x0e2\x10.cloud.ToolScopeR\x05scope\"L\n" +
+	"\x05scope\x18\x04 \x01(\x0e2\x10.cloud.ToolScopeR\x05scope\x12\x1b\n" +
+	"\tread_only\x18\x05 \x01(\bR\breadOnly\"L\n" +
 	"\x0fCallToolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\xb1\x04\n" +
