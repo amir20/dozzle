@@ -56,13 +56,13 @@ func matchesFilters(event *container.LogEvent, args *fetchLogsArgs, re *regexp.R
 	return msg, true
 }
 
-func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels, send streamSender) error {
+func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, deps ToolDeps, send streamSender) error {
 	args, re, err := parseStreamArgs(argsJSON)
 	if err != nil {
 		return err
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
 	if err != nil {
 		return fmt.Errorf("container not found: %w", err)
 	}

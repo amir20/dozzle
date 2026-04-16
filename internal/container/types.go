@@ -192,12 +192,13 @@ const (
 	Start   ContainerAction = "start"
 	Stop    ContainerAction = "stop"
 	Restart ContainerAction = "restart"
+	Remove  ContainerAction = "remove"
 )
 
 func ParseContainerAction(input string) (ContainerAction, error) {
 	action := ContainerAction(input)
 	switch action {
-	case Start, Stop, Restart:
+	case Start, Stop, Restart, Remove:
 		return action, nil
 	default:
 		return "", fmt.Errorf("unknown action: %s", input)

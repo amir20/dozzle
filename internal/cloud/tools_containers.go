@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amir20/dozzle/internal/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 )
 
@@ -22,8 +21,8 @@ type findContainersArgs struct {
 	Health string `json:"health"`
 }
 
-func executeListHosts(hostService ToolHostService) (*pb.CallToolResponse, error) {
-	hosts := hostService.Hosts()
+func executeListHosts(deps ToolDeps) (*pb.CallToolResponse, error) {
+	hosts := deps.HostService.Hosts()
 	result := make([]*pb.HostInfo, len(hosts))
 	for i, h := range hosts {
 		result[i] = &pb.HostInfo{
@@ -43,7 +42,7 @@ func executeListHosts(hostService ToolHostService) (*pb.CallToolResponse, error)
 	}, nil
 }
 
-func executeFindContainers(argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeFindContainers(argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args findContainersArgs
 	if argsJSON != "" {
 		if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
@@ -51,9 +50,9 @@ func executeFindContainers(argsJSON string, hostService ToolHostService, labels 
 		}
 	}
 
-	containers, errs := hostService.ListAllContainers(labels)
+	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
 	logHostErrors(errs)
-	hostNames := buildHostNameMap(hostService)
+	hostNames := buildHostNameMap(deps.HostService)
 
 	result := make([]*pb.ContainerInfo, 0, len(containers))
 	for _, c := range containers {
@@ -77,10 +76,10 @@ func executeFindContainers(argsJSON string, hostService ToolHostService, labels 
 	}, nil
 }
 
-func executeListRunningContainers(hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
-	containers, errs := hostService.ListAllContainers(labels)
+func executeListRunningContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
+	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
 	logHostErrors(errs)
-	hostNames := buildHostNameMap(hostService)
+	hostNames := buildHostNameMap(deps.HostService)
 
 	result := make([]*pb.ContainerInfo, 0, len(containers))
 	for _, c := range containers {
@@ -95,10 +94,10 @@ func executeListRunningContainers(hostService ToolHostService, labels container.
 	}, nil
 }
 
-func executeListAllContainers(hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
-	containers, errs := hostService.ListAllContainers(labels)
+func executeListAllContainers(deps ToolDeps) (*pb.CallToolResponse, error) {
+	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
 	logHostErrors(errs)
-	hostNames := buildHostNameMap(hostService)
+	hostNames := buildHostNameMap(deps.HostService)
 
 	result := make([]*pb.ContainerInfo, 0, len(containers))
 	for _, c := range containers {
@@ -110,10 +109,10 @@ func executeListAllContainers(hostService ToolHostService, labels container.Cont
 	}, nil
 }
 
-func executeGetRunningContainerStats(hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
-	containers, errs := hostService.ListAllContainers(labels)
+func executeGetRunningContainerStats(deps ToolDeps) (*pb.CallToolResponse, error) {
+	containers, errs := deps.HostService.ListAllContainers(deps.Labels)
 	logHostErrors(errs)
-	hostNames := buildHostNameMap(hostService)
+	hostNames := buildHostNameMap(deps.HostService)
 
 	result := make([]*pb.ContainerStatEntry, 0, len(containers))
 	for _, c := range containers {
@@ -151,7 +150,7 @@ func executeGetRunningContainerStats(hostService ToolHostService, labels contain
 	}, nil
 }
 
-func executeInspectContainer(argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args inspectContainerArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -160,7 +159,7 @@ func executeInspectContainer(argsJSON string, hostService ToolHostService, label
 		return nil, fmt.Errorf("container_id and host are required")
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
@@ -178,7 +177,7 @@ func executeInspectContainer(argsJSON string, hostService ToolHostService, label
 			FinishedAt:    formatTimeOrEmpty(c.FinishedAt),
 			State:         c.State,
 			Health:        c.Health,
-			HostName:      resolveHostName(c.Host, buildHostNameMap(hostService)),
+			HostName:      resolveHostName(c.Host, buildHostNameMap(deps.HostService)),
 			HostId:        c.Host,
 			Labels:        c.Labels,
 			MemoryLimit:   c.MemoryLimit,

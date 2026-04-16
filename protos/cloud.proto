@@ -37,6 +37,36 @@ message ToolDefinition {
   string name = 1;
   string description = 2;
   string parameters_json = 3;
+  // scope tells the cloud router how to multiplex calls to this tool. Dozzle
+  // itself has no notion of "multiple instances"; this field lets the router
+  // decide whether to fan out (default), target a specific container/host
+  // inferred from the existing host_id/container_id params, or target the
+  // whole Dozzle instance (in which case the router injects an instance_id
+  // argument into the LLM-facing schema and strips it before forwarding).
+  ToolScope scope = 4;
+  // read_only = true means the tool has no side effects and is safe to fan
+  // out across every connected Dozzle instance when the scope's routing
+  // argument is missing (e.g. list_notifications without instance_id queries
+  // all instances and merges results). Mutating tools (create/delete/deploy/
+  // restart/etc.) must leave this false — the router will require the scope
+  // argument and error if it's missing, so a write never fans out by mistake.
+  bool read_only = 5;
+}
+
+enum ToolScope {
+  // Default — treated as INSTANCE. Exists so forward-compat clients without
+  // a scope field don't misroute.
+  TOOL_SCOPE_UNSPECIFIED = 0;
+  // Applies to the whole Dozzle instance (list_hosts, notifications, etc.).
+  // Requires instance_id in the args.
+  TOOL_SCOPE_INSTANCE = 1;
+  // Targets a specific Docker host (deploy_compose, list_deploy_versions).
+  // Requires host_id in the args.
+  TOOL_SCOPE_HOST = 2;
+  // Targets a specific container (logs, actions, inspect). Requires
+  // container_id in the args (host_id is typically also present for the
+  // Docker API call inside Dozzle but isn't used for routing).
+  TOOL_SCOPE_CONTAINER = 3;
 }
 
 message CallToolRequest {
@@ -56,6 +86,8 @@ message CallToolResponse {
     ActionResult action = 6;
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
+    DeployResult deploy = 11;
+    NotificationResult notification = 12;
   }
 }
 
@@ -159,4 +191,17 @@ message ActionResult {
   string container_id = 2;
   string action = 3;
   string message = 4;
+}
+
+// Deploy compose result
+message DeployResult {
+  bool success = 1;
+  string project = 2;
+  string message = 3;
+}
+
+// Notification/alert tool result (list, create).
+message NotificationResult {
+  bool success = 1;
+  string message = 2;
 }

@@ -153,6 +153,8 @@ func (d *DockerClient) ContainerActions(ctx context.Context, action container.Co
 		return d.cli.ContainerStop(ctx, containerID, docker.StopOptions{})
 	case container.Restart:
 		return d.cli.ContainerRestart(ctx, containerID, docker.StopOptions{})
+	case container.Remove:
+		return d.cli.ContainerRemove(ctx, containerID, docker.RemoveOptions{})
 	default:
 		return fmt.Errorf("unknown action: %s", action)
 	}
@@ -375,6 +377,16 @@ func (d *DockerClient) Ping(ctx context.Context) error {
 
 func (d *DockerClient) Host() container.Host {
 	return d.host
+}
+
+// RawClient returns the underlying *client.Client if the DockerCLI is one.
+// Needed for operations like network/volume management that aren't part of
+// the DockerCLI interface.
+func (d *DockerClient) RawClient() *client.Client {
+	if c, ok := d.cli.(*client.Client); ok {
+		return c
+	}
+	return nil
 }
 
 func (d *DockerClient) ContainerAttach(ctx context.Context, id string) (*container.ExecSession, error) {

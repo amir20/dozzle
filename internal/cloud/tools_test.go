@@ -30,7 +30,16 @@ func TestAvailableTools_WithActionsEnabled(t *testing.T) {
 	assert.Contains(t, names, "start_container")
 	assert.Contains(t, names, "stop_container")
 	assert.Contains(t, names, "restart_container")
-	assert.Len(t, tools, 12)
+	assert.Contains(t, names, "deploy_compose")
+	assert.Contains(t, names, "list_deploy_versions")
+	assert.Contains(t, names, "rollback_deploy")
+	assert.Contains(t, names, "remove_deploy")
+	assert.Contains(t, names, "remove_container")
+	assert.Contains(t, names, "list_notifications")
+	assert.Contains(t, names, "create_log_notification")
+	assert.Contains(t, names, "create_metric_notification")
+	assert.Contains(t, names, "create_event_notification")
+	assert.Len(t, tools, 21)
 }
 
 func TestAvailableTools_WithActionsDisabled(t *testing.T) {
@@ -47,7 +56,8 @@ func TestAvailableTools_WithActionsDisabled(t *testing.T) {
 	assert.Contains(t, names, "list_all_containers")
 	assert.Contains(t, names, "get_running_container_stats")
 	assert.Contains(t, names, "fetch_container_logs")
-	assert.Len(t, tools, 8)
+	assert.Contains(t, names, "list_notifications")
+	assert.Len(t, tools, 9)
 }
 
 func TestAvailableTools_ParametersAreValid(t *testing.T) {
@@ -140,7 +150,7 @@ func TestExecuteTool_ListRunningContainers(t *testing.T) {
 	}, nil)
 	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
-	resp := ExecuteTool(context.Background(), "list_running_containers", "", false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "list_running_containers", "", ToolDeps{HostService: mockHost})
 	assert.True(t, resp.Success)
 
 	result := resp.GetListContainers()
@@ -159,7 +169,7 @@ func TestExecuteTool_ListAllContainers(t *testing.T) {
 	}, nil)
 	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
-	resp := ExecuteTool(context.Background(), "list_all_containers", "", false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "list_all_containers", "", ToolDeps{HostService: mockHost})
 	assert.True(t, resp.Success)
 
 	result := resp.GetListContainers()
@@ -180,7 +190,7 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
-	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, true, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, ToolDeps{HostService: mockHost, EnableActions: true})
 	assert.True(t, resp.Success)
 
 	action := resp.GetAction()
@@ -191,11 +201,33 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
 }
 
+func TestExecuteTool_RemoveContainer(t *testing.T) {
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Remove).Return(nil)
+
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+
+	mockHost := &MockHostService{}
+	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
+
+	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
+	resp := ExecuteTool(context.Background(), "remove_container", argsJSON, ToolDeps{HostService: mockHost, EnableActions: true})
+	assert.True(t, resp.Success)
+
+	action := resp.GetAction()
+	assert.NotNil(t, action)
+	assert.True(t, action.Success)
+	assert.Equal(t, "abc123", action.ContainerId)
+	assert.Equal(t, "remove", action.Action)
+
+	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Remove)
+}
+
 func TestExecuteTool_RestartContainer_ActionsDisabled(t *testing.T) {
 	mockHost := &MockHostService{}
 
 	argsJSON := `{"container_id": "abc123"}`
-	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "restart_container", argsJSON, ToolDeps{HostService: mockHost})
 	assert.False(t, resp.Success)
 	assert.Contains(t, resp.Error, "container actions are not enabled")
 }
@@ -210,7 +242,7 @@ func TestExecuteTool_ListRunningContainers_PartialHostError(t *testing.T) {
 	)
 	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
-	resp := ExecuteTool(context.Background(), "list_running_containers", "", false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "list_running_containers", "", ToolDeps{HostService: mockHost})
 	assert.True(t, resp.Success)
 
 	result := resp.GetListContainers()
@@ -225,7 +257,7 @@ func TestExecuteTool_ListHosts(t *testing.T) {
 		{ID: "host2", Name: "server-2", NCPU: 8, MemTotal: 17179869184, DockerVersion: "25.0.1", Available: false},
 	})
 
-	resp := ExecuteTool(context.Background(), "list_hosts", "", false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "list_hosts", "", ToolDeps{HostService: mockHost})
 	assert.True(t, resp.Success)
 
 	result := resp.GetListHosts()
@@ -240,7 +272,7 @@ func TestExecuteTool_ListHosts(t *testing.T) {
 func TestExecuteTool_UnknownTool(t *testing.T) {
 	mockHost := &MockHostService{}
 
-	resp := ExecuteTool(context.Background(), "unknown_tool", "", false, mockHost, nil)
+	resp := ExecuteTool(context.Background(), "unknown_tool", "", ToolDeps{HostService: mockHost})
 	assert.False(t, resp.Success)
 	assert.Contains(t, resp.Error, "unknown tool")
 }

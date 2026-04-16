@@ -17,6 +17,7 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/amir20/dozzle/internal/deploy"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -62,6 +63,7 @@ func main() {
 	defer stop()
 
 	var hostService web.HostService
+	var notificationService cloud.NotificationService
 	if args.Mode == "server" {
 		multiHostService := cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
@@ -73,6 +75,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
+		notificationService = multiHostService
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient("")
 		if err != nil {
@@ -89,6 +92,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
+		notificationService = multiHostService
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
@@ -131,7 +135,27 @@ func main() {
 		}
 		return ""
 	}
-	cloudClient := cloud.NewClient(args.EnableActions, args.Filter, hostService, apiKeyFunc)
+
+	var deployManager *deploy.Manager
+	if args.EnableActions && args.Mode != "k8s" {
+		// TODO: route deploys through agents for remote hosts.
+		localClient, err := docker.NewLocalClient("")
+		if err != nil {
+			log.Warn().Err(err).Msg("Compose deploy tools disabled: could not create local Docker client")
+		} else if raw := localClient.RawClient(); raw != nil {
+			deployManager = deploy.NewManager(raw, deploy.DefaultStacksDir)
+		} else {
+			log.Warn().Msg("Compose deploy tools disabled: local Docker client has no raw handle")
+		}
+	}
+
+	cloudClient := cloud.NewClient(apiKeyFunc, cloud.ToolDeps{
+		EnableActions:       args.EnableActions,
+		HostService:         hostService,
+		Labels:              args.Filter,
+		DeployManager:       deployManager,
+		NotificationService: notificationService,
+	})
 	go cloudClient.Run(ctx)
 
 	// If cloud is already configured at startup, start the client immediately

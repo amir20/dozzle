@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -37,24 +36,22 @@ const (
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	enableActions   bool
-	labels          container.ContainerLabels
-	hostService     ToolHostService
-	apiKeyFunc      func() string
-	target          string
-	plaintext       bool
-	toolSem         *semaphore.Weighted
-	streamSem       *semaphore.Weighted
-	cachedTools     []*pb.ToolDefinition
-	toolsOnce       sync.Once
-	startCh         chan struct{}
-	activeStreams    sync.Map // requestID -> context.CancelFunc
+	deps          ToolDeps
+	apiKeyFunc    func() string
+	target        string
+	plaintext     bool
+	toolSem       *semaphore.Weighted
+	streamSem     *semaphore.Weighted
+	cachedTools   []*pb.ToolDefinition
+	toolsOnce     sync.Once
+	startCh       chan struct{}
+	activeStreams sync.Map // requestID -> context.CancelFunc
 }
 
 // NewClient creates a new cloud gRPC client.
 // apiKeyFunc is called to get the current cloud API key — it may return ""
 // if no cloud dispatcher is configured yet, in which case the client waits.
-func NewClient(enableActions bool, labels container.ContainerLabels, hostService ToolHostService, apiKeyFunc func() string) *Client {
+func NewClient(apiKeyFunc func() string, deps ToolDeps) *Client {
 	cloudURL := os.Getenv("AGENT_URL")
 	if cloudURL == "" {
 		cloudURL = "https://agent.doligence.dozzle.dev"
@@ -75,15 +72,13 @@ func NewClient(enableActions bool, labels container.ContainerLabels, hostService
 	}
 
 	return &Client{
-		enableActions: enableActions,
-		labels:        labels,
-		hostService:   hostService,
-		apiKeyFunc:    apiKeyFunc,
-		target:        target,
-		plaintext:     plaintext,
-		toolSem:       semaphore.NewWeighted(maxConcurrent),
-		streamSem:     semaphore.NewWeighted(maxConcurrentStreams),
-		startCh:       make(chan struct{}, 1),
+		deps:       deps,
+		apiKeyFunc: apiKeyFunc,
+		target:     target,
+		plaintext:  plaintext,
+		toolSem:    semaphore.NewWeighted(maxConcurrent),
+		streamSem:  semaphore.NewWeighted(maxConcurrentStreams),
+		startCh:    make(chan struct{}, 1),
 	}
 }
 
@@ -279,7 +274,7 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 					logStreamCancel()
 				}()
 				log.Debug().Str("request_id", reqID).Msg("starting stream_logs")
-				if err := executeStreamLogs(logStreamCtx, reqID, argsJSON, c.hostService, c.labels, sendResp); err != nil {
+				if err := executeStreamLogs(logStreamCtx, reqID, argsJSON, c.deps, sendResp); err != nil {
 					if streamLifetime.Err() != nil {
 						return
 					}
@@ -342,7 +337,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 
 	case *pb.ToolRequest_CallTool:
 		log.Debug().Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Str("args", t.CallTool.ArgumentsJson).Msg("cloud tool call received")
-		callResp := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.enableActions, c.hostService, c.labels)
+		callResp := ExecuteTool(ctx, t.CallTool.Name, t.CallTool.ArgumentsJson, c.deps)
 		if !callResp.Success {
 			log.Debug().Str("error", callResp.Error).Str("request_id", req.RequestId).Str("tool", t.CallTool.Name).Msg("cloud tool call failed")
 		} else {
@@ -367,7 +362,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 
 func (c *Client) tools() []*pb.ToolDefinition {
 	c.toolsOnce.Do(func() {
-		c.cachedTools = AvailableTools(c.enableActions)
+		c.cachedTools = AvailableTools(c.deps.EnableActions)
 	})
 	return c.cachedTools
 }

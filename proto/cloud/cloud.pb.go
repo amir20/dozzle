@@ -21,6 +21,67 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ToolScope int32
+
+const (
+	// Default — treated as INSTANCE. Exists so forward-compat clients without
+	// a scope field don't misroute.
+	ToolScope_TOOL_SCOPE_UNSPECIFIED ToolScope = 0
+	// Applies to the whole Dozzle instance (list_hosts, notifications, etc.).
+	// Requires instance_id in the args.
+	ToolScope_TOOL_SCOPE_INSTANCE ToolScope = 1
+	// Targets a specific Docker host (deploy_compose, list_deploy_versions).
+	// Requires host_id in the args.
+	ToolScope_TOOL_SCOPE_HOST ToolScope = 2
+	// Targets a specific container (logs, actions, inspect). Requires
+	// container_id in the args (host_id is typically also present for the
+	// Docker API call inside Dozzle but isn't used for routing).
+	ToolScope_TOOL_SCOPE_CONTAINER ToolScope = 3
+)
+
+// Enum value maps for ToolScope.
+var (
+	ToolScope_name = map[int32]string{
+		0: "TOOL_SCOPE_UNSPECIFIED",
+		1: "TOOL_SCOPE_INSTANCE",
+		2: "TOOL_SCOPE_HOST",
+		3: "TOOL_SCOPE_CONTAINER",
+	}
+	ToolScope_value = map[string]int32{
+		"TOOL_SCOPE_UNSPECIFIED": 0,
+		"TOOL_SCOPE_INSTANCE":    1,
+		"TOOL_SCOPE_HOST":        2,
+		"TOOL_SCOPE_CONTAINER":   3,
+	}
+)
+
+func (x ToolScope) Enum() *ToolScope {
+	p := new(ToolScope)
+	*p = x
+	return p
+}
+
+func (x ToolScope) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ToolScope) Descriptor() protoreflect.EnumDescriptor {
+	return file_cloud_proto_enumTypes[0].Descriptor()
+}
+
+func (ToolScope) Type() protoreflect.EnumType {
+	return &file_cloud_proto_enumTypes[0]
+}
+
+func (x ToolScope) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ToolScope.Descriptor instead.
+func (ToolScope) EnumDescriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{0}
+}
+
 type ToolRequest struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	RequestId string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
@@ -310,8 +371,22 @@ type ToolDefinition struct {
 	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description    string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	ParametersJson string                 `protobuf:"bytes,3,opt,name=parameters_json,json=parametersJson,proto3" json:"parameters_json,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// scope tells the cloud router how to multiplex calls to this tool. Dozzle
+	// itself has no notion of "multiple instances"; this field lets the router
+	// decide whether to fan out (default), target a specific container/host
+	// inferred from the existing host_id/container_id params, or target the
+	// whole Dozzle instance (in which case the router injects an instance_id
+	// argument into the LLM-facing schema and strips it before forwarding).
+	Scope ToolScope `protobuf:"varint,4,opt,name=scope,proto3,enum=cloud.ToolScope" json:"scope,omitempty"`
+	// read_only = true means the tool has no side effects and is safe to fan
+	// out across every connected Dozzle instance when the scope's routing
+	// argument is missing (e.g. list_notifications without instance_id queries
+	// all instances and merges results). Mutating tools (create/delete/deploy/
+	// restart/etc.) must leave this false — the router will require the scope
+	// argument and error if it's missing, so a write never fans out by mistake.
+	ReadOnly      bool `protobuf:"varint,5,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ToolDefinition) Reset() {
@@ -363,6 +438,20 @@ func (x *ToolDefinition) GetParametersJson() string {
 		return x.ParametersJson
 	}
 	return ""
+}
+
+func (x *ToolDefinition) GetScope() ToolScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ToolScope_TOOL_SCOPE_UNSPECIFIED
+}
+
+func (x *ToolDefinition) GetReadOnly() bool {
+	if x != nil {
+		return x.ReadOnly
+	}
+	return false
 }
 
 type CallToolRequest struct {
@@ -431,6 +520,8 @@ type CallToolResponse struct {
 	//	*CallToolResponse_Action
 	//	*CallToolResponse_FetchLogs
 	//	*CallToolResponse_InspectContainer
+	//	*CallToolResponse_Deploy
+	//	*CallToolResponse_Notification
 	Result        isCallToolResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -555,6 +646,24 @@ func (x *CallToolResponse) GetInspectContainer() *InspectContainerResult {
 	return nil
 }
 
+func (x *CallToolResponse) GetDeploy() *DeployResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_Deploy); ok {
+			return x.Deploy
+		}
+	}
+	return nil
+}
+
+func (x *CallToolResponse) GetNotification() *NotificationResult {
+	if x != nil {
+		if x, ok := x.Result.(*CallToolResponse_Notification); ok {
+			return x.Notification
+		}
+	}
+	return nil
+}
+
 type isCallToolResponse_Result interface {
 	isCallToolResponse_Result()
 }
@@ -583,6 +692,14 @@ type CallToolResponse_InspectContainer struct {
 	InspectContainer *InspectContainerResult `protobuf:"bytes,8,opt,name=inspect_container,json=inspectContainer,proto3,oneof"`
 }
 
+type CallToolResponse_Deploy struct {
+	Deploy *DeployResult `protobuf:"bytes,11,opt,name=deploy,proto3,oneof"`
+}
+
+type CallToolResponse_Notification struct {
+	Notification *NotificationResult `protobuf:"bytes,12,opt,name=notification,proto3,oneof"`
+}
+
 func (*CallToolResponse_ListHosts) isCallToolResponse_Result() {}
 
 func (*CallToolResponse_ListContainers) isCallToolResponse_Result() {}
@@ -594,6 +711,10 @@ func (*CallToolResponse_Action) isCallToolResponse_Result() {}
 func (*CallToolResponse_FetchLogs) isCallToolResponse_Result() {}
 
 func (*CallToolResponse_InspectContainer) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_Deploy) isCallToolResponse_Result() {}
+
+func (*CallToolResponse_Notification) isCallToolResponse_Result() {}
 
 type CancelStreamRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -1485,6 +1606,120 @@ func (x *ActionResult) GetMessage() string {
 	return ""
 }
 
+// Deploy compose result
+type DeployResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Project       string                 `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeployResult) Reset() {
+	*x = DeployResult{}
+	mi := &file_cloud_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeployResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeployResult) ProtoMessage() {}
+
+func (x *DeployResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeployResult.ProtoReflect.Descriptor instead.
+func (*DeployResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DeployResult) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DeployResult) GetProject() string {
+	if x != nil {
+		return x.Project
+	}
+	return ""
+}
+
+func (x *DeployResult) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Notification/alert tool result (list, create).
+type NotificationResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotificationResult) Reset() {
+	*x = NotificationResult{}
+	mi := &file_cloud_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationResult) ProtoMessage() {}
+
+func (x *NotificationResult) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotificationResult.ProtoReflect.Descriptor instead.
+func (*NotificationResult) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *NotificationResult) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *NotificationResult) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_cloud_proto protoreflect.FileDescriptor
 
 const file_cloud_proto_rawDesc = "" +
@@ -1508,14 +1743,16 @@ const file_cloud_proto_rawDesc = "" +
 	"\x10ListToolsRequest\"Z\n" +
 	"\x11ListToolsResponse\x12+\n" +
 	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\tR\aversion\"o\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\"\xb4\x01\n" +
 	"\x0eToolDefinition\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12'\n" +
-	"\x0fparameters_json\x18\x03 \x01(\tR\x0eparametersJson\"L\n" +
+	"\x0fparameters_json\x18\x03 \x01(\tR\x0eparametersJson\x12&\n" +
+	"\x05scope\x18\x04 \x01(\x0e2\x10.cloud.ToolScopeR\x05scope\x12\x1b\n" +
+	"\tread_only\x18\x05 \x01(\bR\breadOnly\"L\n" +
 	"\x0fCallToolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\x82\x04\n" +
+	"\x0earguments_json\x18\x02 \x01(\tR\rargumentsJson\"\xf2\x04\n" +
 	"\x10CallToolResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\x16\n" +
@@ -1530,7 +1767,9 @@ const file_cloud_proto_rawDesc = "" +
 	"\x06action\x18\x06 \x01(\v2\x13.cloud.ActionResultH\x00R\x06action\x127\n" +
 	"\n" +
 	"fetch_logs\x18\a \x01(\v2\x16.cloud.FetchLogsResultH\x00R\tfetchLogs\x12L\n" +
-	"\x11inspect_container\x18\b \x01(\v2\x1d.cloud.InspectContainerResultH\x00R\x10inspectContainerB\b\n" +
+	"\x11inspect_container\x18\b \x01(\v2\x1d.cloud.InspectContainerResultH\x00R\x10inspectContainer\x12-\n" +
+	"\x06deploy\x18\v \x01(\v2\x13.cloud.DeployResultH\x00R\x06deploy\x12?\n" +
+	"\fnotification\x18\f \x01(\v2\x19.cloud.NotificationResultH\x00R\fnotificationB\b\n" +
 	"\x06result\"A\n" +
 	"\x13CancelStreamRequest\x12*\n" +
 	"\x11stream_request_id\x18\x01 \x01(\tR\x0fstreamRequestId\"\xde\x01\n" +
@@ -1616,7 +1855,19 @@ const file_cloud_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12\x16\n" +
 	"\x06action\x18\x03 \x01(\tR\x06action\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage2M\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"\\\n" +
+	"\fDeployResult\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\aproject\x18\x02 \x01(\tR\aproject\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"H\n" +
+	"\x12NotificationResult\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*o\n" +
+	"\tToolScope\x12\x1a\n" +
+	"\x16TOOL_SCOPE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13TOOL_SCOPE_INSTANCE\x10\x01\x12\x13\n" +
+	"\x0fTOOL_SCOPE_HOST\x10\x02\x12\x18\n" +
+	"\x14TOOL_SCOPE_CONTAINER\x10\x032M\n" +
 	"\x10CloudToolService\x129\n" +
 	"\n" +
 	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
@@ -1633,53 +1884,60 @@ func file_cloud_proto_rawDescGZIP() []byte {
 	return file_cloud_proto_rawDescData
 }
 
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_cloud_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_cloud_proto_goTypes = []any{
-	(*ToolRequest)(nil),            // 0: cloud.ToolRequest
-	(*ToolResponse)(nil),           // 1: cloud.ToolResponse
-	(*ListToolsRequest)(nil),       // 2: cloud.ListToolsRequest
-	(*ListToolsResponse)(nil),      // 3: cloud.ListToolsResponse
-	(*ToolDefinition)(nil),         // 4: cloud.ToolDefinition
-	(*CallToolRequest)(nil),        // 5: cloud.CallToolRequest
-	(*CallToolResponse)(nil),       // 6: cloud.CallToolResponse
-	(*CancelStreamRequest)(nil),    // 7: cloud.CancelStreamRequest
-	(*HostInfo)(nil),               // 8: cloud.HostInfo
-	(*ListHostsResult)(nil),        // 9: cloud.ListHostsResult
-	(*ContainerInfo)(nil),          // 10: cloud.ContainerInfo
-	(*ListContainersResult)(nil),   // 11: cloud.ListContainersResult
-	(*ContainerStatEntry)(nil),     // 12: cloud.ContainerStatEntry
-	(*ContainerStatsResult)(nil),   // 13: cloud.ContainerStatsResult
-	(*LogEntry)(nil),               // 14: cloud.LogEntry
-	(*FetchLogsResult)(nil),        // 15: cloud.FetchLogsResult
-	(*InspectContainerResult)(nil), // 16: cloud.InspectContainerResult
-	(*ActionResult)(nil),           // 17: cloud.ActionResult
-	nil,                            // 18: cloud.InspectContainerResult.LabelsEntry
+	(ToolScope)(0),                 // 0: cloud.ToolScope
+	(*ToolRequest)(nil),            // 1: cloud.ToolRequest
+	(*ToolResponse)(nil),           // 2: cloud.ToolResponse
+	(*ListToolsRequest)(nil),       // 3: cloud.ListToolsRequest
+	(*ListToolsResponse)(nil),      // 4: cloud.ListToolsResponse
+	(*ToolDefinition)(nil),         // 5: cloud.ToolDefinition
+	(*CallToolRequest)(nil),        // 6: cloud.CallToolRequest
+	(*CallToolResponse)(nil),       // 7: cloud.CallToolResponse
+	(*CancelStreamRequest)(nil),    // 8: cloud.CancelStreamRequest
+	(*HostInfo)(nil),               // 9: cloud.HostInfo
+	(*ListHostsResult)(nil),        // 10: cloud.ListHostsResult
+	(*ContainerInfo)(nil),          // 11: cloud.ContainerInfo
+	(*ListContainersResult)(nil),   // 12: cloud.ListContainersResult
+	(*ContainerStatEntry)(nil),     // 13: cloud.ContainerStatEntry
+	(*ContainerStatsResult)(nil),   // 14: cloud.ContainerStatsResult
+	(*LogEntry)(nil),               // 15: cloud.LogEntry
+	(*FetchLogsResult)(nil),        // 16: cloud.FetchLogsResult
+	(*InspectContainerResult)(nil), // 17: cloud.InspectContainerResult
+	(*ActionResult)(nil),           // 18: cloud.ActionResult
+	(*DeployResult)(nil),           // 19: cloud.DeployResult
+	(*NotificationResult)(nil),     // 20: cloud.NotificationResult
+	nil,                            // 21: cloud.InspectContainerResult.LabelsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
-	2,  // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
-	5,  // 1: cloud.ToolRequest.call_tool:type_name -> cloud.CallToolRequest
-	7,  // 2: cloud.ToolRequest.cancel_stream:type_name -> cloud.CancelStreamRequest
-	3,  // 3: cloud.ToolResponse.list_tools:type_name -> cloud.ListToolsResponse
-	6,  // 4: cloud.ToolResponse.call_tool:type_name -> cloud.CallToolResponse
-	4,  // 5: cloud.ListToolsResponse.tools:type_name -> cloud.ToolDefinition
-	9,  // 6: cloud.CallToolResponse.list_hosts:type_name -> cloud.ListHostsResult
-	11, // 7: cloud.CallToolResponse.list_containers:type_name -> cloud.ListContainersResult
-	13, // 8: cloud.CallToolResponse.container_stats:type_name -> cloud.ContainerStatsResult
-	17, // 9: cloud.CallToolResponse.action:type_name -> cloud.ActionResult
-	15, // 10: cloud.CallToolResponse.fetch_logs:type_name -> cloud.FetchLogsResult
-	16, // 11: cloud.CallToolResponse.inspect_container:type_name -> cloud.InspectContainerResult
-	8,  // 12: cloud.ListHostsResult.hosts:type_name -> cloud.HostInfo
-	10, // 13: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
-	12, // 14: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
-	14, // 15: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
-	18, // 16: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
-	1,  // 17: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	0,  // 18: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	18, // [18:19] is the sub-list for method output_type
-	17, // [17:18] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	3,  // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
+	6,  // 1: cloud.ToolRequest.call_tool:type_name -> cloud.CallToolRequest
+	8,  // 2: cloud.ToolRequest.cancel_stream:type_name -> cloud.CancelStreamRequest
+	4,  // 3: cloud.ToolResponse.list_tools:type_name -> cloud.ListToolsResponse
+	7,  // 4: cloud.ToolResponse.call_tool:type_name -> cloud.CallToolResponse
+	5,  // 5: cloud.ListToolsResponse.tools:type_name -> cloud.ToolDefinition
+	0,  // 6: cloud.ToolDefinition.scope:type_name -> cloud.ToolScope
+	10, // 7: cloud.CallToolResponse.list_hosts:type_name -> cloud.ListHostsResult
+	12, // 8: cloud.CallToolResponse.list_containers:type_name -> cloud.ListContainersResult
+	14, // 9: cloud.CallToolResponse.container_stats:type_name -> cloud.ContainerStatsResult
+	18, // 10: cloud.CallToolResponse.action:type_name -> cloud.ActionResult
+	16, // 11: cloud.CallToolResponse.fetch_logs:type_name -> cloud.FetchLogsResult
+	17, // 12: cloud.CallToolResponse.inspect_container:type_name -> cloud.InspectContainerResult
+	19, // 13: cloud.CallToolResponse.deploy:type_name -> cloud.DeployResult
+	20, // 14: cloud.CallToolResponse.notification:type_name -> cloud.NotificationResult
+	9,  // 15: cloud.ListHostsResult.hosts:type_name -> cloud.HostInfo
+	11, // 16: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
+	13, // 17: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
+	15, // 18: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
+	21, // 19: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	2,  // 20: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	1,  // 21: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	21, // [21:22] is the sub-list for method output_type
+	20, // [20:21] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -1703,19 +1961,22 @@ func file_cloud_proto_init() {
 		(*CallToolResponse_Action)(nil),
 		(*CallToolResponse_FetchLogs)(nil),
 		(*CallToolResponse_InspectContainer)(nil),
+		(*CallToolResponse_Deploy)(nil),
+		(*CallToolResponse_Notification)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   19,
+			NumEnums:      1,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_cloud_proto_goTypes,
 		DependencyIndexes: file_cloud_proto_depIdxs,
+		EnumInfos:         file_cloud_proto_enumTypes,
 		MessageInfos:      file_cloud_proto_msgTypes,
 	}.Build()
 	File_cloud_proto = out.File
