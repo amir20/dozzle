@@ -1,7 +1,6 @@
 package cloud
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -47,13 +46,7 @@ func executeListNotifications(deps ToolDeps) (*pb.CallToolResponse, error) {
 		}
 	}
 
-	return &pb.CallToolResponse{
-		Success: true,
-		Result: &pb.CallToolResponse_Deploy{Deploy: &pb.DeployResult{
-			Success: true,
-			Message: sb.String(),
-		}},
-	}, nil
+	return notificationResponse(sb.String()), nil
 }
 
 func subscriptionKind(s *notification.Subscription) string {
@@ -84,9 +77,9 @@ func executeCreateLogNotification(argsJSON string, deps ToolDeps) (*pb.CallToolR
 		return nil, errNotificationsNotConfigured
 	}
 
-	var args createLogNotificationArgs
-	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
-		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	args, err := parseArgs[createLogNotificationArgs](argsJSON)
+	if err != nil {
+		return nil, err
 	}
 	if err := requireNonEmpty(map[string]string{
 		"name":                 args.Name,
@@ -117,9 +110,9 @@ func executeCreateMetricNotification(argsJSON string, deps ToolDeps) (*pb.CallTo
 		return nil, errNotificationsNotConfigured
 	}
 
-	var args createMetricNotificationArgs
-	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
-		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	args, err := parseArgs[createMetricNotificationArgs](argsJSON)
+	if err != nil {
+		return nil, err
 	}
 	if err := requireNonEmpty(map[string]string{
 		"name":                 args.Name,
@@ -150,9 +143,9 @@ func executeCreateEventNotification(argsJSON string, deps ToolDeps) (*pb.CallToo
 		return nil, errNotificationsNotConfigured
 	}
 
-	var args createEventNotificationArgs
-	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
-		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	args, err := parseArgs[createEventNotificationArgs](argsJSON)
+	if err != nil {
+		return nil, err
 	}
 	if err := requireNonEmpty(map[string]string{
 		"name":                 args.Name,
@@ -179,16 +172,20 @@ func requireNonEmpty(fields map[string]string) error {
 	return nil
 }
 
+func notificationResponse(message string) *pb.CallToolResponse {
+	return &pb.CallToolResponse{
+		Success: true,
+		Result: &pb.CallToolResponse_Notification{Notification: &pb.NotificationResult{
+			Success: true,
+			Message: message,
+		}},
+	}
+}
+
 func addSubscriptionResponse(svc NotificationService, sub *notification.Subscription) (*pb.CallToolResponse, error) {
 	if err := svc.AddSubscription(sub); err != nil {
 		return nil, fmt.Errorf("creating subscription: %w", err)
 	}
 
-	return &pb.CallToolResponse{
-		Success: true,
-		Result: &pb.CallToolResponse_Deploy{Deploy: &pb.DeployResult{
-			Success: true,
-			Message: fmt.Sprintf("Created alert %q (id=%d).", sub.Name, sub.ID),
-		}},
-	}, nil
+	return notificationResponse(fmt.Sprintf("Created alert %q (id=%d).", sub.Name, sub.ID)), nil
 }

@@ -1,6 +1,8 @@
 package cloud
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -8,6 +10,15 @@ import (
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
+
+// parseArgs unmarshals argsJSON into a fresh value of T.
+func parseArgs[T any](argsJSON string) (T, error) {
+	var args T
+	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
+		return args, fmt.Errorf("failed to parse arguments: %w", err)
+	}
+	return args, nil
+}
 
 // buildHostNameMap creates a mapping from host ID to host name.
 func buildHostNameMap(hostService ToolHostService) map[string]string {

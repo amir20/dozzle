@@ -25,7 +25,6 @@ import (
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
-	dockerclient "github.com/docker/docker/client"
 	"github.com/rs/zerolog/log"
 )
 
@@ -139,12 +138,15 @@ func main() {
 
 	var deployManager *deploy.Manager
 	if args.EnableActions && args.Mode != "k8s" {
-		// TODO need to also support agents
-		cli, err := dockerclient.NewClientWithOpts(dockerclient.FromEnv, dockerclient.WithAPIVersionNegotiation())
+		// TODO: route deploys through agents for remote hosts.
+		localClient, err := docker.NewLocalClient("")
 		if err != nil {
-			log.Fatal().Err(err).Msg("Could not create Docker client for compose deploy")
+			log.Warn().Err(err).Msg("Compose deploy tools disabled: could not create local Docker client")
+		} else if raw := localClient.RawClient(); raw != nil {
+			deployManager = deploy.NewManager(raw, deploy.DefaultStacksDir)
+		} else {
+			log.Warn().Msg("Compose deploy tools disabled: local Docker client has no raw handle")
 		}
-		deployManager = deploy.NewManager(cli, deploy.DefaultStacksDir)
 	}
 
 	cloudClient := cloud.NewClient(apiKeyFunc, cloud.ToolDeps{

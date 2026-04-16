@@ -20,6 +20,32 @@ type ToolHostService interface {
 	Hosts() []container.Host
 }
 
+// Tool names. Declared as consts so dispatch and AvailableTools stay in sync
+// — a mismatch here would otherwise surface only as a runtime "unknown tool".
+const (
+	toolListHosts                = "list_hosts"
+	toolFindContainers           = "find_containers"
+	toolListRunningContainers    = "list_running_containers"
+	toolListAllContainers        = "list_all_containers"
+	toolGetRunningContainerStats = "get_running_container_stats"
+	toolFetchContainerLogs       = "fetch_container_logs"
+	toolStreamLogs               = "stream_logs"
+	toolListNotifications        = "list_notifications"
+	toolInspectContainer         = "inspect_container"
+	toolStartContainer           = "start_container"
+	toolStopContainer            = "stop_container"
+	toolRestartContainer         = "restart_container"
+	toolRemoveContainer          = "remove_container"
+	toolUpdateContainer          = "update_container"
+	toolDeployCompose            = "deploy_compose"
+	toolListDeployVersions       = "list_deploy_versions"
+	toolRollbackDeploy           = "rollback_deploy"
+	toolRemoveDeploy             = "remove_deploy"
+	toolCreateLogNotification    = "create_log_notification"
+	toolCreateMetricNotification = "create_metric_notification"
+	toolCreateEventNotification  = "create_event_notification"
+)
+
 type paramProperty struct {
 	Type        string `json:"type"`
 	Description string `json:"description"`
@@ -216,63 +242,63 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	tools := []*pb.ToolDefinition{
 		{
-			Name:           "list_hosts",
+			Name:           toolListHosts,
 			Description:    "List all Docker hosts connected to Dozzle with their name, CPU cores, total memory, Docker version, and availability status.",
 			ParametersJson: noParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "find_containers",
+			Name:           toolFindContainers,
 			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. Use this before start/stop/restart actions to get the container ID and host.",
 			ParametersJson: findContainerParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "list_running_containers",
+			Name:           toolListRunningContainers,
 			Description:    "List all currently running Docker containers. Use find_containers instead if you need to filter by name or health status.",
 			ParametersJson: noParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "list_all_containers",
+			Name:           toolListAllContainers,
 			Description:    "List all Docker containers including stopped, exited, and previously run containers.",
 			ParametersJson: noParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "get_running_container_stats",
+			Name:           toolGetRunningContainerStats,
 			Description:    "Get real-time CPU and memory usage statistics for all currently running Docker containers. Returns current percentages and peak values over the last 5 minutes.",
 			ParametersJson: noParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "fetch_container_logs",
+			Name:           toolFetchContainerLogs,
 			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
 			ParametersJson: fetchLogsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "stream_logs",
+			Name:           toolStreamLogs,
 			Description:    "Stream live logs from a running Docker container in real time. Requires container_id and host_id from find_containers. Optionally filter by log level, text search, or regex pattern. Streams continuously until cancelled.",
 			ParametersJson: streamLogsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "list_notifications",
+			Name:           toolListNotifications,
 			Description:    "List configured alert subscriptions on a Dozzle host. Use this to check whether an alert already exists before creating a new one with create_log_notification, create_metric_notification, or create_event_notification.",
 			ParametersJson: listNotificationsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
 		},
 		{
-			Name:           "inspect_container",
+			Name:           toolInspectContainer,
 			Description:    "Get detailed configuration of a Docker container including environment variables, port mappings, mounts, restart policy, network mode, labels, and resource limits.",
 			ParametersJson: targetedParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
@@ -283,74 +309,74 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	if enableActions {
 		tools = append(tools,
 			&pb.ToolDefinition{
-				Name:           "start_container",
+				Name:           toolStartContainer,
 				Description:    "Start a stopped Docker container",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
-				Name:           "stop_container",
+				Name:           toolStopContainer,
 				Description:    "Stop a running Docker container",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
-				Name:           "restart_container",
+				Name:           toolRestartContainer,
 				Description:    "Restart a Docker container",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
-				Name:           "remove_container",
+				Name:           toolRemoveContainer,
 				Description:    "Remove a Docker container. The container must be stopped first — call stop_container if it is still running. Confirm with the user before removing, since the container is gone permanently (its config is kept only if it was created by a deploy_compose project).",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
-				Name:           "update_container",
+				Name:           toolUpdateContainer,
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
 			&pb.ToolDefinition{
-				Name:           "deploy_compose",
+				Name:           toolDeployCompose,
 				Description:    "Deploy a Docker Compose file. Creates or updates a project. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Each deployment is versioned for history and rollback.",
 				ParametersJson: deployComposeParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
 			},
 			&pb.ToolDefinition{
-				Name:           "list_deploy_versions",
+				Name:           toolListDeployVersions,
 				Description:    "List the deployment version history for a project. Returns version IDs, timestamps, and messages. Use the version ID with rollback_deploy to revert to a previous configuration.",
 				ParametersJson: listDeployVersionsParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
 				ReadOnly:       true,
 			},
 			&pb.ToolDefinition{
-				Name:           "rollback_deploy",
+				Name:           toolRollbackDeploy,
 				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified version and redeploys. Use list_deploy_versions to find available version IDs.",
 				ParametersJson: rollbackDeployParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
 			},
 			&pb.ToolDefinition{
-				Name:           "remove_deploy",
+				Name:           toolRemoveDeploy,
 				Description:    "Tear down a deployed project: stops and removes its containers, removes project-labeled networks, and deletes the stored version history for the project. Named volumes are preserved by default — set remove_volumes=true to also delete them (destructive — user data is lost). Ask the user to confirm before setting remove_volumes=true.",
 				ParametersJson: removeDeployParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
 			},
 			&pb.ToolDefinition{
-				Name:           "create_log_notification",
+				Name:           toolCreateLogNotification,
 				Description:    "Create an alert that fires when a container log line matches a filter. Requires a container_expression selecting which containers to watch and a log_expression matched against each log line. Alerts are delivered through the user's Dozzle Cloud channels.",
 				ParametersJson: createLogNotificationParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			},
 			&pb.ToolDefinition{
-				Name:           "create_metric_notification",
+				Name:           toolCreateMetricNotification,
 				Description:    "Create an alert that fires when container CPU/memory usage crosses a threshold. Requires a container_expression selecting which containers to watch and a metric_expression evaluated against their stats. Alerts are delivered through the user's Dozzle Cloud channels.",
 				ParametersJson: createMetricNotificationParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			},
 			&pb.ToolDefinition{
-				Name:           "create_event_notification",
+				Name:           toolCreateEventNotification,
 				Description:    "Create an alert that fires on container lifecycle events (start, stop, die, oom, health_status, etc.). Requires a container_expression selecting which containers to watch and an event_expression matched against each event. Alerts are delivered through the user's Dozzle Cloud channels.",
 				ParametersJson: createEventNotificationParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
@@ -395,72 +421,65 @@ func ExecuteTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 	return resp
 }
 
+// requiresActions lists tools gated behind --enable-actions.
+var requiresActions = map[string]struct{}{
+	toolStartContainer:           {},
+	toolStopContainer:            {},
+	toolRestartContainer:         {},
+	toolRemoveContainer:          {},
+	toolUpdateContainer:          {},
+	toolDeployCompose:            {},
+	toolListDeployVersions:       {},
+	toolRollbackDeploy:           {},
+	toolRemoveDeploy:             {},
+	toolCreateLogNotification:    {},
+	toolCreateMetricNotification: {},
+	toolCreateEventNotification:  {},
+}
+
 func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
 
+	if _, gated := requiresActions[name]; gated && !deps.EnableActions {
+		return nil, fmt.Errorf("container actions are not enabled")
+	}
+
 	switch name {
-	case "list_hosts":
+	case toolListHosts:
 		return executeListHosts(deps)
-	case "find_containers":
+	case toolFindContainers:
 		return executeFindContainers(argsJSON, deps)
-	case "list_running_containers":
+	case toolListRunningContainers:
 		return executeListRunningContainers(deps)
-	case "list_all_containers":
+	case toolListAllContainers:
 		return executeListAllContainers(deps)
-	case "get_running_container_stats":
+	case toolGetRunningContainerStats:
 		return executeGetRunningContainerStats(deps)
-	case "fetch_container_logs":
+	case toolFetchContainerLogs:
 		return executeFetchContainerLogs(ctx, argsJSON, deps)
-	case "inspect_container":
+	case toolInspectContainer:
 		return executeInspectContainer(argsJSON, deps)
-	case "list_notifications":
+	case toolListNotifications:
 		return executeListNotifications(deps)
-	case "start_container", "stop_container", "restart_container", "remove_container":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolStartContainer, toolStopContainer, toolRestartContainer, toolRemoveContainer:
 		return executeContainerAction(ctx, name, argsJSON, deps)
-	case "update_container":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolUpdateContainer:
 		return executeUpdateContainer(ctx, argsJSON, deps)
-	case "deploy_compose":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolDeployCompose:
 		return executeDeployCompose(ctx, argsJSON, deps)
-	case "list_deploy_versions":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolListDeployVersions:
 		return executeListDeployVersions(ctx, argsJSON, deps)
-	case "rollback_deploy":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolRollbackDeploy:
 		return executeRollbackDeploy(ctx, argsJSON, deps)
-	case "remove_deploy":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolRemoveDeploy:
 		return executeRemoveDeploy(ctx, argsJSON, deps)
-	case "create_log_notification":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolCreateLogNotification:
 		return executeCreateLogNotification(argsJSON, deps)
-	case "create_metric_notification":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolCreateMetricNotification:
 		return executeCreateMetricNotification(argsJSON, deps)
-	case "create_event_notification":
-		if !deps.EnableActions {
-			return nil, fmt.Errorf("container actions are not enabled")
-		}
+	case toolCreateEventNotification:
 		return executeCreateEventNotification(argsJSON, deps)
 	default:
 		return nil, fmt.Errorf("unknown tool: %s", name)

@@ -87,6 +87,7 @@ message CallToolResponse {
     FetchLogsResult fetch_logs = 7;
     InspectContainerResult inspect_container = 8;
     DeployResult deploy = 11;
+    NotificationResult notification = 12;
   }
 }
 
@@ -197,4 +198,10 @@ message DeployResult {
   bool success = 1;
   string project = 2;
   string message = 3;
+}
+
+// Notification/alert tool result (list, create).
+message NotificationResult {
+  bool success = 1;
+  string message = 2;
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/deploy"
-	"github.com/docker/docker/client"
+	"github.com/amir20/dozzle/internal/docker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,20 +25,20 @@ func (dc *DeployCmd) Run(args Args, _ embed.FS) error {
 
 	log.Info().Str("project", dc.Project).Str("file", dc.File).Msg("Deploying compose file")
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	localClient, err := docker.NewLocalClient("")
 	if err != nil {
 		return fmt.Errorf("creating docker client: %w", err)
 	}
-	defer cli.Close()
-
-	timeout := args.Timeout
-	if timeout < 10*time.Minute {
-		timeout = 10 * time.Minute
+	raw := localClient.RawClient()
+	if raw == nil {
+		return fmt.Errorf("local Docker client is missing a raw handle")
 	}
+
+	timeout := max(args.Timeout, 10*time.Minute)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	mgr := deploy.NewManager(cli, deploy.DefaultStacksDir)
+	mgr := deploy.NewManager(raw, deploy.DefaultStacksDir)
 	if err := mgr.Deploy(ctx, dc.Project, data, nil); err != nil {
 		return fmt.Errorf("deploying: %w", err)
 	}

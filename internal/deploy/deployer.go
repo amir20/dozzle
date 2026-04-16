@@ -3,6 +3,7 @@ package deploy
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -22,6 +23,16 @@ import (
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
+)
+
+// Compose resource labels. Used to tag every network/volume/container we
+// create so we can filter project-owned resources on teardown.
+const (
+	labelComposeProject = "com.docker.compose.project"
+	labelComposeService = "com.docker.compose.service"
+	labelComposeNetwork = "com.docker.compose.network"
+	labelComposeVolume  = "com.docker.compose.volume"
 )
 
 // StatusUpdate reports progress during deployment.
@@ -30,15 +41,16 @@ type StatusUpdate struct {
 	Action  string
 }
 
-func sendStatus(ch chan<- StatusUpdate, service, action string) {
-	if ch != nil {
-		ch <- StatusUpdate{Service: service, Action: action}
+func sendStatus(ctx context.Context, ch chan<- StatusUpdate, service, action string) {
+	if ch == nil {
+		return
+	}
+	select {
+	case ch <- StatusUpdate{Service: service, Action: action}:
+	case <-ctx.Done():
 	}
 }
 
-// shortID returns the first 12 characters of a Docker resource ID, or the
-// entire string if shorter. Protects against panics from mock/test drivers
-// that return short IDs.
 func shortID(id string) string {
 	if len(id) < 12 {
 		return id
@@ -46,9 +58,6 @@ func shortID(id string) string {
 	return id[:12]
 }
 
-// drainPullStream reads the JSON progress stream returned by ImagePull and
-// returns the first error reported. An empty error object or EOF without a
-// reported error is treated as success.
 func drainPullStream(r io.Reader) error {
 	dec := json.NewDecoder(r)
 	for {
@@ -65,10 +74,10 @@ func drainPullStream(r io.Reader) error {
 			return fmt.Errorf("decoding pull stream: %w", err)
 		}
 		if msg.ErrorDetail.Message != "" {
-			return fmt.Errorf("%s", msg.ErrorDetail.Message)
+			return errors.New(msg.ErrorDetail.Message)
 		}
 		if msg.Error != "" {
-			return fmt.Errorf("%s", msg.Error)
+			return errors.New(msg.Error)
 		}
 	}
 }
@@ -117,23 +126,56 @@ func (d *Deployer) Deploy(ctx context.Context, project *composetypes.Project, st
 		return fmt.Errorf("creating volumes: %w", err)
 	}
 
+	if err := d.pullImages(ctx, project, status); err != nil {
+		return err
+	}
+
 	return project.ForEachService(nil, func(name string, svc *composetypes.ServiceConfig) error {
 		return d.deployService(ctx, project.Name, name, *svc, networkIDs, status)
 	})
 }
 
+// pullImages pulls every service image concurrently (bounded). Pulls are
+// independent, so fanning them out collapses wall time on multi-service
+// projects where the ordered create phase is gated on the slowest image.
+func (d *Deployer) pullImages(ctx context.Context, project *composetypes.Project, status chan<- StatusUpdate) error {
+	g, gctx := errgroup.WithContext(ctx)
+	g.SetLimit(5)
+	for svcName, svc := range project.Services {
+		if svc.Image == "" {
+			continue
+		}
+		imageRef := svc.Image
+		g.Go(func() error {
+			sendStatus(gctx, status, svcName, "pulling")
+			log.Info().Str("service", svcName).Str("image", imageRef).Msg("Pulling image")
+			reader, err := d.cli.ImagePull(gctx, imageRef, image.PullOptions{})
+			if err != nil {
+				return fmt.Errorf("pulling image %q: %w", imageRef, err)
+			}
+			pullErr := drainPullStream(reader)
+			reader.Close()
+			if pullErr != nil {
+				return fmt.Errorf("pulling image %q: %w", imageRef, pullErr)
+			}
+			return nil
+		})
+	}
+	return g.Wait()
+}
+
 // Remove stops and removes all containers and project-labeled networks for
 // the given project. Volumes are preserved unless removeVolumes is true —
 // volumes typically hold user data, so they opt in explicitly.
-func (d *Deployer) Remove(ctx context.Context, project *composetypes.Project, removeVolumes bool, status chan<- StatusUpdate) error {
-	if err := d.removeProjectContainers(ctx, project.Name, status); err != nil {
+func (d *Deployer) Remove(ctx context.Context, projectName string, removeVolumes bool, status chan<- StatusUpdate) error {
+	if err := d.removeProjectContainers(ctx, projectName, status); err != nil {
 		return fmt.Errorf("removing containers: %w", err)
 	}
-	if err := d.removeProjectNetworks(ctx, project.Name); err != nil {
+	if err := d.removeProjectNetworks(ctx, projectName); err != nil {
 		return fmt.Errorf("removing networks: %w", err)
 	}
 	if removeVolumes {
-		if err := d.removeProjectVolumes(ctx, project.Name); err != nil {
+		if err := d.removeProjectVolumes(ctx, projectName); err != nil {
 			return fmt.Errorf("removing volumes: %w", err)
 		}
 	}
@@ -142,79 +184,109 @@ func (d *Deployer) Remove(ctx context.Context, project *composetypes.Project, re
 
 func (d *Deployer) removeProjectNetworks(ctx context.Context, projectName string) error {
 	networks, err := d.cli.NetworkList(ctx, network.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", "com.docker.compose.project="+projectName)),
+		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+projectName)),
 	})
 	if err != nil {
 		return fmt.Errorf("listing networks: %w", err)
 	}
+	g, gctx := errgroup.WithContext(ctx)
+	g.SetLimit(5)
 	for _, n := range networks {
-		if err := d.cli.NetworkRemove(ctx, n.ID); err != nil {
-			log.Warn().Err(err).Str("network", n.Name).Msg("Failed to remove network")
-			continue
-		}
-		log.Info().Str("network", n.Name).Msg("Removed network")
+		g.Go(func() error {
+			if err := d.cli.NetworkRemove(gctx, n.ID); err != nil {
+				log.Warn().Err(err).Str("network", n.Name).Msg("Failed to remove network")
+				return err
+			}
+			log.Info().Str("network", n.Name).Msg("Removed network")
+			return nil
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func (d *Deployer) removeProjectVolumes(ctx context.Context, projectName string) error {
 	vols, err := d.cli.VolumeList(ctx, volume.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", "com.docker.compose.project="+projectName)),
+		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+projectName)),
 	})
 	if err != nil {
 		return fmt.Errorf("listing volumes: %w", err)
 	}
+	g, gctx := errgroup.WithContext(ctx)
+	g.SetLimit(5)
 	for _, v := range vols.Volumes {
 		if v == nil {
 			continue
 		}
-		if err := d.cli.VolumeRemove(ctx, v.Name, false); err != nil {
-			log.Warn().Err(err).Str("volume", v.Name).Msg("Failed to remove volume")
-			continue
-		}
-		log.Info().Str("volume", v.Name).Msg("Removed volume")
+		g.Go(func() error {
+			if err := d.cli.VolumeRemove(gctx, v.Name, false); err != nil {
+				log.Warn().Err(err).Str("volume", v.Name).Msg("Failed to remove volume")
+				return err
+			}
+			log.Info().Str("volume", v.Name).Msg("Removed volume")
+			return nil
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func (d *Deployer) removeProjectContainers(ctx context.Context, projectName string, status chan<- StatusUpdate) error {
 	containers, err := d.cli.ContainerList(ctx, container.ListOptions{
 		All: true,
 		Filters: filters.NewArgs(
-			filters.Arg("label", "com.docker.compose.project="+projectName),
+			filters.Arg("label", labelComposeProject+"="+projectName),
 		),
 	})
 	if err != nil {
 		return fmt.Errorf("listing containers: %w", err)
 	}
 
+	g, gctx := errgroup.WithContext(ctx)
+	g.SetLimit(5)
 	for _, c := range containers {
-		service := c.Labels["com.docker.compose.service"]
-
-		sendStatus(status, service, "stopping")
-		if err := d.cli.ContainerStop(ctx, c.ID, container.StopOptions{}); err != nil {
-			log.Warn().Err(err).Str("container", shortID(c.ID)).Msg("Failed to stop container")
-		}
-
-		sendStatus(status, service, "removing")
-		if err := d.cli.ContainerRemove(ctx, c.ID, container.RemoveOptions{Force: true}); err != nil {
-			return fmt.Errorf("removing container %s: %w", shortID(c.ID), err)
-		}
-		log.Info().Str("service", service).Str("container", shortID(c.ID)).Msg("Removed container")
+		service := c.Labels[labelComposeService]
+		g.Go(func() error {
+			sendStatus(gctx, status, service, "removing")
+			if err := d.cli.ContainerRemove(gctx, c.ID, container.RemoveOptions{Force: true}); err != nil {
+				return fmt.Errorf("removing container %s: %w", shortID(c.ID), err)
+			}
+			log.Info().Str("service", service).Str("container", shortID(c.ID)).Msg("Removed container")
+			return nil
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Project) (map[string]string, error) {
 	ids := make(map[string]string)
 
-	existing, err := d.cli.NetworkList(ctx, network.ListOptions{})
+	// Two listings: project-owned (for idempotent reuse) and external references.
+	// Project filter keeps the response small on hosts with many stacks.
+	ownedList, err := d.cli.NetworkList(ctx, network.ListOptions{
+		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+project.Name)),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("listing networks: %w", err)
 	}
-	existingByName := make(map[string]string)
-	for _, n := range existing {
-		existingByName[n.Name] = n.ID
+	ownedByName := make(map[string]string, len(ownedList))
+	for _, n := range ownedList {
+		ownedByName[n.Name] = n.ID
+	}
+
+	// External networks are looked up unfiltered, on demand (they are not project-labeled).
+	var externalByName map[string]string
+	lookupExternalNet := func() error {
+		if externalByName != nil {
+			return nil
+		}
+		all, err := d.cli.NetworkList(ctx, network.ListOptions{})
+		if err != nil {
+			return fmt.Errorf("listing external networks: %w", err)
+		}
+		externalByName = make(map[string]string, len(all))
+		for _, n := range all {
+			externalByName[n.Name] = n.ID
+		}
+		return nil
 	}
 
 	for name, netCfg := range project.Networks {
@@ -223,11 +295,14 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 			if extName == "" {
 				extName = name
 			}
-			if id, ok := existingByName[extName]; ok {
-				ids[name] = id
-			} else {
+			if err := lookupExternalNet(); err != nil {
+				return nil, err
+			}
+			id, ok := externalByName[extName]
+			if !ok {
 				return nil, fmt.Errorf("external network %q not found", extName)
 			}
+			ids[name] = id
 			continue
 		}
 
@@ -236,7 +311,7 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 			fullName = project.Name + "_" + name
 		}
 
-		if id, ok := existingByName[fullName]; ok {
+		if id, ok := ownedByName[fullName]; ok {
 			ids[name] = id
 			log.Info().Str("network", fullName).Msg("Network already exists, skipping")
 			continue
@@ -249,8 +324,8 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 
 		labels := make(map[string]string)
 		maps.Copy(labels, netCfg.Labels)
-		labels["com.docker.compose.project"] = project.Name
-		labels["com.docker.compose.network"] = name
+		labels[labelComposeProject] = project.Name
+		labels[labelComposeNetwork] = name
 
 		resp, err := d.cli.NetworkCreate(ctx, fullName, network.CreateOptions{
 			Driver:     driver,
@@ -270,19 +345,51 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 }
 
 func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Project) error {
-	existing, err := d.cli.VolumeList(ctx, volume.ListOptions{})
+	// Project-filtered listing keeps the response small on hosts with many stacks.
+	ownedList, err := d.cli.VolumeList(ctx, volume.ListOptions{
+		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+project.Name)),
+	})
 	if err != nil {
 		return fmt.Errorf("listing volumes: %w", err)
 	}
-	existingByName := make(map[string]struct{}, len(existing.Volumes))
-	for _, v := range existing.Volumes {
+	ownedByName := make(map[string]struct{}, len(ownedList.Volumes))
+	for _, v := range ownedList.Volumes {
 		if v != nil {
-			existingByName[v.Name] = struct{}{}
+			ownedByName[v.Name] = struct{}{}
 		}
+	}
+
+	// External volumes are looked up unfiltered, on demand (they are not project-labeled).
+	var externalByName map[string]struct{}
+	lookupExternal := func() error {
+		if externalByName != nil {
+			return nil
+		}
+		all, err := d.cli.VolumeList(ctx, volume.ListOptions{})
+		if err != nil {
+			return fmt.Errorf("listing external volumes: %w", err)
+		}
+		externalByName = make(map[string]struct{}, len(all.Volumes))
+		for _, v := range all.Volumes {
+			if v != nil {
+				externalByName[v.Name] = struct{}{}
+			}
+		}
+		return nil
 	}
 
 	for name, volCfg := range project.Volumes {
 		if bool(volCfg.External) {
+			extName := volCfg.Name
+			if extName == "" {
+				extName = name
+			}
+			if err := lookupExternal(); err != nil {
+				return err
+			}
+			if _, ok := externalByName[extName]; !ok {
+				return fmt.Errorf("external volume %q not found", extName)
+			}
 			continue
 		}
 
@@ -291,7 +398,7 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 			fullName = project.Name + "_" + name
 		}
 
-		if _, ok := existingByName[fullName]; ok {
+		if _, ok := ownedByName[fullName]; ok {
 			log.Info().Str("volume", fullName).Msg("Volume already exists, skipping")
 			continue
 		}
@@ -303,8 +410,8 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 
 		labels := make(map[string]string)
 		maps.Copy(labels, volCfg.Labels)
-		labels["com.docker.compose.project"] = project.Name
-		labels["com.docker.compose.volume"] = name
+		labels[labelComposeProject] = project.Name
+		labels[labelComposeVolume] = name
 
 		if _, err := d.cli.VolumeCreate(ctx, volume.CreateOptions{
 			Name:       fullName,
@@ -324,57 +431,53 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 		return fmt.Errorf("service %q has no image (build is not supported)", name)
 	}
 
-	sendStatus(status, name, "pulling")
-	log.Info().Str("service", name).Str("image", svc.Image).Msg("Pulling image")
-	reader, err := d.cli.ImagePull(ctx, svc.Image, image.PullOptions{})
-	if err != nil {
-		return fmt.Errorf("pulling image %q: %w", svc.Image, err)
-	}
-	pullErr := drainPullStream(reader)
-	reader.Close()
-	if pullErr != nil {
-		return fmt.Errorf("pulling image %q: %w", svc.Image, pullErr)
+	// Pick the primary network (attached at container-create time) deterministically.
+	// sortedNetworks is alphabetical so create-time and later NetworkConnect agree.
+	sortedNetworks := sortedNetworkNames(svc.Networks)
+	primaryNetName := ""
+	for _, n := range sortedNetworks {
+		if _, ok := networkIDs[n]; ok {
+			primaryNetName = n
+			break
+		}
 	}
 
-	sortedNetworks := sortedNetworkNames(svc.Networks)
-	config, hostConfig, networkingConfig := buildContainerConfig(projectName, name, svc, networkIDs, sortedNetworks)
+	config, hostConfig, networkingConfig := buildContainerConfig(projectName, name, svc, networkIDs, primaryNetName)
 
 	containerName := svc.ContainerName
 	if containerName == "" {
 		containerName = projectName + "-" + name + "-1"
 	}
 
-	sendStatus(status, name, "creating")
+	sendStatus(ctx, status, name, "creating")
 	resp, err := d.cli.ContainerCreate(ctx, config, hostConfig, networkingConfig, nil, containerName)
 	if err != nil {
 		return fmt.Errorf("creating container %q: %w", containerName, err)
 	}
 	log.Info().Str("service", name).Str("container", containerName).Str("id", shortID(resp.ID)).Msg("Created container")
 
-	// Connect to additional networks beyond the first (the first was attached
-	// at create time via NetworkingConfig). Iteration order is deterministic
-	// via sortedNetworks so the network chosen at create matches the skip here.
-	for i, netName := range sortedNetworks {
-		if i == 0 {
+	for _, netName := range sortedNetworks {
+		if netName == primaryNetName {
 			continue
 		}
 		netID, ok := networkIDs[netName]
 		if !ok {
 			continue
 		}
-		var aliases []string
-		if netCfg := svc.Networks[netName]; netCfg != nil {
-			aliases = netCfg.Aliases
-		}
-		aliases = append(aliases, name)
+		netCfg := svc.Networks[netName]
+		aliases := copyAliases(netCfg, name)
 		if err := d.cli.NetworkConnect(ctx, netID, resp.ID, &network.EndpointSettings{
 			Aliases: aliases,
 		}); err != nil {
+			// Partial attachment would leave an orphan. Remove and bail.
+			if rmErr := d.cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{Force: true}); rmErr != nil {
+				log.Warn().Err(rmErr).Str("container", shortID(resp.ID)).Msg("Failed to clean up after NetworkConnect error")
+			}
 			return fmt.Errorf("connecting container to network %q: %w", netName, err)
 		}
 	}
 
-	sendStatus(status, name, "starting")
+	sendStatus(ctx, status, name, "starting")
 	if err := d.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
 		return fmt.Errorf("starting container %q: %w", containerName, err)
 	}
@@ -383,9 +486,20 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	return nil
 }
 
-// sortedNetworkNames returns the service's network keys in a deterministic
-// order (alphabetical) so the "primary" network used at container-create time
-// is stable across runs.
+// copyAliases returns a fresh aliases slice with the service name appended.
+// Important: compose-go's ServiceNetworkConfig.Aliases is shared across
+// deploys — appending directly would mutate the project model if cap allows.
+func copyAliases(netCfg *composetypes.ServiceNetworkConfig, serviceName string) []string {
+	var src []string
+	if netCfg != nil {
+		src = netCfg.Aliases
+	}
+	out := make([]string, 0, len(src)+1)
+	out = append(out, src...)
+	out = append(out, serviceName)
+	return out
+}
+
 func sortedNetworkNames(nets map[string]*composetypes.ServiceNetworkConfig) []string {
 	names := make([]string, 0, len(nets))
 	for k := range nets {
@@ -395,8 +509,7 @@ func sortedNetworkNames(nets map[string]*composetypes.ServiceNetworkConfig) []st
 	return names
 }
 
-func buildContainerConfig(projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string, sortedNetworks []string) (*container.Config, *container.HostConfig, *network.NetworkingConfig) {
-	// Environment
+func buildContainerConfig(projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string, primaryNetName string) (*container.Config, *container.HostConfig, *network.NetworkingConfig) {
 	env := make([]string, 0, len(svc.Environment))
 	for k, v := range svc.Environment {
 		if v != nil {
@@ -406,17 +519,19 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		}
 	}
 
-	// Labels
 	labels := make(map[string]string)
 	maps.Copy(labels, svc.Labels)
-	labels["com.docker.compose.project"] = projectName
-	labels["com.docker.compose.service"] = name
+	labels[labelComposeProject] = projectName
+	labels[labelComposeService] = name
 
-	// Ports
 	exposedPorts := nat.PortSet{}
 	portBindings := nat.PortMap{}
 	for _, p := range svc.Ports {
-		natPort := nat.Port(strconv.FormatUint(uint64(p.Target), 10) + "/" + p.Protocol)
+		proto := p.Protocol
+		if proto == "" {
+			proto = "tcp"
+		}
+		natPort := nat.Port(strconv.FormatUint(uint64(p.Target), 10) + "/" + proto)
 		exposedPorts[natPort] = struct{}{}
 		portBindings[natPort] = append(portBindings[natPort], nat.PortBinding{
 			HostIP:   p.HostIP,
@@ -424,7 +539,6 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		})
 	}
 
-	// Mounts
 	mounts := make([]mount.Mount, 0, len(svc.Volumes))
 	for _, v := range svc.Volumes {
 		m := mount.Mount{
@@ -447,13 +561,11 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		mounts = append(mounts, m)
 	}
 
-	// Tmpfs
 	tmpfs := make(map[string]string)
 	for _, t := range svc.Tmpfs {
 		tmpfs[t] = ""
 	}
 
-	// Restart policy
 	restartPolicy := container.RestartPolicy{}
 	switch svc.Restart {
 	case "always":
@@ -466,39 +578,23 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		restartPolicy.Name = container.RestartPolicyDisabled
 	}
 
-	// Network mode
 	networkMode := container.NetworkMode(svc.NetworkMode)
 
-	// First network for NetworkingConfig (iteration order determined by
-	// sortedNetworks so create-time attachment matches later NetworkConnect).
 	var networkingConfig *network.NetworkingConfig
-	if networkMode == "" && len(sortedNetworks) > 0 {
-		endpointsConfig := make(map[string]*network.EndpointSettings)
-		for _, netName := range sortedNetworks {
-			netID, ok := networkIDs[netName]
-			if !ok {
-				continue
+	if networkMode == "" && primaryNetName != "" {
+		if netID, ok := networkIDs[primaryNetName]; ok {
+			netCfg := svc.Networks[primaryNetName]
+			aliases := copyAliases(netCfg, name)
+			networkingConfig = &network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					netID: {Aliases: aliases},
+				},
 			}
-			netCfg := svc.Networks[netName]
-			var aliases []string
-			if netCfg != nil {
-				aliases = netCfg.Aliases
-			}
-			aliases = append(aliases, name)
-			endpointsConfig[netID] = &network.EndpointSettings{
-				Aliases: aliases,
-			}
-			break // only first network at create time
-		}
-		if len(endpointsConfig) > 0 {
-			networkingConfig = &network.NetworkingConfig{EndpointsConfig: endpointsConfig}
 		}
 	}
 
-	// Extra hosts
 	extraHosts := svc.ExtraHosts.AsList(":")
 
-	// Healthcheck
 	var healthcheck *dockerspec.HealthcheckConfig
 	if svc.HealthCheck != nil {
 		if svc.HealthCheck.Disable {
@@ -527,17 +623,12 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		}
 	}
 
-	// Logging
 	var logConfig container.LogConfig
-	if svc.Logging != nil {
+	if svc.Logging != nil && svc.Logging.Driver != "" {
 		logConfig.Type = svc.Logging.Driver
-		logConfig.Config = make(map[string]string)
-		for k, v := range svc.Logging.Options {
-			logConfig.Config[k] = v
-		}
+		logConfig.Config = maps.Clone(svc.Logging.Options)
 	}
 
-	// Devices
 	devices := make([]container.DeviceMapping, 0, len(svc.Devices))
 	for _, dev := range svc.Devices {
 		devices = append(devices, container.DeviceMapping{
@@ -547,18 +638,17 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		})
 	}
 
-	// Ulimits
-	var ulimits []*units.Ulimit
-	for name, ul := range svc.Ulimits {
+	ulimits := make([]*units.Ulimit, 0, len(svc.Ulimits))
+	for ulName, ul := range svc.Ulimits {
 		if ul.Single != 0 {
 			ulimits = append(ulimits, &units.Ulimit{
-				Name: name,
+				Name: ulName,
 				Hard: int64(ul.Single),
 				Soft: int64(ul.Single),
 			})
 		} else {
 			ulimits = append(ulimits, &units.Ulimit{
-				Name: name,
+				Name: ulName,
 				Soft: int64(ul.Soft),
 				Hard: int64(ul.Hard),
 			})

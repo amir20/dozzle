@@ -52,7 +52,7 @@ func TestListNotifications_EmptyAndPopulated(t *testing.T) {
 	resp := ExecuteTool(context.Background(), "list_notifications", `{"instance_id":"42"}`, ToolDeps{EnableActions: true, NotificationService: svc})
 	require.True(t, resp.Success)
 
-	msg := resp.GetDeploy().Message
+	msg := resp.GetNotification().Message
 	assert.Contains(t, msg, "nginx errors")
 	assert.Contains(t, msg, "cpu high")
 	assert.Contains(t, msg, `log:       level == "error"`)
