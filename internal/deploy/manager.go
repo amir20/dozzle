@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,21 @@ const (
 	// DefaultStacksDir is the default on-disk location for git-backed compose projects.
 	DefaultStacksDir = "./data/stacks"
 )
+
+// projectNameRegexp follows the compose project-name rules: lowercase letters,
+// digits, dashes, and underscores only. Anything else is rejected to prevent
+// path traversal and to stay consistent with compose-go's own validation.
+var projectNameRegexp = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
+
+func validateProjectName(name string) error {
+	if name == "" {
+		return fmt.Errorf("project name is required")
+	}
+	if !projectNameRegexp.MatchString(name) {
+		return fmt.Errorf("invalid project name %q: must match [a-z0-9][a-z0-9_-]*", name)
+	}
+	return nil
+}
 
 // Version represents a single commit in a project's git history.
 type Version struct {
@@ -63,6 +79,9 @@ func (m *Manager) lockProject(name string) func() {
 // Deploy creates a new git-backed project if it doesn't exist, or updates the
 // existing one, then redeploys. Status updates are sent to the optional channel.
 func (m *Manager) Deploy(ctx context.Context, name string, composeYAML []byte, status chan<- StatusUpdate) error {
+	if err := validateProjectName(name); err != nil {
+		return err
+	}
 	defer m.lockProject(name)()
 
 	dir := m.projectDir(name)
@@ -117,7 +136,7 @@ func (m *Manager) createLocked(ctx context.Context, name string, composeYAML []b
 		return fmt.Errorf("committing: %w", err)
 	}
 
-	project, err := ParseCompose(composeYAML, name)
+	project, err := ParseCompose(ctx, composeYAML, name)
 	if err != nil {
 		return fmt.Errorf("parsing compose file: %w", err)
 	}
@@ -168,7 +187,7 @@ func (m *Manager) updateLocked(ctx context.Context, name string, composeYAML []b
 		}
 	}
 
-	project, err := ParseCompose(composeYAML, name)
+	project, err := ParseCompose(ctx, composeYAML, name)
 	if err != nil {
 		return fmt.Errorf("parsing compose file: %w", err)
 	}
@@ -186,6 +205,9 @@ func (m *Manager) updateLocked(ctx context.Context, name string, composeYAML []b
 // (including git history). If removeVolumes is true, project-labeled named
 // volumes are also deleted — this is destructive and should be opt-in.
 func (m *Manager) Remove(ctx context.Context, name string, removeVolumes bool, status chan<- StatusUpdate) error {
+	if err := validateProjectName(name); err != nil {
+		return err
+	}
 	defer m.lockProject(name)()
 
 	dir := m.projectDir(name)
@@ -199,7 +221,7 @@ func (m *Manager) Remove(ctx context.Context, name string, removeVolumes bool, s
 	if err != nil {
 		return fmt.Errorf("reading compose file: %w", err)
 	}
-	project, err := ParseCompose(composeYAML, name)
+	project, err := ParseCompose(ctx, composeYAML, name)
 	if err != nil {
 		return fmt.Errorf("parsing compose file: %w", err)
 	}
@@ -218,6 +240,9 @@ func (m *Manager) Remove(ctx context.Context, name string, removeVolumes bool, s
 
 // ListVersions returns the git commit history for a project, newest first.
 func (m *Manager) ListVersions(name string) ([]Version, error) {
+	if err := validateProjectName(name); err != nil {
+		return nil, err
+	}
 	defer m.lockProject(name)()
 
 	dir := m.projectDir(name)
@@ -250,6 +275,9 @@ func (m *Manager) ListVersions(name string) ([]Version, error) {
 // RollbackVersion restores the compose file from a previous commit, creates
 // a new rollback commit, and redeploys. Supports both full and short commit hashes.
 func (m *Manager) RollbackVersion(ctx context.Context, name string, commitHash string, status chan<- StatusUpdate) error {
+	if err := validateProjectName(name); err != nil {
+		return err
+	}
 	defer m.lockProject(name)()
 
 	dir := m.projectDir(name)
@@ -312,7 +340,7 @@ func (m *Manager) RollbackVersion(ctx context.Context, name string, commitHash s
 		}
 	}
 
-	project, err := ParseCompose(composeYAML, name)
+	project, err := ParseCompose(ctx, composeYAML, name)
 	if err != nil {
 		return fmt.Errorf("parsing compose file: %w", err)
 	}

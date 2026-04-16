@@ -49,16 +49,23 @@ type fakeDockerClient struct {
 	// respectively. Tests set these to simulate existing resources.
 	networksOnList []network.Summary
 	volumesOnList  []*volume.Volume
+	// pullBody is returned by ImagePull so tests can exercise pull-stream
+	// error handling. Empty body is a successful no-op.
+	pullBody []byte
 
 	pullCalls          atomic.Int64
 	startCalls         atomic.Int64
 	networkRemoveCalls atomic.Int64
 	volumeRemoveCalls  atomic.Int64
+	volumeCreateCalls  atomic.Int64
 }
 
 func (f *fakeDockerClient) ImagePull(_ context.Context, _ string, _ image.PullOptions) (io.ReadCloser, error) {
 	f.pullCalls.Add(1)
-	return io.NopCloser(bytes.NewReader(nil)), nil
+	f.mu.Lock()
+	body := f.pullBody
+	f.mu.Unlock()
+	return io.NopCloser(bytes.NewReader(body)), nil
 }
 
 func (f *fakeDockerClient) ContainerCreate(_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig, _ *ocispec.Platform, name string) (container.CreateResponse, error) {
@@ -116,6 +123,7 @@ func (f *fakeDockerClient) NetworkRemove(_ context.Context, _ string) error {
 }
 
 func (f *fakeDockerClient) VolumeCreate(_ context.Context, _ volume.CreateOptions) (volume.Volume, error) {
+	f.volumeCreateCalls.Add(1)
 	return volume.Volume{}, nil
 }
 
@@ -354,6 +362,58 @@ func TestManager_Deploy_ParallelizesDifferentProjects(t *testing.T) {
 	for err := range errs {
 		require.NoError(t, err)
 	}
+}
+
+func TestManager_RejectsUnsafeProjectNames(t *testing.T) {
+	dir := t.TempDir()
+	mgr := NewManager(&fakeDockerClient{}, dir)
+	ctx := context.Background()
+
+	cases := []string{"../etc", "foo/bar", "..", "", "Foo", "foo bar"}
+	for _, name := range cases {
+		err := mgr.Deploy(ctx, name, []byte(testCompose), nil)
+		assert.Error(t, err, "expected Deploy to reject unsafe project name %q", name)
+	}
+}
+
+func TestManager_PullError_Surfaces(t *testing.T) {
+	dir := t.TempDir()
+	cli := &fakeDockerClient{
+		// Simulate Docker pull stream emitting an error JSON object.
+		pullBody: []byte(`{"errorDetail":{"message":"pull access denied"},"error":"pull access denied"}`),
+	}
+	mgr := NewManager(cli, dir)
+	err := mgr.Deploy(context.Background(), "myapp", []byte(testCompose), nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "pull access denied")
+}
+
+func TestManager_CreateVolumes_Idempotent(t *testing.T) {
+	const compose = `
+services:
+  web:
+    image: nginx
+    volumes:
+      - data:/data
+volumes:
+  data:
+`
+	dir := t.TempDir()
+	cli := &fakeDockerClient{}
+	mgr := NewManager(cli, dir)
+	ctx := context.Background()
+
+	// First deploy creates the volume.
+	require.NoError(t, mgr.Deploy(ctx, "myapp", []byte(compose), nil))
+	firstCreates := cli.volumeCreateCalls.Load()
+
+	// Pretend the volume now exists so the second deploy must skip it.
+	cli.mu.Lock()
+	cli.volumesOnList = []*volume.Volume{{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}}}
+	cli.mu.Unlock()
+
+	require.NoError(t, mgr.Deploy(ctx, "myapp", []byte(compose), nil))
+	assert.Equal(t, firstCreates, cli.volumeCreateCalls.Load(), "existing volume must not be re-created")
 }
 
 func TestManager_RollbackVersion_SerializesWithDeploy(t *testing.T) {

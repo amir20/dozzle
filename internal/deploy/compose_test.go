@@ -1,6 +1,7 @@
 package deploy
 
 import (
+	"context"
 	"testing"
 
 	composetypes "github.com/compose-spec/compose-go/v2/types"
@@ -41,7 +42,7 @@ networks:
     driver: bridge
 `)
 
-	project, err := ParseCompose(data, "myapp")
+	project, err := ParseCompose(context.Background(), data, "myapp")
 	require.NoError(t, err)
 
 	assert.Equal(t, "myapp", project.Name)
@@ -84,7 +85,7 @@ services:
   redis:
     image: redis
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -104,7 +105,7 @@ networks:
   frontend:
   backend:
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -126,7 +127,7 @@ networks:
   frontend:
   backend:
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -147,7 +148,7 @@ services:
       - hello
       - world
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	strCmd, _ := project.GetService("string_cmd")
@@ -166,7 +167,7 @@ services:
       FOO: bar
       BAZ: "123"
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -183,7 +184,7 @@ services:
       - "com.example.foo=bar"
       - "com.example.baz=qux"
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -202,7 +203,7 @@ networks:
   mynet:
     external: true
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	assert.True(t, bool(project.Networks["mynet"].External))
@@ -219,7 +220,7 @@ volumes:
   shared:
     external: true
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	assert.True(t, bool(project.Volumes["shared"].External))
@@ -236,7 +237,7 @@ services:
       - "8080:80/udp"
       - "127.0.0.1:8080:80"
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	web, _ := project.GetService("web")
@@ -266,7 +267,7 @@ services:
   redis:
     image: redis
 `)
-	project, err := ParseCompose(data, "test")
+	project, err := ParseCompose(context.Background(), data, "test")
 	require.NoError(t, err)
 
 	var order []string

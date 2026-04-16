@@ -9,8 +9,8 @@ import (
 
 // ParseCompose parses raw compose YAML bytes into a Project.
 // The project name is used as a prefix for resource names (networks, volumes, containers).
-func ParseCompose(data []byte, projectName string) (*types.Project, error) {
-	return loader.LoadWithContext(context.Background(), types.ConfigDetails{
+func ParseCompose(ctx context.Context, data []byte, projectName string) (*types.Project, error) {
+	return loader.LoadWithContext(ctx, types.ConfigDetails{
 		ConfigFiles: []types.ConfigFile{
 			{Content: data},
 		},

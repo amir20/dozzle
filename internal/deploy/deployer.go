@@ -2,9 +2,11 @@ package deploy
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"maps"
+	"sort"
 	"strconv"
 	"time"
 
@@ -31,6 +33,43 @@ type StatusUpdate struct {
 func sendStatus(ch chan<- StatusUpdate, service, action string) {
 	if ch != nil {
 		ch <- StatusUpdate{Service: service, Action: action}
+	}
+}
+
+// shortID returns the first 12 characters of a Docker resource ID, or the
+// entire string if shorter. Protects against panics from mock/test drivers
+// that return short IDs.
+func shortID(id string) string {
+	if len(id) < 12 {
+		return id
+	}
+	return id[:12]
+}
+
+// drainPullStream reads the JSON progress stream returned by ImagePull and
+// returns the first error reported. An empty error object or EOF without a
+// reported error is treated as success.
+func drainPullStream(r io.Reader) error {
+	dec := json.NewDecoder(r)
+	for {
+		var msg struct {
+			Error       string `json:"error"`
+			ErrorDetail struct {
+				Message string `json:"message"`
+			} `json:"errorDetail"`
+		}
+		if err := dec.Decode(&msg); err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return fmt.Errorf("decoding pull stream: %w", err)
+		}
+		if msg.ErrorDetail.Message != "" {
+			return fmt.Errorf("%s", msg.ErrorDetail.Message)
+		}
+		if msg.Error != "" {
+			return fmt.Errorf("%s", msg.Error)
+		}
 	}
 }
 
@@ -154,14 +193,14 @@ func (d *Deployer) removeProjectContainers(ctx context.Context, projectName stri
 
 		sendStatus(status, service, "stopping")
 		if err := d.cli.ContainerStop(ctx, c.ID, container.StopOptions{}); err != nil {
-			log.Warn().Err(err).Str("container", c.ID[:12]).Msg("Failed to stop container")
+			log.Warn().Err(err).Str("container", shortID(c.ID)).Msg("Failed to stop container")
 		}
 
 		sendStatus(status, service, "removing")
-		if err := d.cli.ContainerRemove(ctx, c.ID, container.RemoveOptions{}); err != nil {
-			return fmt.Errorf("removing container %s: %w", c.ID[:12], err)
+		if err := d.cli.ContainerRemove(ctx, c.ID, container.RemoveOptions{Force: true}); err != nil {
+			return fmt.Errorf("removing container %s: %w", shortID(c.ID), err)
 		}
-		log.Info().Str("service", service).Str("container", c.ID[:12]).Msg("Removed container")
+		log.Info().Str("service", service).Str("container", shortID(c.ID)).Msg("Removed container")
 	}
 	return nil
 }
@@ -224,13 +263,24 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 			return nil, fmt.Errorf("creating network %q: %w", fullName, err)
 		}
 		ids[name] = resp.ID
-		log.Info().Str("network", fullName).Str("id", resp.ID[:12]).Msg("Created network")
+		log.Info().Str("network", fullName).Str("id", shortID(resp.ID)).Msg("Created network")
 	}
 
 	return ids, nil
 }
 
 func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Project) error {
+	existing, err := d.cli.VolumeList(ctx, volume.ListOptions{})
+	if err != nil {
+		return fmt.Errorf("listing volumes: %w", err)
+	}
+	existingByName := make(map[string]struct{}, len(existing.Volumes))
+	for _, v := range existing.Volumes {
+		if v != nil {
+			existingByName[v.Name] = struct{}{}
+		}
+	}
+
 	for name, volCfg := range project.Volumes {
 		if bool(volCfg.External) {
 			continue
@@ -240,6 +290,12 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 		if fullName == "" {
 			fullName = project.Name + "_" + name
 		}
+
+		if _, ok := existingByName[fullName]; ok {
+			log.Info().Str("volume", fullName).Msg("Volume already exists, skipping")
+			continue
+		}
+
 		driver := volCfg.Driver
 		if driver == "" {
 			driver = "local"
@@ -250,16 +306,15 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 		labels["com.docker.compose.project"] = project.Name
 		labels["com.docker.compose.volume"] = name
 
-		_, err := d.cli.VolumeCreate(ctx, volume.CreateOptions{
+		if _, err := d.cli.VolumeCreate(ctx, volume.CreateOptions{
 			Name:       fullName,
 			Driver:     driver,
 			DriverOpts: volCfg.DriverOpts,
 			Labels:     labels,
-		})
-		if err != nil {
+		}); err != nil {
 			return fmt.Errorf("creating volume %q: %w", fullName, err)
 		}
-		log.Info().Str("volume", fullName).Msg("Ensured volume")
+		log.Info().Str("volume", fullName).Msg("Created volume")
 	}
 	return nil
 }
@@ -275,10 +330,14 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	if err != nil {
 		return fmt.Errorf("pulling image %q: %w", svc.Image, err)
 	}
-	io.Copy(io.Discard, reader)
+	pullErr := drainPullStream(reader)
 	reader.Close()
+	if pullErr != nil {
+		return fmt.Errorf("pulling image %q: %w", svc.Image, pullErr)
+	}
 
-	config, hostConfig, networkingConfig := buildContainerConfig(projectName, name, svc, networkIDs)
+	sortedNetworks := sortedNetworkNames(svc.Networks)
+	config, hostConfig, networkingConfig := buildContainerConfig(projectName, name, svc, networkIDs, sortedNetworks)
 
 	containerName := svc.ContainerName
 	if containerName == "" {
@@ -290,13 +349,13 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	if err != nil {
 		return fmt.Errorf("creating container %q: %w", containerName, err)
 	}
-	log.Info().Str("service", name).Str("container", containerName).Str("id", resp.ID[:12]).Msg("Created container")
+	log.Info().Str("service", name).Str("container", containerName).Str("id", shortID(resp.ID)).Msg("Created container")
 
-	// Connect to additional networks beyond the first.
-	first := true
-	for netName := range svc.Networks {
-		if first {
-			first = false
+	// Connect to additional networks beyond the first (the first was attached
+	// at create time via NetworkingConfig). Iteration order is deterministic
+	// via sortedNetworks so the network chosen at create matches the skip here.
+	for i, netName := range sortedNetworks {
+		if i == 0 {
 			continue
 		}
 		netID, ok := networkIDs[netName]
@@ -324,7 +383,19 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	return nil
 }
 
-func buildContainerConfig(projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string) (*container.Config, *container.HostConfig, *network.NetworkingConfig) {
+// sortedNetworkNames returns the service's network keys in a deterministic
+// order (alphabetical) so the "primary" network used at container-create time
+// is stable across runs.
+func sortedNetworkNames(nets map[string]*composetypes.ServiceNetworkConfig) []string {
+	names := make([]string, 0, len(nets))
+	for k := range nets {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	return names
+}
+
+func buildContainerConfig(projectName, name string, svc composetypes.ServiceConfig, networkIDs map[string]string, sortedNetworks []string) (*container.Config, *container.HostConfig, *network.NetworkingConfig) {
 	// Environment
 	env := make([]string, 0, len(svc.Environment))
 	for k, v := range svc.Environment {
@@ -398,15 +469,17 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 	// Network mode
 	networkMode := container.NetworkMode(svc.NetworkMode)
 
-	// First network for NetworkingConfig
+	// First network for NetworkingConfig (iteration order determined by
+	// sortedNetworks so create-time attachment matches later NetworkConnect).
 	var networkingConfig *network.NetworkingConfig
-	if networkMode == "" && len(svc.Networks) > 0 {
+	if networkMode == "" && len(sortedNetworks) > 0 {
 		endpointsConfig := make(map[string]*network.EndpointSettings)
-		for netName, netCfg := range svc.Networks {
+		for _, netName := range sortedNetworks {
 			netID, ok := networkIDs[netName]
 			if !ok {
 				continue
 			}
+			netCfg := svc.Networks[netName]
 			var aliases []string
 			if netCfg != nil {
 				aliases = netCfg.Aliases
