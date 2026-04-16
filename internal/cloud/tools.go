@@ -129,8 +129,8 @@ var (
 
 	containerExpressionParam = paramProperty{
 		Type: "string",
-		Description: `Required. expr-lang expression selecting which containers trigger the alert. Fields: name, id, image, state, health, host, labels.
-Examples: name contains "nginx"; state == "running"; image matches "redis.*"; name contains "api" && health == "healthy".`,
+		Description: `Required. expr-lang expression selecting which containers trigger the alert. Use "true" to match every container — this is the right default whenever the user asks for an alert without naming a specific target ("all my containers", "any error", "logs of type error" with no target named). Only write a filter when the user names containers or gives a pattern. Available fields when filtering: name, id, image, state, health, host, labels.
+Examples: true (match every container — default for unscoped asks); name contains "nginx"; state == "running"; image matches "redis.*"; name contains "api" && health == "healthy".`,
 	}
 
 	createLogNotificationParams = mustSchema(paramSchema{
