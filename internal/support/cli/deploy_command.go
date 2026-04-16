@@ -38,12 +38,9 @@ func (dc *DeployCmd) Run(args Args, _ embed.FS) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	mgr := deploy.NewManager(cli, "./data/stacks")
-	if err := mgr.UpdateConfig(ctx, dc.Project, data, nil); err != nil {
-		// If project doesn't exist yet, create it
-		if err := mgr.CreateProject(ctx, dc.Project, data); err != nil {
-			return fmt.Errorf("deploying: %w", err)
-		}
+	mgr := deploy.NewManager(cli, deploy.DefaultStacksDir)
+	if err := mgr.Deploy(ctx, dc.Project, data, nil); err != nil {
+		return fmt.Errorf("deploying: %w", err)
 	}
 
 	log.Info().Str("project", dc.Project).Msg("Deployment complete")

@@ -2,10 +2,12 @@ package deploy
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -13,7 +15,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const composeFilename = "compose.yaml"
+const (
+	composeFilename = "compose.yaml"
+	// DefaultStacksDir is the default on-disk location for git-backed compose projects.
+	DefaultStacksDir = "./data/stacks"
+)
 
 // Version represents a single commit in a project's git history.
 type Version struct {
@@ -24,9 +30,14 @@ type Version struct {
 
 // Manager manages git-backed compose projects under a data directory.
 // Each project lives in its own git repository at {dataDir}/{projectName}.
+//
+// All operations on the same project serialize through a per-project mutex,
+// so concurrent Deploy/Rollback/ListVersions calls for one project run one at
+// a time while different projects still run in parallel.
 type Manager struct {
 	deployer *Deployer
 	dataDir  string
+	locks    sync.Map // project name -> *sync.Mutex
 }
 
 // NewManager creates a manager that stores projects under dataDir.
@@ -41,14 +52,33 @@ func (m *Manager) projectDir(name string) string {
 	return filepath.Join(m.dataDir, name)
 }
 
-// CreateProject initializes a new project: creates a git repo, writes the
-// compose file, commits, and deploys.
-func (m *Manager) CreateProject(ctx context.Context, name string, composeYAML []byte) error {
-	dir := m.projectDir(name)
-	if _, err := os.Stat(dir); err == nil {
-		return fmt.Errorf("project %q already exists", name)
-	}
+// lockProject acquires the project's lock and returns an unlock func for defer.
+func (m *Manager) lockProject(name string) func() {
+	actual, _ := m.locks.LoadOrStore(name, &sync.Mutex{})
+	mu := actual.(*sync.Mutex)
+	mu.Lock()
+	return mu.Unlock
+}
 
+// Deploy creates a new git-backed project if it doesn't exist, or updates the
+// existing one, then redeploys. Status updates are sent to the optional channel.
+func (m *Manager) Deploy(ctx context.Context, name string, composeYAML []byte, status chan<- StatusUpdate) error {
+	defer m.lockProject(name)()
+
+	dir := m.projectDir(name)
+	_, err := os.Stat(dir)
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+		return m.createLocked(ctx, name, composeYAML, status)
+	case err != nil:
+		return fmt.Errorf("stat project %q: %w", name, err)
+	default:
+		return m.updateLocked(ctx, name, composeYAML, status)
+	}
+}
+
+func (m *Manager) createLocked(ctx context.Context, name string, composeYAML []byte, status chan<- StatusUpdate) error {
+	dir := m.projectDir(name)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("creating project directory: %w", err)
 	}
@@ -92,7 +122,7 @@ func (m *Manager) CreateProject(ctx context.Context, name string, composeYAML []
 		return fmt.Errorf("parsing compose file: %w", err)
 	}
 
-	if err := m.deployer.Deploy(ctx, project, nil); err != nil {
+	if err := m.deployer.Deploy(ctx, project, status); err != nil {
 		return fmt.Errorf("deploying: %w", err)
 	}
 
@@ -100,9 +130,7 @@ func (m *Manager) CreateProject(ctx context.Context, name string, composeYAML []
 	return nil
 }
 
-// UpdateConfig writes a new compose file, commits the change, and redeploys.
-// Status updates (pull, start, stop, etc.) are sent to the optional channel.
-func (m *Manager) UpdateConfig(ctx context.Context, name string, composeYAML []byte, status chan<- StatusUpdate) error {
+func (m *Manager) updateLocked(ctx context.Context, name string, composeYAML []byte, status chan<- StatusUpdate) error {
 	dir := m.projectDir(name)
 	repo, err := git.PlainOpen(dir)
 	if err != nil {
@@ -155,6 +183,8 @@ func (m *Manager) UpdateConfig(ctx context.Context, name string, composeYAML []b
 
 // ListVersions returns the git commit history for a project, newest first.
 func (m *Manager) ListVersions(name string) ([]Version, error) {
+	defer m.lockProject(name)()
+
 	dir := m.projectDir(name)
 	repo, err := git.PlainOpen(dir)
 	if err != nil {
@@ -185,6 +215,8 @@ func (m *Manager) ListVersions(name string) ([]Version, error) {
 // RollbackVersion restores the compose file from a previous commit, creates
 // a new rollback commit, and redeploys. Supports both full and short commit hashes.
 func (m *Manager) RollbackVersion(ctx context.Context, name string, commitHash string, status chan<- StatusUpdate) error {
+	defer m.lockProject(name)()
+
 	dir := m.projectDir(name)
 	repo, err := git.PlainOpen(dir)
 	if err != nil {

@@ -14,7 +14,7 @@ type containerActionArgs struct {
 	Host        string `json:"host_id"`
 }
 
-func executeContainerAction(ctx context.Context, name string, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeContainerAction(ctx context.Context, name string, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args containerActionArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -32,7 +32,7 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, h
 		return nil, fmt.Errorf("host is required")
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
@@ -54,7 +54,7 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, h
 	}, nil
 }
 
-func executeUpdateContainer(ctx context.Context, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args containerActionArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -67,7 +67,7 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, hostService To
 		return nil, fmt.Errorf("host is required")
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

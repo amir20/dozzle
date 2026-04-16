@@ -13,27 +13,27 @@ import (
 
 func TestNewClient_DefaultURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "")
-	client := NewClient(true, nil, nil, func() string { return "test-key" })
+	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
 	assert.Equal(t, "agent.doligence.dozzle.dev:443", client.target)
 }
 
 func TestNewClient_CustomURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "https://custom.cloud.dev")
-	client := NewClient(true, nil, nil, func() string { return "test-key" })
+	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
 	assert.Equal(t, "custom.cloud.dev:443", client.target)
 	assert.False(t, client.plaintext)
 }
 
 func TestNewClient_PlaintextURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "http://localhost:7008")
-	client := NewClient(true, nil, nil, func() string { return "test-key" })
+	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
 	assert.Equal(t, "localhost:7008", client.target)
 	assert.True(t, client.plaintext)
 }
 
 func TestHandleRequest_ListTools(t *testing.T) {
 	client := &Client{
-		enableActions: true,
+		deps: ToolDeps{EnableActions: true},
 	}
 
 	req := &pb.ToolRequest{
@@ -53,7 +53,7 @@ func TestHandleRequest_ListTools(t *testing.T) {
 
 func TestHandleRequest_ListTools_ActionsDisabled(t *testing.T) {
 	client := &Client{
-		enableActions: false,
+		deps: ToolDeps{EnableActions: false},
 	}
 
 	req := &pb.ToolRequest{
@@ -77,7 +77,7 @@ func TestHandleRequest_CallTool_ListContainers(t *testing.T) {
 	mockHost.On("Hosts").Return([]container.Host{{ID: "local", Name: "my-server"}})
 
 	client := &Client{
-		hostService: mockHost,
+		deps: ToolDeps{HostService: mockHost},
 	}
 
 	req := &pb.ToolRequest{
@@ -104,7 +104,7 @@ func TestHandleRequest_CallTool_UnknownTool(t *testing.T) {
 	mockHost := &MockHostService{}
 
 	client := &Client{
-		hostService: mockHost,
+		deps: ToolDeps{HostService: mockHost},
 	}
 
 	req := &pb.ToolRequest{
@@ -134,8 +134,7 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	client := &Client{
-		hostService:   mockHost,
-		enableActions: true,
+		deps: ToolDeps{HostService: mockHost, EnableActions: true},
 	}
 
 	req := &pb.ToolRequest{

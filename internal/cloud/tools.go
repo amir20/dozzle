@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/deploy"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
@@ -217,10 +218,19 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 	return tools
 }
 
+// ToolDeps bundles the dependencies required to execute cloud tool calls.
+// DeployManager may be nil in modes without a local docker daemon (e.g., k8s);
+// deploy tools will then return a "not configured" error.
+type ToolDeps struct {
+	EnableActions bool
+	HostService   ToolHostService
+	Labels        container.ContainerLabels
+	DeployManager *deploy.Manager
+}
+
 // ExecuteTool dispatches a tool call by name and returns a proto CallToolResponse.
-// enableActions must be true for action tools (start/stop/restart) to execute.
-func ExecuteTool(ctx context.Context, name string, argsJSON string, enableActions bool, hostService ToolHostService, labels container.ContainerLabels) *pb.CallToolResponse {
-	resp, err := executeTool(ctx, name, argsJSON, enableActions, hostService, labels)
+func ExecuteTool(ctx context.Context, name string, argsJSON string, deps ToolDeps) *pb.CallToolResponse {
+	resp, err := executeTool(ctx, name, argsJSON, deps)
 	if err != nil {
 		log.Warn().Err(err).Str("tool", name).Str("args", argsJSON).Msg("tool execution failed")
 		return &pb.CallToolResponse{
@@ -231,51 +241,51 @@ func ExecuteTool(ctx context.Context, name string, argsJSON string, enableAction
 	return resp
 }
 
-func executeTool(ctx context.Context, name string, argsJSON string, enableActions bool, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
 
 	switch name {
 	case "list_hosts":
-		return executeListHosts(hostService)
+		return executeListHosts(deps)
 	case "find_containers":
-		return executeFindContainers(argsJSON, hostService, labels)
+		return executeFindContainers(argsJSON, deps)
 	case "list_running_containers":
-		return executeListRunningContainers(hostService, labels)
+		return executeListRunningContainers(deps)
 	case "list_all_containers":
-		return executeListAllContainers(hostService, labels)
+		return executeListAllContainers(deps)
 	case "get_running_container_stats":
-		return executeGetRunningContainerStats(hostService, labels)
+		return executeGetRunningContainerStats(deps)
 	case "fetch_container_logs":
-		return executeFetchContainerLogs(ctx, argsJSON, hostService, labels)
+		return executeFetchContainerLogs(ctx, argsJSON, deps)
 	case "inspect_container":
-		return executeInspectContainer(argsJSON, hostService, labels)
+		return executeInspectContainer(argsJSON, deps)
 	case "start_container", "stop_container", "restart_container":
-		if !enableActions {
+		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
-		return executeContainerAction(ctx, name, argsJSON, hostService, labels)
+		return executeContainerAction(ctx, name, argsJSON, deps)
 	case "update_container":
-		if !enableActions {
+		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
-		return executeUpdateContainer(ctx, argsJSON, hostService, labels)
+		return executeUpdateContainer(ctx, argsJSON, deps)
 	case "deploy_compose":
-		if !enableActions {
+		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
-		return executeDeployCompose(ctx, argsJSON)
+		return executeDeployCompose(ctx, argsJSON, deps)
 	case "list_deploy_versions":
-		if !enableActions {
+		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
-		return executeListDeployVersions(ctx, argsJSON)
+		return executeListDeployVersions(ctx, argsJSON, deps)
 	case "rollback_deploy":
-		if !enableActions {
+		if !deps.EnableActions {
 			return nil, fmt.Errorf("container actions are not enabled")
 		}
-		return executeRollbackDeploy(ctx, argsJSON)
+		return executeRollbackDeploy(ctx, argsJSON, deps)
 	default:
 		return nil, fmt.Errorf("unknown tool: %s", name)
 	}

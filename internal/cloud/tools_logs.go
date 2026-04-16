@@ -21,7 +21,7 @@ type fetchLogsArgs struct {
 	Regex       string `json:"regex"`
 }
 
-func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService ToolHostService, labels container.ContainerLabels) (*pb.CallToolResponse, error) {
+func executeFetchContainerLogs(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
 	var args fetchLogsArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -30,7 +30,7 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, hostService
 		return nil, fmt.Errorf("container_id and host_id are required")
 	}
 
-	cs, err := hostService.FindContainer(args.Host, args.ContainerID, labels)
+	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

@@ -3,30 +3,27 @@ package cloud
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/amir20/dozzle/internal/deploy"
 	pb "github.com/amir20/dozzle/proto/cloud"
-	"github.com/docker/docker/client"
 )
 
-const stacksDir = "./data/stacks"
-
-func newManager() (*deploy.Manager, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return nil, fmt.Errorf("creating docker client: %w", err)
-	}
-	return deploy.NewManager(cli, stacksDir), nil
-}
+// errDeployManagerNotConfigured is returned when deploy tools are invoked in a
+// mode without a local docker daemon (e.g., k8s).
+var errDeployManagerNotConfigured = errors.New("deploy manager is not configured")
 
 type deployComposeArgs struct {
 	YAML    string `json:"yaml"`
 	Project string `json:"project"`
 }
 
-func executeDeployCompose(ctx context.Context, argsJSON string) (*pb.CallToolResponse, error) {
+func executeDeployCompose(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+	if deps.DeployManager == nil {
+		return nil, errDeployManagerNotConfigured
+	}
+
 	var args deployComposeArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -39,15 +36,8 @@ func executeDeployCompose(ctx context.Context, argsJSON string) (*pb.CallToolRes
 		return nil, fmt.Errorf("project is required")
 	}
 
-	mgr, err := newManager()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := mgr.UpdateConfig(ctx, args.Project, []byte(args.YAML), nil); err != nil {
-		if err := mgr.CreateProject(ctx, args.Project, []byte(args.YAML)); err != nil {
-			return nil, fmt.Errorf("deploying: %w", err)
-		}
+	if err := deps.DeployManager.Deploy(ctx, args.Project, []byte(args.YAML), nil); err != nil {
+		return nil, fmt.Errorf("deploying: %w", err)
 	}
 
 	return &pb.CallToolResponse{
@@ -64,7 +54,11 @@ type projectArgs struct {
 	Project string `json:"project"`
 }
 
-func executeListDeployVersions(_ context.Context, argsJSON string) (*pb.CallToolResponse, error) {
+func executeListDeployVersions(_ context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+	if deps.DeployManager == nil {
+		return nil, errDeployManagerNotConfigured
+	}
+
 	var args projectArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -74,12 +68,7 @@ func executeListDeployVersions(_ context.Context, argsJSON string) (*pb.CallTool
 		return nil, fmt.Errorf("project is required")
 	}
 
-	mgr, err := newManager()
-	if err != nil {
-		return nil, err
-	}
-
-	versions, err := mgr.ListVersions(args.Project)
+	versions, err := deps.DeployManager.ListVersions(args.Project)
 	if err != nil {
 		return nil, fmt.Errorf("listing versions: %w", err)
 	}
@@ -115,7 +104,11 @@ type rollbackArgs struct {
 	CommitHash string `json:"commit_hash"`
 }
 
-func executeRollbackDeploy(ctx context.Context, argsJSON string) (*pb.CallToolResponse, error) {
+func executeRollbackDeploy(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
+	if deps.DeployManager == nil {
+		return nil, errDeployManagerNotConfigured
+	}
+
 	var args rollbackArgs
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
@@ -128,12 +121,7 @@ func executeRollbackDeploy(ctx context.Context, argsJSON string) (*pb.CallToolRe
 		return nil, fmt.Errorf("commit_hash is required")
 	}
 
-	mgr, err := newManager()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := mgr.RollbackVersion(ctx, args.Project, args.CommitHash, nil); err != nil {
+	if err := deps.DeployManager.RollbackVersion(ctx, args.Project, args.CommitHash, nil); err != nil {
 		return nil, fmt.Errorf("rolling back: %w", err)
 	}
 

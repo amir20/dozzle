@@ -146,7 +146,7 @@ func TestExecuteStreamLogs_BasicFlow(t *testing.T) {
 	}
 
 	argsJSON := `{"container_id":"abc123","host_id":"host1"}`
-	err := executeStreamLogs(context.Background(), "req1", argsJSON, mockHost, nil, send)
+	err := executeStreamLogs(context.Background(), "req1", argsJSON, ToolDeps{HostService: mockHost}, send)
 	assert.NoError(t, err)
 
 	mu.Lock()
@@ -183,7 +183,7 @@ func TestExecuteStreamLogs_WithLevelFilter(t *testing.T) {
 	}
 
 	argsJSON := `{"container_id":"abc123","host_id":"host1","level":"error"}`
-	err := executeStreamLogs(context.Background(), "req1", argsJSON, mockHost, nil, send)
+	err := executeStreamLogs(context.Background(), "req1", argsJSON, ToolDeps{HostService: mockHost}, send)
 	assert.NoError(t, err)
 
 	mu.Lock()
@@ -226,7 +226,7 @@ func TestExecuteStreamLogs_CancelContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
 	go func() {
-		done <- executeStreamLogs(ctx, "req1", `{"container_id":"abc123","host_id":"host1"}`, mockHost, nil, send)
+		done <- executeStreamLogs(ctx, "req1", `{"container_id":"abc123","host_id":"host1"}`, ToolDeps{HostService: mockHost}, send)
 	}()
 
 	// Give it a moment to start, then cancel
@@ -251,7 +251,7 @@ func TestExecuteStreamLogs_InvalidArgs(t *testing.T) {
 	mockHost := &MockHostService{}
 	send := func(resp *pb.ToolResponse) error { return nil }
 
-	err := executeStreamLogs(context.Background(), "req1", `{invalid`, mockHost, nil, send)
+	err := executeStreamLogs(context.Background(), "req1", `{invalid`, ToolDeps{HostService: mockHost}, send)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to parse arguments")
 }
@@ -262,7 +262,7 @@ func TestExecuteStreamLogs_ContainerNotFound(t *testing.T) {
 
 	send := func(resp *pb.ToolResponse) error { return nil }
 
-	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"missing","host_id":"host1"}`, mockHost, nil, send)
+	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"missing","host_id":"host1"}`, ToolDeps{HostService: mockHost}, send)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "container not found")
 }
@@ -289,7 +289,7 @@ func TestExecuteStreamLogs_BatchingAt50(t *testing.T) {
 		return nil
 	}
 
-	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`, mockHost, nil, send)
+	err := executeStreamLogs(context.Background(), "req1", `{"container_id":"abc123","host_id":"host1"}`, ToolDeps{HostService: mockHost}, send)
 	assert.NoError(t, err)
 
 	mu.Lock()
