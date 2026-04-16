@@ -14,9 +14,13 @@ import (
 // mode without a local docker daemon (e.g., k8s).
 var errDeployManagerNotConfigured = errors.New("deploy manager is not configured")
 
+// Deploy tools accept host_id per the tool schema, but the current Manager is
+// local-only (see main.go). The field is parsed so it isn't silently dropped;
+// multi-host routing is a future extension (TODO: agent support).
 type deployComposeArgs struct {
 	YAML    string `json:"yaml"`
 	Project string `json:"project"`
+	Host    string `json:"host_id"`
 }
 
 func executeDeployCompose(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
@@ -52,6 +56,7 @@ func executeDeployCompose(ctx context.Context, argsJSON string, deps ToolDeps) (
 
 type projectArgs struct {
 	Project string `json:"project"`
+	Host    string `json:"host_id"`
 }
 
 func executeListDeployVersions(_ context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
@@ -102,11 +107,13 @@ func executeListDeployVersions(_ context.Context, argsJSON string, deps ToolDeps
 type rollbackArgs struct {
 	Project    string `json:"project"`
 	CommitHash string `json:"commit_hash"`
+	Host       string `json:"host_id"`
 }
 
 type removeDeployArgs struct {
 	Project       string `json:"project"`
 	RemoveVolumes bool   `json:"remove_volumes"`
+	Host          string `json:"host_id"`
 }
 
 func executeRemoveDeploy(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {
