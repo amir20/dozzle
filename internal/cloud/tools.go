@@ -73,8 +73,9 @@ var (
 		Properties: map[string]paramProperty{
 			"yaml":    {Type: "string", Description: "The raw YAML content of the Docker Compose file to deploy"},
 			"project": {Type: "string", Description: "Project name used as a prefix for resource names (networks, volumes, containers)"},
+			"host_id": {Type: "string", Description: "Host ID to deploy to. Use live_list_hosts to find available host IDs."},
 		},
-		Required:             []string{"yaml", "project"},
+		Required:             []string{"yaml", "project", "host_id"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -82,8 +83,9 @@ var (
 		Type: "object",
 		Properties: map[string]paramProperty{
 			"project": {Type: "string", Description: "Project name to list version history for"},
+			"host_id": {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
 		},
-		Required:             []string{"project"},
+		Required:             []string{"project", "host_id"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -91,9 +93,10 @@ var (
 		Type: "object",
 		Properties: map[string]paramProperty{
 			"project":     {Type: "string", Description: "Project name to roll back"},
-			"commit_hash": {Type: "string", Description: "Git commit hash (full or short) to roll back to. Use list_deploy_versions to find available hashes."},
+			"commit_hash": {Type: "string", Description: "Version ID (full or short) to roll back to. Use list_deploy_versions to find available IDs."},
+			"host_id":     {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
 		},
-		Required:             []string{"project", "commit_hash"},
+		Required:             []string{"project", "commit_hash", "host_id"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -195,17 +198,17 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			},
 			&pb.ToolDefinition{
 				Name:           "deploy_compose",
-				Description:    "Deploy a Docker Compose file. Creates or updates a project under data/stacks/{project}. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Each deployment is tracked in git for version history and rollback.",
+				Description:    "Deploy a Docker Compose file. Creates or updates a project. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Each deployment is versioned for history and rollback.",
 				ParametersJson: deployComposeParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "list_deploy_versions",
-				Description:    "List the deployment version history for a project. Returns commit hashes, timestamps, and messages. Use the commit hash with rollback_deploy to revert to a previous configuration.",
+				Description:    "List the deployment version history for a project. Returns version IDs, timestamps, and messages. Use the version ID with rollback_deploy to revert to a previous configuration.",
 				ParametersJson: listDeployVersionsParams,
 			},
 			&pb.ToolDefinition{
 				Name:           "rollback_deploy",
-				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified commit, creates a new rollback commit, and redeploys. Use list_deploy_versions to find available commit hashes.",
+				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified version and redeploys. Use list_deploy_versions to find available version IDs.",
 				ParametersJson: rollbackDeployParams,
 			},
 		)
