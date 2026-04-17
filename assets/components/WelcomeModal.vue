@@ -195,7 +195,7 @@ async function createFirstAlert() {
         enabled: true,
         dispatcherId: cloud.id,
         logExpression: "",
-        containerExpression: "",
+        containerExpression: "true",
         eventExpression: 'name == "die" && attributes["exitCode"] != "0"',
         metricExpression: "",
         cooldown: 0,
