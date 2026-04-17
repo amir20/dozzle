@@ -90,6 +90,7 @@ const cloudUrl = __CLOUD_URL__;
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const { showToast } = useToast();
 
 const modal = ref<HTMLDialogElement>();
 const step = ref<"step1" | "step2">("step1");
@@ -206,6 +207,13 @@ async function createFirstAlert() {
 
     router.push({ path: "/notifications", query: { highlight: String(rule.id) } });
   } catch {
+    showToast(
+      {
+        type: "warning",
+        message: t("notifications.default-alert-failed"),
+      },
+      { expire: 6000 },
+    );
     router.push({ path: "/notifications", query: { action: "create-alert" } });
   }
 }
