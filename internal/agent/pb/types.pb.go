@@ -29,6 +29,7 @@ const (
 	ContainerAction_Start   ContainerAction = 0
 	ContainerAction_Stop    ContainerAction = 1
 	ContainerAction_Restart ContainerAction = 2
+	ContainerAction_Remove  ContainerAction = 3
 )
 
 // Enum value maps for ContainerAction.
@@ -37,11 +38,13 @@ var (
 		0: "Start",
 		1: "Stop",
 		2: "Restart",
+		3: "Remove",
 	}
 	ContainerAction_value = map[string]int32{
 		"Start":   0,
 		"Stop":    1,
 		"Restart": 2,
+		"Remove":  3,
 	}
 )
 
@@ -1315,11 +1318,13 @@ const file_types_proto_rawDesc = "" +
 	"\x0esubscriptionId\x18\x01 \x01(\x05R\x0esubscriptionId\x12\"\n" +
 	"\ftriggerCount\x18\x02 \x01(\x03R\ftriggerCount\x12D\n" +
 	"\x0flastTriggeredAt\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x0flastTriggeredAt\x124\n" +
-	"\x15triggeredContainerIds\x18\x04 \x03(\tR\x15triggeredContainerIds*3\n" +
+	"\x15triggeredContainerIds\x18\x04 \x03(\tR\x15triggeredContainerIds*?\n" +
 	"\x0fContainerAction\x12\t\n" +
 	"\x05Start\x10\x00\x12\b\n" +
 	"\x04Stop\x10\x01\x12\v\n" +
-	"\aRestart\x10\x02B\x13Z\x11internal/agent/pbb\x06proto3"
+	"\aRestart\x10\x02\x12\n" +
+	"\n" +
+	"\x06Remove\x10\x03B\x13Z\x11internal/agent/pbb\x06proto3"
 
 var (
 	file_types_proto_rawDescOnce sync.Once

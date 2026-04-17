@@ -284,24 +284,15 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 			continue
 		}
 
-		// List tools is fast — handle inline. Tool calls run concurrently with a semaphore.
+		// List tools is fast — handle inline. Tool calls queue behind a semaphore
+		// so bursts (e.g. the LLM firing 25 remove_container calls at once) run
+		// serially enough that Docker doesn't buckle. Acquire blocks inside the
+		// goroutine so the recv loop keeps processing cancel_stream requests.
 		if _, ok := req.Type.(*pb.ToolRequest_CallTool); ok {
-			if !c.toolSem.TryAcquire(1) {
-				resp := &pb.ToolResponse{
-					RequestId: req.RequestId,
-					Type: &pb.ToolResponse_CallTool{
-						CallTool: &pb.CallToolResponse{
-							Success: false,
-							Error:   "too many concurrent tool calls",
-						},
-					},
-				}
-				if err := sendResp(resp); err != nil {
-					return wasConnected, fmt.Errorf("stream send error: %w", err)
-				}
-				continue
-			}
 			wg.Go(func() {
+				if err := c.toolSem.Acquire(streamLifetime, 1); err != nil {
+					return
+				}
 				defer c.toolSem.Release(1)
 				resp := c.handleRequest(streamLifetime, req)
 				if streamLifetime.Err() != nil {

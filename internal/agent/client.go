@@ -360,6 +360,11 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	case container.Restart:
 		containerAction = pb.ContainerAction_Restart
 
+	case container.Remove:
+		containerAction = pb.ContainerAction_Remove
+
+	default:
+		return fmt.Errorf("unknown action: %s", action)
 	}
 
 	_, err := c.client.ContainerAction(ctx, &pb.ContainerActionRequest{ContainerId: containerId, Action: containerAction})

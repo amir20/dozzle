@@ -97,6 +97,7 @@ enum ContainerAction {
   Start = 0;
   Stop = 1;
   Restart = 2;
+  Remove = 3;
 }
 
 message NotificationSubscription {
