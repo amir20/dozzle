@@ -338,14 +338,15 @@ func (s *ContainerStore) init() {
 						if newContainer.State == "running" && c.State != "running" {
 							started = true
 						}
-						c.Name = newContainer.Name
-						c.State = newContainer.State
-						c.Labels = newContainer.Labels
-						c.StartedAt = newContainer.StartedAt
-						c.FinishedAt = newContainer.FinishedAt
-						c.Created = newContainer.Created
-						c.Host = newContainer.Host
-						return c, xsync.UpdateOp
+						copy := *c
+						copy.Name = newContainer.Name
+						copy.State = newContainer.State
+						copy.Labels = newContainer.Labels
+						copy.StartedAt = newContainer.StartedAt
+						copy.FinishedAt = newContainer.FinishedAt
+						copy.Created = newContainer.Created
+						copy.Host = newContainer.Host
+						return &copy, xsync.UpdateOp
 					} else {
 						return c, xsync.CancelOp
 					}
@@ -370,9 +371,10 @@ func (s *ContainerStore) init() {
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", c.ID).Msg("container died")
-						c.State = "exited"
-						c.FinishedAt = time.Now()
-						return c, xsync.UpdateOp
+						copy := *c
+						copy.State = "exited"
+						copy.FinishedAt = time.Now()
+						return &copy, xsync.UpdateOp
 					} else {
 						return c, xsync.CancelOp
 					}
@@ -386,8 +388,9 @@ func (s *ContainerStore) init() {
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", c.ID).Str("health", healthy).Msg("container health status changed")
-						c.Health = healthy
-						return c, xsync.UpdateOp
+						copy := *c
+						copy.Health = healthy
+						return &copy, xsync.UpdateOp
 					} else {
 						return c, xsync.CancelOp
 					}
@@ -397,8 +400,9 @@ func (s *ContainerStore) init() {
 				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
 					if loaded {
 						log.Debug().Str("id", event.ActorID).Str("name", event.ActorAttributes["name"]).Msg("container renamed")
-						c.Name = event.ActorAttributes["name"]
-						return c, xsync.UpdateOp
+						copy := *c
+						copy.Name = event.ActorAttributes["name"]
+						return &copy, xsync.UpdateOp
 					} else {
 						return c, xsync.CancelOp
 					}
