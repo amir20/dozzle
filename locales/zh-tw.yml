@@ -191,6 +191,8 @@ notifications:
     enabled: 已啟用 ({count})
     paused: 已暫停 ({count})
   no-alerts: 尚未設定任何警報。建立一個以開始使用。
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: 已暫停
     containers: 容器
@@ -328,4 +330,5 @@ cloud:
     checklist-agent-title: 試試 AI 助理
     checklist-agent-desc: "連接 Telegram 或 Discord，與您的容器對話。診斷錯誤、檢查健康狀態並執行重啟服務等操作。"
     create-alert: 建立您的第一個警示
+    default-alert-name: Container exited with error
     later: "稍後再說"

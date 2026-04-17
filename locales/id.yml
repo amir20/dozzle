@@ -200,6 +200,8 @@ notifications:
     enabled: Diaktifkan ({count})
     paused: Dijeda ({count})
   no-alerts: Belum ada peringatan yang dikonfigurasi. Buat satu untuk memulai.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Dijeda
     containers: Kontainer
@@ -337,4 +339,5 @@ cloud:
     checklist-agent-title: Coba asisten AI
     checklist-agent-desc: "Hubungkan Telegram atau Discord dan ngobrol dengan kontainer Anda. Diagnosis error, periksa kesehatan, dan lakukan tindakan seperti restart layanan."
     create-alert: Buat peringatan pertama Anda
+    default-alert-name: Container exited with error
     later: "Nanti saja"

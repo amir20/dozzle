@@ -188,6 +188,8 @@ notifications:
     enabled: Aktiveret ({count})
     paused: Pauset ({count})
   no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Pauset
     containers: Containere
@@ -325,4 +327,5 @@ cloud:
     checklist-agent-title: Prøv AI-assistenten
     checklist-agent-desc: "Forbind Telegram eller Discord og chat med dine containere. Diagnosticér fejl, tjek tilstand og udfør handlinger som genstart af tjenester."
     create-alert: Opret din første advarsel
+    default-alert-name: Container exited with error
     later: "Det gør jeg senere"

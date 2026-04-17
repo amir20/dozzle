@@ -193,6 +193,8 @@ notifications:
     enabled: Omogočeni ({count})
     paused: Ustavljeni ({count})
   no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Ustavljeno
     containers: Zabojniki
@@ -330,4 +332,5 @@ cloud:
     checklist-agent-title: Preizkusite AI pomočnika
     checklist-agent-desc: "Povežite Telegram ali Discord in klepetajte s svojimi vsebniki. Diagnosticirajte napake, preverite stanje in izvajajte dejanja kot ponovni zagon storitev."
     create-alert: Ustvarite prvo opozorilo
+    default-alert-name: Container exited with error
     later: "To bom naredil pozneje"
