@@ -3,7 +3,6 @@ package docker_support
 import (
 	"context"
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -40,8 +39,7 @@ type MultiHostService struct {
 	manager             ClientManager
 	timeout             time.Duration
 	notificationManager *notification.Manager
-	cloudConfig         *notification.CloudConfig
-	cloudMu             sync.RWMutex
+	persister           *notification.Persister
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -186,9 +184,6 @@ func (m *MultiHostService) TotalClients() int {
 	return len(m.manager.List())
 }
 
-const notificationConfigPath = "./data/notifications.yml"
-const cloudConfigPath = "./data/cloud.yml"
-
 // StartNotificationManager initializes and starts the notification manager
 func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	clients := m.manager.LocalClientServices()
@@ -196,37 +191,21 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 	statsListener := notification.NewContainerStatsListener(ctx, clients)
 	eventListener := notification.NewContainerEventListener(ctx, clients)
 	m.notificationManager = notification.NewManager(listener, statsListener, eventListener)
+	m.persister = &notification.Persister{
+		Manager:          m.notificationManager,
+		NotificationPath: notification.DefaultNotificationConfigPath,
+		CloudPath:        notification.DefaultCloudConfigPath,
+	}
 
 	// Migrate old config format before loading (splits cloud into cloud.yml)
-	migration.MigrateCloudConfig(notificationConfigPath, cloudConfigPath)
+	migration.MigrateCloudConfig(m.persister.NotificationPath, m.persister.CloudPath)
 
 	// Start first so matcher is available for LoadConfig
 	if err := m.notificationManager.Start(); err != nil {
 		return err
 	}
 
-	// Load notification config
-	if file, err := os.Open(notificationConfigPath); err == nil {
-		defer file.Close()
-		if err := m.notificationManager.LoadConfig(file); err != nil {
-			log.Warn().Err(err).Msg("Could not load notification config")
-		} else {
-			log.Debug().Str("path", notificationConfigPath).Msg("Loaded notification config")
-		}
-	}
-
-	// Load cloud config
-	if file, err := os.Open(cloudConfigPath); err == nil {
-		defer file.Close()
-		cc, err := notification.LoadCloudConfig(file)
-		if err != nil {
-			log.Warn().Err(err).Msg("Could not load cloud config")
-		} else {
-			m.cloudConfig = &cc
-			m.setCloudDispatcherFromConfig(&cc)
-			log.Debug().Str("path", cloudConfigPath).Msg("Loaded cloud config")
-		}
-	}
+	m.persister.Load()
 
 	// Broadcast loaded config to any already-connected agents
 	m.broadcastNotificationConfig()
@@ -254,93 +233,26 @@ func (m *MultiHostService) StartNotificationManager(ctx context.Context) error {
 }
 
 func (m *MultiHostService) saveNotificationConfig() {
-	if err := os.MkdirAll("./data", 0755); err != nil {
-		log.Error().Err(err).Msg("Could not create data directory")
-		return
-	}
-
-	file, err := os.Create(notificationConfigPath)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create notification config file")
-		return
-	}
-	defer file.Close()
-
-	if err := m.notificationManager.WriteConfig(file); err != nil {
-		log.Error().Err(err).Msg("Could not write notification config")
-	}
-
-	// Broadcast to all agents
+	m.persister.SaveNotifications()
 	m.broadcastNotificationConfig()
-}
-
-// saveCloudConfig writes the current cloud config to cloudConfigPath and
-// broadcasts the notification config to all agents so they receive the API key.
-func (m *MultiHostService) saveCloudConfig() {
-	m.cloudMu.RLock()
-	cc := m.cloudConfig
-	m.cloudMu.RUnlock()
-
-	if cc == nil {
-		return
-	}
-
-	if err := os.MkdirAll("./data", 0755); err != nil {
-		log.Error().Err(err).Msg("Could not create data directory")
-		return
-	}
-
-	file, err := os.Create(cloudConfigPath)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create cloud config file")
-		return
-	}
-	defer file.Close()
-
-	if err := notification.WriteCloudConfig(file, *cc); err != nil {
-		log.Error().Err(err).Msg("Could not write cloud config")
-	}
-
-	m.broadcastCloudConfig()
 }
 
 // CloudConfig returns the current cloud config, or nil if not set.
 func (m *MultiHostService) CloudConfig() *notification.CloudConfig {
-	m.cloudMu.RLock()
-	defer m.cloudMu.RUnlock()
-	return m.cloudConfig
+	return m.persister.CloudConfig()
 }
 
 // SetCloudConfig sets the cloud config, creates the cloud dispatcher, and persists to disk.
 func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
-	m.cloudMu.Lock()
-	m.cloudConfig = cc
-	m.cloudMu.Unlock()
-	m.setCloudDispatcherFromConfig(cc)
-	m.saveCloudConfig()
+	m.persister.SetCloudConfig(cc)
+	m.broadcastCloudConfig()
 }
 
 // RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, deletes the file,
 // and broadcasts the change to all agents so they stop sending to cloud.
 func (m *MultiHostService) RemoveCloudConfig() {
-	m.cloudMu.Lock()
-	m.cloudConfig = nil
-	m.cloudMu.Unlock()
-	m.notificationManager.ClearCloudDispatcher()
-	if err := os.Remove(cloudConfigPath); err != nil && !os.IsNotExist(err) {
-		log.Error().Err(err).Msg("Could not remove cloud config file")
-	}
+	m.persister.RemoveCloudConfig()
 	m.broadcastCloudConfig()
-}
-
-// setCloudDispatcherFromConfig creates a CloudDispatcher from the given config and sets it on the manager.
-func (m *MultiHostService) setCloudDispatcherFromConfig(cc *notification.CloudConfig) {
-	d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.APIKey, cc.Prefix, cc.ExpiresAt)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not create cloud dispatcher from config")
-		return
-	}
-	m.notificationManager.SetCloudDispatcher(d)
 }
 
 // NotificationConfigUpdater is an interface for clients that support notification config updates
@@ -403,9 +315,7 @@ func (m *MultiHostService) broadcastNotificationConfig() {
 
 // broadcastCloudConfig sends current cloud config to all agent clients
 func (m *MultiHostService) broadcastCloudConfig() {
-	m.cloudMu.RLock()
-	ncc := m.cloudConfig
-	m.cloudMu.RUnlock()
+	ncc := m.persister.CloudConfig()
 
 	var cc *types.CloudConfig
 	if ncc != nil {
