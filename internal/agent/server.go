@@ -300,6 +300,9 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	case pb.ContainerAction_Restart:
 		action = container.Restart
 
+	case pb.ContainerAction_Remove:
+		action = container.Remove
+
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
 	}
