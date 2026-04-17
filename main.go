@@ -122,6 +122,10 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
 
+		if err := clusterService.StartNotificationManager(ctx); err != nil {
+			log.Fatal().Err(err).Msg("Could not start notification manager")
+		}
+
 		go cli.StartEvent(args, "k8s", localClient, "")
 		hostService = clusterService
 	} else {
