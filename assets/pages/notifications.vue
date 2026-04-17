@@ -71,7 +71,13 @@
 
         <!-- Alerts List -->
         <div class="space-y-4">
-          <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" :on-updated="fetchAlerts" />
+          <AlertCard
+            v-for="alert in filteredAlerts"
+            :key="alert.id"
+            :alert="alert"
+            :on-updated="fetchAlerts"
+            :highlight="alert.id === highlightId"
+          />
           <button
             class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors"
             @click="openCreateAlert"
@@ -115,6 +121,31 @@ async function fetchAll() {
   await Promise.all([fetchAlerts(), fetchDispatchers()]);
 }
 
+const highlightId = ref<number | null>(null);
+const { showToast } = useToast();
+
+function consumeHighlight(value: unknown) {
+  if (typeof value !== "string" || !value) return false;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return false;
+  highlightId.value = parsed;
+  router.replace({ query: {} });
+  showToast(
+    {
+      type: "info",
+      message: t("notifications.default-alert-created"),
+    },
+    { expire: 8000 },
+  );
+  return true;
+}
+
+function consumeAction(action: unknown) {
+  if (action !== "create-alert") return;
+  router.replace({ query: {} });
+  openCreateAlertPrefilled();
+}
+
 onMounted(async () => {
   await fetchAll();
   const hash = window.location.hash;
@@ -122,20 +153,19 @@ onMounted(async () => {
     router.replace({ hash: "" });
   }
 
-  if (route.query.action === "create-alert") {
-    router.replace({ query: {} });
-    openCreateAlertPrefilled();
+  if (!consumeHighlight(route.query.highlight)) {
+    consumeAction(route.query.action);
   }
 });
 
 watch(
+  () => route.query.highlight,
+  (value) => consumeHighlight(value),
+);
+
+watch(
   () => route.query.action,
-  (action) => {
-    if (action === "create-alert") {
-      router.replace({ query: {} });
-      openCreateAlertPrefilled();
-    }
-  },
+  (action) => consumeAction(action),
 );
 
 // Local state

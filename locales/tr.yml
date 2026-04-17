@@ -188,6 +188,8 @@ notifications:
     enabled: Etkin ({count})
     paused: Duraklatılmış ({count})
   no-alerts: Henüz uyarı yapılandırılmadı. Başlamak için bir tane oluşturun.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Duraklatıldı
     containers: Konteynerler
@@ -325,4 +327,5 @@ cloud:
     checklist-agent-title: Yapay zeka asistanını deneyin
     checklist-agent-desc: "Telegram veya Discord'u bağlayın ve konteynerlerinizle sohbet edin. Hataları teşhis edin, durumu kontrol edin ve servis yeniden başlatma gibi işlemler yapın."
     create-alert: İlk uyarınızı oluşturun
+    default-alert-name: Container exited with error
     later: "Bunu daha sonra yapacağım"

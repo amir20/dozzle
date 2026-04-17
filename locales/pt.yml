@@ -187,6 +187,8 @@ notifications:
     enabled: Habilitados ({count})
     paused: Pausados ({count})
   no-alerts: Nenhum alerta configurado ainda. Crie um para começar.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Pausado
     containers: Containers
@@ -324,4 +326,5 @@ cloud:
     checklist-agent-title: Experimente o assistente de IA
     checklist-agent-desc: "Conecte Telegram ou Discord e converse com seus containers. Diagnostique erros, verifique o estado e execute ações como reiniciar serviços."
     create-alert: Crie seu primeiro alerta
+    default-alert-name: Container exited with error
     later: "Farei isso depois"

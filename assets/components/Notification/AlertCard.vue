@@ -1,5 +1,9 @@
 <template>
-  <div class="card bg-base-100 shadow-sm" :class="{ 'opacity-60': !alert.enabled }">
+  <div
+    class="card bg-base-100 shadow-sm"
+    :class="{ 'opacity-60': !alert.enabled, 'highlight-new': isHighlighted }"
+    @animationend="isHighlighted = false"
+  >
     <div class="card-body gap-4 p-5">
       <!-- Header -->
       <div class="flex items-start justify-between">
@@ -104,10 +108,19 @@
 import type { Dispatcher, NotificationRule } from "@/types/notifications";
 import AlertForm from "./AlertForm.vue";
 
-const { alert, onUpdated } = defineProps<{
+const { alert, onUpdated, highlight } = defineProps<{
   alert: NotificationRule;
   onUpdated?: () => void;
+  highlight?: boolean;
 }>();
+
+const isHighlighted = ref(highlight ?? false);
+watch(
+  () => highlight,
+  (v) => {
+    if (v) isHighlighted.value = true;
+  },
+);
 
 const showDrawer = useDrawer();
 const isDeleting = ref(false);
@@ -156,3 +169,18 @@ async function deleteAlert() {
   }
 }
 </script>
+
+<style scoped>
+.card.highlight-new {
+  animation: highlight-fade 3s ease-out;
+}
+
+@keyframes highlight-fade {
+  from {
+    background-color: oklch(from var(--color-secondary) l c h / 0.25);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+</style>

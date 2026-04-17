@@ -194,6 +194,8 @@ notifications:
   add-alert: Add alert
   prefill-name: Error alerts
   prefill-expression: level == "error"
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   filter:
     all: All ({count})
     enabled: Enabled ({count})
@@ -338,4 +340,5 @@ cloud:
     checklist-agent-title: Try the AI assistant
     checklist-agent-desc: "Connect Telegram or Discord and chat with your containers. Diagnose errors, check health, and take actions like restarting services."
     create-alert: Create Your First Alert
+    default-alert-name: Container exited with error
     later: "I'll do this later"

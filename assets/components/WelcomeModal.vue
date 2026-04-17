@@ -90,6 +90,7 @@ const cloudUrl = __CLOUD_URL__;
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const { showToast } = useToast();
 
 const modal = ref<HTMLDialogElement>();
 const step = ref<"step1" | "step2">("step1");
@@ -177,9 +178,44 @@ async function skipFeedback() {
   }
 }
 
-function createFirstAlert() {
+async function createFirstAlert() {
   close();
-  router.push({ path: "/notifications", query: { action: "create-alert" } });
+  try {
+    const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"));
+    if (!dispatchersRes.ok) throw new Error("dispatchers fetch failed");
+    const dispatchers: Array<{ id: number; type: string }> = await dispatchersRes.json();
+    const cloud = dispatchers.find((d) => d.type === "cloud");
+    if (!cloud) throw new Error("cloud dispatcher missing");
+
+    const ruleRes = await fetch(withBase("/api/notifications/rules"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: t("cloud.welcome.default-alert-name"),
+        enabled: true,
+        dispatcherId: cloud.id,
+        logExpression: "",
+        containerExpression: "true",
+        eventExpression: 'name == "die" && attributes["exitCode"] != "0"',
+        metricExpression: "",
+        cooldown: 0,
+        sampleWindow: 0,
+      }),
+    });
+    if (!ruleRes.ok) throw new Error("rule POST failed");
+    const rule: { id: number } = await ruleRes.json();
+
+    router.push({ path: "/notifications", query: { highlight: String(rule.id) } });
+  } catch {
+    showToast(
+      {
+        type: "warning",
+        message: t("notifications.default-alert-failed"),
+      },
+      { expire: 6000 },
+    );
+    router.push({ path: "/notifications", query: { action: "create-alert" } });
+  }
 }
 
 function open() {

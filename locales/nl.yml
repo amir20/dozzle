@@ -189,6 +189,8 @@ notifications:
     enabled: Ingeschakeld ({count})
     paused: Gepauzeerd ({count})
   no-alerts: Nog geen waarschuwingen geconfigureerd. Maak er een om te beginnen.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Gepauzeerd
     containers: Containers
@@ -326,4 +328,5 @@ cloud:
     checklist-agent-title: Probeer de AI-assistent
     checklist-agent-desc: "Verbind Telegram of Discord en chat met je containers. Diagnosticeer fouten, controleer de status en voer acties uit zoals het herstarten van services."
     create-alert: Maak je eerste melding
+    default-alert-name: Container exited with error
     later: "Dat doe ik later"

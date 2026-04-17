@@ -188,6 +188,8 @@ notifications:
     enabled: Включены ({count})
     paused: Приостановлены ({count})
   no-alerts: Оповещения ещё не настроены. Создайте одно для начала.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Приостановлено
     containers: Контейнеры
@@ -325,4 +327,5 @@ cloud:
     checklist-agent-title: Попробуйте ИИ-ассистента
     checklist-agent-desc: "Подключите Telegram или Discord и общайтесь с вашими контейнерами. Диагностируйте ошибки, проверяйте состояние и выполняйте действия, такие как перезапуск сервисов."
     create-alert: Создайте первое оповещение
+    default-alert-name: Container exited with error
     later: "Сделаю это позже"

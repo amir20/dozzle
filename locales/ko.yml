@@ -191,6 +191,8 @@ notifications:
     enabled: 활성화됨 ({count})
     paused: 일시정지됨 ({count})
   no-alerts: 아직 설정된 알림이 없습니다. 시작하려면 하나를 만드세요.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: 일시정지됨
     containers: 컨테이너
@@ -328,4 +330,5 @@ cloud:
     checklist-agent-title: AI 어시스턴트 사용해 보기
     checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
     create-alert: 첫 번째 알림 만들기
+    default-alert-name: Container exited with error
     later: "나중에 할게요"
