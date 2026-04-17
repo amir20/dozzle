@@ -51,7 +51,7 @@ describe("<WelcomeModal /> Create First Alert", () => {
   });
 
   test("POSTs default rule with cloud dispatcher id and routes to /notifications?highlight=<id>", async () => {
-    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, _init?: RequestInit) => {
       const u = String(url);
       if (u.includes("/api/notifications/dispatchers")) {
         return new Response(JSON.stringify([{ id: 7, type: "cloud", name: "Dozzle Cloud" }]), { status: 200 });
@@ -92,7 +92,7 @@ describe("<WelcomeModal /> Create First Alert", () => {
   });
 
   test("falls back to ?action=create-alert when POST fails", async () => {
-    const fetchMock = vi.fn(async (url: RequestInfo | URL) => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, _init?: RequestInit) => {
       const u = String(url);
       if (u.includes("/api/notifications/dispatchers")) {
         return new Response(JSON.stringify([{ id: 7, type: "cloud", name: "Dozzle Cloud" }]), { status: 200 });

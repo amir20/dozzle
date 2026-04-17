@@ -177,9 +177,37 @@ async function skipFeedback() {
   }
 }
 
-function createFirstAlert() {
+async function createFirstAlert() {
   close();
-  router.push({ path: "/notifications", query: { action: "create-alert" } });
+  try {
+    const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"));
+    if (!dispatchersRes.ok) throw new Error("dispatchers fetch failed");
+    const dispatchers: Array<{ id: number; type: string }> = await dispatchersRes.json();
+    const cloud = dispatchers.find((d) => d.type === "cloud");
+    if (!cloud) throw new Error("cloud dispatcher missing");
+
+    const ruleRes = await fetch(withBase("/api/notifications/rules"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: t("cloud.welcome.default-alert-name"),
+        enabled: true,
+        dispatcherId: cloud.id,
+        logExpression: "",
+        containerExpression: "",
+        eventExpression: 'name == "die" && attributes["exitCode"] != "0"',
+        metricExpression: "",
+        cooldown: 0,
+        sampleWindow: 0,
+      }),
+    });
+    if (!ruleRes.ok) throw new Error("rule POST failed");
+    const rule: { id: number } = await ruleRes.json();
+
+    router.push({ path: "/notifications", query: { highlight: String(rule.id) } });
+  } catch {
+    router.push({ path: "/notifications", query: { action: "create-alert" } });
+  }
 }
 
 function open() {
