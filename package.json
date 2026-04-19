@@ -35,7 +35,7 @@
     "@codemirror/language": "^6.12.3",
     "@codemirror/state": "^6.6.0",
     "@codemirror/theme-one-dark": "^6.1.3",
-    "@codemirror/view": "^6.41.0",
+    "@codemirror/view": "^6.41.1",
     "@duckdb/duckdb-wasm": "1.33.1-dev45.0",
     "@iconify-json/carbon": "^1.2.20",
     "@iconify-json/cil": "^1.2.3",
@@ -104,8 +104,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.4",
-    "vue-component-type-helpers": "3.2.6",
-    "vue-tsc": "3.2.6"
+    "vue-component-type-helpers": "3.2.7",
+    "vue-tsc": "3.2.7"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
