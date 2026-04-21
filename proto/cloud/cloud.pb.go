@@ -1094,6 +1094,10 @@ type ContainerStatEntry struct {
 	MaxCpu_5Min    float64                `protobuf:"fixed64,7,opt,name=max_cpu_5min,json=maxCpu5min,proto3" json:"max_cpu_5min,omitempty"`
 	MaxMemory_5Min float64                `protobuf:"fixed64,8,opt,name=max_memory_5min,json=maxMemory5min,proto3" json:"max_memory_5min,omitempty"`
 	HostId         string                 `protobuf:"bytes,9,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	NetworkRxTotal uint64                 `protobuf:"varint,10,opt,name=network_rx_total,json=networkRxTotal,proto3" json:"network_rx_total,omitempty"`
+	NetworkTxTotal uint64                 `protobuf:"varint,11,opt,name=network_tx_total,json=networkTxTotal,proto3" json:"network_tx_total,omitempty"`
+	NetworkRx_5Min uint64                 `protobuf:"varint,12,opt,name=network_rx_5min,json=networkRx5min,proto3" json:"network_rx_5min,omitempty"`
+	NetworkTx_5Min uint64                 `protobuf:"varint,13,opt,name=network_tx_5min,json=networkTx5min,proto3" json:"network_tx_5min,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1189,6 +1193,34 @@ func (x *ContainerStatEntry) GetHostId() string {
 		return x.HostId
 	}
 	return ""
+}
+
+func (x *ContainerStatEntry) GetNetworkRxTotal() uint64 {
+	if x != nil {
+		return x.NetworkRxTotal
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetNetworkTxTotal() uint64 {
+	if x != nil {
+		return x.NetworkTxTotal
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetNetworkRx_5Min() uint64 {
+	if x != nil {
+		return x.NetworkRx_5Min
+	}
+	return 0
+}
+
+func (x *ContainerStatEntry) GetNetworkTx_5Min() uint64 {
+	if x != nil {
+		return x.NetworkTx_5Min
+	}
+	return 0
 }
 
 type ContainerStatsResult struct {
@@ -1803,7 +1835,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x14ListContainersResult\x124\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2\x14.cloud.ContainerInfoR\n" +
-	"containers\"\x9a\x02\n" +
+	"containers\"\xbe\x03\n" +
 	"\x12ContainerStatEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
@@ -1815,7 +1847,12 @@ const file_cloud_proto_rawDesc = "" +
 	"\fmax_cpu_5min\x18\a \x01(\x01R\n" +
 	"maxCpu5min\x12&\n" +
 	"\x0fmax_memory_5min\x18\b \x01(\x01R\rmaxMemory5min\x12\x17\n" +
-	"\ahost_id\x18\t \x01(\tR\x06hostId\"G\n" +
+	"\ahost_id\x18\t \x01(\tR\x06hostId\x12(\n" +
+	"\x10network_rx_total\x18\n" +
+	" \x01(\x04R\x0enetworkRxTotal\x12(\n" +
+	"\x10network_tx_total\x18\v \x01(\x04R\x0enetworkTxTotal\x12&\n" +
+	"\x0fnetwork_rx_5min\x18\f \x01(\x04R\rnetworkRx5min\x12&\n" +
+	"\x0fnetwork_tx_5min\x18\r \x01(\x04R\rnetworkTx5min\"G\n" +
 	"\x14ContainerStatsResult\x12/\n" +
 	"\x05stats\x18\x01 \x03(\v2\x19.cloud.ContainerStatEntryR\x05stats\"p\n" +
 	"\bLogEntry\x12\x1c\n" +
