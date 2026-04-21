@@ -18,7 +18,7 @@ func (h *HealthcheckCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if data, err := os.ReadFile(agentAddrFile); err == nil {
 		agentAddress := string(data)
 		if host, port, err := net.SplitHostPort(agentAddress); err == nil && (host == "" || host == "::" || host == "0.0.0.0") {
-			agentAddress = "localhost:" + port
+			agentAddress = "127.0.0.1:" + port
 		}
 		certs, err := ReadCertificates(embeddedCerts, args.CertPath, args.KeyPath)
 		if err != nil {
