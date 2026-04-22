@@ -271,7 +271,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           toolGetRunningContainerStats,
-			Description:    "Get real-time CPU and memory usage statistics for all currently running Docker containers. Returns current percentages and peak values over the last 5 minutes.",
+			Description:    "Get real-time CPU, memory, and network usage statistics for all currently running Docker containers. Returns current percentages, peak values over the last 5 minutes, and network rx/tx totals plus bytes transferred in the last 5 minutes.",
 			ParametersJson: noParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,

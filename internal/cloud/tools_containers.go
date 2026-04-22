@@ -125,11 +125,20 @@ func executeGetRunningContainerStats(deps ToolDeps) (*pb.CallToolResponse, error
 
 		stats := c.Stats.Data()
 		latest := stats[len(stats)-1]
+		first := stats[0]
 
 		var maxCPU, maxMem float64
 		for _, s := range stats {
 			maxCPU = max(maxCPU, s.CPUPercent)
 			maxMem = max(maxMem, s.MemoryPercent)
+		}
+
+		var rxDelta, txDelta uint64
+		if latest.NetworkRxTotal >= first.NetworkRxTotal {
+			rxDelta = latest.NetworkRxTotal - first.NetworkRxTotal
+		}
+		if latest.NetworkTxTotal >= first.NetworkTxTotal {
+			txDelta = latest.NetworkTxTotal - first.NetworkTxTotal
 		}
 
 		result = append(result, &pb.ContainerStatEntry{
@@ -142,6 +151,10 @@ func executeGetRunningContainerStats(deps ToolDeps) (*pb.CallToolResponse, error
 			MemoryUsage:    latest.MemoryUsage,
 			MaxCpu_5Min:    maxCPU,
 			MaxMemory_5Min: maxMem,
+			NetworkRxTotal: latest.NetworkRxTotal,
+			NetworkTxTotal: latest.NetworkTxTotal,
+			NetworkRx_5Min: rxDelta,
+			NetworkTx_5Min: txDelta,
 		})
 	}
 	return &pb.CallToolResponse{
