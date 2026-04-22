@@ -6,7 +6,12 @@ title: Container Actions
 
 <Badge type="warning" text="Docker Only" />
 
-Dozzle supports container actions, which allows you to `start`, `stop` and `restart` containers from the dropdown menu on the right next to the container stats. This feature is **disabled** by default and can be enabled by setting the environment variable `DOZZLE_ENABLE_ACTIONS` to `true`.
+Dozzle supports container actions, which allows you to `start`, `stop`, `restart`, `remove`, and `update` containers from the dropdown menu on the right next to the container stats. This feature is **disabled** by default and can be enabled by setting the environment variable `DOZZLE_ENABLE_ACTIONS` to `true`.
+
+The `update` action pulls the latest image for the container and recreates it with the same configuration — useful for upgrading a container in place without editing its compose file.
+
+> [!NOTE]
+> Enabling actions also unlocks Compose [Deployments](/guide/deployments) when using [Dozzle Cloud](/guide/dozzle-cloud).
 
 ::: code-group
 

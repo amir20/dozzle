@@ -74,6 +74,7 @@ export default defineConfig({
         items: [
           { text: "Alerts & Webhooks", link: "/guide/alerts-and-webhooks" },
           { text: "Dozzle Cloud", link: "/guide/dozzle-cloud" },
+          { text: "Deployments", link: "/guide/deployments" },
         ],
       },
       {
