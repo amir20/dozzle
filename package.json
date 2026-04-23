@@ -77,7 +77,7 @@
     "vitepress": "1.6.4",
     "vue": "^3.5.33",
     "vue-i18n": "^11.3.2",
-    "vue-router": "^5.0.5"
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@apache-arrow/esnext-esm": "^21.1.0",
