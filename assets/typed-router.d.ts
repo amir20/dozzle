@@ -62,6 +62,13 @@ declare module 'vue-router/auto-routes' {
       { name: ParamValue<false> },
       | never
     >,
+    '/host-group/[name]': RouteRecordInfo<
+      '/host-group/[name]',
+      '/host-group/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
+      | never
+    >,
     '/host/[id]': RouteRecordInfo<
       '/host/[id]',
       '/host/:id',
@@ -172,6 +179,12 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/group/[name].vue': {
       routes:
         | '/group/[name]'
+      views:
+        | never
+    }
+    'assets/pages/host-group/[name].vue': {
+      routes:
+        | '/host-group/[name]'
       views:
         | never
     }
