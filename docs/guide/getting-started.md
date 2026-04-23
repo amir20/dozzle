@@ -60,6 +60,9 @@ volumes:
 > [!IMPORTANT]
 > Dozzle stores notification settings and other data in `/data` inside the container. To persist these settings across container restarts, you need to mount a volume to `/data`. Without this mount, notification settings will be lost when the container is recreated. See the Docker Compose example above for the recommended volume configuration.
 
+> [!WARNING]
+> Mounting `docker.sock` gives Dozzle root-equivalent access to the host. If you plan to expose Dozzle beyond your private network, read [Security Considerations](/guide/authentication#security-considerations) first.
+
 ## Docker Swarm
 
 Dozzle supports running in Swarm mode by deploying it on every node. To run Dozzle in Swarm mode, you can use the following configuration:

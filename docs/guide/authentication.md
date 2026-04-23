@@ -8,6 +8,17 @@ Dozzle supports two configurations for authentication. In the first configuratio
 
 If you do not have an authentication solution, then Dozzle has a simple file-based user management solution. Authentication providers are set up using the `--auth-provider` flag. In both configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
 
+## Security Considerations
+
+Dozzle has access to `docker.sock`, which — unless restricted — is equivalent to **root on the host**. Before exposing Dozzle beyond your private network, review the following:
+
+- **Always put Dozzle behind authentication** if it is reachable from the public internet. Use `--auth-provider=simple` or a forward-proxy like Authelia / Authentik / Cloudflare Access.
+- **Keep [actions](/guide/actions) and [shell access](/guide/shell) disabled** unless you need them. They allow starting, stopping, recreating, and executing arbitrary commands inside containers.
+- **Use a socket proxy** for defense in depth. Projects like [`tecnativa/docker-socket-proxy`](https://github.com/Tecnativa/docker-socket-proxy) expose only the Docker API endpoints Dozzle actually uses, blocking the rest. This significantly reduces the blast radius if Dozzle is ever compromised.
+- **Restrict users with [roles](#setting-specific-roles-for-users) and [filters](#setting-specific-filters-for-users)** in multi-user mode. Without explicit roles, a user can see every container the Dozzle instance can.
+- **Run TLS at the reverse proxy**. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx / Traefik / Caddy examples.
+- **Avoid mounting `docker.sock` read-write** if you don't need actions. A read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) still exposes most of the API but blocks container create/delete/update.
+
 ## File-Based User Management
 
 Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
@@ -25,7 +36,7 @@ users:
   admin:
     email: me@email.net
     name: Admin
-    # Generate with docker run -it --rm amir20/dozzle generate admin --password password --email me@email.net --name "Admin" 
+    # Generate with docker run -it --rm amir20/dozzle generate admin --password password --email me@email.net --name "Admin"
     password: $2a$11$9ho4vY2LdJ/WBopFcsAS0uORC0x2vuFHQgT/yBqZyzclhHsoaIkzK
     filter:
     roles:

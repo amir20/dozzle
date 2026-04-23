@@ -4,6 +4,28 @@ title: FAQ
 
 # Frequently Asked Questions
 
+## How do I upgrade Dozzle?
+
+Dozzle follows standard Docker image practices. To upgrade, pull the new image and recreate the container:
+
+```sh
+docker pull amir20/dozzle:latest
+docker compose up -d dozzle
+```
+
+User settings, notification rules, and other state are stored in `/data` (see below), so keep that volume mounted across upgrades. For production use, pin a specific tag (e.g. `amir20/dozzle:v8.14.1`) rather than `latest` so upgrades are deliberate. Release notes are published on the [GitHub releases page](https://github.com/amir20/dozzle/releases). Rolling back is as simple as redeploying an older tag.
+
+## What is stored in `/data` and how do I back it up?
+
+The `/data` directory is where Dozzle persists anything that needs to survive a container restart:
+
+- `users.yml` / `users.yaml` — simple-auth user file (if you created one)
+- Notification rules, destinations, and delivery state
+- Per-user UI settings (only in multi-user mode; single-user settings live in browser localStorage)
+- A small set of internal files like dismissed-announcement state
+
+The directory is small (typically well under 10 MB) and can be backed up with a simple `tar` or `rsync` of the mounted volume. When upgrading or migrating to a new host, moving the `/data` volume carries all settings with it.
+
 ## I installed Dozzle, but logs are slow or they never load. What do I do?
 
 Dozzle uses Server Sent Events (SSE) which connects to a server using a HTTP stream without closing the connection. If any proxy tries to buffer this connection, then Dozzle never receives the data and hangs forever waiting for the reverse proxy to flush the buffer. Since version `1.23.0`, Dozzle sends the `X-Accel-Buffering: no` header which should stop reverse proxies buffering. However, some proxies may ignore this header. In those cases, you need to explicitly disable any buffering.
