@@ -146,6 +146,7 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/containers/{hostIds}/download", h.downloadLogs) // formatted as host:container,host:container
 				r.Get("/labels/{labels}/logs/stream", h.streamLogsWithLabels)
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
+				r.Get("/host-groups/{group}/logs/stream", h.streamHostGroupLogs)
 				r.Get("/events/stream", h.streamEvents)
 
 				// Action
