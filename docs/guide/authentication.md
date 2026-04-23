@@ -14,7 +14,6 @@ Dozzle has access to `docker.sock`, which — unless restricted — is equivalen
 
 - **Always put Dozzle behind authentication** if it is reachable from the public internet. Use `--auth-provider=simple` or a forward-proxy like Authelia / Authentik / Cloudflare Access.
 - **Keep [actions](/guide/actions) and [shell access](/guide/shell) disabled** unless you need them. They allow starting, stopping, recreating, and executing arbitrary commands inside containers.
-- **Use a socket proxy** for defense in depth. Projects like [`tecnativa/docker-socket-proxy`](https://github.com/Tecnativa/docker-socket-proxy) expose only the Docker API endpoints Dozzle actually uses, blocking the rest. This significantly reduces the blast radius if Dozzle is ever compromised.
 - **Restrict users with [roles](#setting-specific-roles-for-users) and [filters](#setting-specific-filters-for-users)** in multi-user mode. Without explicit roles, a user can see every container the Dozzle instance can.
 - **Run TLS at the reverse proxy**. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx / Traefik / Caddy examples.
 - **Avoid mounting `docker.sock` read-write** if you don't need actions. A read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) still exposes most of the API but blocks container create/delete/update.
