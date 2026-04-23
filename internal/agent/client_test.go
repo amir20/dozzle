@@ -37,7 +37,7 @@ func (m *mockNotificationHandler) HandleNotificationConfig(subscriptions []types
 }
 
 func (m *mockNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {}
-func (m *mockNotificationHandler) ClearCloudDispatcher()                       {}
+func (m *mockNotificationHandler) ClearCloudDispatcher()                      {}
 
 func (m *mockNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
 	return nil
@@ -184,4 +184,38 @@ func TestListContainers(t *testing.T) {
 	assert.Equal(t, []container.Container{
 		wantedContainer,
 	}, containers)
+}
+
+func TestHostWithAgentMetadata(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet|Web-1|Production", certs, grpc.WithContextDialer(bufDialer))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	host, err := rpc.Host(context.Background())
+
+	assert.NoError(t, err)
+	assert.Equal(t, "passthrough://bufnet", host.Endpoint)
+	assert.Equal(t, "Web-1", host.Name)
+	assert.Equal(t, "Production", host.Group)
+}
+
+func TestHostWithAgentGroupAndDefaultName(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet||Production", certs, grpc.WithContextDialer(bufDialer))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	host, err := rpc.Host(context.Background())
+
+	assert.NoError(t, err)
+	assert.Equal(t, "passthrough://bufnet", host.Endpoint)
+	assert.Equal(t, "local", host.Name)
+	assert.Equal(t, "Production", host.Group)
+}
+
+func TestNewClientRejectsInvalidAgentEndpoint(t *testing.T) {
+	_, err := NewClient("passthrough://bufnet|Web-1|Production|extra", certs, grpc.WithContextDialer(bufDialer))
+
+	assert.Error(t, err)
 }

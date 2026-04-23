@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"encoding/json"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
@@ -28,12 +29,19 @@ import (
 )
 
 type Client struct {
-	client   pb.AgentServiceClient
-	conn     *grpc.ClientConn
-	endpoint string
+	client       pb.AgentServiceClient
+	conn         *grpc.ClientConn
+	endpoint     string
+	nameOverride string
+	group        string
 }
 
 func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
+	endpoint, nameOverride, group, err := parseEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -66,10 +74,31 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	client := pb.NewAgentServiceClient(conn)
 
 	return &Client{
-		client:   client,
-		conn:     conn,
-		endpoint: endpoint,
+		client:       client,
+		conn:         conn,
+		endpoint:     endpoint,
+		nameOverride: nameOverride,
+		group:        group,
 	}, nil
+}
+
+func parseEndpoint(endpoint string) (string, string, string, error) {
+	parts := strings.Split(endpoint, "|")
+	if len(parts) > 3 {
+		return "", "", "", fmt.Errorf("invalid agent endpoint: %s", endpoint)
+	}
+
+	name := ""
+	if len(parts) >= 2 {
+		name = parts[1]
+	}
+
+	group := ""
+	if len(parts) == 3 {
+		group = parts[2]
+	}
+
+	return parts[0], name, group, nil
 }
 
 func rpcErrToErr(err error) error {
@@ -331,12 +360,14 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 	if err != nil {
 		return container.Host{
 			Endpoint:  c.endpoint,
+			Name:      c.nameOverride,
+			Group:     c.group,
 			Type:      "agent",
 			Available: false,
 		}, err
 	}
 
-	return container.Host{
+	host := container.Host{
 		ID:            info.Host.Id,
 		Name:          info.Host.Name,
 		NCPU:          int(info.Host.CpuCores),
@@ -345,7 +376,13 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 		Type:          "agent",
 		DockerVersion: info.Host.DockerVersion,
 		AgentVersion:  info.Host.AgentVersion,
-	}, nil
+		Group:         c.group,
+	}
+	if c.nameOverride != "" {
+		host.Name = c.nameOverride
+	}
+
+	return host, nil
 }
 
 func (c *Client) ContainerAction(ctx context.Context, containerId string, action container.ContainerAction) error {

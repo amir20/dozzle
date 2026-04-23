@@ -59,23 +59,53 @@
           </li>
         </template>
         <template v-else v-for="[groupName, groupHosts] in groupedHostEntries" :key="groupName || '__ungrouped__'">
-          <li v-if="groupName" class="menu-title flex items-center justify-between px-0 pr-1">
-            <span>{{ groupName }}</span>
-            <router-link
-              :to="{ name: '/host-group/[name]', params: { name: groupName } }"
-              class="btn btn-square btn-outline btn-primary btn-xs"
-              :title="$t('tooltip.merge-all')"
-            >
-              <ph:arrows-merge />
-            </router-link>
+          <li v-if="groupName" class="host-group">
+            <details :open="!collapsedHostGroups.has(groupName)" @toggle="updateCollapsedHostGroups($event, groupName)">
+              <summary class="host-group-summary">
+                <span class="truncate">{{ groupName }}</span>
+                <router-link
+                  :to="{ name: '/host-group/[name]', params: { name: groupName } }"
+                  class="btn btn-square btn-outline btn-primary btn-xs"
+                  :title="$t('tooltip.merge-all')"
+                  @click.stop
+                >
+                  <ph:arrows-merge />
+                </router-link>
+                <button
+                  type="button"
+                  class="btn btn-square btn-outline btn-primary btn-xs"
+                  :title="$t('label.collapse-all')"
+                  @click.stop.prevent="collapseHostGroup(groupName)"
+                >
+                  <material-symbols-light:collapse-all />
+                </button>
+              </summary>
+              <ul>
+                <li v-for="host in groupHosts" :key="host.id">
+                  <a
+                    @click.prevent="setHost(host.id)"
+                    :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
+                  >
+                    <HostIcon :type="host.type" />
+                    {{ host.name }}
+                    <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+                  </a>
+                </li>
+              </ul>
+            </details>
           </li>
-          <li v-for="host in groupHosts" :key="host.id">
-            <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
-              <HostIcon :type="host.type" />
-              {{ host.name }}
-              <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-            </a>
-          </li>
+          <template v-else>
+            <li v-for="host in groupHosts" :key="host.id">
+              <a
+                @click.prevent="setHost(host.id)"
+                :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
+              >
+                <HostIcon :type="host.type" />
+                {{ host.name }}
+                <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+              </a>
+            </li>
+          </template>
         </template>
       </ul>
     </template>
@@ -190,6 +220,7 @@ const groupedHostEntries = computed(() => {
 });
 
 const collapsedGroups = useProfileStorage("collapsedGroups", new Set<string>());
+const collapsedHostGroups = useProfileStorage("collapsedHostGroups", new Set<string>());
 const updateCollapsedGroups = (event: Event, label: string) => {
   const details = event.target as HTMLDetailsElement;
   if (details.open) {
@@ -202,9 +233,33 @@ const updateCollapsedGroups = (event: Event, label: string) => {
   }
 };
 
+const updateCollapsedHostGroups = (event: Event, groupName: string) => {
+  const details = event.target as HTMLDetailsElement;
+  if (details.open) {
+    collapsedHostGroups.value.delete(groupName);
+  } else {
+    collapsedHostGroups.value.add(groupName);
+  }
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+};
+
+const collapseHostGroup = (groupName: string) => {
+  collapsedHostGroups.value.add(groupName);
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+};
+
 const collapseAll = () => {
   menuItems.value.forEach(({ label }) => {
     collapsedGroups.value.add(label);
+  });
+  groupedHostEntries.value.forEach(([groupName]) => {
+    if (groupName) {
+      collapsedHostGroups.value.add(groupName);
+    }
   });
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
@@ -289,6 +344,21 @@ const toggleShowAllContainers = () => (showAllContainers.value = !showAllContain
 <style scoped>
 .menu {
   @apply text-[0.95rem];
+}
+
+.host-group-summary {
+  display: grid;
+  grid-template-columns: minmax(0, auto) max-content max-content max-content;
+  align-items: center;
+  justify-content: start;
+  gap: 0.5rem;
+  padding-left: 0;
+  padding-right: 0.25rem;
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+}
+
+.host-group-summary::after {
+  margin-left: 0.25rem;
 }
 
 li.exited {
