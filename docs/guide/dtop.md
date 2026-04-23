@@ -4,17 +4,27 @@ title: Introducing dtop
 
 # What is dtop?
 
-`dtop` is a command-line tool that provides a real-time view of the Docker containers running on your system. It is a lightweight alternative to the `docker ps` command, and it is designed to be used in a terminal or command prompt. `dtop` supports connecting to multiple hosts via `ssh`, `tcp` or `unix socket`. It also integrates with Dozzle by providing a quick way to open logs quickly.
+`dtop` is a command-line companion to Dozzle that provides a real-time terminal view of the Docker containers running on your system. Think of it as a richer `docker ps` you can leave open in a tmux pane — and when you need the full log history, search, or charts, `dtop` lets you jump straight into Dozzle.
+
+It connects to Docker hosts via `ssh`, `tcp`, or a local `unix socket`, making it well suited for the same multi-host setups Dozzle supports.
 
 ![dtop screenshot](https://github.com/amir20/dtop/raw/master/demo.gif)
 
 ## Installation
 
-Full installation instructions can be found at [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation). You can use Docker to quickly run `dtop`:
+Install with Homebrew:
+
+```bash
+brew install dtop
+```
+
+Or run it via Docker without installing anything:
 
 ```bash
 docker run -v /var/run/docker.sock:/var/run/docker.sock -it ghcr.io/amir20/dtop:latest
 ```
+
+Full installation instructions can be found at [https://github.com/amir20/dtop](https://github.com/amir20/dtop?tab=readme-ov-file#installation).
 
 ## Project Status
 

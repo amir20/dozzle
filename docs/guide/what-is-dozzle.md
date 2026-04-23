@@ -6,18 +6,50 @@ title: What is Dozzle?
 
 Dozzle is an open-source project sponsored by Docker OSS. It is a lightweight, web-based log viewer designed to simplify monitoring and debugging containerized applications across Docker, Docker Swarm, and Kubernetes environments.
 
+New here? Jump to [Getting Started](/guide/getting-started) to run it in under a minute.
+
 ## Key Features
 
-**Real-time Monitoring**: Stream logs from running containers with instant updates through an intuitive web interface. Monitor CPU, memory, and network usage with live metrics and historical visualizations.
+### Real-time Monitoring
 
-**Flexible Deployment**: Deploy as a standalone server for single or multi-host Docker monitoring, enable automatic discovery in Docker Swarm clusters, or monitor pod logs in Kubernetes environments.
+Stream logs from running containers with instant updates. Live CPU, memory, and network metrics with historical visualizations.
 
-**Advanced Log Handling**: Automatically detects and formats JSON logs with intelligent color coding. Supports simple text logs, structured JSON logs, and multi-line grouped entries with powerful filtering and search capabilities.
+### Flexible Deployment
 
-**Multi-Host Support**: Monitor containers across multiple Docker hosts simultaneously through a distributed agent architecture using gRPC.
+Run as a [standalone server](/guide/getting-started), a [Swarm](/guide/swarm-mode) deployment, a [Kubernetes](/guide/k8s) install, or with [remote agents](/guide/agent) across multiple hosts.
 
-**Interactive Terminal**: Attach to running containers or execute commands directly through the web interface.
+### Advanced Log Handling
 
-**Lightweight & Fast**: Built with Go backend and Vue 3 frontend, Dozzle uses efficient streaming protocols (SSE/WebSocket) and requires minimal resources.
+Automatic JSON detection and color coding, multi-line stack-trace grouping, [filters](/guide/filters), and an embedded [SQL engine](/guide/sql-engine) for ad-hoc queries.
 
-Dozzle is easy to install and configure, making it an ideal solution for developers and system administrators seeking an efficient log viewer for their containerized environments. The tool is available under the MIT license and is actively maintained by its developer, Amir Raminfar.
+### Multi-Host Support
+
+Monitor containers across multiple Docker hosts from one UI. See [agents](/guide/agent).
+
+### Interactive Terminal
+
+Attach or exec into running containers from the browser. See [Shell Access](/guide/shell).
+
+### Container Actions
+
+Start, stop, restart, and update containers directly from the UI. See [Actions](/guide/actions).
+
+### Alerts & Webhooks
+
+Define log patterns that trigger notifications to Slack, Discord, email, and more. See [Alerts and Webhooks](/guide/alerts-and-webhooks).
+
+### Authentication
+
+Run open, or layer in [simple or forward-proxy auth](/guide/authentication) with role-based access control.
+
+### Lightweight & Fast
+
+Go backend, Vue 3 frontend, streaming over SSE and WebSocket — minimal resource footprint.
+
+## Next Steps
+
+- [Getting Started](/guide/getting-started)
+- [Supported Environment Variables](/guide/supported-env-vars)
+- [FAQ](/guide/faq)
+
+Dozzle is MIT-licensed and actively maintained.

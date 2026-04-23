@@ -27,3 +27,7 @@ services:
 ```
 
 :::
+
+## Multi-Host and Agents
+
+`--hostname` only relabels the host running **this** Dozzle process. Remote [agents](/guide/agent) advertise their own names — set `DOZZLE_HOSTNAME` (or `--hostname`) on each agent to control how it appears in the multi-host menu. In [swarm mode](/guide/swarm-mode) each node runs its own agent, so give each node a distinct hostname to tell them apart.

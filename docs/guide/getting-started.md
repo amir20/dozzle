@@ -38,6 +38,15 @@ services:
       #
       # Uncomment to enable authentication. See https://dozzle.dev/guide/authentication
       # - DOZZLE_AUTH_PROVIDER=simple
+      #
+      # Label this Dozzle instance (shown in the header and multi-host menu). See https://dozzle.dev/guide/hostname
+      # - DOZZLE_HOSTNAME=my-server
+      #
+      # Connect to one or more remote agents to monitor other Docker hosts. See https://dozzle.dev/guide/agent
+      # - DOZZLE_REMOTE_AGENT=192.168.1.10:7007,192.168.1.11:7007
+      #
+      # Only show containers matching a filter. See https://dozzle.dev/guide/filters
+      # - DOZZLE_FILTER=label=com.example.app
 volumes:
   dozzle_data:
 ```
