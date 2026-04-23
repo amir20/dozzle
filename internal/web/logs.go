@@ -302,6 +302,22 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
+	group := chi.URLParam(r, "group")
+
+	hostIDs := make(map[string]struct{})
+	for _, host := range h.hostService.Hosts() {
+		if host.Group == group {
+			hostIDs[host.ID] = struct{}{}
+		}
+	}
+
+	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
+		_, ok := hostIDs[c.Host]
+		return c.State == "running" && ok
+	})
+}
+
 func (h *handler) streamHostLogs(w http.ResponseWriter, r *http.Request) {
 	host := hostKey(r)
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {

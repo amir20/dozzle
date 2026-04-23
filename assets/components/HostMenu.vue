@@ -49,13 +49,34 @@
   <SlideTransition :slide-right="!!sessionHost">
     <template #left>
       <ul class="menu p-0">
-        <li v-for="host in hosts" :key="host.id">
-          <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
-            <HostIcon :type="host.type" />
-            {{ host.name }}
-            <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
-          </a>
-        </li>
+        <template v-if="!hasHostGroups">
+          <li v-for="host in hosts" :key="host.id">
+            <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
+              <HostIcon :type="host.type" />
+              {{ host.name }}
+              <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+            </a>
+          </li>
+        </template>
+        <template v-else v-for="[groupName, groupHosts] in groupedHostEntries" :key="groupName || '__ungrouped__'">
+          <li v-if="groupName" class="menu-title flex items-center justify-between px-0 pr-1">
+            <span>{{ groupName }}</span>
+            <router-link
+              :to="{ name: '/host-group/[name]', params: { name: groupName } }"
+              class="btn btn-square btn-outline btn-primary btn-xs"
+              :title="$t('tooltip.merge-all')"
+            >
+              <ph:arrows-merge />
+            </router-link>
+          </li>
+          <li v-for="host in groupHosts" :key="host.id">
+            <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
+              <HostIcon :type="host.type" />
+              {{ host.name }}
+              <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
+            </a>
+          </li>
+        </template>
       </ul>
     </template>
     <template #right>
@@ -145,6 +166,28 @@ const pinnedStore = usePinnedLogsStore();
 const { hosts } = useHosts();
 
 const setHost = (host: string | null) => (sessionHost.value = host);
+
+const hasHostGroups = computed(() => Object.values(hosts.value).some((h) => h.group));
+
+const groupedHostEntries = computed(() => {
+  const groups: Record<string, (typeof hosts.value)[string][]> = {};
+  const ungrouped: (typeof hosts.value)[string][] = [];
+
+  for (const host of Object.values(hosts.value)) {
+    if (host.group) {
+      groups[host.group] ||= [];
+      groups[host.group].push(host);
+    } else {
+      ungrouped.push(host);
+    }
+  }
+
+  const entries = Object.entries(groups).sort(([a], [b]) => a.localeCompare(b)) as [string, typeof ungrouped][];
+  if (ungrouped.length > 0) {
+    entries.push(["", ungrouped]);
+  }
+  return entries;
+});
 
 const collapsedGroups = useProfileStorage("collapsedGroups", new Set<string>());
 const updateCollapsedGroups = (event: Event, label: string) => {
