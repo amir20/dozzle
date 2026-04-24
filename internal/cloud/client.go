@@ -212,6 +212,18 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		return stream.Send(resp)
 	}
 
+	// Start the background log streamer if the host service supports it.
+	// Its lifetime is bound to streamLifetime — it shuts down cleanly when
+	// this connection drops, and is re-created on reconnect.
+	if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {
+		streamer := newLogStreamer(lshs, c.deps.Labels, sendResp)
+		wg.Go(func() {
+			streamer.run(streamLifetime)
+		})
+	} else {
+		log.Debug().Msg("host service does not support log streaming; skipping")
+	}
+
 	defer func() {
 		// Cancel all active log streams before shutting down
 		c.activeStreams.Range(func(key, value any) bool {
