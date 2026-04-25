@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 	"time"
 
@@ -33,6 +34,10 @@ const (
 
 	// how often to emit a rate-limited "dropped N lines" log per container
 	dropLogInterval = 30 * time.Second
+
+	// approximate per-entry protobuf overhead (field tags + length prefixes
+	// + fixed timestamp). Used as a budget add-on when sizing batches.
+	logBatchEntryOverheadBytes = 24
 )
 
 // logStreamer streams raw container log lines to Dozzle Cloud as unsolicited
@@ -74,12 +79,19 @@ func newLogStreamer(hostService LogStreamHostService, labels container.Container
 // running containers and subscribes to new-container events to launch readers
 // for containers started after connect.
 func (ls *logStreamer) run(ctx context.Context) {
+	// Derive a cancellable context so the sender can tear the whole streamer
+	// down when send() fails (the cloud connection is going away).
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	// Sender goroutine: drains outbound and pushes each batch on the wire.
 	ls.wg.Add(1)
-	go ls.runSender(ctx)
+	go ls.runSender(ctx, cancel)
 
 	// Subscribe to new-container events BEFORE snapshotting so we don't miss
-	// a container that starts between snapshot and subscribe.
+	// a container that starts between snapshot and subscribe. We don't apply
+	// label filtering here — startReader calls FindContainer which enforces
+	// ls.labels and rejects anything the user shouldn't see.
 	started := make(chan container.Container, 64)
 	ls.hostService.SubscribeContainersStarted(ctx, started, func(_ *container.Container) bool { return true })
 
@@ -116,7 +128,9 @@ func (ls *logStreamer) run(ctx context.Context) {
 }
 
 func readerKey(hostID, containerID string) string {
-	return hostID + "|" + containerID
+	// NUL is not a legal character in Docker host / container IDs, so it's
+	// safe as an unambiguous separator.
+	return hostID + "\x00" + containerID
 }
 
 func (ls *logStreamer) startReader(parent context.Context, c container.Container) {
@@ -232,9 +246,7 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 
 			msg := ev.RawMessage
 			if msg == "" {
-				if s, ok := ev.Message.(string); ok {
-					msg = s
-				}
+				msg = messageToString(ev.Message)
 			}
 
 			tsNs := ev.Timestamp * int64(time.Millisecond) // LogEvent.Timestamp is UnixMilli
@@ -257,7 +269,7 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 				Level:         level,
 			}
 			batch = append(batch, entry)
-			batchBytes += len(msg) + len(hostID) + len(containerID) + len(containerName) + len(ev.Stream) + len(level) + 24
+			batchBytes += len(msg) + len(hostID) + len(containerID) + len(containerName) + len(ev.Stream) + len(level) + logBatchEntryOverheadBytes
 
 			if len(batch) >= logBatchMaxEntries || batchBytes >= logBatchMaxBytes {
 				flush()
@@ -269,7 +281,7 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 // runSender drains the outbound channel and pushes each batch onto the cloud
 // stream via ls.send, which serialises with the rest of the tool-response
 // traffic on the same bidi stream.
-func (ls *logStreamer) runSender(ctx context.Context) {
+func (ls *logStreamer) runSender(ctx context.Context, cancel context.CancelFunc) {
 	defer ls.wg.Done()
 	for {
 		select {
@@ -284,10 +296,11 @@ func (ls *logStreamer) runSender(ctx context.Context) {
 				Type: &pb.ToolResponse_LogBatch{LogBatch: lb},
 			}
 			if err := ls.send(resp); err != nil {
-				// If the send fails, the surrounding connection is going
-				// away — the stream.Recv loop in client.go will return an
-				// error shortly and tear us down. Stop trying.
+				// Send failed — the cloud connection is going away. Cancel
+				// the streamer ctx so readers stop filling outbound instead
+				// of waiting for the outer connection teardown to propagate.
 				log.Debug().Err(err).Msg("log streamer: send failed; aborting sender")
+				cancel()
 				return
 			}
 		}
@@ -304,6 +317,26 @@ func (ls *logStreamer) tryAddPending(n int) bool {
 	}
 	ls.pending += n
 	return true
+}
+
+// messageToString renders a LogEvent.Message of any concrete type into a
+// string suitable for transport. Simple string messages pass through; complex
+// (JSON / structured / grouped multi-line) messages are JSON-encoded so the
+// cloud receives the full structured payload rather than dropping it.
+func messageToString(m any) string {
+	switch v := m.(type) {
+	case nil:
+		return ""
+	case string:
+		return v
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			log.Debug().Err(err).Msg("log streamer: failed to marshal message")
+			return ""
+		}
+		return string(b)
+	}
 }
 
 func (ls *logStreamer) addPending(n int) {

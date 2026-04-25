@@ -245,8 +245,13 @@ func TestLogStreamer_NewContainerStartsReader(t *testing.T) {
 		close(runDone)
 	}()
 
-	// Give run() a moment to subscribe.
-	time.Sleep(50 * time.Millisecond)
+	// Wait for run() to subscribe before emitting; emitting before
+	// startedCh is registered would silently no-op.
+	require.Eventually(t, func() bool {
+		hs.mu.Lock()
+		defer hs.mu.Unlock()
+		return hs.startedCh != nil
+	}, 2*time.Second, 5*time.Millisecond, "subscription was never registered")
 
 	hs.emitStart(container.Container{ID: "c-new", Name: "redis", Host: "host-1", State: "running"})
 
