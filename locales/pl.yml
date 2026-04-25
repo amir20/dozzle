@@ -58,6 +58,7 @@ label:
   no-logs: Kontener nie ma jeszcze logów
   show-all-containers: Pokaż wszystkie kontenery
   collapse-all: Zwiń wszystkie
+  expand-all: Rozwiń wszystkie
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna

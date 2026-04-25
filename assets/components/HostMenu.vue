@@ -37,8 +37,9 @@
               {{ $t("label.show-all-containers") }}
             </a>
             <a class="text-sm capitalize" @click="collapseAll()">
-              <material-symbols-light:collapse-all class="w-4" />
-              {{ $t("label.collapse-all") }}
+              <material-symbols-light:expand-all class="w-4" v-if="allCollapsed" />
+              <material-symbols-light:collapse-all class="w-4" v-else />
+              {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
             </a>
           </li>
         </ul>
@@ -252,15 +253,28 @@ const collapseHostGroup = (groupName: string) => {
   }
 };
 
+const allCollapsed = computed(() => {
+  const containerGroups = menuItems.value;
+  const hostGroups = groupedHostEntries.value.filter(([groupName]) => groupName);
+  if (containerGroups.length === 0 && hostGroups.length === 0) return false;
+  return (
+    containerGroups.every(({ label }) => collapsedGroups.value.has(label)) &&
+    hostGroups.every(([groupName]) => collapsedHostGroups.value.has(groupName))
+  );
+});
+
 const collapseAll = () => {
-  menuItems.value.forEach(({ label }) => {
-    collapsedGroups.value.add(label);
-  });
-  groupedHostEntries.value.forEach(([groupName]) => {
-    if (groupName) {
-      collapsedHostGroups.value.add(groupName);
-    }
-  });
+  if (allCollapsed.value) {
+    menuItems.value.forEach(({ label }) => collapsedGroups.value.delete(label));
+    groupedHostEntries.value.forEach(([groupName]) => {
+      if (groupName) collapsedHostGroups.value.delete(groupName);
+    });
+  } else {
+    menuItems.value.forEach(({ label }) => collapsedGroups.value.add(label));
+    groupedHostEntries.value.forEach(([groupName]) => {
+      if (groupName) collapsedHostGroups.value.add(groupName);
+    });
+  }
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
@@ -318,8 +332,9 @@ const menuItems = computed(() => {
   singular.sort(sorter);
 
   if (singular.length) {
+    const hostName = sessionHost.value ? (hosts.value[sessionHost.value]?.name ?? "") : "";
     items.push({
-      label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
+      label: hostName || (showAllContainers.value ? "label.all-containers" : "label.running-containers"),
       containers: singular,
       icon: Containers,
     });

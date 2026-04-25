@@ -54,6 +54,7 @@ label:
   no-logs: Container heeft nog geen logbestanden
   show-all-containers: Toon alle containers
   collapse-all: Alles inklappen
+  expand-all: Alles uitklappen
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom

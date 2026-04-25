@@ -54,6 +54,7 @@ label:
   no-logs: У контейнера еще нет логов
   show-all-containers: Показать все контейнеры
   collapse-all: Свернуть все
+  expand-all: Развернуть все
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец

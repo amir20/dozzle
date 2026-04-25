@@ -53,6 +53,7 @@ label:
   no-logs: 아직 로그가 없습니다
   show-all-containers: 전체 컨테이너 보기
   collapse-all: 전체 접기
+  expand-all: 전체 펼치기
 tooltip:
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정

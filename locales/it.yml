@@ -54,6 +54,7 @@ label:
   no-logs: Il container non ha ancora log
   show-all-containers: Mostra tutti i container
   collapse-all: Comprimi tutto
+  expand-all: Espandi tutto
 tooltip:
   search: Ricerca container (⌘ + k, ⌃k)
   pin-column: Blocca come colonna

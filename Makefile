@@ -54,6 +54,10 @@ push: docker
 	@docker tag amir20/dozzle:local amir20/dozzle:local-test
 	@docker push amir20/dozzle:local-test
 
+.PHONY: docker-push-dev
+docker-push-dev: shared_key.pem shared_cert.pem
+	@docker buildx build --build-arg TAG=dev --platform linux/amd64,linux/arm64 -t bigmikehelp/dozzle:dev --push .
+
 .PHONY: run
 run: docker
 	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local

@@ -59,6 +59,7 @@ label:
   no-logs: Konteyner henüz log içermiyor
   show-all-containers: Tüm konteynerleri göster
   collapse-all: Hepsini daralt
+  expand-all: Hepsini genişlet
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle

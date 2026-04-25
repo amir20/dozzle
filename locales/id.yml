@@ -55,6 +55,7 @@ label:
   no-logs: Kontainer belum memiliki log
   show-all-containers: Tampilkan semua kontainer
   collapse-all: Tutup semua
+  expand-all: Buka semua
 
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)

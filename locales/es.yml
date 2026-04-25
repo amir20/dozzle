@@ -54,6 +54,7 @@ label:
   no-logs: El contenedor aún no tiene registros
   show-all-containers: Mostrar todos los contenedores
   collapse-all: Colapsar todo
+  expand-all: Expandir todo
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna
