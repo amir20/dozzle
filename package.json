@@ -37,6 +37,7 @@
     "@codemirror/theme-one-dark": "^6.1.3",
     "@codemirror/view": "^6.41.1",
     "@duckdb/duckdb-wasm": "1.33.1-dev45.0",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "@iconify-json/carbon": "^1.2.20",
     "@iconify-json/cil": "^1.2.3",
     "@iconify-json/ic": "^1.2.4",

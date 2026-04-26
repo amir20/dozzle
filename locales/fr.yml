@@ -106,6 +106,11 @@ placeholder:
 settings:
   help-support: >
     Veuillez soutenir Dozzle en faisant un don ou en nous parrainant sur GitHub. Vos contributions nous aident à améliorer Dozzle pour tout le monde. Merci ! 🙏🏼
+  about-desc: Informations sur votre installation de Dozzle et comment soutenir le projet.
+  display-desc: Personnalisez l'apparence des logs et du reste de l'application. L'aperçu reflète vos modifications en direct.
+  options-desc: Préférences de langue, de navigation et de regroupement.
+  cloud-desc: Diffusez les logs vers Dozzle Cloud pour des analyses assistées par IA et la recherche entre instances.
+  support-title: Soutenir Dozzle
   display: Afficher
   locale: Langue de remplacement
   small-scrollbars: Utiliser des barres de défilement plus petites

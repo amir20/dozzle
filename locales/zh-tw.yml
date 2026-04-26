@@ -108,6 +108,11 @@ placeholder:
 settings:
   help-support: >
     請透過在 GitHub 上捐款或贊助我們來支持 Dozzle。您的貢獻幫助我們為所有人改進 Dozzle。謝謝！ 🙏🏼
+  about-desc: 關於您的 Dozzle 安裝以及如何支持本專案的資訊。
+  display-desc: 自訂日誌和應用程式其餘部分的外觀。預覽會即時反映您的變更。
+  options-desc: 語言、導覽和群組偏好設定。
+  cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
+  support-title: 支持 Dozzle
   display: 顯示
   locale: 變更語言
   small-scrollbars: 使用較小的捲軸
