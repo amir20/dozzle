@@ -304,6 +304,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Отвязать
   unlink-confirm: Вы уверены, что хотите отвязать от Dozzle Cloud? Это удалит все облачные назначения уведомлений.
+  stream-logs: Передавать логи контейнеров в Dozzle Cloud
+  stream-logs-help: Требуется для расследований с помощью ИИ и поиска по логам. Отключите, чтобы все содержимое логов оставалось на этом экземпляре.
   welcome:
     title: "Ваш экземпляр подключён!"
     subtitle: "Вы готовы получать оповещения, ежедневные сводки и многое другое от Dozzle Cloud."

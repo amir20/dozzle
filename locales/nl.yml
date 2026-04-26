@@ -305,6 +305,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Ontkoppelen
   unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.
+  stream-logs: Containerlogs streamen naar Dozzle Cloud
+  stream-logs-help: Vereist voor AI-gestuurd onderzoek en zoeken in logs. Schakel uit om alle loginhoud op deze instantie te houden.
   welcome:
     title: "Je instantie is verbonden!"
     subtitle: "Je kunt nu meldingen, dagelijkse samenvattingen en meer ontvangen van Dozzle Cloud."

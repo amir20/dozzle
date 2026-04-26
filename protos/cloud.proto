@@ -23,7 +23,28 @@ message ToolResponse {
   oneof type {
     ListToolsResponse list_tools = 2;
     CallToolResponse call_tool = 3;
+    // Unsolicited server-push: batched container log lines streamed from
+    // Dozzle to Cloud for ingestion into VictoriaLogs. request_id is empty
+    // for log batches — they are not replies to a ToolRequest.
+    LogBatch log_batch = 4;
   }
+}
+
+// Batch of log lines from one or more containers. Dozzle pushes these
+// continuously while connected. Cloud routes them to VictoriaLogs scoped
+// to the owning user (derived from the connection's auth).
+message LogBatch {
+  repeated LogBatchEntry entries = 1;
+}
+
+message LogBatchEntry {
+  string host_id = 1;
+  string container_id = 2;
+  string container_name = 3;
+  int64 timestamp_ns = 4;      // unix nanoseconds
+  string message = 5;
+  string stream = 6;           // "stdout" or "stderr"
+  string level = 7;            // "info", "warn", "error", etc. (best-effort)
 }
 
 message ListToolsRequest {}

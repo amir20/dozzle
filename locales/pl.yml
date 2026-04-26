@@ -311,6 +311,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Rozłącz
   unlink-confirm: Czy na pewno chcesz rozłączyć się z Dozzle Cloud? Spowoduje to usunięcie wszystkich miejsc docelowych powiadomień w chmurze.
+  stream-logs: Przesyłaj logi kontenerów do Dozzle Cloud
+  stream-logs-help: Wymagane do analiz wspieranych przez AI i wyszukiwania w logach. Wyłącz, aby zachować całą zawartość logów w tej instancji.
   welcome:
     title: "Twoja instancja jest połączona!"
     subtitle: "Możesz teraz otrzymywać alerty, codzienne podsumowania i więcej z Dozzle Cloud."

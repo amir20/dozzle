@@ -304,6 +304,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Verknüpfung aufheben
   unlink-confirm: Sind Sie sicher, dass Sie die Verknüpfung mit Dozzle Cloud aufheben möchten? Dies entfernt alle Cloud-Benachrichtigungsziele.
+  stream-logs: Container-Logs an Dozzle Cloud streamen
+  stream-logs-help: Erforderlich für KI-gestützte Analysen und Log-Suche. Deaktivieren, um sämtliche Log-Inhalte auf dieser Instanz zu behalten.
   welcome:
     title: "Ihre Instanz ist verbunden!"
     subtitle: "Sie können jetzt Benachrichtigungen, tägliche Zusammenfassungen und mehr von Dozzle Cloud erhalten."

@@ -113,6 +113,20 @@ func (p *Persister) SetCloudConfig(cc *CloudConfig) {
 	p.SaveCloud()
 }
 
+// SetCloudStreamLogs updates the StreamLogs flag on the current cloud config
+// and persists it. No-op when no cloud config is set.
+func (p *Persister) SetCloudStreamLogs(enabled bool) {
+	p.mu.Lock()
+	if p.cloudConfig == nil {
+		p.mu.Unlock()
+		return
+	}
+	v := enabled
+	p.cloudConfig.StreamLogs = &v
+	p.mu.Unlock()
+	p.SaveCloud()
+}
+
 // RemoveCloudConfig clears the cloud config, clears the cloud dispatcher, and
 // removes the cloud config file from disk.
 func (p *Persister) RemoveCloudConfig() {

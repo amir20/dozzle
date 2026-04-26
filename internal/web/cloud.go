@@ -180,9 +180,10 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 type cloudConfigResponse struct {
-	Prefix    string  `json:"prefix"`
-	ExpiresAt *string `json:"expiresAt,omitempty"`
-	Linked    bool    `json:"linked"`
+	Prefix     string  `json:"prefix"`
+	ExpiresAt  *string `json:"expiresAt,omitempty"`
+	Linked     bool    `json:"linked"`
+	StreamLogs bool    `json:"streamLogs"`
 }
 
 func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
@@ -193,8 +194,9 @@ func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := cloudConfigResponse{
-		Prefix: cc.Prefix,
-		Linked: true,
+		Prefix:     cc.Prefix,
+		Linked:     true,
+		StreamLogs: cc.StreamLogsEnabled(),
 	}
 	if cc.ExpiresAt != nil {
 		s := cc.ExpiresAt.Format(time.RFC3339)
@@ -204,6 +206,35 @@ func (h *handler) cloudConfig(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
+}
+
+type updateCloudConfigRequest struct {
+	StreamLogs *bool `json:"streamLogs,omitempty"`
+}
+
+func (h *handler) updateCloudConfig(w http.ResponseWriter, r *http.Request) {
+	cc := h.hostService.CloudConfig()
+	if cc == nil {
+		writeError(w, http.StatusNotFound, "no cloud configuration")
+		return
+	}
+
+	var req updateCloudConfigRequest
+	if err := json.NewDecoder(io.LimitReader(r.Body, 1<<10)).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.StreamLogs != nil {
+		h.hostService.SetCloudStreamLogs(*req.StreamLogs)
+		// Drop the active cloud connection so the new flag is picked up on
+		// the next dial — a streamer may need to start or stop.
+		if h.config.OnCloudUpdate != nil {
+			h.config.OnCloudUpdate()
+		}
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {

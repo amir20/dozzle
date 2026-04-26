@@ -304,6 +304,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Desvincular
   unlink-confirm: ¿Está seguro de que desea desvincular de Dozzle Cloud? Esto eliminará todos los destinos de notificación en la nube.
+  stream-logs: Transmitir registros de contenedores a Dozzle Cloud
+  stream-logs-help: Necesario para investigaciones con IA y búsqueda de registros. Desactívelo para mantener todo el contenido de los registros en esta instancia.
   welcome:
     title: "¡Tu instancia está conectada!"
     subtitle: "Ya puedes recibir alertas, resúmenes diarios y más desde Dozzle Cloud."

@@ -248,6 +248,13 @@ func (m *MultiHostService) SetCloudConfig(cc *notification.CloudConfig) {
 	m.broadcastCloudConfig()
 }
 
+// SetCloudStreamLogs updates the bulk-log-streaming privacy flag on the cloud
+// config and persists it. Only affects the local cloud client; agents never
+// stream logs directly to cloud.
+func (m *MultiHostService) SetCloudStreamLogs(enabled bool) {
+	m.persister.SetCloudStreamLogs(enabled)
+}
+
 // RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, deletes the file,
 // and broadcasts the change to all agents so they stop sending to cloud.
 func (m *MultiHostService) RemoveCloudConfig() {

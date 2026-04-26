@@ -316,6 +316,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Lepaskan tautan
   unlink-confirm: Apakah Anda yakin ingin melepaskan tautan dari Dozzle Cloud? Ini akan menghapus semua tujuan notifikasi cloud.
+  stream-logs: Streaming log kontainer ke Dozzle Cloud
+  stream-logs-help: Diperlukan untuk investigasi bertenaga AI dan pencarian log. Nonaktifkan untuk menyimpan seluruh konten log di instance ini.
   welcome:
     title: "Instans Anda terhubung!"
     subtitle: "Anda siap menerima peringatan, ringkasan harian, dan lainnya dari Dozzle Cloud."

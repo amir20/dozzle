@@ -12,6 +12,19 @@ type CloudConfig struct {
 	APIKey    string     `yaml:"apiKey"`
 	Prefix    string     `yaml:"prefix"`
 	ExpiresAt *time.Time `yaml:"expiresAt,omitempty"`
+	// StreamLogs controls whether container logs are streamed to Dozzle Cloud.
+	// nil means default (enabled) — preserves behavior for configs written
+	// before this field existed.
+	StreamLogs *bool `yaml:"streamLogs,omitempty"`
+}
+
+// StreamLogsEnabled reports whether the bulk log stream to cloud should run.
+// Defaults to true when the field is unset or the config is nil.
+func (c *CloudConfig) StreamLogsEnabled() bool {
+	if c == nil || c.StreamLogs == nil {
+		return true
+	}
+	return *c.StreamLogs
 }
 
 // WriteCloudConfig encodes the given CloudConfig to the writer in YAML format.

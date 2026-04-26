@@ -51,6 +51,7 @@ type Config struct {
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
 	OnCloudSetup     func()
+	OnCloudUpdate    func()
 }
 
 type Authorization struct {
@@ -90,6 +91,7 @@ type HostService interface {
 	FetchAgentNotificationStats() map[int]types.SubscriptionStats
 	CloudConfig() *notification.CloudConfig
 	SetCloudConfig(cc *notification.CloudConfig)
+	SetCloudStreamLogs(enabled bool)
 	RemoveCloudConfig()
 }
 
@@ -190,6 +192,7 @@ func createRouter(h *handler) *chi.Mux {
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
 				r.Get("/cloud/config", h.cloudConfig)
+				r.Patch("/cloud/config", h.updateCloudConfig)
 				r.Delete("/cloud/config", h.deleteCloudConfig)
 				r.Post("/cloud/feedback", h.cloudFeedback)
 			})

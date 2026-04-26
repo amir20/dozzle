@@ -309,6 +309,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Prekini povezavo
   unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
+  stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
+  stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
   welcome:
     title: "Vaša instanca je povezana!"
     subtitle: "Zdaj lahko prejemate opozorila, dnevne povzetke in več iz Dozzle Cloud."
