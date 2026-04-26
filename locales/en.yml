@@ -114,6 +114,12 @@ settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
     everyone. Thank you! 🙏🏼
+  about-desc: Information about your Dozzle installation and how to support the project.
+  display-desc: Customize how logs and the rest of the app look. The preview reflects your changes live.
+  options-desc: Locale, navigation and grouping preferences.
+  cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
+  support-title: Support Dozzle
+  support-help: Donations help keep Dozzle free and maintained. Thank you 🙏
   display: Display
   locale: Override language
   small-scrollbars: Use smaller scrollbars

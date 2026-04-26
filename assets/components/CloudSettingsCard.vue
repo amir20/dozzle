@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
     <!-- Not linked -->
     <template v-if="!cloudConfig">
-      <div class="flex items-start gap-4">
+      <div class="flex items-start gap-4 p-4">
         <mdi:cloud class="text-base-content/40 mt-0.5 text-4xl" />
         <div class="flex flex-col gap-1">
           <p class="text-base-content/70 text-sm">{{ $t("cloud.description") }}</p>
@@ -22,7 +22,7 @@
     <!-- Linked -->
     <template v-else-if="cloudConfig.linked">
       <!-- Error state -->
-      <div v-if="cloudStatusError" class="space-y-3">
+      <div v-if="cloudStatusError" class="space-y-3 p-4">
         <div class="alert" :class="cloudStatusError === 'auth' ? 'alert-error' : 'alert-warning'">
           <mdi:alert-circle v-if="cloudStatusError === 'auth'" class="text-lg" />
           <mdi:cloud-off-outline v-else class="text-lg" />
@@ -47,43 +47,43 @@
       </div>
 
       <!-- Loading -->
-      <div v-else-if="isLoadingCloudStatus" class="flex items-center gap-2 py-2">
+      <div v-else-if="isLoadingCloudStatus" class="flex items-center gap-2 p-4">
         <span class="loading loading-spinner loading-sm"></span>
       </div>
 
       <!-- Healthy -->
-      <div v-else-if="cloudStatus" class="space-y-4">
-        <div class="flex items-center gap-2">
+      <template v-else-if="cloudStatus">
+        <div class="flex flex-wrap items-center gap-2 p-4">
           <span class="badge badge-success">{{ $t("cloud.connected") }}</span>
           <span class="badge badge-primary capitalize">{{ cloudStatus.plan.name }}</span>
           <span class="text-base-content/50 text-sm">{{ cloudStatus.user.email }}</span>
         </div>
 
-        <div>
-          <div class="mb-1 flex items-center justify-between text-sm">
-            <span class="text-base-content/60">{{ $t("cloud.usage") }}</span>
-            <span>
-              {{ cloudStatus.usage.events_used.toLocaleString() }} /
-              {{ cloudStatus.usage.events_limit.toLocaleString() }}
+        <div class="flex flex-col gap-2 p-4">
+          <div class="flex items-baseline justify-between">
+            <span class="text-base-content/60 text-sm font-medium">{{ $t("cloud.usage") }}</span>
+            <span class="font-mono text-sm">
+              <span class="font-semibold">{{ cloudStatus.usage.events_used.toLocaleString() }}</span>
+              <span class="text-base-content/40"> / {{ cloudStatus.usage.events_limit.toLocaleString() }}</span>
             </span>
           </div>
           <progress
-            class="progress w-full max-w-xs"
+            class="progress w-full"
             :class="usagePercent > 90 ? 'progress-error' : usagePercent > 70 ? 'progress-warning' : 'progress-primary'"
             :value="cloudStatus.usage.events_used"
             :max="cloudStatus.usage.events_limit"
           ></progress>
+          <div class="text-base-content/40 flex justify-between font-mono text-xs">
+            <span v-if="cloudStatus.usage.period">{{ cloudStatus.usage.period }}</span>
+            <span v-else></span>
+            <span>{{ usagePercent.toFixed(2) }}% used</span>
+          </div>
         </div>
 
-        <label
-          class="border-base-content/10 hover:border-base-content/20 flex cursor-pointer items-start justify-between gap-4 rounded-lg border p-4 transition-colors"
-        >
-          <div class="flex items-start gap-3">
-            <mdi:shield-lock-outline class="text-primary mt-0.5 shrink-0 text-xl" />
-            <div class="flex flex-col gap-0.5">
-              <span class="text-sm font-medium">{{ $t("cloud.stream-logs") }}</span>
-              <span class="text-base-content/60 text-xs">{{ $t("cloud.stream-logs-help") }}</span>
-            </div>
+        <label class="flex min-h-[52px] cursor-pointer items-center justify-between gap-4 p-4">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-medium">{{ $t("cloud.stream-logs") }}</span>
+            <span class="text-base-content/60 text-xs">{{ $t("cloud.stream-logs-help") }}</span>
           </div>
           <input
             type="checkbox"
@@ -94,7 +94,7 @@
           />
         </label>
 
-        <div class="flex gap-2">
+        <div class="flex gap-2 p-4">
           <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
             {{ $t("cloud.dashboard") }}
           </a>
@@ -102,7 +102,7 @@
             {{ $t("cloud.unlink") }}
           </button>
         </div>
-      </div>
+      </template>
     </template>
 
     <!-- Unlink confirmation modal -->

@@ -119,6 +119,7 @@ declare module 'vue' {
     'Mdi:gauge': typeof import('~icons/mdi/gauge')['default']
     'Mdi:github': typeof import('~icons/mdi/github')['default']
     'Mdi:hamburgerMenu': typeof import('~icons/mdi/hamburger-menu')['default']
+    'Mdi:heart': typeof import('~icons/mdi/heart')['default']
     'Mdi:hexagonMultiple': typeof import('~icons/mdi/hexagon-multiple')['default']
     'Mdi:key': typeof import('~icons/mdi/key')['default']
     'Mdi:keyboardEsc': typeof import('~icons/mdi/keyboard-esc')['default']
