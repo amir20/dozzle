@@ -20,24 +20,10 @@ type LogStreamHostService interface {
 }
 
 const (
-	// batch flush thresholds
 	logBatchMaxEntries  = 500
 	logBatchMaxBytes    = 256 * 1024
 	logBatchFlushPeriod = 1 * time.Second
-
-	// global back-pressure limits
-	logBatchQueueSize    = 32    // number of batches queued to the sender
-	logMaxPendingEntries = 10000 // cap across all in-flight container readers
-
-	// per-container channel buffer
 	logReaderChanBuffer = 128
-
-	// how often to emit a rate-limited "dropped N lines" log per container
-	dropLogInterval = 30 * time.Second
-
-	// approximate per-entry protobuf overhead (field tags + length prefixes
-	// + fixed timestamp). Used as a budget add-on when sizing batches.
-	logBatchEntryOverheadBytes = 24
 )
 
 // logStreamer streams raw container log lines to Dozzle Cloud as unsolicited
@@ -48,19 +34,8 @@ type logStreamer struct {
 	labels      container.ContainerLabels
 	send        func(resp *pb.ToolResponse) error
 
-	// outgoing batches; a single goroutine drains this and calls send().
-	outbound chan *pb.LogBatch
-
-	// running readers, keyed by host|containerID. Used to avoid launching
-	// duplicate readers for a container that appears twice (start event +
-	// initial snapshot race).
 	mu      sync.Mutex
 	readers map[string]context.CancelFunc
-
-	// total pending entries across all readers (atomic would be fine but we
-	// already hold the mu when mutating readers; use separate mu for counter).
-	pendingMu sync.Mutex
-	pending   int
 
 	wg sync.WaitGroup
 }
@@ -70,7 +45,6 @@ func newLogStreamer(hostService LogStreamHostService, labels container.Container
 		hostService: hostService,
 		labels:      labels,
 		send:        send,
-		outbound:    make(chan *pb.LogBatch, logBatchQueueSize),
 		readers:     make(map[string]context.CancelFunc),
 	}
 }
@@ -79,23 +53,11 @@ func newLogStreamer(hostService LogStreamHostService, labels container.Container
 // running containers and subscribes to new-container events to launch readers
 // for containers started after connect.
 func (ls *logStreamer) run(ctx context.Context) {
-	// Derive a cancellable context so the sender can tear the whole streamer
-	// down when send() fails (the cloud connection is going away).
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	// Sender goroutine: drains outbound and pushes each batch on the wire.
-	ls.wg.Add(1)
-	go ls.runSender(ctx, cancel)
-
-	// Subscribe to new-container events BEFORE snapshotting so we don't miss
-	// a container that starts between snapshot and subscribe. We don't apply
-	// label filtering here — startReader calls FindContainer which enforces
-	// ls.labels and rejects anything the user shouldn't see.
+	// Subscribe BEFORE snapshotting so we don't miss a container that starts
+	// between snapshot and subscribe.
 	started := make(chan container.Container, 64)
 	ls.hostService.SubscribeContainersStarted(ctx, started, func(_ *container.Container) bool { return true })
 
-	// Initial snapshot of all currently-running containers.
 	existing, errs := ls.hostService.ListAllContainers(ls.labels)
 	for _, err := range errs {
 		if err != nil {
@@ -128,9 +90,7 @@ func (ls *logStreamer) run(ctx context.Context) {
 }
 
 func readerKey(hostID, containerID string) string {
-	// NUL is not a legal character in Docker host / container IDs, so it's
-	// safe as an unambiguous separator.
-	return hostID + "\x00" + containerID
+	return hostID + "|" + containerID
 }
 
 func (ls *logStreamer) startReader(parent context.Context, c container.Container) {
@@ -168,9 +128,9 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 	}()
 }
 
-// runReader follows logs from a single container and pushes entries into
-// batches. Returns when the log stream ends (EOF, container stopped) or ctx
-// is cancelled.
+// runReader follows logs from a single container and pushes batches directly
+// to the cloud via ls.send. send() is serialised by the caller, so a slow
+// cloud connection backpressures all readers — this is intentional.
 func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.ContainerService) {
 	events := make(chan *container.LogEvent, logReaderChanBuffer)
 
@@ -189,31 +149,21 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 
 	var batch []*pb.LogBatchEntry
 	var batchBytes int
-	var droppedSinceLastLog int
-	dropLogTicker := time.NewTicker(dropLogInterval)
-	defer dropLogTicker.Stop()
 	flushTicker := time.NewTicker(logBatchFlushPeriod)
 	defer flushTicker.Stop()
 
-	flush := func() {
+	flush := func() error {
 		if len(batch) == 0 {
-			return
+			return nil
 		}
-		// Non-blocking send to outbound. If the outbound queue is full, drop
-		// this batch — we never block the reader.
-		lb := &pb.LogBatch{Entries: batch}
-		select {
-		case ls.outbound <- lb:
-		default:
-			droppedSinceLastLog += len(batch)
-			ls.addPending(-len(batch))
-		}
+		err := ls.send(&pb.ToolResponse{Type: &pb.ToolResponse_LogBatch{LogBatch: &pb.LogBatch{Entries: batch}}})
 		batch = nil
 		batchBytes = 0
+		return err
 	}
 
 	defer func() {
-		flush()
+		_ = flush()
 		log.Debug().Str("container", containerName).Str("host", hostID).Msg("log streamer: reader stopped")
 	}()
 
@@ -221,27 +171,17 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 		select {
 		case <-ctx.Done():
 			return
-		case <-dropLogTicker.C:
-			if droppedSinceLastLog > 0 {
-				log.Warn().Int("dropped", droppedSinceLastLog).Str("container", containerName).Msg("log streamer: dropped lines due to backpressure")
-				droppedSinceLastLog = 0
-			}
 		case <-flushTicker.C:
-			flush()
+			if err := flush(); err != nil {
+				log.Debug().Err(err).Msg("log streamer: send failed")
+				return
+			}
 		case ev, ok := <-events:
 			if !ok {
-				// Stream ended (container stopped / EOF). Final flush happens
-				// in the defer.
 				if err := <-streamErr; err != nil && ctx.Err() == nil {
 					log.Debug().Err(err).Str("container", containerName).Msg("log streamer: StreamLogs ended with error")
 				}
 				return
-			}
-
-			// Enforce global pending cap — if over, drop this entry.
-			if !ls.tryAddPending(1) {
-				droppedSinceLastLog++
-				continue
 			}
 
 			msg := ev.RawMessage
@@ -259,7 +199,7 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 				level = ""
 			}
 
-			entry := &pb.LogBatchEntry{
+			batch = append(batch, &pb.LogBatchEntry{
 				HostId:        hostID,
 				ContainerId:   containerID,
 				ContainerName: containerName,
@@ -267,62 +207,22 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 				Message:       msg,
 				Stream:        ev.Stream,
 				Level:         level,
-			}
-			batch = append(batch, entry)
-			batchBytes += len(msg) + len(hostID) + len(containerID) + len(containerName) + len(ev.Stream) + len(level) + logBatchEntryOverheadBytes
+			})
+			batchBytes += len(msg)
 
 			if len(batch) >= logBatchMaxEntries || batchBytes >= logBatchMaxBytes {
-				flush()
+				if err := flush(); err != nil {
+					log.Debug().Err(err).Msg("log streamer: send failed")
+					return
+				}
 			}
 		}
 	}
-}
-
-// runSender drains the outbound channel and pushes each batch onto the cloud
-// stream via ls.send, which serialises with the rest of the tool-response
-// traffic on the same bidi stream.
-func (ls *logStreamer) runSender(ctx context.Context, cancel context.CancelFunc) {
-	defer ls.wg.Done()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case lb, ok := <-ls.outbound:
-			if !ok {
-				return
-			}
-			ls.addPending(-len(lb.Entries))
-			resp := &pb.ToolResponse{
-				Type: &pb.ToolResponse_LogBatch{LogBatch: lb},
-			}
-			if err := ls.send(resp); err != nil {
-				// Send failed — the cloud connection is going away. Cancel
-				// the streamer ctx so readers stop filling outbound instead
-				// of waiting for the outer connection teardown to propagate.
-				log.Debug().Err(err).Msg("log streamer: send failed; aborting sender")
-				cancel()
-				return
-			}
-		}
-	}
-}
-
-// tryAddPending atomically adds n to the pending counter if it stays within
-// logMaxPendingEntries. Returns false if the addition would exceed the cap.
-func (ls *logStreamer) tryAddPending(n int) bool {
-	ls.pendingMu.Lock()
-	defer ls.pendingMu.Unlock()
-	if ls.pending+n > logMaxPendingEntries {
-		return false
-	}
-	ls.pending += n
-	return true
 }
 
 // messageToString renders a LogEvent.Message of any concrete type into a
-// string suitable for transport. Simple string messages pass through; complex
-// (JSON / structured / grouped multi-line) messages are JSON-encoded so the
-// cloud receives the full structured payload rather than dropping it.
+// string suitable for transport. Grouped multi-line events don't set
+// RawMessage, so JSON-encode their fragment slice as a fallback.
 func messageToString(m any) string {
 	switch v := m.(type) {
 	case nil:
@@ -337,13 +237,4 @@ func messageToString(m any) string {
 		}
 		return string(b)
 	}
-}
-
-func (ls *logStreamer) addPending(n int) {
-	ls.pendingMu.Lock()
-	ls.pending += n
-	if ls.pending < 0 {
-		ls.pending = 0
-	}
-	ls.pendingMu.Unlock()
 }

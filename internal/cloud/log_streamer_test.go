@@ -299,17 +299,6 @@ func TestLogStreamer_LevelUnknownIsBlank(t *testing.T) {
 	sendMu.Unlock()
 }
 
-func TestLogStreamer_PendingCapDropsEntries(t *testing.T) {
-	ls := newLogStreamer(nil, nil, func(*pb.ToolResponse) error { return nil })
-	// Fill to the cap
-	require.True(t, ls.tryAddPending(logMaxPendingEntries))
-	// One more should fail
-	require.False(t, ls.tryAddPending(1))
-	// Release some
-	ls.addPending(-100)
-	require.True(t, ls.tryAddPending(50))
-}
-
 func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 	client := newFakeClientService("host-1")
 	hs := &fakeHostService{
