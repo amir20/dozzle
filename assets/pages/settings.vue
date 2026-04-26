@@ -135,6 +135,52 @@
                 ></button>
               </div>
             </div>
+            <div class="s-row">
+              <div class="s-row-label">
+                <div class="s-row-title">{{ $t("settings.datetime-format") }}</div>
+              </div>
+              <div class="s-row-control s-row-control-tight">
+                <DropdownMenu
+                  v-model="dateLocale"
+                  :options="[
+                    { label: 'Auto', value: 'auto' },
+                    { label: 'MM/DD/YYYY', value: 'en-US' },
+                    { label: 'DD/MM/YYYY', value: 'en-GB' },
+                    { label: 'DD.MM.YYYY', value: 'de-DE' },
+                    { label: 'YYYY-MM-DD', value: 'en-CA' },
+                  ]"
+                />
+                <DropdownMenu
+                  v-model="hourStyle"
+                  :options="[
+                    { label: $t('settings.hour.auto'), value: 'auto' },
+                    { label: $t('settings.hour.12'), value: '12' },
+                    { label: $t('settings.hour.24'), value: '24' },
+                  ]"
+                />
+              </div>
+            </div>
+            <div class="s-row">
+              <div class="s-row-label">
+                <div class="s-row-title">{{ $t("settings.font-size") }}</div>
+              </div>
+              <div class="s-row-control">
+                <div class="s-seg">
+                  <button
+                    v-for="opt in [
+                      { label: $t('settings.size.small'), value: 'small' },
+                      { label: $t('settings.size.medium'), value: 'medium' },
+                      { label: $t('settings.size.large'), value: 'large' },
+                    ]"
+                    :key="opt.value"
+                    :class="{ active: size === opt.value }"
+                    @click="size = opt.value as typeof size"
+                  >
+                    {{ opt.label }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <LogList
@@ -165,52 +211,6 @@
                   ...availableLocales.map((l) => ({ label: l.toLocaleUpperCase(), value: l })),
                 ]"
               />
-            </div>
-          </div>
-          <div class="s-row">
-            <div class="s-row-label">
-              <div class="s-row-title">{{ $t("settings.datetime-format") }}</div>
-            </div>
-            <div class="s-row-control s-row-control-tight">
-              <DropdownMenu
-                v-model="dateLocale"
-                :options="[
-                  { label: 'Auto', value: 'auto' },
-                  { label: 'MM/DD/YYYY', value: 'en-US' },
-                  { label: 'DD/MM/YYYY', value: 'en-GB' },
-                  { label: 'DD.MM.YYYY', value: 'de-DE' },
-                  { label: 'YYYY-MM-DD', value: 'en-CA' },
-                ]"
-              />
-              <DropdownMenu
-                v-model="hourStyle"
-                :options="[
-                  { label: $t('settings.hour.auto'), value: 'auto' },
-                  { label: $t('settings.hour.12'), value: '12' },
-                  { label: $t('settings.hour.24'), value: '24' },
-                ]"
-              />
-            </div>
-          </div>
-          <div class="s-row">
-            <div class="s-row-label">
-              <div class="s-row-title">{{ $t("settings.font-size") }}</div>
-            </div>
-            <div class="s-row-control">
-              <div class="s-seg">
-                <button
-                  v-for="opt in [
-                    { label: $t('settings.size.small'), value: 'small' },
-                    { label: $t('settings.size.medium'), value: 'medium' },
-                    { label: $t('settings.size.large'), value: 'large' },
-                  ]"
-                  :key="opt.value"
-                  :class="{ active: size === opt.value }"
-                  @click="size = opt.value as typeof size"
-                >
-                  {{ opt.label }}
-                </button>
-              </div>
             </div>
           </div>
           <div class="s-row">
@@ -554,11 +554,11 @@ const fakeMessages = computedWithControl(
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  align-items: start;
+  align-items: stretch;
 }
 @container (min-width: 56rem) {
   .s-display-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 40%);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 .settings-content {
@@ -570,8 +570,7 @@ const fakeMessages = computedWithControl(
   border-width: 1px;
   border-radius: 10px;
   overflow: hidden;
-  position: sticky;
-  top: 16px;
+  height: 100%;
   display: none;
 }
 @container (min-width: 56rem) {
