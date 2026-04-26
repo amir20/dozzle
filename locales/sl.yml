@@ -105,6 +105,11 @@ placeholder:
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
   search: Iskanje
 settings:
+  about-desc: Informacije o vaši namestitvi Dozzle in kako podpreti projekt.
+  display-desc: Prilagodite videz dnevnikov in preostalega dela aplikacije. Predogled v živo prikazuje vaše spremembe.
+  options-desc: Nastavitve jezika, navigacije in združevanja.
+  cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
+  support-title: Podprite Dozzle
   display: Prikaz
   locale: Preglasi jezik
   small-scrollbars: Uporabite manjše drsne trakove

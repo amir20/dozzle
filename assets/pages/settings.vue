@@ -16,26 +16,27 @@
       </div>
 
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex flex-col gap-1.5 p-4">
-          <div class="flex flex-wrap items-center gap-2.5">
-            <span class="font-semibold">Dozzle</span>
-            <span
-              class="bg-base-100 border-base-content/15 text-base-content/70 rounded border px-2 py-0.5 font-mono text-xs"
-              >{{ config.version }}</span
-            >
+        <div class="flex flex-col gap-2 p-5">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="text-2xl font-semibold tracking-tight">Dozzle</span>
+            <span class="status-pill status-pill-neutral">{{ config.version }}</span>
             <a
               v-if="hasRelease"
               :href="latestRelease?.htmlUrl"
               target="_blank"
               rel="noopener noreferrer"
-              class="btn btn-warning btn-xs hover:bg-warning/10 hover:text-warning"
+              class="status-pill status-pill-warning hover:bg-warning/15"
             >
               <span class="size-1.5 rounded-full bg-current"></span>
               {{ latestRelease?.name }} available
             </a>
           </div>
-          <div class="text-base-content/60 text-xs">
-            <span v-html="$t('settings.using-version', { version: config.version })"></span>
+          <div class="text-base-content/60 font-mono text-xs">
+            <template v-if="hasRelease && latestRelease?.createdAt">
+              Latest release {{ latestRelease.name }} ·
+              {{ new Date(latestRelease.createdAt).toLocaleDateString(undefined, dateFmt) }}
+            </template>
+            <template v-else> You're running the latest version. </template>
           </div>
         </div>
 
@@ -87,27 +88,27 @@
 
       <div class="grid items-stretch gap-3 @3xl:grid-cols-2">
         <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-          <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
             {{ $t("settings.compact") }}
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="compact" />
           </label>
-          <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
             {{ $t("settings.small-scrollbars") }}
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="smallerScrollbars" />
           </label>
-          <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
             {{ $t("settings.show-timestamps") }}
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showTimestamp" />
           </label>
-          <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
             {{ $t("settings.show-std") }}
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showStd" />
           </label>
-          <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+          <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
             {{ $t("settings.soft-wrap") }}
             <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="softWrap" />
           </label>
-          <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+          <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
             <span>{{ $t("settings.datetime-format") }}</span>
             <div class="flex gap-1.5">
               <DropdownMenu
@@ -130,7 +131,7 @@
               />
             </div>
           </div>
-          <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+          <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
             <span>{{ $t("settings.font-size") }}</span>
             <div class="join">
               <button
@@ -167,7 +168,7 @@
       </div>
 
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.locale") }}</span>
           <DropdownMenu
             v-model="locale"
@@ -177,7 +178,7 @@
             ]"
           />
         </div>
-        <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.color-scheme") }}</span>
           <div class="join">
             <button
@@ -195,7 +196,7 @@
             </button>
           </div>
         </div>
-        <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.automatic-redirect") }}</span>
           <DropdownMenu
             v-model="automaticRedirect"
@@ -206,7 +207,7 @@
             ]"
           />
         </div>
-        <div class="flex min-h-[52px] flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
+        <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.group-containers") }}</span>
           <DropdownMenu
             v-model="groupContainers"
@@ -217,11 +218,11 @@
             ]"
           />
         </div>
-        <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
           <span>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></span>
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="search" />
         </label>
-        <label class="flex min-h-[52px] items-center justify-between gap-4 p-4 text-sm font-medium">
+        <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
           {{ $t("settings.show-stopped-containers") }}
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="showAllContainers" />
         </label>
@@ -256,6 +257,8 @@ const { t } = useI18n();
 
 setTitle(t("title.settings"));
 const { latestRelease, hasRelease } = useAnnouncements();
+
+const dateFmt: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" };
 
 const now = new Date();
 const hoursAgo = (hours: number) => {

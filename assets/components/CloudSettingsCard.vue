@@ -54,8 +54,11 @@
       <!-- Healthy -->
       <template v-else-if="cloudStatus">
         <div class="flex flex-wrap items-center gap-2 p-4">
-          <span class="badge badge-success">{{ $t("cloud.connected") }}</span>
-          <span class="badge badge-primary capitalize">{{ cloudStatus.plan.name }}</span>
+          <span class="status-pill status-pill-success">
+            <span class="size-1.5 rounded-full bg-current"></span>
+            {{ $t("cloud.connected") }}
+          </span>
+          <span class="status-pill status-pill-primary">{{ cloudStatus.plan.name }}</span>
           <span class="text-base-content/50 text-sm">{{ cloudStatus.user.email }}</span>
         </div>
 
@@ -80,7 +83,7 @@
           </div>
         </div>
 
-        <label class="flex min-h-[52px] cursor-pointer items-center justify-between gap-4 p-4">
+        <label class="flex min-h-13 cursor-pointer items-center justify-between gap-4 p-4">
           <div class="flex flex-col gap-0.5">
             <span class="text-sm font-medium">{{ $t("cloud.stream-logs") }}</span>
             <span class="text-base-content/60 text-xs">{{ $t("cloud.stream-logs-help") }}</span>

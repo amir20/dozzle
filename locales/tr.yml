@@ -114,6 +114,11 @@ placeholder:
 settings:
   help-support: >
     Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
+  about-desc: Dozzle kurulumunuz ve projeyi nasıl destekleyebileceğiniz hakkında bilgiler.
+  display-desc: Logların ve uygulamanın geri kalanının görünümünü özelleştirin. Önizleme değişikliklerinizi canlı olarak yansıtır.
+  options-desc: Dil, gezinme ve gruplama tercihleri.
+  cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
+  support-title: Dozzle'ı Destekle
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan

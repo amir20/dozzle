@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "splitpanes/dist/splitpanes.css" layer(base);
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/jetbrains-mono/700.css";
 @plugin "daisyui";
 @plugin "@tailwindcss/typography";
 
@@ -9,6 +13,8 @@
   --color-purple: oklch(51.49% 0.215 321.03);
   --color-blue: oklch(65% 0.171 249.5);
   --color-orange: oklch(85% 0.186 48.13);
+
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @utility pt-safe {
@@ -190,5 +196,21 @@ body {
 }
 
 .cm-scroller {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-mono);
+}
+
+.status-pill {
+  @apply inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-xs font-medium tracking-wider uppercase;
+}
+.status-pill-neutral {
+  @apply bg-base-100 border-base-content/15 text-base-content/70;
+}
+.status-pill-success {
+  @apply text-success border-success/30 bg-success/10;
+}
+.status-pill-primary {
+  @apply text-primary border-primary/30 bg-primary/10;
+}
+.status-pill-warning {
+  @apply text-warning border-warning/30 bg-warning/10;
 }
