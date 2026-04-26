@@ -304,6 +304,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Fjern tilknytning
   unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
+  stream-logs: Stream containerlogs til Dozzle Cloud
+  stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
   welcome:
     title: "Din instans er forbundet!"
     subtitle: "Du er klar til at modtage advarsler, daglige resuméer og mere fra Dozzle Cloud."

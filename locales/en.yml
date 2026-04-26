@@ -317,6 +317,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Unlink
   unlink-confirm: Are you sure you want to unlink from Dozzle Cloud? This will remove all cloud notification destinations.
+  stream-logs: Stream container logs to Dozzle Cloud
+  stream-logs-help: Required for AI-powered investigations and log search. Disable to keep all log content on this instance.
   welcome:
     title: "Your instance is connected!"
     subtitle: "You're all set to start getting alerts, daily digests, and more from Dozzle Cloud."

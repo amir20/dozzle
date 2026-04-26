@@ -307,6 +307,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 取消連結
   unlink-confirm: 確定要取消與 Dozzle Cloud 的連結嗎？這將移除所有雲端通知目標。
+  stream-logs: 將容器日誌串流至 Dozzle Cloud
+  stream-logs-help: AI 分析與日誌搜尋所需。停用後，所有日誌內容將保留在此執行個體上。
   welcome:
     title: "您的實例已連線！"
     subtitle: "您現在可以從 Dozzle Cloud 接收警示、每日摘要等。"

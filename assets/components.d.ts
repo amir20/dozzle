@@ -131,6 +131,7 @@ declare module 'vue' {
     'Mdi:poll': typeof import('~icons/mdi/poll')['default']
     'Mdi:refresh': typeof import('~icons/mdi/refresh')['default']
     'Mdi:satelliteVariant': typeof import('~icons/mdi/satellite-variant')['default']
+    'Mdi:shieldLockOutline': typeof import('~icons/mdi/shield-lock-outline')['default']
     'Mdi:textBoxOutline': typeof import('~icons/mdi/text-box-outline')['default']
     'Mdi:trashCanOutline': typeof import('~icons/mdi/trash-can-outline')['default']
     'Mdi:webhook': typeof import('~icons/mdi/webhook')['default']

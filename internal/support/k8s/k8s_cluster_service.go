@@ -231,6 +231,10 @@ func (m *K8sClusterService) SetCloudConfig(cc *notification.CloudConfig) {
 	m.persister.SetCloudConfig(cc)
 }
 
+func (m *K8sClusterService) SetCloudStreamLogs(enabled bool) {
+	m.persister.SetCloudStreamLogs(enabled)
+}
+
 func (m *K8sClusterService) RemoveCloudConfig() {
 	m.persister.RemoveCloudConfig()
 }

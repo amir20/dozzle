@@ -36,16 +36,20 @@ const (
 
 // Client manages the gRPC connection to Dozzle Cloud
 type Client struct {
-	deps          ToolDeps
-	apiKeyFunc    func() string
-	target        string
-	plaintext     bool
-	toolSem       *semaphore.Weighted
-	streamSem     *semaphore.Weighted
-	cachedTools   []*pb.ToolDefinition
-	toolsOnce     sync.Once
-	startCh       chan struct{}
-	activeStreams sync.Map // requestID -> context.CancelFunc
+	deps           ToolDeps
+	apiKeyFunc     func() string
+	streamLogsFunc func() bool
+	target         string
+	plaintext      bool
+	toolSem        *semaphore.Weighted
+	streamSem      *semaphore.Weighted
+	cachedTools    []*pb.ToolDefinition
+	toolsOnce      sync.Once
+	startCh        chan struct{}
+	activeStreams  sync.Map // requestID -> context.CancelFunc
+
+	connMu        sync.Mutex
+	cancelCurrent context.CancelFunc
 }
 
 // NewClient creates a new cloud gRPC client.
@@ -82,12 +86,29 @@ func NewClient(apiKeyFunc func() string, deps ToolDeps) *Client {
 	}
 }
 
+// SetStreamLogsFunc registers a function that reports whether bulk container
+// log streaming to cloud is enabled. If unset, the streamer runs by default.
+func (c *Client) SetStreamLogsFunc(f func() bool) {
+	c.streamLogsFunc = f
+}
+
 // Notify signals the client to attempt a connection. Safe to call multiple times.
 // Use this when a cloud dispatcher is added or when the status page is viewed.
 func (c *Client) Notify() {
 	select {
 	case c.startCh <- struct{}{}:
 	default:
+	}
+}
+
+// Reconnect drops the current cloud connection (if any), causing the Run loop
+// to dial again so settings like the log-streaming toggle take effect.
+func (c *Client) Reconnect() {
+	c.connMu.Lock()
+	cancel := c.cancelCurrent
+	c.connMu.Unlock()
+	if cancel != nil {
+		cancel()
 	}
 }
 
@@ -192,8 +213,20 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 
 	client := pb.NewCloudToolServiceClient(conn)
 
+	// Per-connection context that Reconnect() can cancel to force a redial.
+	connCtx, connCancel := context.WithCancel(ctx)
+	defer connCancel()
+	c.connMu.Lock()
+	c.cancelCurrent = connCancel
+	c.connMu.Unlock()
+	defer func() {
+		c.connMu.Lock()
+		c.cancelCurrent = nil
+		c.connMu.Unlock()
+	}()
+
 	md := metadata.Pairs("x-api-key", apiKey)
-	streamCtx := metadata.NewOutgoingContext(ctx, md)
+	streamCtx := metadata.NewOutgoingContext(connCtx, md)
 
 	stream, err := client.ToolStream(streamCtx)
 	if err != nil {
@@ -212,10 +245,14 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		return stream.Send(resp)
 	}
 
-	// Start the background log streamer if the host service supports it.
-	// Its lifetime is bound to streamLifetime — it shuts down cleanly when
-	// this connection drops, and is re-created on reconnect.
-	if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {
+	// Start the background log streamer if the host service supports it and
+	// the user has not opted out via the privacy toggle. Its lifetime is bound
+	// to streamLifetime — it shuts down cleanly when this connection drops,
+	// and is re-created on reconnect (re-evaluating the toggle each time).
+	streamLogs := c.streamLogsFunc == nil || c.streamLogsFunc()
+	if !streamLogs {
+		log.Debug().Msg("cloud log streaming disabled by user setting; skipping streamer")
+	} else if lshs, ok := c.deps.HostService.(LogStreamHostService); ok {
 		streamer := newLogStreamer(lshs, c.deps.Labels, sendResp)
 		wg.Go(func() {
 			streamer.run(streamLifetime)

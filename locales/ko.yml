@@ -307,6 +307,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: 연결 해제
   unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.
+  stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
+  stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
   welcome:
     title: "인스턴스가 연결되었습니다!"
     subtitle: "이제 Dozzle Cloud에서 알림, 일일 요약 등을 받을 수 있습니다."

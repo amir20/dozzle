@@ -71,6 +71,7 @@ export interface CloudConfig {
   prefix: string;
   expiresAt?: string;
   linked: boolean;
+  streamLogs: boolean;
 }
 
 export interface CloudStatus {

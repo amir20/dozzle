@@ -160,6 +160,9 @@ func main() {
 		DeployManager:       deployManager,
 		NotificationService: notificationService,
 	})
+	cloudClient.SetStreamLogsFunc(func() bool {
+		return hostService.CloudConfig().StreamLogsEnabled()
+	})
 	go cloudClient.Run(ctx)
 
 	// If cloud is already configured at startup, start the client immediately
@@ -167,7 +170,7 @@ func main() {
 		cloudClient.Notify()
 	}
 
-	srv := createServer(args, hostService, cloudClient.Notify)
+	srv := createServer(args, hostService, cloudClient.Notify, cloudClient.Reconnect)
 
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
@@ -195,7 +198,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService, onCloudSetup func()) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(), onCloudUpdate func()) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -275,6 +278,7 @@ func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
 		OnCloudSetup:     onCloudSetup,
+		OnCloudUpdate:    onCloudUpdate,
 	}
 
 	assets, err := fs.Sub(content, "dist")

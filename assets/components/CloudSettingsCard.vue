@@ -75,6 +75,25 @@
           ></progress>
         </div>
 
+        <label
+          class="border-base-content/10 hover:border-base-content/20 flex cursor-pointer items-start justify-between gap-4 rounded-lg border p-4 transition-colors"
+        >
+          <div class="flex items-start gap-3">
+            <mdi:shield-lock-outline class="text-primary mt-0.5 shrink-0 text-xl" />
+            <div class="flex flex-col gap-0.5">
+              <span class="text-sm font-medium">{{ $t("cloud.stream-logs") }}</span>
+              <span class="text-base-content/60 text-xs">{{ $t("cloud.stream-logs-help") }}</span>
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm shrink-0"
+            :checked="streamLogs"
+            :disabled="isSavingStreamLogs"
+            @change="onStreamLogsChange(($event.target as HTMLInputElement).checked)"
+          />
+        </label>
+
         <div class="flex gap-2">
           <a :href="cloudUrl" target="_blank" rel="noreferrer noopener" class="btn btn-sm">
             {{ $t("cloud.dashboard") }}
@@ -124,6 +143,33 @@ const {
 } = useCloudConfig();
 const isUnlinking = ref(false);
 const unlinkModal = ref<HTMLDialogElement | null>(null);
+
+const streamLogs = ref(true);
+const isSavingStreamLogs = ref(false);
+watchEffect(() => {
+  if (cloudConfig.value) streamLogs.value = cloudConfig.value.streamLogs;
+});
+
+async function onStreamLogsChange(value: boolean | undefined) {
+  if (!cloudConfig.value || value === undefined) return;
+  isSavingStreamLogs.value = true;
+  try {
+    const res = await fetch(withBase("/api/cloud/config"), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ streamLogs: value }),
+    });
+    if (!res.ok) {
+      streamLogs.value = !value;
+      return;
+    }
+    cloudConfig.value.streamLogs = value;
+  } catch {
+    streamLogs.value = !value;
+  } finally {
+    isSavingStreamLogs.value = false;
+  }
+}
 
 const usagePercent = computed(() => {
   if (!cloudStatus.value) return 0;

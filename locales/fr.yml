@@ -304,6 +304,8 @@ cloud:
   error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
   unlink: Délier
   unlink-confirm: Êtes-vous sûr de vouloir délier de Dozzle Cloud ? Cela supprimera toutes les destinations de notification cloud.
+  stream-logs: Diffuser les journaux de conteneurs vers Dozzle Cloud
+  stream-logs-help: Requis pour les investigations alimentées par IA et la recherche dans les journaux. Désactivez pour conserver tout le contenu des journaux sur cette instance.
   welcome:
     title: "Votre instance est connectée !"
     subtitle: "Vous êtes prêt à recevoir des alertes, des résumés quotidiens et bien plus depuis Dozzle Cloud."
