@@ -345,14 +345,18 @@ const menuItems = computed(() => {
 
 const route = useRoute("/container/[id]");
 
-watchEffect(() => {
-  if (route.name === "/container/[id]") {
-    const container = containerStore.findContainerById(route.params.id);
-    if (container) {
-      setHost(container.host);
+watch(
+  [() => route.name, () => route.params.id],
+  ([name, id]) => {
+    if (name === "/container/[id]") {
+      const container = containerStore.findContainerById(id as string);
+      if (container) {
+        setHost(container.host);
+      }
     }
-  }
-});
+  },
+  { immediate: true },
+);
 
 const toggleShowAllContainers = () => (showAllContainers.value = !showAllContainers.value);
 </script>
