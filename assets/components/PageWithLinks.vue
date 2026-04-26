@@ -3,7 +3,7 @@
     <section>
       <Links>
         <template #more-items>
-          <Tag>{{ config.version }}</Tag>
+          <Tag class="font-mono">{{ config.version }}</Tag>
         </template>
       </Links>
     </section>

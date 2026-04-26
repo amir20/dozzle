@@ -3,7 +3,7 @@
     <section>
       <Links>
         <template #more-items>
-          <Tag>{{ config.version }}</Tag>
+          <Tag class="font-mono">{{ config.version }}</Tag>
         </template>
       </Links>
     </section>
@@ -110,7 +110,7 @@
           </label>
           <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
             <span>{{ $t("settings.datetime-format") }}</span>
-            <div class="flex gap-1.5">
+            <div class="ml-auto flex gap-1.5">
               <DropdownMenu
                 v-model="dateLocale"
                 :options="[
@@ -133,7 +133,7 @@
           </div>
           <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
             <span>{{ $t("settings.font-size") }}</span>
-            <div class="join">
+            <div class="join ml-auto">
               <button
                 v-for="opt in [
                   { label: $t('settings.size.small'), value: 'small' },
@@ -171,6 +171,7 @@
         <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.locale") }}</span>
           <DropdownMenu
+            class="ml-auto"
             v-model="locale"
             :options="[
               { label: 'Auto', value: '' },
@@ -180,7 +181,7 @@
         </div>
         <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.color-scheme") }}</span>
-          <div class="join">
+          <div class="join ml-auto">
             <button
               v-for="opt in [
                 { label: $t('settings.theme.light'), value: 'light' },
@@ -199,6 +200,7 @@
         <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.automatic-redirect") }}</span>
           <DropdownMenu
+            class="ml-auto"
             v-model="automaticRedirect"
             :options="[
               { label: $t('settings.redirect.instant'), value: 'instant' },
@@ -210,6 +212,7 @@
         <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
           <span>{{ $t("settings.group-containers") }}</span>
           <DropdownMenu
+            class="ml-auto"
             v-model="groupContainers"
             :options="[
               { label: $t('settings.grouping.always'), value: 'always' },
