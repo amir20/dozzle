@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -217,12 +218,23 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	})
 
 	for _, endpoint := range m.failedAgents {
+		parts := strings.SplitN(endpoint, "|", 3)
+		addr := parts[0]
+		name := addr
+		group := ""
+		if len(parts) >= 2 && parts[1] != "" {
+			name = parts[1]
+		}
+		if len(parts) == 3 {
+			group = parts[2]
+		}
 		hosts = append(hosts, container.Host{
 			ID:        endpoint,
-			Name:      endpoint,
-			Endpoint:  endpoint,
+			Name:      name,
+			Endpoint:  addr,
 			Available: false,
 			Type:      "agent",
+			Group:     group,
 		})
 	}
 
