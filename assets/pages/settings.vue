@@ -376,7 +376,6 @@ const fakeMessages = computedWithControl(
 
 .settings-content {
   width: 100%;
-  max-width: 920px;
 }
 
 .s-section {
@@ -559,7 +558,7 @@ const fakeMessages = computedWithControl(
 }
 @container (min-width: 56rem) {
   .s-display-grid {
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 40%);
   }
 }
 .settings-content {
