@@ -28,22 +28,17 @@ type RetriableClientManager struct {
 }
 
 func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls.Certificate, clients ...container_support.ClientService) *RetriableClientManager {
-	clientMap := make(map[string]container_support.ClientService)
-	failedList := make([]string, 0)
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
-	addClient := func(host container.Host, c container_support.ClientService) {
-		mu.Lock()
-		defer mu.Unlock()
-		if _, ok := clientMap[host.ID]; ok {
-			log.Warn().Str("name", host.Name).Str("id", host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
-			return
-		}
-		clientMap[host.ID] = c
+	type entry struct {
+		host    container.Host
+		service container_support.ClientService
+		failed  string // endpoint, set only for failed agents
+		ok      bool
 	}
 
-	for _, c := range clients {
+	results := make([]entry, len(clients)+len(agents))
+	var wg sync.WaitGroup
+
+	for i, c := range clients {
 		wg.Go(func() {
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
@@ -52,18 +47,17 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 				log.Warn().Err(err).Msg("error fetching host info for client")
 				return
 			}
-			addClient(host, c)
+			results[i] = entry{host: host, service: c, ok: true}
 		})
 	}
 
-	for _, endpoint := range agents {
+	for i, endpoint := range agents {
+		idx := len(clients) + i
 		wg.Go(func() {
 			a, err := agent.NewClient(endpoint, certs)
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error creating agent client")
-				mu.Lock()
-				failedList = append(failedList, endpoint)
-				mu.Unlock()
+				results[idx] = entry{failed: endpoint}
 				return
 			}
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -71,16 +65,31 @@ func NewRetriableClientManager(agents []string, timeout time.Duration, certs tls
 			host, err := a.Host(ctx)
 			if err != nil {
 				log.Warn().Err(err).Str("endpoint", endpoint).Msg("error fetching host info for agent")
-				mu.Lock()
-				failedList = append(failedList, endpoint)
-				mu.Unlock()
+				results[idx] = entry{failed: endpoint}
 				return
 			}
-			addClient(host, container_support.NewAgentService(a))
+			results[idx] = entry{host: host, service: container_support.NewAgentService(a), ok: true}
 		})
 	}
 
 	wg.Wait()
+
+	clientMap := make(map[string]container_support.ClientService)
+	failedList := make([]string, 0)
+	for _, r := range results {
+		if r.failed != "" {
+			failedList = append(failedList, r.failed)
+			continue
+		}
+		if !r.ok {
+			continue
+		}
+		if _, exists := clientMap[r.host.ID]; exists {
+			log.Warn().Str("name", r.host.Name).Str("id", r.host.ID).Msg("An agent with an existing ID was found. Removing the duplicate host. For more details, see http://localhost:5173/guide/agent#agent-not-showing-up.")
+			continue
+		}
+		clientMap[r.host.ID] = r.service
+	}
 
 	return &RetriableClientManager{
 		clients:      clientMap,
