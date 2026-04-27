@@ -41,7 +41,7 @@ Dozzle is a small container (7 MB compressed). Pull the latest release with:
 
 The simplest way to use Dozzle is to run the Docker container. Mount the Docker Unix socket with `--volume` to `/var/run/docker.sock`:
 
-    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -p 8080:8080 amir20/dozzle:latest
+    $ docker run --name dozzle -d --volume=/var/run/docker.sock:/var/run/docker.sock -v dozzle_data:/data -p 8080:8080 amir20/dozzle:latest
 
 Dozzle will be available at [http://localhost:8080/](http://localhost:8080/).
 
@@ -53,8 +53,11 @@ Here is a Docker Compose example:
         image: amir20/dozzle:latest
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
+          - dozzle_data:/data
         ports:
           - 8080:8080
+    volumes:
+      dozzle_data:
 
 For advanced options like [authentication](https://dozzle.dev/guide/authentication), [remote hosts](https://dozzle.dev/guide/remote-hosts), or common [questions](https://dozzle.dev/guide/faq), see the documentation at [dozzle.dev](https://dozzle.dev/guide/getting-started).
 
