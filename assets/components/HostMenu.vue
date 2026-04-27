@@ -332,9 +332,8 @@ const menuItems = computed(() => {
   singular.sort(sorter);
 
   if (singular.length) {
-    const hostName = sessionHost.value ? (hosts.value[sessionHost.value]?.name ?? "") : "";
     items.push({
-      label: hostName || (showAllContainers.value ? "label.all-containers" : "label.running-containers"),
+      label: showAllContainers.value ? "label.all-containers" : "label.running-containers",
       containers: singular,
       icon: Containers,
     });
