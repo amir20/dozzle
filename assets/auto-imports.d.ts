@@ -259,6 +259,7 @@ declare global {
   const useGroupedStream: typeof import('./composable/eventStreams').useGroupedStream
   const useHead: typeof import('@vueuse/head').useHead
   const useHistoricalContainerLog: typeof import('./composable/historicalLogs').useHistoricalContainerLog
+  const useHostGroupStream: typeof import('./composable/eventStreams').useHostGroupStream
   const useHostStream: typeof import('./composable/eventStreams').useHostStream
   const useHosts: typeof import('./stores/hosts').useHosts
   const useI18n: typeof import('vue-i18n').useI18n
@@ -689,6 +690,7 @@ declare module 'vue' {
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/eventStreams')['useGroupedStream']>
     readonly useHead: UnwrapRef<typeof import('@vueuse/head')['useHead']>
     readonly useHistoricalContainerLog: UnwrapRef<typeof import('./composable/historicalLogs')['useHistoricalContainerLog']>
+    readonly useHostGroupStream: UnwrapRef<typeof import('./composable/eventStreams')['useHostGroupStream']>
     readonly useHostStream: UnwrapRef<typeof import('./composable/eventStreams')['useHostStream']>
     readonly useHosts: UnwrapRef<typeof import('./stores/hosts')['useHosts']>
     readonly useI18n: UnwrapRef<typeof import('vue-i18n')['useI18n']>

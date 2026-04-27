@@ -65,18 +65,18 @@ declare module 'vue-router/auto-routes' {
       { name: ParamValue<false> },
       | never
     >,
-    '/host-group/[name]': RouteRecordInfo<
-      '/host-group/[name]',
-      '/host-group/:name',
-      { name: ParamValue<true> },
-      { name: ParamValue<false> },
-      | never
-    >,
     '/host/[id]': RouteRecordInfo<
       '/host/[id]',
       '/host/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/host-group/[name]': RouteRecordInfo<
+      '/host-group/[name]',
+      '/host-group/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
       | never
     >,
     '/login': RouteRecordInfo<
@@ -185,15 +185,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'assets/pages/host-group/[name].vue': {
-      routes:
-        | '/host-group/[name]'
-      views:
-        | never
-    }
     'assets/pages/host/[id].vue': {
       routes:
         | '/host/[id]'
+      views:
+        | never
+    }
+    'assets/pages/host-group/[name].vue': {
+      routes:
+        | '/host-group/[name]'
       views:
         | never
     }
