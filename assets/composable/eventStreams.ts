@@ -29,7 +29,7 @@ export function useHostStream(host: Ref<Host>): LogStreamSource {
 }
 
 export function useHostGroupStream(group: Ref<{ name: string }>): LogStreamSource {
-  return useLogStream(computed(() => `/api/host-groups/${group.value.name}/logs/stream`));
+  return useLogStream(computed(() => `/api/host-groups/${encodeURIComponent(group.value.name)}/logs/stream`));
 }
 
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {

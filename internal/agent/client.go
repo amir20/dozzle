@@ -84,7 +84,7 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 
 func parseEndpoint(endpoint string) (string, string, string, error) {
 	parts := strings.Split(endpoint, "|")
-	if len(parts) > 3 {
+	if len(parts) > 3 || parts[0] == "" {
 		return "", "", "", fmt.Errorf("invalid agent endpoint: %s", endpoint)
 	}
 

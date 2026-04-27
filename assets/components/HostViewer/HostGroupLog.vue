@@ -23,7 +23,7 @@
         ref="viewer"
         :stream-source="useHostGroupStream"
         :entity="groupRef"
-        :visible-keys="new Map<string[], boolean>()"
+        :visible-keys="visibleKeys"
       />
     </template>
   </ScrollableView>
@@ -45,6 +45,7 @@ const { containersByHost } = storeToRefs(store);
 
 const groupHosts = computed(() => Object.values(hosts.value).filter((h) => h.group === name));
 const groupRef = computed(() => ({ name }));
+const visibleKeys = new Map<string[], boolean>();
 
 const containers = computed(() =>
   groupHosts.value.flatMap((h) => containersByHost.value?.[h.id]?.filter((c) => c.state === "running") ?? []),
