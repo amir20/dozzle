@@ -8,14 +8,9 @@ const route = useRoute("/host-group/[name]");
 
 const pinnedLogsStore = usePinnedLogsStore();
 const { pinnedLogs } = storeToRefs(pinnedLogsStore);
-const { hosts } = useHosts();
-
-const groupHosts = computed(() => Object.values(hosts.value).filter((h) => h.group === route.params.name));
 
 watchEffect(() => {
-  if (groupHosts.value.length > 0) {
-    setTitle(route.params.name + " group");
-  }
+  setTitle(route.params.name + " group");
 });
 </script>
 

@@ -52,7 +52,10 @@
       <ul class="menu p-0">
         <template v-if="!hasHostGroups">
           <li v-for="host in hosts" :key="host.id">
-            <a @click.prevent="setHost(host.id)" :class="{ 'text-base-content/50 pointer-events-none': !host.available }">
+            <a
+              @click.prevent="setHost(host.id)"
+              :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
+            >
               <HostIcon :type="host.type" />
               {{ host.name }}
               <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
@@ -75,7 +78,7 @@
                 <button
                   type="button"
                   class="btn btn-square btn-outline btn-primary btn-xs"
-                  :title="$t('label.collapse-all')"
+                  :title="$t('label.collapse-group')"
                   @click.stop.prevent="collapseHostGroup(groupName)"
                 >
                   <material-symbols-light:collapse-all />

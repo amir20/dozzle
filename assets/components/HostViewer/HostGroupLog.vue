@@ -1,5 +1,10 @@
 <template>
-  <ScrollableView :scrollable="scrollable" v-if="groupHosts.length > 0">
+  <div v-if="groupHosts.length === 0" class="hero min-h-[50vh]">
+    <div class="hero-content text-center">
+      <p class="text-base-content/70 text-lg">{{ $t("error.host-group-not-found", { name }) }}</p>
+    </div>
+  </div>
+  <ScrollableView :scrollable="scrollable" v-else>
     <template #header>
       <div class="mx-2 flex items-center gap-2 md:ml-4">
         <div class="flex flex-1 items-center gap-1.5 truncate md:gap-2">

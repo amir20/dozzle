@@ -37,7 +37,7 @@ type Client struct {
 }
 
 func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
-	endpoint, nameOverride, group, err := parseEndpoint(endpoint)
+	endpoint, nameOverride, group, err := ParseEndpoint(endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,9 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	}, nil
 }
 
-func parseEndpoint(endpoint string) (string, string, string, error) {
+// ParseEndpoint splits an agent endpoint of the form "address|name|group" into
+// its parts. Name and group are optional; address is required.
+func ParseEndpoint(endpoint string) (string, string, string, error) {
 	parts := strings.Split(endpoint, "|")
 	if len(parts) > 3 || parts[0] == "" {
 		return "", "", "", fmt.Errorf("invalid agent endpoint: %s", endpoint)
@@ -358,9 +360,13 @@ func (c *Client) ListContainers(ctx context.Context, labels container.ContainerL
 func (c *Client) Host(ctx context.Context) (container.Host, error) {
 	info, err := c.client.HostInfo(ctx, &pb.HostInfoRequest{})
 	if err != nil {
+		name := c.nameOverride
+		if name == "" {
+			name = c.endpoint
+		}
 		return container.Host{
 			Endpoint:  c.endpoint,
-			Name:      c.nameOverride,
+			Name:      name,
 			Group:     c.group,
 			Type:      "agent",
 			Available: false,

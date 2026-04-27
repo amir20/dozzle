@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -218,15 +217,13 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	})
 
 	for _, endpoint := range m.failedAgents {
-		parts := strings.SplitN(endpoint, "|", 3)
-		addr := parts[0]
-		name := addr
-		group := ""
-		if len(parts) >= 2 && parts[1] != "" {
-			name = parts[1]
+		addr, name, group, err := agent.ParseEndpoint(endpoint)
+		if err != nil {
+			log.Warn().Err(err).Str("endpoint", endpoint).Msg("skipping malformed agent endpoint")
+			continue
 		}
-		if len(parts) == 3 {
-			group = parts[2]
+		if name == "" {
+			name = addr
 		}
 		hosts = append(hosts, container.Host{
 			ID:        endpoint,
