@@ -48,6 +48,7 @@ label:
   group-menu: Skupine po meri
   show-all-containers: Prikaži vse zabojnike
   collapse-all: Strni vse
+  collapse-group: Strni skupino
   expand-all: Razširi vse
   container-name: Ime zabojnika
   container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
@@ -60,6 +61,7 @@ tooltip:
   merge-all: Združi vse v en tok
 error:
   page-not-found: Ta stran ne obstaja
+  host-group-not-found: 'V skupini "{name}" ni najdenih gostiteljev'
   invalid-auth: Uporabniško ime ali geslo nista veljavna
   copy-not-supported: Kopiranje v odložišče ni podprto v vašem brskalniku
   copy-not-supported-hint: Odložišče ni na voljo. Kopirajte spodnjo povezavo

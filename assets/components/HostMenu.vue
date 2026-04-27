@@ -76,6 +76,7 @@
                   <ph:arrows-merge />
                 </router-link>
                 <button
+                  v-if="!collapsedHostGroups.has(groupName)"
                   type="button"
                   class="btn btn-square btn-outline btn-primary btn-xs"
                   :title="$t('label.collapse-group')"

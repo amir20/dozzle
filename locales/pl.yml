@@ -58,6 +58,7 @@ label:
   no-logs: Kontener nie ma jeszcze logów
   show-all-containers: Pokaż wszystkie kontenery
   collapse-all: Zwiń wszystkie
+  collapse-group: Zwiń grupę
   expand-all: Rozwiń wszystkie
 tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
@@ -65,6 +66,7 @@ tooltip:
   merge-all: Scal wszystko w jeden strumień
 error:
   page-not-found: Ta strona nie istnieje
+  host-group-not-found: 'Nie znaleziono hostów w grupie „{name}”'
   invalid-auth: Nazwa użytkownika lub hasło są niepoprawne
   copy-not-supported: Kopiowanie do schowka nie jest obsługiwane w twojej przeglądarce
   copy-not-supported-hint: Schowek niedostępny. Skopiuj poniższy link

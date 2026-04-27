@@ -40,6 +40,7 @@ label:
   no-logs: 容器尚无日志
   show-all-containers: 显示所有容器
   collapse-all: 折叠全部
+  collapse-group: 折叠组
   expand-all: 展开全部
   host: 主机
   hosts: 主机
@@ -61,6 +62,7 @@ tooltip:
   merge-all: 将所有内容合并到一个流中
 error:
   page-not-found: 此页面不存在。
+  host-group-not-found: '在组 "{name}" 中未找到主机'
   invalid-auth: 用户名和密码无效。
   copy-not-supported: 您的浏览器不支持复制到剪贴板
   copy-not-supported-hint: 剪贴板不可用。请复制下方链接

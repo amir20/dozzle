@@ -57,6 +57,7 @@ label:
   no-logs: O contentor ainda não tem logs
   show-all-containers: Mostrar todos os contentores
   collapse-all: Recolher tudo
+  collapse-group: Recolher grupo
   expand-all: Expandir tudo
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
@@ -64,6 +65,7 @@ tooltip:
   merge-all: Mesclar tudo em um fluxo
 error:
   page-not-found: Esta página não existe.
+  host-group-not-found: 'Nenhum host encontrado no grupo "{name}"'
   invalid-auth: O nome de usuário e a senha não são válidos.
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo

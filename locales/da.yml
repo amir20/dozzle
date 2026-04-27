@@ -54,6 +54,7 @@ label:
   no-logs: Container har ingen logs endnu
   show-all-containers: Vis alle containere
   collapse-all: Kollaps alle
+  collapse-group: Kollaps gruppe
   expand-all: Udvid alle
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
@@ -61,6 +62,7 @@ tooltip:
   merge-all: Sammenlæg alt i én stream
 error:
   page-not-found: Denne side eksisterer ikke
+  host-group-not-found: 'Ingen værter fundet i gruppen "{name}"'
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
   copy-not-supported: Kopiering til udklipsholder understøttes ikke i din browser
   copy-not-supported-hint: Udklipsholder ikke tilgængelig. Kopiér linket nedenfor

@@ -54,6 +54,7 @@ label:
   no-logs: Le conteneur n'a pas encore de logs
   show-all-containers: Afficher tous les conteneurs
   collapse-all: Réduire tout
+  collapse-group: Réduire le groupe
   expand-all: Développer tout
 tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
@@ -61,6 +62,7 @@ tooltip:
   merge-all: Fusionner tout dans un flux
 error:
   page-not-found: Cette page n'existe pas
+  host-group-not-found: 'Aucun hôte trouvé dans le groupe « {name} »'
   invalid-auth: Nom d'utilisateur ou mot de passe non valides
   copy-not-supported: La copie dans le presse-papiers n'est pas prise en charge par votre navigateur
   copy-not-supported-hint: Presse-papiers indisponible. Copiez le lien ci-dessous
