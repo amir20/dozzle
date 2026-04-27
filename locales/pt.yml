@@ -53,12 +53,15 @@ label:
   no-logs: O container ainda não tem logs
   show-all-containers: Mostrar todos os containers
   collapse-all: Recolher tudo
+  collapse-group: Recolher grupo
+  expand-all: Expandir tudo
 tooltip:
   search: Pesquisar containers (⌘ + k, ⌃k)
   pin-column: Fixar como coluna
   merge-all: Unir tudo em um fluxo
 error:
   page-not-found: Esta página não existe
+  host-group-not-found: 'Nenhum host encontrado no grupo "{name}"'
   invalid-auth: Usuário ou senha inválidos
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo

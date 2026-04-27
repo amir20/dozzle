@@ -14,6 +14,7 @@ import (
 
 	"io"
 	"net/http"
+	"net/url"
 	"runtime"
 
 	"time"
@@ -299,6 +300,26 @@ func (h *handler) streamGroupedLogs(w http.ResponseWriter, r *http.Request) {
 
 	h.streamLogsForContainers(w, r, func(container *container.Container) bool {
 		return container.State == "running" && container.Group == group
+	})
+}
+
+func (h *handler) streamHostGroupLogs(w http.ResponseWriter, r *http.Request) {
+	group, err := url.PathUnescape(chi.URLParam(r, "group"))
+	if err != nil || group == "" {
+		http.Error(w, "invalid group", http.StatusBadRequest)
+		return
+	}
+
+	hostIDs := make(map[string]struct{})
+	for _, host := range h.hostService.Hosts() {
+		if host.Group == group {
+			hostIDs[host.ID] = struct{}{}
+		}
+	}
+
+	h.streamLogsForContainers(w, r, func(c *container.Container) bool {
+		_, ok := hostIDs[c.Host]
+		return c.State == "running" && ok
 	})
 }
 

@@ -55,6 +55,8 @@ label:
   no-logs: Kontainer belum memiliki log
   show-all-containers: Tampilkan semua kontainer
   collapse-all: Tutup semua
+  collapse-group: Tutup grup
+  expand-all: Buka semua
 
 tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)
@@ -63,6 +65,7 @@ tooltip:
 
 error:
   page-not-found: Halaman ini tidak ada
+  host-group-not-found: 'Tidak ada host yang ditemukan di grup "{name}"'
   invalid-auth: Nama pengguna atau kata sandi tidak valid
   copy-not-supported: Salin ke clipboard tidak didukung di browser Anda
   copy-not-supported-hint: Clipboard tidak tersedia. Salin tautan di bawah ini

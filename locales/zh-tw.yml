@@ -40,6 +40,8 @@ label:
   no-logs: 容器尚無日誌
   show-all-containers: 顯示所有容器
   collapse-all: 摺疊全部
+  collapse-group: 摺疊群組
+  expand-all: 展開全部
   host: 主機
   hosts: 主機
   password: 密碼
@@ -60,6 +62,7 @@ tooltip:
   merge-all: 將所有內容合併到一個流中
 error:
   page-not-found: 此頁面不存在
+  host-group-not-found: '在群組「{name}」中找不到主機'
   invalid-auth: 使用者名稱或密碼不正確
   copy-not-supported: 您的瀏覽器不支援複製到剪貼簿
   copy-not-supported-hint: 剪貼簿不可用。請複製下方連結

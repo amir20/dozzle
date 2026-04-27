@@ -54,12 +54,15 @@ label:
   no-logs: Container hat noch keine Logs
   show-all-containers: Zeige alle Container
   collapse-all: Alle einklappen
+  collapse-group: Gruppe einklappen
+  expand-all: Alle ausklappen
 tooltip:
   search: Suche Container (⌘ + k, ⌃k)
   pin-column: Als Spalte anheften
   merge-all: Alles in einen Stream zusammenführen
 error:
   page-not-found: Diese Seite existiert nicht.
+  host-group-not-found: 'Keine Hosts in der Gruppe "{name}" gefunden'
   invalid-auth: Benutzername und Passwort sind ungültig.
   copy-not-supported: Kopieren in die Zwischenablage wird von Ihrem Browser nicht unterstützt
   copy-not-supported-hint: Zwischenablage nicht verfügbar. Link unten kopieren

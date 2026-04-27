@@ -28,6 +28,10 @@ export function useHostStream(host: Ref<Host>): LogStreamSource {
   return useLogStream(computed(() => `/api/hosts/${host.value.id}/logs/stream`));
 }
 
+export function useHostGroupStream(group: Ref<{ name: string }>): LogStreamSource {
+  return useLogStream(computed(() => `/api/host-groups/${encodeURIComponent(group.value.name)}/logs/stream`));
+}
+
 export function useStackStream(stack: Ref<Stack>): LogStreamSource {
   const labels = computed(() => `com.docker.stack.namespace:${stack.value.name}`);
   return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));

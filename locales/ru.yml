@@ -54,12 +54,15 @@ label:
   no-logs: У контейнера еще нет логов
   show-all-containers: Показать все контейнеры
   collapse-all: Свернуть все
+  collapse-group: Свернуть группу
+  expand-all: Развернуть все
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
   merge-all: Объединить все в один поток
 error:
   page-not-found: Эта страница не доступна.
+  host-group-not-found: 'Хосты в группе «{name}» не найдены'
   invalid-auth: Имя пользователя или пароль неверны.
   copy-not-supported: Копирование в буфер обмена не поддерживается вашим браузером
   copy-not-supported-hint: Буфер обмена недоступен. Скопируйте ссылку ниже

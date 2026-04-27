@@ -72,6 +72,55 @@ Note that it is not necessary to mount the local Docker socket when connecting t
 > [!TIP]
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
+## Host Groups
+
+When managing many agents across different environments, you can assign each agent to a named group. Groups appear as collapsible sections in the sidebar, and each group has a "merge all" button to view combined logs from every host in the group.
+
+The connection string format is `endpoint|name|group` — all three parts are optional:
+
+| Format | Result |
+|--------|--------|
+| `agent:7007` | No name override, no group |
+| `agent:7007\|web-1` | Name override, no group |
+| `agent:7007\|web-1\|Production` | Name override + group |
+| `agent:7007\|\|Production` | Default hostname + group |
+
+::: code-group
+
+```sh
+docker run -p 8080:8080 amir20/dozzle:latest \
+  --remote-agent agent1:7007|web-1|Production \
+  --remote-agent agent2:7007|web-2|Production \
+  --remote-agent agent3:7007|dev-1|Development
+```
+
+```yaml [docker-compose.yml]
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_REMOTE_AGENT=agent1:7007|web-1|Production,agent2:7007|web-2|Production,agent3:7007|dev-1|Development
+    ports:
+      - 8080:8080
+```
+
+:::
+
+The sidebar will display:
+
+```
+▾ Production
+    web-1
+    web-2
+▾ Development
+    dev-1
+  ungrouped-host   ← agents without a group appear below
+```
+
+Clicking the merge icon next to a group name opens a combined log view streaming from all hosts in that group. The merged view is also available directly at `/host-group/<group-name>`.
+
+Agents without a group continue to work exactly as before and appear below grouped sections.
+
 ## Common Issues
 
 ### Agent Not Showing Up

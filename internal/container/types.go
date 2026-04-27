@@ -94,6 +94,11 @@ func FromProto(c *pb.Container) Container {
 		labels = make(map[string]string)
 	}
 
+	env := c.Env
+	if env == nil {
+		env = []string{}
+	}
+
 	return Container{
 		ID:          c.Id,
 		Name:        c.Name,
@@ -112,7 +117,7 @@ func FromProto(c *pb.Container) Container {
 		MemoryLimit:   c.MemoryLimit,
 		CPULimit:      c.CpuLimit,
 		FullyLoaded:   c.FullyLoaded,
-		Env:           c.Env,
+		Env:           env,
 		Ports:         c.Ports,
 		Mounts:        c.Mounts,
 		RestartPolicy: c.RestartPolicy,

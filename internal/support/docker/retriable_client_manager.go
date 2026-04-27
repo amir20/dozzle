@@ -217,12 +217,21 @@ func (m *RetriableClientManager) Hosts(ctx context.Context) []container.Host {
 	})
 
 	for _, endpoint := range m.failedAgents {
+		addr, name, group, err := agent.ParseEndpoint(endpoint)
+		if err != nil {
+			log.Warn().Err(err).Str("endpoint", endpoint).Msg("skipping malformed agent endpoint")
+			continue
+		}
+		if name == "" {
+			name = addr
+		}
 		hosts = append(hosts, container.Host{
 			ID:        endpoint,
-			Name:      endpoint,
-			Endpoint:  endpoint,
+			Name:      name,
+			Endpoint:  addr,
 			Available: false,
 			Type:      "agent",
+			Group:     group,
 		})
 	}
 

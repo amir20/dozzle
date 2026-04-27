@@ -49,11 +49,6 @@ shared_cert.pem: shared_key.pem
 	@openssl x509 -req -in shared_request.csr -signkey shared_key.pem -out shared_cert.pem -days 1825
 	@rm shared_request.csr
 
-.PHONY: push
-push: docker
-	@docker tag amir20/dozzle:local amir20/dozzle:local-test
-	@docker push amir20/dozzle:local-test
-
 .PHONY: run
 run: docker
 	docker run -it --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock amir20/dozzle:local

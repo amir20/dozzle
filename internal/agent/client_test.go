@@ -37,7 +37,7 @@ func (m *mockNotificationHandler) HandleNotificationConfig(subscriptions []types
 }
 
 func (m *mockNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {}
-func (m *mockNotificationHandler) ClearCloudDispatcher()                       {}
+func (m *mockNotificationHandler) ClearCloudDispatcher()                      {}
 
 func (m *mockNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
 	return nil
@@ -184,4 +184,70 @@ func TestListContainers(t *testing.T) {
 	assert.Equal(t, []container.Container{
 		wantedContainer,
 	}, containers)
+}
+
+func TestHostWithAgentMetadata(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet|Web-1|Production", certs, grpc.WithContextDialer(bufDialer))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	host, err := rpc.Host(context.Background())
+
+	assert.NoError(t, err)
+	assert.Equal(t, "passthrough://bufnet", host.Endpoint)
+	assert.Equal(t, "Web-1", host.Name)
+	assert.Equal(t, "Production", host.Group)
+}
+
+func TestHostWithAgentGroupAndDefaultName(t *testing.T) {
+	rpc, err := NewClient("passthrough://bufnet||Production", certs, grpc.WithContextDialer(bufDialer))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	host, err := rpc.Host(context.Background())
+
+	assert.NoError(t, err)
+	assert.Equal(t, "passthrough://bufnet", host.Endpoint)
+	assert.Equal(t, "local", host.Name)
+	assert.Equal(t, "Production", host.Group)
+}
+
+func TestNewClientRejectsInvalidAgentEndpoint(t *testing.T) {
+	_, err := NewClient("passthrough://bufnet|Web-1|Production|extra", certs, grpc.WithContextDialer(bufDialer))
+
+	assert.Error(t, err)
+}
+
+func TestParseEndpoint(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		wantAddr  string
+		wantName  string
+		wantGroup string
+		wantErr   bool
+	}{
+		{name: "address only", input: "host:7007", wantAddr: "host:7007"},
+		{name: "address and name", input: "host:7007|web-1", wantAddr: "host:7007", wantName: "web-1"},
+		{name: "address, name, group", input: "host:7007|web-1|prod", wantAddr: "host:7007", wantName: "web-1", wantGroup: "prod"},
+		{name: "trailing empty group", input: "host:7007|web-1|", wantAddr: "host:7007", wantName: "web-1"},
+		{name: "empty name with group", input: "host:7007||prod", wantAddr: "host:7007", wantGroup: "prod"},
+		{name: "empty address rejected", input: "|web-1|prod", wantErr: true},
+		{name: "too many segments rejected", input: "host:7007|web-1|prod|extra", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			addr, name, group, err := ParseEndpoint(tt.input)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.wantAddr, addr)
+			assert.Equal(t, tt.wantName, name)
+			assert.Equal(t, tt.wantGroup, group)
+		})
+	}
 }

@@ -59,12 +59,15 @@ label:
   no-logs: Konteyner henüz log içermiyor
   show-all-containers: Tüm konteynerleri göster
   collapse-all: Hepsini daralt
+  collapse-group: Grubu daralt
+  expand-all: Hepsini genişlet
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
   merge-all: Tümünü tek bir akışta birleştir
 error:
   page-not-found: Bu sayfa bulunamadı
+  host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'
   invalid-auth: Kullanıcı adı veya şifre geçersiz
   copy-not-supported: Panoya kopyalama tarayıcınızda desteklenmiyor
   copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın

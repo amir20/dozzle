@@ -54,12 +54,15 @@ label:
   no-logs: Container heeft nog geen logbestanden
   show-all-containers: Toon alle containers
   collapse-all: Alles inklappen
+  collapse-group: Groep inklappen
+  expand-all: Alles uitklappen
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom
   merge-all: Voeg alles samen in één stream
 error:
   page-not-found: Deze pagina bestaat niet
+  host-group-not-found: 'Geen hosts gevonden in groep "{name}"'
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
   copy-not-supported: Kopiëren naar klembord wordt niet ondersteund in je browser
   copy-not-supported-hint: Klembord niet beschikbaar. Kopieer de link hieronder

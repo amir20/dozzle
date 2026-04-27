@@ -56,12 +56,15 @@ label:
   no-logs: Container has no logs yet
   show-all-containers: Show all containers
   collapse-all: Collapse all
+  collapse-group: Collapse group
+  expand-all: Expand all
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
   merge-all: Merge all into one stream
 error:
   page-not-found: This page does not exist
+  host-group-not-found: 'No hosts found in group "{name}"'
   invalid-auth: Username or password are not valid
   copy-not-supported: Copy to clipboard is not supported in your browser
   copy-not-supported-hint: Clipboard unavailable. Copy the link below

@@ -54,12 +54,15 @@ label:
   no-logs: El contenedor aún no tiene registros
   show-all-containers: Mostrar todos los contenedores
   collapse-all: Colapsar todo
+  collapse-group: Colapsar grupo
+  expand-all: Expandir todo
 tooltip:
   search: Buscar contenedores (⌘ + K, CTRL + K)
   pin-column: Anclar como columna
   merge-all: Fusionar todo en un flujo
 error:
   page-not-found: Esta página no existe.
+  host-group-not-found: 'No se encontraron hosts en el grupo "{name}"'
   invalid-auth: El nombre de usuario y la contraseña no son válidos.
   copy-not-supported: Copiar al portapapeles no está soportado en su navegador
   copy-not-supported-hint: Portapapeles no disponible. Copie el enlace a continuación
