@@ -36,7 +36,7 @@
               <div v-else class="w-4"></div>
               {{ $t("label.show-all-containers") }}
             </a>
-            <a class="text-sm capitalize" @click="collapseAll()">
+            <a v-if="hasCollapsible" class="text-sm capitalize" @click="collapseAll()">
               <material-symbols-light:expand-all class="w-4" v-if="allCollapsed" />
               <material-symbols-light:collapse-all class="w-4" v-else />
               {{ allCollapsed ? $t("label.expand-all") : $t("label.collapse-all") }}
@@ -256,6 +256,10 @@ const collapseHostGroup = (groupName: string) => {
     document.activeElement.blur();
   }
 };
+
+const hasCollapsible = computed(
+  () => menuItems.value.length > 0 || groupedHostEntries.value.some(([groupName]) => groupName),
+);
 
 const allCollapsed = computed(() => {
   const containerGroups = menuItems.value;

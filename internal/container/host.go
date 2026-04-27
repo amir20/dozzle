@@ -35,7 +35,7 @@ func (h Host) String() string {
 
 func ParseConnection(connection string) (Host, error) {
 	parts := strings.Split(connection, "|")
-	if len(parts) > 3 {
+	if len(parts) > 3 || parts[0] == "" {
 		return Host{}, fmt.Errorf("invalid connection string: %s", connection)
 	}
 

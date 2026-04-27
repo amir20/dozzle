@@ -219,3 +219,35 @@ func TestNewClientRejectsInvalidAgentEndpoint(t *testing.T) {
 
 	assert.Error(t, err)
 }
+
+func TestParseEndpoint(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		wantAddr  string
+		wantName  string
+		wantGroup string
+		wantErr   bool
+	}{
+		{name: "address only", input: "host:7007", wantAddr: "host:7007"},
+		{name: "address and name", input: "host:7007|web-1", wantAddr: "host:7007", wantName: "web-1"},
+		{name: "address, name, group", input: "host:7007|web-1|prod", wantAddr: "host:7007", wantName: "web-1", wantGroup: "prod"},
+		{name: "trailing empty group", input: "host:7007|web-1|", wantAddr: "host:7007", wantName: "web-1"},
+		{name: "empty name with group", input: "host:7007||prod", wantAddr: "host:7007", wantGroup: "prod"},
+		{name: "empty address rejected", input: "|web-1|prod", wantErr: true},
+		{name: "too many segments rejected", input: "host:7007|web-1|prod|extra", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			addr, name, group, err := ParseEndpoint(tt.input)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.wantAddr, addr)
+			assert.Equal(t, tt.wantName, name)
+			assert.Equal(t, tt.wantGroup, group)
+		})
+	}
+}
