@@ -407,6 +407,9 @@ func (h *swarmNotificationHandler) HandleNotificationConfig(subscriptions []type
 	return nil
 }
 
+// persister.SetCloudConfig calls applyCloudDispatcher → Manager.SetCloudDispatcher,
+// and persister.RemoveCloudConfig calls Manager.ClearCloudDispatcher; we route
+// through the persister so disk + manager stay in lockstep on every replica.
 func (h *swarmNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
 	cd, ok := d.(*dispatcher.CloudDispatcher)
 	if !ok {

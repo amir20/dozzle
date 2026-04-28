@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"syscall"
 	"time"
 
@@ -327,7 +328,9 @@ func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(
 // otherwise every connection re-reports its peers, multiplying hosts
 // by connection count on the cloud side.
 type localCloudHostService struct {
-	services []container_support.ClientService
+	services    []container_support.ClientService
+	hostIDByIdx []string // parallel to services, populated lazily
+	hostIDOnce  sync.Once
 }
 
 func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
@@ -342,6 +345,23 @@ func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
 
 func (l *localCloudHostService) localHostTimeout() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 5*time.Second)
+}
+
+// resolveHostIDs caches each service's host ID once. Local docker host IDs
+// are stable for the process lifetime, so a one-time lookup is enough.
+func (l *localCloudHostService) resolveHostIDs() []string {
+	l.hostIDOnce.Do(func() {
+		l.hostIDByIdx = make([]string, len(l.services))
+		for i, s := range l.services {
+			ctx, cancel := l.localHostTimeout()
+			h, err := s.Host(ctx)
+			cancel()
+			if err == nil {
+				l.hostIDByIdx[i] = h.ID
+			}
+		}
+	})
+	return l.hostIDByIdx
 }
 
 func (l *localCloudHostService) Hosts() []container.Host {
@@ -376,13 +396,12 @@ func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabe
 }
 
 func (l *localCloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
-	for _, s := range l.services {
-		ctx, cancel := l.localHostTimeout()
-		h, err := s.Host(ctx)
-		if err != nil || h.ID != host {
-			cancel()
+	hostIDs := l.resolveHostIDs()
+	for i, s := range l.services {
+		if hostIDs[i] != host {
 			continue
 		}
+		ctx, cancel := l.localHostTimeout()
 		cont, err := s.FindContainer(ctx, id, labels)
 		cancel()
 		if err != nil {
@@ -394,28 +413,26 @@ func (l *localCloudHostService) FindContainer(host string, id string, labels con
 }
 
 func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
-	// Use a buffered channel and never close it from outside — service goroutines
-	// stop sending when ctx is done. The forwarder exits via ctx.Done so the
-	// channel can be GC'd without races (close-from-outside while a sender is
-	// mid-send would panic).
-	newContainers := make(chan container.Container, 16)
+	// One inbound channel + forwarder goroutine per service so a slow consumer
+	// or a burst on one service can't cause the others to drop events.
 	for _, s := range l.services {
-		s.SubscribeContainersStarted(ctx, newContainers)
-	}
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case c := <-newContainers:
-				if filter(&c) {
-					select {
-					case containers <- c:
-					case <-ctx.Done():
-						return
+		ch := make(chan container.Container, 64)
+		s.SubscribeContainersStarted(ctx, ch)
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case c := <-ch:
+					if filter(&c) {
+						select {
+						case containers <- c:
+						case <-ctx.Done():
+							return
+						}
 					}
 				}
 			}
-		}
-	}()
+		}()
+	}
 }

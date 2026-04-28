@@ -45,6 +45,11 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 # pvc.yaml
+# ReadWriteOnce + Recreate strategy means cloud config / notification rules
+# briefly become unavailable during pod rollouts (the new pod can't mount until
+# the old one releases). For zero-downtime config persistence, use a
+# ReadWriteMany storage class (NFS, CephFS, etc.) and switch the strategy
+# below to RollingUpdate.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
