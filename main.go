@@ -100,7 +100,7 @@ func main() {
 		}
 		// Create client service for agent server in swarm mode
 		clientService := docker_support.NewDockerClientService(localClient, args.Filter)
-		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.NotificationHandler())
+		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler())
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
 		}
@@ -153,7 +153,11 @@ func main() {
 		}
 	}
 
-	cloudClient := cloud.NewClient(apiKeyFunc, cloud.ToolDeps{
+	var instanceID string
+	if h, err := hostService.LocalHost(); err == nil {
+		instanceID = h.ID
+	}
+	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, cloud.ToolDeps{
 		EnableActions:       args.EnableActions,
 		HostService:         hostService,
 		Labels:              args.Filter,
@@ -164,6 +168,12 @@ func main() {
 		return hostService.CloudConfig().StreamLogsEnabled()
 	})
 	go cloudClient.Run(ctx)
+
+	// In swarm mode, peer broadcasts of cloud config should kick this
+	// replica's cloud client too, so every replica holds its own connection.
+	if mhs, ok := hostService.(*docker_support.MultiHostService); ok {
+		mhs.SetCloudNotifyFunc(cloudClient.Notify)
+	}
 
 	// If cloud is already configured at startup, start the client immediately
 	if apiKeyFunc() != "" {

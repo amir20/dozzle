@@ -15,7 +15,7 @@ docker run -d --name manager \
     -p 2377:2377 \
     -p 7946:7946 \
     -p 4789:4789 \
-    -p 8080:8080 \
+    -p 8090:8090 \
     -v ./examples:/examples \
     docker
 
@@ -57,6 +57,14 @@ end
 
 echo "✅ Swarm is ready. Deploying Dozzle..."
 
+echo "🔨 Building local image..."
+env CLOUD_URL=http://localhost:3000 make -C (git rev-parse --show-toplevel) docker
+
+echo "📦 Loading image into swarm nodes..."
+for node in manager worker-1 worker-2
+    docker save amir20/dozzle:local | docker exec -i $node docker load
+end
+
 # Create the stack file inside the manager
 docker exec manager sh -c 'cat > /dozzle-stack.yml << "EOF"
 services:
@@ -64,21 +72,29 @@ services:
     image: amir20/dozzle:local
     environment:
       - DOZZLE_MODE=swarm
+      - DOZZLE_ENABLE_ACTIONS=true
+      - DOLIGENCE_URL=http://doligence-api:8080
+      - AGENT_URL=http://doligence-api:8082
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle-data:/data
     ports:
-      - 8080:8080
+      - 8090:8080
     networks:
       - dozzle
+    extra_hosts:
+      - "doligence-api:172.16.48.100"
     deploy:
       mode: global
 networks:
   dozzle:
     driver: overlay
+volumes:
+  dozzle-data:
 EOF'
 
 docker exec manager docker stack deploy -c /dozzle-stack.yml dozzle
-echo "🚀 Dozzle deployed! Access at http://localhost:8080"
+echo "🚀 Dozzle deployed! Access at http://localhost:8090"
 
 function swarm-cleanup
     docker exec manager docker stack rm dozzle 2>/dev/null
@@ -95,7 +111,7 @@ end
 
 function swarm-deploy
     echo "🔨 Building local image..."
-    make -C (git rev-parse --show-toplevel) docker
+    env CLOUD_URL=http://localhost:3000 make -C (git rev-parse --show-toplevel) docker
     echo "📦 Loading image into swarm nodes..."
     for node in manager worker-1 worker-2
         docker save amir20/dozzle:local | docker exec -i $node docker load

@@ -40,6 +40,7 @@ type MultiHostService struct {
 	timeout             time.Duration
 	notificationManager *notification.Manager
 	persister           *notification.Persister
+	cloudNotifyFn       func()
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -355,6 +356,73 @@ func (m *MultiHostService) broadcastCloudConfig() {
 // This is used in swarm mode to pass the handler to the local agent server.
 func (m *MultiHostService) NotificationHandler() *notification.Manager {
 	return m.notificationManager
+}
+
+// SetCloudNotifyFunc registers a callback invoked when the cloud config is
+// updated by a broadcast from a peer replica. Wire to cloudClient.Notify so
+// each replica's cloud gRPC client picks up the new API key without restart.
+// With Doligence's multi-connection registry (keyed by api_key + instance_id)
+// every replica can hold its own cloud connection, so log streaming and tool
+// dispatch happen on the node that owns the data instead of funneling
+// through one "primary" replica.
+func (m *MultiHostService) SetCloudNotifyFunc(fn func()) {
+	m.cloudNotifyFn = fn
+}
+
+// SwarmNotificationHandler returns a NotificationConfigHandler for the
+// in-process agent server in swarm mode. Cloud config broadcasts received
+// from peer replicas are persisted to disk and reflected in the local
+// persister, and the local cloud client is notified to reconnect with the
+// new API key.
+func (m *MultiHostService) SwarmNotificationHandler() *swarmNotificationHandler {
+	return &swarmNotificationHandler{
+		Manager:   m.notificationManager,
+		persister: m.persister,
+		notify: func() {
+			if m.cloudNotifyFn != nil {
+				m.cloudNotifyFn()
+			}
+		},
+	}
+}
+
+// swarmNotificationHandler implements agent.NotificationConfigHandler for
+// swarm-mode replicas. SetCloudDispatcher / ClearCloudDispatcher route
+// through the persister rather than just the in-memory manager so that
+// `/api/cloud/config` reflects the broadcast change across all replicas.
+type swarmNotificationHandler struct {
+	*notification.Manager
+	persister *notification.Persister
+	notify    func()
+}
+
+func (h *swarmNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
+	if err := h.Manager.HandleNotificationConfig(subscriptions, dispatchers); err != nil {
+		return err
+	}
+	h.persister.SaveNotifications()
+	return nil
+}
+
+func (h *swarmNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
+	cd, ok := d.(*dispatcher.CloudDispatcher)
+	if !ok {
+		log.Warn().Str("type", fmt.Sprintf("%T", d)).Msg("Cloud dispatcher type assertion failed in swarm handler, falling back to in-memory only")
+		h.Manager.SetCloudDispatcher(d)
+		return
+	}
+	cc := &notification.CloudConfig{
+		APIKey:    cd.APIKey,
+		Prefix:    cd.Prefix,
+		ExpiresAt: cd.ExpiresAt,
+	}
+	h.persister.SetCloudConfig(cc)
+	h.notify()
+}
+
+func (h *swarmNotificationHandler) ClearCloudDispatcher() {
+	h.persister.RemoveCloudConfig()
+	h.notify()
 }
 
 // AddSubscription adds a subscription to local manager and broadcasts to agents
