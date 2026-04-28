@@ -1,5 +1,5 @@
 <template>
-  <div class="@container flex flex-col gap-5 px-4 py-4 md:px-8">
+  <div class="@container flex flex-col gap-8 px-4 py-4 md:px-8">
     <section>
       <Links>
         <template #more-items>
@@ -16,10 +16,10 @@
       </div>
 
       <div class="border-base-content/15 bg-base-200/40 divide-base-content/10 divide-y rounded-lg border">
-        <div class="flex flex-col gap-2 p-5">
+        <div class="flex flex-col gap-2 p-4">
           <div class="flex flex-wrap items-center gap-3">
             <span class="text-2xl font-semibold tracking-tight">Dozzle</span>
-            <span class="status-pill status-pill-neutral">{{ config.version }}</span>
+            <span class="status-pill status-pill-neutral font-mono">{{ config.version }}</span>
             <a
               v-if="hasRelease"
               :href="latestRelease?.htmlUrl"
@@ -36,7 +36,7 @@
               Latest release {{ latestRelease.name }} ·
               {{ new Date(latestRelease.createdAt).toLocaleDateString(undefined, dateFmt) }}
             </template>
-            <template v-else> You're running the latest version. </template>
+            <template v-else>You're running the latest version.</template>
           </div>
         </div>
 
@@ -61,7 +61,7 @@
               href="https://buymeacoffee.com/amirraminfar"
               target="_blank"
               rel="noopener noreferrer"
-              class="btn btn-secondary btn-sm"
+              class="btn btn-sm"
             >
               <mdi:beer /> Buy me a beer
             </a>
@@ -110,7 +110,7 @@
           </label>
           <div class="flex min-h-13 flex-wrap items-center justify-between gap-3 p-4 text-sm font-medium">
             <span>{{ $t("settings.datetime-format") }}</span>
-            <div class="ml-auto flex gap-1.5">
+            <div class="ml-auto flex flex-wrap gap-2">
               <DropdownMenu
                 v-model="dateLocale"
                 :options="[
@@ -222,7 +222,10 @@
           />
         </div>
         <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">
-          <span>{{ $t("settings.search") }} <key-shortcut char="f" class="align-top"></key-shortcut></span>
+          <span class="inline-flex items-center gap-2">
+            {{ $t("settings.search") }}
+            <key-shortcut char="f" />
+          </span>
           <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="search" />
         </label>
         <label class="flex min-h-13 items-center justify-between gap-4 p-4 text-sm font-medium">

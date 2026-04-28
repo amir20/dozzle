@@ -13,7 +13,7 @@
     </section>
 
     <section>
-      <div class="mb-2 flex items-center justify-between">
+      <div class="mb-4 flex items-center justify-between">
         <h2 class="text-lg font-semibold">
           {{ $t("label.container", { count: runningContainers.length }) }}
         </h2>
@@ -42,7 +42,6 @@ const { containers, ready } = storeToRefs(containerStore) as unknown as {
 
 const runningContainers = computed(() => containers.value.filter((c) => c.state === "running"));
 
-// Persist collapse state in localStorage
 const hostsCollapsed = useStorage("DOZZLE_HOSTS_COLLAPSED", false);
 const containersCollapsed = useStorage("DOZZLE_CONTAINERS_COLLAPSED", false);
 
@@ -60,7 +59,9 @@ watchEffect(() => {
 
 .collapse-enter-active,
 .collapse-leave-active {
-  transition: all 0.2s ease;
+  transition:
+    opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    max-height 240ms cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }
 
@@ -68,5 +69,12 @@ watchEffect(() => {
 .collapse-leave-to {
   opacity: 0;
   max-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapse-enter-active,
+  .collapse-leave-active {
+    transition: none;
+  }
 }
 </style>
