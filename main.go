@@ -17,11 +17,13 @@ import (
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/deploy"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
@@ -157,9 +159,16 @@ func main() {
 	if h, err := hostService.LocalHost(); err == nil {
 		instanceID = h.ID
 	}
-	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, cloud.ToolDeps{
+
+	// Cloud's HostService must expose only this process's local docker so
+	// multi-connection cloud (swarm replicas / agents) doesn't see the same
+	// host through every peer's gRPC and produce N×N duplicates on the cloud
+	// side. The full peer-aware hostService stays wired into the HTTP UI.
+	cloudHostService := newLocalCloudHostService(hostService)
+
+	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
 		EnableActions:       args.EnableActions,
-		HostService:         hostService,
+		HostService:         cloudHostService,
 		Labels:              args.Filter,
 		DeployManager:       deployManager,
 		NotificationService: notificationService,
@@ -316,4 +325,94 @@ func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(
 	}
 
 	return web.CreateServer(hostService, assets, config)
+}
+
+// localCloudHostService restricts the cloud client's view of hosts and
+// containers to this process's local docker daemon. Without this, every
+// swarm replica (or server with remote agents) would report the same set
+// of hosts to cloud — multiplying duplicates by the number of connections.
+// Each cloud-connecting Dozzle process now exposes only what it owns;
+// cloud aggregates across connections.
+type localCloudHostService struct {
+	services []container_support.ClientService
+}
+
+func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
+	services := hs.LocalClientServices()
+	if len(services) == 0 {
+		// k8s has no docker LocalClientServices but its HostService already
+		// exposes only what this process can see, so use it directly.
+		return hs
+	}
+	return &localCloudHostService{services: services}
+}
+
+func (l *localCloudHostService) Hosts() []container.Host {
+	hosts := make([]container.Host, 0, len(l.services))
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	for _, s := range l.services {
+		h, err := s.Host(ctx)
+		if err != nil {
+			continue
+		}
+		h.Available = true
+		hosts = append(hosts, h)
+	}
+	return hosts
+}
+
+func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+	var all []container.Container
+	var errs []error
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	for _, s := range l.services {
+		list, err := s.ListContainers(ctx, labels)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		all = append(all, list...)
+	}
+	return all, errs
+}
+
+func (l *localCloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	for _, s := range l.services {
+		h, err := s.Host(ctx)
+		if err != nil || h.ID != host {
+			continue
+		}
+		cont, err := s.FindContainer(ctx, id, labels)
+		if err != nil {
+			return nil, err
+		}
+		return container_support.NewContainerService(s, cont), nil
+	}
+	return nil, fmt.Errorf("host %s not local to this process", host)
+}
+
+func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+	newContainers := make(chan container.Container)
+	for _, s := range l.services {
+		s.SubscribeContainersStarted(ctx, newContainers)
+	}
+	go func() {
+		<-ctx.Done()
+		close(newContainers)
+	}()
+	go func() {
+		for c := range newContainers {
+			if filter(&c) {
+				select {
+				case containers <- c:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
 }

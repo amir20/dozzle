@@ -166,6 +166,12 @@ func (m *MultiHostService) LocalHost() (container.Host, error) {
 			return host, nil
 		}
 	}
+	// Swarm mode marks every host as "swarm" so the loop above never matches.
+	// Fall back to the local docker client directly — its host ID is stable
+	// per node and is what callers (cloud client instance ID, etc.) actually want.
+	for _, client := range m.manager.LocalClients() {
+		return client.Host(), nil
+	}
 	return container.Host{}, fmt.Errorf("local host not found")
 }
 
