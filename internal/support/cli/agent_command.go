@@ -43,6 +43,12 @@ func (h *persistingNotificationHandler) CloudConfig() *notification.CloudConfig 
 	return h.cloudConfig
 }
 
+func (h *persistingNotificationHandler) setCloudConfig(cc *notification.CloudConfig) {
+	h.mu.Lock()
+	h.cloudConfig = cc
+	h.mu.Unlock()
+}
+
 func (h *persistingNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
 	return h.manager.GetNotificationStats()
 }
@@ -195,7 +201,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 				log.Error().Err(err).Msg("Failed to create cloud dispatcher on agent")
 			} else {
 				notificationManager.SetCloudDispatcher(d)
-				notificationHandler.cloudConfig = &cc
+				notificationHandler.setCloudConfig(&cc)
 				log.Info().Msg("Loaded cloud config from disk")
 			}
 		}

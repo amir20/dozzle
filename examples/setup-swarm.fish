@@ -82,6 +82,9 @@ services:
       - 8090:8080
     networks:
       - dozzle
+    # 172.16.48.100 is a static IP for the doligence-api dev container,
+    # assigned via doligence/compose.override.yaml on the swarm-net
+    # external network (the network this script creates). Local-dev only.
     extra_hosts:
       - "doligence-api:172.16.48.100"
     deploy:

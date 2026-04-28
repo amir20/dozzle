@@ -160,10 +160,6 @@ func main() {
 		instanceID = h.ID
 	}
 
-	// Cloud's HostService must expose only this process's local docker so
-	// multi-connection cloud (swarm replicas / agents) doesn't see the same
-	// host through every peer's gRPC and produce N×N duplicates on the cloud
-	// side. The full peer-aware hostService stays wired into the HTTP UI.
 	cloudHostService := newLocalCloudHostService(hostService)
 
 	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
@@ -327,12 +323,9 @@ func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(
 	return web.CreateServer(hostService, assets, config)
 }
 
-// localCloudHostService restricts the cloud client's view of hosts and
-// containers to this process's local docker daemon. Without this, every
-// swarm replica (or server with remote agents) would report the same set
-// of hosts to cloud — multiplying duplicates by the number of connections.
-// Each cloud-connecting Dozzle process now exposes only what it owns;
-// cloud aggregates across connections.
+// localCloudHostService scopes the cloud client to local docker only;
+// otherwise every connection re-reports its peers, multiplying hosts
+// by connection count on the cloud side.
 type localCloudHostService struct {
 	services []container_support.ClientService
 }
@@ -347,12 +340,16 @@ func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
 	return &localCloudHostService{services: services}
 }
 
+func (l *localCloudHostService) localHostTimeout() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 5*time.Second)
+}
+
 func (l *localCloudHostService) Hosts() []container.Host {
 	hosts := make([]container.Host, 0, len(l.services))
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	for _, s := range l.services {
+		ctx, cancel := l.localHostTimeout()
 		h, err := s.Host(ctx)
+		cancel()
 		if err != nil {
 			continue
 		}
@@ -365,10 +362,10 @@ func (l *localCloudHostService) Hosts() []container.Host {
 func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
 	var all []container.Container
 	var errs []error
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	for _, s := range l.services {
+		ctx, cancel := l.localHostTimeout()
 		list, err := s.ListContainers(ctx, labels)
+		cancel()
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -379,14 +376,15 @@ func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabe
 }
 
 func (l *localCloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 	for _, s := range l.services {
+		ctx, cancel := l.localHostTimeout()
 		h, err := s.Host(ctx)
 		if err != nil || h.ID != host {
+			cancel()
 			continue
 		}
 		cont, err := s.FindContainer(ctx, id, labels)
+		cancel()
 		if err != nil {
 			return nil, err
 		}
@@ -396,21 +394,26 @@ func (l *localCloudHostService) FindContainer(host string, id string, labels con
 }
 
 func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
-	newContainers := make(chan container.Container)
+	// Use a buffered channel and never close it from outside — service goroutines
+	// stop sending when ctx is done. The forwarder exits via ctx.Done so the
+	// channel can be GC'd without races (close-from-outside while a sender is
+	// mid-send would panic).
+	newContainers := make(chan container.Container, 16)
 	for _, s := range l.services {
 		s.SubscribeContainersStarted(ctx, newContainers)
 	}
 	go func() {
-		<-ctx.Done()
-		close(newContainers)
-	}()
-	go func() {
-		for c := range newContainers {
-			if filter(&c) {
-				select {
-				case containers <- c:
-				case <-ctx.Done():
-					return
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case c := <-newContainers:
+				if filter(&c) {
+					select {
+					case containers <- c:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}
