@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"sync"
+	"sync/atomic"
 	"syscall"
 
 	"github.com/amir20/dozzle/internal/agent"
@@ -27,26 +27,20 @@ type AgentCmd struct {
 
 // persistingNotificationHandler wraps a notification manager and saves config to disk after updates
 type persistingNotificationHandler struct {
-	manager    *notification.Manager
-	configPath string
-
-	mu          sync.RWMutex
-	cloudConfig *notification.CloudConfig
+	manager     *notification.Manager
+	configPath  string
+	cloudConfig atomic.Pointer[notification.CloudConfig]
 	onCloudSet  func()
 }
 
 // CloudConfig returns the agent's currently active cloud config, or nil if
 // none has been pushed by the main server / loaded from disk.
 func (h *persistingNotificationHandler) CloudConfig() *notification.CloudConfig {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return h.cloudConfig
+	return h.cloudConfig.Load()
 }
 
 func (h *persistingNotificationHandler) setCloudConfig(cc *notification.CloudConfig) {
-	h.mu.Lock()
-	h.cloudConfig = cc
-	h.mu.Unlock()
+	h.cloudConfig.Store(cc)
 }
 
 func (h *persistingNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
@@ -92,12 +86,9 @@ func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatch
 		Prefix:    cd.Prefix,
 		ExpiresAt: cd.ExpiresAt,
 	}
-	h.mu.Lock()
-	h.cloudConfig = &cc
-	notify := h.onCloudSet
-	h.mu.Unlock()
-	if notify != nil {
-		notify()
+	h.cloudConfig.Store(&cc)
+	if h.onCloudSet != nil {
+		h.onCloudSet()
 	}
 	if err := os.MkdirAll("./data", 0755); err != nil {
 		log.Error().Err(err).Msg("Could not create data directory for cloud config")
@@ -118,12 +109,9 @@ func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatch
 
 func (h *persistingNotificationHandler) ClearCloudDispatcher() {
 	h.manager.ClearCloudDispatcher()
-	h.mu.Lock()
-	h.cloudConfig = nil
-	notify := h.onCloudSet
-	h.mu.Unlock()
-	if notify != nil {
-		notify()
+	h.cloudConfig.Store(nil)
+	if h.onCloudSet != nil {
+		h.onCloudSet()
 	}
 	if err := os.Remove("./data/cloud.yml"); err != nil && !os.IsNotExist(err) {
 		log.Error().Err(err).Msg("Could not remove cloud.yml on agent")

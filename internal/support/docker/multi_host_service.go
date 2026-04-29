@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -40,9 +41,7 @@ type MultiHostService struct {
 	timeout             time.Duration
 	notificationManager *notification.Manager
 	persister           *notification.Persister
-
-	cloudNotifyMu sync.RWMutex
-	cloudNotifyFn func()
+	cloudNotifyFn       atomic.Pointer[func()]
 }
 
 func NewMultiHostService(manager ClientManager, timeout time.Duration) *MultiHostService {
@@ -369,17 +368,12 @@ func (m *MultiHostService) NotificationHandler() *notification.Manager {
 // SetCloudNotifyFunc registers a callback the agent server invokes after a
 // peer broadcast so the local cloud client reconnects with the new API key.
 func (m *MultiHostService) SetCloudNotifyFunc(fn func()) {
-	m.cloudNotifyMu.Lock()
-	m.cloudNotifyFn = fn
-	m.cloudNotifyMu.Unlock()
+	m.cloudNotifyFn.Store(&fn)
 }
 
 func (m *MultiHostService) cloudNotify() {
-	m.cloudNotifyMu.RLock()
-	fn := m.cloudNotifyFn
-	m.cloudNotifyMu.RUnlock()
-	if fn != nil {
-		fn()
+	if fn := m.cloudNotifyFn.Load(); fn != nil {
+		(*fn)()
 	}
 }
 
