@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
-	"github.com/amir20/dozzle/internal/support/cli"
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/semaphore"
@@ -38,6 +37,8 @@ const (
 type Client struct {
 	deps           ToolDeps
 	apiKeyFunc     func() string
+	instanceID     string
+	version        string
 	streamLogsFunc func() bool
 	target         string
 	plaintext      bool
@@ -55,7 +56,11 @@ type Client struct {
 // NewClient creates a new cloud gRPC client.
 // apiKeyFunc is called to get the current cloud API key — it may return ""
 // if no cloud dispatcher is configured yet, in which case the client waits.
-func NewClient(apiKeyFunc func() string, deps ToolDeps) *Client {
+// instanceID is a stable per-process identifier (typically the local host ID)
+// sent as `x-instance-id` metadata so the cloud registry can keep multiple
+// connections per API key (e.g. one per swarm replica or remote agent).
+// version is reported back to the cloud in ListToolsResponse.
+func NewClient(apiKeyFunc func() string, instanceID string, version string, deps ToolDeps) *Client {
 	cloudURL := os.Getenv("AGENT_URL")
 	if cloudURL == "" {
 		cloudURL = "https://agent.doligence.dozzle.dev"
@@ -78,6 +83,8 @@ func NewClient(apiKeyFunc func() string, deps ToolDeps) *Client {
 	return &Client{
 		deps:       deps,
 		apiKeyFunc: apiKeyFunc,
+		instanceID: instanceID,
+		version:    version,
 		target:     target,
 		plaintext:  plaintext,
 		toolSem:    semaphore.NewWeighted(maxConcurrent),
@@ -225,7 +232,11 @@ func (c *Client) connect(ctx context.Context, apiKey string) (wasConnected bool,
 		c.connMu.Unlock()
 	}()
 
-	md := metadata.Pairs("x-api-key", apiKey)
+	mdPairs := []string{"x-api-key", apiKey}
+	if c.instanceID != "" {
+		mdPairs = append(mdPairs, "x-instance-id", c.instanceID)
+	}
+	md := metadata.Pairs(mdPairs...)
 	streamCtx := metadata.NewOutgoingContext(connCtx, md)
 
 	stream, err := client.ToolStream(streamCtx)
@@ -371,7 +382,7 @@ func (c *Client) handleRequest(ctx context.Context, req *pb.ToolRequest) *pb.Too
 		resp.Type = &pb.ToolResponse_ListTools{
 			ListTools: &pb.ListToolsResponse{
 				Tools:   c.tools(),
-				Version: cli.Version,
+				Version: c.version,
 			},
 		}
 

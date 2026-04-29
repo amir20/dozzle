@@ -26,6 +26,7 @@ services:
       - DOZZLE_MODE=swarm
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/dozzle/data:/data
     ports:
       - 8080:8080
     networks:
@@ -38,6 +39,8 @@ networks:
 ```
 
 Note that the `DOZZLE_MODE` environment variable is set to `swarm`. This tells Dozzle to automatically discover other Dozzle instances in the swarm. The `overlay` network is used to create the mesh network between the different Dozzle instances.
+
+The `/data` volume is mounted to persist Dozzle's configuration (notifications, cloud settings, custom stacks). Since Dozzle is deployed globally on every node, mount a host path on each node so each instance keeps its local state across restarts.
 
 > [!WARNING]
 > Socket-proxy cannot be used in Docker Swarm mode. This limitation stems from Docker itself, not Dozzle. In Swarm mode, services can only communicate with other services, but Dozzle requires direct connections to individual proxy instances—which isn't supported. If you have a solution for using socket-proxy in Swarm mode, we'd love to hear from you!
@@ -56,6 +59,7 @@ services:
       - DOZZLE_AUTH_PROVIDER=simple
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/dozzle/data:/data
     secrets:
       - source: users
         target: /data/users.yml
@@ -95,6 +99,7 @@ services:
       - DOZZLE_REMOTE_AGENT=agent:7007
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/dozzle/data:/data
     ports:
       - 8080:8080
     networks:

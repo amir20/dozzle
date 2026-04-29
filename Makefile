@@ -27,7 +27,7 @@ build: dist generate
 
 .PHONY: docker
 docker: generate
-	@docker build --build-arg TAG=local -t amir20/dozzle:local .
+	@docker build --build-arg TAG=local --build-arg CLOUD_URL=$(CLOUD_URL) -t amir20/dozzle:local .
 
 .PHONY: generate
 generate: shared_key.pem shared_cert.pem

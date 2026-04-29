@@ -13,20 +13,20 @@ import (
 
 func TestNewClient_DefaultURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "")
-	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
+	client := NewClient(func() string { return "test-key" }, "test-instance", "test", ToolDeps{EnableActions: true})
 	assert.Equal(t, "agent.doligence.dozzle.dev:443", client.target)
 }
 
 func TestNewClient_CustomURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "https://custom.cloud.dev")
-	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
+	client := NewClient(func() string { return "test-key" }, "test-instance", "test", ToolDeps{EnableActions: true})
 	assert.Equal(t, "custom.cloud.dev:443", client.target)
 	assert.False(t, client.plaintext)
 }
 
 func TestNewClient_PlaintextURL(t *testing.T) {
 	t.Setenv("AGENT_URL", "http://localhost:7008")
-	client := NewClient(func() string { return "test-key" }, ToolDeps{EnableActions: true})
+	client := NewClient(func() string { return "test-key" }, "test-instance", "test", ToolDeps{EnableActions: true})
 	assert.Equal(t, "localhost:7008", client.target)
 	assert.True(t, client.plaintext)
 }
