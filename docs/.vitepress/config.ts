@@ -87,6 +87,7 @@ export default defineConfig({
           { text: "Container Names", link: "/guide/container-names" },
           { text: "Container Groups", link: "/guide/container-groups" },
           { text: "Data Analytics", link: "/guide/analytics" },
+          { text: "Default Profile", link: "/guide/default-profile" },
           { text: "Display Name", link: "/guide/hostname" },
           { text: "Filters", link: "/guide/filters" },
           { text: "Healthcheck", link: "/guide/healthcheck" },
