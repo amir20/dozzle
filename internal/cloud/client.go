@@ -176,6 +176,10 @@ func (c *Client) Run(ctx context.Context) {
 				case <-ctx.Done():
 					return
 				case <-backoffTimer.C:
+				case <-c.startCh:
+					if !backoffTimer.Stop() {
+						<-backoffTimer.C
+					}
 				}
 				backoff = initialBackoff
 				continue
@@ -189,6 +193,11 @@ func (c *Client) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-backoffTimer.C:
+		case <-c.startCh:
+			if !backoffTimer.Stop() {
+				<-backoffTimer.C
+			}
+			backoff = initialBackoff
 		}
 
 		backoff = min(backoff*backoffFactor, maxBackoff)
