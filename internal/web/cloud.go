@@ -94,6 +94,11 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	h.hostService.SetCloudConfig(cc)
 
+	// Drop any existing connection so a relink with a new key takes effect
+	// immediately instead of riding out the old stream.
+	if h.config.OnCloudUpdate != nil {
+		h.config.OnCloudUpdate()
+	}
 	if h.config.OnCloudSetup != nil {
 		h.config.OnCloudSetup()
 	}
@@ -239,6 +244,12 @@ func (h *handler) updateCloudConfig(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
 	h.hostService.RemoveCloudConfig()
+	// Drop the active cloud connection so the server stops seeing this
+	// instance immediately, instead of riding out the existing stream with
+	// a now-deleted key.
+	if h.config.OnCloudUpdate != nil {
+		h.config.OnCloudUpdate()
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
