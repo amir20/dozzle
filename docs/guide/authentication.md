@@ -8,7 +8,7 @@ Dozzle supports two configurations for authentication. In the first configuratio
 
 If you do not have an authentication solution, then Dozzle has a simple file-based user management solution. Authentication providers are set up using the `--auth-provider` flag. In both configurations, Dozzle will try to save user settings to disk. This data is written to `/data`.
 
-## Security Considerations
+## <Icon icon="mdi:shield-alert-outline" inline /> Security Considerations
 
 Dozzle has access to `docker.sock`, which — unless restricted — is equivalent to **root on the host**. Before exposing Dozzle beyond your private network, review the following:
 
@@ -18,7 +18,7 @@ Dozzle has access to `docker.sock`, which — unless restricted — is equivalen
 - **Run TLS at the reverse proxy**. See [Reverse Proxy & Base Path](/guide/changing-base) for Nginx / Traefik / Caddy examples.
 - **Avoid mounting `docker.sock` read-write** if you don't need actions. A read-only mount (`/var/run/docker.sock:/var/run/docker.sock:ro`) still exposes most of the API but blocks container create/delete/update.
 
-## File-Based User Management
+## <Icon icon="mdi:account-cog-outline" inline /> File-Based User Management
 
 Dozzle supports multi-user authentication by setting `--auth-provider` to `simple`. In this mode, Dozzle will attempt to read the users file from `/data/`, prioritizing `users.yml` over `users.yaml` if both files are present. If only one of the files exists, it will be used. The log will indicate which file is being read (e.g., `Reading users.yml file`).
 
@@ -179,7 +179,7 @@ Dozzle supports the following roles:
 - **none** - denies all actions
 - **all** - allows all actions (default)
 
-## Generating users.yml
+## <Icon icon="mdi:file-document-edit-outline" inline /> Generating users.yml
 
 Dozzle has a built-in `generate` command to generate `users.yml`. Here is an example:
 
@@ -189,7 +189,7 @@ docker run -it --rm amir20/dozzle generate admin --password password --email tes
 
 In this example, `admin` is the username. Email and name are optional but recommended to display accurate avatars. `docker run -it --rm amir20/dozzle generate --help` displays all options. The `--user-filter` flag is a comma-separated list of filters. The `--user-roles` flag is a comma-separated list of roles.
 
-## Forward Proxy
+## <Icon icon="mdi:swap-horizontal" inline /> Forward Proxy
 
 Dozzle can be configured to read proxy headers by setting `--auth-provider` to `forward-proxy`.
 

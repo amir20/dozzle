@@ -6,7 +6,7 @@ title: Kubernetes Support
 
 Dozzle now supports Kubernetes, allowing you to view logs from your Kubernetes pods. This feature is available in `v8.11` version of Dozzle.
 
-## Kubernetes Setup
+## <Icon icon="mdi:kubernetes" inline /> Kubernetes Setup
 
 To set up Dozzle in Kubernetes, you can use the following YAML configuration using `DOZZLE_MODE=k8s`. This configuration includes a deployment and a service to expose Dozzle.
 
@@ -119,7 +119,7 @@ All other features are supported as well, including authentication, filtering, a
 > [!NOTE]
 > Dozzle in Kubernetes is a new feature and may have some limitations compared to the Docker version. Please use this [discussion](https://github.com/amir20/dozzle/discussions/3614) to report any issues or suggestions for improvement.
 
-## Metrics API
+## <Icon icon="mdi:chart-line" inline /> Metrics API
 
 Dozzle relies on the [Kubernetes Metrics API](https://github.com/kubernetes-sigs/metrics-server) to retrieve resource usage information. The API can be installed using the following command:
 
@@ -135,7 +135,7 @@ kubectl top pod
 
 For now, this is required to use Dozzle in Kubernetes.
 
-## Namespaces and Filters
+## <Icon icon="mdi:filter-variant" inline /> Namespaces and Filters
 
 ### Namespaces
 

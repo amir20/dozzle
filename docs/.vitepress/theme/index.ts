@@ -1,6 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from "vue";
 import DefaultTheme from "vitepress/theme";
+import { Icon } from "@iconify/vue";
 
 import "@fontsource-variable/playfair-display";
 import "./style.css";
@@ -23,5 +24,6 @@ export default {
   },
   enhanceApp(ctx) {
     DefaultTheme.enhanceApp(ctx);
+    ctx.app.component("Icon", Icon);
   },
 };

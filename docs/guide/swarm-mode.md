@@ -8,13 +8,13 @@ title: Swarm Mode
 
 Dozzle supports Docker Swarm Mode starting from version 8. When using Swarm Mode, Dozzle will automatically discover services and custom groups. Dozzle does not use Swarm API internally as it is [limited](https://github.com/moby/moby/issues/33183). Instead, Dozzle implements its own grouping using swarm labels. Additionally, Dozzle merges stats for containers in a group. This means that you can see logs and stats for all containers in a group in one view. However, it does mean each host needs to be set up with Dozzle.
 
-## How Does It Work?
+## <Icon icon="mdi:cogs" inline /> How Does It Work?
 
 When deployed in Swarm Mode, Dozzle will create a secured mesh network between all the nodes in the swarm. This network is used to communicate between the different Dozzle instances. The mesh network is created using [mTLS](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls) with a private TLS certificate. This means that all communication between the different Dozzle instances is encrypted and safe to deploy anywhere.
 
 Dozzle supports Docker [stacks](https://docs.docker.com/reference/cli/docker/stack/deploy/), [services](https://docs.docker.com/engine/swarm/how-swarm-mode-works/services/) and custom groups for joining logs together. `com.docker.stack.namespace` and `com.docker.compose.project` labels are used for grouping containers. For services, Dozzle uses the service name as the group name which is `com.docker.swarm.service.name`.
 
-## How to Enable Swarm Mode?
+## <Icon icon="mdi:rocket-launch-outline" inline /> How to Enable Swarm Mode?
 
 To deploy on every node in the swarm, you can use `mode: global`. This will deploy Dozzle on every node in the swarm. Here is an example using Docker Stack:
 
@@ -45,7 +45,7 @@ The `/data` volume is mounted to persist Dozzle's configuration (notifications, 
 > [!WARNING]
 > Socket-proxy cannot be used in Docker Swarm mode. This limitation stems from Docker itself, not Dozzle. In Swarm mode, services can only communicate with other services, but Dozzle requires direct connections to individual proxy instances—which isn't supported. If you have a solution for using socket-proxy in Swarm mode, we'd love to hear from you!
 
-## Setting Up Simple Authentication in Swarm Mode
+## <Icon icon="mdi:shield-lock-outline" inline /> Setting Up Simple Authentication in Swarm Mode
 
 To set up simple authentication, you can use Docker secrets to store `users.yml` file. Here is an example using Docker Stack:
 
@@ -81,7 +81,7 @@ secrets:
 
 In this example, `users.yml` file is stored in a Docker secret. It is the same as the [simple authentication](/guide/authentication#generating-users-yml) example.
 
-## Adding Standalone Agents to Swarm Mode
+## <Icon icon="mdi:server-plus-outline" inline /> Adding Standalone Agents to Swarm Mode
 
 From version v8.8.x, Dozzle supports adding standalone [Agents](/guide/agent) when running in Swarm Mode.
 

@@ -8,7 +8,7 @@ title: Alerts & Webhooks
 
 Dozzle v10 introduces a powerful alerting system that lets you monitor container logs, resource metrics, and lifecycle events, and receive notifications when specific conditions are met. Alerts use customizable expressions to filter containers and trigger conditions, and can send notifications to webhooks, Slack, Discord, ntfy, or [Dozzle Cloud](/guide/dozzle-cloud).
 
-## Alert Types
+## <Icon icon="mdi:format-list-bulleted-type" inline /> Alert Types
 
 Dozzle supports three kinds of alerts, all configured the same way from the **Notifications** page:
 
@@ -42,7 +42,7 @@ services:
 
 :::
 
-## Setting Up a Destination
+## <Icon icon="mdi:send-outline" inline /> Setting Up a Destination
 
 Before creating alerts, you need to configure at least one notification destination. Navigate to the **Notifications** page in Dozzle and click **Add Destination**.
 
@@ -84,7 +84,7 @@ You can also write your own payload template using Go's `text/template` syntax. 
 
 You can also send alerts to [Dozzle Cloud](/guide/dozzle-cloud) for centralized monitoring across multiple Dozzle instances. See the [Dozzle Cloud guide](/guide/dozzle-cloud) for more details.
 
-## Creating an Alert
+## <Icon icon="mdi:plus-circle-outline" inline /> Creating an Alert
 
 Navigate to the **Notifications** page and click **Add Alert**. Every alert has a **container expression** plus one of a **log**, **metric**, or **event** trigger expression.
 
@@ -107,7 +107,7 @@ You can combine conditions with `&&` (AND), `||` (OR), and `!` (NOT):
 name contains "api" && labels["env"] == "production"
 ```
 
-## Log Alerts
+## <Icon icon="mdi:text-search" inline /> Log Alerts
 
 ### Log Expression
 
@@ -168,7 +168,7 @@ Log:       message matches "(?i)(unauthorized|forbidden|invalid token)"
 > [!NOTE]
 > The alert editor includes autocomplete and real-time validation. You can preview matched containers and logs before saving.
 
-## Metric Alerts
+## <Icon icon="mdi:chart-line" inline /> Metric Alerts
 
 Metric alerts fire when a container's CPU or memory usage crosses a threshold. The trigger expression is evaluated against a smoothed average of stats sampled over a rolling window, which avoids false alarms from short spikes.
 
@@ -210,7 +210,7 @@ Container: name == "postgres"
 Metric:    memoryUsage > 1073741824
 ```
 
-## Event Alerts
+## <Icon icon="mdi:bell-outline" inline /> Event Alerts
 
 Event alerts fire on Docker container lifecycle events — useful for catching crashes, OOM kills, and health status changes without parsing logs.
 
@@ -257,7 +257,7 @@ Container: name contains "worker"
 Event:     name == "die" && attributes["exitCode"] != "0"
 ```
 
-## Managing Alerts
+## <Icon icon="mdi:cog-outline" inline /> Managing Alerts
 
 From the Notifications page, you can:
 

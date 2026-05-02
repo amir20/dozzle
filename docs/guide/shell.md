@@ -32,10 +32,10 @@ services:
 > [!NOTE]
 > Shell access should work across all container types, including Docker, Kubernetes, and other orchestration platforms.
 
-## Security
+## <Icon icon="mdi:shield-lock-outline" inline /> Security
 
 Anyone who can reach the Dozzle UI will be able to open a shell inside your containers — equivalent to `docker exec`. Before enabling `--enable-shell` on a publicly reachable Dozzle, put it behind [authentication](/guide/authentication). Role-based permissions can restrict shell access to specific users.
 
-## Kubernetes
+## <Icon icon="mdi:kubernetes" inline /> Kubernetes
 
 In k8s mode, shell access uses the Kubernetes API rather than `docker exec`. The target pod must contain an executable shell (`/bin/sh`, `/bin/bash`, etc.) — minimal images built `FROM scratch` or distroless images without a shell will not be attachable.

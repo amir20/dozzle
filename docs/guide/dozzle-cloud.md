@@ -12,51 +12,51 @@ The goal is for Dozzle Cloud to feel like the personal SRE assistant you never k
 
 ## Features
 
-### Log Summaries
+### <Icon icon="mdi:text-box-outline" inline /> Log Summaries
 
 Container events are batched and summarized using an LLM. Each summary records severity, the source container, and a link back to the full log line in your Dozzle instance.
 
-### Pattern Clustering
+### <Icon icon="mdi:group" inline /> Pattern Clustering
 
 Repeated errors are grouped and counted instead of being delivered individually. A loop emitting the same exception 200 times produces one notification with a frequency, not 200.
 
-### AI Agent
+### <Icon icon="mdi:robot-outline" inline /> AI Agent
 
 A chat-based agent answers questions about container state and recent log activity. It is available in Telegram and Discord.
 
 On Pro and Team plans, the agent can also act on containers (start, stop, restart) directly from the conversation, without requiring shell access to the host.
 
-### Daily Digests
+### <Icon icon="mdi:calendar-clock" inline /> Daily Digests
 
 A scheduled summary of recent activity across your linked instances: top error patterns, event counts, and overall health. Delivered by email at a time and timezone you configure.
 
-### Notification Channels
+### <Icon icon="mdi:bell-ring-outline" inline /> Notification Channels
 
 Alerts can be routed to multiple channels in parallel. Each channel can be enabled or disabled independently and scoped to specific Dozzle instances.
 
-| Channel      | Alerts | Daily Digest | Two-way agent |
-| ------------ | :----: | :----------: | :-----------: |
-| Telegram     |   ✓    |      ✓       |       ✓       |
-| Discord      |   ✓    |      ✓       |       ✓       |
-| Email        |   ✓    |      ✓       |               |
-| Slack        |   ✓    |              |               |
-| ntfy         |   ✓    |              |               |
-| Webhooks     |   ✓    |              |               |
-| Browser push |   ✓    |              |               |
+| Channel                                                    | Alerts | Daily Digest | Two-way agent |
+| ---------------------------------------------------------- | :----: | :----------: | :-----------: |
+| <Icon icon="mdi:telegram" inline /> Telegram               |   ✓    |      ✓       |       ✓       |
+| <Icon icon="ic:baseline-discord" inline /> Discord         |   ✓    |      ✓       |       ✓       |
+| <Icon icon="mdi:email-outline" inline /> Email             |   ✓    |      ✓       |               |
+| <Icon icon="mdi:slack" inline /> Slack                     |   ✓    |              |               |
+| <Icon icon="simple-icons:ntfy" inline /> ntfy              |   ✓    |              |               |
+| <Icon icon="mdi:webhook" inline /> Webhooks                |   ✓    |              |               |
+| <Icon icon="mdi:bell-badge-outline" inline /> Browser push |   ✓    |              |               |
 
-### Notification Muting
+### <Icon icon="mdi:bell-sleep-outline" inline /> Notification Muting
 
 Notifications can be muted for one hour, eight hours, until the next morning, or until the following week. Useful during incidents or planned maintenance.
 
-### Multi-Instance Dashboard
+### <Icon icon="mdi:view-dashboard-outline" inline /> Multi-Instance Dashboard
 
 Linked Dozzle instances appear in a single dashboard. Each instance authenticates with an API key, with no additional agent required on the host. The dashboard shows online status, container inventory, and live log streaming.
 
-### Full-Text Log Search
+### <Icon icon="mdi:database-search-outline" inline /> Full-Text Log Search
 
 Every log line forwarded from your linked instances is written into a full-text search index. You can query across all instances at once, or filter by container, severity, or time range. Searches return results in milliseconds even over weeks of history, and each match links back to the surrounding context in the source instance. Retention is plan-dependent and ranges from 24 hours to 30 days.
 
-### Security
+### <Icon icon="mdi:shield-lock-outline" inline /> Security
 
 - API keys are hashed with BLAKE2b and support expiration.
 - Sign-in uses GitHub or Google OAuth.
