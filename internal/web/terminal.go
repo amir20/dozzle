@@ -12,12 +12,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// upgrader uses gorilla/websocket's default same-origin CheckOrigin.
+// Allowing arbitrary origins enables Cross-Site WebSocket Hijacking against
+// /attach and /exec when the user is authenticated (the JWT cookie is
+// SameSite=Lax, which still attaches on same-site cross-origin requests).
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
 }
 
 func (h *handler) attach(w http.ResponseWriter, r *http.Request) {
