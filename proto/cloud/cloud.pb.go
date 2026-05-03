@@ -1910,6 +1910,245 @@ func (x *NotificationResult) GetMessage() string {
 	return ""
 }
 
+// Cloud log search.
+type SearchLogsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Substring/word-filter query. Empty -> empty result. Whitespace-only
+	// is rejected client-side; server treats as empty.
+	Query string `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	// Result cap. Default 20, server-capped at 50.
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Pagination cursor: return only hits with timestamp_ns < this value.
+	// 0 = newest. Reserved for future use.
+	BeforeTsNs int64 `protobuf:"varint,3,opt,name=before_ts_ns,json=beforeTsNs,proto3" json:"before_ts_ns,omitempty"`
+	// Optional filter — narrow to a specific Docker host inside the instance.
+	// Empty = all hosts under this instance.
+	HostId string `protobuf:"bytes,4,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	// Optional filter — narrow to a specific container.
+	ContainerId   string `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchLogsRequest) Reset() {
+	*x = SearchLogsRequest{}
+	mi := &file_cloud_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchLogsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchLogsRequest) ProtoMessage() {}
+
+func (x *SearchLogsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchLogsRequest.ProtoReflect.Descriptor instead.
+func (*SearchLogsRequest) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *SearchLogsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *SearchLogsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *SearchLogsRequest) GetBeforeTsNs() int64 {
+	if x != nil {
+		return x.BeforeTsNs
+	}
+	return 0
+}
+
+func (x *SearchLogsRequest) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *SearchLogsRequest) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+type SearchLogsResponse struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Hits    []*SearchLogHit        `protobuf:"bytes,1,rep,name=hits,proto3" json:"hits,omitempty"`
+	HasMore bool                   `protobuf:"varint,2,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	// For pagination: pass back as before_ts_ns to fetch the next page.
+	NextBeforeTsNs int64 `protobuf:"varint,3,opt,name=next_before_ts_ns,json=nextBeforeTsNs,proto3" json:"next_before_ts_ns,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SearchLogsResponse) Reset() {
+	*x = SearchLogsResponse{}
+	mi := &file_cloud_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchLogsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchLogsResponse) ProtoMessage() {}
+
+func (x *SearchLogsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchLogsResponse.ProtoReflect.Descriptor instead.
+func (*SearchLogsResponse) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *SearchLogsResponse) GetHits() []*SearchLogHit {
+	if x != nil {
+		return x.Hits
+	}
+	return nil
+}
+
+func (x *SearchLogsResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+func (x *SearchLogsResponse) GetNextBeforeTsNs() int64 {
+	if x != nil {
+		return x.NextBeforeTsNs
+	}
+	return 0
+}
+
+type SearchLogHit struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TimestampNs   int64                  `protobuf:"varint,1,opt,name=timestamp_ns,json=timestampNs,proto3" json:"timestamp_ns,omitempty"`
+	HostId        string                 `protobuf:"bytes,2,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	ContainerName string                 `protobuf:"bytes,4,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
+	// Log line, truncated server-side to 500 runes for transport hygiene.
+	Message       string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	Stream        string `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
+	Level         string `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchLogHit) Reset() {
+	*x = SearchLogHit{}
+	mi := &file_cloud_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchLogHit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchLogHit) ProtoMessage() {}
+
+func (x *SearchLogHit) ProtoReflect() protoreflect.Message {
+	mi := &file_cloud_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchLogHit.ProtoReflect.Descriptor instead.
+func (*SearchLogHit) Descriptor() ([]byte, []int) {
+	return file_cloud_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *SearchLogHit) GetTimestampNs() int64 {
+	if x != nil {
+		return x.TimestampNs
+	}
+	return 0
+}
+
+func (x *SearchLogHit) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *SearchLogHit) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
+	}
+	return ""
+}
+
+func (x *SearchLogHit) GetContainerName() string {
+	if x != nil {
+		return x.ContainerName
+	}
+	return ""
+}
+
+func (x *SearchLogHit) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *SearchLogHit) GetStream() string {
+	if x != nil {
+		return x.Stream
+	}
+	return ""
+}
+
+func (x *SearchLogHit) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
 var File_cloud_proto protoreflect.FileDescriptor
 
 const file_cloud_proto_rawDesc = "" +
@@ -2068,15 +2307,36 @@ const file_cloud_proto_rawDesc = "" +
 	"\amessage\x18\x03 \x01(\tR\amessage\"H\n" +
 	"\x12NotificationResult\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*o\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x9d\x01\n" +
+	"\x11SearchLogsRequest\x12\x14\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12 \n" +
+	"\fbefore_ts_ns\x18\x03 \x01(\x03R\n" +
+	"beforeTsNs\x12\x17\n" +
+	"\ahost_id\x18\x04 \x01(\tR\x06hostId\x12!\n" +
+	"\fcontainer_id\x18\x05 \x01(\tR\vcontainerId\"\x83\x01\n" +
+	"\x12SearchLogsResponse\x12'\n" +
+	"\x04hits\x18\x01 \x03(\v2\x13.cloud.SearchLogHitR\x04hits\x12\x19\n" +
+	"\bhas_more\x18\x02 \x01(\bR\ahasMore\x12)\n" +
+	"\x11next_before_ts_ns\x18\x03 \x01(\x03R\x0enextBeforeTsNs\"\xdc\x01\n" +
+	"\fSearchLogHit\x12!\n" +
+	"\ftimestamp_ns\x18\x01 \x01(\x03R\vtimestampNs\x12\x17\n" +
+	"\ahost_id\x18\x02 \x01(\tR\x06hostId\x12!\n" +
+	"\fcontainer_id\x18\x03 \x01(\tR\vcontainerId\x12%\n" +
+	"\x0econtainer_name\x18\x04 \x01(\tR\rcontainerName\x12\x18\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
+	"\x06stream\x18\x06 \x01(\tR\x06stream\x12\x14\n" +
+	"\x05level\x18\a \x01(\tR\x05level*o\n" +
 	"\tToolScope\x12\x1a\n" +
 	"\x16TOOL_SCOPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13TOOL_SCOPE_INSTANCE\x10\x01\x12\x13\n" +
 	"\x0fTOOL_SCOPE_HOST\x10\x02\x12\x18\n" +
-	"\x14TOOL_SCOPE_CONTAINER\x10\x032M\n" +
+	"\x14TOOL_SCOPE_CONTAINER\x10\x032\x90\x01\n" +
 	"\x10CloudToolService\x129\n" +
 	"\n" +
-	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01B&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
+	"ToolStream\x12\x13.cloud.ToolResponse\x1a\x12.cloud.ToolRequest(\x010\x01\x12A\n" +
+	"\n" +
+	"SearchLogs\x12\x18.cloud.SearchLogsRequest\x1a\x19.cloud.SearchLogsResponseB&Z$github.com/amir20/dozzle/proto/cloudb\x06proto3"
 
 var (
 	file_cloud_proto_rawDescOnce sync.Once
@@ -2091,7 +2351,7 @@ func file_cloud_proto_rawDescGZIP() []byte {
 }
 
 var file_cloud_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_cloud_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_cloud_proto_goTypes = []any{
 	(ToolScope)(0),                 // 0: cloud.ToolScope
 	(*ToolRequest)(nil),            // 1: cloud.ToolRequest
@@ -2116,7 +2376,10 @@ var file_cloud_proto_goTypes = []any{
 	(*ActionResult)(nil),           // 20: cloud.ActionResult
 	(*DeployResult)(nil),           // 21: cloud.DeployResult
 	(*NotificationResult)(nil),     // 22: cloud.NotificationResult
-	nil,                            // 23: cloud.InspectContainerResult.LabelsEntry
+	(*SearchLogsRequest)(nil),      // 23: cloud.SearchLogsRequest
+	(*SearchLogsResponse)(nil),     // 24: cloud.SearchLogsResponse
+	(*SearchLogHit)(nil),           // 25: cloud.SearchLogHit
+	nil,                            // 26: cloud.InspectContainerResult.LabelsEntry
 }
 var file_cloud_proto_depIdxs = []int32{
 	5,  // 0: cloud.ToolRequest.list_tools:type_name -> cloud.ListToolsRequest
@@ -2140,14 +2403,17 @@ var file_cloud_proto_depIdxs = []int32{
 	13, // 18: cloud.ListContainersResult.containers:type_name -> cloud.ContainerInfo
 	15, // 19: cloud.ContainerStatsResult.stats:type_name -> cloud.ContainerStatEntry
 	17, // 20: cloud.FetchLogsResult.entries:type_name -> cloud.LogEntry
-	23, // 21: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
-	2,  // 22: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
-	1,  // 23: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
-	23, // [23:24] is the sub-list for method output_type
-	22, // [22:23] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	26, // 21: cloud.InspectContainerResult.labels:type_name -> cloud.InspectContainerResult.LabelsEntry
+	25, // 22: cloud.SearchLogsResponse.hits:type_name -> cloud.SearchLogHit
+	2,  // 23: cloud.CloudToolService.ToolStream:input_type -> cloud.ToolResponse
+	23, // 24: cloud.CloudToolService.SearchLogs:input_type -> cloud.SearchLogsRequest
+	1,  // 25: cloud.CloudToolService.ToolStream:output_type -> cloud.ToolRequest
+	24, // 26: cloud.CloudToolService.SearchLogs:output_type -> cloud.SearchLogsResponse
+	25, // [25:27] is the sub-list for method output_type
+	23, // [23:25] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_cloud_proto_init() }
@@ -2181,7 +2447,7 @@ func file_cloud_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_cloud_proto_rawDesc), len(file_cloud_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   23,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

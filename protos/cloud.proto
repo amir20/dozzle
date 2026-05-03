@@ -7,6 +7,12 @@ option go_package = "github.com/amir20/dozzle/proto/cloud";
 service CloudToolService {
   // Dozzle sends ToolResponse, cloud sends ToolRequest
   rpc ToolStream(stream ToolResponse) returns (stream ToolRequest);
+
+  // Dozzle-initiated unary call: search log lines this instance has streamed
+  // to Cloud (gated by streamLogs opt-in). Cloud scopes the query server-side
+  // to the (user_id, api_key_id) derived from the authenticated connection;
+  // Dozzle does NOT pass any identity fields in the request.
+  rpc SearchLogs(SearchLogsRequest) returns (SearchLogsResponse);
 }
 
 message ToolRequest {
@@ -229,4 +235,39 @@ message DeployResult {
 message NotificationResult {
   bool success = 1;
   string message = 2;
+}
+
+// Cloud log search.
+message SearchLogsRequest {
+  // Substring/word-filter query. Empty -> empty result. Whitespace-only
+  // is rejected client-side; server treats as empty.
+  string query = 1;
+  // Result cap. Default 20, server-capped at 50.
+  int32 limit = 2;
+  // Pagination cursor: return only hits with timestamp_ns < this value.
+  // 0 = newest. Reserved for future use.
+  int64 before_ts_ns = 3;
+  // Optional filter — narrow to a specific Docker host inside the instance.
+  // Empty = all hosts under this instance.
+  string host_id = 4;
+  // Optional filter — narrow to a specific container.
+  string container_id = 5;
+}
+
+message SearchLogsResponse {
+  repeated SearchLogHit hits = 1;
+  bool has_more = 2;
+  // For pagination: pass back as before_ts_ns to fetch the next page.
+  int64 next_before_ts_ns = 3;
+}
+
+message SearchLogHit {
+  int64 timestamp_ns = 1;
+  string host_id = 2;
+  string container_id = 3;
+  string container_name = 4;
+  // Log line, truncated server-side to 500 runes for transport hygiene.
+  string message = 5;
+  string stream = 6;
+  string level = 7;
 }
