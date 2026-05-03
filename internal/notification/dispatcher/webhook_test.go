@@ -1,7 +1,12 @@
 package dispatcher
 
 import (
+	"context"
 	"encoding/json"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -150,4 +155,110 @@ func TestExecuteJSONTemplate_InvalidJSONFallsBackToTextTemplate(t *testing.T) {
 	payload, err := executeJSONTemplate(templateText, notification)
 	require.NoError(t, err)
 	assert.Equal(t, "my-container: some log", string(payload))
+}
+
+func TestNewWebhookDispatcher_RejectsNonHTTPSchemes(t *testing.T) {
+	cases := []string{
+		"file:///etc/passwd",
+		"gopher://example.com/",
+		"ftp://example.com/",
+		"javascript:alert(1)",
+	}
+	for _, raw := range cases {
+		_, err := NewWebhookDispatcher("t", raw, "", nil)
+		assert.Error(t, err, "scheme %q should be rejected", raw)
+	}
+}
+
+func TestNewWebhookDispatcher_AcceptsHTTPAndHTTPS(t *testing.T) {
+	for _, raw := range []string{"http://example.com/hook", "https://example.com/hook", "HTTP://example.com/hook"} {
+		_, err := NewWebhookDispatcher("t", raw, "", nil)
+		assert.NoError(t, err, "scheme in %q should be allowed", raw)
+	}
+}
+
+func TestSendTest_RejectsLoopbackTarget(t *testing.T) {
+	w, err := NewWebhookDispatcher("t", "http://127.0.0.1:1/hook", "", nil)
+	require.NoError(t, err)
+
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, result.Success)
+	assert.Contains(t, result.Error, "blocked address range")
+}
+
+func TestSendTest_RejectsLinkLocalTarget(t *testing.T) {
+	w, err := NewWebhookDispatcher("t", "http://169.254.169.254/latest/meta-data/", "", nil)
+	require.NoError(t, err)
+
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, result.Success)
+	assert.Contains(t, result.Error, "blocked address range")
+}
+
+// TestSendTest_DoesNotReflectResponseBody confirms that an attacker controlling
+// a webhook target that returns non-2xx with sensitive body content cannot
+// recover that body through the TestResult.Error field.
+func TestSendTest_DoesNotReflectResponseBody(t *testing.T) {
+	const secret = "SUPER_SECRET_TOKEN_abcdef123"
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.WriteHeader(http.StatusUnauthorized)
+		rw.Write([]byte(secret))
+	}))
+	defer srv.Close()
+
+	w, err := NewWebhookDispatcher("t", srv.URL, "", nil)
+	require.NoError(t, err)
+	// Allow loopback for this test only by swapping in a default transport.
+	w.client = &http.Client{Timeout: 5 * time.Second}
+
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, result.Success)
+	require.NotNil(t, result.StatusCode)
+	assert.Equal(t, http.StatusUnauthorized, result.StatusCode)
+	assert.NotContains(t, result.Error, secret, "response body must not leak into Error")
+}
+
+func TestIsBlockedIP(t *testing.T) {
+	blocked := []string{
+		"127.0.0.1",
+		"::1",
+		"169.254.169.254",
+		"fe80::1",
+		"224.0.0.1",
+		"0.0.0.0",
+	}
+	for _, s := range blocked {
+		ip := net.ParseIP(s)
+		require.NotNil(t, ip, s)
+		assert.True(t, isBlockedIP(ip), "%s should be blocked", s)
+	}
+
+	allowed := []string{
+		"192.168.1.50",
+		"10.0.0.5",
+		"172.16.5.10",
+		"8.8.8.8",
+		"2606:4700:4700::1111",
+	}
+	for _, s := range allowed {
+		ip := net.ParseIP(s)
+		require.NotNil(t, ip, s)
+		assert.False(t, isBlockedIP(ip), "%s should be allowed", s)
+	}
+}
+
+// guard against accidental reintroduction of the body in the Error field
+func TestSendTest_ErrorOmitsResponseBodySubstring(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("internal-marker-9f7c"))
+	}))
+	defer srv.Close()
+
+	w, err := NewWebhookDispatcher("t", srv.URL, "", nil)
+	require.NoError(t, err)
+	w.client = &http.Client{Timeout: 5 * time.Second}
+
+	result := w.SendTest(context.Background(), newTestNotification("x"))
+	assert.False(t, strings.Contains(result.Error, "internal-marker"))
 }

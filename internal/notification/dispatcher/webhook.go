@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"text/template"
 	"time"
@@ -14,6 +17,53 @@ import (
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 )
+
+// errBlockedAddress is returned when a webhook URL resolves to a blocked
+// address range. Loopback and link-local addresses are refused to prevent SSRF
+// against the Dozzle host's own services and cloud metadata endpoints
+// (e.g. 169.254.169.254). RFC1918 private ranges are intentionally allowed —
+// self-hosted webhooks (Home Assistant, internal Mattermost, etc.) commonly
+// live on private LANs.
+var errBlockedAddress = errors.New("webhook target resolves to a blocked address range")
+
+func isBlockedIP(ip net.IP) bool {
+	return ip.IsLoopback() ||
+		ip.IsLinkLocalUnicast() ||
+		ip.IsLinkLocalMulticast() ||
+		ip.IsMulticast() ||
+		ip.IsInterfaceLocalMulticast() ||
+		ip.IsUnspecified()
+}
+
+func safeDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, err
+	}
+
+	ips, err := net.DefaultResolver.LookupIP(ctx, "ip", host)
+	if err != nil {
+		return nil, err
+	}
+
+	var dialer net.Dialer
+	var lastErr error
+	for _, ip := range ips {
+		if isBlockedIP(ip) {
+			lastErr = errBlockedAddress
+			continue
+		}
+		conn, err := dialer.DialContext(ctx, network, net.JoinHostPort(ip.String(), port))
+		if err == nil {
+			return conn, nil
+		}
+		lastErr = err
+	}
+	if lastErr == nil {
+		lastErr = errBlockedAddress
+	}
+	return nil, lastErr
+}
 
 // UserAgent is set by the application at startup
 var UserAgent = "Dozzle/head"
@@ -30,14 +80,28 @@ type WebhookDispatcher struct {
 
 // NewWebhookDispatcher creates a new webhook dispatcher
 // If templateStr is empty, the notification will be marshaled as JSON directly
-func NewWebhookDispatcher(name, url, templateStr string, headers map[string]string) (*WebhookDispatcher, error) {
+func NewWebhookDispatcher(name, rawURL, templateStr string, headers map[string]string) (*WebhookDispatcher, error) {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid webhook URL: %w", err)
+	}
+	if scheme := strings.ToLower(parsed.Scheme); scheme != "http" && scheme != "https" {
+		return nil, fmt.Errorf("invalid webhook URL scheme %q: only http and https are allowed", parsed.Scheme)
+	}
+
 	w := &WebhookDispatcher{
 		Name:         name,
-		URL:          url,
+		URL:          rawURL,
 		TemplateText: templateStr,
 		Headers:      headers,
 		client: &http.Client{
 			Timeout: 10 * time.Second,
+			Transport: &http.Transport{
+				DialContext:           safeDialContext,
+				TLSHandshakeTimeout:   10 * time.Second,
+				ResponseHeaderTimeout: 10 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+			},
 		},
 	}
 
@@ -98,12 +162,16 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 
 	resp, err := w.client.Do(req)
 	if err != nil {
+		if errors.Is(err, errBlockedAddress) {
+			return TestResult{Success: false, Error: errBlockedAddress.Error()}
+		}
 		return TestResult{Success: false, Error: fmt.Sprintf("failed to send webhook: %v", err)}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		// Limit response body to 1MB to prevent memory exhaustion
+		// Limit response body to 1MB; only used for operator-side debug logging,
+		// never reflected back through the API response (would be an SSRF exfil sink).
 		limitedReader := io.LimitReader(resp.Body, 1024*1024)
 		responseBody, _ := io.ReadAll(limitedReader)
 		log.Debug().
@@ -116,7 +184,7 @@ func (w *WebhookDispatcher) SendTest(ctx context.Context, notification types.Not
 		return TestResult{
 			Success:    false,
 			StatusCode: resp.StatusCode,
-			Error:      fmt.Sprintf("webhook returned status code %d: %s", resp.StatusCode, string(responseBody)),
+			Error:      fmt.Sprintf("webhook returned status code %d", resp.StatusCode),
 		}
 	}
 
