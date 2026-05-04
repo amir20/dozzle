@@ -226,6 +226,9 @@ func TestIsBlockedIP(t *testing.T) {
 		"fe80::1",
 		"224.0.0.1",
 		"0.0.0.0",
+		"0.1.2.3",       // 0.0.0.0/8 — routes to localhost on Linux
+		"0.255.255.255", // top of 0.0.0.0/8
+		"255.255.255.255", // limited broadcast
 	}
 	for _, s := range blocked {
 		ip := net.ParseIP(s)

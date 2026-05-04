@@ -26,13 +26,28 @@ import (
 // live on private LANs.
 var errBlockedAddress = errors.New("webhook target resolves to a blocked address range")
 
+// zeroNetV4 covers 0.0.0.0/8 — on Linux these route to the local host.
+var zeroNetV4 = &net.IPNet{IP: net.IP{0, 0, 0, 0}, Mask: net.CIDRMask(8, 32)}
+
 func isBlockedIP(ip net.IP) bool {
-	return ip.IsLoopback() ||
+	if ip.IsLoopback() ||
 		ip.IsLinkLocalUnicast() ||
 		ip.IsLinkLocalMulticast() ||
 		ip.IsMulticast() ||
 		ip.IsInterfaceLocalMulticast() ||
-		ip.IsUnspecified()
+		ip.IsUnspecified() {
+		return true
+	}
+	// 0.0.0.0/8: only 0.0.0.0 is caught by IsUnspecified; 0.x.x.x routes to
+	// localhost on Linux and is abusable as an SSRF vector.
+	if v4 := ip.To4(); v4 != nil && zeroNetV4.Contains(v4) {
+		return true
+	}
+	// 255.255.255.255 limited broadcast
+	if ip.Equal(net.IPv4bcast) {
+		return true
+	}
+	return false
 }
 
 func safeDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
