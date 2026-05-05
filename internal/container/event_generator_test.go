@@ -360,8 +360,11 @@ func TestEventGenerator_OrphanNotSkipped_AllLevellessLines(t *testing.T) {
 }
 
 func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *testing.T) {
-	// Lines far apart in time — first is buffered as orphan candidate, but the
-	// gap breaks the chain so it's treated as non-orphan.
+	// Lines far apart in time — first is buffered as orphan candidate but the
+	// gap breaks the chain. Both must be emitted: a single isolated levelless
+	// line is not an orphan continuation, and dropping it loses real user
+	// content (e.g. postgres "checkpoint starting: time" is the first event
+	// of every 5-min historical window).
 	containerStart := time.Date(2020, 5, 13, 10, 0, 0, 0, time.UTC)
 	messages := []string{
 		"2020-05-13T18:55:37.000Z some log without level",
@@ -375,12 +378,15 @@ func TestEventGenerator_OrphanNotSkipped_TimestampGapBreaksOrphanDetection(t *te
 
 	g := NewEventGenerator(context.Background(), reader, Container{Tty: false, StartedAt: containerStart})
 
-	// First line is buffered as orphan candidate, but the second has a timestamp
-	// gap so it's not an orphan — first is skipped, second is emitted.
 	event1 := <-g.Events
 	require.NotNil(t, event1)
 	assert.Equal(t, LogTypeSingle, event1.Type)
-	assert.Equal(t, "another log without level", event1.Message)
+	assert.Equal(t, "some log without level", event1.Message)
+
+	event2 := <-g.Events
+	require.NotNil(t, event2)
+	assert.Equal(t, LogTypeSingle, event2.Type)
+	assert.Equal(t, "another log without level", event2.Message)
 }
 
 func TestEventGenerator_OrphanNotSkipped_NoTimestamp(t *testing.T) {

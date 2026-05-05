@@ -128,7 +128,19 @@ func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 
 		if !isOrphan {
 			if len(orphanBuffer) > 0 {
-				log.Debug().Int("count", len(orphanBuffer)).Str("container", g.containerID).Msg("skipped orphaned continuation lines")
+				// If the chain broke because `current` is far in time from the
+				// last buffered line, the buffered lines weren't continuations
+				// of anything — they're real isolated entries. Emit them as
+				// singles so first-of-window lines aren't silently dropped
+				// (e.g. postgres "checkpoint starting: time" — only entry in
+				// a 5-min window followed by a 0.4s-later "complete" line).
+				timeGap := lastTimestamp != 0 && current.Timestamp > 0 &&
+					math.Abs(float64(lastTimestamp-current.Timestamp)) >= maxGroupTimeDelta
+				if timeGap {
+					g.emitAsSingles(orphanBuffer)
+				} else {
+					log.Debug().Int("count", len(orphanBuffer)).Str("container", g.containerID).Msg("skipped orphaned continuation lines")
+				}
 			}
 			return current
 		}
