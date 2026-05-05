@@ -106,6 +106,9 @@ button:
 placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
+cloud-search:
+  hero-title-plain: Buscar contenedores
+  hero-title-cloud: Buscar contenedores y logs
 settings:
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
