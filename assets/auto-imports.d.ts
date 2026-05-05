@@ -255,6 +255,7 @@ declare global {
   const useFocusWithin: typeof import('@vueuse/core').useFocusWithin
   const useFps: typeof import('@vueuse/core').useFps
   const useFullscreen: typeof import('@vueuse/core').useFullscreen
+  const useFuzzySearch: typeof import('./composable/fuzzySearch').useFuzzySearch
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
   const useGroupedStream: typeof import('./composable/eventStreams').useGroupedStream
@@ -690,6 +691,7 @@ declare module 'vue' {
     readonly useFocusWithin: UnwrapRef<typeof import('@vueuse/core')['useFocusWithin']>
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
+    readonly useFuzzySearch: UnwrapRef<typeof import('./composable/fuzzySearch')['useFuzzySearch']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
     readonly useGroupedStream: UnwrapRef<typeof import('./composable/eventStreams')['useGroupedStream']>
