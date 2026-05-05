@@ -18,6 +18,10 @@ import (
 type SearchLogResult struct {
 	Hits    []SearchLogHit `json:"hits"`
 	HasMore bool           `json:"hasMore"`
+	// NextBefore is the cursor to pass back as `before` (HTTP) /
+	// before_ts_ns (gRPC) to fetch the next older page. 0 when HasMore
+	// is false.
+	NextBefore int64 `json:"nextBefore,omitempty"`
 }
 
 // SearchLogHit is one matched log line, scoped server-side to the connecting
@@ -46,7 +50,7 @@ var ErrNotConfigured = errors.New("cloud: no API key configured")
 // UI input) so the simplicity outweighs reusing the long-running ToolStream
 // connection. Identity (user, instance) is enforced server-side from the
 // authenticated metadata; this client passes none of those fields itself.
-func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string) (*SearchLogResult, error) {
+func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*SearchLogResult, error) {
 	apiKey := c.apiKeyFunc()
 	if apiKey == "" {
 		return nil, ErrNotConfigured
@@ -76,6 +80,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 		Limit:       limit,
 		HostId:      hostID,
 		ContainerId: containerID,
+		BeforeTsNs:  before,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("cloud: search: %w", err)
@@ -94,5 +99,9 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 			LogID:         h.GetLogId(),
 		})
 	}
-	return &SearchLogResult{Hits: hits, HasMore: resp.GetHasMore()}, nil
+	return &SearchLogResult{
+		Hits:       hits,
+		HasMore:    resp.GetHasMore(),
+		NextBefore: resp.GetNextBeforeTsNs(),
+	}, nil
 }

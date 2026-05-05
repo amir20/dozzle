@@ -58,11 +58,19 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	hostID := r.URL.Query().Get("hostId")
 	containerID := r.URL.Query().Get("containerId")
+	// Pagination cursor — pass-through to Cloud. 0 (the default) means
+	// "newest"; subsequent pages send back the prior response's nextBefore.
+	var before int64
+	if v := r.URL.Query().Get("before"); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil && n > 0 {
+			before = n
+		}
+	}
 
 	ctx, cancel := context.WithTimeout(r.Context(), cloudSearchTimeout)
 	defer cancel()
 
-	result, err := h.config.CloudSearchLogs(ctx, q, limit, hostID, containerID)
+	result, err := h.config.CloudSearchLogs(ctx, q, limit, hostID, containerID, before)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")

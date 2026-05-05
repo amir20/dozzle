@@ -214,7 +214,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(), onCloudUpdate func(), cloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string) (*cloud.SearchLogResult, error)) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(), onCloudUpdate func(), cloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic

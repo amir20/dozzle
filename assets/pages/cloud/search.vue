@@ -28,6 +28,7 @@
         </template>
         <template v-else>
           <span class="font-mono">{{ $t("cloud-search.hits-count", { n: hits.length }) }}</span>
+          <span class="text-base-content/50">{{ $t("cloud-search.window-suffix") }}</span>
         </template>
       </div>
 
@@ -84,6 +85,17 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div v-if="hits.length && cloudSearch.hasMore.value" class="mt-4 flex justify-center">
+        <button
+          class="btn btn-sm"
+          :class="{ 'btn-disabled': cloudSearch.loadingMore.value }"
+          @click="cloudSearch.loadMore()"
+        >
+          <span v-if="cloudSearch.loadingMore.value" class="loading loading-spinner loading-xs"></span>
+          {{ $t("cloud-search.load-more") }}
+        </button>
       </div>
 
       <!-- Cloud-not-available state -->

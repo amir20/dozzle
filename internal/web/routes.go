@@ -56,7 +56,7 @@ type Config struct {
 	// CloudSearchLogs proxies a substring/word-filter query to Doligence
 	// Cloud over the existing authenticated gRPC connection. Nil when
 	// cloud is not wired (tests / self-hosted-without-cloud builds).
-	CloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string) (*cloud.SearchLogResult, error)
+	CloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
 }
 
 type Authorization struct {
