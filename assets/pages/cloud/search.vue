@@ -3,28 +3,17 @@
     <section>
       <!-- Header -->
       <div class="mb-6">
-        <div class="text-base-content/50 mb-2 flex items-center gap-2 text-sm">
-          <span>{{ $t("cloud-search.results-page-title") }}</span>
+        <div class="flex items-baseline gap-3">
+          <h2 class="text-lg font-semibold">{{ $t("cloud-search.results-page-title") }}</h2>
           <template v-if="committedQuery">
             <span class="text-base-content/30">/</span>
-            <span class="font-mono">"{{ committedQuery }}"</span>
+            <span class="text-base-content font-mono text-sm">"{{ committedQuery }}"</span>
           </template>
-        </div>
-
-        <!-- Query bar -->
-        <div class="bg-base-200 border-base-content/10 flex items-center gap-3 rounded-lg border px-4 py-3">
-          <mdi:magnify class="text-primary size-5 shrink-0" />
-          <input
-            ref="input"
-            v-model="liveQuery"
-            class="flex-1 bg-transparent font-mono text-sm outline-none"
-            :placeholder="$t('cloud-search.query-placeholder')"
-            @keydown.enter="commitQuery"
-          />
           <span
-            class="bg-primary/15 text-primary border-primary/30 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs"
+            v-if="cloudSearch.available.value"
+            class="bg-primary/15 text-primary border-primary/30 ml-auto inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs"
           >
-            <mdi:flash class="size-3" /> Cloud index
+            <mdi:flash class="size-3" /> {{ $t("cloud-search.hero-pill-indexed") }}
           </span>
         </div>
 
@@ -93,31 +82,18 @@ import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloudLogSearch
 const route = useRoute();
 const router = useRouter();
 
-const initialQ = (route.query.q as string) || "";
-const liveQuery = ref(initialQ);
-const committedQuery = ref(initialQ);
-const input = ref<HTMLInputElement>();
+const committedQuery = ref((route.query.q as string) || "");
 
 const { cloudConfig } = useCloudConfig();
 const cloudSearch = useCloudLogSearch(committedQuery);
 const hits = computed<CloudLogHit[]>(() => cloudSearch.results.value);
 
-onMounted(() => input.value?.focus());
-
 watch(
   () => route.query.q,
   (q) => {
-    const v = (q as string) || "";
-    liveQuery.value = v;
-    committedQuery.value = v;
+    committedQuery.value = (q as string) || "";
   },
 );
-
-function commitQuery() {
-  const q = liveQuery.value.trim();
-  committedQuery.value = q;
-  router.replace({ path: "/cloud/search", query: q ? { q } : {} });
-}
 
 function formatTs(ns: number): string {
   const d = new Date(ns / 1e6);
