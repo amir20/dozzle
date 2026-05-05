@@ -134,6 +134,8 @@ cloud-search:
   hero-sub-streaming-off: Enable Stream Logs to Cloud in settings to also search log lines
   hero-sub-not-connected: Connect Dozzle Cloud to also search log lines across containers
   hero-pill-indexed: Cloud index
+  modal-placeholder-cloud: Search containers and logs…
+  modal-placeholder-plain: Search containers…
 settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for

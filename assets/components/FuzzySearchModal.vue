@@ -1,10 +1,13 @@
 <template>
-  <div class="dropdown dropdown-open w-full shadow-md">
-    <div class="input input-xl input-primary flex w-full items-center">
-      <mdi:magnify class="flex size-8" />
+  <!-- Single bordered card containing the input, results, and footer in one
+       frame to match the design mock. No daisyUI input/dropdown chrome. -->
+  <div class="bg-base-200 border-base-content/15 w-full overflow-hidden rounded-xl border shadow-2xl">
+    <!-- Input row -->
+    <div class="flex items-center gap-3 px-4 py-3.5">
+      <mdi:magnify class="text-base-content/60 size-5 shrink-0" />
       <input
         tabindex="0"
-        class="input-ghost flex-1 px-1"
+        class="text-base-content placeholder:text-base-content/40 flex-1 bg-transparent text-base outline-none"
         ref="input"
         @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
@@ -12,71 +15,75 @@
         @keydown.shift.enter.exact.prevent="runLogSearch"
         @keydown.alt.enter="addColumn(data[selectedIndex].item)"
         v-model="query"
-        :placeholder="$t('placeholder.search-containers')"
+        :placeholder="placeholderCopy"
       />
       <form method="dialog" class="flex">
-        <button v-if="isMobile">
-          <mdi:close />
+        <button v-if="isMobile" class="text-base-content/50 hover:text-base-content">
+          <mdi:close class="size-5" />
         </button>
-        <button v-else class="swap hover:swap-active outline-hidden">
-          <mdi:keyboard-esc class="swap-off" />
-          <mdi:close class="swap-on" />
+        <button v-else>
+          <kbd class="kbd kbd-sm">esc</kbd>
         </button>
       </form>
     </div>
-    <div
-      class="dropdown-content bg-base-100 relative! mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent px-2"
-      tabindex="0"
-      v-if="results.length || logSearchVisible"
-    >
-      <ul class="menu w-auto" v-if="results.length">
-        <li v-for="(result, index) in data" ref="listItems">
-          <a
-            class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
-            @click.prevent="selected(result.item)"
-            :class="{ 'menu-focus': index === selectedIndex }"
-          >
-            <div :class="{ 'text-primary': result.item.state === 'running' }">
-              <template v-if="result.item.type === 'container'">
-                <octicon:container-24 />
-              </template>
-              <template v-else-if="result.item.type === 'service'">
-                <ph:stack-simple />
-              </template>
-              <template v-else-if="result.item.type === 'stack'">
-                <ph:stack />
-              </template>
-            </div>
-            <div class="truncate">
-              <template v-if="config.hosts.length > 1 && result.item.host">
-                <span class="font-light">{{ result.item.host }}</span> /
-              </template>
-              <span data-name v-html="matchedName(result)"></span>
-            </div>
 
-            <RelativeTime :date="result.item.created" class="text-xs font-light" />
-            <span
-              @click.stop.prevent="addColumn(result.item)"
-              :title="$t('tooltip.pin-column')"
-              class="hover:text-secondary"
+    <!-- Body: results + log search CTA. Only renders when there is something
+         to show — keeps the empty modal compact. -->
+    <div v-if="results.length || logSearchVisible" class="border-base-content/10 border-t">
+      <!-- Containers section -->
+      <template v-if="results.length">
+        <div class="text-base-content/40 px-4 pt-3 pb-1.5 text-xs font-semibold tracking-wider uppercase">
+          {{ $t("cloud-search.containers-section") }} · {{ data.length }}
+        </div>
+        <ul class="pb-1">
+          <li v-for="(result, index) in data" ref="listItems">
+            <a
+              class="hover:bg-base-content/5 flex cursor-pointer items-center gap-3 px-4 py-2"
+              :class="{ 'bg-base-content/10': index === selectedIndex }"
+              @click.prevent="selected(result.item)"
             >
-              <ic:sharp-keyboard-return v-if="index === selectedIndex" />
-              <cil:columns v-else-if="result.item.type === 'container'" />
-            </span>
-          </a>
-        </li>
-      </ul>
+              <div :class="result.item.state === 'running' ? 'text-primary' : 'text-base-content/50'">
+                <template v-if="result.item.type === 'container'">
+                  <octicon:container-24 class="size-4" />
+                </template>
+                <template v-else-if="result.item.type === 'service'">
+                  <ph:stack-simple class="size-4" />
+                </template>
+                <template v-else-if="result.item.type === 'stack'">
+                  <ph:stack class="size-4" />
+                </template>
+              </div>
+              <div class="min-w-0 flex-1 truncate text-sm">
+                <template v-if="config.hosts.length > 1 && result.item.host">
+                  <span class="text-base-content/50 font-light">{{ result.item.host }}</span>
+                  <span class="text-base-content/30"> / </span>
+                </template>
+                <span class="text-base-content" data-name v-html="matchedName(result)"></span>
+              </div>
+              <RelativeTime :date="result.item.created" class="text-base-content/40 text-xs" />
+              <span
+                @click.stop.prevent="addColumn(result.item)"
+                :title="$t('tooltip.pin-column')"
+                class="text-base-content/40 hover:text-secondary"
+              >
+                <ic:sharp-keyboard-return v-if="index === selectedIndex" class="size-4" />
+                <cil:columns v-else-if="result.item.type === 'container'" class="size-4" />
+              </span>
+            </a>
+          </li>
+        </ul>
+      </template>
 
-      <!-- Cloud log search CTA: appears when there's a query, regardless of container matches -->
+      <!-- Log search CTA -->
       <div
         v-if="logSearchVisible"
         class="border-base-content/10 border-t"
-        :class="{ 'cursor-pointer': cloudSearch.available.value, 'opacity-60': !cloudSearch.available.value }"
+        :class="{ 'cursor-pointer': cloudSearch.available.value, 'opacity-70': !cloudSearch.available.value }"
         @click="cloudSearch.available.value && runLogSearch()"
       >
         <div
-          class="flex items-center gap-3 px-3 py-3"
-          :class="cloudSearch.available.value ? 'bg-primary/5 hover:bg-primary/10' : 'bg-base-200/30'"
+          class="flex items-center gap-3 px-4 py-3"
+          :class="cloudSearch.available.value ? 'bg-primary/[0.07] hover:bg-primary/10' : ''"
         >
           <mdi:cloud-search-outline
             class="size-5 shrink-0"
@@ -112,28 +119,25 @@
               </template>
             </span>
           </div>
-          <kbd class="kbd kbd-xs">⇧</kbd>
-          <kbd class="kbd kbd-xs">↵</kbd>
+          <kbd class="kbd kbd-sm">⇧</kbd>
+          <kbd class="kbd kbd-sm">↵</kbd>
         </div>
       </div>
     </div>
 
-    <!-- Footer: cloud status + keyboard hints. Always visible while the modal
-         is open so users know log search is available before they type. -->
+    <!-- Footer: kbd hints + cloud status. Always present while the modal is
+         open so users know log search is available before they type. -->
     <div
-      class="bg-base-200/40 border-base-content/5 text-base-content/50 mt-2 flex items-center gap-3 rounded-md border px-3 py-1.5 text-xs"
+      class="bg-base-300/40 border-base-content/10 text-base-content/50 flex items-center gap-4 border-t px-4 py-2 text-xs"
     >
-      <span v-if="results.length" class="flex items-center gap-1">
+      <span v-if="results.length" class="flex items-center gap-1.5">
         <kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}
       </span>
       <span v-if="cloudSearch.available.value && logSearchVisible" class="flex items-center gap-1">
         <kbd class="kbd kbd-xs">⇧</kbd><kbd class="kbd kbd-xs">↵</kbd>
-        {{ $t("cloud-search.search-logs-shortcut") }}
+        <span class="ml-0.5">{{ $t("cloud-search.search-logs-shortcut") }}</span>
       </span>
 
-      <!-- Cloud status — muted text with mint cloud icon to match the design.
-           Stays in the same color band as the kbd hints so it doesn't fight
-           the "Search logs for X" CTA above. -->
       <span v-if="cloudSearch.available.value" class="ml-auto flex items-center gap-1.5">
         <mdi:cloud-check-outline class="text-primary size-3.5" />
         {{ $t("cloud-search.cloud-connected") }}
@@ -184,6 +188,11 @@ const { cloudConfig } = useCloudConfig();
 const cloudSearch = useCloudLogSearch(query);
 
 const logSearchVisible = computed(() => query.value.trim().length > 0);
+
+const { t } = useI18n();
+const placeholderCopy = computed(() =>
+  cloudSearch.available.value ? t("cloud-search.modal-placeholder-cloud") : t("cloud-search.modal-placeholder-plain"),
+);
 
 onMounted(async () => {
   const dialog = input.value?.closest("dialog");

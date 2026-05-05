@@ -109,7 +109,7 @@ describe("<FuzzySearchModal />", () => {
     await wrapper.find("input").setValue("foo");
     expect(wrapper.findAll("li").length).toBe(1);
     expect(wrapper.find("ul [data-name]").html()).toMatchInlineSnapshot(
-      `"<span data-v-dc2e8c61="" data-name=""><mark>foo</mark> bar</span>"`,
+      `"<span data-v-dc2e8c61="" class="text-base-content" data-name=""><mark>foo</mark> bar</span>"`,
     );
   });
 
