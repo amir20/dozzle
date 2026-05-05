@@ -52,8 +52,8 @@
           </thead>
           <tbody class="bg-base-300/30">
             <tr
-              v-for="(hit, i) in hits"
-              :key="i"
+              v-for="hit in hits"
+              :key="`${hit.containerId}-${hit.ts}-${hit.logId ?? 0}`"
               class="hover:bg-base-100/80!"
               :class="{ 'cursor-pointer': isLive(hit), 'opacity-60': !isLive(hit) }"
               @click="isLive(hit) && openContainer(hit)"
@@ -141,7 +141,10 @@ watch(
 
 function formatTs(ns: number): string {
   const d = new Date(ns / 1e6);
-  return d.toLocaleTimeString([], { hour12: false }) + "." + String(d.getMilliseconds()).padStart(3, "0");
+  const time = d.toLocaleTimeString([], { hour12: false }) + "." + String(d.getMilliseconds()).padStart(3, "0");
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) return time;
+  return d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + time;
 }
 
 function levelColor(level: string): string {
