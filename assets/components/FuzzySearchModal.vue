@@ -206,6 +206,7 @@ onMounted(async () => {
     const animations = dialog.getAnimations();
     await Promise.all(animations.map((animation) => animation.finished));
     input.value?.focus();
+    if (initialQuery) input.value?.select();
   }
 });
 
