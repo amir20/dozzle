@@ -365,4 +365,5 @@ cloud-search:
   col-container: "Контейнер"
   col-message: "Сообщение"
   container-removed: "Контейнер был удалён"
+  cta-settings: "Настройки Cloud"
   container-removed-pill: "удалён"

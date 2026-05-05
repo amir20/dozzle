@@ -377,4 +377,5 @@ cloud-search:
   col-container: "Kontainer"
   col-message: "Pesan"
   container-removed: "Kontainer telah dihapus"
+  cta-settings: "Pengaturan Cloud"
   container-removed-pill: "dihapus"

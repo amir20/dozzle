@@ -368,4 +368,5 @@ cloud-search:
   col-container: "컨테이너"
   col-message: "메시지"
   container-removed: "컨테이너가 삭제되었습니다"
+  cta-settings: "Cloud 설정"
   container-removed-pill: "삭제됨"

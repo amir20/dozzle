@@ -96,11 +96,11 @@ func (h *handler) cloudCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Drop any existing connection so a relink with a new key takes effect
 	// immediately instead of riding out the old stream.
-	if h.config.OnCloudUpdate != nil {
-		h.config.OnCloudUpdate()
+	if h.config.Cloud.OnUpdate != nil {
+		h.config.Cloud.OnUpdate()
 	}
-	if h.config.OnCloudSetup != nil {
-		h.config.OnCloudSetup()
+	if h.config.Cloud.OnSetup != nil {
+		h.config.Cloud.OnSetup()
 	}
 
 	base := h.config.Base
@@ -174,8 +174,8 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 		} `json:"plan"`
 	}
 	if json.Unmarshal(body, &statusResp) == nil && statusResp.Plan.Name == "pro" {
-		if h.config.OnCloudSetup != nil {
-			h.config.OnCloudSetup()
+		if h.config.Cloud.OnSetup != nil {
+			h.config.Cloud.OnSetup()
 		}
 	}
 
@@ -234,8 +234,8 @@ func (h *handler) updateCloudConfig(w http.ResponseWriter, r *http.Request) {
 		h.hostService.SetCloudStreamLogs(*req.StreamLogs)
 		// Drop the active cloud connection so the new flag is picked up on
 		// the next dial — a streamer may need to start or stop.
-		if h.config.OnCloudUpdate != nil {
-			h.config.OnCloudUpdate()
+		if h.config.Cloud.OnUpdate != nil {
+			h.config.Cloud.OnUpdate()
 		}
 	}
 
@@ -247,8 +247,8 @@ func (h *handler) deleteCloudConfig(w http.ResponseWriter, r *http.Request) {
 	// Drop the active cloud connection so the server stops seeing this
 	// instance immediately, instead of riding out the existing stream with
 	// a now-deleted key.
-	if h.config.OnCloudUpdate != nil {
-		h.config.OnCloudUpdate()
+	if h.config.Cloud.OnUpdate != nil {
+		h.config.Cloud.OnUpdate()
 	}
 	w.WriteHeader(http.StatusNoContent)
 }

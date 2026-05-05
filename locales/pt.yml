@@ -364,4 +364,5 @@ cloud-search:
   col-container: "Container"
   col-message: "Mensagem"
   container-removed: "O container foi excluído"
+  cta-settings: "Configurações da Cloud"
   container-removed-pill: "removido"

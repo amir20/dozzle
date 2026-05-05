@@ -51,6 +51,14 @@ type Client struct {
 
 	connMu        sync.Mutex
 	cancelCurrent context.CancelFunc
+
+	// searchConn / searchClient are lazily initialized and shared across
+	// SearchLogs calls so we don't pay the TLS handshake on every keystroke.
+	// Same target / TLS as the main ToolStream conn; per-call identity is
+	// supplied via metadata (x-api-key, x-instance-id), so one conn is fine.
+	searchConnMu sync.Mutex
+	searchConn   *grpc.ClientConn
+	searchClient pb.CloudToolServiceClient
 }
 
 // NewClient creates a new cloud gRPC client.

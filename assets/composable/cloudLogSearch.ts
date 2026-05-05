@@ -56,7 +56,13 @@ export function useCloudLogSearch(query: Ref<string>) {
 
   const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
+  // Two parallel fetch lifecycles — keystroke search (cancels on next
+  // keystroke / unmount) and pagination loadMore (cancels on unmount or
+  // when a new query lands and supersedes pagination state). Tracking
+  // them separately avoids the keystroke aborter cancelling an in-flight
+  // pagination request and vice versa.
   let abortController: AbortController | null = null;
+  let loadMoreAborter: AbortController | null = null;
 
   function clearResults() {
     results.value = [];
@@ -78,6 +84,10 @@ export function useCloudLogSearch(query: Ref<string>) {
 
   async function runSearch(q: string) {
     if (abortController) abortController.abort();
+    // A fresh query supersedes any in-flight pagination — that page is
+    // for the previous query and would be appended onto the wrong result
+    // set if it landed late.
+    loadMoreAborter?.abort();
     abortController = new AbortController();
     loading.value = true;
     error.value = null;
@@ -108,9 +118,10 @@ export function useCloudLogSearch(query: Ref<string>) {
     const q = query.value.trim();
     if (!q) return;
     loadingMore.value = true;
-    const ac = new AbortController();
+    loadMoreAborter?.abort();
+    loadMoreAborter = new AbortController();
     try {
-      const body = await fetchPage(q, nextBefore.value, ac.signal);
+      const body = await fetchPage(q, nextBefore.value, loadMoreAborter.signal);
       if (!body) return;
       results.value = [...results.value, ...(body.hits ?? [])];
       hasMore.value = !!body.hasMore;
@@ -135,7 +146,10 @@ export function useCloudLogSearch(query: Ref<string>) {
     { debounce: debounceMs, immediate: true },
   );
 
-  onScopeDispose(() => abortController?.abort());
+  onScopeDispose(() => {
+    abortController?.abort();
+    loadMoreAborter?.abort();
+  });
 
   return { results, loading, loadingMore, error, available, hasMore, loadMore };
 }

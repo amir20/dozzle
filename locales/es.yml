@@ -132,6 +132,7 @@ cloud-search:
   col-container: "Contenedor"
   col-message: "Mensaje"
   container-removed: "El contenedor ha sido eliminado"
+  cta-settings: "Configuración de Cloud"
   container-removed-pill: "eliminado"
 settings:
   help-support: >

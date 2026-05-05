@@ -365,4 +365,5 @@ cloud-search:
   col-container: "Container"
   col-message: "Besked"
   container-removed: "Containeren er slettet"
+  cta-settings: "Cloud-indstillinger"
   container-removed-pill: "slettet"

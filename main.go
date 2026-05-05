@@ -186,7 +186,11 @@ func main() {
 		cloudClient.Notify()
 	}
 
-	srv := createServer(args, hostService, cloudClient.Notify, cloudClient.Reconnect, cloudClient.SearchLogs)
+	srv := createServer(args, hostService, web.CloudHooks{
+		OnSetup:    cloudClient.Notify,
+		OnUpdate:   cloudClient.Reconnect,
+		SearchLogs: cloudClient.SearchLogs,
+	})
 
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
@@ -214,7 +218,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(), onCloudUpdate func(), cloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, cloudHooks web.CloudHooks) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -293,9 +297,7 @@ func createServer(args cli.Args, hostService web.HostService, onCloudSetup func(
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
-		OnCloudSetup:     onCloudSetup,
-		OnCloudUpdate:    onCloudUpdate,
-		CloudSearchLogs:  cloudSearchLogs,
+		Cloud:            cloudHooks,
 	}
 
 	assets, err := fs.Sub(content, "dist")

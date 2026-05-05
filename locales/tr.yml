@@ -365,4 +365,5 @@ cloud-search:
   col-container: "Konteyner"
   col-message: "Mesaj"
   container-removed: "Konteyner silindi"
+  cta-settings: "Cloud ayarları"
   container-removed-pill: "silindi"

@@ -106,7 +106,7 @@
           }}
         </p>
         <RouterLink to="/settings/cloud" class="btn btn-primary btn-sm mt-4">
-          {{ $t("settings.cloud") || "Cloud settings" }}
+          {{ $t("cloud-search.cta-settings") }}
         </RouterLink>
       </div>
     </section>

@@ -370,4 +370,5 @@ cloud-search:
   col-container: "Vsebnik"
   col-message: "Sporočilo"
   container-removed: "Vsebnik je bil izbrisan"
+  cta-settings: "Nastavitve Cloud"
   container-removed-pill: "izbrisano"

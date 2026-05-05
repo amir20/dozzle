@@ -139,6 +139,7 @@ cloud-search:
   col-container: Container
   col-message: Message
   container-removed: Container has been deleted
+  cta-settings: "Cloud settings"
   container-removed-pill: removed
 settings:
   help-support: >

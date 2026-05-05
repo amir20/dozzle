@@ -187,10 +187,10 @@ const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
 
 const { cloudConfig } = useCloudConfig();
-// We don't render the live cloud search results inside the popup (the design
-// keeps the popup lightweight) but we still mount the composable so the
-// "Search logs for X" CTA can react to availability and so an in-flight
-// query is warm by the time the user hits ⇧↵.
+// Mounted only so the "Search logs for X" CTA can read `available`. We
+// don't render the hits inside the popup. The composable's debounced
+// watch short-circuits on empty query, so opening the modal alone does
+// not fire a request.
 const cloudSearch = useCloudLogSearch(query);
 
 const logSearchVisible = computed(() => query.value.trim().length > 0);

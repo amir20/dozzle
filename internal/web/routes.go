@@ -51,12 +51,23 @@ type Config struct {
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
-	OnCloudSetup     func()
-	OnCloudUpdate    func()
-	// CloudSearchLogs proxies a substring/word-filter query to Doligence
-	// Cloud over the existing authenticated gRPC connection. Nil when
-	// cloud is not wired (tests / self-hosted-without-cloud builds).
-	CloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
+	Cloud            CloudHooks
+}
+
+// CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
+// them keeps Config and createServer signatures stable as more cloud RPCs
+// land. Nil-valued fields mean "feature unavailable" — handlers should
+// degrade gracefully (e.g. SearchLogs nil → 503).
+type CloudHooks struct {
+	// OnSetup signals that cloud configuration has been (re)written and
+	// the client should reconnect / re-authenticate.
+	OnSetup func()
+	// OnUpdate is fired when cloud-affecting settings change (e.g.
+	// streamLogs toggle) so the existing connection can pick them up.
+	OnUpdate func()
+	// SearchLogs proxies a substring/word-filter query to Doligence Cloud
+	// over the authenticated gRPC connection. Nil when cloud is not wired.
+	SearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
 }
 
 type Authorization struct {

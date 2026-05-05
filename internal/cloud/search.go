@@ -45,29 +45,45 @@ type SearchLogHit struct {
 // is available (the user hasn't linked Cloud yet). Callers map this to a 503.
 var ErrNotConfigured = errors.New("cloud: no API key configured")
 
-// SearchLogs runs a Cloud-side log search against the existing gRPC service.
-// Opens a fresh, short-lived connection per call — search is rare (debounced
-// UI input) so the simplicity outweighs reusing the long-running ToolStream
-// connection. Identity (user, instance) is enforced server-side from the
-// authenticated metadata; this client passes none of those fields itself.
-func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*SearchLogResult, error) {
-	apiKey := c.apiKeyFunc()
-	if apiKey == "" {
-		return nil, ErrNotConfigured
+// searchServiceClient returns a (lazily dialed) reusable gRPC client. The
+// underlying conn is shared across all SearchLogs calls so we pay the TLS
+// handshake once per process — not once per keystroke.
+func (c *Client) searchServiceClient() (pb.CloudToolServiceClient, error) {
+	c.searchConnMu.Lock()
+	defer c.searchConnMu.Unlock()
+	if c.searchClient != nil {
+		return c.searchClient, nil
 	}
-
 	var creds grpc.DialOption
 	if c.plaintext {
 		creds = grpc.WithTransportCredentials(insecure.NewCredentials())
 	} else {
 		creds = grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	}
-
 	conn, err := grpc.NewClient(c.target, creds)
 	if err != nil {
 		return nil, fmt.Errorf("cloud: dial: %w", err)
 	}
-	defer conn.Close()
+	c.searchConn = conn
+	c.searchClient = pb.NewCloudToolServiceClient(conn)
+	return c.searchClient, nil
+}
+
+// SearchLogs runs a Cloud-side log search against the existing gRPC service.
+// Reuses a long-lived gRPC conn (lazily dialed on first call) so the
+// 500ms search timeout isn't burned on a TLS handshake per keystroke.
+// Identity (user, instance) is enforced server-side from the authenticated
+// metadata; this client passes only the per-request fields below.
+func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*SearchLogResult, error) {
+	apiKey := c.apiKeyFunc()
+	if apiKey == "" {
+		return nil, ErrNotConfigured
+	}
+
+	client, err := c.searchServiceClient()
+	if err != nil {
+		return nil, err
+	}
 
 	mdPairs := []string{"x-api-key", apiKey}
 	if c.instanceID != "" {
@@ -75,7 +91,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 	}
 	callCtx := metadata.NewOutgoingContext(ctx, metadata.Pairs(mdPairs...))
 
-	resp, err := pb.NewCloudToolServiceClient(conn).SearchLogs(callCtx, &pb.SearchLogsRequest{
+	resp, err := client.SearchLogs(callCtx, &pb.SearchLogsRequest{
 		Query:       query,
 		Limit:       limit,
 		HostId:      hostID,

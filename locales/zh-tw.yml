@@ -368,4 +368,5 @@ cloud-search:
   col-container: "容器"
   col-message: "訊息"
   container-removed: "容器已被刪除"
+  cta-settings: "Cloud 設定"
   container-removed-pill: "已刪除"

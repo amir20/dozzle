@@ -27,7 +27,7 @@ const cloudSearchTimeout = 500 * time.Millisecond
 //   504 — cloud round-trip exceeded the search timeout
 //   502 — any other cloud-side error
 func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
-	if h.config.CloudSearchLogs == nil {
+	if h.config.Cloud.SearchLogs == nil {
 		writeError(w, http.StatusServiceUnavailable, "cloud not configured")
 		return
 	}
@@ -70,7 +70,7 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), cloudSearchTimeout)
 	defer cancel()
 
-	result, err := h.config.CloudSearchLogs(ctx, q, limit, hostID, containerID, before)
+	result, err := h.config.Cloud.SearchLogs(ctx, q, limit, hostID, containerID, before)
 	if err != nil {
 		if errors.Is(err, cloud.ErrNotConfigured) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
@@ -86,6 +86,5 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(result)
 }
