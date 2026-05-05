@@ -4,13 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -61,13 +59,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 		creds = grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))
 	}
 
-	conn, err := grpc.NewClient(c.target, creds,
-		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:                30 * time.Second,
-			Timeout:             10 * time.Second,
-			PermitWithoutStream: true,
-		}),
-	)
+	conn, err := grpc.NewClient(c.target, creds)
 	if err != nil {
 		return nil, fmt.Errorf("cloud: dial: %w", err)
 	}
