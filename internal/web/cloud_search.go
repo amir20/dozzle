@@ -45,6 +45,13 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "missing q")
 		return
 	}
+	// Defense in depth: the UI input is short (debounced typing) but a
+	// malicious client could POST any size. Reject anything past 512
+	// chars rather than fan it out to Cloud's gRPC backend.
+	if len(q) > 512 {
+		writeError(w, http.StatusBadRequest, "q too long")
+		return
+	}
 	// Cloud caps server-side at 50; mirror it here so a misbehaving client
 	// can't tie up the keystroke path with an oversized request. ParseInt
 	// with bitSize=32 guarantees the value fits in int32, so the cast is

@@ -128,6 +128,8 @@ ul {
     background-color: var(--color-secondary);
   }
   100% {
+    /* Settle to the resting bg-secondary/15 declared on the .li above. */
+    background-color: color-mix(in oklab, var(--color-secondary) 15%, transparent);
   }
 }
 </style>

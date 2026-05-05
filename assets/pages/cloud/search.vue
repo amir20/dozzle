@@ -53,8 +53,8 @@
           </thead>
           <tbody>
             <tr
-              v-for="hit in hits"
-              :key="`${hit.containerId}-${hit.ts}-${hit.logId ?? 0}`"
+              v-for="(hit, i) in hits"
+              :key="`${hit.containerId}-${hit.ts}-${hit.logId ?? 0}-${i}`"
               class="hover:bg-primary/5 transition-colors"
               :class="{ 'cursor-pointer': isLive(hit) }"
               @click="isLive(hit) && openContainer(hit)"
