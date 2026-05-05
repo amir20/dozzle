@@ -167,12 +167,18 @@ import { useCloudLogSearch } from "@/composable/cloudLogSearch";
 
 const close = defineEmit();
 
-const query = ref("");
+const router = useRouter();
+const route = useRoute();
+
+// Prefill with the current /cloud/search query so the user can refine
+// without retyping. Empty everywhere else. Null-safe for unit tests
+// that mount the component without a router context.
+const initialQuery = route?.path === "/cloud/search" && typeof route.query?.q === "string" ? route.query.q : "";
+const query = ref(initialQuery);
 const input = ref<HTMLInputElement>();
 const listItems = ref<HTMLInputElement[]>();
 const selectedIndex = ref(0);
 
-const router = useRouter();
 const containerStore = useContainerStore();
 const pinnedStore = usePinnedLogsStore();
 const { visibleContainers } = storeToRefs(containerStore);
