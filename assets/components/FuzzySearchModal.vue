@@ -123,7 +123,9 @@
       v-if="results.length || logSearchVisible"
       class="bg-base-200/40 border-base-content/5 text-base-content/50 mt-2 flex items-center gap-3 rounded-md border px-3 py-1.5 text-xs"
     >
-      <span class="flex items-center gap-1"><kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}</span>
+      <span class="flex items-center gap-1"
+        ><kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}</span
+      >
       <span v-if="cloudSearch.available.value" class="flex items-center gap-1">
         <kbd class="kbd kbd-xs">⇧</kbd><kbd class="kbd kbd-xs">↵</kbd>
         {{ $t("cloud-search.search-logs-shortcut") }}
@@ -139,6 +141,8 @@
 import { ContainerState } from "@/types/Container";
 import { useFuse } from "@vueuse/integrations/useFuse";
 import { type FuseResult } from "fuse.js";
+import { useCloudConfig } from "@/composable/cloudConfig";
+import { useCloudLogSearch } from "@/composable/cloudLogSearch";
 
 const close = defineEmit();
 

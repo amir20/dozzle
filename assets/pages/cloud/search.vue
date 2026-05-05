@@ -17,7 +17,7 @@
           <input
             ref="input"
             v-model="liveQuery"
-            class="font-mono text-sm flex-1 bg-transparent outline-none"
+            class="flex-1 bg-transparent font-mono text-sm outline-none"
             :placeholder="$t('cloud-search.query-placeholder')"
             @keydown.enter="commitQuery"
           />
@@ -51,10 +51,7 @@
       </div>
 
       <!-- Results list -->
-      <div
-        v-if="hits.length"
-        class="bg-base-100 border-base-content/10 overflow-hidden rounded-lg border"
-      >
+      <div v-if="hits.length" class="bg-base-100 border-base-content/10 overflow-hidden rounded-lg border">
         <div
           v-for="(hit, i) in hits"
           :key="i"
@@ -77,7 +74,9 @@
       >
         <mdi:cloud-off-outline class="text-base-content/30 mx-auto mb-2 size-8" />
         <p class="text-base-content/60 text-sm">
-          {{ cloudConfig?.linked ? $t("cloud-search.enable-streaming-to-search") : $t("cloud-search.connect-to-enable") }}
+          {{
+            cloudConfig?.linked ? $t("cloud-search.enable-streaming-to-search") : $t("cloud-search.connect-to-enable")
+          }}
         </p>
         <RouterLink to="/settings/cloud" class="btn btn-primary btn-sm mt-3">
           {{ $t("settings.cloud") || "Cloud settings" }}
@@ -88,7 +87,8 @@
 </template>
 
 <script lang="ts" setup>
-import { type CloudLogHit } from "@/composable/cloudLogSearch";
+import { useCloudConfig } from "@/composable/cloudConfig";
+import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloudLogSearch";
 
 const route = useRoute();
 const router = useRouter();
@@ -147,7 +147,10 @@ function highlight(message: string, q: string): string {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+  return s.replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
+  );
 }
 
 function openContainer(hit: CloudLogHit) {
