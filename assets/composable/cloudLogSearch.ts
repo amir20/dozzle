@@ -57,14 +57,6 @@ export function useCloudLogSearch(query: Ref<string>) {
   const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
   let abortController: AbortController | null = null;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-  function clearTimer() {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-      debounceTimer = null;
-    }
-  }
 
   function clearResults() {
     results.value = [];
@@ -130,24 +122,20 @@ export function useCloudLogSearch(query: Ref<string>) {
     }
   }
 
-  watch(
+  watchDebounced(
     [query, available],
     ([q, isAvailable]) => {
-      clearTimer();
       const trimmed = q.trim();
       if (!isAvailable || trimmed === "") {
         clearResults();
         return;
       }
-      debounceTimer = setTimeout(() => runSearch(trimmed), debounceMs);
+      runSearch(trimmed);
     },
-    { immediate: true },
+    { debounce: debounceMs, immediate: true },
   );
 
-  onScopeDispose(() => {
-    clearTimer();
-    abortController?.abort();
-  });
+  onScopeDispose(() => abortController?.abort());
 
   return { results, loading, loadingMore, error, available, hasMore, loadMore };
 }
