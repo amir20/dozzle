@@ -2,41 +2,33 @@
   <PageWithLinks>
     <section>
       <!-- Header -->
-      <div class="mb-6">
-        <div class="flex items-baseline gap-3">
-          <h2 class="text-lg font-semibold">{{ $t("cloud-search.results-page-title") }}</h2>
-          <template v-if="committedQuery">
-            <span class="text-base-content/30">/</span>
-            <span class="text-base-content font-mono text-sm">"{{ committedQuery }}"</span>
-          </template>
-          <span
-            v-if="cloudSearch.available.value"
-            class="bg-primary/15 text-primary border-primary/30 ml-auto inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs"
-          >
-            <mdi:flash class="size-3" /> {{ $t("cloud-search.hero-pill-indexed") }}
-          </span>
-        </div>
+      <div class="mb-5 flex items-center gap-3">
+        <h2 class="text-lg font-semibold">{{ $t("cloud-search.results-page-title") }}</h2>
+        <span v-if="committedQuery" class="text-base-content/70 font-mono text-sm">"{{ committedQuery }}"</span>
+        <span v-if="cloudSearch.available.value" class="status-pill status-pill-primary ml-auto">
+          <mdi:flash class="size-3" /> {{ $t("cloud-search.hero-pill-indexed") }}
+        </span>
+      </div>
 
-        <!-- Status line -->
-        <div class="text-base-content/50 mt-3 flex items-center gap-2 text-xs">
-          <template v-if="cloudSearch.loading.value">
-            <span class="loading loading-spinner loading-xs"></span>
-            <span>{{ $t("cloud-search.searching") }}</span>
-          </template>
-          <template v-else-if="cloudSearch.error.value">
-            <mdi:alert-circle-outline class="text-error size-3.5" />
-            <span>{{ $t("cloud-search.search-failed") }}</span>
-          </template>
-          <template v-else-if="committedQuery && hits.length === 0">
-            <span>{{ $t("cloud-search.no-results") }}</span>
-          </template>
-          <template v-else-if="!committedQuery">
-            <span>{{ $t("cloud-search.search-empty-prompt") }}</span>
-          </template>
-          <template v-else>
-            <span class="font-mono">{{ $t("cloud-search.hits-count", { n: hits.length }) }}</span>
-          </template>
-        </div>
+      <!-- Status line -->
+      <div class="text-base-content/70 mb-3 flex h-5 items-center gap-2 text-xs">
+        <template v-if="cloudSearch.loading.value">
+          <span class="loading loading-spinner loading-xs"></span>
+          <span>{{ $t("cloud-search.searching") }}</span>
+        </template>
+        <template v-else-if="cloudSearch.error.value">
+          <mdi:alert-circle-outline class="text-error size-3.5" />
+          <span>{{ $t("cloud-search.search-failed") }}</span>
+        </template>
+        <template v-else-if="committedQuery && hits.length === 0">
+          <span>{{ $t("cloud-search.no-results") }}</span>
+        </template>
+        <template v-else-if="!committedQuery">
+          <span>{{ $t("cloud-search.search-empty-prompt") }}</span>
+        </template>
+        <template v-else>
+          <span class="font-mono">{{ $t("cloud-search.hits-count", { n: hits.length }) }}</span>
+        </template>
       </div>
 
       <!-- Results table — matches the visual style of ContainerTable -->
@@ -44,35 +36,43 @@
         <table class="table-md md:table-lg table-zebra table">
           <thead>
             <tr>
-              <th class="w-32 text-sm uppercase">{{ $t("cloud-search.col-time") }}</th>
-              <th class="w-16 text-sm uppercase">{{ $t("cloud-search.col-level") }}</th>
-              <th class="w-1 text-sm uppercase">{{ $t("cloud-search.col-container") }}</th>
-              <th class="text-sm uppercase">{{ $t("cloud-search.col-message") }}</th>
+              <th class="text-base-content/60 w-44 text-xs font-medium tracking-wider uppercase">
+                {{ $t("cloud-search.col-time") }}
+              </th>
+              <th class="text-base-content/60 w-20 text-xs font-medium tracking-wider uppercase">
+                {{ $t("cloud-search.col-level") }}
+              </th>
+              <th class="text-base-content/60 w-1 text-xs font-medium tracking-wider uppercase">
+                {{ $t("cloud-search.col-container") }}
+              </th>
+              <th class="text-base-content/60 text-xs font-medium tracking-wider uppercase">
+                {{ $t("cloud-search.col-message") }}
+              </th>
             </tr>
           </thead>
-          <tbody class="bg-base-300/30">
+          <tbody>
             <tr
               v-for="hit in hits"
               :key="`${hit.containerId}-${hit.ts}-${hit.logId ?? 0}`"
-              class="hover:bg-base-100/80!"
-              :class="{ 'cursor-pointer': isLive(hit), 'opacity-60': !isLive(hit) }"
+              class="hover:bg-primary/5 transition-colors"
+              :class="{ 'cursor-pointer': isLive(hit) }"
               @click="isLive(hit) && openContainer(hit)"
             >
-              <td class="text-base-content/50 font-mono text-xs whitespace-nowrap">{{ formatTs(hit.ts) }}</td>
+              <td class="text-base-content/70 font-mono text-xs whitespace-nowrap tabular-nums">
+                {{ formatTs(hit.ts) }}
+              </td>
               <td>
-                <span :class="levelColor(hit.level)" class="font-mono text-xs font-semibold uppercase">
-                  {{ hit.level || "info" }}
-                </span>
+                <span class="status-pill" :class="levelPillClass(hit.level)">{{ hit.level || "info" }}</span>
               </td>
               <td class="whitespace-nowrap">
                 <span class="inline-flex items-center gap-2">
-                  <span :class="isLive(hit) ? 'text-base-content' : 'text-base-content/50'">
+                  <span :class="isLive(hit) ? 'text-base-content' : 'text-base-content/60'">
                     {{ hit.containerName }}
                   </span>
                   <span
                     v-if="!isLive(hit)"
                     :title="$t('cloud-search.container-removed')"
-                    class="badge badge-sm badge-ghost"
+                    class="status-pill status-pill-neutral"
                   >
                     {{ $t("cloud-search.container-removed-pill") }}
                   </span>
@@ -89,15 +89,15 @@
       <!-- Cloud-not-available state -->
       <div
         v-if="!cloudSearch.available.value && committedQuery"
-        class="bg-base-200 border-base-content/10 rounded-lg border p-6 text-center"
+        class="bg-base-200 border-base-content/10 rounded-box border p-8 text-center"
       >
-        <mdi:cloud-off-outline class="text-base-content/30 mx-auto mb-2 size-8" />
-        <p class="text-base-content/60 text-sm">
+        <mdi:cloud-off-outline class="text-base-content/40 mx-auto mb-3 size-10" />
+        <p class="text-base-content/80 text-sm">
           {{
             cloudConfig?.linked ? $t("cloud-search.enable-streaming-to-search") : $t("cloud-search.connect-to-enable")
           }}
         </p>
-        <RouterLink to="/settings/cloud" class="btn btn-primary btn-sm mt-3">
+        <RouterLink to="/settings/cloud" class="btn btn-primary btn-sm mt-4">
           {{ $t("settings.cloud") || "Cloud settings" }}
         </RouterLink>
       </div>
@@ -146,18 +146,18 @@ function formatTs(ns: number): string {
   return `${date} ${time}`;
 }
 
-function levelColor(level: string): string {
+function levelPillClass(level: string): string {
   switch ((level || "").toLowerCase()) {
     case "error":
     case "fatal":
-      return "text-error";
+      return "status-pill-error";
     case "warn":
     case "warning":
-      return "text-warning";
+      return "status-pill-warning";
     case "info":
-      return "text-info";
+      return "status-pill-primary";
     default:
-      return "text-base-content/50";
+      return "status-pill-neutral";
   }
 }
 
@@ -168,7 +168,7 @@ function highlight(message: string, q: string): string {
   if (!q) return escapeHtml(message);
   const pattern = q.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
   const re = new RegExp(`(${pattern})`, "gi");
-  return escapeHtml(message).replace(re, '<mark class="bg-warning/30 text-warning rounded px-0.5">$1</mark>');
+  return escapeHtml(message).replace(re, '<mark class="bg-warning text-warning-content rounded px-0.5">$1</mark>');
 }
 
 function escapeHtml(s: string): string {

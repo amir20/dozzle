@@ -214,3 +214,6 @@ body {
 .status-pill-warning {
   @apply text-warning border-warning/30 bg-warning/10;
 }
+.status-pill-error {
+  @apply text-error border-error/30 bg-error/10;
+}
