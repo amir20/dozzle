@@ -46,10 +46,12 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Cloud caps server-side at 50; mirror it here so a misbehaving client
-	// can't tie up the keystroke path with an oversized request.
+	// can't tie up the keystroke path with an oversized request. ParseInt
+	// with bitSize=32 guarantees the value fits in int32, so the cast is
+	// provably safe (out-of-range parses return an error and fall through).
 	limit := int32(20)
 	if v := r.URL.Query().Get("limit"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+		if n, err := strconv.ParseInt(v, 10, 32); err == nil && n > 0 {
 			if n > 50 {
 				n = 50
 			}
