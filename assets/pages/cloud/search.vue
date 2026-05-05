@@ -80,7 +80,13 @@
                 </span>
               </td>
               <td>
-                <span class="font-mono text-xs" v-html="highlight(hit.message, committedQuery)"></span>
+                <JsonFormatted
+                  v-if="isJson(hit.message)"
+                  :value="hit.message"
+                  :highlight="committedQuery"
+                  class="text-xs"
+                />
+                <span v-else class="font-mono text-xs" v-html="highlight(hit.message, committedQuery)"></span>
               </td>
             </tr>
           </tbody>
@@ -192,6 +198,17 @@ function escapeHtml(s: string): string {
     /[&<>"']/g,
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
   );
+}
+
+function isJson(message: string): boolean {
+  const trimmed = message.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return false;
+  try {
+    const parsed = JSON.parse(trimmed);
+    return parsed !== null && typeof parsed === "object";
+  } catch {
+    return false;
+  }
 }
 
 function openContainer(hit: CloudLogHit) {

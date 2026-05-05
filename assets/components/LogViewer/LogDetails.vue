@@ -37,7 +37,7 @@
         </UseClipboard>
       </div>
       <div class="bg-base-200 max-h-125 overflow-scroll rounded-sm border border-white/20 p-2">
-        <pre v-html="syntaxHighlight(entry.rawMessage)"></pre>
+        <JsonFormatted :value="entry.rawMessage" class="text-sm" />
       </div>
     </section>
     <table class="table-pin-rows table table-fixed" v-if="entry instanceof ComplexLogEntry">
@@ -142,28 +142,6 @@ const toggleAllFields = computed({
   },
 });
 
-function syntaxHighlight(json: string) {
-  json = JSON.stringify(JSON.parse(json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")), null, 2);
-  return json.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|\b\d+\b)/g,
-    function (match: string) {
-      var cls = "json-number";
-      if (match.startsWith('"')) {
-        if (match.endsWith(":")) {
-          cls = "json-key";
-        } else {
-          cls = "json-string";
-        }
-      } else if (/true|false/.test(match)) {
-        cls = "json-boolean";
-      } else if (/null/.test(match)) {
-        cls = "json-null";
-      }
-      return `<span class="${cls}">${match}</span>`;
-    },
-  );
-}
-
 useSortable(list, fields);
 </script>
 <style scoped>
@@ -178,23 +156,5 @@ useSortable(list, fields);
     monaco,
     Menlo,
     monospace;
-}
-
-pre {
-  & :deep(.json-key) {
-    @apply text-blue;
-  }
-  & :deep(.json-string) {
-    @apply text-green;
-  }
-  & :deep(.json-number) {
-    @apply text-orange;
-  }
-  & :deep(.json-boolean) {
-    @apply text-purple;
-  }
-  & :deep(.json-null) {
-    @apply text-red;
-  }
 }
 </style>
