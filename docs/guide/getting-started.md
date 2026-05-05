@@ -9,7 +9,7 @@ Dozzle supports multiple ways to run the application. You can run it using Docke
 > [!TIP]
 > If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
 
-## Standalone Docker
+## <Icon icon="mdi:docker" inline /> Standalone Docker
 
 The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
 
@@ -63,7 +63,7 @@ volumes:
 > [!WARNING]
 > Mounting `docker.sock` gives Dozzle root-equivalent access to the host. If you plan to expose Dozzle beyond your private network, read [Security Considerations](/guide/authentication#security-considerations) first.
 
-## Docker Swarm
+## <Icon icon="mdi:hexagon-multiple-outline" inline /> Docker Swarm
 
 Dozzle supports running in Swarm mode by deploying it on every node. To run Dozzle in Swarm mode, you can use the following configuration:
 
@@ -95,7 +95,7 @@ docker stack deploy -c dozzle-stack.yml <name>
 
 See [swarm mode](/guide/swarm-mode) for more information.
 
-## K8s <Badge type="tip" text="New" />
+## <Icon icon="mdi:kubernetes" inline /> K8s <Badge type="tip" text="New" />
 
 Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster. You'll need to set `DOZZLE_MODE=k8s` and configure RBAC for pod log access.
 

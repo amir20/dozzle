@@ -11,7 +11,7 @@ Dozzle can run in agent mode which can expose Docker hosts to other Dozzle insta
 > [!NOTE] Using Docker Swarm?
 > If you are using Docker Swarm Mode, you don't need to use agents. Dozzle will automatically discover itself and create a cluster using swarm mode. See [Swarm Mode](/guide/swarm-mode) for more information.
 
-## How to Create an Agent
+## <Icon icon="mdi:plus-box-outline" inline /> How to Create an Agent
 
 To create a Dozzle agent, you need to run Dozzle with the `agent` subcommand. Here is an example:
 
@@ -42,7 +42,7 @@ The agent will start and listen on port `7007`. You can connect to the agent usi
 > [!TIP]
 > You don't need to expose port 7007 if using Docker network. The agent will be available to other containers on the same network.
 
-## How to Connect to an Agent
+## <Icon icon="mdi:connection" inline /> How to Connect to an Agent
 
 To connect to an agent, you need to provide the agent's IP address and port. Here is an example:
 
@@ -72,18 +72,18 @@ Note that it is not necessary to mount the local Docker socket when connecting t
 > [!TIP]
 > You can connect to multiple agents by providing multiple `DOZZLE_REMOTE_AGENT` environment variables. For example, `DOZZLE_REMOTE_AGENT=agent1:7007,agent2:7007`.
 
-## Host Groups
+## <Icon icon="mdi:group" inline /> Host Groups
 
 When managing many agents across different environments, you can assign each agent to a named group. Groups appear as collapsible sections in the sidebar, and each group has a "merge all" button to view combined logs from every host in the group.
 
 The connection string format is `endpoint|name|group` — all three parts are optional:
 
-| Format | Result |
-|--------|--------|
-| `agent:7007` | No name override, no group |
-| `agent:7007\|web-1` | Name override, no group |
-| `agent:7007\|web-1\|Production` | Name override + group |
-| `agent:7007\|\|Production` | Default hostname + group |
+| Format                          | Result                     |
+| ------------------------------- | -------------------------- |
+| `agent:7007`                    | No name override, no group |
+| `agent:7007\|web-1`             | Name override, no group    |
+| `agent:7007\|web-1\|Production` | Name override + group      |
+| `agent:7007\|\|Production`      | Default hostname + group   |
 
 ::: code-group
 
@@ -121,7 +121,7 @@ Clicking the merge icon next to a group name opens a combined log view streaming
 
 Agents without a group continue to work exactly as before and appear below grouped sections.
 
-## Common Issues
+## <Icon icon="mdi:alert-circle-outline" inline /> Common Issues
 
 ### Agent Not Showing Up
 
@@ -133,7 +133,7 @@ If you are operating in a Swarm environment, the node ID will be employed for th
 
 To resolve this issue, you should remove `/var/lib/docker/engine-id` from your system and restart. This action will help eliminate any conflicts caused by duplicate host IDs. For additional information and troubleshooting tips, please refer to the [FAQ](/guide/faq#i-am-seeing-duplicate-hosts-error-in-the-logs-how-do-i-fix-it).
 
-## Advanced Options
+## <Icon icon="mdi:cog-outline" inline /> Advanced Options
 
 ### Setting Up Healthcheck
 
@@ -283,7 +283,7 @@ $ openssl req -new -key key.pem -out request.csr -subj "/C=US/ST=California/L=Sa
 $ openssl x509 -req -in request.csr -signkey key.pem -out cert.pem -days 365
 ```
 
-## Comparing Agents with Remote Connection
+## <Icon icon="mdi:compare-horizontal" inline /> Comparing Agents with Remote Connection
 
 Agents are similar to remote connections, but they have some advantages. Generally, agents are preferred over remote connections due to performance and security reasons. Here is a comparison:
 

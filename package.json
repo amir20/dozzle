@@ -86,6 +86,7 @@
     "@iconify-json/material-symbols-light": "^1.2.69",
     "@iconify-json/ri": "^1.2.10",
     "@iconify-json/svg-spinners": "^1.2.4",
+    "@iconify/vue": "^5.0.0",
     "@pinia/testing": "^1.0.3",
     "@playwright/test": "^1.59.1",
     "@types/lodash.debounce": "^4.0.9",
