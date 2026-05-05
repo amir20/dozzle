@@ -19,6 +19,10 @@ async function fetchCloudConfig() {
   }
 }
 
+// Loaded once at module import (i.e. app boot). Every consumer reads the
+// shared `cloudConfig` ref — no per-component fetch.
+const initialLoad = fetchCloudConfig();
+
 async function fetchCloudStatus() {
   if (!cloudConfig.value?.linked) return;
   isLoadingCloudStatus.value = true;
@@ -49,6 +53,7 @@ export function useCloudConfig() {
     cloudStatus,
     cloudStatusError,
     isLoadingCloudStatus,
+    initialLoad,
     fetchCloudConfig,
     fetchCloudStatus,
     clearCloudState,

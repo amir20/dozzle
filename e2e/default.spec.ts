@@ -19,7 +19,7 @@ test("click on settings button", async ({ page }) => {
 
 test("shortcut for fuzzy search", async ({ page }) => {
   await page.locator("body").press("Control+k");
-  await expect(page.locator(".modal").getByPlaceholder("Search containers (⌘ + k, ⌃k)")).toBeVisible();
+  await expect(page.locator(".modal").getByPlaceholder("Search containers…")).toBeVisible();
 });
 
 test("route by name", async ({ page }) => {

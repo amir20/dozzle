@@ -122,17 +122,14 @@ cloud-search:
   open-container: open container
   search-logs-shortcut: search logs
   cloud-connected: Cloud connected
-  cloud-connected-indexing: Cloud connected · log index ready
   results-page-title: Logs search
-  query-placeholder: Search logs across all containers
   no-results: No matching log lines.
   search-failed: Cloud search failed.
   search-empty-prompt: Type a query to search logs across your containers.
+  searching: Searching…
+  hits-count: "{n} hits"
   hero-title-cloud: Search containers and logs
   hero-title-plain: Search containers
-  hero-sub-cloud: Find any container, or search log lines across your stack
-  hero-sub-streaming-off: Enable Stream Logs to Cloud in settings to also search log lines
-  hero-sub-not-connected: Connect Dozzle Cloud to also search log lines across containers
   hero-pill-indexed: Cloud index
   modal-placeholder-cloud: Search containers and logs…
   modal-placeholder-plain: Search containers…

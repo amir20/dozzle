@@ -21,7 +21,7 @@
         <div class="text-base-content/50 mt-3 flex items-center gap-2 text-xs">
           <template v-if="cloudSearch.loading.value">
             <span class="loading loading-spinner loading-xs"></span>
-            <span>Searching…</span>
+            <span>{{ $t("cloud-search.searching") }}</span>
           </template>
           <template v-else-if="cloudSearch.error.value">
             <mdi:alert-circle-outline class="text-error size-3.5" />
@@ -34,7 +34,7 @@
             <span>{{ $t("cloud-search.search-empty-prompt") }}</span>
           </template>
           <template v-else>
-            <span class="font-mono">{{ hits.length }} hits</span>
+            <span class="font-mono">{{ $t("cloud-search.hits-count", { n: hits.length }) }}</span>
           </template>
         </div>
       </div>
@@ -112,7 +112,11 @@ import { useCloudLogSearch, type CloudLogHit } from "@/composable/cloudLogSearch
 const route = useRoute();
 const router = useRouter();
 
-const committedQuery = ref((route.query.q as string) || "");
+function readQ(q: unknown): string {
+  return typeof q === "string" ? q : "";
+}
+
+const committedQuery = ref(readQ(route.query.q));
 
 const { cloudConfig } = useCloudConfig();
 const cloudSearch = useCloudLogSearch(committedQuery);
@@ -131,7 +135,7 @@ function isLive(hit: CloudLogHit): boolean {
 watch(
   () => route.query.q,
   (q) => {
-    committedQuery.value = (q as string) || "";
+    committedQuery.value = readQ(q);
   },
 );
 
@@ -155,6 +159,9 @@ function levelColor(level: string): string {
   }
 }
 
+// Safe with v-html: escapeHtml runs first, then <mark> tags are added against
+// a regex anchored on the (already-escaped) needle. Don't drop the escape
+// thinking it's redundant — the message comes from indexed log content.
 function highlight(message: string, q: string): string {
   if (!q) return escapeHtml(message);
   const pattern = q.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");

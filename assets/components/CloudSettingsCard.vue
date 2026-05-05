@@ -140,7 +140,7 @@ const {
   cloudStatus,
   cloudStatusError,
   isLoadingCloudStatus,
-  fetchCloudConfig,
+  initialLoad,
   fetchCloudStatus,
   clearCloudState,
 } = useCloudConfig();
@@ -199,7 +199,7 @@ async function doUnlink() {
 }
 
 onMounted(async () => {
-  await fetchCloudConfig();
+  await initialLoad;
   if (cloudConfig.value?.linked) {
     fetchCloudStatus();
   }

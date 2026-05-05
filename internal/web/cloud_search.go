@@ -41,9 +41,18 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := r.URL.Query().Get("q")
+	if q == "" {
+		writeError(w, http.StatusBadRequest, "missing q")
+		return
+	}
+	// Cloud caps server-side at 50; mirror it here so a misbehaving client
+	// can't tie up the keystroke path with an oversized request.
 	limit := int32(20)
 	if v := r.URL.Query().Get("limit"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			if n > 50 {
+				n = 50
+			}
 			limit = int32(n)
 		}
 	}
