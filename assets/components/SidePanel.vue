@@ -9,17 +9,6 @@
       <small class="mt-4 block text-sm font-light" v-if="hostname">{{ hostname }}</small>
     </h1>
 
-    <button
-      class="input input-sm hover:border-primary mt-2 inline-flex w-auto cursor-pointer items-center gap-2 self-start font-light"
-      @click="$emit('search')"
-      :title="$t('tooltip.search')"
-      data-testid="search"
-    >
-      <mdi:magnify />
-      {{ $t("placeholder.search") }}
-      <key-shortcut char="k" class="text-base-content/70"></key-shortcut>
-    </button>
-
     <SideMenu class="flex-1" />
   </aside>
 </template>
