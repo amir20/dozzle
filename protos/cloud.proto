@@ -272,7 +272,7 @@ message SearchLogHit {
   string host_id = 2;
   string container_id = 3;
   string container_name = 4;
-  // Log line, truncated server-side to 500 runes for transport hygiene.
+  // Full log line as indexed.
   string message = 5;
   string stream = 6;
   string level = 7;

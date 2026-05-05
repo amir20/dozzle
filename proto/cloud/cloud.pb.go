@@ -2075,7 +2075,7 @@ type SearchLogHit struct {
 	HostId        string                 `protobuf:"bytes,2,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
 	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
 	ContainerName string                 `protobuf:"bytes,4,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
-	// Log line, truncated server-side to 500 runes for transport hygiene.
+	// Full log line as indexed.
 	Message string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
 	Stream  string `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
 	Level   string `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`
