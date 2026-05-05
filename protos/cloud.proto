@@ -51,6 +51,12 @@ message LogBatchEntry {
   string message = 5;
   string stream = 6;           // "stdout" or "stderr"
   string level = 7;            // "info", "warn", "error", etc. (best-effort)
+  // Deterministic FNV-32a hash of the raw log line, the same id Dozzle
+  // stamps on LogEvent.Id. Cloud indexes this as a non-stream field so
+  // search results can produce a stable permanent link
+  // (/container/:id/time/:datetime?logId=...) that lands the user on
+  // exactly the matching line in the local log viewer.
+  uint32 log_id = 8;
 }
 
 message ListToolsRequest {}
@@ -270,4 +276,8 @@ message SearchLogHit {
   string message = 5;
   string stream = 6;
   string level = 7;
+  // FNV-32a hash of the raw log line — same id Dozzle assigns LogEvent.Id
+  // and exposes via "Copy permalink". Lets the search-result row deep-link
+  // straight to the matching line.
+  uint32 log_id = 8;
 }

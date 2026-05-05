@@ -353,6 +353,12 @@ type LogBatchEntry struct {
 	Message       string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
 	Stream        string                 `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"` // "stdout" or "stderr"
 	Level         string                 `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`   // "info", "warn", "error", etc. (best-effort)
+	// Deterministic FNV-32a hash of the raw log line, the same id Dozzle
+	// stamps on LogEvent.Id. Cloud indexes this as a non-stream field so
+	// search results can produce a stable permanent link
+	// (/container/:id/time/:datetime?logId=...) that lands the user on
+	// exactly the matching line in the local log viewer.
+	LogId         uint32 `protobuf:"varint,8,opt,name=log_id,json=logId,proto3" json:"log_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -434,6 +440,13 @@ func (x *LogBatchEntry) GetLevel() string {
 		return x.Level
 	}
 	return ""
+}
+
+func (x *LogBatchEntry) GetLogId() uint32 {
+	if x != nil {
+		return x.LogId
+	}
+	return 0
 }
 
 type ListToolsRequest struct {
@@ -2063,9 +2076,13 @@ type SearchLogHit struct {
 	ContainerId   string                 `protobuf:"bytes,3,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
 	ContainerName string                 `protobuf:"bytes,4,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
 	// Log line, truncated server-side to 500 runes for transport hygiene.
-	Message       string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
-	Stream        string `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
-	Level         string `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`
+	Message string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	Stream  string `protobuf:"bytes,6,opt,name=stream,proto3" json:"stream,omitempty"`
+	Level   string `protobuf:"bytes,7,opt,name=level,proto3" json:"level,omitempty"`
+	// FNV-32a hash of the raw log line — same id Dozzle assigns LogEvent.Id
+	// and exposes via "Copy permalink". Lets the search-result row deep-link
+	// straight to the matching line.
+	LogId         uint32 `protobuf:"varint,8,opt,name=log_id,json=logId,proto3" json:"log_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2149,6 +2166,13 @@ func (x *SearchLogHit) GetLevel() string {
 	return ""
 }
 
+func (x *SearchLogHit) GetLogId() uint32 {
+	if x != nil {
+		return x.LogId
+	}
+	return 0
+}
+
 var File_cloud_proto protoreflect.FileDescriptor
 
 const file_cloud_proto_rawDesc = "" +
@@ -2171,7 +2195,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\tlog_batch\x18\x04 \x01(\v2\x0f.cloud.LogBatchH\x00R\blogBatchB\x06\n" +
 	"\x04type\":\n" +
 	"\bLogBatch\x12.\n" +
-	"\aentries\x18\x01 \x03(\v2\x14.cloud.LogBatchEntryR\aentries\"\xdd\x01\n" +
+	"\aentries\x18\x01 \x03(\v2\x14.cloud.LogBatchEntryR\aentries\"\xf4\x01\n" +
 	"\rLogBatchEntry\x12\x17\n" +
 	"\ahost_id\x18\x01 \x01(\tR\x06hostId\x12!\n" +
 	"\fcontainer_id\x18\x02 \x01(\tR\vcontainerId\x12%\n" +
@@ -2179,7 +2203,8 @@ const file_cloud_proto_rawDesc = "" +
 	"\ftimestamp_ns\x18\x04 \x01(\x03R\vtimestampNs\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
 	"\x06stream\x18\x06 \x01(\tR\x06stream\x12\x14\n" +
-	"\x05level\x18\a \x01(\tR\x05level\"\x12\n" +
+	"\x05level\x18\a \x01(\tR\x05level\x12\x15\n" +
+	"\x06log_id\x18\b \x01(\rR\x05logId\"\x12\n" +
 	"\x10ListToolsRequest\"Z\n" +
 	"\x11ListToolsResponse\x12+\n" +
 	"\x05tools\x18\x01 \x03(\v2\x15.cloud.ToolDefinitionR\x05tools\x12\x18\n" +
@@ -2318,7 +2343,7 @@ const file_cloud_proto_rawDesc = "" +
 	"\x12SearchLogsResponse\x12'\n" +
 	"\x04hits\x18\x01 \x03(\v2\x13.cloud.SearchLogHitR\x04hits\x12\x19\n" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\x12)\n" +
-	"\x11next_before_ts_ns\x18\x03 \x01(\x03R\x0enextBeforeTsNs\"\xdc\x01\n" +
+	"\x11next_before_ts_ns\x18\x03 \x01(\x03R\x0enextBeforeTsNs\"\xf3\x01\n" +
 	"\fSearchLogHit\x12!\n" +
 	"\ftimestamp_ns\x18\x01 \x01(\x03R\vtimestampNs\x12\x17\n" +
 	"\ahost_id\x18\x02 \x01(\tR\x06hostId\x12!\n" +
@@ -2326,7 +2351,8 @@ const file_cloud_proto_rawDesc = "" +
 	"\x0econtainer_name\x18\x04 \x01(\tR\rcontainerName\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12\x16\n" +
 	"\x06stream\x18\x06 \x01(\tR\x06stream\x12\x14\n" +
-	"\x05level\x18\a \x01(\tR\x05level*o\n" +
+	"\x05level\x18\a \x01(\tR\x05level\x12\x15\n" +
+	"\x06log_id\x18\b \x01(\rR\x05logId*o\n" +
 	"\tToolScope\x12\x1a\n" +
 	"\x16TOOL_SCOPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13TOOL_SCOPE_INSTANCE\x10\x01\x12\x13\n" +

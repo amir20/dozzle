@@ -39,21 +39,51 @@
         </div>
       </div>
 
-      <!-- Results list -->
-      <div v-if="hits.length" class="bg-base-100 border-base-content/10 overflow-hidden rounded-lg border">
-        <div
-          v-for="(hit, i) in hits"
-          :key="i"
-          class="border-base-content/5 hover:bg-base-200/50 grid cursor-pointer grid-cols-[8rem_4rem_1fr] gap-3 border-b px-4 py-2 font-mono text-xs last:border-b-0"
-          @click="openContainer(hit)"
-        >
-          <span class="text-base-content/40">{{ formatTs(hit.ts) }}</span>
-          <span :class="levelColor(hit.level)" class="font-semibold uppercase">{{ hit.level || "info" }}</span>
-          <div class="flex min-w-0 items-baseline gap-2">
-            <span class="text-base-content/60 shrink-0">{{ hit.containerName }}</span>
-            <span class="text-base-content truncate" v-html="highlight(hit.message, committedQuery)"></span>
-          </div>
-        </div>
+      <!-- Results table — matches the visual style of ContainerTable -->
+      <div v-if="hits.length" class="rounded-box border-base-content/10 overflow-x-auto border">
+        <table class="table-md md:table-lg table-zebra table">
+          <thead>
+            <tr>
+              <th class="w-32 text-sm uppercase">{{ $t("cloud-search.col-time") }}</th>
+              <th class="w-16 text-sm uppercase">{{ $t("cloud-search.col-level") }}</th>
+              <th class="w-1 text-sm uppercase">{{ $t("cloud-search.col-container") }}</th>
+              <th class="text-sm uppercase">{{ $t("cloud-search.col-message") }}</th>
+            </tr>
+          </thead>
+          <tbody class="bg-base-300/30">
+            <tr
+              v-for="(hit, i) in hits"
+              :key="i"
+              class="hover:bg-base-100/80!"
+              :class="{ 'cursor-pointer': isLive(hit), 'opacity-60': !isLive(hit) }"
+              @click="isLive(hit) && openContainer(hit)"
+            >
+              <td class="text-base-content/50 font-mono text-xs whitespace-nowrap">{{ formatTs(hit.ts) }}</td>
+              <td>
+                <span :class="levelColor(hit.level)" class="font-mono text-xs font-semibold uppercase">
+                  {{ hit.level || "info" }}
+                </span>
+              </td>
+              <td class="whitespace-nowrap">
+                <span class="inline-flex items-center gap-2">
+                  <span :class="isLive(hit) ? 'text-base-content' : 'text-base-content/50'">
+                    {{ hit.containerName }}
+                  </span>
+                  <span
+                    v-if="!isLive(hit)"
+                    :title="$t('cloud-search.container-removed')"
+                    class="badge badge-sm badge-ghost"
+                  >
+                    {{ $t("cloud-search.container-removed-pill") }}
+                  </span>
+                </span>
+              </td>
+              <td>
+                <span class="font-mono text-xs" v-html="highlight(hit.message, committedQuery)"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Cloud-not-available state -->
@@ -87,6 +117,16 @@ const committedQuery = ref((route.query.q as string) || "");
 const { cloudConfig } = useCloudConfig();
 const cloudSearch = useCloudLogSearch(committedQuery);
 const hits = computed<CloudLogHit[]>(() => cloudSearch.results.value);
+
+// Look up containers in the live store so we can mark hits whose containers
+// have been removed (or never existed for this Dozzle instance) as
+// non-clickable. Reactive — if a container is removed mid-session, the
+// corresponding row updates instantly.
+const containerStore = useContainerStore();
+const liveIds = computed(() => new Set(Object.keys(containerStore.allContainersById)));
+function isLive(hit: CloudLogHit): boolean {
+  return liveIds.value.has(hit.containerId);
+}
 
 watch(
   () => route.query.q,
@@ -130,10 +170,21 @@ function escapeHtml(s: string): string {
 }
 
 function openContainer(hit: CloudLogHit) {
+  // Match Dozzle's permanent-link route: /container/:id/time/:datetime?logId=...
+  // hit.ts is unix nanoseconds; convert to ms then ISO 8601 with millis.
+  const datetime = new Date(hit.ts / 1e6).toISOString();
+  const query: Record<string, string> = {};
+  if (hit.logId !== undefined && hit.logId !== 0) {
+    // logId pinpoints the exact line; the historical-logs view scrolls to it.
+    query.logId = String(hit.logId);
+  }
+  if (committedQuery.value) {
+    query.q = committedQuery.value;
+  }
   router.push({
-    name: "/container/[id]",
-    params: { id: hit.containerId },
-    query: { q: committedQuery.value, t: String(hit.ts) },
+    name: "/container/[id].time.[datetime]",
+    params: { id: hit.containerId, datetime },
+    query,
   });
 }
 </script>

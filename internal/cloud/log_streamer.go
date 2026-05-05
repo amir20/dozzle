@@ -207,6 +207,7 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 				Message:       msg,
 				Stream:        ev.Stream,
 				Level:         level,
+				LogId:         ev.Id,
 			})
 			batchBytes += len(msg)
 

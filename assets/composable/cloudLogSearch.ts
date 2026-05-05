@@ -8,6 +8,10 @@ export interface CloudLogHit {
   message: string;
   stream: string;
   level: string;
+  // Dozzle's deterministic FNV-32a id for the raw log line — used to deep-link
+  // to the exact line in the local log viewer. Optional: pre-indexing logs
+  // (or older Dozzle clients) won't have it.
+  logId?: number;
 }
 
 interface CloudLogSearchResponse {
@@ -42,9 +46,7 @@ export function useCloudLogSearch(query: Ref<string>) {
   const loading = ref(false);
   const error = ref<Error | null>(null);
 
-  const available = computed(
-    () => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs,
-  );
+  const available = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
 
   let abortController: AbortController | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;

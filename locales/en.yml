@@ -136,6 +136,12 @@ cloud-search:
   hero-pill-indexed: Cloud index
   modal-placeholder-cloud: Search containers and logs…
   modal-placeholder-plain: Search containers…
+  col-time: Time
+  col-level: Level
+  col-container: Container
+  col-message: Message
+  container-removed: Container has been deleted
+  container-removed-pill: removed
 settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
