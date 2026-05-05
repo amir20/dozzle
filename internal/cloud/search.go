@@ -33,6 +33,10 @@ type SearchLogHit struct {
 	Message       string `json:"message"`
 	Stream        string `json:"stream"`
 	Level         string `json:"level"`
+	// LogID is Dozzle's FNV-32a hash of the original line. Lets the UI
+	// build deep-links matching "Copy permalink" output. Omitted when the
+	// row predates indexing (older Dozzle clients sent 0).
+	LogID uint32 `json:"logId,omitempty"`
 }
 
 // ErrNotConfigured is returned when SearchLogs is called but no Cloud API key
@@ -95,6 +99,7 @@ func (c *Client) SearchLogs(ctx context.Context, query string, limit int32, host
 			Message:       h.GetMessage(),
 			Stream:        h.GetStream(),
 			Level:         h.GetLevel(),
+			LogID:         h.GetLogId(),
 		})
 	}
 	return &SearchLogResult{Hits: hits, HasMore: resp.GetHasMore()}, nil
