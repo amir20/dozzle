@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -52,6 +53,10 @@ type Config struct {
 	Labels           container.ContainerLabels
 	OnCloudSetup     func()
 	OnCloudUpdate    func()
+	// CloudSearchLogs proxies a substring/word-filter query to Doligence
+	// Cloud over the existing authenticated gRPC connection. Nil when
+	// cloud is not wired (tests / self-hosted-without-cloud builds).
+	CloudSearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string) (*cloud.SearchLogResult, error)
 }
 
 type Authorization struct {
@@ -192,6 +197,7 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
+				r.Get("/cloud/search/logs", h.cloudSearchLogs)
 				r.Get("/cloud/config", h.cloudConfig)
 				r.Patch("/cloud/config", h.updateCloudConfig)
 				r.Delete("/cloud/config", h.deleteCloudConfig)
