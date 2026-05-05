@@ -107,8 +107,32 @@ placeholder:
   search-containers: Buscar contenedores (⌘ + K, CTRL + K)
   search: Buscar
 cloud-search:
-  hero-title-plain: Buscar contenedores
-  hero-title-cloud: Buscar contenedores y logs
+  containers-section: "Contenedores"
+  search-logs-for: "Buscar logs por \"{query}\""
+  across-containers: "indexados en todos tus contenedores"
+  connect-to-enable: "Conecta Dozzle Cloud para buscar logs"
+  enable-streaming-to-search: "Activa el streaming de logs a Cloud"
+  open-container: "abrir contenedor"
+  search-logs-shortcut: "buscar logs"
+  cloud-connected: "Cloud conectado"
+  results-page-title: "Búsqueda de logs"
+  no-results: "No hay líneas de log coincidentes."
+  search-failed: "La búsqueda en Cloud falló."
+  search-empty-prompt: "Escribe una consulta para buscar en los logs."
+  searching: "Buscando…"
+  hits-count: "{n} resultados"
+  window-suffix: "en los últimos 14 días"
+  hero-title-cloud: "Buscar contenedores y logs"
+  hero-title-plain: "Buscar contenedores"
+  hero-pill-indexed: "Índice Cloud"
+  modal-placeholder-cloud: "Buscar contenedores y logs…"
+  modal-placeholder-plain: "Buscar contenedores…"
+  col-time: "Hora"
+  col-level: "Nivel"
+  col-container: "Contenedor"
+  col-message: "Mensaje"
+  container-removed: "El contenedor ha sido eliminado"
+  container-removed-pill: "eliminado"
 settings:
   help-support: >
     Por favor, apoya a Dozzle donando o patrocinándonos en GitHub. Tus contribuciones nos ayudan a mejorar Dozzle para todos. ¡Gracias! 🙏🏼
