@@ -129,7 +129,6 @@ cloud-search:
   searching: Searching…
   hits-count: "{n} hits"
   window-suffix: in the last 14 days
-  load-more: Load older results
   hero-title-cloud: Search containers and logs
   hero-title-plain: Search containers
   hero-pill-indexed: Cloud index

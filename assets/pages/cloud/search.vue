@@ -87,15 +87,15 @@
         </table>
       </div>
 
-      <div v-if="hits.length && cloudSearch.hasMore.value" class="mt-4 flex justify-center">
-        <button
-          class="btn btn-sm"
-          :class="{ 'btn-disabled': cloudSearch.loadingMore.value }"
-          @click="cloudSearch.loadMore()"
-        >
-          <span v-if="cloudSearch.loadingMore.value" class="loading loading-spinner loading-xs"></span>
-          {{ $t("cloud-search.load-more") }}
-        </button>
+      <!-- Infinite-scroll sentinel: loadMore fires as it enters the viewport.
+           Cursor-based pagination can't jump to a page anyway, so an explicit
+           "Next" button would be misleading; scroll fits the model. -->
+      <div
+        v-if="hits.length && cloudSearch.hasMore.value"
+        ref="sentinel"
+        class="text-base-content/60 mt-4 flex h-10 items-center justify-center text-xs"
+      >
+        <span v-if="cloudSearch.loadingMore.value" class="loading loading-spinner loading-xs"></span>
       </div>
 
       <!-- Cloud-not-available state -->
@@ -143,6 +143,18 @@ const liveIds = computed(() => new Set(Object.keys(containerStore.allContainersB
 function isLive(hit: CloudLogHit): boolean {
   return liveIds.value.has(hit.containerId);
 }
+
+// Infinite scroll: when the sentinel enters the viewport, fetch the next
+// page. rootMargin pre-loads ~200px before the user reaches the bottom so
+// the page feels seamless. Composable guards against re-entry.
+const sentinel = ref<HTMLElement>();
+useIntersectionObserver(
+  sentinel,
+  ([entry]) => {
+    if (entry.isIntersecting) cloudSearch.loadMore();
+  },
+  { rootMargin: "200px" },
+);
 
 watch(
   () => route.query.q,
