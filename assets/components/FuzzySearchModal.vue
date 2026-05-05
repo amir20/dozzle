@@ -131,18 +131,21 @@
         {{ $t("cloud-search.search-logs-shortcut") }}
       </span>
 
-      <!-- Cloud status — shown unconditionally on the right -->
-      <span v-if="cloudSearch.available.value" class="text-primary ml-auto flex items-center gap-1">
-        <mdi:cloud-check-outline class="size-3" /> {{ $t("cloud-search.cloud-connected-indexing") }}
+      <!-- Cloud status — muted text with mint cloud icon to match the design.
+           Stays in the same color band as the kbd hints so it doesn't fight
+           the "Search logs for X" CTA above. -->
+      <span v-if="cloudSearch.available.value" class="ml-auto flex items-center gap-1.5">
+        <mdi:cloud-check-outline class="text-primary size-3.5" />
+        {{ $t("cloud-search.cloud-connected") }}
       </span>
-      <span v-else-if="cloudConfig?.linked" class="ml-auto flex items-center gap-1">
-        <mdi:cloud-off-outline class="size-3" />
+      <span v-else-if="cloudConfig?.linked" class="ml-auto flex items-center gap-1.5">
+        <mdi:cloud-off-outline class="size-3.5" />
         <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
           {{ $t("cloud-search.enable-streaming-to-search") }}
         </RouterLink>
       </span>
-      <span v-else class="ml-auto flex items-center gap-1">
-        <mdi:cloud-off-outline class="size-3" />
+      <span v-else class="ml-auto flex items-center gap-1.5">
+        <mdi:cloud-off-outline class="size-3.5" />
         <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
           {{ $t("cloud-search.connect-to-enable") }}
         </RouterLink>
