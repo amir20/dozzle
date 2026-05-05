@@ -6,7 +6,10 @@
     @click="openSearch"
   >
     <mdi:magnify class="size-4 shrink-0" :class="cloudReady ? 'text-primary' : 'text-base-content/60'" />
-    <span class="text-base-content/60 truncate text-sm">
+    <!-- Show the active query when we're on the cloud search page so the
+         topbar reflects what the user is looking at. -->
+    <span v-if="activeQuery" class="text-base-content truncate font-mono text-sm">{{ activeQuery }}</span>
+    <span v-else class="text-base-content/60 truncate text-sm">
       <template v-if="cloudReady">{{ $t("cloud-search.hero-title-cloud") }}</template>
       <template v-else>{{ $t("cloud-search.hero-title-plain") }}</template>
     </span>
@@ -24,4 +27,9 @@ import { useCloudConfig } from "@/composable/cloudConfig";
 const { openSearch } = useFuzzySearch();
 const { cloudConfig } = useCloudConfig();
 const cloudReady = computed(() => !!cloudConfig.value?.linked && !!cloudConfig.value?.streamLogs);
+
+const route = useRoute();
+const activeQuery = computed(() =>
+  route?.path === "/cloud/search" && typeof route.query?.q === "string" ? route.query.q : "",
+);
 </script>
