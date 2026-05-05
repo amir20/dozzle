@@ -141,10 +141,9 @@ watch(
 
 function formatTs(ns: number): string {
   const d = new Date(ns / 1e6);
+  const date = d.toLocaleDateString([], { month: "short", day: "numeric" });
   const time = d.toLocaleTimeString([], { hour12: false }) + "." + String(d.getMilliseconds()).padStart(3, "0");
-  const now = new Date();
-  if (d.toDateString() === now.toDateString()) return time;
-  return d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + time;
+  return `${date} ${time}`;
 }
 
 function levelColor(level: string): string {

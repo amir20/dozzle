@@ -2,7 +2,6 @@
   <button
     type="button"
     class="bg-base-200 border-base-content/15 hover:border-primary/50 hover:bg-base-200/80 flex h-9 w-full items-center gap-2 rounded-md border px-3 text-left transition-colors"
-    :title="$t('placeholder.search-containers')"
     @click="openSearch"
   >
     <mdi:magnify class="size-4 shrink-0" :class="cloudReady ? 'text-primary' : 'text-base-content/60'" />

@@ -22,7 +22,7 @@
           <mdi:close class="size-5" />
         </button>
         <button v-else>
-          <kbd class="kbd kbd-sm">esc</kbd>
+          <kbd class="kbd kbd-xs">esc</kbd>
         </button>
       </form>
     </div>
@@ -119,8 +119,8 @@
               </template>
             </span>
           </div>
-          <kbd class="kbd kbd-sm">⇧</kbd>
-          <kbd class="kbd kbd-sm">↵</kbd>
+          <kbd class="kbd kbd-xs">⇧</kbd>
+          <kbd class="kbd kbd-xs">↵</kbd>
         </div>
       </div>
     </div>
