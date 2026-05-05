@@ -206,6 +206,7 @@ declare global {
   const useClipboardItems: typeof import('@vueuse/core').useClipboardItems
   const useCloned: typeof import('@vueuse/core').useCloned
   const useCloudConfig: typeof import('./composable/cloudConfig').useCloudConfig
+  const useCloudLogSearch: typeof import('./composable/cloudLogSearch').useCloudLogSearch
   const useColorMode: typeof import('@vueuse/core').useColorMode
   const useConfirmDialog: typeof import('@vueuse/core').useConfirmDialog
   const useContainerActions: typeof import('./composable/containerActions').useContainerActions
@@ -406,6 +407,9 @@ declare global {
   // @ts-ignore
   export type { AlertFormOptions, ContainerResult } from './composable/alertForm'
   import('./composable/alertForm')
+  // @ts-ignore
+  export type { CloudLogHit } from './composable/cloudLogSearch'
+  import('./composable/cloudLogSearch')
   // @ts-ignore
   export type { DrawerWidth } from './composable/drawer'
   import('./composable/drawer')
@@ -637,6 +641,7 @@ declare module 'vue' {
     readonly useClipboardItems: UnwrapRef<typeof import('@vueuse/core')['useClipboardItems']>
     readonly useCloned: UnwrapRef<typeof import('@vueuse/core')['useCloned']>
     readonly useCloudConfig: UnwrapRef<typeof import('./composable/cloudConfig')['useCloudConfig']>
+    readonly useCloudLogSearch: UnwrapRef<typeof import('./composable/cloudLogSearch')['useCloudLogSearch']>
     readonly useColorMode: UnwrapRef<typeof import('@vueuse/core')['useColorMode']>
     readonly useConfirmDialog: UnwrapRef<typeof import('@vueuse/core')['useConfirmDialog']>
     readonly useContainerActions: UnwrapRef<typeof import('./composable/containerActions')['useContainerActions']>

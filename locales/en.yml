@@ -113,6 +113,20 @@ button:
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search
+cloud-search:
+  containers-section: Containers
+  search-logs-for: Search logs for "{query}"
+  across-containers: indexed across all your containers
+  connect-to-enable: Connect Dozzle Cloud to search logs
+  enable-streaming-to-search: Enable Stream Logs to Cloud to search
+  open-container: open container
+  search-logs-shortcut: search logs
+  cloud-connected: Cloud connected
+  results-page-title: Logs search
+  query-placeholder: Search logs across all containers
+  no-results: No matching log lines.
+  search-failed: Cloud search failed.
+  search-empty-prompt: Type a query to search logs across your containers.
 settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for

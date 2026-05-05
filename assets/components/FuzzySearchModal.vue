@@ -8,7 +8,8 @@
         ref="input"
         @keydown.down="selectedIndex = Math.min(selectedIndex + 1, data.length - 1)"
         @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
-        @keydown.enter.exact="selected(data[selectedIndex].item)"
+        @keydown.enter.exact="onEnter"
+        @keydown.shift.enter.exact.prevent="runLogSearch"
         @keydown.alt.enter="addColumn(data[selectedIndex].item)"
         v-model="query"
         :placeholder="$t('placeholder.search-containers')"
@@ -26,9 +27,9 @@
     <div
       class="dropdown-content bg-base-100 relative! mt-2 max-h-[calc(100dvh-20rem)] w-full overflow-y-scroll rounded-md border-y-8 border-transparent px-2"
       tabindex="0"
-      v-if="results.length"
+      v-if="results.length || logSearchVisible"
     >
-      <ul class="menu w-auto">
+      <ul class="menu w-auto" v-if="results.length">
         <li v-for="(result, index) in data" ref="listItems">
           <a
             class="grid auto-cols-max grid-cols-[min-content_auto] gap-2 py-4"
@@ -65,6 +66,71 @@
           </a>
         </li>
       </ul>
+
+      <!-- Cloud log search CTA: appears when there's a query, regardless of container matches -->
+      <div
+        v-if="logSearchVisible"
+        class="border-base-content/10 border-t"
+        :class="{ 'cursor-pointer': cloudSearch.available.value, 'opacity-60': !cloudSearch.available.value }"
+        @click="cloudSearch.available.value && runLogSearch()"
+      >
+        <div
+          class="flex items-center gap-3 px-3 py-3"
+          :class="cloudSearch.available.value ? 'bg-primary/5 hover:bg-primary/10' : 'bg-base-200/30'"
+        >
+          <mdi:cloud-search-outline
+            class="size-5 shrink-0"
+            :class="cloudSearch.available.value ? 'text-primary' : 'text-base-content/40'"
+          />
+          <div class="flex min-w-0 flex-1 flex-col">
+            <span
+              class="truncate text-sm font-semibold"
+              :class="cloudSearch.available.value ? 'text-primary' : 'text-base-content/60'"
+            >
+              <i18n-t keypath="cloud-search.search-logs-for">
+                <template #query>
+                  <span class="font-mono">{{ query }}</span>
+                </template>
+              </i18n-t>
+            </span>
+            <span class="text-base-content/50 mt-0.5 flex items-center gap-1 text-xs">
+              <template v-if="cloudSearch.available.value">
+                <mdi:flash class="text-primary size-3" />
+                {{ $t("cloud-search.across-containers") }}
+              </template>
+              <template v-else-if="cloudConfig?.linked && !cloudConfig.streamLogs">
+                <mdi:cloud-off-outline class="size-3" />
+                <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
+                  {{ $t("cloud-search.enable-streaming-to-search") }}
+                </RouterLink>
+              </template>
+              <template v-else>
+                <mdi:cloud-off-outline class="size-3" />
+                <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
+                  {{ $t("cloud-search.connect-to-enable") }}
+                </RouterLink>
+              </template>
+            </span>
+          </div>
+          <kbd class="kbd kbd-xs">⇧</kbd>
+          <kbd class="kbd kbd-xs">↵</kbd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer: keyboard hint + cloud status (appears when popup is showing) -->
+    <div
+      v-if="results.length || logSearchVisible"
+      class="bg-base-200/40 border-base-content/5 text-base-content/50 mt-2 flex items-center gap-3 rounded-md border px-3 py-1.5 text-xs"
+    >
+      <span class="flex items-center gap-1"><kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}</span>
+      <span v-if="cloudSearch.available.value" class="flex items-center gap-1">
+        <kbd class="kbd kbd-xs">⇧</kbd><kbd class="kbd kbd-xs">↵</kbd>
+        {{ $t("cloud-search.search-logs-shortcut") }}
+      </span>
+      <span v-if="cloudConfig?.linked" class="text-primary ml-auto flex items-center gap-1">
+        <mdi:cloud-check-outline class="size-3" /> {{ $t("cloud-search.cloud-connected") }}
+      </span>
     </div>
   </div>
 </template>
@@ -88,6 +154,15 @@ const { visibleContainers } = storeToRefs(containerStore);
 
 const swarmStore = useSwarmStore();
 const { stacks, services } = storeToRefs(swarmStore);
+
+const { cloudConfig } = useCloudConfig();
+// We don't render the live cloud search results inside the popup (the design
+// keeps the popup lightweight) but we still mount the composable so the
+// "Search logs for X" CTA can react to availability and so an in-flight
+// query is warm by the time the user hits ⇧↵.
+const cloudSearch = useCloudLogSearch(query);
+
+const logSearchVisible = computed(() => query.value.trim().length > 0);
 
 onMounted(async () => {
   const dialog = input.value?.closest("dialog");
@@ -190,6 +265,25 @@ function selected(item: Item) {
   } else if (item.type === "stack") {
     router.push({ name: "/stack/[name]", params: { name: item.id } });
   }
+  close();
+}
+
+function onEnter() {
+  // Plain Enter prefers a container match if one is selected. With no
+  // container matches (cloud-only query like "OOM"), fall back to log search
+  // so the user isn't stuck on a popup that does nothing.
+  if (data.value.length > 0) {
+    selected(data.value[selectedIndex.value].item);
+  } else if (cloudSearch.available.value && logSearchVisible.value) {
+    runLogSearch();
+  }
+}
+
+function runLogSearch() {
+  if (!cloudSearch.available.value) return;
+  const q = query.value.trim();
+  if (!q) return;
+  router.push({ path: "/cloud/search", query: { q } });
   close();
 }
 

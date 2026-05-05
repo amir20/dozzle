@@ -44,6 +44,13 @@ declare module 'vue-router/auto-routes' {
       { all: ParamValue<false> },
       | never
     >,
+    '/cloud/search': RouteRecordInfo<
+      '/cloud/search',
+      '/cloud/search',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/container/[id]': RouteRecordInfo<
       '/container/[id]',
       '/container/:id',
@@ -164,6 +171,12 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/[...all].vue': {
       routes:
         | '/[...all]'
+      views:
+        | never
+    }
+    'assets/pages/cloud/search.vue': {
+      routes:
+        | '/cloud/search'
       views:
         | never
     }
