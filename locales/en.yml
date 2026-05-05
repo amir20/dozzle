@@ -122,6 +122,7 @@ cloud-search:
   open-container: open container
   search-logs-shortcut: search logs
   cloud-connected: Cloud connected
+  cloud-connected-indexing: Cloud connected · log index ready
   results-page-title: Logs search
   query-placeholder: Search logs across all containers
   no-results: No matching log lines.

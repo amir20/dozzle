@@ -118,20 +118,34 @@
       </div>
     </div>
 
-    <!-- Footer: keyboard hint + cloud status (appears when popup is showing) -->
+    <!-- Footer: cloud status + keyboard hints. Always visible while the modal
+         is open so users know log search is available before they type. -->
     <div
-      v-if="results.length || logSearchVisible"
       class="bg-base-200/40 border-base-content/5 text-base-content/50 mt-2 flex items-center gap-3 rounded-md border px-3 py-1.5 text-xs"
     >
-      <span class="flex items-center gap-1"
-        ><kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}</span
-      >
-      <span v-if="cloudSearch.available.value" class="flex items-center gap-1">
+      <span v-if="results.length" class="flex items-center gap-1">
+        <kbd class="kbd kbd-xs">↵</kbd> {{ $t("cloud-search.open-container") }}
+      </span>
+      <span v-if="cloudSearch.available.value && logSearchVisible" class="flex items-center gap-1">
         <kbd class="kbd kbd-xs">⇧</kbd><kbd class="kbd kbd-xs">↵</kbd>
         {{ $t("cloud-search.search-logs-shortcut") }}
       </span>
-      <span v-if="cloudConfig?.linked" class="text-primary ml-auto flex items-center gap-1">
-        <mdi:cloud-check-outline class="size-3" /> {{ $t("cloud-search.cloud-connected") }}
+
+      <!-- Cloud status — shown unconditionally on the right -->
+      <span v-if="cloudSearch.available.value" class="text-primary ml-auto flex items-center gap-1">
+        <mdi:cloud-check-outline class="size-3" /> {{ $t("cloud-search.cloud-connected-indexing") }}
+      </span>
+      <span v-else-if="cloudConfig?.linked" class="ml-auto flex items-center gap-1">
+        <mdi:cloud-off-outline class="size-3" />
+        <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
+          {{ $t("cloud-search.enable-streaming-to-search") }}
+        </RouterLink>
+      </span>
+      <span v-else class="ml-auto flex items-center gap-1">
+        <mdi:cloud-off-outline class="size-3" />
+        <RouterLink to="/settings/cloud" class="link link-hover" @click.stop>
+          {{ $t("cloud-search.connect-to-enable") }}
+        </RouterLink>
       </span>
     </div>
   </div>
