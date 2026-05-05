@@ -101,6 +101,7 @@ declare module 'vue' {
     'Mdi:alertCircleOutline': typeof import('~icons/mdi/alert-circle-outline')['default']
     'Mdi:alertOutline': typeof import('~icons/mdi/alert-outline')['default']
     'Mdi:announcement': typeof import('~icons/mdi/announcement')['default']
+    'Mdi:archiveOutline': typeof import('~icons/mdi/archive-outline')['default']
     'Mdi:arrowUp': typeof import('~icons/mdi/arrow-up')['default']
     'Mdi:beer': typeof import('~icons/mdi/beer')['default']
     'Mdi:bell': typeof import('~icons/mdi/bell')['default']
