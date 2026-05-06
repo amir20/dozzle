@@ -10,8 +10,8 @@ import (
 
 	"github.com/amir20/dozzle/internal/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
-	docker_types "github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/system"
+	docker_types "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/system"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/stretchr/testify/mock"

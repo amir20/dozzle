@@ -12,8 +12,8 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 
-	docker_types "github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/moby/moby/api/pkg/stdcopy"
+	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/rs/zerolog/log"
 )
 

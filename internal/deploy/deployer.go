@@ -7,21 +7,18 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"net/netip"
 	"sort"
 	"strconv"
 	"time"
 
 	composetypes "github.com/compose-spec/compose-go/v2/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/volume"
-	"github.com/docker/go-connections/nat"
 	units "github.com/docker/go-units"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
-	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/mount"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/client"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
@@ -84,19 +81,19 @@ func drainPullStream(r io.Reader) error {
 
 // DockerClient is the subset of the Docker API needed for deployment.
 type DockerClient interface {
-	ImagePull(ctx context.Context, refStr string, options image.PullOptions) (io.ReadCloser, error)
-	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
-	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
-	ContainerList(ctx context.Context, options container.ListOptions) ([]container.Summary, error)
-	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
-	ContainerRemove(ctx context.Context, containerID string, options container.RemoveOptions) error
-	NetworkList(ctx context.Context, options network.ListOptions) ([]network.Summary, error)
-	NetworkCreate(ctx context.Context, name string, options network.CreateOptions) (network.CreateResponse, error)
-	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
-	NetworkRemove(ctx context.Context, networkID string) error
-	VolumeCreate(ctx context.Context, options volume.CreateOptions) (volume.Volume, error)
-	VolumeList(ctx context.Context, options volume.ListOptions) (volume.ListResponse, error)
-	VolumeRemove(ctx context.Context, volumeID string, force bool) error
+	ImagePull(ctx context.Context, refStr string, options client.ImagePullOptions) (client.ImagePullResponse, error)
+	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
+	ContainerStart(ctx context.Context, containerID string, options client.ContainerStartOptions) (client.ContainerStartResult, error)
+	ContainerList(ctx context.Context, options client.ContainerListOptions) (client.ContainerListResult, error)
+	ContainerStop(ctx context.Context, containerID string, options client.ContainerStopOptions) (client.ContainerStopResult, error)
+	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
+	NetworkList(ctx context.Context, options client.NetworkListOptions) (client.NetworkListResult, error)
+	NetworkCreate(ctx context.Context, name string, options client.NetworkCreateOptions) (client.NetworkCreateResult, error)
+	NetworkConnect(ctx context.Context, networkID string, options client.NetworkConnectOptions) (client.NetworkConnectResult, error)
+	NetworkRemove(ctx context.Context, networkID string, options client.NetworkRemoveOptions) (client.NetworkRemoveResult, error)
+	VolumeCreate(ctx context.Context, options client.VolumeCreateOptions) (client.VolumeCreateResult, error)
+	VolumeList(ctx context.Context, options client.VolumeListOptions) (client.VolumeListResult, error)
+	VolumeRemove(ctx context.Context, volumeID string, options client.VolumeRemoveOptions) (client.VolumeRemoveResult, error)
 }
 
 // Deployer deploys a parsed compose project using the Docker API directly.
@@ -149,7 +146,7 @@ func (d *Deployer) pullImages(ctx context.Context, project *composetypes.Project
 		g.Go(func() error {
 			sendStatus(gctx, status, svcName, "pulling")
 			log.Info().Str("service", svcName).Str("image", imageRef).Msg("Pulling image")
-			reader, err := d.cli.ImagePull(gctx, imageRef, image.PullOptions{})
+			reader, err := d.cli.ImagePull(gctx, imageRef, client.ImagePullOptions{})
 			if err != nil {
 				return fmt.Errorf("pulling image %q: %w", imageRef, err)
 			}
@@ -183,17 +180,17 @@ func (d *Deployer) Remove(ctx context.Context, projectName string, removeVolumes
 }
 
 func (d *Deployer) removeProjectNetworks(ctx context.Context, projectName string) error {
-	networks, err := d.cli.NetworkList(ctx, network.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+projectName)),
+	networks, err := d.cli.NetworkList(ctx, client.NetworkListOptions{
+		Filters: make(client.Filters).Add("label", labelComposeProject+"="+projectName),
 	})
 	if err != nil {
 		return fmt.Errorf("listing networks: %w", err)
 	}
 	g, gctx := errgroup.WithContext(ctx)
 	g.SetLimit(5)
-	for _, n := range networks {
+	for _, n := range networks.Items {
 		g.Go(func() error {
-			if err := d.cli.NetworkRemove(gctx, n.ID); err != nil {
+			if _, err := d.cli.NetworkRemove(gctx, n.ID, client.NetworkRemoveOptions{}); err != nil {
 				log.Warn().Err(err).Str("network", n.Name).Msg("Failed to remove network")
 				return err
 			}
@@ -205,20 +202,17 @@ func (d *Deployer) removeProjectNetworks(ctx context.Context, projectName string
 }
 
 func (d *Deployer) removeProjectVolumes(ctx context.Context, projectName string) error {
-	vols, err := d.cli.VolumeList(ctx, volume.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+projectName)),
+	vols, err := d.cli.VolumeList(ctx, client.VolumeListOptions{
+		Filters: make(client.Filters).Add("label", labelComposeProject+"="+projectName),
 	})
 	if err != nil {
 		return fmt.Errorf("listing volumes: %w", err)
 	}
 	g, gctx := errgroup.WithContext(ctx)
 	g.SetLimit(5)
-	for _, v := range vols.Volumes {
-		if v == nil {
-			continue
-		}
+	for _, v := range vols.Items {
 		g.Go(func() error {
-			if err := d.cli.VolumeRemove(gctx, v.Name, false); err != nil {
+			if _, err := d.cli.VolumeRemove(gctx, v.Name, client.VolumeRemoveOptions{Force: false}); err != nil {
 				log.Warn().Err(err).Str("volume", v.Name).Msg("Failed to remove volume")
 				return err
 			}
@@ -230,11 +224,9 @@ func (d *Deployer) removeProjectVolumes(ctx context.Context, projectName string)
 }
 
 func (d *Deployer) removeProjectContainers(ctx context.Context, projectName string, status chan<- StatusUpdate) error {
-	containers, err := d.cli.ContainerList(ctx, container.ListOptions{
-		All: true,
-		Filters: filters.NewArgs(
-			filters.Arg("label", labelComposeProject+"="+projectName),
-		),
+	containers, err := d.cli.ContainerList(ctx, client.ContainerListOptions{
+		All:     true,
+		Filters: make(client.Filters).Add("label", labelComposeProject+"="+projectName),
 	})
 	if err != nil {
 		return fmt.Errorf("listing containers: %w", err)
@@ -242,11 +234,11 @@ func (d *Deployer) removeProjectContainers(ctx context.Context, projectName stri
 
 	g, gctx := errgroup.WithContext(ctx)
 	g.SetLimit(5)
-	for _, c := range containers {
+	for _, c := range containers.Items {
 		service := c.Labels[labelComposeService]
 		g.Go(func() error {
 			sendStatus(gctx, status, service, "removing")
-			if err := d.cli.ContainerRemove(gctx, c.ID, container.RemoveOptions{Force: true}); err != nil {
+			if _, err := d.cli.ContainerRemove(gctx, c.ID, client.ContainerRemoveOptions{Force: true}); err != nil {
 				return fmt.Errorf("removing container %s: %w", shortID(c.ID), err)
 			}
 			log.Info().Str("service", service).Str("container", shortID(c.ID)).Msg("Removed container")
@@ -261,14 +253,14 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 
 	// Two listings: project-owned (for idempotent reuse) and external references.
 	// Project filter keeps the response small on hosts with many stacks.
-	ownedList, err := d.cli.NetworkList(ctx, network.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+project.Name)),
+	ownedList, err := d.cli.NetworkList(ctx, client.NetworkListOptions{
+		Filters: make(client.Filters).Add("label", labelComposeProject+"="+project.Name),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("listing networks: %w", err)
 	}
-	ownedByName := make(map[string]string, len(ownedList))
-	for _, n := range ownedList {
+	ownedByName := make(map[string]string, len(ownedList.Items))
+	for _, n := range ownedList.Items {
 		ownedByName[n.Name] = n.ID
 	}
 
@@ -278,12 +270,12 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 		if externalByName != nil {
 			return nil
 		}
-		all, err := d.cli.NetworkList(ctx, network.ListOptions{})
+		all, err := d.cli.NetworkList(ctx, client.NetworkListOptions{})
 		if err != nil {
 			return fmt.Errorf("listing external networks: %w", err)
 		}
-		externalByName = make(map[string]string, len(all))
-		for _, n := range all {
+		externalByName = make(map[string]string, len(all.Items))
+		for _, n := range all.Items {
 			externalByName[n.Name] = n.ID
 		}
 		return nil
@@ -327,7 +319,7 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 		labels[labelComposeProject] = project.Name
 		labels[labelComposeNetwork] = name
 
-		resp, err := d.cli.NetworkCreate(ctx, fullName, network.CreateOptions{
+		resp, err := d.cli.NetworkCreate(ctx, fullName, client.NetworkCreateOptions{
 			Driver:     driver,
 			Internal:   netCfg.Internal,
 			Attachable: netCfg.Attachable,
@@ -346,17 +338,15 @@ func (d *Deployer) ensureNetworks(ctx context.Context, project *composetypes.Pro
 
 func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Project) error {
 	// Project-filtered listing keeps the response small on hosts with many stacks.
-	ownedList, err := d.cli.VolumeList(ctx, volume.ListOptions{
-		Filters: filters.NewArgs(filters.Arg("label", labelComposeProject+"="+project.Name)),
+	ownedList, err := d.cli.VolumeList(ctx, client.VolumeListOptions{
+		Filters: make(client.Filters).Add("label", labelComposeProject+"="+project.Name),
 	})
 	if err != nil {
 		return fmt.Errorf("listing volumes: %w", err)
 	}
-	ownedByName := make(map[string]struct{}, len(ownedList.Volumes))
-	for _, v := range ownedList.Volumes {
-		if v != nil {
-			ownedByName[v.Name] = struct{}{}
-		}
+	ownedByName := make(map[string]struct{}, len(ownedList.Items))
+	for _, v := range ownedList.Items {
+		ownedByName[v.Name] = struct{}{}
 	}
 
 	// External volumes are looked up unfiltered, on demand (they are not project-labeled).
@@ -365,15 +355,13 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 		if externalByName != nil {
 			return nil
 		}
-		all, err := d.cli.VolumeList(ctx, volume.ListOptions{})
+		all, err := d.cli.VolumeList(ctx, client.VolumeListOptions{})
 		if err != nil {
 			return fmt.Errorf("listing external volumes: %w", err)
 		}
-		externalByName = make(map[string]struct{}, len(all.Volumes))
-		for _, v := range all.Volumes {
-			if v != nil {
-				externalByName[v.Name] = struct{}{}
-			}
+		externalByName = make(map[string]struct{}, len(all.Items))
+		for _, v := range all.Items {
+			externalByName[v.Name] = struct{}{}
 		}
 		return nil
 	}
@@ -413,7 +401,7 @@ func (d *Deployer) createVolumes(ctx context.Context, project *composetypes.Proj
 		labels[labelComposeProject] = project.Name
 		labels[labelComposeVolume] = name
 
-		if _, err := d.cli.VolumeCreate(ctx, volume.CreateOptions{
+		if _, err := d.cli.VolumeCreate(ctx, client.VolumeCreateOptions{
 			Name:       fullName,
 			Driver:     driver,
 			DriverOpts: volCfg.DriverOpts,
@@ -450,7 +438,12 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	}
 
 	sendStatus(ctx, status, name, "creating")
-	resp, err := d.cli.ContainerCreate(ctx, config, hostConfig, networkingConfig, nil, containerName)
+	resp, err := d.cli.ContainerCreate(ctx, client.ContainerCreateOptions{
+		Config:           config,
+		HostConfig:       hostConfig,
+		NetworkingConfig: networkingConfig,
+		Name:             containerName,
+	})
 	if err != nil {
 		return fmt.Errorf("creating container %q: %w", containerName, err)
 	}
@@ -466,11 +459,11 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 		}
 		netCfg := svc.Networks[netName]
 		aliases := copyAliases(netCfg, name)
-		if err := d.cli.NetworkConnect(ctx, netID, resp.ID, &network.EndpointSettings{
+		if _, err := d.cli.NetworkConnect(ctx, netID, client.NetworkConnectOptions{Container: resp.ID, EndpointConfig: &network.EndpointSettings{
 			Aliases: aliases,
-		}); err != nil {
+		}}); err != nil {
 			// Partial attachment would leave an orphan. Remove and bail.
-			if rmErr := d.cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{Force: true}); rmErr != nil {
+			if _, rmErr := d.cli.ContainerRemove(ctx, resp.ID, client.ContainerRemoveOptions{Force: true}); rmErr != nil {
 				log.Warn().Err(rmErr).Str("container", shortID(resp.ID)).Msg("Failed to clean up after NetworkConnect error")
 			}
 			return fmt.Errorf("connecting container to network %q: %w", netName, err)
@@ -478,7 +471,7 @@ func (d *Deployer) deployService(ctx context.Context, projectName, name string, 
 	}
 
 	sendStatus(ctx, status, name, "starting")
-	if err := d.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+	if _, err := d.cli.ContainerStart(ctx, resp.ID, client.ContainerStartOptions{}); err != nil {
 		return fmt.Errorf("starting container %q: %w", containerName, err)
 	}
 	log.Info().Str("service", name).Str("container", containerName).Msg("Started container")
@@ -524,17 +517,24 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 	labels[labelComposeProject] = projectName
 	labels[labelComposeService] = name
 
-	exposedPorts := nat.PortSet{}
-	portBindings := nat.PortMap{}
+	exposedPorts := network.PortSet{}
+	portBindings := network.PortMap{}
 	for _, p := range svc.Ports {
 		proto := p.Protocol
 		if proto == "" {
 			proto = "tcp"
 		}
-		natPort := nat.Port(strconv.FormatUint(uint64(p.Target), 10) + "/" + proto)
-		exposedPorts[natPort] = struct{}{}
-		portBindings[natPort] = append(portBindings[natPort], nat.PortBinding{
-			HostIP:   p.HostIP,
+		port, err := network.ParsePort(strconv.FormatUint(uint64(p.Target), 10) + "/" + proto)
+		if err != nil {
+			continue
+		}
+		exposedPorts[port] = struct{}{}
+		var hostIP netip.Addr
+		if p.HostIP != "" {
+			hostIP, _ = netip.ParseAddr(p.HostIP)
+		}
+		portBindings[port] = append(portBindings[port], network.PortBinding{
+			HostIP:   hostIP,
 			HostPort: p.Published,
 		})
 	}
@@ -679,6 +679,13 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		config.Entrypoint = []string(svc.Entrypoint)
 	}
 
+	dns := make([]netip.Addr, 0, len(svc.DNS))
+	for _, d := range svc.DNS {
+		if addr, err := netip.ParseAddr(d); err == nil {
+			dns = append(dns, addr)
+		}
+	}
+
 	hostConfig := &container.HostConfig{
 		PortBindings:   portBindings,
 		RestartPolicy:  restartPolicy,
@@ -686,7 +693,7 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		Privileged:     svc.Privileged,
 		ReadonlyRootfs: svc.ReadOnly,
 		ExtraHosts:     extraHosts,
-		DNS:            svc.DNS,
+		DNS:            dns,
 		CapAdd:         svc.CapAdd,
 		CapDrop:        svc.CapDrop,
 		NetworkMode:    networkMode,

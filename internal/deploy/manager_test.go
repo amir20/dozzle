@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"iter"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -12,11 +13,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/volume"
-	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/moby/moby/api/types/jsonstream"
+	"github.com/moby/moby/api/types/network"
+	"github.com/moby/moby/api/types/volume"
+	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ type fakeDockerClient struct {
 	// networksOnList / volumesOnList are returned by NetworkList / VolumeList
 	// respectively. Tests set these to simulate existing resources.
 	networksOnList []network.Summary
-	volumesOnList  []*volume.Volume
+	volumesOnList  []volume.Volume
 	// pullBody is returned by ImagePull so tests can exercise pull-stream
 	// error handling. Empty body is a successful no-op.
 	pullBody []byte
@@ -60,83 +60,96 @@ type fakeDockerClient struct {
 	volumeCreateCalls  atomic.Int64
 }
 
-func (f *fakeDockerClient) ImagePull(_ context.Context, _ string, _ image.PullOptions) (io.ReadCloser, error) {
+type fakeImagePullResponse struct {
+	io.ReadCloser
+}
+
+func (r fakeImagePullResponse) JSONMessages(_ context.Context) iter.Seq2[jsonstream.Message, error] {
+	return func(func(jsonstream.Message, error) bool) {}
+}
+
+func (r fakeImagePullResponse) Wait(_ context.Context) error {
+	_, err := io.Copy(io.Discard, r.ReadCloser)
+	return err
+}
+
+func (f *fakeDockerClient) ImagePull(_ context.Context, _ string, _ client.ImagePullOptions) (client.ImagePullResponse, error) {
 	f.pullCalls.Add(1)
 	f.mu.Lock()
 	body := f.pullBody
 	f.mu.Unlock()
-	return io.NopCloser(bytes.NewReader(body)), nil
+	return fakeImagePullResponse{ReadCloser: io.NopCloser(bytes.NewReader(body))}, nil
 }
 
-func (f *fakeDockerClient) ContainerCreate(_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig, _ *ocispec.Platform, name string) (container.CreateResponse, error) {
-	return container.CreateResponse{ID: "container-id-for-" + name + "-1234567890ab"}, nil
+func (f *fakeDockerClient) ContainerCreate(_ context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error) {
+	return client.ContainerCreateResult{ID: "container-id-for-" + options.Name + "-1234567890ab"}, nil
 }
 
-func (f *fakeDockerClient) ContainerStart(_ context.Context, _ string, _ container.StartOptions) error {
+func (f *fakeDockerClient) ContainerStart(_ context.Context, _ string, _ client.ContainerStartOptions) (client.ContainerStartResult, error) {
 	f.startCalls.Add(1)
-	return nil
+	return client.ContainerStartResult{}, nil
 }
 
-func (f *fakeDockerClient) ContainerList(ctx context.Context, _ container.ListOptions) ([]container.Summary, error) {
+func (f *fakeDockerClient) ContainerList(ctx context.Context, _ client.ContainerListOptions) (client.ContainerListResult, error) {
 	f.mu.Lock()
 	hook := f.onContainerList
 	f.mu.Unlock()
 	if hook != nil {
 		if err := hook(ctx); err != nil {
-			return nil, err
+			return client.ContainerListResult{}, err
 		}
 	}
-	return nil, nil
+	return client.ContainerListResult{}, nil
 }
 
-func (f *fakeDockerClient) ContainerStop(_ context.Context, _ string, _ container.StopOptions) error {
-	return nil
+func (f *fakeDockerClient) ContainerStop(_ context.Context, _ string, _ client.ContainerStopOptions) (client.ContainerStopResult, error) {
+	return client.ContainerStopResult{}, nil
 }
 
-func (f *fakeDockerClient) ContainerRemove(_ context.Context, _ string, _ container.RemoveOptions) error {
-	return nil
+func (f *fakeDockerClient) ContainerRemove(_ context.Context, _ string, _ client.ContainerRemoveOptions) (client.ContainerRemoveResult, error) {
+	return client.ContainerRemoveResult{}, nil
 }
 
-func (f *fakeDockerClient) NetworkList(_ context.Context, opts network.ListOptions) ([]network.Summary, error) {
+func (f *fakeDockerClient) NetworkList(_ context.Context, opts client.NetworkListOptions) (client.NetworkListResult, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	var out []network.Summary
 	for _, n := range f.networksOnList {
-		if matchesLabelFilter(opts.Filters.Get("label"), n.Labels) {
+		if matchesLabelFilter(filterValues(opts.Filters, "label"), n.Labels) {
 			out = append(out, n)
 		}
 	}
-	return out, nil
+	return client.NetworkListResult{Items: out}, nil
 }
 
-func (f *fakeDockerClient) NetworkCreate(_ context.Context, _ string, _ network.CreateOptions) (network.CreateResponse, error) {
-	return network.CreateResponse{ID: "net-1234567890ab"}, nil
+func (f *fakeDockerClient) NetworkCreate(_ context.Context, _ string, _ client.NetworkCreateOptions) (client.NetworkCreateResult, error) {
+	return client.NetworkCreateResult{ID: "net-1234567890ab"}, nil
 }
 
-func (f *fakeDockerClient) NetworkConnect(_ context.Context, _ string, _ string, _ *network.EndpointSettings) error {
-	return nil
+func (f *fakeDockerClient) NetworkConnect(_ context.Context, _ string, _ client.NetworkConnectOptions) (client.NetworkConnectResult, error) {
+	return client.NetworkConnectResult{}, nil
 }
 
-func (f *fakeDockerClient) NetworkRemove(_ context.Context, _ string) error {
+func (f *fakeDockerClient) NetworkRemove(_ context.Context, _ string, _ client.NetworkRemoveOptions) (client.NetworkRemoveResult, error) {
 	f.networkRemoveCalls.Add(1)
-	return nil
+	return client.NetworkRemoveResult{}, nil
 }
 
-func (f *fakeDockerClient) VolumeCreate(_ context.Context, _ volume.CreateOptions) (volume.Volume, error) {
+func (f *fakeDockerClient) VolumeCreate(_ context.Context, _ client.VolumeCreateOptions) (client.VolumeCreateResult, error) {
 	f.volumeCreateCalls.Add(1)
-	return volume.Volume{}, nil
+	return client.VolumeCreateResult{Volume: volume.Volume{}}, nil
 }
 
-func (f *fakeDockerClient) VolumeList(_ context.Context, opts volume.ListOptions) (volume.ListResponse, error) {
+func (f *fakeDockerClient) VolumeList(_ context.Context, opts client.VolumeListOptions) (client.VolumeListResult, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	var out []*volume.Volume
+	var out []volume.Volume
 	for _, v := range f.volumesOnList {
-		if v != nil && matchesLabelFilter(opts.Filters.Get("label"), v.Labels) {
+		if matchesLabelFilter(filterValues(opts.Filters, "label"), v.Labels) {
 			out = append(out, v)
 		}
 	}
-	return volume.ListResponse{Volumes: out}, nil
+	return client.VolumeListResult{Items: out}, nil
 }
 
 // matchesLabelFilter mimics Docker's label filter: every requested "k=v"
@@ -157,18 +170,30 @@ func matchesLabelFilter(wanted []string, labels map[string]string) bool {
 	return true
 }
 
-func (f *fakeDockerClient) VolumeRemove(_ context.Context, _ string, _ bool) error {
+func filterValues(filters client.Filters, key string) []string {
+	values, ok := filters[key]
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(values))
+	for v := range values {
+		out = append(out, v)
+	}
+	return out
+}
+
+func (f *fakeDockerClient) VolumeRemove(_ context.Context, _ string, _ client.VolumeRemoveOptions) (client.VolumeRemoveResult, error) {
 	f.volumeRemoveCalls.Add(1)
-	return nil
+	return client.VolumeRemoveResult{}, nil
 }
 
 func TestManager_Remove_DeletesProjectAndCleansNetworks(t *testing.T) {
 	dir := t.TempDir()
 	cli := &fakeDockerClient{
 		networksOnList: []network.Summary{
-			{ID: "net-1", Name: "myapp_default", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
+			{Network: network.Network{ID: "net-1", Name: "myapp_default", Labels: map[string]string{"com.docker.compose.project": "myapp"}}},
 		},
-		volumesOnList: []*volume.Volume{
+		volumesOnList: []volume.Volume{
 			{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
 		},
 	}
@@ -191,7 +216,7 @@ func TestManager_Remove_DeletesProjectAndCleansNetworks(t *testing.T) {
 func TestManager_Remove_WithVolumes(t *testing.T) {
 	dir := t.TempDir()
 	cli := &fakeDockerClient{
-		volumesOnList: []*volume.Volume{
+		volumesOnList: []volume.Volume{
 			{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}},
 			{Name: "other_project_data", Labels: map[string]string{"com.docker.compose.project": "other"}},
 		},
@@ -409,7 +434,7 @@ volumes:
 
 	// Pretend the volume now exists so the second deploy must skip it.
 	cli.mu.Lock()
-	cli.volumesOnList = []*volume.Volume{{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}}}
+	cli.volumesOnList = []volume.Volume{{Name: "myapp_data", Labels: map[string]string{"com.docker.compose.project": "myapp"}}}
 	cli.mu.Unlock()
 
 	require.NoError(t, mgr.Deploy(ctx, "myapp", []byte(compose), nil))

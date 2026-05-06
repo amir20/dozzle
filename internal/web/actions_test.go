@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	docker_types "github.com/docker/docker/api/types/container"
+	docker_types "github.com/moby/moby/api/types/container"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -129,9 +129,7 @@ func Test_handler_containerUpdate_new_image(t *testing.T) {
 	m.On("ContainerEvents", mock.Anything, mock.Anything).Return(nil)
 
 	inspectResp := docker_types.InspectResponse{
-		ContainerJSONBase: &docker_types.ContainerJSONBase{
-			Name: "/test-container",
-		},
+		Name: "/test-container",
 		Config: &docker_types.Config{
 			Image: "test:v1",
 		},
