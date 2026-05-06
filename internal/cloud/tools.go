@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/deploy"
 	"github.com/amir20/dozzle/internal/notification"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	pb "github.com/amir20/dozzle/proto/cloud"
@@ -37,10 +36,6 @@ const (
 	toolRestartContainer         = "restart_container"
 	toolRemoveContainer          = "remove_container"
 	toolUpdateContainer          = "update_container"
-	toolDeployCompose            = "deploy_compose"
-	toolListDeployVersions       = "list_deploy_versions"
-	toolRollbackDeploy           = "rollback_deploy"
-	toolRemoveDeploy             = "remove_deploy"
 	toolCreateLogNotification    = "create_log_notification"
 	toolCreateMetricNotification = "create_metric_notification"
 	toolCreateEventNotification  = "create_event_notification"
@@ -94,49 +89,6 @@ var (
 			"state":  {Type: "string", Description: "Optional state filter (e.g. running, exited, created)"},
 			"health": {Type: "string", Description: "Optional health status filter (e.g. healthy, unhealthy, none)"},
 		},
-	})
-
-	deployComposeParams = mustSchema(paramSchema{
-		Type: "object",
-		Properties: map[string]paramProperty{
-			"yaml":    {Type: "string", Description: "The raw YAML content of the Docker Compose file to deploy"},
-			"project": {Type: "string", Description: "Project name used as a prefix for resource names (networks, volumes, containers)"},
-			"host_id": {Type: "string", Description: "Host ID to deploy to. Use live_list_hosts to find available host IDs."},
-		},
-		Required:             []string{"yaml", "project", "host_id"},
-		AdditionalProperties: &boolFalse,
-	})
-
-	listDeployVersionsParams = mustSchema(paramSchema{
-		Type: "object",
-		Properties: map[string]paramProperty{
-			"project": {Type: "string", Description: "Project name to list version history for"},
-			"host_id": {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
-		},
-		Required:             []string{"project", "host_id"},
-		AdditionalProperties: &boolFalse,
-	})
-
-	rollbackDeployParams = mustSchema(paramSchema{
-		Type: "object",
-		Properties: map[string]paramProperty{
-			"project":     {Type: "string", Description: "Project name to roll back"},
-			"commit_hash": {Type: "string", Description: "Version ID (full or short) to roll back to. Use list_deploy_versions to find available IDs."},
-			"host_id":     {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
-		},
-		Required:             []string{"project", "commit_hash", "host_id"},
-		AdditionalProperties: &boolFalse,
-	})
-
-	removeDeployParams = mustSchema(paramSchema{
-		Type: "object",
-		Properties: map[string]paramProperty{
-			"project":        {Type: "string", Description: "Project name to tear down"},
-			"host_id":        {Type: "string", Description: "Host ID where the project is deployed. Use live_list_hosts to find available host IDs."},
-			"remove_volumes": {Type: "boolean", Description: "Optional. If true, also delete project-labeled named volumes (destructive — user data is lost). Defaults to false."},
-		},
-		Required:             []string{"project", "host_id"},
-		AdditionalProperties: &boolFalse,
 	})
 
 	instanceIDParam = paramProperty{
@@ -328,7 +280,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 			},
 			&pb.ToolDefinition{
 				Name:           toolRemoveContainer,
-				Description:    "Remove a Docker container. The container must be stopped first — call stop_container if it is still running. Confirm with the user before removing, since the container is gone permanently (its config is kept only if it was created by a deploy_compose project).",
+				Description:    "Remove a Docker container. The container must be stopped first — call stop_container if it is still running. Confirm with the user before removing, since the container is gone permanently.",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			},
@@ -337,31 +289,6 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 				Description:    "Update a Docker container by pulling the latest version of its image and recreating it with the same configuration. If the image is already up to date, no recreation occurs. For swarm service containers, updates the service instead.",
 				ParametersJson: targetedParams,
 				Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
-			},
-			&pb.ToolDefinition{
-				Name:           toolDeployCompose,
-				Description:    "Deploy a Docker Compose file. Creates or updates a project. Creates networks, volumes, pulls images, and starts containers in dependency order. Only supports pre-built images (no build step). Each deployment is versioned for history and rollback.",
-				ParametersJson: deployComposeParams,
-				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
-			},
-			&pb.ToolDefinition{
-				Name:           toolListDeployVersions,
-				Description:    "List the deployment version history for a project. Returns version IDs, timestamps, and messages. Use the version ID with rollback_deploy to revert to a previous configuration.",
-				ParametersJson: listDeployVersionsParams,
-				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
-				ReadOnly:       true,
-			},
-			&pb.ToolDefinition{
-				Name:           toolRollbackDeploy,
-				Description:    "Roll back a project to a previous deployment version. Restores the compose configuration from the specified version and redeploys. Use list_deploy_versions to find available version IDs.",
-				ParametersJson: rollbackDeployParams,
-				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
-			},
-			&pb.ToolDefinition{
-				Name:           toolRemoveDeploy,
-				Description:    "Tear down a deployed project: stops and removes its containers, removes project-labeled networks, and deletes the stored version history for the project. Named volumes are preserved by default — set remove_volumes=true to also delete them (destructive — user data is lost). Ask the user to confirm before setting remove_volumes=true.",
-				ParametersJson: removeDeployParams,
-				Scope:          pb.ToolScope_TOOL_SCOPE_HOST,
 			},
 			&pb.ToolDefinition{
 				Name:           toolCreateLogNotification,
@@ -396,15 +323,12 @@ type NotificationService interface {
 }
 
 // ToolDeps bundles the dependencies required to execute cloud tool calls.
-// DeployManager may be nil in modes without a local docker daemon (e.g., k8s);
-// deploy tools will then return a "not configured" error.
 // NotificationService may be nil in modes without a notification manager
 // (e.g., k8s); notification tools will then return a "not configured" error.
 type ToolDeps struct {
 	EnableActions       bool
 	HostService         ToolHostService
 	Labels              container.ContainerLabels
-	DeployManager       *deploy.Manager
 	NotificationService NotificationService
 }
 
@@ -428,10 +352,6 @@ var requiresActions = map[string]struct{}{
 	toolRestartContainer:         {},
 	toolRemoveContainer:          {},
 	toolUpdateContainer:          {},
-	toolDeployCompose:            {},
-	toolListDeployVersions:       {},
-	toolRollbackDeploy:           {},
-	toolRemoveDeploy:             {},
 	toolCreateLogNotification:    {},
 	toolCreateMetricNotification: {},
 	toolCreateEventNotification:  {},
@@ -467,14 +387,6 @@ func executeTool(ctx context.Context, name string, argsJSON string, deps ToolDep
 		return executeContainerAction(ctx, name, argsJSON, deps)
 	case toolUpdateContainer:
 		return executeUpdateContainer(ctx, argsJSON, deps)
-	case toolDeployCompose:
-		return executeDeployCompose(ctx, argsJSON, deps)
-	case toolListDeployVersions:
-		return executeListDeployVersions(ctx, argsJSON, deps)
-	case toolRollbackDeploy:
-		return executeRollbackDeploy(ctx, argsJSON, deps)
-	case toolRemoveDeploy:
-		return executeRemoveDeploy(ctx, argsJSON, deps)
 	case toolCreateLogNotification:
 		return executeCreateLogNotification(argsJSON, deps)
 	case toolCreateMetricNotification:

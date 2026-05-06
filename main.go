@@ -19,7 +19,6 @@ import (
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
-	"github.com/amir20/dozzle/internal/deploy"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
@@ -143,19 +142,6 @@ func main() {
 		return ""
 	}
 
-	var deployManager *deploy.Manager
-	if args.EnableActions && args.Mode != "k8s" {
-		// TODO: route deploys through agents for remote hosts.
-		localClient, err := docker.NewLocalClient("")
-		if err != nil {
-			log.Warn().Err(err).Msg("Compose deploy tools disabled: could not create local Docker client")
-		} else if raw := localClient.RawClient(); raw != nil {
-			deployManager = deploy.NewManager(raw, deploy.DefaultStacksDir)
-		} else {
-			log.Warn().Msg("Compose deploy tools disabled: local Docker client has no raw handle")
-		}
-	}
-
 	var instanceID string
 	if h, err := hostService.LocalHost(); err == nil {
 		instanceID = h.ID
@@ -167,7 +153,6 @@ func main() {
 		EnableActions:       args.EnableActions,
 		HostService:         cloudHostService,
 		Labels:              args.Filter,
-		DeployManager:       deployManager,
 		NotificationService: notificationService,
 	})
 	cloudClient.SetStreamLogsFunc(func() bool {
