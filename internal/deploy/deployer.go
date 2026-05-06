@@ -526,12 +526,17 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 		}
 		port, err := network.ParsePort(strconv.FormatUint(uint64(p.Target), 10) + "/" + proto)
 		if err != nil {
+			log.Warn().Err(err).Uint32("port", p.Target).Str("protocol", proto).Msg("Skipping invalid port")
 			continue
 		}
 		exposedPorts[port] = struct{}{}
 		var hostIP netip.Addr
 		if p.HostIP != "" {
-			hostIP, _ = netip.ParseAddr(p.HostIP)
+			var err error
+			hostIP, err = netip.ParseAddr(p.HostIP)
+			if err != nil {
+				log.Warn().Err(err).Str("hostIP", p.HostIP).Msg("Failed to parse host IP, using zero value")
+			}
 		}
 		portBindings[port] = append(portBindings[port], network.PortBinding{
 			HostIP:   hostIP,
@@ -681,9 +686,12 @@ func buildContainerConfig(projectName, name string, svc composetypes.ServiceConf
 
 	dns := make([]netip.Addr, 0, len(svc.DNS))
 	for _, d := range svc.DNS {
-		if addr, err := netip.ParseAddr(d); err == nil {
-			dns = append(dns, addr)
+		addr, err := netip.ParseAddr(d)
+		if err != nil {
+			log.Warn().Err(err).Str("dns", d).Msg("Skipping invalid DNS address")
+			continue
 		}
+		dns = append(dns, addr)
 	}
 
 	hostConfig := &container.HostConfig{
