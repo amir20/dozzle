@@ -3,6 +3,8 @@ FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
 
 RUN npm install -g --force corepack && corepack enable
 
+ENV CI=true
+
 WORKDIR /build
 
 # Install dependencies from lock file
