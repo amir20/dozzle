@@ -10,6 +10,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/auth"
 	"github.com/amir20/dozzle/internal/container"
+	dozzle_mcp "github.com/amir20/dozzle/internal/mcp"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
@@ -46,6 +47,7 @@ type Config struct {
 	Authorization    Authorization
 	EnableActions    bool
 	EnableShell      bool
+	EnableMCP        bool
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
@@ -182,6 +184,12 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
+
+				// MCP (Model Context Protocol) endpoint
+				if h.config.EnableMCP {
+					mcpServer := dozzle_mcp.NewServer(h.hostService, h.config.Labels, h.config.Version)
+					r.Mount("/mcp", mcpServer.Handler())
+				}
 			})
 
 			// Public API routes

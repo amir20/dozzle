@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
-	"github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // HostService is the subset of web.HostService needed by the MCP server.
@@ -22,7 +22,7 @@ type HostService interface {
 
 // Server wraps an MCP server that exposes Dozzle container operations as tools.
 type Server struct {
-	mcpServer   *server.MCPServer
+	mcpServer   *mcp.Server
 	hostService HostService
 	labels      container.ContainerLabels
 }
@@ -34,12 +34,12 @@ func NewServer(hostService HostService, labels container.ContainerLabels, versio
 		labels:      labels,
 	}
 
-	mcpServer := server.NewMCPServer(
-		"dozzle",
-		version,
-		server.WithToolCapabilities(false),
-		server.WithInstructions("Dozzle MCP server provides tools to list Docker containers, read container logs, and perform container actions (start/stop/restart)."),
-	)
+	mcpServer := mcp.NewServer(&mcp.Implementation{
+		Name:    "dozzle",
+		Version: version,
+	}, &mcp.ServerOptions{
+		Instructions: "Dozzle MCP server provides tools to list Docker containers, read container logs, and view container stats.",
+	})
 
 	s.mcpServer = mcpServer
 	s.registerTools()
@@ -47,106 +47,64 @@ func NewServer(hostService HostService, labels container.ContainerLabels, versio
 	return s
 }
 
-// ServeHTTP starts the MCP server as a Streamable HTTP server on the given address.
-func (s *Server) ServeHTTP(addr string) error {
-	httpServer := server.NewStreamableHTTPServer(s.mcpServer)
-	return httpServer.Start(addr)
+// Handler returns an http.Handler for the MCP streamable HTTP transport.
+func (s *Server) Handler() http.Handler {
+	return mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
+		return s.mcpServer
+	}, nil)
+}
+
+// --- Tool Parameter Types ---
+
+type listContainersParams struct {
+	State *string `json:"state,omitempty" jsonschema:"Filter by container state (running, exited, created, paused, dead). Leave empty for all."`
+}
+
+type getContainerLogsParams struct {
+	Host         string   `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
+	ContainerID  string   `json:"container_id" jsonschema:"The container ID (or short ID) to get logs from. Use list_containers to find this."`
+	SinceMinutes *float64 `json:"since_minutes,omitempty" jsonschema:"Fetch logs from the last N minutes. Defaults to 5."`
+	Stream       *string  `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout stderr or all."`
+}
+
+type getContainerStatsParams struct {
+	Host        string `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
+	ContainerID string `json:"container_id" jsonschema:"The container ID to get stats for. Use list_containers to find this."`
 }
 
 func (s *Server) registerTools() {
-	s.mcpServer.AddTool(listContainersTool(), s.handleListContainers)
-	s.mcpServer.AddTool(getContainerLogsTool(), s.handleGetContainerLogs)
-	s.mcpServer.AddTool(containerActionTool(), s.handleContainerAction)
-	s.mcpServer.AddTool(listHostsTool(), s.handleListHosts)
-	s.mcpServer.AddTool(getContainerStatsTool(), s.handleGetContainerStats)
-}
+	mcp.AddTool(s.mcpServer, &mcp.Tool{
+		Name:        "list_containers",
+		Description: "List all Docker containers across all hosts. Returns container ID, name, image, state, host, and other metadata.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, s.handleListContainers)
 
-// --- Tool Definitions ---
+	mcp.AddTool(s.mcpServer, &mcp.Tool{
+		Name:        "get_container_logs",
+		Description: "Fetch processed logs from a Docker container. Returns structured log entries with detected log levels, JSON parsing, and multi-line grouping.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, s.handleGetContainerLogs)
 
-func listContainersTool() mcp.Tool {
-	return mcp.NewTool("list_containers",
-		mcp.WithDescription("List all Docker containers across all hosts. Returns container ID, name, image, state, host, and other metadata."),
-		mcp.WithString("state",
-			mcp.Description("Filter by container state (running, exited, created, paused, dead). Leave empty for all."),
-			mcp.Enum("running", "exited", "created", "paused", "dead", ""),
-		),
-		mcp.WithReadOnlyHintAnnotation(true),
-	)
-}
+	mcp.AddTool(s.mcpServer, &mcp.Tool{
+		Name:        "list_hosts",
+		Description: "List all Docker hosts connected to Dozzle.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, s.handleListHosts)
 
-func getContainerLogsTool() mcp.Tool {
-	return mcp.NewTool("get_container_logs",
-		mcp.WithDescription("Fetch processed logs from a Docker container. Returns structured log entries with detected log levels, JSON parsing, and multi-line grouping. Each entry includes timestamp, level, stream (stdout/stderr), message type (single/complex/group), and the parsed message content."),
-		mcp.WithString("host",
-			mcp.Description("The host ID where the container is running. Use list_containers to find this."),
-			mcp.Required(),
-		),
-		mcp.WithString("container_id",
-			mcp.Description("The container ID (or short ID) to get logs from. Use list_containers to find this."),
-			mcp.Required(),
-		),
-		mcp.WithNumber("since_minutes",
-			mcp.Description("Fetch logs from the last N minutes. Defaults to 5."),
-		),
-		mcp.WithString("stream",
-			mcp.Description("Which output stream to read: stdout, stderr, or all."),
-			mcp.Enum("stdout", "stderr", "all"),
-		),
-		mcp.WithReadOnlyHintAnnotation(true),
-	)
-}
-
-func containerActionTool() mcp.Tool {
-	return mcp.NewTool("container_action",
-		mcp.WithDescription("Perform an action on a Docker container: start, stop, or restart."),
-		mcp.WithString("host",
-			mcp.Description("The host ID where the container is running."),
-			mcp.Required(),
-		),
-		mcp.WithString("container_id",
-			mcp.Description("The container ID to act on."),
-			mcp.Required(),
-		),
-		mcp.WithString("action",
-			mcp.Description("The action to perform."),
-			mcp.Required(),
-			mcp.Enum("start", "stop", "restart"),
-		),
-		mcp.WithDestructiveHintAnnotation(true),
-	)
-}
-
-func listHostsTool() mcp.Tool {
-	return mcp.NewTool("list_hosts",
-		mcp.WithDescription("List all Docker hosts connected to Dozzle."),
-		mcp.WithReadOnlyHintAnnotation(true),
-	)
-}
-
-func getContainerStatsTool() mcp.Tool {
-	return mcp.NewTool("get_container_stats",
-		mcp.WithDescription("Get CPU and memory usage stats for a Docker container. Returns the last ~5 minutes of stats history (up to 300 data points) with CPU percentage, memory percentage, and memory usage in bytes."),
-		mcp.WithString("host",
-			mcp.Description("The host ID where the container is running. Use list_containers to find this."),
-			mcp.Required(),
-		),
-		mcp.WithString("container_id",
-			mcp.Description("The container ID to get stats for. Use list_containers to find this."),
-			mcp.Required(),
-		),
-		mcp.WithReadOnlyHintAnnotation(true),
-	)
+	mcp.AddTool(s.mcpServer, &mcp.Tool{
+		Name:        "get_container_stats",
+		Description: "Get CPU and memory usage stats for a Docker container. Returns the last ~5 minutes of stats history with CPU percentage, memory percentage, and memory usage in bytes.",
+		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true},
+	}, s.handleGetContainerStats)
 }
 
 // --- Tool Handlers ---
 
-func (s *Server) handleListContainers(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	stateFilter := mcp.ParseString(request, "state", "")
-
+func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolRequest, params *listContainersParams) (*mcp.CallToolResult, any, error) {
 	containers, errs := s.hostService.ListAllContainers(s.labels)
 	for _, err := range errs {
 		if err != nil {
-			return mcp.NewToolResultError(fmt.Sprintf("error listing containers: %v", err)), nil
+			return nil, nil, fmt.Errorf("error listing containers: %w", err)
 		}
 	}
 
@@ -160,6 +118,11 @@ func (s *Server) handleListContainers(ctx context.Context, request mcp.CallToolR
 		Created time.Time         `json:"created"`
 		Labels  map[string]string `json:"labels,omitempty"`
 		Group   string            `json:"group,omitempty"`
+	}
+
+	stateFilter := ""
+	if params.State != nil {
+		stateFilter = *params.State
 	}
 
 	var results []containerInfo
@@ -182,28 +145,35 @@ func (s *Server) handleListContainers(ctx context.Context, request mcp.CallToolR
 
 	data, err := json.Marshal(results)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal containers: %v", err)), nil
+		return nil, nil, fmt.Errorf("failed to marshal containers: %w", err)
 	}
 
-	return mcp.NewToolResultText(string(data)), nil
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: string(data)}},
+	}, nil, nil
 }
 
-func (s *Server) handleGetContainerLogs(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	host := mcp.ParseString(request, "host", "")
-	containerID := mcp.ParseString(request, "container_id", "")
-	sinceMinutes := mcp.ParseFloat64(request, "since_minutes", 5)
-	stream := mcp.ParseString(request, "stream", "all")
-
-	if host == "" || containerID == "" {
-		return mcp.NewToolResultError("host and container_id are required"), nil
+func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequest, params *getContainerLogsParams) (*mcp.CallToolResult, any, error) {
+	if params.Host == "" || params.ContainerID == "" {
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: "host and container_id are required"}},
+			IsError: true,
+		}, nil, nil
 	}
 
-	containerSvc, err := s.hostService.FindContainer(host, containerID, s.labels)
+	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.labels)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("container not found: %v", err)), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("container not found: %v", err)}},
+			IsError: true,
+		}, nil, nil
 	}
 
 	var stdType container.StdType
+	stream := "all"
+	if params.Stream != nil {
+		stream = *params.Stream
+	}
 	switch stream {
 	case "stdout":
 		stdType = container.STDOUT
@@ -213,10 +183,18 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, request mcp.CallToo
 		stdType = container.STDALL
 	}
 
+	sinceMinutes := 5.0
+	if params.SinceMinutes != nil && *params.SinceMinutes > 0 {
+		sinceMinutes = *params.SinceMinutes
+	}
+
 	since := time.Now().Add(-time.Duration(sinceMinutes) * time.Minute)
 	events, err := containerSvc.LogsBetweenDates(ctx, since, time.Now(), stdType)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to read logs: %v", err)), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("failed to read logs: %v", err)}},
+			IsError: true,
+		}, nil, nil
 	}
 
 	type logEntry struct {
@@ -272,7 +250,9 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, request mcp.CallToo
 	}
 
 	if len(entries) == 0 {
-		return mcp.NewToolResultText("(no logs in the specified time range)"), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: "(no logs in the specified time range)"}},
+		}, nil, nil
 	}
 
 	var sb strings.Builder
@@ -281,36 +261,12 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, request mcp.CallToo
 		encoder.Encode(entry)
 	}
 
-	return mcp.NewToolResultText(strings.TrimRight(sb.String(), "\n")), nil
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: strings.TrimRight(sb.String(), "\n")}},
+	}, nil, nil
 }
 
-func (s *Server) handleContainerAction(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	host := mcp.ParseString(request, "host", "")
-	containerID := mcp.ParseString(request, "container_id", "")
-	action := mcp.ParseString(request, "action", "")
-
-	if host == "" || containerID == "" || action == "" {
-		return mcp.NewToolResultError("host, container_id, and action are required"), nil
-	}
-
-	containerAction, err := container.ParseContainerAction(action)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("invalid action: %v", err)), nil
-	}
-
-	containerSvc, err := s.hostService.FindContainer(host, containerID, s.labels)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("container not found: %v", err)), nil
-	}
-
-	if err := containerSvc.Action(ctx, containerAction); err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("action failed: %v", err)), nil
-	}
-
-	return mcp.NewToolResultText(fmt.Sprintf("Successfully performed '%s' on container %s", action, containerSvc.Container.Name)), nil
-}
-
-func (s *Server) handleListHosts(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func (s *Server) handleListHosts(ctx context.Context, _ *mcp.CallToolRequest, _ *struct{}) (*mcp.CallToolResult, any, error) {
 	hosts := s.hostService.Hosts()
 
 	type hostInfo struct {
@@ -338,23 +294,28 @@ func (s *Server) handleListHosts(ctx context.Context, request mcp.CallToolReques
 
 	data, err := json.Marshal(results)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal hosts: %v", err)), nil
+		return nil, nil, fmt.Errorf("failed to marshal hosts: %w", err)
 	}
 
-	return mcp.NewToolResultText(string(data)), nil
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: string(data)}},
+	}, nil, nil
 }
 
-func (s *Server) handleGetContainerStats(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	host := mcp.ParseString(request, "host", "")
-	containerID := mcp.ParseString(request, "container_id", "")
-
-	if host == "" || containerID == "" {
-		return mcp.NewToolResultError("host and container_id are required"), nil
+func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolRequest, params *getContainerStatsParams) (*mcp.CallToolResult, any, error) {
+	if params.Host == "" || params.ContainerID == "" {
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: "host and container_id are required"}},
+			IsError: true,
+		}, nil, nil
 	}
 
-	containerSvc, err := s.hostService.FindContainer(host, containerID, s.labels)
+	containerSvc, err := s.hostService.FindContainer(params.Host, params.ContainerID, s.labels)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("container not found: %v", err)), nil
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("container not found: %v", err)}},
+			IsError: true,
+		}, nil, nil
 	}
 
 	c := containerSvc.Container
@@ -396,8 +357,10 @@ func (s *Server) handleGetContainerStats(ctx context.Context, request mcp.CallTo
 
 	data, err := json.Marshal(resp)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal stats: %v", err)), nil
+		return nil, nil, fmt.Errorf("failed to marshal stats: %w", err)
 	}
 
-	return mcp.NewToolResultText(string(data)), nil
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: string(data)}},
+	}, nil, nil
 }
