@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@11.0.8",
   "type": "module",
   "repository": {
     "type": "git",
