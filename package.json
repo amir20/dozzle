@@ -6,7 +6,7 @@
   "bugs": {
     "url": "https://github.com/amir20/dozzle/issues"
   },
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@11.0.8",
   "type": "module",
   "repository": {
     "type": "git",
@@ -99,7 +99,7 @@
     "concurrently": "^9.2.1",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^29.0.2",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.2",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.3",
     "simple-git-hooks": "^2.13.1",
