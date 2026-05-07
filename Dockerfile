@@ -13,7 +13,7 @@ RUN pnpm fetch --ignore-scripts
 
 # Copy package.json and install dependencies
 COPY package.json ./
-RUN pnpm install --offline --ignore-scripts --ignore-workspace
+RUN pnpm install --offline --ignore-scripts --ignore-workspace --config.dangerously-allow-all-builds=true
 
 # Copy assets and translations to build
 COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
