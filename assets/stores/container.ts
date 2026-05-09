@@ -31,21 +31,26 @@ export const useContainerStore = defineStore("container", () => {
     return containers.value.filter(filter);
   });
 
+  let errorTimer: ReturnType<typeof setTimeout> | null = null;
+
   function connect() {
     es?.close();
     ready.value = false;
     es = new EventSource(withBase("/api/events/stream"));
     es.addEventListener("error", (e) => {
-      if (es?.readyState === EventSource.CONNECTING) {
-        showToast(
-          {
-            id: "events-stream",
-            message: t("error.events-stream.message"),
-            title: t("error.events-stream.title"),
-            type: "error",
-          },
-          { once: true },
-        );
+      if (es?.readyState === EventSource.CONNECTING && errorTimer === null) {
+        errorTimer = setTimeout(() => {
+          errorTimer = null;
+          showToast(
+            {
+              id: "events-stream",
+              message: t("error.events-stream.message"),
+              title: t("error.events-stream.title"),
+              type: "error",
+            },
+            { once: true },
+          );
+        }, 5000);
       }
     });
 
@@ -102,6 +107,10 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.onopen = () => {
+      if (errorTimer !== null) {
+        clearTimeout(errorTimer);
+        errorTimer = null;
+      }
       removeToast("events-stream");
       if (containers.value.length > 0) {
         containers.value = [];
