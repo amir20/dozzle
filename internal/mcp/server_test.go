@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"io"
 	"testing"
 	"time"
 
@@ -15,10 +16,40 @@ import (
 )
 
 type mockHostService struct {
-	containers    []container.Container
-	hosts         []container.Host
-	findErr       error
-	listErrs      []error
+	containers []container.Container
+	hosts      []container.Host
+	findErr    error
+	listErrs   []error
+	logEvents  []*container.LogEvent
+	logErr     error
+}
+
+type stubClientService struct {
+	container_support.ClientService
+	events []*container.LogEvent
+	err    error
+}
+
+func (s *stubClientService) LogsBetweenDates(ctx context.Context, _ container.Container, _ time.Time, _ time.Time, _ container.StdType) (<-chan *container.LogEvent, error) {
+	if s.err != nil {
+		return nil, s.err
+	}
+	ch := make(chan *container.LogEvent)
+	go func() {
+		defer close(ch)
+		for _, e := range s.events {
+			select {
+			case ch <- e:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return ch, nil
+}
+
+func (s *stubClientService) RawLogs(context.Context, container.Container, time.Time, time.Time, container.StdType) (io.ReadCloser, error) {
+	return nil, fmt.Errorf("not implemented")
 }
 
 func (m *mockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
@@ -27,7 +58,8 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 	}
 	for _, c := range m.containers {
 		if c.ID == id && c.Host == host {
-			return &container_support.ContainerService{Container: c}, nil
+			stub := &stubClientService{events: m.logEvents, err: m.logErr}
+			return container_support.NewContainerService(stub, c), nil
 		}
 	}
 	return nil, assert.AnError
@@ -265,5 +297,68 @@ func TestNewServerRegistersTools(t *testing.T) {
 	assert.Len(t, tools.Tools, 4)
 }
 
-// Ensure the package compiles with time import used
-var _ = time.Now
+func TestGetContainerLogs(t *testing.T) {
+	now := time.Now()
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local"},
+		},
+		logEvents: []*container.LogEvent{
+			{Timestamp: now.UnixMilli(), Level: "info", Stream: "stdout", Type: container.LogTypeSingle, RawMessage: "hello"},
+			{Timestamp: now.UnixMilli(), Level: "error", Stream: "stderr", Type: container.LogTypeSingle, RawMessage: "boom"},
+		},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "get_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123"},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "hello")
+	assert.Contains(t, text, "boom")
+}
+
+func TestGetContainerLogsInvalidStream(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Host: "local"},
+		},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "get_container_logs",
+		Arguments: map[string]any{"host": "local", "container_id": "abc123", "stream": "bogus"},
+	})
+	require.NoError(t, err)
+	assert.True(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "invalid stream")
+}

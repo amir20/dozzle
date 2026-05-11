@@ -62,10 +62,10 @@ type listContainersParams struct {
 }
 
 type getContainerLogsParams struct {
-	Host         string   `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
-	ContainerID  string   `json:"container_id" jsonschema:"The container ID (or short ID) to get logs from. Use list_containers to find this."`
-	SinceMinutes *float64 `json:"since_minutes,omitempty" jsonschema:"Fetch logs from the last N minutes. Defaults to 5."`
-	Stream       *string  `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout stderr or all."`
+	Host         string  `json:"host" jsonschema:"The host ID where the container is running. Use list_containers to find this."`
+	ContainerID  string  `json:"container_id" jsonschema:"The container ID (or short ID) to get logs from. Use list_containers to find this."`
+	SinceMinutes *int    `json:"since_minutes,omitempty" jsonschema:"Fetch logs from the last N minutes. Defaults to 5."`
+	Stream       *string `json:"stream,omitempty" jsonschema:"Which output stream to read: stdout, stderr, or all. Defaults to all."`
 }
 
 type getContainerStatsParams struct {
@@ -126,7 +126,7 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 		stateFilter = *params.State
 	}
 
-	var results []containerInfo
+	results := []containerInfo{}
 	for _, c := range containers {
 		if stateFilter != "" && c.State != stateFilter {
 			continue
@@ -170,27 +170,35 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 		}, nil, nil
 	}
 
-	var stdType container.StdType
-	stream := "all"
+	stream := ""
 	if params.Stream != nil {
 		stream = *params.Stream
 	}
+	var stdType container.StdType
 	switch stream {
+	case "", "all":
+		stdType = container.STDALL
 	case "stdout":
 		stdType = container.STDOUT
 	case "stderr":
 		stdType = container.STDERR
 	default:
-		stdType = container.STDALL
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("invalid stream %q: must be stdout, stderr, or all", stream)}},
+			IsError: true,
+		}, nil, nil
 	}
 
-	sinceMinutes := 5.0
+	sinceMinutes := 5
 	if params.SinceMinutes != nil && *params.SinceMinutes > 0 {
 		sinceMinutes = *params.SinceMinutes
 	}
 
+	logCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	since := time.Now().Add(-time.Duration(sinceMinutes) * time.Minute)
-	events, err := containerSvc.LogsBetweenDates(ctx, since, time.Now(), stdType)
+	events, err := containerSvc.LogsBetweenDates(logCtx, since, time.Now(), stdType)
 	if err != nil {
 		return &mcp.CallToolResult{
 			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("failed to read logs: %v", err)}},
@@ -259,7 +267,9 @@ func (s *Server) handleGetContainerLogs(ctx context.Context, _ *mcp.CallToolRequ
 	var sb strings.Builder
 	encoder := json.NewEncoder(&sb)
 	for _, entry := range entries {
-		encoder.Encode(entry)
+		if err := encoder.Encode(entry); err != nil {
+			return nil, nil, fmt.Errorf("failed to encode log entry: %w", err)
+		}
 	}
 
 	return &mcp.CallToolResult{
@@ -280,7 +290,7 @@ func (s *Server) handleListHosts(ctx context.Context, _ *mcp.CallToolRequest, _ 
 		Available     bool   `json:"available"`
 	}
 
-	var results []hostInfo
+	results := []hostInfo{}
 	for _, h := range hosts {
 		results = append(results, hostInfo{
 			ID:            h.ID,
@@ -336,7 +346,7 @@ func (s *Server) handleGetContainerStats(ctx context.Context, _ *mcp.CallToolReq
 		Stats         []statEntry `json:"stats"`
 	}
 
-	var entries []statEntry
+	entries := []statEntry{}
 	if c.Stats != nil {
 		for _, stat := range c.Stats.Data() {
 			entries = append(entries, statEntry{
