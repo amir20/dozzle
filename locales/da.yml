@@ -3,6 +3,8 @@ toolbar:
   download: Download
   download-filtered: Download Filtrerede Logs
   search: Søg
+  inverse-on: Ekskluder matchende (inverteret)
+  inverse-off: Inkluder matchende (normal)
   show: Vis kun {std}
   show-all: Vis alle streams
   stop: Stop

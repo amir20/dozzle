@@ -3,6 +3,8 @@ toolbar:
   download: Скачать
   download-filtered: Скачать Отфильтрованные Логи
   search: Поиск
+  inverse-on: Исключить совпадения (инверсия)
+  inverse-off: Включить совпадения (обычно)
   show: Показать только {std}
   show-all: Показать все потоки
   stop: Остановить

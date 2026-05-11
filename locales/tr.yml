@@ -3,6 +3,8 @@ toolbar:
   download: İndir
   download-filtered: Filtrelenmiş Logları İndir
   search: Ara
+  inverse-on: Eşleşenleri hariç tut (ters)
+  inverse-off: Eşleşenleri dahil et (normal)
   show: Sadece {std} göster
   show-all: Tüm akışları göster
   stop: Durdur

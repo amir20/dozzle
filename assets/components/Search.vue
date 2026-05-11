@@ -21,7 +21,7 @@
           class="btn btn-circle btn-xs"
           :class="inverseFilter ? 'btn-error' : 'btn-ghost'"
           @click="toggleInverse()"
-          :title="inverseFilter ? 'Exclude matching (inverse)' : 'Include matching (normal)'"
+          :title="inverseFilter ? $t('toolbar.inverse-on') : $t('toolbar.inverse-off')"
         >
           <mdi:filter-off-outline v-if="inverseFilter" />
           <mdi:filter-outline v-else />

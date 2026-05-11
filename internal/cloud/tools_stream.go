@@ -47,12 +47,14 @@ func matchesFilters(event *container.LogEvent, args *fetchLogsArgs, re *regexp.R
 	}
 
 	if args.Query != "" {
-		if args.Inverse == containsIgnoreCase(msg, args.Query) {
+		matched := containsIgnoreCase(msg, args.Query)
+		if matched == args.Inverse {
 			return "", false
 		}
 	}
 	if re != nil {
-		if args.Inverse == re.MatchString(msg) {
+		matched := re.MatchString(msg)
+		if matched == args.Inverse {
 			return "", false
 		}
 	}

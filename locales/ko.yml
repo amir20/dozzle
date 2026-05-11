@@ -3,6 +3,8 @@ toolbar:
   download: 다운로드
   download-filtered: 필터링된 로그 다운로드
   search: 검색
+  inverse-on: 일치 항목 제외 (반전)
+  inverse-off: 일치 항목 포함 (일반)
   show: "{std} 보기"
   show-all: 전체 보기
   stop: 중지

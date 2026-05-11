@@ -3,6 +3,8 @@ toolbar:
   download: Baixar
   download-filtered: Baixar Logs Filtrados
   search: Pesquisar
+  inverse-on: Excluir correspondências (inverso)
+  inverse-off: Incluir correspondências (normal)
   show: Mostrar {std}
   show-all: Mostrar tudo
   stop: Parar

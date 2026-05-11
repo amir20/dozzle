@@ -3,6 +3,8 @@ toolbar:
   download: Download
   download-filtered: Download Filtered Logs
   search: Search
+  inverse-on: Exclude matching (inverse)
+  inverse-off: Include matching (normal)
   show: Show {std}
   show-all: Show all
   stop: Stop

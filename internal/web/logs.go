@@ -188,23 +188,23 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				if _, ok := event.Message.(string); onlyComplex && ok {
 					continue
 				}
-			if regex != nil && inverse == support_web.Search(regex, event) {
-				continue
-			}
-			if len(levels) > 0 {
-				if _, ok := levels[event.Level]; !ok {
+				if regex != nil && inverse == support_web.Search(regex, event) {
 					continue
 				}
+				if len(levels) > 0 {
+					if _, ok := levels[event.Level]; !ok {
+						continue
+					}
+				}
+				if plainText {
+					fmt.Fprintf(writer, "%s\n", event.RawMessage)
+				} else if err := encoder.Encode(event); err != nil {
+					log.Error().Err(err).Msg("error encoding log event")
+				}
+				continue
 			}
-			if plainText {
-				fmt.Fprintf(writer, "%s\n", event.RawMessage)
-			} else if err := encoder.Encode(event); err != nil {
-				log.Error().Err(err).Msg("error encoding log event")
-			}
-			continue
-		}
 
-		if !matchesFilter(event, regex, levels, inverse) {
+			if !matchesFilter(event, regex, levels, inverse) {
 				continue
 			}
 

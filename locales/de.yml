@@ -3,6 +3,8 @@ toolbar:
   download: Herunterladen
   download-filtered: Gefilterte Logs Herunterladen
   search: Suchen
+  inverse-on: Übereinstimmungen ausschließen (invertiert)
+  inverse-off: Übereinstimmungen einschließen (normal)
   show: Zeige nur {std}
   show-all: Zeige alle Streams
   stop: Stop
