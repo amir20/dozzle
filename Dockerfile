@@ -1,23 +1,28 @@
 # Build assets
-FROM --platform=$BUILDPLATFORM node:25.8.0-alpine AS node
+FROM --platform=$BUILDPLATFORM node:25.9.0-alpine AS node
 
 RUN npm install -g --force corepack && corepack enable
+
+ENV CI=true
 
 WORKDIR /build
 
 # Install dependencies from lock file
-COPY pnpm-*.yaml ./
-RUN pnpm fetch --ignore-scripts --no-optional
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm fetch --ignore-scripts
 
 # Copy package.json and install dependencies
 COPY package.json ./
-RUN pnpm install --offline --ignore-scripts --no-optional
+RUN pnpm install --offline --ignore-scripts
 
 # Copy assets and translations to build
 COPY vite.config.ts tsconfig.json .prettierrc.cjs .npmrc ./
 COPY assets ./assets
 COPY locales ./locales
 COPY public ./public
+
+ARG CLOUD_URL
+ENV CLOUD_URL=$CLOUD_URL
 
 # Build assets
 RUN pnpm build
@@ -34,6 +39,7 @@ RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Copy all other files
 COPY internal ./internal
+COPY proto ./proto
 COPY types ./types
 COPY main.go ./
 COPY protos ./protos
@@ -48,7 +54,7 @@ ARG TARGETOS TARGETARCH
 
 # Build binary
 RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
-  GOEXPERIMENT=jsonv2 GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
+  GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=$TAG" -o dozzle
 
 RUN mkdir /data
 

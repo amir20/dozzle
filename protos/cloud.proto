@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+package cloud;
+
+option go_package = "github.com/amir20/dozzle/proto/cloud";
+
+service CloudToolService {
+  // Dozzle sends ToolResponse, cloud sends ToolRequest
+  rpc ToolStream(stream ToolResponse) returns (stream ToolRequest);
+
+  // Dozzle-initiated unary call: search log lines this instance has streamed
+  // to Cloud (gated by streamLogs opt-in). Cloud scopes the query server-side
+  // to the (user_id, api_key_id) derived from the authenticated connection;
+  // Dozzle does NOT pass any identity fields in the request.
+  rpc SearchLogs(SearchLogsRequest) returns (SearchLogsResponse);
+}
+
+message ToolRequest {
+  string request_id = 1;
+  oneof type {
+    ListToolsRequest list_tools = 2;
+    CallToolRequest call_tool = 3;
+    CancelStreamRequest cancel_stream = 4;
+  }
+}
+
+message ToolResponse {
+  string request_id = 1;
+  oneof type {
+    ListToolsResponse list_tools = 2;
+    CallToolResponse call_tool = 3;
+    // Unsolicited server-push: batched container log lines streamed from
+    // Dozzle to Cloud for ingestion into VictoriaLogs. request_id is empty
+    // for log batches — they are not replies to a ToolRequest.
+    LogBatch log_batch = 4;
+  }
+}
+
+// Batch of log lines from one or more containers. Dozzle pushes these
+// continuously while connected. Cloud routes them to VictoriaLogs scoped
+// to the owning user (derived from the connection's auth).
+message LogBatch {
+  repeated LogBatchEntry entries = 1;
+}
+
+message LogBatchEntry {
+  string host_id = 1;
+  string container_id = 2;
+  string container_name = 3;
+  int64 timestamp_ns = 4;      // unix nanoseconds
+  string message = 5;
+  string stream = 6;           // "stdout" or "stderr"
+  string level = 7;            // "info", "warn", "error", etc. (best-effort)
+  // Deterministic FNV-32a hash of the raw log line, the same id Dozzle
+  // stamps on LogEvent.Id. Cloud indexes this as a non-stream field so
+  // search results can produce a stable permanent link
+  // (/container/:id/time/:datetime?logId=...) that lands the user on
+  // exactly the matching line in the local log viewer.
+  uint32 log_id = 8;
+}
+
+message ListToolsRequest {}
+
+message ListToolsResponse {
+  repeated ToolDefinition tools = 1;
+  string version = 2;
+}
+
+message ToolDefinition {
+  string name = 1;
+  string description = 2;
+  string parameters_json = 3;
+  // scope tells the cloud router how to multiplex calls to this tool. Dozzle
+  // itself has no notion of "multiple instances"; this field lets the router
+  // decide whether to fan out (default), target a specific container/host
+  // inferred from the existing host_id/container_id params, or target the
+  // whole Dozzle instance (in which case the router injects an instance_id
+  // argument into the LLM-facing schema and strips it before forwarding).
+  ToolScope scope = 4;
+  // read_only = true means the tool has no side effects and is safe to fan
+  // out across every connected Dozzle instance when the scope's routing
+  // argument is missing (e.g. list_notifications without instance_id queries
+  // all instances and merges results). Mutating tools (create/delete/deploy/
+  // restart/etc.) must leave this false — the router will require the scope
+  // argument and error if it's missing, so a write never fans out by mistake.
+  bool read_only = 5;
+}
+
+enum ToolScope {
+  // Default — treated as INSTANCE. Exists so forward-compat clients without
+  // a scope field don't misroute.
+  TOOL_SCOPE_UNSPECIFIED = 0;
+  // Applies to the whole Dozzle instance (list_hosts, notifications, etc.).
+  // Requires instance_id in the args.
+  TOOL_SCOPE_INSTANCE = 1;
+  // Targets a specific Docker host (deploy_compose, list_deploy_versions).
+  // Requires host_id in the args.
+  TOOL_SCOPE_HOST = 2;
+  // Targets a specific container (logs, actions, inspect). Requires
+  // container_id in the args (host_id is typically also present for the
+  // Docker API call inside Dozzle but isn't used for routing).
+  TOOL_SCOPE_CONTAINER = 3;
+}
+
+message CallToolRequest {
+  string name = 1;
+  string arguments_json = 2;
+}
+
+message CallToolResponse {
+  bool success = 1;
+  string error = 2;
+  bool stream = 9;
+  bool end_stream = 10;
+  oneof result {
+    ListHostsResult list_hosts = 3;
+    ListContainersResult list_containers = 4;
+    ContainerStatsResult container_stats = 5;
+    ActionResult action = 6;
+    FetchLogsResult fetch_logs = 7;
+    InspectContainerResult inspect_container = 8;
+    DeployResult deploy = 11;
+    NotificationResult notification = 12;
+  }
+}
+
+message CancelStreamRequest {
+  string stream_request_id = 1;
+}
+
+// Host information
+message HostInfo {
+  string id = 1;
+  string name = 2;
+  int32 n_cpu = 3;
+  int64 mem_total = 4;
+  string docker_version = 5;
+  string agent_version = 6;
+  string type = 7;
+  bool available = 8;
+}
+
+message ListHostsResult {
+  repeated HostInfo hosts = 1;
+}
+
+// Container information
+message ContainerInfo {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string command = 4;
+  string created = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string state = 8;
+  string health = 9;
+  string host_name = 10;
+  string host_id = 12;
+  string group = 11;
+}
+
+message ListContainersResult {
+  repeated ContainerInfo containers = 1;
+}
+
+// Container stats
+message ContainerStatEntry {
+  string id = 1;
+  string name = 2;
+  string host = 3;
+  double cpu_percent = 4;
+  double memory_percent = 5;
+  double memory_usage = 6;
+  double max_cpu_5min = 7;
+  double max_memory_5min = 8;
+  string host_id = 9;
+  uint64 network_rx_total = 10;
+  uint64 network_tx_total = 11;
+  uint64 network_rx_5min = 12;
+  uint64 network_tx_5min = 13;
+}
+
+message ContainerStatsResult {
+  repeated ContainerStatEntry stats = 1;
+}
+
+// Container logs
+message LogEntry {
+  int64 timestamp = 1;
+  string message = 2;
+  string stream = 3;  // "stdout" or "stderr"
+  string level = 4;   // "info", "warn", "error", etc.
+}
+
+message FetchLogsResult {
+  string container_name = 1;
+  repeated LogEntry entries = 2;
+}
+
+// Container inspect result
+message InspectContainerResult {
+  string id = 1;
+  string name = 2;
+  string image = 3;
+  string command = 4;
+  string created = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string state = 8;
+  string health = 9;
+  string host_name = 10;
+  string host_id = 19;
+  map<string, string> labels = 11;
+  uint64 memory_limit = 12;
+  double cpu_limit = 13;
+  reserved 14;
+  reserved "env";
+  repeated string ports = 15;
+  repeated string mounts = 16;
+  string restart_policy = 17;
+  string network_mode = 18;
+}
+
+// Container action result
+message ActionResult {
+  bool success = 1;
+  string container_id = 2;
+  string action = 3;
+  string message = 4;
+}
+
+// Deploy compose result
+message DeployResult {
+  bool success = 1;
+  string project = 2;
+  string message = 3;
+}
+
+// Notification/alert tool result (list, create).
+message NotificationResult {
+  bool success = 1;
+  string message = 2;
+}
+
+// Cloud log search.
+message SearchLogsRequest {
+  // Substring/word-filter query. Empty -> empty result. Whitespace-only
+  // is rejected client-side; server treats as empty.
+  string query = 1;
+  // Result cap. Default 20, server-capped at 50.
+  int32 limit = 2;
+  // Pagination cursor: return only hits with timestamp_ns < this value.
+  // 0 = newest. Reserved for future use.
+  int64 before_ts_ns = 3;
+  // Optional filter — narrow to a specific Docker host inside the instance.
+  // Empty = all hosts under this instance.
+  string host_id = 4;
+  // Optional filter — narrow to a specific container.
+  string container_id = 5;
+}
+
+message SearchLogsResponse {
+  repeated SearchLogHit hits = 1;
+  bool has_more = 2;
+  // For pagination: pass back as before_ts_ns to fetch the next page.
+  int64 next_before_ts_ns = 3;
+}
+
+message SearchLogHit {
+  int64 timestamp_ns = 1;
+  string host_id = 2;
+  string container_id = 3;
+  string container_name = 4;
+  // Full log line as indexed.
+  string message = 5;
+  string stream = 6;
+  string level = 7;
+  // FNV-32a hash of the raw log line — same id Dozzle assigns LogEvent.Id
+  // and exposes via "Copy permalink". Lets the search-result row deep-link
+  // straight to the matching line.
+  uint32 log_id = 8;
+}

@@ -9,11 +9,13 @@ import (
 	"strings"
 
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/container"
 	dozzle_mcp "github.com/amir20/dozzle/internal/mcp"
 	"github.com/amir20/dozzle/internal/notification"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
+	"github.com/amir20/dozzle/types"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -51,6 +53,23 @@ type Config struct {
 	DisableAvatars   bool
 	ReleaseCheckMode ReleaseCheckMode
 	Labels           container.ContainerLabels
+	Cloud            CloudHooks
+}
+
+// CloudHooks bundles cloud-side callbacks the web layer invokes. Grouping
+// them keeps Config and createServer signatures stable as more cloud RPCs
+// land. Nil-valued fields mean "feature unavailable" — handlers should
+// degrade gracefully (e.g. SearchLogs nil → 503).
+type CloudHooks struct {
+	// OnSetup signals that cloud configuration has been (re)written and
+	// the client should reconnect / re-authenticate.
+	OnSetup func()
+	// OnUpdate is fired when cloud-affecting settings change (e.g.
+	// streamLogs toggle) so the existing connection can pick them up.
+	OnUpdate func()
+	// SearchLogs proxies a substring/word-filter query to Doligence Cloud
+	// over the authenticated gRPC connection. Nil when cloud is not wired.
+	SearchLogs func(ctx context.Context, query string, limit int32, hostID, containerID string, before int64) (*cloud.SearchLogResult, error)
 }
 
 type Authorization struct {
@@ -87,6 +106,11 @@ type HostService interface {
 	UpdateDispatcher(id int, d dispatcher.Dispatcher)
 	RemoveDispatcher(id int)
 	Dispatchers() []notification.DispatcherConfig
+	FetchAgentNotificationStats() map[int]types.SubscriptionStats
+	CloudConfig() *notification.CloudConfig
+	SetCloudConfig(cc *notification.CloudConfig)
+	SetCloudStreamLogs(enabled bool)
+	RemoveCloudConfig()
 }
 
 type handler struct {
@@ -140,10 +164,12 @@ func createRouter(h *handler) *chi.Mux {
 				r.Get("/containers/{hostIds}/download", h.downloadLogs) // formatted as host:container,host:container
 				r.Get("/labels/{labels}/logs/stream", h.streamLogsWithLabels)
 				r.Get("/groups/{group}/logs/stream", h.streamGroupedLogs)
+				r.Get("/host-groups/{group}/logs/stream", h.streamHostGroupLogs)
 				r.Get("/events/stream", h.streamEvents)
 
 				// Action
 				if h.config.EnableActions {
+					r.Post("/hosts/{host}/containers/{id}/actions/update", h.containerUpdate)
 					r.Post("/hosts/{host}/containers/{id}/actions/{action}", h.containerActions)
 				}
 				if h.config.EnableShell {
@@ -184,6 +210,11 @@ func createRouter(h *handler) *chi.Mux {
 
 				// Cloud API
 				r.Get("/cloud/status", h.cloudStatus)
+				r.Get("/cloud/search/logs", h.cloudSearchLogs)
+				r.Get("/cloud/config", h.cloudConfig)
+				r.Patch("/cloud/config", h.updateCloudConfig)
+				r.Delete("/cloud/config", h.deleteCloudConfig)
+				r.Post("/cloud/feedback", h.cloudFeedback)
 
 				// MCP (Model Context Protocol) endpoint
 				if h.config.EnableMCP {
@@ -203,6 +234,8 @@ func createRouter(h *handler) *chi.Mux {
 		})
 
 		r.Get("/healthcheck", h.healthcheck)
+		r.Get("/manifest.webmanifest", h.manifest)
+		r.Get("/sw.js", h.serviceWorker)
 
 		defaultHandler := http.StripPrefix(strings.Replace(base+"/", "//", "/", 1), http.HandlerFunc(h.index))
 		r.With(Brotli).Get("/*", func(w http.ResponseWriter, req *http.Request) {

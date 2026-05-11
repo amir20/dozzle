@@ -9,12 +9,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/amir20/dozzle/internal/auth"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	profileFilename = "profile.json"
+	profileFilename   = "profile.json"
+	DefaultUsername   = "__default__"
 )
 
 var errMissingProfileErr = errors.New("Profile file does not exist")
@@ -48,6 +48,7 @@ type Profile struct {
 
 var dataPath string
 var mux = &sync.Mutex{}
+var errInvalidUsername = errors.New("invalid username: contains path separator or traversal")
 
 func init() {
 	path, err := filepath.Abs("./data")
@@ -64,10 +65,18 @@ func init() {
 	dataPath = path
 }
 
-func UpdateFromReader(user auth.User, reader io.Reader) error {
+func safePath(username string) (string, error) {
+	clean := filepath.Base(username)
+	if clean != username || clean == "." || clean == ".." {
+		return "", errInvalidUsername
+	}
+	return filepath.Join(dataPath, clean), nil
+}
+
+func UpdateFromReader(username string, reader io.Reader) error {
 	mux.Lock()
 	defer mux.Unlock()
-	existingProfile, err := Load(user)
+	existingProfile, err := Load(username)
 	if err != nil && err != errMissingProfileErr {
 		log.Error().Err(err).Msg("Unable to load profile. Overwriting it.")
 	}
@@ -76,11 +85,14 @@ func UpdateFromReader(user auth.User, reader io.Reader) error {
 		return err
 	}
 
-	return save(user, existingProfile)
+	return save(username, existingProfile)
 }
 
-func save(user auth.User, profile Profile) error {
-	path := filepath.Join(dataPath, user.Username)
+func save(username string, profile Profile) error {
+	path, err := safePath(username)
+	if err != nil {
+		return err
+	}
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, 0755); err != nil {
 			return err
@@ -109,8 +121,11 @@ func save(user auth.User, profile Profile) error {
 	return f.Sync()
 }
 
-func Load(user auth.User) (Profile, error) {
-	path := filepath.Join(dataPath, user.Username)
+func Load(username string) (Profile, error) {
+	path, err := safePath(username)
+	if err != nil {
+		return Profile{}, err
+	}
 	profilePath := filepath.Join(path, profileFilename)
 
 	if _, err := os.Stat(profilePath); os.IsNotExist(err) {

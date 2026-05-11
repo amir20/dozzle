@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Genstart
+  update: Opdater
+  update-service: Opdater Tjeneste
+  update-pulling: Henter seneste image...
+  update-recreating: Genskaber container...
+  update-done: Container opdateret succesfuldt
+  update-up-to-date: Allerede opdateret
   show-hostname: Vis værtsnavn
   show-container-name: Vis containernavn
   shell: Shell
@@ -48,17 +54,27 @@ label:
   no-logs: Container har ingen logs endnu
   show-all-containers: Vis alle containere
   collapse-all: Kollaps alle
+  collapse-group: Kollaps gruppe
+  expand-all: Udvid alle
 tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
   merge-all: Sammenlæg alt i én stream
 error:
   page-not-found: Denne side eksisterer ikke
+  host-group-not-found: 'Ingen værter fundet i gruppen "{name}"'
   invalid-auth: Brugernavn eller kodeord er ikke gyldig
   copy-not-supported: Kopiering til udklipsholder understøttes ikke i din browser
   copy-not-supported-hint: Udklipsholder ikke tilgængelig. Kopiér linket nedenfor
   logs-skipped: Vis {total} skjulte indtastninger
   container-not-found: Container ikke fundet
+  action-failed: Handling Mislykkedes
+  update-failed: Opdatering Mislykkedes
+  unable-to-complete-action: Kan ikke fuldføre handling
+  invalid-action: Ugyldig handling
+  unable-to-update: Kan ikke opdatere container
+  something-went-wrong: Noget gik galt
+  unknown-error: Ukendt fejl
   events-stream:
     title: Uventet fejl
     message: >-
@@ -86,12 +102,18 @@ button:
   settings: Indstillinger
   cancel: Annuller
   redirect: Omdiriger
+  retry: Retry
 placeholder:
   search-containers: Søg containere (⌘ + k, ⌃k)
   search: Søg
 settings:
   help-support: >
     Støt venligst Dozzle ved at donere eller sponsorere os på GitHub. Dine bidrag hjælper os med at forbedre Dozzle for alle. Tak! 🙏🏼
+  about-desc: Information om din Dozzle-installation og hvordan du kan støtte projektet.
+  display-desc: Tilpas hvordan logs og resten af appen ser ud. Forhåndsvisningen afspejler dine ændringer live.
+  options-desc: Indstillinger for sprog, navigation og gruppering.
+  cloud-desc: Stream logs til Dozzle Cloud for AI-drevne undersøgelser og søgning på tværs af installationer.
+  support-title: Støt Dozzle
   display: Visning
   locale: Overskriv sprog
   small-scrollbars: Brug mindre scrollbarer
@@ -167,17 +189,21 @@ notifications:
   destinations: Destinationer
   add-destination: Tilføj destination
   alerts: Alarmer
+  add-alert: Tilføj alarm
   add: Tilføj
   filter:
     all: Alle ({count})
     enabled: Aktiveret ({count})
     paused: Pauset ({count})
   no-alerts: Ingen alarmer konfigureret endnu. Opret en for at komme i gang.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Pauset
     containers: Containere
     log-filter: Log filter
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Afkøling
     sample-window: Prøvevindue
     destination: Destination
@@ -189,6 +215,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Rediger
+    duplicate: Dupliker
     delete: Slet
   alert-form:
     create-title: Opret Alarm
@@ -216,9 +243,13 @@ notifications:
     sample-window-hint: "Alarm udløses, når betingelsen er opfyldt i {duration}"
     cooldown-label: Afkøling
     cooldown-hint: "{duration} mellem alarmer pr. container"
+    no-cooldown: No cooldown
     alert-type: Alarmtype
     log-alert: Logalarm
     metric-alert: Metrikalarm
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Tilføj Destination
     edit-title: Rediger Destination
@@ -251,15 +282,89 @@ notifications:
     close: Luk
     save: Gem
     add: Tilføj Destination
-    cloud-exists: Kun én Dozzle Cloud destination kan konfigureres
+    cloud-exists: Dozzle Cloud er allerede tilknyttet
     link-cloud: Link Konto
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: For at konfigurere dine administrerede kanaler, gå til
     cloud-settings-link: Dozzle Cloud Indstillinger
     cloud-checking: Kontrollerer cloud-status...
     cloud-relink: Din API-nøgle er ugyldig eller udløbet. Slet venligst og link din konto igen.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Begivenheder i denne periode
+  empty-state:
+    title: Kom i gang med notifikationer
+    description: Vælg hvordan du vil modtage alarmer, når dine containere kræver opmærksomhed.
   cloud-link-success:
     title: Dozzle Cloud Linket
-    message: Din konto er blevet succesfuldt linket til Dozzle Cloud.
+    message: Din instans er blevet tilsluttet. Du kan fjerne tilknytningen i indstillinger eller tjekke dit forbrug når som helst.
+cloud:
+  title: Dozzle Cloud
+  description: Styr dine containere eksternt og brug AI til at undersøge problemer på tværs af din klynge.
+  learn-more: Læs mere
+  link-instance: Tilknyt instans
+  relink-instance: Gentilknyt instans
+  connected: Tilsluttet
+  plan: Plan
+  usage: Begivenheder i denne periode
+  dashboard: Dashboard
+  settings: Indstillinger
+  error: Forbindelsesfejl. Gentilknyt venligst din instans.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Fjern tilknytning
+  unlink-confirm: Er du sikker på, at du vil fjerne tilknytningen til Dozzle Cloud? Dette fjerner alle cloud-notifikationsdestinationer.
+  stream-logs: Stream containerlogs til Dozzle Cloud
+  stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
+  welcome:
+    title: "Din instans er forbundet!"
+    subtitle: "Du er klar til at modtage advarsler, daglige resuméer og mere fra Dozzle Cloud."
+    question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
+    placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
+    or-pick: "Eller vælg en:"
+    chip-alerts: Få besked om problemer
+    chip-assistant: Spørg Assistenten om mine logs
+    chip-hosts: Overvåge flere værter
+    chip-remote-access: Tilgå logs eksternt
+    chip-digests: Få daglige logoversigter
+    chip-other: Noget andet
+    get-started: Kom i gang
+    skip: Spring over for nu
+    step2-title: "Tak! Sådan får du mest ud af Cloud."
+    step2-subtitle: "Jeg læser hvert svar, og det former hvad jeg bygger næste gang. Disse trin hjælper dig i gang."
+    checklist-alert-title: Opret din første advarsel
+    checklist-alert-desc: "Opsæt en regel i Dozzle, så Cloud ved hvad den skal holde øje med. Du får et resumé, når noget går galt."
+    checklist-notify-title: Vælg hvordan du vil notificeres
+    checklist-notify-desc: "E-mail er aktiveret som standard. Tilføj push, Telegram eller Discord for hurtigere advarsler."
+    checklist-agent-title: Prøv AI-assistenten
+    checklist-agent-desc: "Forbind Telegram eller Discord og chat med dine containere. Diagnosticér fejl, tjek tilstand og udfør handlinger som genstart af tjenester."
+    create-alert: Opret din første advarsel
+    default-alert-name: Container exited with error
+    later: "Det gør jeg senere"
+cloud-search:
+  containers-section: "Containere"
+  search-logs-for: "Søg logs efter \"{query}\""
+  across-containers: "indekseret på tværs af alle dine containere"
+  connect-to-enable: "Tilslut Dozzle Cloud for at søge i logs"
+  enable-streaming-to-search: "Aktiver log-streaming til Cloud"
+  open-container: "åbn container"
+  search-logs-shortcut: "søg logs"
+  cloud-connected: "Cloud tilsluttet"
+  results-page-title: "Logsøgning"
+  no-results: "Ingen matchende loglinjer."
+  search-failed: "Cloud-søgning mislykkedes."
+  search-empty-prompt: "Skriv en forespørgsel for at søge i logs."
+  searching: "Søger…"
+  hits-count: "{n} resultater"
+  window-suffix: "i de seneste 14 dage"
+  hero-title-cloud: "Søg containere og logs"
+  hero-title-plain: "Søg containere"
+  hero-pill-indexed: "Cloud-indeks"
+  modal-placeholder-cloud: "Søg containere og logs…"
+  modal-placeholder-plain: "Søg containere…"
+  col-time: "Tid"
+  col-level: "Niveau"
+  col-container: "Container"
+  col-message: "Besked"
+  container-removed: "Containeren er slettet"
+  cta-settings: "Cloud-indstillinger"
+  container-removed-pill: "slettet"

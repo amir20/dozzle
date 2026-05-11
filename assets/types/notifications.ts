@@ -5,6 +5,7 @@ export interface NotificationRule {
   containerExpression: string;
   logExpression: string;
   metricExpression?: string;
+  eventExpression?: string;
   cooldown?: number;
   sampleWindow?: number;
   triggerCount: number;
@@ -31,6 +32,7 @@ export interface NotificationRuleInput {
   logExpression: string;
   containerExpression: string;
   metricExpression?: string;
+  eventExpression?: string;
   cooldown?: number;
   sampleWindow?: number;
 }
@@ -39,6 +41,7 @@ export interface PreviewResult {
   containerError?: string;
   logError?: string;
   metricError?: string;
+  eventError?: string;
   matchedContainers: {
     id: string;
     name: string;
@@ -62,4 +65,17 @@ export interface TestWebhookResult {
   success: boolean;
   statusCode?: number;
   error?: string;
+}
+
+export interface CloudConfig {
+  prefix: string;
+  expiresAt?: string;
+  linked: boolean;
+  streamLogs: boolean;
+}
+
+export interface CloudStatus {
+  user: { email: string; name: string };
+  plan: { name: string; events_per_month: number; retention_days: number };
+  usage: { events_used: number; events_limit: number; period: string };
 }

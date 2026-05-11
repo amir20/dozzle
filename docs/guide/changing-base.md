@@ -1,10 +1,14 @@
 ---
-title: Changing Application Base
+title: Reverse Proxy & Base Path
 ---
 
-# Changing Dozzle Base
+# Reverse Proxy & Base Path
 
-Dozzle by default mounts to "/". This can be changed with the `--base` flag. For example, if you want to mount to "/foobar" then you can use `--base /foobar` or the env variable `DOZZLE_BASE`.
+Dozzle is commonly placed behind a reverse proxy for TLS termination, authentication, or to share a hostname with other services. This page covers both mounting Dozzle at a sub-path and the proxy settings needed to make streaming work correctly.
+
+## Changing the Base Path
+
+Dozzle by default mounts to `/`. This can be changed with the `--base` flag or the `DOZZLE_BASE` environment variable. For example, to mount at `/foobar`:
 
 ::: code-group
 
@@ -28,16 +32,19 @@ services:
 
 Dozzle will be available at `http://localhost:8080/foobar/`. This option rewrites all assets to `/foobar/{file.path}` and automatically redirects `/foobar` to `/foobar/`.
 
-## Example with Proxy
+## Proxy Requirements
 
-Here is an example with Nginx to proxy Dozzle with a different base:
+Dozzle streams logs over **Server-Sent Events (SSE)** and uses **WebSocket** for container shells. Reverse proxies must:
+
+1. **Disable response buffering** — SSE delivers events as they happen. Any buffering causes logs to arrive in bursts or never arrive at all. Dozzle sends `X-Accel-Buffering: no`, but some proxies ignore it.
+2. **Forward WebSocket upgrade headers** — required for the shell and attach features.
+3. **Avoid compressing `text/event-stream`** — compression middleware often breaks SSE.
+
+## Nginx
 
 ```nginx
 location ^~ /foobar/ {
-    set $upstream_app dozzle;
-    set $upstream_port 8080;
-    set $upstream_proto http;
-    proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+    proxy_pass http://dozzle:8080;
 
     chunked_transfer_encoding off;
     proxy_buffering off;
@@ -47,3 +54,50 @@ location ^~ /foobar/ {
     proxy_set_header Connection "upgrade";
 }
 ```
+
+Drop the `^~ /foobar/` prefix if Dozzle is mounted at the root. See also the FAQ entry on [disabling buffering](/guide/faq#disabling-buffering-in-nginx).
+
+## Traefik
+
+Traefik handles WebSocket upgrades automatically, but the default `compress` middleware will break SSE. Exclude `text/event-stream`:
+
+```yaml
+http:
+  middlewares:
+    middlewares-compress:
+      compress:
+        excludedContentTypes:
+          - text/event-stream
+```
+
+Then a typical labels block on the Dozzle service:
+
+```yaml
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dozzle.rule=Host(`dozzle.example.com`)
+      - traefik.http.routers.dozzle.entrypoints=websecure
+      - traefik.http.routers.dozzle.tls.certresolver=letsencrypt
+      - traefik.http.services.dozzle.loadbalancer.server.port=8080
+```
+
+## Caddy
+
+```caddyfile
+dozzle.example.com {
+    reverse_proxy dozzle:8080 {
+        flush_interval -1
+    }
+}
+```
+
+`flush_interval -1` disables response buffering for streaming endpoints.
+
+## Common Pitfalls
+
+- **Blank page or assets 404 when using `--base`** — the proxy is stripping the path prefix before forwarding. Configure it to pass the full path through to Dozzle.
+- **Logs stop after a few seconds** — connection timeouts on the proxy are too short. Increase read/send timeouts to at least a few minutes (e.g. Nginx `proxy_read_timeout 3600s`).
+- **Shell disconnects immediately** — WebSocket upgrade headers are not being forwarded. Verify `Upgrade` and `Connection` headers.

@@ -8,6 +8,7 @@ export type Host = {
   available: boolean;
   dockerVersion: string;
   agentVersion: string;
+  group?: string;
 };
 
 const hosts = ref(

@@ -26,6 +26,7 @@ type Host struct {
 	Type          string   `json:"type"`
 	Available     bool     `json:"available"`
 	Swarm         bool     `json:"-"`
+	Group         string   `json:"group,omitempty"`
 }
 
 func (h Host) String() string {
@@ -34,7 +35,7 @@ func (h Host) String() string {
 
 func ParseConnection(connection string) (Host, error) {
 	parts := strings.Split(connection, "|")
-	if len(parts) > 2 {
+	if len(parts) > 3 || parts[0] == "" {
 		return Host{}, fmt.Errorf("invalid connection string: %s", connection)
 	}
 
@@ -44,8 +45,13 @@ func ParseConnection(connection string) (Host, error) {
 	}
 
 	name := remoteUrl.Hostname()
-	if len(parts) == 2 {
+	if len(parts) >= 2 && parts[1] != "" {
 		name = parts[1]
+	}
+
+	group := ""
+	if len(parts) == 3 {
+		group = parts[2]
 	}
 
 	basePath, err := filepath.Abs("./certs")
@@ -79,6 +85,7 @@ func ParseConnection(connection string) (Host, error) {
 		KeyPath:    keyPath,
 		ValidCerts: hasCerts,
 		Endpoint:   remoteUrl.String(),
+		Group:      group,
 	}, nil
 
 }

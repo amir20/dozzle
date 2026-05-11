@@ -6,59 +6,74 @@ title: Dozzle Cloud
 
 <Badge type="tip" text="New in v10" />
 
-[Dozzle Cloud](https://cloud.dozzle.dev) is a companion service that extends your self-hosted Dozzle instances with centralized monitoring, smart alerting, and log intelligence. While Dozzle remains fully open source and self-hosted, Dozzle Cloud adds a managed layer on top for teams that need more visibility across their infrastructure.
+[Dozzle Cloud](https://cloud.dozzle.dev) is an optional managed companion to self-hosted Dozzle. It links your instances together, summarizes container events, distributes alerts across multiple channels, and lets you ask questions about your infrastructure from chat. Dozzle itself remains fully open source and self-hosted; Cloud sits on top.
 
-## Why Dozzle Cloud?
+The goal is for Dozzle Cloud to feel like the personal SRE assistant you never knew you wanted: it watches your containers, tells you when something matters, and stays out of the way when nothing does.
 
-Container logs are noisy. Dozzle Cloud helps you cut through the noise with intelligent summarization and multi-instance aggregation — without requiring additional agents or complex setup.
+## Features
 
-## Key Features
+### <Icon icon="mdi:text-box-outline" inline /> Log Summaries
 
-### Log Summaries
+Container events are batched and summarized using an LLM. Each summary records severity, the source container, and a link back to the full log line in your Dozzle instance.
 
-Dozzle Cloud automatically batches related container events into concise summaries. Each summary includes severity levels, source container information, and direct links to the full logs in your Dozzle instance.
+### <Icon icon="mdi:group" inline /> Pattern Clustering
 
-### Pattern Clustering
+Repeated errors are grouped and counted instead of being delivered individually. A loop emitting the same exception 200 times produces one notification with a frequency, not 200.
 
-Instead of showing duplicate errors, Dozzle Cloud groups similar errors together and displays frequency counts. This makes it easy to identify recurring issues across multiple containers.
+### <Icon icon="mdi:robot-outline" inline /> AI Agent
 
-### Smart Alert Distribution
+A chat-based agent answers questions about container state and recent log activity. It is available in Telegram and Discord.
 
-Receive notifications through multiple channels:
+On Pro and Team plans, the agent can also act on containers (start, stop, restart) directly from the conversation, without requiring shell access to the host.
 
-- **Email**
-- **Slack**
-- **ntfy**
-- **Webhooks**
-- **Browser push notifications**
+### <Icon icon="mdi:calendar-clock" inline /> Daily Digests
 
-You can enable or disable channels independently with unlimited configurations.
+A scheduled summary of recent activity across your linked instances: top error patterns, event counts, and overall health. Delivered by email at a time and timezone you configure.
 
-### Multi-Instance Dashboard
+### <Icon icon="mdi:bell-ring-outline" inline /> Notification Channels
 
-Monitor all your Dozzle servers from a single dashboard. Connecting is simple — just link your instance with an API key. No additional agents are required.
+Alerts can be routed to multiple channels in parallel. Each channel can be enabled or disabled independently and scoped to specific Dozzle instances.
 
-### Searchable Event History
+| Channel                                                    | Alerts | Daily Digest | Two-way agent |
+| ---------------------------------------------------------- | :----: | :----------: | :-----------: |
+| <Icon icon="mdi:telegram" inline /> Telegram               |   ✓    |      ✓       |       ✓       |
+| <Icon icon="ic:baseline-discord" inline /> Discord         |   ✓    |      ✓       |       ✓       |
+| <Icon icon="mdi:email-outline" inline /> Email             |   ✓    |      ✓       |               |
+| <Icon icon="mdi:slack" inline /> Slack                     |   ✓    |              |               |
+| <Icon icon="simple-icons:ntfy" inline /> ntfy              |   ✓    |              |               |
+| <Icon icon="mdi:webhook" inline /> Webhooks                |   ✓    |              |               |
+| <Icon icon="mdi:bell-badge-outline" inline /> Browser push |   ✓    |              |               |
 
-Search across all logged events with full-text search. Filter by container, severity (error, warning, info), and keywords. Retention is configurable from 24 hours to 30 days.
+### <Icon icon="mdi:bell-sleep-outline" inline /> Notification Muting
 
-### Security
+Notifications can be muted for one hour, eight hours, until the next morning, or until the following week. Useful during incidents or planned maintenance.
 
-- API keys are hashed with expiration support
-- GitHub OAuth authentication
-- Your logs remain your own — Dozzle Cloud is committed to data privacy
+### <Icon icon="mdi:view-dashboard-outline" inline /> Multi-Instance Dashboard
 
-## Connecting to Dozzle Cloud
+Linked Dozzle instances appear in a single dashboard. Each instance authenticates with an API key, with no additional agent required on the host. The dashboard shows online status, container inventory, and live log streaming.
 
-To link your Dozzle instance to Dozzle Cloud:
+### <Icon icon="mdi:database-search-outline" inline /> Full-Text Log Search
 
-1. Navigate to the **Notifications** page in Dozzle
-2. Click **Add Destination** and select **Dozzle Cloud**
-3. Click **Link Dozzle Cloud** — you'll be redirected to authenticate
-4. Once linked, your API key is automatically configured
+Every log line forwarded from your linked instances is written into a full-text search index. You can query across all instances at once, or filter by container, severity, or time range. Searches return results in milliseconds even over weeks of history, and each match links back to the surrounding context in the source instance. Retention is plan-dependent and ranges from 24 hours to 30 days.
 
-You can then select Dozzle Cloud as a destination when creating [alerts](/guide/alerts-and-webhooks).
+### <Icon icon="mdi:shield-lock-outline" inline /> Security
+
+- API keys are hashed with BLAKE2b and support expiration.
+- Sign-in uses GitHub or Google OAuth.
+- Logs and event content are stored only for as long as your plan's retention window.
+
+## Connecting an Instance
+
+To link a self-hosted Dozzle to Dozzle Cloud:
+
+1. Open your Dozzle instance and click the **cloud** icon in the top bar.
+2. Click **Link instance**. You will be redirected to authenticate and confirm the connection.
+3. Once linked, configure alert subscriptions inside Dozzle to choose which events are forwarded.
 
 ## Pricing
 
-Dozzle Cloud offers a free tier with 500 events per month — no credit card required. Visit [cloud.dozzle.dev](https://cloud.dozzle.dev) for more details.
+The free tier is intentionally generous; you should be able to actually use Dozzle Cloud on a homelab or a small team without hitting a wall. Paid plans exist for higher event volumes, longer retention, and the agent's container actions. See [cloud.dozzle.dev](https://cloud.dozzle.dev) for current limits and plan details.
+
+## Feedback
+
+Dozzle Cloud is built by the same person who built Dozzle, and the bar is the same: things people actually want to use. If you try it and something feels off, missing, or genuinely useful, please [open a discussion](https://github.com/amir20/dozzle/discussions). That feedback shapes what gets built next.

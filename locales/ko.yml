@@ -8,6 +8,12 @@ toolbar:
   stop: 중지
   start: 시작
   restart: 다시 시작
+  update: 업데이트
+  update-service: 서비스 업데이트
+  update-pulling: 최신 이미지 가져오는 중...
+  update-recreating: 컨테이너 재생성 중...
+  update-done: 컨테이너가 성공적으로 업데이트되었습니다
+  update-up-to-date: 이미 최신 버전입니다
   show-hostname: 호스트 이름 보기
   show-container-name: 컨테이너 이름 보기
   shell: 셸
@@ -47,17 +53,27 @@ label:
   no-logs: 아직 로그가 없습니다
   show-all-containers: 전체 컨테이너 보기
   collapse-all: 전체 접기
+  collapse-group: 그룹 접기
+  expand-all: 전체 펼치기
 tooltip:
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정
   merge-all: 모두 하나의 스트림으로 병합
 error:
   page-not-found: 페이지를 찾을 수 없습니다
+  host-group-not-found: '"{name}" 그룹에 호스트가 없습니다'
   invalid-auth: 사용자 이름 또는 비밀번호가 올바르지 않습니다
   copy-not-supported: 클립보드 복사는 브라우저에서 지원되지 않습니다
   copy-not-supported-hint: 클립보드를 사용할 수 없습니다. 아래 링크를 복사하세요
   logs-skipped: 숨겨진 항목 {total}개 보기
   container-not-found: 컨테이너를 찾을 수 없습니다
+  action-failed: 작업 실패
+  update-failed: 업데이트 실패
+  unable-to-complete-action: 작업을 완료할 수 없습니다
+  invalid-action: 잘못된 작업
+  unable-to-update: 컨테이너를 업데이트할 수 없습니다
+  something-went-wrong: 문제가 발생했습니다
+  unknown-error: 알 수 없는 오류
   events-stream:
     title: 예상치 못한 오류
     message: >-
@@ -87,6 +103,7 @@ button:
   settings: 설정
   cancel: 취소
   redirect: 이동
+  retry: Retry
 placeholder:
   search-containers: 컨테이너 검색 (⌘ + k, ⌃k)
   search: 검색
@@ -94,6 +111,11 @@ settings:
   help-support: >
     GitHub에서 후원하거나 기부로 Dozzle을 응원해 주세요. 여러분의 도움으로
     모두를 위한 더 나은 Dozzle을 만들 수 있습니다. 감사합니다! 🙏🏼
+  about-desc: Dozzle 설치 정보와 프로젝트를 후원하는 방법입니다.
+  display-desc: 로그와 앱의 나머지 부분의 모습을 사용자 지정합니다. 미리보기에 변경 사항이 실시간으로 반영됩니다.
+  options-desc: 언어, 탐색 및 그룹화 환경설정.
+  cloud-desc: Dozzle Cloud로 로그를 스트리밍하여 AI 기반 조사 및 인스턴스 간 검색을 수행합니다.
+  support-title: Dozzle 후원
   display: 화면 설정
   locale: 언어 변경
   small-scrollbars: 작은 스크롤바 사용
@@ -170,17 +192,21 @@ notifications:
   destinations: 목적지
   add-destination: 목적지 추가
   alerts: 알림
+  add-alert: 알림 추가
   add: 추가
   filter:
     all: 전체 ({count})
     enabled: 활성화됨 ({count})
     paused: 일시정지됨 ({count})
   no-alerts: 아직 설정된 알림이 없습니다. 시작하려면 하나를 만드세요.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: 일시정지됨
     containers: 컨테이너
     log-filter: 로그 필터
     metric-filter: 메트릭
+    event-filter: Event
     cooldown: 대기 시간
     sample-window: 샘플 창
     destination: 목적지
@@ -192,6 +218,7 @@ notifications:
     http-webhook: HTTP 웹훅
     dozzle-cloud: Dozzle Cloud
     edit: 편집
+    duplicate: 복제
     delete: 삭제
   alert-form:
     create-title: 알림 만들기
@@ -219,9 +246,13 @@ notifications:
     sample-window-hint: "조건이 {duration} 동안 충족되면 알림이 트리거됩니다"
     cooldown-label: 대기 시간
     cooldown-hint: "컨테이너당 알림 간격 {duration}"
+    no-cooldown: No cooldown
     alert-type: 알림 유형
     log-alert: 로그 알림
     metric-alert: 메트릭 알림
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: 목적지 추가
     edit-title: 목적지 편집
@@ -254,15 +285,89 @@ notifications:
     close: 닫기
     save: 저장
     add: 목적지 추가
-    cloud-exists: Dozzle Cloud 목적지는 하나만 설정할 수 있습니다
+    cloud-exists: Dozzle Cloud가 이미 연결되어 있습니다
     link-cloud: 계정 연결
     link-cloud-button: Dozzle Cloud 연결
     cloud-settings-hint: 관리 채널을 설정하려면 다음으로 이동하세요
     cloud-settings-link: Dozzle Cloud 설정
     cloud-checking: 클라우드 상태 확인 중...
     cloud-relink: API 키가 유효하지 않거나 만료되었습니다. 삭제 후 계정을 다시 연결해 주세요.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: 플랜
     cloud-usage: 이번 기간 이벤트
+  empty-state:
+    title: 알림 시작하기
+    description: 컨테이너에 문제가 생겼을 때 알림을 받을 방법을 선택하세요.
   cloud-link-success:
     title: Dozzle Cloud 연결됨
-    message: 계정이 Dozzle Cloud에 성공적으로 연결되었습니다.
+    message: 인스턴스가 성공적으로 연결되었습니다. 설정에서 연결을 해제하거나 사용량을 언제든지 확인할 수 있습니다.
+cloud:
+  title: Dozzle Cloud
+  description: 원격으로 컨테이너를 제어하고 AI를 사용하여 클러스터 전반의 문제를 조사하세요.
+  learn-more: 자세히 알아보기
+  link-instance: 인스턴스 연결
+  relink-instance: 인스턴스 재연결
+  connected: 연결됨
+  plan: 플랜
+  usage: 이번 기간 이벤트
+  dashboard: 대시보드
+  settings: 설정
+  error: 연결 오류. 인스턴스를 다시 연결해 주세요.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: 연결 해제
+  unlink-confirm: Dozzle Cloud 연결을 해제하시겠습니까? 모든 클라우드 알림 목적지가 삭제됩니다.
+  stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
+  stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
+  welcome:
+    title: "인스턴스가 연결되었습니다!"
+    subtitle: "이제 Dozzle Cloud에서 알림, 일일 요약 등을 받을 수 있습니다."
+    question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
+    placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
+    or-pick: "또는 하나를 선택하세요:"
+    chip-alerts: 문제 알림 받기
+    chip-assistant: 어시스턴트에게 로그 질문하기
+    chip-hosts: 여러 호스트 모니터링
+    chip-remote-access: 원격으로 로그 접근
+    chip-digests: 일일 로그 요약 받기
+    chip-other: 기타
+    get-started: 시작하기
+    skip: 나중에 하기
+    step2-title: "감사합니다! Cloud를 최대한 활용하는 방법입니다."
+    step2-subtitle: "모든 응답을 읽고 다음에 무엇을 만들지 결정합니다. 다음 단계로 시작해 보세요."
+    checklist-alert-title: 첫 번째 알림 만들기
+    checklist-alert-desc: "Dozzle에서 규칙을 설정하여 Cloud가 무엇을 모니터링할지 알려주세요. 문제가 발생하면 요약을 받게 됩니다."
+    checklist-notify-title: 알림 받는 방법 선택
+    checklist-notify-desc: "이메일은 기본으로 활성화되어 있습니다. 더 빠른 알림을 위해 푸시, Telegram 또는 Discord를 추가하세요."
+    checklist-agent-title: AI 어시스턴트 사용해 보기
+    checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
+    create-alert: 첫 번째 알림 만들기
+    default-alert-name: Container exited with error
+    later: "나중에 할게요"
+cloud-search:
+  containers-section: "컨테이너"
+  search-logs-for: "\"{query}\" 로그 검색"
+  across-containers: "모든 컨테이너에서 색인됨"
+  connect-to-enable: "로그를 검색하려면 Dozzle Cloud에 연결하세요"
+  enable-streaming-to-search: "Cloud로 로그 스트리밍 활성화"
+  open-container: "컨테이너 열기"
+  search-logs-shortcut: "로그 검색"
+  cloud-connected: "Cloud 연결됨"
+  results-page-title: "로그 검색"
+  no-results: "일치하는 로그 라인이 없습니다."
+  search-failed: "Cloud 검색 실패."
+  search-empty-prompt: "로그를 검색하려면 쿼리를 입력하세요."
+  searching: "검색 중…"
+  hits-count: "{n}개 결과"
+  window-suffix: "최근 14일 동안"
+  hero-title-cloud: "컨테이너 및 로그 검색"
+  hero-title-plain: "컨테이너 검색"
+  hero-pill-indexed: "Cloud 인덱스"
+  modal-placeholder-cloud: "컨테이너 및 로그 검색…"
+  modal-placeholder-plain: "컨테이너 검색…"
+  col-time: "시간"
+  col-level: "레벨"
+  col-container: "컨테이너"
+  col-message: "메시지"
+  container-removed: "컨테이너가 삭제되었습니다"
+  cta-settings: "Cloud 설정"
+  container-removed-pill: "삭제됨"

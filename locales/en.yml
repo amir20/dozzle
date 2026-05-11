@@ -8,6 +8,12 @@ toolbar:
   stop: Stop
   start: Start
   restart: Restart
+  update: Update
+  update-service: Update Service
+  update-pulling: Pulling latest image...
+  update-recreating: Recreating container...
+  update-done: Container updated successfully
+  update-up-to-date: Already up to date
   show-hostname: Show hostname
   show-container-name: Show container name
   shell: Shell
@@ -50,17 +56,27 @@ label:
   no-logs: Container has no logs yet
   show-all-containers: Show all containers
   collapse-all: Collapse all
+  collapse-group: Collapse group
+  expand-all: Expand all
 tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
   merge-all: Merge all into one stream
 error:
   page-not-found: This page does not exist
+  host-group-not-found: 'No hosts found in group "{name}"'
   invalid-auth: Username or password are not valid
   copy-not-supported: Copy to clipboard is not supported in your browser
   copy-not-supported-hint: Clipboard unavailable. Copy the link below
   logs-skipped: Show {total} hidden entries
   container-not-found: Container not found
+  action-failed: Action Failed
+  update-failed: Update Failed
+  unable-to-complete-action: Unable to complete action
+  invalid-action: Invalid action
+  unable-to-update: Unable to update container
+  something-went-wrong: Something went wrong
+  unknown-error: Unknown error
   events-stream:
     title: Unexpected Error
     message: >-
@@ -93,13 +109,48 @@ button:
   settings: Settings
   cancel: Cancel
   redirect: Redirect
+  retry: Retry
 placeholder:
   search-containers: Search containers (⌘ + k, ⌃k)
   search: Search
+cloud-search:
+  containers-section: Containers
+  search-logs-for: Search logs for "{query}"
+  across-containers: indexed across all your containers
+  connect-to-enable: Connect Dozzle Cloud to search logs
+  enable-streaming-to-search: Enable Stream Logs to Cloud to search
+  open-container: open container
+  search-logs-shortcut: search logs
+  cloud-connected: Cloud connected
+  results-page-title: Logs search
+  no-results: No matching log lines.
+  search-failed: Cloud search failed.
+  search-empty-prompt: Type a query to search logs across your containers.
+  searching: Searching…
+  hits-count: "{n} hits"
+  window-suffix: in the last 14 days
+  hero-title-cloud: Search containers and logs
+  hero-title-plain: Search containers
+  hero-pill-indexed: Cloud index
+  modal-placeholder-cloud: Search containers and logs…
+  modal-placeholder-plain: Search containers…
+  col-time: Time
+  col-level: Level
+  col-container: Container
+  col-message: Message
+  container-removed: Container has been deleted
+  cta-settings: "Cloud settings"
+  container-removed-pill: removed
 settings:
   help-support: >
     Please support Dozzle by donating or sponsoring us on GitHub. Your contributions help us improve Dozzle for
     everyone. Thank you! 🙏🏼
+  about-desc: Information about your Dozzle installation and how to support the project.
+  display-desc: Customize how logs and the rest of the app look. The preview reflects your changes live.
+  options-desc: Locale, navigation and grouping preferences.
+  cloud-desc: Stream logs to Dozzle Cloud for AI-powered investigations and search across instances.
+  support-title: Support Dozzle
+  support-help: Donations help keep Dozzle free and maintained. Thank you 🙏
   display: Display
   locale: Override language
   small-scrollbars: Use smaller scrollbars
@@ -177,6 +228,11 @@ notifications:
   add-destination: Add destination
   alerts: Alerts
   add: Add
+  add-alert: Add alert
+  prefill-name: Error alerts
+  prefill-expression: level == "error"
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   filter:
     all: All ({count})
     enabled: Enabled ({count})
@@ -187,6 +243,7 @@ notifications:
     containers: Containers
     log-filter: Log filter
     metric-filter: Metric
+    event-filter: Event
     cooldown: Cooldown
     sample-window: Sample window
     destination: Destination
@@ -198,6 +255,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Edit
+    duplicate: Duplicate
     delete: Delete
   alert-form:
     create-title: Create Alert
@@ -225,9 +283,13 @@ notifications:
     sample-window-hint: "Alert triggers when condition is met for {duration}"
     cooldown-label: Cooldown
     cooldown-hint: "{duration} between alerts per container"
+    no-cooldown: No cooldown
     alert-type: Alert Type
     log-alert: Log Alert
     metric-alert: Metric Alert
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Add Destination
     edit-title: Edit Destination
@@ -260,15 +322,63 @@ notifications:
     close: Close
     save: Save
     add: Add Destination
-    cloud-exists: Only one Dozzle Cloud destination can be configured
+    cloud-exists: Dozzle Cloud is already linked
     link-cloud: Link Account
     link-cloud-button: Link Dozzle Cloud
     cloud-settings-hint: To configure your managed channels, go to
     cloud-settings-link: Dozzle Cloud Settings
     cloud-checking: Checking cloud status...
     cloud-relink: Your API key is invalid or expired. Please delete and link your account again.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Events this period
+  empty-state:
+    title: Get started with notifications
+    description: Choose how you want to receive alerts when your containers need attention.
+    cloud-subtitle: AI summaries, remote control & more
+    webhook-subtitle: Send alerts to any endpoint
   cloud-link-success:
     title: Dozzle Cloud Linked
-    message: Your account has been successfully linked to Dozzle Cloud.
+    message: Your instance has been connected successfully. You can unlink it in settings or check your usage anytime.
+cloud:
+  title: Dozzle Cloud
+  description: Control your containers remotely and use AI to investigate issues across your cluster.
+  learn-more: Learn more
+  link-instance: Link instance
+  relink-instance: Re-link instance
+  connected: Connected
+  plan: Plan
+  usage: Events this period
+  dashboard: Dashboard
+  settings: Settings
+  error: Connection error. Please re-link your instance.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Unlink
+  unlink-confirm: Are you sure you want to unlink from Dozzle Cloud? This will remove all cloud notification destinations.
+  stream-logs: Stream container logs to Dozzle Cloud
+  stream-logs-help: Required for AI-powered investigations and log search. Disable to keep all log content on this instance.
+  welcome:
+    title: "Your instance is connected!"
+    subtitle: "You're all set to start getting alerts, daily digests, and more from Dozzle Cloud."
+    question: "One quick question before we get started — what's the main thing you're hoping Cloud helps with?"
+    placeholder: "e.g. I want to know when my Plex container crashes overnight..."
+    or-pick: "Or pick one:"
+    chip-alerts: Get notified about issues
+    chip-assistant: Ask Assistant about my logs
+    chip-hosts: Monitor multiple hosts
+    chip-remote-access: Access logs remotely
+    chip-digests: Get daily log digests
+    chip-other: Something else
+    get-started: Get Started
+    skip: Skip for now
+    step2-title: "Thanks! Here's how to get the most out of Cloud."
+    step2-subtitle: "I read every response and it shapes what I build next. These steps will get you up and running."
+    checklist-alert-title: Create your first alert
+    checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. You'll get a summary when something breaks."
+    checklist-notify-title: Choose how to get notified
+    checklist-notify-desc: "Email is on by default. Add push, Telegram, or Discord for faster alerts."
+    checklist-agent-title: Try the AI assistant
+    checklist-agent-desc: "Connect Telegram or Discord and chat with your containers. Diagnose errors, check health, and take actions like restarting services."
+    create-alert: Create Your First Alert
+    default-alert-name: Container exited with error
+    later: "I'll do this later"

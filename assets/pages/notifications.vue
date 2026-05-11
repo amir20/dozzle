@@ -12,16 +12,9 @@
         <h3 class="text-base-content/60 mb-4 font-semibold tracking-wide uppercase">
           {{ $t("notifications.destinations") }}
         </h3>
-        <div class="flex flex-wrap gap-4">
-          <DestinationCard
-            v-for="dest in dispatchers"
-            :key="dest.id"
-            :destination="dest"
-            :on-updated="fetchAll"
-            :existing-dispatchers="dispatchers"
-            class="w-full md:w-72"
-          />
-          <!-- Add Destination Card -->
+
+        <template v-if="dispatchers.length === 0">
+          <p class="text-base-content/60 mb-4 text-sm">{{ $t("notifications.empty-state.description") }}</p>
           <button
             class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors md:w-72"
             @click="openAddDestination"
@@ -31,17 +24,36 @@
               <span class="text-base-content/60 text-sm">{{ $t("notifications.add-destination") }}</span>
             </div>
           </button>
-        </div>
+        </template>
+
+        <template v-else>
+          <div class="flex flex-wrap gap-4">
+            <DestinationCard
+              v-for="dest in dispatchers"
+              :key="dest.id"
+              :destination="dest"
+              :on-updated="fetchAll"
+              :existing-dispatchers="dispatchers"
+              class="w-full md:w-72"
+            />
+            <!-- Add Destination Card -->
+            <button
+              class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors md:w-72"
+              @click="openAddDestination"
+            >
+              <div class="card-body items-center justify-center gap-1 p-4">
+                <mdi:plus class="text-2xl" />
+                <span class="text-base-content/60 text-sm">{{ $t("notifications.add-destination") }}</span>
+              </div>
+            </button>
+          </div>
+        </template>
       </div>
 
       <!-- Alerts Section -->
       <div>
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4">
           <h3 class="text-base-content/60 font-semibold tracking-wide uppercase">{{ $t("notifications.alerts") }}</h3>
-          <button class="btn btn-primary btn-sm" @click="openCreateAlert">
-            <mdi:plus />
-            {{ $t("notifications.add") }}
-          </button>
         </div>
 
         <!-- Filter Tabs -->
@@ -58,11 +70,23 @@
         </div>
 
         <!-- Alerts List -->
-        <div v-if="!alerts.length" class="text-base-content/60 py-4">
-          {{ $t("notifications.no-alerts") }}
-        </div>
-        <div v-else class="space-y-4">
-          <AlertCard v-for="alert in filteredAlerts" :key="alert.id" :alert="alert" :on-updated="fetchAlerts" />
+        <div class="space-y-4">
+          <AlertCard
+            v-for="alert in filteredAlerts"
+            :key="alert.id"
+            :alert="alert"
+            :on-updated="fetchAlerts"
+            :highlight="alert.id === highlightId"
+          />
+          <button
+            class="card card-border border-base-content/30 hover:border-base-content/50 w-full cursor-pointer border-dashed transition-colors"
+            @click="openCreateAlert"
+          >
+            <div class="card-body items-center justify-center gap-1 p-4">
+              <mdi:plus class="text-2xl" />
+              <span class="text-base-content/60 text-sm">{{ $t("notifications.add-alert") }}</span>
+            </div>
+          </button>
         </div>
       </div>
     </section>
@@ -74,8 +98,10 @@ import type { NotificationRule, Dispatcher } from "@/types/notifications";
 import AlertForm from "@/components/Notification/AlertForm.vue";
 import DestinationForm from "@/components/Notification/DestinationForm.vue";
 
+const { t } = useI18n();
 const showDrawer = useDrawer();
 const router = useRouter();
+const route = useRoute();
 
 // State
 const alerts = ref<NotificationRule[]>([]);
@@ -95,29 +121,52 @@ async function fetchAll() {
   await Promise.all([fetchAlerts(), fetchDispatchers()]);
 }
 
-// Handle cloudLinkSuccess hash param
+const highlightId = ref<number | null>(null);
+const { showToast } = useToast();
+
+function consumeHighlight(value: unknown) {
+  if (typeof value !== "string" || !value) return false;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return false;
+  highlightId.value = parsed;
+  router.replace({ query: {} });
+  showToast(
+    {
+      type: "info",
+      message: t("notifications.default-alert-created"),
+    },
+    { expire: 8000 },
+  );
+  return true;
+}
+
+function consumeAction(action: unknown) {
+  if (action !== "create-alert") return;
+  router.replace({ query: {} });
+  openCreateAlertPrefilled();
+}
+
 onMounted(async () => {
   await fetchAll();
   const hash = window.location.hash;
-  if (hash.startsWith("#cloudLinkSuccess=")) {
-    const id = Number(hash.replace("#cloudLinkSuccess=", ""));
-    if (!isNaN(id)) {
-      const destination = dispatchers.value.find((d) => d.id === id);
-      if (destination) {
-        showDrawer(
-          DestinationForm,
-          {
-            destination,
-            existingDispatchers: dispatchers.value,
-            showLinkSuccess: true,
-          },
-          "md",
-        );
-      }
-    }
+  if (hash === "#cloudLinked") {
     router.replace({ hash: "" });
   }
+
+  if (!consumeHighlight(route.query.highlight)) {
+    consumeAction(route.query.action);
+  }
 });
+
+watch(
+  () => route.query.highlight,
+  (value) => consumeHighlight(value),
+);
+
+watch(
+  () => route.query.action,
+  (action) => consumeAction(action),
+);
 
 // Local state
 const filter = ref<"all" | "enabled" | "paused">("all");
@@ -135,12 +184,27 @@ function openCreateAlert() {
   showDrawer(AlertForm, { onCreated: fetchAlerts }, "lg");
 }
 
+function openCreateAlertPrefilled() {
+  const cloudDispatcher = dispatchers.value.find((d) => d.type === "cloud");
+  showDrawer(
+    AlertForm,
+    {
+      onCreated: fetchAlerts,
+      prefill: {
+        name: t("notifications.prefill-name"),
+        logExpression: t("notifications.prefill-expression"),
+        ...(cloudDispatcher ? { dispatcherId: cloudDispatcher.id } : {}),
+      },
+    },
+    "lg",
+  );
+}
+
 function openAddDestination() {
   showDrawer(
     DestinationForm,
     {
       onCreated: fetchDispatchers,
-      existingDispatchers: dispatchers.value,
     },
     "md",
   );

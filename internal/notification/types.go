@@ -18,7 +18,7 @@ import (
 
 // isDozzleContainer returns true if the container is a Dozzle instance (to avoid feedback loops)
 func isDozzleContainer(c container.Container) bool {
-	return c.Image == "amir20/dozzle" || strings.HasPrefix(c.Image, "amir20/dozzle:")
+	return strings.Contains(c.Image, "amir20/dozzle")
 }
 
 // FromContainerModel converts internal container.Container to types.NotificationContainer
@@ -58,11 +58,14 @@ func extractMessage(l container.LogEvent) any {
 	case string:
 		return container.StripANSI(v)
 	case []container.LogFragment:
-		var parts []string
-		for _, fragment := range v {
-			parts = append(parts, container.StripANSI(fragment.Message))
+		var sb strings.Builder
+		for i, fragment := range v {
+			if i > 0 {
+				sb.WriteString("\n")
+			}
+			sb.WriteString(container.StripANSI(fragment.Message))
 		}
-		return strings.Join(parts, "")
+		return sb.String()
 	case *orderedmap.OrderedMap[string, any]:
 		// Convert OrderedMap to regular map for expr compatibility
 		result := make(map[string]any)
@@ -92,6 +95,7 @@ type Subscription struct {
 	LogExpression       string `json:"logExpression" yaml:"logExpression"`
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
+	EventExpression     string `json:"eventExpression,omitempty" yaml:"eventExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`       // seconds between metric notifications, default 300
 	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 
@@ -99,6 +103,7 @@ type Subscription struct {
 	LogProgram       *vm.Program `json:"-" yaml:"-"` // Compiled log filter expression
 	ContainerProgram *vm.Program `json:"-" yaml:"-"` // Compiled container filter expression
 	MetricProgram    *vm.Program `json:"-" yaml:"-"` // Compiled metric filter expression
+	EventProgram     *vm.Program `json:"-" yaml:"-"` // Compiled event filter expression
 
 	// Runtime stats (not persisted)
 	TriggerCount          atomic.Int64                 `json:"-" yaml:"-"`
@@ -107,6 +112,9 @@ type Subscription struct {
 
 	// Per-container cooldown tracking for metric alerts (containerID -> last triggered time)
 	MetricCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
+
+	// Per-container cooldown tracking for event alerts (containerID -> last triggered time)
+	EventCooldowns *xsync.Map[string, time.Time] `json:"-" yaml:"-"`
 
 	// Per-container sample buffers for windowed metric evaluation (containerID -> ring buffer of match results)
 	MetricSampleBuffers *xsync.Map[string, *utils.RingBuffer[bool]] `json:"-" yaml:"-"`
@@ -155,20 +163,26 @@ func (s *Subscription) CompileExpressions() error {
 		s.MetricProgram = program
 	}
 
+	if s.EventExpression != "" {
+		program, err := expr.Compile(s.EventExpression, expr.Env(types.NotificationEvent{}))
+		if err != nil {
+			return fmt.Errorf("failed to compile event expression: %w", err)
+		}
+		s.EventProgram = program
+	}
+
 	return nil
 }
 
 // DispatcherConfig represents a dispatcher configuration
 type DispatcherConfig struct {
-	ID        int               `json:"id" yaml:"id"`
-	Name      string            `json:"name" yaml:"name"`
-	Type      string            `json:"type" yaml:"type"` // "webhook", "cloud"
-	URL       string            `json:"url,omitempty" yaml:"url,omitempty"`
-	Template  string            `json:"template,omitempty" yaml:"template,omitempty"`   // Go template for custom payload format
-	Headers   map[string]string `json:"headers,omitempty" yaml:"headers,omitempty"`     // Custom HTTP headers
-	APIKey    string            `json:"apiKey,omitempty" yaml:"apiKey,omitempty"`        // API key for cloud dispatcher
-	Prefix    string            `json:"prefix,omitempty" yaml:"prefix,omitempty"`        // API key prefix for cloud dispatcher
-	ExpiresAt *time.Time        `json:"expiresAt,omitempty" yaml:"expiresAt,omitempty"`
+	ID       int               `json:"id" yaml:"id"`
+	Name     string            `json:"name" yaml:"name"`
+	Type     string            `json:"type" yaml:"type"` // "webhook" or "cloud"
+	URL      string            `json:"url,omitempty" yaml:"url,omitempty"`
+	Template string            `json:"template,omitempty" yaml:"template,omitempty"` // Go template for custom payload format
+	Headers  map[string]string `json:"headers,omitempty" yaml:"headers,omitempty"`   // Custom HTTP headers
+	Prefix   string            `json:"prefix,omitempty" yaml:"-"`                    // Cloud dispatcher API key prefix (not persisted)
 }
 
 // Config represents the persisted notification configuration
@@ -221,6 +235,43 @@ func (s *Subscription) IsMetricAlert() bool {
 	return s.MetricExpression != "" && s.MetricProgram != nil
 }
 
+// IsEventAlert returns true if this subscription is an event-based alert
+func (s *Subscription) IsEventAlert() bool {
+	return s.EventExpression != "" && s.EventProgram != nil
+}
+
+// MatchesEvent checks if a Docker event matches this subscription's event filter
+func (s *Subscription) MatchesEvent(event types.NotificationEvent) bool {
+	if s.EventProgram == nil {
+		return false
+	}
+	result, err := expr.Run(s.EventProgram, event)
+	if err != nil {
+		log.Debug().Err(err).Str("expression", s.EventExpression).Msg("event expression evaluation error")
+		return false
+	}
+	match, ok := result.(bool)
+	return ok && match
+}
+
+// IsEventCooldownActive checks if the cooldown is still active for a given container
+func (s *Subscription) IsEventCooldownActive(containerID string) bool {
+	if s.Cooldown == 0 {
+		return false
+	}
+	lastTriggered, ok := s.EventCooldowns.Load(containerID)
+	if !ok {
+		return false
+	}
+	cooldown := time.Duration(s.Cooldown) * time.Second
+	return time.Now().Before(lastTriggered.Add(cooldown))
+}
+
+// SetEventCooldown records the current time as the last triggered time for a container
+func (s *Subscription) SetEventCooldown(containerID string) {
+	s.EventCooldowns.Store(containerID, time.Now())
+}
+
 // MatchesMetric checks if a stat matches this subscription's metric filter
 func (s *Subscription) MatchesMetric(stat types.NotificationStat) bool {
 	if s.MetricProgram == nil {
@@ -237,13 +288,10 @@ func (s *Subscription) MatchesMetric(stat types.NotificationStat) bool {
 	return ok && match
 }
 
-// GetCooldownSeconds returns the cooldown in seconds, clamped to [10, 3600], defaulting to 300 (5 min)
+// GetCooldownSeconds returns the cooldown in seconds, clamped to [0, 3600]
 func (s *Subscription) GetCooldownSeconds() int {
 	if s.Cooldown <= 0 {
-		return 300
-	}
-	if s.Cooldown < 10 {
-		return 10
+		return 0
 	}
 	if s.Cooldown > 3600 {
 		return 3600
@@ -253,6 +301,9 @@ func (s *Subscription) GetCooldownSeconds() int {
 
 // IsMetricCooldownActive checks if the cooldown is still active for a given container
 func (s *Subscription) IsMetricCooldownActive(containerID string) bool {
+	if s.Cooldown == 0 {
+		return false
+	}
 	lastTriggered, ok := s.MetricCooldowns.Load(containerID)
 	if !ok {
 		return false

@@ -1,13 +1,20 @@
 import { Container } from "@/models/Container";
 import type { ContainerJson } from "@/types/Container";
 import type { Dispatcher, NotificationRule, PreviewResult } from "@/types/notifications";
-import { createExprEditor, createContainerHints } from "@/composable/exprEditor";
+import { createContainerHints } from "@/composable/exprEditor";
 
 export interface AlertFormOptions {
   close?: () => void;
   onCreated?: () => void;
   alert?: NotificationRule;
-  prefill?: { name?: string; containerExpression?: string; logExpression?: string; metricExpression?: string };
+  prefill?: {
+    name?: string;
+    containerExpression?: string;
+    logExpression?: string;
+    metricExpression?: string;
+    eventExpression?: string;
+    dispatcherId?: number;
+  };
 }
 
 export interface ContainerResult {
@@ -19,11 +26,11 @@ export function useAlertForm(options: AlertFormOptions) {
   const isEditing = computed(() => !!options.alert);
   const alertName = ref(options.alert?.name ?? options.prefill?.name ?? "");
   const containerExpression = ref(options.alert?.containerExpression ?? options.prefill?.containerExpression ?? "");
-  const dispatcherId = ref(options.alert?.dispatcher?.id ?? 0);
+  const dispatcherId = ref(options.alert?.dispatcher?.id ?? options.prefill?.dispatcherId ?? -1);
   const isSaving = ref(false);
   const saveError = ref<string | null>(null);
 
-  // Destinations
+  // Destinations (cloud dispatcher with id=0 is included by the backend when configured)
   const destinations = ref<Dispatcher[]>([]);
   onMounted(async () => {
     const res = await fetch(withBase("/api/notifications/dispatchers"));
@@ -48,14 +55,13 @@ export function useAlertForm(options: AlertFormOptions) {
     () =>
       alertName.value.trim() &&
       containerExpression.value.trim() &&
-      dispatcherId.value > 0 &&
+      dispatcherId.value >= 0 &&
       !containerResult.value?.error &&
       !isSaving.value,
   );
 
-  async function initContainerEditor(el: HTMLElement) {
-    return await createExprEditor({
-      parent: el,
+  function setupContainerEditor(editorRef: Ref<HTMLElement | undefined>) {
+    useExprEditorField(editorRef, {
       placeholder: 'name contains "api"',
       initialValue: options.alert?.containerExpression ?? options.prefill?.containerExpression ?? "",
       getHints: () => createContainerHints(containerNames.value, imageNames.value, hostNames.value),
@@ -143,7 +149,7 @@ export function useAlertForm(options: AlertFormOptions) {
     isSaving,
     saveError,
     baseCanSave,
-    initContainerEditor,
+    setupContainerEditor,
     saveAlert,
     validatePreview,
   };

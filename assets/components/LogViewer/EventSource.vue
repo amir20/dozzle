@@ -41,10 +41,11 @@ defineExpose({
   clear: () => (messages.value = []),
 });
 
-if (historical.value && route.query.logId) {
+if (historical.value && typeof route.query.logId === "string") {
+  const targetId = route.query.logId;
   watchOnce(messages, async () => {
     await nextTick();
-    document.getElementById(route.query.logId as string)?.scrollIntoView({ behavior: "instant", block: "center" });
+    document.getElementById(targetId)?.scrollIntoView({ behavior: "instant", block: "center" });
   });
 }
 

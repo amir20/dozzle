@@ -11,15 +11,19 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/amir20/dozzle/internal/agent"
 	"github.com/amir20/dozzle/internal/auth"
+	"github.com/amir20/dozzle/internal/cloud"
+	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/k8s"
 	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/internal/support/cli"
+	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	k8s_support "github.com/amir20/dozzle/internal/support/k8s"
 	"github.com/amir20/dozzle/internal/web"
@@ -33,6 +37,7 @@ var content embed.FS
 var certs embed.FS
 
 //go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos ./protos/rpc.proto ./protos/types.proto
+//go:generate protoc --go_out=. --go-grpc_out=. --proto_path=./protos --go_opt=module=github.com/amir20/dozzle --go-grpc_opt=module=github.com/amir20/dozzle ./protos/cloud.proto
 func main() {
 	cli.ValidateEnvVars(cli.Args{}, cli.AgentCmd{})
 	args, subcommand := cli.ParseArgs()
@@ -60,6 +65,7 @@ func main() {
 	defer stop()
 
 	var hostService web.HostService
+	var notificationService cloud.NotificationService
 	if args.Mode == "server" {
 		multiHostService := cli.CreateMultiHostService(certs, args)
 		if multiHostService.TotalClients() == 0 {
@@ -71,6 +77,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
+		notificationService = multiHostService
 	} else if args.Mode == "swarm" {
 		localClient, err := docker.NewLocalClient("")
 		if err != nil {
@@ -87,6 +94,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not start notification manager")
 		}
 		hostService = multiHostService
+		notificationService = multiHostService
 		log.Info().Msg("Starting in swarm mode")
 		listener, err := net.Listen("tcp", ":7007")
 		if err != nil {
@@ -94,8 +102,7 @@ func main() {
 		}
 		// Create client service for agent server in swarm mode
 		clientService := docker_support.NewDockerClientService(localClient, args.Filter)
-		// TODO add notification for swarm mode
-		server, err := agent.NewServer(clientService, certs, args.Version(), nil)
+		server, err := agent.NewServer(clientService, certs, args.Version(), multiHostService.SwarmNotificationHandler())
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create agent")
 		}
@@ -117,13 +124,59 @@ func main() {
 			log.Fatal().Err(err).Msg("Could not create k8s cluster service")
 		}
 
+		if err := clusterService.StartNotificationManager(ctx); err != nil {
+			log.Fatal().Err(err).Msg("Could not start notification manager")
+		}
+
 		go cli.StartEvent(args, "k8s", localClient, "")
 		hostService = clusterService
 	} else {
 		log.Fatal().Str("mode", args.Mode).Msg("Invalid mode")
 	}
 
-	srv := createServer(args, hostService)
+	// Create cloud tool client — does nothing until Notify() is called
+	apiKeyFunc := func() string {
+		if cc := hostService.CloudConfig(); cc != nil {
+			return cc.APIKey
+		}
+		return ""
+	}
+
+	var instanceID string
+	if h, err := hostService.LocalHost(); err == nil {
+		instanceID = h.ID
+	}
+
+	cloudHostService := newLocalCloudHostService(hostService)
+
+	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
+		EnableActions:       args.EnableActions,
+		HostService:         cloudHostService,
+		Labels:              args.Filter,
+		NotificationService: notificationService,
+	})
+	cloudClient.SetStreamLogsFunc(func() bool {
+		return hostService.CloudConfig().StreamLogsEnabled()
+	})
+	go cloudClient.Run(ctx)
+
+	// In swarm mode, peer broadcasts of cloud config should kick this
+	// replica's cloud client too, so every replica holds its own connection.
+	if mhs, ok := hostService.(*docker_support.MultiHostService); ok {
+		mhs.SetCloudNotifyFunc(cloudClient.Notify)
+	}
+
+	// If cloud is already configured at startup, start the client immediately
+	if apiKeyFunc() != "" {
+		cloudClient.Notify()
+	}
+
+	srv := createServer(args, hostService, web.CloudHooks{
+		OnSetup:    cloudClient.Notify,
+		OnUpdate:   cloudClient.Reconnect,
+		SearchLogs: cloudClient.SearchLogs,
+	})
+
 	go func() {
 		log.Info().Msgf("Accepting connections on %s", args.Addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -150,7 +203,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func createServer(args cli.Args, hostService web.HostService) *http.Server {
+func createServer(args cli.Args, hostService web.HostService, cloudHooks web.CloudHooks) *http.Server {
 	_, dev := os.LookupEnv("DEV")
 
 	var releaseCheckMode web.ReleaseCheckMode = web.Automatic
@@ -230,6 +283,7 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 		DisableAvatars:   args.DisableAvatars,
 		ReleaseCheckMode: releaseCheckMode,
 		Labels:           args.Filter,
+		Cloud:            cloudHooks,
 	}
 
 	assets, err := fs.Sub(content, "dist")
@@ -257,4 +311,117 @@ func createServer(args cli.Args, hostService web.HostService) *http.Server {
 	}
 
 	return web.CreateServer(hostService, assets, config)
+}
+
+// localCloudHostService scopes the cloud client to local docker only;
+// otherwise every connection re-reports its peers, multiplying hosts
+// by connection count on the cloud side.
+type localCloudHostService struct {
+	services    []container_support.ClientService
+	hostIDByIdx []string // parallel to services, populated lazily
+	hostIDOnce  sync.Once
+}
+
+func newLocalCloudHostService(hs web.HostService) cloud.LogStreamHostService {
+	services := hs.LocalClientServices()
+	if len(services) == 0 {
+		// k8s has no docker LocalClientServices but its HostService already
+		// exposes only what this process can see, so use it directly.
+		return hs
+	}
+	return &localCloudHostService{services: services}
+}
+
+func (l *localCloudHostService) localHostTimeout() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 5*time.Second)
+}
+
+// resolveHostIDs caches each service's host ID once. Local docker host IDs
+// are stable for the process lifetime, so a one-time lookup is enough.
+func (l *localCloudHostService) resolveHostIDs() []string {
+	l.hostIDOnce.Do(func() {
+		l.hostIDByIdx = make([]string, len(l.services))
+		for i, s := range l.services {
+			ctx, cancel := l.localHostTimeout()
+			h, err := s.Host(ctx)
+			cancel()
+			if err == nil {
+				l.hostIDByIdx[i] = h.ID
+			}
+		}
+	})
+	return l.hostIDByIdx
+}
+
+func (l *localCloudHostService) Hosts() []container.Host {
+	hosts := make([]container.Host, 0, len(l.services))
+	for _, s := range l.services {
+		ctx, cancel := l.localHostTimeout()
+		h, err := s.Host(ctx)
+		cancel()
+		if err != nil {
+			continue
+		}
+		h.Available = true
+		hosts = append(hosts, h)
+	}
+	return hosts
+}
+
+func (l *localCloudHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
+	var all []container.Container
+	var errs []error
+	for _, s := range l.services {
+		ctx, cancel := l.localHostTimeout()
+		list, err := s.ListContainers(ctx, labels)
+		cancel()
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		all = append(all, list...)
+	}
+	return all, errs
+}
+
+func (l *localCloudHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
+	hostIDs := l.resolveHostIDs()
+	for i, s := range l.services {
+		if hostIDs[i] != host {
+			continue
+		}
+		ctx, cancel := l.localHostTimeout()
+		cont, err := s.FindContainer(ctx, id, labels)
+		cancel()
+		if err != nil {
+			return nil, err
+		}
+		return container_support.NewContainerService(s, cont), nil
+	}
+	return nil, fmt.Errorf("host %s not local to this process", host)
+}
+
+func (l *localCloudHostService) SubscribeContainersStarted(ctx context.Context, containers chan<- container.Container, filter container_support.ContainerFilter) {
+	// One inbound channel + forwarder goroutine per service so a slow consumer
+	// or a burst on one service can't cause the others to drop events.
+	for _, s := range l.services {
+		ch := make(chan container.Container, 64)
+		s.SubscribeContainersStarted(ctx, ch)
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case c := <-ch:
+					if filter(&c) {
+						select {
+						case containers <- c:
+						case <-ctx.Done():
+							return
+						}
+					}
+				}
+			}
+		}()
+	}
 }

@@ -14,6 +14,7 @@ import (
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	"github.com/amir20/dozzle/types"
 	"github.com/rs/zerolog/log"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -30,6 +31,9 @@ import (
 // NotificationConfigHandler handles notification config updates received from the main server
 type NotificationConfigHandler interface {
 	HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error
+	SetCloudDispatcher(d dispatcher.Dispatcher)
+	ClearCloudDispatcher()
+	GetNotificationStats() []types.SubscriptionStats
 }
 
 // ClientService is the interface for container operations used by the agent server
@@ -38,6 +42,7 @@ type ClientService interface {
 	ListContainers(ctx context.Context, filter container.ContainerLabels) ([]container.Container, error)
 	Host(ctx context.Context) (container.Host, error)
 	ContainerAction(ctx context.Context, container container.Container, action container.ContainerAction) error
+	UpdateContainer(ctx context.Context, container container.Container, progressCh chan<- container.UpdateProgress) (bool, error)
 	LogsBetweenDates(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (<-chan *container.LogEvent, error)
 	RawLogs(ctx context.Context, container container.Container, from time.Time, to time.Time, stdTypes container.StdType) (io.ReadCloser, error)
 	SubscribeStats(context.Context, chan<- container.ContainerStat)
@@ -57,6 +62,10 @@ type server struct {
 }
 
 func newServer(service ClientService, dozzleVersion string, notificationHandler NotificationConfigHandler) pb.AgentServiceServer {
+	if notificationHandler == nil {
+		log.Fatal().Msg("No notification config handler registered")
+	}
+
 	return &server{
 		service:                   service,
 		version:                   dozzleVersion,
@@ -165,10 +174,11 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 		case event := <-events:
 			out.Send(&pb.StreamEventsResponse{
 				Event: &pb.ContainerEvent{
-					ActorId:   event.ActorID,
-					Name:      event.Name,
-					Host:      event.Host,
-					Timestamp: timestamppb.New(event.Time),
+					ActorId:         event.ActorID,
+					Name:            event.Name,
+					Host:            event.Host,
+					Timestamp:       timestamppb.New(event.Time),
+					ActorAttributes: event.ActorAttributes,
 				},
 			})
 		case <-out.Context().Done():
@@ -290,6 +300,9 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	case pb.ContainerAction_Restart:
 		action = container.Restart
 
+	case pb.ContainerAction_Remove:
+		action = container.Remove
+
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
 	}
@@ -305,6 +318,35 @@ func (s *server) ContainerAction(ctx context.Context, in *pb.ContainerActionRequ
 	}
 
 	return &pb.ContainerActionResponse{}, nil
+}
+
+func (s *server) UpdateContainer(req *pb.UpdateContainerRequest, out pb.AgentService_UpdateContainerServer) error {
+	c, err := s.service.FindContainer(out.Context(), req.ContainerId, container.ContainerLabels{})
+	if err != nil {
+		return status.Error(codes.NotFound, err.Error())
+	}
+
+	progressCh := make(chan container.UpdateProgress)
+	errCh := make(chan error, 1)
+
+	go func() {
+		_, err := s.service.UpdateContainer(out.Context(), c, progressCh)
+		errCh <- err
+	}()
+
+	for progress := range progressCh {
+		if err := out.Send(&pb.UpdateContainerProgress{
+			Status:  progress.Status,
+			Layer:   progress.Layer,
+			Current: progress.Current,
+			Total:   progress.Total,
+			Error:   progress.Error,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return <-errCh
 }
 
 // terminalMessage represents a message from a terminal gRPC stream (exec or attach)
@@ -389,11 +431,6 @@ func (s *server) ContainerAttach(stream pb.AgentService_ContainerAttachServer) e
 }
 
 func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNotificationConfigRequest) (*pb.UpdateNotificationConfigResponse, error) {
-	if s.notificationConfigHandler == nil {
-		log.Warn().Msg("No notification config handler registered, ignoring config update")
-		return &pb.UpdateNotificationConfigResponse{}, nil
-	}
-
 	// Validate request sizes to prevent memory exhaustion
 	const maxSubscriptions = 1000
 	const maxDispatchers = 100
@@ -417,6 +454,7 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            int(sub.Cooldown),
 			SampleWindow:        int(sub.SampleWindow),
+			EventExpression:     sub.EventExpression,
 		}
 	}
 
@@ -441,6 +479,46 @@ func (s *server) UpdateNotificationConfig(ctx context.Context, req *pb.UpdateNot
 
 	log.Info().Int("subscriptions", len(subscriptions)).Int("dispatchers", len(dispatchers)).Msg("Updated notification config from main server")
 	return &pb.UpdateNotificationConfigResponse{}, nil
+}
+
+func (s *server) UpdateCloudConfig(ctx context.Context, req *pb.UpdateCloudConfigRequest) (*pb.UpdateCloudConfigResponse, error) {
+	if cc := req.CloudConfig; cc != nil && cc.ApiKey != "" {
+		var expiresAt *time.Time
+		if cc.ExpiresAt != nil {
+			t := cc.ExpiresAt.AsTime()
+			expiresAt = &t
+		}
+		d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.ApiKey, cc.Prefix, expiresAt)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to create cloud dispatcher from broadcast config")
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+		s.notificationConfigHandler.SetCloudDispatcher(d)
+		log.Info().Msg("Updated cloud config from main server")
+	} else {
+		s.notificationConfigHandler.ClearCloudDispatcher()
+		log.Info().Msg("Cleared cloud config from main server")
+	}
+	return &pb.UpdateCloudConfigResponse{}, nil
+}
+
+func (s *server) GetNotificationStats(ctx context.Context, req *pb.GetNotificationStatsRequest) (*pb.GetNotificationStatsResponse, error) {
+	stats := s.notificationConfigHandler.GetNotificationStats()
+
+	pbStats := make([]*pb.NotificationSubscriptionStats, len(stats))
+	for i, s := range stats {
+		pbStat := &pb.NotificationSubscriptionStats{
+			SubscriptionId:        int32(s.SubscriptionID),
+			TriggerCount:          s.TriggerCount,
+			TriggeredContainerIds: s.TriggeredContainerIDs,
+		}
+		if s.LastTriggeredAt != nil {
+			pbStat.LastTriggeredAt = timestamppb.New(*s.LastTriggeredAt)
+		}
+		pbStats[i] = pbStat
+	}
+
+	return &pb.GetNotificationStatsResponse{Stats: pbStats}, nil
 }
 
 func NewServer(service ClientService, certificates tls.Certificate, dozzleVersion string, notificationHandler NotificationConfigHandler) (*grpc.Server, error) {

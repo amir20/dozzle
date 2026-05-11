@@ -8,3 +8,4 @@ node_modules
 .idea/
 *.log
 !.vscode
+superpowers

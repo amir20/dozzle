@@ -8,6 +8,12 @@ toolbar:
   stop: Остановить
   start: Запустить
   restart: Перезапустить
+  update: Обновить
+  update-service: Обновить Сервис
+  update-pulling: Загрузка последнего образа...
+  update-recreating: Пересоздание контейнера...
+  update-done: Контейнер успешно обновлён
+  update-up-to-date: Уже обновлён
   show-hostname: Показать имя хоста
   show-container-name: Показать имя контейнера
   shell: Оболочка
@@ -48,17 +54,27 @@ label:
   no-logs: У контейнера еще нет логов
   show-all-containers: Показать все контейнеры
   collapse-all: Свернуть все
+  collapse-group: Свернуть группу
+  expand-all: Развернуть все
 tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
   merge-all: Объединить все в один поток
 error:
   page-not-found: Эта страница не доступна.
+  host-group-not-found: 'Хосты в группе «{name}» не найдены'
   invalid-auth: Имя пользователя или пароль неверны.
   copy-not-supported: Копирование в буфер обмена не поддерживается вашим браузером
   copy-not-supported-hint: Буфер обмена недоступен. Скопируйте ссылку ниже
   logs-skipped: Показать {total} скрытых записей
   container-not-found: Контейнер не найден.
+  action-failed: Действие не выполнено
+  update-failed: Обновление не выполнено
+  unable-to-complete-action: Не удалось выполнить действие
+  invalid-action: Недопустимое действие
+  unable-to-update: Не удалось обновить контейнер
+  something-went-wrong: Что-то пошло не так
+  unknown-error: Неизвестная ошибка
   events-stream:
     title: Неожиданная ошибка
     message: >-
@@ -86,12 +102,18 @@ button:
   settings: Настройки
   cancel: Отмена
   redirect: Перенаправить
+  retry: Retry
 placeholder:
   search-containers: Поиск контейнеров (⌘ + k, ⌃k)
   search: Поиск
 settings:
   help-support: >
     Пожалуйста, поддержите Dozzle, сделав пожертвование или спонсорство на GitHub. Ваши вклады помогают нам улучшать Dozzle для всех. Спасибо! 🙏🏼
+  about-desc: Информация о вашей установке Dozzle и о том, как поддержать проект.
+  display-desc: Настройте внешний вид логов и остальной части приложения. Предпросмотр отражает ваши изменения в реальном времени.
+  options-desc: Настройки языка, навигации и группировки.
+  cloud-desc: Передавайте логи в Dozzle Cloud для аналитики с использованием ИИ и поиска по экземплярам.
+  support-title: Поддержать Dozzle
   display: Вид
   locale: Язык
   small-scrollbars: Уменьшенная полоса прокрутки
@@ -167,17 +189,21 @@ notifications:
   destinations: Назначения
   add-destination: Добавить назначение
   alerts: Оповещения
+  add-alert: Добавить оповещение
   add: Добавить
   filter:
     all: Все ({count})
     enabled: Включены ({count})
     paused: Приостановлены ({count})
   no-alerts: Оповещения ещё не настроены. Создайте одно для начала.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Приостановлено
     containers: Контейнеры
     log-filter: Фильтр логов
     metric-filter: Метрика
+    event-filter: Event
     cooldown: Период ожидания
     sample-window: Окно выборки
     destination: Назначение
@@ -189,6 +215,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Редактировать
+    duplicate: Дублировать
     delete: Удалить
   alert-form:
     create-title: Создать Оповещение
@@ -216,9 +243,13 @@ notifications:
     sample-window-hint: "Оповещение срабатывает, когда условие выполняется в течение {duration}"
     cooldown-label: Период ожидания
     cooldown-hint: "{duration} между оповещениями на контейнер"
+    no-cooldown: No cooldown
     alert-type: Тип оповещения
     log-alert: Оповещение журнала
     metric-alert: Оповещение метрики
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Добавить Назначение
     edit-title: Редактировать Назначение
@@ -251,15 +282,89 @@ notifications:
     close: Закрыть
     save: Сохранить
     add: Добавить Назначение
-    cloud-exists: Можно настроить только одно назначение Dozzle Cloud
+    cloud-exists: Dozzle Cloud уже привязан
     link-cloud: Связать Аккаунт
     link-cloud-button: Связать Dozzle Cloud
     cloud-settings-hint: Чтобы настроить управляемые каналы, перейдите в
     cloud-settings-link: Настройки Dozzle Cloud
     cloud-checking: Проверка статуса облака...
     cloud-relink: Ваш API-ключ недействителен или истёк. Пожалуйста, удалите и привяжите аккаунт заново.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: План
     cloud-usage: События за этот период
+  empty-state:
+    title: Начните с уведомлений
+    description: Выберите, как вы хотите получать оповещения, когда ваши контейнеры требуют внимания.
   cloud-link-success:
     title: Dozzle Cloud Связан
-    message: Ваш аккаунт успешно связан с Dozzle Cloud.
+    message: Ваш экземпляр успешно подключён. Вы можете отвязать его в настройках или проверить использование в любое время.
+cloud:
+  title: Dozzle Cloud
+  description: Управляйте контейнерами удалённо и используйте ИИ для расследования проблем в вашем кластере.
+  learn-more: Узнать больше
+  link-instance: Привязать экземпляр
+  relink-instance: Привязать повторно
+  connected: Подключён
+  plan: План
+  usage: События за этот период
+  dashboard: Панель управления
+  settings: Настройки
+  error: Ошибка подключения. Пожалуйста, привяжите экземпляр повторно.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Отвязать
+  unlink-confirm: Вы уверены, что хотите отвязать от Dozzle Cloud? Это удалит все облачные назначения уведомлений.
+  stream-logs: Передавать логи контейнеров в Dozzle Cloud
+  stream-logs-help: Требуется для расследований с помощью ИИ и поиска по логам. Отключите, чтобы все содержимое логов оставалось на этом экземпляре.
+  welcome:
+    title: "Ваш экземпляр подключён!"
+    subtitle: "Вы готовы получать оповещения, ежедневные сводки и многое другое от Dozzle Cloud."
+    question: "Один быстрый вопрос перед началом — для чего вы хотите использовать Cloud?"
+    placeholder: "напр. Хочу знать, когда мой контейнер Plex падает ночью..."
+    or-pick: "Или выберите:"
+    chip-alerts: Получать уведомления о проблемах
+    chip-assistant: Спросить Ассистента о моих логах
+    chip-hosts: Мониторинг нескольких хостов
+    chip-remote-access: Доступ к логам удалённо
+    chip-digests: Получать ежедневные сводки логов
+    chip-other: Другое
+    get-started: Начать
+    skip: Пропустить
+    step2-title: "Спасибо! Вот как получить максимум от Cloud."
+    step2-subtitle: "Я читаю каждый ответ — он влияет на то, что я создаю дальше. Эти шаги помогут вам начать."
+    checklist-alert-title: Создайте первое оповещение
+    checklist-alert-desc: "Настройте правило в Dozzle, чтобы Cloud знал, за чем следить. Вы получите сводку, когда что-то пойдёт не так."
+    checklist-notify-title: Выберите способ уведомления
+    checklist-notify-desc: "Email включён по умолчанию. Добавьте push, Telegram или Discord для более быстрых оповещений."
+    checklist-agent-title: Попробуйте ИИ-ассистента
+    checklist-agent-desc: "Подключите Telegram или Discord и общайтесь с вашими контейнерами. Диагностируйте ошибки, проверяйте состояние и выполняйте действия, такие как перезапуск сервисов."
+    create-alert: Создайте первое оповещение
+    default-alert-name: Container exited with error
+    later: "Сделаю это позже"
+cloud-search:
+  containers-section: "Контейнеры"
+  search-logs-for: "Поиск логов по \"{query}\""
+  across-containers: "проиндексированных по всем вашим контейнерам"
+  connect-to-enable: "Подключите Dozzle Cloud, чтобы искать в логах"
+  enable-streaming-to-search: "Включите стриминг логов в Cloud"
+  open-container: "открыть контейнер"
+  search-logs-shortcut: "поиск логов"
+  cloud-connected: "Cloud подключён"
+  results-page-title: "Поиск по логам"
+  no-results: "Совпадений в логах не найдено."
+  search-failed: "Поиск в Cloud не удался."
+  search-empty-prompt: "Введите запрос для поиска по логам."
+  searching: "Поиск…"
+  hits-count: "{n} результатов"
+  window-suffix: "за последние 14 дней"
+  hero-title-cloud: "Поиск по контейнерам и логам"
+  hero-title-plain: "Поиск по контейнерам"
+  hero-pill-indexed: "Индекс Cloud"
+  modal-placeholder-cloud: "Поиск по контейнерам и логам…"
+  modal-placeholder-plain: "Поиск по контейнерам…"
+  col-time: "Время"
+  col-level: "Уровень"
+  col-container: "Контейнер"
+  col-message: "Сообщение"
+  container-removed: "Контейнер был удалён"
+  cta-settings: "Настройки Cloud"
+  container-removed-pill: "удалён"

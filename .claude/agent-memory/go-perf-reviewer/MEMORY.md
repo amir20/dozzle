@@ -28,3 +28,9 @@
 - `internal/notification/log_listener.go` -- Log stream management
 - `internal/notification/manager.go` -- Subscription CRUD and listener orchestration
 - `internal/notification/types.go` -- Subscription matching (expr evaluation)
+- `internal/cloud/client.go` -- Cloud gRPC bidirectional streaming client
+- `internal/cloud/tools.go` -- Tool definitions and execution dispatch
+
+## Memory Files
+
+- [cloud_client_patterns.md](cloud_client_patterns.md) - Cloud gRPC client architecture and known patterns

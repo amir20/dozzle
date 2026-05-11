@@ -9,7 +9,7 @@ Dozzle supports multiple ways to run the application. You can run it using Docke
 > [!TIP]
 > If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
 
-## Standalone Docker
+## <Icon icon="mdi:docker" inline /> Standalone Docker
 
 The easiest way to set up Dozzle is to use the CLI and mount `docker.sock` file. This file is usually located at `/var/run/docker.sock` and can be mounted with the `--volume` flag. You also need to expose the port to view Dozzle. By default, Dozzle listens on port 8080, but you can change the external port using `-p`. You can also run using compose or as a service in Swarm.
 
@@ -38,6 +38,15 @@ services:
       #
       # Uncomment to enable authentication. See https://dozzle.dev/guide/authentication
       # - DOZZLE_AUTH_PROVIDER=simple
+      #
+      # Label this Dozzle instance (shown in the header and multi-host menu). See https://dozzle.dev/guide/hostname
+      # - DOZZLE_HOSTNAME=my-server
+      #
+      # Connect to one or more remote agents to monitor other Docker hosts. See https://dozzle.dev/guide/agent
+      # - DOZZLE_REMOTE_AGENT=192.168.1.10:7007,192.168.1.11:7007
+      #
+      # Only show containers matching a filter. See https://dozzle.dev/guide/filters
+      # - DOZZLE_FILTER=label=com.example.app
 volumes:
   dozzle_data:
 ```
@@ -51,7 +60,10 @@ volumes:
 > [!IMPORTANT]
 > Dozzle stores notification settings and other data in `/data` inside the container. To persist these settings across container restarts, you need to mount a volume to `/data`. Without this mount, notification settings will be lost when the container is recreated. See the Docker Compose example above for the recommended volume configuration.
 
-## Docker Swarm
+> [!WARNING]
+> Mounting `docker.sock` gives Dozzle root-equivalent access to the host. If you plan to expose Dozzle beyond your private network, read [Security Considerations](/guide/authentication#security-considerations) first.
+
+## <Icon icon="mdi:hexagon-multiple-outline" inline /> Docker Swarm
 
 Dozzle supports running in Swarm mode by deploying it on every node. To run Dozzle in Swarm mode, you can use the following configuration:
 
@@ -83,79 +95,8 @@ docker stack deploy -c dozzle-stack.yml <name>
 
 See [swarm mode](/guide/swarm-mode) for more information.
 
-## K8s <Badge type="tip" text="New" />
+## <Icon icon="mdi:kubernetes" inline /> K8s <Badge type="tip" text="New" />
 
-Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster.
+Dozzle supports running in Kubernetes. It only needs to be deployed on one node within the cluster. You'll need to set `DOZZLE_MODE=k8s` and configure RBAC for pod log access.
 
-<details>
-<summary>Kubernetes Configuration</summary>
-
-```yaml [k8s-dozzle.yml]
-# rbac.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: pod-viewer
----
-# clusterrole.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: pod-viewer-role
-rules:
-  - apiGroups: [""]
-    resources: ["pods", "pods/log", "nodes"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["metrics.k8s.io"]
-    resources: ["pods"]
-    verbs: ["get", "list"]
----
-# clusterrolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: pod-viewer-binding
-subjects:
-  - kind: ServiceAccount
-    name: pod-viewer
-    namespace: default
-roleRef:
-  kind: ClusterRole
-  name: pod-viewer-role
-  apiGroup: rbac.authorization.k8s.io
----
-# deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dozzle
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dozzle
-  template:
-    metadata:
-      labels:
-        app: dozzle
-    spec:
-      serviceAccountName: pod-viewer
-      containers:
-        - name: dozzle
-          image: amir20/dozzle:latest
-          ports:
-            - containerPort: 8080
-          env:
-            - name: DOZZLE_MODE
-              value: "k8s"
-```
-
-</details>
-
-Apply the configuration using the following command:
-
-```sh
-kubectl apply -f k8s-dozzle.yml
-```
-
-See [Kubernetes mode](/guide/k8s) for more information.
+See [Kubernetes mode](/guide/k8s) for the full setup configuration including RBAC, deployment, and service manifests.

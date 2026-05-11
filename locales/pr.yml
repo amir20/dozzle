@@ -8,6 +8,12 @@ toolbar:
   stop: Parar
   start: Iniciar
   restart: Reiniciar
+  update: Swab the Decks
+  update-service: Update th' Service
+  update-pulling: Haulin' the latest image...
+  update-recreating: Rebuildin' the vessel...
+  update-done: Container updated, arr!
+  update-up-to-date: Already shipshape, cap'n!
   show-hostname: Mostrar nome do anfitrião
   show-container-name: Mostrar nome do contentor
   shell: Shell
@@ -51,17 +57,27 @@ label:
   no-logs: O contentor ainda não tem logs
   show-all-containers: Mostrar todos os contentores
   collapse-all: Recolher tudo
+  collapse-group: Recolher grupo
+  expand-all: Expandir tudo
 tooltip:
   search: Pesquisar contentores (⌘ + K, CTRL + K)
   pin-column: Alfinete como coluna
   merge-all: Mesclar tudo em um fluxo
 error:
   page-not-found: Esta página não existe.
+  host-group-not-found: 'Nenhum host encontrado no grupo "{name}"'
   invalid-auth: O nome de usuário e a senha não são válidos.
   copy-not-supported: Copiar para a área de transferência não é suportado no seu navegador
   copy-not-supported-hint: Área de transferência indisponível. Copie o link abaixo
   logs-skipped: Mostrar {total} entradas ocultas
   container-not-found: Contentor não encontrado.
+  action-failed: Action Be Cursed!
+  update-failed: Update Be Scuttled!
+  unable-to-complete-action: Can't finish the deed, matey
+  invalid-action: That be no proper action
+  unable-to-update: Can't swab this container
+  something-went-wrong: Blimey, somethin' went wrong!
+  unknown-error: Unknown curse upon us
   events-stream:
     title: Erro inesperado
     message: >-
@@ -90,12 +106,18 @@ button:
   settings: Configurações
   cancel: Cancelar
   redirect: Redirecionar
+  retry: Retry
 placeholder:
   search-containers: Pesquisar contentores (⌘ + K, CTRL + K)
   search: Pesquisa
 settings:
   help-support: >
     Por favor, apoie o Dozzle doando ou nos patrocinando no GitHub. Suas contribuições nos ajudam a melhorar o Dozzle para todos. Obrigado! 🙏🏼
+  about-desc: Informações sobre sua instalação do Dozzle e como apoiar o projeto.
+  display-desc: Personalize a aparência dos logs e do restante do aplicativo. A pré-visualização reflete suas alterações ao vivo.
+  options-desc: Preferências de idioma, navegação e agrupamento.
+  cloud-desc: Transmita logs para o Dozzle Cloud para investigações com IA e busca entre instâncias.
+  support-title: Apoiar o Dozzle
   display: Visão
   locale: Localidade
   small-scrollbars: Usar barras de rolagem mais pequenas
@@ -176,17 +198,21 @@ notifications:
   destinations: Destinos
   add-destination: Adicionar destino
   alerts: Alertas
+  add-alert: Adicionar alerta
   add: Adicionar
   filter:
     all: Todos ({count})
     enabled: Ativados ({count})
     paused: Pausados ({count})
   no-alerts: Ainda não há alertas configurados. Crie um para começar.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Pausado
     containers: Contentores
     log-filter: Filtro de registo
     metric-filter: Métrica
+    event-filter: Event
     cooldown: Tempo de espera
     sample-window: Janela de amostragem
     destination: Destino
@@ -198,6 +224,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Editar
+    duplicate: Duplicar
     delete: Eliminar
   alert-form:
     create-title: Criar Alerta
@@ -225,9 +252,13 @@ notifications:
     sample-window-hint: "O alerta é ativado quando a condição é cumprida durante {duration}"
     cooldown-label: Tempo de espera
     cooldown-hint: "{duration} entre alertas por contentor"
+    no-cooldown: No cooldown
     alert-type: Tipo de alerta
     log-alert: Alerta de log
     metric-alert: Alerta de métrica
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Adicionar Destino
     edit-title: Editar Destino
@@ -260,15 +291,89 @@ notifications:
     close: Fechar
     save: Guardar
     add: Adicionar Destino
-    cloud-exists: Apenas um destino Dozzle Cloud pode ser configurado
+    cloud-exists: Dozzle Cloud já está ligado
     link-cloud: Ligar Conta
     link-cloud-button: Ligar Dozzle Cloud
     cloud-settings-hint: Para configurar os seus canais geridos, vá a
     cloud-settings-link: Definições do Dozzle Cloud
     cloud-checking: A verificar o estado da cloud...
     cloud-relink: A sua chave API é inválida ou expirou. Por favor, elimine e ligue a sua conta novamente.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plano
     cloud-usage: Eventos neste período
+  empty-state:
+    title: Comece com as notificações
+    description: Escolha como pretende receber alertas quando os seus contentores necessitam de atenção.
   cloud-link-success:
     title: Dozzle Cloud Ligado
-    message: A sua conta foi ligada com sucesso ao Dozzle Cloud.
+    message: A sua instância foi ligada com sucesso. Pode desligar nas definições ou verificar a sua utilização a qualquer momento.
+cloud:
+  title: Dozzle Cloud
+  description: Controle os seus contentores remotamente e use IA para investigar problemas no seu cluster.
+  learn-more: Saber mais
+  link-instance: Ligar instância
+  relink-instance: Religar instância
+  connected: Ligado
+  plan: Plano
+  usage: Eventos neste período
+  dashboard: Painel
+  settings: Definições
+  error: Erro de ligação. Por favor, religue a sua instância.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Desligar
+  unlink-confirm: Tem a certeza de que pretende desligar do Dozzle Cloud? Isto irá remover todos os destinos de notificação na nuvem.
+  stream-logs: Transmitir registos de contentores para a Dozzle Cloud
+  stream-logs-help: Necessário para investigações com IA e pesquisa de registos. Desative para manter todo o conteúdo dos registos nesta instância.
+  welcome:
+    title: "Ahoy! Yer ship be connected!"
+    subtitle: "Ye be ready to receive alerts, daily summaries, and more from Dozzle Cloud, ye scallywag."
+    question: "One quick question before we set sail — what be ye hopin' Cloud helps with most?"
+    placeholder: "e.g. I want to know when me Plex container capsizes overnight..."
+    or-pick: "Or pick one, matey:"
+    chip-alerts: Get word o' trouble
+    chip-assistant: Ask the First Mate about me logs
+    chip-hosts: Watch multiple vessels
+    chip-remote-access: Read logs from afar
+    chip-digests: Get daily log reports
+    chip-other: Somethin' else
+    get-started: Set Sail
+    skip: Skip fer now
+    step2-title: "Thanks, matey! Here be how to get the most outta Cloud."
+    step2-subtitle: "I read every message in a bottle and it shapes what I build next. These steps will get ye sailin'."
+    checklist-alert-title: Create yer first alert
+    checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. Ye'll get a summary when somethin' goes wrong."
+    checklist-notify-title: Choose how ye get notified
+    checklist-notify-desc: "Email be on by default. Add push, Telegram, or Discord fer faster alerts."
+    checklist-agent-title: Try the AI first mate
+    checklist-agent-desc: "Connect Telegram or Discord and chat with yer containers. Diagnose errors, check the ship's health, and take actions like restartin' services."
+    create-alert: Create Yer First Alert
+    default-alert-name: Container exited with error
+    later: "I'll do this later, arrr"
+cloud-search:
+  containers-section: "Contentores"
+  search-logs-for: "Pesquisar logs por \"{query}\""
+  across-containers: "indexados em todos os seus contentores"
+  connect-to-enable: "Ligar o Dozzle Cloud para pesquisar logs"
+  enable-streaming-to-search: "Ativar streaming de logs para a Cloud"
+  open-container: "abrir contentor"
+  search-logs-shortcut: "pesquisar logs"
+  cloud-connected: "Cloud ligada"
+  results-page-title: "Pesquisa de logs"
+  no-results: "Nenhuma linha de log corresponde."
+  search-failed: "Falha na pesquisa Cloud."
+  search-empty-prompt: "Escreva uma consulta para pesquisar nos logs."
+  searching: "A pesquisar…"
+  hits-count: "{n} resultados"
+  window-suffix: "nos últimos 14 dias"
+  hero-title-cloud: "Pesquisar contentores e logs"
+  hero-title-plain: "Pesquisar contentores"
+  hero-pill-indexed: "Índice Cloud"
+  modal-placeholder-cloud: "Pesquisar contentores e logs…"
+  modal-placeholder-plain: "Pesquisar contentores…"
+  col-time: "Hora"
+  col-level: "Nível"
+  col-container: "Contentor"
+  col-message: "Mensagem"
+  container-removed: "O contentor foi eliminado"
+  cta-settings: "Definições da Cloud"
+  container-removed-pill: "removido"

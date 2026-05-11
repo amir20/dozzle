@@ -45,7 +45,7 @@
             :options="pageSizes.map((i) => ({ label: i.toLocaleString(), value: i }))"
           />
         </div>
-        <div class="join">
+        <div class="join max-md:hidden">
           <button
             class="btn join-item btn-xs md:btn-sm"
             :class="statMode === 'chart' ? 'btn-active' : 'btn-ghost'"

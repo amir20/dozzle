@@ -8,6 +8,12 @@ toolbar:
   stop: 停止
   start: 啟動
   restart: 重新啟動
+  update: 更新
+  update-service: 更新服務
+  update-pulling: 正在拉取最新映像檔...
+  update-recreating: 正在重新建立容器...
+  update-done: 容器更新成功
+  update-up-to-date: 已是最新版本
   show-hostname: 顯示主機名稱
   show-container-name: 顯示容器名稱
   shell: 終端機
@@ -34,6 +40,8 @@ label:
   no-logs: 容器尚無日誌
   show-all-containers: 顯示所有容器
   collapse-all: 摺疊全部
+  collapse-group: 摺疊群組
+  expand-all: 展開全部
   host: 主機
   hosts: 主機
   password: 密碼
@@ -54,11 +62,19 @@ tooltip:
   merge-all: 將所有內容合併到一個流中
 error:
   page-not-found: 此頁面不存在
+  host-group-not-found: '在群組「{name}」中找不到主機'
   invalid-auth: 使用者名稱或密碼不正確
   copy-not-supported: 您的瀏覽器不支援複製到剪貼簿
   copy-not-supported-hint: 剪貼簿不可用。請複製下方連結
   logs-skipped: 顯示 {total} 個隱藏項目
   container-not-found: 找不到容器
+  action-failed: 操作失敗
+  update-failed: 更新失敗
+  unable-to-complete-action: 無法完成操作
+  invalid-action: 無效的操作
+  unable-to-update: 無法更新容器
+  something-went-wrong: 發生錯誤
+  unknown-error: 未知錯誤
   events-stream:
     title: 意外錯誤
     message: >-
@@ -88,12 +104,18 @@ button:
   settings: 設定
   cancel: 取消
   redirect: 重新導向
+  retry: Retry
 placeholder:
   search-containers: 搜尋容器 (⌘ + k, ⌃k)
   search: 搜尋
 settings:
   help-support: >
     請透過在 GitHub 上捐款或贊助我們來支持 Dozzle。您的貢獻幫助我們為所有人改進 Dozzle。謝謝！ 🙏🏼
+  about-desc: 關於您的 Dozzle 安裝以及如何支持本專案的資訊。
+  display-desc: 自訂日誌和應用程式其餘部分的外觀。預覽會即時反映您的變更。
+  options-desc: 語言、導覽和群組偏好設定。
+  cloud-desc: 將日誌串流至 Dozzle Cloud，進行 AI 驅動的調查和跨實例搜尋。
+  support-title: 支持 Dozzle
   display: 顯示
   locale: 變更語言
   small-scrollbars: 使用較小的捲軸
@@ -170,17 +192,21 @@ notifications:
   destinations: 目標
   add-destination: 新增目標
   alerts: 警報
+  add-alert: 新增警報
   add: 新增
   filter:
     all: 全部 ({count})
     enabled: 已啟用 ({count})
     paused: 已暫停 ({count})
   no-alerts: 尚未設定任何警報。建立一個以開始使用。
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: 已暫停
     containers: 容器
     log-filter: 日誌篩選器
     metric-filter: 指標
+    event-filter: Event
     cooldown: 冷卻時間
     sample-window: 取樣視窗
     destination: 目標
@@ -192,6 +218,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: 編輯
+    duplicate: 複製
     delete: 刪除
   alert-form:
     create-title: 建立警報
@@ -219,9 +246,13 @@ notifications:
     sample-window-hint: "當條件在 {duration} 內滿足時觸發警報"
     cooldown-label: 冷卻時間
     cooldown-hint: "每個容器警報間隔 {duration}"
+    no-cooldown: No cooldown
     alert-type: 警報類型
     log-alert: 日誌警報
     metric-alert: 指標警報
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: 新增目標
     edit-title: 編輯目標
@@ -254,15 +285,89 @@ notifications:
     close: 關閉
     save: 儲存
     add: 新增目標
-    cloud-exists: 只能設定一個 Dozzle Cloud 目標
+    cloud-exists: Dozzle Cloud 已連結
     link-cloud: 連結帳戶
     link-cloud-button: 連結 Dozzle Cloud
     cloud-settings-hint: 若要設定您的管理頻道，請前往
     cloud-settings-link: Dozzle Cloud 設定
     cloud-checking: 正在檢查雲端狀態...
     cloud-relink: 您的 API 金鑰無效或已過期。請刪除並重新關聯您的帳戶。
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: 方案
     cloud-usage: 本期事件數
+  empty-state:
+    title: 開始使用通知
+    description: 選擇當您的容器需要關注時，您希望如何接收警報。
   cloud-link-success:
     title: Dozzle Cloud 已連結
-    message: 您的帳戶已成功連結至 Dozzle Cloud。
+    message: 您的實例已成功連線。您可以在設定中取消連結，或隨時查看使用量。
+cloud:
+  title: Dozzle Cloud
+  description: 遠端控制您的容器，並使用 AI 調查叢集中的問題。
+  learn-more: 瞭解更多
+  link-instance: 連結實例
+  relink-instance: 重新連結實例
+  connected: 已連線
+  plan: 方案
+  usage: 本期事件數
+  dashboard: 儀表板
+  settings: 設定
+  error: 連線錯誤。請重新連結您的實例。
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: 取消連結
+  unlink-confirm: 確定要取消與 Dozzle Cloud 的連結嗎？這將移除所有雲端通知目標。
+  stream-logs: 將容器日誌串流至 Dozzle Cloud
+  stream-logs-help: AI 分析與日誌搜尋所需。停用後，所有日誌內容將保留在此執行個體上。
+  welcome:
+    title: "您的實例已連線！"
+    subtitle: "您現在可以從 Dozzle Cloud 接收警示、每日摘要等。"
+    question: "開始之前問個小問題——您最希望 Cloud 幫您做什麼？"
+    placeholder: "例如：我想知道我的 Plex 容器是否在夜間當機..."
+    or-pick: "或選擇一項："
+    chip-alerts: 取得問題通知
+    chip-assistant: 向助手詢問我的日誌
+    chip-hosts: 監控多個主機
+    chip-remote-access: 遠端查看日誌
+    chip-digests: 取得每日日誌摘要
+    chip-other: 其他
+    get-started: 開始使用
+    skip: 暫時跳過
+    step2-title: "謝謝！以下是充分利用 Cloud 的方法。"
+    step2-subtitle: "我會閱讀每則回覆，它會影響我接下來建構什麼。以下步驟將幫助您快速上手。"
+    checklist-alert-title: 建立您的第一個警示
+    checklist-alert-desc: "在 Dozzle 中設定一條規則，讓 Cloud 知道要監控什麼。當出現問題時，您將收到摘要。"
+    checklist-notify-title: 選擇通知方式
+    checklist-notify-desc: "電子郵件預設開啟。新增推播、Telegram 或 Discord 以獲得更快的警示。"
+    checklist-agent-title: 試試 AI 助理
+    checklist-agent-desc: "連接 Telegram 或 Discord，與您的容器對話。診斷錯誤、檢查健康狀態並執行重啟服務等操作。"
+    create-alert: 建立您的第一個警示
+    default-alert-name: Container exited with error
+    later: "稍後再說"
+cloud-search:
+  containers-section: "容器"
+  search-logs-for: "搜尋日誌 \"{query}\""
+  across-containers: "已在所有容器中建立索引"
+  connect-to-enable: "連接 Dozzle Cloud 以搜尋日誌"
+  enable-streaming-to-search: "啟用日誌串流到 Cloud"
+  open-container: "打開容器"
+  search-logs-shortcut: "搜尋日誌"
+  cloud-connected: "Cloud 已連接"
+  results-page-title: "日誌搜尋"
+  no-results: "沒有匹配的日誌行。"
+  search-failed: "Cloud 搜尋失敗。"
+  search-empty-prompt: "輸入查詢以搜尋日誌。"
+  searching: "搜尋中…"
+  hits-count: "{n} 條結果"
+  window-suffix: "在過去 14 天內"
+  hero-title-cloud: "搜尋容器和日誌"
+  hero-title-plain: "搜尋容器"
+  hero-pill-indexed: "Cloud 索引"
+  modal-placeholder-cloud: "搜尋容器和日誌…"
+  modal-placeholder-plain: "搜尋容器…"
+  col-time: "時間"
+  col-level: "級別"
+  col-container: "容器"
+  col-message: "訊息"
+  container-removed: "容器已被刪除"
+  cta-settings: "Cloud 設定"
+  container-removed-pill: "已刪除"

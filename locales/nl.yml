@@ -8,6 +8,12 @@ toolbar:
   stop: Stoppen
   start: Starten
   restart: Herstarten
+  update: Bijwerken
+  update-service: Service Bijwerken
+  update-pulling: Laatste image ophalen...
+  update-recreating: Container opnieuw aanmaken...
+  update-done: Container succesvol bijgewerkt
+  update-up-to-date: Al bijgewerkt
   show-hostname: Toon hostnaam
   show-container-name: Toon containernaam
   shell: Shell
@@ -48,17 +54,27 @@ label:
   no-logs: Container heeft nog geen logbestanden
   show-all-containers: Toon alle containers
   collapse-all: Alles inklappen
+  collapse-group: Groep inklappen
+  expand-all: Alles uitklappen
 tooltip:
   search: Zoek containers (⌘ + k, ⌃k)
   pin-column: Vastzetten als kolom
   merge-all: Voeg alles samen in één stream
 error:
   page-not-found: Deze pagina bestaat niet
+  host-group-not-found: 'Geen hosts gevonden in groep "{name}"'
   invalid-auth: Gebruikersnaam of wachtwoord is ongeldig
   copy-not-supported: Kopiëren naar klembord wordt niet ondersteund in je browser
   copy-not-supported-hint: Klembord niet beschikbaar. Kopieer de link hieronder
   logs-skipped: Toon {total} verborgen items
   container-not-found: Container niet gevonden
+  action-failed: Actie Mislukt
+  update-failed: Update Mislukt
+  unable-to-complete-action: Kan actie niet voltooien
+  invalid-action: Ongeldige actie
+  unable-to-update: Kan container niet bijwerken
+  something-went-wrong: Er is iets misgegaan
+  unknown-error: Onbekende fout
   events-stream:
     title: Onverwachte fout
     message: >-
@@ -87,12 +103,18 @@ button:
   settings: Instellingen
   cancel: Annuleren
   redirect: Doorsturen
+  retry: Retry
 placeholder:
   search-containers: Zoek containers (⌘ + k, ⌃k)
   search: Zoeken
 settings:
   help-support: >
     Steun Dozzle door te doneren of door ons te sponsoren op GitHub. Jouw bijdrage helpt ons om Dozzle verder te verbeteren voor iedereen. Hartelijk dank! 🙏🏼
+  about-desc: Informatie over jouw Dozzle-installatie en hoe je het project kunt ondersteunen.
+  display-desc: Pas aan hoe logs en de rest van de app eruitzien. De voorbeeldweergave toont je wijzigingen live.
+  options-desc: Voorkeuren voor taal, navigatie en groepering.
+  cloud-desc: Stream logs naar Dozzle Cloud voor AI-gestuurde analyses en zoeken over instanties heen.
+  support-title: Steun Dozzle
   display: Weergave
   locale: Taal aanpassen
   small-scrollbars: Kleinere scrollbalk gebruiken
@@ -168,17 +190,21 @@ notifications:
   destinations: Bestemmingen
   add-destination: Bestemming toevoegen
   alerts: Waarschuwingen
+  add-alert: Waarschuwing toevoegen
   add: Toevoegen
   filter:
     all: Alle ({count})
     enabled: Ingeschakeld ({count})
     paused: Gepauzeerd ({count})
   no-alerts: Nog geen waarschuwingen geconfigureerd. Maak er een om te beginnen.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Gepauzeerd
     containers: Containers
     log-filter: Logfilter
     metric-filter: Metriek
+    event-filter: Event
     cooldown: Wachttijd
     sample-window: Steekproefvenster
     destination: Bestemming
@@ -190,6 +216,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Bewerken
+    duplicate: Dupliceren
     delete: Verwijderen
   alert-form:
     create-title: Waarschuwing aanmaken
@@ -217,9 +244,13 @@ notifications:
     sample-window-hint: "Waarschuwing wordt geactiveerd wanneer de voorwaarde gedurende {duration} is voldaan"
     cooldown-label: Wachttijd
     cooldown-hint: "{duration} tussen waarschuwingen per container"
+    no-cooldown: No cooldown
     alert-type: Waarschuwingstype
     log-alert: Logwaarschuwing
     metric-alert: Metrikwaarschuwing
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Bestemming toevoegen
     edit-title: Bestemming bewerken
@@ -252,15 +283,89 @@ notifications:
     close: Sluiten
     save: Opslaan
     add: Bestemming toevoegen
-    cloud-exists: Er kan slechts één Dozzle Cloud-bestemming worden geconfigureerd
+    cloud-exists: Dozzle Cloud is al gekoppeld
     link-cloud: Account koppelen
     link-cloud-button: Dozzle Cloud koppelen
     cloud-settings-hint: Om je beheerde kanalen te configureren, ga naar
     cloud-settings-link: Dozzle Cloud-instellingen
     cloud-checking: Cloudstatus controleren...
     cloud-relink: Uw API-sleutel is ongeldig of verlopen. Verwijder en koppel uw account opnieuw.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Gebeurtenissen deze periode
+  empty-state:
+    title: Aan de slag met meldingen
+    description: Kies hoe je waarschuwingen wilt ontvangen wanneer je containers aandacht nodig hebben.
   cloud-link-success:
     title: Dozzle Cloud gekoppeld
-    message: Je account is succesvol gekoppeld aan Dozzle Cloud.
+    message: Je instantie is succesvol verbonden. Je kunt de koppeling ongedaan maken in de instellingen of je gebruik op elk moment bekijken.
+cloud:
+  title: Dozzle Cloud
+  description: Beheer je containers op afstand en gebruik AI om problemen in je cluster te onderzoeken.
+  learn-more: Meer informatie
+  link-instance: Instantie koppelen
+  relink-instance: Instantie opnieuw koppelen
+  connected: Verbonden
+  plan: Plan
+  usage: Gebeurtenissen deze periode
+  dashboard: Dashboard
+  settings: Instellingen
+  error: Verbindingsfout. Koppel je instantie opnieuw.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Ontkoppelen
+  unlink-confirm: Weet je zeker dat je de koppeling met Dozzle Cloud wilt opheffen? Dit verwijdert alle cloudmeldingsbestemmingen.
+  stream-logs: Containerlogs streamen naar Dozzle Cloud
+  stream-logs-help: Vereist voor AI-gestuurd onderzoek en zoeken in logs. Schakel uit om alle loginhoud op deze instantie te houden.
+  welcome:
+    title: "Je instantie is verbonden!"
+    subtitle: "Je kunt nu meldingen, dagelijkse samenvattingen en meer ontvangen van Dozzle Cloud."
+    question: "Een snelle vraag voordat we beginnen — waarvoor wil je Cloud het meest gebruiken?"
+    placeholder: "bijv. Ik wil weten wanneer mijn Plex-container 's nachts crasht..."
+    or-pick: "Of kies er een:"
+    chip-alerts: Meldingen over problemen ontvangen
+    chip-assistant: Vraag de Assistent over mijn logs
+    chip-hosts: Meerdere hosts monitoren
+    chip-remote-access: Logs op afstand bekijken
+    chip-digests: Dagelijkse logoverzichten ontvangen
+    chip-other: Iets anders
+    get-started: Aan de slag
+    skip: Nu overslaan
+    step2-title: "Bedankt! Zo haal je het meeste uit Cloud."
+    step2-subtitle: "Ik lees elk antwoord en het bepaalt wat ik hierna bouw. Deze stappen helpen je op weg."
+    checklist-alert-title: Maak je eerste melding
+    checklist-alert-desc: "Stel een regel in Dozzle in zodat Cloud weet waar het op moet letten. Je krijgt een samenvatting als er iets misgaat."
+    checklist-notify-title: Kies hoe je meldingen ontvangt
+    checklist-notify-desc: "E-mail is standaard ingeschakeld. Voeg push, Telegram of Discord toe voor snellere meldingen."
+    checklist-agent-title: Probeer de AI-assistent
+    checklist-agent-desc: "Verbind Telegram of Discord en chat met je containers. Diagnosticeer fouten, controleer de status en voer acties uit zoals het herstarten van services."
+    create-alert: Maak je eerste melding
+    default-alert-name: Container exited with error
+    later: "Dat doe ik later"
+cloud-search:
+  containers-section: "Containers"
+  search-logs-for: "Logs zoeken op \"{query}\""
+  across-containers: "geïndexeerd over al je containers"
+  connect-to-enable: "Dozzle Cloud verbinden om logs te zoeken"
+  enable-streaming-to-search: "Schakel logstreaming naar Cloud in"
+  open-container: "container openen"
+  search-logs-shortcut: "logs zoeken"
+  cloud-connected: "Cloud verbonden"
+  results-page-title: "Logs doorzoeken"
+  no-results: "Geen overeenkomende logregels."
+  search-failed: "Cloud-zoekopdracht mislukt."
+  search-empty-prompt: "Typ een zoekopdracht om logs te doorzoeken."
+  searching: "Zoeken…"
+  hits-count: "{n} treffers"
+  window-suffix: "in de afgelopen 14 dagen"
+  hero-title-cloud: "Containers en logs zoeken"
+  hero-title-plain: "Containers zoeken"
+  hero-pill-indexed: "Cloud-index"
+  modal-placeholder-cloud: "Containers en logs zoeken…"
+  modal-placeholder-plain: "Containers zoeken…"
+  col-time: "Tijd"
+  col-level: "Niveau"
+  col-container: "Container"
+  col-message: "Bericht"
+  container-removed: "Container is verwijderd"
+  cta-settings: "Cloud-instellingen"
+  container-removed-pill: "verwijderd"

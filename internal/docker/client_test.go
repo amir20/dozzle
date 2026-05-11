@@ -11,8 +11,9 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
-	docker "github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/system"
+	docker "github.com/moby/moby/api/types/container"
+	"github.com/moby/moby/api/types/system"
+	"github.com/moby/moby/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -23,16 +24,16 @@ type mockedProxy struct {
 	DockerCLI
 }
 
-func (m *mockedProxy) ContainerList(context.Context, docker.ListOptions) ([]docker.Summary, error) {
+func (m *mockedProxy) ContainerList(context.Context, client.ContainerListOptions) (client.ContainerListResult, error) {
 	args := m.Called()
 	containers, ok := args.Get(0).([]docker.Summary)
 	if !ok && args.Get(0) != nil {
 		panic("containers is not of type []docker.Summary")
 	}
-	return containers, args.Error(1)
+	return client.ContainerListResult{Items: containers}, args.Error(1)
 }
 
-func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options docker.LogsOptions) (io.ReadCloser, error) {
+func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options client.ContainerLogsOptions) (client.ContainerLogsResult, error) {
 	args := m.Called(ctx, id, options)
 	reader, ok := args.Get(0).(io.ReadCloser)
 	if !ok && args.Get(0) != nil {
@@ -41,48 +42,33 @@ func (m *mockedProxy) ContainerLogs(ctx context.Context, id string, options dock
 	return reader, args.Error(1)
 }
 
-func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string) (docker.InspectResponse, error) {
+func (m *mockedProxy) ContainerInspect(ctx context.Context, containerID string, _ client.ContainerInspectOptions) (client.ContainerInspectResult, error) {
 	args := m.Called(ctx, containerID)
-	return args.Get(0).(docker.InspectResponse), args.Error(1)
+	return client.ContainerInspectResult{Container: args.Get(0).(docker.InspectResponse)}, args.Error(1)
 }
 
-func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, stream bool) (docker.StatsResponseReader, error) {
-	return docker.StatsResponseReader{}, nil
+func (m *mockedProxy) ContainerStats(ctx context.Context, containerID string, options client.ContainerStatsOptions) (client.ContainerStatsResult, error) {
+	_ = ctx
+	_ = containerID
+	_ = options
+	return client.ContainerStatsResult{}, nil
 }
 
-func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options docker.StartOptions) error {
+func (m *mockedProxy) ContainerStart(ctx context.Context, containerID string, options client.ContainerStartOptions) (client.ContainerStartResult, error) {
 
 	args := m.Called(ctx, containerID, options)
-	err := args.Get(0)
-
-	if err != nil {
-		return args.Error(0)
-	}
-
-	return nil
+	return client.ContainerStartResult{}, args.Error(0)
 }
 
-func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, options docker.StopOptions) error {
+func (m *mockedProxy) ContainerStop(ctx context.Context, containerID string, options client.ContainerStopOptions) (client.ContainerStopResult, error) {
 	args := m.Called(ctx, containerID, options)
-	err := args.Get(0)
-
-	if err != nil {
-		return args.Error(0)
-	}
-
-	return nil
+	return client.ContainerStopResult{}, args.Error(0)
 }
 
-func (m *mockedProxy) ContainerRestart(ctx context.Context, containerID string, options docker.StopOptions) error {
+func (m *mockedProxy) ContainerRestart(ctx context.Context, containerID string, options client.ContainerRestartOptions) (client.ContainerRestartResult, error) {
 
 	args := m.Called(ctx, containerID, options)
-	err := args.Get(0)
-
-	if err != nil {
-		return args.Error(0)
-	}
-
-	return nil
+	return client.ContainerRestartResult{}, args.Error(0)
 }
 
 func Test_dockerClient_ListContainers_null(t *testing.T) {
@@ -148,7 +134,7 @@ func Test_dockerClient_ContainerLogs_happy(t *testing.T) {
 
 	reader := io.NopCloser(bytes.NewReader(b))
 	since := time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC)
-	options := docker.LogsOptions{
+	options := client.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -186,8 +172,10 @@ func Test_dockerClient_FindContainer_happy(t *testing.T) {
 	state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
 
 	json := docker.InspectResponse{
-		ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijklmnopqrst", State: state, HostConfig: &docker.HostConfig{}},
-		Config:            &docker.Config{Tty: false},
+		ID:         "abcdefghijklmnopqrst",
+		State:      state,
+		HostConfig: &docker.HostConfig{},
+		Config:     &docker.Config{Tty: false},
 	}
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 
@@ -217,7 +205,7 @@ func Test_dockerClient_ContainerActions_happy(t *testing.T) {
 	client := &DockerClient{proxy, container.Host{ID: "localhost"}, system.Info{}}
 
 	state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
-	json := docker.InspectResponse{ContainerJSONBase: &docker.ContainerJSONBase{ID: "abcdefghijkl", State: state, HostConfig: &docker.HostConfig{}}, Config: &docker.Config{Tty: false}}
+	json := docker.InspectResponse{ID: "abcdefghijkl", State: state, HostConfig: &docker.HostConfig{}, Config: &docker.Config{Tty: false}}
 
 	proxy.On("ContainerInspect", mock.Anything, "abcdefghijkl").Return(json, nil)
 	proxy.On("ContainerStart", mock.Anything, "abcdefghijkl", mock.Anything).Return(nil)
@@ -348,13 +336,11 @@ func Test_newContainerFromJSON_labelPriority(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			state := &docker.State{Status: "running", StartedAt: time.Now().Format(time.RFC3339Nano)}
 			json := docker.InspectResponse{
-				ContainerJSONBase: &docker.ContainerJSONBase{
-					ID:         "abcdefghijklmnopqrst",
-					Name:       tt.containerName,
-					State:      state,
-					HostConfig: &docker.HostConfig{},
-				},
-				Config: &docker.Config{Labels: tt.labels},
+				ID:         "abcdefghijklmnopqrst",
+				Name:       tt.containerName,
+				State:      state,
+				HostConfig: &docker.HostConfig{},
+				Config:     &docker.Config{Labels: tt.labels},
 			}
 			c := newContainerFromJSON(json, "localhost")
 			assert.Equal(t, tt.expectedName, c.Name)

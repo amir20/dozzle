@@ -7,7 +7,7 @@
       <ph:command v-if="isMac" class="size-4" />
       <ph:control-bold v-else class="size-4" />
     </template>
-    <kbd class="uppercase">{{ char }}</kbd>
+    <kbd class="kbd kbd-xs ml-0.5 uppercase">{{ char }}</kbd>
   </div>
 </template>
 

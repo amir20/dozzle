@@ -14,10 +14,14 @@ import type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from 'vue-router'
+import type {
+  _ExtractParamParserType,
+} from 'vue-router/experimental'
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers: never
+    ParamParsers:
+      | never
   }
 }
 
@@ -38,6 +42,13 @@ declare module 'vue-router/auto-routes' {
       '/:all(.*)',
       { all: ParamValue<true> },
       { all: ParamValue<false> },
+      | never
+    >,
+    '/cloud/search': RouteRecordInfo<
+      '/cloud/search',
+      '/cloud/search',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
     '/container/[id]': RouteRecordInfo<
@@ -66,6 +77,13 @@ declare module 'vue-router/auto-routes' {
       '/host/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/host-group/[name]': RouteRecordInfo<
+      '/host-group/[name]',
+      '/host-group/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
       | never
     >,
     '/login': RouteRecordInfo<
@@ -156,6 +174,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'assets/pages/cloud/search.vue': {
+      routes:
+        | '/cloud/search'
+      views:
+        | never
+    }
     'assets/pages/container/[id].vue': {
       routes:
         | '/container/[id]'
@@ -177,6 +201,12 @@ declare module 'vue-router/auto-routes' {
     'assets/pages/host/[id].vue': {
       routes:
         | '/host/[id]'
+      views:
+        | never
+    }
+    'assets/pages/host-group/[name].vue': {
+      routes:
+        | '/host-group/[name]'
       views:
         | never
     }

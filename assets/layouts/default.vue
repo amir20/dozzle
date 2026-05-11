@@ -3,7 +3,7 @@
     <MobileMenu v-if="isMobile && !forceMenuHidden" @search="showFuzzySearch"></MobileMenu>
     <Splitpanes @resized="onResized($event)">
       <Pane min-size="10" :size="menuWidth" v-if="!isMobile && !collapseNav && !forceMenuHidden">
-        <SidePanel @search="showFuzzySearch" />
+        <SidePanel />
       </Pane>
       <Pane min-size="10" :size="100 - menuWidth">
         <Splitpanes>
@@ -34,9 +34,9 @@
       <mdi:chevron-left class="swap-off" />
     </label>
   </div>
-  <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="open = false">
+  <dialog ref="modal" class="modal bg-base-300/50! items-start backdrop-blur-md transition-none!" @close="closeSearch">
     <div class="modal-box max-w-2xl bg-transparent pt-20 shadow-none">
-      <FuzzySearchModal @close="open = false" v-if="open" />
+      <FuzzySearchModal @close="closeSearch" v-if="open" />
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
@@ -63,8 +63,10 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 const drawer = useTemplateRef<InstanceType<typeof SideDrawer>>("drawer") as Ref<InstanceType<typeof SideDrawer>>;
 const { component: drawerComponent, properties: drawerProperties, width: drawerWidth } = createDrawer(drawer);
 
+import { useFuzzySearch } from "@/composable/fuzzySearch";
+
 const modal = ref<HTMLDialogElement>();
-const open = ref(false);
+const { open, openSearch: showFuzzySearch, closeSearch } = useFuzzySearch();
 const searchParams = new URLSearchParams(window.location.search);
 const forceMenuHidden = ref(searchParams.has("hideMenu"));
 
@@ -82,10 +84,6 @@ onKeyStroke("k", (e) => {
     e.preventDefault();
   }
 });
-
-function showFuzzySearch() {
-  open.value = true;
-}
 
 function onResized({ panes }: { panes: { size: number }[] }) {
   if (panes.length == 2) {

@@ -39,7 +39,7 @@ export function useProfileStorage<K extends keyof Profile>(
     }
   }
 
-  if (config.user) {
+  if (config.user || config.authProvider === "none") {
     watch(
       storage,
       (value) => {
@@ -56,6 +56,8 @@ export function useProfileStorage<K extends keyof Profile>(
               return value;
             }
           }),
+        }).catch((e) => {
+          console.error(`Failed to sync ${key} to profile`, e);
         });
       },
       { deep: true },

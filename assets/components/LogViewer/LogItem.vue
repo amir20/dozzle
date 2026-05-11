@@ -14,12 +14,7 @@
       >
         {{ container.name }}
       </RandomColorTag>
-      <LogDate
-        v-if="showTimestamp"
-        :date="logEntry.date"
-        class="shrink-0 select-none"
-        :class="{ 'bg-secondary': route.query.logId === logEntry.id.toString() }"
-      />
+      <LogDate v-if="showTimestamp" :date="logEntry.date" class="shrink-0 select-none" />
     </div>
     <slot />
   </div>
@@ -37,6 +32,4 @@ const { hosts } = useHosts();
 
 const container = currentContainer(toRef(() => logEntry.containerID));
 const host = computed(() => hosts.value[container.value.host]);
-
-const route = useRoute();
 </script>

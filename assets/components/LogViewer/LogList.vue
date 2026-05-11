@@ -7,6 +7,7 @@
       :id="item.id.toString()"
       :data-time="item.date.getTime()"
       class="group/entry"
+      :class="{ 'log-permalink-target': permalinkLogId === item.id.toString() }"
     >
       <component :is="item.getComponent()" :log-entry="item" />
     </li>
@@ -23,6 +24,9 @@ const { messages } = defineProps<{
 }>();
 
 const { containers } = useLoggingContext();
+
+const route = useRoute();
+const permalinkLogId = computed(() => (typeof route.query.logId === "string" ? route.query.logId : ""));
 
 const list = ref<HTMLElement[]>([]);
 
@@ -71,6 +75,11 @@ ul {
     &:last-child {
       scroll-margin-block-end: 5rem;
     }
+
+    &.log-permalink-target {
+      @apply bg-secondary/15 border-secondary -ml-1 border-l-4 pl-3;
+      animation: log-permalink-pulse 1.4s ease-out;
+    }
   }
 
   &.small {
@@ -111,6 +120,16 @@ ul {
   }
   100% {
     transform: scale(1.05);
+  }
+}
+
+@keyframes log-permalink-pulse {
+  0% {
+    background-color: var(--color-secondary);
+  }
+  100% {
+    /* Settle to the resting bg-secondary/15 declared on the .li above. */
+    background-color: color-mix(in oklab, var(--color-secondary) 15%, transparent);
   }
 }
 </style>

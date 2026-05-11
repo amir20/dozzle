@@ -1,5 +1,5 @@
 packages:
   - docs
-  - e2e
-overrides:
-  esbuild@<=0.24.2: '>=0.25.0'
+allowBuilds:
+  esbuild: true
+  simple-git-hooks: true

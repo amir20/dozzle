@@ -112,6 +112,15 @@ The Go backend is organized into these key packages:
   - Uses Protocol Buffers (protos defined in `protos/`)
   - Enables distributed log collection across Docker hosts
 
+- **`internal/cloud/`** - Dozzle Cloud integration (tool execution engine)
+  - `client.go`: Bidirectional gRPC stream client with auto-reconnect and exponential backoff
+  - `tools.go`: Tool registration, dispatch (`executeTool`), and `ToolHostService` interface
+  - `tools_containers.go`: Container listing, finding, stats, and inspection tools
+  - `tools_logs.go`: Log fetching with level/query/regex filtering (max 100 lines)
+  - `tools_actions.go`: Container start/stop/restart actions (gated by `enableActions`)
+  - `tools_helpers.go`: Proto conversion utilities and host name resolution
+  - Uses `protos/cloud.proto` for service and message definitions
+
 - **`internal/k8s/`** - Kubernetes client support
   - Alternative to Docker client for k8s deployments
 
@@ -339,6 +348,16 @@ Implementation (DockerClient, K8sClient, AgentClient)
 5. Streaming RPCs (logs, stats, events) use bidirectional channels
 6. Responses converted back to domain models via `FromProto()` methods
 
+### Cloud Tool Execution Flow
+
+1. `cloud.Client.Run()` blocks until `Notify()` signals a cloud dispatcher is configured
+2. `connect()` establishes bidirectional gRPC stream (`ToolStream` RPC) to cloud endpoint
+3. Cloud sends `ToolRequest` (ListTools or CallTool), client dispatches via `executeTool()`
+4. Tool calls run concurrently (max 5 via weighted semaphore), responses sent back on stream
+5. On disconnect, exponential backoff (1s→30s with jitter) triggers reconnection
+6. `PermissionDenied` errors stop retrying permanently (invalid API key / no pro plan)
+7. Tool definitions cached via `sync.Once`; zero overhead for non-cloud users
+
 ### Log Parsing Pipeline
 
 1. Docker API returns multiplexed stream (8-byte headers + payload)
@@ -414,6 +433,16 @@ Implementation (DockerClient, K8sClient, AgentClient)
 2. Register in `manager.go` dispatcher factory
 3. Add UI form in `assets/components/Notification/DestinationForm.vue`
 4. Add GraphQL schema fields if needed
+
+### Adding a New Cloud Tool
+
+1. Define the tool in `AvailableTools()` in `internal/cloud/tools.go` with name, description, and parameter schema
+2. Add a response message type in `protos/cloud.proto` and add it to the `CallToolResponse.result` oneof
+3. Run `make generate` to regenerate protobuf code
+4. Add a case in the `executeTool()` switch in `internal/cloud/tools.go`
+5. Implement the execution function in the appropriate `tools_*.go` file
+6. Use `ToolHostService` interface methods to access container/host data
+7. Add tests in `tools_test.go`
 
 ## Common Development Patterns
 

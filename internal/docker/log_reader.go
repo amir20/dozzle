@@ -59,7 +59,8 @@ func (d *LogReader) Read() (string, container.StdType, error) {
 			return "", std, err
 		}
 
-		message += tail[32:]
+		_, after, _ := strings.Cut(tail, " ")
+		message += after
 	}
 
 	return message, std, nil

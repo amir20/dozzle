@@ -28,6 +28,7 @@ type NotificationRuleResponse struct {
 	ContainerExpression string              `json:"containerExpression"`
 	LogExpression       string              `json:"logExpression"`
 	MetricExpression    string              `json:"metricExpression,omitempty"`
+	EventExpression     string              `json:"eventExpression,omitempty"`
 	Cooldown            int                 `json:"cooldown,omitempty"`
 	SampleWindow        int                 `json:"sampleWindow,omitempty"`
 	TriggerCount        int64               `json:"triggerCount"`
@@ -37,14 +38,13 @@ type NotificationRuleResponse struct {
 }
 
 type DispatcherResponse struct {
-	ID        int                `json:"id"`
-	Name      string             `json:"name"`
-	Type      string             `json:"type"`
-	URL       *string            `json:"url,omitempty"`
-	Template  *string            `json:"template,omitempty"`
-	Headers   map[string]string `json:"headers,omitempty"`
-	Prefix    *string            `json:"prefix,omitempty"`
-	ExpiresAt *time.Time         `json:"expiresAt,omitempty"`
+	ID       int               `json:"id"`
+	Name     string            `json:"name"`
+	Type     string            `json:"type"`
+	URL      *string           `json:"url,omitempty"`
+	Template *string           `json:"template,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Prefix   *string           `json:"prefix,omitempty"`
 }
 
 type NotificationRuleInput struct {
@@ -54,6 +54,7 @@ type NotificationRuleInput struct {
 	LogExpression       string `json:"logExpression"`
 	ContainerExpression string `json:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty"`
+	EventExpression     string `json:"eventExpression,omitempty"`
 	Cooldown            int    `json:"cooldown,omitempty"`
 	SampleWindow        int    `json:"sampleWindow,omitempty"`
 }
@@ -65,6 +66,7 @@ type NotificationRuleUpdateInput struct {
 	LogExpression       *string `json:"logExpression,omitempty"`
 	ContainerExpression *string `json:"containerExpression,omitempty"`
 	MetricExpression    *string `json:"metricExpression,omitempty"`
+	EventExpression     *string `json:"eventExpression,omitempty"`
 	Cooldown            *int    `json:"cooldown,omitempty"`
 	SampleWindow        *int    `json:"sampleWindow,omitempty"`
 }
@@ -81,12 +83,14 @@ type PreviewInput struct {
 	ContainerExpression string  `json:"containerExpression"`
 	LogExpression       *string `json:"logExpression,omitempty"`
 	MetricExpression    *string `json:"metricExpression,omitempty"`
+	EventExpression     *string `json:"eventExpression,omitempty"`
 }
 
 type PreviewResult struct {
 	ContainerError    *string               `json:"containerError,omitempty"`
 	LogError          *string               `json:"logError,omitempty"`
 	MetricError       *string               `json:"metricError,omitempty"`
+	EventError        *string               `json:"eventError,omitempty"`
 	MatchedContainers []container.Container `json:"matchedContainers"`
 	MatchedLogs       []container.LogEvent  `json:"matchedLogs"`
 	TotalLogs         int                   `json:"totalLogs"`
@@ -106,10 +110,36 @@ type TestWebhookResult struct {
 }
 
 // Helper functions
-func subscriptionToResponse(sub *notification.Subscription, dispatchers []notification.DispatcherConfig) *NotificationRuleResponse {
+func subscriptionToResponse(sub *notification.Subscription, dispatchers []notification.DispatcherConfig, agentStats map[int]types.SubscriptionStats) *NotificationRuleResponse {
 	var lastTriggeredAt *time.Time
 	if t := sub.LastTriggeredAt.Load(); t != nil && !t.IsZero() {
 		lastTriggeredAt = t
+	}
+
+	triggerCount := sub.TriggerCount.Load()
+	triggeredContainers := sub.TriggeredContainersCount()
+
+	// Merge agent stats if available
+	if as, ok := agentStats[sub.ID]; ok {
+		triggerCount += as.TriggerCount
+
+		if as.LastTriggeredAt != nil && (lastTriggeredAt == nil || as.LastTriggeredAt.After(*lastTriggeredAt)) {
+			lastTriggeredAt = as.LastTriggeredAt
+		}
+
+		// Count unique container IDs from agents (deduplicated with local)
+		agentContainerSet := make(map[string]struct{}, len(as.TriggeredContainerIDs))
+		for _, id := range as.TriggeredContainerIDs {
+			agentContainerSet[id] = struct{}{}
+		}
+		// Subtract containers already counted locally
+		if sub.TriggeredContainerIDs != nil {
+			sub.TriggeredContainerIDs.Range(func(id string, _ struct{}) bool {
+				delete(agentContainerSet, id)
+				return true
+			})
+		}
+		triggeredContainers += len(agentContainerSet)
 	}
 
 	var disp *DispatcherResponse
@@ -128,11 +158,12 @@ func subscriptionToResponse(sub *notification.Subscription, dispatchers []notifi
 		LogExpression:       sub.LogExpression,
 		ContainerExpression: sub.ContainerExpression,
 		MetricExpression:    sub.MetricExpression,
+		EventExpression:     sub.EventExpression,
 		Cooldown:            sub.Cooldown,
 		SampleWindow:        sub.SampleWindow,
-		TriggerCount:        sub.TriggerCount.Load(),
+		TriggerCount:        triggerCount,
 		LastTriggeredAt:     lastTriggeredAt,
-		TriggeredContainers: sub.TriggeredContainersCount(),
+		TriggeredContainers: triggeredContainers,
 	}
 }
 
@@ -154,14 +185,13 @@ func dispatcherConfigToResponse(d *notification.DispatcherConfig) *DispatcherRes
 		prefix = &d.Prefix
 	}
 	return &DispatcherResponse{
-		ID:        d.ID,
-		Name:      d.Name,
-		Type:      d.Type,
-		URL:       url,
-		Template:  template,
-		Headers:   headers,
-		Prefix:    prefix,
-		ExpiresAt: d.ExpiresAt,
+		ID:       d.ID,
+		Name:     d.Name,
+		Type:     d.Type,
+		URL:      url,
+		Template: template,
+		Headers:  headers,
+		Prefix:   prefix,
 	}
 }
 
@@ -183,9 +213,10 @@ func writeError(w http.ResponseWriter, status int, message string) {
 func (h *handler) listNotificationRules(w http.ResponseWriter, r *http.Request) {
 	subscriptions := h.hostService.Subscriptions()
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	rules := make([]*NotificationRuleResponse, len(subscriptions))
 	for i, sub := range subscriptions {
-		rules[i] = subscriptionToResponse(sub, dispatchers)
+		rules[i] = subscriptionToResponse(sub, dispatchers, agentStats)
 	}
 	writeJSON(w, http.StatusOK, rules)
 }
@@ -198,9 +229,10 @@ func (h *handler) getNotificationRule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, agentStats))
 			return
 		}
 	}
@@ -221,6 +253,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		LogExpression:       input.LogExpression,
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
+		EventExpression:     input.EventExpression,
 		Cooldown:            input.Cooldown,
 		SampleWindow:        input.SampleWindow,
 	}
@@ -230,7 +263,7 @@ func (h *handler) createNotificationRule(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, subscriptionToResponse(sub, h.hostService.Dispatchers()))
+	writeJSON(w, http.StatusCreated, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
 func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request) {
@@ -254,6 +287,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		LogExpression:       input.LogExpression,
 		ContainerExpression: input.ContainerExpression,
 		MetricExpression:    input.MetricExpression,
+		EventExpression:     input.EventExpression,
 		Cooldown:            input.Cooldown,
 		SampleWindow:        input.SampleWindow,
 	}
@@ -263,7 +297,7 @@ func (h *handler) replaceNotificationRule(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	writeJSON(w, http.StatusOK, subscriptionToResponse(sub, h.hostService.Dispatchers()))
+	writeJSON(w, http.StatusOK, subscriptionToResponse(sub, h.hostService.Dispatchers(), nil))
 }
 
 func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request) {
@@ -298,6 +332,9 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 	if input.MetricExpression != nil {
 		updates["metricExpression"] = *input.MetricExpression
 	}
+	if input.EventExpression != nil {
+		updates["eventExpression"] = *input.EventExpression
+	}
 	if input.Cooldown != nil {
 		updates["cooldown"] = *input.Cooldown
 	}
@@ -312,9 +349,10 @@ func (h *handler) updateNotificationRule(w http.ResponseWriter, r *http.Request)
 
 	// Fetch the updated subscription
 	dispatchers := h.hostService.Dispatchers()
+	agentStats := h.hostService.FetchAgentNotificationStats()
 	for _, sub := range h.hostService.Subscriptions() {
 		if sub.ID == id {
-			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers))
+			writeJSON(w, http.StatusOK, subscriptionToResponse(sub, dispatchers, agentStats))
 			return
 		}
 	}
@@ -486,6 +524,9 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 	if input.MetricExpression != nil {
 		sub.MetricExpression = *input.MetricExpression
 	}
+	if input.EventExpression != nil && *input.EventExpression != "" {
+		sub.EventExpression = *input.EventExpression
+	}
 
 	// Compile container expression
 	if sub.ContainerExpression != "" {
@@ -515,6 +556,14 @@ func (h *handler) previewExpression(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			errStr := err.Error()
 			result.MetricError = &errStr
+		}
+	}
+
+	if sub.EventExpression != "" {
+		_, err := expr.Compile(sub.EventExpression, expr.Env(types.NotificationEvent{}))
+		if err != nil {
+			errStr := err.Error()
+			result.EventError = &errStr
 		}
 	}
 

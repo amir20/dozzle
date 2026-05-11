@@ -31,6 +31,8 @@ export interface Profile {
   visibleKeys?: Map<string, Map<string[], boolean>>;
   releaseSeen?: string;
   collapsedGroups?: Set<string>;
+  collapsedHostGroups?: Set<string>;
+  cloudWelcomeShown?: boolean;
 }
 
 const pageConfig = JSON.parse(text);

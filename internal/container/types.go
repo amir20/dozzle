@@ -13,33 +13,40 @@ import (
 
 // Container represents an internal representation of docker containers
 type Container struct {
-	ID          string                           `json:"id"`
-	Name        string                           `json:"name"`
-	Image       string                           `json:"image"`
-	Command     string                           `json:"command"`
-	Created     time.Time                        `json:"created"`
-	StartedAt   time.Time                        `json:"startedAt"`
-	FinishedAt  time.Time                        `json:"finishedAt"`
-	State       string                           `json:"state"`
-	Health      string                           `json:"health,omitempty"`
-	Host        string                           `json:"host,omitempty"`
-	Tty         bool                             `json:"-"`
-	Labels      map[string]string                `json:"labels,omitempty"`
-	Stats       *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
-	MemoryLimit uint64                           `json:"memoryLimit"`
-	CPULimit    float64                          `json:"cpuLimit"`
-	Group       string                           `json:"group,omitempty"`
-	FullyLoaded bool                             `json:"-"`
+	ID            string                           `json:"id"`
+	Name          string                           `json:"name"`
+	Image         string                           `json:"image"`
+	Command       string                           `json:"command"`
+	Created       time.Time                        `json:"created"`
+	StartedAt     time.Time                        `json:"startedAt"`
+	FinishedAt    time.Time                        `json:"finishedAt"`
+	State         string                           `json:"state"`
+	Health        string                           `json:"health,omitempty"`
+	Host          string                           `json:"host,omitempty"`
+	Tty           bool                             `json:"-"`
+	Labels        map[string]string                `json:"labels,omitempty"`
+	Stats         *utils.RingBuffer[ContainerStat] `json:"stats,omitempty"`
+	MemoryLimit   uint64                           `json:"memoryLimit"`
+	CPULimit      float64                          `json:"cpuLimit"`
+	Group         string                           `json:"group,omitempty"`
+	Env           []string                         `json:"-"`
+	Ports         []string                         `json:"-"`
+	Mounts        []string                         `json:"-"`
+	RestartPolicy string                           `json:"-"`
+	NetworkMode   string                           `json:"-"`
+	FullyLoaded   bool                             `json:"-"`
 }
 
 func (container Container) ToProto() pb.Container {
 	var pbStats []*pb.ContainerStat
 	for _, stat := range container.Stats.Data() {
 		pbStats = append(pbStats, &pb.ContainerStat{
-			Id:            stat.ID,
-			CpuPercent:    stat.CPUPercent,
-			MemoryPercent: stat.MemoryPercent,
-			MemoryUsage:   stat.MemoryUsage,
+			Id:             stat.ID,
+			CpuPercent:     stat.CPUPercent,
+			MemoryPercent:  stat.MemoryPercent,
+			MemoryUsage:    stat.MemoryUsage,
+			NetworkRxTotal: stat.NetworkRxTotal,
+			NetworkTxTotal: stat.NetworkTxTotal,
 		})
 	}
 
@@ -57,10 +64,15 @@ func (container Container) ToProto() pb.Container {
 		Started:     timestamppb.New(container.StartedAt),
 		Finished:    timestamppb.New(container.FinishedAt),
 		Stats:       pbStats,
-		Command:     container.Command,
-		MemoryLimit: container.MemoryLimit,
-		CpuLimit:    container.CPULimit,
-		FullyLoaded: container.FullyLoaded,
+		Command:       container.Command,
+		MemoryLimit:   container.MemoryLimit,
+		CpuLimit:      container.CPULimit,
+		FullyLoaded:   container.FullyLoaded,
+		Env:           container.Env,
+		Ports:         container.Ports,
+		Mounts:        container.Mounts,
+		RestartPolicy: container.RestartPolicy,
+		NetworkMode:   container.NetworkMode,
 	}
 }
 
@@ -68,18 +80,30 @@ func FromProto(c *pb.Container) Container {
 	var stats []ContainerStat
 	for _, stat := range c.Stats {
 		stats = append(stats, ContainerStat{
-			ID:            stat.Id,
-			CPUPercent:    stat.CpuPercent,
-			MemoryPercent: stat.MemoryPercent,
-			MemoryUsage:   stat.MemoryUsage,
+			ID:             stat.Id,
+			CPUPercent:     stat.CpuPercent,
+			MemoryPercent:  stat.MemoryPercent,
+			MemoryUsage:    stat.MemoryUsage,
+			NetworkRxTotal: stat.NetworkRxTotal,
+			NetworkTxTotal: stat.NetworkTxTotal,
 		})
+	}
+
+	labels := c.Labels
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+
+	env := c.Env
+	if env == nil {
+		env = []string{}
 	}
 
 	return Container{
 		ID:          c.Id,
 		Name:        c.Name,
 		Image:       c.Image,
-		Labels:      c.Labels,
+		Labels:      labels,
 		Group:       c.Group,
 		Created:     c.Created.AsTime(),
 		State:       c.State,
@@ -90,9 +114,14 @@ func FromProto(c *pb.Container) Container {
 		StartedAt:   c.Started.AsTime(),
 		FinishedAt:  c.Finished.AsTime(),
 		Stats:       utils.RingBufferFrom(300, stats),
-		MemoryLimit: c.MemoryLimit,
-		CPULimit:    c.CpuLimit,
-		FullyLoaded: c.FullyLoaded,
+		MemoryLimit:   c.MemoryLimit,
+		CPULimit:      c.CpuLimit,
+		FullyLoaded:   c.FullyLoaded,
+		Env:           env,
+		Ports:         c.Ports,
+		Mounts:        c.Mounts,
+		RestartPolicy: c.RestartPolicy,
+		NetworkMode:   c.NetworkMode,
 	}
 }
 
@@ -168,16 +197,25 @@ const (
 	Start   ContainerAction = "start"
 	Stop    ContainerAction = "stop"
 	Restart ContainerAction = "restart"
+	Remove  ContainerAction = "remove"
 )
 
 func ParseContainerAction(input string) (ContainerAction, error) {
 	action := ContainerAction(input)
 	switch action {
-	case Start, Stop, Restart:
+	case Start, Stop, Restart, Remove:
 		return action, nil
 	default:
 		return "", fmt.Errorf("unknown action: %s", input)
 	}
+}
+
+type UpdateProgress struct {
+	Status  string `json:"status"`  // "pulling", "recreating", "done", "error", "up-to-date"
+	Layer   string `json:"layer"`   // Docker layer ID (pull events only)
+	Current int64  `json:"current"` // Bytes downloaded
+	Total   int64  `json:"total"`   // Total bytes for layer
+	Error   string `json:"error"`   // Only when Status="error"
 }
 
 type LogEvent struct {

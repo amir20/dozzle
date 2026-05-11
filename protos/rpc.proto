@@ -18,9 +18,12 @@ service AgentService {
   rpc StreamContainerStarted(StreamContainerStartedRequest) returns (stream StreamContainerStartedResponse) {}
   rpc HostInfo(HostInfoRequest) returns (HostInfoResponse) {}
   rpc ContainerAction(ContainerActionRequest) returns (ContainerActionResponse) {}
+  rpc UpdateContainer(UpdateContainerRequest) returns (stream UpdateContainerProgress) {}
   rpc ContainerExec(stream ContainerExecRequest) returns (stream ContainerExecResponse) {}
   rpc ContainerAttach(stream ContainerAttachRequest) returns (stream ContainerAttachResponse) {}
   rpc UpdateNotificationConfig(UpdateNotificationConfigRequest) returns (UpdateNotificationConfigResponse) {}
+  rpc UpdateCloudConfig(UpdateCloudConfigRequest) returns (UpdateCloudConfigResponse) {}
+  rpc GetNotificationStats(GetNotificationStatsRequest) returns (GetNotificationStatsResponse) {}
 }
 
 message ListContainersRequest {
@@ -99,6 +102,18 @@ message ContainerActionRequest {
 
 message ContainerActionResponse {}
 
+message UpdateContainerRequest {
+  string containerId = 1;
+}
+
+message UpdateContainerProgress {
+  string status = 1;
+  string layer = 2;
+  int64 current = 3;
+  int64 total = 4;
+  string error = 5;
+}
+
 message ContainerExecRequest {
   string containerId = 1;
   repeated string command = 2;
@@ -135,3 +150,15 @@ message UpdateNotificationConfigRequest {
 }
 
 message UpdateNotificationConfigResponse {}
+
+message UpdateCloudConfigRequest {
+  NotificationCloudConfig cloudConfig = 1;
+}
+
+message UpdateCloudConfigResponse {}
+
+message GetNotificationStatsRequest {}
+
+message GetNotificationStatsResponse {
+  repeated NotificationSubscriptionStats stats = 1;
+}

@@ -8,6 +8,12 @@ toolbar:
   stop: Durdur
   start: Başlat
   restart: Yeniden Başlat
+  update: Güncelle
+  update-service: Servisi Güncelle
+  update-pulling: En son imaj indiriliyor...
+  update-recreating: Konteyner yeniden oluşturuluyor...
+  update-done: Konteyner başarıyla güncellendi
+  update-up-to-date: Zaten güncel
   show-hostname: Sunucu adını göster
   show-container-name: Konteyner adını göster
   shell: Kabuk
@@ -53,17 +59,27 @@ label:
   no-logs: Konteyner henüz log içermiyor
   show-all-containers: Tüm konteynerleri göster
   collapse-all: Hepsini daralt
+  collapse-group: Grubu daralt
+  expand-all: Hepsini genişlet
 tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
   merge-all: Tümünü tek bir akışta birleştir
 error:
   page-not-found: Bu sayfa bulunamadı
+  host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'
   invalid-auth: Kullanıcı adı veya şifre geçersiz
   copy-not-supported: Panoya kopyalama tarayıcınızda desteklenmiyor
   copy-not-supported-hint: Pano kullanılamıyor. Aşağıdaki bağlantıyı kopyalayın
   logs-skipped: "{total} gizli girişi göster"
   container-not-found: Konteyner bulunamadı
+  action-failed: İşlem Başarısız
+  update-failed: Güncelleme Başarısız
+  unable-to-complete-action: İşlem tamamlanamadı
+  invalid-action: Geçersiz işlem
+  unable-to-update: Konteyner güncellenemedi
+  something-went-wrong: Bir şeyler ters gitti
+  unknown-error: Bilinmeyen hata
   events-stream:
     title: Beklenmeyen Hata
     message: >-
@@ -94,12 +110,18 @@ button:
   settings: Ayarlar
   cancel: İptal
   redirect: Yönlendir
+  retry: Retry
 placeholder:
   search-containers: Konteynerlerde ara (⌘ + k, ⌃k)
   search: Ara
 settings:
   help-support: >
     Lütfen GitHub'da bağış yaparak veya bizi sponsor olarak destekleyerek Dozzle'ı destekleyin. Katkılarınız Dozzle'ı herkes için geliştirmemize yardımcı oluyor. Teşekkürler! 🙏🏼
+  about-desc: Dozzle kurulumunuz ve projeyi nasıl destekleyebileceğiniz hakkında bilgiler.
+  display-desc: Logların ve uygulamanın geri kalanının görünümünü özelleştirin. Önizleme değişikliklerinizi canlı olarak yansıtır.
+  options-desc: Dil, gezinme ve gruplama tercihleri.
+  cloud-desc: AI destekli incelemeler ve örnekler arasında arama için logları Dozzle Cloud'a aktarın.
+  support-title: Dozzle'ı Destekle
   display: Görünüm
   locale: Dili geçersiz kıl
   small-scrollbars: Daha küçük kaydırma çubukları kullan
@@ -167,17 +189,21 @@ notifications:
   destinations: Hedefler
   add-destination: Hedef ekle
   alerts: Uyarılar
+  add-alert: Uyarı ekle
   add: Ekle
   filter:
     all: Tümü ({count})
     enabled: Etkin ({count})
     paused: Duraklatılmış ({count})
   no-alerts: Henüz uyarı yapılandırılmadı. Başlamak için bir tane oluşturun.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Duraklatıldı
     containers: Konteynerler
     log-filter: Günlük filtresi
     metric-filter: Metrik
+    event-filter: Event
     cooldown: Bekleme süresi
     sample-window: Örnek penceresi
     destination: Hedef
@@ -189,6 +215,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Düzenle
+    duplicate: Çoğalt
     delete: Sil
   alert-form:
     create-title: Uyarı Oluştur
@@ -216,9 +243,13 @@ notifications:
     sample-window-hint: "Koşul {duration} boyunca karşılandığında uyarı tetiklenir"
     cooldown-label: Bekleme süresi
     cooldown-hint: "Konteyner başına uyarılar arası {duration}"
+    no-cooldown: No cooldown
     alert-type: Uyarı Türü
     log-alert: Günlük Uyarısı
     metric-alert: Metrik Uyarısı
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Hedef Ekle
     edit-title: Hedefi Düzenle
@@ -251,15 +282,89 @@ notifications:
     close: Kapat
     save: Kaydet
     add: Hedef Ekle
-    cloud-exists: Yalnızca bir Dozzle Cloud hedefi yapılandırılabilir
+    cloud-exists: Dozzle Cloud zaten bağlı
     link-cloud: Hesabı Bağla
     link-cloud-button: Dozzle Cloud'u Bağla
     cloud-settings-hint: Yönetilen kanallarınızı yapılandırmak için şuraya gidin
     cloud-settings-link: Dozzle Cloud Ayarları
     cloud-checking: Bulut durumu kontrol ediliyor...
     cloud-relink: API anahtarınız geçersiz veya süresi dolmuş. Lütfen silin ve hesabınızı tekrar bağlayın.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Plan
     cloud-usage: Bu dönemdeki olaylar
+  empty-state:
+    title: Bildirimlerle başlayın
+    description: Konteynerleriniz dikkat gerektirdiğinde nasıl uyarı almak istediğinizi seçin.
   cloud-link-success:
     title: Dozzle Cloud Bağlandı
-    message: Hesabınız Dozzle Cloud'a başarıyla bağlandı.
+    message: Örneğiniz başarıyla bağlandı. Ayarlardan bağlantıyı kaldırabilir veya kullanımınızı istediğiniz zaman kontrol edebilirsiniz.
+cloud:
+  title: Dozzle Cloud
+  description: Konteynerlerinizi uzaktan kontrol edin ve kümenizde sorunları araştırmak için yapay zeka kullanın.
+  learn-more: Daha fazla bilgi
+  link-instance: Örneği bağla
+  relink-instance: Örneği yeniden bağla
+  connected: Bağlı
+  plan: Plan
+  usage: Bu dönemdeki olaylar
+  dashboard: Pano
+  settings: Ayarlar
+  error: Bağlantı hatası. Lütfen örneğinizi yeniden bağlayın.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Bağlantıyı kaldır
+  unlink-confirm: Dozzle Cloud bağlantısını kaldırmak istediğinizden emin misiniz? Bu, tüm bulut bildirim hedeflerini kaldıracaktır.
+  stream-logs: Konteyner günlüklerini Dozzle Cloud'a yayınla
+  stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
+  welcome:
+    title: "Örneğiniz bağlandı!"
+    subtitle: "Artık Dozzle Cloud'dan uyarılar, günlük özetler ve daha fazlasını alabilirsiniz."
+    question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
+    placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
+    or-pick: "Veya birini seçin:"
+    chip-alerts: Sorun bildirimleri almak
+    chip-assistant: Asistan'a loglarımı sormak
+    chip-hosts: Birden fazla sunucu izlemek
+    chip-remote-access: Loglara uzaktan erişmek
+    chip-digests: Günlük log özetleri almak
+    chip-other: Başka bir şey
+    get-started: Başla
+    skip: Şimdilik geç
+    step2-title: "Teşekkürler! Cloud'dan en iyi şekilde yararlanmanın yolu."
+    step2-subtitle: "Her yanıtı okuyorum ve bir sonraki adımı şekillendiriyor. Bu adımlar başlamanıza yardımcı olacak."
+    checklist-alert-title: İlk uyarınızı oluşturun
+    checklist-alert-desc: "Dozzle'da bir kural oluşturun, böylece Cloud neyi izleyeceğini bilsin. Bir şey ters gittiğinde özet alırsınız."
+    checklist-notify-title: Bildirim şeklinizi seçin
+    checklist-notify-desc: "E-posta varsayılan olarak açıktır. Daha hızlı uyarılar için push, Telegram veya Discord ekleyin."
+    checklist-agent-title: Yapay zeka asistanını deneyin
+    checklist-agent-desc: "Telegram veya Discord'u bağlayın ve konteynerlerinizle sohbet edin. Hataları teşhis edin, durumu kontrol edin ve servis yeniden başlatma gibi işlemler yapın."
+    create-alert: İlk uyarınızı oluşturun
+    default-alert-name: Container exited with error
+    later: "Bunu daha sonra yapacağım"
+cloud-search:
+  containers-section: "Konteynerler"
+  search-logs-for: "\"{query}\" için logları ara"
+  across-containers: "tüm konteynerleriniz arasında indekslenmiş"
+  connect-to-enable: "Logları aramak için Dozzle Cloud'a bağlanın"
+  enable-streaming-to-search: "Log akışını Cloud'a etkinleştirin"
+  open-container: "konteyneri aç"
+  search-logs-shortcut: "logları ara"
+  cloud-connected: "Cloud bağlı"
+  results-page-title: "Log araması"
+  no-results: "Eşleşen log satırı yok."
+  search-failed: "Cloud araması başarısız oldu."
+  search-empty-prompt: "Loglarda arama yapmak için bir sorgu yazın."
+  searching: "Aranıyor…"
+  hits-count: "{n} sonuç"
+  window-suffix: "son 14 gün içinde"
+  hero-title-cloud: "Konteynerleri ve logları ara"
+  hero-title-plain: "Konteynerleri ara"
+  hero-pill-indexed: "Cloud indeksi"
+  modal-placeholder-cloud: "Konteynerleri ve logları ara…"
+  modal-placeholder-plain: "Konteynerleri ara…"
+  col-time: "Zaman"
+  col-level: "Seviye"
+  col-container: "Konteyner"
+  col-message: "Mesaj"
+  container-removed: "Konteyner silindi"
+  cta-settings: "Cloud ayarları"
+  container-removed-pill: "silindi"

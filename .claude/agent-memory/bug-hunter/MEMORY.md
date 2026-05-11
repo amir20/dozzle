@@ -28,3 +28,10 @@
 - Subscription fields use atomic types: TriggerCount (atomic.Int64), LastTriggeredAt (atomic.Pointer)
 - MetricCooldowns uses xsync.Map for per-container cooldown tracking
 - sendSem (semaphore.Weighted=5) limits concurrent notification sends
+
+### Container Update (feat/container-update)
+
+- **progressCh close contract**: Docker and Agent implementations close progressCh via defer; K8s does NOT, causing handler hang
+- **NetworkSettings nil risk**: `docker.InspectResponse.NetworkSettings` is a pointer; `ContainerCreate` doesn't nil-check before accessing `.Networks`
+- **Destructive recreate**: stop->remove->create->start has no rollback if create fails after remove
+- **SSE parsing in frontend**: Uses manual ReadableStream reader, not EventSource; no AbortController cleanup on unmount

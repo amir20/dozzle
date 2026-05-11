@@ -4,15 +4,17 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 
 	"github.com/amir20/dozzle/internal/agent"
+	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/amir20/dozzle/internal/docker"
 	"github.com/amir20/dozzle/internal/notification"
+	"github.com/amir20/dozzle/internal/notification/dispatcher"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	docker_support "github.com/amir20/dozzle/internal/support/docker"
 	"github.com/amir20/dozzle/types"
@@ -25,8 +27,24 @@ type AgentCmd struct {
 
 // persistingNotificationHandler wraps a notification manager and saves config to disk after updates
 type persistingNotificationHandler struct {
-	manager    *notification.Manager
-	configPath string
+	manager     *notification.Manager
+	configPath  string
+	cloudConfig atomic.Pointer[notification.CloudConfig]
+	onCloudSet  func()
+}
+
+// CloudConfig returns the agent's currently active cloud config, or nil if
+// none has been pushed by the main server / loaded from disk.
+func (h *persistingNotificationHandler) CloudConfig() *notification.CloudConfig {
+	return h.cloudConfig.Load()
+}
+
+func (h *persistingNotificationHandler) setCloudConfig(cc *notification.CloudConfig) {
+	h.cloudConfig.Store(cc)
+}
+
+func (h *persistingNotificationHandler) GetNotificationStats() []types.SubscriptionStats {
+	return h.manager.GetNotificationStats()
 }
 
 func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
@@ -54,6 +72,52 @@ func (h *persistingNotificationHandler) HandleNotificationConfig(subscriptions [
 	return nil
 }
 
+func (h *persistingNotificationHandler) SetCloudDispatcher(d dispatcher.Dispatcher) {
+	h.manager.SetCloudDispatcher(d)
+
+	// Persist cloud config to disk so it survives agent restarts
+	cd, ok := d.(*dispatcher.CloudDispatcher)
+	if !ok {
+		log.Warn().Str("type", fmt.Sprintf("%T", d)).Msg("Cloud dispatcher type assertion failed, cannot persist")
+		return
+	}
+	cc := notification.CloudConfig{
+		APIKey:    cd.APIKey,
+		Prefix:    cd.Prefix,
+		ExpiresAt: cd.ExpiresAt,
+	}
+	h.cloudConfig.Store(&cc)
+	if h.onCloudSet != nil {
+		h.onCloudSet()
+	}
+	if err := os.MkdirAll("./data", 0755); err != nil {
+		log.Error().Err(err).Msg("Could not create data directory for cloud config")
+		return
+	}
+	file, err := os.Create("./data/cloud.yml")
+	if err != nil {
+		log.Error().Err(err).Msg("Could not create cloud.yml on agent")
+		return
+	}
+	defer file.Close()
+	if err := notification.WriteCloudConfig(file, cc); err != nil {
+		log.Error().Err(err).Msg("Could not write cloud.yml on agent")
+	} else {
+		log.Debug().Msg("Persisted cloud.yml on agent")
+	}
+}
+
+func (h *persistingNotificationHandler) ClearCloudDispatcher() {
+	h.manager.ClearCloudDispatcher()
+	h.cloudConfig.Store(nil)
+	if h.onCloudSet != nil {
+		h.onCloudSet()
+	}
+	if err := os.Remove("./data/cloud.yml"); err != nil && !os.IsNotExist(err) {
+		log.Error().Err(err).Msg("Could not remove cloud.yml on agent")
+	}
+}
+
 func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if args.Mode != "server" {
 		return fmt.Errorf("agent command is only available in server mode")
@@ -71,12 +135,10 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
-	tempFile, err := os.CreateTemp("", "agent-*.addr")
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
+	const agentAddrFile = "/tmp/dozzle-agent.addr"
+	if err := os.WriteFile(agentAddrFile, []byte(args.Agent.Addr), 0644); err != nil {
+		return fmt.Errorf("failed to write agent address file: %w", err)
 	}
-	io.WriteString(tempFile, listener.Addr().String())
-	log.Debug().Str("file", tempFile.Name()).Msg("Created temp file")
 	go StartEvent(args, "", client, "agent")
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -88,7 +150,11 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	// Create notification manager using the shared client service
 	const notificationConfigPath = "./data/notifications.yml"
 	clients := []container_support.ClientService{clientService}
-	notificationManager := notification.NewManager(notification.NewContainerLogListener(ctx, clients), notification.NewContainerStatsListener(ctx, clients))
+	notificationManager := notification.NewManager(
+		notification.NewContainerLogListener(ctx, clients),
+		notification.NewContainerStatsListener(ctx, clients),
+		notification.NewContainerEventListener(ctx, clients),
+	)
 
 	// Start first so matcher is available for LoadConfig
 	if err := notificationManager.Start(); err != nil {
@@ -111,6 +177,57 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 		configPath: notificationConfigPath,
 	}
 
+	// Load cloud config if available
+	if file, err := os.Open("./data/cloud.yml"); err == nil {
+		cc, err := notification.LoadCloudConfig(file)
+		file.Close()
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to load cloud config on agent")
+		} else {
+			d, err := dispatcher.NewCloudDispatcher("Dozzle Cloud", cc.APIKey, cc.Prefix, cc.ExpiresAt)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to create cloud dispatcher on agent")
+			} else {
+				notificationManager.SetCloudDispatcher(d)
+				notificationHandler.setCloudConfig(&cc)
+				log.Info().Msg("Loaded cloud config from disk")
+			}
+		}
+	}
+
+	// Create a single-host MultiHostService so the cloud client has a
+	// HostService for tool execution (list_containers, fetch_logs, etc.).
+	agentManager := docker_support.NewRetriableClientManager(nil, args.Timeout, certs, clientService)
+	agentHostService := docker_support.NewMultiHostService(agentManager, args.Timeout)
+
+	// Cloud gRPC client — connects directly to Dozzle Cloud with this agent's
+	// own host ID as instance_id, so log streaming and tool dispatch happen
+	// here instead of funneling through the main server.
+	var instanceID string
+	if h, err := agentHostService.LocalHost(); err == nil {
+		instanceID = h.ID
+	}
+	apiKeyFunc := func() string {
+		if cc := notificationHandler.CloudConfig(); cc != nil {
+			return cc.APIKey
+		}
+		return ""
+	}
+	cloudClient := cloud.NewClient(apiKeyFunc, instanceID, args.Version(), cloud.ToolDeps{
+		EnableActions: false, // agents don't host action tools today
+		HostService:   agentHostService,
+		Labels:        args.Filter,
+	})
+	cloudClient.SetStreamLogsFunc(func() bool {
+		cc := notificationHandler.CloudConfig()
+		return cc != nil && cc.StreamLogsEnabled()
+	})
+	notificationHandler.onCloudSet = cloudClient.Notify
+	go cloudClient.Run(ctx)
+	if apiKeyFunc() != "" {
+		cloudClient.Notify()
+	}
+
 	// Create agent server using the same shared client service
 	server, err := agent.NewServer(clientService, certs, args.Version(), notificationHandler)
 	if err != nil {
@@ -128,7 +245,7 @@ func (a *AgentCmd) Run(args Args, embeddedCerts embed.FS) error {
 	stop()
 	log.Info().Msg("Shutting down agent")
 	server.Stop()
-	log.Debug().Str("file", tempFile.Name()).Msg("Removing temp file")
-	os.Remove(tempFile.Name())
+	log.Debug().Str("file", agentAddrFile).Msg("Removing agent address file")
+	os.Remove(agentAddrFile)
 	return nil
 }

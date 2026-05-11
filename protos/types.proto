@@ -27,6 +27,11 @@ message Container {
   uint64 memoryLimit = 17;
   double cpuLimit = 18;
   bool fullyLoaded = 19;
+  repeated string env = 20;
+  repeated string ports = 21;
+  repeated string mounts = 22;
+  string restartPolicy = 23;
+  string networkMode = 24;
 }
 
 message ContainerStat {
@@ -70,6 +75,7 @@ message ContainerEvent {
   string name = 2;
   string host = 3;
   google.protobuf.Timestamp timestamp = 4;
+  map<string, string> actorAttributes = 5;
 }
 
 message Host {
@@ -91,6 +97,7 @@ enum ContainerAction {
   Start = 0;
   Stop = 1;
   Restart = 2;
+  Remove = 3;
 }
 
 message NotificationSubscription {
@@ -103,6 +110,7 @@ message NotificationSubscription {
   string metricExpression = 7;
   int32 cooldown = 8;
   int32 sampleWindow = 9;
+  string eventExpression = 10;
 }
 
 message NotificationDispatcher {
@@ -112,4 +120,19 @@ message NotificationDispatcher {
   string url = 4;
   string template = 5;
   map<string, string> headers = 6;
+  // Fields 7-9 removed (cloud fields moved to NotificationCloudConfig)
+  reserved 7, 8, 9;
+}
+
+message NotificationCloudConfig {
+  string apiKey = 1;
+  string prefix = 2;
+  google.protobuf.Timestamp expiresAt = 3;
+}
+
+message NotificationSubscriptionStats {
+  int32 subscriptionId = 1;
+  int64 triggerCount = 2;
+  google.protobuf.Timestamp lastTriggeredAt = 3;
+  repeated string triggeredContainerIds = 4;
 }

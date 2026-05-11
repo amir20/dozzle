@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"encoding/json"
+	"strings"
 
 	"github.com/amir20/dozzle/internal/agent/pb"
 	"github.com/amir20/dozzle/internal/container"
@@ -28,12 +29,19 @@ import (
 )
 
 type Client struct {
-	client   pb.AgentServiceClient
-	conn     *grpc.ClientConn
-	endpoint string
+	client       pb.AgentServiceClient
+	conn         *grpc.ClientConn
+	endpoint     string
+	nameOverride string
+	group        string
 }
 
 func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialOption) (*Client, error) {
+	endpoint, nameOverride, group, err := ParseEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	caCertPool := x509.NewCertPool()
 	c, err := x509.ParseCertificate(certificates.Certificate[0])
 	if err != nil {
@@ -66,10 +74,33 @@ func NewClient(endpoint string, certificates tls.Certificate, opts ...grpc.DialO
 	client := pb.NewAgentServiceClient(conn)
 
 	return &Client{
-		client:   client,
-		conn:     conn,
-		endpoint: endpoint,
+		client:       client,
+		conn:         conn,
+		endpoint:     endpoint,
+		nameOverride: nameOverride,
+		group:        group,
 	}, nil
+}
+
+// ParseEndpoint splits an agent endpoint of the form "address|name|group" into
+// its parts. Name and group are optional; address is required.
+func ParseEndpoint(endpoint string) (string, string, string, error) {
+	parts := strings.Split(endpoint, "|")
+	if len(parts) > 3 || parts[0] == "" {
+		return "", "", "", fmt.Errorf("invalid agent endpoint: %s", endpoint)
+	}
+
+	name := ""
+	if len(parts) >= 2 {
+		name = parts[1]
+	}
+
+	group := ""
+	if len(parts) == 3 {
+		group = parts[2]
+	}
+
+	return parts[0], name, group, nil
 }
 
 func rpcErrToErr(err error) error {
@@ -260,10 +291,11 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 		}
 
 		events <- container.ContainerEvent{
-			ActorID: resp.Event.ActorId,
-			Name:    resp.Event.Name,
-			Host:    resp.Event.Host,
-			Time:    resp.Event.Timestamp.AsTime(),
+			ActorID:         resp.Event.ActorId,
+			Name:            resp.Event.Name,
+			Host:            resp.Event.Host,
+			Time:            resp.Event.Timestamp.AsTime(),
+			ActorAttributes: resp.Event.ActorAttributes,
 		}
 	}
 }
@@ -328,14 +360,20 @@ func (c *Client) ListContainers(ctx context.Context, labels container.ContainerL
 func (c *Client) Host(ctx context.Context) (container.Host, error) {
 	info, err := c.client.HostInfo(ctx, &pb.HostInfoRequest{})
 	if err != nil {
+		name := c.nameOverride
+		if name == "" {
+			name = c.endpoint
+		}
 		return container.Host{
 			Endpoint:  c.endpoint,
+			Name:      name,
+			Group:     c.group,
 			Type:      "agent",
 			Available: false,
 		}, err
 	}
 
-	return container.Host{
+	host := container.Host{
 		ID:            info.Host.Id,
 		Name:          info.Host.Name,
 		NCPU:          int(info.Host.CpuCores),
@@ -344,7 +382,13 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 		Type:          "agent",
 		DockerVersion: info.Host.DockerVersion,
 		AgentVersion:  info.Host.AgentVersion,
-	}, nil
+		Group:         c.group,
+	}
+	if c.nameOverride != "" {
+		host.Name = c.nameOverride
+	}
+
+	return host, nil
 }
 
 func (c *Client) ContainerAction(ctx context.Context, containerId string, action container.ContainerAction) error {
@@ -359,11 +403,48 @@ func (c *Client) ContainerAction(ctx context.Context, containerId string, action
 	case container.Restart:
 		containerAction = pb.ContainerAction_Restart
 
+	case container.Remove:
+		containerAction = pb.ContainerAction_Remove
+
+	default:
+		return fmt.Errorf("unknown action: %s", action)
 	}
 
 	_, err := c.client.ContainerAction(ctx, &pb.ContainerActionRequest{ContainerId: containerId, Action: containerAction})
 
 	return err
+}
+
+func (c *Client) UpdateContainer(ctx context.Context, containerID string, progressCh chan<- container.UpdateProgress) (bool, error) {
+	defer close(progressCh)
+
+	stream, err := c.client.UpdateContainer(ctx, &pb.UpdateContainerRequest{ContainerId: containerID})
+	if err != nil {
+		return false, err
+	}
+
+	updated := false
+	for {
+		progress, err := stream.Recv()
+		if err == io.EOF {
+			return updated, nil
+		}
+		if err != nil {
+			return false, err
+		}
+
+		if progress.Status == "done" {
+			updated = true
+		}
+
+		progressCh <- container.UpdateProgress{
+			Status:  progress.Status,
+			Layer:   progress.Layer,
+			Current: progress.Current,
+			Total:   progress.Total,
+			Error:   progress.Error,
+		}
+	}
 }
 
 func (c *Client) ContainerAttach(ctx context.Context, containerId string) (*container.ExecSession, error) {
@@ -505,7 +586,6 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
-	// Convert to proto
 	pbSubs := make([]*pb.NotificationSubscription, len(subscriptions))
 	for i, sub := range subscriptions {
 		pbSubs[i] = &pb.NotificationSubscription{
@@ -518,6 +598,7 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 			MetricExpression:    sub.MetricExpression,
 			Cooldown:            int32(sub.Cooldown),
 			SampleWindow:        int32(sub.SampleWindow),
+			EventExpression:     sub.EventExpression,
 		}
 	}
 
@@ -537,8 +618,47 @@ func (c *Client) UpdateNotificationConfig(ctx context.Context, subscriptions []t
 		Subscriptions: pbSubs,
 		Dispatchers:   pbDispatchers,
 	})
-
 	return err
+}
+
+func (c *Client) UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error {
+	req := &pb.UpdateCloudConfigRequest{}
+	if cloudConfig != nil {
+		req.CloudConfig = &pb.NotificationCloudConfig{
+			ApiKey: cloudConfig.APIKey,
+			Prefix: cloudConfig.Prefix,
+		}
+		if cloudConfig.ExpiresAt != nil {
+			req.CloudConfig.ExpiresAt = timestamppb.New(*cloudConfig.ExpiresAt)
+		}
+	}
+	_, err := c.client.UpdateCloudConfig(ctx, req)
+	return err
+}
+
+func (c *Client) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
+	resp, err := c.client.GetNotificationStats(ctx, &pb.GetNotificationStatsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]types.SubscriptionStats, len(resp.Stats))
+	for i, s := range resp.Stats {
+		var lastTriggered *time.Time
+		if s.LastTriggeredAt != nil {
+			t := s.LastTriggeredAt.AsTime()
+			if !t.IsZero() {
+				lastTriggered = &t
+			}
+		}
+		stats[i] = types.SubscriptionStats{
+			SubscriptionID:        int(s.SubscriptionId),
+			TriggerCount:          s.TriggerCount,
+			LastTriggeredAt:       lastTriggered,
+			TriggeredContainerIDs: s.TriggeredContainerIds,
+		}
+	}
+	return stats, nil
 }
 
 func jsonBytesToOrderedMap(b []byte) *orderedmap.OrderedMap[string, any] {

@@ -76,6 +76,10 @@ func (a *agentService) ContainerAction(ctx context.Context, container container.
 	return a.client.ContainerAction(ctx, container.ID, action)
 }
 
+func (a *agentService) UpdateContainer(ctx context.Context, c container.Container, progressCh chan<- container.UpdateProgress) (bool, error) {
+	return a.client.UpdateContainer(ctx, c.ID, progressCh)
+}
+
 func (a *agentService) Attach(ctx context.Context, c container.Container, events container.ExecEventReader, stdout io.Writer) error {
 	panic("not implemented")
 }
@@ -86,4 +90,12 @@ func (a *agentService) Exec(ctx context.Context, c container.Container, cmd []st
 
 func (a *agentService) UpdateNotificationConfig(ctx context.Context, subscriptions []types.SubscriptionConfig, dispatchers []types.DispatcherConfig) error {
 	return a.client.UpdateNotificationConfig(ctx, subscriptions, dispatchers)
+}
+
+func (a *agentService) UpdateCloudConfig(ctx context.Context, cloudConfig *types.CloudConfig) error {
+	return a.client.UpdateCloudConfig(ctx, cloudConfig)
+}
+
+func (a *agentService) GetNotificationStats(ctx context.Context) ([]types.SubscriptionStats, error) {
+	return a.client.GetNotificationStats(ctx)
 }

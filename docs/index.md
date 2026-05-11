@@ -6,7 +6,7 @@ title: Home
 
 hero:
   name: "Dozzle"
-  tagline: Simple Container Monitoring and Logging
+  tagline: Real-time Docker logs, stats, and debugging — in your browser.
   actions:
     - theme: brand
       text: Get Started
@@ -14,50 +14,64 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/amir20/dozzle
-    - theme: alt
-      text: Support 🙏🏼
-      link: https://www.buymeacoffee.com/amirraminfar
 
 features:
-  - title: Self Hosted
-    details: Dozzle is a self-hosted application that runs in your own infrastructure, ensuring your logs remain private and secure.
-    icon: 🏠
-  - title: Real-time Logging & Monitoring
-    details: Captures real-time Docker container logs, enabling quick and efficient issue diagnosis.
-    icon: 🚀
-  - title: Shell Support
-    details: Supports shell access to containers, allowing you to attach or execute commands directly from the browser.
-    link: /guide/shell
+  - title: Real-time Logs
+    details: Stream container logs as they happen. Search, filter, and follow across containers without touching the host.
+    icon:
+      src: /icons/document.svg
+      width: 36
+      height: 36
+  - title: Live Stats & Metrics
+    details: Watch CPU, memory, and network usage update in real time, with rolling history charts on every container.
+    icon:
+      src: /icons/chart-line-data.svg
+      width: 36
+      height: 36
+  - title: SQL Log Analysis
+    details: Query your logs with DuckDB and WebAssembly — full SQL, running entirely in the browser.
+    icon:
+      src: /icons/sql.svg
+      width: 36
+      height: 36
+    link: /guide/sql-engine
     linkText: Learn More
-    icon: 💻
-  - title: Multi-host Support
-    details: UI support connecting to multiple remote hosts with a simple drop down to choose between different hosts.
+  - title: Alerts & Webhooks
+    details: Match log patterns with powerful expressions and notify Slack, Discord, ntfy, or any webhook.
+    icon:
+      src: /icons/notification-new.svg
+      width: 36
+      height: 36
+    link: /guide/alerts-and-webhooks
+    linkText: Learn More
+  - title: Multi-host & Swarm
+    details: Connect to multiple Docker hosts and Swarm clusters from a single UI, secured with TLS agents.
+    icon:
+      src: /icons/network-3.svg
+      width: 36
+      height: 36
     link: /guide/remote-hosts
     linkText: Learn More
-    icon: 🌐
-  - title: Alerts & Webhooks
-    details: Set up customizable alerts with powerful expressions to monitor container logs and receive notifications via Slack, Discord, ntfy, or webhooks.
-    icon: 🔔
+  - title: Self-hosted & Private
+    details: Runs in your own infrastructure. Your logs never leave your network.
+    icon:
+      src: /icons/locked.svg
+      width: 36
+      height: 36
+  - title: Shell & Exec Access
+    details: Attach to running containers or exec commands directly from the browser when you need to dig deeper.
+    icon:
+      src: /icons/terminal.svg
+      width: 36
+      height: 36
+    link: /guide/shell
     linkText: Learn More
-    link: /guide/alerts-and-webhooks
-  - title: SQL Engine
-    details: Use SQL queries to analyze logs inside your browser with WebAssembly and DuckDB.
-    icon: 📊
-    linkText: Learn More
-    link: /guide/sql-engine
-  - title: Secured Agents
-    details: Connect to remote hosts securely with agents, providing a more secure way to connect to remote hosts.
-    icon: 🔒
-    link: /guide/agent
-    linkText: Learn More
-  - title: Swarm Support
-    link: /guide/swarm-mode
-    details: Supports Docker Swarm mode, allowing you to manage and monitor your swarm clusters across multiple hosts.
-    icon: 🐳
-    linkText: Learn More
-  - title: Sponsored by Docker OSS
-    details: Dozzle is open source and free to use, with the source code available on GitHub.
-    icon: 📜
+  - title: Officially Sponsored by Docker
+    details: Open source and part of Docker's sponsored OSS program.
+    icon:
+      src: /icons/docker-icon.svg
+      width: 36
+      height: 36
     link: https://hub.docker.com/r/amir20/dozzle
     linkText: Docker Hub
 ---

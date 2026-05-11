@@ -15,6 +15,12 @@ toolbar:
   copy-filtered-logs: Kopiraj filtrirane dnevnike
   copying-logs: Kopiranje dnevnikov...
   restart: Ponovni zagon
+  update: Posodobi
+  update-service: Posodobi Storitev
+  update-pulling: Prenašanje najnovejše slike...
+  update-recreating: Ponovno ustvarjanje zabojnika...
+  update-done: Zabojnik uspešno posodobljen
+  update-up-to-date: Že posodobljen
   show-hostname: Prikaži ime gostitelja
 action:
   copy-log: Kopiraj dnevnik
@@ -42,6 +48,8 @@ label:
   group-menu: Skupine po meri
   show-all-containers: Prikaži vse zabojnike
   collapse-all: Strni vse
+  collapse-group: Strni skupino
+  expand-all: Razširi vse
   container-name: Ime zabojnika
   container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
   services: Storitve
@@ -53,6 +61,7 @@ tooltip:
   merge-all: Združi vse v en tok
 error:
   page-not-found: Ta stran ne obstaja
+  host-group-not-found: 'V skupini "{name}" ni najdenih gostiteljev'
   invalid-auth: Uporabniško ime ali geslo nista veljavna
   copy-not-supported: Kopiranje v odložišče ni podprto v vašem brskalniku
   copy-not-supported-hint: Odložišče ni na voljo. Kopirajte spodnjo povezavo
@@ -67,6 +76,13 @@ error:
     message: Časovna omejitev uporabniškega vmesnika Dozzle je potekla med
       povezovanjem z API-jem. Preverite omrežno povezavo in poskusite znova.
   container-not-found: Zabojnika ni bilo mogoče najti
+  action-failed: Dejanje Neuspešno
+  update-failed: Posodobitev Neuspešna
+  unable-to-complete-action: Dejanja ni mogoče dokončati
+  invalid-action: Neveljavno dejanje
+  unable-to-update: Zabojnika ni mogoče posodobiti
+  something-went-wrong: Nekaj je šlo narobe
+  unknown-error: Neznana napaka
 alert:
   redirected:
     title: Preusmerjeno v nov zabojnik
@@ -85,12 +101,18 @@ button:
   logout: Odjava
   cancel: Prekliči
   redirect: Preusmeritev
+  retry: Retry
   login: Prijava
   settings: Nastavitve
 placeholder:
   search-containers: Iskanje zabojnikov (⌘ + k, ⌃k)
   search: Iskanje
 settings:
+  about-desc: Informacije o vaši namestitvi Dozzle in kako podpreti projekt.
+  display-desc: Prilagodite videz dnevnikov in preostalega dela aplikacije. Predogled v živo prikazuje vaše spremembe.
+  options-desc: Nastavitve jezika, navigacije in združevanja.
+  cloud-desc: Pretakajte dnevnike v Dozzle Cloud za preiskave z umetno inteligenco in iskanje med instancami.
+  support-title: Podprite Dozzle
   display: Prikaz
   locale: Preglasi jezik
   small-scrollbars: Uporabite manjše drsne trakove
@@ -172,17 +194,21 @@ notifications:
   destinations: Cilji
   add-destination: Dodaj cilj
   alerts: Opozorila
+  add-alert: Dodaj opozorilo
   add: Dodaj
   filter:
     all: Vsi ({count})
     enabled: Omogočeni ({count})
     paused: Ustavljeni ({count})
   no-alerts: Opozorila še niso nastavljena. Ustvarite enega za začetek.
+  default-alert-created: "We created a default alert for you. You'll get notified when any container exits with an error. Edit or pause it anytime."
+  default-alert-failed: "Couldn't auto-create your alert — here's the form instead."
   alert:
     paused: Ustavljeno
     containers: Zabojniki
     log-filter: Filter dnevnika
     metric-filter: Metrika
+    event-filter: Event
     cooldown: Čas mirovanja
     sample-window: Vzorčno okno
     destination: Cilj
@@ -194,6 +220,7 @@ notifications:
     http-webhook: HTTP Webhook
     dozzle-cloud: Dozzle Cloud
     edit: Uredi
+    duplicate: Podvoji
     delete: Izbriši
   alert-form:
     create-title: Ustvari Opozorilo
@@ -221,9 +248,13 @@ notifications:
     sample-window-hint: "Opozorilo se sproži, ko je pogoj izpolnjen za {duration}"
     cooldown-label: Čas mirovanja
     cooldown-hint: "{duration} med opozorili na zabojnik"
+    no-cooldown: No cooldown
     alert-type: Vrsta opozorila
     log-alert: Opozorilo dnevnika
     metric-alert: Opozorilo metrike
+    event-alert: Event Alert
+    event-filter: Event Expression
+    event-fields-hint: "Available fields: {fields}"
   destination-form:
     create-title: Dodaj Cilj
     edit-title: Uredi Cilj
@@ -256,15 +287,89 @@ notifications:
     close: Zapri
     save: Shrani
     add: Dodaj Cilj
-    cloud-exists: Nastavljen je lahko samo en cilj Dozzle Cloud
+    cloud-exists: Dozzle Cloud je že povezan
     link-cloud: Poveži Račun
     link-cloud-button: Poveži Dozzle Cloud
     cloud-settings-hint: Za nastavitev upravljanih kanalov pojdite na
     cloud-settings-link: Nastavitve Dozzle Cloud
     cloud-checking: Preverjanje stanja oblaka...
     cloud-relink: Vaš API ključ je neveljaven ali potekel. Prosimo, izbrišite in ponovno povežite svoj račun.
+    cloud-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
     cloud-plan: Načrt
     cloud-usage: Dogodki v tem obdobju
+  empty-state:
+    title: Začnite z obvestili
+    description: Izberite, kako želite prejemati opozorila, ko vaši zabojniki potrebujejo pozornost.
   cloud-link-success:
     title: Dozzle Cloud Povezan
-    message: Vaš račun je bil uspešno povezan z Dozzle Cloud.
+    message: Vaša instanca je bila uspešno povezana. Povezavo lahko prekinete v nastavitvah ali kadar koli preverite svojo uporabo.
+cloud:
+  title: Dozzle Cloud
+  description: Upravljajte svoje zabojnike na daljavo in uporabite UI za preiskovanje težav v vašem grozdu.
+  learn-more: Več o tem
+  link-instance: Poveži instanco
+  relink-instance: Ponovno poveži instanco
+  connected: Povezano
+  plan: Načrt
+  usage: Dogodki v tem obdobju
+  dashboard: Nadzorna plošča
+  settings: Nastavitve
+  error: Napaka povezave. Prosimo, ponovno povežite svojo instanco.
+  error-unavailable: Dozzle Cloud is temporarily unavailable. Please try again later.
+  unlink: Prekini povezavo
+  unlink-confirm: Ali ste prepričani, da želite prekiniti povezavo z Dozzle Cloud? To bo odstranilo vse cilje obvestil v oblaku.
+  stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
+  stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
+  welcome:
+    title: "Vaša instanca je povezana!"
+    subtitle: "Zdaj lahko prejemate opozorila, dnevne povzetke in več iz Dozzle Cloud."
+    question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
+    placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
+    or-pick: "Ali izberite:"
+    chip-alerts: Prejemati obvestila o težavah
+    chip-assistant: Vprašaj pomočnika o mojih dnevnikih
+    chip-hosts: Spremljati več gostiteljev
+    chip-remote-access: Dostop do dnevnikov na daljavo
+    chip-digests: Prejemati dnevne povzetke dnevnikov
+    chip-other: Nekaj drugega
+    get-started: Začni
+    skip: Preskoči za zdaj
+    step2-title: "Hvala! Tako izkoristite Cloud v celoti."
+    step2-subtitle: "Preberem vsak odgovor in vpliva na to, kaj zgradim naslednjič. Ti koraki vam bodo pomagali začeti."
+    checklist-alert-title: Ustvarite prvo opozorilo
+    checklist-alert-desc: "Nastavite pravilo v Dozzle, da Cloud ve, kaj spremljati. Ko gre kaj narobe, boste prejeli povzetek."
+    checklist-notify-title: Izberite način obveščanja
+    checklist-notify-desc: "E-pošta je privzeto omogočena. Dodajte push, Telegram ali Discord za hitrejša opozorila."
+    checklist-agent-title: Preizkusite AI pomočnika
+    checklist-agent-desc: "Povežite Telegram ali Discord in klepetajte s svojimi vsebniki. Diagnosticirajte napake, preverite stanje in izvajajte dejanja kot ponovni zagon storitev."
+    create-alert: Ustvarite prvo opozorilo
+    default-alert-name: Container exited with error
+    later: "To bom naredil pozneje"
+cloud-search:
+  containers-section: "Vsebniki"
+  search-logs-for: "Iskanje dnevnikov za \"{query}\""
+  across-containers: "indeksirano po vseh vaših vsebnikih"
+  connect-to-enable: "Povežite Dozzle Cloud za iskanje po dnevnikih"
+  enable-streaming-to-search: "Omogoči pretakanje dnevnikov v Cloud"
+  open-container: "odpri vsebnik"
+  search-logs-shortcut: "išči po dnevnikih"
+  cloud-connected: "Cloud povezan"
+  results-page-title: "Iskanje dnevnikov"
+  no-results: "Ni ujemajočih se vrstic dnevnika."
+  search-failed: "Iskanje v Cloudu ni uspelo."
+  search-empty-prompt: "Vpišite poizvedbo za iskanje po dnevnikih."
+  searching: "Iskanje…"
+  hits-count: "{n} zadetkov"
+  window-suffix: "v zadnjih 14 dneh"
+  hero-title-cloud: "Iskanje vsebnikov in dnevnikov"
+  hero-title-plain: "Iskanje vsebnikov"
+  hero-pill-indexed: "Cloud indeks"
+  modal-placeholder-cloud: "Iskanje vsebnikov in dnevnikov…"
+  modal-placeholder-plain: "Iskanje vsebnikov…"
+  col-time: "Čas"
+  col-level: "Raven"
+  col-container: "Vsebnik"
+  col-message: "Sporočilo"
+  container-removed: "Vsebnik je bil izbrisan"
+  cta-settings: "Nastavitve Cloud"
+  container-removed-pill: "izbrisano"

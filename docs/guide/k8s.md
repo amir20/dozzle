@@ -6,7 +6,7 @@ title: Kubernetes Support
 
 Dozzle now supports Kubernetes, allowing you to view logs from your Kubernetes pods. This feature is available in `v8.11` version of Dozzle.
 
-## Kubernetes Setup
+## <Icon icon="mdi:kubernetes" inline /> Kubernetes Setup
 
 To set up Dozzle in Kubernetes, you can use the following YAML configuration using `DOZZLE_MODE=k8s`. This configuration includes a deployment and a service to expose Dozzle.
 
@@ -44,6 +44,23 @@ roleRef:
   name: pod-viewer-role
   apiGroup: rbac.authorization.k8s.io
 ---
+# pvc.yaml
+# ReadWriteOnce + Recreate strategy means cloud config / notification rules
+# briefly become unavailable during pod rollouts (the new pod can't mount until
+# the old one releases). For zero-downtime config persistence, use a
+# ReadWriteMany storage class (NFS, CephFS, etc.) and switch the strategy
+# below to RollingUpdate.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dozzle-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 # deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -53,6 +70,8 @@ spec:
   selector:
     matchLabels:
       app: dozzle
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -67,6 +86,13 @@ spec:
           env:
             - name: DOZZLE_MODE
               value: "k8s"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dozzle-data
 ---
 # service.yaml
 apiVersion: v1
@@ -84,6 +110,7 @@ spec:
 ```
 
 This configuration creates a service account, a cluster role, and a cluster role binding to allow Dozzle to access the necessary Kubernetes resources. It also creates a deployment for Dozzle and exposes it via a service.
+
 > [!WARNING]
 > When deploying this with any GitOps tool (like Flux CD or Argo CD) in a specific namespace apart from `default`, make sure to change the **namespace** in the **ClusterRoleBinding Subject**
 
@@ -92,7 +119,7 @@ All other features are supported as well, including authentication, filtering, a
 > [!NOTE]
 > Dozzle in Kubernetes is a new feature and may have some limitations compared to the Docker version. Please use this [discussion](https://github.com/amir20/dozzle/discussions/3614) to report any issues or suggestions for improvement.
 
-## Metrics API
+## <Icon icon="mdi:chart-line" inline /> Metrics API
 
 Dozzle relies on the [Kubernetes Metrics API](https://github.com/kubernetes-sigs/metrics-server) to retrieve resource usage information. The API can be installed using the following command:
 
@@ -108,7 +135,7 @@ kubectl top pod
 
 For now, this is required to use Dozzle in Kubernetes.
 
-## Namespaces and Filters
+## <Icon icon="mdi:filter-variant" inline /> Namespaces and Filters
 
 ### Namespaces
 

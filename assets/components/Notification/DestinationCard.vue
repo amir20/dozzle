@@ -27,7 +27,10 @@
             <li>
               <a @click="editDestination">{{ $t("notifications.destination.edit") }}</a>
             </li>
-            <li>
+            <li v-if="destination.type !== 'cloud'">
+              <a @click="duplicateDestination">{{ $t("notifications.destination.duplicate") }}</a>
+            </li>
+            <li v-if="destination.type !== 'cloud'">
               <a class="text-error" @click="deleteDestination">{{ $t("notifications.destination.delete") }}</a>
             </li>
           </ul>
@@ -59,6 +62,21 @@ function editDestination() {
     },
     "md",
   );
+}
+
+async function duplicateDestination() {
+  await fetch(withBase("/api/notifications/dispatchers"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: `Copy of ${destination.name}`,
+      type: destination.type,
+      url: destination.url,
+      template: destination.template,
+      headers: destination.headers,
+    }),
+  });
+  onUpdated?.();
 }
 
 async function deleteDestination() {

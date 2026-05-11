@@ -12,7 +12,7 @@ This feature is currently in beta and is available to all users. If you have any
 
 To get started with the SQL Engine, you will need to have a dataset that you can query. Only JSON logs can be queried using SQL. Dozzle leverages the power of WebAssembly to run SQL queries in the browser, which means that your data never leaves your machine.
 
-To start using the SQL Engine, make sure you have JSON logs and navigate to the dropdown and choose `SQL Analytics`. There is also a keyboard shortcut `^+⇧+f` or `⌘+⇧+f` to quickly open the SQL Engine.
+To start using the SQL Engine, make sure you have JSON logs and navigate to the dropdown and choose `SQL Analytics`. There is also a keyboard shortcut `Ctrl+Shift+F` (or `Cmd+Shift+F` on macOS) to quickly open the SQL Engine.
 
 ## How Does It Work?
 
@@ -46,6 +46,27 @@ SELECT * FROM logs WHERE level = 'error'
 
 ```sql
 SELECT level, COUNT(*) FROM logs GROUP BY level
+```
+
+### Query nested JSON fields
+
+```sql
+SELECT message.path, message.status, message.duration
+FROM logs
+WHERE message.status >= 400
+ORDER BY message.duration DESC
+```
+
+### Aggregate by time window
+
+```sql
+SELECT
+  date_trunc('minute', timestamp) AS minute,
+  COUNT(*) AS error_count
+FROM logs
+WHERE level = 'error'
+GROUP BY minute
+ORDER BY minute DESC
 ```
 
 ## Limitations
