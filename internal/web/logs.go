@@ -41,8 +41,8 @@ func parseStdTypes(r *http.Request) container.StdType {
 	return stdTypes
 }
 
-func matchesFilter(event *container.LogEvent, regex *regexp.Regexp, levels map[string]struct{}) bool {
-	if regex != nil && !support_web.Search(regex, event) {
+func matchesFilter(event *container.LogEvent, regex *regexp.Regexp, levels map[string]struct{}, inverse bool) bool {
+	if regex != nil && inverse == support_web.Search(regex, event) {
 		return false
 	}
 	_, ok := levels[event.Level]
@@ -94,6 +94,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
+
+	inverse := r.URL.Query().Get("inverse") == "true"
 
 	onlyComplex := r.URL.Query().Has("jsonOnly")
 	everything := r.URL.Query().Has("everything")
@@ -186,7 +188,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				if _, ok := event.Message.(string); onlyComplex && ok {
 					continue
 				}
-				if regex != nil && !support_web.Search(regex, event) {
+				if regex != nil && inverse == support_web.Search(regex, event) {
 					continue
 				}
 				if len(levels) > 0 {
@@ -202,7 +204,7 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 				continue
 			}
 
-			if !matchesFilter(event, regex, levels) {
+			if !matchesFilter(event, regex, levels, inverse) {
 				continue
 			}
 
@@ -379,7 +381,9 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if !allLogs || regex != nil {
+	inverse := r.URL.Query().Get("inverse") == "true"
+
+	if !allLogs || regex != nil || inverse {
 		absoluteTime = time.Now()
 
 		go func() {
@@ -408,7 +412,7 @@ func (h *handler) streamLogsForContainers(w http.ResponseWriter, r *http.Request
 					}
 
 					for log := range logs {
-						if !matchesFilter(log, regex, levels) {
+						if !matchesFilter(log, regex, levels, inverse) {
 							continue
 						}
 						events = append(events, log)
@@ -475,7 +479,7 @@ loop:
 	for {
 		select {
 		case logEvent := <-liveLogs:
-			if !matchesFilter(logEvent, regex, levels) {
+			if !matchesFilter(logEvent, regex, levels, inverse) {
 				continue
 			}
 

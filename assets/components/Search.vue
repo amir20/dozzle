@@ -17,6 +17,15 @@
           v-model="searchQueryFilter"
           @keyup.esc="resetSearch()"
         />
+        <button
+          class="btn btn-circle btn-xs"
+          :class="inverseFilter ? 'btn-error' : 'btn-ghost'"
+          @click="toggleInverse()"
+          :title="inverseFilter ? $t('toolbar.inverse-on') : $t('toolbar.inverse-off')"
+        >
+          <mdi:filter-off-outline v-if="inverseFilter" />
+          <mdi:filter-outline v-else />
+        </button>
         <a class="btn btn-circle btn-xs" @click="resetSearch()"> <mdi:close /></a>
       </div>
     </div>
@@ -26,7 +35,7 @@
 <script lang="ts" setup>
 const input = ref<HTMLInputElement>();
 const container = ref<HTMLDivElement>();
-const { searchQueryFilter, showSearch, resetSearch, isValidQuery } = useSearchFilter();
+const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter, toggleInverse } = useSearchFilter();
 
 const { style } = useDraggable(container);
 

@@ -125,6 +125,8 @@ declare module 'vue' {
     'Mdi:cog': typeof import('~icons/mdi/cog')['default']
     'Mdi:contentCopy': typeof import('~icons/mdi/content-copy')['default']
     'Mdi:docker': typeof import('~icons/mdi/docker')['default']
+    'Mdi:filterOffOutline': typeof import('~icons/mdi/filter-off-outline')['default']
+    'Mdi:filterOutline': typeof import('~icons/mdi/filter-outline')['default']
     'Mdi:flash': typeof import('~icons/mdi/flash')['default']
     'Mdi:gauge': typeof import('~icons/mdi/gauge')['default']
     'Mdi:github': typeof import('~icons/mdi/github')['default']

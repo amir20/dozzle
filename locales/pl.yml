@@ -3,6 +3,8 @@ toolbar:
   download: Pobierz
   download-filtered: Pobierz Filtrowane Logi
   search: Szukaj
+  inverse-on: Wyklucz pasujące (odwrotnie)
+  inverse-off: Uwzględnij pasujące (normalnie)
   show: Pokaż tylko {std}
   show-all: Pokaż wszystko
   stop: Stop

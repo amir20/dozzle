@@ -1,6 +1,7 @@
 const searchQueryFilter = ref<string>("");
 const debouncedSearchFilter = refDebounced(searchQueryFilter);
 const showSearch = ref(false);
+const inverseFilter = ref(false);
 
 const searchParams = new URLSearchParams(window.location.search);
 if (searchParams.get("search") !== null && searchParams.get("search") !== "") {
@@ -10,6 +11,11 @@ if (searchParams.get("search") !== null && searchParams.get("search") !== "") {
 function resetSearch() {
   searchQueryFilter.value = "";
   showSearch.value = false;
+  inverseFilter.value = false;
+}
+
+function toggleInverse() {
+  inverseFilter.value = !inverseFilter.value;
 }
 
 const isSearching = computed(() => showSearch.value && debouncedSearchFilter.value !== "");
@@ -31,5 +37,7 @@ export function useSearchFilter() {
     showSearch,
     resetSearch,
     isSearching,
+    inverseFilter,
+    toggleInverse,
   };
 }

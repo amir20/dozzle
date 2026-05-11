@@ -3,6 +3,8 @@ toolbar:
   download: 下载
   download-filtered: 下载筛选的日志
   search: 搜索
+  inverse-on: 排除匹配项（反向）
+  inverse-off: 包含匹配项（正常）
   show: 显示 {std}
   show-all: 显示全部
   stop: 停止

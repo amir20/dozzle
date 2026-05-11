@@ -16,7 +16,9 @@ import (
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
+	support_web "github.com/amir20/dozzle/internal/support/web"
 	"github.com/beme/abide"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -357,6 +359,81 @@ func Test_handler_between_dates_with_everything_complex(t *testing.T) {
 	reader := strings.NewReader(regexp.MustCompile(`"time":"[^"]*"`).ReplaceAllString(rr.Body.String(), `"time":"<removed>"`))
 	abide.AssertReader(t, t.Name(), reader)
 	mockedClient.AssertExpectations(t)
+}
+
+func Test_matchesFilter_inverse(t *testing.T) {
+	levels := map[string]struct{}{"info": {}}
+
+	regex, err := support_web.ParseRegex("INFO")
+	require.NoError(t, err)
+
+	regex2, err := support_web.ParseRegex("ERROR")
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		event   *container.LogEvent
+		regex   *regexp.Regexp
+		levels  map[string]struct{}
+		inverse bool
+		want    bool
+	}{
+		{
+			name:    "normal mode: matching regex and level passes",
+			event:   &container.LogEvent{Message: "INFO: all good", Level: "info"},
+			regex:   regex,
+			levels:  levels,
+			inverse: false,
+			want:    true,
+		},
+		{
+			name:    "normal mode: non-matching regex fails",
+			event:   &container.LogEvent{Message: "INFO: all good", Level: "info"},
+			regex:   regex2,
+			levels:  levels,
+			inverse: false,
+			want:    false,
+		},
+		{
+			name:    "inverse mode: matching regex fails (excluded)",
+			event:   &container.LogEvent{Message: "INFO: all good", Level: "info"},
+			regex:   regex,
+			levels:  levels,
+			inverse: true,
+			want:    false,
+		},
+		{
+			name:    "inverse mode: non-matching regex passes (not excluded)",
+			event:   &container.LogEvent{Message: "INFO: all good", Level: "info"},
+			regex:   regex2,
+			levels:  levels,
+			inverse: true,
+			want:    true,
+		},
+		{
+			name:    "no regex: inverse is a no-op, level check still applies",
+			event:   &container.LogEvent{Message: "INFO: all good", Level: "info"},
+			regex:   nil,
+			levels:  levels,
+			inverse: true,
+			want:    true,
+		},
+		{
+			name:    "inverse mode: wrong level fails regardless of regex",
+			event:   &container.LogEvent{Message: "ERROR: oops", Level: "error"},
+			regex:   regex2,
+			levels:  levels,
+			inverse: true,
+			want:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := matchesFilter(tt.event, tt.regex, tt.levels, tt.inverse)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
 
 func makeMessage(message string, stream container.StdType) []byte {

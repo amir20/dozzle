@@ -111,6 +111,102 @@ func TestMatchesFilters_FallbackToMessage(t *testing.T) {
 	assert.Equal(t, "fallback msg", msg)
 }
 
+func TestMatchesFilters_InverseRegex(t *testing.T) {
+	re := regexp.MustCompile(`error`)
+
+	tests := []struct {
+		name    string
+		message string
+		level   string
+		args    fetchLogsArgs
+		re      *regexp.Regexp
+		wantOk  bool
+	}{
+		{
+			name:    "normal mode: regex matches",
+			message: "error: connection refused",
+			level:   "info",
+			args:    fetchLogsArgs{},
+			re:      re,
+			wantOk:  true,
+		},
+		{
+			name:    "normal mode: regex no match",
+			message: "info: all good",
+			level:   "info",
+			args:    fetchLogsArgs{},
+			re:      re,
+			wantOk:  false,
+		},
+		{
+			name:    "inverse mode: regex matches is excluded",
+			message: "error: connection refused",
+			level:   "info",
+			args:    fetchLogsArgs{Inverse: true},
+			re:      re,
+			wantOk:  false,
+		},
+		{
+			name:    "inverse mode: regex no match is included",
+			message: "info: all good",
+			level:   "info",
+			args:    fetchLogsArgs{Inverse: true},
+			re:      re,
+			wantOk:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			event := &container.LogEvent{RawMessage: tt.message, Level: tt.level}
+			_, ok := matchesFilters(event, &tt.args, tt.re)
+			assert.Equal(t, tt.wantOk, ok)
+		})
+	}
+}
+
+func TestMatchesFilters_InverseQuery(t *testing.T) {
+	tests := []struct {
+		name    string
+		message string
+		args    fetchLogsArgs
+		wantOk  bool
+	}{
+		{
+			name:    "normal query match",
+			message: "hello world",
+			args:    fetchLogsArgs{Query: "hello"},
+			wantOk:  true,
+		},
+		{
+			name:    "normal query no match",
+			message: "foo bar",
+			args:    fetchLogsArgs{Query: "hello"},
+			wantOk:  false,
+		},
+		{
+			name:    "inverse query: match is excluded",
+			message: "hello world",
+			args:    fetchLogsArgs{Query: "hello", Inverse: true},
+			wantOk:  false,
+		},
+		{
+			name:    "inverse query: no match is included",
+			message: "foo bar",
+			args:    fetchLogsArgs{Query: "hello", Inverse: true},
+			wantOk:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			event := &container.LogEvent{RawMessage: tt.message, Level: "info"}
+			_, ok := matchesFilters(event, &tt.args, nil)
+			assert.Equal(t, tt.wantOk, ok)
+		})
+	}
+}
+
 // StreamMockClientService extends MockClientService to allow controllable StreamLogs behavior
 type StreamMockClientService struct {
 	MockClientService

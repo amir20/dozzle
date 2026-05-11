@@ -3,6 +3,8 @@ toolbar:
   download: Downloaden
   download-filtered: Gefilterde Logs Downloaden
   search: Zoeken
+  inverse-on: Overeenkomsten uitsluiten (omgekeerd)
+  inverse-off: Overeenkomsten opnemen (normaal)
   show: Toon {std}
   show-all: Toon alles
   stop: Stoppen

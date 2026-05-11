@@ -3,6 +3,8 @@ toolbar:
   download: Prenesi
   download-filtered: Prenesi Filtrirane Dnevnike
   search: Iskanje
+  inverse-on: Izključi ujemanja (obratno)
+  inverse-off: Vključi ujemanja (običajno)
   show: Prikaži {std}
   show-all: Prikaži vse
   stop: Ustavi

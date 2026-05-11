@@ -3,6 +3,8 @@ toolbar:
   download: Unduh
   download-filtered: Unduh Log yang Difilter
   search: Cari
+  inverse-on: Kecualikan yang cocok (inversi)
+  inverse-off: Sertakan yang cocok (normal)
   show: Tampilkan {std}
   show-all: Tampilkan semua
   stop: Hentikan
