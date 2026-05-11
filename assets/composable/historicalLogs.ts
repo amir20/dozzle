@@ -11,13 +11,16 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   const container = toRef(() => historicalContainer.value.container);
 
   const { streamConfig, levels, loadingMore } = useLoggingContext();
-  const { isSearching, debouncedSearchFilter } = useSearchFilter();
+  const { isSearching, debouncedSearchFilter, inverseFilter } = useSearchFilter();
 
   const params = computed(() => {
     const params = new URLSearchParams();
     if (streamConfig.value.stdout) params.append("stdout", "1");
     if (streamConfig.value.stderr) params.append("stderr", "1");
-    if (isSearching.value) params.append("filter", debouncedSearchFilter.value);
+    if (isSearching.value) {
+      params.append("filter", debouncedSearchFilter.value);
+      if (inverseFilter.value) params.append("inverse", "true");
+    }
     for (const level of levels.value) {
       params.append("levels", level);
     }

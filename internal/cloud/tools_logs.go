@@ -19,6 +19,7 @@ type fetchLogsArgs struct {
 	Level       string `json:"level"`
 	Query       string `json:"query"`
 	Regex       string `json:"regex"`
+	Inverse     bool   `json:"inverse"`
 }
 
 func executeFetchContainerLogs(ctx context.Context, argsJSON string, deps ToolDeps) (*pb.CallToolResponse, error) {

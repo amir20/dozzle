@@ -46,11 +46,15 @@ func matchesFilters(event *container.LogEvent, args *fetchLogsArgs, re *regexp.R
 		msg = fmt.Sprintf("%v", event.Message)
 	}
 
-	if args.Query != "" && !containsIgnoreCase(msg, args.Query) {
-		return "", false
+	if args.Query != "" {
+		if args.Inverse == containsIgnoreCase(msg, args.Query) {
+			return "", false
+		}
 	}
-	if re != nil && !re.MatchString(msg) {
-		return "", false
+	if re != nil {
+		if args.Inverse == re.MatchString(msg) {
+			return "", false
+		}
 	}
 
 	return msg, true

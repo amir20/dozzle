@@ -1,7 +1,7 @@
 import { ComplexLogEntry, type LogMessage, type LogEntry } from "@/models/LogEntry";
 
 export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
-  const { isSearching } = useSearchFilter();
+  const { isSearching, inverseFilter } = useSearchFilter();
   function filteredPayload(messages: Ref<LogEntry<LogMessage>[]>) {
     return computed(() => {
       return messages.value
@@ -14,7 +14,8 @@ export function useVisibleFilter(visibleKeys: Ref<Map<string[], boolean>>) {
         })
         .filter((d) => {
           if (isSearching.value && d instanceof ComplexLogEntry) {
-            return Object.values(d.message).some((v) => JSON.stringify(v)?.includes("<mark>"));
+            const hasMark = Object.values(d.message).some((v) => JSON.stringify(v)?.includes("<mark>"));
+            return inverseFilter.value ? !hasMark : hasMark;
           } else {
             return true;
           }

@@ -7,7 +7,7 @@ export function useDownloadUrl(
   levels: Ref<Set<string>>,
   name?: Ref<string> | ComputedRef<string> | string,
 ) {
-  const { debouncedSearchFilter } = useSearchFilter();
+  const { debouncedSearchFilter, inverseFilter } = useSearchFilter();
 
   const downloadUrl = computed(() => {
     const params = new URLSearchParams();
@@ -20,6 +20,7 @@ export function useDownloadUrl(
     // Add filter if search is active
     if (debouncedSearchFilter.value) {
       params.append("filter", debouncedSearchFilter.value);
+      if (inverseFilter.value) params.append("inverse", "true");
     }
 
     // Add levels (multiple values) only if filtered
