@@ -21,6 +21,7 @@ Configurations can be done with flags or environment variables. The table below 
 | `--auth-logout-url`    | `DOZZLE_AUTH_LOGOUT_URL`    | `""`            |
 | `--enable-actions`     | `DOZZLE_ENABLE_ACTIONS`     | `false`         |
 | `--enable-shell`       | `DOZZLE_ENABLE_SHELL`       | `false`         |
+| `--enable-mcp`         | `DOZZLE_ENABLE_MCP`         | `false`         |
 | `--disable-avatars`    | `DOZZLE_DISABLE_AVATARS`    | `false`         |
 | `--filter`             | `DOZZLE_FILTER`             | `""`            |
 | `--no-analytics`       | `DOZZLE_NO_ANALYTICS`       | `false`         |

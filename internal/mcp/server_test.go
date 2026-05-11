@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -14,9 +15,10 @@ import (
 )
 
 type mockHostService struct {
-	containers []container.Container
-	hosts      []container.Host
-	findErr    error
+	containers    []container.Container
+	hosts         []container.Host
+	findErr       error
+	listErrs      []error
 }
 
 func (m *mockHostService) FindContainer(host string, id string, labels container.ContainerLabels) (*container_support.ContainerService, error) {
@@ -32,7 +34,7 @@ func (m *mockHostService) FindContainer(host string, id string, labels container
 }
 
 func (m *mockHostService) ListAllContainers(labels container.ContainerLabels) ([]container.Container, []error) {
-	return m.containers, nil
+	return m.containers, m.listErrs
 }
 
 func (m *mockHostService) Hosts() []container.Host {
@@ -82,6 +84,37 @@ func TestListContainers(t *testing.T) {
 	text = result.Content[0].(*mcp.TextContent).Text
 	assert.Contains(t, text, "abc123")
 	assert.NotContains(t, text, "def456")
+}
+
+func TestListContainersPartialFailure(t *testing.T) {
+	svc := &mockHostService{
+		containers: []container.Container{
+			{ID: "abc123", Name: "web", Image: "nginx:latest", State: "running", Host: "host1"},
+		},
+		listErrs: []error{nil, fmt.Errorf("host2 unreachable")},
+	}
+
+	s := NewServer(svc, nil, "test")
+
+	ctx := context.Background()
+	ct, st := mcp.NewInMemoryTransports()
+
+	_, err := s.mcpServer.Connect(ctx, st, nil)
+	require.NoError(t, err)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test-client", Version: "v0.0.1"}, nil)
+	session, err := client.Connect(ctx, ct, nil)
+	require.NoError(t, err)
+	defer session.Close()
+
+	result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "list_containers",
+		Arguments: map[string]any{},
+	})
+	require.NoError(t, err)
+	assert.False(t, result.IsError)
+	text := result.Content[0].(*mcp.TextContent).Text
+	assert.Contains(t, text, "abc123")
 }
 
 func TestListHosts(t *testing.T) {

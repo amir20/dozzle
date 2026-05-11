@@ -11,6 +11,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	container_support "github.com/amir20/dozzle/internal/support/container"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/rs/zerolog/log"
 )
 
 // HostService is the subset of web.HostService needed by the MCP server.
@@ -104,7 +105,7 @@ func (s *Server) handleListContainers(ctx context.Context, _ *mcp.CallToolReques
 	containers, errs := s.hostService.ListAllContainers(s.labels)
 	for _, err := range errs {
 		if err != nil {
-			return nil, nil, fmt.Errorf("error listing containers: %w", err)
+			log.Warn().Err(err).Msg("partial failure listing containers from a host")
 		}
 	}
 

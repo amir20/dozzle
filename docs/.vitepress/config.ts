@@ -82,6 +82,7 @@ export default defineConfig({
           { text: "Authentication", link: "/guide/authentication" },
           { text: "Actions", link: "/guide/actions" },
           { text: "Shell Access", link: "/guide/shell" },
+          { text: "MCP Integration", link: "/guide/mcp" },
           { text: "Agent Mode", link: "/guide/agent" },
           { text: "Changing Base", link: "/guide/changing-base" },
           { text: "Container Names", link: "/guide/container-names" },
