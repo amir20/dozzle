@@ -81,6 +81,8 @@ See the [Agent Mode](https://dozzle.dev/guide/agent) documentation for more deta
 
 Dozzle uses automatic API negotiation, which works with most Docker configurations. Dozzle also works with [Colima](https://github.com/abiosoft/colima) and [Podman](https://podman.io/).
 
+Dozzle requires Docker Engine 19.03 or newer (API version 1.40+). Older daemons are not supported by the underlying Docker SDK.
+
 ### Installation on Podman
 
 By default, Podman doesn't have a background process, but you can enable the remote socket for Dozzle to work.

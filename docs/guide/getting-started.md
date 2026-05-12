@@ -6,6 +6,9 @@ title: Getting Started
 
 Dozzle supports multiple ways to run the application. You can run it using Docker CLI, Docker Compose, Swarm, or Kubernetes. The following sections will guide you through the process of setting up Dozzle.
 
+> [!IMPORTANT]
+> Dozzle requires Docker Engine **19.03 or newer** (API version 1.40+). Older daemons are not supported by the underlying Docker SDK.
+
 > [!TIP]
 > If Docker Hub is blocked in your network, you can use the [GitHub Container Registry](https://ghcr.io/amir20/dozzle:latest) to pull the image. Use `ghcr.io/amir20/dozzle:latest` instead of `amir20/dozzle:latest`.
 

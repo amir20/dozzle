@@ -4,6 +4,12 @@ title: FAQ
 
 # Frequently Asked Questions
 
+## Dozzle fails to start with `client version 1.x is too new`. What does this mean?
+
+Dozzle requires Docker Engine 19.03 or newer (API version 1.40+). Older daemons — for example Docker 18.06 (API 1.38) — are not supported by the underlying Docker SDK and will fail at startup with an error like `failed to create docker client: ... client version 1.54 is too new. Maximum supported API version is 1.38`.
+
+Upgrade Docker Engine to a supported version. As a temporary workaround, pin Dozzle to `v10.5.2` or earlier, which used a Docker SDK that still negotiated down to older API versions.
+
 ## How do I upgrade Dozzle?
 
 Dozzle follows standard Docker image practices. To upgrade, pull the new image and recreate the container:
