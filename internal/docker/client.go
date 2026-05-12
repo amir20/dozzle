@@ -83,6 +83,10 @@ func NewLocalClient(hostname string) (*DockerClient, error) {
 		return nil, err
 	}
 
+	if _, err := cli.Ping(context.Background(), client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+		return nil, fmt.Errorf("docker daemon unreachable or unsupported (minimum API version %s required): %w", client.MinAPIVersion, err)
+	}
+
 	infoResult, err := cli.Info(context.Background(), client.InfoOptions{})
 	if err != nil {
 		return nil, err
@@ -124,6 +128,10 @@ func NewRemoteClient(host container.Host) (*DockerClient, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if _, err := cli.Ping(context.Background(), client.PingOptions{NegotiateAPIVersion: true}); err != nil {
+		return nil, fmt.Errorf("docker daemon unreachable or unsupported (minimum API version %s required): %w", client.MinAPIVersion, err)
 	}
 
 	host.Type = "remote"
