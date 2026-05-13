@@ -18,7 +18,7 @@
       <li v-if="!historical">
         <a @click="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
-          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
+          <KeyShortcut char="l" :modifiers="['shift', 'meta']" />
         </a>
       </li>
       <li v-if="hasComplexLogs">
@@ -299,7 +299,7 @@ async function copyLogs() {
   await navigator.clipboard.write([new ClipboardItem({ "text/plain": blobPromise })]);
 }
 
-onKeyStroke("f", (e) => {
+onKeyStroke(["f", "F"], (e) => {
   if (hasComplexLogs.value) {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
       showDrawer(LogAnalytics, { container }, "lg");
@@ -308,14 +308,14 @@ onKeyStroke("f", (e) => {
   }
 });
 if (enableShell) {
-  onKeyStroke("a", (e) => {
+  onKeyStroke(["a", "A"], (e) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
       showDrawer(Terminal, { container, action: "attach" }, "lg");
       e.preventDefault();
     }
   });
 
-  onKeyStroke("e", (e) => {
+  onKeyStroke(["e", "E"], (e) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
       showDrawer(Terminal, { container, action: "exec" }, "lg");
       e.preventDefault();

@@ -12,7 +12,7 @@
       <li>
         <a @click="clear()">
           <octicon:trash-24 /> {{ $t("toolbar.clear") }}
-          <KeyShortcut char="k" :modifiers="['shift', 'meta']" />
+          <KeyShortcut char="l" :modifiers="['shift', 'meta']" />
         </a>
       </li>
       <li v-if="enableDownload">

@@ -21,7 +21,7 @@ defineExpose({
   clear: () => source.value?.clear(),
 });
 
-onKeyStroke("k", (e) => {
+onKeyStroke(["l", "L"], (e) => {
   if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
     source.value?.clear();
     e.preventDefault();
