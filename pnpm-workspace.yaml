@@ -3,3 +3,5 @@ packages:
 allowBuilds:
   esbuild: true
   simple-git-hooks: true
+overrides:
+  "@codemirror/view": "^6.43.0"
