@@ -1,27 +1,25 @@
 <template>
   <div class="flex gap-1 md:gap-4">
-    <div class="hidden items-center gap-3 text-xs leading-none sm:flex">
-      <div
-        class="grid grid-cols-[auto_auto_1fr] items-center gap-x-1 gap-y-0.5"
-        :title="`Network ↑ ${formatBytes(networkRate.tx)}/s · ↓ ${formatBytes(networkRate.rx)}/s`"
-      >
-        <PhNetwork class="text-base-content/60 row-span-2 self-center" />
-        <PhArrowUp class="text-primary" />
-        <span class="tabular-nums">{{ formatBytes(networkRate.tx, { short: true, decimals: 1 }) }}/s</span>
-        <PhArrowDown class="text-secondary" />
-        <span class="tabular-nums">{{ formatBytes(networkRate.rx, { short: true, decimals: 1 }) }}/s</span>
-      </div>
-      <div
-        class="grid grid-cols-[auto_auto_1fr] items-center gap-x-1 gap-y-0.5"
-        :title="`Disk write ${formatBytes(diskRate.write)}/s · read ${formatBytes(diskRate.read)}/s`"
-      >
-        <PhHardDrives class="text-base-content/60 row-span-2 self-center" />
-        <PhArrowUp class="text-primary" />
-        <span class="tabular-nums">{{ formatBytes(diskRate.write, { short: true, decimals: 1 }) }}/s</span>
-        <PhArrowDown class="text-secondary" />
-        <span class="tabular-nums">{{ formatBytes(diskRate.read, { short: true, decimals: 1 }) }}/s</span>
-      </div>
-    </div>
+    <RateMonitor
+      :icon="PhNetwork"
+      :data="networkChartData"
+      :up="networkRate.tx"
+      :down="networkRate.rx"
+      title-prefix="Network"
+      container-class="border-accent/40 bg-accent/20"
+      text-class="hover:text-accent"
+      bar-class="bg-accent"
+    />
+    <RateMonitor
+      :icon="PhHardDrives"
+      :data="diskChartData"
+      :up="diskRate.write"
+      :down="diskRate.read"
+      title-prefix="Disk"
+      container-class="border-info/40 bg-info/20"
+      text-class="hover:text-info"
+      bar-class="bg-info"
+    />
     <StatMonitor
       ref="cpuMonitorRef"
       :data="cpuData"
@@ -51,6 +49,7 @@
 import { Stat } from "@/models/Container";
 import { Container } from "@/models/Container";
 import StatMonitor from "@/components/LogViewer/StatMonitor.vue";
+import RateMonitor from "@/components/LogViewer/RateMonitor.vue";
 // @ts-ignore
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore
@@ -227,4 +226,16 @@ const memoryData = computed(() =>
     value: stat.memoryUsage,
   })),
 );
+
+function rateHistory(reader: (s: Stat) => number) {
+  const hist = history.value;
+  const out: { percent: number; value: number }[] = [];
+  for (let i = 1; i < hist.length; i++) {
+    const v = Math.max(0, reader(hist[i]) - reader(hist[i - 1]));
+    out.push({ percent: v, value: v });
+  }
+  return out;
+}
+const networkChartData = computed(() => rateHistory((s) => s.networkRxTotal + s.networkTxTotal));
+const diskChartData = computed(() => rateHistory((s) => s.diskReadTotal + s.diskWriteTotal));
 </script>
