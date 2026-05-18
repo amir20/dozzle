@@ -330,29 +330,33 @@ cloud:
   stream-logs: Streaming log kontainer ke Dozzle Cloud
   stream-logs-help: Diperlukan untuk investigasi bertenaga AI dan pencarian log. Nonaktifkan untuk menyimpan seluruh konten log di instance ini.
   welcome:
-    title: "Instans Anda terhubung!"
-    subtitle: "Anda siap menerima peringatan, ringkasan harian, dan lainnya dari Dozzle Cloud."
+    title: "Cloud adalah triage cerdas untuk kontainer Anda."
+    subtitle: "Sekumpulan sinyal kegagalan awal sudah dipilih — beri tahu kami apa yang membawa Anda kemari agar bisa kami sesuaikan."
     question: "Satu pertanyaan cepat sebelum mulai — apa yang paling Anda harapkan dari Cloud?"
     placeholder: "mis. Saya ingin tahu ketika kontainer Plex saya crash di malam hari..."
     or-pick: "Atau pilih satu:"
     chip-alerts: Dapatkan notifikasi masalah
     chip-assistant: Tanya Asisten tentang log saya
-    chip-hosts: Pantau beberapa host
+    chip-search-logs: Cari di seluruh log saya
     chip-remote-access: Akses log dari jarak jauh
     chip-digests: Dapatkan ringkasan log harian
     chip-other: Lainnya
     get-started: Mulai
     skip: Lewati untuk sekarang
-    step2-title: "Terima kasih! Berikut cara memaksimalkan Cloud."
-    step2-subtitle: "Saya membaca setiap respons dan itu membentuk apa yang saya bangun selanjutnya. Langkah-langkah ini akan membantu Anda memulai."
-    checklist-alert-title: Buat peringatan pertama Anda
-    checklist-alert-desc: "Atur aturan di Dozzle agar Cloud tahu apa yang harus dipantau. Anda akan mendapat ringkasan saat terjadi masalah."
-    checklist-notify-title: Pilih cara menerima notifikasi
-    checklist-notify-desc: "Email aktif secara default. Tambahkan push, Telegram, atau Discord untuk peringatan lebih cepat."
-    checklist-agent-title: Coba asisten AI
-    checklist-agent-desc: "Hubungkan Telegram atau Discord dan ngobrol dengan kontainer Anda. Diagnosis error, periksa kesehatan, dan lakukan tindakan seperti restart layanan."
+    step2-title: "Pilih sinyal yang harus ditangani Cloud."
     create-alert: Buat peringatan pertama Anda
-    default-alert-name: Container exited with error
+    step2-body: "Alih-alih meneruskan setiap kejadian, Cloud mengawasi hal-hal yang tampak rusak, menyelidikinya, dan hanya mengganggu Anda saat penting. Untuk melakukannya dengan baik, Cloud butuh sinyal. Kami sudah memilih sekumpulan kejadian kegagalan awal di bawah — hapus centang apa pun yang ingin Anda simpan secara lokal saja."
+    footer: "Anda dapat mengubah apa yang dibagikan kapan saja dari halaman Notifikasi. Cloud tidak pernah menerima log yang belum Anda langgankan."
+    signals:
+      exited: "Kontainer keluar dengan error"
+      exited-desc: "Dipicu ketika kontainer berhenti dengan kode keluar non-nol."
+      unhealthy: "Kontainer menjadi unhealthy"
+      unhealthy-desc: "Dipicu ketika healthcheck kontainer berubah menjadi unhealthy."
+      oom: "Kontainer dimatikan kernel (OOM)"
+      oom-desc: "Dipicu ketika Docker melaporkan kill karena kehabisan memori."
+      restart: "Kontainer dimulai ulang"
+      restart-desc: "Mati secara default — berisik sendirian; Cloud juga memakainya untuk deteksi loop."
+    create-alerts: "Aktifkan sinyal terpilih"
     later: "Nanti saja"
 cloud-search:
   containers-section: "Kontainer"

@@ -323,29 +323,33 @@ cloud:
   stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
   stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
   welcome:
-    title: "Vaša instanca je povezana!"
-    subtitle: "Zdaj lahko prejemate opozorila, dnevne povzetke in več iz Dozzle Cloud."
+    title: "Cloud je inteligentna triaža za vaše vsebnike."
+    subtitle: "Začetni nabor signalov napak je vnaprej izbran — povejte nam, kaj vas je pripeljalo sem, da ga lahko prilagodimo."
     question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
     placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
     or-pick: "Ali izberite:"
     chip-alerts: Prejemati obvestila o težavah
     chip-assistant: Vprašaj pomočnika o mojih dnevnikih
-    chip-hosts: Spremljati več gostiteljev
+    chip-search-logs: Iskati po vseh mojih dnevnikih
     chip-remote-access: Dostop do dnevnikov na daljavo
     chip-digests: Prejemati dnevne povzetke dnevnikov
     chip-other: Nekaj drugega
     get-started: Začni
     skip: Preskoči za zdaj
-    step2-title: "Hvala! Tako izkoristite Cloud v celoti."
-    step2-subtitle: "Preberem vsak odgovor in vpliva na to, kaj zgradim naslednjič. Ti koraki vam bodo pomagali začeti."
-    checklist-alert-title: Ustvarite prvo opozorilo
-    checklist-alert-desc: "Nastavite pravilo v Dozzle, da Cloud ve, kaj spremljati. Ko gre kaj narobe, boste prejeli povzetek."
-    checklist-notify-title: Izberite način obveščanja
-    checklist-notify-desc: "E-pošta je privzeto omogočena. Dodajte push, Telegram ali Discord za hitrejša opozorila."
-    checklist-agent-title: Preizkusite AI pomočnika
-    checklist-agent-desc: "Povežite Telegram ali Discord in klepetajte s svojimi vsebniki. Diagnosticirajte napake, preverite stanje in izvajajte dejanja kot ponovni zagon storitev."
+    step2-title: "Izberite signale, ki naj jih Cloud triažira."
     create-alert: Ustvarite prvo opozorilo
-    default-alert-name: Container exited with error
+    step2-body: "Namesto da posreduje vsak dogodek, Cloud opazuje stvari, ki so videti pokvarjene, jih razišče in vas prekine samo, kadar je pomembno. Da to dobro počne, Cloud potrebuje signale. Spodaj smo vnaprej izbrali začetni nabor dogodkov napak — odkljukajte vse, kar raje ohranite lokalno."
+    footer: "Kar je deljeno, lahko kadar koli spremenite na strani Obvestila. Cloud nikoli ne prejme dnevnikov, na katere ga niste naročili."
+    signals:
+      exited: "Vsebnik končan z napako"
+      exited-desc: "Sproži se, ko se vsebnik ustavi z neničelno izhodno kodo."
+      unhealthy: "Vsebnik je postal unhealthy"
+      unhealthy-desc: "Sproži se, ko healthcheck vsebnika preide v unhealthy."
+      oom: "Vsebnik je ubilo jedro (OOM)"
+      oom-desc: "Sproži se, ko Docker poroča o prekinitvi zaradi pomanjkanja pomnilnika."
+      restart: "Vsebnik znova zagnan"
+      restart-desc: "Privzeto izklopljeno — sam po sebi hrupen; Cloud ga uporablja tudi za zaznavanje zank."
+    create-alerts: "Vklopi izbrane signale"
     later: "To bom naredil pozneje"
 cloud-search:
   containers-section: "Vsebniki"

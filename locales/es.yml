@@ -346,27 +346,31 @@ cloud:
   stream-logs: Transmitir registros de contenedores a Dozzle Cloud
   stream-logs-help: Necesario para investigaciones con IA y búsqueda de registros. Desactívelo para mantener todo el contenido de los registros en esta instancia.
   welcome:
-    title: "¡Tu instancia está conectada!"
-    subtitle: "Ya puedes recibir alertas, resúmenes diarios y más desde Dozzle Cloud."
+    title: "Cloud es un triaje inteligente para tus contenedores."
+    subtitle: "Un conjunto inicial de señales de fallo está preseleccionado — cuéntanos qué te trajo aquí para que podamos ajustarlo."
     question: "Una pregunta rápida antes de empezar — ¿para qué quieres usar Cloud principalmente?"
     placeholder: "ej. Quiero saber cuando mi contenedor Plex se cae por la noche..."
     or-pick: "O elige una opción:"
     chip-alerts: Recibir notificaciones de problemas
     chip-assistant: Preguntar al Asistente sobre mis logs
-    chip-hosts: Monitorear varios hosts
+    chip-search-logs: Buscar en todos mis logs
     chip-remote-access: Acceder a logs remotamente
     chip-digests: Recibir resúmenes diarios de logs
     chip-other: Otra cosa
     get-started: Empezar
     skip: Saltar por ahora
-    step2-title: "¡Gracias! Así es como sacar el máximo provecho de Cloud."
-    step2-subtitle: "Leo cada respuesta y da forma a lo que construyo después. Estos pasos te ayudarán a empezar."
-    checklist-alert-title: Crear tu primera alerta
-    checklist-alert-desc: "Configura una regla en Dozzle para que Cloud sepa qué vigilar. Recibirás un resumen cuando algo falle."
-    checklist-notify-title: Elegir cómo recibir notificaciones
-    checklist-notify-desc: "El correo está activado por defecto. Añade push, Telegram o Discord para alertas más rápidas."
-    checklist-agent-title: Probar el asistente de IA
-    checklist-agent-desc: "Conecta Telegram o Discord y chatea con tus contenedores. Diagnostica errores, comprueba el estado y realiza acciones como reiniciar servicios."
+    step2-title: "Elige las señales que Cloud debe triar."
     create-alert: Crear tu primera alerta
-    default-alert-name: Container exited with error
+    step2-body: "En lugar de reenviar cada evento, Cloud vigila las cosas que parecen rotas, las investiga y solo te interrumpe cuando importa. Para hacerlo bien, Cloud necesita señales. Hemos preseleccionado un conjunto inicial de eventos de fallo abajo — desmarca lo que prefieras mantener local."
+    footer: "Puedes cambiar lo que se comparte en cualquier momento desde la página de Notificaciones. Cloud nunca recibe logs a los que no lo hayas suscrito."
+    signals:
+      exited: "Contenedor terminó con un error"
+      exited-desc: "Se dispara cuando un contenedor se detiene con un código de salida distinto de cero."
+      unhealthy: "Contenedor pasó a estado unhealthy"
+      unhealthy-desc: "Se dispara cuando el healthcheck de un contenedor pasa a unhealthy."
+      oom: "Contenedor terminado por el kernel (OOM)"
+      oom-desc: "Se dispara cuando Docker reporta un kill por falta de memoria."
+      restart: "Contenedor reiniciado"
+      restart-desc: "Desactivado por defecto — ruidoso por sí solo; Cloud también lo usa para detectar bucles."
+    create-alerts: "Activar señales seleccionadas"
     later: "Lo haré después"

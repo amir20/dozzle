@@ -321,29 +321,33 @@ cloud:
   stream-logs: 將容器日誌串流至 Dozzle Cloud
   stream-logs-help: AI 分析與日誌搜尋所需。停用後，所有日誌內容將保留在此執行個體上。
   welcome:
-    title: "您的實例已連線！"
-    subtitle: "您現在可以從 Dozzle Cloud 接收警示、每日摘要等。"
+    title: "Cloud 是為你的容器提供的智慧分流系統。"
+    subtitle: "已為你預先選取了一組初始的故障訊號 — 告訴我們你為何而來，我們好做調整。"
     question: "開始之前問個小問題——您最希望 Cloud 幫您做什麼？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜間當機..."
     or-pick: "或選擇一項："
     chip-alerts: 取得問題通知
     chip-assistant: 向助手詢問我的日誌
-    chip-hosts: 監控多個主機
+    chip-search-logs: 搜尋我的所有日誌
     chip-remote-access: 遠端查看日誌
     chip-digests: 取得每日日誌摘要
     chip-other: 其他
     get-started: 開始使用
     skip: 暫時跳過
-    step2-title: "謝謝！以下是充分利用 Cloud 的方法。"
-    step2-subtitle: "我會閱讀每則回覆，它會影響我接下來建構什麼。以下步驟將幫助您快速上手。"
-    checklist-alert-title: 建立您的第一個警示
-    checklist-alert-desc: "在 Dozzle 中設定一條規則，讓 Cloud 知道要監控什麼。當出現問題時，您將收到摘要。"
-    checklist-notify-title: 選擇通知方式
-    checklist-notify-desc: "電子郵件預設開啟。新增推播、Telegram 或 Discord 以獲得更快的警示。"
-    checklist-agent-title: 試試 AI 助理
-    checklist-agent-desc: "連接 Telegram 或 Discord，與您的容器對話。診斷錯誤、檢查健康狀態並執行重啟服務等操作。"
+    step2-title: "選擇要交給 Cloud 分流的訊號。"
     create-alert: 建立您的第一個警示
-    default-alert-name: Container exited with error
+    step2-body: "Cloud 不會轉發每個事件，而是注意看起來出問題的事情、進行調查，只在重要時才打擾你。要把這件事做好，Cloud 需要訊號。我們在下方預先選取了一組初始的故障事件 — 取消勾選你希望僅保留在本機的項目。"
+    footer: "你可以隨時在「通知」頁面變更要分享的內容。Cloud 絕不會收到你未訂閱的日誌。"
+    signals:
+      exited: "容器以錯誤結束"
+      exited-desc: "當容器以非零結束碼停止時觸發。"
+      unhealthy: "容器變為 unhealthy"
+      unhealthy-desc: "當容器的健康檢查轉為 unhealthy 時觸發。"
+      oom: "容器被核心終止（OOM）"
+      oom-desc: "當 Docker 回報記憶體不足而終止時觸發。"
+      restart: "容器已重新啟動"
+      restart-desc: "預設關閉 — 單獨使用會很吵；Cloud 也用它來偵測循環。"
+    create-alerts: "啟用所選訊號"
     later: "稍後再說"
 cloud-search:
   containers-section: "容器"

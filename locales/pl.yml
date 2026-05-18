@@ -325,29 +325,33 @@ cloud:
   stream-logs: Przesyłaj logi kontenerów do Dozzle Cloud
   stream-logs-help: Wymagane do analiz wspieranych przez AI i wyszukiwania w logach. Wyłącz, aby zachować całą zawartość logów w tej instancji.
   welcome:
-    title: "Twoja instancja jest połączona!"
-    subtitle: "Możesz teraz otrzymywać alerty, codzienne podsumowania i więcej z Dozzle Cloud."
+    title: "Cloud to inteligentna triaż dla Twoich kontenerów."
+    subtitle: "Startowy zestaw sygnałów awarii jest wstępnie wybrany — powiedz nam, co Cię tu sprowadziło, żebyśmy mogli go dostroić."
     question: "Szybkie pytanie zanim zaczniemy — do czego głównie chcesz używać Cloud?"
     placeholder: "np. Chcę wiedzieć, gdy mój kontener Plex padnie w nocy..."
     or-pick: "Lub wybierz:"
     chip-alerts: Otrzymywać powiadomienia o problemach
     chip-assistant: Zapytaj Asystenta o moje logi
-    chip-hosts: Monitorować wiele hostów
+    chip-search-logs: Przeszukiwać wszystkie moje logi
     chip-remote-access: Dostęp do logów zdalnie
     chip-digests: Otrzymywać dzienne podsumowania logów
     chip-other: Coś innego
     get-started: Rozpocznij
     skip: Pomiń na razie
-    step2-title: "Dzięki! Oto jak w pełni wykorzystać Cloud."
-    step2-subtitle: "Czytam każdą odpowiedź — wpływa na to, co buduję dalej. Te kroki pomogą Ci zacząć."
-    checklist-alert-title: Utwórz pierwszy alert
-    checklist-alert-desc: "Ustaw regułę w Dozzle, aby Cloud wiedział, co monitorować. Otrzymasz podsumowanie, gdy coś pójdzie nie tak."
-    checklist-notify-title: Wybierz sposób powiadamiania
-    checklist-notify-desc: "E-mail jest domyślnie włączony. Dodaj push, Telegram lub Discord, aby otrzymywać szybsze alerty."
-    checklist-agent-title: Wypróbuj asystenta AI
-    checklist-agent-desc: "Połącz Telegram lub Discord i rozmawiaj ze swoimi kontenerami. Diagnozuj błędy, sprawdzaj stan i wykonuj akcje jak restart usług."
+    step2-title: "Wybierz sygnały, którymi Cloud ma zarządzać."
     create-alert: Utwórz pierwszy alert
-    default-alert-name: Container exited with error
+    step2-body: "Zamiast przekazywać każde zdarzenie, Cloud obserwuje rzeczy, które wyglądają na zepsute, bada je i przeszkadza Ci tylko wtedy, gdy to ważne. Żeby robić to dobrze, Cloud potrzebuje sygnałów. Wstępnie wybraliśmy poniżej startowy zestaw zdarzeń awaryjnych — odznacz wszystko, co wolisz trzymać lokalnie."
+    footer: "W każdej chwili możesz zmienić, co jest udostępniane, na stronie Powiadomień. Cloud nigdy nie otrzymuje logów, do których go nie zapisałeś."
+    signals:
+      exited: "Kontener zakończony błędem"
+      exited-desc: "Wyzwala się, gdy kontener zatrzymuje się z kodem wyjścia różnym od zera."
+      unhealthy: "Kontener przeszedł w stan unhealthy"
+      unhealthy-desc: "Wyzwala się, gdy healthcheck kontenera przechodzi w unhealthy."
+      oom: "Kontener zabity przez jądro (OOM)"
+      oom-desc: "Wyzwala się, gdy Docker zgłasza zabicie z powodu braku pamięci."
+      restart: "Kontener zrestartowany"
+      restart-desc: "Domyślnie wyłączone — głośne samo w sobie; Cloud używa tego też do wykrywania pętli."
+    create-alerts: "Włącz wybrane sygnały"
     later: "Zrobię to później"
 cloud-search:
   containers-section: "Kontenery"
