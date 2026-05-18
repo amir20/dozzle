@@ -321,7 +321,7 @@ cloud:
   stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
   stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
   welcome:
-    title: "인스턴스가 연결되었습니다!"
+    title: "Cloud is an intelligent triage for your containers."
     subtitle: "이제 Dozzle Cloud에서 알림, 일일 요약 등을 받을 수 있습니다."
     question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
     placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
@@ -334,7 +334,7 @@ cloud:
     chip-other: 기타
     get-started: 시작하기
     skip: 나중에 하기
-    step2-title: "감사합니다! Cloud를 최대한 활용하는 방법입니다."
+    step2-title: "Cloud is an intelligent triage for your containers."
     step2-subtitle: "모든 응답을 읽고 다음에 무엇을 만들지 결정합니다. 다음 단계로 시작해 보세요."
     checklist-alert-title: 첫 번째 알림 만들기
     checklist-alert-desc: "Dozzle에서 규칙을 설정하여 Cloud가 무엇을 모니터링할지 알려주세요. 문제가 발생하면 요약을 받게 됩니다."
@@ -344,6 +344,18 @@ cloud:
     checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
     create-alert: 첫 번째 알림 만들기
     default-alert-name: Container exited with error
+    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
+    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    signals:
+      exited: Container exited with an error
+      exited-desc: "Fires when a container stops with a non-zero exit code."
+      unhealthy: Container became unhealthy
+      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
+      oom: Container was killed by the kernel (OOM)
+      oom-desc: "Fires when Docker reports an out-of-memory kill."
+      restart: Container restarted
+      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
+    create-alerts: Turn on selected signals
     later: "나중에 할게요"
 cloud-search:
   containers-section: "컨테이너"

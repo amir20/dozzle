@@ -330,7 +330,7 @@ cloud:
   stream-logs: Streaming log kontainer ke Dozzle Cloud
   stream-logs-help: Diperlukan untuk investigasi bertenaga AI dan pencarian log. Nonaktifkan untuk menyimpan seluruh konten log di instance ini.
   welcome:
-    title: "Instans Anda terhubung!"
+    title: "Cloud is an intelligent triage for your containers."
     subtitle: "Anda siap menerima peringatan, ringkasan harian, dan lainnya dari Dozzle Cloud."
     question: "Satu pertanyaan cepat sebelum mulai — apa yang paling Anda harapkan dari Cloud?"
     placeholder: "mis. Saya ingin tahu ketika kontainer Plex saya crash di malam hari..."
@@ -343,7 +343,7 @@ cloud:
     chip-other: Lainnya
     get-started: Mulai
     skip: Lewati untuk sekarang
-    step2-title: "Terima kasih! Berikut cara memaksimalkan Cloud."
+    step2-title: "Cloud is an intelligent triage for your containers."
     step2-subtitle: "Saya membaca setiap respons dan itu membentuk apa yang saya bangun selanjutnya. Langkah-langkah ini akan membantu Anda memulai."
     checklist-alert-title: Buat peringatan pertama Anda
     checklist-alert-desc: "Atur aturan di Dozzle agar Cloud tahu apa yang harus dipantau. Anda akan mendapat ringkasan saat terjadi masalah."
@@ -353,6 +353,18 @@ cloud:
     checklist-agent-desc: "Hubungkan Telegram atau Discord dan ngobrol dengan kontainer Anda. Diagnosis error, periksa kesehatan, dan lakukan tindakan seperti restart layanan."
     create-alert: Buat peringatan pertama Anda
     default-alert-name: Container exited with error
+    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
+    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    signals:
+      exited: Container exited with an error
+      exited-desc: "Fires when a container stops with a non-zero exit code."
+      unhealthy: Container became unhealthy
+      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
+      oom: Container was killed by the kernel (OOM)
+      oom-desc: "Fires when Docker reports an out-of-memory kill."
+      restart: Container restarted
+      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
+    create-alerts: Turn on selected signals
     later: "Nanti saja"
 cloud-search:
   containers-section: "Kontainer"

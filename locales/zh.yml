@@ -318,7 +318,7 @@ cloud:
   stream-logs: 将容器日志流式传输到 Dozzle Cloud
   stream-logs-help: AI 调查和日志搜索所需。禁用后，所有日志内容将保留在此实例中。
   welcome:
-    title: "您的实例已连接！"
+    title: "Cloud is an intelligent triage for your containers."
     subtitle: "您现在可以从 Dozzle Cloud 接收警报、每日摘要等。"
     question: "开始之前问个小问题——您最希望 Cloud 帮您做什么？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜间崩溃..."
@@ -331,7 +331,7 @@ cloud:
     chip-other: 其他
     get-started: 开始使用
     skip: 暂时跳过
-    step2-title: "谢谢！以下是充分利用 Cloud 的方法。"
+    step2-title: "Cloud is an intelligent triage for your containers."
     step2-subtitle: "我会阅读每条回复，它会影响我接下来构建什么。以下步骤将帮助您快速上手。"
     checklist-alert-title: 创建您的第一个警报
     checklist-alert-desc: "在 Dozzle 中设置一条规则，让 Cloud 知道要监控什么。当出现问题时，您将收到摘要。"
@@ -341,6 +341,18 @@ cloud:
     checklist-agent-desc: "连接 Telegram 或 Discord，与您的容器对话。诊断错误、检查健康状态并执行重启服务等操作。"
     create-alert: 创建您的第一个警报
     default-alert-name: Container exited with error
+    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
+    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    signals:
+      exited: Container exited with an error
+      exited-desc: "Fires when a container stops with a non-zero exit code."
+      unhealthy: Container became unhealthy
+      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
+      oom: Container was killed by the kernel (OOM)
+      oom-desc: "Fires when Docker reports an out-of-memory kill."
+      restart: Container restarted
+      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
+    create-alerts: Turn on selected signals
     later: "稍后再说"
 cloud-search:
   containers-section: "容器"
