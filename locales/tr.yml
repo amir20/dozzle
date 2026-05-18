@@ -318,29 +318,33 @@ cloud:
   stream-logs: Konteyner günlüklerini Dozzle Cloud'a yayınla
   stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
   welcome:
-    title: "Örneğiniz bağlandı!"
-    subtitle: "Artık Dozzle Cloud'dan uyarılar, günlük özetler ve daha fazlasını alabilirsiniz."
+    title: "Cloud, container'larınız için akıllı bir triyajdır."
+    subtitle: "Başlangıç arıza sinyalleri seti önceden seçili — sizi buraya getiren şeyi söyleyin de ince ayar yapalım."
     question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
     placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
     or-pick: "Veya birini seçin:"
     chip-alerts: Sorun bildirimleri almak
     chip-assistant: Asistan'a loglarımı sormak
-    chip-hosts: Birden fazla sunucu izlemek
+    chip-search-logs: Tüm loglarımda arama yapmak
     chip-remote-access: Loglara uzaktan erişmek
     chip-digests: Günlük log özetleri almak
     chip-other: Başka bir şey
     get-started: Başla
     skip: Şimdilik geç
-    step2-title: "Teşekkürler! Cloud'dan en iyi şekilde yararlanmanın yolu."
-    step2-subtitle: "Her yanıtı okuyorum ve bir sonraki adımı şekillendiriyor. Bu adımlar başlamanıza yardımcı olacak."
-    checklist-alert-title: İlk uyarınızı oluşturun
-    checklist-alert-desc: "Dozzle'da bir kural oluşturun, böylece Cloud neyi izleyeceğini bilsin. Bir şey ters gittiğinde özet alırsınız."
-    checklist-notify-title: Bildirim şeklinizi seçin
-    checklist-notify-desc: "E-posta varsayılan olarak açıktır. Daha hızlı uyarılar için push, Telegram veya Discord ekleyin."
-    checklist-agent-title: Yapay zeka asistanını deneyin
-    checklist-agent-desc: "Telegram veya Discord'u bağlayın ve konteynerlerinizle sohbet edin. Hataları teşhis edin, durumu kontrol edin ve servis yeniden başlatma gibi işlemler yapın."
+    step2-title: "Cloud'un önceleyeceği sinyalleri seçin."
     create-alert: İlk uyarınızı oluşturun
-    default-alert-name: Container exited with error
+    step2-body: "Cloud, her olayı iletmek yerine bozuk görünen şeyleri izler, araştırır ve yalnızca önemli olduğunda sizi rahatsız eder. Bunu iyi yapabilmek için Cloud sinyallere ihtiyaç duyar. Aşağıda başlangıç arıza olayları setini önceden seçtik — yerelde tutmayı tercih ettiklerinizi işaretten kaldırın."
+    footer: "Neyin paylaşılacağını istediğiniz zaman Bildirimler sayfasından değiştirebilirsiniz. Cloud, abone etmediğiniz logları asla almaz."
+    signals:
+      exited: "Container hatayla sonlandı"
+      exited-desc: "Bir container sıfır olmayan bir çıkış koduyla durduğunda tetiklenir."
+      unhealthy: "Container unhealthy duruma geçti"
+      unhealthy-desc: "Bir container'ın healthcheck'i unhealthy'ye geçtiğinde tetiklenir."
+      oom: "Container çekirdek tarafından sonlandırıldı (OOM)"
+      oom-desc: "Docker bellek yetersizliği nedeniyle bir sonlandırma bildirdiğinde tetiklenir."
+      restart: "Container yeniden başlatıldı"
+      restart-desc: "Varsayılan olarak kapalı — tek başına gürültülü; Cloud bunu döngü tespiti için de kullanır."
+    create-alerts: "Seçili sinyalleri aç"
     later: "Bunu daha sonra yapacağım"
 cloud-search:
   containers-section: "Konteynerler"

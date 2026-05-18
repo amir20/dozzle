@@ -360,27 +360,31 @@ cloud:
   stream-logs: Stream container logs to Dozzle Cloud
   stream-logs-help: Required for AI-powered investigations and log search. Disable to keep all log content on this instance.
   welcome:
-    title: "Your instance is connected!"
-    subtitle: "You're all set to start getting alerts, daily digests, and more from Dozzle Cloud."
+    title: "Cloud is an intelligent triage for your containers."
+    subtitle: "A starter set of failure signals is pre-selected — tell us what brought you here so we can tune it."
     question: "One quick question before we get started — what's the main thing you're hoping Cloud helps with?"
     placeholder: "e.g. I want to know when my Plex container crashes overnight..."
     or-pick: "Or pick one:"
     chip-alerts: Get notified about issues
     chip-assistant: Ask Assistant about my logs
-    chip-hosts: Monitor multiple hosts
+    chip-search-logs: Search across my logs
     chip-remote-access: Access logs remotely
     chip-digests: Get daily log digests
     chip-other: Something else
     get-started: Get Started
     skip: Skip for now
-    step2-title: "Thanks! Here's how to get the most out of Cloud."
-    step2-subtitle: "I read every response and it shapes what I build next. These steps will get you up and running."
-    checklist-alert-title: Create your first alert
-    checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. You'll get a summary when something breaks."
-    checklist-notify-title: Choose how to get notified
-    checklist-notify-desc: "Email is on by default. Add push, Telegram, or Discord for faster alerts."
-    checklist-agent-title: Try the AI assistant
-    checklist-agent-desc: "Connect Telegram or Discord and chat with your containers. Diagnose errors, check health, and take actions like restarting services."
+    step2-title: "Pick the signals Cloud should triage."
+    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've pre-selected a starter set of failure events below — uncheck anything you'd rather keep local."
+    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    signals:
+      exited: Container exited with an error
+      exited-desc: "Fires when a container stops with a non-zero exit code."
+      unhealthy: Container became unhealthy
+      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
+      oom: Container was killed by the kernel (OOM)
+      oom-desc: "Fires when Docker reports an out-of-memory kill."
+      restart: Container restarted
+      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
     create-alert: Create Your First Alert
-    default-alert-name: Container exited with error
+    create-alerts: Turn on selected signals
     later: "I'll do this later"

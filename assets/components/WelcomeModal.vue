@@ -42,39 +42,41 @@
         </button>
       </template>
 
-      <!-- Step 2: Onboarding Checklist -->
+      <!-- Step 2: Triage signal checklist -->
       <template v-else-if="step === 'step2'">
         <h3 class="text-xl font-bold">{{ $t("cloud.welcome.step2-title") }}</h3>
-        <p class="text-base-content/60 mt-1 text-sm">{{ $t("cloud.welcome.step2-subtitle") }}</p>
+        <p class="text-base-content/60 mt-2 text-sm">{{ $t("cloud.welcome.step2-body") }}</p>
 
-        <div class="mt-6 space-y-4">
-          <div v-for="(item, index) in checklistItems" :key="index" class="flex gap-3">
-            <div
-              class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-              :class="index === 0 ? 'bg-primary text-primary-content' : 'bg-base-200 text-base-content/60'"
-            >
-              {{ index + 1 }}
+        <div class="mt-5 space-y-3">
+          <label
+            v-for="signal in signals"
+            :key="signal.key"
+            class="border-base-300 hover:border-primary/40 flex cursor-pointer gap-3 rounded-lg border p-3"
+          >
+            <input
+              v-model="selectedSignals"
+              type="checkbox"
+              :value="signal.key"
+              class="checkbox checkbox-primary checkbox-sm mt-0.5"
+            />
+            <div class="flex-1">
+              <p class="text-sm font-semibold">{{ signal.label }}</p>
+              <p class="text-base-content/60 text-xs">{{ signal.description }}</p>
             </div>
-            <div>
-              <component
-                :is="item.href ? 'a' : 'p'"
-                class="text-sm font-semibold"
-                :class="item.href ? 'link link-hover' : ''"
-                :href="item.href"
-                :target="item.href ? '_blank' : undefined"
-                :rel="item.href ? 'noreferrer noopener' : undefined"
-              >
-                {{ item.title }}
-              </component>
-              <p class="text-base-content/60 text-xs">{{ item.description }}</p>
-            </div>
-          </div>
+          </label>
         </div>
 
-        <button class="btn btn-primary btn-block mt-6" @click="createFirstAlert">
-          {{ $t("cloud.welcome.create-alert") }}
+        <p class="text-base-content/60 mt-4 text-xs">{{ $t("cloud.welcome.footer") }}</p>
+
+        <button
+          class="btn btn-primary btn-block mt-5"
+          :disabled="creating || selectedSignals.length === 0"
+          @click="createDefaultAlerts"
+        >
+          <span v-if="creating" class="loading loading-spinner loading-xs"></span>
+          {{ $t("cloud.welcome.create-alerts") }}
         </button>
-        <button class="btn btn-ghost btn-block btn-sm mt-1" @click="close">
+        <button class="btn btn-ghost btn-block btn-sm mt-1" :disabled="creating" @click="close">
           {{ $t("cloud.welcome.later") }}
         </button>
       </template>
@@ -86,7 +88,6 @@
 </template>
 
 <script lang="ts" setup>
-const cloudUrl = __CLOUD_URL__;
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -97,33 +98,67 @@ const step = ref<"step1" | "step2">("step1");
 const intent = ref("");
 const selectedOptions = ref(new Set<string>());
 const submitting = ref(false);
+const creating = ref(false);
 let feedbackSent = false;
 
 const chipOptions = [
   { value: "error_alerts", label: t("cloud.welcome.chip-alerts") },
   { value: "ai_assistant", label: t("cloud.welcome.chip-assistant") },
-  { value: "multiple_hosts", label: t("cloud.welcome.chip-hosts") },
+  { value: "search_logs", label: t("cloud.welcome.chip-search-logs") },
   { value: "remote_access", label: t("cloud.welcome.chip-remote-access") },
   { value: "log_digests", label: t("cloud.welcome.chip-digests") },
   { value: "something_else", label: t("cloud.welcome.chip-other") },
 ];
 
-const checklistItems = computed(() => [
+type SignalKey = "exited" | "unhealthy" | "oom" | "restart";
+
+interface SignalDef {
+  key: SignalKey;
+  label: string;
+  description: string;
+  // ruleName is intentionally English/stable so the rule stays recognizable
+  // if the user later switches locale.
+  ruleName: string;
+  expression: string;
+  defaultOn: boolean;
+}
+
+const signals = computed<SignalDef[]>(() => [
   {
-    title: t("cloud.welcome.checklist-alert-title"),
-    description: t("cloud.welcome.checklist-alert-desc"),
+    key: "exited",
+    label: t("cloud.welcome.signals.exited"),
+    description: t("cloud.welcome.signals.exited-desc"),
+    ruleName: "Container exited with an error",
+    expression: 'name == "die" && attributes["exitCode"] != "0"',
+    defaultOn: true,
   },
   {
-    title: t("cloud.welcome.checklist-notify-title"),
-    description: t("cloud.welcome.checklist-notify-desc"),
-    href: `${cloudUrl}/channels`,
+    key: "unhealthy",
+    label: t("cloud.welcome.signals.unhealthy"),
+    description: t("cloud.welcome.signals.unhealthy-desc"),
+    ruleName: "Container became unhealthy",
+    expression: 'name == "health_status" && attributes["healthStatus"] == "unhealthy"',
+    defaultOn: true,
   },
   {
-    title: t("cloud.welcome.checklist-agent-title"),
-    description: t("cloud.welcome.checklist-agent-desc"),
-    href: `${cloudUrl}/assistant`,
+    key: "oom",
+    label: t("cloud.welcome.signals.oom"),
+    description: t("cloud.welcome.signals.oom-desc"),
+    ruleName: "Container killed (OOM)",
+    expression: 'name == "oom"',
+    defaultOn: true,
+  },
+  {
+    key: "restart",
+    label: t("cloud.welcome.signals.restart"),
+    description: t("cloud.welcome.signals.restart-desc"),
+    ruleName: "Container restarted",
+    expression: 'name == "restart"',
+    defaultOn: false,
   },
 ]);
+
+const selectedSignals = ref<SignalKey[]>([]);
 
 function toggleOption(value: string) {
   const next = new Set(selectedOptions.value);
@@ -160,7 +195,7 @@ async function submitFeedback() {
   await postFeedback(false);
   submitting.value = false;
   if (onNotificationsPage.value) {
-    createFirstAlert();
+    await createDefaultAlerts();
   } else {
     step.value = "step2";
   }
@@ -172,14 +207,18 @@ async function skipFeedback() {
   await postFeedback(true);
   submitting.value = false;
   if (onNotificationsPage.value) {
-    createFirstAlert();
+    // User explicitly skipped — don't silently create defaults on their behalf.
+    // They're already on the notifications page; just dismiss.
+    close();
   } else {
     step.value = "step2";
   }
 }
 
-async function createFirstAlert() {
-  close();
+async function createDefaultAlerts() {
+  if (creating.value) return;
+  creating.value = true;
+  const chosen = signals.value.filter((s) => selectedSignals.value.includes(s.key));
   try {
     const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"));
     if (!dispatchersRes.ok) throw new Error("dispatchers fetch failed");
@@ -187,26 +226,36 @@ async function createFirstAlert() {
     const cloud = dispatchers.find((d) => d.type === "cloud");
     if (!cloud) throw new Error("cloud dispatcher missing");
 
-    const ruleRes = await fetch(withBase("/api/notifications/rules"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: t("cloud.welcome.default-alert-name"),
-        enabled: true,
-        dispatcherId: cloud.id,
-        logExpression: "",
-        containerExpression: "true",
-        eventExpression: 'name == "die" && attributes["exitCode"] != "0"',
-        metricExpression: "",
-        cooldown: 0,
-        sampleWindow: 0,
-      }),
-    });
-    if (!ruleRes.ok) throw new Error("rule POST failed");
-    const rule: { id: number } = await ruleRes.json();
+    // Fire rule POSTs in parallel. Partial failure is not cleaned up — if one
+    // rejects, the earlier ones are already saved and the user lands on the
+    // fallback toast path. Acceptable for a welcome modal; the user can edit
+    // or delete rules from /notifications.
+    await Promise.all(
+      chosen.map((signal) =>
+        fetch(withBase("/api/notifications/rules"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: signal.ruleName,
+            enabled: true,
+            dispatcherId: cloud.id,
+            logExpression: "",
+            containerExpression: "true",
+            eventExpression: signal.expression,
+            metricExpression: "",
+            cooldown: 0,
+            sampleWindow: 0,
+          }),
+        }).then((res) => {
+          if (!res.ok) throw new Error("rule POST failed");
+        }),
+      ),
+    );
 
-    router.push({ path: "/notifications", query: { highlight: String(rule.id) } });
+    close();
+    router.push({ path: "/notifications" });
   } catch {
+    close();
     showToast(
       {
         type: "warning",
@@ -215,6 +264,8 @@ async function createFirstAlert() {
       { expire: 6000 },
     );
     router.push({ path: "/notifications", query: { action: "create-alert" } });
+  } finally {
+    creating.value = false;
   }
 }
 
@@ -222,6 +273,7 @@ function open() {
   step.value = "step1";
   intent.value = "";
   selectedOptions.value = new Set();
+  selectedSignals.value = signals.value.filter((s) => s.defaultOn).map((s) => s.key);
   feedbackSent = false;
   modal.value?.showModal();
 }

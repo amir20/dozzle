@@ -318,29 +318,33 @@ cloud:
   stream-logs: Stream containerlogs til Dozzle Cloud
   stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
   welcome:
-    title: "Din instans er forbundet!"
-    subtitle: "Du er klar til at modtage advarsler, daglige resuméer og mere fra Dozzle Cloud."
+    title: "Cloud er en intelligent triage for dine containere."
+    subtitle: "Et startsæt af fejlsignaler er forhåndsvalgt — fortæl os, hvad der bragte dig hertil, så vi kan finjustere det."
     question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
     placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
     or-pick: "Eller vælg en:"
     chip-alerts: Få besked om problemer
     chip-assistant: Spørg Assistenten om mine logs
-    chip-hosts: Overvåge flere værter
+    chip-search-logs: Søg på tværs af mine logs
     chip-remote-access: Tilgå logs eksternt
     chip-digests: Få daglige logoversigter
     chip-other: Noget andet
     get-started: Kom i gang
     skip: Spring over for nu
-    step2-title: "Tak! Sådan får du mest ud af Cloud."
-    step2-subtitle: "Jeg læser hvert svar, og det former hvad jeg bygger næste gang. Disse trin hjælper dig i gang."
-    checklist-alert-title: Opret din første advarsel
-    checklist-alert-desc: "Opsæt en regel i Dozzle, så Cloud ved hvad den skal holde øje med. Du får et resumé, når noget går galt."
-    checklist-notify-title: Vælg hvordan du vil notificeres
-    checklist-notify-desc: "E-mail er aktiveret som standard. Tilføj push, Telegram eller Discord for hurtigere advarsler."
-    checklist-agent-title: Prøv AI-assistenten
-    checklist-agent-desc: "Forbind Telegram eller Discord og chat med dine containere. Diagnosticér fejl, tjek tilstand og udfør handlinger som genstart af tjenester."
+    step2-title: "Vælg de signaler, Cloud skal triagere."
     create-alert: Opret din første advarsel
-    default-alert-name: Container exited with error
+    step2-body: "I stedet for at videresende hver eneste hændelse holder Cloud øje med ting, der ser ud til at være gået i stykker, undersøger dem og afbryder dig kun, når det betyder noget. For at gøre det godt har Cloud brug for signaler. Vi har forhåndsvalgt et startsæt af fejlhændelser nedenfor — fjern fluebenet ved alt, du hellere vil holde lokalt."
+    footer: "Du kan til enhver tid ændre, hvad der deles, fra siden Notifikationer. Cloud modtager aldrig logs, som du ikke har tilmeldt det."
+    signals:
+      exited: "Container afsluttede med en fejl"
+      exited-desc: "Udløses, når en container stopper med en exit-kode forskellig fra nul."
+      unhealthy: "Container blev usund"
+      unhealthy-desc: "Udløses, når en containers healthcheck skifter til unhealthy."
+      oom: "Container blev dræbt af kernen (OOM)"
+      oom-desc: "Udløses, når Docker rapporterer et out-of-memory-kill."
+      restart: "Container genstartede"
+      restart-desc: "Slået fra som standard — støjende alene; Cloud bruger det også til loop-detektion."
+    create-alerts: "Slå valgte signaler til"
     later: "Det gør jeg senere"
 cloud-search:
   containers-section: "Containere"

@@ -321,29 +321,33 @@ cloud:
   stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
   stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
   welcome:
-    title: "인스턴스가 연결되었습니다!"
-    subtitle: "이제 Dozzle Cloud에서 알림, 일일 요약 등을 받을 수 있습니다."
+    title: "Cloud는 컨테이너를 위한 지능형 트리아지입니다."
+    subtitle: "기본 장애 신호 세트가 미리 선택되어 있습니다 — 무엇 때문에 오셨는지 알려 주시면 맞춰 조정할게요."
     question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
     placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
     or-pick: "또는 하나를 선택하세요:"
     chip-alerts: 문제 알림 받기
     chip-assistant: 어시스턴트에게 로그 질문하기
-    chip-hosts: 여러 호스트 모니터링
+    chip-search-logs: 내 로그 전체에서 검색
     chip-remote-access: 원격으로 로그 접근
     chip-digests: 일일 로그 요약 받기
     chip-other: 기타
     get-started: 시작하기
     skip: 나중에 하기
-    step2-title: "감사합니다! Cloud를 최대한 활용하는 방법입니다."
-    step2-subtitle: "모든 응답을 읽고 다음에 무엇을 만들지 결정합니다. 다음 단계로 시작해 보세요."
-    checklist-alert-title: 첫 번째 알림 만들기
-    checklist-alert-desc: "Dozzle에서 규칙을 설정하여 Cloud가 무엇을 모니터링할지 알려주세요. 문제가 발생하면 요약을 받게 됩니다."
-    checklist-notify-title: 알림 받는 방법 선택
-    checklist-notify-desc: "이메일은 기본으로 활성화되어 있습니다. 더 빠른 알림을 위해 푸시, Telegram 또는 Discord를 추가하세요."
-    checklist-agent-title: AI 어시스턴트 사용해 보기
-    checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
+    step2-title: "Cloud가 분류할 신호를 선택하세요."
     create-alert: 첫 번째 알림 만들기
-    default-alert-name: Container exited with error
+    step2-body: "모든 이벤트를 전달하는 대신, Cloud는 망가져 보이는 것들을 지켜보고 조사하며 중요할 때만 알립니다. 이를 잘 하려면 Cloud에 신호가 필요합니다. 아래에 기본 장애 이벤트 세트를 미리 선택해 두었습니다 — 로컬로만 두고 싶은 항목은 체크를 해제하세요."
+    footer: "공유되는 내용은 알림 페이지에서 언제든지 변경할 수 있습니다. Cloud는 구독하지 않은 로그를 절대 받지 않습니다."
+    signals:
+      exited: "컨테이너가 오류로 종료됨"
+      exited-desc: "컨테이너가 0이 아닌 종료 코드로 멈췄을 때 발동합니다."
+      unhealthy: "컨테이너가 unhealthy 상태가 됨"
+      unhealthy-desc: "컨테이너의 healthcheck가 unhealthy로 전환될 때 발동합니다."
+      oom: "컨테이너가 커널에 의해 종료됨 (OOM)"
+      oom-desc: "Docker가 메모리 부족 종료를 보고할 때 발동합니다."
+      restart: "컨테이너 재시작됨"
+      restart-desc: "기본 꺼짐 — 단독으로는 시끄러움; Cloud는 루프 감지에도 사용합니다."
+    create-alerts: "선택한 신호 켜기"
     later: "나중에 할게요"
 cloud-search:
   containers-section: "컨테이너"
