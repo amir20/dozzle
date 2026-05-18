@@ -331,13 +331,13 @@ cloud:
   stream-logs-help: Diperlukan untuk investigasi bertenaga AI dan pencarian log. Nonaktifkan untuk menyimpan seluruh konten log di instance ini.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Anda siap menerima peringatan, ringkasan harian, dan lainnya dari Dozzle Cloud."
+    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
     question: "Satu pertanyaan cepat sebelum mulai — apa yang paling Anda harapkan dari Cloud?"
     placeholder: "mis. Saya ingin tahu ketika kontainer Plex saya crash di malam hari..."
     or-pick: "Atau pilih satu:"
     chip-alerts: Dapatkan notifikasi masalah
     chip-assistant: Tanya Asisten tentang log saya
-    chip-hosts: Pantau beberapa host
+    chip-search-logs: Search across my logs
     chip-remote-access: Akses log dari jarak jauh
     chip-digests: Dapatkan ringkasan log harian
     chip-other: Lainnya

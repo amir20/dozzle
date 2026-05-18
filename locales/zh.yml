@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: AI 调查和日志搜索所需。禁用后，所有日志内容将保留在此实例中。
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "您现在可以从 Dozzle Cloud 接收警报、每日摘要等。"
+    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
     question: "开始之前问个小问题——您最希望 Cloud 帮您做什么？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜间崩溃..."
     or-pick: "或选择一项："
     chip-alerts: 获取问题通知
     chip-assistant: 向助手询问我的日志
-    chip-hosts: 监控多个主机
+    chip-search-logs: Search across my logs
     chip-remote-access: 远程查看日志
     chip-digests: 获取每日日志摘要
     chip-other: 其他

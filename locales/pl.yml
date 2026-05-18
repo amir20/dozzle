@@ -326,13 +326,13 @@ cloud:
   stream-logs-help: Wymagane do analiz wspieranych przez AI i wyszukiwania w logach. Wyłącz, aby zachować całą zawartość logów w tej instancji.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Możesz teraz otrzymywać alerty, codzienne podsumowania i więcej z Dozzle Cloud."
+    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
     question: "Szybkie pytanie zanim zaczniemy — do czego głównie chcesz używać Cloud?"
     placeholder: "np. Chcę wiedzieć, gdy mój kontener Plex padnie w nocy..."
     or-pick: "Lub wybierz:"
     chip-alerts: Otrzymywać powiadomienia o problemach
     chip-assistant: Zapytaj Asystenta o moje logi
-    chip-hosts: Monitorować wiele hostów
+    chip-search-logs: Search across my logs
     chip-remote-access: Dostęp do logów zdalnie
     chip-digests: Otrzymywać dzienne podsumowania logów
     chip-other: Coś innego

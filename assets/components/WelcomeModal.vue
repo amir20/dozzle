@@ -104,7 +104,7 @@ let feedbackSent = false;
 const chipOptions = [
   { value: "error_alerts", label: t("cloud.welcome.chip-alerts") },
   { value: "ai_assistant", label: t("cloud.welcome.chip-assistant") },
-  { value: "multiple_hosts", label: t("cloud.welcome.chip-hosts") },
+  { value: "search_logs", label: t("cloud.welcome.chip-search-logs") },
   { value: "remote_access", label: t("cloud.welcome.chip-remote-access") },
   { value: "log_digests", label: t("cloud.welcome.chip-digests") },
   { value: "something_else", label: t("cloud.welcome.chip-other") },

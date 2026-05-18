@@ -328,13 +328,13 @@ cloud:
   stream-logs-help: Necessário para investigações com IA e pesquisa de registos. Desative para manter todo o conteúdo dos registos nesta instância.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Ye be ready to receive alerts, daily summaries, and more from Dozzle Cloud, ye scallywag."
+    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
     question: "One quick question before we set sail — what be ye hopin' Cloud helps with most?"
     placeholder: "e.g. I want to know when me Plex container capsizes overnight..."
     or-pick: "Or pick one, matey:"
     chip-alerts: Get word o' trouble
     chip-assistant: Ask the First Mate about me logs
-    chip-hosts: Watch multiple vessels
+    chip-search-logs: Search across my logs
     chip-remote-access: Read logs from afar
     chip-digests: Get daily log reports
     chip-other: Somethin' else

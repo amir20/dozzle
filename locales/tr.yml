@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Artık Dozzle Cloud'dan uyarılar, günlük özetler ve daha fazlasını alabilirsiniz."
+    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
     question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
     placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
     or-pick: "Veya birini seçin:"
     chip-alerts: Sorun bildirimleri almak
     chip-assistant: Asistan'a loglarımı sormak
-    chip-hosts: Birden fazla sunucu izlemek
+    chip-search-logs: Search across my logs
     chip-remote-access: Loglara uzaktan erişmek
     chip-digests: Günlük log özetleri almak
     chip-other: Başka bir şey
