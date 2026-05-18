@@ -318,8 +318,8 @@ cloud:
   stream-logs: Konteyner günlüklerini Dozzle Cloud'a yayınla
   stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Başlangıç arıza sinyalleri seti zaten açık — sizi buraya getiren şeyi söyleyin de ince ayar yapalım."
+    title: "Cloud, container'larınız için akıllı bir triyajdır."
+    subtitle: "Başlangıç arıza sinyalleri seti önceden seçili — sizi buraya getiren şeyi söyleyin de ince ayar yapalım."
     question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
     placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
     or-pick: "Veya birini seçin:"
@@ -333,18 +333,18 @@ cloud:
     skip: Şimdilik geç
     step2-title: "Cloud'un önceleyeceği sinyalleri seçin."
     create-alert: İlk uyarınızı oluşturun
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "Cloud, her olayı iletmek yerine bozuk görünen şeyleri izler, araştırır ve yalnızca önemli olduğunda sizi rahatsız eder. Bunu iyi yapabilmek için Cloud sinyallere ihtiyaç duyar. Aşağıda başlangıç arıza olayları setini önceden seçtik — yerelde tutmayı tercih ettiklerinizi işaretten kaldırın."
+    footer: "Neyin paylaşılacağını istediğiniz zaman Bildirimler sayfasından değiştirebilirsiniz. Cloud, abone etmediğiniz logları asla almaz."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "Container hatayla sonlandı"
+      exited-desc: "Bir container sıfır olmayan bir çıkış koduyla durduğunda tetiklenir."
+      unhealthy: "Container unhealthy duruma geçti"
+      unhealthy-desc: "Bir container'ın healthcheck'i unhealthy'ye geçtiğinde tetiklenir."
+      oom: "Container çekirdek tarafından sonlandırıldı (OOM)"
+      oom-desc: "Docker bellek yetersizliği nedeniyle bir sonlandırma bildirdiğinde tetiklenir."
+      restart: "Container yeniden başlatıldı"
+      restart-desc: "Varsayılan olarak kapalı — tek başına gürültülü; Cloud bunu döngü tespiti için de kullanır."
+    create-alerts: "Seçili sinyalleri aç"
     later: "Bunu daha sonra yapacağım"
 cloud-search:
   containers-section: "Konteynerler"

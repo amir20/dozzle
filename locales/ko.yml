@@ -321,8 +321,8 @@ cloud:
   stream-logs: 컨테이너 로그를 Dozzle Cloud로 전송
   stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "기본 장애 신호 세트가 이미 켜져 있습니다 — 무엇 때문에 오셨는지 알려 주시면 맞춰 조정할게요."
+    title: "Cloud는 컨테이너를 위한 지능형 트리아지입니다."
+    subtitle: "기본 장애 신호 세트가 미리 선택되어 있습니다 — 무엇 때문에 오셨는지 알려 주시면 맞춰 조정할게요."
     question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
     placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
     or-pick: "또는 하나를 선택하세요:"
@@ -336,18 +336,18 @@ cloud:
     skip: 나중에 하기
     step2-title: "Cloud가 분류할 신호를 선택하세요."
     create-alert: 첫 번째 알림 만들기
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "모든 이벤트를 전달하는 대신, Cloud는 망가져 보이는 것들을 지켜보고 조사하며 중요할 때만 알립니다. 이를 잘 하려면 Cloud에 신호가 필요합니다. 아래에 기본 장애 이벤트 세트를 미리 선택해 두었습니다 — 로컬로만 두고 싶은 항목은 체크를 해제하세요."
+    footer: "공유되는 내용은 알림 페이지에서 언제든지 변경할 수 있습니다. Cloud는 구독하지 않은 로그를 절대 받지 않습니다."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "컨테이너가 오류로 종료됨"
+      exited-desc: "컨테이너가 0이 아닌 종료 코드로 멈췄을 때 발동합니다."
+      unhealthy: "컨테이너가 unhealthy 상태가 됨"
+      unhealthy-desc: "컨테이너의 healthcheck가 unhealthy로 전환될 때 발동합니다."
+      oom: "컨테이너가 커널에 의해 종료됨 (OOM)"
+      oom-desc: "Docker가 메모리 부족 종료를 보고할 때 발동합니다."
+      restart: "컨테이너 재시작됨"
+      restart-desc: "기본 꺼짐 — 단독으로는 시끄러움; Cloud는 루프 감지에도 사용합니다."
+    create-alerts: "선택한 신호 켜기"
     later: "나중에 할게요"
 cloud-search:
   containers-section: "컨테이너"

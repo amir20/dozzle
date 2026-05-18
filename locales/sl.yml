@@ -323,8 +323,8 @@ cloud:
   stream-logs: Pretakanje dnevnikov vsebnikov v Dozzle Cloud
   stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Začetni nabor signalov napak je že vklopljen — povejte nam, kaj vas je pripeljalo sem, da ga lahko prilagodimo."
+    title: "Cloud je inteligentna triaža za vaše vsebnike."
+    subtitle: "Začetni nabor signalov napak je vnaprej izbran — povejte nam, kaj vas je pripeljalo sem, da ga lahko prilagodimo."
     question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
     placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
     or-pick: "Ali izberite:"
@@ -338,18 +338,18 @@ cloud:
     skip: Preskoči za zdaj
     step2-title: "Izberite signale, ki naj jih Cloud triažira."
     create-alert: Ustvarite prvo opozorilo
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "Namesto da posreduje vsak dogodek, Cloud opazuje stvari, ki so videti pokvarjene, jih razišče in vas prekine samo, kadar je pomembno. Da to dobro počne, Cloud potrebuje signale. Spodaj smo vnaprej izbrali začetni nabor dogodkov napak — odkljukajte vse, kar raje ohranite lokalno."
+    footer: "Kar je deljeno, lahko kadar koli spremenite na strani Obvestila. Cloud nikoli ne prejme dnevnikov, na katere ga niste naročili."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "Vsebnik končan z napako"
+      exited-desc: "Sproži se, ko se vsebnik ustavi z neničelno izhodno kodo."
+      unhealthy: "Vsebnik je postal unhealthy"
+      unhealthy-desc: "Sproži se, ko healthcheck vsebnika preide v unhealthy."
+      oom: "Vsebnik je ubilo jedro (OOM)"
+      oom-desc: "Sproži se, ko Docker poroča o prekinitvi zaradi pomanjkanja pomnilnika."
+      restart: "Vsebnik znova zagnan"
+      restart-desc: "Privzeto izklopljeno — sam po sebi hrupen; Cloud ga uporablja tudi za zaznavanje zank."
+    create-alerts: "Vklopi izbrane signale"
     later: "To bom naredil pozneje"
 cloud-search:
   containers-section: "Vsebniki"

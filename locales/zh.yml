@@ -318,8 +318,8 @@ cloud:
   stream-logs: 将容器日志流式传输到 Dozzle Cloud
   stream-logs-help: AI 调查和日志搜索所需。禁用后，所有日志内容将保留在此实例中。
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "已为你开启一组初始的故障信号 — 告诉我们你为何而来，我们好做调整。"
+    title: "Cloud 是为你的容器提供的智能分诊系统。"
+    subtitle: "已为你预选了一组初始的故障信号 — 告诉我们你为何而来，我们好做调整。"
     question: "开始之前问个小问题——您最希望 Cloud 帮您做什么？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜间崩溃..."
     or-pick: "或选择一项："
@@ -333,18 +333,18 @@ cloud:
     skip: 暂时跳过
     step2-title: "选择要交给 Cloud 分流的信号。"
     create-alert: 创建您的第一个警报
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "Cloud 不会转发每一个事件，而是关注看起来出问题的事情、对其进行调查，只在重要时才打扰你。要做好这件事，Cloud 需要信号。我们在下方预选了一组初始的故障事件 — 取消勾选你希望仅保留在本地的项。"
+    footer: "你可以随时在“通知”页面更改要分享的内容。Cloud 永远不会接收你未订阅的日志。"
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "容器以错误退出"
+      exited-desc: "当容器以非零退出码停止时触发。"
+      unhealthy: "容器变为 unhealthy"
+      unhealthy-desc: "当容器的健康检查转为 unhealthy 时触发。"
+      oom: "容器被内核终止（OOM）"
+      oom-desc: "当 Docker 报告内存不足终止时触发。"
+      restart: "容器已重启"
+      restart-desc: "默认关闭 — 单独使用会很吵；Cloud 也用它来检测循环。"
+    create-alerts: "启用所选信号"
     later: "稍后再说"
 cloud-search:
   containers-section: "容器"

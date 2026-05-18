@@ -318,8 +318,8 @@ cloud:
   stream-logs: Invia i log dei container a Dozzle Cloud
   stream-logs-help: Necessario per le indagini basate sull'IA e la ricerca nei log. Disattiva per mantenere tutto il contenuto dei log su questa istanza.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Un set iniziale di segnali di errore è già attivo — dicci cosa ti ha portato qui così possiamo affinarlo."
+    title: "Cloud è un triage intelligente per i tuoi container."
+    subtitle: "Un set iniziale di segnali di errore è preselezionato — dicci cosa ti ha portato qui così possiamo affinarlo."
     question: "Una domanda veloce prima di iniziare — per cosa vorresti usare Cloud principalmente?"
     placeholder: "es. Voglio sapere quando il mio container Plex si blocca di notte..."
     or-pick: "Oppure scegli:"
@@ -333,18 +333,18 @@ cloud:
     skip: Salta per ora
     step2-title: "Scegli i segnali che Cloud deve smistare."
     create-alert: Crea il tuo primo avviso
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "Invece di inoltrare ogni evento, Cloud osserva le cose che sembrano rotte, le investiga e ti interrompe solo quando conta. Per farlo bene, Cloud ha bisogno di segnali. Abbiamo preselezionato qui sotto un set iniziale di eventi di errore — deseleziona tutto ciò che preferisci tenere in locale."
+    footer: "Puoi cambiare ciò che viene condiviso in qualsiasi momento dalla pagina Notifiche. Cloud non riceve mai log a cui non lo hai abbonato."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "Container terminato con errore"
+      exited-desc: "Si attiva quando un container si ferma con un codice di uscita diverso da zero."
+      unhealthy: "Container diventato unhealthy"
+      unhealthy-desc: "Si attiva quando l'healthcheck di un container passa a unhealthy."
+      oom: "Container ucciso dal kernel (OOM)"
+      oom-desc: "Si attiva quando Docker segnala un kill per esaurimento memoria."
+      restart: "Container riavviato"
+      restart-desc: "Disattivo di default — rumoroso da solo; Cloud lo usa anche per rilevare loop."
+    create-alerts: "Attiva i segnali selezionati"
     later: "Lo farò dopo"
 cloud-search:
   containers-section: "Container"

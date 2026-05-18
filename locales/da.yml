@@ -318,8 +318,8 @@ cloud:
   stream-logs: Stream containerlogs til Dozzle Cloud
   stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
   welcome:
-    title: "Cloud is an intelligent triage for your containers."
-    subtitle: "Et startsæt af fejlsignaler er allerede slået til — fortæl os, hvad der bragte dig hertil, så vi kan finjustere det."
+    title: "Cloud er en intelligent triage for dine containere."
+    subtitle: "Et startsæt af fejlsignaler er forhåndsvalgt — fortæl os, hvad der bragte dig hertil, så vi kan finjustere det."
     question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
     placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
     or-pick: "Eller vælg en:"
@@ -333,18 +333,18 @@ cloud:
     skip: Spring over for nu
     step2-title: "Vælg de signaler, Cloud skal triagere."
     create-alert: Opret din første advarsel
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "I stedet for at videresende hver eneste hændelse holder Cloud øje med ting, der ser ud til at være gået i stykker, undersøger dem og afbryder dig kun, når det betyder noget. For at gøre det godt har Cloud brug for signaler. Vi har forhåndsvalgt et startsæt af fejlhændelser nedenfor — fjern fluebenet ved alt, du hellere vil holde lokalt."
+    footer: "Du kan til enhver tid ændre, hvad der deles, fra siden Notifikationer. Cloud modtager aldrig logs, som du ikke har tilmeldt det."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: "Container afsluttede med en fejl"
+      exited-desc: "Udløses, når en container stopper med en exit-kode forskellig fra nul."
+      unhealthy: "Container blev usund"
+      unhealthy-desc: "Udløses, når en containers healthcheck skifter til unhealthy."
+      oom: "Container blev dræbt af kernen (OOM)"
+      oom-desc: "Udløses, når Docker rapporterer et out-of-memory-kill."
+      restart: "Container genstartede"
+      restart-desc: "Slået fra som standard — støjende alene; Cloud bruger det også til loop-detektion."
+    create-alerts: "Slå valgte signaler til"
     later: "Det gør jeg senere"
 cloud-search:
   containers-section: "Containere"
