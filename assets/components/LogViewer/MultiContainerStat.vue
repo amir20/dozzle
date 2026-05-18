@@ -48,7 +48,15 @@ const { containers } = defineProps<{
 
 const cpuMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
 const memoryMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
-const totalStat = ref<Stat>({ cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 });
+const totalStat = ref<Stat>({
+  cpu: 0,
+  memory: 0,
+  memoryUsage: 0,
+  networkRxTotal: 0,
+  networkTxTotal: 0,
+  diskReadTotal: 0,
+  diskWriteTotal: 0,
+});
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
 const networkRate = ref({ rx: 0, tx: 0 });
@@ -81,9 +89,19 @@ watch(
             memoryUsage: acc.memoryUsage + item.memoryUsage,
             networkRxTotal: acc.networkRxTotal + item.networkRxTotal,
             networkTxTotal: acc.networkTxTotal + item.networkTxTotal,
+            diskReadTotal: acc.diskReadTotal + item.diskReadTotal,
+            diskWriteTotal: acc.diskWriteTotal + item.diskWriteTotal,
           };
         },
-        { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 },
+        {
+          cpu: 0,
+          memory: 0,
+          memoryUsage: 0,
+          networkRxTotal: 0,
+          networkTxTotal: 0,
+          diskReadTotal: 0,
+          diskWriteTotal: 0,
+        },
       );
       initial.push(stat);
     }
@@ -158,9 +176,11 @@ useIntervalFn(() => {
         memoryUsage: acc.memoryUsage + container.stat.memoryUsage,
         networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
         networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
+        diskReadTotal: acc.diskReadTotal + container.stat.diskReadTotal,
+        diskWriteTotal: acc.diskWriteTotal + container.stat.diskWriteTotal,
       };
     },
-    { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 },
+    { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0, diskReadTotal: 0, diskWriteTotal: 0 },
   );
 
   networkRate.value = {

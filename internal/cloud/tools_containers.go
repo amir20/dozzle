@@ -196,7 +196,7 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 			MemoryLimit:   c.MemoryLimit,
 			CpuLimit:      c.CPULimit,
 			Ports:         c.Ports,
-			Mounts:        c.Mounts,
+			Mounts:        mountStrings(c.Mounts),
 			RestartPolicy: c.RestartPolicy,
 			NetworkMode:   c.NetworkMode,
 		}},

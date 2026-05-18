@@ -11,7 +11,7 @@ import (
 
 func TestProto(t *testing.T) {
 	expected := Container{}
-	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats"))
+	faker.FakeData(&expected, options.WithFieldsToIgnore("Stats", "MountStats"))
 	expected.FinishedAt = expected.FinishedAt.UTC()
 	expected.Created = expected.Created.UTC()
 	expected.StartedAt = expected.StartedAt.UTC()

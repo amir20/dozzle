@@ -1,4 +1,11 @@
-import type { ContainerHealth, ContainerJson, ContainerStat, ContainerState } from "@/types/Container";
+import type {
+  ContainerHealth,
+  ContainerJson,
+  ContainerMount,
+  ContainerStat,
+  ContainerState,
+  MountStat,
+} from "@/types/Container";
 import { Ref } from "vue";
 
 export type Stat = Omit<ContainerStat, "id">;
@@ -33,6 +40,9 @@ export class Container {
   private readonly _statsHistory: Ref<Stat[]>;
   private readonly movingAverageStat: Ref<Stat>;
 
+  public mounts: ContainerMount[];
+  public mountStats: Record<string, MountStat>;
+
   constructor(
     public readonly id: string,
     public readonly created: Date,
@@ -50,8 +60,20 @@ export class Container {
     public readonly group?: string,
     public health?: ContainerHealth,
     public isNew: boolean = false,
+    mounts: ContainerMount[] = [],
+    mountStats: Record<string, MountStat> = {},
   ) {
-    const defaultStat = { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0 } as Stat;
+    this.mounts = mounts;
+    this.mountStats = mountStats;
+    const defaultStat = {
+      cpu: 0,
+      memory: 0,
+      memoryUsage: 0,
+      networkRxTotal: 0,
+      networkTxTotal: 0,
+      diskReadTotal: 0,
+      diskWriteTotal: 0,
+    } as Stat;
     this._stat = ref(stats.at(-1) || defaultStat);
     const recentStats = stats.slice(-300);
     const padding = Array(300 - recentStats.length).fill(defaultStat);
@@ -140,12 +162,18 @@ export class Container {
       memoryUsage: alpha * stat.memoryUsage + (1 - alpha) * prev.memoryUsage,
       networkRxTotal: stat.networkRxTotal,
       networkTxTotal: stat.networkTxTotal,
+      diskReadTotal: stat.diskReadTotal,
+      diskWriteTotal: stat.diskWriteTotal,
     };
     if (isRef(this.movingAverageStat)) {
       this.movingAverageStat.value = newEma;
     } else {
       (this.movingAverageStat as unknown as Stat) = newEma;
     }
+  }
+
+  public updateMountStats(mountStats: Record<string, MountStat>) {
+    this.mountStats = mountStats ?? {};
   }
 
   static fromJSON(c: ContainerJson): Container {
@@ -165,6 +193,9 @@ export class Container {
       c.stats ?? [],
       c.group,
       c.health,
+      false,
+      c.mounts ?? [],
+      c.mountStats ?? {},
     );
   }
 }

@@ -281,6 +281,7 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			previousCPU            uint64
 			previousSystem         uint64
 			networkRx, networkTx   uint64
+			diskRead, diskWrite    uint64
 		)
 		daemonOSType := v.OSType
 
@@ -302,6 +303,16 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			networkTx += netStats.TxBytes
 		}
 
+		// Sum disk read/write bytes across all block devices
+		for _, blkio := range v.BlkioStats.IoServiceBytesRecursive {
+			switch strings.ToLower(blkio.Op) {
+			case "read":
+				diskRead += blkio.Value
+			case "write":
+				diskWrite += blkio.Value
+			}
+		}
+
 		select {
 		case <-ctx.Done():
 			return nil
@@ -312,6 +323,8 @@ func (d *DockerClient) ContainerStats(ctx context.Context, id string, stats chan
 			MemoryUsage:    mem,
 			NetworkRxTotal: networkRx,
 			NetworkTxTotal: networkTx,
+			DiskReadTotal:  diskRead,
+			DiskWriteTotal: diskWrite,
 		}:
 		}
 	}
@@ -533,10 +546,15 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 		}
 	}
 
-	// Format mounts as readable strings
-	var mounts []string
+	// Capture mounts in structured form
+	mounts := make([]container.Mount, 0, len(c.Mounts))
 	for _, m := range c.Mounts {
-		mounts = append(mounts, fmt.Sprintf("%s:%s (%s)", m.Source, m.Destination, m.Type))
+		mounts = append(mounts, container.Mount{
+			Type:        string(m.Type),
+			Source:      m.Source,
+			Destination: m.Destination,
+			RW:          m.RW,
+		})
 	}
 
 	restartPolicy := ""

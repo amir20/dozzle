@@ -274,6 +274,8 @@ func (c *Client) StreamStats(ctx context.Context, stats chan<- container.Contain
 			ID:             resp.Stat.Id,
 			NetworkRxTotal: resp.Stat.NetworkRxTotal,
 			NetworkTxTotal: resp.Stat.NetworkTxTotal,
+			DiskReadTotal:  resp.Stat.DiskReadTotal,
+			DiskWriteTotal: resp.Stat.DiskWriteTotal,
 		}
 	}
 }
@@ -290,13 +292,18 @@ func (c *Client) StreamEvents(ctx context.Context, events chan<- container.Conta
 			return rpcErrToErr(err)
 		}
 
-		events <- container.ContainerEvent{
+		evt := container.ContainerEvent{
 			ActorID:         resp.Event.ActorId,
 			Name:            resp.Event.Name,
 			Host:            resp.Event.Host,
 			Time:            resp.Event.Timestamp.AsTime(),
 			ActorAttributes: resp.Event.ActorAttributes,
 		}
+		if resp.Event.Container != nil {
+			c := container.FromProto(resp.Event.Container)
+			evt.Container = &c
+		}
+		events <- evt
 	}
 }
 
