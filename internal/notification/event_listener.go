@@ -16,6 +16,8 @@ var allowedEventNames = map[string]bool{
 	"die":           true,
 	"restart":       true,
 	"health_status": true,
+	"oom":           true,
+	"kill":          true,
 }
 
 type ContainerEventEntry struct {
