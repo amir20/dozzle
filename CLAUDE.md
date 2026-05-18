@@ -14,6 +14,19 @@ Format:
 - Include file:line references when relevant
 - Maximum ~10-15 lines per response
 
+## GitHub Tone (issues, PRs, comments, discussions)
+
+When posting anything to GitHub, write like a human maintainer, not an AI assistant. Avoid telltale LLM patterns:
+
+- No em dashes or en dashes. Use commas, periods, or parentheses instead.
+- No "Not X, but Y" rhetorical contrasts.
+- No throat-clearing openers ("Great point", "Makes sense", "Thanks for the detailed write-up").
+- No closing summaries or recap sentences.
+- No bolded inline labels mid-paragraph ("**Why:**", "**Note:**").
+- Drop hedges ("essentially", "basically", "essentially just"). Say it plain.
+- Lowercase casual tone is fine. Contractions are fine. Short sentences are fine.
+- Don't over-explain tradeoffs. State the decision, give one reason, stop.
+
 ## Project Overview
 
 Dozzle is a lightweight, web-based Docker log viewer with real-time monitoring capabilities. It's a hybrid application with:
