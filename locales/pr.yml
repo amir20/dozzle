@@ -328,7 +328,7 @@ cloud:
   stream-logs-help: Necessário para investigações com IA e pesquisa de registos. Desative para manter todo o conteúdo dos registos nesta instância.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A startin' set o' trouble signals be already hoisted — tell us what brung ye aboard so we can trim the sails."
+    subtitle: "A startin' set o' trouble signals be pre-picked — tell us what brung ye aboard so we can trim the sails."
     question: "One quick question before we set sail — what be ye hopin' Cloud helps with most?"
     placeholder: "e.g. I want to know when me Plex container capsizes overnight..."
     or-pick: "Or pick one, matey:"
@@ -340,28 +340,20 @@ cloud:
     chip-other: Somethin' else
     get-started: Set Sail
     skip: Skip fer now
-    step2-title: "Cloud is an intelligent triage for your containers."
-    step2-subtitle: "I read every message in a bottle and it shapes what I build next. These steps will get ye sailin'."
-    checklist-alert-title: Create yer first alert
-    checklist-alert-desc: "Set up a rule in Dozzle so Cloud knows what to watch. Ye'll get a summary when somethin' goes wrong."
-    checklist-notify-title: Choose how ye get notified
-    checklist-notify-desc: "Email be on by default. Add push, Telegram, or Discord fer faster alerts."
-    checklist-agent-title: Try the AI first mate
-    checklist-agent-desc: "Connect Telegram or Discord and chat with yer containers. Diagnose errors, check the ship's health, and take actions like restartin' services."
+    step2-title: "Pick the signals Cloud should sort, matey."
     create-alert: Create Yer First Alert
-    default-alert-name: Container exited with error
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
-    footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
+    step2-body: "Instead o' shoutin' every event from the crow's nest, Cloud watches fer trouble in the riggin', investigates, and only sounds the bell when it matters. To do that well, Cloud needs signals. We've hoisted a startin' set o' trouble flags below — strike any ye'd rather keep ashore."
+    footer: "Ye can change what's shared anytime from the Notifications page. Cloud never gets logs ye haven't signed it on to."
     signals:
-      exited: Container exited with an error
-      exited-desc: "Fires when a container stops with a non-zero exit code."
-      unhealthy: Container became unhealthy
-      unhealthy-desc: "Fires when a container's healthcheck transitions to unhealthy."
-      oom: Container was killed by the kernel (OOM)
-      oom-desc: "Fires when Docker reports an out-of-memory kill."
-      restart: Container restarted
-      restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
-    create-alerts: Turn on selected signals
+      exited: Container abandoned ship with an error
+      exited-desc: "Fires when a container drops anchor with a non-zero exit code."
+      unhealthy: Container took ill
+      unhealthy-desc: "Fires when a container's healthcheck turns sickly."
+      oom: Container keel-hauled by the kernel (OOM)
+      oom-desc: "Fires when Docker reports an out-o'-memory kill."
+      restart: Container weighed anchor again
+      restart-desc: "Off by default — noisy on its own; Cloud also uses this fer loop spottin'."
+    create-alerts: Hoist selected signals
     later: "I'll do this later, arrr"
 cloud-search:
   containers-section: "Contentores"

@@ -361,7 +361,7 @@ cloud:
   stream-logs-help: Required for AI-powered investigations and log search. Disable to keep all log content on this instance.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "A starter set of failure signals is pre-selected — tell us what brought you here so we can tune it."
     question: "One quick question before we get started — what's the main thing you're hoping Cloud helps with?"
     placeholder: "e.g. I want to know when my Plex container crashes overnight..."
     or-pick: "Or pick one:"
@@ -373,8 +373,8 @@ cloud:
     chip-other: Something else
     get-started: Get Started
     skip: Skip for now
-    step2-title: "Cloud is an intelligent triage for your containers."
-    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
+    step2-title: "Pick the signals Cloud should triage."
+    step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've pre-selected a starter set of failure events below — uncheck anything you'd rather keep local."
     footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
     signals:
       exited: Container exited with an error
@@ -387,5 +387,4 @@ cloud:
       restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
     create-alert: Create Your First Alert
     create-alerts: Turn on selected signals
-    default-alert-name: Container exited with error
     later: "I'll do this later"

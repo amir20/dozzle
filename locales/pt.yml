@@ -330,16 +330,8 @@ cloud:
     chip-other: Outra coisa
     get-started: Começar
     skip: Pular por agora
-    step2-title: "Cloud is an intelligent triage for your containers."
-    step2-subtitle: "Eu leio cada resposta e ela influencia o que construo em seguida. Estes passos vão te ajudar a começar."
-    checklist-alert-title: Crie seu primeiro alerta
-    checklist-alert-desc: "Configure uma regra no Dozzle para que o Cloud saiba o que monitorar. Você receberá um resumo quando algo der errado."
-    checklist-notify-title: Escolha como ser notificado
-    checklist-notify-desc: "O e-mail está ativado por padrão. Adicione push, Telegram ou Discord para alertas mais rápidos."
-    checklist-agent-title: Experimente o assistente de IA
-    checklist-agent-desc: "Conecte Telegram ou Discord e converse com seus containers. Diagnostique erros, verifique o estado e execute ações como reiniciar serviços."
+    step2-title: "Escolha os sinais que o Cloud deve triar."
     create-alert: Crie seu primeiro alerta
-    default-alert-name: Container exited with error
     step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
     footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
     signals:

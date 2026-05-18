@@ -334,16 +334,8 @@ cloud:
     chip-other: 기타
     get-started: 시작하기
     skip: 나중에 하기
-    step2-title: "Cloud is an intelligent triage for your containers."
-    step2-subtitle: "모든 응답을 읽고 다음에 무엇을 만들지 결정합니다. 다음 단계로 시작해 보세요."
-    checklist-alert-title: 첫 번째 알림 만들기
-    checklist-alert-desc: "Dozzle에서 규칙을 설정하여 Cloud가 무엇을 모니터링할지 알려주세요. 문제가 발생하면 요약을 받게 됩니다."
-    checklist-notify-title: 알림 받는 방법 선택
-    checklist-notify-desc: "이메일은 기본으로 활성화되어 있습니다. 더 빠른 알림을 위해 푸시, Telegram 또는 Discord를 추가하세요."
-    checklist-agent-title: AI 어시스턴트 사용해 보기
-    checklist-agent-desc: "Telegram 또는 Discord를 연결하고 컨테이너와 대화하세요. 오류를 진단하고, 상태를 확인하고, 서비스 재시작 등의 작업을 수행하세요."
+    step2-title: "Cloud가 분류할 신호를 선택하세요."
     create-alert: 첫 번째 알림 만들기
-    default-alert-name: Container exited with error
     step2-body: "Instead of forwarding every event, Cloud watches for things that look broken, investigates them, and only interrupts you when it matters. To do that well, Cloud needs signals. We've turned on a starter set of failure events below — you can uncheck anything you'd rather keep local."
     footer: "You can change what's shared anytime from the Notifications page. Cloud never receives logs you haven't subscribed it to."
     signals:

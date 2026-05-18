@@ -116,6 +116,9 @@ interface SignalDef {
   key: SignalKey;
   label: string;
   description: string;
+  // ruleName is intentionally English/stable so the rule stays recognizable
+  // if the user later switches locale.
+  ruleName: string;
   expression: string;
   defaultOn: boolean;
 }
@@ -125,6 +128,7 @@ const signals = computed<SignalDef[]>(() => [
     key: "exited",
     label: t("cloud.welcome.signals.exited"),
     description: t("cloud.welcome.signals.exited-desc"),
+    ruleName: "Container exited with an error",
     expression: 'name == "die" && attributes["exitCode"] != "0"',
     defaultOn: true,
   },
@@ -132,6 +136,7 @@ const signals = computed<SignalDef[]>(() => [
     key: "unhealthy",
     label: t("cloud.welcome.signals.unhealthy"),
     description: t("cloud.welcome.signals.unhealthy-desc"),
+    ruleName: "Container became unhealthy",
     expression: 'name == "health_status" && attributes["healthStatus"] == "unhealthy"',
     defaultOn: true,
   },
@@ -139,6 +144,7 @@ const signals = computed<SignalDef[]>(() => [
     key: "oom",
     label: t("cloud.welcome.signals.oom"),
     description: t("cloud.welcome.signals.oom-desc"),
+    ruleName: "Container killed (OOM)",
     expression: 'name == "oom"',
     defaultOn: true,
   },
@@ -146,6 +152,7 @@ const signals = computed<SignalDef[]>(() => [
     key: "restart",
     label: t("cloud.welcome.signals.restart"),
     description: t("cloud.welcome.signals.restart-desc"),
+    ruleName: "Container restarted",
     expression: 'name == "restart"',
     defaultOn: false,
   },
@@ -200,7 +207,9 @@ async function skipFeedback() {
   await postFeedback(true);
   submitting.value = false;
   if (onNotificationsPage.value) {
-    await createDefaultAlerts();
+    // User explicitly skipped — don't silently create defaults on their behalf.
+    // They're already on the notifications page; just dismiss.
+    close();
   } else {
     step.value = "step2";
   }
@@ -211,36 +220,37 @@ async function createDefaultAlerts() {
   creating.value = true;
   const chosen = signals.value.filter((s) => selectedSignals.value.includes(s.key));
   try {
-    if (chosen.length === 0) {
-      close();
-      router.push({ path: "/notifications" });
-      return;
-    }
-
     const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"));
     if (!dispatchersRes.ok) throw new Error("dispatchers fetch failed");
     const dispatchers: Array<{ id: number; type: string }> = await dispatchersRes.json();
     const cloud = dispatchers.find((d) => d.type === "cloud");
     if (!cloud) throw new Error("cloud dispatcher missing");
 
-    for (const signal of chosen) {
-      const ruleRes = await fetch(withBase("/api/notifications/rules"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: signal.label,
-          enabled: true,
-          dispatcherId: cloud.id,
-          logExpression: "",
-          containerExpression: "true",
-          eventExpression: signal.expression,
-          metricExpression: "",
-          cooldown: 0,
-          sampleWindow: 0,
+    // Fire rule POSTs in parallel. Partial failure is not cleaned up — if one
+    // rejects, the earlier ones are already saved and the user lands on the
+    // fallback toast path. Acceptable for a welcome modal; the user can edit
+    // or delete rules from /notifications.
+    await Promise.all(
+      chosen.map((signal) =>
+        fetch(withBase("/api/notifications/rules"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: signal.ruleName,
+            enabled: true,
+            dispatcherId: cloud.id,
+            logExpression: "",
+            containerExpression: "true",
+            eventExpression: signal.expression,
+            metricExpression: "",
+            cooldown: 0,
+            sampleWindow: 0,
+          }),
+        }).then((res) => {
+          if (!res.ok) throw new Error("rule POST failed");
         }),
-      });
-      if (!ruleRes.ok) throw new Error("rule POST failed");
-    }
+      ),
+    );
 
     close();
     router.push({ path: "/notifications" });

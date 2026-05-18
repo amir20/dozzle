@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -25,7 +25,6 @@ const i18n = createI18n({
     en: {
       cloud: {
         welcome: {
-          "default-alert-name": "Container exited with error",
           "create-alerts": "Turn on selected signals",
           signals: {
             exited: "Container exited with an error",
@@ -96,9 +95,7 @@ describe("<WelcomeModal /> Create First Alert", () => {
     const cta = wrapper.findAll("button").find((b) => b.text().toLowerCase().includes("turn on"));
     expect(cta).toBeDefined();
     await cta!.trigger("click");
-    // allow async fetch chain to settle
-    for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     const ruleCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/api/notifications/rules"));
     expect(ruleCalls).toHaveLength(3); // exited + unhealthy + oom on by default; restart off
@@ -142,8 +139,7 @@ describe("<WelcomeModal /> Create First Alert", () => {
 
     const cta = wrapper.findAll("button").find((b) => b.text().toLowerCase().includes("turn on"));
     await cta!.trigger("click");
-    for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     expect(pushSpy).toHaveBeenCalledWith({ path: "/notifications", query: { action: "create-alert" } });
   });
