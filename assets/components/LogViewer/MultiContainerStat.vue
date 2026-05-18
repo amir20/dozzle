@@ -1,12 +1,26 @@
 <template>
   <div class="flex gap-1 md:gap-4">
-    <div
-      class="grid hidden min-w-15 grid-cols-[auto_1fr_auto_1fr] items-center gap-0.5 text-xs leading-none sm:grid md:grid-cols-[auto_1fr]"
-    >
-      <PhArrowUp class="text-primary" />
-      <span class="tabular-nums">{{ formatBytes(networkRate.tx, { short: true, decimals: 1 }) }}/s</span>
-      <PhArrowDown class="text-secondary" />
-      <span class="tabular-nums">{{ formatBytes(networkRate.rx, { short: true, decimals: 1 }) }}/s</span>
+    <div class="hidden items-center gap-3 text-xs leading-none sm:flex">
+      <div
+        class="grid grid-cols-[auto_auto_1fr] items-center gap-x-1 gap-y-0.5"
+        :title="`Network ↑ ${formatBytes(networkRate.tx)}/s · ↓ ${formatBytes(networkRate.rx)}/s`"
+      >
+        <PhNetwork class="text-base-content/60 row-span-2 self-center" />
+        <PhArrowUp class="text-primary" />
+        <span class="tabular-nums">{{ formatBytes(networkRate.tx, { short: true, decimals: 1 }) }}/s</span>
+        <PhArrowDown class="text-secondary" />
+        <span class="tabular-nums">{{ formatBytes(networkRate.rx, { short: true, decimals: 1 }) }}/s</span>
+      </div>
+      <div
+        class="grid grid-cols-[auto_auto_1fr] items-center gap-x-1 gap-y-0.5"
+        :title="`Disk write ${formatBytes(diskRate.write)}/s · read ${formatBytes(diskRate.read)}/s`"
+      >
+        <PhHardDrives class="text-base-content/60 row-span-2 self-center" />
+        <PhArrowUp class="text-primary" />
+        <span class="tabular-nums">{{ formatBytes(diskRate.write, { short: true, decimals: 1 }) }}/s</span>
+        <PhArrowDown class="text-secondary" />
+        <span class="tabular-nums">{{ formatBytes(diskRate.read, { short: true, decimals: 1 }) }}/s</span>
+      </div>
     </div>
     <StatMonitor
       ref="cpuMonitorRef"
@@ -41,6 +55,10 @@ import StatMonitor from "@/components/LogViewer/StatMonitor.vue";
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore
 import PhMemory from "~icons/ph/memory";
+// @ts-ignore
+import PhNetwork from "~icons/ph/network";
+// @ts-ignore
+import PhHardDrives from "~icons/ph/hard-drives";
 
 const { containers } = defineProps<{
   containers: Container[];
@@ -60,6 +78,7 @@ const totalStat = ref<Stat>({
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
 const networkRate = ref({ rx: 0, tx: 0 });
+const diskRate = ref({ read: 0, write: 0 });
 
 const roundCPU = (num: number) => (Number.isInteger(num) ? num.toFixed(0) : num.toFixed(1));
 
@@ -186,6 +205,10 @@ useIntervalFn(() => {
   networkRate.value = {
     rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),
     tx: Math.max(0, totalStat.value.networkTxTotal - previousStat.networkTxTotal),
+  };
+  diskRate.value = {
+    read: Math.max(0, totalStat.value.diskReadTotal - previousStat.diskReadTotal),
+    write: Math.max(0, totalStat.value.diskWriteTotal - previousStat.diskWriteTotal),
   };
 }, 1000);
 

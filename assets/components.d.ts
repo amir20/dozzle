@@ -172,6 +172,8 @@ declare module 'vue' {
     'Ph:stackSimple': typeof import('~icons/ph/stack-simple')['default']
     PhArrowDown: typeof import('~icons/ph/arrow-down')['default']
     PhArrowUp: typeof import('~icons/ph/arrow-up')['default']
+    PhHardDrives: typeof import('~icons/ph/hard-drives')['default']
+    PhNetwork: typeof import('~icons/ph/network')['default']
     Popup: typeof import('./components/Popup.vue')['default']
     RandomColorTag: typeof import('./components/LogViewer/RandomColorTag.vue')['default']
     RelativeTime: typeof import('./components/common/RelativeTime.vue')['default']
