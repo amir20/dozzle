@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: Yapay zeka destekli incelemeler ve günlük araması için gereklidir. Tüm günlük içeriğini bu örnekte tutmak için devre dışı bırakın.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "Başlangıç arıza sinyalleri seti zaten açık — sizi buraya getiren şeyi söyleyin de ince ayar yapalım."
     question: "Başlamadan önce kısa bir soru — Cloud'u en çok ne için kullanmak istiyorsunuz?"
     placeholder: "örn. Plex konteynerim gece çöktüğünde bilmek istiyorum..."
     or-pick: "Veya birini seçin:"
     chip-alerts: Sorun bildirimleri almak
     chip-assistant: Asistan'a loglarımı sormak
-    chip-search-logs: Search across my logs
+    chip-search-logs: Tüm loglarımda arama yapmak
     chip-remote-access: Loglara uzaktan erişmek
     chip-digests: Günlük log özetleri almak
     chip-other: Başka bir şey

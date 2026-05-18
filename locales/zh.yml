@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: AI 调查和日志搜索所需。禁用后，所有日志内容将保留在此实例中。
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "已为你开启一组初始的故障信号 — 告诉我们你为何而来，我们好做调整。"
     question: "开始之前问个小问题——您最希望 Cloud 帮您做什么？"
     placeholder: "例如：我想知道我的 Plex 容器是否在夜间崩溃..."
     or-pick: "或选择一项："
     chip-alerts: 获取问题通知
     chip-assistant: 向助手询问我的日志
-    chip-search-logs: Search across my logs
+    chip-search-logs: 搜索我的所有日志
     chip-remote-access: 远程查看日志
     chip-digests: 获取每日日志摘要
     chip-other: 其他

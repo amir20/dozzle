@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: Påkrævet for AI-drevne undersøgelser og logsøgning. Deaktiver for at holde alt logindhold på denne instans.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "Et startsæt af fejlsignaler er allerede slået til — fortæl os, hvad der bragte dig hertil, så vi kan finjustere det."
     question: "Et hurtigt spørgsmål inden vi starter — hvad håber du mest, at Cloud kan hjælpe med?"
     placeholder: "f.eks. Jeg vil vide, når min Plex-container crasher om natten..."
     or-pick: "Eller vælg en:"
     chip-alerts: Få besked om problemer
     chip-assistant: Spørg Assistenten om mine logs
-    chip-search-logs: Search across my logs
+    chip-search-logs: Søg på tværs af mine logs
     chip-remote-access: Tilgå logs eksternt
     chip-digests: Få daglige logoversigter
     chip-other: Noget andet

@@ -322,13 +322,13 @@ cloud:
   stream-logs-help: AI 기반 분석 및 로그 검색에 필요합니다. 모든 로그 내용을 이 인스턴스에 유지하려면 비활성화하세요.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "기본 장애 신호 세트가 이미 켜져 있습니다 — 무엇 때문에 오셨는지 알려 주시면 맞춰 조정할게요."
     question: "시작하기 전에 간단한 질문 — Cloud를 주로 어떤 용도로 사용하고 싶으신가요?"
     placeholder: "예: Plex 컨테이너가 밤에 중단되면 알고 싶어요..."
     or-pick: "또는 하나를 선택하세요:"
     chip-alerts: 문제 알림 받기
     chip-assistant: 어시스턴트에게 로그 질문하기
-    chip-search-logs: Search across my logs
+    chip-search-logs: 내 로그 전체에서 검색
     chip-remote-access: 원격으로 로그 접근
     chip-digests: 일일 로그 요약 받기
     chip-other: 기타

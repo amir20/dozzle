@@ -324,13 +324,13 @@ cloud:
   stream-logs-help: Potrebno za preiskave z umetno inteligenco in iskanje po dnevnikih. Onemogočite, da vsa vsebina dnevnikov ostane na tej instanci.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "Začetni nabor signalov napak je že vklopljen — povejte nam, kaj vas je pripeljalo sem, da ga lahko prilagodimo."
     question: "Hitro vprašanje preden začnemo — za kaj želite Cloud najbolj uporabljati?"
     placeholder: "npr. Želim vedeti, ko se moj Plex vsebnik ponoči sesuje..."
     or-pick: "Ali izberite:"
     chip-alerts: Prejemati obvestila o težavah
     chip-assistant: Vprašaj pomočnika o mojih dnevnikih
-    chip-search-logs: Search across my logs
+    chip-search-logs: Iskati po vseh mojih dnevnikih
     chip-remote-access: Dostop do dnevnikov na daljavo
     chip-digests: Prejemati dnevne povzetke dnevnikov
     chip-other: Nekaj drugega

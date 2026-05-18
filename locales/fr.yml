@@ -319,13 +319,13 @@ cloud:
   stream-logs-help: Requis pour les investigations alimentées par IA et la recherche dans les journaux. Désactivez pour conserver tout le contenu des journaux sur cette instance.
   welcome:
     title: "Cloud is an intelligent triage for your containers."
-    subtitle: "A starter set of failure signals is already turned on — tell us what brought you here so we can tune it."
+    subtitle: "Un ensemble initial de signaux de défaillance est déjà activé — dites-nous ce qui vous amène pour que nous puissions l'ajuster."
     question: "Une petite question avant de commencer — qu'attendez-vous principalement de Cloud ?"
     placeholder: "ex. Je veux savoir quand mon conteneur Plex plante pendant la nuit..."
     or-pick: "Ou choisissez :"
     chip-alerts: Être notifié des problèmes
     chip-assistant: Interroger l'Assistant sur mes logs
-    chip-search-logs: Search across my logs
+    chip-search-logs: Rechercher dans tous mes logs
     chip-remote-access: Accéder aux logs à distance
     chip-digests: Recevoir des résumés quotidiens
     chip-other: Autre chose
