@@ -37,6 +37,7 @@ type DockerCLI interface {
 	ExecAttach(ctx context.Context, execID string, config client.ExecAttachOptions) (client.ExecAttachResult, error)
 	ExecResize(ctx context.Context, execID string, options client.ExecResizeOptions) (client.ExecResizeResult, error)
 	Info(ctx context.Context, options client.InfoOptions) (client.SystemInfoResult, error)
+	ServerVersion(ctx context.Context, options client.ServerVersionOptions) (client.ServerVersionResult, error)
 	ImagePull(ctx context.Context, refStr string, options client.ImagePullOptions) (client.ImagePullResponse, error)
 	ContainerRemove(ctx context.Context, containerID string, options client.ContainerRemoveOptions) (client.ContainerRemoveResult, error)
 	ContainerCreate(ctx context.Context, options client.ContainerCreateOptions) (client.ContainerCreateResult, error)
@@ -66,6 +67,7 @@ func NewClient(cli DockerCLI, host container.Host) *DockerClient {
 	host.NCPU = info.NCPU
 	host.MemTotal = info.MemTotal
 	host.DockerVersion = info.ServerVersion
+	host.Runtime = detectRuntime(cli, info)
 	host.Swarm = info.Swarm.NodeID != ""
 
 	return &DockerClient{
@@ -137,6 +139,24 @@ func NewRemoteClient(host container.Host) (*DockerClient, error) {
 	host.Type = "remote"
 
 	return NewClient(cli, host), nil
+}
+
+func detectRuntime(cli DockerCLI, info system.Info) string {
+	version, err := cli.ServerVersion(context.Background(), client.ServerVersionOptions{})
+	if err == nil {
+		for _, c := range version.Components {
+			if strings.Contains(strings.ToLower(c.Name), "podman") {
+				return "podman"
+			}
+		}
+		if strings.Contains(strings.ToLower(version.Platform.Name), "podman") {
+			return "podman"
+		}
+	}
+	if strings.Contains(strings.ToLower(info.OperatingSystem), "podman") {
+		return "podman"
+	}
+	return "docker"
 }
 
 // Finds a container by id, skipping the filters

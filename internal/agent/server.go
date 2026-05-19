@@ -270,6 +270,7 @@ func (s *server) HostInfo(ctx context.Context, in *pb.HostInfoRequest) (*pb.Host
 			CpuCores:      uint32(host.NCPU),
 			Memory:        uint64(host.MemTotal),
 			DockerVersion: host.DockerVersion,
+			Runtime:       host.Runtime,
 			AgentVersion:  s.version,
 		},
 	}, nil

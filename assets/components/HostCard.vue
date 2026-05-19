@@ -1,32 +1,35 @@
 <template>
   <div class="card bg-base-100">
-    <div class="card-body flex gap-2 max-md:p-4">
-      <div class="flex flex-row gap-2 overflow-hidden">
-        <div class="flex items-center gap-1 truncate text-xl font-semibold">
-          <HostIcon :type="host.type" class="flex-none" />
-          <div class="truncate">
-            {{ host.name }}
-          </div>
+    <div class="card-body flex gap-3 max-md:p-4">
+      <div class="border-base-content/10 bg-base-content/[0.03] flex items-center gap-2 rounded-lg border p-2 md:p-3">
+        <HostIcon :type="host.type" class="flex-none text-lg" />
+        <div class="truncate text-base font-semibold md:text-lg">{{ host.name }}</div>
 
-          <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
-            <carbon:warning />
-            offline
-          </span>
-          <span
-            class="badge badge-success badge-xs gap-2 p-2"
-            :class="{ 'badge-warning': config.version != host.agentVersion }"
-            v-else-if="host.type == 'agent'"
-            title="Dozzle Agent"
-          >
-            {{ host.agentVersion }}
-          </span>
-        </div>
-        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm max-md:text-xs md:gap-3">
+        <span class="badge badge-error badge-xs gap-1 p-2" v-if="!host.available">
+          <carbon:warning />
+          offline
+        </span>
+        <span
+          class="badge badge-success badge-xs gap-1 p-2"
+          :class="{ 'badge-warning': config.version != host.agentVersion }"
+          v-else-if="host.type == 'agent'"
+          title="Dozzle Agent"
+        >
+          {{ host.agentVersion }}
+        </span>
+
+        <ul
+          class="text-base-content/70 ml-auto flex flex-row flex-wrap items-center gap-x-2 text-xs tabular-nums md:gap-3 md:text-sm"
+        >
           <li class="flex items-center gap-1">
             <octicon:container-24 class="inline-block" />
             {{ $t("label.container", hostContainers.length) }}
           </li>
-          <li class="flex items-center gap-1"><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
+          <li class="flex items-center gap-1" :title="runtimeLabel">
+            <simple-icons:podman v-if="host.runtime === 'podman'" class="inline-block" />
+            <mdi:docker v-else class="inline-block" />
+            {{ host.dockerVersion }}
+          </li>
         </ul>
       </div>
 
@@ -77,6 +80,8 @@ const { containers } = storeToRefs(containerStore) as unknown as {
 const hostContainers = computed(() =>
   containers.value.filter((container) => container.host === props.host.id && container.state === "running"),
 );
+
+const runtimeLabel = computed(() => (props.host.runtime === "podman" ? "Podman" : "Docker"));
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {

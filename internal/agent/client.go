@@ -388,6 +388,7 @@ func (c *Client) Host(ctx context.Context) (container.Host, error) {
 		Endpoint:      c.endpoint,
 		Type:          "agent",
 		DockerVersion: info.Host.DockerVersion,
+		Runtime:       info.Host.Runtime,
 		AgentVersion:  info.Host.AgentVersion,
 		Group:         c.group,
 	}

@@ -22,6 +22,7 @@ type Host struct {
 	MemTotal      int64    `json:"memTotal"`
 	Endpoint      string   `json:"endpoint"`
 	DockerVersion string   `json:"dockerVersion"`
+	Runtime       string   `json:"runtime,omitempty"`
 	AgentVersion  string   `json:"agentVersion,omitempty"`
 	Type          string   `json:"type"`
 	Available     bool     `json:"available"`
