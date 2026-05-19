@@ -184,7 +184,6 @@ declare module 'vue' {
     SideDrawer: typeof import('./components/common/SideDrawer.vue')['default']
     SideMenu: typeof import('./components/SideMenu.vue')['default']
     SidePanel: typeof import('./components/SidePanel.vue')['default']
-    'SimpleIcons:podman': typeof import('~icons/simple-icons/podman')['default']
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
     SlideTransition: typeof import('./components/common/SlideTransition.vue')['default']

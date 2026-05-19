@@ -1,27 +1,26 @@
 <template>
   <div class="card bg-base-100">
-    <div class="card-body flex gap-2 max-md:p-4">
-      <div class="flex flex-row gap-2 overflow-hidden">
-        <div class="flex items-center gap-1 truncate text-xl font-semibold">
-          <HostIcon :type="host.type" class="flex-none" />
-          <div class="truncate">
-            {{ host.name }}
-          </div>
+    <div class="card-body flex gap-3 max-md:p-4">
+      <div class="border-base-content/10 bg-base-content/[0.03] flex items-center gap-2 rounded-lg border p-2 md:p-3">
+        <HostIcon :type="host.type" class="flex-none text-lg" />
+        <div class="truncate text-base font-semibold md:text-lg">{{ host.name }}</div>
 
-          <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
-            <carbon:warning />
-            offline
-          </span>
-          <span
-            class="badge badge-success badge-xs gap-2 p-2"
-            :class="{ 'badge-warning': config.version != host.agentVersion }"
-            v-else-if="host.type == 'agent'"
-            title="Dozzle Agent"
-          >
-            {{ host.agentVersion }}
-          </span>
-        </div>
-        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm max-md:text-xs md:gap-3">
+        <span class="badge badge-error badge-xs gap-1 p-2" v-if="!host.available">
+          <carbon:warning />
+          offline
+        </span>
+        <span
+          class="badge badge-success badge-xs gap-1 p-2"
+          :class="{ 'badge-warning': config.version != host.agentVersion }"
+          v-else-if="host.type == 'agent'"
+          title="Dozzle Agent"
+        >
+          {{ host.agentVersion }}
+        </span>
+
+        <ul
+          class="text-base-content/70 ml-auto flex flex-row flex-wrap items-center gap-x-2 text-xs tabular-nums md:gap-3 md:text-sm"
+        >
           <li class="flex items-center gap-1">
             <octicon:container-24 class="inline-block" />
             {{ $t("label.container", hostContainers.length) }}
@@ -34,36 +33,28 @@
         </ul>
       </div>
 
-      <div class="flex items-stretch gap-2.5" v-if="stats">
-        <StatCard :icon="PhCpu" card-class="bg-primary/10 flex-1" icon-class="text-primary">
-          <template #value="{ hoveredValue }">
-            <span class="tabular-nums">
-              <span class="font-semibold">
-                {{ Math.max(0, hoveredValue ?? stats.weighted.movingAverage.totalCPU).toFixed(1) }}%
-              </span>
-              <span class="text-base-content/60 max-md:hidden"> / {{ host.nCPU }} CPU</span>
-            </span>
-          </template>
-          <template #chart="{ onHoverValue }">
-            <Sparkline :data="cpuHistory" bar-class="bg-primary" @hover-value="onHoverValue" />
-          </template>
-        </StatCard>
+      <div class="grid grid-cols-2 gap-2 md:gap-3" v-if="stats">
+        <MetricCard
+          :icon="PhCpu"
+          :value="stats.weighted.movingAverage.totalCPU"
+          :chartData="cpuHistory"
+          container-class="border-primary/40 bg-primary/20"
+          text-class="text-primary"
+          bar-class="bg-primary"
+          :formatValue="(value) => `${value.toFixed(1)}%`"
+          :label="`${host.nCPU} CPU`"
+        />
 
-        <StatCard :icon="PhMemory" card-class="bg-secondary/10 flex-1" icon-class="text-secondary">
-          <template #value="{ hoveredValue }">
-            <span class="tabular-nums">
-              <span class="font-semibold">{{
-                formatBytes(hoveredValue ?? stats.weighted.movingAverage.totalMemUsage)
-              }}</span>
-              <span class="text-base-content/60 max-md:hidden">
-                / {{ formatBytes(host.memTotal, { short: true, decimals: 1 }) }}</span
-              >
-            </span>
-          </template>
-          <template #chart="{ onHoverValue }">
-            <Sparkline :data="memHistory" bar-class="bg-secondary" @hover-value="onHoverValue" />
-          </template>
-        </StatCard>
+        <MetricCard
+          :icon="PhMemory"
+          :value="stats.weighted.movingAverage.totalMemUsage"
+          :chartData="memHistory"
+          container-class="border-secondary/40 bg-secondary/20"
+          text-class="text-secondary"
+          bar-class="bg-secondary"
+          :formatValue="(value) => formatBytes(value, { decimals: 1 })"
+          :label="formatBytes(host.memTotal, { decimals: 1 })"
+        />
       </div>
     </div>
   </div>
@@ -72,8 +63,6 @@
 <script setup lang="ts">
 import type { Host } from "@/stores/hosts";
 import { Container } from "@/models/Container";
-import StatCard from "@/components/LogViewer/StatCard.vue";
-import Sparkline from "@/components/LogViewer/Sparkline.vue";
 // @ts-ignore
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore

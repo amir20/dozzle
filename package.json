@@ -85,7 +85,6 @@
     "@iconify-json/ion": "^1.2.7",
     "@iconify-json/material-symbols-light": "^1.2.73",
     "@iconify-json/ri": "^1.2.10",
-    "@iconify-json/simple-icons": "^1.2.81",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.1",
     "@pinia/testing": "^1.0.3",
