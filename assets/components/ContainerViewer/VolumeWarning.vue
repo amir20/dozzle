@@ -15,7 +15,7 @@
       tabindex="0"
       class="dropdown-content rounded-box bg-base-200 border-base-content/20 z-50 mt-1 w-72 border p-2 text-xs shadow-sm"
     >
-      <div class="text-base-content/60 mb-1.5 px-1 text-[11px] tracking-wide uppercase">Volumes</div>
+      <div class="text-base-content/60 mb-1.5 px-1 text-[11px] tracking-wide uppercase">{{ t("tooltip.volumes") }}</div>
       <ul class="space-y-1.5">
         <li
           v-for="m in sortedMounts"
@@ -33,7 +33,7 @@
           </div>
           <div class="text-base-content/60 flex justify-between tabular-nums">
             <span v-if="m.available">{{ formatBytes(m.used) }} / {{ formatBytes(m.total) }}</span>
-            <span v-else>not reachable from this host</span>
+            <span v-else>{{ t("tooltip.volume-unreachable") }}</span>
             <RelativeTime v-if="m.lastChecked" :date="m.lastChecked" class="text-[10.5px]" />
           </div>
         </li>
@@ -51,6 +51,8 @@ const WARN = 0.85;
 const CRITICAL = 0.95;
 
 const { container } = defineProps<{ container: Container; openUp?: boolean }>();
+
+const { t } = useI18n();
 
 interface DerivedMount {
   destination: string;
@@ -107,6 +109,6 @@ function formatPct(pct: number) {
 
 const title = computed(() => {
   if (!worst.value) return "";
-  return `${worst.value.destination} is ${formatPct(worst.value.pct)} full`;
+  return t("tooltip.volume-full", { destination: worst.value.destination, pct: formatPct(worst.value.pct) });
 });
 </script>

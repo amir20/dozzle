@@ -2,6 +2,7 @@ package container
 
 import (
 	"context"
+	"sync/atomic"
 	"time"
 
 	"github.com/puzpuzpuz/xsync/v4"
@@ -20,9 +21,12 @@ const (
 	volumeQueueSize     = 64
 )
 
+// volumeTracker is shared between the stat-producing path (observe) and the
+// refresh worker. Both fields are accessed concurrently and must use atomics.
+// lastCheckNanos stores time.Time as UnixNano; zero means "never checked".
 type volumeTracker struct {
-	lastWriteTotal uint64
-	lastCheck      time.Time
+	lastWriteTotal atomic.Uint64
+	lastCheckNanos atomic.Int64
 }
 
 type volumeMonitor struct {
@@ -57,17 +61,20 @@ func (v *volumeMonitor) observe(c *Container, stat ContainerStat) {
 	t, _ := v.trackers.LoadOrCompute(c.ID, func() (*volumeTracker, bool) {
 		// Initialize with the current write total so the first refresh is
 		// driven by the idle timer, not a phantom delta.
-		return &volumeTracker{lastWriteTotal: stat.DiskWriteTotal}, false
+		tr := &volumeTracker{}
+		tr.lastWriteTotal.Store(stat.DiskWriteTotal)
+		return tr, false
 	})
 
-	delta := stat.DiskWriteTotal - t.lastWriteTotal
-	if stat.DiskWriteTotal < t.lastWriteTotal {
+	last := t.lastWriteTotal.Load()
+	delta := stat.DiskWriteTotal - last
+	if stat.DiskWriteTotal < last {
 		// Counter reset (container restarted with same ID? unlikely but defend).
 		delta = stat.DiskWriteTotal
 	}
 
-	now := time.Now()
-	idle := t.lastCheck.IsZero() || now.Sub(t.lastCheck) >= idleRefreshInterval
+	lastNanos := t.lastCheckNanos.Load()
+	idle := lastNanos == 0 || time.Since(time.Unix(0, lastNanos)) >= idleRefreshInterval
 	if !idle && delta < writeThresholdBytes {
 		return
 	}
@@ -141,7 +148,17 @@ func (v *volumeMonitor) refresh(id string) {
 	if data := c.Stats.Data(); len(data) > 0 {
 		latestWrite = data[len(data)-1].DiskWriteTotal
 	}
-	v.trackers.Store(id, &volumeTracker{lastWriteTotal: latestWrite, lastCheck: time.Now()})
+	// Update in place under the per-key shard lock so concurrent observe()
+	// calls see consistent counters.
+	v.trackers.Compute(id, func(existing *volumeTracker, loaded bool) (*volumeTracker, xsync.ComputeOp) {
+		tr := existing
+		if !loaded || tr == nil {
+			tr = &volumeTracker{}
+		}
+		tr.lastWriteTotal.Store(latestWrite)
+		tr.lastCheckNanos.Store(time.Now().UnixNano())
+		return tr, xsync.UpdateOp
+	})
 
 	v.store.applyMountStats(id, stats)
 }

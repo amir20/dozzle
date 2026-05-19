@@ -11,7 +11,7 @@
       :icon="PhCpu"
       card-class="bg-primary/10 md:min-w-56"
       icon-class="text-primary"
-      :title="`CPU ${totalStat.cpu.toFixed(2)}% / ${roundCPU(limits.cpu)} cores`"
+      :title="t('tooltip.cpu-usage', { cpu: totalStat.cpu.toFixed(2), cores: roundCPU(limits.cpu) })"
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
@@ -28,7 +28,9 @@
       :icon="PhMemory"
       card-class="bg-secondary/10 md:min-w-56"
       icon-class="text-secondary"
-      :title="`Memory ${formatBytes(totalStat.memoryUsage)} / ${formatBytes(limits.memory)}`"
+      :title="
+        t('tooltip.memory-usage', { used: formatBytes(totalStat.memoryUsage), total: formatBytes(limits.memory) })
+      "
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
@@ -46,8 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Stat } from "@/models/Container";
-import { Container } from "@/models/Container";
+import { Container, Stat, emptyStat } from "@/models/Container";
 import StatCard from "@/components/LogViewer/StatCard.vue";
 import IOCard from "@/components/LogViewer/IOCard.vue";
 import Sparkline from "@/components/LogViewer/Sparkline.vue";
@@ -60,15 +61,9 @@ const { containers } = defineProps<{
   containers: Container[];
 }>();
 
-const totalStat = ref<Stat>({
-  cpu: 0,
-  memory: 0,
-  memoryUsage: 0,
-  networkRxTotal: 0,
-  networkTxTotal: 0,
-  diskReadTotal: 0,
-  diskWriteTotal: 0,
-});
+const { t } = useI18n();
+
+const totalStat = ref<Stat>(emptyStat());
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
 const networkRate = ref({ rx: 0, tx: 0 });
@@ -89,33 +84,22 @@ watch(
   () => {
     const initial: Stat[] = [];
     for (let i = 1; i <= 300; i++) {
-      const stat = containers.reduce(
-        (acc, container) => {
-          const item = container.statsHistory.at(-i);
-          if (!item) {
-            return acc;
-          }
-          const cores = toContainerCores(container);
-          return {
-            cpu: acc.cpu + item.cpu / cores,
-            memory: acc.memory + item.memory,
-            memoryUsage: acc.memoryUsage + item.memoryUsage,
-            networkRxTotal: acc.networkRxTotal + item.networkRxTotal,
-            networkTxTotal: acc.networkTxTotal + item.networkTxTotal,
-            diskReadTotal: acc.diskReadTotal + item.diskReadTotal,
-            diskWriteTotal: acc.diskWriteTotal + item.diskWriteTotal,
-          };
-        },
-        {
-          cpu: 0,
-          memory: 0,
-          memoryUsage: 0,
-          networkRxTotal: 0,
-          networkTxTotal: 0,
-          diskReadTotal: 0,
-          diskWriteTotal: 0,
-        },
-      );
+      const stat = containers.reduce((acc, container) => {
+        const item = container.statsHistory.at(-i);
+        if (!item) {
+          return acc;
+        }
+        const cores = toContainerCores(container);
+        return {
+          cpu: acc.cpu + item.cpu / cores,
+          memory: acc.memory + item.memory,
+          memoryUsage: acc.memoryUsage + item.memoryUsage,
+          networkRxTotal: acc.networkRxTotal + item.networkRxTotal,
+          networkTxTotal: acc.networkTxTotal + item.networkTxTotal,
+          diskReadTotal: acc.diskReadTotal + item.diskReadTotal,
+          diskWriteTotal: acc.diskWriteTotal + item.diskWriteTotal,
+        };
+      }, emptyStat());
       initial.push(stat);
     }
     totalStat.value = initial[0];
@@ -164,21 +148,18 @@ const limits = computed(() => {
 
 useIntervalFn(() => {
   const previousStat = totalStat.value;
-  totalStat.value = containers.reduce(
-    (acc, container) => {
-      const cores = toContainerCores(container);
-      return {
-        cpu: acc.cpu + container.stat.cpu / cores,
-        memory: acc.memory + container.stat.memory,
-        memoryUsage: acc.memoryUsage + container.stat.memoryUsage,
-        networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
-        networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
-        diskReadTotal: acc.diskReadTotal + container.stat.diskReadTotal,
-        diskWriteTotal: acc.diskWriteTotal + container.stat.diskWriteTotal,
-      };
-    },
-    { cpu: 0, memory: 0, memoryUsage: 0, networkRxTotal: 0, networkTxTotal: 0, diskReadTotal: 0, diskWriteTotal: 0 },
-  );
+  totalStat.value = containers.reduce((acc, container) => {
+    const cores = toContainerCores(container);
+    return {
+      cpu: acc.cpu + container.stat.cpu / cores,
+      memory: acc.memory + container.stat.memory,
+      memoryUsage: acc.memoryUsage + container.stat.memoryUsage,
+      networkRxTotal: acc.networkRxTotal + container.stat.networkRxTotal,
+      networkTxTotal: acc.networkTxTotal + container.stat.networkTxTotal,
+      diskReadTotal: acc.diskReadTotal + container.stat.diskReadTotal,
+      diskWriteTotal: acc.diskWriteTotal + container.stat.diskWriteTotal,
+    };
+  }, emptyStat());
 
   networkRate.value = {
     rx: Math.max(0, totalStat.value.networkRxTotal - previousStat.networkRxTotal),

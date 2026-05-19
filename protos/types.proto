@@ -29,10 +29,14 @@ message Container {
   bool fullyLoaded = 19;
   repeated string env = 20;
   repeated string ports = 21;
-  repeated Mount mounts = 22;
+  // Field 22 was previously `repeated string mounts` (raw paths). Renumbered
+  // to 26 with a richer Mount message; old tag reserved to avoid wire collisions
+  // with pre-v10.6 agents.
+  reserved 22;
   string restartPolicy = 23;
   string networkMode = 24;
   repeated MountStat mountStats = 25;
+  repeated Mount mounts = 26;
 }
 
 message ContainerStat {

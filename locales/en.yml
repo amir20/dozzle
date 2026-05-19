@@ -64,6 +64,13 @@ tooltip:
   search: Search containers (⌘ + k, ⌃k)
   pin-column: Pin as column
   merge-all: Merge all into one stream
+  network-io: "Network: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} cores"
+  memory-usage: "Memory {used} / {total}"
+  volumes: Volumes
+  volume-unreachable: not reachable from this host
+  volume-full: "{destination} is {pct} full"
 error:
   page-not-found: This page does not exist
   host-group-not-found: 'No hosts found in group "{name}"'
