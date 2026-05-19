@@ -1,70 +1,65 @@
 <template>
-  <div class="flex gap-1 md:gap-4">
-    <RateMonitor
-      :icon="PhNetwork"
-      :data="networkChartData"
-      :up="networkRate.tx"
-      :down="networkRate.rx"
-      title-prefix="Network"
-      container-class="border-accent/40 bg-accent/20"
-      text-class="hover:text-accent"
-      bar-class="bg-accent"
+  <div class="flex items-stretch gap-2.5">
+    <IOCard
+      :network-rx="networkRate.rx"
+      :network-tx="networkRate.tx"
+      :disk-read="diskRate.read"
+      :disk-write="diskRate.write"
     />
-    <RateMonitor
-      :icon="PhHardDrives"
-      :data="diskChartData"
-      :up="diskRate.write"
-      :down="diskRate.read"
-      title-prefix="Disk"
-      container-class="border-info/40 bg-info/20"
-      text-class="hover:text-info"
-      bar-class="bg-info"
-    />
-    <StatMonitor
-      ref="cpuMonitorRef"
-      :data="cpuData"
+
+    <StatCard
       :icon="PhCpu"
-      :stat-value="Math.max(0, totalStat.cpu).toFixed(2) + '%'"
-      :limit="roundCPU(limits.cpu) + ' CPU'"
-      container-class="border-primary/40 bg-primary/20"
-      text-class="hover:text-primary"
-      bar-class="bg-primary"
-      :formatter="(value: number) => value.toFixed(2) + '%'"
-    />
-    <StatMonitor
-      ref="memoryMonitorRef"
-      :data="memoryData"
+      card-class="bg-primary/10 md:min-w-56"
+      icon-class="text-primary"
+      :title="`CPU ${totalStat.cpu.toFixed(2)}% / ${roundCPU(limits.cpu)} cores`"
+    >
+      <template #value="{ hoveredValue }">
+        <span class="tabular-nums">
+          <span class="font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(2) }}% </span>
+          <span class="text-base-content/60 max-md:hidden"> / {{ roundCPU(limits.cpu) }} CPU</span>
+        </span>
+      </template>
+      <template #chart="{ onHoverValue }">
+        <Sparkline :data="cpuData" bar-class="bg-primary" class="max-md:hidden" @hover-value="onHoverValue" />
+      </template>
+    </StatCard>
+
+    <StatCard
       :icon="PhMemory"
-      :stat-value="formatBytes(totalStat.memoryUsage)"
-      :limit="formatBytes(limits.memory, { short: true, decimals: 1 })"
-      container-class="border-secondary/40 bg-secondary/20"
-      text-class="hover:text-secondary"
-      bar-class="bg-secondary"
-      :formatter="(value: number) => formatBytes(value)"
-    />
+      card-class="bg-secondary/10 md:min-w-56"
+      icon-class="text-secondary"
+      :title="`Memory ${formatBytes(totalStat.memoryUsage)} / ${formatBytes(limits.memory)}`"
+    >
+      <template #value="{ hoveredValue }">
+        <span class="tabular-nums">
+          <span class="font-semibold">{{ formatBytes(hoveredValue ?? totalStat.memoryUsage) }}</span>
+          <span class="text-base-content/60 max-md:hidden">
+            / {{ formatBytes(limits.memory, { short: true, decimals: 1 }) }}</span
+          >
+        </span>
+      </template>
+      <template #chart="{ onHoverValue }">
+        <Sparkline :data="memoryData" bar-class="bg-secondary" class="max-md:hidden" @hover-value="onHoverValue" />
+      </template>
+    </StatCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { Stat } from "@/models/Container";
 import { Container } from "@/models/Container";
-import StatMonitor from "@/components/LogViewer/StatMonitor.vue";
-import RateMonitor from "@/components/LogViewer/RateMonitor.vue";
+import StatCard from "@/components/LogViewer/StatCard.vue";
+import IOCard from "@/components/LogViewer/IOCard.vue";
+import Sparkline from "@/components/LogViewer/Sparkline.vue";
 // @ts-ignore
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore
 import PhMemory from "~icons/ph/memory";
-// @ts-ignore
-import PhNetwork from "~icons/ph/network";
-// @ts-ignore
-import PhHardDrives from "~icons/ph/hard-drives";
 
 const { containers } = defineProps<{
   containers: Container[];
 }>();
 
-const cpuMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
-const memoryMonitorRef = ref<InstanceType<typeof StatMonitor> | null>(null);
 const totalStat = ref<Stat>({
   cpu: 0,
   memory: 0,
@@ -125,16 +120,11 @@ watch(
     }
     totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
-    nextTick(() => {
-      cpuMonitorRef.value?.recalculate();
-      memoryMonitorRef.value?.recalculate();
-    });
   },
   { immediate: true },
 );
 
 const limits = computed(() => {
-  // Group containers by host
   const containersByHost = new Map<string, Container[]>();
   containers.forEach((container) => {
     if (!containersByHost.has(container.host)) {
@@ -146,41 +136,30 @@ const limits = computed(() => {
   let totalCpu = 0;
   let totalMemory = 0;
 
-  // Process each host independently
   containersByHost.forEach((hostContainers, hostId) => {
     const hostInfo = hosts.value[hostId];
     const hostTotalMemory = hostInfo?.memTotal || 0;
     const hostTotalCpu = hostInfo?.nCPU || 0;
 
-    // Check if any container lacks limits
     const hasUnlimitedCpu = hostContainers.some((c) => !c.cpuLimit || c.cpuLimit <= 0);
     const hasUnlimitedMemory = hostContainers.some((c) => !c.memoryLimit);
 
-    // Calculate CPU for this host
     if (hasUnlimitedCpu) {
-      // At least one container has no limit, use host total
       totalCpu += hostTotalCpu;
     } else {
-      // All containers have limits, sum them up (capped at host total)
       const sumCpu = hostContainers.reduce((sum, c) => sum + (c.cpuLimit || 0), 0);
       totalCpu += Math.min(sumCpu, hostTotalCpu);
     }
 
-    // Calculate Memory for this host
     if (hasUnlimitedMemory) {
-      // At least one container has no limit, use host total
       totalMemory += hostTotalMemory;
     } else {
-      // All containers have limits, sum them up (capped at host total)
       const sumMemory = hostContainers.reduce((sum, c) => sum + (c.memoryLimit || 0), 0);
       totalMemory += Math.min(sumMemory, hostTotalMemory);
     }
   });
 
-  return {
-    cpu: totalCpu,
-    memory: totalMemory,
-  };
+  return { cpu: totalCpu, memory: totalMemory };
 });
 
 useIntervalFn(() => {
@@ -212,30 +191,16 @@ useIntervalFn(() => {
 }, 1000);
 
 const cpuData = computed(() =>
-  history.value.map((stat, i) => ({
-    x: i,
-    y: Math.max(0, stat.cpu),
+  history.value.map((stat) => ({
+    percent: Math.max(0, stat.cpu),
     value: Math.max(0, stat.cpu),
   })),
 );
 
 const memoryData = computed(() =>
-  history.value.map((stat, i) => ({
-    x: i,
-    y: stat.memory,
+  history.value.map((stat) => ({
+    percent: stat.memory,
     value: stat.memoryUsage,
   })),
 );
-
-function rateHistory(reader: (s: Stat) => number) {
-  const hist = history.value;
-  const out: { percent: number; value: number }[] = [];
-  for (let i = 1; i < hist.length; i++) {
-    const v = Math.max(0, reader(hist[i]) - reader(hist[i - 1]));
-    out.push({ percent: v, value: v });
-  }
-  return out;
-}
-const networkChartData = computed(() => rateHistory((s) => s.networkRxTotal + s.networkTxTotal));
-const diskChartData = computed(() => rateHistory((s) => s.diskReadTotal + s.diskWriteTotal));
 </script>
