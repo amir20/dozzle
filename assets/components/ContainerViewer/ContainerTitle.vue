@@ -11,8 +11,10 @@
           <li v-if="config.hosts.length > 1" class="font-thin max-md:hidden">
             {{ container.hostLabel }}
           </li>
-          <li>
-            <template v-if="otherContainers.length === 0">{{ container.name }}</template>
+          <li class="min-w-0">
+            <template v-if="otherContainers.length === 0"
+              ><span class="block truncate">{{ container.name }}</span></template
+            >
             <div v-else>
               <div class="dropdown">
                 <button tabindex="0" role="button" class="btn btn-xs md:btn-sm">
