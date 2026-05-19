@@ -40,7 +40,11 @@ func NewContainerStatsListener(ctx context.Context, clients []container_support.
 		clients:   clients,
 		channel:   make(chan *ContainerStatEvent, 1000),
 		parentCtx: ctx,
-		cache:     NewTTLCache[string, containerInfo](ctx, 30*time.Second),
+		// 5s TTL: the cache exists to avoid re-resolving the container+host on every
+		// per-second stat tick, but mount free-space (Container.MountStats) is refreshed
+		// out-of-band by the volume monitor and we want metric expressions that read
+		// `mounts[*].usedPercent` to see fresh values within a few seconds.
+		cache: NewTTLCache[string, containerInfo](ctx, 5*time.Second),
 	}
 }
 

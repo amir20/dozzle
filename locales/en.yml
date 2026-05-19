@@ -385,6 +385,8 @@ cloud:
       oom-desc: "Fires when Docker reports an out-of-memory kill."
       restart: Container restarted
       restart-desc: "Off by default — noisy on its own; Cloud also uses this for loop detection."
+      disk: Disk space running low on any volume
+      disk-desc: "Fires when any mounted volume is over 85% full."
     create-alert: Create Your First Alert
     create-alerts: Turn on selected signals
     later: "I'll do this later"

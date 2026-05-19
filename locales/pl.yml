@@ -351,6 +351,8 @@ cloud:
       oom-desc: "Wyzwala się, gdy Docker zgłasza zabicie z powodu braku pamięci."
       restart: "Kontener zrestartowany"
       restart-desc: "Domyślnie wyłączone — głośne samo w sobie; Cloud używa tego też do wykrywania pętli."
+      disk: "Mało miejsca na dysku na jednym z wolumenów"
+      disk-desc: "Wyzwala się, gdy jakikolwiek zamontowany wolumen jest zapełniony w ponad 85%."
     create-alerts: "Włącz wybrane sygnały"
     later: "Zrobię to później"
 cloud-search:

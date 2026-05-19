@@ -344,6 +344,8 @@ cloud:
       oom-desc: "Wird ausgelöst, wenn Docker einen Out-of-Memory-Kill meldet."
       restart: "Container neu gestartet"
       restart-desc: "Standardmäßig aus — für sich allein laut; Cloud nutzt es auch zur Loop-Erkennung."
+      disk: "Speicherplatz auf einem Volume wird knapp"
+      disk-desc: "Wird ausgelöst, wenn ein eingebundenes Volume zu über 85% belegt ist."
     create-alerts: "Ausgewählte Signale aktivieren"
     later: "Das mache ich später"
 cloud-search:

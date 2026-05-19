@@ -344,6 +344,8 @@ cloud:
       oom-desc: "Udløses, når Docker rapporterer et out-of-memory-kill."
       restart: "Container genstartede"
       restart-desc: "Slået fra som standard — støjende alene; Cloud bruger det også til loop-detektion."
+      disk: "Diskplads på et volumen er ved at slippe op"
+      disk-desc: "Udløses, når et monteret volumen er over 85% fyldt."
     create-alerts: "Slå valgte signaler til"
     later: "Det gør jeg senere"
 cloud-search:

@@ -21,6 +21,36 @@ func isDozzleContainer(c container.Container) bool {
 	return strings.Contains(c.Image, "amir20/dozzle")
 }
 
+// FromContainerMounts converts a container's MountStats map into the slice form
+// exposed to metric expressions. Mounts whose free-space could not be measured
+// (Available == false — e.g. Windows volumes or permission errors) are skipped
+// so that `any(mounts, .usedPercent >= 85)` never fires on unmeasurable mounts.
+func FromContainerMounts(c container.Container) []types.NotificationMount {
+	if len(c.MountStats) == 0 {
+		return nil
+	}
+	mounts := make([]types.NotificationMount, 0, len(c.MountStats))
+	for _, ms := range c.MountStats {
+		if !ms.Available || ms.Total == 0 {
+			continue
+		}
+		used := ms.Used
+		// Some fs implementations report Used as Total-Free; recompute to be safe.
+		if used == 0 && ms.Free <= ms.Total {
+			used = ms.Total - ms.Free
+		}
+		mounts = append(mounts, types.NotificationMount{
+			Destination:    ms.Destination,
+			TotalBytes:     ms.Total,
+			FreeBytes:      ms.Free,
+			UsedBytes:      used,
+			UsedPercent:    float64(used) / float64(ms.Total) * 100.0,
+			AvailableBytes: ms.Free,
+		})
+	}
+	return mounts
+}
+
 // FromContainerModel converts internal container.Container to types.NotificationContainer
 func FromContainerModel(c container.Container, host container.Host) types.NotificationContainer {
 	return types.NotificationContainer{
@@ -96,7 +126,7 @@ type Subscription struct {
 	ContainerExpression string `json:"containerExpression" yaml:"containerExpression"`
 	MetricExpression    string `json:"metricExpression,omitempty" yaml:"metricExpression,omitempty"`
 	EventExpression     string `json:"eventExpression,omitempty" yaml:"eventExpression,omitempty"`
-	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`       // seconds between metric notifications, default 300
+	Cooldown            int    `json:"cooldown,omitempty" yaml:"cooldown,omitempty"`         // seconds between metric notifications, default 300
 	SampleWindow        int    `json:"sampleWindow,omitempty" yaml:"sampleWindow,omitempty"` // seconds of samples to evaluate, default 15
 
 	// Compiled filter expressions

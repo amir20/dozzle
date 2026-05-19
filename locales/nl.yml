@@ -345,6 +345,8 @@ cloud:
       oom-desc: "Wordt geactiveerd wanneer Docker een out-of-memory kill meldt."
       restart: "Container herstart"
       restart-desc: "Standaard uit — luidruchtig op zichzelf; Cloud gebruikt het ook voor loopdetectie."
+      disk: "Schijfruimte raakt op op een volume"
+      disk-desc: "Wordt geactiveerd wanneer een aangekoppeld volume voor meer dan 85% vol is."
     create-alerts: "Geselecteerde signalen aanzetten"
     later: "Dat doe ik later"
 cloud-search:

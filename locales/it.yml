@@ -344,6 +344,8 @@ cloud:
       oom-desc: "Si attiva quando Docker segnala un kill per esaurimento memoria."
       restart: "Container riavviato"
       restart-desc: "Disattivo di default — rumoroso da solo; Cloud lo usa anche per rilevare loop."
+      disk: "Spazio su disco in esaurimento su un volume"
+      disk-desc: "Si attiva quando un volume montato supera l'85% di utilizzo."
     create-alerts: "Attiva i segnali selezionati"
     later: "Lo farò dopo"
 cloud-search:

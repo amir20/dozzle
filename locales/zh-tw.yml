@@ -347,6 +347,8 @@ cloud:
       oom-desc: "當 Docker 回報記憶體不足而終止時觸發。"
       restart: "容器已重新啟動"
       restart-desc: "預設關閉 — 單獨使用會很吵；Cloud 也用它來偵測循環。"
+      disk: "某個磁碟區的磁碟空間即將用盡"
+      disk-desc: "當任一掛載的磁碟區使用率超過 85% 時觸發。"
     create-alerts: "啟用所選訊號"
     later: "稍後再說"
 cloud-search:

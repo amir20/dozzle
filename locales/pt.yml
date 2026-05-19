@@ -343,6 +343,8 @@ cloud:
       oom-desc: "É disparado quando o Docker reporta um kill por falta de memória."
       restart: "Contentor reiniciado"
       restart-desc: "Desativado por omissão — ruidoso por si só; o Cloud também o usa para deteção de loops."
+      disk: "Espaço em disco a esgotar-se num volume"
+      disk-desc: "É disparado quando algum volume montado está com mais de 85% de utilização."
     create-alerts: "Ativar sinais selecionados"
     later: "Farei isso depois"
 cloud-search:

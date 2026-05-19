@@ -356,6 +356,8 @@ cloud:
       oom-desc: "Dipicu ketika Docker melaporkan kill karena kehabisan memori."
       restart: "Kontainer dimulai ulang"
       restart-desc: "Mati secara default — berisik sendirian; Cloud juga memakainya untuk deteksi loop."
+      disk: "Ruang disk hampir habis di salah satu volume"
+      disk-desc: "Dipicu ketika ada volume yang terpasang lebih dari 85% terisi."
     create-alerts: "Aktifkan sinyal terpilih"
     later: "Nanti saja"
 cloud-search:

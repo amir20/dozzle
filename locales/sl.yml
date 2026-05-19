@@ -349,6 +349,8 @@ cloud:
       oom-desc: "Sproži se, ko Docker poroča o prekinitvi zaradi pomanjkanja pomnilnika."
       restart: "Vsebnik znova zagnan"
       restart-desc: "Privzeto izklopljeno — sam po sebi hrupen; Cloud ga uporablja tudi za zaznavanje zank."
+      disk: "Na enem od nosilcev zmanjkuje prostora na disku"
+      disk-desc: "Sproži se, ko je kateri koli priklopljen nosilec napolnjen več kot 85%."
     create-alerts: "Vklopi izbrane signale"
     later: "To bom naredil pozneje"
 cloud-search:
