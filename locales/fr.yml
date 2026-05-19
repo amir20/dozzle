@@ -62,6 +62,13 @@ tooltip:
   search: Recherche de conteneurs (⌘ + k, ⌃k)
   pin-column: Epinglé en colonne
   merge-all: Fusionner tout dans un flux
+  network-io: "Réseau : ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Disque : ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} cœurs"
+  memory-usage: "Mémoire {used} / {total}"
+  volumes: Volumes
+  volume-unreachable: inaccessible depuis cet hôte
+  volume-full: "{destination} est plein à {pct}"
 error:
   page-not-found: Cette page n'existe pas
   host-group-not-found: 'Aucun hôte trouvé dans le groupe « {name} »'

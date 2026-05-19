@@ -10,6 +10,16 @@ import { Ref } from "vue";
 
 export type Stat = Omit<ContainerStat, "id">;
 
+export const emptyStat = (): Stat => ({
+  cpu: 0,
+  memory: 0,
+  memoryUsage: 0,
+  networkRxTotal: 0,
+  networkTxTotal: 0,
+  diskReadTotal: 0,
+  diskWriteTotal: 0,
+});
+
 const hosts = computed(() =>
   config.hosts.reduce(
     (acc, item) => {
@@ -65,15 +75,7 @@ export class Container {
   ) {
     this.mounts = mounts;
     this.mountStats = mountStats;
-    const defaultStat = {
-      cpu: 0,
-      memory: 0,
-      memoryUsage: 0,
-      networkRxTotal: 0,
-      networkTxTotal: 0,
-      diskReadTotal: 0,
-      diskWriteTotal: 0,
-    } as Stat;
+    const defaultStat = emptyStat();
     this._stat = ref(stats.at(-1) || defaultStat);
     const recentStats = stats.slice(-300);
     const padding = Array(300 - recentStats.length).fill(defaultStat);

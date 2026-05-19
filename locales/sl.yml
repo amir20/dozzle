@@ -61,6 +61,13 @@ tooltip:
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec
   merge-all: Združi vse v en tok
+  network-io: "Omrežje: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPE {cpu}% / {cores} jeder"
+  memory-usage: "Pomnilnik {used} / {total}"
+  volumes: Nosilci
+  volume-unreachable: nedosegljivo iz tega gostitelja
+  volume-full: "{destination} je {pct} poln"
 error:
   page-not-found: Ta stran ne obstaja
   host-group-not-found: 'V skupini "{name}" ni najdenih gostiteljev'

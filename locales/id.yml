@@ -64,6 +64,13 @@ tooltip:
   search: Cari kontainer (⌘ + k, ⌃k)
   pin-column: Sematkan sebagai kolom
   merge-all: Gabungkan semua ke dalam satu aliran
+  network-io: "Jaringan: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} core"
+  memory-usage: "Memori {used} / {total}"
+  volumes: Volume
+  volume-unreachable: tidak dapat dijangkau dari host ini
+  volume-full: "{destination} terisi {pct}"
 
 error:
   page-not-found: Halaman ini tidak ada

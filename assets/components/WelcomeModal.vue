@@ -230,12 +230,17 @@ async function skipFeedback() {
   }
 }
 
+let abortController: AbortController | null = null;
+
 async function createDefaultAlerts() {
   if (creating.value) return;
   creating.value = true;
+  abortController?.abort();
+  abortController = new AbortController();
+  const signal = abortController.signal;
   const chosen = signals.value.filter((s) => selectedSignals.value.includes(s.key));
   try {
-    const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"));
+    const dispatchersRes = await fetch(withBase("/api/notifications/dispatchers"), { signal });
     if (!dispatchersRes.ok) throw new Error("dispatchers fetch failed");
     const dispatchers: Array<{ id: number; type: string }> = await dispatchersRes.json();
     const cloud = dispatchers.find((d) => d.type === "cloud");
@@ -246,22 +251,23 @@ async function createDefaultAlerts() {
     // fallback toast path. Acceptable for a welcome modal; the user can edit
     // or delete rules from /notifications.
     await Promise.all(
-      chosen.map((signal) =>
+      chosen.map((s) =>
         fetch(withBase("/api/notifications/rules"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal,
           body: JSON.stringify({
-            name: signal.ruleName,
+            name: s.ruleName,
             enabled: true,
             dispatcherId: cloud.id,
             logExpression: "",
             containerExpression: "true",
-            eventExpression: signal.kind === "event" ? signal.expression : "",
-            metricExpression: signal.kind === "metric" ? signal.expression : "",
+            eventExpression: s.kind === "event" ? s.expression : "",
+            metricExpression: s.kind === "metric" ? s.expression : "",
             // Metric alerts: don't re-fire more than once an hour per container,
             // and require the threshold to hold for the default sample window.
-            cooldown: signal.kind === "metric" ? 3600 : 0,
-            sampleWindow: signal.kind === "metric" ? 60 : 0,
+            cooldown: s.kind === "metric" ? 3600 : 0,
+            sampleWindow: s.kind === "metric" ? 60 : 0,
           }),
         }).then((res) => {
           if (!res.ok) throw new Error("rule POST failed");
@@ -271,7 +277,8 @@ async function createDefaultAlerts() {
 
     close();
     router.push({ path: "/notifications" });
-  } catch {
+  } catch (err) {
+    if ((err as Error)?.name === "AbortError") return;
     close();
     showToast(
       {
@@ -298,6 +305,10 @@ function open() {
 function close() {
   modal.value?.close();
 }
+
+onBeforeUnmount(() => {
+  abortController?.abort();
+});
 
 function onClose() {
   if (step.value === "step1" && !feedbackSent) {

@@ -34,9 +34,11 @@ const { networkRx, networkTx, diskRead, diskWrite } = defineProps<{
   diskWrite: number;
 }>();
 
+const { t } = useI18n();
 const tooltip = computed(
   () =>
-    `Network: ↑ ${formatBytes(networkTx)}/s · ↓ ${formatBytes(networkRx)}/s\n` +
-    `Disk:    ↑ ${formatBytes(diskWrite)}/s · ↓ ${formatBytes(diskRead)}/s`,
+    t("tooltip.network-io", { tx: formatBytes(networkTx), rx: formatBytes(networkRx) }) +
+    "\n" +
+    t("tooltip.disk-io", { write: formatBytes(diskWrite), read: formatBytes(diskRead) }),
 );
 </script>
