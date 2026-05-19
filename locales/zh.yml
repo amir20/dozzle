@@ -62,6 +62,13 @@ tooltip:
   search: 搜索 (⌘ + k, ⌃k)
   pin-column: 固定为列
   merge-all: 将所有内容合并到一个流中
+  network-io: "网络：↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "磁盘：↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} 核"
+  memory-usage: "内存 {used} / {total}"
+  volumes: 卷
+  volume-unreachable: 无法从此主机访问
+  volume-full: "{destination} 已使用 {pct}"
 error:
   page-not-found: 此页面不存在。
   host-group-not-found: '在组 "{name}" 中未找到主机'

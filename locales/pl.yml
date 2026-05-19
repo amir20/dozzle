@@ -66,6 +66,13 @@ tooltip:
   search: Przeszukaj kontenery (⌘ + k, ⌃k)
   pin-column: Przypnij jako kolumna
   merge-all: Scal wszystko w jeden strumień
+  network-io: "Sieć: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Dysk: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} rdzeni"
+  memory-usage: "Pamięć {used} / {total}"
+  volumes: Wolumeny
+  volume-unreachable: nieosiągalne z tego hosta
+  volume-full: "{destination} zapełniony w {pct}"
 error:
   page-not-found: Ta strona nie istnieje
   host-group-not-found: 'Nie znaleziono hostów w grupie „{name}”'

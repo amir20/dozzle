@@ -62,6 +62,13 @@ tooltip:
   search: Поиск контейнеров (⌘ + k, ⌃k)
   pin-column: Закрепить столбец
   merge-all: Объединить все в один поток
+  network-io: "Сеть: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Диск: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "ЦП {cpu}% / {cores} ядер"
+  memory-usage: "Память {used} / {total}"
+  volumes: Тома
+  volume-unreachable: недоступно с этого хоста
+  volume-full: "{destination} заполнено на {pct}"
 error:
   page-not-found: Эта страница не доступна.
   host-group-not-found: 'Хосты в группе «{name}» не найдены'

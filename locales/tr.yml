@@ -67,6 +67,13 @@ tooltip:
   search: Konteynerlerde ara (⌘ + k, ⌃k)
   pin-column: Sütun olarak sabitle
   merge-all: Tümünü tek bir akışta birleştir
+  network-io: "Ağ: ↑ {tx}/sn · ↓ {rx}/sn"
+  disk-io: "Disk: ↑ {write}/sn · ↓ {read}/sn"
+  cpu-usage: "CPU {cpu}% / {cores} çekirdek"
+  memory-usage: "Bellek {used} / {total}"
+  volumes: Birimler
+  volume-unreachable: bu sunucudan erişilemiyor
+  volume-full: "{destination} {pct} dolu"
 error:
   page-not-found: Bu sayfa bulunamadı
   host-group-not-found: '"{name}" grubunda ana bilgisayar bulunamadı'

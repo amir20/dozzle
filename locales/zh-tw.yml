@@ -62,6 +62,13 @@ tooltip:
   search: 搜尋容器 (⌘ + k, ⌃k)
   pin-column: 釘選為欄位
   merge-all: 將所有內容合併到一個流中
+  network-io: "網路：↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "磁碟：↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} 核心"
+  memory-usage: "記憶體 {used} / {total}"
+  volumes: 卷
+  volume-unreachable: 無法從此主機存取
+  volume-full: "{destination} 已使用 {pct}"
 error:
   page-not-found: 此頁面不存在
   host-group-not-found: '在群組「{name}」中找不到主機'

@@ -61,6 +61,13 @@ tooltip:
   search: 컨테이너 검색 (⌘ + k, ⌃k)
   pin-column: 열로 고정
   merge-all: 모두 하나의 스트림으로 병합
+  network-io: "네트워크: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "디스크: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} 코어"
+  memory-usage: "메모리 {used} / {total}"
+  volumes: 볼륨
+  volume-unreachable: 이 호스트에서 접근할 수 없음
+  volume-full: "{destination}이(가) {pct} 사용 중"
 error:
   page-not-found: 페이지를 찾을 수 없습니다
   host-group-not-found: '"{name}" 그룹에 호스트가 없습니다'

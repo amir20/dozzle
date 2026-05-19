@@ -62,6 +62,13 @@ tooltip:
   search: Søg containere (⌘ + k, ⌃k)
   pin-column: Fastgør som kolonne
   merge-all: Sammenlæg alt i én stream
+  network-io: "Netværk: ↑ {tx}/s · ↓ {rx}/s"
+  disk-io: "Disk: ↑ {write}/s · ↓ {read}/s"
+  cpu-usage: "CPU {cpu}% / {cores} kerner"
+  memory-usage: "Hukommelse {used} / {total}"
+  volumes: Volumener
+  volume-unreachable: ikke tilgængelig fra denne host
+  volume-full: "{destination} er {pct} fuld"
 error:
   page-not-found: Denne side eksisterer ikke
   host-group-not-found: 'Ingen værter fundet i gruppen "{name}"'
