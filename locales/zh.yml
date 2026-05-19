@@ -344,6 +344,8 @@ cloud:
       oom-desc: "当 Docker 报告内存不足终止时触发。"
       restart: "容器已重启"
       restart-desc: "默认关闭 — 单独使用会很吵；Cloud 也用它来检测循环。"
+      disk: "某个卷的磁盘空间即将耗尽"
+      disk-desc: "当任一已挂载的卷使用率超过 85% 时触发。"
     create-alerts: "启用所选信号"
     later: "稍后再说"
 cloud-search:

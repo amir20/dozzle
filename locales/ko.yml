@@ -347,6 +347,8 @@ cloud:
       oom-desc: "Docker가 메모리 부족 종료를 보고할 때 발동합니다."
       restart: "컨테이너 재시작됨"
       restart-desc: "기본 꺼짐 — 단독으로는 시끄러움; Cloud는 루프 감지에도 사용합니다."
+      disk: "볼륨의 디스크 공간 부족"
+      disk-desc: "마운트된 볼륨의 사용량이 85%를 초과하면 발동합니다."
     create-alerts: "선택한 신호 켜기"
     later: "나중에 할게요"
 cloud-search:

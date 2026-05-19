@@ -433,3 +433,109 @@ func TestFromLogEvent_OrderedMapConversion(t *testing.T) {
 		})
 	}
 }
+
+func TestSubscription_MatchesMetric_Mounts(t *testing.T) {
+	tests := []struct {
+		name       string
+		expression string
+		stat       types.NotificationStat
+		want       bool
+	}{
+		{
+			name:       "any mount over 85 percent matches",
+			expression: `any(mounts, .usedPercent >= 85)`,
+			stat: types.NotificationStat{
+				Mounts: []types.NotificationMount{
+					{Destination: "/data", TotalBytes: 100, UsedBytes: 50, FreeBytes: 50, UsedPercent: 50},
+					{Destination: "/logs", TotalBytes: 100, UsedBytes: 90, FreeBytes: 10, UsedPercent: 90},
+				},
+			},
+			want: true,
+		},
+		{
+			name:       "no mount over 85 percent does not match",
+			expression: `any(mounts, .usedPercent >= 85)`,
+			stat: types.NotificationStat{
+				Mounts: []types.NotificationMount{
+					{Destination: "/data", TotalBytes: 100, UsedBytes: 50, FreeBytes: 50, UsedPercent: 50},
+					{Destination: "/logs", TotalBytes: 100, UsedBytes: 80, FreeBytes: 20, UsedPercent: 80},
+				},
+			},
+			want: false,
+		},
+		{
+			name:       "empty mounts does not match",
+			expression: `any(mounts, .usedPercent >= 85)`,
+			stat:       types.NotificationStat{},
+			want:       false,
+		},
+		{
+			name:       "available bytes filter",
+			expression: `any(mounts, .availableBytes < 1024)`,
+			stat: types.NotificationStat{
+				Mounts: []types.NotificationMount{
+					{Destination: "/data", FreeBytes: 500, AvailableBytes: 500},
+				},
+			},
+			want: true,
+		},
+		{
+			name:       "combined cpu and mount expression",
+			expression: `cpu > 80 || any(mounts, .usedPercent >= 85)`,
+			stat: types.NotificationStat{
+				CPUPercent: 10,
+				Mounts: []types.NotificationMount{
+					{Destination: "/data", UsedPercent: 95},
+				},
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			program, err := expr.Compile(tt.expression, expr.Env(types.NotificationStat{}))
+			require.NoError(t, err, "failed to compile expression")
+
+			sub := &Subscription{
+				MetricExpression: tt.expression,
+				MetricProgram:    program,
+			}
+
+			got := sub.MatchesMetric(tt.stat)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestFromContainerMounts(t *testing.T) {
+	t.Run("skips unavailable mounts", func(t *testing.T) {
+		c := container.Container{
+			MountStats: map[string]container.MountStat{
+				"/data": {Destination: "/data", Total: 100, Used: 80, Free: 20, Available: true},
+				"/win":  {Destination: "/win", Total: 0, Available: false},
+			},
+		}
+		got := FromContainerMounts(c)
+		require.Len(t, got, 1)
+		assert.Equal(t, "/data", got[0].Destination)
+		assert.InDelta(t, 80.0, got[0].UsedPercent, 0.01)
+		assert.Equal(t, uint64(20), got[0].AvailableBytes)
+	})
+
+	t.Run("derives used from total minus free", func(t *testing.T) {
+		c := container.Container{
+			MountStats: map[string]container.MountStat{
+				"/data": {Destination: "/data", Total: 100, Used: 0, Free: 25, Available: true},
+			},
+		}
+		got := FromContainerMounts(c)
+		require.Len(t, got, 1)
+		assert.Equal(t, uint64(75), got[0].UsedBytes)
+		assert.InDelta(t, 75.0, got[0].UsedPercent, 0.01)
+	})
+
+	t.Run("nil for empty input", func(t *testing.T) {
+		assert.Nil(t, FromContainerMounts(container.Container{}))
+	})
+}

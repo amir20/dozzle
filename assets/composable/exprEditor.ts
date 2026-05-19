@@ -80,6 +80,11 @@ export function createMetricHints(): Completion[] {
     { label: "cpu", detail: "CPU usage percent", type: "property" },
     { label: "memory", detail: "memory usage percent", type: "property" },
     { label: "memoryUsage", detail: "memory usage bytes", type: "property" },
+    { label: "mounts", detail: "list of container mounts with free-space info", type: "property" },
+    { label: ".usedPercent", detail: "mount field: % of mount used", type: "property" },
+    { label: ".availableBytes", detail: "mount field: free bytes on mount", type: "property" },
+    { label: ".destination", detail: "mount field: in-container mount path", type: "property" },
+    { label: "any(mounts, ...)", detail: "true if any mount matches the predicate", type: "keyword" },
     ...exprOperators,
     { label: ">", detail: "greater than", type: "operator" },
     { label: "<", detail: "less than", type: "operator" },
@@ -88,6 +93,12 @@ export function createMetricHints(): Completion[] {
     { label: "cpu > 80", detail: "CPU over 80%", type: "text", boost: 10 },
     { label: "memory > 90", detail: "memory over 90%", type: "text", boost: 10 },
     { label: "cpu > 80 || memory > 90", detail: "CPU or memory high", type: "text", boost: 10 },
+    {
+      label: "any(mounts, .usedPercent >= 85)",
+      detail: "alert when any mount is over 85% full",
+      type: "text",
+      boost: 10,
+    },
   ];
 }
 

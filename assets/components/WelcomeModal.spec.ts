@@ -35,6 +35,8 @@ const i18n = createI18n({
             "oom-desc": "Fires when Docker reports an out-of-memory kill.",
             restart: "Container restarted",
             "restart-desc": "Off by default — noisy on its own; Cloud also uses this for loop detection.",
+            disk: "Disk space running low on any volume",
+            "disk-desc": "Fires when any mounted volume is over 85% full.",
           },
         },
       },
@@ -98,23 +100,38 @@ describe("<WelcomeModal /> Create First Alert", () => {
     await flushPromises();
 
     const ruleCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/api/notifications/rules"));
-    expect(ruleCalls).toHaveLength(3); // exited + unhealthy + oom on by default; restart off
+    expect(ruleCalls).toHaveLength(4); // exited + unhealthy + oom + disk on by default; restart off
 
-    const expressions = ruleCalls.map((c) => JSON.parse((c[1] as RequestInit).body as string).eventExpression);
-    expect(expressions).toContain('name == "die" && attributes["exitCode"] != "0"');
-    expect(expressions).toContain('name == "health_status" && attributes["healthStatus"] == "unhealthy"');
-    expect(expressions).toContain('name == "oom"');
-    expect(expressions).not.toContain('name == "restart"');
+    const bodies = ruleCalls.map((c) => JSON.parse((c[1] as RequestInit).body as string));
+    const eventExpressions = bodies.map((b) => b.eventExpression).filter(Boolean);
+    expect(eventExpressions).toContain('name == "die" && attributes["exitCode"] != "0"');
+    expect(eventExpressions).toContain('name == "health_status" && attributes["healthStatus"] == "unhealthy"');
+    expect(eventExpressions).toContain('name == "oom"');
+    expect(eventExpressions).not.toContain('name == "restart"');
 
-    // every POST uses cloud dispatcher id
-    for (const c of ruleCalls) {
-      const body = JSON.parse((c[1] as RequestInit).body as string);
-      expect(body).toMatchObject({
+    const metricExpressions = bodies.map((b) => b.metricExpression).filter(Boolean);
+    expect(metricExpressions).toContain("any(mounts, .usedPercent >= 85)");
+
+    // disk rule should carry its own cooldown/sampleWindow; event rules should remain at 0
+    const diskBody = bodies.find((b) => b.metricExpression === "any(mounts, .usedPercent >= 85)");
+    expect(diskBody).toMatchObject({
+      enabled: true,
+      dispatcherId: 7,
+      cooldown: 3600,
+      sampleWindow: 60,
+      containerExpression: "true",
+      eventExpression: "",
+    });
+
+    // event-based POSTs use cloud dispatcher id with no cooldown
+    for (const b of bodies.filter((x) => x.eventExpression)) {
+      expect(b).toMatchObject({
         enabled: true,
         dispatcherId: 7,
         cooldown: 0,
         sampleWindow: 0,
         containerExpression: "true",
+        metricExpression: "",
       });
     }
 

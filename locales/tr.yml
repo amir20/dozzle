@@ -344,6 +344,8 @@ cloud:
       oom-desc: "Docker bellek yetersizliği nedeniyle bir sonlandırma bildirdiğinde tetiklenir."
       restart: "Container yeniden başlatıldı"
       restart-desc: "Varsayılan olarak kapalı — tek başına gürültülü; Cloud bunu döngü tespiti için de kullanır."
+      disk: "Bir bağlamada disk alanı azalıyor"
+      disk-desc: "Bağlı bir birim %85 doluluğu aştığında tetiklenir."
     create-alerts: "Seçili sinyalleri aç"
     later: "Bunu daha sonra yapacağım"
 cloud-search:

@@ -48,9 +48,24 @@ type NotificationLog struct {
 
 // NotificationStat represents container resource metrics for metric-based alerts
 type NotificationStat struct {
-	CPUPercent    float64 `json:"cpu" expr:"cpu"`
-	MemoryPercent float64 `json:"memory" expr:"memory"`
-	MemoryUsage   float64 `json:"memoryUsage" expr:"memoryUsage"`
+	CPUPercent    float64             `json:"cpu" expr:"cpu"`
+	MemoryPercent float64             `json:"memory" expr:"memory"`
+	MemoryUsage   float64             `json:"memoryUsage" expr:"memoryUsage"`
+	Mounts        []NotificationMount `json:"mounts,omitempty" expr:"mounts"`
+}
+
+// NotificationMount represents a single container mount's free-space stats,
+// exposed to metric expressions via the `mounts` field (e.g. `any(mounts, .usedPercent >= 85)`).
+// Only mounts where free-space reporting succeeded (Available == true on the source MountStat)
+// are included — mounts that can't be measured (Windows volumes, permission errors) are skipped
+// so they never trigger or suppress an alert spuriously.
+type NotificationMount struct {
+	Destination    string  `json:"destination" expr:"destination"`
+	TotalBytes     uint64  `json:"totalBytes" expr:"totalBytes"`
+	FreeBytes      uint64  `json:"freeBytes" expr:"freeBytes"`
+	UsedBytes      uint64  `json:"usedBytes" expr:"usedBytes"`
+	UsedPercent    float64 `json:"usedPercent" expr:"usedPercent"`
+	AvailableBytes uint64  `json:"availableBytes" expr:"availableBytes"` // alias of FreeBytes for expression ergonomics
 }
 
 // NotificationEvent represents a Docker container lifecycle event for event-based alerts

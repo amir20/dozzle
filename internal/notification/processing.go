@@ -118,6 +118,7 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 		CPUPercent:    event.Stat.CPUPercent,
 		MemoryPercent: event.Stat.MemoryPercent,
 		MemoryUsage:   event.Stat.MemoryUsage,
+		Mounts:        FromContainerMounts(event.Container),
 	}
 
 	notificationContainer := FromContainerModel(event.Container, event.Host)

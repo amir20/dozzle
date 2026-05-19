@@ -344,6 +344,8 @@ cloud:
       oom-desc: "Se déclenche quand Docker signale un kill par manque de mémoire."
       restart: "Conteneur redémarré"
       restart-desc: "Désactivé par défaut — bruyant seul ; Cloud l'utilise aussi pour détecter les boucles."
+      disk: "Espace disque faible sur un volume"
+      disk-desc: "Se déclenche quand un volume monté est rempli à plus de 85%."
     create-alerts: "Activer les signaux sélectionnés"
     later: "Je ferai ça plus tard"
 cloud-search:

@@ -110,10 +110,12 @@ const chipOptions = [
   { value: "something_else", label: t("cloud.welcome.chip-other") },
 ];
 
-type SignalKey = "exited" | "unhealthy" | "oom" | "restart";
+type SignalKey = "exited" | "unhealthy" | "oom" | "restart" | "disk";
+type SignalKind = "event" | "metric";
 
 interface SignalDef {
   key: SignalKey;
+  kind: SignalKind;
   label: string;
   description: string;
   // ruleName is intentionally English/stable so the rule stays recognizable
@@ -126,6 +128,7 @@ interface SignalDef {
 const signals = computed<SignalDef[]>(() => [
   {
     key: "exited",
+    kind: "event",
     label: t("cloud.welcome.signals.exited"),
     description: t("cloud.welcome.signals.exited-desc"),
     ruleName: "Container exited with an error",
@@ -134,6 +137,7 @@ const signals = computed<SignalDef[]>(() => [
   },
   {
     key: "unhealthy",
+    kind: "event",
     label: t("cloud.welcome.signals.unhealthy"),
     description: t("cloud.welcome.signals.unhealthy-desc"),
     ruleName: "Container became unhealthy",
@@ -142,6 +146,7 @@ const signals = computed<SignalDef[]>(() => [
   },
   {
     key: "oom",
+    kind: "event",
     label: t("cloud.welcome.signals.oom"),
     description: t("cloud.welcome.signals.oom-desc"),
     ruleName: "Container killed (OOM)",
@@ -150,11 +155,21 @@ const signals = computed<SignalDef[]>(() => [
   },
   {
     key: "restart",
+    kind: "event",
     label: t("cloud.welcome.signals.restart"),
     description: t("cloud.welcome.signals.restart-desc"),
     ruleName: "Container restarted",
     expression: 'name == "restart"',
     defaultOn: false,
+  },
+  {
+    key: "disk",
+    kind: "metric",
+    label: t("cloud.welcome.signals.disk"),
+    description: t("cloud.welcome.signals.disk-desc"),
+    ruleName: "Volume running out of space",
+    expression: "any(mounts, .usedPercent >= 85)",
+    defaultOn: true,
   },
 ]);
 
@@ -241,10 +256,12 @@ async function createDefaultAlerts() {
             dispatcherId: cloud.id,
             logExpression: "",
             containerExpression: "true",
-            eventExpression: signal.expression,
-            metricExpression: "",
-            cooldown: 0,
-            sampleWindow: 0,
+            eventExpression: signal.kind === "event" ? signal.expression : "",
+            metricExpression: signal.kind === "metric" ? signal.expression : "",
+            // Metric alerts: don't re-fire more than once an hour per container,
+            // and require the threshold to hold for the default sample window.
+            cooldown: signal.kind === "metric" ? 3600 : 0,
+            sampleWindow: signal.kind === "metric" ? 60 : 0,
           }),
         }).then((res) => {
           if (!res.ok) throw new Error("rule POST failed");

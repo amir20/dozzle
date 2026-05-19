@@ -372,5 +372,7 @@ cloud:
       oom-desc: "Se dispara cuando Docker reporta un kill por falta de memoria."
       restart: "Contenedor reiniciado"
       restart-desc: "Desactivado por defecto — ruidoso por sí solo; Cloud también lo usa para detectar bucles."
+      disk: "Espacio en disco bajo en algún volumen"
+      disk-desc: "Se dispara cuando algún volumen montado supera el 85% de uso."
     create-alerts: "Activar señales seleccionadas"
     later: "Lo haré después"

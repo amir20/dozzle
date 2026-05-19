@@ -112,7 +112,7 @@ func (m *MockedClientService) UpdateContainer(ctx context.Context, c container.C
 var wantedContainer = container.Container{}
 
 func init() {
-	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats", "MountStats"))
+	faker.FakeData(&wantedContainer, options.WithFieldsToIgnore("Stats", "MountStats", "Ports"))
 	wantedContainer.FinishedAt = wantedContainer.FinishedAt.UTC()
 	wantedContainer.Created = wantedContainer.Created.UTC()
 	wantedContainer.StartedAt = wantedContainer.StartedAt.UTC()
