@@ -199,6 +199,7 @@ declare module 'vue' {
     ToastModal: typeof import('./components/common/ToastModal.vue')['default']
     Toggle: typeof import('./components/common/Toggle.vue')['default']
     ViewerWithSource: typeof import('./components/LogViewer/ViewerWithSource.vue')['default']
+    VolumeWarning: typeof import('./components/ContainerViewer/VolumeWarning.vue')['default']
     WebhookDestinationForm: typeof import('./components/Notification/WebhookDestinationForm.vue')['default']
     WelcomeModal: typeof import('./components/WelcomeModal.vue')['default']
     ZigZag: typeof import('./components/LogViewer/ZigZag.vue')['default']

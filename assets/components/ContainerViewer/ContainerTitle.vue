@@ -42,6 +42,7 @@
       </div>
     </div>
     <ContainerHealth :health="container.health" v-if="container.health" />
+    <VolumeWarning :container="container" />
     <Tag class="hidden! font-mono @xl:block!" size="small">
       {{ container.image.replace(/@sha.*/, "") }}
     </Tag>
