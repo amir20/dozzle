@@ -31,10 +31,34 @@ type Container struct {
 	Group         string                           `json:"group,omitempty"`
 	Env           []string                         `json:"-"`
 	Ports         []string                         `json:"-"`
-	Mounts        []string                         `json:"-"`
+	Mounts        []Mount                          `json:"mounts,omitempty"`
+	MountStats    map[string]MountStat             `json:"mountStats,omitempty"`
 	RestartPolicy string                           `json:"-"`
 	NetworkMode   string                           `json:"-"`
 	FullyLoaded   bool                             `json:"-"`
+}
+
+// Mount represents a container mount point
+type Mount struct {
+	Type        string `json:"type"`
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	RW          bool   `json:"rw"`
+}
+
+// String returns a display form for legacy consumers.
+func (m Mount) String() string {
+	return fmt.Sprintf("%s:%s (%s)", m.Source, m.Destination, m.Type)
+}
+
+// MountStat carries free-space information for a single mount point.
+type MountStat struct {
+	Destination string    `json:"destination"`
+	Total       uint64    `json:"total"`
+	Free        uint64    `json:"free"`
+	Used        uint64    `json:"used"`
+	Available   bool      `json:"available"`
+	LastChecked time.Time `json:"lastChecked"`
 }
 
 func (container Container) ToProto() pb.Container {
@@ -47,6 +71,30 @@ func (container Container) ToProto() pb.Container {
 			MemoryUsage:    stat.MemoryUsage,
 			NetworkRxTotal: stat.NetworkRxTotal,
 			NetworkTxTotal: stat.NetworkTxTotal,
+			DiskReadTotal:  stat.DiskReadTotal,
+			DiskWriteTotal: stat.DiskWriteTotal,
+		})
+	}
+
+	pbMounts := make([]*pb.Mount, 0, len(container.Mounts))
+	for _, m := range container.Mounts {
+		pbMounts = append(pbMounts, &pb.Mount{
+			Type:        m.Type,
+			Source:      m.Source,
+			Destination: m.Destination,
+			Rw:          m.RW,
+		})
+	}
+
+	pbMountStats := make([]*pb.MountStat, 0, len(container.MountStats))
+	for _, ms := range container.MountStats {
+		pbMountStats = append(pbMountStats, &pb.MountStat{
+			Destination: ms.Destination,
+			Total:       ms.Total,
+			Free:        ms.Free,
+			Used:        ms.Used,
+			Available:   ms.Available,
+			LastChecked: timestamppb.New(ms.LastChecked),
 		})
 	}
 
@@ -70,7 +118,8 @@ func (container Container) ToProto() pb.Container {
 		FullyLoaded:   container.FullyLoaded,
 		Env:           container.Env,
 		Ports:         container.Ports,
-		Mounts:        container.Mounts,
+		Mounts:        pbMounts,
+		MountStats:    pbMountStats,
 		RestartPolicy: container.RestartPolicy,
 		NetworkMode:   container.NetworkMode,
 	}
@@ -86,6 +135,8 @@ func FromProto(c *pb.Container) Container {
 			MemoryUsage:    stat.MemoryUsage,
 			NetworkRxTotal: stat.NetworkRxTotal,
 			NetworkTxTotal: stat.NetworkTxTotal,
+			DiskReadTotal:  stat.DiskReadTotal,
+			DiskWriteTotal: stat.DiskWriteTotal,
 		})
 	}
 
@@ -97,6 +148,31 @@ func FromProto(c *pb.Container) Container {
 	env := c.Env
 	if env == nil {
 		env = []string{}
+	}
+
+	mounts := make([]Mount, 0, len(c.Mounts))
+	for _, m := range c.Mounts {
+		mounts = append(mounts, Mount{
+			Type:        m.Type,
+			Source:      m.Source,
+			Destination: m.Destination,
+			RW:          m.Rw,
+		})
+	}
+
+	var mountStats map[string]MountStat
+	if len(c.MountStats) > 0 {
+		mountStats = make(map[string]MountStat, len(c.MountStats))
+		for _, ms := range c.MountStats {
+			mountStats[ms.Destination] = MountStat{
+				Destination: ms.Destination,
+				Total:       ms.Total,
+				Free:        ms.Free,
+				Used:        ms.Used,
+				Available:   ms.Available,
+				LastChecked: ms.LastChecked.AsTime(),
+			}
+		}
 	}
 
 	return Container{
@@ -119,7 +195,8 @@ func FromProto(c *pb.Container) Container {
 		FullyLoaded:   c.FullyLoaded,
 		Env:           env,
 		Ports:         c.Ports,
-		Mounts:        c.Mounts,
+		Mounts:        mounts,
+		MountStats:    mountStats,
 		RestartPolicy: c.RestartPolicy,
 		NetworkMode:   c.NetworkMode,
 	}
@@ -133,6 +210,8 @@ type ContainerStat struct {
 	MemoryUsage    float64 `json:"memoryUsage"`
 	NetworkRxTotal uint64  `json:"networkRxTotal"`
 	NetworkTxTotal uint64  `json:"networkTxTotal"`
+	DiskReadTotal  uint64  `json:"diskReadTotal"`
+	DiskWriteTotal uint64  `json:"diskWriteTotal"`
 }
 
 // ContainerEvent represents events that are triggered

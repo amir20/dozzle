@@ -172,15 +172,18 @@ func (s *server) StreamEvents(in *pb.StreamEventsRequest, out pb.AgentService_St
 	for {
 		select {
 		case event := <-events:
-			out.Send(&pb.StreamEventsResponse{
-				Event: &pb.ContainerEvent{
-					ActorId:         event.ActorID,
-					Name:            event.Name,
-					Host:            event.Host,
-					Timestamp:       timestamppb.New(event.Time),
-					ActorAttributes: event.ActorAttributes,
-				},
-			})
+			pbEvent := &pb.ContainerEvent{
+				ActorId:         event.ActorID,
+				Name:            event.Name,
+				Host:            event.Host,
+				Timestamp:       timestamppb.New(event.Time),
+				ActorAttributes: event.ActorAttributes,
+			}
+			if event.Container != nil {
+				proto := event.Container.ToProto()
+				pbEvent.Container = &proto
+			}
+			out.Send(&pb.StreamEventsResponse{Event: pbEvent})
 		case <-out.Context().Done():
 			return nil
 		}
@@ -203,6 +206,8 @@ func (s *server) StreamStats(in *pb.StreamStatsRequest, out pb.AgentService_Stre
 					MemoryUsage:    stat.MemoryUsage,
 					NetworkRxTotal: stat.NetworkRxTotal,
 					NetworkTxTotal: stat.NetworkTxTotal,
+					DiskReadTotal:  stat.DiskReadTotal,
+					DiskWriteTotal: stat.DiskWriteTotal,
 				},
 			})
 		case <-out.Context().Done():

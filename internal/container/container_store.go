@@ -25,6 +25,7 @@ type ContainerStore struct {
 	newContainerSubscribers *xsync.Map[context.Context, chan<- Container]
 	client                  Client
 	statsCollector          StatsCollector
+	volumeMonitor           *volumeMonitor
 	wg                      sync.WaitGroup
 	connected               atomic.Bool
 	events                  chan ContainerEvent
@@ -48,12 +49,46 @@ func NewContainerStore(ctx context.Context, client Client, statsCollect StatsCol
 		ctx:                     ctx,
 		labels:                  labels,
 	}
+	s.volumeMonitor = newVolumeMonitor(s)
+	s.volumeMonitor.start(ctx)
 
 	s.wg.Add(1)
 
 	go s.init()
 
 	return s
+}
+
+// applyMountStats updates a container's MountStats and broadcasts an "update"
+// event so subscribers (SSE) can propagate the new data to clients.
+func (s *ContainerStore) applyMountStats(id string, stats map[string]MountStat) {
+	updated, ok := s.containers.Compute(id, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+		if !loaded {
+			return c, xsync.CancelOp
+		}
+		copy := *c
+		copy.MountStats = stats
+		return &copy, xsync.UpdateOp
+	})
+	if !ok || updated == nil {
+		return
+	}
+
+	event := ContainerEvent{
+		Name:      "update",
+		Host:      updated.Host,
+		ActorID:   updated.ID,
+		Time:      time.Now(),
+		Container: updated,
+	}
+	s.subscribers.Range(func(ctx context.Context, events chan<- ContainerEvent) bool {
+		select {
+		case events <- event:
+		case <-ctx.Done():
+			s.subscribers.Delete(ctx)
+		}
+		return true
+	})
 }
 
 var (
@@ -419,6 +454,7 @@ func (s *ContainerStore) init() {
 
 		case stat := <-stats:
 			if container, ok := s.containers.Load(stat.ID); ok {
+				s.volumeMonitor.observe(container, stat)
 				stat.ID = ""
 				container.Stats.Push(stat)
 			}

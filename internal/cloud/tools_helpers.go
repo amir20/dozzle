@@ -55,6 +55,14 @@ func containerToProto(c container.Container, hostNames map[string]string) *pb.Co
 	}
 }
 
+func mountStrings(mounts []container.Mount) []string {
+	out := make([]string, 0, len(mounts))
+	for _, m := range mounts {
+		out = append(out, m.String())
+	}
+	return out
+}
+
 func formatTimeOrEmpty(t time.Time) string {
 	if t.IsZero() {
 		return ""

@@ -90,6 +90,9 @@ export const useContainerStore = defineStore("container", () => {
         existing.health = container.health;
         existing.startedAt = new Date(container.startedAt);
         existing.finishedAt = new Date(container.finishedAt);
+        if (container.mountStats) {
+          existing.updateMountStats(container.mountStats);
+        }
       }
     });
 

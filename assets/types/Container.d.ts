@@ -5,6 +5,24 @@ export interface ContainerStat {
   readonly memoryUsage: number;
   readonly networkRxTotal: number;
   readonly networkTxTotal: number;
+  readonly diskReadTotal: number;
+  readonly diskWriteTotal: number;
+}
+
+export interface ContainerMount {
+  readonly type: string;
+  readonly source: string;
+  readonly destination: string;
+  readonly rw: boolean;
+}
+
+export interface MountStat {
+  readonly destination: string;
+  readonly total: number;
+  readonly free: number;
+  readonly used: number;
+  readonly available: boolean;
+  readonly lastChecked: string;
 }
 
 export type ContainerJson = {
@@ -22,6 +40,8 @@ export type ContainerJson = {
   readonly memoryLimit: number;
   readonly labels: Record<string, string>;
   readonly stats: ContainerStat[];
+  readonly mounts?: ContainerMount[];
+  readonly mountStats?: Record<string, MountStat>;
   readonly health?: ContainerHealth;
   readonly group?: string;
 };

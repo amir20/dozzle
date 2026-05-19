@@ -29,9 +29,10 @@ message Container {
   bool fullyLoaded = 19;
   repeated string env = 20;
   repeated string ports = 21;
-  repeated string mounts = 22;
+  repeated Mount mounts = 22;
   string restartPolicy = 23;
   string networkMode = 24;
+  repeated MountStat mountStats = 25;
 }
 
 message ContainerStat {
@@ -41,6 +42,24 @@ message ContainerStat {
   double memoryPercent = 4;
   uint64 networkRxTotal = 5;
   uint64 networkTxTotal = 6;
+  uint64 diskReadTotal = 7;
+  uint64 diskWriteTotal = 8;
+}
+
+message Mount {
+  string type = 1;
+  string source = 2;
+  string destination = 3;
+  bool rw = 4;
+}
+
+message MountStat {
+  string destination = 1;
+  uint64 total = 2;
+  uint64 free = 3;
+  uint64 used = 4;
+  bool available = 5;
+  google.protobuf.Timestamp lastChecked = 6;
 }
 
 message LogFragment {
@@ -76,6 +95,7 @@ message ContainerEvent {
   string host = 3;
   google.protobuf.Timestamp timestamp = 4;
   map<string, string> actorAttributes = 5;
+  Container container = 6;
 }
 
 message Host {
