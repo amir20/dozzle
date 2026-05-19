@@ -1,19 +1,17 @@
 <template>
   <div class="card bg-base-100">
-    <div class="card-body flex gap-2 max-md:p-4">
-      <div class="flex flex-row gap-2 overflow-hidden">
-        <div class="flex items-center gap-1 truncate text-xl font-semibold">
-          <HostIcon :type="host.type" class="flex-none" />
-          <div class="truncate">
-            {{ host.name }}
-          </div>
+    <div class="card-body flex gap-3 max-md:p-4">
+      <div class="flex flex-row items-center gap-3 overflow-hidden">
+        <div class="flex min-w-0 items-center gap-2 text-lg font-semibold tracking-tight md:text-xl">
+          <HostIcon :type="host.type" class="text-base-content/80 flex-none" />
+          <div class="truncate">{{ host.name }}</div>
 
-          <span class="badge badge-error badge-xs gap-2 p-2" v-if="!host.available">
+          <span class="badge badge-error badge-xs gap-1 p-2 font-normal" v-if="!host.available">
             <carbon:warning />
             offline
           </span>
           <span
-            class="badge badge-success badge-xs gap-2 p-2"
+            class="badge badge-success badge-xs gap-1 p-2 font-normal"
             :class="{ 'badge-warning': config.version != host.agentVersion }"
             v-else-if="host.type == 'agent'"
             title="Dozzle Agent"
@@ -21,12 +19,19 @@
             {{ host.agentVersion }}
           </span>
         </div>
-        <ul class="ml-auto flex flex-row flex-wrap gap-x-2 text-sm max-md:text-xs md:gap-3">
-          <li class="flex items-center gap-1">
-            <octicon:container-24 class="inline-block" />
+
+        <ul
+          class="text-base-content/60 ml-auto flex shrink-0 flex-row flex-wrap items-center gap-x-3 text-xs tabular-nums md:text-sm"
+        >
+          <li class="flex items-center gap-1.5">
+            <octicon:container-24 class="size-3.5" />
             {{ $t("label.container", hostContainers.length) }}
           </li>
-          <li class="flex items-center gap-1"><mdi:docker class="inline-block" /> {{ host.dockerVersion }}</li>
+          <li class="flex items-center gap-1.5" :title="runtimeLabel">
+            <simple-icons:podman v-if="host.runtime === 'podman'" class="size-3.5" />
+            <mdi:docker v-else class="size-3.5" />
+            {{ host.dockerVersion }}
+          </li>
         </ul>
       </div>
 
@@ -77,6 +82,8 @@ const { containers } = storeToRefs(containerStore) as unknown as {
 const hostContainers = computed(() =>
   containers.value.filter((container) => container.host === props.host.id && container.state === "running"),
 );
+
+const runtimeLabel = computed(() => (props.host.runtime === "podman" ? "Podman" : "Docker"));
 
 function toContainerCores(container: Container): number {
   if (container.cpuLimit && container.cpuLimit > 0) {
