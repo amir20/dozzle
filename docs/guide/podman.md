@@ -27,11 +27,11 @@ Podman offers several launch approaches:
 
 ---
 
-# Standalone Mode
+# <Icon icon="mdi:monitor-dashboard" inline /> Standalone Mode
 
 Run Dozzle as a standalone service to monitor local Podman containers.
 
-## Rootful Setup
+## <Icon icon="mdi:shield-account-outline" inline /> Rootful Setup
 
 For system-wide Podman daemon:
 
@@ -46,7 +46,7 @@ podman run -v /run/podman/podman.sock:/var/run/docker.sock:ro \
   ghcr.io/amir20/dozzle:latest
 ```
 
-## Rootless Setup
+## <Icon icon="mdi:account-outline" inline /> Rootless Setup
 
 Rootless Podman isolates containers to a user namespace:
 
@@ -63,7 +63,7 @@ podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock
 
 **Important**: A Dozzle bound to one user's rootless socket only sees that user's containers. Other users' rootless containers live in separate namespaces and won't appear.
 
-## Quadlet Deployment
+## <Icon icon="mdi:rocket-launch-outline" inline /> Quadlet Deployment
 
 Quadlet enables systemd-native container management. Create a `.container` file at `~/.config/containers/systemd/dozzle.container`:
 
@@ -105,11 +105,11 @@ For multi-user systems, drop the same file into each user's `~/.config/container
 
 ---
 
-# Agent Mode
+# <Icon icon="mdi:lan-connect" inline /> Agent Mode
 
 Run Dozzle as an agent on remote Podman hosts for centralized monitoring via a main Dozzle server. Agents communicate with the main server via gRPC.
 
-## Agent Setup
+## <Icon icon="mdi:cog-outline" inline /> Agent Setup
 
 ### Prerequisites
 
@@ -181,11 +181,11 @@ systemctl --user start dozzle-agent.service
 
 ---
 
-# Main Server with Remote Agents
+# <Icon icon="mdi:server-network" inline /> Main Server with Remote Agents
 
 Configure the main Dozzle server to connect to agents on remote Podman hosts.
 
-## Server Configuration
+## <Icon icon="mdi:cog" inline /> Server Configuration
 
 Run the main Dozzle server with agent endpoints:
 
@@ -240,7 +240,7 @@ WantedBy=default.target
 
 ---
 
-# Additional Configuration
+# <Icon icon="mdi:tune" inline /> Additional Configuration
 
 ## <Icon icon="mdi:identifier" inline /> Engine-ID Setup
 
@@ -279,7 +279,7 @@ cat /var/lib/docker/engine-id
 
 > [!WARNING] Clean up existing Dozzle deployments (stop container, remove volumes) before recreating with the engine-id in place.
 
-## FAQ
+## <Icon icon="mdi:help-circle-outline" inline /> FAQ
 
 ### Memory Stats Missing in Rootless Mode
 
