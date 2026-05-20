@@ -4,31 +4,30 @@ title: Podman
 
 # Podman
 
-Dozzle supports Podman through its Docker-compatible socket interface. However, Podman is not 100% compatible with Docker, key differences include memory stats reporting (especially in rootless/Quadlet deployments) and the lack of automatic engine-id generation. This guide covers both Web GUI mode (standalone, local monitoring) and Agent mode (remote monitoring via a central Dozzle server), with notes on these compatibility considerations.
+Dozzle supports Podman through its Docker-compatible socket interface. Two known differences from Docker that affect setup: memory stats are often missing in rootless/Quadlet deployments (cgroup delegation), and Podman doesn't generate an engine-id. This guide covers standalone mode (local monitoring) and agent mode (remote monitoring via a central Dozzle server).
 
 ## Deployment Options
 
-| Mode | Use Case | Setup Complexity |
-|------|----------|------------------|
-| **Web GUI** | Single host log viewing | Simple |
-| **Agent** | Multi-host centralized monitoring | Moderate |
+| Mode           | Use Case                          | Setup Complexity |
+| -------------- | --------------------------------- | ---------------- |
+| **Standalone** | Single host log viewing           | Simple           |
+| **Agent**      | Multi-host centralized monitoring | Moderate         |
 
 ### Deployment Methods
 
 Podman offers several launch approaches:
 
-| Method | Auto-start | Memory Stats | Healthchecks | Best For |
-|--------|-----------|---------|------------|----------|
-| CLI | Manual | ✓ | ✓ | Development |
-| `podman-compose` | ✗ | ✓ | ✗* | Testing |
-| Quadlet (systemd) | ✓ | ✗** | ✓ | Production |
+| Method            | Auto-start | Memory Stats | Healthchecks | Best For    |
+| ----------------- | ---------- | ------------ | ------------ | ----------- |
+| CLI               | Manual     | ✓            | ✓            | Development |
+| `podman-compose`  | ✗          | ✓            | ✗            | Testing     |
+| Quadlet (systemd) | ✓          | ✗\*          | ✓            | Production  |
 
-*Note: Healthchecks reported incorrectly; manual runs succeed  
-**Memory stats typically unavailable due to cgroups v2 delegation in rootless mode
+\*Memory stats are typically unavailable in rootless mode unless cgroup v2 memory delegation is enabled. See the FAQ at the bottom of this page.
 
 ---
 
-# Web GUI Mode
+# Standalone Mode
 
 Run Dozzle as a standalone service to monitor local Podman containers.
 
@@ -62,43 +61,24 @@ podman run -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock
   ghcr.io/amir20/dozzle:latest
 ```
 
-**Important**: Rootless mode can only access containers in the same user namespace. Root cannot see containers of other users.
+**Important**: A Dozzle bound to one user's rootless socket only sees that user's containers. Other users' rootless containers live in separate namespaces and won't appear.
 
-## Per-User Namespace Deployment
+## Quadlet Deployment
 
-For multi-user systems, run a separate Dozzle instance per user namespace. Each instance monitors only that user's containers with dedicated ports:
-
-```bash
-# For user 'appuser' - runs on port 3000
-sudo -u appuser podman run -d \
-  --name dozzle-appuser \
-  -v /run/user/$(id -u appuser)/podman/podman.sock:/var/run/docker.sock:ro \
-  -p 3000:8080 \
-  ghcr.io/amir20/dozzle:latest
-
-# For user 'webuser' - runs on port 3001
-sudo -u webuser podman run -d \
-  --name dozzle-webuser \
-  -v /run/user/$(id -u webuser)/podman/podman.sock:/var/run/docker.sock:ro \
-  -p 3001:8080 \
-  ghcr.io/amir20/dozzle:latest
-```
-
-Or with Quadlet, create per-user `.container` files:
+Quadlet enables systemd-native container management. Create a `.container` file at `~/.config/containers/systemd/dozzle.container`:
 
 ```ini
-# ~/.config/containers/systemd/dozzle.container (for each user)
 [Unit]
-Description=Dozzle Log Viewer for %u
+Description=Dozzle Log Viewer
 After=network-online.target
 Wants=network-online.target
 
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
-Ports=3000:8080
-Volumes=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+PublishPort=3000:8080
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
 
-HealthCmd=CMD /dozzle healthcheck
+HealthCmd=/dozzle healthcheck
 HealthInterval=5s
 HealthTimeout=10s
 HealthRetries=5
@@ -112,47 +92,16 @@ RestartSec=10
 WantedBy=default.target
 ```
 
-This approach ensures each user only sees and manages their own containers, with no cross-namespace visibility issues.
-
-## Quadlet Deployment (Web GUI)
-
-Quadlet enables systemd-native container management. Create a `.container` file in `~/.config/containers/systemd/`:
-
-```ini
-# dozzle.container
-[Unit]
-Description=Dozzle Log Viewer
-After=network-online.target
-Wants=network-online.target
-
-[Container]
-Image=ghcr.io/amir20/dozzle:latest
-Ports=3000:8080
-Volumes=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
-
-HealthCmd=CMD /dozzle healthcheck
-HealthInterval=5s
-HealthTimeout=10s
-HealthRetries=5
-HealthStartPeriod=15s
-
-[Service]
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target default.target
-```
-
 Enable and start:
 
 ```bash
 systemctl --user daemon-reload
-systemctl --user enable dozzle.service
-systemctl --user start dozzle.service
+systemctl --user enable --now dozzle.service
 ```
 
-> [!NOTE] Quadlet generates healthcheck as a systemd timer. Healthchecks don't run automatically with `podman-compose`; use `podman healthcheck run` manually if needed.
+For multi-user systems, drop the same file into each user's `~/.config/containers/systemd/` and pick a distinct host port per user (e.g. `PublishPort=3001:8080`). Each instance only sees that user's rootless containers.
+
+> [!NOTE] Quadlet generates a systemd timer for healthchecks. `podman-compose` does not, so healthchecks won't run on a schedule there; trigger them manually with `podman healthcheck run <container>` if needed.
 
 ---
 
@@ -202,11 +151,11 @@ Wants=network-online.target
 
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
-Ports=7007:7007
-Volumes=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
-Entrypoint=agent
+PublishPort=7007:7007
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro
+Exec=agent
 
-HealthCmd=CMD /dozzle healthcheck
+HealthCmd=/dozzle healthcheck
 HealthInterval=5s
 HealthTimeout=10s
 HealthRetries=5
@@ -219,6 +168,8 @@ RestartSec=10
 [Install]
 WantedBy=default.target
 ```
+
+> [!NOTE] The Dozzle image's entrypoint is `/dozzle`, so `agent` goes in `Exec=` (the command), not `Entrypoint=`.
 
 Enable and start:
 
@@ -252,7 +203,7 @@ Or with environment variables:
 ```bash
 podman run -d \
   --name dozzle \
-  -e DOZZLE_AGENT_FILTER="host1.example.com:7007,host2.example.com:7007" \
+  -e DOZZLE_REMOTE_AGENT="host1.example.com:7007,host2.example.com:7007" \
   -p 3000:8080 \
   ghcr.io/amir20/dozzle:latest
 ```
@@ -268,13 +219,10 @@ Wants=network-online.target
 
 [Container]
 Image=ghcr.io/amir20/dozzle:latest
-Ports=3000:8080
+PublishPort=3000:8080
+Environment=DOZZLE_REMOTE_AGENT=host1.example.com:7007,host2.example.com:7007
 
-# Agent endpoints
-Exec=--agent host1.example.com:7007 \
-     --agent host2.example.com:7007
-
-HealthCmd=CMD /dozzle healthcheck
+HealthCmd=/dozzle healthcheck
 HealthInterval=5s
 HealthTimeout=10s
 HealthRetries=5
@@ -285,8 +233,10 @@ Restart=on-failure
 RestartSec=10
 
 [Install]
-WantedBy=multi-user.target default.target
+WantedBy=default.target
 ```
+
+> [!NOTE] `WantedBy=multi-user.target` only applies to system units. For `systemctl --user` units, use `default.target`.
 
 ---
 
@@ -331,26 +281,26 @@ cat /var/lib/docker/engine-id
 
 ## FAQ
 
-### Memory Stats Missing with Quadlet
+### Memory Stats Missing in Rootless Mode
 
-Memory stats typically unavailable in rootless Quadlet deployments due to cgroups v2 delegation. Check if memory is delegated:
+Memory stats are usually missing in rootless deployments because the `memory` cgroup controller isn't delegated to the user slice by default. Check what's delegated:
 
 ```bash
-# For rootless, check user slice controllers
 cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/cgroup.controllers
-
-# Memory must be in the output (e.g., "cpuset cpu.max io memory...")
-systemctl --user status
 ```
 
-If `memory` isn't listed, configure cgroup delegation in `/etc/systemd/system.conf`:
+If `memory` is not in the output, enable delegation via a drop-in:
 
-```ini
-DefaultCgroupsMode=unified
-DefaultMemoryAccounting=yes
+```bash
+sudo mkdir -p /etc/systemd/system/user@.service.d
+sudo tee /etc/systemd/system/user@.service.d/delegate.conf <<'EOF'
+[Service]
+Delegate=cpu cpuset io memory pids
+EOF
+sudo systemctl daemon-reload
 ```
 
-Then reboot.
+Then log out and back in (or reboot) for the user slice to pick up the new delegation. See the [Podman rootless tutorial](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) for details.
 
 ### Healthchecks Reported as Unhealthy
 
@@ -363,14 +313,13 @@ Workaround with `podman-compose`:
 podman healthcheck run <container_id>
 ```
 
-**Quadlet**: Use the correct format in `.container` files:
+**Quadlet**: `HealthCmd=` takes a plain command line, not the Docker `CMD [...]` JSON form:
 
 ```ini
-HealthCmd=CMD /dozzle healthcheck
-# NOT: HealthCmd=CMD ["executable", "param1", "param2"]
+HealthCmd=/dozzle healthcheck
 ```
 
-Older `podman-compose` (< 1.5.0) runs all healthchecks with `sh`, which may not exist in the Dozzle image. Update to the latest version.
+Older `podman-compose` (< 1.5.0) runs all healthchecks via `sh`, which doesn't exist in the Dozzle image. Update to a current version.
 
 ### Cross-user Container Visibility
 
