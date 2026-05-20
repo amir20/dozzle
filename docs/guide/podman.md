@@ -101,7 +101,7 @@ systemctl --user enable --now dozzle.service
 
 For multi-user systems, drop the same file into each user's `~/.config/containers/systemd/` and pick a distinct host port per user (e.g. `PublishPort=3001:8080`). Each instance only sees that user's rootless containers.
 
-> [!NOTE] Quadlet generates a systemd timer for healthchecks. `podman-compose` does not, so healthchecks won't run on a schedule there; trigger them manually with `podman healthcheck run <container>` if needed.
+> [!NOTE] Quadlet generates a systemd timer for healthchecks. `podman-compose` does not, so healthchecks won't run on a schedule there; trigger them manually with `podman healthcheck run NAME` if needed.
 
 ---
 
