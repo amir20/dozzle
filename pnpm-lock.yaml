@@ -171,6 +171,9 @@ importers:
       '@iconify-json/ri':
         specifier: ^1.2.10
         version: 1.2.10
+      '@iconify-json/simple-icons':
+        specifier: ^1.2.81
+        version: 1.2.81
       '@iconify-json/svg-spinners':
         specifier: ^1.2.4
         version: 1.2.4
