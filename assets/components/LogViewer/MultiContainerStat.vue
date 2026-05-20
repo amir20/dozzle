@@ -15,7 +15,7 @@
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
-          <span class="font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(2) }}% </span>
+          <span class="font-semibold"> {{ Math.max(0, hoveredValue ?? totalStat.cpu).toFixed(1) }}% </span>
           <span class="text-base-content/60 max-md:hidden"> / {{ roundCPU(limits.cpu) }} CPU</span>
         </span>
       </template>
@@ -34,7 +34,9 @@
     >
       <template #value="{ hoveredValue }">
         <span class="tabular-nums">
-          <span class="font-semibold">{{ formatBytes(hoveredValue ?? totalStat.memoryUsage) }}</span>
+          <span class="font-semibold">{{
+            formatBytes(hoveredValue ?? totalStat.memoryUsage, { short: true, decimals: 1 })
+          }}</span>
           <span class="text-base-content/60 max-md:hidden">
             / {{ formatBytes(limits.memory, { short: true, decimals: 1 }) }}</span
           >

@@ -7,6 +7,7 @@ export type Host = {
   endpoint: string;
   available: boolean;
   dockerVersion: string;
+  runtime?: "docker" | "podman";
   agentVersion: string;
   group?: string;
 };

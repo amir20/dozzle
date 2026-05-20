@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-lg border p-2 md:p-3" :class="containerClass">
+  <div class="rounded-lg p-2 md:p-3" :class="containerClass">
     <div class="mb-2 flex items-center gap-1.5 text-sm font-medium" :class="textClass">
       <component :is="icon" class="text-lg" />
       <span>{{ label }}</span>
