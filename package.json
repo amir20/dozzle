@@ -59,7 +59,7 @@
     "@xterm/xterm": "^6.0.0",
     "ansi-to-html": "^0.7.2",
     "codemirror": "^6.0.2",
-    "daisyui": "5.5.19",
+    "daisyui": "5.5.20",
     "entities": "^8.0.0",
     "fuse.js": "^7.3.0",
     "lodash.debounce": "^4.0.8",
@@ -85,13 +85,13 @@
     "@iconify-json/ion": "^1.2.7",
     "@iconify-json/material-symbols-light": "^1.2.73",
     "@iconify-json/ri": "^1.2.10",
-    "@iconify-json/simple-icons": "^1.2.81",
+    "@iconify-json/simple-icons": "^1.2.83",
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.1",
     "@pinia/testing": "^1.0.3",
     "@playwright/test": "^1.60.0",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^25.8.0",
+    "@types/node": "^25.9.0",
     "@vitejs/plugin-vue": "6.0.7",
     "@vue/compiler-sfc": "^3.5.34",
     "@vue/test-utils": "^2.4.10",
@@ -107,8 +107,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6",
-    "vue-component-type-helpers": "3.2.9",
-    "vue-tsc": "3.2.9"
+    "vue-component-type-helpers": "3.3.0",
+    "vue-tsc": "3.3.0"
   },
   "lint-staged": {
     "*.{js,vue,css,ts,html,md}": [
