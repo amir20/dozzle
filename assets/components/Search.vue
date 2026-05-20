@@ -1,12 +1,6 @@
 <template>
   <transition name="slide">
-    <div
-      class="fixed z-50 flex w-full justify-end p-2"
-      v-show="showSearch"
-      v-if="search"
-      ref="container"
-      :style="style"
-    >
+    <div class="fixed z-50 flex w-full justify-end p-2" v-show="showSearch" ref="container" :style="style">
       <div class="input input-primary flex items-center shadow-lg" :class="!isValidQuery ? 'input-warning' : ''">
         <mdi:magnify />
         <input
@@ -40,6 +34,7 @@ const { searchQueryFilter, showSearch, resetSearch, isValidQuery, inverseFilter,
 const { style } = useDraggable(container);
 
 onKeyStroke("f", (e) => {
+  if (!search.value) return;
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
     showSearch.value = true;
     nextTick(() => input.value?.focus() || input.value?.select());
