@@ -3,6 +3,7 @@ package cloud
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"sync"
 	"time"
 
@@ -11,6 +12,33 @@ import (
 	pb "github.com/amir20/dozzle/proto/cloud"
 	"github.com/rs/zerolog/log"
 )
+
+const cloudMinLevelLabel = "dev.dozzle.cloud.min_level"
+
+// cloudLevelRank ranks canonical log levels by severity. Levels not present
+// (e.g. "unknown") rank 0 and always pass through filtering.
+var cloudLevelRank = map[string]int{
+	"trace": 1,
+	"debug": 2,
+	"info":  3,
+	"warn":  4,
+	"error": 5,
+	"fatal": 6,
+}
+
+// parseMinLevel reads the cloudMinLevelLabel value. rank>0 means filter events
+// below that severity. disabled=true means skip the container entirely. An
+// empty or unrecognised value applies no filter.
+func parseMinLevel(v string) (rank int, disabled bool) {
+	v = strings.ToLower(strings.TrimSpace(v))
+	if v == "" {
+		return 0, false
+	}
+	if v == "disabled" {
+		return 0, true
+	}
+	return cloudLevelRank[v], false
+}
 
 // LogStreamHostService is the subset of the host service needed by the log
 // streamer. MultiHostService and K8sClusterService both satisfy it.
@@ -94,6 +122,12 @@ func readerKey(hostID, containerID string) string {
 }
 
 func (ls *logStreamer) startReader(parent context.Context, c container.Container) {
+	minRank, disabled := parseMinLevel(c.Labels[cloudMinLevelLabel])
+	if disabled {
+		log.Debug().Str("container", c.Name).Str("host", c.Host).Msg("log streamer: container disabled via label")
+		return
+	}
+
 	key := readerKey(c.Host, c.ID)
 
 	ls.mu.Lock()
@@ -124,14 +158,14 @@ func (ls *logStreamer) startReader(parent context.Context, c container.Container
 			ls.mu.Unlock()
 			cancel()
 		}()
-		ls.runReader(readerCtx, cs)
+		ls.runReader(readerCtx, cs, minRank)
 	}()
 }
 
 // runReader follows logs from a single container and pushes batches directly
 // to the cloud via ls.send. send() is serialised by the caller, so a slow
 // cloud connection backpressures all readers — this is intentional.
-func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.ContainerService) {
+func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.ContainerService, minRank int) {
 	events := make(chan *container.LogEvent, logReaderChanBuffer)
 
 	streamErr := make(chan error, 1)
@@ -182,6 +216,12 @@ func (ls *logStreamer) runReader(ctx context.Context, cs *container_support.Cont
 					log.Debug().Err(err).Str("container", containerName).Msg("log streamer: StreamLogs ended with error")
 				}
 				return
+			}
+
+			if minRank > 0 {
+				if r := cloudLevelRank[ev.Level]; r > 0 && r < minRank {
+					continue
+				}
 			}
 
 			msg := ev.RawMessage

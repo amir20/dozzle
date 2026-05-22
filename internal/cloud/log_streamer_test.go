@@ -299,6 +299,113 @@ func TestLogStreamer_LevelUnknownIsBlank(t *testing.T) {
 	sendMu.Unlock()
 }
 
+func TestLogStreamer_LabelDisabledSkipsContainer(t *testing.T) {
+	client := newFakeClientService("host-1")
+	hs := &fakeHostService{
+		containers: []container.Container{
+			{
+				ID: "c1", Name: "noisy", Host: "host-1", State: "running",
+				Labels: map[string]string{cloudMinLevelLabel: "disabled"},
+			},
+		},
+		clients: map[string]*fakeClientService{"host-1": client},
+	}
+
+	send := func(_ *pb.ToolResponse) error { return nil }
+	ls := newLogStreamer(hs, nil, send)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	runDone := make(chan struct{})
+	go func() { ls.run(ctx); close(runDone) }()
+
+	select {
+	case <-client.wait:
+		t.Fatal("StreamLogs should not be called for a disabled container")
+	case <-time.After(200 * time.Millisecond):
+	}
+
+	cancel()
+	<-runDone
+	assert.False(t, client.streamed.Load())
+}
+
+func TestLogStreamer_LabelMinLevelFiltersBelow(t *testing.T) {
+	client := newFakeClientService("host-1")
+	hs := &fakeHostService{
+		containers: []container.Container{
+			{
+				ID: "c1", Name: "n", Host: "host-1", State: "running",
+				Labels: map[string]string{cloudMinLevelLabel: "warn"},
+			},
+		},
+		clients: map[string]*fakeClientService{"host-1": client},
+	}
+
+	var sendMu sync.Mutex
+	var sent []*pb.LogBatch
+	send := func(resp *pb.ToolResponse) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		if lb := resp.GetLogBatch(); lb != nil {
+			sent = append(sent, lb)
+		}
+		return nil
+	}
+	ls := newLogStreamer(hs, nil, send)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	runDone := make(chan struct{})
+	go func() { ls.run(ctx); close(runDone) }()
+
+	<-client.wait
+	ts := time.Now().UnixMilli()
+	// debug + info should be dropped; warn + error pass; unknown passes.
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "d", Stream: "stdout", Level: "debug"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "i", Stream: "stdout", Level: "info"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "w", Stream: "stdout", Level: "warn"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "e", Stream: "stdout", Level: "error"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "u", Stream: "stdout", Level: "unknown"}
+
+	collectBatches(t, &sendMu, &sent, 3, 2*time.Second)
+
+	sendMu.Lock()
+	var msgs []string
+	for _, b := range sent {
+		for _, e := range b.Entries {
+			msgs = append(msgs, e.Message)
+		}
+	}
+	sendMu.Unlock()
+
+	assert.ElementsMatch(t, []string{"w", "e", "u"}, msgs)
+
+	cancel()
+	<-runDone
+}
+
+func TestParseMinLevel(t *testing.T) {
+	cases := []struct {
+		in       string
+		rank     int
+		disabled bool
+	}{
+		{"", 0, false},
+		{"disabled", 0, true},
+		{"DISABLED", 0, true},
+		{" disabled ", 0, true},
+		{"info", 3, false},
+		{"WARN", 4, false},
+		{"garbage", 0, false},
+	}
+	for _, c := range cases {
+		r, d := parseMinLevel(c.in)
+		assert.Equal(t, c.rank, r, "rank for %q", c.in)
+		assert.Equal(t, c.disabled, d, "disabled for %q", c.in)
+	}
+}
+
 func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 	client := newFakeClientService("host-1")
 	hs := &fakeHostService{
