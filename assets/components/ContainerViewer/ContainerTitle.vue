@@ -27,12 +27,13 @@
                   <li v-for="other in otherContainers">
                     <router-link :to="{ name: '/container/[id]', params: { id: other.id } }">
                       <div
-                        class="status data-[state=exited]:status-error data-[state=running]:status-success"
+                        class="status data-[state=exited]:status-error data-[state=running]:status-success data-[state=paused]:status-warning"
                         :data-state="other.state"
                       ></div>
                       <div v-if="other.isSwarm">{{ other.swarmId }}</div>
                       <div v-else>{{ other.name }}</div>
                       <div v-if="other.state === 'running'">running</div>
+                      <div v-else-if="other.state === 'paused'">paused</div>
                       <RelativeTime :date="other.finishedAt" class="text-base-content/70 text-xs" v-else />
                     </router-link>
                   </li>

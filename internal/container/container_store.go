@@ -414,6 +414,21 @@ func (s *ContainerStore) init() {
 						return c, xsync.CancelOp
 					}
 				})
+			case "pause", "unpause":
+				newState := "paused"
+				if event.Name == "unpause" {
+					newState = "running"
+				}
+				s.containers.Compute(event.ActorID, func(c *Container, loaded bool) (*Container, xsync.ComputeOp) {
+					if loaded {
+						log.Debug().Str("id", c.ID).Str("state", newState).Msg("container state changed")
+						copy := *c
+						copy.State = newState
+						return &copy, xsync.UpdateOp
+					} else {
+						return c, xsync.CancelOp
+					}
+				})
 			case "health_status: healthy", "health_status: unhealthy":
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
