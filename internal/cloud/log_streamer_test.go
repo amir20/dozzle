@@ -177,7 +177,7 @@ func TestLogStreamer_InitialSnapshotAndBatching(t *testing.T) {
 
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	runDone := make(chan struct{})
@@ -194,7 +194,7 @@ func TestLogStreamer_InitialSnapshotAndBatching(t *testing.T) {
 	}
 
 	ts := time.Now().UnixMilli()
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		client.logsCh <- &container.LogEvent{
 			Timestamp:  ts,
 			RawMessage: "hello world",
@@ -236,7 +236,7 @@ func TestLogStreamer_NewContainerStartsReader(t *testing.T) {
 	send := func(_ *pb.ToolResponse) error { return nil }
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	runDone := make(chan struct{})
@@ -286,7 +286,7 @@ func TestLogStreamer_LevelUnknownIsBlank(t *testing.T) {
 	}
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 	go ls.run(ctx)
 
@@ -322,7 +322,7 @@ func TestLogStreamer_LabelDisabledSkipsContainer(t *testing.T) {
 	send := func(_ *pb.ToolResponse) error { return nil }
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 	runDone := make(chan struct{})
 	go func() { ls.run(ctx); close(runDone) }()
@@ -364,7 +364,7 @@ func TestLogStreamer_LabelMinLevelFiltersBelow(t *testing.T) {
 	}
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 	runDone := make(chan struct{})
 	go func() { ls.run(ctx); close(runDone) }()
@@ -419,7 +419,7 @@ func TestLogStreamer_InvalidLabelIgnoredStreamsAll(t *testing.T) {
 	}
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 	runDone := make(chan struct{})
 	go func() { ls.run(ctx); close(runDone) }()
@@ -492,7 +492,7 @@ func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 	}
 	ls := newLogStreamer(hs, nil, send)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 	runDone := make(chan struct{})
 	go func() { ls.run(ctx); close(runDone) }()
@@ -501,7 +501,7 @@ func TestLogStreamer_BatchFlushesOnMaxEntries(t *testing.T) {
 	// Push just over the max entries cap so we flush before the 1s timer.
 	ts := time.Now().UnixMilli()
 	total := logBatchMaxEntries + 10
-	for i := 0; i < total; i++ {
+	for range total {
 		client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "x", Stream: "stdout", Level: "info"}
 	}
 
