@@ -23,15 +23,20 @@ var logLevels = [][]string{
 // aliasToCanonical maps every alias to its canonical level name.
 var aliasToCanonical = map[string]string{}
 
-type levelPatterns struct {
-	plain     *regexp.Regexp // e.g. ^error[^a-z]
-	bracket   *regexp.Regexp // e.g. [ error ]
-	separator *regexp.Regexp // e.g. " error/"
-	quoted    *regexp.Regexp // e.g. "ERROR"
-	spaced    *regexp.Regexp // e.g. " ERROR "
-}
-
-var levelRegexes = map[string]levelPatterns{}
+// levelRegexes holds one combined regex per canonical level. Each regex is an
+// alternation of all the shapes a level can take in a log line:
+//
+//	(?i:^<alt>[^a-z]      // plain prefix:  "error: ..."
+//	|\[ ?<alt> ?\]        // bracketed:     "[ERROR]" / "[ error ]"
+//	| <alt>[/|:-]         // separator:     " error|", " info:" (z2m)
+//	|:<alt>\s)            // colon prefix:  "Tag:info " (z2m)
+//	|"<UPPER>"            // quoted:        "\"ERROR\""
+//	|\s<UPPER>\s          // spaced:        " ERROR "
+//
+// The case-insensitive group covers the boundary-anchored forms; the trailing
+// uppercase-only branches catch mid-line `ERROR` tokens without false-firing on
+// the word "error" in prose.
+var levelRegexes = map[string]*regexp.Regexp{}
 
 // singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
 var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
@@ -51,19 +56,16 @@ func init() {
 		}
 
 		alt := "(?:" + strings.Join(group, "|") + ")"
-		upperAlt := make([]string, len(group))
-		for i, l := range group {
-			upperAlt[i] = strings.ToUpper(l)
-		}
-		upperGroup := "(?:" + strings.Join(upperAlt, "|") + ")"
+		upper := strings.ToUpper(alt)
 
-		levelRegexes[canonical] = levelPatterns{
-			plain:     regexp.MustCompile("(?i)^" + alt + "[^a-z]"),
-			bracket:   regexp.MustCompile("(?i)\\[ ?" + alt + " ?\\]"),
-			separator: regexp.MustCompile("(?i) " + alt + "[/|-]"),
-			quoted:    regexp.MustCompile("\"" + upperGroup + "\""),
-			spaced:    regexp.MustCompile(" " + upperGroup + " "),
-		}
+		levelRegexes[canonical] = regexp.MustCompile(
+			`(?i:^` + alt + `[^a-z]` +
+				`|\[ ?` + alt + ` ?\]` +
+				`| ` + alt + `[/|:-]` +
+				`|:` + alt + `\s)` +
+				`|"` + upper + `"` +
+				`|\s` + upper + `\s`,
+		)
 	}
 	SupportedLogLevels["unknown"] = struct{}{}
 }
@@ -95,12 +97,6 @@ func guessLogLevel(logEvent *LogEvent) string {
 			}
 		}
 
-	case map[string]any:
-		panic("not implemented")
-
-	case map[string]string:
-		panic("not implemented")
-
 	default:
 		log.Debug().Type("type", value).Msg("unknown logEvent type")
 	}
@@ -122,8 +118,7 @@ func guessFromString(value string) string {
 	value = StripANSI(value)
 	value = timestampRegex.ReplaceAllString(value, "")
 	for _, group := range logLevels {
-		p := levelRegexes[group[0]]
-		if p.plain.MatchString(value) || p.bracket.MatchString(value) || p.separator.MatchString(value) || p.quoted.MatchString(value) || p.spaced.MatchString(value) {
+		if levelRegexes[group[0]].MatchString(value) {
 			return group[0]
 		}
 	}
