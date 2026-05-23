@@ -30,7 +30,7 @@ func TestForwardProxyAuthRejectsInvalidFilter(t *testing.T) {
 
 func TestUserFromContextInvalidFilterReturnsNil(t *testing.T) {
 	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
-	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{
+	_, tokenString, err := tokenAuth.Encode(map[string]any{
 		"username": "alice",
 		"email":    "alice@example.com",
 		"name":     "Alice",
