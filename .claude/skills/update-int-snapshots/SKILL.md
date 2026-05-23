@@ -28,10 +28,12 @@ Do NOT use when diffs are unintentional regressions — investigate first.
 
    If anything other than test containers is bound, stop it first (ask the user before stopping containers from other projects).
 
-3. **Run Playwright with `--update-snapshots`.** Bypass the Makefile so we can pass the flag:
+3. **Run with `--update-snapshots` via `compose up`.** You must use `compose up` (not `compose run`) because the navigation sidebar snapshot includes the live container list, and the two modes produce different sibling containers. The cleanest way is to patch the playwright command in `docker-compose.yml` temporarily:
 
    ```bash
-   docker compose run --rm --build playwright npx playwright test --update-snapshots
+   sed -i.bak 's|command: npx --yes playwright test|command: npx --yes playwright test --update-snapshots|' docker-compose.yml
+   make int
+   mv docker-compose.yml.bak docker-compose.yml
    ```
 
    Snapshots must be generated in Linux/Chromium (the compose image), not macOS, because filenames include the platform suffix (e.g. `-chromium-linux.png`).
@@ -54,9 +56,9 @@ Do NOT use when diffs are unintentional regressions — investigate first.
 
 ## Quick Reference
 
-| Step            | Command                                                                             |
-| --------------- | ----------------------------------------------------------------------------------- |
-| Wipe snapshots  | `rm e2e/visual.spec.ts-snapshots/*.png`                                             |
-| Check port 8080 | `docker ps \| grep ':8080->'`                                                       |
-| Regenerate      | `docker compose run --rm --build playwright npx playwright test --update-snapshots` |
-| Verify          | `make int`                                                                          |
+| Step            | Command                                 |
+| --------------- | --------------------------------------- | ---------------------------------- | -------------------- | --------------------------------------------------------------------------------- |
+| Wipe snapshots  | `rm e2e/visual.spec.ts-snapshots/*.png` |
+| Check port 8080 | `docker ps \| grep ':8080->'`           |
+| Regenerate      | `sed -i.bak 's                          | command: npx --yes playwright test | & --update-snapshots | ' docker-compose.yml && make int && mv docker-compose.yml.bak docker-compose.yml` |
+| Verify          | `make int`                              |
