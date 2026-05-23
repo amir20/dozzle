@@ -152,7 +152,7 @@
                     <svg-spinners:ring-resize v-if="item.isNew" class="text-secondary w-2" />
                     <div
                       v-else
-                      class="status data-[state=exited]:status-error data-[state=running]:status-success"
+                      class="status data-[state=exited]:status-error data-[state=running]:status-success data-[state=paused]:status-warning"
                       :data-state="item.state"
                     ></div>
                     <div class="truncate">
