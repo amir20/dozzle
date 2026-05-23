@@ -29,7 +29,7 @@ var aliasToCanonical = map[string]string{}
 //	(?i:^<alt>[^a-z]      // plain prefix:  "error: ..."
 //	|\[ ?<alt> ?\]        // bracketed:     "[ERROR]" / "[ error ]"
 //	| <alt>[/|:-]         // separator:     " error|", " info:" (z2m)
-//	|:<alt>\s)            // colon prefix:  "Tag:info " (z2m)
+//	|\w:<alt>\s)          // tagged:        "Zigbee2MQTT:info " (z2m)
 //	|"<UPPER>"            // quoted:        "\"ERROR\""
 //	|\s<UPPER>\s          // spaced:        " ERROR "
 //
@@ -62,7 +62,7 @@ func init() {
 			`(?i:^` + alt + `[^a-z]` +
 				`|\[ ?` + alt + ` ?\]` +
 				`| ` + alt + `[/|:-]` +
-				`|:` + alt + `\s)` +
+				`|\w:` + alt + `\s)` +
 				`|"` + upper + `"` +
 				`|\s` + upper + `\s`,
 		)

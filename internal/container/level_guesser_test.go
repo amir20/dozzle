@@ -94,6 +94,10 @@ func TestGuessLogLevel(t *testing.T) {
 		{"Zigbee2MQTT:info  2025-12-22 12:00:00: started", "info"},
 		{"Zigbee2MQTT:warn  2025-12-22 12:00:00: queue full", "warn"},
 		{"Zigbee2MQTT:error  2025-12-22 12:00:00: failure", "error"},
+		// False-positive guards: level words embedded in prose or URLs must not match.
+		{"there was an error in the connection info report", "unknown"},
+		{"user information saved successfully", "unknown"},
+		{"GET https://example.com/info returned 200", "unknown"},
 		// Pipe-delimited
 		{"2024-01-01 12:00:00 | ERROR | something went wrong", "error"},
 		{"2024-01-01 12:00:00 | INFO | starting up", "info"},
