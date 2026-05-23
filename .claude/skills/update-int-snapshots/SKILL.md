@@ -56,9 +56,11 @@ Do NOT use when diffs are unintentional regressions — investigate first.
 
 ## Quick Reference
 
-| Step            | Command                                 |
-| --------------- | --------------------------------------- | ---------------------------------- | -------------------- | --------------------------------------------------------------------------------- |
-| Wipe snapshots  | `rm e2e/visual.spec.ts-snapshots/*.png` |
-| Check port 8080 | `docker ps \| grep ':8080->'`           |
-| Regenerate      | `sed -i.bak 's                          | command: npx --yes playwright test | & --update-snapshots | ' docker-compose.yml && make int && mv docker-compose.yml.bak docker-compose.yml` |
-| Verify          | `make int`                              |
+```bash
+rm e2e/visual.spec.ts-snapshots/*.png
+docker ps | grep ':8080->'   # confirm port free
+sed -i.bak 's|command: npx --yes playwright test|& --update-snapshots|' docker-compose.yml
+make int
+mv docker-compose.yml.bak docker-compose.yml
+make int   # verify pass
+```
