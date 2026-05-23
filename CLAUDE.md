@@ -14,6 +14,10 @@ Format:
 - Include file:line references when relevant
 - Maximum ~10-15 lines per response
 
+## Testing Unreleased PRs
+
+When replying to a GitHub issue or discussion where the fix lives in an open PR, ask the reporter to test the pre-built image: `amir20/dozzle:pr-XXX` (XXX = PR number). CI builds a tagged image per PR, so reporters can verify without waiting for the next release.
+
 ## GitHub Tone (issues, PRs, comments, discussions)
 
 When posting anything to GitHub, write like a human maintainer, not an AI assistant. Avoid telltale LLM patterns:

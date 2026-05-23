@@ -85,6 +85,15 @@ func TestGuessLogLevel(t *testing.T) {
 				orderedmap.Pair[string, string]{Key: "@t", Value: "2024-01-01T00:00:00Z"},
 			),
 		), "error"},
+		// Zigbee2MQTT-style: bracketed timestamp + " <level>:" inside the line.
+		{"[2025-12-22 12:00:00] info: 	z2m: started", "info"},
+		{"[2025-12-22 12:00:00] warn: 	z2m: queue full", "warn"},
+		{"[2025-12-22 12:00:00] error: 	z2m: connection failed", "error"},
+		{"[2025-12-22 12:00:00] debug: 	z2m: handling message", "debug"},
+		// "<tag>:<level> " style (no space before the colon).
+		{"Zigbee2MQTT:info  2025-12-22 12:00:00: started", "info"},
+		{"Zigbee2MQTT:warn  2025-12-22 12:00:00: queue full", "warn"},
+		{"Zigbee2MQTT:error  2025-12-22 12:00:00: failure", "error"},
 		// Pipe-delimited
 		{"2024-01-01 12:00:00 | ERROR | something went wrong", "error"},
 		{"2024-01-01 12:00:00 | INFO | starting up", "info"},

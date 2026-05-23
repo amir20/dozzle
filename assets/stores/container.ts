@@ -77,6 +77,12 @@ export const useContainerStore = defineStore("container", () => {
           case "destroy":
             container.state = "deleted";
             break;
+          case "pause":
+            container.state = "paused";
+            break;
+          case "unpause":
+            container.state = "running";
+            break;
         }
       }
     });
