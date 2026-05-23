@@ -27,17 +27,22 @@ var cloudLevelRank = map[string]int{
 }
 
 // parseMinLevel reads the cloudMinLevelLabel value. rank>0 means filter events
-// below that severity. disabled=true means skip the container entirely. An
-// empty or unrecognised value applies no filter.
-func parseMinLevel(v string) (rank int, disabled bool) {
+// below that severity. disabled=true means skip the container entirely. valid
+// is false when a non-empty value is not a recognised level or "disabled";
+// callers should log and ignore the label in that case. An empty value is
+// valid and applies no filter.
+func parseMinLevel(v string) (rank int, disabled bool, valid bool) {
 	v = strings.ToLower(strings.TrimSpace(v))
 	if v == "" {
-		return 0, false
+		return 0, false, true
 	}
 	if v == "disabled" {
-		return 0, true
+		return 0, true, true
 	}
-	return cloudLevelRank[v], false
+	if rank, ok := cloudLevelRank[v]; ok {
+		return rank, false, true
+	}
+	return 0, false, false
 }
 
 // LogStreamHostService is the subset of the host service needed by the log
@@ -122,10 +127,18 @@ func readerKey(hostID, containerID string) string {
 }
 
 func (ls *logStreamer) startReader(parent context.Context, c container.Container) {
-	minRank, disabled := parseMinLevel(c.Labels[cloudMinLevelLabel])
+	minRank, disabled, valid := parseMinLevel(c.Labels[cloudMinLevelLabel])
 	if disabled {
 		log.Debug().Str("container", c.Name).Str("host", c.Host).Msg("log streamer: container disabled via label")
 		return
+	}
+	if !valid {
+		log.Error().
+			Str("container", c.Name).
+			Str("host", c.Host).
+			Str("label", cloudMinLevelLabel).
+			Str("value", c.Labels[cloudMinLevelLabel]).
+			Msg("log streamer: invalid min_level label value, ignoring (expected one of: trace, debug, info, warn, error, fatal, disabled)")
 	}
 
 	key := readerKey(c.Host, c.ID)

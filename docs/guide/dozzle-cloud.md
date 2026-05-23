@@ -76,11 +76,16 @@ By default, every running container streams its logs to Dozzle Cloud while linke
 
 ### `dev.dozzle.cloud.min_level`
 
-| Value                                                   | Effect                                                                                                |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| _(unset)_                                               | All log lines are forwarded. Default.                                                                 |
-| `disabled`                                              | The container is completely skipped. No logs are forwarded to Cloud.                                  |
-| `trace` / `debug` / `info` / `warn` / `error` / `fatal` | Only lines at that level or higher are forwarded. Lines without a detected level always pass through. |
+| Value                                         | Effect                                                                                                |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| _(unset)_                                     | All log lines are forwarded. Default.                                                                 |
+| `disabled`                                    | The container is completely skipped. No logs are forwarded to Cloud.                                  |
+| `trace`                                       | Same as unset, since trace is the lowest level. Everything is forwarded.                              |
+| `debug` / `info` / `warn` / `error` / `fatal` | Only lines at that level or higher are forwarded. Lines without a detected level always pass through. |
+
+An unrecognized value (a typo like `warning` or `wran`) is logged as an error and ignored, so the container streams everything as if the label were unset.
+
+The label is read when the log reader starts. Changing it on a running container takes effect after the container restarts.
 
 ```yaml
 services:

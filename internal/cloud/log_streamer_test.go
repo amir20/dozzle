@@ -300,15 +300,23 @@ func TestLogStreamer_LevelUnknownIsBlank(t *testing.T) {
 }
 
 func TestLogStreamer_LabelDisabledSkipsContainer(t *testing.T) {
-	client := newFakeClientService("host-1")
+	disabledClient := newFakeClientService("host-1")
+	canaryClient := newFakeClientService("host-2")
+	// The disabled container is listed first; a canary on a second host follows.
+	// run() processes the snapshot in order, so once the canary's reader starts
+	// we know the disabled container was already evaluated (and skipped).
 	hs := &fakeHostService{
 		containers: []container.Container{
 			{
 				ID: "c1", Name: "noisy", Host: "host-1", State: "running",
 				Labels: map[string]string{cloudMinLevelLabel: "disabled"},
 			},
+			{ID: "c2", Name: "canary", Host: "host-2", State: "running"},
 		},
-		clients: map[string]*fakeClientService{"host-1": client},
+		clients: map[string]*fakeClientService{
+			"host-1": disabledClient,
+			"host-2": canaryClient,
+		},
 	}
 
 	send := func(_ *pb.ToolResponse) error { return nil }
@@ -319,15 +327,17 @@ func TestLogStreamer_LabelDisabledSkipsContainer(t *testing.T) {
 	runDone := make(chan struct{})
 	go func() { ls.run(ctx); close(runDone) }()
 
+	// Sync point: wait for the canary reader, which proves the snapshot was
+	// fully processed without relying on a wall-clock delay.
 	select {
-	case <-client.wait:
-		t.Fatal("StreamLogs should not be called for a disabled container")
-	case <-time.After(200 * time.Millisecond):
+	case <-canaryClient.wait:
+	case <-time.After(2 * time.Second):
+		t.Fatal("canary reader was never started")
 	}
 
 	cancel()
 	<-runDone
-	assert.False(t, client.streamed.Load())
+	assert.False(t, disabledClient.streamed.Load(), "disabled container must not be streamed")
 }
 
 func TestLogStreamer_LabelMinLevelFiltersBelow(t *testing.T) {
@@ -385,24 +395,79 @@ func TestLogStreamer_LabelMinLevelFiltersBelow(t *testing.T) {
 	<-runDone
 }
 
+func TestLogStreamer_InvalidLabelIgnoredStreamsAll(t *testing.T) {
+	client := newFakeClientService("host-1")
+	hs := &fakeHostService{
+		containers: []container.Container{
+			{
+				ID: "c1", Name: "n", Host: "host-1", State: "running",
+				Labels: map[string]string{cloudMinLevelLabel: "garbage"},
+			},
+		},
+		clients: map[string]*fakeClientService{"host-1": client},
+	}
+
+	var sendMu sync.Mutex
+	var sent []*pb.LogBatch
+	send := func(resp *pb.ToolResponse) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		if lb := resp.GetLogBatch(); lb != nil {
+			sent = append(sent, lb)
+		}
+		return nil
+	}
+	ls := newLogStreamer(hs, nil, send)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	runDone := make(chan struct{})
+	go func() { ls.run(ctx); close(runDone) }()
+
+	<-client.wait
+	ts := time.Now().UnixMilli()
+	// An invalid label is ignored, so no filtering: every level passes through.
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "d", Stream: "stdout", Level: "debug"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "i", Stream: "stdout", Level: "info"}
+	client.logsCh <- &container.LogEvent{Timestamp: ts, RawMessage: "w", Stream: "stdout", Level: "warn"}
+
+	collectBatches(t, &sendMu, &sent, 3, 2*time.Second)
+
+	sendMu.Lock()
+	var msgs []string
+	for _, b := range sent {
+		for _, e := range b.Entries {
+			msgs = append(msgs, e.Message)
+		}
+	}
+	sendMu.Unlock()
+
+	assert.ElementsMatch(t, []string{"d", "i", "w"}, msgs)
+
+	cancel()
+	<-runDone
+}
+
 func TestParseMinLevel(t *testing.T) {
 	cases := []struct {
 		in       string
 		rank     int
 		disabled bool
+		valid    bool
 	}{
-		{"", 0, false},
-		{"disabled", 0, true},
-		{"DISABLED", 0, true},
-		{" disabled ", 0, true},
-		{"info", 3, false},
-		{"WARN", 4, false},
-		{"garbage", 0, false},
+		{"", 0, false, true},
+		{"disabled", 0, true, true},
+		{"DISABLED", 0, true, true},
+		{" disabled ", 0, true, true},
+		{"info", 3, false, true},
+		{"WARN", 4, false, true},
+		{"garbage", 0, false, false},
 	}
 	for _, c := range cases {
-		r, d := parseMinLevel(c.in)
+		r, d, v := parseMinLevel(c.in)
 		assert.Equal(t, c.rank, r, "rank for %q", c.in)
 		assert.Equal(t, c.disabled, d, "disabled for %q", c.in)
+		assert.Equal(t, c.valid, v, "valid for %q", c.in)
 	}
 }
 
