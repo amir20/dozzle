@@ -321,7 +321,7 @@ func TestManager_Deploy_SerializesSameProject(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 	errs := make(chan error, 2)
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		go func() {
 			defer wg.Done()
 			errs <- mgr.Deploy(context.Background(), "shared", []byte(testCompose), nil)
@@ -373,7 +373,7 @@ func TestManager_Deploy_ParallelizesDifferentProjects(t *testing.T) {
 	}()
 
 	// Both must reach the docker call before either is released.
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		select {
 		case <-reached:
 		case <-time.After(2 * time.Second):
