@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.2.1
 	github.com/compose-spec/compose-go/v2 v2.11.0
 	github.com/expr-lang/expr v1.17.8
-	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
 	github.com/go-faker/faker/v4 v4.7.0
 	github.com/go-git/go-git/v5 v5.19.1
