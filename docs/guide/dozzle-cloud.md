@@ -70,6 +70,40 @@ To link a self-hosted Dozzle to Dozzle Cloud:
 2. Click **Link instance**. You will be redirected to authenticate and confirm the connection.
 3. Once linked, configure alert subscriptions inside Dozzle to choose which events are forwarded.
 
+## Controlling What Gets Forwarded
+
+By default, every running container streams its logs to Dozzle Cloud while linked. For noisy containers where info-level chatter has no diagnostic value, you can filter or fully opt-out per container with a single label.
+
+### `dev.dozzle.cloud.min_level`
+
+| Value                                         | Effect                                                                                                |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| _(unset)_                                     | All log lines are forwarded. Default.                                                                 |
+| `disabled`                                    | The container is completely skipped. No logs are forwarded to Cloud.                                  |
+| `trace`                                       | Same as unset, since trace is the lowest level. Everything is forwarded.                              |
+| `debug` / `info` / `warn` / `error` / `fatal` | Only lines at that level or higher are forwarded. Lines without a detected level always pass through. |
+
+An unrecognized value (a typo like `warning` or `wran`) is logged as an error and ignored, so the container streams everything as if the label were unset.
+
+The label is read when the log reader starts. Changing it on a running container takes effect after the container restarts.
+
+```yaml
+services:
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt
+    labels:
+      # Only forward warn/error/fatal to Dozzle Cloud
+      - dev.dozzle.cloud.min_level=warn
+
+  noisy-debug-tool:
+    image: example/debug
+    labels:
+      # Don't send anything from this container
+      - dev.dozzle.cloud.min_level=disabled
+```
+
+The filter runs on your Dozzle instance before logs leave the host, so dropped lines never touch the network or count against your plan. Local log viewing in Dozzle is unaffected.
+
 ## Pricing
 
 The free tier is intentionally generous; you should be able to actually use Dozzle Cloud on a homelab or a small team without hitting a wall. Paid plans exist for higher event volumes, longer retention, and the agent's container actions. See [cloud.dozzle.dev](https://cloud.dozzle.dev) for current limits and plan details.
