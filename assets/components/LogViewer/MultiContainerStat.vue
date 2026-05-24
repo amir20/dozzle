@@ -20,11 +20,11 @@
         </span>
       </template>
       <template #chart="{ onHoverValue }">
-        <Sparkline
+        <BarChart
           ref="cpuChart"
-          :data="cpuData"
-          bar-class="bg-primary"
-          class="max-md:hidden"
+          :chart-data="cpuData"
+          bar-class="bg-primary opacity-80 hover:opacity-100"
+          class="h-5 w-full max-md:hidden"
           @hover-value="onHoverValue"
         />
       </template>
@@ -49,11 +49,11 @@
         </span>
       </template>
       <template #chart="{ onHoverValue }">
-        <Sparkline
+        <BarChart
           ref="memoryChart"
-          :data="memoryData"
-          bar-class="bg-secondary"
-          class="max-md:hidden"
+          :chart-data="memoryData"
+          bar-class="bg-secondary opacity-80 hover:opacity-100"
+          class="h-5 w-full max-md:hidden"
           @hover-value="onHoverValue"
         />
       </template>
@@ -65,7 +65,7 @@
 import { Container, Stat, emptyStat } from "@/models/Container";
 import StatCard from "@/components/LogViewer/StatCard.vue";
 import IOCard from "@/components/LogViewer/IOCard.vue";
-import Sparkline from "@/components/LogViewer/Sparkline.vue";
+import BarChart from "@/components/BarChart.vue";
 // @ts-ignore
 import PhCpu from "~icons/ph/cpu";
 // @ts-ignore

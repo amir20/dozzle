@@ -14,14 +14,14 @@ vi.mock("@/stores/config", () => ({
   withBase: (path: string) => path,
 }));
 
-// Capture recalculate() across both sparkline instances.
+// Capture recalculate() across both chart instances.
 const recalculate = vi.fn();
-const SparklineStub = defineComponent({
-  name: "Sparkline",
-  props: ["data", "barClass"],
+const BarChartStub = defineComponent({
+  name: "BarChart",
+  props: ["chartData", "barClass"],
   setup(_, { expose }) {
     expose({ recalculate });
-    return () => h("div", { class: "sparkline-stub" });
+    return () => h("div", { class: "bar-chart-stub" });
   },
 });
 
@@ -56,7 +56,7 @@ describe("<MultiContainerStat />", () => {
       setup: () => () => h(MultiContainerStat as any, { containers: [current.value] }),
     });
     mount(Parent, {
-      global: { plugins: [i18n], stubs: { Sparkline: SparklineStub, IOCard: true } },
+      global: { plugins: [i18n], stubs: { BarChart: BarChartStub, IOCard: true } },
     });
     await flushPromises();
     recalculate.mockClear();

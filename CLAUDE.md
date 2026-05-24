@@ -249,7 +249,7 @@ The frontend uses file-based routing with these conventions:
   - All stat history tracked in `Container.statsHistory` (max 300 items via rolling window)
   - `chartData` is always a rolling window of max 300 items — array length stays constant
   - Uses `ref` (not `computed`) for `downsampledBars` to enable in-place mutation of the last bar, avoiding full re-renders
-  - Component instance is reused when switching containers; after init the chart only patches the last bar per tick, so on a wholesale `chartData` replacement (container switch) the parent must call the exposed `recalculate()`. `Sparkline` forwards it; `MultiContainerStat` calls it in its `containers` watch. (Note: `Container` carries Vue `ref`s, so VueTestUtils `setProps` cannot retrigger such a watch — tests must swap the container via a parent `ref` re-render.)
+  - Component instance is reused when switching containers; after init the chart only patches the last bar per tick, so on a wholesale `chartData` replacement (container switch) the parent must call the exposed `recalculate()`. `MultiContainerStat` holds refs to its `BarChart`s and calls it in the `containers` watch. (Note: `Container` carries Vue `ref`s, so VueTestUtils `setProps` cannot retrigger such a watch — tests must swap the container via a parent `ref` re-render.)
 
 ### Backend
 
