@@ -20,7 +20,13 @@
         </span>
       </template>
       <template #chart="{ onHoverValue }">
-        <Sparkline :data="cpuData" bar-class="bg-primary" class="max-md:hidden" @hover-value="onHoverValue" />
+        <Sparkline
+          ref="cpuChart"
+          :data="cpuData"
+          bar-class="bg-primary"
+          class="max-md:hidden"
+          @hover-value="onHoverValue"
+        />
       </template>
     </StatCard>
 
@@ -43,7 +49,13 @@
         </span>
       </template>
       <template #chart="{ onHoverValue }">
-        <Sparkline :data="memoryData" bar-class="bg-secondary" class="max-md:hidden" @hover-value="onHoverValue" />
+        <Sparkline
+          ref="memoryChart"
+          :data="memoryData"
+          bar-class="bg-secondary"
+          class="max-md:hidden"
+          @hover-value="onHoverValue"
+        />
       </template>
     </StatCard>
   </div>
@@ -68,6 +80,8 @@ const { t } = useI18n();
 const totalStat = ref<Stat>(emptyStat());
 const { history, reset } = useSimpleRefHistory(totalStat, { capacity: 300 });
 const { hosts } = useHosts();
+const cpuChart = useTemplateRef("cpuChart");
+const memoryChart = useTemplateRef("memoryChart");
 const networkRate = ref({ rx: 0, tx: 0 });
 const diskRate = ref({ read: 0, write: 0 });
 
@@ -106,6 +120,12 @@ watch(
     }
     totalStat.value = initial[0];
     reset({ initial: initial.reverse() });
+    // Charts cache their downsampled bars and only patch the last bar per tick;
+    // a container switch replaces the whole series, so force a full recalculate.
+    nextTick(() => {
+      cpuChart.value?.recalculate();
+      memoryChart.value?.recalculate();
+    });
   },
   { immediate: true },
 );

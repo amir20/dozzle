@@ -1,6 +1,7 @@
 <template>
   <div class="block h-5 w-full">
     <BarChart
+      ref="chart"
       :chart-data="data"
       :bar-class="`${barClass} opacity-80 hover:opacity-100`"
       class="h-5 w-full"
@@ -17,4 +18,7 @@ defineProps<{
   barClass?: string;
 }>();
 const emit = defineEmits<{ hoverValue: [value: number] }>();
+
+const chart = useTemplateRef("chart");
+defineExpose({ recalculate: () => chart.value?.recalculate() });
 </script>
