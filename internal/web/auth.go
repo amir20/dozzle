@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -23,6 +24,7 @@ func (h *handler) createToken(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
+			Secure:   isHTTPS(r),
 			Expires:  expires,
 		})
 		log.Info().Str("user", user).Msg("Token created")
@@ -41,8 +43,18 @@ func (h *handler) deleteToken(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
+		Secure:   isHTTPS(r),
 		Expires:  time.Unix(0, 0),
 	})
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(http.StatusText(http.StatusOK)))
+}
+
+// isHTTPS reports whether the original client request used HTTPS, accounting
+// for TLS terminated at an upstream reverse proxy via X-Forwarded-Proto.
+func isHTTPS(r *http.Request) bool {
+	if r.TLS != nil {
+		return true
+	}
+	return strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https")
 }
