@@ -51,7 +51,9 @@ watch([availableBars, bucketSize], () => {
   changeCounter.value = 0;
 });
 
-// On data changes, only update the last bar unless a new bucket boundary is crossed
+// On data changes, only update the last bar unless a new bucket boundary is crossed.
+// A wholesale replacement of the series (e.g. switching containers) is not detected
+// here; the parent owns that and must call the exposed recalculate() on switch.
 const changeCounter = ref(0);
 let initialized = false;
 watch(
