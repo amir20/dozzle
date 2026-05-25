@@ -144,15 +144,28 @@ func resolveHostRef(hostRef string, deps ToolDeps) (string, error) {
 }
 
 // ambiguousError builds an actionable error listing every candidate so the
-// caller can re-issue the call with a host or the exact id.
+// caller can re-issue the call unambiguously. The hint is tailored to the
+// candidate set because the LLM reads it to choose its next action: when the
+// candidates span multiple hosts, host_id disambiguates; when they all sit on
+// one host, host_id is useless and only the exact id or full name will do.
 func ambiguousError(containerRef, hostRef string, candidates []container.Container, hostNames map[string]string) error {
 	parts := make([]string, len(candidates))
+	sameHost := true
 	for i, c := range candidates {
 		parts[i] = fmt.Sprintf("%s (id %s on host %s)", c.Name, shortID(c.ID), resolveHostName(c.Host, hostNames))
+		if c.Host != candidates[0].Host {
+			sameHost = false
+		}
 	}
-	hint := "pass host_id to scope to one host, or pass the exact container id"
-	if hostRef != "" {
-		hint = "pass the exact container id"
+
+	var hint string
+	switch {
+	case hostRef != "" || sameHost:
+		// A host was already supplied, or every candidate is on the same host —
+		// scoping by host_id cannot narrow it further.
+		hint = "pass the exact container id or the full container name to disambiguate"
+	default:
+		hint = "pass host_id to scope to one host, or pass the exact container id"
 	}
 	return fmt.Errorf("%q matches multiple containers: %s. To act on the right one, %s", containerRef, strings.Join(parts, "; "), hint)
 }

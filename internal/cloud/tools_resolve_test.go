@@ -120,6 +120,9 @@ func TestResolveContainerRef_AmbiguousNameAcrossHosts(t *testing.T) {
 }
 
 func TestResolveContainerRef_AmbiguousSubstring(t *testing.T) {
+	// Both candidates are on the same host, so host_id cannot disambiguate — the
+	// hint must steer the LLM to the exact id / full name, not a useless retry
+	// with host_id.
 	deps := resolverDeps([]container.Container{
 		{ID: "id1", Name: "app-frontend", Host: "local"},
 		{ID: "id2", Name: "app-backend", Host: "local"},
@@ -128,6 +131,8 @@ func TestResolveContainerRef_AmbiguousSubstring(t *testing.T) {
 	_, _, err := resolveContainerRef("app", "", deps)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "matches multiple containers")
+	assert.Contains(t, err.Error(), "exact container id or the full container name")
+	assert.NotContains(t, err.Error(), "host_id")
 }
 
 func TestResolveContainerRef_HostDisambiguates(t *testing.T) {
