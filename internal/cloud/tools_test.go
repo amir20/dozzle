@@ -94,6 +94,22 @@ func (m *MockHostService) Hosts() []container.Host {
 	return args.Get(0).([]container.Host)
 }
 
+// withResolver wires up the ListAllContainers + Hosts mocks that
+// resolveContainerRef needs, so container-scoped tool tests can drive the
+// resolver. Derives the host list from the containers' Host fields.
+func withResolver(m *MockHostService, containers ...container.Container) {
+	seen := map[string]bool{}
+	hosts := []container.Host{}
+	for _, c := range containers {
+		if c.Host != "" && !seen[c.Host] {
+			seen[c.Host] = true
+			hosts = append(hosts, container.Host{ID: c.Host, Name: c.Host})
+		}
+	}
+	m.On("ListAllContainers", container.ContainerLabels(nil)).Return(containers, nil).Maybe()
+	m.On("Hosts").Return(hosts).Maybe()
+}
+
 type MockClientService struct {
 	mock.Mock
 }
@@ -180,9 +196,10 @@ func TestExecuteTool_RestartContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123", "host_id": "local"}`
@@ -201,9 +218,10 @@ func TestExecuteTool_RemoveContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Remove).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	argsJSON := `{"container_id": "abc123", "host_id": "local"}`

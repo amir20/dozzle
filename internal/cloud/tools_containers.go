@@ -168,11 +168,12 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
-	if args.ContainerID == "" || args.Host == "" {
-		return nil, fmt.Errorf("container_id and host are required")
+	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	if err != nil {
+		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
+	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}

@@ -67,8 +67,8 @@ var (
 		Properties: map[string]paramProperty{},
 	})
 
-	containerIDParam = paramProperty{Type: "string", Description: "The container ID (from find_containers)"}
-	hostIDParam      = paramProperty{Type: "string", Description: "The host ID where the container is running (from find_containers)"}
+	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID. You can pass the container name directly (as shown in logs, events, and find_containers) — it does not need to be the opaque ID. Resolved by exact name first, then ID, then a unique name substring. If the name matches more than one container the call fails with the list of candidates so you can disambiguate."}
+	hostIDParam      = paramProperty{Type: "string", Description: "Host name or ID (from list_hosts or find_containers). Optional — omit it when the container name is unique across all hosts; supply it (name or ID) only to scope to a specific host when a name is ambiguous."}
 	boolFalse        = false
 
 	targetedParams = mustSchema(paramSchema{
@@ -77,7 +77,7 @@ var (
 			"container_id": containerIDParam,
 			"host_id":      hostIDParam,
 		},
-		Required:             []string{"container_id", "host_id"},
+		Required:             []string{"container_id"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -172,7 +172,7 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 			"query":        {Type: "string", Description: "Optional text search query (case-insensitive substring match)"},
 			"regex":        {Type: "string", Description: "Optional regex pattern to match against log messages"},
 		},
-		Required:             []string{"container_id", "host_id"},
+		Required:             []string{"container_id"},
 		AdditionalProperties: &boolFalse,
 	})
 
@@ -185,7 +185,7 @@ Examples: name == "die"; name == "oom"; name in ["die", "oom", "kill"]; name == 
 			"query":        {Type: "string", Description: "Optional text search query (case-insensitive substring match)"},
 			"regex":        {Type: "string", Description: "Optional regex pattern to match against log messages"},
 		},
-		Required:             []string{"container_id", "host_id"},
+		Required:             []string{"container_id"},
 		AdditionalProperties: &boolFalse,
 	})
 )
@@ -202,7 +202,7 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           toolFindContainers,
-			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. Use this before start/stop/restart actions to get the container ID and host.",
+			Description:    "Search for Docker containers by name, state, or health status. All parameters are optional. Returns container ID, name, image, state, health, and host. The container-scoped tools (inspect/logs/start/stop/restart/remove/update) accept a name directly, so you usually don't need to look up the ID first — use this when you want to disambiguate a name that matches multiple containers.",
 			ParametersJson: findContainerParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_INSTANCE,
 			ReadOnly:       true,
@@ -230,14 +230,14 @@ func AvailableTools(enableActions bool) []*pb.ToolDefinition {
 		},
 		{
 			Name:           toolFetchContainerLogs,
-			Description:    "Fetch raw logs from a running Docker container. Requires container_id and host from find_containers. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
+			Description:    "Fetch raw logs from a running Docker container. Identify the container by name or ID via container_id; host_id is optional unless the name is ambiguous. Optionally filter by time range, log level, text search, or regex pattern. Returns up to 100 matching log lines.",
 			ParametersJson: fetchLogsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			ReadOnly:       true,
 		},
 		{
 			Name:           toolStreamLogs,
-			Description:    "Stream live logs from a running Docker container in real time. Requires container_id and host_id from find_containers. Optionally filter by log level, text search, or regex pattern. Streams continuously until cancelled.",
+			Description:    "Stream live logs from a running Docker container in real time. Identify the container by name or ID via container_id; host_id is optional unless the name is ambiguous. Optionally filter by log level, text search, or regex pattern. Streams continuously until cancelled.",
 			ParametersJson: streamLogsParams,
 			Scope:          pb.ToolScope_TOOL_SCOPE_CONTAINER,
 			ReadOnly:       true,

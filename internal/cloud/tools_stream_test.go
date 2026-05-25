@@ -23,10 +23,18 @@ func TestParseStreamArgs_Valid(t *testing.T) {
 	assert.NotNil(t, re)
 }
 
-func TestParseStreamArgs_MissingRequired(t *testing.T) {
-	_, _, err := parseStreamArgs(`{"container_id":"abc"}`)
+func TestParseStreamArgs_HostOptional(t *testing.T) {
+	// host_id is optional now — only container_id is required.
+	args, _, err := parseStreamArgs(`{"container_id":"abc"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, "abc", args.ContainerID)
+	assert.Empty(t, args.Host)
+}
+
+func TestParseStreamArgs_MissingContainer(t *testing.T) {
+	_, _, err := parseStreamArgs(`{"host_id":"host1"}`)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "container_id and host_id are required")
+	assert.Contains(t, err.Error(), "container_id is required")
 }
 
 func TestParseStreamArgs_InvalidJSON(t *testing.T) {
@@ -228,8 +236,9 @@ func TestExecuteStreamLogs_BasicFlow(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	var mu sync.Mutex
@@ -265,8 +274,9 @@ func TestExecuteStreamLogs_WithLevelFilter(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	var mu sync.Mutex
@@ -306,8 +316,9 @@ func TestExecuteStreamLogs_CancelContext(t *testing.T) {
 		return ctx.Err()
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", "host1", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	var mu sync.Mutex
@@ -353,7 +364,12 @@ func TestExecuteStreamLogs_InvalidArgs(t *testing.T) {
 }
 
 func TestExecuteStreamLogs_ContainerNotFound(t *testing.T) {
+	// host1 exists but the requested container is absent from the listing. With
+	// an explicit host the resolver falls through to FindContainer's direct
+	// lookup (legacy path), which reports the not-found error.
 	mockHost := &MockHostService{}
+	mockHost.On("ListAllContainers", container.ContainerLabels(nil)).Return([]container.Container{}, nil)
+	mockHost.On("Hosts").Return([]container.Host{{ID: "host1", Name: "host1"}})
 	mockHost.On("FindContainer", "host1", "missing", container.ContainerLabels(nil)).Return(nil, assert.AnError)
 
 	send := func(resp *pb.ToolResponse) error { return nil }
@@ -372,8 +388,9 @@ func TestExecuteStreamLogs_BatchingAt50(t *testing.T) {
 		return nil
 	}
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "test-container", Host: "host1"})
 	mockHost.On("FindContainer", mock.Anything, mock.Anything, mock.Anything).Return(cs, nil)
 
 	var mu sync.Mutex

@@ -21,8 +21,8 @@ func parseStreamArgs(argsJSON string) (*fetchLogsArgs, *regexp.Regexp, error) {
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
-	if args.ContainerID == "" || args.Host == "" {
-		return nil, nil, fmt.Errorf("container_id and host_id are required")
+	if args.ContainerID == "" {
+		return nil, nil, fmt.Errorf("container_id is required")
 	}
 
 	var re *regexp.Regexp
@@ -68,7 +68,12 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 		return err
 	}
 
-	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
+	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	if err != nil {
+		return err
+	}
+
+	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
 	if err != nil {
 		return fmt.Errorf("container not found: %w", err)
 	}
