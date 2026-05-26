@@ -52,6 +52,7 @@ label:
   created: Utworzony
   avg-cpu: Średnie zużycie CPU (%)
   avg-mem: Średnie zużycie pamięci (%)
+  name: Nazwa
   pinned: Przypięte
   per-page: Wierszy na strone
   host-menu: Hosty i Kontenery

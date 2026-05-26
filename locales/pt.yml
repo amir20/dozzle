@@ -47,6 +47,7 @@ label:
   created: Criado
   avg-cpu: Média CPU (%)
   avg-mem: Média MEM (%)
+  name: Nome
   pinned: Fixado
   per-page: Linhas por página
   host-menu: Hosts e Containers

@@ -47,6 +47,7 @@ label:
   created: 만든 날짜
   avg-cpu: 평균 CPU (%)
   avg-mem: 평균 메모리 (%)
+  name: 이름
   pinned: 고정됨
   per-page: 페이지당 행 수
   host-menu: 호스트 및 컨테이너

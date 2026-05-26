@@ -1,5 +1,13 @@
 <template>
-  <div class="flex flex-row items-center gap-2">
+  <div
+    v-if="isMobile"
+    class="flex w-fit items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium tabular-nums"
+    :class="type === 'cpu' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'"
+  >
+    <component :is="type === 'cpu' ? PhCpu : PhMemory" class="size-3.5 shrink-0" />
+    <span>{{ displayValue }}</span>
+  </div>
+  <div v-else class="flex flex-row items-center gap-2">
     <template v-if="mode === 'chart'">
       <BarChart class="h-4 flex-1" :chart-data="chartData" :bar-class="barClass" />
     </template>
@@ -13,6 +21,10 @@
 <script setup lang="ts">
 import type { Container } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
+// @ts-ignore
+import PhCpu from "~icons/ph/cpu";
+// @ts-ignore
+import PhMemory from "~icons/ph/memory";
 
 const {
   container,

@@ -75,7 +75,7 @@
               v-show="isVisible(key)"
             >
               <a class="inline-flex cursor-pointer gap-2 text-sm uppercase">
-                <span>{{ $t(value.label) }}</span>
+                <span>{{ $t(isMobile && value.mobileLabel ? value.mobileLabel : value.label) }}</span>
                 <span class="h-4" data-icon>
                   <mdi:arrow-up />
                 </span>
@@ -87,10 +87,10 @@
           <tr
             v-for="container in paginated"
             :key="container.id"
-            v-memo="[container.id, statMode]"
+            v-memo="[container.id, statMode, isMobile]"
             class="hover:bg-base-100/80!"
           >
-            <td v-if="isVisible('name')" class="max-w-80 truncate">
+            <td v-if="isVisible('name')" class="max-w-80 truncate max-md:max-w-32">
               <router-link :to="{ name: '/container/[id]', params: { id: container.id } }" :title="container.name">
                 {{ container.name }}
               </router-link>
@@ -142,6 +142,7 @@ const fields: Record<
   string,
   {
     label: string;
+    mobileLabel?: string;
     sortFunc: (a: Container, b: Container) => number;
     mobileVisible: boolean;
     customClass?: string;
@@ -149,6 +150,7 @@ const fields: Record<
 > = {
   name: {
     label: "label.container-name",
+    mobileLabel: "label.name",
     sortFunc: (a: Container, b: Container) => a.name.localeCompare(b.name) * direction.value,
     mobileVisible: true,
   },
@@ -167,21 +169,23 @@ const fields: Record<
   created: {
     label: "label.created",
     sortFunc: (a: Container, b: Container) => (a.created.getTime() - b.created.getTime()) * direction.value,
-    mobileVisible: true,
+    mobileVisible: false,
     customClass: "w-1",
   },
   cpu: {
     label: "label.avg-cpu",
+    mobileLabel: "label.cpu",
     sortFunc: (a: Container, b: Container) => (a.movingAverage.cpu - b.movingAverage.cpu) * direction.value,
-    mobileVisible: false,
-    customClass: "min-w-48",
+    mobileVisible: true,
+    customClass: "min-w-48 max-md:min-w-0",
   },
   mem: {
     label: "label.avg-mem",
+    mobileLabel: "label.mem",
     sortFunc: (a: Container, b: Container) =>
       (a.movingAverage.memoryUsage - b.movingAverage.memoryUsage) * direction.value,
-    mobileVisible: false,
-    customClass: "min-w-48",
+    mobileVisible: true,
+    customClass: "min-w-48 max-md:min-w-0",
   },
 };
 

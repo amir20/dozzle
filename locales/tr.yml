@@ -53,6 +53,7 @@ label:
   created: Oluşturulma
   avg-cpu: Ort. CPU (%)
   avg-mem: Ort. Bellek (%)
+  name: Ad
   pinned: Sabitlenmiş
   per-page: Sayfa başına satır
   host-menu: Sunucular ve Konteynerler

@@ -48,6 +48,7 @@ label:
   created: Создан
   avg-cpu: средний процессор (%)
   avg-mem: средняя память (%)
+  name: Имя
   pinned: Закреплено
   per-page: Строк на странице
   host-menu: Хосты и Контейнеры

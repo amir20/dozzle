@@ -53,6 +53,7 @@ label:
   created: 创建时间
   avg-cpu: 平均CPU (%)
   avg-mem: 平均MEM (%)
+  name: 名称
   pinned: 固定
   per-page: 每页行数
   host-menu: 主机和容器

@@ -56,6 +56,7 @@ label:
   container: Ni zabojnikov | 1 zabojnik | {count} zabojnikov
   services: Storitve
   avg-mem: Povprečje spomina (%)
+  name: Ime
   no-logs: Zabojnik še nima dnevnika
 tooltip:
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
