@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Выполнение запроса...
   total_records: Всего {count} записей.
   showing_first: Показаны первые {count}.
+  title: SQL-аналитика
+  no_results: Нет строк, соответствующих запросу.
+  columns: Столбцы
+  examples: Примеры
+  example_all: Все логи
+  example_count: Количество строк
+  example_group: Количество по {column}
 notifications:
   title: Уведомления
   description: Настройте где и когда получать оповещения

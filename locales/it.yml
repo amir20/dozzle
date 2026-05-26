@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Valutazione della query...
   total_records: Totale {count} record.
   showing_first: Mostrati i primi {count}.
+  title: Analisi SQL
+  no_results: Nessuna riga corrisponde alla query.
+  columns: Colonne
+  examples: Esempi
+  example_all: Tutti i log
+  example_count: Numero di righe
+  example_group: Conteggio per {column}
 notifications:
   title: Notifiche
   description: Configura dove e quando ricevere avvisi

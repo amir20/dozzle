@@ -196,6 +196,13 @@ analytics:
   evaluating_query: 쿼리를 실행하고 있습니다...
   total_records: 총 {count}개 기록
   showing_first: 처음 {count}개 표시
+  title: SQL 분석
+  no_results: 쿼리와 일치하는 행이 없습니다.
+  columns: 열
+  examples: 예시
+  example_all: 모든 로그
+  example_count: 행 수
+  example_group: "{column}별 개수"
 notifications:
   title: 알림
   description: 알림을 받을 위치와 시간을 설정합니다

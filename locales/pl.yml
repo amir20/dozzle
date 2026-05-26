@@ -200,6 +200,13 @@ analytics:
   evaluating_query: Przetwarzanie zapytania...
   total_records: Razem {count} rekordów.
   showing_first: Pokazywanie pierwszych {count}.
+  title: Analiza SQL
+  no_results: Żaden wiersz nie pasuje do zapytania.
+  columns: Kolumny
+  examples: Przykłady
+  example_all: Wszystkie logi
+  example_count: Liczba wierszy
+  example_group: Liczba według {column}
 notifications:
   title: Powiadomienia
   description: Skonfiguruj gdzie i kiedy otrzymywać alerty

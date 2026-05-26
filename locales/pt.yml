@@ -192,6 +192,13 @@ analytics:
   evaluating_query: Avaliando consulta...
   total_records: Total de {count} registros.
   showing_first: Mostrando os primeiros {count}.
+  title: Análise SQL
+  no_results: Nenhuma linha corresponde à consulta.
+  columns: Colunas
+  examples: Exemplos
+  example_all: Todos os logs
+  example_count: Número de linhas
+  example_group: Contagem por {column}
 notifications:
   title: Notificações
   description: Configure onde e quando receber alertas

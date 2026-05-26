@@ -205,6 +205,13 @@ analytics:
   evaluating_query: Mengevaluasi kueri...
   total_records: Total {count} entri.
   showing_first: Menampilkan {count} pertama.
+  title: Analitik SQL
+  no_results: Tidak ada baris yang cocok dengan kueri.
+  columns: Kolom
+  examples: Contoh
+  example_all: Semua log
+  example_count: Jumlah baris
+  example_group: Hitung berdasarkan {column}
 notifications:
   title: Notifikasi
   description: Konfigurasikan di mana dan kapan menerima peringatan
