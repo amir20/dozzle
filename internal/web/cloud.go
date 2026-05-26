@@ -161,6 +161,10 @@ func (h *handler) cloudStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A 200 proves the API key is valid, so clear any auth circuit breaker the
+	// notification dispatcher tripped on a prior 401/403.
+	h.hostService.ResetCloudDispatcherBreaker()
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to read cloud status response")

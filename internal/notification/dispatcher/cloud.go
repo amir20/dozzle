@@ -53,6 +53,17 @@ func NewCloudDispatcher(name string, apiKey string, prefix string, expiresAt *ti
 
 const defaultRetryAfter = 60 * time.Second
 
+// unauthorizedRetryAfter is how long to back off after an auth failure (invalid/expired
+// API key). Retrying won't help until the user fixes their key, which recreates the
+// dispatcher and resets the breaker.
+const unauthorizedRetryAfter = 6 * time.Hour
+
+// ResetBreaker clears the circuit breaker so the next Send dials cloud again.
+// Called when a cloud status check succeeds, proving the API key is valid.
+func (c *CloudDispatcher) ResetBreaker() {
+	c.blockedUntil.Store(0)
+}
+
 // Send sends a notification to Dozzle Cloud
 func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notification) error {
 	if blockedUntil := c.blockedUntil.Load(); blockedUntil > 0 && time.Now().UnixNano() < blockedUntil {
@@ -97,6 +108,18 @@ func (c *CloudDispatcher) Send(ctx context.Context, notification types.Notificat
 			Dur("retry_after", retryAfter).
 			Msg("rate limited by cloud, circuit breaker tripped")
 		return fmt.Errorf("cloud rate limited, backing off for %s", retryAfter)
+	}
+
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		limitedReader := io.LimitReader(resp.Body, 1024*1024)
+		responseBody, _ := io.ReadAll(limitedReader)
+		c.blockedUntil.Store(time.Now().Add(unauthorizedRetryAfter).UnixNano())
+		log.Warn().
+			Str("cloud", c.Name).
+			Int("status_code", resp.StatusCode).
+			Dur("retry_after", unauthorizedRetryAfter).
+			Msg("cloud rejected API key, circuit breaker tripped")
+		return fmt.Errorf("cloud returned status code %d: %s", resp.StatusCode, string(responseBody))
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {

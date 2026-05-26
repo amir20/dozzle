@@ -263,6 +263,12 @@ func (m *MultiHostService) SetCloudStreamLogs(enabled bool) {
 	m.persister.SetCloudStreamLogs(enabled)
 }
 
+// ResetCloudDispatcherBreaker clears the cloud dispatcher's auth circuit breaker
+// so notifications resume immediately once the key is known good again.
+func (m *MultiHostService) ResetCloudDispatcherBreaker() {
+	m.notificationManager.ResetCloudDispatcherBreaker()
+}
+
 // RemoveCloudConfig clears the cloud config, removes the cloud dispatcher, deletes the file,
 // and broadcasts the change to all agents so they stop sending to cloud.
 func (m *MultiHostService) RemoveCloudConfig() {
