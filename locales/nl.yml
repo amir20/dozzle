@@ -48,6 +48,7 @@ label:
   created: Aangemaakt
   avg-cpu: Gem. CPU (%)
   avg-mem: Gem. geheugen (%)
+  name: Naam
   pinned: Vastgezet
   per-page: Rijen per pagina
   host-menu: Hosts en Containers

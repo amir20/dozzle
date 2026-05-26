@@ -49,6 +49,9 @@ label:
   created: Created
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
+  name: Name
+  cpu: CPU
+  mem: MEM
   pinned: Pinned
   per-page: Rows per page
   host-menu: Hosts and Containers

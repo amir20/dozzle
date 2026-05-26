@@ -53,6 +53,7 @@ label:
   created: 建立時間
   avg-cpu: 平均 CPU 使用率 (%)
   avg-mem: 平均記憶體使用率 (%)
+  name: 名稱
   pinned: 已釘選
   per-page: 每頁列數
   host-menu: 主機和容器

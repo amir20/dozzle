@@ -49,6 +49,7 @@ label:
   created: Dibuat
   avg-cpu: Rata-rata CPU (%)
   avg-mem: Rata-rata MEM (%)
+  name: Nama
   pinned: Disematkan
   per-page: Baris per halaman
   host-menu: Host dan Kontainer

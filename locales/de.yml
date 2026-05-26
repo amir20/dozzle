@@ -48,6 +48,7 @@ label:
   created: Erstellt
   avg-cpu: Avg. CPU (%)
   avg-mem: Avg. MEM (%)
+  name: Name
   pinned: Angepinnt
   per-page: Zeilen pro Seite
   host-menu: Hosts und Container

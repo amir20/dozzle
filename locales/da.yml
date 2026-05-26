@@ -48,6 +48,7 @@ label:
   created: Lavet
   avg-cpu: Gns. CPU (%)
   avg-mem: Gns. MEM (%)
+  name: Navn
   pinned: Fastgjort
   per-page: Rækker per side
   host-menu: Værter og Containere

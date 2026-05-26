@@ -48,6 +48,7 @@ label:
   created: Creado
   avg-cpu: Promedio de CPU (%)
   avg-mem: Promedio de MEM (%)
+  name: Nombre
   pinned: Fijado
   per-page: Filas por página
   host-menu: Hosts y Contenedores
