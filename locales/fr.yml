@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Évaluation de la requête...
   total_records: Total de {count} enregistrements.
   showing_first: Affichage des {count} premiers.
+  title: Analyse SQL
+  no_results: Aucune ligne ne correspond à la requête.
+  columns: Colonnes
+  examples: Exemples
+  example_all: Tous les journaux
+  example_count: Nombre de lignes
+  example_group: Nombre par {column}
 notifications:
   title: Notifications
   description: Configurez où et quand recevoir des alertes

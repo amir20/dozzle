@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Evaluerer forespørgsel...
   total_records: I alt {count} poster.
   showing_first: Viser de første {count}.
+  title: SQL-analyse
+  no_results: Ingen rækker matcher din forespørgsel.
+  columns: Kolonner
+  examples: Eksempler
+  example_all: Alle logfiler
+  example_count: Antal rækker
+  example_group: Antal efter {column}
 notifications:
   title: Notifikationer
   description: Konfigurer hvor og hvornår du vil modtage alarmer

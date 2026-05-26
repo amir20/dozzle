@@ -194,6 +194,13 @@ analytics:
   evaluating_query: Query wordt geëvalueerd...
   total_records: In totaal {count} resultaten.
   showing_first: Eerste {count} worden weergegeven.
+  title: SQL-analyse
+  no_results: Geen rijen komen overeen met de query.
+  columns: Kolommen
+  examples: Voorbeelden
+  example_all: Alle logs
+  example_count: Aantal rijen
+  example_group: Aantal per {column}
 notifications:
   title: Meldingen
   description: Configureer waar en wanneer je waarschuwingen ontvangt

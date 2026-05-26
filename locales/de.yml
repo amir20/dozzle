@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Abfrage wird ausgewertet...
   total_records: Insgesamt {count} Datensätze.
   showing_first: Zeige die ersten {count}.
+  title: SQL-Analyse
+  no_results: Keine Zeilen entsprechen der Abfrage.
+  columns: Spalten
+  examples: Beispiele
+  example_all: Alle Logs
+  example_count: Anzahl Zeilen
+  example_group: Anzahl nach {column}
 notifications:
   title: Benachrichtigungen
   description: Konfigurieren Sie, wo und wann Sie Alarme erhalten möchten

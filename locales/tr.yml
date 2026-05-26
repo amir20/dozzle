@@ -193,6 +193,13 @@ analytics:
   evaluating_query: Sorgu değerlendiriliyor...
   total_records: Toplam {count} kayıt.
   showing_first: İlk {count} gösteriliyor.
+  title: SQL Analizi
+  no_results: Sorgunuzla eşleşen satır yok.
+  columns: Sütunlar
+  examples: Örnekler
+  example_all: Tüm günlükler
+  example_count: Satır sayısı
+  example_group: "{column} bazında sayı"
 notifications:
   title: Bildirimler
   description: Uyarıları nerede ve ne zaman alacağınızı yapılandırın

@@ -196,6 +196,13 @@ analytics:
   evaluating_query: 正在評估查詢...
   total_records: 共計 {count} 筆記錄。
   showing_first: 顯示前 {count} 筆。
+  title: SQL 分析
+  no_results: 沒有符合查詢的資料列。
+  columns: 欄位
+  examples: 範例
+  example_all: 所有日誌
+  example_count: 資料列數
+  example_group: 依 {column} 計數
 notifications:
   title: 通知
   description: 設定接收警報的位置和時間

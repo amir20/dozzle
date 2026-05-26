@@ -221,6 +221,13 @@ analytics:
   evaluating_query: Evaluando consulta...
   total_records: Total {count} registros.
   showing_first: Mostrando los primeros {count}.
+  title: Análisis SQL
+  no_results: Ninguna fila coincide con la consulta.
+  columns: Columnas
+  examples: Ejemplos
+  example_all: Todos los registros
+  example_count: Número de filas
+  example_group: Conteo por {column}
 notifications:
   title: Notificaciones
   description: Configure dónde y cuándo recibir alertas

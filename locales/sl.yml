@@ -198,6 +198,13 @@ analytics:
   total_records: Skupaj zapisov {count}.
   showing_first: Prikaz prvih {count}.
   creating_table: Ustvarjanje začasne tabele...
+  title: Analiza SQL
+  no_results: Nobena vrstica se ne ujema s poizvedbo.
+  columns: Stolpci
+  examples: Primeri
+  example_all: Vsi dnevniki
+  example_count: Število vrstic
+  example_group: Štetje po {column}
 notifications:
   title: Obvestila
   description: Nastavite kje in kdaj prejemati opozorila

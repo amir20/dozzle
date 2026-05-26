@@ -228,11 +228,18 @@ toasts:
     title: Copied
     message: Copied to clipboard
 analytics:
+  title: SQL Analytics
   creating_table: Creating temporary table...
   downloading: Fetching container logs... ({size})
   evaluating_query: Evaluating query...
   total_records: Total {count} records.
   showing_first: Showing first {count}.
+  no_results: No rows match your query.
+  columns: Columns
+  examples: Examples
+  example_all: All logs
+  example_count: Row count
+  example_group: Count by {column}
 notifications:
   title: Notifications
   description: Configure where and when to receive alerts

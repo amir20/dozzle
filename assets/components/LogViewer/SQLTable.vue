@@ -1,28 +1,39 @@
 <template>
-  <table class="table-zebra table-pin-rows table-md table" v-if="!loading">
+  <div class="w-full overflow-x-auto" v-if="!loading">
+    <table class="table-zebra table-pin-rows table-md table" v-if="columns.length">
+      <thead>
+        <tr>
+          <th v-for="column in columns" :key="column" class="font-mono">{{ column }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, index) in table" :key="index">
+          <td v-for="column in columns" :key="column" class="max-w-md align-top">
+            <span v-if="format(row[column]) === null" class="text-base-content/30 italic">NULL</span>
+            <span v-else class="block truncate font-mono" :title="format(row[column]) ?? undefined">{{
+              format(row[column])
+            }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-else class="text-base-content/50 flex flex-col items-center gap-2 py-16">
+      <ph:database class="size-8 opacity-40" />
+      <span>{{ $t("analytics.no_results") }}</span>
+    </div>
+  </div>
+  <table class="table-md table" v-else>
     <thead>
       <tr>
-        <th v-for="column in columns" :key="column">{{ column }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in table" :key="row">
-        <td v-for="column in columns" :key="column">{{ row[column] }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <table class="table-md table animate-pulse" v-else>
-    <thead>
-      <tr>
-        <th v-for="_ in 3">
+        <th v-for="i in 3" :key="i">
           <div class="bg-base-content/50 h-4 w-20 animate-pulse opacity-50"></div>
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="_ in 9">
-        <td v-for="_ in 3">
-          <div class="bg-base-content/50 h-4 w-20 opacity-20"></div>
+      <tr v-for="i in 9" :key="i">
+        <td v-for="j in 3" :key="j">
+          <div class="bg-base-content/50 h-4 w-20 animate-pulse opacity-20"></div>
         </td>
       </tr>
     </tbody>
@@ -37,4 +48,17 @@ const { loading, table } = defineProps<{
 }>();
 
 const columns = computed(() => (table.numRows > 0 ? Object.keys(table.get(0) as Record<string, any>) : []));
+
+function format(value: unknown): string | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "bigint") return value.toString();
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v));
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
 </script>
