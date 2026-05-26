@@ -128,9 +128,10 @@ func TestHandleRequest_CallTool_RestartContainer(t *testing.T) {
 	mockClient := &MockClientService{}
 	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
 
-	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123"})
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 
 	mockHost := &MockHostService{}
+	withResolver(mockHost, container.Container{ID: "abc123", Name: "nginx", Host: "local"})
 	mockHost.On("FindContainer", "local", "abc123", container.ContainerLabels(nil)).Return(cs, nil)
 
 	client := &Client{

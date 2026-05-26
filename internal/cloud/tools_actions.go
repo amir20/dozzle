@@ -25,14 +25,12 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, d
 		return nil, err
 	}
 
-	if args.ContainerID == "" {
-		return nil, fmt.Errorf("container_id is required")
-	}
-	if args.Host == "" {
-		return nil, fmt.Errorf("host is required")
+	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	if err != nil {
+		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
+	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
@@ -41,13 +39,13 @@ func executeContainerAction(ctx context.Context, name string, argsJSON string, d
 		return nil, fmt.Errorf("action failed: %w", err)
 	}
 
-	message := fmt.Sprintf("Successfully %s container %s.", pastTense(action), args.ContainerID)
+	message := fmt.Sprintf("Successfully %s container %s.", pastTense(action), cs.Container.Name)
 
 	return &pb.CallToolResponse{
 		Success: true,
 		Result: &pb.CallToolResponse_Action{Action: &pb.ActionResult{
 			Success:     true,
-			ContainerId: args.ContainerID,
+			ContainerId: cs.Container.ID,
 			Action:      string(action),
 			Message:     message,
 		}},
@@ -60,14 +58,12 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
 
-	if args.ContainerID == "" {
-		return nil, fmt.Errorf("container_id is required")
-	}
-	if args.Host == "" {
-		return nil, fmt.Errorf("host is required")
+	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	if err != nil {
+		return nil, err
 	}
 
-	cs, err := deps.HostService.FindContainer(args.Host, args.ContainerID, deps.Labels)
+	cs, err := deps.HostService.FindContainer(hostID, containerID, deps.Labels)
 	if err != nil {
 		return nil, fmt.Errorf("container not found: %w", err)
 	}
@@ -87,16 +83,16 @@ func executeUpdateContainer(ctx context.Context, argsJSON string, deps ToolDeps)
 		return nil, fmt.Errorf("update failed: %w", updateErr)
 	}
 
-	message := fmt.Sprintf("Successfully updated container %s by pulling the latest image and recreating it.", args.ContainerID)
+	message := fmt.Sprintf("Successfully updated container %s by pulling the latest image and recreating it.", cs.Container.Name)
 	if !updated {
-		message = fmt.Sprintf("Container %s is already running the latest image. No update was needed.", args.ContainerID)
+		message = fmt.Sprintf("Container %s is already running the latest image. No update was needed.", cs.Container.Name)
 	}
 
 	return &pb.CallToolResponse{
 		Success: true,
 		Result: &pb.CallToolResponse_Action{Action: &pb.ActionResult{
 			Success:     true,
-			ContainerId: args.ContainerID,
+			ContainerId: cs.Container.ID,
 			Action:      "update",
 			Message:     message,
 		}},
