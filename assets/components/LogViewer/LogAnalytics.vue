@@ -90,7 +90,7 @@ onMounted(async () => {
 
     state.value = "initializing";
     await conn.query(
-      `CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ignore_errors = true, format = 'newline_delimited')`,
+      `CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1)`,
     );
 
     state.value = "ready";
