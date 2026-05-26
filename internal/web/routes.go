@@ -111,6 +111,7 @@ type HostService interface {
 	SetCloudConfig(cc *notification.CloudConfig)
 	SetCloudStreamLogs(enabled bool)
 	RemoveCloudConfig()
+	ResetCloudDispatcherBreaker()
 }
 
 type handler struct {

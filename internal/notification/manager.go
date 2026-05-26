@@ -335,6 +335,16 @@ func (m *Manager) ClearCloudDispatcher() {
 	log.Debug().Msg("Cleared cloud dispatcher")
 }
 
+// ResetCloudDispatcherBreaker clears the cloud dispatcher's circuit breaker, if set.
+// No-op when no cloud dispatcher is registered.
+func (m *Manager) ResetCloudDispatcherBreaker() {
+	if p := m.cloudDispatcher.Load(); p != nil {
+		if cd, ok := (*p).(*dispatcher.CloudDispatcher); ok {
+			cd.ResetBreaker()
+		}
+	}
+}
+
 
 // getDispatcher resolves a dispatcher by subscription's DispatcherID.
 // DispatcherID == 0 means the cloud dispatcher; otherwise lookup in the dispatchers map.
