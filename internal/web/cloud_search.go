@@ -10,11 +10,15 @@ import (
 
 	"github.com/amir20/dozzle/internal/cloud"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // cloudSearchTimeout caps the round-trip to Doligence Cloud. Search is on
-// the keystroke path; we'd rather show "no results" than block typing.
-const cloudSearchTimeout = 500 * time.Millisecond
+// the keystroke path, but a cold Cloud-side query plus network RTT routinely
+// blows past half a second, so 500ms produced spurious timeouts. 3s is still
+// short enough that the (debounced) UI stays responsive.
+const cloudSearchTimeout = 3 * time.Second
 
 // cloudSearchLogs proxies a search query to Doligence Cloud over the existing
 // authenticated gRPC connection. Identity is derived server-side from the
@@ -85,7 +89,11 @@ func (h *handler) cloudSearchLogs(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusServiceUnavailable, "cloud not configured")
 			return
 		}
-		if errors.Is(err, context.DeadlineExceeded) {
+		// A blown deadline can surface two ways: as context.DeadlineExceeded
+		// when our own ctx fires first, or as a gRPC status with code
+		// DeadlineExceeded when the server-side deadline trips. status.Code
+		// walks the %w wrap chain, so both map to a 504.
+		if errors.Is(err, context.DeadlineExceeded) || status.Code(err) == codes.DeadlineExceeded {
 			writeError(w, http.StatusGatewayTimeout, "cloud search timed out")
 			return
 		}
