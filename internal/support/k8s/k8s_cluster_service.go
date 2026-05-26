@@ -238,3 +238,7 @@ func (m *K8sClusterService) SetCloudStreamLogs(enabled bool) {
 func (m *K8sClusterService) RemoveCloudConfig() {
 	m.persister.RemoveCloudConfig()
 }
+
+func (m *K8sClusterService) ResetCloudDispatcherBreaker() {
+	m.notificationManager.ResetCloudDispatcherBreaker()
+}
