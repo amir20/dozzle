@@ -190,7 +190,6 @@ declare module 'vue' {
     SimpleLogItem: typeof import('./components/LogViewer/SimpleLogItem.vue')['default']
     SkippedEntriesLogItem: typeof import('./components/LogViewer/SkippedEntriesLogItem.vue')['default']
     SlideTransition: typeof import('./components/common/SlideTransition.vue')['default']
-    Sparkline: typeof import('./components/LogViewer/Sparkline.vue')['default']
     SQLTable: typeof import('./components/LogViewer/SQLTable.vue')['default']
     StackLog: typeof import('./components/StackViewer/StackLog.vue')['default']
     StatCard: typeof import('./components/LogViewer/StatCard.vue')['default']
