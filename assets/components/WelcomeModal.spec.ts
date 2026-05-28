@@ -104,7 +104,7 @@ describe("<WelcomeModal /> Create First Alert", () => {
 
     const bodies = ruleCalls.map((c) => JSON.parse((c[1] as RequestInit).body as string));
     const eventExpressions = bodies.map((b) => b.eventExpression).filter(Boolean);
-    expect(eventExpressions).toContain('name == "die" && attributes["exitCode"] != "0"');
+    expect(eventExpressions).toContain('name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])');
     expect(eventExpressions).toContain('name == "health_status" && attributes["healthStatus"] == "unhealthy"');
     expect(eventExpressions).toContain('name == "oom"');
     expect(eventExpressions).not.toContain('name == "restart"');
