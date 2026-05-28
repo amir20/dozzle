@@ -250,11 +250,13 @@ Container: true
 Event:     name == "health_status" && attributes["health_status"] == "unhealthy"
 ```
 
-**Alert on unexpected exits (non-zero exit code):**
+**Alert on unexpected exits (ignoring clean and graceful shutdowns):**
+
+Exit codes 0 (success), 130 (SIGINT), 143 (SIGTERM), and 137 (SIGKILL) fire on `docker stop`, Ctrl+C, and update cycles, so they are excluded to avoid noise. Genuine error exits (1, 2, 125, ...) still alert.
 
 ```
 Container: name contains "worker"
-Event:     name == "die" && attributes["exitCode"] != "0"
+Event:     name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])
 ```
 
 ## <Icon icon="mdi:cog-outline" inline /> Managing Alerts

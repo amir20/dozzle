@@ -236,6 +236,33 @@ func TestSubscription_MatchesEvent(t *testing.T) {
 			event:      types.NotificationEvent{Name: "health_status"},
 			want:       true,
 		},
+		{
+			name:       "negated-in alerts on genuine error exit",
+			expression: `name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])`,
+			event: types.NotificationEvent{
+				Name:       "die",
+				Attributes: map[string]string{"exitCode": "1"},
+			},
+			want: true,
+		},
+		{
+			name:       "negated-in ignores SIGTERM exit",
+			expression: `name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])`,
+			event: types.NotificationEvent{
+				Name:       "die",
+				Attributes: map[string]string{"exitCode": "143"},
+			},
+			want: false,
+		},
+		{
+			name:       "negated-in ignores clean exit",
+			expression: `name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])`,
+			event: types.NotificationEvent{
+				Name:       "die",
+				Attributes: map[string]string{"exitCode": "0"},
+			},
+			want: false,
+		},
 	}
 
 	for _, tt := range tests {

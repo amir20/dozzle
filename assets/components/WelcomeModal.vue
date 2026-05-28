@@ -132,7 +132,10 @@ const signals = computed<SignalDef[]>(() => [
     label: t("cloud.welcome.signals.exited"),
     description: t("cloud.welcome.signals.exited-desc"),
     ruleName: "Container exited with an error",
-    expression: 'name == "die" && attributes["exitCode"] != "0"',
+    // Ignore clean/graceful shutdowns: 0 (success), 130 (SIGINT), 143 (SIGTERM), 137 (SIGKILL).
+    // These commonly fire on `docker stop`, Ctrl+C, and Watchtower update cycles, which are
+    // not errors. Still alerts on genuine error exits (1, 2, 125, ...) and crash-loops.
+    expression: 'name == "die" && !(attributes["exitCode"] in ["0", "130", "143", "137"])',
     defaultOn: true,
   },
   {
