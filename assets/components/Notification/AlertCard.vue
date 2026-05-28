@@ -6,13 +6,13 @@
   >
     <div class="card-body gap-4 p-5">
       <!-- Header -->
-      <div class="flex items-start justify-between">
-        <div class="flex items-center gap-2">
-          <h4 class="flex items-center gap-2 text-lg font-semibold">
-            <mdi:chart-line v-if="alert.metricExpression" class="text-info" />
-            <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="text-info" />
-            <mdi:text-box-outline v-else class="text-info" />
-            <span>{{ alert.name }}</span> <span class="text-sm font-light">→</span>
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
+          <h4 class="flex min-w-0 flex-wrap items-center gap-2 text-lg font-semibold">
+            <mdi:chart-line v-if="alert.metricExpression" class="text-info shrink-0" />
+            <mdi:bell-ring-outline v-else-if="alert.eventExpression" class="text-info shrink-0" />
+            <mdi:text-box-outline v-else class="text-info shrink-0" />
+            <span class="break-all">{{ alert.name }}</span> <span class="text-sm font-light">→</span>
             <div class="group/dispatch dropdown dropdown-hover">
               <div
                 tabindex="0"
@@ -48,7 +48,12 @@
           </h4>
           <span v-if="!alert.enabled" class="badge badge-warning badge-sm">{{ $t("notifications.alert.paused") }}</span>
         </div>
-        <input type="checkbox" class="toggle toggle-primary" :checked="alert.enabled" @change="toggleEnabled" />
+        <input
+          type="checkbox"
+          class="toggle toggle-primary shrink-0"
+          :checked="alert.enabled"
+          @change="toggleEnabled"
+        />
       </div>
 
       <!-- Expressions -->
@@ -78,8 +83,10 @@
       </div>
 
       <!-- Footer -->
-      <div class="border-base-content/10 text-base-content/80 flex items-center justify-between border-t pt-3 text-xs">
-        <div class="flex items-center gap-4">
+      <div
+        class="border-base-content/10 text-base-content/80 flex items-center justify-between gap-2 border-t pt-3 text-xs"
+      >
+        <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
           <span>
             {{ $t("notifications.alert.containers-count", { count: alert.triggeredContainers }) }}
           </span>
@@ -90,7 +97,7 @@
             {{ $t("notifications.alert.last-triggered", { time: formatTimeAgo(alert.lastTriggeredAt) }) }}
           </span>
         </div>
-        <div class="flex items-center gap-1">
+        <div class="flex shrink-0 items-center gap-1">
           <button class="btn btn-ghost btn-square" @click="editAlert">
             <mdi:pencil-outline />
           </button>
