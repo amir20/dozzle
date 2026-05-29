@@ -97,7 +97,7 @@
     "@vue/test-utils": "^2.4.10",
     "bumpp": "^11.1.0",
     "c8": "^11.0.0",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.0",
     "eventsourcemock": "^2.0.0",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.5",
