@@ -1,3 +1,5 @@
+import stripAnsi from "strip-ansi";
+
 export function formatBytes(
   bytes: number,
   { decimals = 2, short = false }: { decimals?: number; short?: boolean } = { decimals: 2, short: false },
@@ -28,4 +30,12 @@ export function hashCode(str: string) {
     hash |= 0;
   }
   return hash;
+}
+
+// C0 control characters except tab (\x09), newline (\x0a) and carriage return (\x0d).
+// A NUL byte terminates the clipboard string on Windows, dropping everything after it.
+const controlChars = /[\x00-\x08\x0b\x0c\x0e-\x1f]/g;
+
+export function sanitizeForClipboard(text: string) {
+  return stripAnsi(text).replace(controlChars, "");
 }
