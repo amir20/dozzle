@@ -54,10 +54,11 @@
           <li v-for="host in hosts" :key="host.id">
             <a
               @click.prevent="setHost(host.id)"
+              class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
               :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
             >
               <HostIcon :type="host.type" />
-              {{ host.name }}
+              <span class="truncate">{{ host.name }}</span>
               <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
             </a>
           </li>
@@ -89,10 +90,11 @@
                 <li v-for="host in groupHosts" :key="host.id">
                   <a
                     @click.prevent="setHost(host.id)"
+                    class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
                     :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
                   >
                     <HostIcon :type="host.type" />
-                    {{ host.name }}
+                    <span class="truncate">{{ host.name }}</span>
                     <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
                   </a>
                 </li>
@@ -103,10 +105,11 @@
             <li v-for="host in groupHosts" :key="host.id">
               <a
                 @click.prevent="setHost(host.id)"
+                class="auto-cols-[max-content_minmax(0,1fr)_max-content]"
                 :class="{ 'text-base-content/50 pointer-events-none': !host.available }"
               >
                 <HostIcon :type="host.type" />
-                {{ host.name }}
+                <span class="truncate">{{ host.name }}</span>
                 <span class="badge badge-error badge-xs p-1.5" v-if="!host.available">offline</span>
               </a>
             </li>
