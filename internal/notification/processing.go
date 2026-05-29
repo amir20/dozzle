@@ -114,8 +114,18 @@ func (m *Manager) processStatEvents() {
 
 // processStatEvent processes a single stat event and sends notifications for matching metric subscriptions
 func (m *Manager) processStatEvent(event *ContainerStatEvent) {
+	// Normalize CPU by core count so alerts report overall load (0-100%),
+	// matching the UI. Stat.CPUPercent is per-core (100% = one full core).
+	cores := event.Container.CPULimit
+	if cores <= 0 {
+		cores = float64(event.Host.NCPU)
+	}
+	if cores <= 0 {
+		cores = 1
+	}
+
 	notificationStat := types.NotificationStat{
-		CPUPercent:    event.Stat.CPUPercent,
+		CPUPercent:    event.Stat.CPUPercent / cores,
 		MemoryPercent: event.Stat.MemoryPercent,
 		MemoryUsage:   event.Stat.MemoryUsage,
 		Mounts:        FromContainerMounts(event.Container),
@@ -154,8 +164,8 @@ func (m *Manager) processStatEvent(event *ContainerStatEvent) {
 
 		log.Debug().
 			Str("containerID", event.Stat.ID).
-			Float64("cpu", event.Stat.CPUPercent).
-			Float64("memory", event.Stat.MemoryPercent).
+			Float64("cpu", notificationStat.CPUPercent).
+			Float64("memory", notificationStat.MemoryPercent).
 			Str("subscription", sub.Name).
 			Msg("Metric alert triggered")
 
