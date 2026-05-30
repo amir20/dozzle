@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { formatBytes, stripVersion, hashCode, sanitizeForClipboard } from "./format";
+import { formatBytes, stripVersion, hashCode } from "./format";
 
 describe("formatBytes", () => {
   test("zero bytes", () => {
@@ -56,27 +56,5 @@ describe("hashCode", () => {
 
   test("differs for different input", () => {
     expect(hashCode("a")).not.toBe(hashCode("b"));
-  });
-});
-
-describe("sanitizeForClipboard", () => {
-  test("strips NUL bytes that truncate clipboard text on Windows", () => {
-    expect(sanitizeForClipboard("before\x00after")).toBe("beforeafter");
-  });
-
-  test("strips other C0 control bytes", () => {
-    expect(sanitizeForClipboard("a\x01b\x07c\x1fd")).toBe("abcd");
-  });
-
-  test("preserves tab, newline and carriage return", () => {
-    expect(sanitizeForClipboard("a\tb\nc\r\nd")).toBe("a\tb\nc\r\nd");
-  });
-
-  test("removes ANSI escape sequences", () => {
-    expect(sanitizeForClipboard("\x1b[31mred\x1b[0m text")).toBe("red text");
-  });
-
-  test("leaves plain text untouched", () => {
-    expect(sanitizeForClipboard("plain log line")).toBe("plain log line");
   });
 });

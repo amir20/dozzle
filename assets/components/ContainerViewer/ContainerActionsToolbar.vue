@@ -269,9 +269,9 @@ async function copyLogs() {
   const blobPromise = fetch(url, { headers: { Accept: "text/plain" } })
     .then((response) => {
       if (!response.ok) throw new Error(response.statusText);
-      return response.text();
+      return response.blob();
     })
-    .then((text) => {
+    .then((blob) => {
       removeToast(toastId);
       showToast(
         {
@@ -281,8 +281,7 @@ async function copyLogs() {
         },
         { expire: 2000 },
       );
-      // Strip ANSI and control bytes; a NUL byte truncates clipboard text on Windows
-      return new Blob([sanitizeForClipboard(text)], { type: "text/plain" });
+      return blob;
     })
     .catch((err) => {
       removeToast(toastId);

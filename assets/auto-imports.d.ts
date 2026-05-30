@@ -141,7 +141,6 @@ declare global {
   const refWithControl: typeof import('@vueuse/core').refWithControl
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
-  const sanitizeForClipboard: typeof import('./utils/index').sanitizeForClipboard
   const scrollContextKey: typeof import('./composable/scrollContext').scrollContextKey
   const search: typeof import('./stores/settings').search
   const sessionHost: typeof import('./composable/storage').sessionHost
@@ -580,7 +579,6 @@ declare module 'vue' {
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
-    readonly sanitizeForClipboard: UnwrapRef<typeof import('./utils/index')['sanitizeForClipboard']>
     readonly scrollContextKey: UnwrapRef<typeof import('./composable/scrollContext')['scrollContextKey']>
     readonly search: UnwrapRef<typeof import('./stores/settings')['search']>
     readonly sessionHost: UnwrapRef<typeof import('./composable/storage')['sessionHost']>
