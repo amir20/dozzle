@@ -197,7 +197,8 @@ func (h *handler) fetchLogsBetweenDates(w http.ResponseWriter, r *http.Request) 
 					}
 				}
 				if plainText {
-					fmt.Fprintf(writer, "%s\n", event.RawMessage)
+					// Strip ANSI and control bytes; a NUL byte truncates clipboard text on Windows
+					fmt.Fprintf(writer, "%s\n", container.SanitizeForPlainText(event.RawMessage))
 				} else if err := encoder.Encode(event); err != nil {
 					log.Error().Err(err).Msg("error encoding log event")
 				}
