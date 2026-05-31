@@ -20,9 +20,9 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
     RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -168,17 +168,23 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'assets/pages/[...all].vue': {
       routes:
         | '/[...all]'
       views:
         | never
+      pathParamNames:
+        | 'all'
     }
     'assets/pages/cloud/search.vue': {
       routes:
         | '/cloud/search'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'assets/pages/container/[id].vue': {
@@ -186,35 +192,48 @@ declare module 'vue-router/auto-routes' {
         | '/container/[id]'
       views:
         | never
+      pathParamNames:
+        | 'id'
     }
     'assets/pages/container/[id].time.[datetime].vue': {
       routes:
         | '/container/[id].time.[datetime]'
       views:
         | never
+      pathParamNames:
+        | 'datetime'
+        | 'id'
     }
     'assets/pages/group/[name].vue': {
       routes:
         | '/group/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'assets/pages/host/[id].vue': {
       routes:
         | '/host/[id]'
       views:
         | never
+      pathParamNames:
+        | 'id'
     }
     'assets/pages/host-group/[name].vue': {
       routes:
         | '/host-group/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'assets/pages/login.vue': {
       routes:
         | '/login'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'assets/pages/merged/[ids].vue': {
@@ -222,17 +241,23 @@ declare module 'vue-router/auto-routes' {
         | '/merged/[ids]'
       views:
         | never
+      pathParamNames:
+        | 'ids'
     }
     'assets/pages/namespace/[name].vue': {
       routes:
         | '/namespace/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'assets/pages/notifications.vue': {
       routes:
         | '/notifications'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'assets/pages/owner/[name].vue': {
@@ -240,17 +265,23 @@ declare module 'vue-router/auto-routes' {
         | '/owner/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'assets/pages/service/[name].vue': {
       routes:
         | '/service/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
     'assets/pages/settings.vue': {
       routes:
         | '/settings'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'assets/pages/show.vue': {
@@ -258,12 +289,16 @@ declare module 'vue-router/auto-routes' {
         | '/show'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'assets/pages/stack/[name].vue': {
       routes:
         | '/stack/[name]'
       views:
         | never
+      pathParamNames:
+        | 'name'
     }
   }
 
