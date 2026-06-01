@@ -135,6 +135,52 @@ func TestResolveContainerRef_AmbiguousSubstring(t *testing.T) {
 	assert.NotContains(t, err.Error(), "host_id")
 }
 
+func TestResolveContainerRef_PrefersRunningAmongStoppedCorpses(t *testing.T) {
+	// The motivating case: Docker Swarm leaves stopped task containers behind
+	// across redeploys, so the short task name "svc.1" substring-matches every
+	// historical task — but only the current one is running. The single live
+	// container is the unambiguous referent; resolve to it instead of erroring.
+	deps := resolverDeps([]container.Container{
+		{ID: "old1", Name: "svc.1.aaa", Host: "local", State: "exited"},
+		{ID: "old2", Name: "svc.1.bbb", Host: "local", State: "exited"},
+		{ID: "live", Name: "svc.1.ccc", Host: "local", State: "running"},
+		{ID: "old3", Name: "svc.1.ddd", Host: "local", State: "exited"},
+	})
+
+	host, id, err := resolveContainerRef("svc.1", "", deps)
+	assert.NoError(t, err)
+	assert.Equal(t, "local", host)
+	assert.Equal(t, "live", id)
+}
+
+func TestResolveContainerRef_MultipleRunningStillAmbiguous(t *testing.T) {
+	// Two genuinely live replicas — we must NOT guess, and the listing must
+	// surface each candidate's state so the caller can pick the right one.
+	deps := resolverDeps([]container.Container{
+		{ID: "r1", Name: "svc.1.aaa", Host: "host-a", State: "running"},
+		{ID: "r2", Name: "svc.2.bbb", Host: "host-b", State: "running"},
+	})
+
+	_, _, err := resolveContainerRef("svc", "", deps)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "matches multiple containers")
+	assert.Contains(t, err.Error(), "running")
+}
+
+func TestResolveContainerRef_AllStoppedStillAmbiguous(t *testing.T) {
+	// No live container to prefer — refuse and list the candidates with their
+	// state rather than picking an arbitrary corpse.
+	deps := resolverDeps([]container.Container{
+		{ID: "s1", Name: "svc.1.aaa", Host: "local", State: "exited"},
+		{ID: "s2", Name: "svc.1.bbb", Host: "local", State: "exited"},
+	})
+
+	_, _, err := resolveContainerRef("svc.1", "", deps)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "matches multiple containers")
+	assert.Contains(t, err.Error(), "exited")
+}
+
 func TestResolveContainerRef_HostDisambiguates(t *testing.T) {
 	// Same name on two hosts; supplying the host id resolves cleanly.
 	deps := resolverDeps([]container.Container{
@@ -271,4 +317,24 @@ func TestExecuteTool_RestartContainer_ByName_HostInferred(t *testing.T) {
 	assert.True(t, resp.Success)
 	assert.Equal(t, "id1", resp.GetAction().ContainerId)
 	mockClient.AssertCalled(t, "ContainerAction", mock.Anything, mock.Anything, container.Restart)
+}
+
+func TestExecuteTool_RestartContainer_PrefersRunningReplica(t *testing.T) {
+	// A name matching one running task and several stopped corpses resolves to
+	// the live task even for a write tool — the corpses are never a valid target,
+	// so picking the single running container is safe (and what the user means).
+	mockClient := &MockClientService{}
+	mockClient.On("ContainerAction", mock.Anything, mock.Anything, container.Restart).Return(nil)
+	cs := container_support.NewContainerService(mockClient, container.Container{ID: "live", Name: "svc.1.ccc", Host: "local", State: "running"})
+
+	mockHost := &MockHostService{}
+	withResolver(mockHost,
+		container.Container{ID: "dead", Name: "svc.1.aaa", Host: "local", State: "exited"},
+		container.Container{ID: "live", Name: "svc.1.ccc", Host: "local", State: "running"},
+	)
+	mockHost.On("FindContainer", "local", "live", container.ContainerLabels(nil)).Return(cs, nil)
+
+	resp := ExecuteTool(context.Background(), "restart_container", `{"container_id":"svc.1"}`, ToolDeps{HostService: mockHost, EnableActions: true})
+	assert.True(t, resp.Success)
+	assert.Equal(t, "live", resp.GetAction().ContainerId)
 }

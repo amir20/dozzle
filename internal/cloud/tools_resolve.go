@@ -23,10 +23,14 @@ import (
 //  3. unique substring of the name
 //
 // The first tier that yields any candidates wins. An id match is always unique,
-// so it is never treated as ambiguous. If a name tier yields more than one
-// container the call fails with an error listing every candidate (name + id +
-// host) so the caller can disambiguate — we NEVER silently pick one. This is
-// what makes the write tools (stop/restart/remove/update) safe to drive by name.
+// so it is never treated as ambiguous. When a name tier yields more than one
+// container we try to break the tie by running state: if exactly one candidate
+// is running it is the unambiguous live referent (the others are stopped task
+// corpses left by Swarm redeploys / restart churn) and we resolve to it. Only
+// when the tie is real — zero running, or several live containers — does the
+// call fail with an error listing every candidate (name + id + state + host) so
+// the caller can disambiguate. We NEVER pick between multiple *live* containers,
+// which is what keeps the write tools (stop/restart/remove/update) safe by name.
 //
 // hostRef is optional: when empty the container must resolve unambiguously
 // across all hosts; when supplied it scopes the search to that host (matched by
@@ -82,6 +86,18 @@ func resolveContainerRef(containerRef, hostRef string, deps ToolDeps) (hostID, c
 		case 1:
 			return tier[0].Host, tier[0].ID, nil
 		default:
+			// Multiple matches in this tier. The usual benign cause is Docker
+			// Swarm (or plain restart churn) leaving stopped task containers
+			// behind across redeploys — the short name "svc.1" substring-matches
+			// every historical "svc.1.<taskid>" corpse alongside the one live
+			// task. When exactly one candidate is running it is the unambiguous
+			// live referent, so resolve to it rather than make the caller hunt
+			// for an id. We still refuse to choose between multiple *live*
+			// containers — that is the real ambiguity the write tools must never
+			// guess at.
+			if live := runningContainers(tier); len(live) == 1 {
+				return live[0].Host, live[0].ID, nil
+			}
 			return "", "", ambiguousError(containerRef, hostRef, tier, hostNames)
 		}
 	}
@@ -152,7 +168,7 @@ func ambiguousError(containerRef, hostRef string, candidates []container.Contain
 	parts := make([]string, len(candidates))
 	sameHost := true
 	for i, c := range candidates {
-		parts[i] = fmt.Sprintf("%s (id %s on host %s)", c.Name, shortID(c.ID), resolveHostName(c.Host, hostNames))
+		parts[i] = fmt.Sprintf("%s (id %s, %s, on host %s)", c.Name, shortID(c.ID), describeState(c), resolveHostName(c.Host, hostNames))
 		if c.Host != candidates[0].Host {
 			sameHost = false
 		}
@@ -168,6 +184,34 @@ func ambiguousError(containerRef, hostRef string, candidates []container.Contain
 		hint = "pass host_id to scope to one host, or pass the exact container id"
 	}
 	return fmt.Errorf("%q matches multiple containers: %s. To act on the right one, %s", containerRef, strings.Join(parts, "; "), hint)
+}
+
+// runningContainers returns only the candidates in the running state. It breaks
+// a multi-match tie down to the single live container when every other candidate
+// is a stopped corpse (the typical Swarm-redeploy / restart-churn case), which
+// is the one situation where picking among matches is unambiguous and safe.
+func runningContainers(cs []container.Container) []container.Container {
+	live := make([]container.Container, 0, len(cs))
+	for _, c := range cs {
+		if strings.EqualFold(c.State, "running") {
+			live = append(live, c)
+		}
+	}
+	return live
+}
+
+// describeState renders a candidate's state (with health when known) for the
+// ambiguity listing, so the caller can tell a live replica from a stopped corpse
+// and pick the right one. A blank state is reported as "unknown".
+func describeState(c container.Container) string {
+	state := c.State
+	if state == "" {
+		state = "unknown"
+	}
+	if c.Health != "" {
+		return fmt.Sprintf("%s (%s)", state, c.Health)
+	}
+	return state
 }
 
 // shortID trims a full docker id to its conventional 12-character form for
