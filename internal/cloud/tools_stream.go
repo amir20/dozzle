@@ -68,7 +68,11 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 		return err
 	}
 
-	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	// Read-only: resolve an ambiguous name in one shot instead of erroring. note
+	// is non-empty when the name resolved to one of several candidates; it is
+	// surfaced once, on the first emitted batch, so the model learns the pick and
+	// its siblings without a round-trip and without repeating on every batch.
+	hostID, containerID, note, err := resolveContainerRefRead(args.ContainerID, args.Host, deps)
 	if err != nil {
 		return err
 	}
@@ -87,9 +91,15 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 		}
 	}()
 
+	noteSent := false
 	sendBatch := func(entries []*pb.LogEntry, endStream bool) error {
 		if len(entries) == 0 && !endStream {
 			return nil
+		}
+		name := cs.Container.Name
+		if !noteSent {
+			name = withResolutionNote(name, note)
+			noteSent = true
 		}
 		resp := &pb.ToolResponse{
 			RequestId: requestID,
@@ -100,7 +110,7 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 					EndStream: endStream,
 					Result: &pb.CallToolResponse_FetchLogs{
 						FetchLogs: &pb.FetchLogsResult{
-							ContainerName: cs.Container.Name,
+							ContainerName: name,
 							Entries:       entries,
 						},
 					},
@@ -162,4 +172,3 @@ func executeStreamLogs(ctx context.Context, requestID string, argsJSON string, d
 		}
 	}
 }
-
