@@ -2,6 +2,7 @@ package container
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -23,20 +24,30 @@ var logLevels = [][]string{
 // aliasToCanonical maps every alias to its canonical level name.
 var aliasToCanonical = map[string]string{}
 
-// levelRegexes holds one combined regex per canonical level. Each regex is an
-// alternation of all the shapes a level can take in a log line:
+// levelMatcher extracts a canonical log level from a line. re must expose a
+// single capture group holding the level alias, or a single-letter code when
+// single is true (mapped via singleLetterToLevel).
+type levelMatcher struct {
+	re     *regexp.Regexp
+	single bool
+}
+
+// levelTiers groups matchers by how confidently their shape identifies the log
+// level, highest confidence first:
 //
-//	(?i:^<alt>[^a-z]      // plain prefix:  "error: ..."
-//	|\[ ?<alt> ?\]        // bracketed:     "[ERROR]" / "[ error ]"
-//	| <alt>[/|:-]         // separator:     " error|", " info:" (z2m)
-//	|:<alt>\s)            // colon prefix:  "Tag:info " (z2m)
-//	|"<UPPER>"            // quoted:        "\"ERROR\""
-//	|\s<UPPER>\s          // spaced:        " ERROR "
+//  1. ^<level>     start-of-line prefix: "ERROR: ...", "INF ..."
+//  2. [<level>]    bracketed tag / single-letter: "[ERROR]", "[E]"
+//  3. <tag>:<level> structured prefix: "Zigbee2MQTT:info "
+//  4. "<LEVEL>"    quoted upper-case value: LL="ERROR"
+//  5. <sp><level>[/|:-] separator: " error:", " info|"
+//  6. <sp><LEVEL><sp> bare upper-case token mid-line: "123 ERROR foo"
 //
-// The case-insensitive group covers the boundary-anchored forms; the trailing
-// uppercase-only branches catch mid-line `ERROR` tokens without false-firing on
-// the word "error" in prose.
-var levelRegexes = map[string]*regexp.Regexp{}
+// guessFromString walks the tiers in order and stops at the first that matches,
+// so a real level prefix at the front of the line always beats a level word
+// buried in the message body. Within a tier, two different levels mean the line
+// is ambiguous and we return "unknown" rather than guess. Match position and
+// level severity are deliberately not used as tie-breakers.
+var levelTiers [][]levelMatcher
 
 // singleLetterBracket matches single-letter levels in brackets, e.g. [I], [E], [W]
 var singleLetterBracket = regexp.MustCompile(`\[([EWIDFTV])\]`)
@@ -48,26 +59,33 @@ var levelKeys = []string{"@l", "level", "log.level", "severity"}
 
 func init() {
 	SupportedLogLevels = make(map[string]struct{}, len(logLevels)+1)
+	var aliases []string
 	for _, group := range logLevels {
 		canonical := group[0]
 		SupportedLogLevels[canonical] = struct{}{}
 		for _, alias := range group {
 			aliasToCanonical[alias] = canonical
+			aliases = append(aliases, alias)
 		}
-
-		alt := "(?:" + strings.Join(group, "|") + ")"
-		upper := strings.ToUpper(alt)
-
-		levelRegexes[canonical] = regexp.MustCompile(
-			`(?i:^` + alt + `[^a-z]` +
-				`|\[ ?` + alt + ` ?\]` +
-				`| ` + alt + `[/|:-]` +
-				`|:` + alt + `\s)` +
-				`|"` + upper + `"` +
-				`|\s` + upper + `\s`,
-		)
 	}
 	SupportedLogLevels["unknown"] = struct{}{}
+
+	// Longest aliases first so e.g. "warning" is preferred over "warn".
+	sort.SliceStable(aliases, func(i, j int) bool { return len(aliases[i]) > len(aliases[j]) })
+	joined := strings.Join(aliases, "|")
+	upper := strings.ToUpper(joined)
+
+	levelTiers = [][]levelMatcher{
+		{{re: regexp.MustCompile(`(?i)^(` + joined + `)[^a-z]`)}},
+		{
+			{re: regexp.MustCompile(`(?i)\[ ?(` + joined + `) ?\]`)},
+			{re: singleLetterBracket, single: true},
+		},
+		{{re: regexp.MustCompile(`(?i):(` + joined + `)\s`)}},
+		{{re: regexp.MustCompile(`"(` + upper + `)"`)}},
+		{{re: regexp.MustCompile(`(?i) (` + joined + `)[/|:-]`)}},
+		{{re: regexp.MustCompile(`\s(` + upper + `)\s`)}},
+	}
 }
 
 func guessLogLevel(logEvent *LogEvent) string {
@@ -117,14 +135,30 @@ var singleLetterToLevel = map[byte]string{
 func guessFromString(value string) string {
 	value = StripANSI(value)
 	value = timestampRegex.ReplaceAllString(value, "")
-	for _, group := range logLevels {
-		if levelRegexes[group[0]].MatchString(value) {
-			return group[0]
+	for _, tier := range levelTiers {
+		level := ""
+		for _, m := range tier {
+			for _, match := range m.re.FindAllStringSubmatch(value, -1) {
+				var canonical string
+				if m.single {
+					canonical = singleLetterToLevel[match[1][0]]
+				} else {
+					canonical = aliasToCanonical[strings.ToLower(match[1])]
+				}
+				if canonical == "" {
+					continue
+				}
+				if level == "" {
+					level = canonical
+				} else if level != canonical {
+					// Two different levels at the same confidence: ambiguous.
+					return "unknown"
+				}
+			}
 		}
-	}
-
-	if m := singleLetterBracket.FindStringSubmatch(value); m != nil {
-		return singleLetterToLevel[m[1][0]]
+		if level != "" {
+			return level
+		}
 	}
 	return "unknown"
 }
