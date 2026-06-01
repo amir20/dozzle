@@ -107,6 +107,17 @@ func TestGuessLogLevel(t *testing.T) {
 		{"[T] trace message", "trace"},
 		{"[V] verbose message", "trace"},
 		{"12:00:00 [I] starting up", "info"},
+		// Issue #4768: a real level prefix must win over a level word in the message body.
+		{"INFO: connection established, retrying after error: timeout", "info"},
+		{"INFO handling request failed with error: bad gateway", "info"},
+		{"2024-12-30T17:43:16Z INF some message about an error: foo", "info"},
+		{"INFO request completed but contained ERROR token", "info"},
+		{"WARN: connection error: retrying", "warn"},
+		// Symmetric: an ERROR prefix still wins over a later info word.
+		{"ERROR: handler failed, info: will retry", "error"},
+		// Equal confidence between two different levels -> unknown (don't guess).
+		{"saw info: here and error: there", "unknown"},
+		{"[INFO] [DEBUG] both bracketed", "unknown"},
 		{orderedmap.New[string, any](
 			orderedmap.WithInitialData(
 				orderedmap.Pair[string, any]{Key: "key", Value: "value"},
