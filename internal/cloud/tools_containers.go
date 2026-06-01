@@ -168,7 +168,11 @@ func executeInspectContainer(argsJSON string, deps ToolDeps) (*pb.CallToolRespon
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
-	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	// Read-only: resolve an ambiguous name in one shot rather than erroring and
+	// forcing a find_containers round-trip. The note is discarded here because
+	// inspect already returns the concrete id/name/state, which is itself the
+	// disambiguation — no need to mangle those structured fields with prose.
+	hostID, containerID, _, err := resolveContainerRefRead(args.ContainerID, args.Host, deps)
 	if err != nil {
 		return nil, err
 	}
