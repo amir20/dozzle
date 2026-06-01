@@ -27,7 +27,7 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, deps ToolDe
 	if err := json.Unmarshal([]byte(argsJSON), &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
-	hostID, containerID, err := resolveContainerRef(args.ContainerID, args.Host, deps)
+	hostID, containerID, note, err := resolveContainerRefRead(args.ContainerID, args.Host, deps)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +93,17 @@ func executeFetchContainerLogs(ctx context.Context, argsJSON string, deps ToolDe
 
 	return &pb.CallToolResponse{
 		Success: true,
-		Result:  &pb.CallToolResponse_FetchLogs{FetchLogs: &pb.FetchLogsResult{ContainerName: cs.Container.Name, Entries: entries}},
+		Result:  &pb.CallToolResponse_FetchLogs{FetchLogs: &pb.FetchLogsResult{ContainerName: withResolutionNote(cs.Container.Name, note), Entries: entries}},
 	}, nil
+}
+
+// withResolutionNote appends the read-path resolution note (if any) to a
+// model-visible identity string, so the model learns which container an
+// ambiguous name resolved to — and that siblings exist — in the same turn,
+// without a round-trip. Empty note returns name unchanged.
+func withResolutionNote(name, note string) string {
+	if note == "" {
+		return name
+	}
+	return name + " " + note
 }

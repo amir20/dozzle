@@ -67,7 +67,7 @@ var (
 		Properties: map[string]paramProperty{},
 	})
 
-	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID. You can pass the container name directly (as shown in logs, events, and find_containers) — it does not need to be the opaque ID. Resolved by exact name first, then ID, then a unique name substring. If the name matches more than one container the call fails with the list of candidates so you can disambiguate."}
+	containerIDParam = paramProperty{Type: "string", Description: "Container name or ID. You can pass the container name directly (as shown in logs, events, and find_containers) — it does not need to be the opaque ID. Resolved by exact name first, then ID, then a unique name substring. When a name matches several containers (e.g. a Swarm service with stopped task corpses, or multiple replicas), read-only tools (inspect/logs) resolve to the most relevant one — the running replica, or the most-recently-active if all are stopped — and tell you which one (and its siblings) in the result, so you don't need to look up the ID first. Write tools (start/stop/restart/remove/update) never guess between live containers: an ambiguous name fails with the candidate list so you can re-issue with an exact ID."}
 	hostIDParam      = paramProperty{Type: "string", Description: "Host name or ID (from list_hosts or find_containers). Optional — omit it when the container name is unique across all hosts; supply it (name or ID) only to scope to a specific host when a name is ambiguous."}
 	boolFalse        = false
 
