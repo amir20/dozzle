@@ -2,23 +2,48 @@ package container
 
 import "testing"
 
-func TestSanitizeForPlainText(t *testing.T) {
+func TestLogEventPlainText(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    string
+		event    *LogEvent
 		expected string
 	}{
-		{"strips NUL bytes that truncate clipboard text on Windows", "before\x00after", "beforeafter"},
-		{"strips other C0 control bytes", "a\x01b\x07c\x1fd", "abcd"},
-		{"preserves tab, newline and carriage return", "a\tb\nc\r\nd", "a\tb\nc\r\nd"},
-		{"removes ANSI escape sequences", "\x1b[31mred\x1b[0m text", "red text"},
-		{"leaves plain text untouched", "plain log line", "plain log line"},
+		{
+			name:     "single event returns ANSI-stripped raw message",
+			event:    &LogEvent{Type: LogTypeSingle, RawMessage: "\x1b[31mred\x1b[0m text"},
+			expected: "red text",
+		},
+		{
+			name:     "complex event returns raw message",
+			event:    &LogEvent{Type: LogTypeComplex, RawMessage: `{"level":"info"}`},
+			expected: `{"level":"info"}`,
+		},
+		{
+			name: "grouped event expands every fragment line (otherwise lost on copy)",
+			event: &LogEvent{
+				Type: LogTypeGroup,
+				Message: []LogFragment{
+					{Message: "Job (17) starting"},
+					{Message: "Job (17) done in 0.006s"},
+					{Message: "Job (17) completed"},
+				},
+			},
+			expected: "Job (17) starting\nJob (17) done in 0.006s\nJob (17) completed",
+		},
+		{
+			name: "grouped fragments are ANSI-stripped",
+			event: &LogEvent{
+				Type:    LogTypeGroup,
+				Message: []LogFragment{{Message: "\x1b[31mred\x1b[0m"}, {Message: "plain"}},
+			},
+			expected: "red\nplain",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := SanitizeForPlainText(tt.input); got != tt.expected {
-				t.Errorf("SanitizeForPlainText(%q) = %q, want %q", tt.input, got, tt.expected)
+			if got := tt.event.PlainText(); got != tt.expected {
+				t.Errorf("PlainText() = %q, want %q", got, tt.expected)
 			}
 		})
 	}

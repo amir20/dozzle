@@ -2,18 +2,20 @@ package container
 
 import "strings"
 
-// stripControlBytes removes C0 control characters except tab (\x09), newline
-// (\x0a) and carriage return (\x0d). A NUL byte terminates the clipboard string
-// on Windows, dropping everything after it.
-func stripControlBytes(r rune) rune {
-	if (r >= 0x00 && r <= 0x08) || r == 0x0b || r == 0x0c || (r >= 0x0e && r <= 0x1f) {
-		return -1
+// PlainText renders a log event as plain text for clipboard copy, stripping
+// ANSI escape sequences. Grouped events carry their lines in fragments and
+// have an empty RawMessage, so they are expanded one line per fragment;
+// otherwise every grouped multi-line entry collapses to a single blank line on
+// copy.
+func (e *LogEvent) PlainText() string {
+	if e.Type == LogTypeGroup {
+		if fragments, ok := e.Message.([]LogFragment); ok {
+			lines := make([]string, len(fragments))
+			for i, fragment := range fragments {
+				lines[i] = StripANSI(fragment.Message)
+			}
+			return strings.Join(lines, "\n")
+		}
 	}
-	return r
-}
-
-// SanitizeForPlainText strips ANSI escape sequences and control bytes so log
-// text is safe to copy to the clipboard or open in a text editor.
-func SanitizeForPlainText(str string) string {
-	return strings.Map(stripControlBytes, StripANSI(str))
+	return StripANSI(e.RawMessage)
 }
