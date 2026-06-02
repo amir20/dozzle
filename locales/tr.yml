@@ -60,6 +60,12 @@ label:
   swarm-menu: Servisler ve Yığınlar
   group-menu: Özel Gruplar
   no-logs: Konteyner henüz log içermiyor
+  search-status:
+    searching: Eski loglar aranıyor…
+    searching-to: Eski loglar aranıyor… {time} tarihine kadar
+    capped: "{count} eşleşme · {time} tarihine kadar arandı"
+    exhausted: Tüm loglar arandı · {count} eşleşme
+    empty: Eşleşme yok · tüm loglar arandı
   show-all-containers: Tüm konteynerleri göster
   collapse-all: Hepsini daralt
   collapse-group: Grubu daralt

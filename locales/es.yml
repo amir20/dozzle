@@ -55,6 +55,12 @@ label:
   swarm-menu: Servicios y Stacks
   group-menu: Grupos Personalizados
   no-logs: El contenedor aún no tiene registros
+  search-status:
+    searching: Buscando registros anteriores…
+    searching-to: Buscando registros anteriores… hasta {time}
+    capped: "{count} coincidencias · buscado hasta {time}"
+    exhausted: Todos los registros buscados · {count} coincidencias
+    empty: Sin coincidencias · todos los registros buscados
   show-all-containers: Mostrar todos los contenedores
   collapse-all: Colapsar todo
   collapse-group: Colapsar grupo

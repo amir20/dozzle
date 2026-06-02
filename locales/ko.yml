@@ -54,6 +54,12 @@ label:
   swarm-menu: 서비스 및 스택
   group-menu: 사용자 그룹
   no-logs: 아직 로그가 없습니다
+  search-status:
+    searching: 이전 로그 검색 중…
+    searching-to: 이전 로그 검색 중… {time}까지
+    capped: "{count}개 일치 · {time}까지 검색함"
+    exhausted: 모든 로그 검색 완료 · {count}개 일치
+    empty: 일치 항목 없음 · 모든 로그 검색함
   show-all-containers: 전체 컨테이너 보기
   collapse-all: 전체 접기
   collapse-group: 그룹 접기

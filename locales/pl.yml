@@ -59,6 +59,12 @@ label:
   swarm-menu: Usługi i Stosy
   group-menu: Grupy Niestandardowe
   no-logs: Kontener nie ma jeszcze logów
+  search-status:
+    searching: Przeszukiwanie starszych logów…
+    searching-to: Przeszukiwanie starszych logów… wstecz do {time}
+    capped: "{count} dopasowań · przeszukano do {time}"
+    exhausted: Przeszukano wszystkie logi · {count} dopasowań
+    empty: Brak dopasowań · przeszukano wszystkie logi
   show-all-containers: Pokaż wszystkie kontenery
   collapse-all: Zwiń wszystkie
   collapse-group: Zwiń grupę

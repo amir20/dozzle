@@ -55,6 +55,12 @@ label:
   swarm-menu: Services en Stacks
   group-menu: Aangepaste groepen
   no-logs: Container heeft nog geen logbestanden
+  search-status:
+    searching: Oudere logs doorzoeken…
+    searching-to: Oudere logs doorzoeken… terug tot {time}
+    capped: "{count} overeenkomsten · doorzocht tot {time}"
+    exhausted: Alle logs doorzocht · {count} overeenkomsten
+    empty: Geen overeenkomsten · alle logs doorzocht
   show-all-containers: Toon alle containers
   collapse-all: Alles inklappen
   collapse-group: Groep inklappen

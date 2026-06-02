@@ -40,6 +40,12 @@ label:
   all-containers: 所有容器
   all-namespaces: 所有命名空间
   no-logs: 容器尚无日志
+  search-status:
+    searching: 正在搜索较旧的日志…
+    searching-to: 正在搜索较旧的日志…回溯至 {time}
+    capped: "{count} 条匹配 · 已搜索至 {time}"
+    exhausted: 已搜索所有日志 · {count} 条匹配
+    empty: 无匹配项 · 已搜索所有日志
   show-all-containers: 显示所有容器
   collapse-all: 折叠全部
   collapse-group: 折叠组
