@@ -98,13 +98,22 @@ func (g *EventGenerator) emitAsSingles(events []*LogEvent) bool {
 	return true
 }
 
+// maxOrphanLines bounds how many leading lines skipOrphanedLines will buffer
+// before giving up. A genuine orphan run is the tail of a single group split at
+// a fetch boundary, which is small. A busy container streaming sustained
+// level-less lines (all spaced under maxGroupTimeDelta) would otherwise look
+// like one endless orphan run and buffer forever, so the live view shows
+// nothing until a timing gap appears. Past this many lines it clearly isn't a
+// leftover fragment — emit what we have and resume normal processing.
+const maxOrphanLines = 1000
+
 // skipOrphanedLines drains leading simple events without a level that look
 // like orphaned continuation lines from a group already emitted in a prior
 // fetch. Returns the first non-orphan event (or nil if the stream ends).
-// If no non-orphan event arrives (stream ends or times out waiting), the
-// buffered events are emitted as singles — they weren't really orphans.
-// Lines near the container start time are never skipped since nothing can
-// precede them.
+// If no non-orphan event arrives (stream ends, times out waiting, or the run
+// exceeds maxOrphanLines), the buffered events are emitted as singles — they
+// weren't really orphans. Lines near the container start time are never
+// skipped since nothing can precede them.
 func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 	var orphanBuffer []*LogEvent
 	var lastTimestamp int64
@@ -147,6 +156,13 @@ func (g *EventGenerator) skipOrphanedLines() *LogEvent {
 
 		lastTimestamp = current.Timestamp
 		orphanBuffer = append(orphanBuffer, current)
+
+		// A sustained run this long isn't a leftover group fragment — it's real
+		// content (a busy container). Stop skipping and emit it, then resume.
+		if len(orphanBuffer) >= maxOrphanLines {
+			g.emitAsSingles(orphanBuffer)
+			return g.nextEvent()
+		}
 
 		// Use peek (with timeout) so we don't block forever on a live stream.
 		if next := g.peek(); next == nil {
