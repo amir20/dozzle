@@ -88,6 +88,50 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 	}
 }
 
+// steadyLevellessReader emits simple, level-less, timestamped lines forever,
+// spaced under both maxGroupTimeDelta (so they look groupable) and the peek
+// timeout (so peek never reports a gap). It stops when ctx is cancelled.
+type steadyLevellessReader struct {
+	ctx   context.Context
+	base  time.Time
+	step  time.Duration // timestamp spacing between consecutive lines
+	delay time.Duration // wall-clock spacing between Read() calls
+	i     int
+}
+
+func (r *steadyLevellessReader) Read() (string, StdType, error) {
+	select {
+	case <-r.ctx.Done():
+		return "", 0, io.EOF
+	case <-time.After(r.delay):
+	}
+	ts := r.base.Add(time.Duration(r.i) * r.step).Format(time.RFC3339Nano)
+	r.i++
+	return ts + " lorem ipsum dolor sit amet", STDOUT, nil
+}
+
+func TestEventGenerator_doesNotStallOnSustainedLevellessStream(t *testing.T) {
+	// Reproduces the live-log stall: a busy container whose backlog has rotated
+	// away streams from a point far past its start, so skipOrphanedLines never
+	// short-circuits. With sustained level-less lines spaced under
+	// maxGroupTimeDelta, every line looks like an orphaned continuation, so the
+	// skip loop buffers forever and the UI shows "no logs". The generator must
+	// give up and emit instead.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	reader := &steadyLevellessReader{ctx: ctx, base: time.Now(), step: time.Millisecond, delay: time.Millisecond}
+	// startedAt far in the past so the near-start short-circuit cannot fire
+	g := NewEventGenerator(ctx, reader, Container{StartedAt: time.Now().Add(-time.Hour)})
+
+	select {
+	case event := <-g.Events:
+		require.NotNil(t, event)
+	case <-time.After(5 * time.Second):
+		t.Fatal("no event within 5s: skipOrphanedLines stalled on a sustained level-less stream")
+	}
+}
+
 func Test_createEvent(t *testing.T) {
 	data := orderedmap.New[string, any]()
 	data.Set("xyz", "value")
