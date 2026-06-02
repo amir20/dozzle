@@ -7,6 +7,12 @@ Two refinements added during implementation, beyond the original design:
 - The in-progress bar reveals only after a 400ms delay, so fast searches (the common case) never flash it. Only slow searches surface it.
 - The completion summary (capped/exhausted) shows only for searches that actually ran slow; fast searches stay quiet. Zero-match searches always show "No matches · searched all logs" (the real fix for the false "No logs").
 
+What the indicator actually delivers (verified end-to-end against a real busy container via the `amir20/echo -haystack` generator):
+
+- "No logs" no longer shows mid-search. Fixed.
+- A "Searching older logs…" indicator stays up for the whole search. Works.
+- The live "scanned back to {time}" readout does NOT animate. `ContainerLogsBetweenDates` uses Docker's `--since`/`--until`, and the json-file driver scans the whole log from the start to honor `--since`, so the first window pays a full-file cold read that is basically the entire search time; the remaining windows hit warm cache and finish in milliseconds. All `search-status` events therefore arrive bunched at the end, not spread across the walk. The component degrades gracefully (plain "Searching older logs…" during, completion summary after), but treat "how much was scanned" as a final value, not a live progress bar. This is inherent to how Docker serves `--since`; the backfill loop can't change it.
+
 ## Problem (issue #4769)
 
 Regex search over a large log with sparse matches takes 10-15s. During that time the UI gives no signal that the search is still running, and can even render "No logs" mid-search, so the user can't tell whether it's done.
@@ -94,7 +100,7 @@ search-status:
 ## Decisions to lock before building
 
 1. Show the status for any filtered backfill (regex + level filters) or regex-only? Lean both: it's free and self-gates, since the goroutine only runs for filtered views (`:387`).
-2. Optional: turn the bottom `IndeterminateBar` into a real fill bar, `(now - to) / (now - container.Created)`. Pure frontend, single-container only (multi-container has no single floor). Defer unless wanted.
+2. ~~Optional: turn the bottom `IndeterminateBar` into a real fill bar, `(now - to) / (now - container.Created)`.~~ Dropped: progress events bunch at the end (see status note above), so a fill bar would sit at 0 then jump to 100. An indeterminate bar is the honest choice.
 3. Placement: sticky top of the scroll area (proposed) vs inline first row. Lean sticky so it stays visible while scrolling.
 
 ## Scope
