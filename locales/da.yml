@@ -55,6 +55,12 @@ label:
   swarm-menu: Tjenester og Stacks
   group-menu: Brugerdefinerede Grupper
   no-logs: Container har ingen logs endnu
+  search-status:
+    searching: Søger i ældre logs…
+    searching-to: Søger i ældre logs… tilbage til {time}
+    capped: "{count} match · søgt tilbage til {time}"
+    exhausted: Søgt i alle logs · {count} match
+    empty: Ingen match · søgt i alle logs
   show-all-containers: Vis alle containere
   collapse-all: Kollaps alle
   collapse-group: Kollaps gruppe

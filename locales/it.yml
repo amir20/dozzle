@@ -55,6 +55,12 @@ label:
   swarm-menu: Servizi e Stack
   group-menu: Gruppi Personalizzati
   no-logs: Il container non ha ancora log
+  search-status:
+    searching: Ricerca nei log meno recenti…
+    searching-to: Ricerca nei log meno recenti… fino a {time}
+    capped: "{count} risultati · cercato fino a {time}"
+    exhausted: Cercato in tutti i log · {count} risultati
+    empty: Nessun risultato · cercato in tutti i log
   show-all-containers: Mostra tutti i container
   collapse-all: Comprimi tutto
   collapse-group: Comprimi gruppo

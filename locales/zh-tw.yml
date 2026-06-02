@@ -40,6 +40,12 @@ label:
   all-containers: 所有容器
   all-namespaces: 所有命名空間
   no-logs: 容器尚無日誌
+  search-status:
+    searching: 正在搜尋較舊的日誌…
+    searching-to: 正在搜尋較舊的日誌…回溯至 {time}
+    capped: "{count} 筆符合 · 已搜尋至 {time}"
+    exhausted: 已搜尋所有日誌 · {count} 筆符合
+    empty: 無符合項目 · 已搜尋所有日誌
   show-all-containers: 顯示所有容器
   collapse-all: 摺疊全部
   collapse-group: 摺疊群組

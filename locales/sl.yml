@@ -58,6 +58,12 @@ label:
   avg-mem: Povprečje spomina (%)
   name: Ime
   no-logs: Zabojnik še nima dnevnika
+  search-status:
+    searching: Iskanje po starejših dnevnikih…
+    searching-to: Iskanje po starejših dnevnikih… nazaj do {time}
+    capped: "{count} zadetkov · iskano nazaj do {time}"
+    exhausted: Preiskani vsi dnevniki · {count} zadetkov
+    empty: Ni zadetkov · preiskani vsi dnevniki
 tooltip:
   search: Iskanje zabojnikov (⌘ + k, ⌃k)
   pin-column: Pripni kot stolpec

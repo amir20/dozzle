@@ -163,6 +163,94 @@ func Test_handler_streamLogs_happy_container_stopped(t *testing.T) {
 	mockedClient.AssertExpectations(t)
 }
 
+func Test_handler_streamLogs_search_status_exhausted(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	id := "123456"
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	q := req.URL.Query()
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	q.Add("filter", "NOMATCH")
+	q.Add("levels", "info")
+	req.URL.RawQuery = q.Encode()
+
+	created := time.Now().Add(-5 * time.Second)
+
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", Created: created, StartedAt: created}, nil)
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+		Return(io.NopCloser(strings.NewReader("")), nil)
+	mockedClient.On("ContainerLogs", mock.Anything, id, mock.Anything, container.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				cancel()
+			}()
+		})
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	body := rr.Body.String()
+	assert.Contains(t, body, "event: search-status", "should emit a search-status event")
+	assert.Contains(t, body, `"done":true`, "should emit a terminal status")
+	assert.Contains(t, body, `"reason":"exhausted"`, "ran out of logs, so reason is exhausted")
+}
+
+func Test_handler_streamLogs_search_status_on_error(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	id := "123456"
+	req, err := http.NewRequestWithContext(ctx, "GET", "/api/hosts/localhost/containers/"+id+"/logs/stream", nil)
+	require.NoError(t, err, "NewRequest should not return an error.")
+
+	q := req.URL.Query()
+	q.Add("stdout", "true")
+	q.Add("stderr", "true")
+	q.Add("filter", "needle")
+	q.Add("levels", "info")
+	req.URL.RawQuery = q.Encode()
+
+	created := time.Now().Add(-1 * time.Hour)
+
+	mockedClient := new(MockedClient)
+	mockedClient.On("FindContainer", mock.Anything, id).Return(container.Container{ID: id, Host: "localhost", Created: created, StartedAt: created}, nil)
+	// the backfill fetch fails partway through the walk
+	mockedClient.On("ContainerLogsBetweenDates", mock.Anything, id, mock.Anything, mock.Anything, container.STDALL).
+		Return(io.NopCloser(strings.NewReader("")), errors.New("boom"))
+	mockedClient.On("ContainerLogs", mock.Anything, id, mock.Anything, container.STDALL).Return(io.NopCloser(strings.NewReader("")), io.EOF).
+		Run(func(args mock.Arguments) {
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				cancel()
+			}()
+		})
+	mockedClient.On("Host").Return(container.Host{ID: "localhost"})
+	mockedClient.On("ListContainers", mock.Anything, mock.Anything).Return([]container.Container{
+		{ID: id, Name: "test", Host: "localhost", State: "running"},
+	}, nil)
+	mockedClient.On("ContainerEvents", mock.Anything, mock.AnythingOfType("chan<- container.ContainerEvent")).Return(nil)
+
+	handler := createDefaultHandler(mockedClient)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	body := rr.Body.String()
+	// even when the walk errors out, a terminal status must be sent so the
+	// frontend stops suppressing the empty state and the spinner clears
+	assert.Contains(t, body, "event: search-status", "should emit a search-status event")
+	assert.Contains(t, body, `"done":true`, "must emit a terminal status even on error")
+}
+
 func Test_handler_streamLogs_error_reading(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 

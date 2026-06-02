@@ -55,6 +55,12 @@ label:
   swarm-menu: Services und Stacks
   group-menu: Benutzerdefinierte Gruppen
   no-logs: Container hat noch keine Logs
+  search-status:
+    searching: Durchsuche ältere Logs…
+    searching-to: Durchsuche ältere Logs… zurück bis {time}
+    capped: "{count} Treffer · durchsucht bis {time}"
+    exhausted: Alle Logs durchsucht · {count} Treffer
+    empty: Keine Treffer · alle Logs durchsucht
   show-all-containers: Zeige alle Container
   collapse-all: Alle einklappen
   collapse-group: Gruppe einklappen
