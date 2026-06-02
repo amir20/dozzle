@@ -8,6 +8,8 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);
+  // Historical views are a fixed window around a log id, never a running search.
+  const searchStatus = ref<SearchStatus>({ active: false, done: false, matches: 0 });
   const container = toRef(() => historicalContainer.value.container);
 
   const { streamConfig, levels, loadingMore } = useLoggingContext();
@@ -125,5 +127,6 @@ export function useHistoricalContainerLog(historicalContainer: Ref<HistoricalCon
     opened,
     error,
     loading,
+    searchStatus,
   };
 }

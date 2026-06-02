@@ -65,6 +65,14 @@ export function useOwnerStream(owner: Ref<{ name: string; kind: string }>): LogS
   return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
+export type SearchStatus = {
+  active: boolean;
+  done: boolean;
+  matches: number;
+  scannedTo?: string;
+  reason?: "capped" | "exhausted";
+};
+
 export type LogStreamSource = ReturnType<typeof useLogStream>;
 
 function useLogStream(url: Ref<string>, container?: Ref<Container>) {
@@ -73,6 +81,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
   const opened = ref(false);
   const loading = ref(true);
   const error = ref(false);
+  const searchStatus = ref<SearchStatus>({ active: false, done: false, matches: 0 });
   const { paused: scrollingPaused } = useScrollContext();
   const { streamConfig, hasComplexLogs, levels, loadingMore, containers } = useLoggingContext();
   let initial = true;
@@ -158,6 +167,7 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     loading.value = true;
     error.value = false;
     initial = true;
+    searchStatus.value = { active: isSearching.value, done: false, matches: 0 };
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
       const event = JSON.parse((e as MessageEvent).data) as {
@@ -181,6 +191,22 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
       const data = JSON.parse((e as MessageEvent).data) as LogEvent[];
       const logs = data.map((e) => asLogEntry(e));
       messages.value = [...logs, ...messages.value];
+    });
+
+    es.addEventListener("search-status", (e) => {
+      const data = JSON.parse((e as MessageEvent).data) as {
+        scannedTo: string;
+        matches: number;
+        done: boolean;
+        reason?: "capped" | "exhausted";
+      };
+      searchStatus.value = {
+        active: !data.done,
+        done: data.done,
+        matches: data.matches,
+        scannedTo: data.scannedTo,
+        reason: data.reason,
+      };
     });
 
     es.onmessage = (e) => {
@@ -214,5 +240,6 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     opened,
     error,
     loading,
+    searchStatus,
   };
 }

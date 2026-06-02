@@ -420,7 +420,7 @@ declare global {
   export type { DrawerWidth } from './composable/drawer'
   import('./composable/drawer')
   // @ts-ignore
-  export type { LogStreamSource } from './composable/eventStreams'
+  export type { SearchStatus, LogStreamSource } from './composable/eventStreams'
   import('./composable/eventStreams')
   // @ts-ignore
   export type { ExprEditorOptions } from './composable/exprEditor'

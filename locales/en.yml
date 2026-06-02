@@ -59,6 +59,12 @@ label:
   k8s-menu: Kubernetes
   group-menu: Custom Groups
   no-logs: Container has no logs yet
+  search-status:
+    searching: Searching older logs…
+    searching-to: Searching older logs… back to {time}
+    capped: "{count} matches · searched back to {time}"
+    exhausted: Searched all logs · {count} matches
+    empty: No matches · searched all logs
   show-all-containers: Show all containers
   collapse-all: Collapse all
   collapse-group: Collapse group

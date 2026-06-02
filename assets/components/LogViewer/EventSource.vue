@@ -1,12 +1,13 @@
 <template>
-  <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog)">
+  <SearchStatus :status="searchStatus" class="sticky top-0 z-10" />
+  <ul class="flex animate-pulse flex-col gap-4 p-4" v-if="loading || (noLogs && waitingForMoreLog && !inSearch)">
     <div class="flex flex-row gap-2" v-for="size in sizes">
       <div class="bg-base-content/50 h-3 w-40 shrink-0 rounded-full opacity-50"></div>
       <div class="bg-base-content/50 h-3 rounded-full opacity-50" :class="size"></div>
     </div>
     <span class="sr-only">Loading...</span>
   </ul>
-  <div v-else-if="noLogs && !waitingForMoreLog" class="p-4">
+  <div v-else-if="noLogs && !waitingForMoreLog && !inSearch" class="p-4" data-testid="no-logs">
     {{ $t("label.no-logs") }}
   </div>
   <slot :messages="messages" v-else></slot>
@@ -24,7 +25,11 @@ const { entity, streamSource } = $defineProps<{
 
 const { historical } = useLoggingContext();
 
-const { messages, opened, loading, error } = streamSource(toRef(() => entity));
+const { messages, opened, loading, error, searchStatus } = streamSource(toRef(() => entity));
+
+// While a search is running (or just finished), SearchStatus owns the empty
+// messaging, so suppress the generic "no logs" state to avoid the false signal.
+const inSearch = computed(() => searchStatus.value.active || searchStatus.value.done);
 
 const color = computed(() => {
   if (error.value) return "error";

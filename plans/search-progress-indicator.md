@@ -1,6 +1,11 @@
 # Search progress / completion indicator
 
-Status: designed, not built. Blocked on a reproducible slow-search example (issue #4769).
+Status: built. Backend emits `search-status`, frontend gates the false "No logs" and renders a slim status bar.
+
+Two refinements added during implementation, beyond the original design:
+
+- The in-progress bar reveals only after a 400ms delay, so fast searches (the common case) never flash it. Only slow searches surface it.
+- The completion summary (capped/exhausted) shows only for searches that actually ran slow; fast searches stay quiet. Zero-match searches always show "No matches · searched all logs" (the real fix for the false "No logs").
 
 ## Problem (issue #4769)
 
