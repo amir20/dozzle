@@ -16,6 +16,7 @@ import { Service, Stack } from "@/models/Stack";
 import { Container, GroupedContainers } from "@/models/Container";
 import { parseMessage } from "@/composable/loadBetween";
 import { useLogLoader } from "@/composable/logLoader";
+import { parseEventData } from "@/utils/events";
 
 const { isSearching, debouncedSearchFilter, inverseFilter } = useSearchFilter();
 
@@ -170,11 +171,11 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     searchStatus.value = { active: isSearching.value, done: false, matches: 0 };
     es = new EventSource(urlWithParams.value);
     es.addEventListener("container-event", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as {
+      const event = parseEventData<{
         actorId: string;
         name: "container-stopped" | "container-started";
         time: string;
-      };
+      }>(e);
       const containerEvent = new ContainerEventLogEntry(
         event.name == "container-started" ? "Container started" : "Container stopped",
         event.actorId,
@@ -188,18 +189,18 @@ function useLogStream(url: Ref<string>, container?: Ref<Container>) {
     });
 
     es.addEventListener("logs-backfill", (e) => {
-      const data = JSON.parse((e as MessageEvent).data) as LogEvent[];
+      const data = parseEventData<LogEvent[]>(e);
       const logs = data.map((e) => asLogEntry(e));
       messages.value = [...logs, ...messages.value];
     });
 
     es.addEventListener("search-status", (e) => {
-      const data = JSON.parse((e as MessageEvent).data) as {
+      const data = parseEventData<{
         scannedTo: string;
         matches: number;
         done: boolean;
         reason?: "capped" | "exhausted";
-      };
+      }>(e);
       searchStatus.value = {
         active: !data.done,
         done: data.done,

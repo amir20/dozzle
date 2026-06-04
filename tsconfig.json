@@ -13,10 +13,16 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["./assets/*"],
+      "@/*": ["./assets/*"]
     },
     "jsx": "preserve",
-    "types": ["vitest", "vite/client", "unplugin-vue-macros/macros-global", "vite-plugin-vue-layouts/client"],
+    "types": [
+      "vitest",
+      "vite/client",
+      "unplugin-vue-macros/macros-global",
+      "vite-plugin-vue-layouts/client",
+      "unplugin-icons/types/vue"
+    ]
   },
-  "exclude": ["dist", "node_modules", "e2e"],
+  "exclude": ["dist", "node_modules", "e2e"]
 }

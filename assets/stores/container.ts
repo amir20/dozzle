@@ -3,6 +3,7 @@ import { Ref, UnwrapNestedRefs } from "vue";
 import type { ContainerHealth, ContainerJson, ContainerStat } from "@/types/Container";
 import { Container } from "@/models/Container";
 import i18n from "@/modules/i18n";
+import { parseEventData } from "@/utils/events";
 import { Host } from "./hosts";
 
 const { showToast, removeToast } = useToast();
@@ -54,11 +55,9 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
 
-    es.addEventListener("containers-changed", (e: Event) =>
-      updateContainers(JSON.parse((e as MessageEvent).data) as ContainerJson[]),
-    );
+    es.addEventListener("containers-changed", (e) => updateContainers(parseEventData<ContainerJson[]>(e)));
     es.addEventListener("container-stat", (e) => {
-      const stat = JSON.parse((e as MessageEvent).data) as ContainerStat;
+      const stat = parseEventData<ContainerStat>(e);
       const container = allContainersById.value[stat.id] as unknown as UnwrapNestedRefs<Container>;
       if (container) {
         const { id, ...rest } = stat;
@@ -66,7 +65,7 @@ export const useContainerStore = defineStore("container", () => {
       }
     });
     es.addEventListener("container-event", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; name: string; time: string };
+      const event = parseEventData<{ actorId: string; name: string; time: string }>(e);
       const container = allContainersById.value[event.actorId];
       if (container) {
         switch (event.name) {
@@ -88,7 +87,7 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.addEventListener("container-updated", (e) => {
-      const container = JSON.parse((e as MessageEvent).data) as ContainerJson;
+      const container = parseEventData<ContainerJson>(e);
       const existing = allContainersById.value[container.id];
       if (existing) {
         existing.name = container.name;
@@ -103,12 +102,12 @@ export const useContainerStore = defineStore("container", () => {
     });
 
     es.addEventListener("update-host", (e) => {
-      const host = JSON.parse((e as MessageEvent).data) as Host;
+      const host = parseEventData<Host>(e);
       updateHost(host);
     });
 
     es.addEventListener("container-health", (e) => {
-      const event = JSON.parse((e as MessageEvent).data) as { actorId: string; health: ContainerHealth };
+      const event = parseEventData<{ actorId: string; health: ContainerHealth }>(e);
       const container = allContainersById.value[event.actorId];
       if (container) {
         container.health = event.health;

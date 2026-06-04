@@ -18,13 +18,9 @@
 </template>
 
 <script lang="ts" setup>
-// @ts-ignore
 import PhNetwork from "~icons/ph/network";
-// @ts-ignore
 import PhHardDrives from "~icons/ph/hard-drives";
-// @ts-ignore
 import PhArrowUp from "~icons/ph/arrow-up";
-// @ts-ignore
 import PhArrowDown from "~icons/ph/arrow-down";
 
 const { networkRx, networkTx, diskRead, diskWrite } = defineProps<{

@@ -52,7 +52,6 @@
 </template>
 
 <script lang="ts" setup>
-// @ts-ignore - splitpanes types are not available
 import { Splitpanes, Pane } from "splitpanes";
 import { collapseNav } from "@/stores/settings";
 import SideDrawer from "@/components/common/SideDrawer.vue";

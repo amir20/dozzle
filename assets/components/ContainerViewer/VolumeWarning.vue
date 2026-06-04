@@ -44,7 +44,6 @@
 
 <script lang="ts" setup>
 import { Container } from "@/models/Container";
-// @ts-ignore
 import PhWarning from "~icons/ph/warning-fill";
 
 const WARN = 0.85;

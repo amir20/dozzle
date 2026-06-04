@@ -21,9 +21,7 @@
 <script setup lang="ts">
 import type { Container } from "@/models/Container";
 import type { Host } from "@/stores/hosts";
-// @ts-ignore
 import PhCpu from "~icons/ph/cpu";
-// @ts-ignore
 import PhMemory from "~icons/ph/memory";
 
 const {
