@@ -15,7 +15,7 @@
             class="after:text-base-content/70 not-last:after:content-[',']"
           >
             <ReuseTemplate :data="item" v-if="isObject(item) || Array.isArray(item)" />
-            <span v-else class="value" :class="typeof item" v-html="stripAnsi(item.toString())"></span>
+            <span v-else class="value" :class="typeof item" v-html="stripAnsi(String(item))"></span>
           </li>
         </ul>
       </li>
