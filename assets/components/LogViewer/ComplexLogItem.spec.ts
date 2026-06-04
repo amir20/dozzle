@@ -53,6 +53,11 @@ describe("<ComplexLogItem />", () => {
     expect(wrapper.find(".array").text()).toContain("b");
   });
 
+  test("renders null inside an array without throwing", () => {
+    const wrapper = mountItem({ tags: ["a", null, "b"] } as any);
+    expect(wrapper.find(".array").text()).toContain("null");
+  });
+
   test("shows a placeholder when every value is hidden", () => {
     const visibleKeys = ref(new Map<string[], boolean>([[["a"], false]]));
     const wrapper = mountItem({ a: 1 }, visibleKeys);
