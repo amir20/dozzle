@@ -66,9 +66,7 @@ import { Container, Stat, emptyStat } from "@/models/Container";
 import StatCard from "@/components/LogViewer/StatCard.vue";
 import IOCard from "@/components/LogViewer/IOCard.vue";
 import BarChart from "@/components/BarChart.vue";
-// @ts-ignore
 import PhCpu from "~icons/ph/cpu";
-// @ts-ignore
 import PhMemory from "~icons/ph/memory";
 
 const { containers } = defineProps<{

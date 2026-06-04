@@ -189,11 +189,8 @@ import { Container } from "@/models/Container";
 import { sessionHost } from "@/composable/storage";
 import { showAllContainers, groupContainers } from "@/stores/settings";
 
-// @ts-ignore
 import Pin from "~icons/ph/map-pin-simple";
-// @ts-ignore
 import Stack from "~icons/ph/stack";
-// @ts-ignore
 import Containers from "~icons/octicon/container-24";
 
 const containerStore = useContainerStore();

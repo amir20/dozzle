@@ -2,7 +2,7 @@ export function getDeep(obj: Record<string, any>, path: string[]) {
   return path.reduce((acc, key) => acc?.[key], obj);
 }
 
-export function isObject(value: any): value is Record<string, any> {
+export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 

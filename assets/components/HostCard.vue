@@ -65,9 +65,7 @@
 <script setup lang="ts">
 import type { Host } from "@/stores/hosts";
 import { Container } from "@/models/Container";
-// @ts-ignore
 import PhCpu from "~icons/ph/cpu";
-// @ts-ignore
 import PhMemory from "~icons/ph/memory";
 
 const props = defineProps<{

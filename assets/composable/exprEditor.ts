@@ -1,4 +1,4 @@
-import type { Completion } from "@codemirror/autocomplete";
+import type { Completion, CompletionContext, CompletionSource } from "@codemirror/autocomplete";
 
 export interface ExprEditorOptions {
   parent: HTMLElement;
@@ -44,9 +44,9 @@ export function createContainerHints(
     { label: '"healthy"', detail: "health value", type: "string" },
     { label: '"unhealthy"', detail: "health value", type: "string" },
     { label: '"none"', detail: "health value", type: "string" },
-    ...containerNames.map((name) => ({ label: `"${name}"`, detail: "container name", type: "string" }) as Completion),
-    ...imageNames.map((image) => ({ label: `"${image}"`, detail: "image name", type: "string" }) as Completion),
-    ...hostNames.map((host) => ({ label: `"${host}"`, detail: "host name", type: "string" }) as Completion),
+    ...containerNames.map((name): Completion => ({ label: `"${name}"`, detail: "container name", type: "string" })),
+    ...imageNames.map((image): Completion => ({ label: `"${image}"`, detail: "image name", type: "string" })),
+    ...hostNames.map((host): Completion => ({ label: `"${host}"`, detail: "host name", type: "string" })),
   ];
 }
 
@@ -59,7 +59,7 @@ export function createLogHints(messageKeys?: string[]): Completion[] {
     { label: "timestamp", detail: "unix timestamp", type: "property" },
     { label: "id", detail: "log entry ID", type: "property" },
     ...(messageKeys ?? []).map(
-      (key) => ({ label: `message.${key}`, detail: "message field", type: "property" }) as Completion,
+      (key): Completion => ({ label: `message.${key}`, detail: "message field", type: "property" }),
     ),
     ...exprOperators,
     { label: '"error"', detail: "level value", type: "string" },
@@ -118,8 +118,8 @@ export function createEventHints(): Completion[] {
   ];
 }
 
-function createAutocomplete(getHints: () => Completion[]) {
-  return (context: any) => {
+function createAutocomplete(getHints: () => Completion[]): CompletionSource {
+  return (context: CompletionContext) => {
     const word = context.matchBefore(/[\w"=!&|]+/);
     if (!word && !context.explicit) return null;
 
