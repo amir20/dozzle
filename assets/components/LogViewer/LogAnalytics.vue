@@ -148,9 +148,33 @@ onMounted(async () => {
     await db.registerFileBuffer("logs.json", arrayBuffer);
 
     state.value = "initializing";
-    await conn.query(
-      `CREATE TABLE logs AS SELECT unnest(m) FROM read_json('logs.json', ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1)`,
-    );
+
+    // Uniform JSON messages flatten into a STRUCT and unnest() expands them into columns.
+    // Mixed message shapes make DuckDB infer `m` as JSON, which unnest() rejects, so fall
+    // back to flattening the union of object keys by hand.
+    const source = `read_json('logs.json', ignore_errors = true, format = 'newline_delimited', map_inference_threshold = -1)`;
+    try {
+      await conn.query(`CREATE TABLE logs AS SELECT unnest(m) FROM ${source}`);
+    } catch {
+      await conn.query(`DROP TABLE IF EXISTS logs`);
+      await conn.query(`CREATE TABLE raw_logs AS SELECT m::JSON AS m FROM ${source}`);
+      const keyRows = await conn.query<{ key: any }>(
+        `SELECT DISTINCT unnest(json_keys(m)) AS key FROM raw_logs WHERE json_type(m) = 'OBJECT'`,
+      );
+      const keys = keyRows.toArray().map((row) => String(row.key));
+      if (keys.length) {
+        const projection = keys
+          .map((key) => {
+            const ident = key.replace(/"/g, '""');
+            const path = `$."${ident}"`.replace(/'/g, "''");
+            return `json_extract_string(m, '${path}') AS "${ident}"`;
+          })
+          .join(", ");
+        await conn.query(`CREATE TABLE logs AS SELECT ${projection} FROM raw_logs WHERE json_type(m) = 'OBJECT'`);
+      } else {
+        await conn.query(`CREATE TABLE logs AS SELECT m FROM raw_logs`);
+      }
+    }
 
     const described = await conn.query<{ column_name: any; column_type: any }>(`DESCRIBE logs`);
     columns.value = described.toArray().map((row) => ({
