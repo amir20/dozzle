@@ -1,22 +1,38 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
-const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
-export async function useDuckDB() {
-  let cleanup: (() => void) | undefined;
-  onUnmounted(() => cleanup?.());
+const duckdbBaseUrl = `${import.meta.env.BASE_URL}duckdb/`;
 
-  const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
-  const worker_url = URL.createObjectURL(
-    new Blob([`importScripts("${bundle.mainWorker!}");`], { type: "text/javascript" }),
-  );
+const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
+  mvp: {
+    mainModule: `${duckdbBaseUrl}duckdb-mvp.wasm`,
+    mainWorker: `${duckdbBaseUrl}duckdb-browser-mvp.worker.js`,
+  },
+  eh: {
+    mainModule: `${duckdbBaseUrl}duckdb-eh.wasm`,
+    mainWorker: `${duckdbBaseUrl}duckdb-browser-eh.worker.js`,
+  },
+};
 
-  // Instantiate the asynchronus version of DuckDB-Wasm
-  const worker = new Worker(worker_url);
+export async function createDuckDb() {
+  const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+
+  if (!bundle.mainWorker) {
+    throw new Error("DuckDB worker file is not available");
+  }
+
+  const worker = new Worker(bundle.mainWorker);
   const logger = new duckdb.ConsoleLogger();
   const db = new duckdb.AsyncDuckDB(logger, worker);
 
   await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-  URL.revokeObjectURL(worker_url);
+
+  return { db, worker };
+}
+
+export async function useDuckDB() {
+  let cleanup: (() => void) | undefined;
+  onUnmounted(() => cleanup?.());
+  const { db, worker } = await createDuckDb();
   const conn = await db.connect();
 
   cleanup = async () => {

@@ -30,6 +30,7 @@ declare global {
   const createContainerHints: typeof import('./composable/exprEditor').createContainerHints
   const createDisposableDirective: typeof import('@vueuse/core').createDisposableDirective
   const createDrawer: typeof import('./composable/drawer').createDrawer
+  const createDuckDb: typeof import('./composable/duckdb').createDuckDb
   const createEventHints: typeof import('./composable/exprEditor').createEventHints
   const createEventHook: typeof import('@vueuse/core').createEventHook
   const createExprEditor: typeof import('./composable/exprEditor').createExprEditor
@@ -471,6 +472,7 @@ declare module 'vue' {
     readonly createContainerHints: UnwrapRef<typeof import('./composable/exprEditor')['createContainerHints']>
     readonly createDisposableDirective: UnwrapRef<typeof import('@vueuse/core')['createDisposableDirective']>
     readonly createDrawer: UnwrapRef<typeof import('./composable/drawer')['createDrawer']>
+    readonly createDuckDb: UnwrapRef<typeof import('./composable/duckdb')['createDuckDb']>
     readonly createEventHints: UnwrapRef<typeof import('./composable/exprEditor')['createEventHints']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
     readonly createExprEditor: UnwrapRef<typeof import('./composable/exprEditor')['createExprEditor']>
