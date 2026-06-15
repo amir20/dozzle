@@ -227,6 +227,8 @@ Available properties:
 
 Common Docker event names include `start`, `stop`, `die`, `kill`, `oom`, `restart`, `destroy`, and `health_status`.
 
+For `health_status` events, Dozzle exposes the current state as `attributes["healthStatus"]` (`healthy` or `unhealthy`).
+
 ### Event Examples
 
 **Alert when any production container dies:**
@@ -247,7 +249,7 @@ Event:     name == "oom"
 
 ```
 Container: true
-Event:     name == "health_status" && attributes["health_status"] == "unhealthy"
+Event:     name == "health_status" && attributes["healthStatus"] == "unhealthy"
 ```
 
 **Alert on unexpected exits (ignoring clean and graceful shutdowns):**
