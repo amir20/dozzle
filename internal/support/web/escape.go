@@ -13,6 +13,8 @@ import (
 
 // URL marker regex compiled once for performance
 var urlMarkerRegex = regexp.MustCompile(URLMarkerStart + "(.*?)" + URLMarkerEnd)
+var searchMarkerStripper = strings.NewReplacer(MarkerStart, "", MarkerEnd, "")
+var searchMarkerHTMLReplacer = strings.NewReplacer(MarkerStart, "<mark>", MarkerEnd, "</mark>")
 
 func EscapeHTMLValues(logEvent *container.LogEvent) {
 	MarkURLs(logEvent)
@@ -45,9 +47,13 @@ func EscapeHTMLValues(logEvent *container.LogEvent) {
 
 func escapeAndProcessMarkers(value string) string {
 	value = html.EscapeString(value)
-	value = strings.ReplaceAll(value, MarkerStart, "<mark>")
-	value = strings.ReplaceAll(value, MarkerEnd, "</mark>")
-	value = urlMarkerRegex.ReplaceAllString(value, "<a href=\"$1\" target=\"_blank\" rel=\"noopener noreferrer external\">$1</a>")
+	value = urlMarkerRegex.ReplaceAllStringFunc(value, func(match string) string {
+		url := strings.TrimSuffix(strings.TrimPrefix(match, URLMarkerStart), URLMarkerEnd)
+		href := searchMarkerStripper.Replace(url)
+		text := searchMarkerHTMLReplacer.Replace(url)
+		return "<a href=\"" + href + "\" target=\"_blank\" rel=\"noopener noreferrer external\">" + text + "</a>"
+	})
+	value = searchMarkerHTMLReplacer.Replace(value)
 	return value
 }
 
