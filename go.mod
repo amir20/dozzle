@@ -25,7 +25,7 @@ require (
 	github.com/expr-lang/expr v1.17.8
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
-	github.com/go-faker/faker/v4 v4.7.0
+	github.com/go-faker/faker/v4 v4.8.0
 	github.com/go-git/go-git/v5 v5.19.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/moby/docker-image-spec v1.3.1
@@ -44,7 +44,7 @@ require (
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2
-	k8s.io/metrics v0.36.1
+	k8s.io/metrics v0.36.2
 )
 
 require github.com/modelcontextprotocol/go-sdk v1.6.1
