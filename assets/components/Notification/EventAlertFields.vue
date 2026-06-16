@@ -17,7 +17,7 @@
     <p class="text-base-content/50 mt-1 text-xs">
       {{
         $t("notifications.alert-form.event-fields-hint", {
-          fields: "name (start, stop, die, restart, health_status), attributes (exitCode, signal, etc.)",
+          fields: "name (start, stop, die, restart, health_status), attributes (healthStatus, exitCode, signal, etc.)",
         })
       }}
     </p>

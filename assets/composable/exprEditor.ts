@@ -106,6 +106,8 @@ export function createEventHints(): Completion[] {
   return [
     { label: "name", detail: "event name", type: "property" },
     { label: "attributes", detail: "event attributes map", type: "property" },
+    { label: 'attributes["healthStatus"]', detail: "healthy or unhealthy (health_status events)", type: "property" },
+    { label: 'attributes["exitCode"]', detail: "exit code (die events)", type: "property" },
     ...exprOperators,
     { label: '"start"', detail: "container started", type: "string" },
     { label: '"stop"', detail: "container stopped", type: "string" },
@@ -114,6 +116,12 @@ export function createEventHints(): Completion[] {
     { label: '"health_status"', detail: "health check changed", type: "string" },
     { label: 'name == "die"', detail: "match container death", type: "text", boost: 10 },
     { label: 'name == "health_status"', detail: "match health changes", type: "text", boost: 10 },
+    {
+      label: 'name == "health_status" && attributes["healthStatus"] == "unhealthy"',
+      detail: "match unhealthy containers",
+      type: "text",
+      boost: 10,
+    },
     { label: 'name in ["stop", "die"]', detail: "match stop or death", type: "text", boost: 10 },
   ];
 }
