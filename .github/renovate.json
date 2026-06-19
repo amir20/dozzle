@@ -3,5 +3,11 @@
   "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor", ":automergeMinor"],
   "rangeStrategy": "bump",
   "minimumReleaseAge": "24 hours",
-  "ignoreDeps": []
+  "ignoreDeps": [],
+  "packageRules": [
+    {
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "groupName": "playwright"
+    }
+  ]
 }
