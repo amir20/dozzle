@@ -29,8 +29,8 @@ require (
 	github.com/go-git/go-git/v5 v5.19.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/moby/docker-image-spec v1.3.1
-	github.com/moby/moby/api v1.54.2
-	github.com/moby/moby/client v0.4.1
+	github.com/moby/moby/api v1.55.0
+	github.com/moby/moby/client v0.5.0
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/rs/zerolog v1.35.1
 	github.com/samber/lo v1.53.0
