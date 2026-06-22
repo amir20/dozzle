@@ -119,6 +119,27 @@ X-Accel-Buffering: no
 event: containers-changed
 data: []
 
+/* snapshot: Test_handler_streamEvents_filtered */
+HTTP/1.1 200 OK
+Connection: close
+Cache-Control: no-transform
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Security-Policy: default-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://*.duckdb.org; style-src 'self' 'unsafe-inline' blob:; img-src 'self' data:; font-src 'self' data:;
+Content-Type: text/event-stream
+X-Accel-Buffering: no
+
+event: containers-changed
+data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
+
+
+event: containers-changed
+data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
+
+
+event: container-event
+data: {"name":"start","host":"localhost","actorId":"visible","time":"0001-01-01T00:00:00Z"}
+
 /* snapshot: Test_handler_streamEvents_happy */
 HTTP/1.1 200 OK
 Connection: close
@@ -130,11 +151,11 @@ Content-Type: text/event-stream
 X-Accel-Buffering: no
 
 event: containers-changed
-data: []
+data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
 
 
 event: containers-changed
-data: []
+data: [{"id":"1234","name":"test","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
 
 
 event: container-event
