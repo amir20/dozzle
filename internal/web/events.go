@@ -38,6 +38,44 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	allContainers, errors := h.hostService.ListAllContainers(userLabels)
 
+	// Track the set of container IDs the caller is allowed to see (per host) so
+	// that the container-stat and container-event channels honor the same label
+	// filter as the container list. Without this, telemetry and lifecycle events
+	// for out-of-scope containers leak to restricted users.
+	visibleByHost := make(map[string]map[string]struct{})
+	setVisible := func(host string, containers []container.Container) {
+		ids := make(map[string]struct{}, len(containers))
+		for _, c := range containers {
+			ids[c.ID] = struct{}{}
+		}
+		visibleByHost[host] = ids
+	}
+	isVisible := func(host, id string) bool {
+		if host != "" {
+			ids, ok := visibleByHost[host]
+			if !ok {
+				return false
+			}
+			_, ok = ids[id]
+			return ok
+		}
+		// container-stat payloads carry no host, so fall back to scanning all hosts
+		for _, ids := range visibleByHost {
+			if _, ok := ids[id]; ok {
+				return true
+			}
+		}
+		return false
+	}
+
+	grouped := make(map[string][]container.Container)
+	for _, c := range allContainers {
+		grouped[c.Host] = append(grouped[c.Host], c)
+	}
+	for host, containers := range grouped {
+		setVisible(host, containers)
+	}
+
 	for _, err := range errors {
 		log.Warn().Err(err).Msg("error listing containers")
 		if hostNotAvailableError, ok := err.(*docker_support.HostUnavailableError); ok {
@@ -61,6 +99,9 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		case stat := <-stats:
+			if !isVisible("", stat.ID) {
+				continue
+			}
 			if err := sseWriter.Event("container-stat", stat); err != nil {
 				log.Error().Err(err).Msg("error writing event to event stream")
 				return
@@ -75,11 +116,16 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				if event.Name == "start" || event.Name == "rename" {
 					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
 						log.Debug().Str("host", event.Host).Int("count", len(containers)).Msg("updating containers for host")
+						setVisible(event.Host, containers)
 						if err := sseWriter.Event("containers-changed", containers); err != nil {
 							log.Error().Err(err).Msg("error writing containers to event stream")
 							return
 						}
 					}
+				}
+
+				if !isVisible(event.Host, event.ActorID) {
+					continue
 				}
 
 				if err := sseWriter.Event("container-event", event); err != nil {
@@ -88,11 +134,17 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 				}
 
 			case "update":
+				if event.Container == nil || !isVisible(event.Host, event.Container.ID) {
+					continue
+				}
 				if err := sseWriter.Event("container-updated", event.Container); err != nil {
 					log.Error().Err(err).Msg("error writing event to event stream")
 					return
 				}
 			case "health_status: healthy", "health_status: unhealthy":
+				if !isVisible(event.Host, event.ActorID) {
+					continue
+				}
 				healthy := "unhealthy"
 				if event.Name == "health_status: healthy" {
 					healthy = "healthy"
