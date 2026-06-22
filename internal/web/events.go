@@ -38,10 +38,7 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 
 	allContainers, errors := h.hostService.ListAllContainers(userLabels)
 
-	// Track the set of container IDs the caller is allowed to see (per host) so
-	// that the container-stat and container-event channels honor the same label
-	// filter as the container list. Without this, telemetry and lifecycle events
-	// for out-of-scope containers leak to restricted users.
+	// per-host set of container IDs the caller may see, so stat/event channels stay filtered like the list
 	visibleByHost := make(map[string]map[string]struct{})
 	setVisible := func(host string, containers []container.Container) {
 		ids := make(map[string]struct{}, len(containers))
@@ -68,12 +65,13 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 		return false
 	}
 
-	grouped := make(map[string][]container.Container)
 	for _, c := range allContainers {
-		grouped[c.Host] = append(grouped[c.Host], c)
-	}
-	for host, containers := range grouped {
-		setVisible(host, containers)
+		ids, ok := visibleByHost[c.Host]
+		if !ok {
+			ids = make(map[string]struct{})
+			visibleByHost[c.Host] = ids
+		}
+		ids[c.ID] = struct{}{}
 	}
 
 	for _, err := range errors {
@@ -113,19 +111,26 @@ func (h *handler) streamEvents(w http.ResponseWriter, r *http.Request) {
 			log.Trace().Str("event", event.Name).Str("id", event.ActorID).Msg("container event from store")
 			switch event.Name {
 			case "start", "die", "destroy", "rename", "pause", "unpause":
+				var refreshed []container.Container
 				if event.Name == "start" || event.Name == "rename" {
 					if containers, err := h.hostService.ListContainersForHost(event.Host, userLabels); err == nil {
 						log.Debug().Str("host", event.Host).Int("count", len(containers)).Msg("updating containers for host")
 						setVisible(event.Host, containers)
-						if err := sseWriter.Event("containers-changed", containers); err != nil {
-							log.Error().Err(err).Msg("error writing containers to event stream")
-							return
-						}
+						refreshed = containers
 					}
 				}
 
+				// gate both containers-changed and the raw event so out-of-scope
+				// containers don't leak via payload or as a timing side-channel
 				if !isVisible(event.Host, event.ActorID) {
 					continue
+				}
+
+				if refreshed != nil {
+					if err := sseWriter.Event("containers-changed", refreshed); err != nil {
+						log.Error().Err(err).Msg("error writing containers to event stream")
+						return
+					}
 				}
 
 				if err := sseWriter.Event("container-event", event); err != nil {

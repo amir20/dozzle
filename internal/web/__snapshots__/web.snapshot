@@ -137,10 +137,6 @@ event: containers-changed
 data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
 
 
-event: containers-changed
-data: [{"id":"visible","name":"visible","image":"test","command":"","created":"0001-01-01T00:00:00Z","startedAt":"0001-01-01T00:00:00Z","finishedAt":"0001-01-01T00:00:00Z","state":"","stats":[],"memoryLimit":0,"cpuLimit":0}]
-
-
 event: container-event
 data: {"name":"start","host":"localhost","actorId":"visible","time":"0001-01-01T00:00:00Z"}
 
