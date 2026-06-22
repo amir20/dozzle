@@ -21,6 +21,10 @@ fake_assets:
 test: fake_assets generate
 	go test -cover -race -count 1 -timeout 40s ./...
 
+.PHONY: test-update
+test-update: fake_assets generate
+	go test -cover -race -count 1 -timeout 5s ./... -- -- -u
+
 .PHONY: build
 build: dist generate
 	CGO_ENABLED=0 go build -ldflags "-s -w -X github.com/amir20/dozzle/internal/support/cli.Version=local"
