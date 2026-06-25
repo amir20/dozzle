@@ -507,12 +507,28 @@ func (d *DockerClient) ContainerExec(ctx context.Context, id string, cmd []strin
 	}, nil
 }
 
+// coolifyName returns the Coolify service name for display, prefixed with the
+// pull-request id for PR-preview deployments. Coolify sets an identical
+// coolify.serviceName label on an application and every one of its PR previews,
+// so without the PR id all previews of the same app are indistinguishable in
+// the UI. Returns "" when the container is not Coolify-managed.
+func coolifyName(labels map[string]string) string {
+	name := labels["coolify.serviceName"]
+	if name == "" {
+		return ""
+	}
+	if pr := labels["coolify.pullRequestId"]; pr != "" && pr != "0" {
+		return "PR " + pr + " · " + name
+	}
+	return name
+}
+
 func newContainer(c docker.Summary, host string) container.Container {
 	name := "no name"
 	if c.Labels["dev.dozzle.name"] != "" {
 		name = c.Labels["dev.dozzle.name"]
-	} else if c.Labels["coolify.serviceName"] != "" {
-		name = c.Labels["coolify.serviceName"]
+	} else if n := coolifyName(c.Labels); n != "" {
+		name = n
 	} else if len(c.Names) > 0 {
 		name = strings.TrimPrefix(c.Names[0], "/")
 	}
@@ -541,8 +557,8 @@ func newContainerFromJSON(c docker.InspectResponse, host string) container.Conta
 	name := "no name"
 	if c.Config.Labels["dev.dozzle.name"] != "" {
 		name = c.Config.Labels["dev.dozzle.name"]
-	} else if c.Config.Labels["coolify.serviceName"] != "" {
-		name = c.Config.Labels["coolify.serviceName"]
+	} else if n := coolifyName(c.Config.Labels); n != "" {
+		name = n
 	} else if len(c.Name) > 0 {
 		name = strings.TrimPrefix(c.Name, "/")
 	}
