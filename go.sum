@@ -85,6 +85,8 @@ github.com/compose-spec/compose-go/v2 v2.10.2 h1:USa1NUbDcl/cjb8T9iwnuFsnO79H+2h
 github.com/compose-spec/compose-go/v2 v2.10.2/go.mod h1:ZU6zlcweCZKyiB7BVfCizQT9XmkEIMFE+PRZydVcsZg=
 github.com/compose-spec/compose-go/v2 v2.11.0 h1:xoq/ootgIL6TsHmbJHrkuh7+bzjhPV3NHftHRPPyVXM=
 github.com/compose-spec/compose-go/v2 v2.11.0/go.mod h1:ZU6zlcweCZKyiB7BVfCizQT9XmkEIMFE+PRZydVcsZg=
+github.com/compose-spec/compose-go/v2 v2.12.1 h1:+xBZNxcgSus4atQJwXPEdhHRgCEyZmj/BuqN5m33Ou0=
+github.com/compose-spec/compose-go/v2 v2.12.1/go.mod h1:ZU6zlcweCZKyiB7BVfCizQT9XmkEIMFE+PRZydVcsZg=
 github.com/containerd/errdefs v1.0.0 h1:tg5yIfIlQIrxYtu9ajqY42W3lpS19XqdxRQeEwYG8PI=
 github.com/containerd/errdefs v1.0.0/go.mod h1:+YBYIdtsnF4Iw6nWZhJcqGSg/dwvV7tyJ/kCkyJ2k+M=
 github.com/containerd/errdefs/pkg v0.3.0 h1:9IKJ06FvyNlexW690DXuQNx2KA2cUJXx151Xdx3ZPPE=
