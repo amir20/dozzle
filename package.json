@@ -89,7 +89,7 @@
     "@iconify-json/svg-spinners": "^1.2.4",
     "@iconify/vue": "^5.0.1",
     "@pinia/testing": "^1.0.3",
-    "@playwright/test": "^1.61.0",
+    "@playwright/test": "^1.61.1",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^25.9.4",
     "@vitejs/plugin-vue": "6.0.7",
