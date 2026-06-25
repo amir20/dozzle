@@ -21,7 +21,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/andybalholm/brotli v1.2.1
-	github.com/compose-spec/compose-go/v2 v2.11.0
+	github.com/compose-spec/compose-go/v2 v2.12.1
 	github.com/expr-lang/expr v1.17.8
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
