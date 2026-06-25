@@ -285,6 +285,20 @@ func Test_newContainer_labelPriority(t *testing.T) {
 			expectedName:  "coolify-name",
 			expectedGroup: "dozzle-group",
 		},
+		{
+			name:          "coolify preview includes PR id",
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.pullRequestId": "1241", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "PR 1241 · coolify-name",
+			expectedGroup: "coolify-project",
+		},
+		{
+			name:          "coolify pullRequestId 0 is not a preview",
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.pullRequestId": "0", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "coolify-name",
+			expectedGroup: "coolify-project",
+		},
 	}
 
 	for _, tt := range tests {
@@ -329,6 +343,20 @@ func Test_newContainerFromJSON_labelPriority(t *testing.T) {
 			containerName: "/docker-name",
 			expectedName:  "docker-name",
 			expectedGroup: "",
+		},
+		{
+			name:          "coolify preview includes PR id",
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.pullRequestId": "1241", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "PR 1241 · coolify-name",
+			expectedGroup: "coolify-project",
+		},
+		{
+			name:          "coolify pullRequestId 0 is not a preview",
+			labels:        map[string]string{"coolify.serviceName": "coolify-name", "coolify.pullRequestId": "0", "coolify.projectName": "coolify-project"},
+			containerName: "/docker-name",
+			expectedName:  "coolify-name",
+			expectedGroup: "coolify-project",
 		},
 	}
 
