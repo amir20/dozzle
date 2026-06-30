@@ -32,12 +32,10 @@ describe("getK8sOwnerRefs", () => {
     const container = makeContainer("api", {
       namespace: "default",
       "@k8s.owner.count": "2",
-      "@k8s.owner.0.type": "ReplicaSet",
       "@k8s.owner.0.kind": "ReplicaSet",
       "@k8s.owner.0.namespace": "default",
       "@k8s.owner.0.name": "api-6f88b977f4",
       "@k8s.owner.0.key": "ReplicaSet~default~api-6f88b977f4",
-      "@k8s.owner.1.type": "Deployment",
       "@k8s.owner.1.kind": "Deployment",
       "@k8s.owner.1.namespace": "default",
       "@k8s.owner.1.name": "api",
@@ -79,6 +77,27 @@ describe("getK8sOwnerRefs", () => {
       },
     ]);
   });
+
+  test("uses kind for display and type for CRD identity", () => {
+    const container = makeContainer("rollout-api", {
+      namespace: "default",
+      "@k8s.owner.count": "1",
+      "@k8s.owner.0.kind": "Rollout",
+      "@k8s.owner.0.namespace": "default",
+      "@k8s.owner.0.name": "api",
+      "@k8s.owner.0.key": "argoproj.io~v1alpha1~Rollout~default~api",
+    });
+
+    expect(getK8sOwnerRefs(container)).toEqual([
+      {
+        key: "argoproj.io~v1alpha1~Rollout~default~api",
+        label: ownerMembershipLabel("argoproj.io~v1alpha1~Rollout~default~api"),
+        kind: "Rollout",
+        name: "api",
+        namespace: "default",
+      },
+    ]);
+  });
 });
 
 describe("groupK8sOwners", () => {
@@ -86,11 +105,11 @@ describe("groupK8sOwners", () => {
     const container = makeContainer("api", {
       namespace: "default",
       "@k8s.owner.count": "2",
-      "@k8s.owner.0.type": "ReplicaSet",
+      "@k8s.owner.0.kind": "ReplicaSet",
       "@k8s.owner.0.namespace": "default",
       "@k8s.owner.0.name": "api-6f88b977f4",
       "@k8s.owner.0.key": "ReplicaSet~default~api-6f88b977f4",
-      "@k8s.owner.1.type": "Deployment",
+      "@k8s.owner.1.kind": "Deployment",
       "@k8s.owner.1.namespace": "default",
       "@k8s.owner.1.name": "api",
       "@k8s.owner.1.key": "Deployment~default~api",
@@ -110,7 +129,7 @@ describe("groupK8sOwners", () => {
       makeContainer("default-api", {
         namespace: "default",
         "@k8s.owner.count": "1",
-        "@k8s.owner.0.type": "Deployment",
+        "@k8s.owner.0.kind": "Deployment",
         "@k8s.owner.0.namespace": "default",
         "@k8s.owner.0.name": "api",
         "@k8s.owner.0.key": "Deployment~default~api",
@@ -118,7 +137,7 @@ describe("groupK8sOwners", () => {
       makeContainer("prod-api", {
         namespace: "prod",
         "@k8s.owner.count": "1",
-        "@k8s.owner.0.type": "Deployment",
+        "@k8s.owner.0.kind": "Deployment",
         "@k8s.owner.0.namespace": "prod",
         "@k8s.owner.0.name": "api",
         "@k8s.owner.0.key": "Deployment~prod~api",

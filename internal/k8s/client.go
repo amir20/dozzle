@@ -16,6 +16,7 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -157,14 +158,12 @@ func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []cont
 		labels[prefix+"namespace"] = owner.Namespace
 		labels[prefix+"name"] = owner.Name
 		labels[prefix+"uid"] = owner.UID
-		labels[prefix+"type"] = owner.TypeKey
 		labels[prefix+"key"] = owner.Key
 		labels[syntheticPrefix+"apiVersion"] = owner.APIVersion
 		labels[syntheticPrefix+"kind"] = owner.Kind
 		labels[syntheticPrefix+"namespace"] = owner.Namespace
 		labels[syntheticPrefix+"name"] = owner.Name
 		labels[syntheticPrefix+"uid"] = owner.UID
-		labels[syntheticPrefix+"type"] = owner.TypeKey
 		labels[syntheticPrefix+"key"] = owner.Key
 		labels[ownerMembershipLabel(owner.Key)] = "true"
 	}
@@ -289,30 +288,32 @@ func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) (
 	}
 	k.ownerCacheMu.Unlock()
 
-	refs, ok := k.fetchOwnerReferences(ctx, owner)
+	refs, ok, cacheable := k.fetchOwnerReferences(ctx, owner)
 
-	k.ownerCacheMu.Lock()
-	k.ownerCache[cacheKey] = ownerLookupResult{ownerReferences: refs, found: ok}
-	k.ownerCacheMu.Unlock()
+	if cacheable {
+		k.ownerCacheMu.Lock()
+		k.ownerCache[cacheKey] = ownerLookupResult{ownerReferences: refs, found: ok}
+		k.ownerCacheMu.Unlock()
+	}
 
 	return refs, ok
 }
 
-func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool) {
+func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
 	if k.DynamicClient == nil || k.restMapper == nil {
-		return nil, false
+		return nil, false, false
 	}
 
 	groupVersion, err := schema.ParseGroupVersion(owner.APIVersion)
 	if err != nil {
 		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to parse owner apiVersion")
-		return nil, false
+		return nil, false, false
 	}
 
 	mapping, err := k.restMapper.RESTMapping(groupVersion.WithKind(owner.Kind).GroupKind(), groupVersion.Version)
 	if err != nil {
 		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to map owner resource")
-		return nil, false
+		return nil, false, false
 	}
 
 	var resource dynamic.ResourceInterface
@@ -325,10 +326,13 @@ func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([
 	obj, err := resource.Get(ctx, owner.Name, metav1.GetOptions{})
 	if err != nil {
 		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to fetch owner resource")
-		return nil, false
+		if ctx.Err() != nil {
+			return nil, false, false
+		}
+		return nil, false, apierrors.IsNotFound(err) || apierrors.IsForbidden(err)
 	}
 
-	return obj.GetOwnerReferences(), true
+	return obj.GetOwnerReferences(), true, true
 }
 
 func splitK8sFilters(labels container.ContainerLabels) (container.ContainerLabels, container.ContainerLabels) {

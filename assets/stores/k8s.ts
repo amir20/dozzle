@@ -61,7 +61,7 @@ export function getK8sOwnerRefs(container: Container): K8sOwnerRef[] {
       const legacyPrefix = `k8s.owner.${i}.`;
       const labelValue = (key: string) =>
         container.labels[`${syntheticPrefix}${key}`] ?? container.labels[`${legacyPrefix}${key}`];
-      const kind = labelValue("type") ?? labelValue("kind");
+      const kind = labelValue("kind");
       const name = labelValue("name");
       const namespace = labelValue("namespace");
       if (!kind || !name) continue;

@@ -1,6 +1,8 @@
 package k8s
 
 import (
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/amir20/dozzle/internal/container"
@@ -8,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -15,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
+	k8stesting "k8s.io/client-go/testing"
 )
 
 func TestPodToContainersAddsOwnerChainLabels(t *testing.T) {
@@ -185,6 +189,61 @@ func TestOwnerReferenceToFollowPrefersController(t *testing.T) {
 	assert.Equal(t, "api-6f88b977f4", ref.Name)
 }
 
+func TestLookupOwnerReferencesDoesNotCacheTransientFailures(t *testing.T) {
+	client := newTestK8sClient(t)
+	dynamicClient := client.DynamicClient.(*dynamicfake.FakeDynamicClient)
+	calls := 0
+	dynamicClient.PrependReactor("get", "replicasets", func(action k8stesting.Action) (bool, runtime.Object, error) {
+		calls++
+		return true, nil, context.Canceled
+	})
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	_, ok := client.lookupOwnerReferences(ctx, replicaSetOwner())
+	assert.False(t, ok)
+
+	_, ok = client.lookupOwnerReferences(ctx, replicaSetOwner())
+	assert.False(t, ok)
+	assert.Equal(t, 2, calls)
+}
+
+func TestLookupOwnerReferencesCachesRealNegatives(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "forbidden",
+			err:  apierrors.NewForbidden(schema.GroupResource{Group: "apps", Resource: "replicasets"}, "api-6f88b977f4", errors.New("denied")),
+		},
+		{
+			name: "not found",
+			err:  apierrors.NewNotFound(schema.GroupResource{Group: "apps", Resource: "replicasets"}, "api-6f88b977f4"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := newTestK8sClient(t)
+			dynamicClient := client.DynamicClient.(*dynamicfake.FakeDynamicClient)
+			calls := 0
+			dynamicClient.PrependReactor("get", "replicasets", func(action k8stesting.Action) (bool, runtime.Object, error) {
+				calls++
+				return true, nil, tt.err
+			})
+
+			_, ok := client.lookupOwnerReferences(t.Context(), replicaSetOwner())
+			assert.False(t, ok)
+
+			_, ok = client.lookupOwnerReferences(t.Context(), replicaSetOwner())
+			assert.False(t, ok)
+			assert.Equal(t, 1, calls)
+		})
+	}
+}
+
 func podWithOwner() *corev1.Pod {
 	return &corev1.Pod{
 		TypeMeta: metav1.TypeMeta{APIVersion: "v1", Kind: "Pod"},
@@ -204,6 +263,15 @@ func podWithOwner() *corev1.Pod {
 		},
 		Status: corev1.PodStatus{Phase: corev1.PodRunning},
 	}
+}
+
+func replicaSetOwner() k8sOwner {
+	return newK8sOwner("default", metav1.OwnerReference{
+		APIVersion: "apps/v1",
+		Kind:       "ReplicaSet",
+		Name:       "api-6f88b977f4",
+		UID:        types.UID("rs-uid"),
+	})
 }
 
 func newTestK8sClient(t *testing.T, objects ...runtime.Object) *K8sClient {
