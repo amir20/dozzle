@@ -78,8 +78,8 @@
               </router-link>
             </summary>
             <ul>
-              <li v-for="owner in owners" :key="`${owner.kind}-${owner.name}`">
-                <router-link :to="{ name: '/owner/[name]', params: { name: owner.name } }" active-class="menu-active">
+              <li v-for="owner in owners" :key="owner.key">
+                <router-link :to="{ name: '/owner/[name]', params: { name: owner.key } }" active-class="menu-active">
                   <ph:stack-simple />
                   <div class="truncate">{{ owner.kind }}/{{ owner.name }}</div>
                 </router-link>
@@ -95,8 +95,8 @@
               {{ $t("label.owners") }} ({{ ownersWithoutNamespace.length }})
             </summary>
             <ul>
-              <li v-for="owner in ownersWithoutNamespace" :key="`${owner.kind}-${owner.name}`">
-                <router-link :to="{ name: '/owner/[name]', params: { name: owner.name } }" active-class="menu-active">
+              <li v-for="owner in ownersWithoutNamespace" :key="owner.key">
+                <router-link :to="{ name: '/owner/[name]', params: { name: owner.key } }" active-class="menu-active">
                   <ph:stack-simple />
                   <div class="truncate">{{ owner.kind }}/{{ owner.name }}</div>
                 </router-link>
