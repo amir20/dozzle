@@ -3,7 +3,9 @@ package k8s
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
@@ -239,6 +241,84 @@ func TestLookupOwnerReferencesCachesRealNegatives(t *testing.T) {
 			assert.Equal(t, 1, calls)
 		})
 	}
+}
+
+func TestLookupOwnerReferencesRefetchesAfterTTL(t *testing.T) {
+	client := newTestK8sClient(t,
+		&appsv1.ReplicaSet{
+			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
+			ObjectMeta: metav1.ObjectMeta{Namespace: "default", Name: "api-6f88b977f4", UID: types.UID("rs-uid")},
+		},
+	)
+	dynamicClient := client.DynamicClient.(*dynamicfake.FakeDynamicClient)
+	calls := 0
+	dynamicClient.PrependReactor("get", "replicasets", func(action k8stesting.Action) (bool, runtime.Object, error) {
+		calls++
+		return false, nil, nil
+	})
+	owner := replicaSetOwner()
+
+	_, ok := client.lookupOwnerReferences(t.Context(), owner)
+	assert.True(t, ok)
+	client.lookupOwnerReferences(t.Context(), owner)
+	assert.Equal(t, 1, calls, "second lookup should be served from cache")
+
+	// Expire the cached entry and confirm the next lookup refetches.
+	client.ownerCacheMu.Lock()
+	entry := client.ownerCache[owner.cacheKey()]
+	entry.expiresAt = time.Now().Add(-time.Minute)
+	client.ownerCache[owner.cacheKey()] = entry
+	client.ownerCacheMu.Unlock()
+
+	client.lookupOwnerReferences(t.Context(), owner)
+	assert.Equal(t, 2, calls, "expired entry should trigger a refetch")
+}
+
+func TestPruneOwnerCacheEvictsGracefully(t *testing.T) {
+	client := newTestK8sClient(t)
+	now := time.Now()
+
+	client.ownerCacheMu.Lock()
+	for i := range 10 {
+		client.ownerCache[fmt.Sprintf("expired-%d", i)] = ownerLookupResult{expiresAt: now.Add(-time.Minute)}
+	}
+	for i := range ownerCacheMaxSize + 100 {
+		client.ownerCache[fmt.Sprintf("fresh-%d", i)] = ownerLookupResult{expiresAt: now.Add(time.Minute)}
+	}
+
+	client.pruneOwnerCache(now)
+
+	assert.LessOrEqual(t, len(client.ownerCache), ownerCacheEvictTo)
+	assert.NotEmpty(t, client.ownerCache, "should evict down, not clear wholesale")
+	for i := range 10 {
+		_, ok := client.ownerCache[fmt.Sprintf("expired-%d", i)]
+		assert.False(t, ok, "expired entries should be dropped first")
+	}
+	client.ownerCacheMu.Unlock()
+}
+
+type resettableMapper struct {
+	meta.RESTMapper
+	resets int
+}
+
+func (m *resettableMapper) Reset() { m.resets++ }
+
+func TestResetRESTMapperThrottles(t *testing.T) {
+	mapper := &resettableMapper{}
+	client := &K8sClient{restMapper: mapper}
+
+	assert.True(t, client.resetRESTMapper(), "first reset should proceed")
+	assert.False(t, client.resetRESTMapper(), "immediate second reset should be throttled")
+	assert.Equal(t, 1, mapper.resets)
+
+	// Simulate the throttle interval elapsing.
+	client.mapperMu.Lock()
+	client.lastMapperReset = time.Now().Add(-2 * mapperResetInterval)
+	client.mapperMu.Unlock()
+
+	assert.True(t, client.resetRESTMapper(), "reset should proceed after the interval")
+	assert.Equal(t, 2, mapper.resets)
 }
 
 func podWithOwner() *corev1.Pod {

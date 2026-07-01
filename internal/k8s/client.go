@@ -47,6 +47,9 @@ type K8sClient struct {
 	host          container.Host
 	ownerCacheMu  sync.Mutex
 	ownerCache    map[string]ownerLookupResult
+
+	mapperMu        sync.Mutex
+	lastMapperReset time.Time
 }
 
 func NewK8sClient(namespace []string) (*K8sClient, error) {
@@ -135,6 +138,12 @@ const (
 	ownerCacheTTL = 5 * time.Minute
 	// Hard cap so a cluster with heavy ReplicaSet churn can't grow the cache unbounded.
 	ownerCacheMaxSize = 4096
+	// Evict down to this size once the cap is hit, so eviction has hysteresis and
+	// doesn't re-run on every subsequent insert.
+	ownerCacheEvictTo = ownerCacheMaxSize * 3 / 4
+	// Discovery resets are throttled to this interval so an unmappable owner kind
+	// (typo, uninstalled CRD) can't hammer the API server's discovery endpoint.
+	mapperResetInterval = time.Minute
 )
 
 func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []container.Container {
@@ -305,16 +314,41 @@ func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) (
 }
 
 // pruneOwnerCache drops expired entries and, if the cache is still at capacity,
-// clears it wholesale. Callers must hold ownerCacheMu.
+// evicts arbitrary entries down to ownerCacheEvictTo rather than clearing it
+// wholesale, so a cluster with more than ownerCacheMaxSize live owners doesn't
+// thrash by refetching everything. Callers must hold ownerCacheMu.
 func (k *K8sClient) pruneOwnerCache(now time.Time) {
 	for key, result := range k.ownerCache {
 		if !now.Before(result.expiresAt) {
 			delete(k.ownerCache, key)
 		}
 	}
-	if len(k.ownerCache) >= ownerCacheMaxSize {
-		k.ownerCache = make(map[string]ownerLookupResult)
+	// Map iteration order is randomized, so this evicts an arbitrary subset.
+	for key := range k.ownerCache {
+		if len(k.ownerCache) <= ownerCacheEvictTo {
+			break
+		}
+		delete(k.ownerCache, key)
 	}
+}
+
+// resetRESTMapper resets the cached discovery mapper so newly-registered CRDs
+// can be mapped, at most once per mapperResetInterval. Returns true if it reset.
+func (k *K8sClient) resetRESTMapper() bool {
+	resetter, ok := k.restMapper.(interface{ Reset() })
+	if !ok {
+		return false
+	}
+
+	k.mapperMu.Lock()
+	defer k.mapperMu.Unlock()
+	now := time.Now()
+	if !k.lastMapperReset.IsZero() && now.Sub(k.lastMapperReset) < mapperResetInterval {
+		return false
+	}
+	k.lastMapperReset = now
+	resetter.Reset()
+	return true
 }
 
 func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
@@ -328,13 +362,14 @@ func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([
 		return nil, false, false
 	}
 
-	mapping, err := k.restMapper.RESTMapping(groupVersion.WithKind(owner.Kind).GroupKind(), groupVersion.Version)
+	gk := groupVersion.WithKind(owner.Kind).GroupKind()
+	mapping, err := k.restMapper.RESTMapping(gk, groupVersion.Version)
 	if err != nil {
-		// Discovery is cached, so a CRD registered after startup won't map until
-		// the cache is reset. Reset once and retry before giving up.
-		if resetter, ok := k.restMapper.(interface{ Reset() }); ok {
-			resetter.Reset()
-			mapping, err = k.restMapper.RESTMapping(groupVersion.WithKind(owner.Kind).GroupKind(), groupVersion.Version)
+		// Discovery is cached, so a CRD registered after startup won't map until the
+		// cache is reset. Reset and retry, but throttle resets so a permanently
+		// unmappable kind can't hammer the discovery endpoint on every pod event.
+		if k.resetRESTMapper() {
+			mapping, err = k.restMapper.RESTMapping(gk, groupVersion.Version)
 		}
 		if err != nil {
 			log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to map owner resource")
