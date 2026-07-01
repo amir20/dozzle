@@ -3,7 +3,9 @@ package k8s
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/stretchr/testify/assert"
@@ -49,17 +51,17 @@ func TestPodToContainersAddsOwnerChainLabels(t *testing.T) {
 	assert.Equal(t, "ReplicaSet", labels["owner.kind"])
 	assert.Equal(t, "api-6f88b977f4", labels["owner.name"])
 	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["owner.key"])
-	assert.Equal(t, "2", labels["k8s.owner.count"])
 	assert.Equal(t, "2", labels["@k8s.owner.count"])
 
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
 	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
-	assert.Equal(t, "api-6f88b977f4", labels["k8s.owner.0.name"])
-	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["k8s.owner.0.key"])
-	assert.Equal(t, "Deployment", labels["k8s.owner.1.kind"])
+	assert.Equal(t, "api-6f88b977f4", labels["@k8s.owner.0.name"])
+	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["@k8s.owner.0.key"])
 	assert.Equal(t, "Deployment", labels["@k8s.owner.1.kind"])
-	assert.Equal(t, "api", labels["k8s.owner.1.name"])
-	assert.Equal(t, "Deployment~default~api", labels["k8s.owner.1.key"])
+	assert.Equal(t, "api", labels["@k8s.owner.1.name"])
+	assert.Equal(t, "Deployment~default~api", labels["@k8s.owner.1.key"])
+	// Legacy duplicated k8s.owner.* labels are no longer emitted.
+	assert.Empty(t, labels["k8s.owner.count"])
+	assert.Empty(t, labels["k8s.owner.0.kind"])
 	assert.Equal(t, "true", labels[ownerMembershipLabel("ReplicaSet~default~api-6f88b977f4")])
 	assert.Equal(t, "true", labels[ownerMembershipLabel("Deployment~default~api")])
 }
@@ -71,10 +73,10 @@ func TestPodToContainersStopsOwnerChainWhenOwnerCannotBeFetched(t *testing.T) {
 	require.Len(t, containers, 1)
 
 	labels := containers[0].Labels
-	assert.Equal(t, "1", labels["k8s.owner.count"])
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
-	assert.Equal(t, "api-6f88b977f4", labels["k8s.owner.0.name"])
-	assert.Empty(t, labels["k8s.owner.1.kind"])
+	assert.Equal(t, "1", labels["@k8s.owner.count"])
+	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
+	assert.Equal(t, "api-6f88b977f4", labels["@k8s.owner.0.name"])
+	assert.Empty(t, labels["@k8s.owner.1.kind"])
 }
 
 func TestPodToContainersDoesNotAddNodeOwner(t *testing.T) {
@@ -89,7 +91,6 @@ func TestPodToContainersDoesNotAddNodeOwner(t *testing.T) {
 
 	labels := containers[0].Labels
 	assert.Empty(t, labels["owner.kind"])
-	assert.Empty(t, labels["k8s.owner.count"])
 	assert.Empty(t, labels["@k8s.owner.count"])
 }
 
@@ -112,9 +113,9 @@ func TestPodToContainersStopsBeforeNodeOwnerInChain(t *testing.T) {
 	require.Len(t, containers, 1)
 
 	labels := containers[0].Labels
-	assert.Equal(t, "1", labels["k8s.owner.count"])
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
-	assert.Empty(t, labels["k8s.owner.1.kind"])
+	assert.Equal(t, "1", labels["@k8s.owner.count"])
+	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
+	assert.Empty(t, labels["@k8s.owner.1.kind"])
 }
 
 func TestListContainersAppliesSyntheticOwnerFiltersAfterPodList(t *testing.T) {
@@ -154,7 +155,6 @@ func TestSplitK8sFiltersKeepsInvalidSyntheticKeysOutOfPodSelector(t *testing.T) 
 		"@k8s.namespace":             {"default"},
 		"@k8s.owner.key.abc123":      {"true"},
 		"not:a:kubernetes:label:key": {"value"},
-		"k8s.owner.key.legacyabc123": {"true"},
 	})
 
 	assert.Equal(t, container.ContainerLabels{
@@ -165,7 +165,6 @@ func TestSplitK8sFiltersKeepsInvalidSyntheticKeysOutOfPodSelector(t *testing.T) 
 		"@k8s.namespace":             {"default"},
 		"@k8s.owner.key.abc123":      {"true"},
 		"not:a:kubernetes:label:key": {"value"},
-		"k8s.owner.key.legacyabc123": {"true"},
 	}, metadataLabels)
 }
 
@@ -242,6 +241,84 @@ func TestLookupOwnerReferencesCachesRealNegatives(t *testing.T) {
 			assert.Equal(t, 1, calls)
 		})
 	}
+}
+
+func TestLookupOwnerReferencesRefetchesAfterTTL(t *testing.T) {
+	client := newTestK8sClient(t,
+		&appsv1.ReplicaSet{
+			TypeMeta:   metav1.TypeMeta{APIVersion: "apps/v1", Kind: "ReplicaSet"},
+			ObjectMeta: metav1.ObjectMeta{Namespace: "default", Name: "api-6f88b977f4", UID: types.UID("rs-uid")},
+		},
+	)
+	dynamicClient := client.DynamicClient.(*dynamicfake.FakeDynamicClient)
+	calls := 0
+	dynamicClient.PrependReactor("get", "replicasets", func(action k8stesting.Action) (bool, runtime.Object, error) {
+		calls++
+		return false, nil, nil
+	})
+	owner := replicaSetOwner()
+
+	_, ok := client.lookupOwnerReferences(t.Context(), owner)
+	assert.True(t, ok)
+	client.lookupOwnerReferences(t.Context(), owner)
+	assert.Equal(t, 1, calls, "second lookup should be served from cache")
+
+	// Expire the cached entry and confirm the next lookup refetches.
+	client.ownerCacheMu.Lock()
+	entry := client.ownerCache[owner.cacheKey()]
+	entry.expiresAt = time.Now().Add(-time.Minute)
+	client.ownerCache[owner.cacheKey()] = entry
+	client.ownerCacheMu.Unlock()
+
+	client.lookupOwnerReferences(t.Context(), owner)
+	assert.Equal(t, 2, calls, "expired entry should trigger a refetch")
+}
+
+func TestPruneOwnerCacheEvictsGracefully(t *testing.T) {
+	client := newTestK8sClient(t)
+	now := time.Now()
+
+	client.ownerCacheMu.Lock()
+	for i := range 10 {
+		client.ownerCache[fmt.Sprintf("expired-%d", i)] = ownerLookupResult{expiresAt: now.Add(-time.Minute)}
+	}
+	for i := range ownerCacheMaxSize + 100 {
+		client.ownerCache[fmt.Sprintf("fresh-%d", i)] = ownerLookupResult{expiresAt: now.Add(time.Minute)}
+	}
+
+	client.pruneOwnerCache(now)
+
+	assert.LessOrEqual(t, len(client.ownerCache), ownerCacheEvictTo)
+	assert.NotEmpty(t, client.ownerCache, "should evict down, not clear wholesale")
+	for i := range 10 {
+		_, ok := client.ownerCache[fmt.Sprintf("expired-%d", i)]
+		assert.False(t, ok, "expired entries should be dropped first")
+	}
+	client.ownerCacheMu.Unlock()
+}
+
+type resettableMapper struct {
+	meta.RESTMapper
+	resets int
+}
+
+func (m *resettableMapper) Reset() { m.resets++ }
+
+func TestResetRESTMapperThrottles(t *testing.T) {
+	mapper := &resettableMapper{}
+	client := &K8sClient{restMapper: mapper}
+
+	assert.True(t, client.resetRESTMapper(), "first reset should proceed")
+	assert.False(t, client.resetRESTMapper(), "immediate second reset should be throttled")
+	assert.Equal(t, 1, mapper.resets)
+
+	// Simulate the throttle interval elapsing.
+	client.mapperMu.Lock()
+	client.lastMapperReset = time.Now().Add(-2 * mapperResetInterval)
+	client.mapperMu.Unlock()
+
+	assert.True(t, client.resetRESTMapper(), "reset should proceed after the interval")
+	assert.Equal(t, 2, mapper.resets)
 }
 
 func podWithOwner() *corev1.Pod {
