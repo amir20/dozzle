@@ -2,9 +2,11 @@ package k8s
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -14,8 +16,14 @@ import (
 	"github.com/amir20/dozzle/internal/container"
 	"github.com/amir20/dozzle/internal/utils"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/dynamic"
 
 	"github.com/rs/zerolog/log"
 
@@ -25,15 +33,20 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/remotecommand"
 )
 
 type K8sClient struct {
-	Clientset *kubernetes.Clientset
-	namespace []string
-	config    *rest.Config
-	host      container.Host
+	Clientset     kubernetes.Interface
+	DynamicClient dynamic.Interface
+	restMapper    meta.RESTMapper
+	namespace     []string
+	config        *rest.Config
+	host          container.Host
+	ownerCacheMu  sync.Mutex
+	ownerCache    map[string]ownerLookupResult
 }
 
 func NewK8sClient(namespace []string) (*K8sClient, error) {
@@ -68,6 +81,14 @@ func NewK8sClient(namespace []string) (*K8sClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		return nil, err
+	}
 
 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -79,17 +100,35 @@ func NewK8sClient(namespace []string) (*K8sClient, error) {
 	node := nodes.Items[0]
 
 	return &K8sClient{
-		Clientset: clientset,
-		namespace: namespace,
-		config:    config,
+		Clientset:     clientset,
+		DynamicClient: dynamicClient,
+		restMapper:    restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(discoveryClient)),
+		namespace:     namespace,
+		config:        config,
 		host: container.Host{
 			ID:   node.Status.NodeInfo.MachineID,
 			Name: node.Name,
 		},
+		ownerCache: make(map[string]ownerLookupResult),
 	}, nil
 }
 
-func podToContainers(pod *corev1.Pod) []container.Container {
+type k8sOwner struct {
+	APIVersion string
+	Kind       string
+	Namespace  string
+	Name       string
+	UID        string
+	TypeKey    string
+	Key        string
+}
+
+type ownerLookupResult struct {
+	ownerReferences []metav1.OwnerReference
+	found           bool
+}
+
+func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []container.Container {
 	started := time.Time{}
 	if pod.Status.StartTime != nil {
 		started = pod.Status.StartTime.Time
@@ -101,12 +140,32 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 		labels[k] = v
 	}
 	labels["namespace"] = pod.Namespace
+	labels["@k8s.namespace"] = pod.Namespace
 
-	// Add owner reference if present
-	if len(pod.OwnerReferences) > 0 {
-		owner := pod.OwnerReferences[0]
-		labels["owner.kind"] = owner.Kind
-		labels["owner.name"] = owner.Name
+	owners := k.resolveOwnerChain(ctx, pod.Namespace, pod.OwnerReferences)
+	if len(owners) > 0 {
+		labels["owner.kind"] = owners[0].Kind
+		labels["owner.name"] = owners[0].Name
+		labels["owner.key"] = owners[0].Key
+		labels["k8s.owner.count"] = fmt.Sprintf("%d", len(owners))
+		labels["@k8s.owner.count"] = fmt.Sprintf("%d", len(owners))
+	}
+	for i, owner := range owners {
+		prefix := fmt.Sprintf("k8s.owner.%d.", i)
+		syntheticPrefix := fmt.Sprintf("@k8s.owner.%d.", i)
+		labels[prefix+"apiVersion"] = owner.APIVersion
+		labels[prefix+"kind"] = owner.Kind
+		labels[prefix+"namespace"] = owner.Namespace
+		labels[prefix+"name"] = owner.Name
+		labels[prefix+"uid"] = owner.UID
+		labels[prefix+"key"] = owner.Key
+		labels[syntheticPrefix+"apiVersion"] = owner.APIVersion
+		labels[syntheticPrefix+"kind"] = owner.Kind
+		labels[syntheticPrefix+"namespace"] = owner.Namespace
+		labels[syntheticPrefix+"name"] = owner.Name
+		labels[syntheticPrefix+"uid"] = owner.UID
+		labels[syntheticPrefix+"key"] = owner.Key
+		labels[ownerMembershipLabel(owner.Key)] = "true"
 	}
 
 	var containers []container.Container
@@ -129,10 +188,217 @@ func podToContainers(pod *corev1.Pod) []container.Container {
 	return containers
 }
 
+func (k *K8sClient) resolveOwnerChain(ctx context.Context, namespace string, refs []metav1.OwnerReference) []k8sOwner {
+	owners := make([]k8sOwner, 0)
+	seen := make(map[string]struct{})
+
+	for len(refs) > 0 {
+		ref := ownerReferenceToFollow(refs)
+		if isNodeOwnerReference(ref) {
+			break
+		}
+		owner := newK8sOwner(namespace, ref)
+		if _, ok := seen[owner.cacheKey()]; ok {
+			break
+		}
+		seen[owner.cacheKey()] = struct{}{}
+		owners = append(owners, owner)
+
+		next, ok := k.lookupOwnerReferences(ctx, owner)
+		if !ok {
+			break
+		}
+		refs = next
+	}
+
+	return owners
+}
+
+func ownerReferenceToFollow(refs []metav1.OwnerReference) metav1.OwnerReference {
+	for _, ref := range refs {
+		if ref.Controller != nil && *ref.Controller {
+			return ref
+		}
+	}
+	return refs[0]
+}
+
+func isNodeOwnerReference(ref metav1.OwnerReference) bool {
+	return ref.APIVersion == "v1" && ref.Kind == "Node"
+}
+
+func newK8sOwner(namespace string, ref metav1.OwnerReference) k8sOwner {
+	typeKey := ownerTypeKey(ref.APIVersion, ref.Kind)
+	// "~" is URL-safe and not allowed in Kubernetes resource names/namespaces,
+	// so owner route keys stay readable without colliding with real names.
+	key := fmt.Sprintf("%s~%s~%s", typeKey, namespace, ref.Name)
+	return k8sOwner{
+		APIVersion: ref.APIVersion,
+		Kind:       ref.Kind,
+		Namespace:  namespace,
+		Name:       ref.Name,
+		UID:        string(ref.UID),
+		TypeKey:    typeKey,
+		Key:        key,
+	}
+}
+
+func (o k8sOwner) cacheKey() string {
+	return fmt.Sprintf("%s/%s/%s/%s/%s", o.APIVersion, o.Kind, o.Namespace, o.Name, o.UID)
+}
+
+func ownerMembershipLabel(key string) string {
+	return "@k8s.owner.key." + base64.RawURLEncoding.EncodeToString([]byte(key))
+}
+
+func ownerTypeKey(apiVersion, kind string) string {
+	if isKnownK8sOwnerType(apiVersion, kind) {
+		return kind
+	}
+	return strings.ReplaceAll(apiVersion, "/", "~") + "~" + kind
+}
+
+func isKnownK8sOwnerType(apiVersion, kind string) bool {
+	switch apiVersion + "/" + kind {
+	case "apps/v1/Deployment",
+		"apps/v1/ReplicaSet",
+		"apps/v1/DaemonSet",
+		"apps/v1/StatefulSet",
+		"batch/v1/Job",
+		"batch/v1/CronJob",
+		"v1/Pod",
+		"v1/Service",
+		"v1/ConfigMap",
+		"v1/Secret":
+		return true
+	default:
+		return false
+	}
+}
+
+func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool) {
+	cacheKey := owner.cacheKey()
+	k.ownerCacheMu.Lock()
+	if k.ownerCache == nil {
+		k.ownerCache = make(map[string]ownerLookupResult)
+	}
+	if result, ok := k.ownerCache[cacheKey]; ok {
+		k.ownerCacheMu.Unlock()
+		return result.ownerReferences, result.found
+	}
+	k.ownerCacheMu.Unlock()
+
+	refs, ok, cacheable := k.fetchOwnerReferences(ctx, owner)
+
+	if cacheable {
+		k.ownerCacheMu.Lock()
+		k.ownerCache[cacheKey] = ownerLookupResult{ownerReferences: refs, found: ok}
+		k.ownerCacheMu.Unlock()
+	}
+
+	return refs, ok
+}
+
+func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
+	if k.DynamicClient == nil || k.restMapper == nil {
+		return nil, false, false
+	}
+
+	groupVersion, err := schema.ParseGroupVersion(owner.APIVersion)
+	if err != nil {
+		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to parse owner apiVersion")
+		return nil, false, false
+	}
+
+	mapping, err := k.restMapper.RESTMapping(groupVersion.WithKind(owner.Kind).GroupKind(), groupVersion.Version)
+	if err != nil {
+		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to map owner resource")
+		return nil, false, false
+	}
+
+	var resource dynamic.ResourceInterface
+	if mapping.Scope.Name() != meta.RESTScopeNameRoot {
+		resource = k.DynamicClient.Resource(mapping.Resource).Namespace(owner.Namespace)
+	} else {
+		resource = k.DynamicClient.Resource(mapping.Resource)
+	}
+
+	obj, err := resource.Get(ctx, owner.Name, metav1.GetOptions{})
+	if err != nil {
+		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to fetch owner resource")
+		if ctx.Err() != nil {
+			return nil, false, false
+		}
+		return nil, false, apierrors.IsNotFound(err) || apierrors.IsForbidden(err)
+	}
+
+	return obj.GetOwnerReferences(), true, true
+}
+
+func splitK8sFilters(labels container.ContainerLabels) (container.ContainerLabels, container.ContainerLabels) {
+	podLabels := make(container.ContainerLabels)
+	metadataLabels := make(container.ContainerLabels)
+	for key, values := range labels {
+		if isK8sMetadataLabel(key) || !isValidK8sLabelKey(key) {
+			metadataLabels[key] = values
+		} else {
+			podLabels[key] = values
+		}
+	}
+	return podLabels, metadataLabels
+}
+
+func isK8sMetadataLabel(key string) bool {
+	if strings.HasPrefix(key, "@k8s.") {
+		return true
+	}
+	return key == "namespace" ||
+		key == "owner.kind" ||
+		key == "owner.name" ||
+		key == "owner.key" ||
+		strings.HasPrefix(key, "k8s.owner.")
+}
+
+var (
+	k8sLabelNamePattern   = regexp.MustCompile(`^[A-Za-z0-9]([A-Za-z0-9_.-]{0,61}[A-Za-z0-9])?$`)
+	k8sLabelPrefixPattern = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`)
+)
+
+func isValidK8sLabelKey(key string) bool {
+	prefix, name, hasPrefix := strings.Cut(key, "/")
+	if !hasPrefix {
+		name = prefix
+	} else if len(prefix) == 0 || len(prefix) > 253 || !k8sLabelPrefixPattern.MatchString(prefix) {
+		return false
+	}
+	return len(name) <= 63 && k8sLabelNamePattern.MatchString(name)
+}
+
+func matchesContainerLabels(labels map[string]string, filters container.ContainerLabels) bool {
+	for key, values := range filters {
+		value, ok := labels[key]
+		if !ok {
+			return false
+		}
+		matched := false
+		for _, expected := range values {
+			if value == expected {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return false
+		}
+	}
+	return true
+}
+
 func (k *K8sClient) ListContainers(ctx context.Context, labels container.ContainerLabels) ([]container.Container, error) {
+	podLabels, metadataLabels := splitK8sFilters(labels)
 	selector := ""
-	if labels.Exists() {
-		for key, values := range labels {
+	if podLabels.Exists() {
+		for key, values := range podLabels {
 			for _, value := range values {
 				if selector != "" {
 					selector += ","
@@ -149,7 +415,12 @@ func (k *K8sClient) ListContainers(ctx context.Context, labels container.Contain
 		}
 		var containers []container.Container
 		for _, pod := range pods.Items {
-			containers = append(containers, podToContainers(&pod)...)
+			for _, c := range k.podToContainers(ctx, &pod) {
+				if metadataLabels.Exists() && !matchesContainerLabels(c.Labels, metadataLabels) {
+					continue
+				}
+				containers = append(containers, c)
+			}
 		}
 		return lo.T2[[]container.Container, error](containers, nil)
 	})
@@ -201,7 +472,7 @@ func (k *K8sClient) FindContainer(ctx context.Context, id string) (container.Con
 		return container.Container{}, err
 	}
 
-	for _, c := range podToContainers(pod) {
+	for _, c := range k.podToContainers(ctx, pod) {
 		if c.ID == id {
 			return c, nil
 		}
@@ -274,7 +545,7 @@ func (k *K8sClient) ContainerEvents(ctx context.Context, ch chan<- container.Con
 					name = "update"
 				}
 
-				for _, c := range podToContainers(pod) {
+				for _, c := range k.podToContainers(ctx, pod) {
 					ch <- container.ContainerEvent{
 						Name:      name,
 						ActorID:   c.ID,

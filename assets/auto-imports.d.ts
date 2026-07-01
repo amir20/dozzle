@@ -66,8 +66,10 @@ declare global {
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const getDeep: typeof import('./utils/index').getDeep
+  const getK8sOwnerRefs: typeof import('./stores/k8s').getK8sOwnerRefs
   const globalShowPopup: typeof import('./composable/popup').globalShowPopup
   const groupContainers: typeof import('./stores/settings').groupContainers
+  const groupK8sOwners: typeof import('./stores/k8s').groupK8sOwners
   const h: typeof import('vue').h
   const hashCode: typeof import('./utils/index').hashCode
   const highlightSubstringInHtml: typeof import('./utils/index').highlightSubstringInHtml
@@ -117,6 +119,7 @@ declare global {
   const onUnmounted: typeof import('vue').onUnmounted
   const onUpdated: typeof import('vue').onUpdated
   const onWatcherCleanup: typeof import('vue').onWatcherCleanup
+  const ownerMembershipLabel: typeof import('./stores/k8s').ownerMembershipLabel
   const parseMessage: typeof import('./composable/loadBetween').parseMessage
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const persistentVisibleKeysForContainer: typeof import('./composable/storage').persistentVisibleKeysForContainer
@@ -435,7 +438,7 @@ declare global {
   export type { Host } from './stores/hosts'
   import('./stores/hosts')
   // @ts-ignore
-  export type { K8sNamespace, K8sOwner } from './stores/k8s'
+  export type { K8sNamespace, K8sOwner, K8sOwnerRef } from './stores/k8s'
   import('./stores/k8s')
   // @ts-ignore
   export type { Settings } from './stores/settings'
@@ -506,8 +509,10 @@ declare module 'vue' {
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly getDeep: UnwrapRef<typeof import('./utils/index')['getDeep']>
+    readonly getK8sOwnerRefs: UnwrapRef<typeof import('./stores/k8s')['getK8sOwnerRefs']>
     readonly globalShowPopup: UnwrapRef<typeof import('./composable/popup')['globalShowPopup']>
     readonly groupContainers: UnwrapRef<typeof import('./stores/settings')['groupContainers']>
+    readonly groupK8sOwners: UnwrapRef<typeof import('./stores/k8s')['groupK8sOwners']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hashCode: UnwrapRef<typeof import('./utils/index')['hashCode']>
     readonly hourStyle: UnwrapRef<typeof import('./stores/settings')['hourStyle']>
@@ -556,6 +561,7 @@ declare module 'vue' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
+    readonly ownerMembershipLabel: UnwrapRef<typeof import('./stores/k8s')['ownerMembershipLabel']>
     readonly parseMessage: UnwrapRef<typeof import('./composable/loadBetween')['parseMessage']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly persistentVisibleKeysForContainer: UnwrapRef<typeof import('./composable/storage')['persistentVisibleKeysForContainer']>

@@ -14,7 +14,14 @@ const { pinnedLogs } = storeToRefs(pinnedLogsStore);
 
 const k8sStore = useK8sStore();
 const { owners } = storeToRefs(k8sStore);
-const owner = computed(() => owners.value.find((o) => o.name === route.params.name));
+const ownerKey = computed(() => {
+  try {
+    return decodeURIComponent(String(route.params.name));
+  } catch {
+    return String(route.params.name);
+  }
+});
+const owner = computed(() => owners.value.find((o) => o.key === ownerKey.value));
 
 watchEffect(() => {
   if (ready.value) {

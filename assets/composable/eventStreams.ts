@@ -57,12 +57,12 @@ export function useServiceStream(service: Ref<Service>): LogStreamSource {
 }
 
 export function useNamespaceStream(namespace: Ref<{ name: string }>): LogStreamSource {
-  const labels = computed(() => `namespace:${namespace.value.name}`);
+  const labels = computed(() => `@k8s.namespace:${namespace.value.name}`);
   return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
-export function useOwnerStream(owner: Ref<{ name: string; kind: string }>): LogStreamSource {
-  const labels = computed(() => `owner.kind:${owner.value.kind},owner.name:${owner.value.name}`);
+export function useOwnerStream(owner: Ref<{ label: string }>): LogStreamSource {
+  const labels = computed(() => `${owner.value.label}:true`);
   return useLogStream(computed(() => `/api/labels/${labels.value}/logs/stream`));
 }
 
