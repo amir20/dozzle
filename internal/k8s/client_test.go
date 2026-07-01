@@ -49,17 +49,17 @@ func TestPodToContainersAddsOwnerChainLabels(t *testing.T) {
 	assert.Equal(t, "ReplicaSet", labels["owner.kind"])
 	assert.Equal(t, "api-6f88b977f4", labels["owner.name"])
 	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["owner.key"])
-	assert.Equal(t, "2", labels["k8s.owner.count"])
 	assert.Equal(t, "2", labels["@k8s.owner.count"])
 
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
 	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
-	assert.Equal(t, "api-6f88b977f4", labels["k8s.owner.0.name"])
-	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["k8s.owner.0.key"])
-	assert.Equal(t, "Deployment", labels["k8s.owner.1.kind"])
+	assert.Equal(t, "api-6f88b977f4", labels["@k8s.owner.0.name"])
+	assert.Equal(t, "ReplicaSet~default~api-6f88b977f4", labels["@k8s.owner.0.key"])
 	assert.Equal(t, "Deployment", labels["@k8s.owner.1.kind"])
-	assert.Equal(t, "api", labels["k8s.owner.1.name"])
-	assert.Equal(t, "Deployment~default~api", labels["k8s.owner.1.key"])
+	assert.Equal(t, "api", labels["@k8s.owner.1.name"])
+	assert.Equal(t, "Deployment~default~api", labels["@k8s.owner.1.key"])
+	// Legacy duplicated k8s.owner.* labels are no longer emitted.
+	assert.Empty(t, labels["k8s.owner.count"])
+	assert.Empty(t, labels["k8s.owner.0.kind"])
 	assert.Equal(t, "true", labels[ownerMembershipLabel("ReplicaSet~default~api-6f88b977f4")])
 	assert.Equal(t, "true", labels[ownerMembershipLabel("Deployment~default~api")])
 }
@@ -71,10 +71,10 @@ func TestPodToContainersStopsOwnerChainWhenOwnerCannotBeFetched(t *testing.T) {
 	require.Len(t, containers, 1)
 
 	labels := containers[0].Labels
-	assert.Equal(t, "1", labels["k8s.owner.count"])
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
-	assert.Equal(t, "api-6f88b977f4", labels["k8s.owner.0.name"])
-	assert.Empty(t, labels["k8s.owner.1.kind"])
+	assert.Equal(t, "1", labels["@k8s.owner.count"])
+	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
+	assert.Equal(t, "api-6f88b977f4", labels["@k8s.owner.0.name"])
+	assert.Empty(t, labels["@k8s.owner.1.kind"])
 }
 
 func TestPodToContainersDoesNotAddNodeOwner(t *testing.T) {
@@ -89,7 +89,6 @@ func TestPodToContainersDoesNotAddNodeOwner(t *testing.T) {
 
 	labels := containers[0].Labels
 	assert.Empty(t, labels["owner.kind"])
-	assert.Empty(t, labels["k8s.owner.count"])
 	assert.Empty(t, labels["@k8s.owner.count"])
 }
 
@@ -112,9 +111,9 @@ func TestPodToContainersStopsBeforeNodeOwnerInChain(t *testing.T) {
 	require.Len(t, containers, 1)
 
 	labels := containers[0].Labels
-	assert.Equal(t, "1", labels["k8s.owner.count"])
-	assert.Equal(t, "ReplicaSet", labels["k8s.owner.0.kind"])
-	assert.Empty(t, labels["k8s.owner.1.kind"])
+	assert.Equal(t, "1", labels["@k8s.owner.count"])
+	assert.Equal(t, "ReplicaSet", labels["@k8s.owner.0.kind"])
+	assert.Empty(t, labels["@k8s.owner.1.kind"])
 }
 
 func TestListContainersAppliesSyntheticOwnerFiltersAfterPodList(t *testing.T) {
@@ -154,7 +153,6 @@ func TestSplitK8sFiltersKeepsInvalidSyntheticKeysOutOfPodSelector(t *testing.T) 
 		"@k8s.namespace":             {"default"},
 		"@k8s.owner.key.abc123":      {"true"},
 		"not:a:kubernetes:label:key": {"value"},
-		"k8s.owner.key.legacyabc123": {"true"},
 	})
 
 	assert.Equal(t, container.ContainerLabels{
@@ -165,7 +163,6 @@ func TestSplitK8sFiltersKeepsInvalidSyntheticKeysOutOfPodSelector(t *testing.T) 
 		"@k8s.namespace":             {"default"},
 		"@k8s.owner.key.abc123":      {"true"},
 		"not:a:kubernetes:label:key": {"value"},
-		"k8s.owner.key.legacyabc123": {"true"},
 	}, metadataLabels)
 }
 
