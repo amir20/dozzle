@@ -21,7 +21,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/andybalholm/brotli v1.2.2
-	github.com/compose-spec/compose-go/v2 v2.12.1
+	github.com/compose-spec/compose-go/v2 v2.13.0
 	github.com/expr-lang/expr v1.17.8
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/jwtauth/v5 v5.4.0
@@ -39,7 +39,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/crypto v0.53.0
 	golang.org/x/sync v0.21.0
-	google.golang.org/grpc v1.81.1
+	google.golang.org/grpc v1.82.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	k8s.io/api v0.36.2
 	k8s.io/apimachinery v0.36.2
