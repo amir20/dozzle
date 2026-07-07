@@ -47,6 +47,9 @@ type K8sClient struct {
 	host          container.Host
 	ownerCacheMu  sync.Mutex
 	ownerCache    map[string]ownerLookupResult
+
+	mapperMu        sync.Mutex
+	lastMapperReset time.Time
 }
 
 func NewK8sClient(namespace []string) (*K8sClient, error) {
@@ -126,7 +129,22 @@ type k8sOwner struct {
 type ownerLookupResult struct {
 	ownerReferences []metav1.OwnerReference
 	found           bool
+	expiresAt       time.Time
 }
+
+const (
+	// TTL bounds owner-cache staleness so entries recover after RBAC is granted
+	// and let expired entries be swept, keeping the cache from growing forever.
+	ownerCacheTTL = 5 * time.Minute
+	// Hard cap so a cluster with heavy ReplicaSet churn can't grow the cache unbounded.
+	ownerCacheMaxSize = 4096
+	// Evict down to this size once the cap is hit, so eviction has hysteresis and
+	// doesn't re-run on every subsequent insert.
+	ownerCacheEvictTo = ownerCacheMaxSize * 3 / 4
+	// Discovery resets are throttled to this interval so an unmappable owner kind
+	// (typo, uninstalled CRD) can't hammer the API server's discovery endpoint.
+	mapperResetInterval = time.Minute
+)
 
 func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []container.Container {
 	started := time.Time{}
@@ -144,27 +162,20 @@ func (k *K8sClient) podToContainers(ctx context.Context, pod *corev1.Pod) []cont
 
 	owners := k.resolveOwnerChain(ctx, pod.Namespace, pod.OwnerReferences)
 	if len(owners) > 0 {
+		// Immediate owner kept as top-level labels for backward compatibility.
 		labels["owner.kind"] = owners[0].Kind
 		labels["owner.name"] = owners[0].Name
 		labels["owner.key"] = owners[0].Key
-		labels["k8s.owner.count"] = fmt.Sprintf("%d", len(owners))
 		labels["@k8s.owner.count"] = fmt.Sprintf("%d", len(owners))
 	}
 	for i, owner := range owners {
-		prefix := fmt.Sprintf("k8s.owner.%d.", i)
-		syntheticPrefix := fmt.Sprintf("@k8s.owner.%d.", i)
+		prefix := fmt.Sprintf("@k8s.owner.%d.", i)
 		labels[prefix+"apiVersion"] = owner.APIVersion
 		labels[prefix+"kind"] = owner.Kind
 		labels[prefix+"namespace"] = owner.Namespace
 		labels[prefix+"name"] = owner.Name
 		labels[prefix+"uid"] = owner.UID
 		labels[prefix+"key"] = owner.Key
-		labels[syntheticPrefix+"apiVersion"] = owner.APIVersion
-		labels[syntheticPrefix+"kind"] = owner.Kind
-		labels[syntheticPrefix+"namespace"] = owner.Namespace
-		labels[syntheticPrefix+"name"] = owner.Name
-		labels[syntheticPrefix+"uid"] = owner.UID
-		labels[syntheticPrefix+"key"] = owner.Key
 		labels[ownerMembershipLabel(owner.Key)] = "true"
 	}
 
@@ -278,11 +289,13 @@ func isKnownK8sOwnerType(apiVersion, kind string) bool {
 
 func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool) {
 	cacheKey := owner.cacheKey()
+	now := time.Now()
+
 	k.ownerCacheMu.Lock()
 	if k.ownerCache == nil {
 		k.ownerCache = make(map[string]ownerLookupResult)
 	}
-	if result, ok := k.ownerCache[cacheKey]; ok {
+	if result, ok := k.ownerCache[cacheKey]; ok && now.Before(result.expiresAt) {
 		k.ownerCacheMu.Unlock()
 		return result.ownerReferences, result.found
 	}
@@ -292,11 +305,54 @@ func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) (
 
 	if cacheable {
 		k.ownerCacheMu.Lock()
-		k.ownerCache[cacheKey] = ownerLookupResult{ownerReferences: refs, found: ok}
+		k.pruneOwnerCache(now)
+		k.ownerCache[cacheKey] = ownerLookupResult{ownerReferences: refs, found: ok, expiresAt: now.Add(ownerCacheTTL)}
 		k.ownerCacheMu.Unlock()
 	}
 
 	return refs, ok
+}
+
+// pruneOwnerCache drops expired entries and, only once the cache grows past
+// ownerCacheMaxSize, evicts arbitrary entries down to ownerCacheEvictTo. This
+// hysteresis (grow to max, drop to evictTo) bounds growth without evicting on
+// every insert, and avoids clearing the map wholesale so a cluster with more
+// than ownerCacheMaxSize live owners doesn't thrash. Callers must hold ownerCacheMu.
+func (k *K8sClient) pruneOwnerCache(now time.Time) {
+	for key, result := range k.ownerCache {
+		if !now.Before(result.expiresAt) {
+			delete(k.ownerCache, key)
+		}
+	}
+	if len(k.ownerCache) <= ownerCacheMaxSize {
+		return
+	}
+	// Map iteration order is randomized, so this evicts an arbitrary subset.
+	for key := range k.ownerCache {
+		if len(k.ownerCache) <= ownerCacheEvictTo {
+			break
+		}
+		delete(k.ownerCache, key)
+	}
+}
+
+// resetRESTMapper resets the cached discovery mapper so newly-registered CRDs
+// can be mapped, at most once per mapperResetInterval. Returns true if it reset.
+func (k *K8sClient) resetRESTMapper() bool {
+	resetter, ok := k.restMapper.(interface{ Reset() })
+	if !ok {
+		return false
+	}
+
+	k.mapperMu.Lock()
+	defer k.mapperMu.Unlock()
+	now := time.Now()
+	if !k.lastMapperReset.IsZero() && now.Sub(k.lastMapperReset) < mapperResetInterval {
+		return false
+	}
+	k.lastMapperReset = now
+	resetter.Reset()
+	return true
 }
 
 func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([]metav1.OwnerReference, bool, bool) {
@@ -310,10 +366,19 @@ func (k *K8sClient) fetchOwnerReferences(ctx context.Context, owner k8sOwner) ([
 		return nil, false, false
 	}
 
-	mapping, err := k.restMapper.RESTMapping(groupVersion.WithKind(owner.Kind).GroupKind(), groupVersion.Version)
+	gk := groupVersion.WithKind(owner.Kind).GroupKind()
+	mapping, err := k.restMapper.RESTMapping(gk, groupVersion.Version)
 	if err != nil {
-		log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to map owner resource")
-		return nil, false, false
+		// Discovery is cached, so a CRD registered after startup won't map until the
+		// cache is reset. Reset and retry, but throttle resets so a permanently
+		// unmappable kind can't hammer the discovery endpoint on every pod event.
+		if k.resetRESTMapper() {
+			mapping, err = k.restMapper.RESTMapping(gk, groupVersion.Version)
+		}
+		if err != nil {
+			log.Debug().Err(err).Str("owner", owner.Key).Msg("failed to map owner resource")
+			return nil, false, false
+		}
 	}
 
 	var resource dynamic.ResourceInterface
@@ -355,8 +420,7 @@ func isK8sMetadataLabel(key string) bool {
 	return key == "namespace" ||
 		key == "owner.kind" ||
 		key == "owner.name" ||
-		key == "owner.key" ||
-		strings.HasPrefix(key, "k8s.owner.")
+		key == "owner.key"
 }
 
 var (

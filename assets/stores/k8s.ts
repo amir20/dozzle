@@ -53,19 +53,16 @@ export function ownerMembershipLabel(key: string) {
 }
 
 export function getK8sOwnerRefs(container: Container): K8sOwnerRef[] {
-  const count = Number(container.labels["@k8s.owner.count"] ?? container.labels["k8s.owner.count"] ?? 0);
+  const count = Number(container.labels["@k8s.owner.count"] ?? 0);
   if (count > 0) {
     const owners: K8sOwnerRef[] = [];
     for (let i = 0; i < count; i++) {
-      const syntheticPrefix = `@k8s.owner.${i}.`;
-      const legacyPrefix = `k8s.owner.${i}.`;
-      const labelValue = (key: string) =>
-        container.labels[`${syntheticPrefix}${key}`] ?? container.labels[`${legacyPrefix}${key}`];
-      const kind = labelValue("kind");
-      const name = labelValue("name");
-      const namespace = labelValue("namespace");
+      const prefix = `@k8s.owner.${i}.`;
+      const kind = container.labels[`${prefix}kind`];
+      const name = container.labels[`${prefix}name`];
+      const namespace = container.labels[`${prefix}namespace`];
       if (!kind || !name) continue;
-      const key = labelValue("key") ?? `${kind}~${namespace ?? ""}~${name}`;
+      const key = container.labels[`${prefix}key`] ?? `${kind}~${namespace ?? ""}~${name}`;
       owners.push({ key, label: ownerMembershipLabel(key), kind, name, namespace });
     }
     return owners;
