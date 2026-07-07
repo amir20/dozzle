@@ -313,15 +313,19 @@ func (k *K8sClient) lookupOwnerReferences(ctx context.Context, owner k8sOwner) (
 	return refs, ok
 }
 
-// pruneOwnerCache drops expired entries and, if the cache is still at capacity,
-// evicts arbitrary entries down to ownerCacheEvictTo rather than clearing it
-// wholesale, so a cluster with more than ownerCacheMaxSize live owners doesn't
-// thrash by refetching everything. Callers must hold ownerCacheMu.
+// pruneOwnerCache drops expired entries and, only once the cache grows past
+// ownerCacheMaxSize, evicts arbitrary entries down to ownerCacheEvictTo. This
+// hysteresis (grow to max, drop to evictTo) bounds growth without evicting on
+// every insert, and avoids clearing the map wholesale so a cluster with more
+// than ownerCacheMaxSize live owners doesn't thrash. Callers must hold ownerCacheMu.
 func (k *K8sClient) pruneOwnerCache(now time.Time) {
 	for key, result := range k.ownerCache {
 		if !now.Before(result.expiresAt) {
 			delete(k.ownerCache, key)
 		}
+	}
+	if len(k.ownerCache) <= ownerCacheMaxSize {
+		return
 	}
 	// Map iteration order is randomized, so this evicts an arbitrary subset.
 	for key := range k.ownerCache {
